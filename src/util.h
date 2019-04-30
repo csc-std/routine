@@ -80,8 +80,7 @@ inline export PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> exp
 namespace CSC {
 template <>
 inline export ConsoleService &Singleton<ConsoleService>::instance () {
-	static Singleton mInstance ;
-	return mInstance ;
+	return GlobalStatic<ARGV<Singleton<ConsoleService>>>::echo (NULL) ;
 }
 } ;
 
@@ -89,16 +88,14 @@ inline export ConsoleService &Singleton<ConsoleService>::instance () {
 namespace CSC {
 template <>
 inline export NetworkService &Singleton<NetworkService>::instance () {
-	static Singleton mInstance ;
-	return mInstance ;
+	return GlobalStatic<ARGV<Singleton<NetworkService>>>::echo (NULL) ;
 }
 } ;
 
 namespace CSC {
 template <>
 inline export DebuggerService &Singleton<DebuggerService>::instance () {
-	static Singleton mInstance ;
-	return mInstance ;
+	return GlobalStatic<ARGV<Singleton<DebuggerService>>>::echo (NULL) ;
 }
 } ;
 #endif

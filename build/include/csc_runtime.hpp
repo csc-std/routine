@@ -12,8 +12,6 @@ namespace CSC {
 namespace stl {
 using std::exit ;
 using std::atexit ;
-using std::quick_exit ;
-using std::at_quick_exit ;
 using std::abort ;
 using std::terminate ;
 using std::set_terminate ;

@@ -412,7 +412,7 @@ private:
 
 	export struct Abstract :public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
-		virtual void check_memory_leaks_report (BOOL flag) = 0 ;
+		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
 		virtual Array<DATA> captrue_stack_trace () popping = 0 ;
 		virtual Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping = 0 ;
 	} ;
@@ -428,9 +428,9 @@ public:
 		mThis->abort_once_invoked_exit (flag) ;
 	}
 
-	void check_memory_leaks_report (BOOL flag) {
+	void output_memory_leaks_report (BOOL flag) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->check_memory_leaks_report (flag) ;
+		mThis->output_memory_leaks_report (flag) ;
 	}
 
 	Array<DATA> captrue_stack_trace () popping {

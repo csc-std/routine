@@ -73,7 +73,7 @@ public:
 private:
 	static void debug_check_error (MYSQL &_self) {
 		const auto r1x = _LOAD_<ARR<STRA>> (mysql_error (&_self)) ;
-		_DEBUG_ASSERT_ (r1x == NULL) ;
+		_DYNAMIC_ASSERT_ (r1x == NULL) ;
 		(void) r1x ;
 	}
 } ;

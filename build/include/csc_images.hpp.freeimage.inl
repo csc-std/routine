@@ -104,10 +104,11 @@ public:
 				_DEBUG_ASSERT_ (me.P1 != NULL) ;
 				FreeImage_CloseMemory (me.P1) ;
 			}) ;
-			me = FreeImage_LoadFromMemory (FreeImage_GetFileTypeFromMemory (r1x->P1) ,r1x->P1) ;
+			const auto r2x = FreeImage_GetFileTypeFromMemory (r1x->P1) ;
+			me = FreeImage_LoadFromMemory (r2x ,r1x->P1) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-			const auto r2x = FreeImage_GetImageType (me) ;
-			_DYNAMIC_ASSERT_ (r2x == FIT_BITMAP) ;
+			const auto r3x = FreeImage_GetImageType (me) ;
+			_DYNAMIC_ASSERT_ (r3x == FIT_BITMAP) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
@@ -211,10 +212,11 @@ public:
 				_DEBUG_ASSERT_ (me.P1 != NULL) ;
 				FreeImage_CloseMemory (me.P1) ;
 			}) ;
-			me = FreeImage_LoadFromMemory (FreeImage_GetFileTypeFromMemory (r1x->P1) ,r1x->P1) ;
+			const auto r2x = FreeImage_GetFileTypeFromMemory (r1x->P1) ;
+			me = FreeImage_LoadFromMemory (r2x ,r1x->P1) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-			const auto r2x = FreeImage_GetImageType (me) ;
-			_DYNAMIC_ASSERT_ (r2x == FIT_BITMAP) ;
+			const auto r3x = FreeImage_GetImageType (me) ;
+			_DYNAMIC_ASSERT_ (r3x == FIT_BITMAP) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;

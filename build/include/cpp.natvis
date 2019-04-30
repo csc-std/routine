@@ -24,6 +24,13 @@
   
 
   <Type Name="CSC::Interface" Inheritable="false" />
+
+  <Type Name="CSC::GlobalWatch::Storage&lt;*,*&gt;">
+    <Expand>
+      <Item Name="[name]">(const char*)mData.P1[0]</Item>
+      <Item Name="[data]">*($T2*)mData.P1[1]</Item>
+    </Expand>
+  </Type>
   
 
   <Type Name="CSC::AutoRef&lt;*&gt;">

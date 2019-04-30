@@ -42,14 +42,18 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		return r1.mItemQueue.exist () ? r1.mItemQueue->size () : 0 ;
+		if (!r1.mItemQueue.exist ())
+			return 0 ;
+		return r1.mItemQueue->size () ;
 	}
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		return r1.mItemQueue.exist () ? r1.mItemQueue->length () : 0 ;
+		if (!r1.mItemQueue.exist ())
+			return 0 ;
+		return r1.mItemQueue->length () ;
 	}
 
 	void reserve (LENGTH post_len) {
@@ -109,12 +113,12 @@ public:
 			r1.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (pid.length ()) ;
 		r1.mItemQueue->clear () ;
 		r1.mException = AutoRef<Exception> () ;
-		const auto r2x = &r1 ;
-		r1.mThreadPool = Array<AutoRef<std::thread>> (pid.length ()) ;
-		for (auto &&i : r1.mThreadPool) {
-			const auto r3x = pid[r1.mThreadPool.at (i)] ;
+		r1.mThreadPool = Array<AutoRef<std::thread>> (pid.size ()) ;
+		for (INDEX i = 0 ; i < r1.mThreadPool.length () ; i++) {
+			const auto r2x = &r1 ;
+			const auto r3x = pid[i] ;
 			//@warn: move object having captured context
-			i = AutoRef<std::thread>::make ([r2x ,r3x] () noexcept {
+			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x ,r3x] () noexcept {
 				_CALL_TRY_ ([&] () {
 					static_execute (*r2x ,r3x) ;
 				} ,[&] () {
@@ -289,14 +293,18 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		return r1.mItemQueue.exist () ? r1.mItemQueue->size () : 0 ;
+		if (!r1.mItemQueue.exist ())
+			return 0 ;
+		return r1.mItemQueue->size () ;
 	}
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		return r1.mItemQueue.exist () ? r1.mItemQueue->length () : 0 ;
+		if (!r1.mItemQueue.exist ())
+			return 0 ;
+		return r1.mItemQueue->length () ;
 	}
 
 	void reserve (LENGTH post_len) {
@@ -381,11 +389,11 @@ public:
 			r1.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (count) ;
 		r1.mItemQueue->clear () ;
 		r1.mException = AutoRef<Exception> () ;
-		const auto r2x = &r1 ;
 		r1.mThreadPool = Array<AutoRef<std::thread>> (count) ;
-		for (auto &&i : r1.mThreadPool) {
+		for (INDEX i = 0 ; i < r1.mThreadPool.length () ; i++) {
+			const auto r2x = &r1 ;
 			//@warn: move object having captured context
-			i = AutoRef<std::thread>::make ([r2x] () noexcept {
+			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
 					static_execute (*r2x) ;
 				} ,[&] () {

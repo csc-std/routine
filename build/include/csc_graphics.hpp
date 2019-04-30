@@ -66,7 +66,11 @@ private:
 
 public:
 	Camera () {
-		lookat ({UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (1)} ,{UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)} ,{UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)}) ;
+		const auto r1x = ARRAY3<Vector<UNIT>> ({
+			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (1)} ,
+			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)} ,
+			Vector<UNIT> {UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)}}) ;
+		lookat (r1x[0] ,r1x[1] ,r1x[2]) ;
 		perspective (UNIT (90) ,UNIT (1) ,UNIT (1) ,UNIT (1000)) ;
 	}
 
@@ -147,8 +151,8 @@ public:
 	}
 
 	void perspective (const UNIT &fov ,const UNIT &aspect ,const UNIT &_near ,const UNIT &_far) {
-		_DEBUG_ASSERT_ (fov > 0 && fov < UNIT (180)) ;
-		_DEBUG_ASSERT_ (aspect != 0) ;
+		_DEBUG_ASSERT_ (fov > UNIT (0) && fov < UNIT (180)) ;
+		_DEBUG_ASSERT_ (aspect > UNIT (0)) ;
 		const auto r1x = _near * _TAN_ (fov * UNIT (VALX_PI / 180) * UNIT (0.5)) ;
 		const auto r2x = r1x * aspect ;
 		frustum (-r2x ,r2x ,-r1x ,r1x ,_near ,_far) ;
@@ -157,7 +161,7 @@ public:
 	void frustum (const UNIT &left ,const UNIT &right ,const UNIT &bottom ,const UNIT &top ,const UNIT &_near ,const UNIT &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_far > _near && _near > 0) ;
+		_DEBUG_ASSERT_ (_far > _near && _near > UNIT (0)) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
@@ -182,7 +186,7 @@ public:
 	void ortho (const UNIT &left ,const UNIT &right ,const UNIT &bottom ,const UNIT &top ,const UNIT &_near ,const UNIT &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_far > _near && _near > 0) ;
+		_DEBUG_ASSERT_ (_far > _near && _near > UNIT (0)) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;

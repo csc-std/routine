@@ -68,6 +68,7 @@ private:
 	UniqueRef<HANDLE> mConsole ;
 	String<STR> mLogPath ;
 	AutoRef<StreamLoader> mLogFileStream ;
+
 	BOOL mTempState ;
 
 public:
@@ -92,7 +93,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("PRINT") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -106,7 +107,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("FATAL") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -120,7 +121,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("ERROR") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -134,7 +135,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("WARN") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -148,7 +149,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("INFO") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -162,7 +163,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("DEBUG") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -176,7 +177,7 @@ public:
 		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("VERBOSE") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -195,7 +196,7 @@ public:
 
 	template <LENGTH _VAL>
 	void log (const DEF<STR[_VAL]> &tag ,const Binder &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,_VAL - 1) ,msg) ;
+		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,(_VAL - 1)) ,msg) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -283,7 +284,7 @@ private:
 			return ;
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
-		const auto r1x = _MAX_ (mLogWriter.length () - 1 ,VAR_ZERO) * _SIZEOF_ (STR) ;
+		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
 		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
@@ -337,7 +338,7 @@ public:
 		std::atexit (std::abort) ;
 	}
 
-	void check_memory_leaks_report (BOOL flag) override {
+	void output_memory_leaks_report (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
 		const auto r1x = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG) ;
 		const auto r2x = _CrtSetDbgFlag ((r1x | _CRTDBG_LEAK_CHECK_DF)) ;
@@ -369,11 +370,9 @@ public:
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r1.Name[0]])) ;
 				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
-		}
-		for (auto &&i : address) {
-			if (mSymbolFromAddress.exist ())
-				continue ;
-			ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
+		} else if (!mSymbolFromAddress.exist ()) {
+			for (auto &&i : address)
+				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
 		}
 		return std::move (ret) ;
 	}

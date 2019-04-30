@@ -152,12 +152,12 @@ inline export String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,_MEMRCHR_ (r2x.self ,r1x ,STR ('/'))) + 1 ;
-	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[0 + r3x]] ,r1x - r3x) ;
+	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[r3x]] ,(r1x - r3x)) ;
 	return std::move (ret) ;
 }
 
 inline export Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
-	const auto r1x = file.empty () ? PhanBuffer<const STR> () : file.raw () ;
+	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\')) ;
 	ris.attr ().modify_space (STR ('/')) ;
@@ -334,11 +334,11 @@ inline export void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void
 		if (_MEMEQUAL_ (r4x.raw ().self ,_PCSTR_ ("..")))
 			continue ;
 		rax += r4x ;
-		auto &r1 = _FINDDIRECTORY_ (rax) ? dire_proc : file_proc ;
+		auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
 		if (!r1.exist ())
 			continue ;
 		r1 (rax) ;
-		rax[0 + r1x] = 0 ;
+		rax[r1x] = 0 ;
 	}
 }
 } ;
@@ -365,7 +365,7 @@ public:
 		const auto r1x = LENGTH (std::fread (data.self ,1 ,data.size () ,mFile)) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		_MEMFILL_ (PTRTOARR[&data.self[0 + r1x]] ,data.size () - r1x ,BYTE (0X00)) ;
+		_MEMFILL_ (PTRTOARR[&data.self[r1x]] ,(data.size () - r1x) ,BYTE (0X00)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {

@@ -48,6 +48,7 @@ private:
 	FLAG mOptionFlag ;
 	String<STR> mLogPath ;
 	AutoRef<StreamLoader> mLogFileStream ;
+
 	BOOL mTempState ;
 
 public:
@@ -72,7 +73,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("PRINT") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -87,7 +88,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("FATAL") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -102,7 +103,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("ERROR") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -117,7 +118,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("WARN") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -132,7 +133,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("INFO") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -147,7 +148,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("DEBUG") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -162,7 +163,7 @@ public:
 #endif
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,mConWriter.length () - 1) ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("VERBOSE") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
@@ -181,7 +182,7 @@ public:
 
 	template <LENGTH _VAL>
 	void log (const DEF<STR[_VAL]> &tag ,const Binder &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,_VAL - 1) ,msg) ;
+		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,(_VAL - 1)) ,msg) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -247,7 +248,7 @@ private:
 			return ;
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
-		const auto r1x = _MAX_ (mLogWriter.length () - 1 ,VAR_ZERO) * _SIZEOF_ (STR) ;
+		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
 		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
@@ -296,7 +297,7 @@ public:
 		std::atexit (std::abort) ;
 	}
 
-	void check_memory_leaks_report (BOOL flag) override {
+	void output_memory_leaks_report (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 	}

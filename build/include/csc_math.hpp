@@ -122,14 +122,29 @@ inline _ARG _ATAN_ (const _ARG &arg1 ,const _ARG &arg2) {
 }
 
 template <class _ARG>
-inline _ARG _PINV_ (const _ARG &arg1 ,const _ARG &arg2) {
-	_DEBUG_ASSERT_ (arg2 > VALX (0)) ;
-	return !(_ABS_ (arg1) < arg2) ? _ARG (1) / arg1 : _ARG (0) ;
+inline _ARG _SIGN_ (const _ARG &arg) {
+	if (arg < _ARG (0))
+		return _ARG (-1) ;
+	if (_ARG (0) < arg)
+		return _ARG (+1) ;
+	return _ARG (0) ;
 }
 
 template <class _ARG>
-inline _ARG _SIGN_ (const _ARG &arg) {
-	return arg < _ARG (0) ? _ARG (-1) : !(_ARG (0) < arg) ? _ARG (0) : _ARG (1) ;
+inline _ARG _PINV_ (const _ARG &arg) {
+	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG>::value) ;
+	if (arg == _ARG (0))
+		return _ARG (0) ;
+	return _ARG (1) / arg ;
+}
+
+template <class _ARG>
+inline _ARG _PINV_ (const _ARG &arg1 ,const _ARG &arg2) {
+	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG>::value) ;
+	_DEBUG_ASSERT_ (arg2 > VALX (0)) ;
+	if (_ABS_ (arg1) < arg2)
+		return _ARG (0) ;
+	return _ARG (1) / arg1 ;
 }
 
 inline VALX _FLOOR_ (const VALX &arg1 ,const VALX &arg2) {
@@ -171,50 +186,33 @@ inline _ARG _ROUND_ (const _ARG &arg1 ,const _ARG &arg2) {
 
 template <class _ARG1 ,class _ARG2>
 inline _ARG2 _CLAMP_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARG2 &arg3) {
-	return arg1 < _ARG1 (arg2) ? arg2 : !(arg1 < _ARG1 (arg3)) ? arg3 : _ARG2 (arg1) ;
+	if (arg1 < _ARG1 (arg2))
+		return arg2 ;
+	if (_ARG1 (arg3) < arg1)
+		return arg3 ;
+	return _ARG2 (arg1) ;
 }
 
 template <class _ARG>
-inline constexpr const _ARG &_MIN_ (const _ARG &arg) {
+inline const _ARG &_MINOF_ (const _ARG &arg) {
 	return arg ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline constexpr const _ARG1 &_MIN_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARGS &...args) {
+inline const _ARG1 &_MINOF_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARGS &...args) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-	return arg1 < _MIN_ (arg2 ,args...) ? arg1 : _MIN_ (arg2 ,args...) ;
+	return _MIN_ (arg1 ,_MINOF_ (arg2 ,args...)) ;
 }
 
 template <class _ARG>
-inline constexpr const _ARG &_MAX_ (const _ARG &arg) {
+inline const _ARG &_MAXOF_ (const _ARG &arg) {
 	return arg ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline constexpr const _ARG1 &_MAX_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARGS &...args) {
+inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARGS &...args) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-	return !(arg1 < _MAX_ (arg2 ,args...)) ? arg1 : _MAX_ (arg2 ,args...) ;
-}
-
-template <class _ARG>
-inline ARRAY1<_ARG> _SORT_ (const _ARG &arg) {
-	return ARRAY1<_ARG> {arg} ;
-}
-
-template <class _ARG>
-inline ARRAY2<_ARG> _SORT_ (const _ARG &arg1 ,const _ARG &arg2) {
-	return ARRAY2<_ARG> {_MIN_ (arg1 ,arg2) ,_MAX_ (arg1 ,arg2)} ;
-}
-
-template <class _ARG>
-inline ARRAY3<_ARG> _SORT_ (const _ARG &arg1 ,const _ARG &arg2 ,const _ARG &arg3) {
-	const auto r1x = _MIN_ (arg1 ,arg2) ;
-	const auto r2x = _MAX_ (arg1 ,arg2) ;
-	if (arg3 < r1x)
-		return ARRAY3<_ARG> {arg3 ,r1x ,r2x} ;
-	if (arg3 < r2x)
-		return ARRAY3<_ARG> {r1x ,arg3 ,r2x} ;
-	return ARRAY3<_ARG> {r1x ,r2x ,arg3} ;
+	return _MAX_ (arg1 ,_MAXOF_ (arg2 ,args...)) ;
 }
 
 inline VAL64 _IEEE754ENCODE_ (const ARRAY2<VAR64> &arg) {
@@ -230,12 +228,12 @@ inline VAL64 _IEEE754ENCODE_ (const ARRAY2<VAR64> &arg) {
 			ret[0] <<= 1 ;
 			ret[1]-- ;
 		}
-		const auto r3x = EFLAG (VAR64 (ret[1]) <= -1075) ;
+		const auto r3x = VAR64 (ret[1]) ;
 		while (VAR64 (ret[1]) <= -1075) {
 			ret[0] >>= 1 ;
 			ret[1]++ ;
 		}
-		ret[1] = ret[1] + 1075 - r3x ;
+		ret[1] = ret[1] + 1075 - EFLAG (r3x <= -1075) ;
 		ret[1] <<= 52 ;
 		if (ret[0] == 0)
 			ret[1] = 0 ;
@@ -272,6 +270,7 @@ inline ARRAY2<VAR64> _IEEE754DECODE_ (const VAL64 &arg) {
 }
 
 inline ARRAY2<VAR64> _IEEE754E2TOE10_ (const ARRAY2<VAR64> &arg) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	X^(b/a) => { Y[0]=X^b ; Y[K+1]=Y[k]+((X^b)/(Y[k]^(a-1))-Y[k])/a ; }
 	X^(b/a) = Y[inf]
@@ -301,6 +300,7 @@ inline ARRAY2<VAR64> _IEEE754E2TOE10_ (const ARRAY2<VAR64> &arg) {
 }
 
 inline ARRAY2<VAR64> _IEEE754E10TOE2_ (const ARRAY2<VAR64> &arg) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	X^(b/a) => { Y[0]=X^b ; Y[K+1]=Y[k]+((X^b)/(Y[k]^(a-1))-Y[k])/a ; }
 	X^(b/a) = Y[inf]
@@ -338,7 +338,7 @@ inline ARRAY2<VAR64> _IEEE754E10TOE2_ (const ARRAY2<VAR64> &arg) {
 inline namespace S {
 template <class _ARG1 ,class _ARG2>
 inline Array<_ARG2> _TRANSFORM_ (const Array<_ARG1> &arg1 ,const Function<_ARG2 (const _ARG1 &)> &arg2) {
-	Array<_ARG2> ret = Array<_ARG1> (arg1.length ()) ;
+	Array<_ARG2> ret = Array<_ARG1> (arg1.size ()) ;
 	for (INDEX i = 0 ; i < arg1.length () ; i++)
 		ret[i] = arg2 (arg1[i]) ;
 	return std::move (ret) ;

@@ -9,6 +9,88 @@
 #include "csc_math.hpp"
 
 namespace CSC {
+template <class SIZE>
+class RangeFolder {
+private:
+	class Iterator {
+	private:
+		friend RangeFolder ;
+		const RangeFolder &mBase ;
+		Array<LENGTH ,SIZE> mItem ;
+		INDEX mIndex ;
+
+	public:
+		inline Iterator () = delete ;
+
+		inline BOOL operator!= (const Iterator &right) const {
+			return mIndex != right.mIndex ;
+		}
+
+		inline const Array<LENGTH ,SIZE> &operator* () const {
+			return mItem ;
+		}
+
+		inline void operator++ () {
+			mIndex++ ;
+			mBase.template_incrase (mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
+		}
+
+	private:
+		inline explicit Iterator (const RangeFolder &base ,Array<LENGTH ,SIZE> &&item ,INDEX index) :mBase (base) ,mItem (std::move (item)) ,mIndex (index) {}
+	} ;
+
+private:
+	_STATIC_ASSERT_ (SIZE::value > 0) ;
+	Array<LENGTH ,SIZE> mRange ;
+
+public:
+	inline RangeFolder () = delete ;
+
+	inline implicit RangeFolder (const std::initializer_list<LENGTH> &right) :mRange (right) {}
+
+	inline Iterator begin () const {
+		return Iterator (*this ,first_item () ,0) ;
+	}
+
+	inline Iterator end () const {
+		return Iterator (*this ,first_item () ,total_length ()) ;
+	}
+
+private:
+	inline LENGTH total_length () const {
+		_DEBUG_ASSERT_ (mRange.length () > 0) ;
+		LENGTH ret = 1 ;
+		for (auto &&i : mRange) {
+			_DEBUG_ASSERT_ (i > 0) ;
+			_DEBUG_ASSERT_ (ret * i > 0) ;
+			ret *= i ;
+		}
+		return std::move (ret) ;
+	}
+
+	inline Array<LENGTH ,SIZE> first_item () const {
+		_DEBUG_ASSERT_ (mRange.length () > 0) ;
+		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
+		ret.fill (0) ;
+		return std::move (ret) ;
+	}
+
+	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<0> &) const {
+		_DEBUG_ASSERT_ (index[0] < mRange[0]) ;
+		index[0]++ ;
+	}
+
+	template <INDEX _VAL>
+	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<_VAL> &) const {
+		_STATIC_ASSERT_ (_VAL > 0 && _VAL < SIZE::value) ;
+		index[_VAL]++ ;
+		if (index[_VAL] < mRange[_VAL])
+			return ;
+		index[_VAL] = 0 ;
+		template_incrase (index ,_NULL_<const ARGC<_VAL - 1>> ()) ;
+	}
+} ;
+
 template <class TYPE>
 class SoftImage {
 private:
@@ -53,8 +135,8 @@ public:
 	SoftImage () {
 		mCX = 0 ;
 		mCY = 0 ;
-		mCY = 0 ;
-		mCY = 0 ;
+		mCW = 0 ;
+		mCK = 0 ;
 	}
 
 	explicit SoftImage (LENGTH cx ,LENGTH cy) :SoftImage (cx ,cy ,cx ,0) {}
@@ -364,15 +446,6 @@ public:
 		for (auto &&i : range ())
 			get (i) = val ;
 	}
-
-	template <class _ARG>
-	void fill (const Array<TYPE ,_ARG> &val) {
-		INDEX ir = 0 ;
-		for (auto &&i : range ()) {
-			get (i) = val[ir] ;
-			ir = (ir + 1) % val.length () ;
-		}
-	}
 } ;
 
 using COLOR_GRAY = BYTE ;
@@ -601,7 +674,7 @@ private:
 	void update_native () {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mAbstract->watch (mHolder) ;
-		mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,r1x.P2[1] * r1x.P2[2] + r1x.P2[3]) ;
+		mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,(r1x.P2[1] * r1x.P2[2] + r1x.P2[3])) ;
 		mCX = r1x.P2[0] ;
 		mCY = r1x.P2[1] ;
 		mCW = r1x.P2[2] ;

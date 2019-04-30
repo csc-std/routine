@@ -149,7 +149,9 @@ public:
 	}
 
 	LENGTH length () const {
-		return mStream.size () > 0 ? mWrite - mRead : 0 ;
+		if (mStream.size () == 0)
+			return 0 ;
+		return mWrite - mRead ;
 	}
 
 	PhanBuffer<const BYTE> raw () const {
@@ -418,7 +420,9 @@ public:
 	}
 
 	LENGTH length () const {
-		return mStream.size () > 0 ? mWrite - mRead : 0 ;
+		if (mStream.size () == 0)
+			return 0 ;
+		return mWrite - mRead ;
 	}
 
 	PhanBuffer<const BYTE> raw () const {
@@ -642,7 +646,7 @@ private:
 
 		UNIT convert_endian (const UNIT &arg) const {
 			TEMP<UNIT> ret ;
-			const auto r1x = mEndianFlag ? _XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMRCOPY_<BYTE ,_SIZEOF_ (UNIT)>) : _XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMCOPY_<BYTE ,_SIZEOF_ (UNIT)>) ;
+			const auto r1x = mEndianFlag ? (_XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMRCOPY_<BYTE ,_SIZEOF_ (UNIT)>)) : (_XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMCOPY_<BYTE ,_SIZEOF_ (UNIT)>)) ;
 			r1x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (UNIT)]> (arg)) ;
 			return std::move (_CAST_<UNIT> (ret)) ;
 		}
@@ -742,7 +746,9 @@ public:
 	}
 
 	LENGTH length () const {
-		return mStream.size () > 0 ? mWrite - mRead : 0 ;
+		if (mStream.size () == 0)
+			return 0 ;
+		return mWrite - mRead ;
 	}
 
 	PhanBuffer<const UNIT> raw () const {
@@ -780,19 +786,23 @@ public:
 	}
 
 	void read (UNIT &data) popping {
-		if (mRead >= mWrite) {
-			data = mHolder->varify_ending_item () ;
-		} else {
+		const auto r1x = mRead < mWrite ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				continue ;
 			data = mHolder->convert_endian (mStream[mRead]) ;
-			const auto r1x = mHolder->varify_escape_r (data) ;
-			_DYNAMIC_ASSERT_ (!r1x || mRead < mWrite) ;
+			const auto r2x = mHolder->varify_escape_r (data) ;
 			mRead++ ;
-			if (r1x) {
-				data = mHolder->convert_endian (mStream[mRead]) ;
-				data = mHolder->convert_escape (data) ;
-				mRead++ ;
-			}
+			if (!r2x)
+				continue ;
+			_DYNAMIC_ASSERT_ (mRead < mWrite) ;
+			data = mHolder->convert_endian (mStream[mRead]) ;
+			data = mHolder->convert_escape (data) ;
+			mRead++ ;
 		}
+		if (r1x)
+			return ;
+		data = mHolder->varify_ending_item () ;
 	}
 
 	inline TextReader &operator>> (UNIT &data) popping {
@@ -1198,7 +1208,9 @@ public:
 	}
 
 	LENGTH length () const {
-		return mStream.size () > 0 ? mWrite - mRead : 0 ;
+		if (mStream.size () == 0)
+			return 0 ;
+		return mWrite - mRead ;
 	}
 
 	PhanBuffer<const UNIT> raw () const {
@@ -1252,7 +1264,7 @@ public:
 			UNIT ('t') ,UNIT ('r') ,UNIT ('u') ,UNIT ('e')}) ;
 		static constexpr auto M_FALSE = PACK<UNIT[5]> ({
 			UNIT ('f') ,UNIT ('a') ,UNIT ('l') ,UNIT ('s') ,UNIT ('e')}) ;
-		const auto r1x = data ? PhanBuffer<const UNIT>::make (M_TRUE.P1) : PhanBuffer<const UNIT>::make (M_FALSE.P1) ;
+		const auto r1x = data ? (PhanBuffer<const UNIT>::make (M_TRUE.P1)) : (PhanBuffer<const UNIT>::make (M_FALSE.P1)) ;
 		write (r1x) ;
 	}
 
@@ -1278,7 +1290,7 @@ public:
 		auto rax = Buffer<UNIT ,ARGC<128>> () ;
 		INDEX iw = rax.size () ;
 		try_write_number (data ,PhanBuffer<UNIT>::make (rax) ,iw) ;
-		write (PhanBuffer<const UNIT>::make (PTRTOARR[&rax.self[iw]] ,rax.size () - iw)) ;
+		write (PhanBuffer<const UNIT>::make (PTRTOARR[&rax.self[iw]] ,(rax.size () - iw))) ;
 	}
 
 	inline TextWriter &operator<< (const VAR64 &data) {
@@ -1312,7 +1324,7 @@ public:
 			auto rax = Buffer<UNIT ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
 			try_write_number (data ,PhanBuffer<UNIT>::make (rax) ,iw) ;
-			write (PhanBuffer<const UNIT>::make (PTRTOARR[&rax.self[iw]] ,rax.size () - iw)) ;
+			write (PhanBuffer<const UNIT>::make (PTRTOARR[&rax.self[iw]] ,(rax.size () - iw))) ;
 		}
 	}
 
@@ -1421,47 +1433,54 @@ private:
 		const auto r1x = _IEEE754DECODE_ (data) ;
 		auto rax = _IEEE754E2TOE10_ (r1x) ;
 		const auto r2x = rax[0] < 0 ;
-		rax[0] = r2x ? -rax[0] : rax[0] ;
+		rax[0] = r2x ? (-rax[0]) : (rax[0]) ;
 		const auto r3x = log_of_number (rax[0]) ;
 		if (_ABS_ (r3x - 1 + rax[1]) >= 6) {
-			const auto r4x = _MAX_ (r3x - 7 ,VAR_ZERO) ;
+			const auto r4x = _MAX_ ((r3x - 7) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 			if (r4x > 0) {
 				rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 		} else if (rax[1] >= 1 - r3x && rax[1] < 0) {
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 			if (r4x > 0) {
 				rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 		} else if (rax[1] < 1 - r3x) {
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 			if (r4x > 0) {
 				rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
+			_STATIC_WARNING_ ("unqualified") ;
 		}
 		const auto r4x = log_of_number (rax[0]) ;
 		if (_ABS_ (r4x - 1 + rax[1]) >= 6) {
 			//@info: case 'x.xxxExxx'
-			try_write_number (r4x - 1 + rax[1] ,out ,iw) ;
+			try_write_number ((r4x - 1 + rax[1]) ,out ,iw) ;
+			_STATIC_WARNING_ ("unqualified") ;
 			if (out[iw] != UNIT ('-'))
 				out[--iw] = UNIT ('+') ;
 			out[--iw] = UNIT ('e') ;
-			const auto r5x = _MAX_ (r4x - 7 ,VAR_ZERO) ;
+			const auto r5x = _MAX_ ((r4x - 7) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
@@ -1760,6 +1779,7 @@ class LLTextReader<void> final :private Wrapped<void> {
 private:
 	template <class>
 	friend class LLTextReader ;
+
 	class HINT_HYPER_TEXT_TYPE ;
 	class HINT_IDENTIFY_TEXT_TYPE ;
 	class HINT_VALUE_TEXT_TYPE ;
@@ -1771,20 +1791,17 @@ private:
 	class SKIP_GAP_NEWLINE_ONLY_TYPE ;
 	class SKIP_GAP_ENDLINE_TYPE ;
 
-	template <class>
-	class Placeholder {} ;
-
 public:
-	static constexpr auto HINT_HYPER_TEXT = Placeholder<HINT_HYPER_TEXT_TYPE> {} ;
-	static constexpr auto HINT_IDENTIFY_TEXT = Placeholder<HINT_IDENTIFY_TEXT_TYPE> {} ;
-	static constexpr auto HINT_VALUE_TEXT = Placeholder<HINT_VALUE_TEXT_TYPE> {} ;
-	static constexpr auto HINT_STRING_TEXT = Placeholder<HINT_STRING_TEXT_TYPE> {} ;
-	static constexpr auto HINT_GAP_TEXT = Placeholder<HINT_GAP_TEXT_TYPE> {} ;
-	static constexpr auto HINT_NEWLINE_TEXT = Placeholder<HINT_NEWLINE_TEXT_TYPE> {} ;
-	static constexpr auto SKIP_GAP = Placeholder<SKIP_GAP_TYPE> {} ;
-	static constexpr auto SKIP_GAP_SPACE_ONLY = Placeholder<SKIP_GAP_SPACE_ONLY_TYPE> {} ;
-	static constexpr auto SKIP_GAP_NEWLINE_ONLY = Placeholder<SKIP_GAP_NEWLINE_ONLY_TYPE> {} ;
-	static constexpr auto SKIP_GAP_ENDLINE = Placeholder<SKIP_GAP_ENDLINE_TYPE> {} ;
+	static constexpr auto HINT_HYPER_TEXT = ARGV<HINT_HYPER_TEXT_TYPE> {} ;
+	static constexpr auto HINT_IDENTIFY_TEXT = ARGV<HINT_IDENTIFY_TEXT_TYPE> {} ;
+	static constexpr auto HINT_VALUE_TEXT = ARGV<HINT_VALUE_TEXT_TYPE> {} ;
+	static constexpr auto HINT_STRING_TEXT = ARGV<HINT_STRING_TEXT_TYPE> {} ;
+	static constexpr auto HINT_GAP_TEXT = ARGV<HINT_GAP_TEXT_TYPE> {} ;
+	static constexpr auto HINT_NEWLINE_TEXT = ARGV<HINT_NEWLINE_TEXT_TYPE> {} ;
+	static constexpr auto SKIP_GAP = ARGV<SKIP_GAP_TYPE> {} ;
+	static constexpr auto SKIP_GAP_SPACE_ONLY = ARGV<SKIP_GAP_SPACE_ONLY_TYPE> {} ;
+	static constexpr auto SKIP_GAP_NEWLINE_ONLY = ARGV<SKIP_GAP_NEWLINE_ONLY_TYPE> {} ;
+	static constexpr auto SKIP_GAP_ENDLINE = ARGV<SKIP_GAP_ENDLINE_TYPE> {} ;
 } ;
 
 template <class SIZE>
@@ -1896,58 +1913,58 @@ public:
 		return *this ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_HYPER_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_HYPER_TEXT_TYPE>) {
 		mHintHyperTextFlag = TRUE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_IDENTIFY_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_IDENTIFY_TEXT_TYPE>) {
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_identifer_size () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>) {
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_value_size () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_STRING_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE>) {
 		mHintHyperTextFlag = TRUE ;
 		mHintStringTextFlag = TRUE ;
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_GAP_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_GAP_TEXT_TYPE>) {
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_gap_text_size () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>) {
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newline_text_size () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::SKIP_GAP_TYPE>) {
+	void read (ARGV<LLTextReader<void>::SKIP_GAP_TYPE>) {
 		while (mReader->attr ().varify_space (get (0)))
 			read () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>) {
+	void read (ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>) {
 		while (mReader->attr ().varify_space (get (0) ,1))
 			read () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::SKIP_GAP_NEWLINE_ONLY_TYPE>) {
+	void read (ARGV<LLTextReader<void>::SKIP_GAP_NEWLINE_ONLY_TYPE>) {
 		while (mReader->attr ().varify_space (get (0) ,2))
 			read () ;
 	}
 
-	void read (LLTextReader<void>::template Placeholder<LLTextReader<void>::SKIP_GAP_ENDLINE_TYPE>) {
+	void read (ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_TYPE>) {
 		const auto r1x = get (0) ;
 		_DYNAMIC_ASSERT_ (r1x == STRU8 ('\r') || r1x == STRU8 ('\n') || r1x == STRU8 ('\f')) ;
 		read () ;
@@ -1958,7 +1975,7 @@ public:
 	}
 
 	template <class _ARG>
-	inline LLTextReader &operator>> (LLTextReader<void>::template Placeholder<_ARG> data) {
+	inline LLTextReader &operator>> (ARGV<_ARG> data) {
 		read (data) ;
 		return *this ;
 	}
@@ -1974,16 +1991,10 @@ public:
 			read () ;
 		}
 		for (INDEX i = 0 ; i < data.size () ; i++) {
-			if (r1x)
-				continue ;
 			data[i] = get (0) ;
 			read () ;
-		}
-		for (INDEX i = 0 ; i < data.size () ; i++) {
 			if (!r1x)
 				continue ;
-			data[i] = get (0) ;
-			read () ;
 			const auto r4x = data[i] == mReader->attr ().varify_escape_item () ;
 			_DYNAMIC_ASSERT_ (r4x || !mReader->attr ().varify_control (data[i])) ;
 			if (!r4x)
@@ -1992,10 +2003,11 @@ public:
 			read () ;
 			data[i] = mReader->attr ().convert_escape (data[i]) ;
 		}
-		if (!r2x)
-			return ;
-		_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
-		read () ;
+		if (r2x) {
+			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
+			read () ;
+		}
+		_STATIC_WARNING_ ("unqualified") ;
 	}
 
 	inline LLTextReader &operator>> (String<STRU8> &data) popping {
@@ -2044,13 +2056,18 @@ public:
 				ret++ ;
 			}
 		}
-		if (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')) {
+		const auto r2x = ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E') ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r2x)
+				continue ;
 			ris++ ;
 			ret++ ;
-			if (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')) {
-				ris++ ;
-				ret++ ;
-			}
+			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
+				continue ;
+			ris++ ;
+			ret++ ;
+		}
+		if (r2x) {
 			_DYNAMIC_ASSERT_ (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
 			ris++ ;
 			ret++ ;

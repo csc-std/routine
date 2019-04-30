@@ -16,7 +16,7 @@ public:
 	TEST_METHOD (TEST_CSC_ARRAY_STACK) {
 		auto rax = Stack<int> {1 ,2 ,4 ,5} ;
 		rax.add_sort (3) ;
-		auto rbx = Array<INDEX> (rax.length ()) ;
+		auto rbx = Array<INDEX> (rax.size ()) ;
 		const auto r1x = rax.esort () ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++)
 			rbx[i] = r1x[i] ;

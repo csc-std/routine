@@ -55,7 +55,7 @@ public:
 
 	INDEX query (const PhanBuffer<const UNIT> &target ,INDEX ib) const {
 		_DEBUG_ASSERT_ (ib >= 0 && ib < target.size ()) ;
-		INDEX ir = target.size () - ib >= mNext.length () ? ib : target.size () ;
+		INDEX ir = (target.size () - ib >= mNext.length ()) ? ib : (target.size ()) ;
 		INDEX jr = 0 ;
 		while (ir < target.size () && jr < mNext.length ()) {
 			while (jr != VAR_NONE && target[ir] != mPattern[jr])
@@ -63,7 +63,9 @@ public:
 			ir++ ;
 			jr++ ;
 		}
-		return jr >= mNext.length () ? ir - mNext.length () : VAR_NONE ;
+		if (jr < mNext.length ())
+			return VAR_NONE ;
+		return ir - mNext.length () ;
 	}
 
 private:
@@ -139,6 +141,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 	private:
 		DijstraAlgorithm &mContext ;
 		const SoftImage<UNIT> &mAdjacency ;
+
 		INDEX mRoot ;
 		Array<INDEX> mPrev ;
 		Array<UNIT> mDistance ;
@@ -234,6 +237,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 		const Function<UNIT (const UNIT & ,const UNIT &)> &mDistanceFunc ;
 		const Array<UNIT> &mCenter ;
 		const UNIT mTolerance = UNIT (1E-6) ;
+
 		Queue<UNIT> mCurrCenterList ;
 		Queue<UNIT> mNextCenterList ;
 		Array<ARRAY2<INDEX>> mCenterIndex ;
@@ -251,11 +255,10 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 
 	private:
 		inline void prepare () {
-			mCenterIndex = Array<ARRAY2<INDEX>> (mCenter.length ()) ;
-			mCurrCenterList = Queue<UNIT> (mCenter.length ()) ;
-			mNextCenterList = Queue<UNIT> (mCenter.length ()) ;
+			mCurrCenterList = Queue<UNIT> (mCenterIndex.length ()) ;
+			mNextCenterList = Queue<UNIT> (mCenterIndex.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
-			_DEBUG_ASSERT_ (mCenterIndex.size () == mCurrCenterList.length ()) ;
+			mCenterIndex = Array<ARRAY2<INDEX>> (mCurrCenterList.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : mCurrCenterList)
 				mCenterIndex[iw++][0] = mCurrCenterList.at (i) ;
@@ -303,7 +306,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 		inline void update_next_center_list () {
 			mNextCenterList.clear () ;
 			for (auto &&i : mClusterSet) {
-				const auto r1x = i.item.length () > 0 ? average_center (i.item) : mCurrCenterList[i.key] ;
+				const auto r1x = (i.item.length () > 0) ? (average_center (i.item)) : (mCurrCenterList[i.key]) ;
 				mNextCenterList.add (r1x) ;
 			}
 			_DEBUG_ASSERT_ (mCenterIndex.size () == mNextCenterList.length ()) ;
@@ -318,7 +321,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 			_DEBUG_ASSERT_ (r1x != 0) ;
 			for (auto &&i : cluster)
 				ret += mDataSet[i] ;
-			ret /= UNIT (r1x) ;
+			ret *= _PINV_ (UNIT (r1x)) ;
 			return std::move (ret) ;
 		}
 
@@ -392,6 +395,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 	private:
 		KMHungarianAlgorithm &mContext ;
 		const SoftImage<UNIT> &mAdjacency ;
+
 		Array<INDEX> mXYLink ;
 		BitSet<> mXVisit ;
 		BitSet<> mYVisit ;
@@ -399,6 +403,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 		Array<UNIT> mXWeight ;
 		Array<UNIT> mYWeight ;
 		Array<UNIT> mLackWeight ;
+
 		Stack<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
 		FLAG mTempState ;
@@ -455,7 +460,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 			while (mTempState != 0) {
 				if (mTempState == 1) {
 					ix = mTempStack.peek () ;
-					mTempState = mTempStack[ix][1] == VAR_NONE ? 10 : 4 ;
+					mTempState = (mTempStack[ix][1] == VAR_NONE) ? 10 : 4 ;
 				} else if (mTempState == 10) {
 					mTempRet = TRUE ;
 					mTempState = 3 ;
@@ -468,7 +473,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempState = 3 ;
 				} else if (mTempState == 3) {
-					mTempState = mTempStack.empty () ? 7 : 30 ;
+					mTempState = (mTempStack.empty ()) ? 7 : 30 ;
 				} else if (mTempState == 30) {
 					mTempStack.take () ;
 					ix = mTempStack.peek () ;
@@ -479,15 +484,15 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					mTempStack[ix][0] = 0 ;
 					mTempState = 5 ;
 				} else if (mTempState == 5) {
-					mTempState = mTempStack[ix][0] < mAdjacency.cx () ? 6 : 3 ;
+					mTempState = (mTempStack[ix][0] < mAdjacency.cx ()) ? 6 : 3 ;
 				} else if (mTempState == 6) {
-					mTempState = mXVisit[mTempStack[ix][0]] ? 20 : 61 ;
+					mTempState = (mXVisit[mTempStack[ix][0]]) ? 20 : 61 ;
 				} else if (mTempState == 61) {
 					const auto r1x = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] != UNIT (0) ;
 					mTempState = r1x ? 20 : 62 ;
 				} else if (mTempState == 62) {
 					const auto r1x = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					mLackWeight[mTempStack[ix][0]] = mLackVisit[mTempStack[ix][0]] ? _MIN_ (mLackWeight[mTempStack[ix][0]] ,r1x) : r1x ;
+					mLackWeight[mTempStack[ix][0]] = (mLackVisit[mTempStack[ix][0]]) ? (_MIN_ (mLackWeight[mTempStack[ix][0]] ,r1x)) : r1x ;
 					mLackVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add ({0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 1 ;
@@ -530,9 +535,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 			for (INDEX i = 0 ; i < mXYLink.length () ; i++) {
 				if (mXYLink[i] == VAR_NONE)
 					continue ;
-				INDEX ix = iw++ ;
-				ret[ix][0] = mXYLink[i] ;
-				ret[ix][1] = i ;
+				ret[iw++] = ARRAY2<INDEX> {mXYLink[i] ,i} ;
 			}
 			return std::move (ret) ;
 		}
@@ -574,6 +577,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 		TriangulateAlgorithm &mContext ;
 		const Array<ARRAY2<UNIT>> &mVertex ;
 		const UNIT mTolerance = UNIT (1E-6) ;
+
 		Deque<INDEX> mPloygonVertexList ;
 		BOOL mClockwiseFlag ;
 		Queue<ARRAY3<INDEX>> mTriangleList ;
@@ -592,10 +596,9 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 		inline void prepare () {
 			mPloygonVertexList = ploygon_vertex () ;
 			mClockwiseFlag = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
-			for (auto &&i : mPloygonVertexList) {
-				if (!mClockwiseFlag)
-					continue ;
-				i = mVertex.length () + ~i ;
+			if (mClockwiseFlag) {
+				for (auto &&i : mPloygonVertexList)
+					i = mVertex.length () + ~i ;
 			}
 			mTriangleList = Queue<ARRAY3<INDEX>> () ;
 			mTriangle = Array<ARRAY3<INDEX>> () ;
@@ -633,9 +636,13 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 				if (ix == VAR_NONE)
 					break ;
 				INDEX jx = mTriangleList.insert () ;
-				mTriangleList[jx][0] = mPloygonVertexList[mPloygonVertexList.access ((ix + 1) % mPloygonVertexList.length ())] ;
-				mTriangleList[jx][1] = mPloygonVertexList[mPloygonVertexList.access (ix)] ;
-				mTriangleList[jx][2] = mPloygonVertexList[mPloygonVertexList.access ((ix - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ())] ;
+				const auto r1x = ARRAY3<INDEX> ({
+					mPloygonVertexList.access ((ix + 1) % mPloygonVertexList.length ()) ,
+					mPloygonVertexList.access (ix) ,
+					mPloygonVertexList.access ((ix - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ())}) ;
+				mTriangleList[jx][0] = mPloygonVertexList[r1x[0]] ;
+				mTriangleList[jx][1] = mPloygonVertexList[r1x[1]] ;
+				mTriangleList[jx][2] = mPloygonVertexList[r1x[2]] ;
 				mPloygonVertexList.remove (mPloygonVertexList.access (ix)) ;
 			}
 			update_triangle () ;
@@ -689,13 +696,12 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 
 		inline void update_triangle () {
 			mTriangle = Array<ARRAY3<INDEX>> (mTriangleList.length ()) ;
-			for (INDEX i = 0 ; i < mTriangle.length () ; i++)
-				mTriangleList.take (mTriangle[i]) ;
-			for (auto &&i : mTriangle) {
-				if (!mClockwiseFlag)
-					continue ;
+			for (auto &&i : mTriangle)
+				mTriangleList.take (i) ;
+			if (!mClockwiseFlag)
+				return ;
+			for (auto &&i : mTriangle)
 				_SWAP_ (i[1] ,i[2]) ;
-			}
 		}
 
 		inline void refresh () {
@@ -741,6 +747,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		const UNIT mDXLambdaFirst = UNIT (1000) ;
 		const UNIT mDXLambdaPower = UNIT (0.618) ;
 		const ARRAY2<UNIT> mDXC1C2 = ARRAY2<UNIT> {UNIT (1E-4) ,UNIT (0.9)} ;
+
 		Array<UNIT> mDX ;
 		SoftImage<UNIT> mDM ;
 		Array<UNIT> mDG ;
@@ -765,17 +772,17 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 	private:
 		inline void prepare () {
 			mDX = mFDX ;
-			mDM = SoftImage<UNIT> (mDX.length () ,mDX.length ()) ;
+			mDM = SoftImage<UNIT> (mDX.size () ,mDX.size ()) ;
 			mDM.fill (UNIT (0)) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++)
 				mDM[i][i] = UNIT (1) ;
-			mDG = Array<UNIT> (mDX.length ()) ;
-			mIX = Array<UNIT> (mDX.length ()) ;
-			mIM = SoftImage<UNIT> (mDM.cx () ,mDM.cy ()) ;
-			mIG = Array<UNIT> (mDX.length ()) ;
-			mIS = Array<UNIT> (mDX.length ()) ;
-			mIY = Array<UNIT> (mDX.length ()) ;
-			mSX = Array<UNIT> (mDX.length ()) ;
+			mDG = Array<UNIT> (mDX.size ()) ;
+			mIX = Array<UNIT> (mDX.size ()) ;
+			mIM = SoftImage<UNIT> (mDX.size () ,mDX.size ()) ;
+			mIG = Array<UNIT> (mDX.size ()) ;
+			mIS = Array<UNIT> (mDX.size ()) ;
+			mIY = Array<UNIT> (mDX.size ()) ;
+			mSX = Array<UNIT> (mDX.size ()) ;
 			compute_gradient_of_loss (mDX ,mDG ,mSX) ;
 		}
 
@@ -801,6 +808,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		}
 
 		inline void update_is_and_ig () {
+			_STATIC_WARNING_ ("note") ;
 			/*
 			Strong Wolfe-Powell Conditions
 			find _lambda match E1 and E2
@@ -837,7 +845,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
 			if (mDXLoss[2] < mDXLoss[0]) {
-				mDXLoss[0] = mDXLoss[2] > UNIT (0) ? mDXLoss[2] : mDXLoss[1] ;
+				mDXLoss[0] = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			} else {
@@ -876,7 +884,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		}
 
 		inline void update_dm () {
-			const auto r1x = UNIT (1) / math_vector_dot (mIY ,mIS) ;
+			const auto r1x = _PINV_ (math_vector_dot (mIY ,mIS)) ;
 			for (auto &&i : mDM.range ())
 				mIM[i] = hessian_matrix_each (i[0] ,i[1] ,r1x) + mIS[i[0]] * mIS[i[1]] * r1x ;
 			_SWAP_ (mDM ,mIM) ;
@@ -886,8 +894,10 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			UNIT ret = UNIT (0) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++) {
 				const auto r1x = hessian_matrix_each_part (x ,i ,ys) ;
-				ret += r1x * ((-mIS[y] * mIY[i] * ys)) ;
-				ret += UNIT (r1x * EFLAG (i != y)) ;
+				ret += r1x * (-mIS[y] * mIY[i] * ys) ;
+				if (i == y)
+					continue ;
+				ret += r1x ;
 			}
 			return std::move (ret) ;
 		}
@@ -896,7 +906,9 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			UNIT ret = UNIT (0) ;
 			for (INDEX i = 0 ; i < mDM.cx () ; i++) {
 				ret += mDM[z][i] * (-mIY[i] * mIS[x] * ys) ;
-				ret += UNIT (mDM[z][i] * EFLAG (i != x)) ;
+				if (i == x)
+					continue ;
+				ret += mDM[z][i] ;
 			}
 			return std::move (ret) ;
 		}
@@ -943,12 +955,12 @@ public:
 		_DEBUG_ASSERT_ (width >= UNIT (0)) ;
 		Queue<INDEX> ret ;
 		auto rax = ARRAY3<ARRAY2<UNIT>> () ;
-		rax[0][0] = _MAX_ (point[0] - width ,mBound[0][0]) ;
-		rax[0][1] = _MIN_ (point[0] + width ,mBound[0][1]) ;
-		rax[1][0] = _MAX_ (point[1] - width ,mBound[1][0]) ;
-		rax[1][1] = _MIN_ (point[1] + width ,mBound[1][1]) ;
-		rax[2][0] = _MAX_ (point[2] - width ,mBound[2][0]) ;
-		rax[2][1] = _MIN_ (point[2] + width ,mBound[2][1]) ;
+		rax[0][0] = _MAX_ ((point[0] - width) ,mBound[0][0]) ;
+		rax[0][1] = _MIN_ ((point[0] + width) ,mBound[0][1]) ;
+		rax[1][0] = _MAX_ ((point[1] - width) ,mBound[1][0]) ;
+		rax[1][1] = _MIN_ ((point[1] + width) ,mBound[1][1]) ;
+		rax[2][0] = _MAX_ ((point[2] - width) ,mBound[2][0]) ;
+		rax[2][1] = _MIN_ ((point[2] + width) ,mBound[2][1]) ;
 		compute_query_range (point ,_SQE_ (width) ,mRoot ,0 ,rax ,ret) ;
 		return std::move (ret) ;
 	}
@@ -970,26 +982,32 @@ private:
 	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
 
 	void compute_query_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
-		if (mHeap[it].mLeaf != VAR_NONE) {
+		const auto r1x = mHeap[it].mLeaf != VAR_NONE ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				continue ;
 			INDEX ix = mHeap[it].mLeaf ;
-			const auto r1x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
-			if (r1x <= sqe_range)
-				out.add (ix) ;
-		} else {
-			const auto r1x = mHeap[it].mKey ;
-			if (r1x >= bound[rot][0]) {
-				const auto r2x = bound[rot][1] ;
-				bound[rot][1] = _MIN_ (bound[rot][1] ,r1x) ;
-				compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][1] = r2x ;
-			}
-			if (r1x <= bound[rot][1]) {
-				const auto r2x = bound[rot][0] ;
-				bound[rot][0] = _MAX_ (bound[rot][0] ,r1x) ;
-				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][0] = r2x ;
-			}
+			const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
+			if (r2x > sqe_range)
+				continue ;
+			out.add (ix) ;
 		}
+		if (r1x)
+			return ;
+		const auto r3x = mHeap[it].mKey ;
+		if (r3x >= bound[rot][0]) {
+			const auto r4x = bound[rot][1] ;
+			bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
+			compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
+			bound[rot][1] = r4x ;
+		}
+		if (r3x <= bound[rot][1]) {
+			const auto r4x = bound[rot][0] ;
+			bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
+			compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
+			bound[rot][0] = r4x ;
+		}
+		_STATIC_WARNING_ ("unqualified") ;
 	}
 
 	Stack<UNIT> first_count_vertex (const ARRAY3<UNIT> &point ,LENGTH count) const {
@@ -1003,25 +1021,30 @@ private:
 	}
 
 	void compute_query_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
-		if (mHeap[it].mLeaf != VAR_NONE) {
+		const auto r1x = mHeap[it].mLeaf != VAR_NONE ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				continue ;
 			INDEX ix = mHeap[it].mLeaf ;
-			const auto r1x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
+			const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
 			INDEX iw = out.length () ;
-			while (iw - 1 >= 0 && r1x < out[iw - 1].P2) {
+			while (iw - 1 >= 0 && r2x < out[iw - 1].P2) {
 				out[iw] = out[iw - 1] ;
 				iw-- ;
 			}
-			if (iw < out.length ()) {
-				out[iw].P1 = ix ;
-				out[iw].P2 = r1x ;
-			}
-		} else {
-			const auto r1x = mHeap[it].mKey ;
-			if (r1x >= point[rot] - out[out.length () - 1].P2)
-				compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
-			if (r1x <= point[rot] + out[out.length () - 1].P2)
-				compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
+			if (iw >= out.length ())
+				continue ;
+			out[iw].P1 = ix ;
+			out[iw].P2 = r2x ;
 		}
+		if (r1x)
+			return ;
+		const auto r3x = mHeap[it].mKey ;
+		if (r3x >= point[rot] - out[out.length () - 1].P2)
+			compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
+		if (r3x <= point[rot] + out[out.length () - 1].P2)
+			compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
+		_STATIC_ASSERT_ ("noop") ;
 	}
 } ;
 
@@ -1031,14 +1054,16 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 	private:
 		KDimensionTreeAlgorithm &mContext ;
 		const Array<ARRAY3<UNIT>> &mVertex ;
+
 		ARRAY3<INDEX> mNextRot ;
 		ARRAY3<Array<INDEX>> mOrder ;
-		BitSet<> mTempMark ;
-		Array<INDEX> mTempOrder ;
 		ARRAY3<ARRAY2<UNIT>> mBound ;
 		Allocator<Node ,SAUTO> mHeap ;
 		INDEX mRoot ;
-		INDEX mResultIndex ;
+		INDEX mLatestIndex ;
+
+		BitSet<> mTempMark ;
+		Array<INDEX> mTempOrder ;
 
 	public:
 		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) :mContext (context) ,mVertex (vertex) {}
@@ -1054,8 +1079,6 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 			mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
 			for (INDEX i = 0 ; i < mOrder.length () ; i++)
 				mOrder[i] = stack_of_order (i).esort () ;
-			mTempMark = BitSet<> (mVertex.size ()) ;
-			mTempOrder = Array<INDEX> (mVertex.length ()) ;
 			mHeap = Allocator<Node ,SAUTO> (mVertex.length ()) ;
 			mRoot = VAR_NONE ;
 		}
@@ -1069,8 +1092,8 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		inline void generate () {
 			update_bound () ;
-			update_build_tree (mRoot ,0 ,0 ,mVertex.length () - 1) ;
-			mRoot = mResultIndex ;
+			update_build_tree (mRoot ,0 ,0 ,(mVertex.length () - 1)) ;
+			mRoot = mLatestIndex ;
 		}
 
 		inline void update_bound () {
@@ -1094,14 +1117,15 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		}
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX ib ,INDEX jb) {
+			_DEBUG_ASSERT_ (ib <= jb) ;
 			if (ib == jb) {
 				INDEX jx = mHeap.alloc () ;
 				mHeap[jx].mKey = UNIT (0) ;
 				mHeap[jx].mLeaf = mOrder[rot][ib] ;
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
-				mResultIndex = jx ;
-			} else {
+				mLatestIndex = jx ;
+			} else if (ib < jb) {
 				INDEX ix = ib + (jb - ib + 1) / 2 ;
 				for (INDEX i = ib ; i + 1 <= jb ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
@@ -1112,15 +1136,19 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 				mHeap[jx].mLeaf = VAR_NONE ;
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
-				update_build_tree (mHeap[jx].mLeft ,mNextRot[rot] ,ib ,ix - 1) ;
-				mHeap[jx].mLeft = mResultIndex ;
+				update_build_tree (mHeap[jx].mLeft ,mNextRot[rot] ,ib ,(ix - 1)) ;
+				mHeap[jx].mLeft = mLatestIndex ;
 				update_build_tree (mHeap[jx].mRight ,mNextRot[rot] ,ix ,jb) ;
-				mHeap[jx].mRight = mResultIndex ;
-				mResultIndex = it ;
+				mHeap[jx].mRight = mLatestIndex ;
+				mLatestIndex = it ;
 			}
 		}
 
 		void update_order (INDEX rot ,INDEX n_rot ,INDEX ib ,INDEX jb ,INDEX ie) {
+			if (mTempMark.size () != mVertex.size ())
+				mTempMark = BitSet<> (mVertex.size ()) ;
+			if (mTempOrder.size () != mVertex.size ())
+				mTempOrder = Array<INDEX> (mVertex.size ()) ;
 			mTempMark.clear () ;
 			for (INDEX i = ib ; i < ie ; i++)
 				mTempMark[mOrder[rot][i]] = TRUE ;
@@ -1183,11 +1211,13 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 	private:
 		MaxFlowAlgorithm &mContext ;
 		const SoftImage<UNIT> &mAdjacency ;
+
 		INDEX mSource ;
 		INDEX mSink ;
 		UNIT mSingleFlow ;
 		SoftImage<UNIT> mCurrentFlow ;
 		Array<INDEX> mBFSPath ;
+
 		Queue<INDEX> mTempQueue ;
 
 	public:
@@ -1205,13 +1235,14 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 			mCurrentFlow = SoftImage<UNIT> (mAdjacency.cx () ,mAdjacency.cy ()) ;
 			mCurrentFlow.fill (UNIT (0)) ;
 			mBFSPath = Array<INDEX> (mAdjacency.cx ()) ;
-			mTempQueue = Queue<INDEX> (mAdjacency.cx ()) ;
 		}
 
 		inline UNIT single_flow () const {
 			UNIT ret = UNIT (0) ;
-			for (auto &&i : mAdjacency.range ())
-				ret = _MAX_ (ret ,(i[0] != i[1] ? mAdjacency[i] : UNIT (0))) ;
+			for (auto &&i : mAdjacency.range ()) {
+				const auto r1x = (i[0] != i[1]) ? (mAdjacency[i]) : (UNIT (0)) ;
+				ret = _MAX_ (ret ,r1x) ;
+			}
 			return std::move (ret) ;
 		}
 
@@ -1231,6 +1262,8 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		}
 
 		inline void update_augument_bfs () {
+			if (mTempQueue.size () != mAdjacency.cx ())
+				mTempQueue = Queue<INDEX> (mAdjacency.cx ()) ;
 			mTempQueue.clear () ;
 			mBFSPath.fill (VAR_NONE) ;
 			mTempQueue.add (mSink) ;
@@ -1255,7 +1288,8 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 			for (INDEX i = mSource ,ir = VAR_NONE ; i != mSink ; i = ir) {
 				ir = mBFSPath[i] ;
 				_DEBUG_ASSERT_ (i != ir) ;
-				ret = _MIN_ (ret ,mAdjacency[i][ir] + mCurrentFlow[ir][i] - mCurrentFlow[i][ir]) ;
+				const auto r1x = mAdjacency[i][ir] + mCurrentFlow[ir][i] - mCurrentFlow[i][ir] ;
+				ret = _MIN_ (ret ,r1x) ;
 			}
 			return std::move (ret) ;
 		}

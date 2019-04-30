@@ -39,27 +39,27 @@ public:
 	}
 
 	XmlParser root () const {
-		INDEX ix = exist () ? 0 : VAR_NONE ;
-		return XmlParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? 0 : VAR_NONE ;
+		return XmlParser (mHeap ,r1x) ;
 	}
 
 	XmlParser parent () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mParent : VAR_NONE ;
-		return XmlParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mParent) : VAR_NONE ;
+		return XmlParser (mHeap ,r1x) ;
 	}
 
 	XmlParser brother () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mBrother : VAR_NONE ;
-		return XmlParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mBrother) : VAR_NONE ;
+		return XmlParser (mHeap ,r1x) ;
 	}
 
 	XmlParser child () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mChild : VAR_NONE ;
-		return XmlParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mChild) : VAR_NONE ;
+		return XmlParser (mHeap ,r1x) ;
 	}
 
 	XmlParser child (const String<STRU8> &name) const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mObjectSet.find (name) : VAR_NONE ;
+		INDEX ix = (exist ()) ? (mHeap.self[mIndex].mObjectSet.find (name)) : VAR_NONE ;
 		if (ix != VAR_NONE)
 			ix = mHeap.self[mIndex].mObjectSet[ix].item ;
 		return XmlParser (mHeap ,ix) ;
@@ -113,8 +113,12 @@ public:
 		auto &r1 = _CACHE_ ([] () {
 			return String<STRU8> () ;
 		}) ;
-		INDEX ix = exist () ? mHeap.self[mIndex].mAttributeSet.find (tag) : VAR_NONE ;
-		return ix != VAR_NONE ? mHeap.self[mIndex].mAttributeSet[ix].item : r1 ;
+		if (!exist ())
+			return r1 ;
+		INDEX ix = mHeap.self[mIndex].mAttributeSet.find (tag) ;
+		if (ix == VAR_NONE)
+			return r1 ;
+		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
 	const String<STRU8> &value () const {
@@ -267,6 +271,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 	private:
 		XmlParser &mContext ;
+
 		TextReader<STRU8> mTextReader ;
 		LLTextReader<ARGC<2>> mRis ;
 		LENGTH mRecursiveCounter ;
@@ -276,8 +281,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		Allocator<Pack ,SAUTO> mNodeHeap ;
 		SharedRef<FixedBuffer<Pack>> mHeap ;
 		INDEX mRoot ;
-		INDEX mResultIndex ;
-		String<STRU8> mResultString ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (XmlParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
@@ -301,6 +306,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
+			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$8 $7 $9
 			$1->记号串
@@ -314,8 +320,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			$9->#
 			*/
 			update_shift_e0 () ;
-			_DEBUG_ASSERT_ (mResultIndex == 0) ;
-			mRoot = mResultIndex ;
+			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
+			mRoot = mLatestIndex ;
 			update_heap () ;
 		}
 
@@ -330,33 +336,33 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mObjectSet.reset () ;
 			mNodeHeap[ix].mParent = VAR_NONE ;
 			update_shift_e7 (ix) ;
-			mNodeHeap[ix].mChild = mResultIndex ;
+			mNodeHeap[ix].mChild = mLatestIndex ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e9 () ;
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $1->记号串
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"文本串"
 		inline void update_shift_e2 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->$1 = $2
 		inline void update_shift_e3 (INDEX it) {
 			update_shift_e1 () ;
-			INDEX ix = mNodeHeap[it].mAttributeSet.insert (std::move (mResultString)) ;
+			INDEX ix = mNodeHeap[it].mAttributeSet.insert (std::move (mLatestString)) ;
 			_DYNAMIC_ASSERT_ (mNodeHeap[it].mAttributeSet[ix].item.empty ()) ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e2 () ;
-			mNodeHeap[it].mAttributeSet[ix].item = std::move (mResultString) ;
+			mNodeHeap[it].mAttributeSet[ix].item = std::move (mLatestString) ;
 		}
 
 		//@info: $4->ε|$3 $4
@@ -378,7 +384,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("<") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			update_shift_e1 () ;
-			mNodeHeap[ix].mName = std::move (mResultString) ;
+			mNodeHeap[ix].mName = std::move (mLatestString) ;
 			mNodeHeap[ix].mAttributeSet = mAttributeSoftSet.copy () ;
 			mNodeHeap[ix].mAttributeSet.reset () ;
 			mNodeHeap[ix].mParent = it ;
@@ -395,17 +401,17 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mObjectSet = mObjectSoftSet.copy () ;
 				mNodeHeap[ix].mObjectSet.reset () ;
 				update_shift_e7 (ix) ;
-				mNodeHeap[ix].mChild = mResultIndex ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("</") ;
 				update_shift_e1 () ;
-				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mResultString) ;
+				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 				mRis >> _PCSTRU8_ (">") ;
 			} else {
 				mRis >> _PCSTRU8_ ("/>") ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $6-><!--注释-->
@@ -435,14 +441,15 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					update_shift_e6 () ;
 				} else if (r2x) {
 					update_shift_e5 (it) ;
-					mNodeHeap[it].mMemberSet.add (mNodeHeap[it].mMemberSet.length () ,mResultIndex) ;
-					mNodeHeap[it].mObjectSet.add (mNodeHeap[mResultIndex].mName ,mResultIndex) ;
-					(ix == VAR_NONE ? ix : mNodeHeap[iy].mBrother) = mResultIndex ;
-					iy = mResultIndex ;
+					mNodeHeap[it].mMemberSet.add (mNodeHeap[it].mMemberSet.length () ,mLatestIndex) ;
+					mNodeHeap[it].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
+					auto &r1 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+					r1 = mLatestIndex ;
+					iy = mLatestIndex ;
 				}
 				mRis >> LLTextReader<>::SKIP_GAP ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $8->ε|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
@@ -508,8 +515,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		const String<STRU8> mObjectTypeString = String<STRU8> (_PCSTRU8_ ("object")) ;
 		const String<STRU8> mArrayTypeString = String<STRU8> (_PCSTRU8_ ("array")) ;
 		const String<STRU8> mFinalTypeString = String<STRU8> (_PCSTRU8_ ("final")) ;
+
 		Stack<PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>>> mNodeStack ;
-		PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
 		ARRAY4<DEF<DEF<void (const XmlParser &)> Lambda::*>> mFoundNodeType ;
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
@@ -524,6 +531,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		Queue<Queue<XmlParser>> mFoundNodeBaseRecycle ;
 		SharedRef<FixedBuffer<Pack>> mHeap ;
 		INDEX mRoot ;
+
+		PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
 
 	public:
 		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) :mContext (context) ,mSequence (sequence) {}
@@ -546,8 +555,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
 			mNodeHeap = Allocator<Pack ,SAUTO> () ;
 			INDEX ix = normal_node_one () ;
-			mRootName = ix != VAR_NONE ? mSequence[ix].name () : String<STRU8> () ;
-			mRootType = ix != VAR_NONE ? node_type (mSequence[ix]) : VAR_NONE ;
+			mRootName = (ix != VAR_NONE) ? (mSequence[ix].name ()) : (String<STRU8> ()) ;
+			mRootType = (ix != VAR_NONE) ? (node_type (mSequence[ix])) : VAR_NONE ;
 			for (auto &&i : mSequence) {
 				if (!i.exist ())
 					continue ;
@@ -825,23 +834,23 @@ public:
 	}
 
 	JsonParser root () const {
-		INDEX ix = exist () ? 0 : VAR_NONE ;
-		return JsonParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? 0 : VAR_NONE ;
+		return JsonParser (mHeap ,r1x) ;
 	}
 
 	JsonParser parent () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mParent : VAR_NONE ;
-		return JsonParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mParent) : VAR_NONE ;
+		return JsonParser (mHeap ,r1x) ;
 	}
 
 	JsonParser brother () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mBrother : VAR_NONE ;
-		return JsonParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mBrother) : VAR_NONE ;
+		return JsonParser (mHeap ,r1x) ;
 	}
 
 	JsonParser child () const {
-		INDEX ix = exist () ? mHeap.self[mIndex].mChild : VAR_NONE ;
-		return JsonParser (mHeap ,ix) ;
+		const auto r1x = (exist ()) ? (mHeap.self[mIndex].mChild) : VAR_NONE ;
+		return JsonParser (mHeap ,r1x) ;
 	}
 
 	JsonParser child (const String<STRU8> &key) const {
@@ -1069,6 +1078,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 	private:
 		JsonParser &mContext ;
+
 		TextReader<STRU8> mTextReader ;
 		LLTextReader<ARGC<2>> mRis ;
 		LENGTH mRecursiveCounter ;
@@ -1077,8 +1087,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		Allocator<Pack ,SAUTO> mNodeHeap ;
 		SharedRef<FixedBuffer<Pack>> mHeap ;
 		INDEX mRoot ;
-		INDEX mResultIndex ;
-		String<STRU8> mResultString ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (JsonParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
@@ -1101,6 +1111,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
+			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$11 $10 $12
 			$1->数值串
@@ -1113,12 +1124,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			$8->$7|$7 , $8
 			$9->{ }|{ $8 }
 			$10->ε|$4
-			$11->ε
+			$11->#
 			$12->#
 			*/
 			update_shift_e0 () ;
-			_DEBUG_ASSERT_ (mResultIndex == 0) ;
-			mRoot = mResultIndex ;
+			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
+			mRoot = mLatestIndex ;
 			update_heap () ;
 		}
 
@@ -1127,34 +1138,34 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e11 () ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e10 () ;
-			INDEX ix = mResultIndex ;
+			INDEX ix = mLatestIndex ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e12 () ;
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $1->数值串
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_VALUE_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_VALUE_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->true|false|null
 		inline void update_shift_e2 () {
 			if (mRis[0] == STRU8 ('t')) {
 				mRis >> _PCSTRU8_ ("true") ;
-				mResultString = _PCSTRU8_ ("true") ;
+				mLatestString = _PCSTRU8_ ("true") ;
 			} else if (mRis[0] == STRU8 ('f')) {
 				mRis >> _PCSTRU8_ ("false") ;
-				mResultString = _PCSTRU8_ ("false") ;
+				mLatestString = _PCSTRU8_ ("false") ;
 			} else if (mRis[0] == STRU8 ('n')) {
 				mRis >> _PCSTRU8_ ("null") ;
-				mResultString = String<STRU8> () ;
+				mLatestString = String<STRU8> () ;
 			}
 		}
 
 		//@info: $3->"文本串"
 		inline void update_shift_e3 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->$1|$2|$3|$6|$9
@@ -1167,7 +1178,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			if (r1x) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mResultString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1175,7 +1186,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			} else if (r2x) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mResultString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1183,19 +1194,19 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			} else if (mRis[0] == STRU8 ('\"')) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e3 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mResultString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			} else if (mRis[0] == STRU8 ('[')) {
 				update_shift_e6 (it) ;
-				ix = mResultIndex ;
+				ix = mLatestIndex ;
 			} else if (mRis[0] == STRU8 ('{')) {
 				update_shift_e9 (it) ;
-				ix = mResultIndex ;
+				ix = mLatestIndex ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $5->$4|$4 , $5
@@ -1205,16 +1216,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			while (TRUE) {
 				update_shift_e4 (it) ;
 				auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
-				r1.add (r1.length () ,mResultIndex) ;
-				(ix == VAR_NONE ? ix : mNodeHeap[iy].mBrother) = mResultIndex ;
-				iy = mResultIndex ;
+				r1.add (r1.length () ,mLatestIndex) ;
+				auto &r2 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+				r2 = mLatestIndex ;
+				iy = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $6->[ ]|[ $5 ]
@@ -1231,23 +1243,23 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			if (mRis[0] != STRU8 (']')) {
 				update_shift_e5 (ix) ;
-				mNodeHeap[ix].mChild = mResultIndex ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("]") ;
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $7->$2 : $4
 		inline void update_shift_e7 (INDEX it) {
 			update_shift_e3 () ;
 			auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			INDEX ix = r1.insert (std::move (mResultString)) ;
+			INDEX ix = r1.insert (std::move (mLatestString)) ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e4 (it) ;
-			r1[ix].item = mResultIndex ;
+			r1[ix].item = mLatestIndex ;
 		}
 
 		//@info: $8->$7|$7 , $8
@@ -1256,15 +1268,16 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
 				update_shift_e7 (it) ;
-				(ix == VAR_NONE ? ix : mNodeHeap[iy].mBrother) = mResultIndex ;
-				iy = mResultIndex ;
+				auto &r1 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+				r1 = mLatestIndex ;
+				iy = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $9->{ }|{ $8 }
@@ -1281,11 +1294,11 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			if (mRis[0] != STRU8 ('}')) {
 				update_shift_e8 (ix) ;
-				mNodeHeap[ix].mChild = mResultIndex ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("}") ;
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
 		//@info: $10->ε|$4
@@ -1293,12 +1306,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = VAR_NONE ;
 			if (mRis[0] != STRU8 ('\0')) {
 				update_shift_e4 (VAR_NONE) ;
-				ix = mResultIndex ;
+				ix = mLatestIndex ;
 			}
-			mResultIndex = ix ;
+			mLatestIndex = ix ;
 		}
 
-		//@info: $11->ε
+		//@info: $11->#
 		inline void update_shift_e11 () {
 			_STATIC_WARNING_ ("noop") ;
 		}
@@ -1434,13 +1447,14 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 	class Lambda {
 	private:
 		CommandParser &mContext ;
+
 		TextReader<STRU8> mTextReader ;
 		LLTextReader<ARGC<2>> mRis ;
 		Set<String<STRU8>> mOptionSet ;
 		Set<String<STRU8> ,String<STRU8>> mAttributeSet ;
 		Queue<String<STRU8>> mCommandList ;
 		Array<String<STRU8>> mCommand ;
-		String<STRU8> mResultString ;
+		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (CommandParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
@@ -1460,6 +1474,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
+			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$8 $7 $9
 			$1->记号串
@@ -1469,7 +1484,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			$5->-$1|-$1=$2|-$1=$3
 			$6->$2|$3
 			$7->ε|$4 $7|$5 $7|$6 $7
-			$8->ε
+			$8->#
 			$9->#
 			*/
 			update_shift_e0 () ;
@@ -1487,41 +1502,41 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $1->记号串
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"文本串"
 		inline void update_shift_e2 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->单字符串
 		inline void update_shift_e3 () {
-			mRis >> LLTextReader<>::HINT_GAP_TEXT >> mResultString ;
+			mRis >> LLTextReader<>::HINT_GAP_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->/$1
 		inline void update_shift_e4 () {
 			mRis >> _PCSTRU8_ ("/") ;
 			update_shift_e1 () ;
-			mOptionSet.add (std::move (mResultString)) ;
+			mOptionSet.add (std::move (mLatestString)) ;
 		}
 
 		//@info: $5->-$1|-$1=$2|-$1=$3
 		inline void update_shift_e5 () {
 			mRis >> _PCSTRU8_ ("-") ;
 			update_shift_e1 () ;
-			INDEX ix = mAttributeSet.find (mResultString) ;
+			INDEX ix = mAttributeSet.find (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
-			ix = mAttributeSet.insert (std::move (mResultString)) ;
+			ix = mAttributeSet.insert (std::move (mLatestString)) ;
 			if (mRis[0] == STRU8 ('=') && mRis[1] == STRU8 ('\"')) {
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e2 () ;
-				mAttributeSet[ix].item = std::move (mResultString) ;
+				mAttributeSet[ix].item = std::move (mLatestString) ;
 			} else if (mRis[0] == STRU8 ('=')) {
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e3 () ;
-				mAttributeSet[ix].item = std::move (mResultString) ;
+				mAttributeSet[ix].item = std::move (mLatestString) ;
 			} else {
 				mAttributeSet[ix].item = _PCSTRU8_ ("TRUE") ;
 			}
@@ -1534,7 +1549,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			} else {
 				update_shift_e3 () ;
 			}
-			mCommandList.add (std::move (mResultString)) ;
+			mCommandList.add (std::move (mLatestString)) ;
 		}
 
 		//@info: $7->ε|$4 $7|$5 $7|$6 $7
@@ -1551,7 +1566,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			}
 		}
 
-		//@info: $8->ε
+		//@info: $8->#
 		inline void update_shift_e8 () {
 			_STATIC_WARNING_ ("noop") ;
 		}
@@ -1563,9 +1578,8 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		inline void update_command () {
 			mCommand = Array<String<STRU8>> (mCommandList.length ()) ;
-			INDEX iw = 0 ;
-			for (auto &&i : mCommandList)
-				mCommand[iw++] = std::move (i) ;
+			for (auto &&i : mCommand)
+				mCommandList.take (i) ;
 		}
 
 		inline void refresh () {

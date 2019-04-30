@@ -75,8 +75,7 @@ inline export void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> &
 inline export void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
 	_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-		me = CreateFile (file.raw ().self ,GENERIC_WRITE ,0 ,NULL ,CREATE_ALWAYS ,
-			FILE_ATTRIBUTE_NORMAL ,NULL) ;
+		me = CreateFile (file.raw ().self ,GENERIC_WRITE ,0 ,NULL ,CREATE_ALWAYS ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
 		_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -128,6 +127,7 @@ inline export BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> 
 		me = CreateFile (file1.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
+		_STATIC_WARNING_ ("unqualified") ;
 	} ,[] (HANDLE &me) {
 		if (me == NULL)
 			return ;
@@ -140,6 +140,7 @@ inline export BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> 
 		me = CreateFile (file2.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
+		_STATIC_WARNING_ ("unqualified") ;
 	} ,[] (HANDLE &me) {
 		if (me == NULL)
 			return ;
@@ -171,12 +172,12 @@ inline export String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,_MEMRCHR_ (r2x.self ,r1x ,STR ('/'))) + 1 ;
-	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[0 + r3x]] ,r1x - r3x) ;
+	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[r3x]] ,(r1x - r3x)) ;
 	return std::move (ret) ;
 }
 
 inline export Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
-	const auto r1x = file.empty () ? PhanBuffer<const STR> () : file.raw () ;
+	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\')) ;
 	ris.attr ().modify_space (STR ('/')) ;
@@ -324,10 +325,9 @@ inline export void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void
 	const auto r2x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		rax += _PCSTR_ ("*.*") ;
 		me = FindFirstFile (rax.raw ().self ,&_ZERO_ (rbx)) ;
-		rax[0 + r1x] = 0 ;
-		if (me != INVALID_HANDLE_VALUE)
-			return ;
-		me = NULL ;
+		if (me == INVALID_HANDLE_VALUE)
+			me = NULL ;
+		rax[r1x] = 0 ;
 	} ,[] (HANDLE &me) {
 		if (me == NULL)
 			return ;
@@ -341,12 +341,12 @@ inline export void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void
 				continue ;
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ ("..")))
 				continue ;
-			auto &r1 = (rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 ? file_proc : dire_proc ;
+			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
 				continue ;
 			rax += String<STR> (rbx.cFileName) ;
 			r1 (rax) ;
-			rax[0 + r1x] = 0 ;
+			rax[r1x] = 0 ;
 		}
 		rbx.cFileName[0] = 0 ;
 		FindNextFile (r2x ,&rbx) ;
@@ -363,8 +363,7 @@ public:
 
 	explicit Implement (const String<STR> &file) {
 		mFile = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			me = CreateFile (file.raw ().self ,(GENERIC_READ | GENERIC_WRITE) ,(FILE_SHARE_READ | FILE_SHARE_WRITE) ,NULL ,OPEN_ALWAYS ,
-				FILE_FLAG_SEQUENTIAL_SCAN ,NULL) ;
+			me = CreateFile (file.raw ().self ,(GENERIC_READ | GENERIC_WRITE) ,(FILE_SHARE_READ | FILE_SHARE_WRITE) ,NULL ,OPEN_ALWAYS ,FILE_FLAG_SEQUENTIAL_SCAN ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
 				me = NULL ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -378,19 +377,19 @@ public:
 		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		const auto r1x = ReadFile (mFile ,data ,VARY (data.size ()) ,&(rax = 0) ,NULL) ;
-		const auto r2x = r1x != 0 ? LENGTH (rax) : 0 ;
+		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
 		if (data.size () - r2x == 0)
 			return ;
-		_MEMFILL_ (PTRTOARR[&data[r2x]] ,data.size () - r2x ,BYTE (0X00)) ;
+		_MEMFILL_ (PTRTOARR[&data[r2x]] ,(data.size () - r2x) ,BYTE (0X00)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		const auto r1x = WriteFile (mFile ,data ,VARY (data.size ()) ,&(rax = 0) ,NULL) ;
-		const auto r2x = r1x != 0 ? LENGTH (rax) : 0 ;
+		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
@@ -437,8 +436,7 @@ public:
 		auto &r2 = mHolder->mMapping.self ;
 		auto &r3 = mHolder->mBuffer.self ;
 		r1 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			me = CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,
-				FILE_ATTRIBUTE_NORMAL ,NULL) ;
+			me = CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
 				me = NULL ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -471,8 +469,7 @@ public:
 		auto &r2 = mHolder->mMapping.self ;
 		auto &r3 = mHolder->mBuffer.self ;
 		r1 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			me = CreateFile (file.raw ().self ,(GENERIC_READ | GENERIC_WRITE) ,0 ,NULL ,CREATE_ALWAYS ,
-				FILE_ATTRIBUTE_NORMAL ,NULL) ;
+			me = CreateFile (file.raw ().self ,(GENERIC_READ | GENERIC_WRITE) ,0 ,NULL ,CREATE_ALWAYS ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
 				me = NULL ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;

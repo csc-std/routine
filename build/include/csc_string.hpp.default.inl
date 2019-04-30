@@ -158,11 +158,11 @@ inline export ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system
 inline export std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &arg) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-	rax.tm_year = arg[0] > 0 ? arg[0] - 1900 : 0 ;
-	rax.tm_mon = arg[1] > 0 ? arg[1] - 1 : 0 ;
+	rax.tm_year = (arg[0] > 0) ? (arg[0] - 1900) : 0 ;
+	rax.tm_mon = (arg[1] > 0) ? (arg[1] - 1) : 0 ;
 	rax.tm_mday = arg[2] ;
-	rax.tm_wday = arg[3] > 0 ? arg[3] - 1 : 0 ;
-	rax.tm_yday = arg[4] > 0 ? arg[4] - 1 : 0 ;
+	rax.tm_wday = (arg[3] > 0) ? (arg[3] - 1) : 0 ;
+	rax.tm_yday = (arg[4] > 0) ? (arg[4] - 1) : 0 ;
 	rax.tm_hour = arg[5] ;
 	rax.tm_min = arg[6] ;
 	rax.tm_sec = arg[7] ;

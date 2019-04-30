@@ -225,27 +225,16 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = STRU32 () ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU16 (i) ;
-		} else if (rax > 1 && i <= STRU8 (0XBF)) {
+		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
 		} else if (rax == 1 && i <= STRU8 (0XBF)) {
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
-			rax = 0 ;
-			if (rbx <= STRU32 (0X0000FFFF)) {
-				ret[iw++] = STRU16 (rbx) ;
-			} else if (rbx <= STRU32 (0X0010FFFF)) {
-				rbx = STRU32 (rbx - STRU32 (0X00010000)) ;
-				ret[iw++] = (STRU16 (rbx >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
-				ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
-			} else if (rbx <= STRU32 (0X7FFFFFFF)) {
-				ret[iw++] = STRU16 ('?') ;
-			} else {
-				ret = String<STRU16> () ;
-			}
+			rax = 10 ;
 		} else if (rax == 0 && i <= STRU8 (0XDF)) {
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
@@ -262,10 +251,28 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		} else {
-			ret = String<STRU16> () ;
+			rax = VAR_NONE ;
+		}
+		if (rax < 10)
+			continue ;
+		if (rbx <= STRU32 (0X0000FFFF)) {
+			ret[iw++] = STRU16 (rbx) ;
+			rax = 0 ;
+		} else if (rbx <= STRU32 (0X0010FFFF)) {
+			rbx = STRU32 (rbx - STRU32 (0X00010000)) ;
+			ret[iw++] = (STRU16 (rbx >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
+			ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
+			rax = 0 ;
+		} else if (rbx <= STRU32 (0X7FFFFFFF)) {
+			ret[iw++] = STRU16 ('?') ;
+			rax = 0 ;
+		} else {
+			rax = VAR_NONE ;
 		}
 	}
-	if (iw < ret.size () && rax != 0)
+	if (rax == VAR_NONE)
+		ret.clear () ;
+	if (rax > 0)
 		ret[iw++] = STRU16 ('?') ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -278,7 +285,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = STRU32 () ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0 && i <= STRU16 (0X007F)) {
 			ret[iw++] = STRU8 (i) ;
@@ -300,10 +307,12 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		} else {
-			ret = String<STRU8> () ;
+			rax = VAR_NONE ;
 		}
 	}
-	if (iw < ret.size () && rax != 0)
+	if (rax == VAR_NONE)
+		ret.clear () ;
+	if (rax > 0)
 		ret[iw++] = STRU8 ('?') ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -311,6 +320,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 }
 
 inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	1 bytes [0,0X7F] 0xxxxxxx
 	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -324,7 +334,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = STRU32 () ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU32 (i) ;
@@ -351,10 +361,12 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		} else {
-			ret = String<STRU32> () ;
+			rax = VAR_NONE ;
 		}
 	}
-	if (iw < ret.size () && rax != 0)
+	if (rax == VAR_NONE)
+		ret.clear () ;
+	if (rax > 0)
 		ret[iw++] = STRU32 ('?') ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -362,6 +374,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 }
 
 inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	1 bytes [0,0X7F] 0xxxxxxx
 	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -372,8 +385,9 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
 	*/
 	String<STRU8> ret = String<STRU8> (src.length () * 6) ;
 	INDEX iw = 0 ;
+	auto rax = VAR_ZERO ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (i <= STRU32 (0X0000007F)) {
 			ret[iw++] = STRU8 (i) ;
@@ -403,15 +417,18 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		} else {
-			ret = String<STRU8> () ;
+			rax = VAR_NONE ;
 		}
 	}
+	if (rax == VAR_NONE)
+		ret.clear () ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;
 }
 
 inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx
@@ -421,7 +438,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = STRU32 () ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0 && i <= STRU16 (0X07FF)) {
 			ret[iw++] = STRU32 (i) ;
@@ -435,10 +452,12 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 		} else if (rax == 0) {
 			ret[iw++] = STRU32 (i) ;
 		} else {
-			ret = String<STRU32> () ;
+			rax = VAR_NONE ;
 		}
 	}
-	if (iw < ret.size () && rax != 0)
+	if (rax == VAR_NONE)
+		ret.clear () ;
+	if (rax > 0)
 		ret[iw++] = STRU32 ('?') ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -446,14 +465,16 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 }
 
 inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
+	_STATIC_WARNING_ ("note") ;
 	/*
 	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx
 	*/
 	String<STRU16> ret = String<STRU16> (src.length () * 2) ;
 	INDEX iw = 0 ;
+	auto rax = VAR_ZERO ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (i <= STRU32 (0X0000FFFF)) {
 			ret[iw++] = STRU16 (i) ;
@@ -463,9 +484,11 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
 		} else if (i <= STRU32 (0X7FFFFFFF)) {
 			ret[iw++] = STRU16 ('?') ;
 		} else {
-			ret = String<STRU16> () ;
+			rax = VAR_NONE ;
 		}
 	}
+	if (rax == VAR_NONE)
+		ret.clear () ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;
@@ -578,27 +601,39 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
 	for (auto &&i : r2) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0) {
 			rbx = STRUW (i) ;
-			INDEX ix = r1.find (rbx) ;
-			if (ix != VAR_NONE) {
-				ret[iw++] = STRW (r1[ix].item) ;
-			} else {
-				rax = 1 ;
-			}
+			rax = 10 ;
 		} else if (rax == 1) {
 			rbx = STRUW ((rbx << 8) | STRUW (i)) ;
-			INDEX ix = r1.find (rbx) ;
-			ret[iw++] = ix != VAR_NONE ? STRW (r1[ix].item) : STRW ('?') ;
+			rax = 11 ;
+		} else {
+			rax = VAR_NONE ;
+		}
+		if (rax < 10)
+			continue ;
+		INDEX ix = r1.find (rbx) ;
+		if (rax == 10 && ix != VAR_NONE) {
+			ret[iw++] = STRW (r1[ix].item) ;
+			rax = 0 ;
+		} else if (rax == 10 && ix == VAR_NONE) {
+			rax = 1 ;
+		} else if (rax == 11 && ix != VAR_NONE) {
+			ret[iw++] = STRW (r1[ix].item) ;
+			rax = 0 ;
+		} else if (rax == 11 && ix == VAR_NONE) {
+			ret[iw++] = STRW ('?') ;
 			rax = 0 ;
 		} else {
-			ret = String<STRW> () ;
+			rax = VAR_NONE ;
 		}
 	}
-	if (iw < ret.size () && rax != 0)
-		ret[iw++] = STRU8 ('?') ;
+	if (rax == VAR_NONE)
+		ret.clear () ;
+	if (rax > 0)
+		ret[iw++] = STRW ('?') ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;
@@ -614,8 +649,9 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 	}) ;
 	String<STRUA> ret = String<STRUA> (src.length () * 2) ;
 	INDEX iw = 0 ;
+	auto rax = VAR_ZERO ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		INDEX ix = r1.find (STRUW (i)) ;
 		if (ix == VAR_NONE) {
@@ -626,32 +662,15 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 			ret[iw++] = STRUA (r1[ix].item >> 8) ;
 			ret[iw++] = STRUA (r1[ix].item) ;
 		} else {
-			ret = String<STRUA> () ;
+			rax = VAR_NONE ;
 		}
 	}
+	if (rax == VAR_NONE)
+		ret.clear () ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
-} ;
-
-class RegexMatcher {
-private:
-	class Implement ;
-
-private:
-	AnyRef<void> mThis ;
-
-public:
-	RegexMatcher () = delete ;
-
-	explicit RegexMatcher (const String<STRU8> &reg) ;
-
-	BOOL match (const String<STRU8> &expr) const ;
-
-	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const ;
-
-	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
 } ;
 
 inline namespace S {
@@ -782,6 +801,32 @@ inline String<_RET> _PRINTS_ (const _ARGS &...args) {
 }
 } ;
 
+template <class TYPE ,class SIZE>
+template <class... _ARGS>
+inline String<TYPE ,SIZE> String<TYPE ,SIZE>::make (const _ARGS &...args) {
+	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
+	return _PRINTS_<TYPE> (args...) ;
+}
+
+class RegexMatcher {
+private:
+	class Implement ;
+
+private:
+	AnyRef<void> mThis ;
+
+public:
+	RegexMatcher () = delete ;
+
+	explicit RegexMatcher (const String<STRU8> &reg) ;
+
+	BOOL match (const String<STRU8> &expr) const ;
+
+	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const ;
+
+	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
+} ;
+
 inline namespace S {
 template <class _ARG>
 inline CHAR _PARSEHEX8S_ (const String<_ARG> &arg) {
@@ -796,7 +841,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG> &arg) {
 		ris >> rax ;
 		const auto r1x = (rax >= _ARG ('0') && rax <= _ARG ('9')) || (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
 		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = rax >= _ARG ('0') && rax <= _ARG ('9') ? _ARG ('0') : _ARG ('A' - 10) ;
+		const auto r2x = (rax >= _ARG ('0') && rax <= _ARG ('9')) ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
 		ret = (ret << 4) | DATA (rax - r2x) ;
 	}
 	ris >> _EOS_ ;
@@ -812,7 +857,8 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &arg) {
 	wos << _RET ('H') ;
 	for (INDEX i = 0 ; i < 8 ; i++) {
 		const auto r1x = CHAR (arg >> (28 - i * 4)) & CHAR (0X0F) ;
-		wos << _RET ((r1x < CHAR (10) ? _RET ('0') : _RET ('A') - 10) + r1x) ;
+		const auto r2x = (r1x < DATA (10)) ? (_RET ('0')) : (_RET ('A') - 10) ;
+		wos << _RET (r2x + r1x) ;
 	}
 	wos << _EOS_ ;
 	return std::move (ret) ;
@@ -831,7 +877,7 @@ inline DATA _PARSEHEX16S_ (const String<_ARG> &arg) {
 		ris >> rax ;
 		const auto r1x = (rax >= _ARG ('0') && rax <= _ARG ('9')) || (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
 		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = rax >= _ARG ('0') && rax <= _ARG ('9') ? _ARG ('0') : _ARG ('A' - 10) ;
+		const auto r2x = (rax >= _ARG ('0') && rax <= _ARG ('9')) ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
 		ret = (ret << 4) | DATA (rax - r2x) ;
 	}
 	ris >> _EOS_ ;
@@ -847,7 +893,8 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &arg) {
 	wos << _RET ('H') ;
 	for (INDEX i = 0 ; i < 16 ; i++) {
 		const auto r1x = DATA (arg >> (60 - i * 4)) & DATA (0X0F) ;
-		wos << _RET ((r1x < DATA (10) ? _RET ('0') : _RET ('A') - 10) + r1x) ;
+		const auto r2x = (r1x < DATA (10)) ? (_RET ('0')) : (_RET ('A') - 10) ;
+		wos << _RET (r2x + r1x) ;
 	}
 	wos << _EOS_ ;
 	return std::move (ret) ;
@@ -871,7 +918,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = CHAR () ;
 	for (auto &&i : src) {
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
 		if (rax == 0) {
 			rbx = CHAR (i) ;
@@ -887,9 +934,11 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 			ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_TABLE.P1[INDEX (rbx & CHAR (0X3F))]) ;
 		} else {
-			ret = String<_RET> () ;
+			rax = VAR_NONE ;
 		}
 	}
+	if (rax == VAR_NONE)
+		ret.clear () ;
 	if (rax == 1) {
 		rbx = CHAR (rbx << 16) ;
 		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
@@ -923,30 +972,30 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG> &src) {
 	auto rax = VAR_ZERO ;
 	auto rbx = CHAR () ;
 	for (auto &&i : src) {
-		_DYNAMIC_ASSERT_ ((i & STRU8 (0X80)) == 0) ;
-		if (ret.size () == 0)
+		if (rax == VAR_NONE)
 			continue ;
-		const auto r2x = M_TABLE.P1[LENGTH (i) - 32] ;
-		_DYNAMIC_ASSERT_ (r2x >= 0) ;
-		if (rax == 0) {
-			rbx = CHAR (r2x & 63) ;
+		const auto r1x = ((i & STRU8 (0X80)) == 0) ? (M_TABLE.P1[LENGTH (i) - 32]) : VAR_NONE ;
+		if (rax == 0 && r1x >= 0) {
+			rbx = CHAR (r1x & 63) ;
 			rax = 1 ;
-		} else if (rax == 1) {
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+		} else if (rax == 1 && r1x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
 			rax = 2 ;
-		} else if (rax == 2) {
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+		} else if (rax == 2 && r1x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
 			rax = 3 ;
-		} else if (rax == 3) {
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+		} else if (rax == 3 && r1x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
 			rax = 0 ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 		} else {
-			ret = String<STRU8> () ;
+			rax = VAR_NONE ;
 		}
 	}
+	if (rax == VAR_NONE)
+		ret.clear () ;
 	if (rax == 1) {
 		rbx = CHAR (rbx << 18) ;
 		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;

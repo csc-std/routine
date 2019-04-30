@@ -99,7 +99,7 @@ inline SOCKADDR _inline_SOCKET_CVTTO_SOCKETADDR_ (const String<STRU8> &arg) {
 
 inline void _inline_SOCKET_BIND_ (const SOCKET &socket ,const String<STRU8> &addr) {
 	const auto r1x = _inline_SOCKET_CVTTO_SOCKETADDR_ (addr) ;
-	const auto r2x = ::bind (socket ,&_CAST_<SOCKADDR> (r1x) ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
+	const auto r2x = ::bind (socket ,&r1x ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 	_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 }
 
