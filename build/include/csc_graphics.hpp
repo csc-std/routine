@@ -263,7 +263,9 @@ public:
 	explicit AbstractShader (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
 
 	BOOL exist () const {
-		return mAbstract.exist () && mHolder.exist () ;
+		if (!mAbstract.exist ())
+			return FALSE ;
+		return mHolder.exist () ;
 	}
 
 	void load_data (const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) {
@@ -366,7 +368,9 @@ public:
 	explicit Sprite (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
 
 	BOOL exist () const {
-		return mAbstract.exist () && mHolder.exist () ;
+		if (!mAbstract.exist ())
+			return FALSE ;
+		return mHolder.exist () ;
 	}
 
 	void load_data (const Mesh &mesh) {

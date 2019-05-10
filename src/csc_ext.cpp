@@ -6,6 +6,8 @@ TEST_CLASS (UNITTEST_CSC_EXT) {
 public:
 	TEST_METHOD (TEST_CSC_EXT) {
 		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) == 1) ;
+		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) != 1) ;
+		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) == 1)) ;
 		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) != 1)) ;
 	}
 
@@ -156,7 +158,9 @@ public:
 				wrapped_string::mData += _BUILDVAL32S_<STRU8> (arg) ;
 			}
 		} ;
-		const auto r1x = PACK<int ,float> {1 ,2.1f} ;
+		const auto r1x = PACK<int ,float> ({
+			1 ,
+			2.1f}) ;
 		const auto r2x = Serializer<wrapped_string ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
 		auto &r1 = _CAST_<wrapped_string> (rax) ;

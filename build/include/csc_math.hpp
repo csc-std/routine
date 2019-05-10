@@ -12,25 +12,33 @@ inline namespace S {
 inline BOOL _ISNAN_ (const VAL32 &arg) {
 	const auto r1x = _CAST_<CHAR> (arg) & CHAR (0X7F800000) ;
 	const auto r2x = _CAST_<CHAR> (arg) & CHAR (0X007FFFFF) ;
-	return r1x == CHAR (0X7F800000) && r2x != 0 ;
+	if (r1x != CHAR (0X7F800000))
+		return FALSE ;
+	return r2x != 0 ;
 }
 
 inline BOOL _ISNAN_ (const VAL64 &arg) {
 	const auto r1x = _CAST_<DATA> (arg) & DATA (0X7FF0000000000000) ;
 	const auto r2x = _CAST_<DATA> (arg) & DATA (0X000FFFFFFFFFFFFF) ;
-	return r1x == DATA (0X7FF0000000000000) && r2x != 0 ;
+	if (r1x != DATA (0X7FF0000000000000))
+		return FALSE ;
+	return r2x != 0 ;
 }
 
 inline BOOL _ISINF_ (const VAL32 &arg) {
 	const auto r1x = _CAST_<CHAR> (arg) & CHAR (0X7F800000) ;
 	const auto r2x = _CAST_<CHAR> (arg) & CHAR (0X007FFFFF) ;
-	return r1x == CHAR (0X7F800000) && r2x == 0 ;
+	if (r1x != CHAR (0X7F800000))
+		return FALSE ;
+	return r2x == 0 ;
 }
 
 inline BOOL _ISINF_ (const VAL64 &arg) {
 	const auto r1x = _CAST_<DATA> (arg) & DATA (0X7FF0000000000000) ;
 	const auto r2x = _CAST_<DATA> (arg) & DATA (0X000FFFFFFFFFFFFF) ;
-	return r1x == DATA (0X7FF0000000000000) && r2x == 0 ;
+	if (r1x != DATA (0X7FF0000000000000))
+		return FALSE ;
+	return r2x == 0 ;
 }
 
 inline import DEF<VALX (const VALX &arg)> _SQRT_ ;
@@ -288,7 +296,7 @@ inline ARRAY2<VAR64> _IEEE754E2TOE10_ (const ARRAY2<VAR64> &arg) {
 	}) ;
 	const auto r2x = (VALX_LOGE2 / VALX_LOGE10) * r1x[1] ;
 	ARRAY2<DATA> ret ;
-	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (10 ,r2x - VAR64 (r2x)) + VAL64 (0.5))) ;
+	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (10 ,(r2x - VAR64 (r2x))) + VAL64 (0.5))) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (ret[0] != 0 && ret[0] % 10 == 0) {
 		ret[0] /= 10 ;
@@ -318,7 +326,7 @@ inline ARRAY2<VAR64> _IEEE754E10TOE2_ (const ARRAY2<VAR64> &arg) {
 	}) ;
 	const auto r2x = (VALX_LOGE10 / VALX_LOGE2) * r1x[1] ;
 	ARRAY2<DATA> ret ;
-	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (2 ,r2x - VAR64 (r2x)) + VAL64 (0.5))) ;
+	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (2 ,(r2x - VAR64 (r2x))) + VAL64 (0.5))) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (ret[0] != 0 && (ret[0] & DATA (~0X001FFFFFFFFFFFFF)) != 0) {
 		ret[0] >>= 1 ;

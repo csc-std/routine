@@ -842,7 +842,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG> &arg) {
 		const auto r1x = (rax >= _ARG ('0') && rax <= _ARG ('9')) || (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
 		_DYNAMIC_ASSERT_ (r1x) ;
 		const auto r2x = (rax >= _ARG ('0') && rax <= _ARG ('9')) ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
-		ret = (ret << 4) | DATA (rax - r2x) ;
+		ret = (ret << 4) | CHAR (rax - r2x) ;
 	}
 	ris >> _EOS_ ;
 	return std::move (ret) ;
@@ -1038,7 +1038,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG> &arg) {
 	ris >> rbx ;
 	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
 	const auto r4x = BYTE (rbx) ;
-	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
+	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> ({r1x ,r2x ,r3x ,r4x}) ;
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x).merge () ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;

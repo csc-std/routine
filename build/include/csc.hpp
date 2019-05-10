@@ -1158,7 +1158,9 @@ inline void _MEMRCOPY_ (ARR<_ARG> &dst ,const ARR<_ARG> &src ,LENGTH len) {
 	_DEBUG_ASSERT_ (dst != NULL || len == 0) ;
 	_DEBUG_ASSERT_ (len >= 0) ;
 	_DEBUG_ASSERT_ (dst == src || _ABS_ (dst - src) >= len) ;
-	if (dst == NULL || src == NULL)
+	if (dst == NULL)
+		return ;
+	if (src == NULL)
 		return ;
 	if (dst == src) {
 		for (INDEX i = 0 ; i < len + ~i ; i++) {
@@ -1571,7 +1573,7 @@ public:
 	inline ScopedGuard &operator= (const ScopedGuard &) = delete ;
 	inline ScopedGuard (ScopedGuard &&) = delete ;
 	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
-		} ;
+} ;
 
 template <class TYPE>
 class ScopedHolder final {
@@ -2213,7 +2215,7 @@ public:
 		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
-		}
+	}
 
 	inline UniqueRef (const UniqueRef &) = delete ;
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
@@ -2262,7 +2264,7 @@ public:
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
-	} ;
+} ;
 
 template <>
 class UniqueRef<void> {
@@ -2323,7 +2325,7 @@ public:
 		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
-		}
+	}
 
 	inline UniqueRef (const UniqueRef &) = delete ;
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
@@ -2343,7 +2345,7 @@ public:
 	inline BOOL exist () const {
 		return mPointer != NULL ;
 	}
-	} ;
+} ;
 
 template <class TYPE>
 class PhanRef {
@@ -2885,7 +2887,9 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &right) const {
-		return mSize == right.mSize && _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (mSize != right.mSize)
+			return FALSE ;
+		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3129,7 +3133,9 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &right) const {
-		return mSize == right.mSize && _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (mSize != right.mSize)
+			return FALSE ;
+		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3259,7 +3265,9 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &right) const {
-		return mSize == right.mSize && _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (mSize != right.mSize)
+			return FALSE ;
+		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3332,7 +3340,7 @@ public:
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<TYPE>> (&src.self) ,src.size () * _SIZEOF_ (_ARG1)) ;
+		return make (_LOAD_<ARR<TYPE>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3414,7 +3422,9 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &right) const {
-		return mSize == right.mSize && _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (mSize != right.mSize)
+			return FALSE ;
+		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3487,7 +3497,7 @@ public:
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<TYPE>> (&src.self) ,src.size () * _SIZEOF_ (_ARG1)) ;
+		return make (_LOAD_<ARR<TYPE>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
 	inline static Buffer make (const Buffer<TYPE ,SMPHAN> &src) {
@@ -3498,7 +3508,7 @@ public:
 	inline static Buffer make (const Buffer<_ARG ,SMPHAN> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<TYPE>> (&src.self) ,src.size () * _SIZEOF_ (_ARG)) ;
+		return make (_LOAD_<ARR<TYPE>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG))) ;
 	}
 } ;
 

@@ -102,7 +102,9 @@ inline export PhanBuffer<const BYTE> _LOADASSETFILE_ (FLAG resource) popping {
 
 inline export BOOL _FINDFILE_ (const String<STR> &file) popping {
 	const auto r1x = GetFileAttributes (file.raw ().self) ;
-	return r1x != INVALID_FILE_ATTRIBUTES && (r1x & FILE_ATTRIBUTE_DIRECTORY) == 0 ;
+	if (r1x == INVALID_FILE_ATTRIBUTES)
+		return FALSE ;
+	return (r1x & FILE_ATTRIBUTE_DIRECTORY) == 0 ;
 }
 
 inline export void _ERASEFILE_ (const String<STR> &file) {
@@ -155,6 +157,7 @@ inline export BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> 
 		return FALSE ;
 	if (rax[0].nFileIndexLow != rax[1].nFileIndexLow)
 		return FALSE ;
+	_STATIC_ASSERT_ ("unqualified") ;
 	return TRUE ;
 }
 
@@ -216,13 +219,13 @@ inline export String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		Stack<INDEX> ret = Stack<INDEX> (r1x.length ()) ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++) {
 			INDEX ix = r1x.access (i) ;
-			if (_MEMEQUAL_ (r1x[ix].raw ().self ,_PCSTR_ (".")))
+			if (r1x[ix] == _PCSTR_ ("."))
 				continue ;
-			const auto r3x = !ret.empty () && _MEMEQUAL_ (r1x[ix].raw ().self ,_PCSTR_ ("..")) ;
+			const auto r3x = (!ret.empty () && r1x[ix] == _PCSTR_ ("..")) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r3x)
 					continue ;
-				if (_MEMEQUAL_ (r1x[ret[ret.peek ()]].raw ().self ,_PCSTR_ ("..")))
+				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
 					continue ;
 				ret.take () ;
 			}
@@ -232,12 +235,12 @@ inline export String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		}
 		return std::move (ret) ;
 	}) ;
-	const auto r4x = path.length () >= 1 && (path[0] == STR ('\\') || path[0] == STR ('/')) ;
+	const auto r4x = (path.length () >= 1 && (path[0] == STR ('\\') || path[0] == STR ('/'))) ;
 	if (r4x)
 		ret += _PCSTR_ ("\\") ;
-	const auto r5x = r1x.length () >= 1 && _MEMEQUAL_ (r1x[r1x.access (0)].raw ().self ,_PCSTR_ (".")) ;
-	const auto r6x = r1x.length () >= 1 && _MEMEQUAL_ (r1x[r1x.access (0)].raw ().self ,_PCSTR_ ("..")) ;
-	const auto r7x = !r4x && (r5x || r6x) ;
+	const auto r5x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
+	const auto r6x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
+	const auto r7x = (!r4x && (r5x || r6x)) ;
 	if (r7x)
 		ret += _WORKINGPATH_ () ;
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
@@ -268,7 +271,30 @@ inline export String<STR> _MODULEFILENAME_ () {
 
 inline export BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 	const auto r1x = GetFileAttributes (dire.raw ().self) ;
-	return r1x != INVALID_FILE_ATTRIBUTES && (r1x & FILE_ATTRIBUTE_DIRECTORY) != 0 ;
+	if (r1x == INVALID_FILE_ATTRIBUTES)
+		return FALSE ;
+	return (r1x & FILE_ATTRIBUTE_DIRECTORY) != 0 ;
+}
+
+inline export void _BUILDDIRECTORY_ (const String<STR> &dire) {
+	if (_FINDDIRECTORY_ (dire))
+		return ;
+	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
+	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
+	const auto r2x = (dire.length () >= 1 && (dire[0] == STR ('\\') || dire[0] == STR ('/'))) ;
+	if (r2x)
+		rax += _PCSTR_ ("\\") ;
+	for (INDEX i = 0 ; i < r1x.length () ; i++) {
+		if (i != 0)
+			rax += _PCSTR_ ("\\") ;
+		INDEX ix = r1x.access (i) ;
+		rax += r1x[ix] ;
+		const auto r3x = r1x[ix].length () ;
+		if (r3x > 1 && r1x[ix][r3x - 1] == STR (':'))
+			continue ;
+		CreateDirectory (rax.raw ().self ,NULL) ;
+	}
 }
 
 inline export void _ERASEDIRECTORY_ (const String<STR> &dire) {
@@ -294,25 +320,6 @@ inline export void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
 		}
-	}
-}
-
-inline export void _BUILDDIRECTORY_ (const String<STR> &dire) {
-	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
-	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
-	const auto r2x = dire.length () >= 1 && (dire[0] == STR ('\\') || dire[0] == STR ('/')) ;
-	if (r2x)
-		rax += _PCSTR_ ("\\") ;
-	for (INDEX i = 0 ; i < r1x.length () ; i++) {
-		if (i != 0)
-			rax += _PCSTR_ ("\\") ;
-		INDEX ix = r1x.access (i) ;
-		rax += r1x[ix] ;
-		const auto r3x = r1x[ix].length () ;
-		if (r3x > 1 && r1x[ix][r3x - 1] == STR (':'))
-			continue ;
-		CreateDirectory (rax.raw ().self ,NULL) ;
 	}
 }
 
@@ -684,16 +691,16 @@ public:
 		return _FINDDIRECTORY_ (dire) ;
 	}
 
+	void build_directory (const String<STR> &dire) override {
+		_BUILDDIRECTORY_ (dire) ;
+	}
+
 	void erase_directory (const String<STR> &dire) override {
 		_ERASEDIRECTORY_ (dire) ;
 	}
 
 	void clear_directory (const String<STR> &dire) override {
 		_CLEARDIRECTORY_ (dire) ;
-	}
-
-	void build_directory (const String<STR> &dire) override {
-		_BUILDDIRECTORY_ (dire) ;
 	}
 
 	void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping override {

@@ -54,11 +54,11 @@ inline import DEF<String<STR> ()> _MODULEFILENAME_ ;
 
 inline import DEF<BOOL (const String<STR> &dire) popping> _FINDDIRECTORY_ ;
 
+inline import DEF<void (const String<STR> &dire)> _BUILDDIRECTORY_ ;
+
 inline import DEF<void (const String<STR> &dire)> _ERASEDIRECTORY_ ;
 
 inline import DEF<void (const String<STR> &dire)> _CLEARDIRECTORY_ ;
-
-inline import DEF<void (const String<STR> &dire)> _BUILDDIRECTORY_ ;
 
 inline import DEF<void (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping> _ENUMDIRECTORY_ ;
 } ;
@@ -141,9 +141,9 @@ private:
 		virtual String<STR> module_file_path () const = 0 ;
 		virtual String<STR> module_file_name () const = 0 ;
 		virtual BOOL find_directory (const String<STR> &dire) popping = 0 ;
+		virtual void build_directory (const String<STR> &dire) = 0 ;
 		virtual void erase_directory (const String<STR> &dire) = 0 ;
 		virtual void clear_directory (const String<STR> &dire) = 0 ;
-		virtual void build_directory (const String<STR> &dire) = 0 ;
 		virtual void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping = 0 ;
 	} ;
 
@@ -253,6 +253,11 @@ public:
 		return mThis->find_directory (dire) ;
 	}
 
+	void build_directory (const String<STR> &dire) {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		mThis->build_directory (dire) ;
+	}
+
 	void erase_directory (const String<STR> &dire) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->erase_directory (dire) ;
@@ -261,11 +266,6 @@ public:
 	void clear_directory (const String<STR> &dire) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->clear_directory (dire) ;
-	}
-
-	void build_directory (const String<STR> &dire) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->build_directory (dire) ;
 	}
 
 	void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {

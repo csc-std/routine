@@ -135,6 +135,7 @@ inline export BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> 
 		return FALSE ;
 	if (rax[0].st_ino != rax[1].st_ino)
 		return FALSE ;
+	_STATIC_ASSERT_ ("unqualified") ;
 	return TRUE ;
 }
 
@@ -200,13 +201,13 @@ inline export String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		Stack<INDEX> ret = Stack<INDEX> (r1x.length ()) ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++) {
 			INDEX ix = r1x.access (i) ;
-			if (_MEMEQUAL_ (r1x[ix].raw ().self ,_PCSTR_ (".")))
+			if (r1x[ix] == _PCSTR_ ("."))
 				continue ;
-			const auto r3x = !ret.empty () && _MEMEQUAL_ (r1x[ix].raw ().self ,_PCSTR_ ("..")) ;
+			const auto r3x = (!ret.empty () && r1x[ix] == _PCSTR_ ("..")) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r3x)
 					continue ;
-				if (_MEMEQUAL_ (r1x[ret[ret.peek ()]].raw ().self ,_PCSTR_ ("..")))
+				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
 					continue ;
 				ret.take () ;
 			}
@@ -216,12 +217,12 @@ inline export String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		}
 		return std::move (ret) ;
 	}) ;
-	const auto r4x = path.length () >= 1 && (path[0] == STR ('\\') || path[0] == STR ('/')) ;
+	const auto r4x = (path.length () >= 1 && (path[0] == STR ('\\') || path[0] == STR ('/'))) ;
 	if (r4x)
 		ret += _PCSTR_ ("/") ;
-	const auto r5x = r1x.length () >= 1 && _MEMEQUAL_ (r1x[r1x.access (0)].raw ().self ,_PCSTR_ (".")) ;
-	const auto r6x = r1x.length () >= 1 && _MEMEQUAL_ (r1x[r1x.access (0)].raw ().self ,_PCSTR_ ("..")) ;
-	const auto r7x = !r4x && (r5x || r6x) ;
+	const auto r5x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
+	const auto r6x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
+	const auto r7x = (!r4x && (r5x || r6x)) ;
 	if (r7x)
 		ret += _WORKINGPATH_ () ;
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
@@ -265,6 +266,27 @@ inline export BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 	return r1x.self != NULL ;
 }
 
+inline export void _BUILDDIRECTORY_ (const String<STR> &dire) {
+	if (_FINDDIRECTORY_ (dire))
+		return ;
+	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
+	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
+	const auto r2x = (dire.length () >= 1 && (dire[0] == STR ('\\') || dire[0] == STR ('/'))) ;
+	if (r2x)
+		rax += _PCSTR_ ("/") ;
+	for (INDEX i = 0 ; i < r1x.length () ; i++) {
+		if (i != 0)
+			rax += _PCSTR_ ("/") ;
+		INDEX ix = r1x.access (i) ;
+		rax += r1x[ix] ;
+		const auto r3x = r1x[ix].length () ;
+		if (r3x > 1 && r1x[ix][r3x - 1] == STR (':'))
+			continue ;
+		mkdir (_BUILDSTRS_<STRA> (rax).raw ().self ,mode_t (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) ;
+	}
+}
+
 inline export void _ERASEDIRECTORY_ (const String<STR> &dire) {
 	unlink (_BUILDSTRS_<STRA> (dire).raw ().self) ;
 }
@@ -291,25 +313,6 @@ inline export void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	}
 }
 
-inline export void _BUILDDIRECTORY_ (const String<STR> &dire) {
-	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
-	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
-	const auto r2x = dire.length () >= 1 && (dire[0] == STR ('\\') || dire[0] == STR ('/')) ;
-	if (r2x)
-		rax += _PCSTR_ ("/") ;
-	for (INDEX i = 0 ; i < r1x.length () ; i++) {
-		if (i != 0)
-			rax += _PCSTR_ ("/") ;
-		INDEX ix = r1x.access (i) ;
-		rax += r1x[ix] ;
-		const auto r3x = r1x[ix].length () ;
-		if (r3x > 1 && r1x[ix][r3x - 1] == STR (':'))
-			continue ;
-		mkdir (_BUILDSTRS_<STRA> (rax).raw ().self ,mode_t (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) ;
-	}
-}
-
 inline export void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	rax += dire ;
@@ -329,9 +332,9 @@ inline export void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void
 		if (r3x == NULL)
 			break ;
 		const auto r4x = _PARSESTRS_ (String<STRA> (r3x->d_name)) ;
-		if (_MEMEQUAL_ (r4x.raw ().self ,_PCSTR_ (".")))
+		if (r4x == _PCSTR_ ("."))
 			continue ;
-		if (_MEMEQUAL_ (r4x.raw ().self ,_PCSTR_ ("..")))
+		if (r4x == _PCSTR_ (".."))
 			continue ;
 		rax += r4x ;
 		auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
@@ -545,16 +548,16 @@ public:
 		return _FINDDIRECTORY_ (dire) ;
 	}
 
+	void build_directory (const String<STR> &dire) override {
+		_BUILDDIRECTORY_ (dire) ;
+	}
+
 	void erase_directory (const String<STR> &dire) override {
 		_ERASEDIRECTORY_ (dire) ;
 	}
 
 	void clear_directory (const String<STR> &dire) override {
 		_CLEARDIRECTORY_ (dire) ;
-	}
-
-	void build_directory (const String<STR> &dire) override {
-		_BUILDDIRECTORY_ (dire) ;
 	}
 
 	void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping override {

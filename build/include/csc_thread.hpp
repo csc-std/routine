@@ -741,7 +741,9 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		return !r1.mThreadFlag.exist () || !r1.mThreadFlag.self ;
+		if (!r1.mThreadFlag.exist ())
+			return TRUE ;
+		return !r1.mThreadFlag.self ;
 	}
 
 	ITEM poll () popping {

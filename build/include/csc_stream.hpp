@@ -676,7 +676,9 @@ private:
 		}
 
 		BOOL varify_escape_r (const UNIT &item) const {
-			return mEscapeFlag && item == varify_escape_item () ;
+			if (!mEscapeFlag)
+				return FALSE ;
+			return item == varify_escape_item () ;
 		}
 
 		void modify_escape (const UNIT &key ,const UNIT &item) {
@@ -696,7 +698,9 @@ private:
 
 		BOOL varify_space (const UNIT &item ,VAR32 group) const {
 			INDEX ix = mSpaceSet.find (item) ;
-			return ix != VAR_NONE && mSpaceSet[ix].item == group ;
+			if (ix == VAR_NONE)
+				return FALSE ;
+			return mSpaceSet[ix].item == group ;
 		}
 
 		void modify_space (const UNIT &item) {
@@ -712,9 +716,14 @@ private:
 		}
 
 		BOOL varify_control (const UNIT &item) const {
-			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) || item == UNIT (127) ;
-			const auto r2x = varify_space (item) ;
-			return r1x && !r2x ;
+			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) ;
+			const auto r2x = item == UNIT (127) ;
+			if (!r1x && !r2x)
+				return FALSE ;
+			if (varify_space (item))
+				return FALSE ;
+			_STATIC_ASSERT_ ("unqualified") ;
+			return TRUE ;
 		}
 	} ;
 
@@ -1147,7 +1156,9 @@ private:
 		}
 
 		BOOL varify_escape_w (const UNIT &key) const {
-			return mEscapeFlag && mEscapeSet.find (key) != VAR_NONE ;
+			if (!mEscapeFlag)
+				return FALSE ;
+			return mEscapeSet.find (key) != VAR_NONE ;
 		}
 
 		void modify_escape (const UNIT &key ,const UNIT &item) {
@@ -1167,9 +1178,14 @@ private:
 		}
 
 		BOOL varify_control (const UNIT &item) const {
-			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) || item == UNIT (127) ;
-			const auto r2x = varify_space (item) ;
-			return r1x && !r2x ;
+			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) ;
+			const auto r2x = item == UNIT (127) ;
+			if (!r1x && !r2x)
+				return FALSE ;
+			if (varify_space (item))
+				return FALSE ;
+			_STATIC_ASSERT_ ("unqualified") ;
+			return TRUE ;
 		}
 	} ;
 
@@ -2019,12 +2035,12 @@ public:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		while (TRUE) {
-			const auto r2x = ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z') ;
-			const auto r3x = ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z') ;
+			const auto r2x = (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
+			const auto r3x = (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
 			const auto r4x = ris[0] == STRU8 ('_') ;
 			_DYNAMIC_ASSERT_ (ret != 0 || r2x || r3x || r4x) ;
-			const auto r5x = ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9') ;
-			const auto r6x = ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':') ;
+			const auto r5x = (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
+			const auto r6x = (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
 			if (!r2x && !r3x && !r4x && !r5x && !r6x)
 				break ;
 			ris++ ;
@@ -2056,7 +2072,7 @@ public:
 				ret++ ;
 			}
 		}
-		const auto r2x = ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E') ;
+		const auto r2x = (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r2x)
 				continue ;

@@ -344,6 +344,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 				return FALSE ;
 			if (mConvergence[1] - mConvergence[2] >= mTolerance)
 				return FALSE ;
+			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 
@@ -661,9 +662,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			INDEX iz = mPloygonVertexList.access ((it + 1) % mPloygonVertexList.length ()) ;
 			if (math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) >= UNIT (0))
 				return FALSE ;
-			if (!edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]))
-				return FALSE ;
-			return TRUE ;
+			return edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) ;
 		}
 
 		inline BOOL edge_triangle (INDEX v1 ,INDEX v2 ,INDEX v3) const {
@@ -685,6 +684,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 				return FALSE ;
 			if (r1x <= UNIT (0) && r2x < UNIT (0) && r3x < UNIT (0))
 				return FALSE ;
+			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 
@@ -1044,7 +1044,7 @@ private:
 			compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
 		if (r3x <= point[rot] + out[out.length () - 1].P2)
 			compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
-		_STATIC_ASSERT_ ("noop") ;
+		_STATIC_ASSERT_ ("unqualified") ;
 	}
 } ;
 

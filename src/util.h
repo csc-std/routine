@@ -71,7 +71,9 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
 inline export PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
-	static Monostate<std::atomic<PTR<NONE>> ,void> mInstance (&_NULL_<NONE> ()) ;
+	static const Monostate<std::atomic<PTR<NONE>> ,ARGC<1>> mInstance ([] () {
+		return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
+	}) ;
 	mInstance.self.compare_exchange_strong (expect ,data) ;
 	return mInstance.self.load () ;
 }

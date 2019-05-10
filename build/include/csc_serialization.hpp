@@ -35,7 +35,9 @@ public:
 	}
 
 	BOOL exist () const {
-		return mHeap.exist () && mIndex != VAR_NONE ;
+		if (!mHeap.exist ())
+			return FALSE ;
+		return mIndex != VAR_NONE ;
 	}
 
 	XmlParser root () const {
@@ -91,9 +93,13 @@ public:
 	}
 
 	BOOL equal (const XmlParser &right) const {
+		if (!exist () && !right.exist ())
+			return TRUE ;
 		if (!exist () || !right.exist ())
-			return !exist () && !right.exist () ;
-		return &mHeap.self == &right.mHeap.self && mIndex == right.mIndex ;
+			return FALSE ;
+		if (&mHeap.self != &right.mHeap.self)
+			return FALSE ;
+		return mIndex == right.mIndex ;
 	}
 
 	inline BOOL operator== (const XmlParser &right) const {
@@ -368,8 +374,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $4->ε|$3 $4
 		inline void update_shift_e4 (INDEX it) {
 			while (TRUE) {
-				const auto r1x = mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z') ;
-				const auto r2x = mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z') ;
+				const auto r1x = (mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')) ;
+				const auto r2x = (mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')) ;
 				const auto r3x = mRis[0] == STRU8 ('_') ;
 				if (!r1x && !r2x && !r3x)
 					break ;
@@ -433,8 +439,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
-				const auto r1x = mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!') ;
-				const auto r2x = mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/') ;
+				const auto r1x = (mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!')) ;
+				const auto r2x = (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
 				if (!r1x && !r2x)
 					break ;
 				if (r1x) {
@@ -794,9 +800,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 class JsonParser {
 private:
-	static constexpr auto TYPE_ID_STRING = FLAG (1) ;
-	static constexpr auto TYPE_ID_ARRAY = FLAG (2) ;
-	static constexpr auto TYPE_ID_OBJECT = FLAG (3) ;
+	static constexpr auto TYPE_ID_NULL = FLAG (1) ;
+	static constexpr auto TYPE_ID_STRING = FLAG (2) ;
+	static constexpr auto TYPE_ID_ARRAY = FLAG (3) ;
+	static constexpr auto TYPE_ID_OBJECT = FLAG (4) ;
 
 	class Pack {
 	private:
@@ -818,7 +825,9 @@ public:
 	}
 
 	BOOL exist () const {
-		return mHeap.exist () && mIndex != VAR_NONE ;
+		if (!mHeap.exist ())
+			return FALSE ;
+		return mIndex != VAR_NONE ;
 	}
 
 	BOOL string_type () const {
@@ -905,9 +914,13 @@ public:
 	}
 
 	BOOL equal (const JsonParser &right) const {
+		if (!exist () && !right.exist ())
+			return FALSE ;
 		if (!exist () || !right.exist ())
-			return !exist () && !right.exist () ;
-		return &mHeap.self == &right.mHeap.self && mIndex == right.mIndex ;
+			return TRUE ;
+		if (&mHeap.self != &right.mHeap.self)
+			return FALSE ;
+		return mIndex == right.mIndex ;
 	}
 
 	inline BOOL operator== (const JsonParser &right) const {
@@ -1000,7 +1013,10 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 	while (!rax[0].empty ()) {
 		const auto r1x = std::move (rax[0][rax[0].peek ()]) ;
 		rax[0].take () ;
-		if (r1x[0] != VAR_NONE && mHeap.self[r1x[0]].mTypeID == TYPE_ID_STRING && r1x[1] == 0) {
+		if (r1x[0] != VAR_NONE && mHeap.self[r1x[0]].mTypeID == TYPE_ID_NULL && r1x[1] == 0) {
+			//@info: case 'null'
+			writer << _PCSTRU8_ ("null") ;
+		} else if (r1x[0] != VAR_NONE && mHeap.self[r1x[0]].mTypeID == TYPE_ID_STRING && r1x[1] == 0) {
 			//@info: case '"xxx"'
 			auto &r1 = mHeap.self[r1x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
@@ -1115,9 +1131,10 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			/*
 			$0->$11 $10 $12
 			$1->数值串
-			$2->true|false|null
+			$2->true|TRUE|false|FALSE
+			$2x->null
 			$3->"文本串"
-			$4->$1|$2|$3|$6|$9
+			$4->$1|$2|$2x|$3|$6|$9
 			$5->$4|$4 , $5
 			$6->[ ]|[ $5 ]
 			$7->$2 : $4
@@ -1149,18 +1166,28 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::HINT_VALUE_TEXT >> mLatestString ;
 		}
 
-		//@info: $2->true|false|null
+		//@info: $2->true|TRUE|false|FALSE
 		inline void update_shift_e2 () {
+			_DEBUG_ASSERT_ (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T') || mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
 			if (mRis[0] == STRU8 ('t')) {
 				mRis >> _PCSTRU8_ ("true") ;
 				mLatestString = _PCSTRU8_ ("true") ;
+			} else if (mRis[0] == STRU8 ('T')) {
+				mRis >> _PCSTRU8_ ("TRUE") ;
+				mLatestString = _PCSTRU8_ ("TRUE") ;
 			} else if (mRis[0] == STRU8 ('f')) {
 				mRis >> _PCSTRU8_ ("false") ;
 				mLatestString = _PCSTRU8_ ("false") ;
-			} else if (mRis[0] == STRU8 ('n')) {
-				mRis >> _PCSTRU8_ ("null") ;
-				mLatestString = String<STRU8> () ;
+			} else if (mRis[0] == STRU8 ('F')) {
+				mRis >> _PCSTRU8_ ("FALSE") ;
+				mLatestString = _PCSTRU8_ ("FALSE") ;
 			}
+		}
+
+		//@info: $2x->null
+		inline void update_shift_e2x () {
+			mRis >> _PCSTRU8_ ("null") ;
+			mLatestString = String<STRU8> () ;
 		}
 
 		//@info: $3->"文本串"
@@ -1168,13 +1195,14 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
 
-		//@info: $4->$1|$2|$3|$6|$9
+		//@info: $4->$1|$2|$2x|$3|$6|$9
 		inline void update_shift_e4 (INDEX it) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
-			const auto r1x = mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-') || (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
-			const auto r2x = mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('n') ;
-			_DYNAMIC_ASSERT_ (r1x || r2x || mRis[0] == STRU8 ('\"') || mRis[0] == STRU8 ('[') || mRis[0] == STRU8 ('{')) ;
+			const auto r1x = (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-') || (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9'))) ;
+			const auto r2x = (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T') || mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
+			const auto r3x = mRis[0] == STRU8 ('n') ;
+			_DYNAMIC_ASSERT_ (r1x || r2x || r3x || mRis[0] == STRU8 ('\"') || mRis[0] == STRU8 ('[') || mRis[0] == STRU8 ('{')) ;
 			if (r1x) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
@@ -1188,6 +1216,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
+				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+			} else if (r3x) {
+				ix = mNodeHeap.alloc () ;
+				update_shift_e2x () ;
+				mNodeHeap[ix].mTypeID = TYPE_ID_NULL ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;

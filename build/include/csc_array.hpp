@@ -426,9 +426,28 @@ public:
 		return index + 1 ;
 	}
 
+	template <LENGTH _VAL>
+	BOOL equal (const DEF<ITEM[_VAL]> &right) {
+		if (size () <= _VAL)
+			return FALSE ;
+		return _MEMEQUAL_ (mString.raw ().self ,right) ;
+	}
+
+	template <LENGTH _VAL>
+	inline BOOL operator== (const DEF<ITEM[_VAL]> &right) const {
+		return equal (right) ;
+	}
+
+	template <LENGTH _VAL>
+	inline BOOL operator!= (const DEF<ITEM[_VAL]> &right) const {
+		return !equal (right) ;
+	}
+
 	BOOL equal (const String &right) const {
+		if (size () == 0 && right.size () == 0)
+			return TRUE ;
 		if (size () == 0 || right.size () == 0)
-			return size () == 0 && right.size () == 0 ;
+			return FALSE ;
 		INDEX ir = 0 ;
 		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
 			ir++ ;
@@ -444,8 +463,12 @@ public:
 	}
 
 	BOOL less (const String &right) const {
-		if (size () == 0 || right.size () == 0)
-			return right.size () != 0 ;
+		if (size () == 0 && right.size () == 0)
+			return FALSE ;
+		if (size () == 0)
+			return TRUE ;
+		if (right.size () == 0)
+			return FALSE ;
 		INDEX ir = 0 ;
 		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
 			ir++ ;
@@ -469,7 +492,9 @@ public:
 	}
 
 	BOOL empty () const {
-		return mString.size () == 0 || mString[0] == ITEM (0) ;
+		if (mString.size () == 0)
+			return TRUE ;
+		return mString[0] == ITEM (0) ;
 	}
 
 	String add (const String &right) const {
@@ -913,7 +938,9 @@ public:
 	}
 
 	BOOL full () const {
-		return mQueue.size () == 0 || mRead == (mWrite + 1) % mQueue.size () ;
+		if (mQueue.size () == 0)
+			return TRUE ;
+		return mRead == (mWrite + 1) % mQueue.size () ;
 	}
 
 	void add (const ITEM &item) {
@@ -1003,10 +1030,14 @@ private:
 
 private:
 	BOOL ensure_index (INDEX index) const {
-		if (mRead <= mWrite && !(index >= mRead && index < mWrite))
+		const auto r1x = (index >= mRead && index < mWrite) ;
+		if (mRead <= mWrite && !r1x)
 			return FALSE ;
-		if (mRead > mWrite && !(index >= 0 && index < mWrite) && !(index >= mRead && index < mQueue.size ()))
+		const auto r2x = (index >= 0 && index < mWrite) ;
+		const auto r3x = (index >= mRead && index < mQueue.size ()) ;
+		if (mRead > mWrite && !r2x && !r3x)
 			return FALSE ;
+		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 
@@ -1350,7 +1381,9 @@ public:
 	}
 
 	BOOL equal (const Priority &right) const {
-		return length () == right.length () && _MEMEQUAL_ (mPriority ,right.mPriority ,length ()) ;
+		if (length () != right.length ())
+			return FALSE ;
+		return _MEMEQUAL_ (mPriority ,right.mPriority ,length ()) ;
 	}
 
 	inline BOOL operator== (const Priority &right) const {
@@ -3091,14 +3124,17 @@ public:
 
 private:
 	BOOL equal_each (const Set &right ,INDEX it ,INDEX jt) const {
+		if (it == VAR_NONE && jt == VAR_NONE)
+			return TRUE ;
 		if (it == VAR_NONE || jt == VAR_NONE)
-			return it == VAR_NONE && jt == VAR_NONE ;
+			return FALSE ;
 		if (!equal_each (right ,mSet[it].mLeft ,right.mSet[jt].mLeft))
 			return FALSE ;
 		if (mSet[it].mKey != right.mSet[jt].mKey)
 			return FALSE ;
 		if (!equal_each (right ,mSet[it].mRight ,right.mSet[jt].mRight))
 			return FALSE ;
+		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 
@@ -3212,8 +3248,8 @@ private:
 			rotate_left (r2) ;
 			r2 = mTop ;
 		}
-		const auto r1x = mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed ;
-		const auto r2x = mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed ;
+		const auto r1x = (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
+		const auto r2x = (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
 		if (r1x && r2x) {
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
@@ -3249,8 +3285,8 @@ private:
 			rotate_right (r2) ;
 			r2 = mTop ;
 		}
-		const auto r1x = mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed ;
-		const auto r2x = mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed ;
+		const auto r1x = (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
+		const auto r2x = (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
 		if (r1x && r2x) {
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
@@ -3755,7 +3791,9 @@ public:
 private:
 	BOOL equal_each (const HashSet &right ,INDEX it) const {
 		INDEX ix = right.find (mSet[it].mKey) ;
-		return ix != VAR_NONE && mSet[it].mItem == right.mSet[ix].mItem ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		return mSet[it].mItem == right.mSet[ix].mItem ;
 	}
 
 	void update_resize (INDEX it) {
@@ -4280,14 +4318,17 @@ public:
 
 private:
 	BOOL equal_each (const SoftSet &right ,INDEX it ,INDEX jt) const {
+		if (it == VAR_NONE && jt == VAR_NONE)
+			return TRUE ;
 		if (it == VAR_NONE || jt == VAR_NONE)
-			return it == VAR_NONE && jt == VAR_NONE ;
+			return FALSE ;
 		if (!equal_each (right ,mSet.self[it].mLeft ,right.mSet.self[jt].mLeft))
 			return FALSE ;
 		if (mSet.self[it].mKey != right.mSet.self[jt].mKey)
 			return FALSE ;
 		if (!equal_each (right ,mSet.self[it].mRight ,right.mSet.self[jt].mRight))
 			return FALSE ;
+		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 

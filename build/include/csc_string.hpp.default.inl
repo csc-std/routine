@@ -187,7 +187,9 @@ public:
 	}
 
 	BOOL match (const String<STRU8> &expr) const {
-		return !expr.empty () && std::regex_match (_U8STOUAS_ (expr).raw ().self ,mRegex.self) ;
+		if (expr.empty ())
+			return FALSE ;
+		return std::regex_match (_U8STOUAS_ (expr).raw ().self ,mRegex.self) ;
 	}
 
 	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {

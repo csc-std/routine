@@ -539,7 +539,9 @@ public:
 	explicit AbstractImage (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
 
 	BOOL exist () const {
-		return mAbstract.exist () && mHolder.exist () ;
+		if (!mAbstract.exist ())
+			return FALSE ;
+		return mHolder.exist () ;
 	}
 
 	LENGTH cx () const {
