@@ -8,13 +8,13 @@
 #undef self
 #undef implicit
 #undef popping
-#undef import
-#undef export
+#undef imports
+#undef exports
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
 #pragma pop_macro ("popping")
-#pragma pop_macro ("import")
-#pragma pop_macro ("export")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
 #endif
 
 #ifndef _INC_WINDOWS
@@ -49,13 +49,13 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
-#pragma push_macro ("import")
-#pragma push_macro ("export")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
 #define self to ()
 #define implicit
 #define popping
-#define import extern
-#define export
+#define imports extern
+#define exports
 #endif
 
 namespace CSC {
@@ -231,35 +231,35 @@ private:
 	}
 } ;
 
-inline export TCPSocket::TCPSocket (const String<STRU8> &addr) {
+inline exports TCPSocket::TCPSocket (const String<STRU8> &addr) {
 	mThis = AnyRef<Implement>::make (addr) ;
 }
 
-inline export String<STRU8> TCPSocket::sock_name () const {
+inline exports String<STRU8> TCPSocket::sock_name () const {
 	return mThis.rebind<Implement> ()->sock_name () ;
 }
 
-inline export String<STRU8> TCPSocket::peer_sock_name () const {
+inline exports String<STRU8> TCPSocket::peer_sock_name () const {
 	return mThis.rebind<Implement> ()->peer_sock_name () ;
 }
 
-inline export void TCPSocket::link (const String<STRU8> &addr) {
+inline exports void TCPSocket::link (const String<STRU8> &addr) {
 	mThis.rebind<Implement> ()->link (addr) ;
 }
 
-inline export void TCPSocket::modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
+inline exports void TCPSocket::modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
 	mThis.rebind<Implement> ()->modify_buffer (rcv_len ,snd_len) ;
 }
 
-inline export void TCPSocket::read (const PhanBuffer<BYTE> &data) popping {
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) popping {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline export void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
 	mThis.rebind<Implement> ()->read (data ,it ,timeout) ;
 }
 
-inline export void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
+inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis.rebind<Implement> ()->write (data) ;
 }
 
@@ -303,15 +303,15 @@ public:
 	}
 } ;
 
-inline export TCPSocket::Listener::Listener (const String<STRU8> &addr) {
+inline exports TCPSocket::Listener::Listener (const String<STRU8> &addr) {
 	mThis = AnyRef<Implement>::make (addr) ;
 }
 
-inline export void TCPSocket::Listener::listen () {
+inline exports void TCPSocket::Listener::listen () {
 	mThis.rebind<Implement> ()->listen () ;
 }
 
-inline export void TCPSocket::Listener::accept (TCPSocket &linker) {
+inline exports void TCPSocket::Listener::accept (TCPSocket &linker) {
 	mThis.rebind<Implement> ()->accept (linker) ;
 }
 
@@ -389,31 +389,31 @@ public:
 	}
 } ;
 
-inline export UDPSocket::UDPSocket (const String<STRU8> &addr) {
+inline exports UDPSocket::UDPSocket (const String<STRU8> &addr) {
 	mThis = AnyRef<Implement>::make (addr) ;
 }
 
-inline export String<STRU8> UDPSocket::sock_name () const {
+inline exports String<STRU8> UDPSocket::sock_name () const {
 	return mThis.rebind<Implement> ()->sock_name () ;
 }
 
-inline export String<STRU8> UDPSocket::peer_sock_name () const {
+inline exports String<STRU8> UDPSocket::peer_sock_name () const {
 	return mThis.rebind<Implement> ()->peer_sock_name () ;
 }
 
-inline export void UDPSocket::link (const String<STRU8> &addr) {
+inline exports void UDPSocket::link (const String<STRU8> &addr) {
 	mThis.rebind<Implement> ()->link (addr) ;
 }
 
-inline export void UDPSocket::read (const PhanBuffer<BYTE> &data) popping {
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) popping {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline export void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
 	mThis.rebind<Implement> ()->read (data ,it ,timeout) ;
 }
 
-inline export void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
+inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis.rebind<Implement> ()->write (data) ;
 }
 
@@ -452,7 +452,7 @@ public:
 	}
 } ;
 
-inline export NetworkService::NetworkService () {
+inline exports NetworkService::NetworkService () {
 	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
 }
 } ;

@@ -140,7 +140,7 @@ public:
 private:
 	class Implement ;
 
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
 		virtual String<STRU8> host_name () const = 0 ;

@@ -460,7 +460,7 @@ using COLOR_OPP = ARRAY3<VAL64> ;
 template <class TYPE>
 class AbstractImage {
 public:
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual PACK<PTR<ARR<TYPE>> ,LENGTH[4]> watch (AnyRef<void> &_this) const = 0 ;
 		virtual void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const = 0 ;
 		virtual void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;

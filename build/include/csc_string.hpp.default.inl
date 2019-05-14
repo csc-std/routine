@@ -8,13 +8,13 @@
 #undef self
 #undef implicit
 #undef popping
-#undef import
-#undef export
+#undef imports
+#undef exports
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
 #pragma pop_macro ("popping")
-#pragma pop_macro ("import")
-#pragma pop_macro ("export")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -30,13 +30,13 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
-#pragma push_macro ("import")
-#pragma push_macro ("export")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
 #define self to ()
 #define implicit
 #define popping
-#define import extern
-#define export
+#define imports extern
+#define exports
 #endif
 
 namespace CSC {
@@ -60,7 +60,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	//@info: not thread-safe due to internel storage
+	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C"))) ;
@@ -89,7 +89,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	//@info: not thread-safe due to internel storage
+	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C"))) ;
@@ -101,7 +101,8 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 #endif
 }
 
-inline export String<STRW> _ASTOWS_ (const String<STRA> &src) {
+inline exports String<STRW> _ASTOWS_ (const String<STRA> &src) {
+	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,VAR32_MAX ,STRA (0)) ;
@@ -114,7 +115,8 @@ inline export String<STRW> _ASTOWS_ (const String<STRA> &src) {
 	return _inline_LOCALE_LASTOWS_ (src) ;
 }
 
-inline export String<STRA> _WSTOAS_ (const String<STRW> &src) {
+inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
+	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,VAR32_MAX ,STRA (0)) ;
@@ -133,7 +135,7 @@ inline export String<STRA> _WSTOAS_ (const String<STRW> &src) {
 #if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
 #if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
 inline namespace S {
-inline export ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system_clock::time_point &arg) {
+inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system_clock::time_point &arg) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
 	const auto r1x = time_t (std::chrono::system_clock::to_time_t (arg)) ;
@@ -141,7 +143,7 @@ inline export ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system
 	auto rax = std::tm () ;
 	localtime_s (&_ZERO_ (rax) ,&r1x) ;
 #elif defined _GLIBCXX_CTIME
-	//@info: not thread-safe due to internel storage
+	//@warn: not thread-safe due to internel storage
 	auto rax = *std::localtime (&r1x) ;
 #endif
 	ret[0] = rax.tm_year + 1900 ;
@@ -155,7 +157,7 @@ inline export ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system
 	return std::move (ret) ;
 }
 
-inline export std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &arg) {
+inline exports std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &arg) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
 	rax.tm_year = (arg[0] > 0) ? (arg[0] - 1900) : 0 ;
@@ -229,26 +231,26 @@ public:
 	}
 } ;
 
-inline export RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
+inline exports RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
 	mThis = AnyRef<Implement>::make (reg) ;
 }
 
-inline export BOOL RegexMatcher::match (const String<STRU8> &expr) const {
+inline exports BOOL RegexMatcher::match (const String<STRU8> &expr) const {
 	return mThis.rebind<Implement> ()->match (expr) ;
 }
 
-inline export Queue<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &expr) const {
+inline exports Queue<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &expr) const {
 	return mThis.rebind<Implement> ()->search (expr) ;
 }
 
-inline export String<STRU8> RegexMatcher::replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
+inline exports String<STRU8> RegexMatcher::replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
 	return mThis.rebind<Implement> ()->replace (expr ,rep) ;
 }
 #endif
 #endif
 
 inline namespace S {
-inline export PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {
+inline exports PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {
 #pragma region
 #ifdef __CSC_COMPILER_MSVC__
 	static constexpr PACK<STRUW[24481][2]> M_TABLE = {

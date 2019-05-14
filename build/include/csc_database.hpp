@@ -18,7 +18,7 @@
 namespace CSC {
 class AbstractDatabase {
 public:
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this) = 0 ;
 	} ;
 

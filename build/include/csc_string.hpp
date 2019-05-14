@@ -37,8 +37,8 @@ inline String<STRA> _U16STOAS_ (const String<STRU16> &src) ;
 inline String<STRU32> _ASTOU32S_ (const String<STRA> &src) ;
 inline String<STRA> _U32STOAS_ (const String<STRU32> &src) ;
 
-inline import DEF<String<STRW> (const String<STRA> &src)> _ASTOWS_ ;
-inline import DEF<String<STRA> (const String<STRW> &src)> _WSTOAS_ ;
+inline imports DEF<String<STRW> (const String<STRA> &src)> _ASTOWS_ ;
+inline imports DEF<String<STRA> (const String<STRW> &src)> _WSTOAS_ ;
 } ;
 
 namespace U {
@@ -585,7 +585,7 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&src) {
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
 
-inline import DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
+inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
 inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 	auto &r1 = _CACHE_ ([] () {
@@ -1074,8 +1074,8 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &arg) {
 }
 
 #ifdef __CSC_EXT__
-inline import DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &arg)> _LOCALE_CVTTO_TIMEMETRIC_ ;
-inline import DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &arg)> _LOCALE_CVTTO_TIMEPOINT_ ;
+inline imports DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &arg)> _LOCALE_CVTTO_TIMEMETRIC_ ;
+inline imports DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &arg)> _LOCALE_CVTTO_TIMEPOINT_ ;
 
 template <class _ARG>
 inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG> &arg) {

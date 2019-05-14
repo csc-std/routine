@@ -154,13 +154,13 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
-#pragma push_macro ("import")
-#pragma push_macro ("export")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
 #define self to ()
 #define implicit
 #define popping
-#define import extern
-#define export
+#define imports extern
+#define exports
 #endif
 
 namespace CSC {
@@ -2654,7 +2654,7 @@ public:
 	}
 
 public:
-	inline static void address_create (PTR<TEMP<VariantHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept popping {
+	inline static void address_create (PTR<TEMP<VariantHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept {
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<VariantHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;

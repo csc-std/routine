@@ -70,7 +70,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
-inline export PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
+inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	static const Monostate<std::atomic<PTR<NONE>> ,ARGC<1>> mInstance ([] () {
 		return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 	}) ;
@@ -81,7 +81,7 @@ inline export PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> exp
 
 namespace CSC {
 template <>
-inline export ConsoleService &Singleton<ConsoleService>::instance () {
+inline exports ConsoleService &Singleton<ConsoleService>::instance () {
 	return GlobalStatic<ARGV<Singleton<ConsoleService>>>::echo (NULL) ;
 }
 } ;
@@ -89,14 +89,14 @@ inline export ConsoleService &Singleton<ConsoleService>::instance () {
 #ifdef __CSC_SYSTEM_WINDOWS__
 namespace CSC {
 template <>
-inline export NetworkService &Singleton<NetworkService>::instance () {
+inline exports NetworkService &Singleton<NetworkService>::instance () {
 	return GlobalStatic<ARGV<Singleton<NetworkService>>>::echo (NULL) ;
 }
 } ;
 
 namespace CSC {
 template <>
-inline export DebuggerService &Singleton<DebuggerService>::instance () {
+inline exports DebuggerService &Singleton<DebuggerService>::instance () {
 	return GlobalStatic<ARGV<Singleton<DebuggerService>>>::echo (NULL) ;
 }
 } ;
@@ -109,7 +109,7 @@ using namespace CSC ;
 
 namespace UNITTEST {
 #ifdef __CSC_UNITTEST__
-inline export void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
+inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #ifdef MS_CPP_UNITTESTFRAMEWORK
 #ifdef __CSC_STRING__
 	Assert::Fail (_BUILDSTRS_<STRW> (what).raw ().self) ;

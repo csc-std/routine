@@ -714,28 +714,6 @@ public:
 			add (std::move (i)) ;
 	}
 
-	void add_sort (const ITEM &item) {
-		reserve (1) ;
-		INDEX iw = mWrite ;
-		while (iw - 1 >= 0 && mStack[iw - 1] < item) {
-			mStack[iw] = std::move (mStack[iw - 1]) ;
-			iw-- ;
-		}
-		mStack[iw] = std::move (item) ;
-		update_resize () ;
-	}
-
-	void add_sort (ITEM &&item) {
-		reserve (1) ;
-		INDEX iw = mWrite ;
-		while (iw - 1 >= 0 && mStack[iw - 1] < item) {
-			mStack[iw] = std::move (mStack[iw - 1]) ;
-			iw-- ;
-		}
-		mStack[iw] = std::move (item) ;
-		update_resize () ;
-	}
-
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		mWrite-- ;
@@ -760,6 +738,30 @@ public:
 	INDEX insert () popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
+		update_resize () ;
+		return std::move (ret) ;
+	}
+
+	INDEX insert_sort (const ITEM &item) {
+		reserve (1) ;
+		INDEX ret = mWrite ;
+		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
+			mStack[ret] = std::move (mStack[ret - 1]) ;
+			ret-- ;
+		}
+		mStack[ret] = std::move (item) ;
+		update_resize () ;
+		return std::move (ret) ;
+	}
+
+	INDEX insert_sort (ITEM &&item) {
+		reserve (1) ;
+		INDEX ret = mWrite ;
+		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
+			mStack[ret] = std::move (mStack[ret - 1]) ;
+			ret-- ;
+		}
+		mStack[ret] = std::move (item) ;
 		update_resize () ;
 		return std::move (ret) ;
 	}
@@ -1125,6 +1127,7 @@ private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,ARGC<expr_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
+	INDEX mTop ;
 
 public:
 	Priority () {
@@ -1232,6 +1235,7 @@ private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,ARGC<expr_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
+	INDEX mTop ;
 
 public:
 	Priority () {
@@ -1297,6 +1301,7 @@ private:
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mPriority ;
 	using SPECIALIZATION_BASE::mWrite ;
+	using SPECIALIZATION_BASE::mTop ;
 
 public:
 	Priority () = default ;
@@ -1444,16 +1449,20 @@ public:
 	INDEX insert (const KEY &key) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
+		mPriority[ret].mKey = std::move (key) ;
 		update_resize () ;
 		update_insert (ret) ;
+		ret = mTop ;
 		return std::move (ret) ;
 	}
 
 	INDEX insert (KEY &&key) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
+		mPriority[ret].mKey = std::move (key) ;
 		update_resize () ;
 		update_insert (ret) ;
+		ret = mTop ;
 		return std::move (ret) ;
 	}
 
@@ -1529,6 +1538,7 @@ private:
 			iw = iy ;
 		}
 		mPriority[iw] = std::move (rax) ;
+		mTop = iw ;
 	}
 
 	void compute_esort (Array<INDEX> &out ,LENGTH len) const {

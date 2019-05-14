@@ -15,7 +15,7 @@ public:
 
 	TEST_METHOD (TEST_CSC_ARRAY_STACK) {
 		auto rax = Stack<int> {1 ,2 ,4 ,5} ;
-		rax.add_sort (3) ;
+		rax.insert_sort (3) ;
 		auto rbx = Array<INDEX> (rax.size ()) ;
 		const auto r1x = rax.esort () ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++)
@@ -49,6 +49,13 @@ public:
 		rax.sort () ;
 		for (INDEX i = 0 ; i < rax.length () ; i++)
 			_UNITTEST_ASSERT_ (rbx[r2x[i]] == rax[i]) ;
+		INDEX ir = 0 ;
+		while (!rbx.empty ()) {
+			const auto r3x = rbx[rbx.peek ()].key ;
+			rbx.take () ;
+			_UNITTEST_ASSERT_ (r3x == rax[ir]) ;
+			ir++ ;
+		}
 	}
 
 	TEST_METHOD (TEST_CSC_ARRAY_DEQUE) {

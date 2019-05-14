@@ -41,7 +41,7 @@ inline BOOL _ISINF_ (const VAL64 &arg) {
 	return r2x == 0 ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _SQRT_ ;
+inline imports DEF<VALX (const VALX &arg)> _SQRT_ ;
 
 template <class _ARG>
 inline _ARG _SQRT_ (const _ARG &arg) {
@@ -49,7 +49,7 @@ inline _ARG _SQRT_ (const _ARG &arg) {
 	return _ARG (_SQRT_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg1 ,const VALX &arg2)> _POW_ ;
+inline imports DEF<VALX (const VALX &arg1 ,const VALX &arg2)> _POW_ ;
 
 template <class _ARG>
 inline _ARG _POW_ (const _ARG &arg1 ,const _ARG &arg2) {
@@ -57,7 +57,7 @@ inline _ARG _POW_ (const _ARG &arg1 ,const _ARG &arg2) {
 	return _ARG (_POW_ (VALX (arg1) ,VALX (arg2))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _EXP_ ;
+inline imports DEF<VALX (const VALX &arg)> _EXP_ ;
 
 template <class _ARG>
 inline _ARG _EXP_ (const _ARG &arg) {
@@ -65,7 +65,7 @@ inline _ARG _EXP_ (const _ARG &arg) {
 	return _ARG (_EXP_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _LOG_ ;
+inline imports DEF<VALX (const VALX &arg)> _LOG_ ;
 
 template <class _ARG>
 inline _ARG _LOG_ (const _ARG &arg) {
@@ -73,7 +73,7 @@ inline _ARG _LOG_ (const _ARG &arg) {
 	return _ARG (_LOG_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _SIN_ ;
+inline imports DEF<VALX (const VALX &arg)> _SIN_ ;
 
 template <class _ARG>
 inline _ARG _SIN_ (const _ARG &arg) {
@@ -81,7 +81,7 @@ inline _ARG _SIN_ (const _ARG &arg) {
 	return _ARG (_SIN_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _COS_ ;
+inline imports DEF<VALX (const VALX &arg)> _COS_ ;
 
 template <class _ARG>
 inline _ARG _COS_ (const _ARG &arg) {
@@ -89,7 +89,7 @@ inline _ARG _COS_ (const _ARG &arg) {
 	return _ARG (_COS_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _TAN_ ;
+inline imports DEF<VALX (const VALX &arg)> _TAN_ ;
 
 template <class _ARG>
 inline _ARG _TAN_ (const _ARG &arg) {
@@ -97,7 +97,7 @@ inline _ARG _TAN_ (const _ARG &arg) {
 	return _ARG (_TAN_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _ASIN_ ;
+inline imports DEF<VALX (const VALX &arg)> _ASIN_ ;
 
 template <class _ARG>
 inline _ARG _ASIN_ (const _ARG &arg) {
@@ -105,7 +105,7 @@ inline _ARG _ASIN_ (const _ARG &arg) {
 	return _ARG (_ASIN_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _ACOS_ ;
+inline imports DEF<VALX (const VALX &arg)> _ACOS_ ;
 
 template <class _ARG>
 inline _ARG _ACOS_ (const _ARG &arg) {
@@ -113,7 +113,7 @@ inline _ARG _ACOS_ (const _ARG &arg) {
 	return _ARG (_ACOS_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg)> _ATAN_ ;
+inline imports DEF<VALX (const VALX &arg)> _ATAN_ ;
 
 template <class _ARG>
 inline _ARG _ATAN_ (const _ARG &arg) {
@@ -121,7 +121,7 @@ inline _ARG _ATAN_ (const _ARG &arg) {
 	return _ARG (_ATAN_ (VALX (arg))) ;
 }
 
-inline import DEF<VALX (const VALX &arg1 ,const VALX &arg2)> _ATAN_ ;
+inline imports DEF<VALX (const VALX &arg1 ,const VALX &arg2)> _ATAN_ ;
 
 template <class _ARG>
 inline _ARG _ATAN_ (const _ARG &arg1 ,const _ARG &arg2) {

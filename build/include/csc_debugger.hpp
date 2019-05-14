@@ -295,7 +295,7 @@ private:
 		}
 	} ;
 
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void modify_option (FLAG option) = 0 ;
 		virtual void print (const Binder &msg) = 0 ;
 		virtual void fatal (const Binder &msg) = 0 ;
@@ -410,7 +410,7 @@ class DebuggerService final :private Interface {
 private:
 	class Implement ;
 
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
 		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
 		virtual Array<DATA> captrue_stack_trace () popping = 0 ;

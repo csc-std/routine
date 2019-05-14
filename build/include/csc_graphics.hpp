@@ -238,7 +238,7 @@ class AbstractShader {
 public:
 	class Sprite ;
 
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
 		virtual void active (AnyRef<void> &_this) const = 0 ;
 		virtual INDEX uniform_find (const AnyRef<void> &_this ,const String<STR> &name) const = 0 ;
@@ -352,7 +352,7 @@ public:
 
 class AbstractShader::Sprite {
 public:
-	export struct Abstract :public Interface {
+	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
 		virtual void use_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
 		virtual void draw (const AnyRef<void> &_this) const = 0 ;
