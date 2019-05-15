@@ -120,7 +120,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
 	} ;
 
 private:
@@ -489,7 +489,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
 	} ;
 
 	template <class BASE ,class _TYPE>
@@ -521,7 +521,7 @@ private:
 		inline implicit operator CAST_TRAITS_TYPE<_TYPE ,BASE> & () && = delete ;
 
 	private:
-		inline explicit NativeProxy (BASE &base) :mBase (base) {}
+		inline explicit NativeProxy (BASE &base) popping :mBase (base) {}
 	} ;
 
 private:

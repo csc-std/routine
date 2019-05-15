@@ -300,7 +300,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
 	} ;
 
 private:

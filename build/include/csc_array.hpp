@@ -19,6 +19,12 @@ private:
 public:
 	inline ForwardIterator () = delete ;
 
+	inline ForwardIterator (const ForwardIterator &) = delete ;
+	inline ForwardIterator &operator= (const ForwardIterator &) = delete ;
+
+	inline ForwardIterator (ForwardIterator &&) noexcept = default ;
+	inline ForwardIterator &operator= (ForwardIterator &&) = delete ;
+
 	inline BOOL operator!= (const ForwardIterator &right) const {
 		return mIndex != right.mIndex ;
 	}
@@ -32,7 +38,7 @@ public:
 	}
 
 private:
-	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) :mBase (base) ,mIndex (std::move (index)) {}
+	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) popping :mBase (base) ,mIndex (std::move (index)) {}
 
 public:
 	inline static ForwardIterator friend_begin (BASE &base) {
@@ -46,13 +52,13 @@ public:
 
 inline namespace S {
 template <class _ARG ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG> ().ibegin ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> begin (_ARG &&arg) {
+inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> begin (_ARG &&arg) popping {
 	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG &&>::value) ;
 	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>>::friend_begin (arg) ;
 }
 
 template <class _ARG ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG> ().iend ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> end (_ARG &&arg) {
+inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> end (_ARG &&arg) popping {
 	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG &&>::value) ;
 	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>>::friend_end (arg) ;
 }
@@ -427,10 +433,10 @@ public:
 	}
 
 	template <LENGTH _VAL>
-	BOOL equal (const DEF<ITEM[_VAL]> &right) {
-		if (size () <= _VAL)
+	BOOL equal (const DEF<ITEM[_VAL]> &right) const {
+		if (mString.size () < _VAL)
 			return FALSE ;
-		return _MEMEQUAL_ (mString.raw ().self ,right) ;
+		return _MEMEQUAL_ (mString.self ,right) ;
 	}
 
 	template <LENGTH _VAL>
@@ -742,7 +748,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	INDEX insert_sort (const ITEM &item) {
+	INDEX insert_sort (const ITEM &item) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
 		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
@@ -754,7 +760,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	INDEX insert_sort (ITEM &&item) {
+	INDEX insert_sort (ITEM &&item) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
 		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
@@ -2382,7 +2388,7 @@ private:
 		}
 
 	private:
-		inline explicit Bit (BASE &base ,INDEX index) :mBase (base) ,mIndex (index) {}
+		inline explicit Bit (BASE &base ,INDEX index) popping :mBase (base) ,mIndex (index) {}
 	} ;
 
 private:

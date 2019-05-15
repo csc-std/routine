@@ -150,7 +150,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context ,const SoftImage<UNIT> &adjancency ,INDEX root) :mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
+		inline explicit Lambda (DijstraAlgorithm &context ,const SoftImage<UNIT> &adjancency ,INDEX root) popping :mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -245,7 +245,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 		ARRAY3<UNIT> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context ,const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) :mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
+		inline explicit Lambda (KMeansAlgorithm &context ,const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) popping :mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -410,7 +410,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const SoftImage<UNIT> &adjacency) :mContext (context) ,mAdjacency (adjacency) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const SoftImage<UNIT> &adjacency) popping :mContext (context) ,mAdjacency (adjacency) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -585,7 +585,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 		Array<ARRAY3<INDEX>> mTriangle ;
 
 	public:
-		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<UNIT>> &vertex) :mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<UNIT>> &vertex) popping :mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -761,7 +761,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		Array<UNIT> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context ,const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) :mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
+		inline explicit Lambda (BFGSAlgorithm &context ,const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) popping :mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1066,7 +1066,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) :mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) popping :mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1221,7 +1221,7 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		Queue<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context ,const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) :mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
+		inline explicit Lambda (MaxFlowAlgorithm &context ,const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) popping :mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
 			prepare () ;

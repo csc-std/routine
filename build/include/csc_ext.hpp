@@ -2967,7 +2967,7 @@ private:
 		}
 
 	private:
-		inline explicit Member (const Serializer &base ,TYPE2 &context) :mBase (base) ,mContext (context) {}
+		inline explicit Member (const Serializer &base ,TYPE2 &context) popping :mBase (base) ,mContext (context) {}
 	} ;
 
 private:

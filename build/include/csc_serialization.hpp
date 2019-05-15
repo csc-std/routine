@@ -291,7 +291,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (XmlParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (XmlParser &context ,const PhanBuffer<const STRU8> &data) popping :mContext (context) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -541,7 +541,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
 
 	public:
-		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) :mContext (context) ,mSequence (sequence) {}
+		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) popping :mContext (context) ,mSequence (sequence) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1107,7 +1107,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (JsonParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (JsonParser &context ,const PhanBuffer<const STRU8> &data) popping :mContext (context) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1492,7 +1492,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (CommandParser &context ,const PhanBuffer<const STRU8> &data) :mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (CommandParser &context ,const PhanBuffer<const STRU8> &data) popping :mContext (context) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;

@@ -1728,27 +1728,30 @@ class StreamBinder ;
 
 template <>
 class StreamBinder<> {
-private:
-	FixedBuffer<BYTE> mUseless ;
-
 public:
 	inline StreamBinder () = default ;
 
-	inline void friend_read (ByteReader &reader) const popping {
+	inline StreamBinder (const StreamBinder &) = delete ;
+	inline StreamBinder &operator= (const StreamBinder &) = delete ;
+
+	inline StreamBinder (StreamBinder &&) noexcept = default ;
+	inline StreamBinder &operator= (StreamBinder &&) = delete ;
+
+	inline void friend_read (ByteReader &reader) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline void friend_write (ByteWriter &writer) const popping {
+	inline void friend_write (ByteWriter &writer) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	template <class _ARG>
-	inline void friend_read (TextReader<_ARG> &reader) const popping {
+	inline void friend_read (TextReader<_ARG> &reader) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	template <class _ARG>
-	inline void friend_write (TextWriter<_ARG> &writer) const popping {
+	inline void friend_write (TextWriter<_ARG> &writer) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 } ;
@@ -1757,32 +1760,32 @@ template <class TYPE1 ,class... TYPES>
 class StreamBinder<TYPE1 ,TYPES...> :private StreamBinder<TYPES...> {
 private:
 	_STATIC_ASSERT_ (!std::is_reference<TYPE1>::value) ;
-	TYPE1 &mData ;
+	TYPE1 &mBase ;
 
 public:
 	inline StreamBinder () = delete ;
 
-	inline explicit StreamBinder (TYPE1 &arg1 ,TYPES &...args) popping :StreamBinder<TYPES...> (args...) ,mData (arg1) {}
+	inline explicit StreamBinder (TYPE1 &arg1 ,TYPES &...args) popping :StreamBinder<TYPES...> (args...) ,mBase (arg1) {}
 
-	inline void friend_read (ByteReader &reader) const popping {
-		reader >> mData ;
+	inline void friend_read (ByteReader &reader) const {
+		reader >> mBase ;
 		StreamBinder<TYPES...>::friend_read (reader) ;
 	}
 
-	inline void friend_write (ByteWriter &writer) const popping {
-		writer << mData ;
+	inline void friend_write (ByteWriter &writer) const {
+		writer << mBase ;
 		StreamBinder<TYPES...>::friend_write (writer) ;
 	}
 
 	template <class _ARG>
-	inline void friend_read (TextReader<_ARG> &reader) const popping {
-		reader >> mData ;
+	inline void friend_read (TextReader<_ARG> &reader) const {
+		reader >> mBase ;
 		StreamBinder<TYPES...>::friend_read (reader) ;
 	}
 
 	template <class _ARG>
-	inline void friend_write (TextWriter<_ARG> &writer) const popping {
-		writer << mData ;
+	inline void friend_write (TextWriter<_ARG> &writer) const {
+		writer << mBase ;
 		StreamBinder<TYPES...>::friend_write (writer) ;
 	}
 } ;
