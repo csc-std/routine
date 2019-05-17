@@ -1615,7 +1615,8 @@ inline void _BOM_ (TextReader<STRU16> &reader) {
 	ris >> rax ;
 	if (rax != STRU16 (0XFEFF) && rax != STRU16 (0XFFFE))
 		return ;
-	ris.attr ().enable_endian (rax != 0XFEFF) ;
+	const auto r1x = (rax != 0XFEFF) ;
+	ris.attr ().enable_endian (r1x) ;
 	reader = std::move (ris) ;
 }
 
@@ -1625,7 +1626,8 @@ inline void _BOM_ (TextReader<STRU32> &reader) {
 	ris >> rax ;
 	if (rax != STRU32 (0X0000FEFF) && rax != STRU32 (0XFFFE0000))
 		return ;
-	ris.attr ().enable_endian (rax != 0X0000FEFF) ;
+	const auto r1x = (rax != 0X0000FEFF) ;
+	ris.attr ().enable_endian (r1x) ;
 	reader = std::move (ris) ;
 }
 

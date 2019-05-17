@@ -56,6 +56,9 @@ namespace CSC {
 template <class>
 class AbstractDatabase_Engine_MYSQL :public AbstractDatabase::Abstract {
 public:
+	using NATIVE_TYPE = UniqueRef<MYSQL> ;
+
+public:
 	AbstractDatabase_Engine_MYSQL () {
 		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
@@ -67,7 +70,7 @@ public:
 		} ,[] (MYSQL &me) {
 			mysql_close (&me) ;
 		}) ;
-		_this = AnyRef<UniqueRef<MYSQL>>::make (std::move (rax)) ;
+		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
 private:

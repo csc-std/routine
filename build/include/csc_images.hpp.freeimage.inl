@@ -82,7 +82,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (cx) ,VAR32 (cy) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
@@ -95,7 +95,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r1x = UniqueRef<PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>>> ([&] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
 				me.P2 = data ;
 				me.P1 = FreeImage_OpenMemory (me.P2.self ,VARY (me.P2.size ())) ;
@@ -138,7 +138,7 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r1x = FreeImage_GetFileType (_BUILDSTRS_<STRA> (file).raw ().self) ;
 			_DYNAMIC_ASSERT_ (r1x != FIF_UNKNOWN) ;
 			me = FreeImage_Load (r1x ,_BUILDSTRS_<STRA> (file).raw ().self) ;
@@ -149,7 +149,7 @@ public:
 		}) ;
 		if (FreeImage_GetBPP (rax.self) == 24)
 			return ;
-		rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_ConvertTo24Bits (rax.self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
@@ -190,7 +190,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (cx) ,VAR32 (cy) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
@@ -203,7 +203,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r1x = UniqueRef<PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>>> ([&] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
 				me.P2 = data ;
 				me.P1 = FreeImage_OpenMemory (me.P2.self ,VARY (me.P2.size ())) ;
@@ -246,7 +246,7 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r1x = FreeImage_GetFileType (_BUILDSTRS_<STRA> (file).raw ().self) ;
 			_DYNAMIC_ASSERT_ (r1x != FIF_UNKNOWN) ;
 			me = FreeImage_Load (r1x ,_BUILDSTRS_<STRA> (file).raw ().self) ;
@@ -257,7 +257,7 @@ public:
 		}) ;
 		if (FreeImage_GetBPP (rax.self) == 32)
 			return ;
-		rax = NATIVE_TYPE ([&] (PTR<FIBITMAP> &me) {
+		rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_ConvertTo32Bits (rax.self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {

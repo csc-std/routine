@@ -165,8 +165,9 @@ inline exports String<STR> _PARSEFILEPATH_ (const String<STR> &file) {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
-	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,_MEMRCHR_ (r2x.self ,r1x ,STR ('/'))) + 1 ;
-	_MEMCOPY_ (ret.raw ().self ,r2x.self ,r3x) ;
+	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,VAR_ZERO) ;
+	const auto r4x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('/')) ,r3x) ;
+	_MEMCOPY_ (ret.raw ().self ,r2x.self ,r4x) ;
 	return std::move (ret) ;
 }
 
@@ -259,6 +260,7 @@ inline exports String<STR> _MODULEFILEPATH_ () {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 	ret = _PARSEFILEPATH_ (ret) ;
+	ret += _PCSTR_ ("\\") ;
 	return std::move (ret) ;
 }
 

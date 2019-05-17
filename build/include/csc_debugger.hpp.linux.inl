@@ -61,7 +61,7 @@ public:
 	}
 
 	void modify_option (FLAG option) override {
-		mOptionFlag = option ;
+		mOptionFlag = (option == OPTION_DEFAULT) ? option : (mOptionFlag | option) ;
 	}
 
 	void print (const Binder &msg) override {
@@ -167,7 +167,7 @@ public:
 		log (_PCSTR_ ("VERBOSE") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
 	}
 
-	void enable_log (const String<STR> &path) override {
+	void attach_log (const String<STR> &path) override {
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mLogPath == r1x)
@@ -238,9 +238,7 @@ private:
 	}
 
 	void write_debugger () {
-		if (mLogPath.empty ())
-			return ;
-		std::fprintf (stderr ,_PCSTRA_ ("%s") ,&_BUILDSTRS_<STRA> (String<STR> (mLogWriter.raw ())).raw ().self) ;
+		_STATIC_WARNING_ ("noop") ;
 	}
 
 	void write_log_file () {
@@ -270,6 +268,9 @@ private:
 			(void) mLogFileStream ;
 			mTempState = FALSE ;
 		}) ;
+		if ((mOptionFlag & OPTION_ALWAYS_FLUSH) == 0)
+			return ;
+		mLogFileStream->flush () ;
 	}
 
 	void attach_log_file () {

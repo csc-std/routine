@@ -273,6 +273,7 @@ public:
 	static constexpr auto OPTION_NO_INFO = FLAG (0X00000010) ;
 	static constexpr auto OPTION_NO_DEBUG = FLAG (0X00000020) ;
 	static constexpr auto OPTION_NO_VERBOSE = FLAG (0X00000040) ;
+	static constexpr auto OPTION_ALWAYS_FLUSH = FLAG (0X00000080) ;
 
 private:
 	class Implement ;
@@ -304,7 +305,7 @@ private:
 		virtual void info (const Binder &msg) = 0 ;
 		virtual void debug (const Binder &msg) = 0 ;
 		virtual void verbose (const Binder &msg) = 0 ;
-		virtual void enable_log (const String<STR> &path) = 0 ;
+		virtual void attach_log (const String<STR> &path) = 0 ;
 		virtual void log (const PhanBuffer<const STR> &tag ,const Binder &msg) = 0 ;
 		virtual void show () = 0 ;
 		virtual void flash () = 0 ;
@@ -366,9 +367,9 @@ public:
 		mThis->verbose (_XVALUE_<const Binder &> (ImplBinder<StreamBinder<const _ARGS...>> (args...))) ;
 	}
 
-	void enable_log (const String<STR> &path) {
+	void attach_log (const String<STR> &path) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->enable_log (path) ;
+		mThis->attach_log (path) ;
 	}
 
 	template <class... _ARGS>

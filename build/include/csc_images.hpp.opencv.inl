@@ -164,7 +164,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE (NATIVE_TYPE::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC3)) ;
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC3)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -230,7 +230,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE (NATIVE_TYPE::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC4)) ;
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC4)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -296,7 +296,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE (NATIVE_TYPE::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC1)) ;
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -362,7 +362,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE (NATIVE_TYPE::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_32FC1)) ;
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_32FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -428,7 +428,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = NATIVE_TYPE (NATIVE_TYPE::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_64FC1)) ;
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_64FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;

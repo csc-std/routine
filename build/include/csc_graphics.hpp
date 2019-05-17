@@ -240,7 +240,7 @@ public:
 
 	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
-		virtual void active (AnyRef<void> &_this) const = 0 ;
+		virtual void active_pipeline (AnyRef<void> &_this) const = 0 ;
 		virtual INDEX uniform_find (const AnyRef<void> &_this ,const String<STR> &name) const = 0 ;
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAR32 &data) const = 0 ;
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAR64 &data) const = 0 ;
@@ -272,9 +272,9 @@ public:
 		mAbstract->load_data (mHolder ,vs ,fs) ;
 	}
 
-	void active () {
+	void active_pipeline () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->active (mHolder) ;
+		mAbstract->active_pipeline (mHolder) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAR32 &data) {
@@ -354,7 +354,7 @@ class AbstractShader::Sprite {
 public:
 	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
-		virtual void use_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
+		virtual void active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
 		virtual void draw (const AnyRef<void> &_this) const = 0 ;
 	} ;
 
@@ -377,10 +377,10 @@ public:
 		mAbstract->load_data (mHolder ,mesh) ;
 	}
 
-	void use_texture (INDEX texture) {
+	void active_texture (INDEX texture) {
 		if (!exist ())
 			return ;
-		mAbstract->use_texture (mHolder ,texture) ;
+		mAbstract->active_texture (mHolder ,texture) ;
 	}
 
 	void draw () {
