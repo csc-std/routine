@@ -38,7 +38,7 @@ public:
 	}
 
 private:
-	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) popping :mBase (base) ,mIndex (std::move (index)) {}
+	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) popping : mBase (base) ,mIndex (std::move (index)) {}
 
 public:
 	inline static ForwardIterator friend_begin (BASE &base) {
@@ -357,7 +357,7 @@ public:
 		mString[iw] = ITEM (0) ;
 	}
 
-	implicit String (const ARR<ITEM> &right) :String (_MEMCHR_ (right ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0))) {
+	implicit String (const ARR<ITEM> &right) :String (raw_string_length (right)) {
 		_MEMCOPY_ (mString.self ,right ,size ()) ;
 	}
 
@@ -436,7 +436,9 @@ public:
 	BOOL equal (const DEF<ITEM[_VAL]> &right) const {
 		if (mString.size () < _VAL)
 			return FALSE ;
-		return _MEMEQUAL_ (mString.self ,right) ;
+		if (!_MEMEQUAL_ (mString.self ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <LENGTH _VAL>
@@ -457,7 +459,9 @@ public:
 		INDEX ir = 0 ;
 		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
 			ir++ ;
-		return mString[ir] == right.mString[ir] ;
+		if (mString[ir] != right.mString[ir])
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const String &right) const {
@@ -478,7 +482,9 @@ public:
 		INDEX ir = 0 ;
 		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
 			ir++ ;
-		return mString[ir] < right.mString[ir] ;
+		if (mString[ir] >= right.mString[ir])
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const String &right) const {
@@ -500,7 +506,9 @@ public:
 	BOOL empty () const {
 		if (mString.size () == 0)
 			return TRUE ;
-		return mString[0] == ITEM (0) ;
+		if (mString[0] != ITEM (0))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	String add (const String &right) const {
@@ -560,6 +568,13 @@ public:
 
 private:
 	explicit String (LENGTH len ,const decltype (ARGVP0) &) :mString (len) {}
+
+private:
+	inline static LENGTH raw_string_length (const ARR<ITEM> &arg) {
+		LENGTH ret = _MEMCHR_ (arg ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
+		_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
+		return std::move (ret) ;
+	}
 
 public:
 	//@info: the function is incompleted without 'csc_string.hpp'
@@ -665,7 +680,11 @@ public:
 	}
 
 	BOOL equal (const Stack &right) const {
-		return length () == right.length () && _MEMEQUAL_ (mStack ,right.mStack ,length ()) ;
+		if (length () != right.length ())
+			return FALSE ;
+		if (!_MEMEQUAL_ (mStack ,right.mStack ,length ()))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Stack &right) const {
@@ -930,7 +949,11 @@ public:
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
-		return ir == ie && jr == je ;
+		if (ir != ie)
+			return FALSE ;
+		if (jr != je)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Queue &right) const {
@@ -948,7 +971,9 @@ public:
 	BOOL full () const {
 		if (mQueue.size () == 0)
 			return TRUE ;
-		return mRead == (mWrite + 1) % mQueue.size () ;
+		if (mRead != (mWrite + 1) % mQueue.size ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void add (const ITEM &item) {
@@ -1045,7 +1070,6 @@ private:
 		const auto r3x = (index >= mRead && index < mQueue.size ()) ;
 		if (mRead > mWrite && !r2x && !r3x)
 			return FALSE ;
-		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 
@@ -1687,7 +1711,11 @@ public:
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
-		return ir == ie && jr == je ;
+		if (ir != ie)
+			return FALSE ;
+		if (jr != je)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Deque &right) const {
@@ -1932,7 +1960,7 @@ private:
 	void update_compress_right_force (INDEX it ,INDEX jt) {
 		INDEX iw = it ;
 		INDEX jw = jt ;
-		for (INDEX i = (mDeque.size () - 1) ,je = mDeque.size () - mList.length () ; i >= je ; i--) {
+		for (INDEX i = (mDeque.size () - 1) ,ie = mDeque.size () - mList.length () ; i >= ie ; i--) {
 			while (mWrite != iw && mDeque[mWrite][0] == VAR_NONE)
 				mWrite-- ;
 			const auto r1x = mDeque[i][0] ;
@@ -2116,7 +2144,11 @@ public:
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
-		return ir == ie && jr == je ;
+		if (ir != ie)
+			return FALSE ;
+		if (jr != je)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const QList &right) const {
@@ -2388,7 +2420,7 @@ private:
 		}
 
 	private:
-		inline explicit Bit (BASE &base ,INDEX index) popping :mBase (base) ,mIndex (index) {}
+		inline explicit Bit (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
 	} ;
 
 private:
@@ -2505,7 +2537,9 @@ public:
 				return FALSE ;
 		const auto r1x = mSet[ix] & (mWidth % 8 - 1) ;
 		const auto r2x = right.mSet[ix] & (mWidth % 8 - 1) ;
-		return r1x == r2x ;
+		if (r1x != r2x)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const BitSet &right) const {
@@ -2521,12 +2555,16 @@ public:
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return FALSE ;
-		for (INDEX i = 0 ; i < ix ; i++)
-			if (mSet[i] != right.mSet[i])
-				return mSet[i] < right.mSet[i] ;
-		const auto r1x = mSet[ix] & (mWidth % 8 - 1) ;
-		const auto r2x = right.mSet[ix] & (mWidth % 8 - 1) ;
-		return r1x < r2x ;
+		const auto r1x = _MEMLESS_ (mSet ,right.mSet ,ix) ;
+		if (r1x < 0)
+			return TRUE ;
+		if (r1x > 0)
+			return FALSE ;
+		const auto r2x = mSet[ix] & (mWidth % 8 - 1) ;
+		const auto r3x = right.mSet[ix] & (mWidth % 8 - 1) ;
+		if (r2x >= r3x)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const BitSet &right) const {
@@ -3150,7 +3188,6 @@ private:
 			return FALSE ;
 		if (!equal_each (right ,mSet[it].mRight ,right.mSet[jt].mRight))
 			return FALSE ;
-		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 
@@ -3522,6 +3559,16 @@ public:
 
 private:
 	explicit HashSet (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) ,mHead (len) {}
+
+private:
+	BOOL equal_each (const HashSet &right ,INDEX it) const {
+		INDEX ix = right.find (mSet[it].mKey) ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		if (mSet[it].mItem != right.mSet[ix].mItem)
+			return FALSE ;
+		return TRUE ;
+	}
 } ;
 
 template <class KEY ,class SIZE>
@@ -3631,6 +3678,14 @@ public:
 
 private:
 	explicit HashSet (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) ,mHead (len) {}
+
+private:
+	BOOL equal_each (const HashSet &right ,INDEX it) const {
+		INDEX ix = right.find (mSet[it].mKey) ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
+	}
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3805,12 +3860,7 @@ public:
 	}
 
 private:
-	BOOL equal_each (const HashSet &right ,INDEX it) const {
-		INDEX ix = right.find (mSet[it].mKey) ;
-		if (ix == VAR_NONE)
-			return FALSE ;
-		return mSet[it].mItem == right.mSet[ix].mItem ;
-	}
+	using SPECIALIZATION_BASE::equal_each ;
 
 	void update_resize (INDEX it) {
 		if (mHead.size () == mSet.size ())
@@ -4344,7 +4394,6 @@ private:
 			return FALSE ;
 		if (!equal_each (right ,mSet.self[it].mRight ,right.mSet.self[jt].mRight))
 			return FALSE ;
-		_STATIC_ASSERT_ ("unqualified") ;
 		return TRUE ;
 	}
 

@@ -988,7 +988,25 @@ inline void _CALL_TRY_ (const _ARG &arg ,const decltype (std::nothrow) &) noexce
 }
 
 template <class _ARG>
-inline const RESULTOF_TYPE<_ARG ()> &_CACHE_ (const _ARG &arg) popping {
+inline void _CALL_IF_ (const _ARG &arg) {
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG (BOOL &)> ,void>::value) ;
+	auto rax = TRUE ;
+	arg (rax) ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline void _CALL_IF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
+	auto rax = TRUE ;
+	arg1 (rax) ;
+	if (rax)
+		return ;
+	_CALL_IF_ (args...) ;
+}
+
+template <class _ARG>
+inline const RESULTOF_TYPE<_ARG ()> &_CACHE_ (_ARG &&arg) popping {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<RESULTOF_TYPE<_ARG ()>>::value) ;
 	static const RESULTOF_TYPE<_ARG ()> mInstance = arg () ;
 	return mInstance ;
@@ -1024,7 +1042,7 @@ inline BOOL _MEMEQUAL_ (const DEF<_ARG[_VAL]> &src1 ,const ARR<_ARG> &src2) {
 }
 
 template <class _ARG>
-inline BOOL _MEMLESS_ (const ARR<_ARG> &src1 ,const ARR<_ARG> &src2 ,LENGTH len) {
+inline FLAG _MEMCOMP_ (const ARR<_ARG> &src1 ,const ARR<_ARG> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -1033,22 +1051,26 @@ inline BOOL _MEMLESS_ (const ARR<_ARG> &src1 ,const ARR<_ARG> &src2 ,LENGTH len)
 	_DEBUG_ASSERT_ (src2 != NULL || len == 0) ;
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (src1 == src2)
-		return FALSE ;
-	for (INDEX i = 0 ; i < len ; i++)
-		if (!(src1[i] == src2[i]))
-			return src1[i] < src2[i] ;
-	return FALSE ;
+		return 0 ;
+	INDEX ir = 0 ;
+	while (ir < len && src1[ir] == src2[ir])
+		ir++ ;
+	if (ir < len && src1[ir] < src2[ir])
+		return -1 ;
+	if (ir < len && src1[ir] > src2[ir])
+		return +1 ;
+	return 0 ;
 #pragma GCC diagnostic pop
 }
 
 template <class _ARG ,LENGTH _VAL>
-inline BOOL _MEMLESS_ (const ARR<_ARG> &src1 ,const DEF<_ARG[_VAL]> &src2) {
-	return _MEMLESS_ (src1 ,PTRTOARR[&src2[0]] ,_VAL) ;
+inline FLAG _MEMCOMP_ (const ARR<_ARG> &src1 ,const DEF<_ARG[_VAL]> &src2) {
+	return _MEMCOMP_ (src1 ,PTRTOARR[&src2[0]] ,_VAL) ;
 }
 
 template <class _ARG ,LENGTH _VAL>
-inline BOOL _MEMLESS_ (const DEF<_ARG[_VAL]> &src1 ,const ARR<_ARG> &src2) {
-	return _MEMLESS_ (PTRTOARR[&src1[0]] ,src2 ,_VAL) ;
+inline FLAG _MEMCOMP_ (const DEF<_ARG[_VAL]> &src1 ,const ARR<_ARG> &src2) {
+	return _MEMCOMP_ (PTRTOARR[&src1[0]] ,src2 ,_VAL) ;
 }
 
 template <class _ARG>
@@ -1163,7 +1185,7 @@ inline void _MEMRCOPY_ (ARR<_ARG> &dst ,const ARR<_ARG> &src ,LENGTH len) {
 	if (src == NULL)
 		return ;
 	if (dst == src) {
-		for (INDEX i = 0 ; i < len + ~i ; i++) {
+		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
 			dst[len + ~i] = r1x ;
@@ -2475,7 +2497,11 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mFunction1 != NULL || mFunction2 != NULL ;
+		if (mFunction1 != NULL)
+			return TRUE ;
+		if (mFunction2 != NULL)
+			return TRUE ;
+		return FALSE ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2754,7 +2780,8 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		return _MEMLESS_ (mBuffer ,PTRTOARR[&right.mBuffer[0]]) ;
+		const auto r1x = _MEMCOMP_ (mBuffer ,PTRTOARR[&right.mBuffer[0]]) ;
+		return r1x < 0 ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {
@@ -2889,7 +2916,9 @@ public:
 	inline BOOL equal (const Buffer &right) const {
 		if (mSize != right.mSize)
 			return FALSE ;
-		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (!_MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -2901,10 +2930,15 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		for (INDEX i = 0 ,ie = _MIN_ (mSize ,right.mSize) ; i < ie ; i++)
-			if ((*mBuffer)[i] != (*right.mBuffer)[i])
-				return (*mBuffer)[i] < (*right.mBuffer)[i] ;
-		return mSize < right.mSize ;
+		const auto r1x = _MIN_ (mSize ,right.mSize) ;
+		const auto r2x = _MEMCOMP_ (*mBuffer ,*right.mBuffer ,r1x) ;
+		if (r2x < 0)
+			return TRUE ;
+		if (r2x > 0)
+			return FALSE ;
+		if (mSize >= right.mSize)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {
@@ -3135,7 +3169,9 @@ public:
 	inline BOOL equal (const Buffer &right) const {
 		if (mSize != right.mSize)
 			return FALSE ;
-		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (!_MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3147,10 +3183,15 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		for (INDEX i = 0 ,ie = _MIN_ (mSize ,right.mSize) ; i < ie ; i++)
-			if ((*mBuffer)[i] != (*right.mBuffer)[i])
-				return (*mBuffer)[i] < (*right.mBuffer)[i] ;
-		return mSize < right.mSize ;
+		const auto r1x = _MIN_ (mSize ,right.mSize) ;
+		const auto r2x = _MEMCOMP_ (*mBuffer ,*right.mBuffer ,r1x) ;
+		if (r2x < 0)
+			return TRUE ;
+		if (r2x > 0)
+			return FALSE ;
+		if (mSize >= right.mSize)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {
@@ -3267,7 +3308,9 @@ public:
 	inline BOOL equal (const Buffer &right) const {
 		if (mSize != right.mSize)
 			return FALSE ;
-		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (!_MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3279,10 +3322,15 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		for (INDEX i = 0 ,ie = _MIN_ (mSize ,right.mSize) ; i < ie ; i++)
-			if ((*mBuffer)[i] != (*right.mBuffer)[i])
-				return (*mBuffer)[i] < (*right.mBuffer)[i] ;
-		return mSize < right.mSize ;
+		const auto r1x = _MIN_ (mSize ,right.mSize) ;
+		const auto r2x = _MEMCOMP_ (*mBuffer ,*right.mBuffer ,r1x) ;
+		if (r2x < 0)
+			return TRUE ;
+		if (r2x > 0)
+			return FALSE ;
+		if (mSize >= right.mSize)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {
@@ -3424,7 +3472,9 @@ public:
 	inline BOOL equal (const Buffer &right) const {
 		if (mSize != right.mSize)
 			return FALSE ;
-		return _MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize) ;
+		if (!_MEMEQUAL_ (*mBuffer ,*right.mBuffer ,right.mSize))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -3436,10 +3486,15 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		for (INDEX i = 0 ,ie = _MIN_ (mSize ,right.mSize) ; i < ie ; i++)
-			if ((*mBuffer)[i] != (*right.mBuffer)[i])
-				return (*mBuffer)[i] < (*right.mBuffer)[i] ;
-		return mSize < right.mSize ;
+		const auto r1x = _MIN_ (mSize ,right.mSize) ;
+		const auto r2x = _MEMCOMP_ (*mBuffer ,*right.mBuffer ,r1x) ;
+		if (r2x < 0)
+			return TRUE ;
+		if (r2x > 0)
+			return FALSE ;
+		if (mSize >= right.mSize)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {

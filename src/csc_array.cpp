@@ -11,6 +11,8 @@ public:
 		_UNITTEST_ASSERT_ (r1x.size () == 0) ;
 		const auto r2x = String<STR> (PTRTOARR[&_PCSTR_ ("")[0]]) ;
 		_UNITTEST_ASSERT_ (r2x.size () == 0) ;
+		const auto r3x = String<STR> (_PCSTR_ ("")) ;
+		_UNITTEST_ASSERT_ (r3x.size () == 0) ;
 	}
 
 	TEST_METHOD (TEST_CSC_ARRAY_STACK) {

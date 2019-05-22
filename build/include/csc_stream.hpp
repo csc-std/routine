@@ -678,7 +678,9 @@ private:
 		BOOL varify_escape_r (const UNIT &item) const {
 			if (!mEscapeFlag)
 				return FALSE ;
-			return item == varify_escape_item () ;
+			if (item != varify_escape_item ())
+				return FALSE ;
+			return TRUE ;
 		}
 
 		void modify_escape (const UNIT &key ,const UNIT &item) {
@@ -700,7 +702,9 @@ private:
 			INDEX ix = mSpaceSet.find (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
-			return mSpaceSet[ix].item == group ;
+			if (mSpaceSet[ix].item != group)
+				return FALSE ;
+			return TRUE ;
 		}
 
 		void modify_space (const UNIT &item) {
@@ -722,7 +726,6 @@ private:
 				return FALSE ;
 			if (varify_space (item))
 				return FALSE ;
-			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 	} ;
@@ -795,23 +798,21 @@ public:
 	}
 
 	void read (UNIT &data) popping {
-		const auto r1x = mRead < mWrite ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!r1x)
-				continue ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mRead >= mWrite)
+				return (void) (if_cond = FALSE) ;
 			data = mHolder->convert_endian (mStream[mRead]) ;
 			const auto r2x = mHolder->varify_escape_r (data) ;
 			mRead++ ;
 			if (!r2x)
-				continue ;
+				return ;
 			_DYNAMIC_ASSERT_ (mRead < mWrite) ;
 			data = mHolder->convert_endian (mStream[mRead]) ;
 			data = mHolder->convert_escape (data) ;
 			mRead++ ;
-		}
-		if (r1x)
-			return ;
-		data = mHolder->varify_ending_item () ;
+		} ,[&] (BOOL &if_cond) {
+			data = mHolder->varify_ending_item () ;
+		}) ;
 	}
 
 	inline TextReader &operator>> (UNIT &data) popping {
@@ -1158,7 +1159,9 @@ private:
 		BOOL varify_escape_w (const UNIT &key) const {
 			if (!mEscapeFlag)
 				return FALSE ;
-			return mEscapeSet.find (key) != VAR_NONE ;
+			if (mEscapeSet.find (key) == VAR_NONE)
+				return FALSE ;
+			return TRUE ;
 		}
 
 		void modify_escape (const UNIT &key ,const UNIT &item) {
@@ -1184,7 +1187,6 @@ private:
 				return FALSE ;
 			if (varify_space (item))
 				return FALSE ;
-			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 	} ;
@@ -1453,7 +1455,7 @@ private:
 		const auto r3x = log_of_number (rax[0]) ;
 		if (_ABS_ (r3x - 1 + rax[1]) >= 6) {
 			const auto r4x = _MAX_ ((r3x - 7) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
+			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
@@ -1465,7 +1467,7 @@ private:
 			_STATIC_WARNING_ ("unqualified") ;
 		} else if (rax[1] >= 1 - r3x && rax[1] < 0) {
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
+			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
@@ -1477,7 +1479,7 @@ private:
 			_STATIC_WARNING_ ("unqualified") ;
 		} else if (rax[1] < 1 - r3x) {
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r4x - 1 ; i++) {
+			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
@@ -1500,7 +1502,7 @@ private:
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r5x ; i < r4x - 1 ; i++) {
+			for (INDEX i = r5x ,ie = r4x - 1 ; i < ie ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
 				rax[0] /= mHolder->varify_radix () ;
@@ -2077,18 +2079,13 @@ public:
 				ret++ ;
 			}
 		}
-		const auto r2x = (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!r2x)
-				continue ;
+		if (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')) {
 			ris++ ;
 			ret++ ;
-			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-				continue ;
-			ris++ ;
-			ret++ ;
-		}
-		if (r2x) {
+			if (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')) {
+				ris++ ;
+				ret++ ;
+			}
 			_DYNAMIC_ASSERT_ (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
 			ris++ ;
 			ret++ ;

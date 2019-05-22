@@ -14,7 +14,9 @@ inline BOOL _ISNAN_ (const VAL32 &arg) {
 	const auto r2x = _CAST_<CHAR> (arg) & CHAR (0X007FFFFF) ;
 	if (r1x != CHAR (0X7F800000))
 		return FALSE ;
-	return r2x != 0 ;
+	if (r2x == 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline BOOL _ISNAN_ (const VAL64 &arg) {
@@ -22,7 +24,9 @@ inline BOOL _ISNAN_ (const VAL64 &arg) {
 	const auto r2x = _CAST_<DATA> (arg) & DATA (0X000FFFFFFFFFFFFF) ;
 	if (r1x != DATA (0X7FF0000000000000))
 		return FALSE ;
-	return r2x != 0 ;
+	if (r2x == 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline BOOL _ISINF_ (const VAL32 &arg) {
@@ -30,7 +34,9 @@ inline BOOL _ISINF_ (const VAL32 &arg) {
 	const auto r2x = _CAST_<CHAR> (arg) & CHAR (0X007FFFFF) ;
 	if (r1x != CHAR (0X7F800000))
 		return FALSE ;
-	return r2x == 0 ;
+	if (r2x != 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline BOOL _ISINF_ (const VAL64 &arg) {
@@ -38,7 +44,9 @@ inline BOOL _ISINF_ (const VAL64 &arg) {
 	const auto r2x = _CAST_<DATA> (arg) & DATA (0X000FFFFFFFFFFFFF) ;
 	if (r1x != DATA (0X7FF0000000000000))
 		return FALSE ;
-	return r2x == 0 ;
+	if (r2x != 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline imports DEF<VALX (const VALX &arg)> _SQRT_ ;
@@ -342,86 +350,148 @@ inline ARRAY2<VAR64> _IEEE754E10TOE2_ (const ARRAY2<VAR64> &arg) {
 }
 } ;
 
+template <class TYPE ,class SUBJECT = VAR>
+struct Classified {
+	TYPE mData ;
+	SUBJECT mGroup ;
+} ;
+
+template <class TYPE ,class SUBJECT = VAL>
+struct Weighted {
+	TYPE mData ;
+	SUBJECT mWeight ;
+} ;
+
 #ifdef __CSC_DEPRECATED__
 inline namespace S {
 template <class _ARG1 ,class _ARG2>
-inline Array<_ARG2> _TRANSFORM_ (const Array<_ARG1> &arg1 ,const Function<_ARG2 (const _ARG1 &)> &arg2) {
-	Array<_ARG2> ret = Array<_ARG1> (arg1.size ()) ;
+inline Array<_ARG2> _MAP_ (const Array<_ARG1> &arg1 ,const Function<_ARG2 (const _ARG1 &)> &func) {
+	Array<_ARG2> ret = Array<_ARG2> (arg1.size ()) ;
 	for (INDEX i = 0 ; i < arg1.length () ; i++)
-		ret[i] = arg2 (arg1[i]) ;
+		ret[i] = func (arg1[i]) ;
 	return std::move (ret) ;
 }
 
-template <class _ARG1>
-inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &arg1 ,const Array<BOOL> &arg2) {
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+inline Array<_ARG3> _MAP_ (const Array<_ARG1> &arg1 ,const Array<_ARG2> &arg2 ,const Function<_ARG3 (const _ARG1 & ,const _ARG2 &)> &func) {
 	_DEBUG_ASSERT_ (arg1.size () == arg2.size ()) ;
-	Array<_ARG1> ret = Array<_ARG1> (arg2.length ()) ;
-	INDEX iw = 0 ;
-	for (INDEX i = 0 ; i < arg2.length () ; i++) {
-		if (!arg2[i])
-			continue ;
-		ret[iw++] = arg1[i] ;
-	}
+	Array<_ARG3> ret = Array<_ARG3> (arg1.size ()) ;
+	for (INDEX i = 0 ; i < arg1.length () ; i++)
+		ret[i] = func (arg1[i] ,arg2[i]) ;
 	return std::move (ret) ;
 }
 
-template <class _ARG1>
-inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &arg1 ,const Array<INDEX> &arg2) {
-	Array<_ARG1> ret = Array<_ARG1> (arg2.length ()) ;
+template <class _ARG>
+inline Array<_ARG> _FILTER_ (const Array<_ARG> &arg1 ,const Array<INDEX> &elem) {
+	Array<_ARG> ret = Array<_ARG> (elem.length ()) ;
 	INDEX iw = 0 ;
-	for (auto &&i : arg2)
+	for (auto &&i : elem)
 		ret[iw++] = arg1[i] ;
 	return std::move (ret) ;
 }
 
-inline Array<INDEX> _ELEMENT_ (const Array<BOOL> &arg) {
+inline Array<INDEX> _ELEMENT_ (const Array<BOOL> &elem) {
 	const auto r1x = _CALL_ ([&] () {
 		LENGTH ret = 0 ;
-		for (auto &&i : arg)
+		for (auto &&i : elem)
 			ret += EFLAG (i) ;
 		return std::move (ret) ;
 	}) ;
 	Array<INDEX> ret = Array<INDEX> (r1x) ;
 	INDEX iw = 0 ;
-	for (INDEX i = 0 ; i < arg.length () ; i++) {
-		if (!arg[i])
+	for (INDEX i = 0 ; i < elem.length () ; i++) {
+		if (!elem[i])
 			continue ;
 		ret[iw++] = i ;
 	}
 	return std::move (ret) ;
 }
 
-template <class _ARG1>
-inline Array<_ARG1> _RECURSE_ (const _ARG1 &arg1 ,LENGTH arg2 ,const Function<_ARG1 (const _ARG1 &)> &arg3) {
-	Array<_ARG1> ret = Array<_ARG1> (arg2) ;
+template <class _ARG>
+inline Array<_ARG> _FILTER_ (const Array<_ARG> &arg1 ,const Array<BOOL> &elem) {
+	_DEBUG_ASSERT_ (arg1.size () == elem.size ()) ;
+	return _FILTER_ (arg1 ,_ELEMENT_ (elem)) ;
+}
+
+template <class _ARG>
+inline Array<_ARG> _REDUCE_ (const _ARG &first ,LENGTH count ,const Function<_ARG (const _ARG &)> &func) {
+	Array<_ARG> ret = Array<_ARG> (count) ;
 	for (INDEX i = 0 ,ie = _MIN_ (LENGTH (1) ,ret.length ()) ; i < ie ; i++)
-		ret[i] = arg1 ;
+		ret[i] = first ;
 	for (INDEX i = 1 ; i < ret.length () ; i++)
-		ret[i] = arg3 (ret[i - 1]) ;
+		ret[i] = func (ret[i - 1]) ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline _ARG2 _ACCUMULATE_ (const _ARG2 &arg1 ,const Array<_ARG1> &arg2 ,const Function<_ARG2 (const _ARG1 & ,const _ARG1 &)> &arg3) {
-	_ARG1 ret = arg1 ;
-	for (auto &&i : arg2)
-		ret = arg3 (i ,ret) ;
+inline _ARG1 _REDUCE_ (const _ARG1 &first ,const Array<_ARG2> &arg1 ,const Function<_ARG1 (const _ARG1 & ,const _ARG2 &)> &func) {
+	_ARG1 ret = first ;
+	for (auto &&i : arg1)
+		ret = func (ret ,i) ;
 	return std::move (ret) ;
 }
 
-template <class _ARG1>
-inline Array<_ARG1> _UNPACK_ (const Array<Array<_ARG1>> &arg) {
+template <class _ARG>
+inline Array<_ARG> _CONCAT_ (const Array<_ARG> &arg1 ,const _ARG &arg2) {
+	Array<_ARG> ret = Array<_ARG> (arg1.length () + 1) ;
+	for (INDEX i = 0 ; i < arg1.length () ; i++)
+		ret[i] = arg1[i] ;
+	INDEX ix = arg1.length () ;
+	ret[ix] = arg2 ;
+	return std::move (ret) ;
+}
+
+template <class _ARG>
+inline Array<_ARG> _CONCAT_ (const Array<_ARG> &arg1 ,const Array<_ARG> &arg2) {
+	Array<_ARG> ret = Array<_ARG> (arg1.length () + arg2.length ()) ;
+	for (INDEX i = 0 ; i < arg1.length () ; i++)
+		ret[i] = arg1[i] ;
+	INDEX ix = arg1.length () ;
+	for (INDEX i = 0 ; i < arg2.length () ; i++)
+		ret[ix + i] = arg2[i] ;
+	return std::move (ret) ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline Function<_ARG1 (const _ARGS &...)> _BIND_ (const PTR<_ARG1 (const _ARGS &...)> &func) {
+	return Function<_ARG1 (const _ARGS &...)> (func) ;
+}
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4>
+inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const decltype (ARGVP1) & ,const decltype (ARGVP1) & ,const decltype (ARGVP2) & ,const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2) {
+	return Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> ([&] (const _ARG2 &op1 ,const _ARG3 &op2) {
+		return func2 (op1 ,func1 (op1 ,op2)) ;
+	}) ;
+}
+
+template <class _ARG>
+inline Array<Array<_ARG>> _GROUP_ (const Array<_ARG> &arg1 ,const Array<Function<BOOL (const _ARG &)>> &func) {
+	Array<Array<_ARG>> ret ;
+	const auto r1x = _BIND_<Array<_ARG> ,Array<_ARG>> (&_COPY_<Array<_ARG>>) ;
+	const auto r2x = _REDUCE_ (arg1 ,func.length () ,r1x) ;
+	const auto r3x = _BIND_<Array<BOOL> ,Array<_ARG> ,Function<BOOL (const _ARG &)>> (&_MAP_<_ARG ,BOOL>) ;
+	const auto r4x = _BIND_<Array<_ARG> ,Array<_ARG> ,Array<BOOL>> (&_FILTER_< _ARG>) ;
+	const auto r5x = _BIND_<Array<_ARG> ,Array<_ARG> ,Function<BOOL (const _ARG &)>> (ARGVP1 ,ARGVP1 ,ARGVP2 ,r3x ,r4x) ;
+	const auto r6x = _MAP_ (r2x ,func ,r5x) ;
+	const auto r7x = _BIND_<Array<Array<_ARG>> ,Array<Array<_ARG>> ,Array<_ARG>> (&_CONCAT_<Array<_ARG>>) ;
+	ret = _REDUCE_ (ret ,r6x ,r7x) ;
+	return std::move (ret) ;
+}
+
+template <class _ARG>
+inline Array<_ARG> _FLATTEN_ (const Array<Array<_ARG>> &arg1) {
 	const auto r1x = _CALL_ ([&] () {
 		LENGTH ret = 0 ;
-		for (auto &&i : arg)
+		for (auto &&i : arg1)
 			ret += i.length () ;
 		return std::move (ret) ;
 	}) ;
-	Array<_ARG1> ret = Array<_ARG1> (r1x) ;
+	Array<_ARG> ret = Array<_ARG> (r1x) ;
 	INDEX iw = 0 ;
-	for (auto &&i : arg)
+	for (auto &&i : arg1) {
 		for (auto &&j : i)
 			ret[iw++] = j ;
+	}
 	return std::move (ret) ;
 }
 } ;

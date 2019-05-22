@@ -35,9 +35,10 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	mPrimeSet.fill (BYTE (0XAA)) ;
 	mPrimeSet[1] = FALSE ;
 	mPrimeSet[2] = TRUE ;
-	for (INDEX i = 3 ,ie = _SQRT_ (mPrimeSet.size ()) + 2 ; i < ie ; i += 2)
+	for (INDEX i = 3 ,ie = _SQRT_ (mPrimeSet.size ()) + 2 ; i < ie ; i += 2) {
 		for (INDEX j = _SQE_ (i) ; j < mPrimeSet.size () ; j += i * 2)
 			mPrimeSet[j] = FALSE ;
+	}
 }
 
 template <class UNIT>
@@ -150,7 +151,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context ,const SoftImage<UNIT> &adjancency ,INDEX root) popping :mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
+		inline explicit Lambda (DijstraAlgorithm &context ,const SoftImage<UNIT> &adjancency ,INDEX root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -245,7 +246,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 		ARRAY3<UNIT> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context ,const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) popping :mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
+		inline explicit Lambda (KMeansAlgorithm &context ,const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -338,13 +339,16 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 		}
 
 		inline BOOL reach_convergence () const {
-			if (mConvergence[0] < UNIT (0) || mConvergence[1] < UNIT (0) || mConvergence[2] < UNIT (0))
+			if (mConvergence[0] < UNIT (0))
+				return FALSE ;
+			if (mConvergence[1] < UNIT (0))
+				return FALSE ;
+			if (mConvergence[2] < UNIT (0))
 				return FALSE ;
 			if (mConvergence[0] > mConvergence[1] || mConvergence[1] > mConvergence[2])
 				return FALSE ;
 			if (mConvergence[1] - mConvergence[2] >= mTolerance)
 				return FALSE ;
-			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 
@@ -410,7 +414,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const SoftImage<UNIT> &adjacency) popping :mContext (context) ,mAdjacency (adjacency) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const SoftImage<UNIT> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -585,7 +589,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 		Array<ARRAY3<INDEX>> mTriangle ;
 
 	public:
-		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<UNIT>> &vertex) popping :mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<UNIT>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -662,7 +666,9 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			INDEX iz = mPloygonVertexList.access ((it + 1) % mPloygonVertexList.length ()) ;
 			if (math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) >= UNIT (0))
 				return FALSE ;
-			return edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) ;
+			if (!edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]))
+				return FALSE ;
+			return TRUE ;
 		}
 
 		inline BOOL edge_triangle (INDEX v1 ,INDEX v2 ,INDEX v3) const {
@@ -684,7 +690,6 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 				return FALSE ;
 			if (r1x <= UNIT (0) && r2x < UNIT (0) && r3x < UNIT (0))
 				return FALSE ;
-			_STATIC_ASSERT_ ("unqualified") ;
 			return TRUE ;
 		}
 
@@ -761,7 +766,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		Array<UNIT> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context ,const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) popping :mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
+		inline explicit Lambda (BFGSAlgorithm &context ,const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -982,32 +987,30 @@ private:
 	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
 
 	void compute_query_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
-		const auto r1x = mHeap[it].mLeaf != VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!r1x)
-				continue ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mHeap[it].mLeaf == VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			INDEX ix = mHeap[it].mLeaf ;
 			const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 			if (r2x > sqe_range)
-				continue ;
+				return ;
 			out.add (ix) ;
-		}
-		if (r1x)
-			return ;
-		const auto r3x = mHeap[it].mKey ;
-		if (r3x >= bound[rot][0]) {
-			const auto r4x = bound[rot][1] ;
-			bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
-			compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
-			bound[rot][1] = r4x ;
-		}
-		if (r3x <= bound[rot][1]) {
-			const auto r4x = bound[rot][0] ;
-			bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
-			compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
-			bound[rot][0] = r4x ;
-		}
-		_STATIC_WARNING_ ("unqualified") ;
+		} ,[&] (BOOL &if_cond) {
+			const auto r3x = mHeap[it].mKey ;
+			if (r3x >= bound[rot][0]) {
+				const auto r4x = bound[rot][1] ;
+				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
+				compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
+				bound[rot][1] = r4x ;
+			}
+			if (r3x <= bound[rot][1]) {
+				const auto r4x = bound[rot][0] ;
+				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
+				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
+				bound[rot][0] = r4x ;
+			}
+			_STATIC_WARNING_ ("unqualified") ;
+		}) ;
 	}
 
 	Stack<UNIT> first_count_vertex (const ARRAY3<UNIT> &point ,LENGTH count) const {
@@ -1021,10 +1024,9 @@ private:
 	}
 
 	void compute_query_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
-		const auto r1x = mHeap[it].mLeaf != VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!r1x)
-				continue ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mHeap[it].mLeaf == VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			INDEX ix = mHeap[it].mLeaf ;
 			const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
 			INDEX iw = out.length () ;
@@ -1033,18 +1035,17 @@ private:
 				iw-- ;
 			}
 			if (iw >= out.length ())
-				continue ;
+				return ;
 			out[iw].P1 = ix ;
 			out[iw].P2 = r2x ;
-		}
-		if (r1x)
-			return ;
-		const auto r3x = mHeap[it].mKey ;
-		if (r3x >= point[rot] - out[out.length () - 1].P2)
-			compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
-		if (r3x <= point[rot] + out[out.length () - 1].P2)
-			compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
-		_STATIC_ASSERT_ ("unqualified") ;
+		} ,[&] (BOOL &if_cond) {
+			const auto r3x = mHeap[it].mKey ;
+			if (r3x >= point[rot] - out[out.length () - 1].P2)
+				compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
+			if (r3x <= point[rot] + out[out.length () - 1].P2)
+				compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
+			_STATIC_WARNING_ ("unqualified") ;
+		}) ;
 	}
 } ;
 
@@ -1066,7 +1067,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) popping :mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1221,7 +1222,7 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		Queue<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context ,const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) popping :mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
+		inline explicit Lambda (MaxFlowAlgorithm &context ,const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
 			prepare () ;

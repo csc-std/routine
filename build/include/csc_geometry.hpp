@@ -646,7 +646,15 @@ public:
 
 private:
 	BOOL affine_matrix_like () const {
-		return get (3 ,0) == UNIT (0) && get (3 ,1) == UNIT (0) && get (3 ,2) == UNIT (0) && get (3 ,3) != UNIT (0) ;
+		if (get (3 ,0) != UNIT (0))
+			return FALSE ;
+		if (get (3 ,1) != UNIT (0))
+			return FALSE ;
+		if (get (3 ,2) != UNIT (0))
+			return FALSE ;
+		if (get (3 ,3) == UNIT (0))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	INDEX max_row_one (INDEX yx) const {

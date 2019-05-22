@@ -12,8 +12,10 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VAR128) {
-		_UNITTEST_ASSERT_ (VAR128 (VAR64_MAX) * 2 - VAR64_MAX == VAR64_MAX) ;
-		_UNITTEST_ASSERT_ (VAR128 (VAR64_MAX) / (VAR64_MAX / 2 - 1) == 2) ;
+		const auto r1x = VAR128 (VAR64_MAX) * 2 - VAR64_MAX ;
+		_UNITTEST_ASSERT_ (r1x == VAR64_MAX) ;
+		const auto r2x = VAR128 (VAR64_MAX) / (VAR64_MAX / 2 - 1) ;
+		_UNITTEST_ASSERT_ (r2x == 2) ;
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
@@ -96,7 +98,7 @@ public:
 	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
 		const auto r2x = rax->alloc<int> () ;
-		const auto r10x = [] (const VAR &arg1 ,const VAR &arg2) {
+		const auto r10x = _XVALUE_<const PTR<VAR (const VAR & ,const VAR &)> &> ([] (const VAR &arg1 ,const VAR &arg2) {
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
 			const auto r4x = (arg2 < VAR_ZERO) ? (-arg1) : arg1 ;
 			const auto r5x = _ABS_ (arg2) ;
@@ -106,7 +108,7 @@ public:
 			if (arg2 < 0)
 				ret = -ret ;
 			return std::move (ret) ;
-		} ;
+		}) ;
 		const auto r11x = r10x (_SIZEOF_ (int) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (int) - 8 ,VAR_ZERO) ;
 		const auto r12x = r10x (_SIZEOF_ (TEMP<UniqueRef<void>>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (TEMP<UniqueRef<void>>) - 8 ,VAR_ZERO) ;
 		const auto r13x = r10x (_SIZEOF_ (DEF<double[44]>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (DEF<double[44]>) - 8 ,VAR_ZERO) ;

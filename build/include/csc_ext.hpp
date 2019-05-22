@@ -92,33 +92,49 @@ public:
 	inline BOOL operator< (const VAR128 &right) const {
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (right.v2i0) ;
-		if (r1x != r2x)
-			return r1x < r2x ;
-		return v2i1 < right.v2i1 ;
+		if (r1x < r2x)
+			return TRUE ;
+		if (r1x > r2x)
+			return FALSE ;
+		if (v2i1 >= right.v2i1)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator>= (const VAR128 &right) const {
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (right.v2i0) ;
-		if (r1x != r2x)
-			return r1x >= r2x ;
-		return v2i1 >= right.v2i1 ;
+		if (r1x < r2x)
+			return FALSE ;
+		if (r1x > r2x)
+			return TRUE ;
+		if (v2i1 < right.v2i1)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator> (const VAR128 &right) const {
 		const auto r1x = _CAST_<VAR64> (right.v2i0) ;
 		const auto r2x = _CAST_<VAR64> (v2i0) ;
-		if (r1x != r2x)
-			return r1x > r2x ;
-		return v2i1 > right.v2i1 ;
+		if (r1x < r2x)
+			return FALSE ;
+		if (r1x > r2x)
+			return TRUE ;
+		if (v2i1 <= right.v2i1)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator<= (const VAR128 &right) const {
 		const auto r1x = _CAST_<VAR64> (right.v2i0) ;
 		const auto r2x = _CAST_<VAR64> (v2i0) ;
-		if (r1x != r2x)
-			return r1x <= r2x ;
-		return v2i1 <= right.v2i1 ;
+		if (r1x < r2x)
+			return TRUE ;
+		if (r1x > r2x)
+			return FALSE ;
+		if (v2i1 > right.v2i1)
+			return TRUE ;
+		return FALSE ;
 	}
 
 	inline VAR128 operator& (const VAR128 &right) const {
@@ -970,37 +986,45 @@ public:
 		return template_visit (*this ,_NULL_<const ARGC<_VAL>> ()) ;
 	}
 
-	inline constexpr BOOL equal (const Tuple &right) const {
-		return one () == right.one () && rest () == right.rest () ;
+	inline BOOL equal (const Tuple &right) const {
+		if (one () != right.one ())
+			return FALSE ;
+		if (rest () != right.rest ())
+			return FALSE ;
+		return TRUE ;
 	}
 
-	inline constexpr BOOL operator== (const Tuple &right) const {
+	inline BOOL operator== (const Tuple &right) const {
 		return equal (right) ;
 	}
 
-	inline constexpr BOOL operator!= (const Tuple &right) const {
+	inline BOOL operator!= (const Tuple &right) const {
 		return !equal (right) ;
 	}
 
-	inline constexpr BOOL less (const Tuple &right) const {
-		if (one () != right.one ())
-			return one () < right.one () ;
-		return rest () < right.rest () ;
+	inline BOOL less (const Tuple &right) const {
+		if (one () < right.one ())
+			return TRUE ;
+		if (one () > right.one ())
+			return FALSE ;
+		if (rest () >= right.rest ())
+			return FALSE ;
+		return TRUE ;
 	}
 
-	inline constexpr BOOL operator< (const Tuple &right) const {
+	inline BOOL operator< (const Tuple &right) const {
 		return less (right) ;
 	}
 
-	inline constexpr BOOL operator>= (const Tuple &right) const {
+	inline BOOL operator>= (const Tuple &right) const {
 		return !less (right) ;
 	}
 
-	inline constexpr BOOL operator> (const Tuple &right) const {
+	inline BOOL operator> (const Tuple &right) const {
 		return right.less (*this) ;
 	}
 
-	inline constexpr BOOL operator<= (const Tuple &right) const {
+	inline BOOL operator<= (const Tuple &right) const {
 		return !right.less (*this) ;
 	}
 
@@ -1151,10 +1175,12 @@ private:
 		return BOOL (left.one ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static BOOL template_cast (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left) {
-		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return BOOL (left.one ()) && template_cast (left.rest ()) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static BOOL template_cast (const Tuple<_ARG1 ,_ARGS...> &left) {
+		_STATIC_ASSERT_ (std::is_same<_ARG1 ,BOOL>::value) ;
+		if (!BOOL (left.one ()))
+			return FALSE ;
+		return template_cast (left.rest ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1165,7 +1191,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_equal (left.one () ,right) && template_equal (left.rest () ,right) ;
+		if (!operator_equal (left.one () ,right))
+			return FALSE ;
+		return template_equal (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1189,7 +1217,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_less (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_less (left.one () ,right) && template_less (left.rest () ,right) ;
+		if (!operator_less (left.one () ,right))
+			return FALSE ;
+		return template_less (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1213,7 +1243,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_bigger (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_less (right ,left.one ()) && template_bigger (left.rest () ,right) ;
+		if (!operator_less (right ,left.one ()))
+			return FALSE ;
+		return template_bigger (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1310,10 +1342,12 @@ private:
 		return BOOL (left.one ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static BOOL template_cast (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left) {
-		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return BOOL (left.one ()) || template_cast (left.rest ()) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static BOOL template_cast (const Tuple<_ARG1 ,_ARGS...> &left) {
+		_STATIC_ASSERT_ (std::is_same<_ARG1 ,BOOL>::value) ;
+		if (BOOL (left.one ()))
+			return TRUE ;
+		return template_cast (left.rest ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1324,7 +1358,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_equal (left.one () ,right) || template_equal (left.rest () ,right) ;
+		if (operator_equal (left.one () ,right))
+			return TRUE ;
+		return template_equal (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1348,7 +1384,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_less (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_less (left.one () ,right) || template_less (left.rest () ,right) ;
+		if (operator_less (left.one () ,right))
+			return TRUE ;
+		return template_less (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1372,7 +1410,9 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static BOOL template_bigger (const Tuple<_ARG1 ,_ARG2 ,_ARGS...> &left ,const _ARG3 &right) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-		return operator_less (right ,left.one ()) || template_bigger (left.rest () ,right) ;
+		if (operator_less (right ,left.one ()))
+			return TRUE ;
+		return template_bigger (left.rest () ,right) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1548,7 +1588,9 @@ public:
 			return TRUE ;
 		if (!mHolder.exist () || !right.mHolder.exist ())
 			return FALSE ;
-		return &mHolder.self == &right.mHolder.self ;
+		if (&mHolder.self != &right.mHolder.self)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const StrongRef &right) const {
@@ -1649,7 +1691,9 @@ public:
 			return FALSE ;
 		if (!mHolder->mData.exist ())
 			return FALSE ;
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL equal (const WeakRef &right) const {
@@ -1657,7 +1701,9 @@ public:
 			return TRUE ;
 		if (!mHolder.exist () || !right.mHolder.exist ())
 			return FALSE ;
-		return &mHolder.self == &right.mHolder.self ;
+		if (&mHolder.self != &right.mHolder.self)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const WeakRef &right) const {
@@ -1673,7 +1719,9 @@ public:
 			return TRUE ;
 		if (!mHolder.exist () || !right.mHolder.exist ())
 			return FALSE ;
-		return &mHolder.self == &right.mHolder.self ;
+		if (&mHolder.self != &right.mHolder.self)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const StrongRef<TYPE> &right) const {
@@ -1855,7 +1903,9 @@ private:
 			return FALSE ;
 		if (!mHeap->used (mIndex))
 			return FALSE ;
-		return mWeakRef == mHeap.self[mIndex].mData ;
+		if (mWeakRef != mHeap.self[mIndex].mData)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline INDEX alloc (const StrongRef<TYPE> &data) const popping {
@@ -2390,7 +2440,7 @@ private:
 			mFirst = r4x ;
 			mSize += r1x * SIZE::value ;
 			const auto r5x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (r3x) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ; i < mFirst->count ; i++) {
+			for (INDEX i = 0 ,ie = mFirst->count ; i < ie ; i++) {
 				const auto r6x = &_LOAD_<BLOCK> (r5x + i * (_SIZEOF_ (BLOCK) + SIZE::value)) ;
 				r6x->next = mFree ;
 				mFree = r6x ;
@@ -2437,7 +2487,7 @@ private:
 	private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
 			const auto r1x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ; i < node->count ; i++)
+			for (INDEX i = 0 ,ie = node->count ; i < ie ; i++)
 				if (_ADDRESS_ (_LOAD_<BLOCK> (r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value)).next) == VAR_USED)
 					return FALSE ;
 			return TRUE ;
@@ -2669,8 +2719,7 @@ private:
 private:
 	inline static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
-	template <class _ARG>
-	inline static Pack &unique_heap (const ARGV<_ARG> &) popping {
+	inline static Pack &unique_root () popping {
 		return _CACHE_ ([] () {
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = AutoRef<IntrusiveRef<Pack>> () ;
@@ -2767,7 +2816,7 @@ template <FLAG UUID>
 class GlobalStatic<ARGC<UUID>> final :private Wrapped<void> {
 public:
 	inline static void init (VAR data ,BOOL read_only) {
-		auto &r1 = GlobalStatic<void>::unique_heap (ARGVP0) ;
+		auto &r1 = GlobalStatic<void>::unique_root () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,UUID) ;
 		if (r1x != NULL)
@@ -2779,7 +2828,7 @@ public:
 	}
 
 	inline static VAR load () popping {
-		auto &r1 = GlobalStatic<void>::unique_heap (ARGVP0) ;
+		auto &r1 = GlobalStatic<void>::unique_root () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,UUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -2787,7 +2836,7 @@ public:
 	}
 
 	inline static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &r1 = GlobalStatic<void>::unique_heap (ARGVP0) ;
+		auto &r1 = GlobalStatic<void>::unique_root () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,UUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -2798,7 +2847,7 @@ public:
 	}
 
 	inline static void save (VAR data) {
-		auto &r1 = GlobalStatic<void>::unique_heap (ARGVP0) ;
+		auto &r1 = GlobalStatic<void>::unique_root () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,UUID) ;
 		if (rax == NULL) {
@@ -2821,7 +2870,7 @@ private:
 	public:
 		friend IntrusiveRef<Pack> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
-		TYPE mHolder ;
+		TYPE mData ;
 	} ;
 
 	using GUID_TYPE = typename GlobalStatic<void>::GUID_TYPE ;
@@ -2858,32 +2907,26 @@ private:
 	}
 
 public:
-	inline static TYPE &echo (const PTR<void (TYPE &)> &init_proc) popping {
-		auto &r1 = _CACHE_ ([&] () {
-			auto &r2 = GlobalStatic<void>::unique_heap (ARGVP0) ;
+	inline static TYPE &unique () popping {
+		auto &r1 = _CACHE_ ([] () {
+			auto &r2 = GlobalStatic<void>::unique_root () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
-			const auto r1x = guid_from_typeid_name () ;
-			auto rax = GlobalStatic<void>::static_find_node (r2 ,r1x) ;
+			const auto r2x = guid_from_typeid_name () ;
+			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
 			auto rbx = AutoRef<IntrusiveRef<Pack>> () ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (rax != NULL)
-					continue ;
-				rax = GlobalStatic<void>::static_new_node (r2 ,r1x) ;
+			if (rax == NULL) {
+				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = AutoRef<IntrusiveRef<Pack>>::make (IntrusiveRef<Pack>::make ()) ;
-				const auto r2x = rbx->watch () ;
-				const auto r3x = _XVALUE_<const PTR<Pack> &> (r2x) ;
-				rax->mData = &_LOAD_<NONE> (r3x) ;
-				if (init_proc == NULL)
-					continue ;
-				init_proc (r3x->mHolder) ;
+				const auto r3x = rbx->watch () ;
+				const auto r4x = _XVALUE_<const PTR<Pack> &> (r3x) ;
+				rax->mData = &_LOAD_<NONE> (r4x) ;
 			}
-			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r4x = &_LOAD_<Pack> (rax->mData) ;
-			return IntrusiveRef<Pack> (r4x).watch () ;
+			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
+			return IntrusiveRef<Pack> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Pack &> (r1).mHolder ;
+		return _XVALUE_<Pack &> (r1).mData ;
 	}
 } ;
 
@@ -2967,7 +3010,7 @@ private:
 		}
 
 	private:
-		inline explicit Member (const Serializer &base ,TYPE2 &context) popping :mBase (base) ,mContext (context) {}
+		inline explicit Member (const Serializer &base ,TYPE2 &context) popping : mBase (base) ,mContext (context) {}
 	} ;
 
 private:

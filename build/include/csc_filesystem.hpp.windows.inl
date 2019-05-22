@@ -104,7 +104,9 @@ inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
 	const auto r1x = GetFileAttributes (file.raw ().self) ;
 	if (r1x == INVALID_FILE_ATTRIBUTES)
 		return FALSE ;
-	return (r1x & FILE_ATTRIBUTE_DIRECTORY) == 0 ;
+	if ((r1x & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline exports void _ERASEFILE_ (const String<STR> &file) {
@@ -136,7 +138,9 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 		CloseHandle (me) ;
 	}) ;
 	const auto r2x = GetFileInformationByHandle (r1x ,&_ZERO_ (rax[0])) ;
-	if (r2x == 0 || rax[0].nNumberOfLinks == 0)
+	if (r2x == 0)
+		return FALSE ;
+	if (rax[0].nNumberOfLinks == 0)
 		return FALSE ;
 	const auto r3x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		me = CreateFile (file2.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
@@ -149,7 +153,9 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 		CloseHandle (me) ;
 	}) ;
 	const auto r4x = GetFileInformationByHandle (r3x ,&_ZERO_ (rax[1])) ;
-	if (r4x == 0 || rax[1].nNumberOfLinks == 0)
+	if (r4x == 0)
+		return FALSE ;
+	if (rax[1].nNumberOfLinks == 0)
 		return FALSE ;
 	if (rax[0].dwVolumeSerialNumber != rax[1].dwVolumeSerialNumber)
 		return FALSE ;
@@ -157,7 +163,6 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 		return FALSE ;
 	if (rax[0].nFileIndexLow != rax[1].nFileIndexLow)
 		return FALSE ;
-	_STATIC_ASSERT_ ("unqualified") ;
 	return TRUE ;
 }
 
@@ -222,17 +227,17 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			INDEX ix = r1x.access (i) ;
 			if (r1x[ix] == _PCSTR_ ("."))
 				continue ;
-			const auto r3x = (!ret.empty () && r1x[ix] == _PCSTR_ ("..")) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (!r3x)
-					continue ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (ret.empty ())
+					return (void) (if_cond = FALSE) ;
+				if (r1x[ix] != _PCSTR_ (".."))
+					return (void) (if_cond = FALSE) ;
 				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
-					continue ;
+					return ;
 				ret.take () ;
-			}
-			if (r3x)
-				continue ;
-			ret.add (ix) ;
+			} ,[&] (BOOL &if_cond) {
+				ret.add (ix) ;
+			}) ;
 		}
 		return std::move (ret) ;
 	}) ;
@@ -275,7 +280,9 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 	const auto r1x = GetFileAttributes (dire.raw ().self) ;
 	if (r1x == INVALID_FILE_ATTRIBUTES)
 		return FALSE ;
-	return (r1x & FILE_ATTRIBUTE_DIRECTORY) != 0 ;
+	if ((r1x & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {

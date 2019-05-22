@@ -71,18 +71,18 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
-	static const Monostate<std::atomic<PTR<NONE>> ,ARGC<1>> mInstance ([] () {
+	auto &r1 = _CACHE_ ([] () {
 		return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 	}) ;
-	mInstance.self.compare_exchange_strong (expect ,data) ;
-	return mInstance.self.load () ;
+	r1->compare_exchange_strong (expect ,data) ;
+	return r1->load () ;
 }
 } ;
 
 namespace CSC {
 template <>
 inline exports ConsoleService &Singleton<ConsoleService>::instance () {
-	return GlobalStatic<ARGV<Singleton<ConsoleService>>>::echo (NULL) ;
+	return GlobalStatic<ARGV<Singleton<ConsoleService>>>::unique () ;
 }
 } ;
 
@@ -90,14 +90,14 @@ inline exports ConsoleService &Singleton<ConsoleService>::instance () {
 namespace CSC {
 template <>
 inline exports NetworkService &Singleton<NetworkService>::instance () {
-	return GlobalStatic<ARGV<Singleton<NetworkService>>>::echo (NULL) ;
+	return GlobalStatic<ARGV<Singleton<NetworkService>>>::unique () ;
 }
 } ;
 
 namespace CSC {
 template <>
 inline exports DebuggerService &Singleton<DebuggerService>::instance () {
-	return GlobalStatic<ARGV<Singleton<DebuggerService>>>::echo (NULL) ;
+	return GlobalStatic<ARGV<Singleton<DebuggerService>>>::unique () ;
 }
 } ;
 #endif

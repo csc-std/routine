@@ -126,16 +126,19 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {
 	auto rax = ARRAY2<struct stat> () ;
 	const auto r1x = stat (_BUILDSTRS_<STRA> (file1).raw ().self ,&_ZERO_ (rax[0])) ;
-	if (r1x != 0 || rax[0].st_nlink == 0)
+	if (r1x != 0)
+		return FALSE ;
+	if (rax[0].st_nlink == 0)
 		return FALSE ;
 	const auto r2x = stat (_BUILDSTRS_<STRA> (file2).raw ().self ,&_ZERO_ (rax[1])) ;
-	if (r2x != 0 || rax[1].st_nlink == 0)
+	if (r2x != 0)
+		return FALSE ;
+	if (rax[1].st_nlink == 0)
 		return FALSE ;
 	if (rax[0].st_dev != rax[1].st_dev)
 		return FALSE ;
 	if (rax[0].st_ino != rax[1].st_ino)
 		return FALSE ;
-	_STATIC_ASSERT_ ("unqualified") ;
 	return TRUE ;
 }
 
@@ -204,17 +207,17 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			INDEX ix = r1x.access (i) ;
 			if (r1x[ix] == _PCSTR_ ("."))
 				continue ;
-			const auto r3x = (!ret.empty () && r1x[ix] == _PCSTR_ ("..")) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (!r3x)
-					continue ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (ret.empty ())
+					return (void) (if_cond = FALSE) ;
+				if (r1x[ix] != _PCSTR_ (".."))
+					return (void) (if_cond = FALSE) ;
 				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
-					continue ;
+					return ;
 				ret.take () ;
-			}
-			if (r3x)
-				continue ;
-			ret.add (ix) ;
+			} ,[&] (BOOL &if_cond) {
+				ret.add (ix) ;
+			}) ;
 		}
 		return std::move (ret) ;
 	}) ;

@@ -37,7 +37,9 @@ public:
 	BOOL exist () const {
 		if (!mHeap.exist ())
 			return FALSE ;
-		return mIndex != VAR_NONE ;
+		if (mIndex == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	XmlParser root () const {
@@ -99,7 +101,9 @@ public:
 			return FALSE ;
 		if (&mHeap.self != &right.mHeap.self)
 			return FALSE ;
-		return mIndex == right.mIndex ;
+		if (mIndex != right.mIndex)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const XmlParser &right) const {
@@ -827,7 +831,9 @@ public:
 	BOOL exist () const {
 		if (!mHeap.exist ())
 			return FALSE ;
-		return mIndex != VAR_NONE ;
+		if (mIndex == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL string_type () const {
@@ -915,12 +921,14 @@ public:
 
 	BOOL equal (const JsonParser &right) const {
 		if (!exist () && !right.exist ())
-			return FALSE ;
-		if (!exist () || !right.exist ())
 			return TRUE ;
+		if (!exist () || !right.exist ())
+			return FALSE ;
 		if (&mHeap.self != &right.mHeap.self)
 			return FALSE ;
-		return mIndex == right.mIndex ;
+		if (mIndex != right.mIndex)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const JsonParser &right) const {
