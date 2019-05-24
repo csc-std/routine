@@ -849,13 +849,15 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				}
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
-			if (mDXLoss[2] < mDXLoss[0]) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (mDXLoss[0] < mDXLoss[2])
+					return (void) (if_cond = FALSE) ;
 				mDXLoss[0] = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
-			} else {
+			} ,[&] (BOOL &if_cond) {
 				mIG.fill (UNIT (0)) ;
-			}
+			}) ;
 		}
 
 		inline UNIT math_matrix_mul (const SoftImage<UNIT> &mat ,INDEX y ,const Array<UNIT> &v) const {
@@ -1119,14 +1121,16 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX ib ,INDEX jb) {
 			_DEBUG_ASSERT_ (ib <= jb) ;
-			if (ib == jb) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (ib != jb)
+					return (void) (if_cond = FALSE) ;
 				INDEX jx = mHeap.alloc () ;
 				mHeap[jx].mKey = UNIT (0) ;
 				mHeap[jx].mLeaf = mOrder[rot][ib] ;
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
 				mLatestIndex = jx ;
-			} else if (ib < jb) {
+			} ,[&] (BOOL &if_cond) {
 				INDEX ix = ib + (jb - ib + 1) / 2 ;
 				for (INDEX i = ib ; i + 1 <= jb ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
@@ -1142,7 +1146,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 				update_build_tree (mHeap[jx].mRight ,mNextRot[rot] ,ix ,jb) ;
 				mHeap[jx].mRight = mLatestIndex ;
 				mLatestIndex = it ;
-			}
+			}) ;
 		}
 
 		void update_order (INDEX rot ,INDEX n_rot ,INDEX ib ,INDEX jb ,INDEX ie) {

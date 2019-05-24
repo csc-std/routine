@@ -420,7 +420,7 @@ inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
 class NetworkService::Implement final :private NetworkService::Abstract {
 private:
 	friend NetworkService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 	UniqueRef<void> mService ;
 
 public:
@@ -453,6 +453,6 @@ public:
 } ;
 
 inline exports NetworkService::NetworkService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

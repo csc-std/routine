@@ -273,7 +273,15 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) >= 0 ;
 		const auto r2x = _CAST_<VAR64> (right.v2i0) >= 0 ;
-		if (r1x && right.v4i0 == 0 && right.v4i1 == 0 && right.v4i2 == 0) {
+		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			if (!r1x)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i0 != 0)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i1 != 0)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i2 != 0)
+				return (void) (if_cond = FALSE) ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (right.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -285,15 +293,19 @@ public:
 			ret.v4i2 = CHAR (rax / r3x) ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
-		} else if (!r1x) {
+		} ,[&] (CSC::BOOL &if_cond) {
+			if (r1x)
+				return (void) (if_cond = FALSE) ;
 			const auto r3x = (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			ret = r3x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
-		} else if (!r2x) {
+		} ,[&] (CSC::BOOL &if_cond) {
+			if (r2x)
+				return (void) (if_cond = FALSE) ;
 			const auto r3x = (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			ret = r3x ? (VAR128 (0)) : (*this / -right) ;
-		} else {
+		} ,[&] (CSC::BOOL &if_cond) {
 			ret = slow_divide (*this ,right) ;
-		}
+		}) ;
 		return std::move (ret) ;
 	}
 
@@ -307,7 +319,15 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) >= 0 ;
 		const auto r2x = _CAST_<VAR64> (right.v2i0) >= 0 ;
-		if (r1x && right.v4i0 == 0 && right.v4i1 == 0 && right.v4i2 == 0) {
+		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			if (!r1x)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i0 != 0)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i1 != 0)
+				return (void) (if_cond = FALSE) ;
+			if (right.v4i2 != 0)
+				return (void) (if_cond = FALSE) ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (right.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -319,15 +339,19 @@ public:
 			ret.v4i2 = 0 ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
-		} else if (!r1x) {
+		} ,[&] (CSC::BOOL &if_cond) {
+			if (r1x)
+				return (void) (if_cond = FALSE) ;
 			const auto r3x = (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			ret = r3x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
-		} else if (!r2x) {
+		} ,[&] (CSC::BOOL &if_cond) {
+			if (r2x)
+				return (void) (if_cond = FALSE) ;
 			const auto r3x = (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			ret = r3x ? (*this) : (*this % -right) ;
-		} else {
+		} ,[&] (CSC::BOOL &if_cond) {
 			ret = right - slow_divide (*this ,right) * right ;
-		}
+		}) ;
 		return std::move (ret) ;
 	}
 
@@ -368,6 +392,27 @@ public:
 	inline VAR128 operator-- (int) popping {
 		VAR128 ret = *this ;
 		--*this ;
+		return std::move (ret) ;
+	}
+
+private:
+	inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
+		_DEBUG_ASSERT_ (y >= 0) ;
+		_DEBUG_ASSERT_ (x > 0) ;
+		VAR128 ret = 0 ;
+		auto rax = Buffer<VAR128 ,ARGC<2>> ({0 ,y}) ;
+		while (TRUE) {
+			if (rax[0] > rax[1])
+				break ;
+			ret = rax[0] + (rax[1] - rax[0]) / 2 ;
+			const auto r2x = x * ret ;
+			if (r2x == y)
+				break ;
+			const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
+			INDEX ix = EFLAG (r2x >= y) ;
+			rax[ix] = r3x ;
+		}
+		ret -= EFLAG (ret * x > y) ;
 		return std::move (ret) ;
 	}
 
@@ -430,27 +475,6 @@ private:
 	inline const CHAR &m_v4i3 () const {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
-	}
-
-private:
-	inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
-		_DEBUG_ASSERT_ (y >= 0) ;
-		_DEBUG_ASSERT_ (x > 0) ;
-		VAR128 ret = 0 ;
-		auto rax = Buffer<VAR128 ,ARGC<2>> ({0 ,y}) ;
-		while (TRUE) {
-			if (rax[0] > rax[1])
-				break ;
-			ret = rax[0] + (rax[1] - rax[0]) / 2 ;
-			const auto r2x = x * ret ;
-			if (r2x == y)
-				break ;
-			const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
-			INDEX ix = EFLAG (r2x >= y) ;
-			rax[ix] = r3x ;
-		}
-		ret -= EFLAG (ret * x > y) ;
-		return std::move (ret) ;
 	}
 
 #undef v2i0
@@ -833,11 +857,13 @@ private:
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-		if (index == 0) {
-			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
-		} else {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (index == 0)
+				return (void) (if_cond = FALSE) ;
 			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		} ,[&] (BOOL &if_cond) {
+			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
+		}) ;
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) {
@@ -847,13 +873,15 @@ private:
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
-		if (index == 0) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (index == 0)
+				return (void) (if_cond = FALSE) ;
+			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		} ,[&] (BOOL &if_cond) {
 			const auto r1x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r2x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r1x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r2x != VAR_NONE) ;
-		} else {
-			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		}) ;
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) noexcept {
@@ -864,11 +892,13 @@ private:
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
-		if (index == 0) {
-			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
-		} else {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (index == 0)
+				return (void) (if_cond = FALSE) ;
 			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		} ,[&] (BOOL &if_cond) {
+			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
+		}) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1453,6 +1483,26 @@ template <class>
 class SoftRef ;
 
 namespace stl {
+template <class TYPE ,class = VOID>
+struct is_complete_type :public false_type {} ;
+
+template <class TYPE>
+struct is_complete_type<TYPE ,ENABLE_TYPE<(_SIZEOF_ (TYPE) > 0)>> :public true_type {} ;
+
+template <class TYPE ,class = VOID>
+struct is_interface_type :public false_type {} ;
+
+template <class TYPE>
+struct is_interface_type<TYPE ,ENABLE_TYPE<_SIZEOF_ (TYPE) == _SIZEOF_ (Interface) && _ALIGNOF_ (TYPE) == _ALIGNOF_ (Interface)>> :public is_base_of<Interface ,TYPE> {} ;
+} ;
+
+namespace stl {
+template <class _ARG1 ,class _ARG2 ,class = VOID>
+struct is_always_base_of :public false_type {} ;
+
+template <class _ARG1 ,class _ARG2>
+struct is_always_base_of<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> :public is_base_of<_ARG1 ,_ARG2> {} ;
+
 template <class ,class ,class = VOID>
 struct is_virtual_base_of :public false_type {} ;
 
@@ -1511,7 +1561,7 @@ public:
 	}
 
 	//@warn: circular reference ruins StrongRef
-	template <class _ARG ,class = ENABLE_TYPE<std::is_base_of<TYPE ,_ARG>::value>>
+	template <class _ARG ,class = ENABLE_TYPE<stl::is_always_base_of<TYPE ,_ARG>::value>>
 	inline implicit StrongRef (const StrongRef<_ARG> &right) :StrongRef (right.template recast<TYPE> ()) {}
 
 	inline implicit StrongRef (const WeakRef<TYPE> &right) ;
@@ -1642,14 +1692,19 @@ private:
 	}
 
 	template <class _ARG>
-	inline static PTR<_ARG> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG> & ,const ARGV<ENABLE_TYPE<std::is_base_of<_ARG ,TYPE>::value>> & ,const decltype (ARGVP2) &) {
+	inline static PTR<_ARG> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG ,TYPE>::value>> & ,const decltype (ARGVP3) &) {
 		return _XVALUE_<const PTR<_ARG> &> (pointer) ;
 	}
 
 	template <class _ARG>
-	inline static PTR<_ARG> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG> & ,const ARGV<ENABLE_TYPE<std::is_base_of<Interface ,TYPE>::value && std::is_base_of<Interface ,_ARG>::value>> & ,const decltype (ARGVP1) &) {
+	inline static PTR<_ARG> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,TYPE>::value && stl::is_always_base_of<Interface ,_ARG>::value>> & ,const decltype (ARGVP2) &) {
 		//@warn: RTTI might be different across DLL
 		return dynamic_cast<PTR<_ARG>> (pointer) ;
+	}
+
+	template <class _ARG>
+	inline static PTR<_ARG> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG> & ,const ARGV<VOID> & ,const decltype (ARGVP1) &) {
+		return NULL ;
 	}
 
 public:
@@ -1755,7 +1810,12 @@ inline BOOL StrongRef<TYPE>::equal (const WeakRef<TYPE> &right) const {
 }
 
 template <class TYPE>
-class SoftRef {
+class SoftRef :public WeakRef<TYPE> {
+#pragma region
+#pragma push_macro ("super")
+#undef super
+#define super m_super ()
+
 private:
 	class Pack {
 	private:
@@ -1769,7 +1829,6 @@ private:
 	}
 
 private:
-	WeakRef<TYPE> mWeakRef ;
 	SharedRef<Allocator<Pack ,SFIXED>> mHeap ;
 	INDEX mIndex ;
 
@@ -1781,18 +1840,25 @@ public:
 	}
 
 	inline ~SoftRef () noexcept {
-		if (!linked ())
-			return ;
-		_DEBUG_ASSERT_ (mHeap.self[mIndex].mWeight >= 0) ;
-		mHeap->free (mIndex) ;
+#ifdef __CSC_DEBUG__
+		_CALL_TRY_ ([&] () {
+			detach () ;
+		} ,std::nothrow) ;
+#else
+		_CALL_TRY_ ([&] () {
+			detach () ;
+		} ,[&] () {
+			(void) this ;
+		}) ;
+#endif
 	}
 
 	inline SoftRef (const SoftRef &) = delete ;
 	inline SoftRef &operator= (const SoftRef &) = delete ;
 
 	inline SoftRef (SoftRef &&right) noexcept {
+		super = std::move (right.super) ;
 		mHeap = std::move (right.mHeap) ;
-		mWeakRef = std::move (right.mWeakRef) ;
 		mIndex = right.mIndex ;
 	}
 
@@ -1811,19 +1877,19 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mWeakRef.exist () ;
+		return super.exist () ;
 	}
 
 	inline SoftRef copy () popping {
 		SoftRef ret ;
+		ret.super = super ;
 		ret.mHeap = mHeap ;
-		ret.mWeakRef = mWeakRef ;
 		ret.mIndex = mIndex ;
 		return std::move (ret) ;
 	}
 
 	inline BOOL equal (const SoftRef &right) const {
-		return mWeakRef == right.mWeakRef ;
+		return super == right.super ;
 	}
 
 	inline BOOL operator== (const SoftRef &right) const {
@@ -1835,7 +1901,7 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef<TYPE> &right) const {
-		return mWeakRef == right ;
+		return super == right ;
 	}
 
 	inline BOOL operator== (const StrongRef<TYPE> &right) const {
@@ -1847,21 +1913,13 @@ public:
 	}
 
 	inline StrongRef<TYPE> strong () const {
-		return mWeakRef.strong () ;
+		return super.strong () ;
 	}
 
 	inline void assign (const StrongRef<TYPE> &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!linked ())
-				continue ;
-			_DEBUG_ASSERT_ (mHeap.self[mIndex].mWeight >= 0) ;
-			mHeap->free (mIndex) ;
-			mIndex = VAR_NONE ;
-			if (!right.exist ())
-				continue ;
-			mIndex = alloc (right) ;
-		}
-		mWeakRef = mHeap.self[mIndex].mData ;
+		detach () ;
+		super = _COPY_ (right) ;
+		attach () ;
 	}
 
 	inline void operator= (const StrongRef<TYPE> &right) {
@@ -1903,28 +1961,29 @@ private:
 			return FALSE ;
 		if (!mHeap->used (mIndex))
 			return FALSE ;
-		if (mWeakRef != mHeap.self[mIndex].mData)
+		if (super != mHeap.self[mIndex].mData)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline INDEX alloc (const StrongRef<TYPE> &data) const popping {
-		INDEX ret = VAR_NONE ;
+	inline void attach () {
+		if (linked ())
+			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mHeap->length () < mHeap->size ())
 				continue ;
-			_DYNAMIC_ASSERT_ (ret != VAR_NONE) ;
-			const auto r1x = expr_log2 (mHeap.self[ret].mWeight) ;
+			mIndex = min_weight_one () ;
+			_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
+			const auto r1x = expr_log2 (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
 				continue ;
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight >>= r1x ;
 		}
-		if (ret == VAR_NONE)
-			ret = mHeap->alloc () ;
-		mHeap.self[ret].mData = data ;
-		mHeap.self[ret].mWeight = 3 ;
-		return std::move (ret) ;
+		if (mIndex == VAR_NONE)
+			mIndex = mHeap->alloc () ;
+		mHeap.self[mIndex].mData = super ;
+		mHeap.self[mIndex].mWeight = 3 ;
 	}
 
 	inline INDEX min_weight_one () const {
@@ -1941,6 +2000,27 @@ private:
 		}
 		return std::move (ret) ;
 	}
+
+	inline void detach () {
+		if (!linked ())
+			return ;
+		_DEBUG_ASSERT_ (mHeap.self[mIndex].mWeight >= 0) ;
+		mHeap->free (mIndex) ;
+		mIndex = VAR_NONE ;
+	}
+
+private:
+	inline WeakRef<TYPE> &m_super () {
+		return *this ;
+	}
+
+	inline const WeakRef<TYPE> &m_super () const {
+		return *this ;
+	}
+
+#undef super
+#pragma pop_macro ("super")
+#pragma endregion
 } ;
 
 template <class TYPE>
@@ -2012,7 +2092,7 @@ public:
 		//@warn: object must be from 'IntrusiveRef::make'
 		acquire (address ,FALSE) ;
 		update_pointer (address) ;
-	}
+}
 
 	inline ~IntrusiveRef () noexcept {
 		ScopedGuard<IntrusiveRef> ANONYMOUS (*this) ;
@@ -2126,122 +2206,15 @@ public:
 	}
 } ;
 
-namespace stl {
-template <class TYPE ,class = VOID>
-struct is_complete_type :public false_type {} ;
-
 template <class TYPE>
-struct is_complete_type<TYPE ,ENABLE_TYPE<(_SIZEOF_ (TYPE) > 0)>> :public true_type {} ;
-
-template <class TYPE ,class = VOID>
-struct is_interface_type :public false_type {} ;
-
-template <class TYPE>
-struct is_interface_type<TYPE ,ENABLE_TYPE<_SIZEOF_ (TYPE) == _SIZEOF_ (Interface) && _ALIGNOF_ (TYPE) == _ALIGNOF_ (Interface)>> :public is_base_of<Interface ,TYPE> {} ;
-} ;
-
-template <class>
-class HolderRef ;
-
-template <class TYPE>
-class HolderRef<SPECIALIZATION<TYPE ,TRUE ,FALSE>> {
+class Monostate {
 private:
-	_STATIC_ASSERT_ (!stl::is_complete_type<TYPE>::value) ;
-	friend HolderRef<TYPE> ;
-	AnyRef<void> mHolder ;
-	PTR<TYPE> mPointer ;
-
-public:
-	inline HolderRef () {
-		mHolder = AnyRef<TYPE>::make () ;
-		mPointer = &mHolder.rebind<TYPE> ().self ;
-	}
-} ;
-
-template <class TYPE>
-class HolderRef<SPECIALIZATION<TYPE ,FALSE ,TRUE>> {
-private:
-	using SPECIALIZATION_TYPE = HolderRef<TYPE> ;
-
-private:
-	_STATIC_ASSERT_ (stl::is_interface_type<TYPE>::value) ;
-	friend SPECIALIZATION_TYPE ;
-	AnyRef<void> mHolder ;
-	PTR<TYPE> mPointer ;
-
-public:
-	inline HolderRef () = default ;
-
-	template <class _ARG>
-	inline explicit HolderRef (const ARGV<_ARG> &) {
-		mHolder = AnyRef<_ARG>::make () ;
-		mPointer = SPECIALIZATION_TYPE::template_recast (&mHolder.rebind<_ARG> ().self) ;
-	}
-} ;
-
-template <class TYPE>
-class HolderRef :private HolderRef<SPECIALIZATION<TYPE ,!stl::is_complete_type<TYPE>::value ,stl::is_interface_type<TYPE>::value>> {
-private:
-	using SPECIALIZATION_BASE = HolderRef<SPECIALIZATION<TYPE ,!stl::is_complete_type<TYPE>::value ,stl::is_interface_type<TYPE>::value>> ;
-
-private:
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mHolder ;
-	using SPECIALIZATION_BASE::mPointer ;
-
-public:
-	inline HolderRef () = default ;
-
-	template <class _ARG ,class = ENABLE_TYPE<std::is_base_of<TYPE ,_ARG>::value>>
-	inline explicit HolderRef (const ARGV<_ARG> &) :SPECIALIZATION_BASE (_NULL_<const ARGV<_ARG>> ()) {}
-
-	inline TYPE &to () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return *mPointer ;
-	}
-
-	inline implicit operator TYPE & () {
-		return to () ;
-	}
-
-	inline PTR<TYPE> operator-> () {
-		return &to () ;
-	}
-
-	inline const TYPE &to () const {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return *mPointer ;
-	}
-
-	inline implicit operator const TYPE & () const {
-		return to () ;
-	}
-
-	inline PTR<const TYPE> operator-> () const {
-		return &to () ;
-	}
-
-private:
-	template <class _ARG ,class = ENABLE_TYPE<std::is_base_of<TYPE ,_ARG>::value>>
-	inline static PTR<TYPE> template_recast (PTR<_ARG> arg) {
-		return arg ;
-	}
-} ;
-
-template <class TYPE ,class SUBJECT = ARGC<0>>
-class Monostate ;
-
-template <class TYPE>
-class Monostate<SPECIALIZATION<TYPE> ,void> {
-private:
-	template <class ,class>
-	friend class Monostate ;
 	SharedRef<TYPE> mThis ;
 
 public:
-	inline Monostate () = default ;
+	inline Monostate () :mThis (SharedRef<TYPE>::make ()) {}
 
-	inline Monostate (const SharedRef<TYPE> &right) :mThis (std::move (right)) {}
+	inline Monostate (const SharedRef<TYPE> &right) : mThis (std::move (right)) {}
 
 	inline Monostate (SharedRef<TYPE> &&right) : mThis (std::move (right)) {}
 
@@ -2257,86 +2230,8 @@ public:
 	inline implicit operator TYPE & () const {
 		return to () ;
 	}
-} ;
 
-template <class TYPE>
-class Monostate<TYPE ,ARGC<0>> :private Monostate<SPECIALIZATION<TYPE> ,void> {
-private:
-	using SPECIALIZATION_BASE = Monostate<SPECIALIZATION<TYPE> ,void> ;
-
-private:
-	template <class ,class>
-	friend class Monostate ;
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mThis ;
-
-public:
-	inline Monostate () :SPECIALIZATION_BASE (SharedRef<TYPE>::make ()) {}
-
-	inline implicit Monostate (const TYPE &right) : SPECIALIZATION_BASE (SharedRef<TYPE>::make (std::move (right))) {}
-
-	inline implicit Monostate (TYPE &&right) : SPECIALIZATION_BASE (SharedRef<TYPE>::make (std::move (right))) {}
-
-	using SPECIALIZATION_BASE::to ;
-	using SPECIALIZATION_BASE::operator TYPE & ;
-
-	template <class _ARG>
-	inline void swap (Monostate<TYPE ,_ARG> &right) popping {
-		_SWAP_ (mThis ,right.mThis) ;
-	}
-} ;
-
-template <class TYPE>
-class Monostate<TYPE ,ARGC<1>> :private Monostate<SPECIALIZATION<TYPE> ,void> {
-private:
-	using SPECIALIZATION_BASE = Monostate<SPECIALIZATION<TYPE> ,void> ;
-
-private:
-	template <class ,class>
-	friend class Monostate ;
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mThis ;
-
-public:
-	inline Monostate () = default ;
-
-	template <class _ARG>
-	inline explicit Monostate (const _ARG &functor) {
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG ()> ,SharedRef<TYPE>>::value) ;
-		mThis = functor () ;
-	}
-
-	using SPECIALIZATION_BASE::to ;
-	using SPECIALIZATION_BASE::operator TYPE & ;
-
-	template <class _ARG>
-	inline void swap (Monostate<TYPE ,_ARG> &right) popping {
-		_SWAP_ (mThis ,right.mThis) ;
-	}
-} ;
-
-template <class TYPE>
-class Monostate<TYPE ,ARGC<2>> :private Monostate<SPECIALIZATION<TYPE> ,void> {
-private:
-	using SPECIALIZATION_BASE = Monostate<SPECIALIZATION<TYPE> ,void> ;
-
-private:
-	template <class ,class>
-	friend class Monostate ;
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mThis ;
-
-public:
-	inline Monostate () = delete ;
-
-	template <class... _ARGS>
-	inline explicit Monostate (_ARGS &&...args) :SPECIALIZATION_BASE (SharedRef<TYPE>::make (std::forward<_ARGS> (args)...)) {}
-
-	using SPECIALIZATION_BASE::to ;
-	using SPECIALIZATION_BASE::operator TYPE & ;
-
-	template <class _ARG>
-	inline void swap (Monostate<TYPE ,_ARG> &right) popping {
+	inline void swap (Monostate &right) popping {
 		_SWAP_ (mThis ,right.mThis) ;
 	}
 } ;
@@ -2411,12 +2306,12 @@ private:
 			for (PTR<CHUNK> i = mFirst ,ir = NULL ; i != NULL ; i = ir) {
 				ir = i->next ;
 				GlobalHeap::free (i->origin) ;
-			}
+		}
 			mFirst = NULL ;
 			mFree = NULL ;
 			mSize = 0 ;
 			mLength = 0 ;
-		}
+	}
 
 		inline void reserve () {
 			_STATIC_ASSERT_ (_ALIGNOF_ (BLOCK) == 8) ;
@@ -2492,7 +2387,7 @@ private:
 					return FALSE ;
 			return TRUE ;
 		}
-	} ;
+} ;
 
 	class HugePool :public Pool {
 	private:
@@ -2970,7 +2865,7 @@ public:
 
 	template <class _ARG>
 	inline explicit Object (PTR<_ARG> deriver) {
-		_STATIC_ASSERT_ (std::is_base_of<Object ,_ARG>::value) ;
+		_STATIC_ASSERT_ (stl::is_always_base_of<Object ,_ARG>::value) ;
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG> ,Object>::value) ;
 		_DEBUG_ASSERT_ (_ADDRESS_ (this) == _ADDRESS_ (deriver)) ;
 	}

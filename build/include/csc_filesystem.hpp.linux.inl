@@ -309,13 +309,15 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
 	while (!rax.empty ()) {
 		INDEX ix = rax.peek () ;
-		if (rax[ix].P2) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!rax[ix].P2)
+				return (void) (if_cond = FALSE) ;
 			_ERASEDIRECTORY_ (rax[ix].P1) ;
 			rax.take () ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
-		}
+		}) ;
 	}
 }
 
@@ -479,7 +481,7 @@ inline exports void BufferLoader::flush () {
 class FileSystemService::Implement final :private FileSystemService::Abstract {
 private:
 	friend FileSystemService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 
 public:
 	AutoBuffer<BYTE> load_file (const String<STR> &file) popping override {
@@ -572,6 +574,6 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

@@ -150,7 +150,7 @@ private:
 private:
 	friend Singleton<FileSystemService> ;
 	Monostate<std::recursive_mutex> mMutex ;
-	HolderRef<Abstract> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	AutoBuffer<BYTE> load_file (const String<STR> &file) popping {

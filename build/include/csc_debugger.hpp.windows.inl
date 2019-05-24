@@ -61,7 +61,7 @@ namespace CSC {
 class ConsoleService::Implement final :private ConsoleService::Abstract {
 private:
 	friend ConsoleService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
 	FLAG mOptionFlag ;
@@ -323,7 +323,7 @@ private:
 } ;
 
 inline exports ConsoleService::ConsoleService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 #if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
@@ -332,7 +332,7 @@ inline exports ConsoleService::ConsoleService () {
 class DebuggerService::Implement final :private DebuggerService::Abstract {
 private:
 	friend DebuggerService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 	UniqueRef<HANDLE> mSymbolFromAddress ;
 
 public:
@@ -362,7 +362,9 @@ public:
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		if (mSymbolFromAddress.exist ()) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!mSymbolFromAddress.exist ())
+				return (void) (if_cond = FALSE) ;
 			auto rax = AutoBuffer<BYTE> (_SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value)) ;
 			auto &r1 = _LOAD_<SYMBOL_INFO> (rax.self) ;
 			r1.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
@@ -373,10 +375,10 @@ public:
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r1.Name[0]])) ;
 				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
-		} else if (!mSymbolFromAddress.exist ()) {
+		} ,[&] (BOOL &if_cond) {
 			for (auto &&i : address)
 				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
-		}
+		}) ;
 		return std::move (ret) ;
 	}
 
@@ -402,7 +404,7 @@ private:
 } ;
 
 inline exports DebuggerService::DebuggerService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 #endif
 #endif

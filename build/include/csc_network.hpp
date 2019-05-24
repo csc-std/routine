@@ -150,7 +150,7 @@ private:
 private:
 	friend Singleton<NetworkService> ;
 	Monostate<std::recursive_mutex> mMutex ;
-	HolderRef<Abstract> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	void startup () {

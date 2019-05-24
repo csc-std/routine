@@ -42,7 +42,7 @@ namespace CSC {
 class ConsoleService::Implement final :private ConsoleService::Abstract {
 private:
 	friend ConsoleService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
 	FLAG mOptionFlag ;
@@ -284,13 +284,13 @@ private:
 } ;
 
 inline exports ConsoleService::ConsoleService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class DebuggerService::Implement final :private DebuggerService::Abstract {
 private:
 	friend DebuggerService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
@@ -327,6 +327,6 @@ public:
 } ;
 
 inline exports DebuggerService::DebuggerService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

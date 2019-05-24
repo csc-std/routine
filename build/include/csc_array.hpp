@@ -526,14 +526,18 @@ public:
 
 	template <LENGTH _VAL>
 	void addto (const DEF<ITEM[_VAL]> &right) {
-		const auto r1x = length () ;
-		const auto r2x = _VAL - 1 ;
-		if (r1x + r2x <= size ()) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mString.size () == 0)
+				return (void) (if_cond = FALSE) ;
+			const auto r1x = length () ;
+			const auto r2x = _VAL - 1 ;
+			if (r1x + r2x > size ())
+				return (void) (if_cond = FALSE) ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[&right[0]] ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			*this = add (right) ;
-		}
+		}) ;
 	}
 
 	template <LENGTH _VAL>
@@ -543,14 +547,18 @@ public:
 	}
 
 	void addto (const String &right) {
-		const auto r1x = length () ;
-		const auto r2x = right.length () ;
-		if (r1x + r2x <= size () && mString.size () > 0) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mString.size () == 0)
+				return (void) (if_cond = FALSE) ;
+			const auto r1x = length () ;
+			const auto r2x = right.length () ;
+			if (r1x + r2x > size ())
+				return (void) (if_cond = FALSE) ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,right.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			*this = add (right) ;
-		}
+		}) ;
 	}
 
 	inline String &operator+= (const String &right) {
@@ -1077,18 +1085,20 @@ private:
 		const auto r1x = _MAX_ (len - (mQueue.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		if (mRead <= mWrite) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mRead > mWrite)
+				return (void) (if_cond = FALSE) ;
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mQueue.self[mRead]] ,(mWrite - mRead)) ;
 			mQueue.expand (std::move (rax)) ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mQueue.size () ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mQueue.self[mRead]] ,(mQueue.size () - mRead)) ;
 			mQueue.expand (std::move (rax)) ;
 			mRead = ix ;
-		}
+		}) ;
 	}
 
 	void update_resize () {
@@ -1909,15 +1919,22 @@ private:
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
-		if (mDeque[it][0] == VAR_NONE) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mDeque[it][0] != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			update_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mDeque.size () - 1)) ;
-		} else if (it + 1 < mDeque.size () && mDeque[it + 1][0] == VAR_NONE) {
-			update_rewrite ((it + 1) ,jt) ;
-			mWrite = _MIN_ ((it + 2) ,(mDeque.size () - 1)) ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
+			INDEX ix = it + 1 ;
+			if (ix >= mDeque.size ())
+				return (void) (if_cond = FALSE) ;
+			if (mDeque[ix][0] != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
+			update_rewrite (ix ,jt) ;
+			mWrite = _MIN_ ((ix + 1) ,(mDeque.size () - 1)) ;
+		} ,[&] (BOOL &if_cond) {
 			update_compress_left_force (it ,jt) ;
-		}
+		}) ;
 	}
 
 	void update_compress_left_force (INDEX it ,INDEX jt) {
@@ -1946,15 +1963,22 @@ private:
 	}
 
 	void update_compress_right (INDEX it ,INDEX jt) {
-		if (mDeque[it][0] == VAR_NONE) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mDeque[it][0] != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			update_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
-		} else if (it - 1 >= 0 && mDeque[it - 1][0] == VAR_NONE) {
-			update_rewrite ((it - 1) ,jt) ;
-			mRead = _MAX_ ((it - 2) ,VAR_ZERO) ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
+			INDEX ix = it - 1 ;
+			if (ix < 0)
+				return (void) (if_cond = FALSE) ;
+			if (mDeque[ix][0] != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
+			update_rewrite (ix ,jt) ;
+			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
+		} ,[&] (BOOL &if_cond) {
 			update_compress_right_force (it ,jt) ;
-		}
+		}) ;
 	}
 
 	void update_compress_right_force (INDEX it ,INDEX jt) {
@@ -3192,15 +3216,17 @@ private:
 	}
 
 	void update_emplace (INDEX it ,INDEX jt) {
-		if (it == VAR_NONE) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (it != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			mTop = jt ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			mSet[jt].mUp = it ;
 			auto &r1 = (mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) : (mSet[it].mRight) ;
 			update_emplace (r1 ,jt) ;
 			r1 = mTop ;
 			mTop = it ;
-		}
+		}) ;
 	}
 
 	void update_insert (INDEX it) {
@@ -3303,10 +3329,16 @@ private:
 		}
 		const auto r1x = (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
 		const auto r2x = (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
-		if (r1x && r2x) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!r1x)
+				return (void) (if_cond = FALSE) ;
+			if (!r2x)
+				return (void) (if_cond = FALSE) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} else if (r2x) {
+		} ,[&] (BOOL &if_cond) {
+			if (!r2x)
+				return (void) (if_cond = FALSE) ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_right (r1) ;
@@ -3318,7 +3350,7 @@ private:
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3326,7 +3358,7 @@ private:
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		}
+		}) ;
 	}
 
 	void update_remove_right (INDEX it ,INDEX jt) {
@@ -3340,10 +3372,16 @@ private:
 		}
 		const auto r1x = (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
 		const auto r2x = (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
-		if (r1x && r2x) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!r1x)
+				return (void) (if_cond = FALSE) ;
+			if (!r2x)
+				return (void) (if_cond = FALSE) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} else if (r2x) {
+		} ,[&] (BOOL &if_cond) {
+			if (!r2x)
+				return (void) (if_cond = FALSE) ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_left (r1) ;
@@ -3355,7 +3393,7 @@ private:
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3363,7 +3401,7 @@ private:
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		}
+		}) ;
 	}
 
 	void rotate_left (INDEX it) {
@@ -3893,7 +3931,7 @@ private:
 			if (mSet[i].mNext == it)
 				return mSet[i].mNext ;
 		_DEBUG_ASSERT_ (FALSE) ;
-		return VAR_NONE ;
+		return _NULL_<INDEX> () ;
 	}
 } ;
 
@@ -3963,13 +4001,13 @@ private:
 		INDEX mFirst ;
 		INDEX mLast ;
 		INDEX mRoot ;
+		INDEX mTop ;
 	} ;
 
 private:
 	friend SPECIALIZATION_TYPE ;
 	SharedRef<Attribute> mHolder ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
-	INDEX mTop ;
 
 public:
 	SoftSet () = default ;
@@ -3998,9 +4036,9 @@ public:
 			mHolder->mLast = ix ;
 			mHolder->mLength++ ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 
 	void add (const NodePair &item) {
@@ -4021,9 +4059,9 @@ public:
 			mHolder->mLast = ix ;
 			mHolder->mLength++ ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 
 	void add (NodePair &&item) {
@@ -4104,13 +4142,13 @@ private:
 		INDEX mFirst ;
 		INDEX mLast ;
 		INDEX mRoot ;
+		INDEX mTop ;
 	} ;
 
 private:
 	friend SPECIALIZATION_TYPE ;
 	SharedRef<Attribute> mHolder ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
-	INDEX mTop ;
 
 public:
 	SoftSet () = default ;
@@ -4135,9 +4173,9 @@ public:
 			mHolder->mLast = ix ;
 			mHolder->mLength++ ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 
 	void add (const NodePair &item) {
@@ -4154,9 +4192,9 @@ public:
 			mHolder->mLast = ix ;
 			mHolder->mLength++ ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 
 	void add (NodePair &&item) {
@@ -4194,7 +4232,6 @@ private:
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mHolder ;
 	using SPECIALIZATION_BASE::mSet ;
-	using SPECIALIZATION_BASE::mTop ;
 
 public:
 	SoftSet () = default ;
@@ -4236,7 +4273,6 @@ public:
 		SoftSet ret ;
 		ret.mHolder = mHolder ;
 		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (mSet) ;
-		ret.mTop = mTop ;
 		return std::move (ret) ;
 	}
 
@@ -4325,9 +4361,9 @@ public:
 			mHolder->mLast = ret ;
 			mHolder->mLength++ ;
 			update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ret ;
+		mHolder->mTop = ret ;
 		return std::move (ret) ;
 	}
 
@@ -4341,9 +4377,9 @@ public:
 			mHolder->mLast = ret ;
 			mHolder->mLength++ ;
 			update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mTop ;
+			mHolder->mRoot = mHolder->mTop ;
 		}
-		mTop = ret ;
+		mHolder->mTop = ret ;
 		return std::move (ret) ;
 	}
 
@@ -4399,19 +4435,21 @@ private:
 
 	void update_insert (INDEX it) {
 		INDEX ix = it ;
-		if (ix == VAR_NONE) {
-			mTop = mHolder->mLast ;
-		} else {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (ix != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
+			mHolder->mTop = mHolder->mLast ;
+		} ,[&] (BOOL &if_cond) {
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = mSet.self[mHolder->mLast].mKey < mSet.self[ix].mKey ;
 			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;
 			update_insert (r2) ;
-			r2 = mTop ;
+			r2 = mHolder->mTop ;
 			const auto r2x = r1x ? (&SoftSet::update_insert_left) : (&SoftSet::update_insert_right) ;
 			(this->*r2x) (ix) ;
-			ix = mTop ;
-			mTop = ix ;
-		}
+			ix = mHolder->mTop ;
+			mHolder->mTop = ix ;
+		}) ;
 	}
 
 	void update_insert_left (INDEX it) {
@@ -4419,27 +4457,27 @@ private:
 		const auto r1x = (mSet.self[ir].mRight != VAR_NONE) ? (mSet.self[mSet.self[ir].mRight].mWeight) : 0 ;
 		const auto r2x = (mSet.self[ir].mLeft != VAR_NONE && mSet.self[mSet.self[ir].mLeft].mLeft != VAR_NONE) ? (mSet.self[mSet.self[mSet.self[ir].mLeft].mLeft].mWeight) : 0 ;
 		const auto r3x = (mSet.self[ir].mLeft != VAR_NONE && mSet.self[mSet.self[ir].mLeft].mRight != VAR_NONE) ? (mSet.self[mSet.self[mSet.self[ir].mLeft].mRight].mWeight) : 0 ;
-		mTop = ir ;
+		mHolder->mTop = ir ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
 		if (r1x >= r2x) {
 			auto &r1 = mSet.self[ir].mLeft ;
 			rotate_left (r1) ;
-			r1 = mTop ;
+			r1 = mHolder->mTop ;
 		}
 		rotate_right (ir) ;
-		ir = mTop ;
+		ir = mHolder->mTop ;
 		auto &r2 = mSet.self[ir].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mTop ;
+		r2 = mHolder->mTop ;
 		auto &r3 = mSet.self[ir].mRight ;
 		update_insert_right (r3) ;
-		r3 = mTop ;
+		r3 = mHolder->mTop ;
 		update_insert_left (ir) ;
-		ir = mTop ;
+		ir = mHolder->mTop ;
 		update_insert_right (ir) ;
-		ir = mTop ;
-		mTop = ir ;
+		ir = mHolder->mTop ;
+		mHolder->mTop = ir ;
 	}
 
 	void update_insert_right (INDEX it) {
@@ -4447,27 +4485,27 @@ private:
 		const auto r1x = (mSet.self[ir].mLeft != VAR_NONE) ? (mSet.self[mSet.self[ir].mLeft].mWeight) : 0 ;
 		const auto r2x = (mSet.self[ir].mRight != VAR_NONE && mSet.self[mSet.self[ir].mRight].mRight != VAR_NONE) ? (mSet.self[mSet.self[mSet.self[ir].mRight].mRight].mWeight) : 0 ;
 		const auto r3x = (mSet.self[ir].mRight != VAR_NONE && mSet.self[mSet.self[ir].mRight].mLeft != VAR_NONE) ? (mSet.self[mSet.self[mSet.self[ir].mRight].mLeft].mWeight) : 0 ;
-		mTop = ir ;
+		mHolder->mTop = ir ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
 		if (r1x >= r2x) {
 			auto &r1 = mSet.self[ir].mRight ;
 			rotate_right (r1) ;
-			r1 = mTop ;
+			r1 = mHolder->mTop ;
 		}
 		rotate_left (ir) ;
-		ir = mTop ;
+		ir = mHolder->mTop ;
 		auto &r2 = mSet.self[ir].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mTop ;
+		r2 = mHolder->mTop ;
 		auto &r3 = mSet.self[ir].mRight ;
 		update_insert_right (r3) ;
-		r3 = mTop ;
+		r3 = mHolder->mTop ;
 		update_insert_left (ir) ;
-		ir = mTop ;
+		ir = mHolder->mTop ;
 		update_insert_right (ir) ;
-		ir = mTop ;
-		mTop = ir ;
+		ir = mHolder->mTop ;
+		mHolder->mTop = ir ;
 	}
 
 	void rotate_left (INDEX it) {
@@ -4478,7 +4516,7 @@ private:
 		const auto r1x = (mSet.self[it].mLeft != VAR_NONE) ? (mSet.self[mSet.self[it].mLeft].mWeight) : 0 ;
 		const auto r2x = (mSet.self[it].mRight != VAR_NONE) ? (mSet.self[mSet.self[it].mRight].mWeight) : 0 ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 
 	void rotate_right (INDEX it) {
@@ -4489,7 +4527,7 @@ private:
 		const auto r1x = (mSet.self[it].mLeft != VAR_NONE) ? (mSet.self[mSet.self[it].mLeft].mWeight) : 0 ;
 		const auto r2x = (mSet.self[it].mRight != VAR_NONE) ? (mSet.self[mSet.self[it].mRight].mWeight) : 0 ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mTop = ix ;
+		mHolder->mTop = ix ;
 	}
 } ;
 } ;

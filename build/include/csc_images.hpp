@@ -94,11 +94,11 @@ private:
 template <class TYPE>
 class SoftImage {
 private:
-	class Attribute {
+	class Attribute final :private Interface {
 	private:
 		friend SoftImage ;
 		SharedRef<FixedBuffer<TYPE>> mBuffer ;
-		ARRAY4<LENGTH> mWidth ;
+		ARRAY5<LENGTH> mWidth ;
 	} ;
 
 	template <class BASE>
@@ -120,7 +120,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
 private:
@@ -153,6 +153,7 @@ public:
 		mHolder->mWidth[1] = cy ;
 		mHolder->mWidth[2] = cw ;
 		mHolder->mWidth[3] = ck ;
+		mHolder->mWidth[4] = r1x ;
 		reset () ;
 	}
 
@@ -163,6 +164,7 @@ public:
 		mHolder->mWidth[1] = 1 ;
 		mHolder->mWidth[2] = mImage.size () ;
 		mHolder->mWidth[3] = 0 ;
+		mHolder->mWidth[4] = mImage.size () ;
 		mImage = PhanBuffer<TYPE>::make (image) ;
 		reset () ;
 	}
@@ -208,7 +210,7 @@ public:
 	void reset (LENGTH cx ,LENGTH cy ,LENGTH cw ,LENGTH ck) {
 		_DEBUG_ASSERT_ (cx >= 0 && cy >= 0 && cx <= cw && ck >= 0) ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		_DEBUG_ASSERT_ (cy * cw + ck < mHolder->mWidth[1] * mHolder->mWidth[0] + mHolder->mWidth[3]) ;
+		_DEBUG_ASSERT_ (cy * cw + ck < mHolder->mWidth[4]) ;
 		mCX = cx ;
 		mCY = cy ;
 		mCW = cw ;
@@ -489,7 +491,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
 	template <class BASE ,class _TYPE>
@@ -521,7 +523,7 @@ private:
 		inline implicit operator CAST_TRAITS_TYPE<_TYPE ,BASE> & () && = delete ;
 
 	private:
-		inline explicit NativeProxy (BASE &base) popping :mBase (base) {}
+		inline explicit NativeProxy (BASE &base) popping : mBase (base) {}
 	} ;
 
 private:
@@ -567,11 +569,6 @@ public:
 	RangeFolder<ARGC<2>> range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return RangeFolder<ARGC<2>> ({mCY ,mCX}) ;
-	}
-
-	void reset () {
-		_DEBUG_ASSERT_ (exist ()) ;
-		update_native () ;
 	}
 
 	TYPE &get (INDEX y ,INDEX x) {

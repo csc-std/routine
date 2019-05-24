@@ -317,7 +317,7 @@ private:
 private:
 	friend Singleton<ConsoleService> ;
 	Monostate<std::recursive_mutex> mMutex ;
-	HolderRef<Abstract> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	void modify_option (FLAG option) {
@@ -421,7 +421,7 @@ private:
 private:
 	friend Singleton<DebuggerService> ;
 	Monostate<std::recursive_mutex> mMutex ;
-	HolderRef<Abstract> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	void abort_once_invoked_exit (BOOL flag) {

@@ -1184,16 +1184,18 @@ inline void _MEMRCOPY_ (ARR<_ARG> &dst ,const ARR<_ARG> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	if (dst == src) {
+	_CALL_IF_ ([&] (BOOL &if_cond) {
+		if (dst == src)
+			return (void) (if_cond = FALSE) ;
+		for (INDEX i = 0 ; i < len ; i++)
+			dst[i] = src[len + ~i] ;
+	} ,[&] (BOOL &if_cond) {
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
 			dst[len + ~i] = r1x ;
 		}
-	} else if (dst != src) {
-		for (INDEX i = 0 ; i < len ; i++)
-			dst[i] = src[len + ~i] ;
-	}
+	}) ;
 #pragma GCC diagnostic pop
 }
 
@@ -1218,13 +1220,15 @@ inline void _MEMMOVE_ (ARR<_ARG> &dst1 ,ARR<_ARG> &dst2 ,LENGTH len) {
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (dst1 == dst2)
 		return ;
-	if (dst1 < dst2) {
+	_CALL_IF_ ([&] (BOOL &if_cond) {
+		if (dst1 > dst2)
+			return (void) (if_cond = FALSE) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
-	} else if (dst1 > dst2) {
+	} ,[&] (BOOL &if_cond) {
 		for (INDEX i = len - 1 ; i >= 0 ; i--)
 			dst1[i] = std::move (dst2[i]) ;
-	}
+	}) ;
 #pragma GCC diagnostic pop
 }
 
@@ -2571,7 +2575,7 @@ private:
 	} ;
 
 private:
-	TEMP<VariantHolder> mHolder ;
+	TEMP<VariantHolder> mVariant ;
 
 public:
 	inline Function () = delete ;
@@ -2579,30 +2583,30 @@ public:
 	template <class _ARG>
 	inline explicit Function (const PhanRef<_ARG> &context ,DEF<DEF<TYPE1 (TYPES...)> _ARG::*> function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		ImplHolder<_ARG>::address_create (&mHolder ,&context.self ,function) ;
+		ImplHolder<_ARG>::address_create (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG>
 	inline explicit Function (const PhanRef<const _ARG> &context ,DEF<DEF<TYPE1 (TYPES...) const> _ARG::*> function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		ImplHolder<const _ARG>::address_create (&mHolder ,&context.self ,function) ;
+		ImplHolder<const _ARG>::address_create (&mVariant ,&context.self ,function) ;
 	}
 
 	inline ~Function () noexcept {
 		if (!exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (mHolder)).~Holder () ;
-		_ZERO_ (mHolder) ;
+		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (mVariant)).~Holder () ;
+		_ZERO_ (mVariant) ;
 	}
 
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
 	inline Function (Function &&right) noexcept {
-		_ZERO_ (mHolder) ;
+		_ZERO_ (mVariant) ;
 		if (!right.exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (right.mHolder)).address_copy (&mHolder) ;
+		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (right.mVariant)).address_copy (&mVariant) ;
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
@@ -2615,12 +2619,12 @@ public:
 
 	inline BOOL exist () const {
 		const auto r1x = _XVALUE_<const PACK<BYTE[_SIZEOF_ (TEMP<VariantHolder>)]> &> ({0}) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<VariantHolder>)]> (mHolder) ,PTRTOARR[&r1x.P1[0]]) ;
+		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<VariantHolder>)]> (mVariant) ,PTRTOARR[&r1x.P1[0]]) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _XVALUE_<const Holder &> (_CAST_<VariantHolder> (mHolder)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return _XVALUE_<const Holder &> (_CAST_<VariantHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -3838,7 +3842,9 @@ public:
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		if (mFree == VAR_NONE) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (mFree != VAR_NONE)
+				return (void) (if_cond = FALSE) ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3847,9 +3853,9 @@ public:
 			}
 			mAllocator.expand (std::move (rax)) ;
 			update_free (mLength ,mFree) ;
-		} else if (mFree != VAR_NONE) {
+		} ,[&] (BOOL &if_cond) {
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
-		}
+		}) ;
 		INDEX ret = mFree ;
 		mFree = mAllocator[mFree].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;

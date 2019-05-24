@@ -322,13 +322,15 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
 	while (!rax.empty ()) {
 		INDEX ix = rax.peek () ;
-		if (rax[ix].P2) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!rax[ix].P2)
+				return (void) (if_cond = FALSE) ;
 			_ERASEDIRECTORY_ (rax[ix].P1) ;
 			rax.take () ;
-		} else {
+		} ,[&] (BOOL &if_cond) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
-		}
+		}) ;
 	}
 }
 
@@ -433,7 +435,7 @@ inline exports void StreamLoader::flush () {
 
 class BufferLoader::Implement final :private Interface {
 private:
-	class Pack {
+	class Holder {
 	private:
 		friend Implement ;
 		Monostate<UniqueRef<HANDLE>> mFile ;
@@ -442,15 +444,15 @@ private:
 	} ;
 
 private:
-	UniqueRef<Pack> mHolder ;
+	UniqueRef<Holder> mThis ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) :Implement (ARGVP0) {
-		auto &r1 = mHolder->mFile.self ;
-		auto &r2 = mHolder->mMapping.self ;
-		auto &r3 = mHolder->mBuffer.self ;
+		auto &r1 = mThis->mFile.self ;
+		auto &r2 = mThis->mMapping.self ;
+		auto &r3 = mThis->mBuffer.self ;
 		r1 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
@@ -481,9 +483,9 @@ public:
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len) :Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
-		auto &r1 = mHolder->mFile.self ;
-		auto &r2 = mHolder->mMapping.self ;
-		auto &r3 = mHolder->mBuffer.self ;
+		auto &r1 = mThis->mFile.self ;
+		auto &r2 = mThis->mMapping.self ;
+		auto &r3 = mThis->mBuffer.self ;
 		r1 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = CreateFile (file.raw ().self ,(GENERIC_READ | GENERIC_WRITE) ,0 ,NULL ,CREATE_ALWAYS ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
@@ -513,8 +515,8 @@ public:
 
 	explicit Implement (const String<STR> &file ,BOOL cache) :Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (cache) ;
-		auto &r2 = mHolder->mMapping.self ;
-		auto &r3 = mHolder->mBuffer.self ;
+		auto &r2 = mThis->mMapping.self ;
+		auto &r3 = mThis->mBuffer.self ;
 		r2 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = OpenFileMapping (FILE_MAP_READ ,FALSE ,file.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -546,8 +548,8 @@ public:
 	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) :Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
-		auto &r2 = mHolder->mMapping.self ;
-		auto &r3 = mHolder->mBuffer.self ;
+		auto &r2 = mThis->mMapping.self ;
+		auto &r3 = mThis->mBuffer.self ;
 		r2 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = CreateFileMapping (INVALID_HANDLE_VALUE ,NULL ,PAGE_READWRITE ,0 ,VARY (file_len) ,file.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -566,27 +568,27 @@ public:
 	}
 
 	PhanBuffer<BYTE> watch () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return PhanBuffer<BYTE>::make (mHolder->mBuffer.self.self) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		return PhanBuffer<BYTE>::make (mThis->mBuffer.self.self) ;
 	}
 
 	PhanBuffer<const BYTE> watch () const {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return PhanBuffer<const BYTE>::make (mHolder->mBuffer.self.self) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		return PhanBuffer<const BYTE>::make (mThis->mBuffer.self.self) ;
 	}
 
 	void flush () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		FlushViewOfFile (mHolder->mBuffer.self->self ,mHolder->mBuffer.self->size ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		FlushViewOfFile (mThis->mBuffer.self->self ,mThis->mBuffer.self->size ()) ;
 	}
 
 private:
 	explicit Implement (const decltype (ARGVP0) &) {
-		mHolder = UniqueRef<Pack> ([] (Pack &me) {
+		mThis = UniqueRef<Holder> ([] (Holder &me) {
 			me.mFile.self = UniqueRef<HANDLE> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;
 			me.mBuffer.self = UniqueRef<PhanBuffer<BYTE>> () ;
-		} ,[] (Pack &me) {
+		} ,[] (Holder &me) {
 			me.mBuffer.self = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;
 			me.mFile.self = UniqueRef<HANDLE> () ;
@@ -625,7 +627,7 @@ inline exports void BufferLoader::flush () {
 class FileSystemService::Implement final :private FileSystemService::Abstract {
 private:
 	friend FileSystemService ;
-	friend HolderRef<Abstract> ;
+	friend StrongRef<Implement> ;
 
 public:
 	AutoBuffer<BYTE> load_file (const String<STR> &file) popping override {
@@ -718,6 +720,6 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService () {
-	mThis = HolderRef<Abstract> (_NULL_<const ARGV<Implement>> ()) ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;
