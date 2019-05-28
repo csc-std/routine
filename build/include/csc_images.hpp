@@ -46,7 +46,7 @@ private:
 public:
 	inline RangeFolder () = delete ;
 
-	inline implicit RangeFolder (const std::initializer_list<LENGTH> &right) :mRange (right) {}
+	inline explicit RangeFolder (const std::initializer_list<LENGTH> &range) :mRange (range) {}
 
 	inline Iterator begin () const {
 		return Iterator (*this ,first_item () ,0) ;
@@ -80,14 +80,14 @@ private:
 		index[0]++ ;
 	}
 
-	template <INDEX _VAL>
-	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<_VAL> &) const {
-		_STATIC_ASSERT_ (_VAL > 0 && _VAL < SIZE::value) ;
-		index[_VAL]++ ;
-		if (index[_VAL] < mRange[_VAL])
+	template <INDEX _VAL1>
+	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<_VAL1> &) const {
+		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < SIZE::value) ;
+		index[_VAL1]++ ;
+		if (index[_VAL1] < mRange[_VAL1])
 			return ;
-		index[_VAL] = 0 ;
-		template_incrase (index ,_NULL_<const ARGC<_VAL - 1>> ()) ;
+		index[_VAL1] = 0 ;
+		template_incrase (index ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
 	}
 } ;
 

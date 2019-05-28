@@ -21,8 +21,8 @@ public:
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
 		auto rax = Optional<int> () ;
 		auto rbx = int () ;
-		rax.apply (Function<void (const int &)> ([&] (const int &arg) {
-			rbx = arg ;
+		rax.apply (Function<void (const int &)> ([&] (const int &_rax) {
+			rbx = _rax ;
 		})) ;
 		Optional<FixedBuffer<int>> a ;
 		a.recreate<FixedBuffer<int>> (LENGTH (8)) ;
@@ -153,11 +153,11 @@ public:
 
 	TEST_METHOD (TEST_CSC_EXT_SERIALIZER) {
 		struct wrapped_string :private Wrapped<String<STRU8>> {
-			inline void visit (const int &arg) {
-				wrapped_string::mData += _BUILDVAR32S_<STRU8> (arg) ;
+			inline void visit (const int &stru) {
+				wrapped_string::mData += _BUILDVAR32S_<STRU8> (stru) ;
 			}
-			inline void visit (const float &arg) {
-				wrapped_string::mData += _BUILDVAL32S_<STRU8> (arg) ;
+			inline void visit (const float &stru) {
+				wrapped_string::mData += _BUILDVAL32S_<STRU8> (stru) ;
 			}
 		} ;
 		const auto r1x = PACK<int ,float> ({

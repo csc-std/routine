@@ -135,10 +135,10 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
 #if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
 #if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
 inline namespace S {
-inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system_clock::time_point &arg) {
+inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system_clock::time_point &src) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = time_t (std::chrono::system_clock::to_time_t (arg)) ;
+	const auto r1x = time_t (std::chrono::system_clock::to_time_t (src)) ;
 #ifdef _CTIME_
 	auto rax = std::tm () ;
 	localtime_s (&_ZERO_ (rax) ,&r1x) ;
@@ -157,17 +157,17 @@ inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::syste
 	return std::move (ret) ;
 }
 
-inline exports std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &arg) {
+inline exports std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &src) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-	rax.tm_year = (arg[0] > 0) ? (arg[0] - 1900) : 0 ;
-	rax.tm_mon = (arg[1] > 0) ? (arg[1] - 1) : 0 ;
-	rax.tm_mday = arg[2] ;
-	rax.tm_wday = (arg[3] > 0) ? (arg[3] - 1) : 0 ;
-	rax.tm_yday = (arg[4] > 0) ? (arg[4] - 1) : 0 ;
-	rax.tm_hour = arg[5] ;
-	rax.tm_min = arg[6] ;
-	rax.tm_sec = arg[7] ;
+	rax.tm_year = (src[0] > 0) ? (src[0] - 1900) : 0 ;
+	rax.tm_mon = (src[1] > 0) ? (src[1] - 1) : 0 ;
+	rax.tm_mday = src[2] ;
+	rax.tm_wday = (src[3] > 0) ? (src[3] - 1) : 0 ;
+	rax.tm_yday = (src[4] > 0) ? (src[4] - 1) : 0 ;
+	rax.tm_hour = src[5] ;
+	rax.tm_min = src[6] ;
+	rax.tm_sec = src[7] ;
 	const auto r1x = std::mktime (&rax) ;
 	return std::chrono::system_clock::from_time_t (r1x) ;
 }

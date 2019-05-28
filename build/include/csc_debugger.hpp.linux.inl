@@ -180,9 +180,9 @@ public:
 		mLogPath = r1x ;
 	}
 
-	template <LENGTH _VAL>
-	void log (const DEF<STR[_VAL]> &tag ,const Binder &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,(_VAL - 1)) ,msg) ;
+	template <LENGTH _VAL1>
+	void log (const DEF<STR[_VAL1]> &tag ,const Binder &msg) {
+		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,(_VAL1 - 1)) ,msg) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {

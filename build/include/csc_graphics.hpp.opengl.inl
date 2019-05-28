@@ -119,8 +119,8 @@ struct OPENGL_TRAITS<VAL64> {
 } ;
 } ;
 
-template <class _ARG>
-using OPENGL_TRAITS_TYPE = typename U::OPENGL_TRAITS<_ARG>::TYPE ;
+template <class _ARG1>
+using OPENGL_TRAITS_TYPE = typename U::OPENGL_TRAITS<_ARG1>::TYPE ;
 
 class AbstractShader_Engine_OPENGL :public AbstractShader::Abstract {
 public:

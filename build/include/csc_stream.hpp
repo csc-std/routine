@@ -52,11 +52,11 @@ struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU32)>> {
 } ;
 } ;
 
-template <class _ARG>
-using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG)>>::TYPE ;
+template <class _ARG1>
+using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG1)>>::TYPE ;
 
-template <class _ARG>
-using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG)>>::TYPE ;
+template <class _ARG1>
+using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)>>::TYPE ;
 
 using STRUA = TEXT_TRAITS_TYPE<STRA> ;
 using STRUW = TEXT_TRAITS_TYPE<STRW> ;
@@ -304,21 +304,21 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,LENGTH _VAL>
-	void read (const DEF<_ARG[_VAL]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG>::value) ;
-		_STATIC_ASSERT_ (_VAL <= VAR32_MAX) ;
+	template <class _ARG1 ,LENGTH _VAL1>
+	void read (const DEF<_ARG1[_VAL1]> &data) {
+		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
+		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
 		auto ris = copy () ;
-		auto rax = _ARG () ;
-		for (INDEX i = 0 ; i < _VAL - 1 ; i++) {
+		auto rax = _ARG1 () ;
+		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data[i]) ;
 		}
 		*this = std::move (ris) ;
 	}
 
-	template <class _ARG ,LENGTH _VAL>
-	inline ByteReader &operator>> (const DEF<_ARG[_VAL]> &data) {
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline ByteReader &operator>> (const DEF<_ARG1[_VAL1]> &data) {
 		read (data) ;
 		return *this ;
 	}
@@ -352,13 +352,13 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
-	void read (_ARG &data) popping {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
+	void read (_ARG1 &data) popping {
 		data.friend_read (*this) ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
-	inline ByteReader &operator>> (_ARG &data) popping {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
+	inline ByteReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
 		return *this ;
 	}
@@ -567,16 +567,16 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,LENGTH _VAL>
-	void write (const DEF<_ARG[_VAL]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG>::value) ;
-		_STATIC_ASSERT_ (_VAL <= VAR32_MAX) ;
-		for (INDEX i = 0 ; i < _VAL - 1 ; i++)
+	template <class _ARG1 ,LENGTH _VAL1>
+	void write (const DEF<_ARG1[_VAL1]> &data) {
+		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
+		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
+		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
 			write (data[i]) ;
 	}
 
-	template <class _ARG ,LENGTH _VAL>
-	inline ByteWriter &operator<< (const DEF<_ARG[_VAL]> &data) {
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline ByteWriter &operator<< (const DEF<_ARG1[_VAL1]> &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -609,13 +609,13 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
-	void write (const _ARG &data) {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
+	void write (const _ARG1 &data) {
 		data.friend_write (*this) ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
-	inline ByteWriter &operator<< (const _ARG &data) {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
+	inline ByteWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -652,10 +652,10 @@ private:
 			mEndianFlag = flag ;
 		}
 
-		UNIT convert_endian (const UNIT &arg) const {
+		UNIT convert_endian (const UNIT &item) const {
 			TEMP<UNIT> ret ;
 			const auto r1x = mEndianFlag ? (_XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMRCOPY_<BYTE ,_SIZEOF_ (UNIT)>)) : (_XVALUE_<const PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &)> &> (&_MEMCOPY_<BYTE ,_SIZEOF_ (UNIT)>)) ;
-			r1x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (UNIT)]> (arg)) ;
+			r1x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (UNIT)]> (item)) ;
 			return std::move (_CAST_<UNIT> (ret)) ;
 		}
 
@@ -996,36 +996,36 @@ public:
 		return *this ;
 	}
 
-	template <LENGTH _VAL>
-	void read (const DEF<UNIT[_VAL]> &data) {
-		_STATIC_ASSERT_ (_VAL <= VAR32_MAX) ;
+	template <LENGTH _VAL1>
+	void read (const DEF<UNIT[_VAL1]> &data) {
+		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
 		auto ris = copy () ;
 		auto rax = UNIT () ;
-		for (INDEX i = 0 ; i < _VAL - 1 ; i++) {
+		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data[i]) ;
 		}
 		*this = std::move (ris) ;
 	}
 
-	template <LENGTH _VAL>
-	inline TextReader &operator>> (const DEF<UNIT[_VAL]> &data) {
+	template <LENGTH _VAL1>
+	inline TextReader &operator>> (const DEF<UNIT[_VAL1]> &data) {
 		read (data) ;
 		return *this ;
 	}
 
-	template <class _ARG>
-	void read (String<UNIT ,_ARG> &data) popping {
+	template <class _ARG1>
+	void read (String<UNIT ,_ARG1> &data) popping {
 		const auto r1x = next_string_size () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
-			data = String<UNIT ,_ARG> (r1x) ;
+			data = String<UNIT ,_ARG1> (r1x) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
 			read (data[i]) ;
 	}
 
-	template <class _ARG>
-	inline TextReader &operator>> (String<UNIT ,_ARG> &data) popping {
+	template <class _ARG1>
+	inline TextReader &operator>> (String<UNIT ,_ARG1> &data) popping {
 		read (data) ;
 		return *this ;
 	}
@@ -1042,13 +1042,13 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
-	void read (_ARG &data) popping {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
+	void read (_ARG1 &data) popping {
 		data.friend_read (*this) ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
-	inline TextReader &operator>> (_ARG &data) popping {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
+	inline TextReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
 		return *this ;
 	}
@@ -1108,8 +1108,8 @@ private:
 			rbx[1] += ris.template read<VAR32> () ;
 			*this = ris.copy () ;
 		}
-		const auto r3x = _IEEE754E10TOE2_ (rbx) ;
-		data = _IEEE754ENCODE_ (r3x) ;
+		const auto r3x = _IEEE754_E10TOE2_ (rbx) ;
+		data = _IEEE754_ENCODE_ (r3x) ;
 	}
 
 	void try_read_number_digital (ARRAY2<VAR64> &data ,TextReader &reader ,UNIT &top) popping {
@@ -1410,29 +1410,29 @@ public:
 		return *this ;
 	}
 
-	template <LENGTH _VAL>
-	void write (const DEF<UNIT[_VAL]> &data) {
-		_STATIC_ASSERT_ (_VAL <= VAR32_MAX) ;
-		for (INDEX i = 0 ; i < _VAL - 1 ; i++)
+	template <LENGTH _VAL1>
+	void write (const DEF<UNIT[_VAL1]> &data) {
+		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
+		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
 			write (data[i]) ;
 	}
 
-	template <LENGTH _VAL>
-	inline TextWriter &operator<< (const DEF<UNIT[_VAL]> &data) {
+	template <LENGTH _VAL1>
+	inline TextWriter &operator<< (const DEF<UNIT[_VAL1]> &data) {
 		write (data) ;
 		return *this ;
 	}
 
-	template <class _ARG>
-	void write (const String<UNIT ,_ARG> &data) {
+	template <class _ARG1>
+	void write (const String<UNIT ,_ARG1> &data) {
 		const auto r1x = data.length () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		for (auto &&i : data)
 			write (i) ;
 	}
 
-	template <class _ARG>
-	inline TextWriter &operator<< (const String<UNIT ,_ARG> &data) {
+	template <class _ARG1>
+	inline TextWriter &operator<< (const String<UNIT ,_ARG1> &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -1449,13 +1449,13 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
-	void write (const _ARG &data) {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
+	void write (const _ARG1 &data) {
 		data.friend_write (*this) ;
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
-	inline TextWriter &operator<< (const _ARG &data) {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
+	inline TextWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -1500,8 +1500,8 @@ private:
 	void try_write_number (const VAL64 &data ,const PhanBuffer<UNIT> &out ,INDEX &it) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
 		INDEX iw = it ;
-		const auto r1x = _IEEE754DECODE_ (data) ;
-		auto rax = _IEEE754E2TOE10_ (r1x) ;
+		const auto r1x = _IEEE754_DECODE_ (data) ;
+		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r2x = BOOL (rax[0] < 0) ;
 		rax[0] = r2x ? (-rax[0]) : (rax[0]) ;
 		const auto r3x = log_of_number (rax[0]) ;
@@ -1631,9 +1631,9 @@ private:
 		it = iw ;
 	}
 
-	LENGTH log_of_number (VAR64 arg) const {
+	LENGTH log_of_number (VAR64 arg1) const {
 		LENGTH ret = 0 ;
-		for (VAR64 i = 1 ; i <= arg ; i *= mHolder->varify_radix ())
+		for (VAR64 i = 1 ; i <= arg1 ; i *= mHolder->varify_radix ())
 			ret++ ;
 		return std::move (ret) ;
 	}
@@ -1648,18 +1648,18 @@ inline void _CLS_ (ByteWriter &writer) {
 	writer.reset () ;
 }
 
-template <class _ARG>
-inline void _CLS_ (TextReader<_ARG> &reader) {
+template <class _ARG1>
+inline void _CLS_ (TextReader<_ARG1> &reader) {
 	reader.reset () ;
 }
 
-template <class _ARG>
-inline void _CLS_ (TextWriter<_ARG> &writer) {
+template <class _ARG1>
+inline void _CLS_ (TextWriter<_ARG1> &writer) {
 	writer.reset () ;
 }
 
-template <class _ARG>
-inline void _BOM_ (TextReader<_ARG> &reader) {
+template <class _ARG1>
+inline void _BOM_ (TextReader<_ARG1> &reader) {
 	_STATIC_WARNING_ ("noop") ;
 }
 
@@ -1705,8 +1705,8 @@ inline void _BOM_ (TextReader<STRW> &reader) {
 	_BOM_ (_CAST_<TextReader<STRUW>> (reader)) ;
 }
 
-template <class _ARG>
-inline void _BOM_ (TextWriter<_ARG> &writer) {
+template <class _ARG1>
+inline void _BOM_ (TextWriter<_ARG1> &writer) {
 	_STATIC_WARNING_ ("noop") ;
 }
 
@@ -1748,10 +1748,10 @@ inline void _GAP_ (ByteWriter &writer) {
 	writer << DATA (0) ;
 }
 
-template <class _ARG>
-inline void _GAP_ (TextReader<_ARG> &reader) {
+template <class _ARG1>
+inline void _GAP_ (TextReader<_ARG1> &reader) {
 	auto ris = reader.copy () ;
-	auto rax = _ARG () ;
+	auto rax = _ARG1 () ;
 	ris >> rax ;
 	while (ris.attr ().varify_space (rax)) {
 		reader = ris.copy () ;
@@ -1759,11 +1759,11 @@ inline void _GAP_ (TextReader<_ARG> &reader) {
 	}
 }
 
-template <class _ARG>
-inline void _GAP_ (TextWriter<_ARG> &writer) {
+template <class _ARG1>
+inline void _GAP_ (TextWriter<_ARG1> &writer) {
 	_DYNAMIC_ASSERT_ (writer.length () + 2 < writer.size ()) ;
-	writer.write (_ARG ('\r')) ;
-	writer.write (_ARG ('\n')) ;
+	writer.write (_ARG1 ('\r')) ;
+	writer.write (_ARG1 ('\n')) ;
 }
 
 inline void _EOS_ (ByteReader &reader) {
@@ -1781,16 +1781,16 @@ inline void _EOS_ (ByteWriter &writer) {
 		writer.write (BYTE (0XFF)) ;
 }
 
-template <class _ARG>
-inline void _EOS_ (TextReader<_ARG> &reader) {
+template <class _ARG1>
+inline void _EOS_ (TextReader<_ARG1> &reader) {
 	auto ris = reader.copy () ;
-	const auto r1x = ris.template read<_ARG> () ;
+	const auto r1x = ris.template read<_ARG1> () ;
 	_DYNAMIC_ASSERT_ (r1x == reader.attr ().varify_ending_item ()) ;
 	reader = std::move (ris) ;
 }
 
-template <class _ARG>
-inline void _EOS_ (TextWriter<_ARG> &writer) {
+template <class _ARG1>
+inline void _EOS_ (TextWriter<_ARG1> &writer) {
 	writer.write (writer.attr ().varify_ending_item ()) ;
 }
 } ;
@@ -1817,13 +1817,13 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG>
-	inline void friend_read (TextReader<_ARG> &reader) const {
+	template <class _ARG1>
+	inline void friend_read (TextReader<_ARG1> &reader) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG>
-	inline void friend_write (TextWriter<_ARG> &writer) const {
+	template <class _ARG1>
+	inline void friend_write (TextWriter<_ARG1> &writer) const {
 		_STATIC_WARNING_ ("noop") ;
 	}
 } ;
@@ -1849,14 +1849,14 @@ public:
 		StreamBinder<TYPES...>::friend_write (writer) ;
 	}
 
-	template <class _ARG>
-	inline void friend_read (TextReader<_ARG> &reader) const {
+	template <class _ARG1>
+	inline void friend_read (TextReader<_ARG1> &reader) const {
 		reader >> mBase ;
 		StreamBinder<TYPES...>::friend_read (reader) ;
 	}
 
-	template <class _ARG>
-	inline void friend_write (TextWriter<_ARG> &writer) const {
+	template <class _ARG1>
+	inline void friend_write (TextWriter<_ARG1> &writer) const {
 		writer << mBase ;
 		StreamBinder<TYPES...>::friend_write (writer) ;
 	}
@@ -1990,16 +1990,16 @@ public:
 		read () ;
 	}
 
-	template <LENGTH _VAL>
-	void read (const DEF<STRU8[_VAL]> &data) {
-		for (INDEX i = 0 ; i < _VAL - 1 ; i++) {
+	template <LENGTH _VAL1>
+	void read (const DEF<STRU8[_VAL1]> &data) {
+		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
 			_DYNAMIC_ASSERT_ (get (0) == data[i]) ;
 			read () ;
 		}
 	}
 
-	template <LENGTH _VAL>
-	inline LLTextReader &operator>> (const DEF<STRU8[_VAL]> &data) {
+	template <LENGTH _VAL1>
+	inline LLTextReader &operator>> (const DEF<STRU8[_VAL1]> &data) {
 		read (data) ;
 		return *this ;
 	}
@@ -2065,8 +2065,8 @@ public:
 		read () ;
 	}
 
-	template <class _ARG>
-	inline LLTextReader &operator>> (ARGV<_ARG> data) {
+	template <class _ARG1>
+	inline LLTextReader &operator>> (ARGV<_ARG1> data) {
 		read (data) ;
 		return *this ;
 	}

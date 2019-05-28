@@ -139,9 +139,9 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	template <class _ARG>
-	_ARG value (const _ARG &def ,const Function<_ARG (const String<STRU8> &)> &convert) const {
-		_ARG ret ;
+	template <class _ARG1>
+	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		_ARG1 ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (value ()) ;
 		} ,[&] () {
@@ -973,9 +973,9 @@ public:
 		return mHeap.self[mIndex].mValue.rebind<String<STRU8>> () ;
 	}
 
-	template <class _ARG>
-	_ARG value (const _ARG &def ,const Function<_ARG (const String<STRU8> &)> &convert) const {
-		_ARG ret ;
+	template <class _ARG1>
+	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		_ARG1 ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (value ()) ;
 		} ,[&] () {
@@ -1531,9 +1531,9 @@ public:
 		return mAttributeSet[ix].item ;
 	}
 
-	template <class _ARG>
-	_ARG attribute (const String<STRU8> &tag ,const _ARG &def ,const Function<_ARG (const String<STRU8> &)> &convert) const {
-		_ARG ret ;
+	template <class _ARG1>
+	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		_ARG1 ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (attribute (tag)) ;
 		} ,[&] () {

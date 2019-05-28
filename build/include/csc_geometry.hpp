@@ -319,8 +319,8 @@ public:
 		}
 	}
 
-	template <class _ARG ,class = ENABLE_TYPE<std::is_same<_ARG ,UNIT>::value>>
-	implicit Matrix (const Vector<_ARG> &hx ,const Vector<_ARG> &hy ,const Vector<_ARG> &hz ,const Vector<_ARG> &hw) {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,UNIT>::value>>
+	implicit Matrix (const Vector<_ARG1> &hx ,const Vector<_ARG1> &hy ,const Vector<_ARG1> &hz ,const Vector<_ARG1> &hw) {
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			get (i ,0) = hx[i] ;
 			get (i ,1) = hy[i] ;

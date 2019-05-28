@@ -37,13 +37,13 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) popping ;
 
-	template <class _ARG>
-	void read (Buffer<BYTE ,_ARG> &data) popping {
+	template <class _ARG1>
+	void read (Buffer<BYTE ,_ARG1> &data) popping {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
-	template <class _ARG>
-	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG> &data) popping {
+	template <class _ARG1>
+	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) popping {
 		read (data) ;
 		return *this ;
 	}
@@ -52,13 +52,13 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 
-	template <class _ARG>
-	void write (const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	void write (const Buffer<BYTE ,_ARG1> &data) {
 		write (PhanBuffer<const BYTE>::make (data)) ;
 	}
 
-	template <class _ARG>
-	inline TCPSocket &operator<< (const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	inline TCPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -97,13 +97,13 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) popping ;
 
-	template <class _ARG>
-	void read (Buffer<BYTE ,_ARG> &data) popping {
+	template <class _ARG1>
+	void read (Buffer<BYTE ,_ARG1> &data) popping {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
-	template <class _ARG>
-	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG> &data) popping {
+	template <class _ARG1>
+	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) popping {
 		read (data) ;
 		return *this ;
 	}
@@ -112,13 +112,13 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 
-	template <class _ARG>
-	void write (const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	void write (const Buffer<BYTE ,_ARG1> &data) {
 		write (PhanBuffer<const BYTE>::make (data)) ;
 	}
 
-	template <class _ARG>
-	inline UDPSocket &operator<< (const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	inline UDPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
 		return *this ;
 	}

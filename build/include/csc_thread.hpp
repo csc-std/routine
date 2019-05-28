@@ -36,7 +36,9 @@ private:
 	IntrusiveRef<Pack> mThis ;
 
 public:
-	CalcThread () :mThis (IntrusiveRef<Pack>::make ()) {}
+	CalcThread () {
+		mThis = IntrusiveRef<Pack>::make () ;
+	}
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
@@ -287,7 +289,9 @@ private:
 	IntrusiveRef<Pack> mThis ;
 
 public:
-	WorkThread () :mThis (IntrusiveRef<Pack>::make ()) {}
+	WorkThread () {
+		mThis = IntrusiveRef<Pack>::make () ;
+	}
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
@@ -550,7 +554,9 @@ private:
 	IntrusiveRef<Pack> mThis ;
 
 public:
-	Promise () :mThis (IntrusiveRef<Pack>::make ()) {}
+	Promise () {
+		mThis = IntrusiveRef<Pack>::make () ;
+	}
 
 	Future future () popping ;
 
@@ -619,7 +625,7 @@ public:
 	}
 
 private:
-	explicit Promise (IntrusiveRef<Pack> &_this) popping :mThis (_this.copy ()) {}
+	explicit Promise (IntrusiveRef<Pack> &_this) popping : mThis (_this.copy ()) {}
 
 private:
 	static void static_execute (Pack &_self) {
@@ -827,7 +833,7 @@ public:
 	}
 
 private:
-	explicit Future (IntrusiveRef<Pack> &_this) popping :mThis (_this.copy ()) {}
+	explicit Future (IntrusiveRef<Pack> &_this) popping : mThis (_this.copy ()) {}
 } ;
 
 template <class ITEM>

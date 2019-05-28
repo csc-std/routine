@@ -76,15 +76,15 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) popping ;
 
-	template <class _ARG>
-	void read (Buffer<BYTE ,_ARG> &data) popping {
+	template <class _ARG1>
+	void read (Buffer<BYTE ,_ARG1> &data) popping {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 
-	template <class _ARG>
-	void write (const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	void write (const Buffer<BYTE ,_ARG1> &data) {
 		write (PhanBuffer<const BYTE>::make (data)) ;
 	}
 
@@ -158,8 +158,8 @@ public:
 		mThis->load_file (file ,data) ;
 	}
 
-	template <class _ARG>
-	void load_file (const String<STR> &file ,Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	void load_file (const String<STR> &file ,Buffer<BYTE ,_ARG1> &data) {
 		load_file (file ,PhanBuffer<BYTE>::make (data)) ;
 	}
 
@@ -168,8 +168,8 @@ public:
 		mThis->save_file (file ,data) ;
 	}
 
-	template <class _ARG>
-	void save_file (const String<STR> &file ,const Buffer<BYTE ,_ARG> &data) {
+	template <class _ARG1>
+	void save_file (const String<STR> &file ,const Buffer<BYTE ,_ARG1> &data) {
 		save_file (file ,PhanBuffer<const BYTE>::make (data)) ;
 	}
 

@@ -51,16 +51,16 @@ public:
 } ;
 
 inline namespace S {
-template <class _ARG ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG> ().ibegin ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> begin (_ARG &&arg) popping {
-	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG &&>::value) ;
-	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>>::friend_begin (arg) ;
+template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().ibegin ())>::value>>
+inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> begin (_ARG1 &&arg1) popping {
+	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG1 &&>::value) ;
+	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_begin (arg1) ;
 }
 
-template <class _ARG ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG> ().iend ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>> end (_ARG &&arg) popping {
-	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG &&>::value) ;
-	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG>>::friend_end (arg) ;
+template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().iend ())>::value>>
+inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping {
+	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG1 &&>::value) ;
+	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_end (arg1) ;
 }
 } ;
 
@@ -77,15 +77,15 @@ struct OPERATOR_SORT<void ,void> {
 
 	class ForwardArray :private Wrapped<ARGV<NONE>> {
 	public:
-		template <class _ARG>
-		inline _ARG &operator[] (_ARG &arg) const {
-			return arg ;
+		template <class _ARG1>
+		inline _ARG1 &operator[] (_ARG1 &arg1) const {
+			return arg1 ;
 		}
 	} ;
 
-	template <class _ARG>
-	inline static void invoke (_ARG &out ,INDEX ib ,INDEX ie) {
-		OPERATOR_SORT<ForwardArray ,_ARG>::invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,ib ,ie) ;
+	template <class _ARG1>
+	inline static void invoke (_ARG1 &out ,INDEX ib ,INDEX ie) {
+		OPERATOR_SORT<ForwardArray ,_ARG1>::invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,ib ,ie) ;
 	}
 } ;
 
@@ -149,14 +149,14 @@ struct OPERATOR_SORT {
 namespace U {
 template <class TYPE>
 struct OPERATOR_HASH {
-	template <class _ARG>
-	inline static FLAG template_hash (const _ARG &left ,const ARGV<ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG> ().hash ()) ,FLAG>::value>> & ,const decltype (ARGVP2) &) {
+	template <class _ARG1>
+	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().hash ()) ,FLAG>::value>> & ,const decltype (ARGVP2) &) {
 		return left.hash () ;
 	}
 
-	template <class _ARG>
-	inline static FLAG template_hash (const _ARG &left ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG>::value>> & ,const decltype (ARGVP1) &) {
-		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG)]> (left)) ;
+	template <class _ARG1>
+	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const decltype (ARGVP1) &) {
+		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (left)) ;
 	}
 
 	inline static FLAG invoke (const TYPE &left) {
@@ -280,17 +280,17 @@ public:
 		U::OPERATOR_SORT<void ,void>::invoke (mArray ,0 ,mArray.size ()) ;
 	}
 
-	void fill (const ITEM &val) {
+	void fill (const ITEM &each) {
 		for (INDEX i = 0 ; i < mArray.size () ; i++)
-			mArray[i] = val ;
+			mArray[i] = each ;
 	}
 
-	template <class _ARG>
-	void fill (const Array<ITEM ,_ARG> &val) {
+	template <class _ARG1>
+	void fill (const Array<ITEM ,_ARG1> &each) {
 		INDEX ir = 0 ;
 		for (INDEX i = 0 ; i < mArray.size () ; i++) {
-			mArray[i] = val[ir] ;
-			ir = (ir + 1) % val.size () ;
+			mArray[i] = each[ir] ;
+			ir = (ir + 1) % each.size () ;
 		}
 	}
 } ;
@@ -346,7 +346,7 @@ public:
 		clear () ;
 	}
 
-	explicit String (LENGTH len) :String (expr_size (len) ,ARGVP0) {
+	explicit String (LENGTH len) :String (ARGVP0 ,expr_size (len)) {
 		clear () ;
 	}
 
@@ -361,8 +361,8 @@ public:
 		_MEMCOPY_ (mString.self ,right ,size ()) ;
 	}
 
-	template <LENGTH _VAL>
-	implicit String (const DEF<ITEM[_VAL]> &right) : String (_VAL - 1) {
+	template <LENGTH _VAL1>
+	implicit String (const DEF<ITEM[_VAL1]> &right) : String (_VAL1 - 1) {
 		_MEMCOPY_ (mString.self ,PTRTOARR[&right[0]] ,size ()) ;
 	}
 
@@ -432,22 +432,22 @@ public:
 		return index + 1 ;
 	}
 
-	template <LENGTH _VAL>
-	BOOL equal (const DEF<ITEM[_VAL]> &right) const {
-		if (mString.size () < _VAL)
+	template <LENGTH _VAL1>
+	BOOL equal (const DEF<ITEM[_VAL1]> &right) const {
+		if (mString.size () < _VAL1)
 			return FALSE ;
 		if (!_MEMEQUAL_ (mString.self ,right))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	template <LENGTH _VAL>
-	inline BOOL operator== (const DEF<ITEM[_VAL]> &right) const {
+	template <LENGTH _VAL1>
+	inline BOOL operator== (const DEF<ITEM[_VAL1]> &right) const {
 		return equal (right) ;
 	}
 
-	template <LENGTH _VAL>
-	inline BOOL operator!= (const DEF<ITEM[_VAL]> &right) const {
+	template <LENGTH _VAL1>
+	inline BOOL operator!= (const DEF<ITEM[_VAL1]> &right) const {
 		return !equal (right) ;
 	}
 
@@ -524,13 +524,13 @@ public:
 		return add (right) ;
 	}
 
-	template <LENGTH _VAL>
-	void addto (const DEF<ITEM[_VAL]> &right) {
+	template <LENGTH _VAL1>
+	void addto (const DEF<ITEM[_VAL1]> &right) {
 		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (mString.size () == 0)
 				return (void) (if_cond = FALSE) ;
 			const auto r1x = length () ;
-			const auto r2x = _VAL - 1 ;
+			const auto r2x = _VAL1 - 1 ;
 			if (r1x + r2x > size ())
 				return (void) (if_cond = FALSE) ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[&right[0]] ,r2x) ;
@@ -540,8 +540,8 @@ public:
 		}) ;
 	}
 
-	template <LENGTH _VAL>
-	inline String &operator+= (const DEF<ITEM[_VAL]> &right) {
+	template <LENGTH _VAL1>
+	inline String &operator+= (const DEF<ITEM[_VAL1]> &right) {
 		addto (right) ;
 		return *this ;
 	}
@@ -575,11 +575,11 @@ public:
 	}
 
 private:
-	explicit String (LENGTH len ,const decltype (ARGVP0) &) :mString (len) {}
+	explicit String (const decltype (ARGVP0) & ,LENGTH len) :mString (len) {}
 
 private:
-	inline static LENGTH raw_string_length (const ARR<ITEM> &arg) {
-		LENGTH ret = _MEMCHR_ (arg ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
+	inline static LENGTH raw_string_length (const ARR<ITEM> &src) {
+		LENGTH ret = _MEMCHR_ (src ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
 		return std::move (ret) ;
 	}
@@ -620,7 +620,7 @@ public:
 		clear () ;
 	}
 
-	explicit Stack (LENGTH len) :Stack (expr_size (len) ,ARGVP0) {
+	explicit Stack (LENGTH len) :Stack (ARGVP0 ,expr_size (len)) {
 		clear () ;
 	}
 
@@ -733,15 +733,15 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
@@ -818,7 +818,7 @@ public:
 	}
 
 private:
-	explicit Stack (LENGTH len ,const decltype (ARGVP0) &) :mStack (len) {}
+	explicit Stack (const decltype (ARGVP0) & ,LENGTH len) :mStack (len) {}
 
 private:
 	void reserve (LENGTH len) {
@@ -827,7 +827,7 @@ private:
 			return ;
 		auto rax = mStack.expand (mStack.size () + r1x) ;
 		_MEMMOVE_ (rax.self ,mStack.self ,mStack.size ()) ;
-		mStack.expand (std::move (rax)) ;
+		mStack.swap (rax) ;
 	}
 
 	void update_resize () {
@@ -837,7 +837,7 @@ private:
 			return ;
 		auto rax = mStack.expand () ;
 		_MEMMOVE_ (rax.self ,mStack.self ,mStack.size ()) ;
-		mStack.expand (std::move (rax)) ;
+		mStack.swap (rax) ;
 	}
 } ;
 
@@ -872,7 +872,7 @@ public:
 		clear () ;
 	}
 
-	explicit Queue (LENGTH len) :Queue (expr_size (len) ,ARGVP0) {
+	explicit Queue (LENGTH len) :Queue (ARGVP0 ,expr_size (len)) {
 		clear () ;
 	}
 
@@ -1006,15 +1006,15 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
@@ -1067,7 +1067,7 @@ public:
 	}
 
 private:
-	explicit Queue (LENGTH len ,const decltype (ARGVP0) &) :mQueue (len) {}
+	explicit Queue (const decltype (ARGVP0) & ,LENGTH len) :mQueue (len) {}
 
 private:
 	BOOL ensure_index (INDEX index) const {
@@ -1090,13 +1090,13 @@ private:
 				return (void) (if_cond = FALSE) ;
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mQueue.self[mRead]] ,(mWrite - mRead)) ;
-			mQueue.expand (std::move (rax)) ;
+			mQueue.swap (rax) ;
 		} ,[&] (BOOL &if_cond) {
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mQueue.size () ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mQueue.self[mRead]] ,(mQueue.size () - mRead)) ;
-			mQueue.expand (std::move (rax)) ;
+			mQueue.swap (rax) ;
 			mRead = ix ;
 		}) ;
 	}
@@ -1111,7 +1111,7 @@ private:
 		INDEX ix = (mRead > 0) ? (mRead + rax.size () - mQueue.size ()) : 0 ;
 		INDEX iy = (mRead > 0) ? mWrite : (mQueue.size ()) ;
 		_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mQueue.self[mRead]] ,(mQueue.size () - mRead)) ;
-		mQueue.expand (std::move (rax)) ;
+		mQueue.swap (rax) ;
 		mRead = ix ;
 		mWrite = iy ;
 	}
@@ -1174,7 +1174,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (expr_size (len) ,ARGVP0) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,expr_size (len)) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -1212,22 +1212,22 @@ public:
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
 private:
-	explicit Priority (LENGTH len ,const decltype (ARGVP0) &) :mPriority (len) {}
+	explicit Priority (const decltype (ARGVP0) & ,LENGTH len) :mPriority (len) {}
 } ;
 
 template <class KEY ,class SIZE>
@@ -1282,7 +1282,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (expr_size (len) ,ARGVP0) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,expr_size (len)) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -1310,22 +1310,22 @@ public:
 		add (std::move (item.P1)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
 private:
-	explicit Priority (LENGTH len ,const decltype (ARGVP0) &) :mPriority (len) {}
+	explicit Priority (const decltype (ARGVP0) & ,LENGTH len) :mPriority (len) {}
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -1334,8 +1334,8 @@ private:
 	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
-	template <class _ARG>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG> ;
+	template <class _ARG1>
+	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -1525,7 +1525,7 @@ private:
 			return ;
 		auto rax = mPriority.expand (mPriority.size () + r1x) ;
 		_MEMMOVE_ (rax.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.expand (std::move (rax)) ;
+		mPriority.swap (rax) ;
 	}
 
 	void update_resize () {
@@ -1535,7 +1535,7 @@ private:
 			return ;
 		auto rax = mPriority.expand () ;
 		_MEMMOVE_ (rax.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.expand (std::move (rax)) ;
+		mPriority.swap (rax) ;
 	}
 
 	void update_insert (INDEX it) {
@@ -1627,7 +1627,7 @@ public:
 		clear () ;
 	}
 
-	explicit Deque (LENGTH len) :Deque (len ,ARGVP0) {
+	explicit Deque (LENGTH len) :Deque (ARGVP0 ,len) {
 		clear () ;
 	}
 
@@ -1756,15 +1756,15 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mList.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mList.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
@@ -1804,7 +1804,7 @@ public:
 	INDEX insert_before (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead) : mWrite ;	
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead) : mWrite ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -1870,7 +1870,7 @@ public:
 	}
 
 private:
-	explicit Deque (LENGTH len ,const decltype (ARGVP0) &) :mList (len) ,mDeque (len) {}
+	explicit Deque (const decltype (ARGVP0) & ,LENGTH len) :mList (len) ,mDeque (len) {}
 
 private:
 	INDEX access (INDEX pos ,INDEX ib ,INDEX jb) const {
@@ -1914,7 +1914,7 @@ private:
 				continue ;
 			update_rewrite (mList[i].mHead ,i) ;
 		}
-		mDeque.expand (std::move (rax)) ;
+		mDeque.swap (rax) ;
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
@@ -2147,7 +2147,7 @@ public:
 		clear () ;
 	}
 
-	explicit QList (LENGTH len) :QList (len ,ARGVP0) {
+	explicit QList (LENGTH len) :QList (ARGVP0 ,len) {
 		clear () ;
 	}
 
@@ -2260,15 +2260,15 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mList.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mList.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (std::move (i)) ;
@@ -2402,7 +2402,7 @@ public:
 	}
 
 private:
-	explicit QList (LENGTH len ,const decltype (ARGVP0) &) :mList (len) {}
+	explicit QList (const decltype (ARGVP0) & ,LENGTH len) :mList (len) {}
 
 private:
 	INDEX &prev_next (INDEX it) {
@@ -2497,11 +2497,11 @@ private:
 	LENGTH mWidth ;
 
 public:
-	BitSet () :BitSet (0 ,0 ,ARGVP0) {
+	BitSet () :BitSet (ARGVP0) {
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len) :BitSet (expr_size (len) ,expr_width (len) ,ARGVP0) {
+	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,expr_size (len) ,expr_width (len)) {
 		clear () ;
 	}
 
@@ -2662,8 +2662,8 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		for (auto &&i : src)
 			add (i) ;
 	}
@@ -2783,22 +2783,24 @@ public:
 		return std::move (ret) ;
 	}
 
-	void fill (const BYTE &val) {
+	void fill (const BYTE &each) {
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] = val ;
+			mSet[i] = each ;
 	}
 
-	template <class _ARG>
-	void fill (const Array<BYTE ,_ARG> &val) {
+	template <class _ARG1>
+	void fill (const Array<BYTE ,_ARG1> &each) {
 		INDEX ir = 0 ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++) {
-			mSet[i] = val[ir] ;
-			ir = (ir + 1) % val.size () ;
+			mSet[i] = each[ir] ;
+			ir = (ir + 1) % each.size () ;
 		}
 	}
 
 private:
-	explicit BitSet (LENGTH len ,LENGTH width ,const decltype (ARGVP0) &) :mSet (len) ,mWidth (width) {}
+	explicit BitSet (const decltype (ARGVP0) &) :mWidth (0) {}
+
+	explicit BitSet (const decltype (ARGVP0) & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
 
 private:
 	inline static LENGTH expr_size (const std::initializer_list<INDEX> &right) {
@@ -2884,7 +2886,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Set (LENGTH len) :Set (len ,ARGVP0) {
+	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -2926,22 +2928,22 @@ public:
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
 private:
-	explicit Set (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) {}
+	explicit Set (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) {}
 } ;
 
 template <class KEY ,class SIZE>
@@ -3003,7 +3005,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Set (LENGTH len) :Set (len ,ARGVP0) {
+	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -3037,22 +3039,22 @@ public:
 		add (std::move (item.P1)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
 private:
-	explicit Set (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) {}
+	explicit Set (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) {}
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3061,8 +3063,8 @@ private:
 	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
-	template <class _ARG>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG> ;
+	template <class _ARG1>
+	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3593,7 +3595,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit HashSet (LENGTH len) :HashSet (len ,ARGVP0) {
+	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -3635,22 +3637,22 @@ public:
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
 private:
-	explicit HashSet (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
 	BOOL equal_each (const HashSet &right ,INDEX it) const {
@@ -3720,7 +3722,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit HashSet (LENGTH len) :HashSet (len ,ARGVP0) {
+	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -3754,22 +3756,22 @@ public:
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		mSet.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
 private:
-	explicit HashSet (LENGTH len ,const decltype (ARGVP0) &) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
 	BOOL equal_each (const HashSet &right ,INDEX it) const {
@@ -3786,8 +3788,8 @@ private:
 	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
-	template <class _ARG>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG> ;
+	template <class _ARG1>
+	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3961,7 +3963,7 @@ private:
 			mSet[i].mNext = rax[ix] ;
 			rax[ix] = i ;
 		}
-		mHead.expand (std::move (rax)) ;
+		mHead.swap (rax) ;
 	}
 
 	void update_insert (INDEX it) {
@@ -4115,16 +4117,16 @@ public:
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
@@ -4248,16 +4250,16 @@ public:
 		add (std::move (item.P1)) ;
 	}
 
-	template <class _ARG>
-	void appand (const _ARG &src) {
+	template <class _ARG1>
+	void appand (const _ARG1 &src) {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
-	template <class _ARG>
-	void appand (_ARG &&src) {
+	template <class _ARG1>
+	void appand (_ARG1 &&src) {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
@@ -4271,8 +4273,8 @@ private:
 	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
-	template <class _ARG>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG> ;
+	template <class _ARG1>
+	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 	using Attribute = typename SPECIALIZATION_BASE::Attribute ;
 
 private:

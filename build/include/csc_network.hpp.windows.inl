@@ -60,16 +60,16 @@
 
 namespace CSC {
 inline namespace NETWORK {
-inline TIMEVAL _inline_SOCKET_CVTTO_TIMEVAL_ (LENGTH arg) {
-	_DEBUG_ASSERT_ (arg >= 0) ;
-	return TIMEVAL {VAR32 (arg / 1000) ,VAR32 ((arg % 1000) * 1000)} ;
+inline TIMEVAL _inline_SOCKET_CVTTO_TIMEVAL_ (LENGTH src) {
+	_DEBUG_ASSERT_ (src >= 0) ;
+	return TIMEVAL {VAR32 (src / 1000) ,VAR32 ((src % 1000) * 1000)} ;
 }
 
-inline String<STRU8> _inline_SOCKET_CVTTO_IPV4S_ (const SOCKADDR &arg) {
+inline String<STRU8> _inline_SOCKET_CVTTO_IPV4S_ (const SOCKADDR &src) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _CALL_ ([&] () {
 		TEMP<SOCKADDR_IN> ret ;
-		_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (SOCKADDR)]> (arg)) ;
+		_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (SOCKADDR)]> (src)) ;
 		return std::move (_CAST_<SOCKADDR_IN> (ret)) ;
 	}) ;
 	const auto r2x = _CALL_ ([&] () {
@@ -81,14 +81,14 @@ inline String<STRU8> _inline_SOCKET_CVTTO_IPV4S_ (const SOCKADDR &arg) {
 	return _BUILDIPV4S_<STRU8> (r2x) ;
 }
 
-inline SOCKADDR _inline_SOCKET_CVTTO_SOCKETADDR_ (const String<STRU8> &arg) {
+inline SOCKADDR _inline_SOCKET_CVTTO_SOCKETADDR_ (const String<STRU8> &src) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	TEMP<SOCKADDR> ret ;
 	const auto r1x = _CALL_ ([&] () {
 		SOCKADDR_IN ret ;
 		_ZERO_ (ret) ;
 		ret.sin_family = AF_INET ;
-		const auto r2x = _PARSEIPV4S_ (arg) ;
+		const auto r2x = _PARSEIPV4S_ (src) ;
 		ret.sin_port = _CAST_<EndianBytes<WORD>> (r2x.P1).merge () ;
 		ret.sin_addr.S_un.S_addr = _CAST_<EndianBytes<CHAR>> (r2x.P2).merge () ;
 		return std::move (ret) ;
