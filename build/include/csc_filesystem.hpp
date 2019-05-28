@@ -67,8 +67,6 @@ inline imports DEF<void (const String<STR> &dire ,const Function<void (const Str
 class StreamLoader {
 private:
 	class Implement ;
-
-private:
 	AnyRef<void> mThis ;
 
 public:
@@ -96,8 +94,6 @@ public:
 class BufferLoader {
 private:
 	class Implement ;
-
-private:
 	AnyRef<void> mThis ;
 
 public:
@@ -120,8 +116,6 @@ public:
 
 class FileSystemService final :private Interface {
 private:
-	class Implement ;
-
 	exports struct Abstract :public Interface {
 		virtual AutoBuffer<BYTE> load_file (const String<STR> &file) popping = 0 ;
 		virtual void load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) popping = 0 ;
@@ -148,6 +142,7 @@ private:
 	} ;
 
 private:
+	class Implement ;
 	friend Singleton<FileSystemService> ;
 	Monostate<std::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;

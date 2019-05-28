@@ -180,8 +180,10 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
-	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,_MEMRCHR_ (r2x.self ,r1x ,STR ('/'))) + 1 ;
-	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[r3x]] ,(r1x - r3x)) ;
+	const auto r3x = _MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ;
+	const auto r4x = _MEMRCHR_ (r2x.self ,r1x ,STR ('/')) ;
+	const auto r5x = _MAX_ (r3x ,r4x) + 1 ;
+	_MEMCOPY_ (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
 	return std::move (ret) ;
 }
 
@@ -241,13 +243,14 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		}
 		return std::move (ret) ;
 	}) ;
-	const auto r4x = (path.length () >= 1 && (path[0] == STR ('\\') || path[0] == STR ('/'))) ;
-	if (r4x)
-		ret += _PCSTR_ ("\\") ;
-	const auto r5x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
-	const auto r6x = (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-	const auto r7x = (!r4x && (r5x || r6x)) ;
-	if (r7x)
+	const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
+	const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
+	if (r4x || r5x)
+		ret += _PCSTR_ ("/") ;
+	const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
+	const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
+	const auto r8x = BOOL (!r4x && !r5x && (r6x || r7x)) ;
+	if (r8x)
 		ret += _WORKINGPATH_ () ;
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
 		if (i != 0)
@@ -255,8 +258,9 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += r1x[ix] ;
 	}
-	const auto r8x = ret.length () ;
-	if (r8x >= 1 && ret[r8x - 1] != STR ('\\') && ret[r8x - 1] != STR ('/'))
+	const auto r10x = BOOL (ret.size () >= 1 && ret[0] == STR ('\\')) ;
+	const auto r11x = BOOL (ret.size () >= 1 && ret[0] == STR ('/')) ;
+	if (!r10x && !r11x)
 		ret += _PCSTR_ ("\\") ;
 	return std::move (ret) ;
 }
@@ -291,16 +295,17 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
 	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
-	const auto r2x = (dire.length () >= 1 && (dire[0] == STR ('\\') || dire[0] == STR ('/'))) ;
-	if (r2x)
+	const auto r2x = BOOL (dire.size () >= 1 && dire[0] == STR ('\\')) ;
+	const auto r3x = BOOL (dire.size () >= 1 && dire[0] == STR ('/')) ;
+	if (r2x || r3x)
 		rax += _PCSTR_ ("\\") ;
 	for (INDEX i = 0 ; i < r1x.length () ; i++) {
 		if (i != 0)
 			rax += _PCSTR_ ("\\") ;
 		INDEX ix = r1x.access (i) ;
 		rax += r1x[ix] ;
-		const auto r3x = r1x[ix].length () ;
-		if (r3x > 1 && r1x[ix][r3x - 1] == STR (':'))
+		const auto r4x = r1x[ix].length () ;
+		if (r4x > 1 && r1x[ix][r4x - 1] == STR (':'))
 			continue ;
 		CreateDirectory (rax.raw ().self ,NULL) ;
 	}

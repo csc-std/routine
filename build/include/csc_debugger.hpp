@@ -276,8 +276,6 @@ public:
 	static constexpr auto OPTION_ALWAYS_FLUSH = FLAG (0X00000080) ;
 
 private:
-	class Implement ;
-
 	struct Binder :public Interface {
 		virtual void friend_write (TextWriter<STR> &writer) const = 0 ;
 	} ;
@@ -315,6 +313,7 @@ private:
 	} ;
 
 private:
+	class Implement ;
 	friend Singleton<ConsoleService> ;
 	Monostate<std::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
@@ -409,8 +408,6 @@ private:
 
 class DebuggerService final :private Interface {
 private:
-	class Implement ;
-
 	exports struct Abstract :public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
 		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
@@ -419,6 +416,7 @@ private:
 	} ;
 
 private:
+	class Implement ;
 	friend Singleton<DebuggerService> ;
 	Monostate<std::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;

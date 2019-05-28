@@ -222,7 +222,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 	while (!rax[0].empty ()) {
 		const auto r1x = std::move (rax[0][rax[0].peek ()]) ;
 		rax[0].take () ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			//@info: case '<?xml ...>'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -237,7 +237,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			for (INDEX i = r1.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
 				rax[1].add ({i ,FLAG (0)}) ;
 			rax[0].appand (rax[1]) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -253,7 +253,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				writer << i.item << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ ("/>") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?>'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -274,7 +274,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				rax[1].add ({i ,FLAG (0)}) ;
 			rax[1].add ({r1x[0] ,FLAG (1)}) ;
 			rax[0].appand (rax[1]) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '</xxx>'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -400,9 +400,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $4->ε|$3 $4
 		inline void update_shift_e4 (INDEX it) {
 			while (TRUE) {
-				const auto r1x = (mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')) ;
-				const auto r2x = (mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')) ;
-				const auto r3x = mRis[0] == STRU8 ('_') ;
+				const auto r1x = BOOL (mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')) ;
+				const auto r2x = BOOL (mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')) ;
+				const auto r3x = BOOL (mRis[0] == STRU8 ('_')) ;
 				if (!r1x && !r2x && !r3x)
 					break ;
 				update_shift_e3 (it) ;
@@ -467,15 +467,15 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
-				const auto r1x = (mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!')) ;
-				const auto r2x = (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
+				const auto r1x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!')) ;
+				const auto r2x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
 				if (!r1x && !r2x)
 					break ;
-				_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+				_CALL_IF_ ([&] (BOOL &if_cond) {
 					if (!r1x)
 						return (void) (if_cond = FALSE) ;
 					update_shift_e6 () ;
-				} ,[&] (CSC::BOOL &if_cond) {
+				} ,[&] (BOOL &if_cond) {
 					if (!r2x)
 						return (void) (if_cond = FALSE) ;
 					update_shift_e5 (it) ;
@@ -1049,7 +1049,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 	while (!rax[0].empty ()) {
 		const auto r1x = std::move (rax[0][rax[0].peek ()]) ;
 		rax[0].take () ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			//@info: case 'null'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -1058,7 +1058,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			if (r1x[1] != 0)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("null") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '"xxx"'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -1070,7 +1070,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("\"") ;
 			writer << r1 ;
 			writer << _PCSTRU8_ ("\"") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '[(yyy(,yyy)*)?]'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -1090,7 +1090,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			}
 			rax[1].add ({VAR_NONE ,FLAG (4)}) ;
 			rax[0].appand (rax[1]) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
@@ -1114,7 +1114,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			}
 			rax[1].add ({VAR_NONE ,FLAG (8)}) ;
 			rax[0].appand (rax[1]) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 1)
@@ -1122,43 +1122,43 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("\"") ;
 			writer << *rbx[r1x[0]] ;
 			writer << _PCSTRU8_ ("\"") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 2)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("[") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 3)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (",") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 4)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("]") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 5)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("{") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 6)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (",") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 7)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (":") ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
 			if (r1x[1] != 8)
@@ -1260,27 +1260,27 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $2->true|TRUE|false|FALSE
 		inline void update_shift_e2 () {
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('t'))
 					return (void) (if_cond = FALSE) ;
 				mRis >> _PCSTRU8_ ("true") ;
 				mLatestString = _PCSTRU8_ ("true") ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('T'))
 					return (void) (if_cond = FALSE) ;
 				mRis >> _PCSTRU8_ ("TRUE") ;
 				mLatestString = _PCSTRU8_ ("TRUE") ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('f'))
 					return (void) (if_cond = FALSE) ;
 				mRis >> _PCSTRU8_ ("false") ;
 				mLatestString = _PCSTRU8_ ("false") ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('F'))
 					return (void) (if_cond = FALSE) ;
 				mRis >> _PCSTRU8_ ("FALSE") ;
 				mLatestString = _PCSTRU8_ ("FALSE") ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				_DEBUG_ASSERT_ (FALSE) ;
 			}) ;
 		}
@@ -1300,9 +1300,10 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void update_shift_e4 (INDEX it) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
-				const auto r1x = (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-') || (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9'))) ;
-				if (!r1x)
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
+				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
+				if (!r1x && !r2x)
 					return (void) (if_cond = FALSE) ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
@@ -1311,9 +1312,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (CSC::BOOL &if_cond) {
-				const auto r2x = (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T') || mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
-				if (!r2x)
+			} ,[&] (BOOL &if_cond) {
+				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T') || mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
+				if (!r3x)
 					return (void) (if_cond = FALSE) ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
@@ -1322,7 +1323,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('n'))
 					return (void) (if_cond = FALSE) ;
 				ix = mNodeHeap.alloc () ;
@@ -1331,7 +1332,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('\"'))
 					return (void) (if_cond = FALSE) ;
 				ix = mNodeHeap.alloc () ;
@@ -1341,17 +1342,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('['))
 					return (void) (if_cond = FALSE) ;
 				update_shift_e6 (it) ;
 				ix = mLatestIndex ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('{'))
 					return (void) (if_cond = FALSE) ;
 				update_shift_e9 (it) ;
 				ix = mLatestIndex ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}) ;
 			mLatestIndex = ix ;
@@ -1677,7 +1678,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = mAttributeSet.find (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 			ix = mAttributeSet.insert (std::move (mLatestString)) ;
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('='))
 					return (void) (if_cond = FALSE) ;
 				if (mRis[1] != STRU8 ('\"'))
@@ -1685,24 +1686,24 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e2 () ;
 				mAttributeSet[ix].item = std::move (mLatestString) ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('='))
 					return (void) (if_cond = FALSE) ;
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e3 () ;
 				mAttributeSet[ix].item = std::move (mLatestString) ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				mAttributeSet[ix].item = _PCSTRU8_ ("TRUE") ;
 			}) ;
 		}
 
 		//@info: $6->$2|$3
 		inline void update_shift_e6 () {
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
 				if (mRis[0] != STRU8 ('\"'))
 					return (void) (if_cond = FALSE) ;
 				update_shift_e2 () ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				update_shift_e3 () ;
 			}) ;
 			mCommandList.add (std::move (mLatestString)) ;
@@ -1711,15 +1712,15 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $7->ε|$4 $7|$5 $7|$6 $7
 		inline void update_shift_e7 () {
 			while (mRis[0] != STRU8 ('\0')) {
-				_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+				_CALL_IF_ ([&] (BOOL &if_cond) {
 					if (mRis[0] != STRU8 ('/'))
 						return (void) (if_cond = FALSE) ;
 					update_shift_e4 () ;
-				} ,[&] (CSC::BOOL &if_cond) {
+				} ,[&] (BOOL &if_cond) {
 					if (mRis[0] != STRU8 ('-'))
 						return (void) (if_cond = FALSE) ;
 					update_shift_e5 () ;
-				} ,[&] (CSC::BOOL &if_cond) {
+				} ,[&] (BOOL &if_cond) {
 					update_shift_e6 () ;
 				}) ;
 				mRis >> LLTextReader<>::SKIP_GAP_SPACE_ONLY ;

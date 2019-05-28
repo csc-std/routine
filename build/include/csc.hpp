@@ -464,7 +464,7 @@ using STRU32 = char32_t ;
 using STRA = char ;
 using STRW = wchar_t ;
 
-#define _PCSTRA_(arg) CSC::_CAST_<const CSC::STRA[_COUNTOF_ (decltype (arg))]> (arg)
+#define _PCSTRA_(arg) CSC::_CAST_<const CSC::STRA[_COUNTOF_ (decltype (_UNW_ (arg)))]> (_UNW_ (arg))
 #define _PCSTRW_(arg) CSC::_CAST_<const CSC::STRW[_COUNTOF_ (decltype (_CAT_ (L ,arg)))]> (_CAT_ (L ,arg))
 
 #ifdef __CSC_CONFIG_STRA__
@@ -890,7 +890,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG> &_LOAD_ (PTR<_ARG> address) noexcept {
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (DEF<_ARG1 _ARG2::*> arg1 ,const _ARG3 &arg2) noexcept {
+inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (DEF<_ARG1 _ARG2::*> arg1 ,_ARG3 &arg2) noexcept {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG3> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (arg1 != NULL) ;
 	const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (&arg2) - _ADDRESS_ (&(_NULL_<_ARG2> ().*arg1)) ;
@@ -943,7 +943,7 @@ inline void _SWAP_ (_ARG &arg1 ,_ARG &arg2) noexcept {
 template <class _ARG ,LENGTH _VAL>
 inline void _SWAP_ (DEF<_ARG[_VAL]> &arg1 ,DEF<_ARG[_VAL]> &arg2) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG>::value && std::is_nothrow_move_assignable<_ARG>::value) ;
-	_SWAP_ (_OFFSET_ (&PACK<_ARG[_VAL]>::P1 ,arg1) ,_OFFSET_ (&PACK<_ARG[_VAL]>::P1 ,arg2)) ;
+	_SWAP_ (_CAST_<PACK<_ARG[_VAL]>> (arg1) ,_CAST_<PACK<_ARG[_VAL]>> (arg2)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
@@ -2552,30 +2552,30 @@ using FIX_MSVC_DEDUCTION_2 = DEF<DEF<TYPE1 (TYPES...)> NONE::*> ;
 template <class TYPE1 ,class... TYPES>
 class Function<FIX_MSVC_DEDUCTION_2<TYPE1 ,TYPES...>> {
 private:
-	class VariantHolder ;
+	class FakeHolder ;
 
 	struct Holder :public Interface {
-		virtual void address_copy (PTR<TEMP<VariantHolder>> address) const noexcept = 0 ;
+		virtual void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping = 0 ;
 	} ;
 
 	template <class>
 	class ImplHolder ;
 
-	class VariantHolder :public Holder {
+	class FakeHolder :public Holder {
 	private:
 		PTR<NONE> mContext ;
 		DEF<DEF<TYPE1 (TYPES...)> NONE::*> mFunction ;
 
 	public:
-		inline VariantHolder () = delete ;
+		inline FakeHolder () = delete ;
 
-		inline void address_copy (PTR<TEMP<VariantHolder>> address) const noexcept override ;
+		inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
 		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override ;
 	} ;
 
 private:
-	TEMP<VariantHolder> mVariant ;
+	TEMP<FakeHolder> mVariant ;
 
 public:
 	inline Function () = delete ;
@@ -2595,7 +2595,7 @@ public:
 	inline ~Function () noexcept {
 		if (!exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (mVariant)).~Holder () ;
+		_XVALUE_<const Holder &> (_CAST_<FakeHolder> (mVariant)).~Holder () ;
 		_ZERO_ (mVariant) ;
 	}
 
@@ -2606,7 +2606,7 @@ public:
 		_ZERO_ (mVariant) ;
 		if (!right.exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<VariantHolder> (right.mVariant)).address_copy (&mVariant) ;
+		_XVALUE_<const Holder &> (_CAST_<FakeHolder> (right.mVariant)).address_copy (&mVariant) ;
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
@@ -2618,13 +2618,13 @@ public:
 	}
 
 	inline BOOL exist () const {
-		const auto r1x = _XVALUE_<const PACK<BYTE[_SIZEOF_ (TEMP<VariantHolder>)]> &> ({0}) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<VariantHolder>)]> (mVariant) ,PTRTOARR[&r1x.P1[0]]) ;
+		const auto r1x = _XVALUE_<const PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> &> ({0}) ;
+		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&r1x.P1[0]]) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _XVALUE_<const Holder &> (_CAST_<VariantHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return _XVALUE_<const Holder &> (_CAST_<FakeHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2644,7 +2644,7 @@ public:
 
 	inline explicit ImplHolder (PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void address_copy (PTR<TEMP<VariantHolder>> address) const noexcept override {
+	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		address_create (address ,mContext ,mFunction) ;
 	}
 
@@ -2653,11 +2653,12 @@ public:
 	}
 
 public:
-	inline static void address_create (PTR<TEMP<VariantHolder>> address ,PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept {
-		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<VariantHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
+	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept {
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) == _ALIGNOF_ (TEMP<ImplHolder>)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<VariantHolder> (*address))) == _ADDRESS_ (address)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
 		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
 		_CREATE_ (r1x ,context ,function) ;
 	}
@@ -2675,7 +2676,7 @@ public:
 
 	inline explicit ImplHolder (PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void address_copy (PTR<TEMP<VariantHolder>> address) const noexcept override {
+	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		address_create (address ,mContext ,mFunction) ;
 	}
 
@@ -2684,11 +2685,12 @@ public:
 	}
 
 public:
-	inline static void address_create (PTR<TEMP<VariantHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept {
-		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<VariantHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
+	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept {
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) == _ALIGNOF_ (TEMP<ImplHolder>)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<VariantHolder> (*address))) == _ADDRESS_ (address)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
 		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
 		_CREATE_ (r1x ,context ,function) ;
 	}
@@ -3654,16 +3656,14 @@ public:
 
 	inline Allocator (Allocator &&right) noexcept :mAllocator (std::move (right.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		INDEX iw = (std::is_pod<TYPE>::value) ? (right.mAllocator.size ()) : VAR_ZERO ;
-		for (INDEX i = iw ; i < right.mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
-			iw++ ;
+		const auto r1x = (std::is_pod<TYPE>::value) ? (mAllocator.size ()) : 0 ;
+		for (INDEX i = r1x ; i < right.mAllocator.size () ; i++) {
+			if (mAllocator[i].mNext != VAR_USED)
+				continue ;
+			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
 		}
 		mLength = right.mLength ;
 		mFree = right.mFree ;
-		if (right.mAllocator.size () == 0)
-			return ;
 		static_cast<PTR<SPECIALIZATION_TYPE>> (&right)->clear () ;
 	}
 
@@ -3710,34 +3710,35 @@ public:
 	}
 
 	inline Allocator (const Allocator &right) :mAllocator (std::move (right.mAllocator)) {
-		INDEX iw = (std::is_pod<TYPE>::value) ? (right.mAllocator.size ()) : 0 ;
-		const auto r1x = [&] () noexcept popping {
-			for (INDEX i = 0 ; i < iw ; i++) {
-				if (mAllocator[i].mNext != VAR_USED)
-					continue ;
-				_DESTROY_ (&mAllocator[i].mData) ;
-			}
-		iw = VAR_NONE ;
-		} ;
-		class Finally :private Wrapped<decltype (r1x)> {
+		class Finally :private Wrapped<Allocator> {
 		public:
-			inline void lock () const noexcept {
-				_STATIC_WARNING_ ("noop") ;
+			inline void lock () noexcept {
+				Finally::mData.mLength = 0 ;
+				Finally::mData.mFree = VAR_NONE ;
 			}
 
-			inline void unlock () const noexcept {
-				Finally::mData () ;
+			inline void unlock () noexcept {
+				if (Finally::mData.mLength > 0)
+					return ;
+				const auto r1x = (std::is_pod<TYPE>::value) ? (Finally::mData.mAllocator.size ()) : 0 ;
+				for (INDEX i = r1x ; i < Finally::mData.mAllocator.size () ; i++) {
+					if (Finally::mData.mAllocator[i].mNext != VAR_USED)
+						continue ;
+					_DESTROY_ (&Finally::mData.mAllocator[i].mData) ;
+				}
+				Finally::mData.mLength = 0 ;
+				Finally::mData.mFree = VAR_NONE ;
 			}
 		} ;
-		ScopedGuard<const Finally> ANONYMOUS (_CAST_<Finally> (r1x)) ;
-		for (INDEX i = iw ; i < right.mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
-			iw++ ;
+		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (*this)) ;
+		const auto r1x = (std::is_pod<TYPE>::value) ? (mAllocator.size ()) : 0 ;
+		for (INDEX i = r1x ; i < mAllocator.size () ; i++) {
+			if (mAllocator[i].mNext != VAR_USED)
+				continue ;
+			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
 		}
 		mLength = right.mLength ;
 		mFree = right.mFree ;
-		iw = VAR_NONE ;
 	}
 
 	inline Allocator &operator= (const Allocator &right) {
@@ -3750,16 +3751,14 @@ public:
 
 	inline Allocator (Allocator &&right) noexcept :mAllocator (std::move (right.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		INDEX iw = (std::is_pod<TYPE>::value) ? (right.mAllocator.size ()) : VAR_ZERO ;
-		for (INDEX i = iw ; i < right.mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
-			iw++ ;
+		const auto r1x = (std::is_pod<TYPE>::value) ? (mAllocator.size ()) : 0 ;
+		for (INDEX i = r1x ; i < right.mAllocator.size () ; i++) {
+			if (mAllocator[i].mNext != VAR_USED)
+				continue ;
+			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;
 		}
 		mLength = right.mLength ;
 		mFree = right.mFree ;
-		if (right.mAllocator.size () == 0)
-			return ;
 		static_cast<PTR<SPECIALIZATION_TYPE>> (&right)->clear () ;
 	}
 
@@ -3842,9 +3841,8 @@ public:
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (mFree != VAR_NONE)
-				return (void) (if_cond = FALSE) ;
+		_STATIC_WARNING_ ("unqualified") ;
+		if (mFree == VAR_NONE) {
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3853,9 +3851,9 @@ public:
 			}
 			mAllocator.expand (std::move (rax)) ;
 			update_free (mLength ,mFree) ;
-		} ,[&] (BOOL &if_cond) {
+		} else {
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
-		}) ;
+		}
 		INDEX ret = mFree ;
 		mFree = mAllocator[mFree].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;

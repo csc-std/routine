@@ -728,8 +728,8 @@ private:
 		}
 
 		BOOL varify_control (const UNIT &item) const {
-			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) ;
-			const auto r2x = item == UNIT (127) ;
+			const auto r1x = BOOL (item >= UNIT (0) && item <= UNIT (32)) ;
+			const auto r2x = BOOL (item == UNIT (127)) ;
 			if (!r1x && !r2x)
 				return FALSE ;
 			if (varify_space (item))
@@ -835,7 +835,7 @@ public:
 		auto ris = copy () ;
 		auto rax = UNIT () ;
 		ris.read (rax) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (rax != UNIT ('t'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -845,7 +845,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('e')) ;
 			data = TRUE ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('T'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -855,7 +855,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('E')) ;
 			data = TRUE ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('f'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -867,7 +867,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('e')) ;
 			data = FALSE ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('F'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -879,7 +879,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('E')) ;
 			data = FALSE ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		*this = std::move (ris) ;
@@ -905,7 +905,7 @@ public:
 		auto ris = copy () ;
 		auto rax = UNIT () ;
 		ris.read (rax) ;
-		const auto r1x = rax == UNIT ('-') ;
+		const auto r1x = BOOL (rax == UNIT ('-')) ;
 		if (rax == UNIT ('+') || rax == UNIT ('-'))
 			ris.read (rax) ;
 		ris.try_read_number (data ,rax) ;
@@ -932,11 +932,10 @@ public:
 		auto ris = copy () ;
 		auto rax = UNIT () ;
 		ris.read (rax) ;
-		const auto r1x = rax == UNIT ('-') ;
+		const auto r1x = BOOL (rax == UNIT ('-')) ;
 		if (rax == UNIT ('+') || rax == UNIT ('-'))
 			ris.read (rax) ;
-		const auto r2x = mHolder->varify_number_item (rax) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (rax != UNIT ('i'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -944,7 +943,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('f')) ;
 			data = VAL64_INF ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('I'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -952,7 +951,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('F')) ;
 			data = VAL64_INF ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('n'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -960,7 +959,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('n')) ;
 			data = VAL64_NAN ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax != UNIT ('N'))
 				return (void) (if_cond = FALSE) ;
 			ris.read (rax) ;
@@ -968,9 +967,12 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('N')) ;
 			data = VAL64_NAN ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
+			const auto r2x = mHolder->varify_number_item (rax) ;
+			if (!r2x)
+				return (void) (if_cond = FALSE) ;
 			ris.try_read_number (data ,rax) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		if (r1x)
@@ -1118,11 +1120,11 @@ private:
 		reader.read (top) ;
 		while (mHolder->varify_number_item (top)) {
 			const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_cond) {
 				if (data[0] > r1x)
 					return (void) (if_cond = FALSE) ;
 				data[0] = r1x ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				data[1]++ ;
 			}) ;
 			*this = reader.copy () ;
@@ -1212,8 +1214,8 @@ private:
 		}
 
 		BOOL varify_control (const UNIT &item) const {
-			const auto r1x = (item >= UNIT (0) && item <= UNIT (32)) ;
-			const auto r2x = item == UNIT (127) ;
+			const auto r1x = BOOL (item >= UNIT (0) && item <= UNIT (32)) ;
+			const auto r2x = BOOL (item == UNIT (127)) ;
 			if (!r1x && !r2x)
 				return FALSE ;
 			if (varify_space (item))
@@ -1368,23 +1370,23 @@ public:
 			UNIT ('+') ,UNIT ('i') ,UNIT ('n') ,UNIT ('f')}) ;
 		static constexpr auto M_SINF = PACK<UNIT[4]> ({
 			UNIT ('-') ,UNIT ('i') ,UNIT ('n') ,UNIT ('f')}) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (!_ISNAN_ (data))
 				return (void) (if_cond = FALSE) ;
 			write (PhanBuffer<const UNIT>::make (M_NAN.P1)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (data <= 0)
 				return (void) (if_cond = FALSE) ;
 			if (!_ISINF_ (data))
 				return (void) (if_cond = FALSE) ;
 			write (PhanBuffer<const UNIT>::make (M_INF.P1)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (data <= 0)
 				return (void) (if_cond = FALSE) ;
 			if (!_ISINF_ (data))
 				return (void) (if_cond = FALSE) ;
 			write (PhanBuffer<const UNIT>::make (M_SINF.P1)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			auto rax = Buffer<UNIT ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
 			try_write_number (data ,PhanBuffer<UNIT>::make (rax) ,iw) ;
@@ -1472,7 +1474,7 @@ private:
 	void try_write_number (const VAR64 &data ,const PhanBuffer<UNIT> &out ,INDEX &it) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
 		INDEX iw = it ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (data <= 0)
 				return (void) (if_cond = FALSE) ;
 			auto rax = data ;
@@ -1480,7 +1482,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (data >= 0)
 				return (void) (if_cond = FALSE) ;
 			auto rax = data ;
@@ -1489,7 +1491,7 @@ private:
 				rax /= mHolder->varify_radix () ;
 			}
 			out[--iw] = UNIT ('-') ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			out[--iw] = mHolder->convert_number_w (0) ;
 		}) ;
 		it = iw ;
@@ -1500,10 +1502,10 @@ private:
 		INDEX iw = it ;
 		const auto r1x = _IEEE754DECODE_ (data) ;
 		auto rax = _IEEE754E2TOE10_ (r1x) ;
-		const auto r2x = rax[0] < 0 ;
+		const auto r2x = BOOL (rax[0] < 0) ;
 		rax[0] = r2x ? (-rax[0]) : (rax[0]) ;
 		const auto r3x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (_ABS_ (r3x - 1 + rax[1]) < 6)
 				return (void) (if_cond = FALSE) ;
 			const auto r4x = _MAX_ ((r3x - 7) ,VAR_ZERO) ;
@@ -1515,7 +1517,7 @@ private:
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax[1] < 1 - r3x)
 				return (void) (if_cond = FALSE) ;
 			if (rax[1] >= 0)
@@ -1529,7 +1531,7 @@ private:
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (rax[1] >= 1 - r3x)
 				return (void) (if_cond = FALSE) ;
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
@@ -1543,7 +1545,7 @@ private:
 			rax[1]++ ;
 		}) ;
 		const auto r4x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			//@info: case 'x.xxxExxx'
 			if (_ABS_ (r4x - 1 + rax[1]) < 6)
 				return (void) (if_cond = FALSE) ;
@@ -1565,7 +1567,7 @@ private:
 			iw += EFLAG (out[ix] == UNIT ('.')) ;
 			out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 			rax[0] /= mHolder->varify_radix () ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case 'xxx000'
 			if (rax[1] <= 0)
 				return (void) (if_cond = FALSE) ;
@@ -1575,7 +1577,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case 'xxx.xxx'
 			if (rax[1] < 1 - r4x)
 				return (void) (if_cond = FALSE) ;
@@ -1596,7 +1598,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '0.000xxx'
 			if (rax[1] >= 1 - r4x)
 				return (void) (if_cond = FALSE) ;
@@ -1618,7 +1620,7 @@ private:
 			out[--iw] = UNIT ('.') ;
 			iw += EFLAG (out[ix] == UNIT ('.')) ;
 			out[--iw] = mHolder->convert_number_w (0) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			//@info: case '0'
 			if (rax[1] != 0)
 				return (void) (if_cond = FALSE) ;
@@ -1683,7 +1685,7 @@ inline void _BOM_ (TextReader<STRU16> &reader) {
 	ris >> rax ;
 	if (rax != STRU16 (0XFEFF) && rax != STRU16 (0XFFFE))
 		return ;
-	const auto r1x = (rax != 0XFEFF) ;
+	const auto r1x = BOOL (rax != 0XFEFF) ;
 	ris.attr ().enable_endian (r1x) ;
 	reader = std::move (ris) ;
 }
@@ -1694,7 +1696,7 @@ inline void _BOM_ (TextReader<STRU32> &reader) {
 	ris >> rax ;
 	if (rax != STRU32 (0X0000FEFF) && rax != STRU32 (0XFFFE0000))
 		return ;
-	const auto r1x = (rax != 0X0000FEFF) ;
+	const auto r1x = BOOL (rax != 0X0000FEFF) ;
 	ris.attr ().enable_endian (r1x) ;
 	reader = std::move (ris) ;
 }
@@ -2084,14 +2086,14 @@ public:
 			read () ;
 			if (!r1x)
 				continue ;
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
-				const auto r4x = data[i] == mReader->attr ().varify_escape_item () ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				const auto r4x = BOOL (data[i] == mReader->attr ().varify_escape_item ()) ;
 				if (!r4x)
 					return (void) (if_cond = FALSE) ;
 				data[i] = get (0) ;
 				read () ;
 				data[i] = mReader->attr ().convert_escape (data[i]) ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (data[i])) ;
 			}) ;
 		}
@@ -2111,12 +2113,12 @@ public:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		while (TRUE) {
-			const auto r2x = (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
-			const auto r3x = (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
-			const auto r4x = ris[0] == STRU8 ('_') ;
+			const auto r2x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
+			const auto r3x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
+			const auto r4x = BOOL (ris[0] == STRU8 ('_')) ;
 			_DYNAMIC_ASSERT_ (ret != 0 || r2x || r3x || r4x) ;
-			const auto r5x = (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
-			const auto r6x = (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
+			const auto r5x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
+			const auto r6x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
 			if (!r2x && !r3x && !r4x && !r5x && !r6x)
 				break ;
 			ris++ ;
@@ -2175,14 +2177,14 @@ public:
 		while (ris[0] != STRU8 ('\0') && ris[0] != STRU8 ('\"')) {
 			rax = ris[0] ;
 			ris++ ;
-			_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
-				const auto r1x = rax == mReader->attr ().varify_escape_item () ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
 				if (!r1x)
 					return (void) (if_cond = FALSE) ;
 				rax = ris[0] ;
 				ris++ ;
 				rax = mReader->attr ().convert_escape (rax) ;
-			} ,[&] (CSC::BOOL &if_cond) {
+			} ,[&] (BOOL &if_cond) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
 			}) ;
 			ret++ ;

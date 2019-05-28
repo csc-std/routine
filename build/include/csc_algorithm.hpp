@@ -400,14 +400,14 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 	private:
 		KMHungarianAlgorithm &mContext ;
 		const SoftImage<UNIT> &mAdjacency ;
+		const UNIT mTolerance = UNIT (1E-6) ;
 
 		Array<INDEX> mXYLink ;
 		BitSet<> mXVisit ;
 		BitSet<> mYVisit ;
-		BitSet<> mLackVisit ;
 		Array<UNIT> mXWeight ;
 		Array<UNIT> mYWeight ;
-		Array<UNIT> mLackWeight ;
+		ARRAY2<UNIT> mLackWeight ;
 
 		Stack<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
@@ -428,30 +428,28 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 			mXYLink.fill (VAR_NONE) ;
 			mXVisit = BitSet<> (mAdjacency.cx ()) ;
 			mYVisit = BitSet<> (mAdjacency.cy ()) ;
-			mLackVisit = BitSet<> (mAdjacency.cx ()) ;
 			mXWeight = Array<UNIT> (mAdjacency.cx ()) ;
 			mXWeight.fill (UNIT (0)) ;
 			mYWeight = Array<UNIT> (mAdjacency.cy ()) ;
 			mYWeight.fill (UNIT (0)) ;
-			for (auto &&i : mAdjacency.range ())
+			for (auto &&i : mAdjacency.range ()) {
+				_DYNAMIC_ASSERT_ (mAdjacency[i] >= UNIT (0)) ;
 				mYWeight[i[0]] = _MAX_ (mYWeight[i[0]] ,mAdjacency[i]) ;
-			mLackWeight = Array<UNIT> (mAdjacency.cx ()) ;
+			}
 		}
 
 		inline void generate () {
 			for (INDEX i = 0 ; i < mAdjacency.cy () ; i++) {
-				mLackVisit.clear () ;
 				while (TRUE) {
 					mXVisit.clear () ;
 					mYVisit.clear () ;
 					update_lack_weight (i) ;
-					INDEX ix = min_lack_weight_one () ;
-					if (ix == VAR_NONE)
+					if (mLackWeight[1] < mTolerance)
 						break ;
 					for (auto &&j : mXVisit)
-						mXWeight[j] += mLackWeight[ix] ;
+						mXWeight[j] += mLackWeight[1] ;
 					for (auto &&j : mYVisit)
-						mYWeight[j] -= mLackWeight[ix] ;
+						mYWeight[j] -= mLackWeight[1] ;
 				}
 			}
 		}
@@ -464,62 +462,66 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 			INDEX ix = VAR_NONE ;
 			while (mTempState != 0) {
 				if (mTempState == 1) {
-					ix = mTempStack.peek () ;
-					mTempState = (mTempStack[ix][1] == VAR_NONE) ? 10 : 4 ;
-				} else if (mTempState == 10) {
-					mTempRet = TRUE ;
-					mTempState = 3 ;
+					mLackWeight[0] = 0 ;
+					mLackWeight[1] = 0 ;
+					mTempState = 7 ;
 				} else if (mTempState == 2) {
-					mTempState = mTempRet ? 21 : 20 ;
-				} else if (mTempState == 20) {
-					mTempStack[ix][0]++ ;
-					mTempState = 5 ;
-				} else if (mTempState == 21) {
-					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
-					mTempState = 3 ;
+					mTempRet = TRUE ;
+					mTempState = 17 ;
 				} else if (mTempState == 3) {
-					mTempState = (mTempStack.empty ()) ? 7 : 30 ;
-				} else if (mTempState == 30) {
-					mTempStack.take () ;
-					ix = mTempStack.peek () ;
-					mTempState = 2 ;
-				} else if (mTempState == 4) {
 					mYVisit[mTempStack[ix][1]] = TRUE ;
-					mTempRet = FALSE ;
 					mTempStack[ix][0] = 0 ;
-					mTempState = 5 ;
+					mTempState = 4 ;
+				} else if (mTempState == 4) {
+					mTempState = (mTempStack[ix][0] < mAdjacency.cx ()) ? 5 : 16 ;
 				} else if (mTempState == 5) {
-					mTempState = (mTempStack[ix][0] < mAdjacency.cx ()) ? 6 : 3 ;
+					mTempState = (mXVisit[mTempStack[ix][0]]) ? 15 : 6 ;
 				} else if (mTempState == 6) {
-					mTempState = (mXVisit[mTempStack[ix][0]]) ? 20 : 61 ;
-				} else if (mTempState == 61) {
-					const auto r1x = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] != UNIT (0) ;
-					mTempState = r1x ? 20 : 62 ;
-				} else if (mTempState == 62) {
-					const auto r1x = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					mLackWeight[mTempStack[ix][0]] = (mLackVisit[mTempStack[ix][0]]) ? (_MIN_ (mLackWeight[mTempStack[ix][0]] ,r1x)) : r1x ;
-					mLackVisit[mTempStack[ix][0]] = TRUE ;
-					mTempStack.add ({0 ,mXYLink[mTempStack[ix][0]]}) ;
-					mTempState = 1 ;
+					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
+					mTempState = (mLackWeight[0] < mTolerance) ? 8 : 12 ;
 				} else if (mTempState == 7) {
-					mTempState = mTempRet ? 70 : 0 ;
-				} else if (mTempState == 70) {
-					mLackVisit.clear () ;
+					ix = mTempStack.peek () ;
+					mTempState = (mTempStack[ix][1] == VAR_NONE) ? 2 : 3 ;
+				} else if (mTempState == 8) {
+					mXVisit[mTempStack[ix][0]] = TRUE ;
+					mTempStack.add ({0 ,mXYLink[mTempStack[ix][0]]}) ;
+					mTempState = 7 ;
+				} else if (mTempState == 9) {
+					ix = mTempStack.peek () ;
+					mTempState = 10 ;
+				} else if (mTempState == 10) {
+					mTempState = mTempRet ? 11 : 15 ;
+				} else if (mTempState == 11) {
+					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
+					mTempRet = TRUE ;
+					mTempState = 17 ;
+				} else if (mTempState == 12) {
+					mTempState = (mLackWeight[1] < mTolerance) ? 13 : 14 ;
+				} else if (mTempState == 13) {
+					mLackWeight[1] = mLackWeight[0] ;
+					mTempState = 15 ;
+				} else if (mTempState == 14) {
+					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
+					mTempState = 15 ;
+				} else if (mTempState == 15) {
+					mTempStack[ix][0]++ ;
+					mTempState = 4 ;
+				} else if (mTempState == 16) {
+					mTempRet = FALSE ;
+					mTempState = 17 ;
+				} else if (mTempState = 17) {
+					mTempStack.take () ;
+					mTempState = (mTempStack.length () > 0) ? 9 : 18 ;
+				} else if (mTempRet == 18) {
+					mTempState = mTempRet ? 19 : 20 ;
+				} else if (mTempRet == 19) {
+					mLackWeight[0] = 0 ;
+					mLackWeight[1] = 0 ;
+					mTempState = 20 ;
+				} else if (mTempRet == 20) {
 					mTempState = 0 ;
 				}
 			}
-		}
-
-		inline INDEX min_lack_weight_one () const {
-			INDEX ret = VAR_NONE ;
-			auto rax = UNIT () ;
-			for (auto &&i : mLackVisit) {
-				if (ret != VAR_NONE && rax <= mLackWeight[i])
-					continue ;
-				ret = i ;
-				rax = mLackWeight[i] ;
-			}
-			return std::move (ret) ;
 		}
 
 		inline void refresh () {

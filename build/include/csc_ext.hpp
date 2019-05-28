@@ -271,9 +271,9 @@ public:
 	inline VAR128 operator/ (const VAR128 &right) const {
 		_DEBUG_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
 		VAR128 ret = 0 ;
-		const auto r1x = _CAST_<VAR64> (v2i0) >= 0 ;
-		const auto r2x = _CAST_<VAR64> (right.v2i0) >= 0 ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
+		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (!r1x)
 				return (void) (if_cond = FALSE) ;
 			if (right.v4i0 != 0)
@@ -293,17 +293,17 @@ public:
 			ret.v4i2 = CHAR (rax / r3x) ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x)
 				return (void) (if_cond = FALSE) ;
-			const auto r3x = (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
+			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			ret = r3x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r2x)
 				return (void) (if_cond = FALSE) ;
-			const auto r3x = (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
+			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			ret = r3x ? (VAR128 (0)) : (*this / -right) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			ret = slow_divide (*this ,right) ;
 		}) ;
 		return std::move (ret) ;
@@ -317,9 +317,9 @@ public:
 	inline VAR128 operator% (const VAR128 &right) const {
 		_DEBUG_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
 		VAR128 ret = 0 ;
-		const auto r1x = _CAST_<VAR64> (v2i0) >= 0 ;
-		const auto r2x = _CAST_<VAR64> (right.v2i0) >= 0 ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
+		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (!r1x)
 				return (void) (if_cond = FALSE) ;
 			if (right.v4i0 != 0)
@@ -339,17 +339,17 @@ public:
 			ret.v4i2 = 0 ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r1x)
 				return (void) (if_cond = FALSE) ;
-			const auto r3x = (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
+			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			ret = r3x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			if (r2x)
 				return (void) (if_cond = FALSE) ;
-			const auto r3x = (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
+			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			ret = r3x ? (*this) : (*this % -right) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			ret = right - slow_divide (*this ,right) * right ;
 		}) ;
 		return std::move (ret) ;
@@ -857,13 +857,12 @@ private:
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (index == 0)
-				return (void) (if_cond = FALSE) ;
-			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		} ,[&] (BOOL &if_cond) {
+		_STATIC_WARNING_ ("unqualified") ;
+		if (index == 0) {
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
-		}) ;
+		} else {
+			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) {
@@ -873,15 +872,14 @@ private:
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (index == 0)
-				return (void) (if_cond = FALSE) ;
-			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		} ,[&] (BOOL &if_cond) {
+		_STATIC_WARNING_ ("unqualified") ;
+		if (index == 0) {
 			const auto r1x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r2x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r1x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r2x != VAR_NONE) ;
-		}) ;
+		} else {
+			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) noexcept {
@@ -892,13 +890,12 @@ private:
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (index == 0)
-				return (void) (if_cond = FALSE) ;
-			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		} ,[&] (BOOL &if_cond) {
+		_STATIC_WARNING_ ("unqualified") ;
+		if (index == 0) {
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
-		}) ;
+		} else {
+			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1575,7 +1572,7 @@ public:
 			return ;
 		if (!mHolder->mData.exist ())
 			return ;
-		const auto r1x = --mHolder->mCounter == 0 ;
+		const auto r1x = BOOL (--mHolder->mCounter == 0) ;
 		if (r1x)
 			mHolder->mData = AnyRef<void> () ;
 		mPointer = NULL ;

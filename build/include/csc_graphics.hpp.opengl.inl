@@ -215,11 +215,11 @@ private:
 	void attach_shaderiv (CHAR shader) const {
 		auto rax = VAR32 () ;
 		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(rax = GL_FALSE)) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (rax != GL_FALSE)
 				return (void) (if_cond = FALSE) ;
 			glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&(rax = 0)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			rax = 0 ;
 		}) ;
 		auto rbx = String<STRA> (rax) ;
@@ -231,11 +231,11 @@ private:
 	void attach_programiv (CHAR shader) const {
 		auto rax = VAR32 () ;
 		glGetProgramiv (shader ,GL_LINK_STATUS ,&(rax = GL_FALSE)) ;
-		_CALL_IF_ ([&] (CSC::BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (rax != GL_FALSE)
 				return (void) (if_cond = FALSE) ;
 			glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&(rax = 0)) ;
-		} ,[&] (CSC::BOOL &if_cond) {
+		} ,[&] (BOOL &if_cond) {
 			rax = 0 ;
 		}) ;
 		auto rbx = String<STRA> (rax) ;

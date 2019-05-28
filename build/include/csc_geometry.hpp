@@ -246,7 +246,7 @@ public:
 
 	Vector normalize () const {
 		Vector ret ;
-		const auto r1x = mVector[3] == UNIT (0) ;
+		const auto r1x = BOOL (mVector[3] == UNIT (0)) ;
 		const auto r2x = r1x ? (magnitude ()) : (mVector[3]) ;
 		const auto r3x = _PINV_ (r2x) ;
 		ret.mVector[0] = mVector[0] * r3x ;

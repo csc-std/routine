@@ -819,8 +819,6 @@ inline String<TYPE ,SIZE> String<TYPE ,SIZE>::make (const _ARGS &...args) {
 class RegexMatcher {
 private:
 	class Implement ;
-
-private:
 	AnyRef<void> mThis ;
 
 public:
@@ -847,10 +845,11 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG> &arg) {
 	_DYNAMIC_ASSERT_ (rax == _ARG ('H')) ;
 	for (INDEX i = 0 ; i < 8 ; i++) {
 		ris >> rax ;
-		const auto r1x = (rax >= _ARG ('0') && rax <= _ARG ('9')) || (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
-		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = (rax >= _ARG ('0') && rax <= _ARG ('9')) ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
-		ret = (ret << 4) | CHAR (rax - r2x) ;
+		const auto r1x = BOOL (rax >= _ARG ('0') && rax <= _ARG ('9')) ;
+		const auto r2x = BOOL (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
+		_DYNAMIC_ASSERT_ (r1x || r2x) ;
+		const auto r3x = r1x ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
+		ret = (ret << 4) | CHAR (rax - r3x) ;
 	}
 	ris >> _EOS_ ;
 	return std::move (ret) ;
@@ -883,10 +882,11 @@ inline DATA _PARSEHEX16S_ (const String<_ARG> &arg) {
 	_DYNAMIC_ASSERT_ (rax == _ARG ('H')) ;
 	for (INDEX i = 0 ; i < 16 ; i++) {
 		ris >> rax ;
-		const auto r1x = (rax >= _ARG ('0') && rax <= _ARG ('9')) || (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
-		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = (rax >= _ARG ('0') && rax <= _ARG ('9')) ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
-		ret = (ret << 4) | DATA (rax - r2x) ;
+		const auto r1x = BOOL (rax >= _ARG ('0') && rax <= _ARG ('9')) ;
+		const auto r2x = BOOL (rax >= _ARG ('A') && rax <= _ARG ('F')) ;
+		_DYNAMIC_ASSERT_ (r1x || r2x) ;
+		const auto r3x = r1x ? (_ARG ('0')) : (_ARG ('A' - 10)) ;
+		ret = (ret << 4) | DATA (rax - r3x) ;
 	}
 	ris >> _EOS_ ;
 	return std::move (ret) ;

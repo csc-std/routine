@@ -15,13 +15,11 @@
 
 namespace CSC {
 class TCPSocket {
-private:
-	class Implement ;
-
 public:
 	class Listener ;
 
 private:
+	class Implement ;
 	AnyRef<void> mThis ;
 
 public:
@@ -69,8 +67,6 @@ public:
 class TCPSocket::Listener {
 private:
 	class Implement ;
-
-private:
 	AnyRef<void> mThis ;
 
 public:
@@ -86,8 +82,6 @@ public:
 class UDPSocket {
 private:
 	class Implement ;
-
-private:
 	AnyRef<void> mThis ;
 
 public:
@@ -138,8 +132,6 @@ public:
 	static constexpr auto ADDR_BROADCAST = CHAR (0XFFFFFFFF) ;
 
 private:
-	class Implement ;
-
 	exports struct Abstract :public Interface {
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
@@ -148,6 +140,7 @@ private:
 	} ;
 
 private:
+	class Implement ;
 	friend Singleton<NetworkService> ;
 	Monostate<std::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
