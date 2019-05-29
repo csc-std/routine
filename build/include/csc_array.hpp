@@ -3924,7 +3924,9 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		if (size () > 0) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (size () == 0)
+				break ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mHead[r1x % mHead.size ()] ;

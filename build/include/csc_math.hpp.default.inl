@@ -66,8 +66,8 @@ inline exports VALX _TAN_ (const VALX &x) {
 	return std::tan (x) ;
 }
 
-inline exports VALX _ASIN_ (const VALX &x) {
-	return std::asin (x) ;
+inline exports VALX _ASIN_ (const VALX &y) {
+	return std::asin (y) ;
 }
 
 inline exports VALX _ACOS_ (const VALX &x) {

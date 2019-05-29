@@ -605,11 +605,11 @@ public:
 		ret *= _PINV_ (r1x) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (get (3 ,3) != UNIT (1))
-				continue ;
+				break ;
 			if (!affine_matrix_like ())
-				continue ;
+				break ;
 			if (!ret.affine_matrix_like ())
-				continue ;
+				break ;
 			const auto r6x = _PINV_ (ret.get (3 ,3)) ;
 			ret *= r6x ;
 			ret.get (3 ,3) = UNIT (1) ;

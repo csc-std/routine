@@ -166,18 +166,7 @@ public:
 			return ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
-		const auto r2x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
-		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r2x[1]) != 0) ;
-		auto rbx = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
-		::getsockopt (mSocket ,SOL_SOCKET ,SO_ERROR ,rbx.P1 ,&(rbx.P2 = VAR32 (_SIZEOF_ (VAR32)))) ;
-		const auto r4x = _CALL_ ([&] () {
-			TEMP<VAR32> ret ;
-			_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (VAR32)]> (rbx.P1)) ;
-			return std::move (_CAST_<VAR32> (ret)) ;
-		}) ;
-		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r4x == 0) ;
+		link_confirm () ;
 	}
 
 	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
@@ -193,8 +182,8 @@ public:
 		const auto r1x = _inline_SOCKET_CVTTO_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::recv (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = _XVALUE_<const PACK<STRA[_SIZEOF_ (TIMEVAL)]> &> ({0}) ;
-		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r3x.P1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
+		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
@@ -204,8 +193,8 @@ public:
 		const auto r1x = _inline_SOCKET_CVTTO_TIMEVAL_ (timeout) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		it = ::recv (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r2x = _XVALUE_<const PACK<STRA[_SIZEOF_ (TIMEVAL)]> &> ({0}) ;
-		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r2x.P1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
+		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r2x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (it >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
 	}
@@ -214,14 +203,29 @@ public:
 		const auto r1x = _inline_SOCKET_CVTTO_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::send (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = _XVALUE_<const PACK<STRA[_SIZEOF_ (TIMEVAL)]> &> ({0}) ;
-		::setsockopt (mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,r3x.P1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
+		::setsockopt (mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
 private:
+	void link_confirm () {
+		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
+		//@info: state of 'this' has been changed
+		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[1]) != 0) ;
+		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
+		::getsockopt (mSocket ,SOL_SOCKET ,SO_ERROR ,_ZERO_ (rax.P1) ,&(rax.P2 = VAR32 (_SIZEOF_ (VAR32)))) ;
+		const auto r2x = _CALL_ ([&] () {
+			TEMP<VAR32> ret ;
+			_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (VAR32)]> (rax.P1)) ;
+			return std::move (_CAST_<VAR32> (ret)) ;
+		}) ;
+		//@info: state of 'this' has been changed
+		_DYNAMIC_ASSERT_ (r2x == 0) ;
+	}
+
 	void friend_accept (UniqueRef<SOCKET> &&socket) popping {
 		mSocket = std::move (socket) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;

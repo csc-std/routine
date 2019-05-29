@@ -577,6 +577,7 @@ using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 using DEFAULT_HUGEBUFFER_SIZE = ARGC<8388608> ;
 using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
 using DEFAULT_EXPANDGUARD_SIZE = ARGC<65536> ;
 
 template <class ,BOOL...>
@@ -898,10 +899,10 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (DEF<_ARG1 _ARG2::*> arg1 ,_ARG3
 }
 
 template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_REFERENCE_TYPE<_RET> &left) noexcept {
+inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_REFERENCE_TYPE<_RET> &arg1) noexcept {
 	_STATIC_ASSERT_ (std::is_lvalue_reference<_RET>::value) ;
 	//@warn: required 'std::launder'
-	return left ;
+	return arg1 ;
 }
 
 template <class _ARG1>
@@ -1321,31 +1322,6 @@ private:
 		inline implicit operator const ARR<STR> & () const noexcept {
 			return to () ;
 		}
-
-	private:
-		inline static void template_write (DEF<STR[SIZE::value]> &array ,const ARGC<SIZE::value - 1> &) noexcept {
-			array[SIZE::value - 1] = 0 ;
-		}
-
-		template <INDEX _VAL1 ,LENGTH _VAL2 ,LENGTH... _VALS>
-		inline static void template_write (DEF<STR[SIZE::value]> &array ,const ARGC<_VAL1> & ,const DEF<STRA[_VAL2]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (_VAL1 >= 0 && _VAL1 < SIZE::value) ;
-			for (INDEX i = 0 ; i < _VAL2 - 1 ; i++) {
-				_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
-				array[i + _VAL1] = STR (arg1[i]) ;
-			}
-			template_write (array ,_NULL_<const ARGC<_VAL1 + _VAL2 - 1>> () ,args...) ;
-		}
-
-		template <INDEX _VAL1 ,LENGTH _VAL2 ,LENGTH... _VALS>
-		inline static void template_write (DEF<STR[SIZE::value]> &array ,const ARGC<_VAL1> & ,const DEF<STRW[_VAL2]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (_VAL1 >= 0 && _VAL1 < SIZE::value) ;
-			for (INDEX i = 0 ; i < _VAL2 - 1 ; i++) {
-				_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
-				array[i + _VAL1] = STR (arg1[i]) ;
-			}
-			template_write (_NULL_<const ARGC<_VAL1 + _VAL2 - 1>> () ,args...) ;
-		}
 	} ;
 
 private:
@@ -1385,6 +1361,31 @@ private:
 		return _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
+	}
+
+	template <LENGTH _VAL1>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
+		array[_VAL1 - 1] = 0 ;
+	}
+
+	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
+			_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
+			array[i + _VAL2] = STR (arg1[i]) ;
+		}
+		template_write (array ,_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
+	}
+
+	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
+			_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
+			array[i + _VAL2] = STR (arg1[i]) ;
+		}
+		template_write (_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
 	}
 } ;
 
@@ -1476,23 +1477,24 @@ private:
 			mData.P2 = NULL ;
 		} ;
 
-		inline implicit operator volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> & () volatile & {
+		inline volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> &to () volatile {
 			return mData ;
 		}
 
-		inline implicit operator volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> & () volatile && = delete ;
+		inline implicit operator volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> & () volatile {
+			return to () ;
+		}
 	} ;
 
 public:
 	template <class _ARG1 ,class _ARG2 ,LENGTH _VAL1>
 	inline static void watch (const ARGV<_ARG1> & ,const DEF<STR[_VAL1]> &name ,_ARG2 &data) noexcept {
 		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
-		auto &r1 = _XVALUE_<volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> &> (mInstance) ;
-		r1.P1[0] = _ADDRESS_ (&name) ;
-		r1.P1[1] = _ADDRESS_ (&data) ;
-		r1.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
-		r1.P1[3] = 0 ;
-		const auto r2x = _XVALUE_<const volatile PTR<void (_ARG2 &)> &> (r1.P2) ;
+		mInstance.self.P1[0] = _ADDRESS_ (&name) ;
+		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
+		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
+		mInstance.self.P1[3] = 0 ;
+		const auto r2x = _XVALUE_<const volatile PTR<void (_ARG2 &)> &> (mInstance.self.P2) ;
 		if (r2x == NULL)
 			return ;
 		r2x (data) ;
@@ -1531,6 +1533,15 @@ private:
 		}
 
 		inline implicit operator const PTR<TYPE> & () && = delete ;
+
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const PTR<TYPE> & ,_RET>::value>>
+		inline implicit operator _RET () const & {
+			_DEBUG_ASSERT_ (mPointer != NULL) ;
+			return _RET (_XVALUE_<const PTR<TYPE> &> (mPointer)) ;
+		}
+
+		template <class _RET>
+		inline implicit operator _RET () && = delete ;
 
 		inline void operator= (decltype (NULL)) & noexcept {
 			mPointer = NULL ;
@@ -2624,8 +2635,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		const auto r1x = _XVALUE_<const PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> &> ({0}) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&r1x.P1[0]]) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> () ;
+		_ZERO_ (rax) ;
+		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&rax.P1[0]]) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -3228,7 +3240,7 @@ public:
 	}
 
 	inline Buffer expand () const {
-		const auto r1x = _MAX_ (LENGTH (VALX_SQRT2 * mSize) ,(mSize + DEFAULT_RECURSIVE_SIZE::value)) ;
+		const auto r1x = _MAX_ (LENGTH (VALX_SQRT2 * mSize) ,(mSize + DEFAULT_EXPANDFIRST_SIZE::value)) ;
 		return expand (r1x) ;
 	}
 

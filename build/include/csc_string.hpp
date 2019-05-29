@@ -230,12 +230,6 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 			continue ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU16 (i) ;
-		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
-			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
-			rax-- ;
-		} else if (rax == 1 && i <= STRU8 (0XBF)) {
-			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
-			rax = 10 ;
 		} else if (rax == 0 && i <= STRU8 (0XDF)) {
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
@@ -251,20 +245,26 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 		} else if (rax == 0 && i <= STRU8 (0XFD)) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
+		} else if (rax == 1 && i <= STRU8 (0XBF)) {
+			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
+			rax = 10 ;
+		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
+			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
+			rax-- ;
 		} else {
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
-		if (rbx <= STRU32 (0X0000FFFF)) {
+		if (rax == 10 && rbx <= STRU32 (0X0000FFFF)) {
 			ret[iw++] = STRU16 (rbx) ;
 			rax = 0 ;
-		} else if (rbx <= STRU32 (0X0010FFFF)) {
+		} else if (rax == 10 && rbx <= STRU32 (0X0010FFFF)) {
 			rbx = STRU32 (rbx - STRU32 (0X00010000)) ;
 			ret[iw++] = (STRU16 (rbx >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 			rax = 0 ;
-		} else if (rbx <= STRU32 (0X7FFFFFFF)) {
+		} else if (rax == 10 && rbx <= STRU32 (0X7FFFFFFF)) {
 			ret[iw++] = STRU16 ('?') ;
 			rax = 0 ;
 		} else {
@@ -297,6 +297,10 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 		} else if (rax == 0 && i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)) {
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
+		} else if (rax == 0) {
+			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
+			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
+			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		} else if (rax == 1 && i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)) {
 			rbx = STRU32 (((rbx << 10) | (i & STRU16 (0X03FF))) + STRU32 (0X00010000)) ;
 			ret[iw++] = (STRU8 (rbx >> 18) & STRU8 (0X07)) | STRU8 (0XF0) ;
@@ -304,10 +308,6 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 			ret[iw++] = (STRU8 (rbx >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (rbx) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			rax = 0 ;
-		} else if (rax == 0) {
-			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
-			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
-			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		} else {
 			rax = VAR_NONE ;
 		}
@@ -341,13 +341,6 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 			continue ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU32 (i) ;
-		} else if (rax > 1 && i <= STRU8 (0XBF)) {
-			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
-			rax-- ;
-		} else if (rax == 1 && i <= STRU8 (0XBF)) {
-			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
-			ret[iw++] = rbx ;
-			rax = 0 ;
 		} else if (rax == 0 && i <= STRU8 (0XDF)) {
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
@@ -363,6 +356,13 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 		} else if (rax == 0 && i <= STRU8 (0XFD)) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
+		} else if (rax == 1 && i <= STRU8 (0XBF)) {
+			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
+			ret[iw++] = rbx ;
+			rax = 0 ;
+		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
+			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
+			rax-- ;
 		} else {
 			rax = VAR_NONE ;
 		}
@@ -393,27 +393,27 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
 			continue ;
-		if (i <= STRU32 (0X0000007F)) {
+		if (rax == 0 && i <= STRU32 (0X0000007F)) {
 			ret[iw++] = STRU8 (i) ;
-		} else if (i <= STRU32 (0X000007FF)) {
+		} else if (rax == 0 && i <= STRU32 (0X000007FF)) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (i <= STRU32 (0X0000FFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X0000FFFF)) {
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (i <= STRU32 (0X001FFFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X001FFFFF)) {
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X07)) | STRU8 (0XF0) ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (i <= STRU32 (0X03FFFFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X03FFFFFF)) {
 			ret[iw++] = (STRU8 (i >> 24) & STRU8 (0X03)) | STRU8 (0XF8) ;
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (i <= STRU32 (0X7FFFFFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X7FFFFFFF)) {
 			ret[iw++] = (STRU8 (i >> 30) & STRU8 (0X01)) | STRU8 (0XFC) ;
 			ret[iw++] = (STRU8 (i >> 24) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X3F)) | STRU8 (0X80) ;
@@ -450,12 +450,12 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 		} else if (rax == 0 && i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)) {
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
+		} else if (rax == 0) {
+			ret[iw++] = STRU32 (i) ;
 		} else if (rax == 1 && i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)) {
 			rbx = STRU32 (((rbx << 10) | (i & STRU16 (0X03FF))) + STRU32 (0X00010000)) ;
 			ret[iw++] = rbx ;
 			rax = 0 ;
-		} else if (rax == 0) {
-			ret[iw++] = STRU32 (i) ;
 		} else {
 			rax = VAR_NONE ;
 		}
@@ -482,12 +482,12 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
 			continue ;
-		if (i <= STRU32 (0X0000FFFF)) {
+		if (rax == 0 && i <= STRU32 (0X0000FFFF)) {
 			ret[iw++] = STRU16 (i) ;
-		} else if (i <= STRU32 (0X0010FFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X0010FFFF)) {
 			ret[iw++] = (STRU16 ((i - STRU32 (0X00010000)) >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (i - STRU32 (0X00010000)) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
-		} else if (i <= STRU32 (0X7FFFFFFF)) {
+		} else if (rax == 0 && i <= STRU32 (0X7FFFFFFF)) {
 			ret[iw++] = STRU16 ('?') ;
 		} else {
 			rax = VAR_NONE ;
@@ -662,11 +662,11 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 		if (rax == VAR_NONE)
 			continue ;
 		INDEX ix = r1.find (STRUW (i)) ;
-		if (ix == VAR_NONE) {
+		if (rax == 0 && ix == VAR_NONE) {
 			ret[iw++] = STRUA ('?') ;
-		} else if (r1[ix].item <= STRUW (0X00FF)) {
+		} else if (rax == 0 && r1[ix].item <= STRUW (0X00FF)) {
 			ret[iw++] = STRUA (r1[ix].item) ;
-		} else if (r1[ix].item <= STRUW (0XFFFF)) {
+		} else if (rax == 0 && r1[ix].item <= STRUW (0XFFFF)) {
 			ret[iw++] = STRUA (r1[ix].item >> 8) ;
 			ret[iw++] = STRUA (r1[ix].item) ;
 		} else {
@@ -948,6 +948,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	}
 	if (rax == VAR_NONE)
 		ret.clear () ;
+	_STATIC_WARNING_ ("unqualified") ;
 	if (rax == 1) {
 		rbx = CHAR (rbx << 16) ;
 		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
@@ -1006,6 +1007,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 	}
 	if (rax == VAR_NONE)
 		ret.clear () ;
+	_STATIC_WARNING_ ("unqualified") ;
 	if (rax == 1) {
 		rbx = CHAR (rbx << 18) ;
 		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;

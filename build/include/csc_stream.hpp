@@ -2150,7 +2150,9 @@ public:
 				ret++ ;
 			}
 		}
-		if (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
+				break ;
 			ris++ ;
 			ret++ ;
 			if (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')) {

@@ -19,18 +19,13 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
-		auto rax = Optional<int> () ;
-		auto rbx = int () ;
-		rax.apply (Function<void (const int &)> ([&] (const int &_rax) {
-			rbx = _rax ;
-		})) ;
-		Optional<FixedBuffer<int>> a ;
-		a.recreate<FixedBuffer<int>> (LENGTH (8)) ;
-		const auto r1x = a.self.size () ;
+		auto rax = Optional<FixedBuffer<int>> () ;
+		rax.recreate<FixedBuffer<int>> (LENGTH (8)) ;
+		const auto r1x = rax.self.size () ;
 		_UNITTEST_ASSERT_ (r1x == 8) ;
-		Optional<FixedBuffer<int>> b ;
-		b.recreate<FixedBuffer<int>> (LENGTH (4)) ;
-		const auto r2x = b.self.size () ;
+		auto rbx = Optional<FixedBuffer<int>> () ;
+		rbx.recreate<FixedBuffer<int>> (LENGTH (4)) ;
+		const auto r2x = rbx.self.size () ;
 		_UNITTEST_ASSERT_ (r2x == 4) ;
 	}
 
@@ -160,9 +155,7 @@ public:
 				wrapped_string::mData += _BUILDVAL32S_<STRU8> (stru) ;
 			}
 		} ;
-		const auto r1x = PACK<int ,float> ({
-			1 ,
-			2.1f}) ;
+		const auto r1x = PACK<int ,float> ({1 ,2.1f}) ;
 		const auto r2x = Serializer<wrapped_string ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
 		auto &r1 = _CAST_<wrapped_string> (rax) ;

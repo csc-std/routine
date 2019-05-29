@@ -463,7 +463,7 @@ template <class TYPE>
 class AbstractImage {
 public:
 	exports struct Abstract :public Interface {
-		virtual PACK<PTR<ARR<TYPE>> ,LENGTH[4]> watch (AnyRef<void> &_this) const = 0 ;
+		virtual PACK<PTR<ARR<TYPE>> ,LENGTH[4]> layout (AnyRef<void> &_this) const = 0 ;
 		virtual void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const = 0 ;
 		virtual void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
@@ -505,7 +505,7 @@ private:
 
 		inline ~NativeProxy () noexcept {
 			_CALL_TRY_ ([&] () {
-				mBase.update_native () ;
+				mBase.update_layout () ;
 			} ,std::nothrow) ;
 		}
 
@@ -521,6 +521,15 @@ private:
 		}
 
 		inline implicit operator CAST_TRAITS_TYPE<_TYPE ,BASE> & () && = delete ;
+
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<CAST_TRAITS_TYPE<_TYPE ,BASE> & ,_RET>::value>>
+		inline implicit operator _RET () const & {
+			_DEBUG_ASSERT_ (mBase.exist ()) ;
+			return _RET (mBase.mHolder.template rebind<_TYPE> ().self) ;
+		}
+
+		template <class _RET>
+		inline implicit operator _RET () && = delete ;
 
 	private:
 		inline explicit NativeProxy (BASE &base) popping : mBase (base) {}
@@ -624,13 +633,6 @@ public:
 		return NativeProxy<AbstractImage ,_RET> (*this) ;
 	}
 
-	template <class _RET>
-	NativeProxy<const AbstractImage ,_RET> native () const {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_DYNAMIC_ASSERT_ (exist ()) ;
-		return NativeProxy<const AbstractImage ,_RET> (*this) ;
-	}
-
 	SoftImage<TYPE> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		SoftImage<TYPE> ret = SoftImage<TYPE> (mCX ,mCY) ;
@@ -644,44 +646,40 @@ public:
 		_DEBUG_ASSERT_ (cy >= 0 && cy < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cx * cy > 0) ;
 		mAbstract->load_data (mHolder ,cx ,cy) ;
-		update_native () ;
+		update_layout () ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
 		mAbstract->load_data (mHolder ,data) ;
-		update_native () ;
+		update_layout () ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &param) popping {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->load_data (mHolder ,data ,param) ;
-		update_native () ;
+		update_layout () ;
 	}
 
 	void load_file (const String<STR> &file) {
 		mAbstract->load_file (mHolder ,file) ;
-		update_native () ;
+		update_layout () ;
 	}
 
 	void save_file (const String<STR> &file ,const AnyRef<void> &param) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->save_file (mHolder ,file ,param) ;
-		update_native () ;
+		update_layout () ;
 	}
 
 private:
-	void update_native () {
+	void update_layout () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mAbstract->watch (mHolder) ;
+		const auto r1x = mAbstract->layout (mHolder) ;
 		mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,(r1x.P2[1] * r1x.P2[2] + r1x.P2[3])) ;
 		mCX = r1x.P2[0] ;
 		mCY = r1x.P2[1] ;
 		mCW = r1x.P2[2] ;
 		mCK = r1x.P2[3] ;
-	}
-
-	void update_native () const {
-		_DEBUG_ASSERT_ (exist ()) ;
 	}
 } ;
 } ;

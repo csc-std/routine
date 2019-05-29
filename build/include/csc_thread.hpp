@@ -819,9 +819,9 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r1.mThreadFlag.self)
-					continue ;
+					break ;
 				if (r1.mItem.exist ())
-					continue ;
+					break ;
 				rax = std::move (r1.mThreadProc) ;
 			}
 		}

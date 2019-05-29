@@ -105,12 +105,12 @@ inline _ARG1 _TAN_ (const _ARG1 &x) {
 	return _ARG1 (_TAN_ (VALX (x))) ;
 }
 
-inline imports DEF<VALX (const VALX &x)> _ASIN_ ;
+inline imports DEF<VALX (const VALX &y)> _ASIN_ ;
 
 template <class _ARG1>
-inline _ARG1 _ASIN_ (const _ARG1 &x) {
+inline _ARG1 _ASIN_ (const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
-	return _ARG1 (_ASIN_ (VALX (x))) ;
+	return _ARG1 (_ASIN_ (VALX (y))) ;
 }
 
 inline imports DEF<VALX (const VALX &x)> _ACOS_ ;
@@ -129,7 +129,7 @@ inline _ARG1 _ATAN_ (const _ARG1 &x) {
 	return _ARG1 (_ATAN_ (VALX (x))) ;
 }
 
-inline imports DEF<VALX (const VALX &x ,const VALX &y)> _ATAN_ ;
+inline imports DEF<VALX (const VALX &y ,const VALX &x)> _ATAN_ ;
 
 template <class _ARG1>
 inline _ARG1 _ATAN_ (const _ARG1 &y ,const _ARG1 &x) {

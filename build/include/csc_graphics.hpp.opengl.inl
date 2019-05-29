@@ -213,35 +213,41 @@ public:
 
 private:
 	void attach_shaderiv (CHAR shader) const {
-		auto rax = VAR32 () ;
-		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(rax = GL_FALSE)) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (rax != GL_FALSE)
-				return (void) (if_cond = FALSE) ;
-			glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&(rax = 0)) ;
-		} ,[&] (BOOL &if_cond) {
-			rax = 0 ;
+		const auto r1x = _CALL_ ([&] () {
+			VAR32 ret ;
+			glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(ret = GL_FALSE)) ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (ret != GL_FALSE)
+					return (void) (if_cond = FALSE) ;
+				glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&(ret = 0)) ;
+			} ,[&] (BOOL &if_cond) {
+				ret = 0 ;
+			}) ;
+			return std::move (ret) ;
 		}) ;
-		auto rbx = String<STRA> (rax) ;
-		if (rbx.size () > 0)
-			glGetShaderInfoLog (shader ,VAR32 (rbx.size ()) ,NULL ,rbx.raw ().self) ;
-		_DEBUG_ASSERT_ (rbx.empty ()) ;
+		auto rax = String<STRA> (r1x) ;
+		if (rax.size () > 0)
+			glGetShaderInfoLog (shader ,VAR32 (rax.size ()) ,NULL ,rax.raw ().self) ;
+		_DYNAMIC_ASSERT_ (rax.empty ()) ;
 	}
 
 	void attach_programiv (CHAR shader) const {
-		auto rax = VAR32 () ;
-		glGetProgramiv (shader ,GL_LINK_STATUS ,&(rax = GL_FALSE)) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (rax != GL_FALSE)
-				return (void) (if_cond = FALSE) ;
-			glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&(rax = 0)) ;
-		} ,[&] (BOOL &if_cond) {
-			rax = 0 ;
+		const auto r1x = _CALL_ ([&] () {
+			VAR32 ret ;
+			glGetProgramiv (shader ,GL_LINK_STATUS ,&(ret = GL_FALSE)) ;
+			_CALL_IF_ ([&] (BOOL &if_cond) {
+				if (ret != GL_FALSE)
+					return (void) (if_cond = FALSE) ;
+				glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&(ret = 0)) ;
+			} ,[&] (BOOL &if_cond) {
+				ret = 0 ;
+			}) ;
+			return std::move (ret) ;
 		}) ;
-		auto rbx = String<STRA> (rax) ;
-		if (rbx.size () > 0)
-			glGetProgramInfoLog (shader ,VAR32 (rbx.size ()) ,NULL ,rbx.raw ().self) ;
-		_DEBUG_ASSERT_ (rbx.empty ()) ;
+		auto rax = String<STRA> (r1x) ;
+		if (rax.size () > 0)
+			glGetProgramInfoLog (shader ,VAR32 (rax.size ()) ,NULL ,rax.raw ().self) ;
+		_DYNAMIC_ASSERT_ (rax.empty ()) ;
 	}
 
 private:

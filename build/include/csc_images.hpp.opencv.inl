@@ -151,7 +151,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_BGR>> (r1.data) ;
@@ -180,14 +180,14 @@ public:
 
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		auto rax = std::vector<uchar> () ;
+		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
 		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax ,r2) ;
-		_DYNAMIC_ASSERT_ (rax.size () < VAR32_MAX) ;
-		data = AutoBuffer<BYTE> (rax.size ()) ;
+		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
+		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
+		data = AutoBuffer<BYTE> (rax->size ()) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
-			data[i] = BYTE (rax[i]) ;
+			data[i] = BYTE (rax.self[i]) ;
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
@@ -217,7 +217,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_BGRA>> (r1.data) ;
@@ -246,14 +246,14 @@ public:
 
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		auto rax = std::vector<uchar> () ;
+		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
 		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax ,r2) ;
-		_DYNAMIC_ASSERT_ (rax.size () < VAR32_MAX) ;
-		data = AutoBuffer<BYTE> (rax.size ()) ;
+		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
+		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
+		data = AutoBuffer<BYTE> (rax->size ()) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
-			data[i] = BYTE (rax[i]) ;
+			data[i] = BYTE (rax.self[i]) ;
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
@@ -283,7 +283,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_GRAY>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_GRAY>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_GRAY>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_GRAY>> (r1.data) ;
@@ -312,14 +312,14 @@ public:
 
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		auto rax = std::vector<uchar> () ;
+		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
 		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax ,r2) ;
-		_DYNAMIC_ASSERT_ (rax.size () < VAR32_MAX) ;
-		data = AutoBuffer<BYTE> (rax.size ()) ;
+		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
+		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
+		data = AutoBuffer<BYTE> (rax->size ()) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
-			data[i] = BYTE (rax[i]) ;
+			data[i] = BYTE (rax.self[i]) ;
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
@@ -349,7 +349,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_GRAY32>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_GRAY32>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_GRAY32>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_GRAY32>> (r1.data) ;
@@ -378,14 +378,14 @@ public:
 
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		auto rax = std::vector<uchar> () ;
+		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
 		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax ,r2) ;
-		_DYNAMIC_ASSERT_ (rax.size () < VAR32_MAX) ;
-		data = AutoBuffer<BYTE> (rax.size ()) ;
+		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
+		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
+		data = AutoBuffer<BYTE> (rax->size ()) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
-			data[i] = BYTE (rax[i]) ;
+			data[i] = BYTE (rax.self[i]) ;
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
@@ -415,7 +415,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_GRAY64>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_GRAY64>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_GRAY64>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_GRAY64>> (r1.data) ;
@@ -444,14 +444,14 @@ public:
 
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		auto rax = std::vector<uchar> () ;
+		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
 		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax ,r2) ;
-		_DYNAMIC_ASSERT_ (rax.size () < VAR32_MAX) ;
-		data = AutoBuffer<BYTE> (rax.size ()) ;
+		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
+		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
+		data = AutoBuffer<BYTE> (rax->size ()) ;
 		for (INDEX i = 0 ; i < data.size () ; i++)
-			data[i] = BYTE (rax[i]) ;
+			data[i] = BYTE (rax.self[i]) ;
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {

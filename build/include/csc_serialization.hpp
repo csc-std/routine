@@ -82,7 +82,9 @@ public:
 
 	Array<XmlParser> child_array (LENGTH fixed_len) const {
 		Array<XmlParser> ret = Array<XmlParser> (fixed_len) ;
-		if (exist ()) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!exist ())
+				break ;
 			INDEX iw = 0 ;
 			for (auto &&i : mHeap.self[mIndex].mMemberSet) {
 				INDEX ix = iw++ ;
@@ -661,7 +663,9 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mNodeStack[ix].P1.add (i.child ()) ;
 			mNodeStack[ix].P2 = mRootType ;
 			INDEX iy = mRoot ;
-			if (!mRootName.empty ()) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (mRootName.empty ())
+					break ;
 				iy = mNodeHeap.alloc () ;
 				mNodeHeap[iy].mName = std::move (mRootName) ;
 				mNodeHeap[iy].mAttributeSet = mAttributeSoftSet.copy () ;
@@ -712,7 +716,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = ix ;
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (iy != VAR_NONE)
-						continue ;
+						break ;
 					iy = mFoundNodeList.insert () ;
 					const auto r1x = mFoundNodeNameSet.length () ;
 					mFoundNodeList[iy][0] = mFoundNodeNameSet.insert (i.name ()) ;
@@ -900,13 +904,13 @@ public:
 		INDEX ix = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!exist ())
-				continue ;
+				break ;
 			if (!object_type ())
-				continue ;
+				break ;
 			auto &r1 = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			ix = r1.find (key) ;
 			if (ix == VAR_NONE)
-				continue ;
+				break ;
 			ix = r1[ix].item ;
 		}
 		return JsonParser (mHeap ,ix) ;
@@ -916,9 +920,9 @@ public:
 		Array<JsonParser> ret ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!exist ())
-				continue ;
+				break ;
 			if (!array_type ())
-				continue ;
+				break ;
 			auto &r1 = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			ret = Array<JsonParser> (r1.length ()) ;
 			INDEX iw = 0 ;
@@ -932,9 +936,9 @@ public:
 		Array<JsonParser> ret = Array<JsonParser> (fixed_len) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!exist ())
-				continue ;
+				break ;
 			if (!array_type ())
-				continue ;
+				break ;
 			auto &r1 = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			INDEX iw = 0 ;
 			for (auto &&i : r1) {
@@ -1045,40 +1049,50 @@ public:
 inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 	auto rax = ARRAY2<Stack<ARRAY2<INDEX>>> () ;
 	rax[0].add ({mIndex ,FLAG (0)}) ;
-	auto rbx = Queue<PTR<const String<STRU8>>> (mHeap->size ()) ;
+	const auto r1x = _CALL_ ([&] () {
+		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
+		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
+			if (mHeap.self[i].mTypeID != TYPE_ID_OBJECT)
+				continue ;
+			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			for (auto &&j : r1)
+				ret.add (&j.key) ;
+		}
+		return std::move (ret) ;
+	}) ;
 	while (!rax[0].empty ()) {
-		const auto r1x = std::move (rax[0][rax[0].peek ()]) ;
+		const auto r2x = std::move (rax[0][rax[0].peek ()]) ;
 		rax[0].take () ;
 		_CALL_IF_ ([&] (BOOL &if_cond) {
 			//@info: case 'null'
-			if (r1x[0] == VAR_NONE)
+			if (r2x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (mHeap.self[r1x[0]].mTypeID != TYPE_ID_NULL)
+			if (mHeap.self[r2x[0]].mTypeID != TYPE_ID_NULL)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 0)
+			if (r2x[1] != 0)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("null") ;
 		} ,[&] (BOOL &if_cond) {
 			//@info: case '"xxx"'
-			if (r1x[0] == VAR_NONE)
+			if (r2x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (mHeap.self[r1x[0]].mTypeID != TYPE_ID_STRING)
+			if (mHeap.self[r2x[0]].mTypeID != TYPE_ID_STRING)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 0)
+			if (r2x[1] != 0)
 				return (void) (if_cond = FALSE) ;
-			auto &r1 = mHeap.self[r1x[0]].mValue.rebind<String<STRU8>> ().self ;
+			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
 			writer << r1 ;
 			writer << _PCSTRU8_ ("\"") ;
 		} ,[&] (BOOL &if_cond) {
 			//@info: case '[(yyy(,yyy)*)?]'
-			if (r1x[0] == VAR_NONE)
+			if (r2x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (mHeap.self[r1x[0]].mTypeID != TYPE_ID_ARRAY)
+			if (mHeap.self[r2x[0]].mTypeID != TYPE_ID_ARRAY)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 0)
+			if (r2x[1] != 0)
 				return (void) (if_cond = FALSE) ;
-			auto &r1 = mHeap.self[r1x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rax[1].clear () ;
 			rax[1].add ({VAR_NONE ,FLAG (2)}) ;
 			INDEX ir = 0 ;
@@ -1092,13 +1106,13 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			rax[0].appand (rax[1]) ;
 		} ,[&] (BOOL &if_cond) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
-			if (r1x[0] == VAR_NONE)
+			if (r2x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (mHeap.self[r1x[0]].mTypeID != TYPE_ID_OBJECT)
+			if (mHeap.self[r2x[0]].mTypeID != TYPE_ID_OBJECT)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 0)
+			if (r2x[1] != 0)
 				return (void) (if_cond = FALSE) ;
-			auto &r1 = mHeap.self[r1x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rax[1].clear () ;
 			rax[1].add ({VAR_NONE ,FLAG (5)}) ;
 			INDEX ir = 0 ;
@@ -1106,8 +1120,8 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				if (ir > 0)
 					rax[1].add ({VAR_NONE ,FLAG (6)}) ;
 				ir++ ;
-				INDEX ix = rbx.insert () ;
-				rbx[ix] = &i.key ;
+				INDEX ix = r1x.find (&i.key) ;
+				_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 				rax[1].add ({ix ,FLAG (1)}) ;
 				rax[1].add ({VAR_NONE ,FLAG (7)}) ;
 				rax[1].add ({i.item ,FLAG (0)}) ;
@@ -1115,53 +1129,53 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			rax[1].add ({VAR_NONE ,FLAG (8)}) ;
 			rax[0].appand (rax[1]) ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] == VAR_NONE)
+			if (r2x[0] == VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 1)
+			if (r2x[1] != 1)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("\"") ;
-			writer << *rbx[r1x[0]] ;
+			writer << (*r1x[r2x[0]]) ;
 			writer << _PCSTRU8_ ("\"") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 2)
+			if (r2x[1] != 2)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("[") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 3)
+			if (r2x[1] != 3)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (",") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 4)
+			if (r2x[1] != 4)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("]") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 5)
+			if (r2x[1] != 5)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("{") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 6)
+			if (r2x[1] != 6)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (",") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 7)
+			if (r2x[1] != 7)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ (":") ;
 		} ,[&] (BOOL &if_cond) {
-			if (r1x[0] != VAR_NONE)
+			if (r2x[0] != VAR_NONE)
 				return (void) (if_cond = FALSE) ;
-			if (r1x[1] != 8)
+			if (r2x[1] != 8)
 				return (void) (if_cond = FALSE) ;
 			writer << _PCSTRU8_ ("}") ;
 		}) ;

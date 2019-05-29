@@ -70,7 +70,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_BGR>> (FreeImage_GetBits (r1)) ;
@@ -89,8 +89,8 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = _XVALUE_<const PACK<STRA[_SIZEOF_ (COLOR_BGR)]> &> ({0}) ;
-		FreeImage_FillBackground (rax ,r1x.P1 ,0) ;
+		const auto r1x = COLOR_BGR ({0 ,0 ,0}) ;
+		FreeImage_FillBackground (rax ,&r1x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
@@ -178,7 +178,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> watch (AnyRef<void> &_this) const override {
+	PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> layout (AnyRef<void> &_this) const override {
 		PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> ret ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		ret.P1 = &_LOAD_<ARR<COLOR_BGRA>> (FreeImage_GetBits (r1)) ;
@@ -197,8 +197,8 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = _XVALUE_<const PACK<STRA[_SIZEOF_ (COLOR_BGRA)]> &> ({0}) ;
-		FreeImage_FillBackground (rax ,r1x.P1 ,0) ;
+		const auto r1x = COLOR_BGRA ({0 ,0 ,0 ,0}) ;
+		FreeImage_FillBackground (rax ,&r1x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 

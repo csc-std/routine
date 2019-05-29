@@ -361,12 +361,12 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 	while (rbx.cFileName[0] != 0) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ (".")))
-				continue ;
+				break ;
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ ("..")))
-				continue ;
+				break ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
-				continue ;
+				break ;
 			rax += String<STR> (rbx.cFileName) ;
 			r1 (rax) ;
 			rax[r1x] = 0 ;

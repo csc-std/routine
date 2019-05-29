@@ -1987,12 +1987,12 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mHeap->length () < mHeap->size ())
-				continue ;
+				break ;
 			mIndex = min_weight_one () ;
 			_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 			const auto r1x = expr_log2 (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
-				continue ;
+				break ;
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight >>= r1x ;
 		}
@@ -2037,7 +2037,7 @@ private:
 #undef super
 #pragma pop_macro ("super")
 #pragma endregion
-		} ;
+} ;
 
 template <class TYPE>
 inline StrongRef<TYPE>::StrongRef (const SoftRef<TYPE> &right) :StrongRef (right.strong ()) {}
@@ -2084,11 +2084,14 @@ private:
 
 		inline implicit operator TYPE & () && = delete ;
 
-		inline implicit operator PTR<TYPE> () const & noexcept {
-			return mPointer ;
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<TYPE & ,_RET>::value>>
+		inline implicit operator _RET () const & {
+			_DEBUG_ASSERT_ (mPointer != NULL) ;
+			return _RET (*mPointer) ;
 		}
 
-		inline implicit operator PTR<TYPE> () && = delete ;
+		template <class _RET>
+		inline implicit operator _RET () && = delete ;
 
 	private:
 		inline explicit WatcherProxy (PTR<TYPE> pointer) noexcept :mPointer (pointer) {}
@@ -2226,7 +2229,7 @@ public:
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
-		} ;
+} ;
 
 template <class TYPE>
 class Monostate {
@@ -2285,6 +2288,10 @@ private:
 		return (base / align + EFLAG (base % align != 0)) * align ;
 	}
 
+	inline static constexpr VAL64 expr_pow (VAL64 base ,LENGTH power) {
+		return (power % 2 != 0) ? (base * expr_pow (base ,(power - 1))) : (power != 0) ? (_SQE_ (expr_pow (base ,(power / 2)))) : 1 ;
+	}
+
 	template <class SIZE>
 	class ImplPool :public Pool {
 	private:
@@ -2292,10 +2299,6 @@ private:
 			PTR<struct BLOCK> next ;
 			HEADER flex_data ;
 		} ;
-
-		inline static constexpr VAL64 expr_pow (VAL64 base ,LENGTH power) {
-			return (power % 2 != 0) ? (base * expr_pow (base ,(power - 1))) : (power != 0) ? (_SQE_ (expr_pow (base ,(power / 2)))) : 1 ;
-		}
 
 		struct CHUNK {
 			PTR<ARR<BYTE>> origin ;
@@ -2650,12 +2653,13 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r2x = rbx.watch () ;
-				const auto r3x = &_LOAD_<NONE> (_XVALUE_<const PTR<Pack> &> (r2x)) ;
-				rax = unique_atomic_address (NULL ,r3x) ;
+				const auto r3x = &_XVALUE_<Pack &> (r2x) ;
+				const auto r4x = &_LOAD_<NONE> (r3x) ;
+				rax = unique_atomic_address (NULL ,r4x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r4x = &_LOAD_<Pack> (rax) ;
-			return IntrusiveRef<Pack> (r4x).watch () ;
+			const auto r5x = &_LOAD_<Pack> (rax) ;
+			return IntrusiveRef<Pack> (r5x).watch () ;
 		}) ;
 	}
 
@@ -2843,13 +2847,14 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r3x = rbx.watch () ;
-				const auto r4x = _XVALUE_<const PTR<Pack> &> (r3x) ;
+				const auto r4x = &_XVALUE_<Pack &> (r3x) ;
 				rax->mData = &_LOAD_<NONE> (r4x) ;
 			}
 			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
 			return IntrusiveRef<Pack> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Pack &> (r1).mData ;
+		auto &r3 = _XVALUE_<Pack &> (r1) ;
+		return r3.mData ;
 	}
 } ;
 

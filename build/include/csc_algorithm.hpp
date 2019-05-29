@@ -512,13 +512,13 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 				} else if (mTempState = 17) {
 					mTempStack.take () ;
 					mTempState = (mTempStack.length () > 0) ? 9 : 18 ;
-				} else if (mTempRet == 18) {
+				} else if (mTempState == 18) {
 					mTempState = mTempRet ? 19 : 20 ;
-				} else if (mTempRet == 19) {
+				} else if (mTempState == 19) {
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 20 ;
-				} else if (mTempRet == 20) {
+				} else if (mTempState == 20) {
 					mTempState = 0 ;
 				}
 			}
@@ -839,10 +839,10 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				mDXLoss[1] = mLossFunc (mIX) ;
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
-						continue ;
+						break ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
 					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
-						continue ;
+						break ;
 					mDXLoss[2] = UNIT (0) ;
 				}
 				if (mDXLoss[1] < mDXLoss[2]) {
