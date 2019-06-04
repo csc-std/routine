@@ -350,13 +350,13 @@ inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
 
 template <class TYPE ,class SUBJECT = VAR>
 struct Classified {
-	TYPE mData ;
+	TYPE mValue ;
 	SUBJECT mClassi ;
 } ;
 
 template <class TYPE ,class SUBJECT = VAL>
 struct Weighted {
-	TYPE mData ;
+	TYPE mValue ;
 	SUBJECT mWeight ;
 } ;
 

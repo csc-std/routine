@@ -106,21 +106,29 @@ inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
 }
 
 inline exports void _ERASEFILE_ (const String<STR> &file) {
-	remove (_BUILDSTRS_<STRA> (file).raw ().self) ;
+	const auto r1x = remove (_BUILDSTRS_<STRA> (file).raw ().self) ;
+	(void) r1x ;
 }
 
 inline exports void _COPYFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
-	const auto r1x = _LOADFILE_ (src_file) ;
-	_SAVEFILE_ (dst_file ,PhanBuffer<const BYTE>::make (r1x)) ;
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
+	const auto r2x = _LOADFILE_ (src_file) ;
+	_SAVEFILE_ (dst_file ,PhanBuffer<const BYTE>::make (r2x)) ;
 }
 
 inline exports void _MOVEFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
-	rename (_BUILDSTRS_<STRA> (src_file).raw ().self ,_BUILDSTRS_<STRA> (dst_file).raw ().self) ;
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
+	const auto r2x = rename (_BUILDSTRS_<STRA> (src_file).raw ().self ,_BUILDSTRS_<STRA> (dst_file).raw ().self) ;
+	(void) r2x ;
 }
 
 inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
-	const auto r1x = link (_BUILDSTRS_<STRA> (src_file).raw ().self ,_BUILDSTRS_<STRA> (dst_file).raw ().self) ;
-	(void) r1x ;
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
+	const auto r2x = link (_BUILDSTRS_<STRA> (src_file).raw ().self ,_BUILDSTRS_<STRA> (dst_file).raw ().self) ;
+	(void) r2x ;
 }
 
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {
@@ -238,9 +246,10 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += r1x[ix] ;
 	}
-	const auto r10x = BOOL (ret.size () >= 1 && ret[0] == STR ('\\')) ;
-	const auto r11x = BOOL (ret.size () >= 1 && ret[0] == STR ('/')) ;
-	if (!r10x && !r11x)
+	const auto r9x = ret.length () ;
+	const auto r10x = BOOL (r9x >= 1 && ret[r9x - 1] == STR ('\\')) ;
+	const auto r11x = BOOL (r9x >= 1 && ret[r9x - 1] == STR ('/')) ;
+	if (r9x >= 1 && !r10x && !r11x)
 		ret += _PCSTR_ ("/") ;
 	return std::move (ret) ;
 }
@@ -299,7 +308,8 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 }
 
 inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
-	unlink (_BUILDSTRS_<STRA> (dire).raw ().self) ;
+	const auto r1x = unlink (_BUILDSTRS_<STRA> (dire).raw ().self) ;
+	(void) r1x ;
 }
 
 inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {

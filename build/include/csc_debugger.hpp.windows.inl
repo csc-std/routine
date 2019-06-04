@@ -259,7 +259,7 @@ private:
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = GetStdHandle (STD_OUTPUT_HANDLE) ;
 		} ,[] (HANDLE &me) {
-			(void) me ;
+			_STATIC_WARNING_ ("noop") ;
 		}) ;
 	}
 
@@ -293,7 +293,6 @@ private:
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
-			(void) mLogFileStream ;
 			mTempState = FALSE ;
 		}) ;
 		_CALL_TRY_ ([&] () {
@@ -303,7 +302,6 @@ private:
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
-			(void) mLogFileStream ;
 			mTempState = FALSE ;
 		}) ;
 		if ((mOptionFlag & OPTION_ALWAYS_FLUSH) == 0)
@@ -312,6 +310,7 @@ private:
 	}
 
 	void attach_log_file () {
+		mLogFileStream = AutoRef<StreamLoader> () ;
 		const auto r1x = mLogPath + _PCSTR_ ("logger.log") ;
 		const auto r2x = mLogPath + _PCSTR_ ("logger.old.log") ;
 		_ERASEFILE_ (r2x) ;

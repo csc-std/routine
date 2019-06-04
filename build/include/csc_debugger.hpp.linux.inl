@@ -255,7 +255,6 @@ private:
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
-			(void) mLogFileStream ;
 			mTempState = FALSE ;
 		}) ;
 		_CALL_TRY_ ([&] () {
@@ -265,7 +264,6 @@ private:
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
-			(void) mLogFileStream ;
 			mTempState = FALSE ;
 		}) ;
 		if ((mOptionFlag & OPTION_ALWAYS_FLUSH) == 0)
@@ -274,8 +272,10 @@ private:
 	}
 
 	void attach_log_file () {
+		mLogFileStream = AutoRef<StreamLoader> () ;
 		const auto r1x = mLogPath + _PCSTR_ ("logger.log") ;
 		const auto r2x = mLogPath + _PCSTR_ ("logger.old.log") ;
+		_ERASEFILE_ (r2x) ;
 		_MOVEFILE_ (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
 		const auto r3x = _PRINTS_<STR> (_XVALUE_<const PTR<void (TextWriter<STR> &)> &> (&_BOM_)) ;

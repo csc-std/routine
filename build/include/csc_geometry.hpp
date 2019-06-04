@@ -501,7 +501,7 @@ public:
 
 	Matrix mul (const Matrix &right) const {
 		Matrix ret ;
-		for (auto &&i : RangeFolder<ARGC<2>> {4 ,4}) {
+		for (auto &&i : RangeFolder<ARGC<2>> ({4 ,4})) {
 			const auto r1x = get (i[0] ,0) * right.get (0 ,i[1]) ;
 			const auto r2x = get (i[0] ,1) * right.get (1 ,i[1]) ;
 			const auto r3x = get (i[0] ,2) * right.get (2 ,i[1]) ;
@@ -532,7 +532,7 @@ public:
 
 	Matrix transpose () const {
 		Matrix ret ;
-		for (auto &&i : RangeFolder<ARGC<2>> {4 ,4})
+		for (auto &&i : RangeFolder<ARGC<2>> ({4 ,4}))
 			ret.get (i[1] ,i[0]) = get (i[0] ,i[1]) ;
 		return std::move (ret) ;
 	}

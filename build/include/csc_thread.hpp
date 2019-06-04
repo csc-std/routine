@@ -124,7 +124,7 @@ public:
 				_CALL_TRY_ ([&] () {
 					static_execute (*r2x ,r3x) ;
 				} ,[&] () {
-					(void) *r2x ;
+					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
 		}
@@ -170,15 +170,11 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			_CALL_TRY_ ([&] () {
+			_CALL_EH_ ([&] () {
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
-			} ,[&] (const Exception &e) noexcept {
-				_CALL_TRY_ ([&] () {
-					static_rethrow (_self ,e) ;
-				} ,[&] () {
-					(void) _self ;
-				}) ;
-			} ,std::nothrow) ;
+			} ,[&] (const Exception &e) {
+				static_rethrow (_self ,e) ;
+			}) ;
 			static_push (_self ,std::move (rax)) ;
 			rax = Optional<ITEM>::nullopt () ;
 		}
@@ -401,7 +397,7 @@ public:
 				_CALL_TRY_ ([&] () {
 					static_execute (*r2x) ;
 				} ,[&] () {
-					(void) *r2x ;
+					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
 		}
@@ -446,15 +442,11 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		while (TRUE) {
 			const auto r2x = static_poll (_self) ;
-			_CALL_TRY_ ([&] () {
+			_CALL_EH_ ([&] () {
 				_self.mThreadProc (r2x) ;
-			} ,[&] (const Exception &e) noexcept {
-				_CALL_TRY_ ([&] () {
-					static_rethrow (_self ,e) ;
-				} ,[&] () {
-					(void) _self ;
-				}) ;
-			} ,std::nothrow) ;
+			} ,[&] (const Exception &e) {
+				static_rethrow (_self ,e) ;
+			}) ;
 		}
 	}
 
@@ -609,7 +601,7 @@ public:
 			_CALL_TRY_ ([&] () {
 				static_execute (*r2x) ;
 			} ,[&] () {
-				(void) *r2x ;
+				_STATIC_WARNING_ ("noop") ;
 			}) ;
 		}) ;
 	}
@@ -640,15 +632,11 @@ private:
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			static_push (_self ,_self.mThreadProc ()) ;
-		} ,[&] (const Exception &e) noexcept {
-			_CALL_TRY_ ([&] () {
-				static_rethrow (_self ,e) ;
-			} ,[&] () {
-				(void) _self ;
-			}) ;
-		} ,std::nothrow) ;
+		} ,[&] (const Exception &e) {
+			static_rethrow (_self ,e) ;
+		}) ;
 		static_signal (_self) ;
 	}
 

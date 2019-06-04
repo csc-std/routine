@@ -979,15 +979,6 @@ inline RESULTOF_TYPE<_ARG1 ()> _CALL_ (_ARG1 &&arg1) popping {
 	return arg1 () ;
 }
 
-//@warn: assure ruined object when an exception was thrown
-template <class _ARG1 ,class _ARG2>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARG2 &arg2) ;
-
-template <class _ARG1>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const decltype (std::nothrow) &) noexcept {
-	arg1 () ;
-}
-
 template <class _ARG1>
 inline void _CALL_IF_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
@@ -1004,6 +995,26 @@ inline void _CALL_IF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
 		return ;
 	_CALL_IF_ (args...) ;
 }
+
+//@warn: assure ruined object when an exception was thrown
+template <class _ARG1>
+inline void _CALL_TRY_ (const _ARG1 &arg1) {
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	arg1 () ;
+}
+
+//@warn: assure ruined object when an exception was thrown
+template <class _ARG1 ,class... _ARGS>
+inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARGS &...args) ;
+
+template <class _ARG1>
+inline void _CALL_EH_ (const _ARG1 &arg1) noexcept {
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	arg1 () ;
+}
+
+template <class _ARG1 ,class _ARG2>
+inline void _CALL_EH_ (const _ARG1 &arg1 ,const _ARG2 &arg2) noexcept ;
 
 template <class _ARG1>
 inline const RESULTOF_TYPE<_ARG1 ()> &_CACHE_ (_ARG1 &&arg1) popping {
@@ -1389,10 +1400,10 @@ private:
 	}
 } ;
 
-template <class _ARG1 ,class _ARG2>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARG2 &arg2) {
+//@warn: assure ruined object when an exception was thrown
+template <class _ARG1 ,class... _ARGS>
+inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARGS &...args) {
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 ()> ,void>::value) ;
 	try {
 		arg1 () ;
 		return ;
@@ -1400,18 +1411,15 @@ inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARG2 &arg2) {
 		const auto r1x = e.what () ;
 		(void) r1x ;
 	}
-	arg2 () ;
+	_CALL_TRY_ (args...) ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const decltype (std::nothrow) &) noexcept {
+inline void _CALL_EH_ (const _ARG1 &arg1 ,const _ARG2 &arg2) noexcept {
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-#ifndef __CSC_COMPILER_CLANG__
-	_STATIC_ASSERT_ (noexcept (_NULL_<const _ARG2> () (_NULL_<const Exception> ()))) ;
-#endif
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (const Exception &)> ,void>::value) ;
 	try {
 		arg1 () ;
-		return ;
 	} catch (const Exception &e) {
 		arg2 (e) ;
 	}
@@ -1599,17 +1607,9 @@ public:
 	}
 
 	inline ~ScopedGuard () noexcept {
-#ifdef __CSC_DEBUG__
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mLock.unlock () ;
-		} ,std::nothrow) ;
-#else
-		_CALL_TRY_ ([&] () {
-			mLock.unlock () ;
-		} ,[&] () {
-			(void) mLock ;
 		}) ;
-#endif
 	}
 
 	inline ScopedGuard (const ScopedGuard &) = delete ;
@@ -2244,17 +2244,9 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-#ifdef __CSC_DEBUG__
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mPointer->release () ;
-		} ,std::nothrow) ;
-#else
-		_CALL_TRY_ ([&] () {
-			mPointer->release () ;
-		} ,[&] () {
-			(void) mPointer ;
 		}) ;
-#endif
 		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
@@ -2354,17 +2346,9 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-#ifdef __CSC_DEBUG__
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mPointer->release () ;
-		} ,std::nothrow) ;
-#else
-		_CALL_TRY_ ([&] () {
-			mPointer->release () ;
-		} ,[&] () {
-			(void) mPointer ;
 		}) ;
-#endif
 		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
@@ -3873,8 +3857,8 @@ public:
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		_STATIC_WARNING_ ("unqualified") ;
-		if (mFree == VAR_NONE) {
+		const auto r1x = BOOL (mFree == VAR_NONE) ;
+		if (r1x) {
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3883,8 +3867,10 @@ public:
 			}
 			mAllocator.swap (rax) ;
 			update_free (mLength ,mFree) ;
-		} else {
+		}
+		if (!r1x) {
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
+			_STATIC_WARNING_ ("unqualified") ;
 		}
 		INDEX ret = mFree ;
 		mFree = mAllocator[mFree].mNext ;

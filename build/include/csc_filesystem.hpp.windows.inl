@@ -114,14 +114,20 @@ inline exports void _ERASEFILE_ (const String<STR> &file) {
 }
 
 inline exports void _COPYFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
 	CopyFile (src_file.raw ().self ,dst_file.raw ().self ,TRUE) ;
 }
 
 inline exports void _MOVEFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
 	MoveFile (src_file.raw ().self ,dst_file.raw ().self) ;
 }
 
 inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
+	const auto r1x = _FINDFILE_ (dst_file) ;
+	_DYNAMIC_ASSERT_ (!r1x) ;
 	CreateHardLink (dst_file.raw ().self ,src_file.raw ().self ,NULL) ;
 }
 
@@ -258,9 +264,10 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += r1x[ix] ;
 	}
-	const auto r10x = BOOL (ret.size () >= 1 && ret[0] == STR ('\\')) ;
-	const auto r11x = BOOL (ret.size () >= 1 && ret[0] == STR ('/')) ;
-	if (!r10x && !r11x)
+	const auto r9x = ret.length () ;
+	const auto r10x = BOOL (r9x >= 1 && ret[r9x - 1] == STR ('\\')) ;
+	const auto r11x = BOOL (r9x >= 1 && ret[r9x - 1] == STR ('/')) ;
+	if (r9x >= 1 && !r10x && !r11x)
 		ret += _PCSTR_ ("\\") ;
 	return std::move (ret) ;
 }

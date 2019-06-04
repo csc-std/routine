@@ -872,12 +872,12 @@ private:
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-		_STATIC_WARNING_ ("unqualified") ;
-		if (index == 0) {
+		const auto r1x = BOOL (index == 0) ;
+		if (r1x)
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
-		} else {
-			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		if (r1x)
+			return ;
+		template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) {
@@ -887,14 +887,15 @@ private:
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
-		_STATIC_WARNING_ ("unqualified") ;
-		if (index == 0) {
-			const auto r1x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
-			const auto r2x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r1x ,_LOAD_<_ARG1> (src->unused)) ;
-			_DYNAMIC_ASSERT_ (r2x != VAR_NONE) ;
-		} else {
-			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		const auto r1x = BOOL (index == 0) ;
+		if (r1x) {
+			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
+			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
+			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
 		}
+		if (r1x)
+			return ;
+		template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) noexcept {
@@ -905,12 +906,12 @@ private:
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
-		_STATIC_WARNING_ ("unqualified") ;
-		if (index == 0) {
+		const auto r1x = BOOL (index == 0) ;
+		if (r1x)
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
-		} else {
-			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		if (r1x)
+			return ;
+		template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1856,17 +1857,9 @@ public:
 	}
 
 	inline ~SoftRef () noexcept {
-#ifdef __CSC_DEBUG__
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			detach () ;
-		} ,std::nothrow) ;
-#else
-		_CALL_TRY_ ([&] () {
-			detach () ;
-		} ,[&] () {
-			(void) this ;
 		}) ;
-#endif
 	}
 
 	inline SoftRef (const SoftRef &) = delete ;
@@ -1947,8 +1940,8 @@ public:
 			return ;
 		if (mHeap.self[mIndex].mWeight < 0)
 			return ;
-		if (mHeap.self[mIndex].mWeight >= 0 && mHeap.self[mIndex].mWeight < VAR32_MAX)
-			mHeap.self[mIndex].mWeight++ ;
+		const auto r1x = BOOL (mHeap.self[mIndex].mWeight >= 0 && mHeap.self[mIndex].mWeight < VAR32_MAX) ;
+		mHeap.self[mIndex].mWeight += EFLAG (r1x) ;
 		mHeap.self[mIndex].mWeight = ~mHeap.self[mIndex].mWeight ;
 	}
 
@@ -2065,9 +2058,9 @@ private:
 		inline ~WatcherProxy () noexcept {
 			if (mPointer == NULL)
 				return ;
-			_CALL_TRY_ ([&] () {
+			_CALL_EH_ ([&] () {
 				release (mPointer) ;
-			} ,std::nothrow) ;
+			}) ;
 			mPointer = NULL ;
 		}
 
@@ -2116,17 +2109,9 @@ public:
 	inline ~IntrusiveRef () noexcept {
 		ScopedGuard<IntrusiveRef> ANONYMOUS (*this) ;
 		const auto r1x = mPointer.exchange (NULL) ;
-#ifdef __CSC_DEBUG__
-		_CALL_TRY_ ([&] () {
+		_CALL_EH_ ([&] () {
 			release (r1x) ;
-		} ,std::nothrow) ;
-#else
-		_CALL_TRY_ ([&] () {
-			release (r1x) ;
-		} ,[&] () {
-			(void) r1x ;
 		}) ;
-#endif
 	}
 
 	inline IntrusiveRef (const IntrusiveRef &) = delete ;
@@ -2334,7 +2319,7 @@ private:
 		}
 
 		inline void clear () noexcept {
-			for (PTR<CHUNK> i = mFirst ,ir = NULL ; i != NULL ; i = ir) {
+			for (PTR<CHUNK> i = mFirst ,ir ; i != NULL ; i = ir) {
 				ir = i->next ;
 				GlobalHeap::free (i->origin) ;
 			}
@@ -2397,7 +2382,7 @@ private:
 		inline void clean () override {
 			if (mSize == mLength)
 				return ;
-			for (PTR<CHUNK> i = mFirst ,ir = NULL ; i != NULL ; i = ir) {
+			for (PTR<CHUNK> i = mFirst ,ir ; i != NULL ; i = ir) {
 				ir = i->next ;
 				if (!empty_node (i))
 					continue ;
@@ -2453,7 +2438,7 @@ private:
 		}
 
 		inline void clear () noexcept {
-			for (PTR<BLOCK> i = mFirst ,ir = NULL ; i != NULL ; i = ir) {
+			for (PTR<BLOCK> i = mFirst ,ir ; i != NULL ; i = ir) {
 				ir = i->next ;
 				GlobalHeap::free (i->origin) ;
 			}
@@ -2714,20 +2699,24 @@ private:
 
 	inline static void intrusive_destroy (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-		for (PTR<NodeA> i = _self.mAFirst ,ir = NULL ; i != NULL ; i = ir) {
-			ir = i->mRight ;
-			i->~NodeA () ;
-			GlobalHeap::free (i) ;
-		}
-		_self.mALength = 0 ;
-		_self.mAFirst = NULL ;
-		for (PTR<NodeB> i = _self.mBFirst ,ir = NULL ; i != NULL ; i = ir) {
-			ir = i->mRight ;
-			i->~NodeB () ;
-			GlobalHeap::free (i) ;
-		}
-		_self.mBLength = 0 ;
-		_self.mBFirst = NULL ;
+		_CALL_EH_ ([&] () {
+			for (PTR<NodeA> i = _self.mAFirst ,ir ; i != NULL ; i = ir) {
+				ir = i->mRight ;
+				i->~NodeA () ;
+				GlobalHeap::free (i) ;
+			}
+			_self.mALength = 0 ;
+			_self.mAFirst = NULL ;
+		}) ;
+		_CALL_EH_ ([&] () {
+			for (PTR<NodeB> i = _self.mBFirst ,ir ; i != NULL ; i = ir) {
+				ir = i->mRight ;
+				i->~NodeB () ;
+				GlobalHeap::free (i) ;
+			}
+			_self.mBLength = 0 ;
+			_self.mBFirst = NULL ;
+		}) ;
 	}
 
 	inline static LENGTH intrusive_attach (Pack &_self) popping {

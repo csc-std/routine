@@ -2481,11 +2481,13 @@ private:
 		}
 
 		inline void operator= (Bit<BitSet> &&right) && {
-			std::move (*this) = BOOL (std::move (right)) ;
+			const auto r1x = BOOL (std::move (right)) ;
+			std::move (*this) = r1x ;
 		}
 
 		inline void operator= (Bit<const BitSet> &&right) && {
-			std::move (*this) = BOOL (std::move (right)) ;
+			const auto r1x = BOOL (std::move (right)) ;
+			std::move (*this) = r1x ;
 		}
 
 	private:
@@ -3383,17 +3385,17 @@ private:
 			rotate_left (r2) ;
 			r2 = mTop ;
 		}
-		const auto r1x = BOOL (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
-		const auto r2x = BOOL (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
+		const auto r1x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
+		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (!r1x)
+			if (r1x)
 				return (void) (if_cond = FALSE) ;
-			if (!r2x)
+			if (r2x)
 				return (void) (if_cond = FALSE) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		} ,[&] (BOOL &if_cond) {
-			if (!r2x)
+			if (r2x)
 				return (void) (if_cond = FALSE) ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
@@ -3426,17 +3428,17 @@ private:
 			rotate_right (r2) ;
 			r2 = mTop ;
 		}
-		const auto r1x = BOOL (mSet[r1].mRight == VAR_NONE || !mSet[mSet[r1].mRight].mRed) ;
-		const auto r2x = BOOL (mSet[r1].mLeft == VAR_NONE || !mSet[mSet[r1].mLeft].mRed) ;
+		const auto r1x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
+		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (!r1x)
+			if (r1x)
 				return (void) (if_cond = FALSE) ;
-			if (!r2x)
+			if (r2x)
 				return (void) (if_cond = FALSE) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		} ,[&] (BOOL &if_cond) {
-			if (!r2x)
+			if (r2x)
 				return (void) (if_cond = FALSE) ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;

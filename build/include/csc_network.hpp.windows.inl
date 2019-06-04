@@ -114,8 +114,12 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &socket ,LENGTH timeo
 	FD_SET (socket ,&ret[0]) ;
 	FD_SET (socket ,&ret[1]) ;
 	auto rax = _inline_SOCKET_CVTTO_TIMEVAL_ (timeout) ;
-	while (::select (FD_SETSIZE ,&ret[0] ,&ret[1] ,NULL ,&rax) < 0)
-		(void) rax ;
+	while (TRUE) {
+		const auto r1x = ::select (FD_SETSIZE ,&ret[0] ,&ret[1] ,NULL ,&rax) ;
+		if (r1x >= 0)
+			break ;
+		_STATIC_WARNING_ ("unqualified") ;
+	}
 	_ZERO_ (rax) ;
 	return std::move (ret) ;
 #pragma warning (pop)

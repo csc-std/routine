@@ -1539,9 +1539,12 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const {
+		auto &r1 = _CACHE_ ([] () {
+			return String<STRU8> () ;
+		}) ;
 		INDEX ix = mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			ix = 0 ;
+			return r1 ;
 		return mAttributeSet[ix].item ;
 	}
 

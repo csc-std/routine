@@ -254,7 +254,6 @@ private:
 	static void debug_check_error (UniqueRef<CHAR> &_self) {
 		const auto r1x = glGetError () ;
 		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
-		(void) r1x ;
 	}
 } ;
 
@@ -517,7 +516,6 @@ private:
 	static void debug_check_error (Pack &_self) {
 		const auto r1x = glGetError () ;
 		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
-		(void) r1x ;
 	}
 } ;
 } ;

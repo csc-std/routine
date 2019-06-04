@@ -1957,6 +1957,7 @@ public:
 		r1.modify_escape (STRU8 ('n') ,STRU8 ('\n')) ;
 		r1.modify_escape (STRU8 ('f') ,STRU8 ('\f')) ;
 		r1.modify_escape (STRU8 ('\"') ,STRU8 ('\"')) ;
+		r1.modify_escape (STRU8 ('/') ,STRU8 ('/')) ;
 		r1.modify_escape (STRU8 ('\\') ,STRU8 ('\\')) ;
 		mReader.self >> _BOM_ ;
 		for (INDEX i = 0 ; i < mCache.length () ; i++)

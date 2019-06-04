@@ -602,7 +602,8 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 	private:
 		inline void prepare () {
 			mPloygonVertexList = ploygon_vertex () ;
-			mClockwiseFlag = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
+			const auto r1x = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
+			mClockwiseFlag = r1x ;
 			if (mClockwiseFlag) {
 				for (auto &&i : mPloygonVertexList)
 					i = mVertex.length () + ~i ;
@@ -1259,11 +1260,11 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 				if (mBFSPath[mSource] == VAR_NONE)
 					break ;
 				const auto r1x = augument_max_flow () ;
-				for (INDEX i = mSource ,ir = VAR_NONE ; i != mSink ; i = ir) {
-					ir = mBFSPath[i] ;
-					const auto r2x = _MIN_ (mCurrentFlow[ir][i] ,r1x) ;
-					mCurrentFlow[ir][i] -= r2x ;
-					mCurrentFlow[i][ir] += r1x - r2x ;
+				for (INDEX i = mSource ; i != mSink ; i = mBFSPath[i]) {
+					INDEX ix = mBFSPath[i] ;
+					const auto r2x = _MIN_ (mCurrentFlow[ix][i] ,r1x) ;
+					mCurrentFlow[ix][i] -= r2x ;
+					mCurrentFlow[i][ix] += r1x - r2x ;
 				}
 			}
 		}
@@ -1292,10 +1293,10 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 
 		inline UNIT augument_max_flow () const {
 			UNIT ret = mSingleFlow ;
-			for (INDEX i = mSource ,ir = VAR_NONE ; i != mSink ; i = ir) {
-				ir = mBFSPath[i] ;
-				_DEBUG_ASSERT_ (i != ir) ;
-				const auto r1x = mAdjacency[i][ir] + mCurrentFlow[ir][i] - mCurrentFlow[i][ir] ;
+			for (INDEX i = mSource ; i != mSink ; i = mBFSPath[i]) {
+				INDEX ix = mBFSPath[i] ;
+				_DEBUG_ASSERT_ (i != ix) ;
+				const auto r1x = mAdjacency[i][ix] + mCurrentFlow[ix][i] - mCurrentFlow[i][ix] ;
 				ret = _MIN_ (ret ,r1x) ;
 			}
 			return std::move (ret) ;

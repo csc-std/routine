@@ -46,7 +46,7 @@ private:
 public:
 	inline RangeFolder () = delete ;
 
-	inline explicit RangeFolder (const std::initializer_list<LENGTH> &range) :mRange (range) {}
+	inline explicit RangeFolder (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
 
 	inline Iterator begin () const {
 		return Iterator (*this ,first_item () ,0) ;
@@ -402,7 +402,7 @@ public:
 	SoftImage mul (const SoftImage &right) const {
 		_DEBUG_ASSERT_ (mCX == right.mCY) ;
 		SoftImage ret = SoftImage (right.mCX ,mCY) ;
-		for (auto &&i : RangeFolder<ARGC<2>> {mCY ,right.mCX}) {
+		for (auto &&i : RangeFolder<ARGC<2>> ({mCY ,right.mCX})) {
 			ret.get (i) = TYPE (0) ;
 			for (INDEX j = 0 ; j < mCX ; j++)
 				ret.get (i) += get (i[0] ,j) * right.get (j ,i[1]) ;
@@ -504,9 +504,9 @@ private:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
-			_CALL_TRY_ ([&] () {
+			_CALL_EH_ ([&] () {
 				mBase.update_layout () ;
-			} ,std::nothrow) ;
+			}) ;
 		}
 
 		inline NativeProxy (const NativeProxy &) = delete ;
