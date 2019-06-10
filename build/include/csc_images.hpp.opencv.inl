@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -124,16 +126,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -163,8 +161,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC3)) ;
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC3)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -229,8 +227,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC4)) ;
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC4)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -295,8 +293,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_8UC1)) ;
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -361,8 +359,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_32FC1)) ;
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_32FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -427,8 +425,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
-		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (cy) ,VAR32 (cx) ,CV_64FC1)) ;
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_64FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;

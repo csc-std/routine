@@ -294,7 +294,7 @@ public:
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = Array<_ARG1 ,_ARG2> (r1x) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ; i < r1x ; i++)
 			read (data[i]) ;
 	}
 
@@ -307,7 +307,6 @@ public:
 	template <class _ARG1 ,LENGTH _VAL1>
 	void read (const DEF<_ARG1[_VAL1]> &data) {
 		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
-		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
 		auto ris = copy () ;
 		auto rax = _ARG1 () ;
 		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
@@ -330,7 +329,8 @@ public:
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = String<_ARG1 ,_ARG2> (r1x) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		data.clear () ;
+		for (INDEX i = 0 ; i < r1x ; i++)
 			read (data[i]) ;
 	}
 
@@ -570,7 +570,6 @@ public:
 	template <class _ARG1 ,LENGTH _VAL1>
 	void write (const DEF<_ARG1[_VAL1]> &data) {
 		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
-		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
 		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
 			write (data[i]) ;
 	}
@@ -668,7 +667,7 @@ private:
 		}
 
 		BOOL varify_number_item (const UNIT &item) const {
-			return item >= UNIT ('0') && item <= UNIT ('9') ;
+			return BOOL (item >= UNIT ('0') && item <= UNIT ('9')) ;
 		}
 
 		VAR64 convert_number_r (const UNIT &item) const {
@@ -998,7 +997,7 @@ public:
 
 	template <LENGTH _VAL1>
 	void read (const DEF<UNIT[_VAL1]> &data) {
-		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
+		_STATIC_ASSERT_ (stl::is_literals<UNIT>::value) ;
 		auto ris = copy () ;
 		auto rax = UNIT () ;
 		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
@@ -1020,7 +1019,8 @@ public:
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = String<UNIT ,_ARG1> (r1x) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		data.clear () ;
+		for (INDEX i = 0 ; i < r1x ; i++)
 			read (data[i]) ;
 	}
 
@@ -1104,7 +1104,9 @@ private:
 		ARRAY2<VAR64> rbx = ARRAY2<VAR64> {0 ,0} ;
 		try_read_number_digital (rbx ,ris ,rax) ;
 		try_read_number_decimal (rbx ,ris ,rax) ;
-		if (rax == UNIT ('e') || rax == UNIT ('E')) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (rax != UNIT ('e') && rax != UNIT ('E'))
+				discard ;
 			rbx[1] += ris.template read<VAR32> () ;
 			*this = ris.copy () ;
 		}
@@ -1119,8 +1121,8 @@ private:
 		*this = reader.copy () ;
 		reader.read (top) ;
 		while (mHolder->varify_number_item (top)) {
-			const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 			_CALL_IF_ ([&] (BOOL &if_cond) {
+				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 				if (data[0] > r1x)
 					return (void) (if_cond = FALSE) ;
 				data[0] = r1x ;
@@ -1139,8 +1141,10 @@ private:
 		reader.read (top) ;
 		_DYNAMIC_ASSERT_ (mHolder->varify_number_item (top)) ;
 		while (mHolder->varify_number_item (top)) {
-			const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
-			if (data[0] <= r1x) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+				if (data[0] > r1x)
+					discard ;
 				data[0] = r1x ;
 				data[1]-- ;
 			}
@@ -1174,7 +1178,7 @@ private:
 		}
 
 		BOOL varify_number_item (const UNIT &item) const {
-			return item >= UNIT ('0') && item <= UNIT ('9') ;
+			return BOOL (item >= UNIT ('0') && item <= UNIT ('9')) ;
 		}
 
 		UNIT convert_number_w (VAR64 number) const {
@@ -1210,7 +1214,7 @@ private:
 		}
 
 		BOOL varify_space (const UNIT &item) const {
-			return item == UNIT ('\r') || item == UNIT ('\n') ;
+			return BOOL (item == UNIT ('\r') || item == UNIT ('\n')) ;
 		}
 
 		BOOL varify_control (const UNIT &item) const {
@@ -1412,7 +1416,7 @@ public:
 
 	template <LENGTH _VAL1>
 	void write (const DEF<UNIT[_VAL1]> &data) {
-		_STATIC_ASSERT_ (_VAL1 <= VAR32_MAX) ;
+		_STATIC_ASSERT_ (stl::is_literals<UNIT>::value) ;
 		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
 			write (data[i]) ;
 	}
@@ -1503,7 +1507,8 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r2x = BOOL (rax[0] < 0) ;
-		rax[0] = r2x ? (-rax[0]) : (rax[0]) ;
+		if (r2x)
+			rax[0] = -rax[0] ;
 		const auto r3x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &if_cond) {
 			if (_ABS_ (r3x - 1 + rax[1]) < 6)
@@ -1550,7 +1555,6 @@ private:
 			if (_ABS_ (r4x - 1 + rax[1]) < 6)
 				return (void) (if_cond = FALSE) ;
 			try_write_number ((r4x - 1 + rax[1]) ,out ,iw) ;
-			_STATIC_WARNING_ ("unqualified") ;
 			if (out[iw] != UNIT ('-'))
 				out[--iw] = UNIT ('+') ;
 			out[--iw] = UNIT ('e') ;
@@ -2076,13 +2080,16 @@ public:
 		const auto r1x = _EXCHANGE_ (mHintHyperTextFlag ,FALSE) ;
 		const auto r2x = _EXCHANGE_ (mHintStringTextFlag ,FALSE) ;
 		const auto r3x = _EXCHANGE_ (mHintNextTextSize ,VAR_ZERO) ;
-		if (r3x > 0 && data.size () != r3x)
+		if (data.size () < r3x)
 			data = String<STRU8> (r3x) ;
-		if (r2x) {
+		data.clear () ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r2x)
+				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
-		for (INDEX i = 0 ; i < data.size () ; i++) {
+		for (INDEX i = 0 ; i < r3x ; i++) {
 			data[i] = get (0) ;
 			read () ;
 			if (!r1x)
@@ -2098,11 +2105,12 @@ public:
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (data[i])) ;
 			}) ;
 		}
-		if (r2x) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r2x)
+				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
-		_STATIC_WARNING_ ("unqualified") ;
 	}
 
 	inline LLTextReader &operator>> (String<STRU8> &data) popping {
@@ -2131,7 +2139,9 @@ public:
 	LENGTH next_value_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		if (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
+				discard ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2143,7 +2153,9 @@ public:
 			ris++ ;
 			ret++ ;
 		}
-		if (ris[0] == STRU8 ('.')) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (ris[0] != STRU8 ('.'))
+				discard ;
 			ris++ ;
 			ret++ ;
 			while (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) {
@@ -2153,10 +2165,12 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
-				break ;
+				discard ;
 			ris++ ;
 			ret++ ;
-			if (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
+					discard ;
 				ris++ ;
 				ret++ ;
 			}

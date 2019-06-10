@@ -56,17 +56,19 @@ public:
 
 	INDEX query (const PhanBuffer<const UNIT> &target ,INDEX ib) const {
 		_DEBUG_ASSERT_ (ib >= 0 && ib < target.size ()) ;
-		INDEX ir = (target.size () - ib >= mNext.length ()) ? ib : (target.size ()) ;
-		INDEX jr = 0 ;
-		while (ir < target.size () && jr < mNext.length ()) {
-			while (jr != VAR_NONE && target[ir] != mPattern[jr])
-				jr = mNext[jr] ;
-			ir++ ;
-			jr++ ;
-		}
-		if (jr < mNext.length ())
+		INDEX ix = ib ;
+		INDEX iy = 0 ;
+		if (target.size () - ib < mNext.length ())
 			return VAR_NONE ;
-		return ir - mNext.length () ;
+		while (ix < target.size () && iy < mNext.length ()) {
+			while (iy != VAR_NONE && target[ix] != mPattern[iy])
+				iy = mNext[iy] ;
+			ix++ ;
+			iy++ ;
+		}
+		if (iy < mNext.length ())
+			return VAR_NONE ;
+		return ix - mNext.length () ;
 	}
 
 private:
@@ -84,17 +86,17 @@ template <class UNIT>
 inline void KMPAlgorithm<UNIT>::initialize (const PhanBuffer<const UNIT> &pattern) {
 	mNext = Array<INDEX> (pattern.size ()) ;
 	mPattern = Array<UNIT> (pattern.size ()) ;
-	INDEX iw = 0 ;
-	INDEX jw = VAR_NONE ;
-	mNext[iw] = VAR_NONE ;
-	mPattern[iw] = pattern[iw] ;
-	while (iw < pattern.size () - 1) {
-		while (jw != VAR_NONE && pattern[iw] != pattern[jw])
-			jw = mNext[jw] ;
-		iw++ ;
-		jw++ ;
-		mNext[iw] = find_next (iw ,jw) ;
-		mPattern[iw] = pattern[iw] ;
+	INDEX ix = 0 ;
+	INDEX iy = VAR_NONE ;
+	mNext[ix] = VAR_NONE ;
+	mPattern[ix] = pattern[ix] ;
+	while (ix < pattern.size () - 1) {
+		while (iy != VAR_NONE && pattern[ix] != pattern[iy])
+			iy = mNext[iy] ;
+		ix++ ;
+		iy++ ;
+		mNext[ix] = find_next (ix ,iy) ;
+		mPattern[ix] = pattern[ix] ;
 	}
 }
 
@@ -604,7 +606,9 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			mPloygonVertexList = ploygon_vertex () ;
 			const auto r1x = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
 			mClockwiseFlag = r1x ;
-			if (mClockwiseFlag) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (!mClockwiseFlag)
+					discard ;
 				for (auto &&i : mPloygonVertexList)
 					i = mVertex.length () + ~i ;
 			}
@@ -840,13 +844,15 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				mDXLoss[1] = mLossFunc (mIX) ;
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
-						break ;
+						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
 					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
-						break ;
+						discard ;
 					mDXLoss[2] = UNIT (0) ;
 				}
-				if (mDXLoss[1] < mDXLoss[2]) {
+				for (FOR_ONCE_DO_WHILE_FALSE) {
+					if (mDXLoss[1] >= mDXLoss[2])
+						discard ;
 					mDXLoss[2] = mDXLoss[1] ;
 					mDXLambda[2] = mDXLambda[1] ;
 				}
@@ -855,7 +861,9 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			_CALL_IF_ ([&] (BOOL &if_cond) {
 				if (mDXLoss[0] < mDXLoss[2])
 					return (void) (if_cond = FALSE) ;
-				mDXLoss[0] = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
+				mDXLoss[0] = mDXLoss[1] ;
+				if (mDXLoss[2] > UINT (0))
+					mDXLoss[0] = mDXLoss[2] ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			} ,[&] (BOOL &if_cond) {
@@ -1002,19 +1010,22 @@ private:
 			out.add (ix) ;
 		} ,[&] (BOOL &if_cond) {
 			const auto r3x = mHeap[it].mKey ;
-			if (r3x >= bound[rot][0]) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (r3x < bound[rot][0])
+					discard ;
 				const auto r4x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
 				compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r4x ;
 			}
-			if (r3x <= bound[rot][1]) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (r3x > bound[rot][1])
+					discard ;
 				const auto r4x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
 				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][0] = r4x ;
 			}
-			_STATIC_WARNING_ ("unqualified") ;
 		}) ;
 	}
 

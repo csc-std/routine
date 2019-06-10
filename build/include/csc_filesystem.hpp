@@ -58,9 +58,9 @@ inline imports DEF<void (const String<STR> &dire)> _BUILDDIRECTORY_ ;
 
 inline imports DEF<void (const String<STR> &dire)> _ERASEDIRECTORY_ ;
 
-inline imports DEF<void (const String<STR> &dire)> _CLEARDIRECTORY_ ;
-
 inline imports DEF<void (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping> _ENUMDIRECTORY_ ;
+
+inline imports DEF<void (const String<STR> &dire)> _CLEARDIRECTORY_ ;
 } ;
 #endif
 
@@ -137,8 +137,8 @@ private:
 		virtual BOOL find_directory (const String<STR> &dire) popping = 0 ;
 		virtual void build_directory (const String<STR> &dire) = 0 ;
 		virtual void erase_directory (const String<STR> &dire) = 0 ;
-		virtual void clear_directory (const String<STR> &dire) = 0 ;
 		virtual void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping = 0 ;
+		virtual void clear_directory (const String<STR> &dire) = 0 ;
 	} ;
 
 private:
@@ -258,14 +258,14 @@ public:
 		mThis->erase_directory (dire) ;
 	}
 
-	void clear_directory (const String<STR> &dire) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->clear_directory (dire) ;
-	}
-
 	void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->enum_directory (dire ,file_proc ,dire_proc) ;
+	}
+
+	void clear_directory (const String<STR> &dire) {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		mThis->clear_directory (dire) ;
 	}
 
 private:

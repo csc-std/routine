@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -46,16 +48,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -194,13 +192,15 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
+		it = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_CVTTO_TIMEVAL_ (timeout) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		it = ::recv (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r2x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
-		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r2x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = ::recv (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0) ;
+		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
+		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (it >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		it = r2x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
@@ -376,6 +376,7 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
+		it = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;

@@ -276,10 +276,8 @@ inline ARRAY2<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	}
 	if ((r1x & DATA (0X8000000000000000)) != 0)
 		ret[0] = ~ret[0] + 1 ;
-	if (r1x == 0) {
-		ret[0] = 0 ;
+	if (r1x == 0)
 		ret[1] = 0 ;
-	}
 	return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
 }
 

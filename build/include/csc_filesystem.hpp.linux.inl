@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -29,16 +31,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -132,7 +130,7 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 }
 
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {
-	auto rax = ARRAY2<struct stat> () ;
+	auto rax = ARRAY2<DEF<struct stat>> () ;
 	const auto r1x = stat (_BUILDSTRS_<STRA> (file1).raw ().self ,&_ZERO_ (rax[0])) ;
 	if (r1x != 0)
 		return FALSE ;
@@ -154,9 +152,10 @@ inline exports String<STR> _PARSEFILEPATH_ (const String<STR> &file) {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
-	const auto r3x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ,VAR_ZERO) ;
-	const auto r4x = _MAX_ (_MEMRCHR_ (r2x.self ,r1x ,STR ('/')) ,r3x) ;
-	_MEMCOPY_ (ret.raw ().self ,r2x.self ,r4x) ;
+	const auto r3x = _MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ;
+	const auto r4x = _MEMRCHR_ (r2x.self ,r1x ,STR ('/')) ;
+	const auto r5x = _MAXOF_ (r3x ,r4x ,VAR_ZERO) ;
+	_MEMCOPY_ (ret.raw ().self ,r2x.self ,r5x) ;
 	return std::move (ret) ;
 }
 
@@ -312,30 +311,6 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 	(void) r1x ;
 }
 
-inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
-	auto rax = Stack<PACK<String<STR> ,BOOL>> () ;
-	const auto r1x = Function<void (const String<STR> &)> ([&] (const String<STR> &_file) {
-		_ERASEFILE_ (_file) ;
-	}) ;
-	const auto r2x = Function<void (const String<STR> &)> ([&] (const String<STR> &_dire) {
-		_DYNAMIC_ASSERT_ (!rax.full () || rax.size () < DEFAULT_EXPANDGUARD_SIZE::value) ;
-		rax.add ({_dire ,FALSE}) ;
-	}) ;
-	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
-	while (!rax.empty ()) {
-		INDEX ix = rax.peek () ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
-			if (!rax[ix].P2)
-				return (void) (if_cond = FALSE) ;
-			_ERASEDIRECTORY_ (rax[ix].P1) ;
-			rax.take () ;
-		} ,[&] (BOOL &if_cond) {
-			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
-			rax[ix].P2 = TRUE ;
-		}) ;
-	}
-}
-
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	rax += dire ;
@@ -365,6 +340,31 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 			continue ;
 		r1 (rax) ;
 		rax[r1x] = 0 ;
+	}
+}
+
+inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
+	auto rax = Stack<PACK<String<STR> ,BOOL>> () ;
+	const auto r1x = Function<void (const String<STR> &)> ([&] (const String<STR> &_file) {
+		_ERASEFILE_ (_file) ;
+	}) ;
+	const auto r2x = Function<void (const String<STR> &)> ([&] (const String<STR> &_dire) {
+		_DYNAMIC_ASSERT_ (!rax.full () || rax.size () < DEFAULT_EXPANDGUARD_SIZE::value) ;
+		rax.add ({_dire ,FALSE}) ;
+	}) ;
+	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
+	while (!rax.empty ()) {
+		INDEX ix = rax.peek () ;
+		_CALL_IF_ ([&] (BOOL &if_cond) {
+			if (!rax[ix].P2)
+				return (void) (if_cond = FALSE) ;
+			_ERASEDIRECTORY_ (rax[ix].P1) ;
+			rax.take () ;
+		} ,[&] (BOOL &if_cond) {
+			_ERASEDIRECTORY_ (rax[ix].P1) ;
+			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
+			rax[ix].P2 = TRUE ;
+		}) ;
 	}
 }
 } ;
@@ -579,12 +579,12 @@ public:
 		_ERASEDIRECTORY_ (dire) ;
 	}
 
-	void clear_directory (const String<STR> &dire) override {
-		_CLEARDIRECTORY_ (dire) ;
-	}
-
 	void enum_directory (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping override {
 		_ENUMDIRECTORY_ (dire ,file_proc ,dire_proc) ;
+	}
+
+	void clear_directory (const String<STR> &dire) override {
+		_CLEARDIRECTORY_ (dire) ;
 	}
 } ;
 

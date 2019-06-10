@@ -139,6 +139,53 @@
 #endif
 #endif
 
+#ifdef __CSC__
+#ifdef self
+#error "∑(っ°Д° ;)っ : defined 'self'"
+#endif
+#define self to ()
+
+#ifdef implicit
+#error "∑(っ°Д° ;)っ : defined 'implicit'"
+#endif
+#define implicit
+
+#ifdef popping
+#error "∑(っ°Д° ;)っ : defined 'popping'"
+#endif
+#define popping
+
+#ifdef imports
+#error "∑(っ°Д° ;)っ : defined 'imports'"
+#endif
+#define imports extern
+
+#ifdef exports
+#error "∑(っ°Д° ;)っ : defined 'exports'"
+#endif
+#define exports
+
+#ifdef discard
+#error "∑(っ°Д° ;)っ : defined 'discard'"
+#endif
+#define discard break
+#endif
+
+#ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
+#undef self
+#undef implicit
+#undef popping
+#undef imports
+#undef exports
+#undef discard
+#endif
+
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
@@ -151,16 +198,12 @@
 #include <utility>
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -297,6 +340,7 @@ using BOOL = bool ;
 #undef FALSE
 #endif
 #define FALSE false
+
 #ifdef TRUE
 #undef TRUE
 #endif
@@ -1788,7 +1832,9 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1841,7 +1887,9 @@ public:
 	}
 
 	inline AutoRef &operator= (const AutoRef &right) {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1853,7 +1901,9 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1947,8 +1997,10 @@ public:
 	inline ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		const auto r1x = --mPointer->mCounter == 0 ;
-		if (r1x) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			const auto r1x = --mPointer->mCounter == 0 ;
+			if (!r1x)
+				discard ;
 			mPointer->~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
@@ -1958,7 +2010,9 @@ public:
 	inline SharedRef (const SharedRef &right) :SharedRef (right.mPointer) {}
 
 	inline SharedRef &operator= (const SharedRef &right) {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -1970,7 +2024,9 @@ public:
 	}
 
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -2065,7 +2121,9 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2167,7 +2225,9 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2260,7 +2320,9 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2362,7 +2424,9 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2396,7 +2460,9 @@ public:
 	}
 
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (right)) ;
 		}
@@ -2450,18 +2516,18 @@ private:
 	class ImplHolder ;
 
 private:
-	PTR<Holder> mFunction1 ;
-	PTR<TYPE1 (TYPES...)> mFunction2 ;
+	PTR<Holder> mFunction_a ;
+	PTR<TYPE1 (TYPES...)> mFunction_b ;
 
 public:
 	inline Function () noexcept {
-		mFunction1 = NULL ;
-		mFunction2 = NULL ;
+		mFunction_a = NULL ;
+		mFunction_b = NULL ;
 	}
 
 	inline implicit Function (PTR<TYPE1 (TYPES...)> right) {
-		mFunction1 = NULL ;
-		mFunction2 = right ;
+		mFunction_a = NULL ;
+		mFunction_b = right ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value>>
@@ -2469,32 +2535,36 @@ public:
 		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG1> (TYPES...)> ,TYPE1>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (right)) ;
-		mFunction1 = &_LOAD_<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> (_XVALUE_<const PTR<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> &> (sgd)) ;
-		mFunction2 = NULL ;
+		mFunction_a = &_LOAD_<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> (_XVALUE_<const PTR<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> &> (sgd)) ;
+		mFunction_b = NULL ;
 		sgd = NULL ;
 	}
 
 	inline ~Function () noexcept {
-		if (mFunction1 == NULL && mFunction2 == NULL)
+		if (mFunction_a == NULL && mFunction_b == NULL)
 			return ;
-		if (mFunction1 != NULL) {
-			mFunction1->~Holder () ;
-			GlobalHeap::free (mFunction1) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mFunction_a == NULL)
+				discard ;
+			mFunction_a->~Holder () ;
+			GlobalHeap::free (mFunction_a) ;
 		}
-		mFunction1 = NULL ;
-		mFunction2 = NULL ;
+		mFunction_a = NULL ;
+		mFunction_b = NULL ;
 	}
 
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
 	inline Function (Function &&right) noexcept {
-		mFunction1 = _EXCHANGE_ (right.mFunction1) ;
-		mFunction2 = _EXCHANGE_ (right.mFunction2) ;
+		mFunction_a = _EXCHANGE_ (right.mFunction_a) ;
+		mFunction_b = _EXCHANGE_ (right.mFunction_b) ;
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2502,18 +2572,18 @@ public:
 	}
 
 	inline BOOL exist () const {
-		if (mFunction1 != NULL)
+		if (mFunction_a != NULL)
 			return TRUE ;
-		if (mFunction2 != NULL)
+		if (mFunction_b != NULL)
 			return TRUE ;
 		return FALSE ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		if (mFunction2 != NULL)
-			return mFunction2 (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
-		return mFunction1->invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		if (mFunction_b != NULL)
+			return mFunction_b (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return mFunction_a->invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2521,7 +2591,7 @@ public:
 	}
 
 private:
-	inline explicit Function (PTR<Holder> pointer) :mFunction1 (pointer) ,mFunction2 (NULL) {}
+	inline explicit Function (PTR<Holder> pointer) :mFunction_a (pointer) ,mFunction_b (NULL) {}
 
 public:
 	//@info: the function is incompleted without 'csc_ext.hpp'
@@ -2611,7 +2681,9 @@ public:
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -3036,7 +3108,9 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3094,7 +3168,9 @@ public:
 	}
 
 	inline Buffer &operator= (const Buffer &right) {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3107,7 +3183,9 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3274,10 +3352,12 @@ public:
 	inline Buffer (Buffer &&right) noexcept {
 		mBuffer = _EXCHANGE_ (right.mBuffer) ;
 		mSize = _EXCHANGE_ (right.mSize) ;
-	}
+}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3442,7 +3522,9 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3678,7 +3760,9 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3752,7 +3836,9 @@ public:
 	}
 
 	inline Allocator &operator= (const Allocator &right) {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3773,7 +3859,9 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		if (this != &right) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (this == &right)
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3858,7 +3946,9 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
 		const auto r1x = BOOL (mFree == VAR_NONE) ;
-		if (r1x) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				discard ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3868,9 +3958,10 @@ public:
 			mAllocator.swap (rax) ;
 			update_free (mLength ,mFree) ;
 		}
-		if (!r1x) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1x)
+				discard ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
-			_STATIC_WARNING_ ("unqualified") ;
 		}
 		INDEX ret = mFree ;
 		mFree = mAllocator[mFree].mNext ;

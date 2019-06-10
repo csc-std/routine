@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -71,16 +73,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -324,7 +322,9 @@ public:
 	void draw (const AnyRef<void> &_this) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		glBindVertexArray (r1.mVAO) ;
-		if (r1.mTexture != VAR_NONE) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1.mTexture == VAR_NONE)
+				discard ;
 			glActiveTexture (GL_TEXTURE_2D) ;
 			glBindTexture (GL_TEXTURE_2D ,r1.mVTO.self[r1.mTexture]) ;
 		}

@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -27,16 +29,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -160,16 +158,20 @@ inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::syste
 inline exports std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &src) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-	rax.tm_year = (src[0] > 0) ? (src[0] - 1900) : 0 ;
-	rax.tm_mon = (src[1] > 0) ? (src[1] - 1) : 0 ;
+	const auto r1x = (src[0] > 0) ? (src[0] - 1900) : 0 ;
+	rax.tm_year = r1x ;
+	const auto r2x = (src[1] > 0) ? (src[1] - 1) : 0 ;
+	rax.tm_mon = r2x ;
 	rax.tm_mday = src[2] ;
-	rax.tm_wday = (src[3] > 0) ? (src[3] - 1) : 0 ;
-	rax.tm_yday = (src[4] > 0) ? (src[4] - 1) : 0 ;
+	const auto r3x = (src[3] > 0) ? (src[3] - 1) : 0 ;
+	rax.tm_wday = r3x ;
+	const auto r4x = (src[4] > 0) ? (src[4] - 1) : 0 ;
+	rax.tm_yday = r4x ;
 	rax.tm_hour = src[5] ;
 	rax.tm_min = src[6] ;
 	rax.tm_sec = src[7] ;
-	const auto r1x = std::mktime (&rax) ;
-	return std::chrono::system_clock::from_time_t (r1x) ;
+	const auto r5x = std::mktime (&rax) ;
+	return std::chrono::system_clock::from_time_t (r5x) ;
 }
 } ;
 #endif
@@ -198,7 +200,7 @@ public:
 		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (expr.empty ())
-				break ;
+				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;
 			const auto r1x = std::string (_U8STOUAS_ (expr).raw ().self) ;
 			auto rbx = r1x.begin () ;
@@ -220,12 +222,12 @@ public:
 		String<STRU8> ret ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (expr.empty ())
-				break ;
+				discard ;
 			const auto r1x = std::string (_U8STOUAS_ (expr).raw ().self) ;
 			const auto r2x = std::string (_U8STOUAS_ (rep).raw ().self) ;
 			const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
 			if (r3x.empty ())
-				break ;
+				discard ;
 			ret = _UASTOU8S_ (PTRTOARR[&r3x[0]]) ;
 			_DEBUG_ASSERT_ (ret.size () > 0) ;
 		}

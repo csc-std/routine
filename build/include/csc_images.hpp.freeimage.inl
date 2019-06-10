@@ -5,16 +5,18 @@
 #endif
 
 #ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("popping")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#pragma pop_macro ("self")
-#pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
-#pragma pop_macro ("imports")
-#pragma pop_macro ("exports")
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -43,16 +45,12 @@
 #endif
 
 #ifdef __CSC__
-#pragma push_macro ("self")
-#pragma push_macro ("implicit")
-#pragma push_macro ("popping")
-#pragma push_macro ("imports")
-#pragma push_macro ("exports")
-#define self to ()
-#define implicit
-#define popping
-#define imports extern
-#define exports
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("popping")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -81,9 +79,9 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			me = FreeImage_Allocate (VAR32 (cx) ,VAR32 (cy) ,24) ;
+			me = FreeImage_Allocate (VAR32 (_cx) ,VAR32 (_cy) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;
@@ -189,9 +187,9 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const override {
+	void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			me = FreeImage_Allocate (VAR32 (cx) ,VAR32 (cy) ,32) ;
+			me = FreeImage_Allocate (VAR32 (_cx) ,VAR32 (_cy) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;

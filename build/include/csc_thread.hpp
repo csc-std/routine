@@ -137,7 +137,9 @@ public:
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-			if (r1.mException.exist ()) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (!r1.mException.exist ())
+					discard ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -409,7 +411,9 @@ public:
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-			if (r1.mException.exist ()) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (!r1.mException.exist ())
+					discard ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -807,9 +811,9 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r1.mThreadFlag.self)
-					break ;
+					discard ;
 				if (r1.mItem.exist ())
-					break ;
+					discard ;
 				rax = std::move (r1.mThreadProc) ;
 			}
 		}

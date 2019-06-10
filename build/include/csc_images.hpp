@@ -139,21 +139,22 @@ public:
 		mCK = 0 ;
 	}
 
-	explicit SoftImage (LENGTH cx ,LENGTH cy) :SoftImage (cx ,cy ,cx ,0) {}
+	explicit SoftImage (LENGTH _cx ,LENGTH _cy) :SoftImage (_cx ,_cy ,_cx ,0) {}
 
-	explicit SoftImage (LENGTH cx ,LENGTH cy ,LENGTH cw ,LENGTH ck) {
-		_DEBUG_ASSERT_ (cx >= 0 && cy >= 0 && cx <= cw && ck >= 0) ;
+	explicit SoftImage (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
+		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0 && _cx <= _cw && _ck >= 0) ;
 		mHolder = SharedRef<Attribute>::make () ;
-		const auto r1x = cy * cw + ck ;
-		if (r1x > 0) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			const auto r1x = _cy * _cw + _ck ;
+			if (r1x == 0)
+				discard ;
 			mHolder->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
 			mImage = PhanBuffer<TYPE>::make (mHolder->mBuffer.self) ;
 		}
-		mHolder->mWidth[0] = cx ;
-		mHolder->mWidth[1] = cy ;
-		mHolder->mWidth[2] = cw ;
-		mHolder->mWidth[3] = ck ;
-		mHolder->mWidth[4] = r1x ;
+		mHolder->mWidth[0] = _cx ;
+		mHolder->mWidth[1] = _cy ;
+		mHolder->mWidth[2] = _cw ;
+		mHolder->mWidth[3] = _ck ;
 		reset () ;
 	}
 
@@ -164,7 +165,6 @@ public:
 		mHolder->mWidth[1] = 1 ;
 		mHolder->mWidth[2] = mImage.size () ;
 		mHolder->mWidth[3] = 0 ;
-		mHolder->mWidth[4] = mImage.size () ;
 		mImage = PhanBuffer<TYPE>::make (image) ;
 		reset () ;
 	}
@@ -207,14 +207,16 @@ public:
 		mCK = mHolder->mWidth[3] ;
 	}
 
-	void reset (LENGTH cx ,LENGTH cy ,LENGTH cw ,LENGTH ck) {
-		_DEBUG_ASSERT_ (cx >= 0 && cy >= 0 && cx <= cw && ck >= 0) ;
+	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
+		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0 && _cx <= _cw && _ck >= 0) ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		_DEBUG_ASSERT_ (cy * cw + ck < mHolder->mWidth[4]) ;
-		mCX = cx ;
-		mCY = cy ;
-		mCW = cw ;
-		mCK = ck ;
+		const auto r1x = mHolder->mWidth[1] * mHolder->mWidth[2] + mHolder->mWidth[3] ;
+		_DEBUG_ASSERT_ (_cy * _cw + _ck <= r1x) ;
+		(void) r1x ;
+		mCX = _cx ;
+		mCY = _cy ;
+		mCW = _cw ;
+		mCK = _ck ;
 	}
 
 	SoftImage copy () popping {
@@ -464,7 +466,7 @@ class AbstractImage {
 public:
 	exports struct Abstract :public Interface {
 		virtual PACK<PTR<ARR<TYPE>> ,LENGTH[4]> layout (AnyRef<void> &_this) const = 0 ;
-		virtual void load_data (AnyRef<void> &_this ,LENGTH cx ,LENGTH cy) const = 0 ;
+		virtual void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
 		virtual void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
 		virtual void load_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
@@ -641,11 +643,11 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (LENGTH cx ,LENGTH cy) {
-		_DEBUG_ASSERT_ (cx >= 0 && cx < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (cy >= 0 && cy < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (cx * cy > 0) ;
-		mAbstract->load_data (mHolder ,cx ,cy) ;
+	void load_data (LENGTH _cx ,LENGTH _cy) {
+		_DEBUG_ASSERT_ (_cx >= 0 && _cx < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
+		mAbstract->load_data (mHolder ,_cx ,_cy) ;
 		update_layout () ;
 	}
 

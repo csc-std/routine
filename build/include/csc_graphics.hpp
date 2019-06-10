@@ -106,19 +106,25 @@ public:
 
 	//@info: angle_vn-angle_nu-angle_uv <<==>> pitch-yaw-roll (heading-pitch-bank)
 	void rotate (const UNIT &angle_vn ,const UNIT &angle_nu ,const UNIT &angle_uv) {
-		if (angle_vn != UNIT (0)) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (angle_vn == UNIT (0))
+				discard ;
 			const auto r1x = mEyeN * _COS_ (angle_vn) - mEyeV * _SIN_ (angle_vn) ;
 			const auto r2x = mEyeV * _COS_ (angle_vn) + mEyeN * _SIN_ (angle_vn) ;
 			mEyeN = r1x.normalize () ;
 			mEyeV = r2x.normalize () ;
 		}
-		if (angle_nu != UNIT (0)) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (angle_nu == UNIT (0))
+				discard ;
 			const auto r1x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
 			const auto r2x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
 			mEyeU = r1x.normalize () ;
 			mEyeN = r2x.normalize () ;
 		}
-		if (angle_uv != UNIT (0)) {
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (angle_uv == UNIT (0))
+				discard ;
 			const auto r1x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
 			const auto r2x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
 			mEyeV = r1x.normalize () ;

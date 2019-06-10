@@ -1,6 +1,6 @@
 ﻿#include "util.h"
 
-#include <random>
+#include <csc_math.hpp.default.inl>
 
 #ifdef __CSC_ARRAY__
 namespace UNITTEST {

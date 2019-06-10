@@ -252,7 +252,8 @@ public:
 		ret.mVector[0] = mVector[0] * r3x ;
 		ret.mVector[1] = mVector[1] * r3x ;
 		ret.mVector[2] = mVector[2] * r3x ;
-		ret.mVector[3] = r1x ? (UNIT (0)) : (UNIT (1)) ;
+		const auto r4x = r1x ? (UNIT (0)) : (UNIT (1)) ;
+		ret.mVector[3] = r4x ;
 		return std::move (ret) ;
 	}
 
@@ -300,7 +301,7 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping :mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
 private:
@@ -541,7 +542,9 @@ public:
 		Matrix ret = *this ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = ret.max_row_one (i) ;
-			if (ix != i) {
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (ix == i)
+					discard ;
 				for (INDEX j = i ; j < 4 ; j++) {
 					const auto r1x = -ret.get (i ,j) ;
 					ret.get (i ,j) = ret.get (ix ,j) ;
@@ -599,19 +602,20 @@ public:
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
-				ret.get (j ,i) = ((i + j) % 2 != 0) ? (-r5x) : r5x ;
+				const auto r6x = ((i + j) % 2 != 0) ? (-r5x) : r5x ;
+				ret.get (j ,i) = r6x ;
 			}
 		}
 		ret *= _PINV_ (r1x) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (get (3 ,3) != UNIT (1))
-				break ;
+				discard ;
 			if (!affine_matrix_like ())
-				break ;
+				discard ;
 			if (!ret.affine_matrix_like ())
-				break ;
-			const auto r6x = _PINV_ (ret.get (3 ,3)) ;
-			ret *= r6x ;
+				discard ;
+			const auto r7x = _PINV_ (ret.get (3 ,3)) ;
+			ret *= r7x ;
 			ret.get (3 ,3) = UNIT (1) ;
 		}
 		return std::move (ret) ;
