@@ -234,15 +234,15 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			INDEX ix = r1x.access (i) ;
 			if (r1x[ix] == _PCSTR_ ("."))
 				continue ;
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				if (ret.empty ())
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				if (r1x[ix] != _PCSTR_ (".."))
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
 					return ;
 				ret.take () ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				ret.add (ix) ;
 			}) ;
 		}
@@ -252,11 +252,15 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
 	if (r4x || r5x)
 		ret += _PCSTR_ ("\\") ;
-	const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
-	const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-	const auto r8x = BOOL (!r4x && !r5x && (r6x || r7x)) ;
-	if (r8x)
+	for (FOR_ONCE_DO_WHILE_FALSE) {
+		if (r4x || r5x)
+			break ;
+		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
+		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
+		if (!r6x && !r7x)
+			break ;
 		ret += _WORKINGPATH_ () ;
+	}
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
 		if (i != 0)
 			ret += _PCSTR_ ("\\") ;
@@ -343,12 +347,12 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 	while (rbx.cFileName[0] != 0) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ (".")))
-				discard ;
+				break ;
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ ("..")))
-				discard ;
+				break ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
-				discard ;
+				break ;
 			rax += String<STR> (rbx.cFileName) ;
 			r1 (rax) ;
 			rax[r1x] = 0 ;
@@ -371,11 +375,11 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	while (!rax.empty ()) {
 		INDEX ix = rax.peek () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!rax[ix].P2)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			rax.take () ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
 		}) ;
@@ -578,15 +582,17 @@ public:
 		}) ;
 	}
 
-	PhanBuffer<BYTE> watch () {
+	PhanBuffer<BYTE> watch () & {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return PhanBuffer<BYTE>::make (mThis->mBuffer.self.self) ;
 	}
 
-	PhanBuffer<const BYTE> watch () const {
+	PhanBuffer<const BYTE> watch () const & {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return PhanBuffer<const BYTE>::make (mThis->mBuffer.self.self) ;
 	}
+
+	PhanBuffer<BYTE> watch () && = delete ;
 
 	void flush () {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
@@ -623,11 +629,11 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_
 	mThis = AnyRef<Implement>::make (file ,file_len ,cache) ;
 }
 
-inline exports PhanBuffer<BYTE> BufferLoader::watch () {
+inline exports PhanBuffer<BYTE> BufferLoader::watch () & {
 	return mThis.rebind<Implement> ()->watch () ;
 }
 
-inline exports PhanBuffer<const BYTE> BufferLoader::watch () const {
+inline exports PhanBuffer<const BYTE> BufferLoader::watch () const & {
 	return mThis.rebind<Implement> ()->watch () ;
 }
 

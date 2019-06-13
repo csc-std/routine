@@ -140,6 +140,7 @@ public:
 		reset () ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	Attribute &attr () const {
 		return mHolder ;
 	}
@@ -154,10 +155,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const BYTE> raw () const {
+	PhanBuffer<const BYTE> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const BYTE>::make (mStream ,length ()) ;
 	}
+
+	PhanBuffer<const BYTE> raw () && = delete ;
 
 	void reset () {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
@@ -192,12 +195,12 @@ public:
 	}
 
 	void read (BYTE &data) popping {
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mRead >= mWrite)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			data = mStream[mRead] ;
 			mRead++ ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			data = mHolder->varify_ending_item () ;
 		}) ;
 	}
@@ -416,6 +419,7 @@ public:
 		reset () ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	Attribute &attr () const {
 		return mHolder ;
 	}
@@ -430,10 +434,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const BYTE> raw () const {
+	PhanBuffer<const BYTE> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const BYTE>::make (mStream ,length ()) ;
 	}
+
+	PhanBuffer<const BYTE> raw () && = delete ;
 
 	void reset () {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
@@ -756,6 +762,7 @@ public:
 		reset () ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	Attribute &attr () const {
 		return mHolder ;
 	}
@@ -770,10 +777,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const UNIT> raw () const {
+	PhanBuffer<const UNIT> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const UNIT>::make (mStream ,length ()) ;
 	}
+
+	PhanBuffer<const UNIT> raw () && = delete ;
 
 	void reset () {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
@@ -808,9 +817,9 @@ public:
 	}
 
 	void read (UNIT &data) popping {
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mRead >= mWrite)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			data = mHolder->convert_endian (mStream[mRead]) ;
 			const auto r2x = mHolder->varify_escape_r (data) ;
 			mRead++ ;
@@ -820,7 +829,7 @@ public:
 			data = mHolder->convert_endian (mStream[mRead]) ;
 			data = mHolder->convert_escape (data) ;
 			mRead++ ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			data = mHolder->varify_ending_item () ;
 		}) ;
 	}
@@ -834,9 +843,9 @@ public:
 		auto ris = copy () ;
 		auto rax = UNIT () ;
 		ris.read (rax) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (rax != UNIT ('t'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('r')) ;
 			ris.read (rax) ;
@@ -844,9 +853,9 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('e')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('T'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('R')) ;
 			ris.read (rax) ;
@@ -854,9 +863,9 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('E')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('f'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('a')) ;
 			ris.read (rax) ;
@@ -866,9 +875,9 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('e')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('F'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('A')) ;
 			ris.read (rax) ;
@@ -878,7 +887,7 @@ public:
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('E')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		*this = std::move (ris) ;
@@ -934,44 +943,44 @@ public:
 		const auto r1x = BOOL (rax == UNIT ('-')) ;
 		if (rax == UNIT ('+') || rax == UNIT ('-'))
 			ris.read (rax) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (rax != UNIT ('i'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('n')) ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('f')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('I'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('N')) ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('F')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('n'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('a')) ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('n')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax != UNIT ('N'))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('A')) ;
 			ris.read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == UNIT ('N')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			const auto r2x = mHolder->varify_number_item (rax) ;
 			if (!r2x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			ris.try_read_number (data ,rax) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		if (r1x)
@@ -1106,7 +1115,7 @@ private:
 		try_read_number_decimal (rbx ,ris ,rax) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (rax != UNIT ('e') && rax != UNIT ('E'))
-				discard ;
+				break ;
 			rbx[1] += ris.template read<VAR32> () ;
 			*this = ris.copy () ;
 		}
@@ -1121,12 +1130,12 @@ private:
 		*this = reader.copy () ;
 		reader.read (top) ;
 		while (mHolder->varify_number_item (top)) {
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 				if (data[0] > r1x)
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				data[0] = r1x ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				data[1]++ ;
 			}) ;
 			*this = reader.copy () ;
@@ -1144,7 +1153,7 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 				if (data[0] > r1x)
-					discard ;
+					break ;
 				data[0] = r1x ;
 				data[1]-- ;
 			}
@@ -1254,6 +1263,7 @@ public:
 		reset () ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	Attribute &attr () const {
 		return mHolder ;
 	}
@@ -1268,10 +1278,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const UNIT> raw () const {
+	PhanBuffer<const UNIT> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const UNIT>::make (mStream ,length ()) ;
 	}
+
+	PhanBuffer<const UNIT> raw () && = delete ;
 
 	void reset () {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
@@ -1298,16 +1310,16 @@ public:
 	}
 
 	void write (const UNIT &data) {
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!mHolder->varify_escape_w (data))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
 			mStream[mWrite] = mHolder->varify_escape_item () ;
 			mWrite++ ;
 			const auto r1x = mHolder->convert_escape (data) ;
 			mStream[mWrite] = r1x ;
 			mWrite++ ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
 			mStream[mWrite] = data ;
 			mWrite++ ;
@@ -1374,23 +1386,23 @@ public:
 			UNIT ('+') ,UNIT ('i') ,UNIT ('n') ,UNIT ('f')}) ;
 		static constexpr auto M_SINF = PACK<UNIT[4]> ({
 			UNIT ('-') ,UNIT ('i') ,UNIT ('n') ,UNIT ('f')}) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!_ISNAN_ (data))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			write (PhanBuffer<const UNIT>::make (M_NAN.P1)) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (data <= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (!_ISINF_ (data))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			write (PhanBuffer<const UNIT>::make (M_INF.P1)) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (data <= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (!_ISINF_ (data))
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			write (PhanBuffer<const UNIT>::make (M_SINF.P1)) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			auto rax = Buffer<UNIT ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
 			try_write_number (data ,PhanBuffer<UNIT>::make (rax) ,iw) ;
@@ -1478,24 +1490,24 @@ private:
 	void try_write_number (const VAR64 &data ,const PhanBuffer<UNIT> &out ,INDEX &it) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
 		INDEX iw = it ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (data <= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			auto rax = data ;
 			while (rax != 0) {
 				out[--iw] = mHolder->convert_number_w (rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (data >= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			auto rax = data ;
 			while (rax != 0) {
 				out[--iw] = mHolder->convert_number_w (-rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
 			out[--iw] = UNIT ('-') ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			out[--iw] = mHolder->convert_number_w (0) ;
 		}) ;
 		it = iw ;
@@ -1510,9 +1522,9 @@ private:
 		if (r2x)
 			rax[0] = -rax[0] ;
 		const auto r3x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (_ABS_ (r3x - 1 + rax[1]) < 6)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r4x = _MAX_ ((r3x - 7) ,VAR_ZERO) ;
 			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
@@ -1522,11 +1534,11 @@ private:
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax[1] < 1 - r3x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (rax[1] >= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
@@ -1536,9 +1548,9 @@ private:
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (rax[1] >= 1 - r3x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
@@ -1550,10 +1562,10 @@ private:
 			rax[1]++ ;
 		}) ;
 		const auto r4x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			//@info: case 'x.xxxExxx'
 			if (_ABS_ (r4x - 1 + rax[1]) < 6)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			try_write_number ((r4x - 1 + rax[1]) ,out ,iw) ;
 			if (out[iw] != UNIT ('-'))
 				out[--iw] = UNIT ('+') ;
@@ -1571,22 +1583,22 @@ private:
 			iw += EFLAG (out[ix] == UNIT ('.')) ;
 			out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 			rax[0] /= mHolder->varify_radix () ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			//@info: case 'xxx000'
 			if (rax[1] <= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = mHolder->convert_number_w (0) ;
 			for (INDEX i = 0 ; i < r4x ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			//@info: case 'xxx.xxx'
 			if (rax[1] < 1 - r4x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (rax[1] >= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r5x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
@@ -1602,12 +1614,12 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			//@info: case '0.000xxx'
 			if (rax[1] >= 1 - r4x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (rax[1] >= 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r5x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
@@ -1624,10 +1636,10 @@ private:
 			out[--iw] = UNIT ('.') ;
 			iw += EFLAG (out[ix] == UNIT ('.')) ;
 			out[--iw] = mHolder->convert_number_w (0) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			//@info: case '0'
 			if (rax[1] != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			out[--iw] = mHolder->convert_number_w (0) ;
 		}) ;
 		if (r2x)
@@ -1976,15 +1988,19 @@ public:
 		return Shadow (*this) ;
 	}
 
-	const STRU8 &get (INDEX index) const {
+	const STRU8 &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
 		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mCache.length ()) ;
 		return mCache[(mWrite + index) % mCache.length ()] ;
 	}
 
-	inline const STRU8 &operator[] (INDEX index) const {
+	inline const STRU8 &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	const STRU8 &get (INDEX) && = delete ;
+
+	inline const STRU8 &operator[] (INDEX) && = delete ;
 
 	void read () {
 		mReader.self >> mCache[mWrite] ;
@@ -2085,7 +2101,7 @@ public:
 		data.clear () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r2x)
-				discard ;
+				break ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2094,20 +2110,20 @@ public:
 			read () ;
 			if (!r1x)
 				continue ;
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				const auto r4x = BOOL (data[i] == mReader->attr ().varify_escape_item ()) ;
 				if (!r4x)
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				data[i] = get (0) ;
 				read () ;
 				data[i] = mReader->attr ().convert_escape (data[i]) ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (data[i])) ;
 			}) ;
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r2x)
-				discard ;
+				break ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2125,7 +2141,7 @@ public:
 			const auto r2x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
 			const auto r3x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
 			const auto r4x = BOOL (ris[0] == STRU8 ('_')) ;
-			_DYNAMIC_ASSERT_ (ret != 0 || r2x || r3x || r4x) ;
+			_DYNAMIC_ASSERT_ (ret > 0 || r2x || r3x || r4x) ;
 			const auto r5x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
 			const auto r6x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
 			if (!r2x && !r3x && !r4x && !r5x && !r6x)
@@ -2141,7 +2157,7 @@ public:
 		auto ris = shadow () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-				discard ;
+				break ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2155,7 +2171,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('.'))
-				discard ;
+				break ;
 			ris++ ;
 			ret++ ;
 			while (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) {
@@ -2165,12 +2181,12 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
-				discard ;
+				break ;
 			ris++ ;
 			ret++ ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-					discard ;
+					break ;
 				ris++ ;
 				ret++ ;
 			}
@@ -2194,14 +2210,14 @@ public:
 		while (ris[0] != STRU8 ('\0') && ris[0] != STRU8 ('\"')) {
 			rax = ris[0] ;
 			ris++ ;
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
 				if (!r1x)
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				rax = ris[0] ;
 				ris++ ;
 				rax = mReader->attr ().convert_escape (rax) ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
 			}) ;
 			ret++ ;

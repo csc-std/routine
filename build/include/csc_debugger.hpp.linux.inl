@@ -170,9 +170,9 @@ public:
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mLogPath == r1x)
-				discard ;
+				break ;
 			if (!mLogFileStream.exist ())
-				discard ;
+				break ;
 			mLogFileStream->flush () ;
 			mLogFileStream = AutoRef<StreamLoader> () ;
 		}
@@ -321,6 +321,7 @@ public:
 			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r2x[0][0]])) ;
 			ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 		}
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 } ;

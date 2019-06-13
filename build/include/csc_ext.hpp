@@ -213,7 +213,7 @@ public:
 		VAR128 ret = *this ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (scale < 64)
-				discard ;
+				break ;
 			ret.v2i1 = v2i0 ;
 			ret.v2i0 = 0 ;
 			scale -= 64 ;
@@ -227,7 +227,7 @@ public:
 		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (scale < 64)
-				discard ;
+				break ;
 			v2i1 = v2i0 ;
 			v2i0 = 0 ;
 			scale -= 64 ;
@@ -242,7 +242,7 @@ public:
 		VAR128 ret = *this ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (scale < 64)
-				discard ;
+				break ;
 			ret.v2i0 = v2i1 ;
 			ret.v2i1 = 0 ;
 			scale -= 64 ;
@@ -256,7 +256,7 @@ public:
 		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (scale < 64)
-				discard ;
+				break ;
 			v2i0 = v2i1 ;
 			v2i1 = 0 ;
 			scale -= 64 ;
@@ -326,15 +326,15 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
 		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!r1x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i0 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i1 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i2 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (right.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -346,19 +346,19 @@ public:
 			ret.v4i2 = CHAR (rax / r3x) ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (r1x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			const auto r4x = r3x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
 			ret = r4x ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (r2x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			const auto r4x = r3x ? (VAR128 (0)) : (*this / -right) ;
 			ret = r4x ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			ret = slow_divide (*this ,right) ;
 		}) ;
 		return std::move (ret) ;
@@ -374,15 +374,15 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
 		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!r1x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i0 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i1 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			if (right.v4i2 != 0)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (right.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -394,19 +394,19 @@ public:
 			ret.v4i2 = 0 ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (r1x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
 			const auto r4x = r3x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
 			ret = r4x ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			if (r2x)
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
 			const auto r4x = r3x ? (*this) : (*this % -right) ;
 			ret = r4x ;
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			ret = right - slow_divide (*this ,right) * right ;
 		}) ;
 		return std::move (ret) ;
@@ -466,73 +466,85 @@ private:
 			if (r2x == y)
 				break ;
 			const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
-			INDEX ix = EFLAG (r2x >= y) ;
-			rax[ix] = r3x ;
+			auto &r1 = (r2x < y) ? (rax[0]) : (rax[1]) ;
+			r1 = r3x ;
 		}
 		ret -= EFLAG (ret * x > y) ;
 		return std::move (ret) ;
 	}
 
 private:
-	inline DATA &m_v2i0 () {
+	inline DATA &m_v2i0 () & {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
-	inline const DATA &m_v2i0 () const {
+	inline const DATA &m_v2i0 () const & {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
-	inline DATA &m_v2i1 () {
+	inline DATA &m_v2i0 () && = delete ;
+
+	inline DATA &m_v2i1 () & {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
-	inline const DATA &m_v2i1 () const {
+	inline const DATA &m_v2i1 () const & {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
-	inline CHAR &m_v4i0 () {
+	inline DATA &m_v2i1 () && = delete ;
+
+	inline CHAR &m_v4i0 () & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
-	inline const CHAR &m_v4i0 () const {
+	inline const CHAR &m_v4i0 () const & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
-	inline CHAR &m_v4i1 () {
+	inline CHAR &m_v4i0 () && = delete ;
+
+	inline CHAR &m_v4i1 () & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
-	inline const CHAR &m_v4i1 () const {
+	inline const CHAR &m_v4i1 () const & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
-	inline CHAR &m_v4i2 () {
+	inline CHAR &m_v4i1 () && = delete ;
+
+	inline CHAR &m_v4i2 () & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
-	inline const CHAR &m_v4i2 () const {
+	inline const CHAR &m_v4i2 () const & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
-	inline CHAR &m_v4i3 () {
+	inline CHAR &m_v4i2 () && = delete ;
+
+	inline CHAR &m_v4i3 () & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
 
-	inline const CHAR &m_v4i3 () const {
+	inline const CHAR &m_v4i3 () const & {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
+
+	inline CHAR &m_v4i3 () && = delete ;
 
 #undef v2i0
 #undef v2i1
@@ -660,7 +672,8 @@ public:
 #ifdef __CSC_DEPRECATED__
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value>>
 	inline void apply_lambda (const _ARG1 &proc) const {
-		apply (Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator())) ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator()) ;
+		apply (r1x) ;
 	}
 #endif
 
@@ -785,7 +798,7 @@ public:
 	inline Variant &operator= (const Variant &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -802,7 +815,7 @@ public:
 	inline Variant &operator= (Variant &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -841,20 +854,6 @@ public:
 	}
 
 	template <class _ARG1>
-	inline _ARG1 &value (_ARG1 &def) {
-		if (!available<_ARG1> ())
-			return def ;
-		return _LOAD_<_ARG1> (mVariant.unused) ;
-	}
-
-	template <class _ARG1>
-	inline const _ARG1 &value (const _ARG1 &def) const {
-		if (!available<_ARG1> ())
-			return def ;
-		return _LOAD_<_ARG1> (mVariant.unused) ;
-	}
-
-	template <class _ARG1>
 	inline void apply (const Function<void (_ARG1 &)> &proc) {
 		if (!available<_ARG1> ())
 			return ;
@@ -885,7 +884,8 @@ public:
 #ifdef __CSC_DEPRECATED__
 	template <class _RET ,class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULTOF_TYPE<_ARG1 (_RET &)> ,void>::value>>
 	inline void apply_lambda (const _ARG1 &proc) const {
-		apply (Function<DEF<void (_RET &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator())) ;
+		const auto r1x = Function<DEF<void (_RET &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator()) ;
+		apply (r1x) ;
 	}
 #endif
 
@@ -951,7 +951,7 @@ private:
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r1x)
-				discard ;
+				break ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
@@ -1066,31 +1066,38 @@ public:
 		return 1 + rest ().capacity () ;
 	}
 
-	inline TYPE1 &one () {
+	inline TYPE1 &one () & {
 		return mData ;
 	}
 
-	inline constexpr const TYPE1 &one () const {
+	inline constexpr const TYPE1 &one () const & {
 		return mData ;
 	}
 
-	inline Tuple<TYPES...> &rest () {
+	inline TYPE1 &one () && = delete ;
+
+	inline Tuple<TYPES...> &rest () & {
 		return *this ;
 	}
 
-	inline constexpr const Tuple<TYPES...> &rest () const {
+	inline constexpr const Tuple<TYPES...> &rest () const & {
 		return *this ;
 	}
+
+	inline Tuple<TYPES...> &rest () && = delete ;
 
 	template <INDEX _VAL1>
-	inline VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () {
+	inline VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () & {
 		return template_visit (*this ,_NULL_<const ARGC<_VAL1>> ()) ;
 	}
 
 	template <INDEX _VAL1>
-	inline constexpr const VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () const {
+	inline constexpr const VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () const & {
 		return template_visit (*this ,_NULL_<const ARGC<_VAL1>> ()) ;
 	}
+
+	template <INDEX _VAL1>
+	inline VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () && = delete ;
 
 	inline BOOL equal (const Tuple &right) const {
 		if (one () != right.one ())
@@ -1666,7 +1673,7 @@ public:
 	inline StrongRef &operator= (const StrongRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -1681,7 +1688,7 @@ public:
 	inline StrongRef &operator= (StrongRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -1941,7 +1948,7 @@ public:
 	inline SoftRef &operator= (SoftRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (right)) ;
 		}
@@ -2049,12 +2056,12 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mHeap->length () < mHeap->size ())
-				discard ;
+				break ;
 			mIndex = min_weight_one () ;
 			_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 			const auto r1x = expr_log2 (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
-				discard ;
+				break ;
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight >>= r1x ;
 		}
@@ -2088,13 +2095,15 @@ private:
 	}
 
 private:
-	inline WeakRef<TYPE> &m_super () {
+	inline WeakRef<TYPE> &m_super () & {
 		return *this ;
 	}
 
-	inline const WeakRef<TYPE> &m_super () const {
+	inline const WeakRef<TYPE> &m_super () const & {
 		return *this ;
 	}
+
+	inline WeakRef<TYPE> &m_super () && = delete ;
 
 #undef super
 #pragma pop_macro ("super")
@@ -2195,7 +2204,7 @@ public:
 	inline IntrusiveRef &operator= (IntrusiveRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (right)) ;
 		}
@@ -2691,7 +2700,7 @@ private:
 			auto rbx = IntrusiveRef<Pack> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
-					discard ;
+					break ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r2x = rbx.watch () ;
@@ -2827,7 +2836,7 @@ public:
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (rax != NULL)
-				discard ;
+				break ;
 			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
@@ -2893,7 +2902,7 @@ public:
 			auto rbx = IntrusiveRef<Pack> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
-					discard ;
+					break ;
 				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -2905,8 +2914,7 @@ public:
 			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
 			return IntrusiveRef<Pack> (r5x).watch () ;
 		}) ;
-		auto &r3 = _XVALUE_<Pack &> (r1) ;
-		return r3.mData ;
+		return _XVALUE_<Pack &> (r1).mData ;
 	}
 } ;
 

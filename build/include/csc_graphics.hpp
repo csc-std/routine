@@ -25,29 +25,32 @@ private:
 public:
 	Mesh () = default ;
 
+	_STATIC_WARNING_ ("unqualified") ;
 	const Set<ARRAY3<VAL32>> &vertex () const {
 		return mVertexSet ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	const Queue<ARRAY3<INDEX>> &element () const {
 		return mElementList ;
 	}
 
+	_STATIC_WARNING_ ("unqualified") ;
 	const Array<SoftImage<COLOR_BGR>> &texture () const {
 		return mTexture ;
 	}
 
-	void add_vertex (const Set<ARRAY3<VAL32>> &vertex) {
-		mVertexSet.appand (vertex) ;
+	void add_vertex (const Set<ARRAY3<VAL32>> &_vertex) {
+		mVertexSet.appand (_vertex) ;
 	}
 
-	void add_element (const Queue<ARRAY3<INDEX>> &element) {
-		mElementList.appand (element) ;
+	void add_element (const Queue<ARRAY3<INDEX>> &_element) {
+		mElementList.appand (_element) ;
 	}
 
-	void add_texture (SoftImage<COLOR_BGR> &&texture) {
+	void add_texture (SoftImage<COLOR_BGR> &&_texture) {
 		mTexture = Array<SoftImage<COLOR_BGR>> (1) ;
-		mTexture[0] = std::move (texture) ;
+		mTexture[0] = std::move (_texture) ;
 	}
 } ;
 
@@ -74,22 +77,6 @@ public:
 		perspective (UNIT (90) ,UNIT (1) ,UNIT (1) ,UNIT (1000)) ;
 	}
 
-	const Vector<UNIT> &eye_u () const {
-		return mEyeU ;
-	}
-
-	const Vector<UNIT> &eye_v () const {
-		return mEyeV ;
-	}
-
-	const Vector<UNIT> &eye_n () const {
-		return mEyeN ;
-	}
-
-	const Vector<UNIT> &eye_p () const {
-		return mEyeP ;
-	}
-
 	void lookat (const Vector<UNIT> &eye ,const Vector<UNIT> &center ,const Vector<UNIT> &up) {
 		_DEBUG_ASSERT_ (eye[3] == UNIT (1) && center[3] == UNIT (1) && up[3] == UNIT (0)) ;
 		mEyeN = (center - eye).normalize () ;
@@ -108,7 +95,7 @@ public:
 	void rotate (const UNIT &angle_vn ,const UNIT &angle_nu ,const UNIT &angle_uv) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_vn == UNIT (0))
-				discard ;
+				break ;
 			const auto r1x = mEyeN * _COS_ (angle_vn) - mEyeV * _SIN_ (angle_vn) ;
 			const auto r2x = mEyeV * _COS_ (angle_vn) + mEyeN * _SIN_ (angle_vn) ;
 			mEyeN = r1x.normalize () ;
@@ -116,7 +103,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_nu == UNIT (0))
-				discard ;
+				break ;
 			const auto r1x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
 			const auto r2x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
 			mEyeU = r1x.normalize () ;
@@ -124,7 +111,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_uv == UNIT (0))
-				discard ;
+				break ;
 			const auto r1x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
 			const auto r2x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
 			mEyeV = r1x.normalize () ;
@@ -139,8 +126,9 @@ public:
 		mEyeP -= mEyeN * _near ;
 	}
 
-	const Matrix<UNIT> &view () const {
-		mViewMatrix.apply (Function<DEF<void (Matrix<UNIT> &)> NONE::*> (PhanRef<const Camera>::make (*this) ,&Camera::compute_view_matrix)) ;
+	Matrix<UNIT> view () const {
+		const auto r1x = Function<DEF<void (Matrix<UNIT> &)> NONE::*> (PhanRef<const Camera>::make (*this) ,&Camera::compute_view_matrix) ;
+		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
 	}
 
@@ -214,7 +202,7 @@ public:
 		mProjectionMatrix[3][3] = UNIT (1) ;
 	}
 
-	const Matrix<UNIT> &projection () const {
+	Matrix<UNIT> projection () const {
 		return mProjectionMatrix ;
 	}
 

@@ -194,19 +194,31 @@ public:
 	}
 
 	void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Vector<VAL32> &data) const override {
-		glUniform3fv (VAR32 (index) ,1 ,data.raw ().self) ;
+		const auto r1x = ARRAY4<VAL32> {data[0] ,data[1] ,data[2] ,data[3]} ;
+		glUniform4fv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
 	void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const override {
-		glUniform3dv (VAR32 (index) ,1 ,data.raw ().self) ;
+		const auto r1x = ARRAY4<VAL64> {data[0] ,data[1] ,data[2] ,data[3]} ;
+		glUniform4dv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
 	void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const override {
-		glUniformMatrix4fv (VAR32 (index) ,1 ,GL_TRUE ,data.raw ().self) ;
+		const auto r1x = ARRAY16<VAL32> ({
+			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
+			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,
+			data[2][0] ,data[2][1] ,data[2][2] ,data[2][3] ,
+			data[3][0] ,data[3][1] ,data[3][2] ,data[3][3]}) ;
+		glUniformMatrix4fv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
 	void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const override {
-		glUniformMatrix4dv (VAR32 (index) ,1 ,GL_TRUE ,data.raw ().self) ;
+		const auto r1x = ARRAY16<VAL64> ({
+			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
+			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,
+			data[2][0] ,data[2][1] ,data[2][2] ,data[2][3] ,
+			data[3][0] ,data[3][1] ,data[3][2] ,data[3][3]}) ;
+		glUniformMatrix4dv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
 private:
@@ -214,11 +226,11 @@ private:
 		const auto r1x = _CALL_ ([&] () {
 			VAR32 ret ;
 			glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(ret = GL_FALSE)) ;
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				if (ret != GL_FALSE)
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&(ret = 0)) ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				ret = 0 ;
 			}) ;
 			return std::move (ret) ;
@@ -233,11 +245,11 @@ private:
 		const auto r1x = _CALL_ ([&] () {
 			VAR32 ret ;
 			glGetProgramiv (shader ,GL_LINK_STATUS ,&(ret = GL_FALSE)) ;
-			_CALL_IF_ ([&] (BOOL &if_cond) {
+			_CALL_IF_ ([&] (BOOL &if_flag) {
 				if (ret != GL_FALSE)
-					return (void) (if_cond = FALSE) ;
+					discard ;
 				glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&(ret = 0)) ;
-			} ,[&] (BOOL &if_cond) {
+			} ,[&] (BOOL &if_flag) {
 				ret = 0 ;
 			}) ;
 			return std::move (ret) ;
@@ -324,7 +336,7 @@ public:
 		glBindVertexArray (r1.mVAO) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1.mTexture == VAR_NONE)
-				discard ;
+				break ;
 			glActiveTexture (GL_TEXTURE_2D) ;
 			glBindTexture (GL_TEXTURE_2D ,r1.mVTO.self[r1.mTexture]) ;
 		}
@@ -339,6 +351,7 @@ private:
 			INDEX ix = iw++ ;
 			ret[ix][0] = vertex[i[0]] ;
 		}
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -350,6 +363,7 @@ private:
 			ret[ix][0] = vertex[i[0]] ;
 			ret[ix][1] = vertex[i[1]] ;
 		}
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -362,6 +376,7 @@ private:
 			ret[ix][1] = vertex[i[1]] ;
 			ret[ix][2] = vertex[i[2]] ;
 		}
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -375,6 +390,7 @@ private:
 			ret[ix][2] = vertex[i[2]] ;
 			ret[ix][3] = vertex[i[3]] ;
 		}
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 

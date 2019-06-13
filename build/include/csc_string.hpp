@@ -227,7 +227,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU16 (i) ;
 		} else if (rax == 0 && i <= STRU8 (0XDF)) {
@@ -288,7 +288,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU16 (0X007F)) {
 			ret[iw++] = STRU8 (i) ;
 		} else if (rax == 0 && i <= STRU16 (0X07FF)) {
@@ -337,7 +337,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU8 (0X7F)) {
 			ret[iw++] = STRU32 (i) ;
 		} else if (rax == 0 && i <= STRU8 (0XDF)) {
@@ -390,7 +390,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU32 (0X0000007F)) {
 			ret[iw++] = STRU8 (i) ;
 		} else if (rax == 0 && i <= STRU32 (0X000007FF)) {
@@ -441,7 +441,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU16 (0X07FF)) {
 			ret[iw++] = STRU32 (i) ;
 		} else if (rax == 0 && i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)) {
@@ -477,7 +477,7 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0 && i <= STRU32 (0X0000FFFF)) {
 			ret[iw++] = STRU16 (i) ;
 		} else if (rax == 0 && i <= STRU32 (0X0010FFFF)) {
@@ -604,7 +604,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 	for (auto &&i : r2) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0) {
 			rbx = STRUW (i) ;
 			rax = 10 ;
@@ -655,7 +655,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		INDEX ix = r1.find (STRUW (i)) ;
 		if (rax == 0 && ix == VAR_NONE) {
 			ret[iw++] = STRUA ('?') ;
@@ -922,7 +922,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		if (rax == 0) {
 			rbx = CHAR (i) ;
 			rax = 1 ;
@@ -976,7 +976,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 	for (auto &&i : src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
-			continue ;
+			break ;
 		const auto r1x = ((i & STRU8 (0X80)) == 0) ? (M_TABLE.P1[LENGTH (i) - 32]) : VAR_NONE ;
 		if (rax == 0 && r1x >= 0) {
 			rbx = CHAR (r1x & 63) ;
@@ -1046,7 +1046,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ris.copy () >> rax ;
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (rax != _ARG1 (':'))
-			discard ;
+			break ;
 		ris >> rax ;
 		ris >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 65536) ;
@@ -1071,7 +1071,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (r1[3]) ;
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (stru.P1 == 0)
-			discard ;
+			break ;
 		wos << _RET (':') ;
 		wos << VAR (stru.P1) ;
 	}

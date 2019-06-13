@@ -107,9 +107,11 @@ public:
 
 	explicit BufferLoader (const String<STR> &file ,LENGTH file_len ,BOOL cache) ;
 
-	PhanBuffer<BYTE> watch () ;
+	PhanBuffer<BYTE> watch () & ;
 
-	PhanBuffer<const BYTE> watch () const ;
+	PhanBuffer<const BYTE> watch () const & ;
+
+	PhanBuffer<BYTE> watch () && = delete ;
 
 	void flush () ;
 } ;

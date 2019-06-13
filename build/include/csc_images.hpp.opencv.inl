@@ -189,7 +189,8 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = cv::imread (_BUILDSTRS_<STRA> (file).raw ().self ,cv::IMREAD_COLOR) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		auto rax = cv::imread (r1x.raw ().self ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -197,10 +198,11 @@ public:
 
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		const auto r2x = cv::imwrite (_BUILDSTRS_<STRA> (file).raw ().self ,r1 ,r2) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
+		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
 
@@ -255,7 +257,8 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = cv::imread (_BUILDSTRS_<STRA> (file).raw ().self ,cv::IMREAD_UNCHANGED) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		auto rax = cv::imread (r1x.raw ().self ,cv::IMREAD_UNCHANGED) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -263,10 +266,11 @@ public:
 
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		const auto r2x = cv::imwrite (_BUILDSTRS_<STRA> (file).raw ().self ,r1 ,r2) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
+		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
 
@@ -321,7 +325,8 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = cv::imread (_BUILDSTRS_<STRA> (file).raw ().self ,cv::IMREAD_GRAYSCALE) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		auto rax = cv::imread (r1x.raw ().self ,cv::IMREAD_GRAYSCALE) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -329,10 +334,11 @@ public:
 
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		const auto r2x = cv::imwrite (_BUILDSTRS_<STRA> (file).raw ().self ,r1 ,r2) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
+		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
 
@@ -387,7 +393,8 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = cv::imread (_BUILDSTRS_<STRA> (file).raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_4) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		auto rax = cv::imread (r1x.raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_4) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -395,10 +402,11 @@ public:
 
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		const auto r2x = cv::imwrite (_BUILDSTRS_<STRA> (file).raw ().self ,r1 ,r2) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
+		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
 
@@ -443,8 +451,8 @@ public:
 	void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
 		cv::imencode (_PCSTRA_ ("bmp") ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -453,7 +461,8 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
-		auto rax = cv::imread (_BUILDSTRS_<STRA> (file).raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_8) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		auto rax = cv::imread (r1x.raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_8) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
@@ -461,10 +470,11 @@ public:
 
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
-		const auto r2x = cv::imwrite (_BUILDSTRS_<STRA> (file).raw ().self ,r1 ,r2) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = std::vector<VAR32> () ;
+		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
+		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
 } ;

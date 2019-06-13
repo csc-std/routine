@@ -14,15 +14,15 @@ public:
 		auto rax = Promise<int>::async ([&] () {
 			return A ().work () ;
 		}) ;
-		const auto r4x = rax.poll (Optional<int>::nullopt ()) ;
-		_UNITTEST_ASSERT_ (!r4x.exist ()) ;
+		const auto r4x = rax.value (-1) ;
+		_UNITTEST_ASSERT_ (r4x == -1) ;
 		INDEX ir = 0 ;
 		while (!rax.ready ()) {
 			ir++ ;
 			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
 		}
 		_UNITTEST_ASSERT_ (_ABS_ (ir - 10) < 2) ;
-		const auto r5x = rax.poll (Optional<int>::nullopt ()).value (0) ;
+		const auto r5x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r5x == 3) ;
 		const auto r6x = rax.poll () ;
 		_UNITTEST_ASSERT_ (r6x == 3) ;

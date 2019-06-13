@@ -142,12 +142,14 @@ public:
 	explicit SoftImage (LENGTH _cx ,LENGTH _cy) :SoftImage (_cx ,_cy ,_cx ,0) {}
 
 	explicit SoftImage (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0 && _cx <= _cw && _ck >= 0) ;
+		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
+		_DEBUG_ASSERT_ (_cx <= _cw) ;
+		_DEBUG_ASSERT_ (_ck >= 0) ;
 		mHolder = SharedRef<Attribute>::make () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = _cy * _cw + _ck ;
 			if (r1x == 0)
-				discard ;
+				break ;
 			mHolder->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
 			mImage = PhanBuffer<TYPE>::make (mHolder->mBuffer.self) ;
 		}
@@ -189,15 +191,17 @@ public:
 		return RangeFolder<ARGC<2>> ({mCY ,mCX}) ;
 	}
 
-	PhanBuffer<TYPE> raw () {
+	PhanBuffer<TYPE> raw () & {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
 		return PhanBuffer<TYPE>::make (mImage) ;
 	}
 
-	PhanBuffer<const TYPE> raw () const {
+	PhanBuffer<const TYPE> raw () const & {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
 		return PhanBuffer<const TYPE>::make (mImage) ;
 	}
+
+	PhanBuffer<TYPE> raw () && = delete ;
 
 	void reset () {
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
@@ -208,7 +212,9 @@ public:
 	}
 
 	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0 && _cx <= _cw && _ck >= 0) ;
+		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
+		_DEBUG_ASSERT_ (_cx <= _cw) ;
+		_DEBUG_ASSERT_ (_ck >= 0) ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		const auto r1x = mHolder->mWidth[1] * mHolder->mWidth[2] + mHolder->mWidth[3] ;
 		_DEBUG_ASSERT_ (_cy * _cw + _ck <= r1x) ;
@@ -230,49 +236,59 @@ public:
 		return std::move (ret) ;
 	}
 
-	TYPE &get (INDEX y ,INDEX x) {
+	TYPE &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	TYPE &get (const ARRAY2<INDEX> &index) {
-		return get (index[0] ,index[1]) ;
-	}
-
-	inline TYPE &operator[] (const ARRAY2<INDEX> &index) {
-		return get (index) ;
-	}
-
-	const TYPE &get (INDEX y ,INDEX x) const {
+	const TYPE &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	const TYPE &get (const ARRAY2<INDEX> &index) const {
+	TYPE &get (INDEX ,INDEX) && = delete ;
+
+	TYPE &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const {
+	inline TYPE &operator[] (const ARRAY2<INDEX> &index) & {
 		return get (index) ;
 	}
 
-	Row<SoftImage> get (INDEX y) {
+	const TYPE &get (const ARRAY2<INDEX> &index) const & {
+		return get (index[0] ,index[1]) ;
+	}
+
+	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const & {
+		return get (index) ;
+	}
+
+	TYPE &get (const ARRAY2<INDEX> &) && = delete ;
+
+	inline TYPE &operator[] (const ARRAY2<INDEX> &) && = delete ;
+
+	Row<SoftImage> get (INDEX y) & {
 		return Row<SoftImage> (*this ,y) ;
 	}
 
-	inline Row<SoftImage> operator[] (INDEX y) {
+	inline Row<SoftImage> operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	Row<const SoftImage> get (INDEX y) const {
+	Row<const SoftImage> get (INDEX y) const & {
 		return Row<const SoftImage> (*this ,y) ;
 	}
 
-	inline Row<const SoftImage> operator[] (INDEX y) const {
+	inline Row<const SoftImage> operator[] (INDEX y) const & {
 		return get (y) ;
 	}
+
+	Row<SoftImage> get (INDEX) && = delete ;
+
+	inline Row<SoftImage> operator[] (INDEX) && = delete ;
 
 	BOOL equal (const SoftImage &right) const {
 		if (mCX != right.mCX || mCY != right.mCY)
@@ -582,58 +598,71 @@ public:
 		return RangeFolder<ARGC<2>> ({mCY ,mCX}) ;
 	}
 
-	TYPE &get (INDEX y ,INDEX x) {
+	TYPE &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	TYPE &get (const ARRAY2<INDEX> &index) {
-		return get (index[0] ,index[1]) ;
-	}
-
-	inline TYPE &operator[] (const ARRAY2<INDEX> &index) {
-		return get (index) ;
-	}
-
-	const TYPE &get (INDEX y ,INDEX x) const {
+	const TYPE &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	const TYPE &get (const ARRAY2<INDEX> &index) const {
+	TYPE &get (INDEX ,INDEX) && = delete ;
+
+	TYPE &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const {
+	inline TYPE &operator[] (const ARRAY2<INDEX> &index) & {
 		return get (index) ;
 	}
 
-	Row<AbstractImage> get (INDEX y) {
+	const TYPE &get (const ARRAY2<INDEX> &index) const & {
+		return get (index[0] ,index[1]) ;
+	}
+
+	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const & {
+		return get (index) ;
+	}
+
+	TYPE &get (const ARRAY2<INDEX> &) && = delete ;
+
+	inline TYPE &operator[] (const ARRAY2<INDEX> &) && = delete ;
+
+	Row<AbstractImage> get (INDEX y) & {
 		return Row<AbstractImage> (*this ,y) ;
 	}
 
-	inline Row<AbstractImage> operator[] (INDEX y) {
+	inline Row<AbstractImage> operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	Row<const AbstractImage> get (INDEX y) const {
+	Row<const AbstractImage> get (INDEX y) const & {
 		return Row<const AbstractImage> (*this ,y) ;
 	}
 
-	inline Row<const AbstractImage> operator[] (INDEX y) const {
+	inline Row<const AbstractImage> operator[] (INDEX y) const & {
 		return get (y) ;
 	}
 
+	Row<AbstractImage> get (INDEX) && = delete ;
+
+	inline Row<AbstractImage> operator[] (INDEX) && = delete ;
+
 	template <class _RET>
-	NativeProxy<AbstractImage ,_RET> native () {
+	NativeProxy<AbstractImage ,_RET> native () & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		return NativeProxy<AbstractImage ,_RET> (*this) ;
 	}
+
+	template <class _RET>
+	NativeProxy<AbstractImage ,_RET> native () && = delete ;
 
 	SoftImage<TYPE> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;

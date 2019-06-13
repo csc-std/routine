@@ -185,7 +185,8 @@ inline String<STRU8> NetworkService::http_get (const String<STRU8> &addr ,const 
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
 	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
-	ret[iw] = 0 ;
+	if (iw < ret.size ())
+		ret[iw] = 0 ;
 	return std::move (ret) ;
 }
 
@@ -200,7 +201,8 @@ inline String<STRU8> NetworkService::http_post (const String<STRU8> &addr ,const
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
 	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
-	ret[iw] = 0 ;
+	if (iw < ret.size ())
+		ret[iw] = 0 ;
 	return std::move (ret) ;
 }
 } ;

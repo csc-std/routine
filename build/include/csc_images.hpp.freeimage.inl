@@ -136,10 +136,11 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			const auto r1x = FreeImage_GetFileType (_BUILDSTRS_<STRA> (file).raw ().self) ;
-			_DYNAMIC_ASSERT_ (r1x != FIF_UNKNOWN) ;
-			me = FreeImage_Load (r1x ,_BUILDSTRS_<STRA> (file).raw ().self) ;
+			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
+			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
+			me = FreeImage_Load (r2x ,r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;
@@ -160,8 +161,9 @@ public:
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		_DEBUG_ASSERT_ (!param.exist ()) ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = FreeImage_Save (FIF_JPEG ,r1 ,_BUILDSTRS_<STRA> (file).raw ().self) ;
-		_DYNAMIC_ASSERT_ (r1x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = FreeImage_Save (FIF_JPEG ,r1 ,r1x.raw ().self) ;
+		_DYNAMIC_ASSERT_ (r2x) ;
 	}
 } ;
 
@@ -244,10 +246,11 @@ public:
 	}
 
 	void load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			const auto r1x = FreeImage_GetFileType (_BUILDSTRS_<STRA> (file).raw ().self) ;
-			_DYNAMIC_ASSERT_ (r1x != FIF_UNKNOWN) ;
-			me = FreeImage_Load (r1x ,_BUILDSTRS_<STRA> (file).raw ().self) ;
+			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
+			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
+			me = FreeImage_Load (r2x ,r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (PTR<FIBITMAP> &me) {
 			_DEBUG_ASSERT_ (me != NULL) ;
@@ -268,8 +271,9 @@ public:
 	void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		_DEBUG_ASSERT_ (!param.exist ()) ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = FreeImage_Save (FIF_JPEG ,r1 ,_BUILDSTRS_<STRA> (file).raw ().self) ;
-		_DYNAMIC_ASSERT_ (r1x) ;
+		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = FreeImage_Save (FIF_JPEG ,r1 ,r1x.raw ().self) ;
+		_DYNAMIC_ASSERT_ (r2x) ;
 	}
 } ;
 } ;

@@ -383,6 +383,7 @@ inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &array1 ,const Array<INDEX> &el
 	INDEX iw = 0 ;
 	for (auto &&i : elem)
 		ret[iw++] = array1[i] ;
+	_DEBUG_ASSERT_ (iw == ret.length ()) ;
 	return std::move (ret) ;
 }
 
@@ -400,6 +401,7 @@ inline Array<INDEX> _ELEMENT_ (const Array<BOOL> &elem) {
 			continue ;
 		ret[iw++] = i ;
 	}
+	_DEBUG_ASSERT_ (iw == ret.length ()) ;
 	return std::move (ret) ;
 }
 
@@ -484,10 +486,10 @@ inline Array<_ARG1> _FLATTEN_ (const Array<Array<_ARG1>> &array1) {
 	}) ;
 	Array<_ARG1> ret = Array<_ARG1> (r1x) ;
 	INDEX iw = 0 ;
-	for (auto &&i : array1) {
+	for (auto &&i : array1)
 		for (auto &&j : i)
 			ret[iw++] = j ;
-	}
+	_DEBUG_ASSERT_ (iw == ret.length ()) ;
 	return std::move (ret) ;
 }
 } ;

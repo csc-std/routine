@@ -112,7 +112,8 @@ namespace UNITTEST {
 inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #ifdef MS_CPP_UNITTESTFRAMEWORK
 #ifdef __CSC_STRING__
-	Assert::Fail (_BUILDSTRS_<STRW> (what).raw ().self) ;
+	const auto r1x = _BUILDSTRS_<STRW> (what) ;
+	Assert::Fail (r1x.raw ().self) ;
 #else
 	Assert::Fail () ;
 #endif

@@ -184,9 +184,9 @@ public:
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mLogPath == r1x)
-				discard ;
+				break ;
 			if (!mLogFileStream.exist ())
-				discard ;
+				break ;
 			mLogFileStream->flush () ;
 			mLogFileStream = AutoRef<StreamLoader> () ;
 		}
@@ -360,9 +360,9 @@ public:
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		_CALL_IF_ ([&] (BOOL &if_cond) {
+		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!mSymbolFromAddress.exist ())
-				return (void) (if_cond = FALSE) ;
+				discard ;
 			auto rax = AutoBuffer<BYTE> (_SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value)) ;
 			auto &r1 = _LOAD_<SYMBOL_INFO> (rax.self) ;
 			r1.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
@@ -373,10 +373,11 @@ public:
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r1.Name[0]])) ;
 				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
-		} ,[&] (BOOL &if_cond) {
+		} ,[&] (BOOL &if_flag) {
 			for (auto &&i : address)
 				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
 		}) ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 

@@ -168,7 +168,7 @@
 #ifdef discard
 #error "∑(っ°Д° ;)っ : defined 'discard'"
 #endif
-#define discard break
+#define discard return (void) (if_flag = FALSE)
 #endif
 
 #ifdef __CSC__
@@ -1240,12 +1240,12 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	_CALL_IF_ ([&] (BOOL &if_cond) {
+	_CALL_IF_ ([&] (BOOL &if_flag) {
 		if (dst == src)
-			return (void) (if_cond = FALSE) ;
+			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst[i] = src[len + ~i] ;
-	} ,[&] (BOOL &if_cond) {
+	} ,[&] (BOOL &if_flag) {
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
@@ -1276,12 +1276,12 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (dst1 == dst2)
 		return ;
-	_CALL_IF_ ([&] (BOOL &if_cond) {
+	_CALL_IF_ ([&] (BOOL &if_flag) {
 		if (dst1 > dst2)
-			return (void) (if_cond = FALSE) ;
+			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
-	} ,[&] (BOOL &if_cond) {
+	} ,[&] (BOOL &if_flag) {
 		for (INDEX i = len - 1 ; i >= 0 ; i--)
 			dst1[i] = std::move (dst2[i]) ;
 	}) ;
@@ -1834,7 +1834,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1889,7 +1889,7 @@ public:
 	inline AutoRef &operator= (const AutoRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1903,7 +1903,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -2000,7 +2000,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = --mPointer->mCounter == 0 ;
 			if (!r1x)
-				discard ;
+				break ;
 			mPointer->~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
@@ -2012,7 +2012,7 @@ public:
 	inline SharedRef &operator= (const SharedRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -2026,7 +2026,7 @@ public:
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -2123,7 +2123,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2131,16 +2131,19 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () {
+	inline AnyRef<_RET> &rebind () & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> (*this) ;
 	}
 
 	template <class _RET>
-	inline const AnyRef<_RET> &rebind () const {
+	inline const AnyRef<_RET> &rebind () const & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> (*this) ;
 	}
+
+	template <class _RET>
+	inline AnyRef<_RET> &rebind () && = delete ;
 
 	inline BOOL exist () const {
 		return mPointer != NULL ;
@@ -2227,7 +2230,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2235,16 +2238,19 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () {
+	inline AnyRef<_RET> &rebind () & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> (*this) ;
 	}
 
 	template <class _RET>
-	inline const AnyRef<_RET> &rebind () const {
+	inline const AnyRef<_RET> &rebind () const & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> (*this) ;
 	}
+
+	template <class _RET>
+	inline AnyRef<_RET> &rebind () && = delete ;
 
 	inline BOOL exist () const {
 		return mPointer != NULL ;
@@ -2322,7 +2328,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2426,7 +2432,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2462,7 +2468,7 @@ public:
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (right)) ;
 		}
@@ -2545,7 +2551,7 @@ public:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mFunction_a == NULL)
-				discard ;
+				break ;
 			mFunction_a->~Holder () ;
 			GlobalHeap::free (mFunction_a) ;
 		}
@@ -2564,7 +2570,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2683,7 +2689,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2822,23 +2828,27 @@ public:
 		return SIZE ;
 	}
 
-	inline TYPE &get (INDEX index) {
+	inline TYPE &get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline TYPE &operator[] (INDEX index) {
+	inline TYPE &operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	inline const TYPE &get (INDEX index) const {
+	inline const TYPE &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline const TYPE &operator[] (INDEX index) const {
+	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline TYPE &get (INDEX) && = delete ;
+
+	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - mBuffer ;
@@ -2968,23 +2978,27 @@ public:
 		return mSize ;
 	}
 
-	inline TYPE &get (INDEX index) {
+	inline TYPE &get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline TYPE &operator[] (INDEX index) {
+	inline TYPE &operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	inline const TYPE &get (INDEX index) const {
+	inline const TYPE &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline const TYPE &operator[] (INDEX index) const {
+	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline TYPE &get (INDEX) && = delete ;
+
+	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
@@ -3110,7 +3124,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3170,7 +3184,7 @@ public:
 	inline Buffer &operator= (const Buffer &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3185,7 +3199,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3232,23 +3246,27 @@ public:
 		return mSize ;
 	}
 
-	inline TYPE &get (INDEX index) {
+	inline TYPE &get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline TYPE &operator[] (INDEX index) {
+	inline TYPE &operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	inline const TYPE &get (INDEX index) const {
+	inline const TYPE &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline const TYPE &operator[] (INDEX index) const {
+	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline TYPE &get (INDEX) && = delete ;
+
+	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
@@ -3352,12 +3370,12 @@ public:
 	inline Buffer (Buffer &&right) noexcept {
 		mBuffer = _EXCHANGE_ (right.mBuffer) ;
 		mSize = _EXCHANGE_ (right.mSize) ;
-}
+	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3378,7 +3396,7 @@ public:
 		return mSize ;
 	}
 
-	inline const TYPE &get (INDEX index) const {
+	inline const TYPE &get (INDEX index) const & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3388,9 +3406,13 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline const TYPE &operator[] (INDEX index) const {
+	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline const TYPE &get (INDEX) && = delete ;
+
+	inline const TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
@@ -3465,8 +3487,9 @@ public:
 	inline static Buffer make (const ARR<TYPE> &src ,LENGTH len) {
 		_DEBUG_ASSERT_ (src != NULL || len == 0) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		const auto r1x = (len > 0) ? (&src) : NULL ;
-		return Buffer (r1x ,len) ;
+		if (len == 0)
+			return Buffer (NULL ,0) ;
+		return Buffer (&src ,len) ;
 	}
 
 	template <LENGTH _VAL1>
@@ -3524,7 +3547,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3545,7 +3568,7 @@ public:
 		return mSize ;
 	}
 
-	inline TYPE &get (INDEX index) const {
+	inline TYPE &get (INDEX index) const & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3555,9 +3578,13 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline TYPE &operator[] (INDEX index) const {
+	inline TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline TYPE &get (INDEX) && = delete ;
+
+	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
@@ -3632,8 +3659,9 @@ public:
 	inline static Buffer make (ARR<TYPE> &src ,LENGTH len) {
 		_DEBUG_ASSERT_ (src != NULL || len == 0) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		const auto r1x = (len > 0) ? (&src) : NULL ;
-		return Buffer (r1x ,len) ;
+		if (len == 0)
+			return Buffer (NULL ,0) ;
+		return Buffer (&src ,len) ;
 	}
 
 	template <LENGTH _VAL1>
@@ -3762,7 +3790,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3838,7 +3866,7 @@ public:
 	inline Allocator &operator= (const Allocator &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3861,7 +3889,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				discard ;
+				break ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3911,23 +3939,27 @@ public:
 		return mAllocator[index].mNext == VAR_USED ;
 	}
 
-	inline TYPE &get (INDEX index) {
+	inline TYPE &get (INDEX index) & {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<TYPE> (mAllocator[index].mData) ;
 	}
 
-	inline TYPE &operator[] (INDEX index) {
+	inline TYPE &operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	inline const TYPE &get (INDEX index) const {
+	inline const TYPE &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<TYPE> (mAllocator[index].mData) ;
 	}
 
-	inline const TYPE &operator[] (INDEX index) const {
+	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
+
+	inline TYPE &get (INDEX) && = delete ;
+
+	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = mAllocator.at (_OFFSET_ (&Pack::mData ,_CAST_<TEMP<TYPE>> (item))) ;
@@ -3948,7 +3980,7 @@ public:
 		const auto r1x = BOOL (mFree == VAR_NONE) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r1x)
-				discard ;
+				break ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3960,7 +3992,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1x)
-				discard ;
+				break ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
 		}
 		INDEX ret = mFree ;

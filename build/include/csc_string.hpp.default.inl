@@ -187,22 +187,25 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &reg) {
-		mRegex = AutoRef<std::regex>::make (_U8STOUAS_ (reg).raw ().self) ;
+		const auto r1x = _U8STOUAS_ (reg) ;
+		mRegex = AutoRef<std::regex>::make (r1x.raw ().self) ;
 	}
 
 	BOOL match (const String<STRU8> &expr) const {
 		if (expr.empty ())
 			return FALSE ;
-		return std::regex_match (_U8STOUAS_ (expr).raw ().self ,mRegex.self) ;
+		const auto r1x = _U8STOUAS_ (expr) ;
+		return std::regex_match (r1x.raw ().self ,mRegex.self) ;
 	}
 
 	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
 		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (expr.empty ())
-				discard ;
+				break ;
 			auto rax = AutoRef<std::smatch>::make () ;
-			const auto r1x = std::string (_U8STOUAS_ (expr).raw ().self) ;
+			const auto r5x = _U8STOUAS_ (expr) ;
+			const auto r1x = std::string (r5x.raw ().self) ;
 			auto rbx = r1x.begin () ;
 			const auto r2x = r1x.end () ;
 			while (TRUE) {
@@ -222,12 +225,14 @@ public:
 		String<STRU8> ret ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (expr.empty ())
-				discard ;
-			const auto r1x = std::string (_U8STOUAS_ (expr).raw ().self) ;
-			const auto r2x = std::string (_U8STOUAS_ (rep).raw ().self) ;
+				break ;
+			const auto r5x = _U8STOUAS_ (expr) ;
+			const auto r6x = _U8STOUAS_ (rep) ;
+			const auto r1x = std::string (r5x.raw ().self) ;
+			const auto r2x = std::string (r6x.raw ().self) ;
 			const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
 			if (r3x.empty ())
-				discard ;
+				break ;
 			ret = _UASTOU8S_ (PTRTOARR[&r3x[0]]) ;
 			_DEBUG_ASSERT_ (ret.size () > 0) ;
 		}

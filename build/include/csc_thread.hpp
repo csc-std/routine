@@ -139,7 +139,7 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r1.mException.exist ())
-					discard ;
+					break ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -413,7 +413,7 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r1.mException.exist ())
-					discard ;
+					break ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -775,15 +775,14 @@ public:
 		return std::move (ret) ;
 	}
 
-	Optional<ITEM> poll (const Optional<ITEM> &def) popping {
+	ITEM value (const ITEM &def) popping {
 		_STATIC_ASSERT_ (std::is_copy_constructible<ITEM>::value && std::is_nothrow_move_constructible<ITEM>::value) ;
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		Optional<ITEM> ret = std::move (def) ;
 		if (r1.mThreadFlag.exist () && !r1.mThreadFlag.self && r1.mItem.exist ())
-			ret.template recreate<ITEM> (r1.mItem.self) ;
-		return std::move (ret) ;
+			return r1.mItem.self ;
+		return def ;
 	}
 
 	void then (Function<void (ITEM &)> &&proc) {
@@ -811,9 +810,9 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r1.mThreadFlag.self)
-					discard ;
+					break ;
 				if (r1.mItem.exist ())
-					discard ;
+					break ;
 				rax = std::move (r1.mThreadProc) ;
 			}
 		}

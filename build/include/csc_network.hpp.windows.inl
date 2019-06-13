@@ -167,7 +167,8 @@ public:
 		if (r1x == 0)
 			return ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r1x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		const auto r2x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		_DYNAMIC_ASSERT_ (r1x >= 0 || r2x) ;
 		link_confirm () ;
 	}
 
@@ -187,7 +188,8 @@ public:
 		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
@@ -199,7 +201,8 @@ public:
 		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
 		it = r2x ;
 	}
 
@@ -210,7 +213,8 @@ public:
 		const auto r3x = _inline_SOCKET_CVTTO_TIMEVAL_ (0) ;
 		::setsockopt (mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x >= 0 || errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
+		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
