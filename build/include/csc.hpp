@@ -425,6 +425,7 @@ static constexpr auto VALX_LOG2E = VALX (1.44269504088896340736) ;
 static constexpr auto VALX_LOG10E = VALX (0.434294481903251827651) ;
 static constexpr auto VALX_LOGE2 = VALX (0.693147180559945309417) ;
 static constexpr auto VALX_LOGE10 = VALX (2.30258509299404568402) ;
+static constexpr auto VALX_EPS = VALX (1E-10) ;
 
 inline namespace S {
 template <class _ARG1>
@@ -1139,15 +1140,16 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
 	_DEBUG_ASSERT_ (len >= 0) ;
 #ifdef __CSC_CONFIG_VAR32__
-	FLAG ret = -2128831035 ;
-	const auto r1x = VAR (16777619) ;
+	static constexpr auto M_MAGIC_N1 = VAR (-2128831035) ;
+	static constexpr auto M_MAGIC_N2 = VAR (16777619) ;
 #elif defined __CSC_CONFIG_VAR64__
-	FLAG ret = -3750763034362895579 ;
-	const auto r1x = VAR (1099511628211) ;
+	static constexpr auto M_MAGIC_N1 = VAR (-3750763034362895579) ;
+	static constexpr auto M_MAGIC_N2 = VAR (1099511628211) ;
 #endif
+	FLAG ret = M_MAGIC_N1 ;
 	for (INDEX i = 0 ; i < len ; i++) {
 		ret ^= FLAG (src[i]) ;
-		ret *= r1x ;
+		ret *= M_MAGIC_N2 ;
 	}
 	ret &= VAR_MAX ;
 	return std::move (ret) ;
@@ -2518,8 +2520,22 @@ private:
 		virtual TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping = 0 ;
 	} ;
 
-	template <class>
-	class ImplHolder ;
+	template <class _TYPE>
+	class ImplHolder :public Function<TYPE1 (TYPES...)>::Holder {
+	private:
+		_TYPE mFunctor ;
+
+	public:
+		inline ImplHolder () = delete ;
+
+		inline explicit ImplHolder (const _TYPE &functor) :mFunctor (std::move (functor)) {}
+
+		inline explicit ImplHolder (_TYPE &&functor) :mFunctor (std::move (functor)) {}
+
+		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
+			return mFunctor (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		}
+	} ;
 
 private:
 	PTR<Holder> mFunction_a ;
@@ -2603,24 +2619,6 @@ public:
 	//@info: the function is incompleted without 'csc_ext.hpp'
 	template <class... _ARGS>
 	inline static Function make (PTR<TYPE1 (TYPES... ,_ARGS...)> functor ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
-} ;
-
-template <class TYPE1 ,class... TYPES>
-template <class _TYPE>
-class Function<TYPE1 (TYPES...)>::ImplHolder :public Function<TYPE1 (TYPES...)>::Holder {
-private:
-	_TYPE mFunctor ;
-
-public:
-	inline ImplHolder () = delete ;
-
-	inline explicit ImplHolder (const _TYPE &functor) :mFunctor (std::move (functor)) {}
-
-	inline explicit ImplHolder (_TYPE &&functor) :mFunctor (std::move (functor)) {}
-
-	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
-		return mFunctor (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
-	}
 } ;
 
 template <class TYPE1 ,class... TYPES>
@@ -3853,8 +3851,8 @@ public:
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (*this)) ;
-		const auto r1x = (std::is_pod<TYPE>::value) ? (mAllocator.size ()) : 0 ;
-		for (INDEX i = r1x ; i < mAllocator.size () ; i++) {
+		const auto r2x = (std::is_pod<TYPE>::value) ? (mAllocator.size ()) : 0 ;
+		for (INDEX i = r2x ; i < mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
 				continue ;
 			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<TYPE> (right.mAllocator[i].mData))) ;

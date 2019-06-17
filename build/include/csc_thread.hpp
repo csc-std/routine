@@ -741,7 +741,9 @@ public:
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mThreadFlag.exist ())
 			return TRUE ;
-		return !r1.mThreadFlag.self ;
+		if (r1.mThreadFlag.self)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	ITEM poll () popping {

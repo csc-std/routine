@@ -30,9 +30,8 @@ public:
 		mVector[3] = w ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const ARRAY3<UNIT> &xyz () const {
-		return _CAST_<const PACK<ARRAY3<UNIT> ,UNIT>> (mVector).P1 ;
+	ARRAY3<UNIT> xyz () const {
+		return ARRAY3<UNIT> {mVector[0] ,mVector[1] ,mVector[2]} ;
 	}
 
 	UNIT &get (INDEX y) & {

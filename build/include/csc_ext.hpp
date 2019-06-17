@@ -349,15 +349,15 @@ public:
 		} ,[&] (BOOL &if_flag) {
 			if (r1x)
 				discard ;
-			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
-			const auto r4x = r3x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
-			ret = r4x ;
+			const auto r4x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
+			const auto r5x = r4x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
+			ret = r5x ;
 		} ,[&] (BOOL &if_flag) {
 			if (r2x)
 				discard ;
-			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
-			const auto r4x = r3x ? (VAR128 (0)) : (*this / -right) ;
-			ret = r4x ;
+			const auto r6x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
+			const auto r7x = r6x ? (VAR128 (0)) : (*this / -right) ;
+			ret = r7x ;
 		} ,[&] (BOOL &if_flag) {
 			ret = slow_divide (*this ,right) ;
 		}) ;
@@ -397,15 +397,15 @@ public:
 		} ,[&] (BOOL &if_flag) {
 			if (r1x)
 				discard ;
-			const auto r3x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
-			const auto r4x = r3x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
-			ret = r4x ;
+			const auto r4x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
+			const auto r5x = r4x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
+			ret = r5x ;
 		} ,[&] (BOOL &if_flag) {
 			if (r2x)
 				discard ;
-			const auto r3x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
-			const auto r4x = r3x ? (*this) : (*this % -right) ;
-			ret = r4x ;
+			const auto r6x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
+			const auto r7x = r6x ? (*this) : (*this % -right) ;
+			ret = r7x ;
 		} ,[&] (BOOL &if_flag) {
 			ret = right - slow_divide (*this ,right) * right ;
 		}) ;
@@ -1308,7 +1308,9 @@ private:
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,BOOL>::value) ;
 		if (!BOOL (left.one ()))
 			return FALSE ;
-		return template_cast (left.rest ()) ;
+		if (!template_cast (left.rest ()))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1320,7 +1322,9 @@ private:
 	inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_equal (left.one () ,right))
 			return FALSE ;
-		return template_equal (left.rest () ,right) ;
+		if (!template_equal (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1332,7 +1336,9 @@ private:
 	inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_equal (left.one () ,right))
 			return FALSE ;
-		return template_not_equal (left.rest () ,right) ;
+		if (!template_not_equal (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1344,7 +1350,9 @@ private:
 	inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_less (left.one () ,right))
 			return FALSE ;
-		return template_less (left.rest () ,right) ;
+		if (!template_less (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1356,7 +1364,9 @@ private:
 	inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_less (left.one () ,right))
 			return FALSE ;
-		return template_not_less (left.rest () ,right) ;
+		if (!template_not_less (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1368,7 +1378,9 @@ private:
 	inline static BOOL template_bigger (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_less (right ,left.one ()))
 			return FALSE ;
-		return template_bigger (left.rest () ,right) ;
+		if (!template_bigger (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1380,7 +1392,9 @@ private:
 	inline static BOOL template_not_bigger (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_less (right ,left.one ()))
 			return FALSE ;
-		return template_not_bigger (left.rest () ,right) ;
+		if (!template_not_bigger (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 } ;
 
@@ -1470,7 +1484,9 @@ private:
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,BOOL>::value) ;
 		if (BOOL (left.one ()))
 			return TRUE ;
-		return template_cast (left.rest ()) ;
+		if (!template_cast (left.rest ()))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1482,7 +1498,9 @@ private:
 	inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_equal (left.one () ,right))
 			return TRUE ;
-		return template_equal (left.rest () ,right) ;
+		if (!template_equal (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1494,7 +1512,9 @@ private:
 	inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_equal (left.one () ,right))
 			return TRUE ;
-		return template_not_equal (left.rest () ,right) ;
+		if (!template_not_equal (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1506,7 +1526,9 @@ private:
 	inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_less (left.one () ,right))
 			return TRUE ;
-		return template_less (left.rest () ,right) ;
+		if (!template_less (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1518,7 +1540,9 @@ private:
 	inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_less (left.one () ,right))
 			return TRUE ;
-		return template_not_less (left.rest () ,right) ;
+		if (!template_not_less (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1530,7 +1554,9 @@ private:
 	inline static BOOL template_bigger (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (operator_less (right ,left.one ()))
 			return TRUE ;
-		return template_bigger (left.rest () ,right) ;
+		if (!template_bigger (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1542,7 +1568,9 @@ private:
 	inline static BOOL template_not_bigger (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &left ,const _ARG2 &right) {
 		if (!operator_less (right ,left.one ()))
 			return TRUE ;
-		return template_not_bigger (left.rest () ,right) ;
+		if (!template_not_bigger (left.rest () ,right))
+			return FALSE ;
+		return TRUE ;
 	}
 } ;
 
@@ -1700,7 +1728,9 @@ public:
 			return FALSE ;
 		if (!mHolder.exist ())
 			return FALSE ;
-		return mHolder->mData.exist () ;
+		if (!mHolder->mData.exist ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _RET>
@@ -2694,7 +2724,7 @@ private:
 private:
 	inline static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
-	inline static Pack &unique_root () popping {
+	inline static Pack &unique () popping {
 		return _CACHE_ ([] () {
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Pack> () ;
@@ -2800,7 +2830,7 @@ template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
 	inline static void init (VAR data ,BOOL read_only) {
-		auto &r1 = GlobalStatic<void>::unique_root () ;
+		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		if (r1x != NULL)
@@ -2812,7 +2842,7 @@ public:
 	}
 
 	inline static VAR load () popping {
-		auto &r1 = GlobalStatic<void>::unique_root () ;
+		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -2820,7 +2850,7 @@ public:
 	}
 
 	inline static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &r1 = GlobalStatic<void>::unique_root () ;
+		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -2831,7 +2861,7 @@ public:
 	}
 
 	inline static void save (VAR data) {
-		auto &r1 = GlobalStatic<void>::unique_root () ;
+		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -2895,7 +2925,7 @@ private:
 public:
 	inline static TYPE &unique () popping {
 		auto &r1 = _CACHE_ ([] () {
-			auto &r2 = GlobalStatic<void>::unique_root () ;
+			auto &r2 = GlobalStatic<void>::unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
 			const auto r2x = guid_from_typeid_name () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
@@ -2975,8 +3005,31 @@ private:
 		virtual void friend_visit (TYPE1 &visitor ,TYPE2 &context) const = 0 ;
 	} ;
 
-	template <class...>
-	class ImplBinder ;
+	template <class... _TYPES>
+	class ImplBinder :public Binder {
+	private:
+		Tuple<DEF<_TYPES TYPE2::*>...> mMember ;
+
+	public:
+		inline ImplBinder () = delete ;
+
+		inline explicit ImplBinder (const DEF<_TYPES TYPE2::*> &...args) :mMember (args...) {}
+
+		inline void friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping override {
+			template_visit (visitor ,context ,mMember) ;
+		}
+
+	private:
+		inline static void template_visit (TYPE1 &visitor ,TYPE2 &context ,const Tuple<> &members) {
+			_STATIC_WARNING_ ("noop") ;
+		}
+
+		template <class... _ARGS>
+		inline static void template_visit (TYPE1 &visitor ,TYPE2 &context ,const Tuple<DEF<_ARGS TYPE2::*>...> &members) {
+			visitor.visit (context.*members.one ()) ;
+			template_visit (visitor ,context ,members.rest ()) ;
+		}
+	} ;
 
 	class Member {
 	private:
@@ -3013,33 +3066,6 @@ public:
 	inline Member operator() (TYPE2 &context) const {
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
 		return Member (*this ,context) ;
-	}
-} ;
-
-template <class TYPE1 ,class TYPE2>
-template <class... _TYPES>
-class Serializer<TYPE1 ,TYPE2>::ImplBinder :public Binder {
-private:
-	Tuple<DEF<_TYPES TYPE2::*>...> mMember ;
-
-public:
-	inline ImplBinder () = delete ;
-
-	inline explicit ImplBinder (const DEF<_TYPES TYPE2::*> &...args) :mMember (args...) {}
-
-	inline void friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping override {
-		template_visit (visitor ,context ,mMember) ;
-	}
-
-private:
-	inline static void template_visit (TYPE1 &visitor ,TYPE2 &context ,const Tuple<> &members) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class... _ARGS>
-	inline static void template_visit (TYPE1 &visitor ,TYPE2 &context ,const Tuple<DEF<_ARGS TYPE2::*>...> &members) {
-		visitor.visit (context.*members.one ()) ;
-		template_visit (visitor ,context ,members.rest ()) ;
 	}
 } ;
 

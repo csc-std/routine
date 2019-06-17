@@ -1,0 +1,10 @@
+
+R.100 [A] : 检查同名的临时变量
+^\t+const auto r(\d+)x = [^\r]+(\r\n[^\r]+)*\r\n\t+const auto r(\1)x = 
+^\t+auto &r(\d+) = [^\r]+(\r\n[^\r]+)*\r\n\t+auto &r(\1) = 
+
+R.101 [A] : 检查if的语句块
+^(\t+)if \([^\r]+\) {(\r\n(?!(\1)})[^\r]+)*\r\n(\1)}(?! else)
+
+R.102 [A] : 检查ret重复赋值
+(?<!\t+if \([^\r]*(?<=\W)ret(?=\W)[^\r]*\)\r\n(\t+(continue|break) ;\r\n)?)^\t+ret = (?![^\r]*(?<=\W)ret(?=\W)[^\r]*;)

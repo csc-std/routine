@@ -94,8 +94,8 @@ public:
 			}
 		}
 		for (INDEX i = 0 ; i < rax.size () ; i++) {
-			const auto r1x = rbx.self () ;
-			INDEX ix = rax.find (r1x) ;
+			const auto r2x = rbx.self () ;
+			INDEX ix = rax.find (r2x) ;
 			if (ix == VAR_NONE)
 				continue ;
 			rax.remove (ix) ;

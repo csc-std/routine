@@ -307,48 +307,6 @@ public:
 		return !equal (right) ;
 	}
 
-	SoftImage mul (const TYPE &scale) const {
-		SoftImage ret = SoftImage (mCX ,mCY) ;
-		for (auto &&i : range ())
-			ret.get (i) = get (i) * scale ;
-		return std::move (ret) ;
-	}
-
-	inline SoftImage operator* (const TYPE &scale) const {
-		return mul (scale) ;
-	}
-
-	void multo (const TYPE &scale) {
-		for (auto &&i : range ())
-			get (i) *= scale ;
-	}
-
-	inline SoftImage &operator*= (const TYPE &scale) {
-		multo (scale) ;
-		return *this ;
-	}
-
-	SoftImage div (const TYPE &scale) const {
-		SoftImage ret = SoftImage (mCX ,mCY) ;
-		for (auto &&i : range ())
-			ret.get (i) = get (i) / scale ;
-		return std::move (ret) ;
-	}
-
-	inline SoftImage operator/ (const TYPE &scale) const {
-		return div (scale) ;
-	}
-
-	void divto (const TYPE &scale) {
-		for (auto &&i : range ())
-			get (i) /= scale ;
-	}
-
-	inline SoftImage &operator/= (const TYPE &scale) {
-		divto (scale) ;
-		return *this ;
-	}
-
 	SoftImage add (const SoftImage &right) const {
 		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
 		SoftImage ret = SoftImage (mCX ,mCY) ;
@@ -395,6 +353,52 @@ public:
 		return *this ;
 	}
 
+	SoftImage mul (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) * right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator* (const SoftImage &right) const {
+		return mul (right) ;
+	}
+
+	void multo (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) *= right.get (i) ;
+	}
+
+	inline SoftImage &operator*= (const SoftImage &right) {
+		multo (right) ;
+		return *this ;
+	}
+
+	SoftImage div (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) / right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator/ (const SoftImage &right) const {
+		return div (right) ;
+	}
+
+	void divto (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) /= right.get (i) ;
+	}
+
+	inline SoftImage &operator/= (const SoftImage &right) {
+		divto (right) ;
+		return *this ;
+	}
+
 	SoftImage plus () const {
 		SoftImage ret = SoftImage (mCX ,mCY) ;
 		for (auto &&i : range ())
@@ -417,7 +421,87 @@ public:
 		return minus () ;
 	}
 
-	SoftImage mul (const SoftImage &right) const {
+	SoftImage band (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) & right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator& (const SoftImage &right) const {
+		return band (right) ;
+	}
+
+	void bandto (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) &= right.get (i) ;
+	}
+
+	inline SoftImage &operator&= (const SoftImage &right) {
+		bandto (right) ;
+		return *this ;
+	}
+
+	SoftImage bor (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) | right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator| (const SoftImage &right) const {
+		return bor (right) ;
+	}
+
+	void borto (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) |= right.get (i) ;
+	}
+
+	inline SoftImage &operator|= (const SoftImage &right) {
+		borto (right) ;
+		return *this ;
+	}
+
+	SoftImage bxor (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) ^ right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator^ (const SoftImage &right) const {
+		return bxor (right) ;
+	}
+
+	void bxorto (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) ^= right.get (i) ;
+	}
+
+	inline SoftImage &operator^= (const SoftImage &right) {
+		bxorto (right) ;
+		return *this ;
+	}
+
+	SoftImage bnot () const {
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = ~get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator~ () const {
+		return bnot () ;
+	}
+
+	SoftImage matrix_product (const SoftImage &right) const {
 		_DEBUG_ASSERT_ (mCX == right.mCY) ;
 		SoftImage ret = SoftImage (right.mCX ,mCY) ;
 		for (auto &&i : RangeFolder<ARGC<2>> ({mCY ,right.mCX})) {
@@ -426,19 +510,6 @@ public:
 				ret.get (i) += get (i[0] ,j) * right.get (j ,i[1]) ;
 		}
 		return std::move (ret) ;
-	}
-
-	inline SoftImage operator* (const SoftImage &right) const {
-		return mul (right) ;
-	}
-
-	void multo (const SoftImage &right) {
-		*this = mul (right) ;
-	}
-
-	inline SoftImage &operator*= (const SoftImage &right) {
-		multo (right) ;
-		return *this ;
 	}
 
 	SoftImage transpose () const {
@@ -512,18 +583,30 @@ private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
-	template <class BASE ,class _TYPE>
+	class Pack {
+	private:
+		friend AbstractImage ;
+		AnyRef<void> mHolder ;
+		PhanBuffer<TYPE> mImage ;
+		LENGTH mCX ;
+		LENGTH mCY ;
+		LENGTH mCW ;
+		LENGTH mCK ;
+	} ;
+
+	template <class _TYPE>
 	class NativeProxy {
 	private:
 		friend AbstractImage ;
-		BASE &mBase ;
+		PhanRef<const Abstract> mAbstract ;
+		SharedRef<Pack> mThis ;
 
 	public:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
 			_CALL_EH_ ([&] () {
-				mBase.update_layout () ;
+				static_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}
 
@@ -533,83 +616,86 @@ private:
 		inline NativeProxy (NativeProxy &&) noexcept = default ;
 		inline NativeProxy &operator= (NativeProxy &&) = delete ;
 
-		inline implicit operator CAST_TRAITS_TYPE<_TYPE ,BASE> & () const & {
-			_DEBUG_ASSERT_ (mBase.exist ()) ;
-			return mBase.mHolder.template rebind<_TYPE> ().self ;
+		inline implicit operator _TYPE & () const & {
+			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+			_DEBUG_ASSERT_ (mThis.exist ()) ;
+			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
+			return mThis->mHolder.template rebind<_TYPE> ().self ;
 		}
 
-		inline implicit operator CAST_TRAITS_TYPE<_TYPE ,BASE> & () && = delete ;
+		inline implicit operator _TYPE & () && = delete ;
 
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<CAST_TRAITS_TYPE<_TYPE ,BASE> & ,_RET>::value>>
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_TYPE & ,_RET>::value>>
 		inline implicit operator _RET () const & {
-			_DEBUG_ASSERT_ (mBase.exist ()) ;
-			return _RET (mBase.mHolder.template rebind<_TYPE> ().self) ;
+			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+			_DEBUG_ASSERT_ (mThis.exist ()) ;
+			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
+			return _RET (mThis->mHolder.template rebind<_TYPE> ().self) ;
 		}
 
 		template <class _RET>
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit NativeProxy (BASE &base) popping : mBase (base) {}
+		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Pack> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_COPY_ (_this)) {}
 	} ;
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	AnyRef<void> mHolder ;
-	PhanBuffer<TYPE> mImage ;
-	LENGTH mCX ;
-	LENGTH mCY ;
-	LENGTH mCW ;
-	LENGTH mCK ;
+	SharedRef<Pack> mThis ;
 
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
+	explicit AbstractImage (const PhanRef<const Abstract> &_abstract) :AbstractImage (PhanRef<const Abstract>::make (_abstract) ,SharedRef<Pack>::make ()) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
 			return FALSE ;
-		return mHolder.exist () ;
+		if (!mThis.exist ())
+			return FALSE ;
+		if (!mThis->mHolder.exist ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	LENGTH cx () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mCX ;
+		return mThis->mCX ;
 	}
 
 	LENGTH cy () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mCY ;
+		return mThis->mCY ;
 	}
 
 	LENGTH cw () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mCW ;
+		return mThis->mCW ;
 	}
 
 	LENGTH ck () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mCK ;
+		return mThis->mCK ;
 	}
 
 	RangeFolder<ARGC<2>> range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return RangeFolder<ARGC<2>> ({mCY ,mCX}) ;
+		return RangeFolder<ARGC<2>> ({mThis->mCY ,mThis->mCX}) ;
 	}
 
 	TYPE &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
-		return mImage[y * mCW + x + mCK] ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
 	const TYPE &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
-		return mImage[y * mCW + x + mCK] ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
 	TYPE &get (INDEX ,INDEX) && = delete ;
@@ -654,19 +740,17 @@ public:
 
 	inline Row<AbstractImage> operator[] (INDEX) && = delete ;
 
-	template <class _RET>
-	NativeProxy<AbstractImage ,_RET> native () & {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_DYNAMIC_ASSERT_ (exist ()) ;
-		return NativeProxy<AbstractImage ,_RET> (*this) ;
-	}
 
 	template <class _RET>
-	NativeProxy<AbstractImage ,_RET> native () && = delete ;
+	inline NativeProxy<_RET> native () popping {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_DYNAMIC_ASSERT_ (exist ()) ;
+		return NativeProxy<_RET> (mAbstract ,mThis) ;
+	}
 
 	SoftImage<TYPE> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		SoftImage<TYPE> ret = SoftImage<TYPE> (mCX ,mCY) ;
+		SoftImage<TYPE> ret = SoftImage<TYPE> (mThis->mCX ,mThis->mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ;
 		return std::move (ret) ;
@@ -676,41 +760,55 @@ public:
 		_DEBUG_ASSERT_ (_cx >= 0 && _cx < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
-		mAbstract->load_data (mHolder ,_cx ,_cy) ;
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+		mAbstract->load_data (mThis->mHolder ,_cx ,_cy) ;
 		update_layout () ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
-		mAbstract->load_data (mHolder ,data) ;
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		mAbstract->load_data (mThis->mHolder ,data) ;
 		update_layout () ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &param) popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->load_data (mHolder ,data ,param) ;
+		mAbstract->load_data (mThis->mHolder ,data ,param) ;
 		update_layout () ;
 	}
 
 	void load_file (const String<STR> &file) {
-		mAbstract->load_file (mHolder ,file) ;
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		mAbstract->load_file (mThis->mHolder ,file) ;
 		update_layout () ;
 	}
 
 	void save_file (const String<STR> &file ,const AnyRef<void> &param) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->save_file (mHolder ,file ,param) ;
+		mAbstract->save_file (mThis->mHolder ,file ,param) ;
 		update_layout () ;
 	}
 
 private:
+	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Pack> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
+
 	void update_layout () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mAbstract->layout (mHolder) ;
-		mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,(r1x.P2[1] * r1x.P2[2] + r1x.P2[3])) ;
-		mCX = r1x.P2[0] ;
-		mCY = r1x.P2[1] ;
-		mCW = r1x.P2[2] ;
-		mCK = r1x.P2[3] ;
+		static_update_layout (mAbstract ,mThis) ;
+	}
+
+	static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Pack> &_this) {
+		_DEBUG_ASSERT_ (_abstract.exist ()) ;
+		_DEBUG_ASSERT_ (_this.exist ()) ;
+		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
+		const auto r1x = _abstract->layout (_this->mHolder) ;
+		_this->mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,(r1x.P2[1] * r1x.P2[2] + r1x.P2[3])) ;
+		_this->mCX = r1x.P2[0] ;
+		_this->mCY = r1x.P2[1] ;
+		_this->mCW = r1x.P2[2] ;
+		_this->mCK = r1x.P2[3] ;
 	}
 } ;
 } ;

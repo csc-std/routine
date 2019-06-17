@@ -56,7 +56,8 @@
     <ClInclude Include="..\..\src\util.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\Depends\__CSC__\csc.vs.hint" />
+    <None Include="..\..\..\..\..\Depends\__CSC__\cpp.hint" />
+    <None Include="..\..\..\..\..\Depends\__CSC__\csc.rule" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_database.hpp.mysql.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_debugger.hpp.linux.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_debugger.hpp.windows.inl" />
@@ -70,7 +71,7 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.default.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\..\..\..\..\Depends\__CSC__\csc.vs.natvis" />
+    <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

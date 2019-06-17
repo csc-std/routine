@@ -44,7 +44,7 @@ inline namespace S {
 inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 	const auto r5x = _BUILDSTRS_<STRA> (file) ;
 	const auto r1x = UniqueRef<VAR32> ([&] (VAR32 &me) {
-		me = open (r5x.self ,O_RDONLY) ;
+		me = open (r5x.raw ().self ,O_RDONLY) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
 	} ,[] (VAR32 &me) {
 		_DEBUG_ASSERT_ (me >= 0) ;
@@ -107,10 +107,24 @@ inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
 	return r1x >= 0 ;
 }
 
+inline exports BOOL _inline_FINDJUNTION_ (const String<STRA> &dire) popping {
+	const auto r1x = UniqueRef<PTR<DIR>> ([&] (PTR<DIR> &me) {
+		me = opendir (dire.raw ().self) ;
+	} ,[] (PTR<DIR> &me) {
+		if (me == NULL)
+			return ;
+		closedir (me) ;
+	}) ;
+	return r1x.self != NULL ;
+}
+
 inline exports void _ERASEFILE_ (const String<STR> &file) {
 	const auto r5x = _BUILDSTRS_<STRA> (file) ;
-	const auto r1x = unlink (r5x.raw ().self) ;
-	(void) r1x ;
+	const auto r1x = _inline_FINDJUNTION_ (r5x) ;
+	if (r1x)
+		return ;
+	const auto r2x = unlink (r5x.raw ().self) ;
+	(void) r2x ;
 }
 
 inline exports void _COPYFILE_ (const String<STR> &dst_file ,const String<STR> &src_file) {
@@ -327,8 +341,14 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 	const auto r5x = _BUILDSTRS_<STRA> (dire) ;
 	const auto r1x = rmdir (r5x.raw ().self) ;
 	(void) r1x ;
+	const auto r2x = _inline_FINDJUNTION_ (r5x) ;
+	if (!r2x)
+		return ;
+	const auto r3x = unlink (r5x.raw ().self) ;
+	(void) r3x ;
 }
 
+//@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	rax += dire ;
@@ -349,15 +369,17 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		if (r3x == NULL)
 			break ;
 		const auto r4x = _PARSESTRS_ (String<STRA> (r3x->d_name)) ;
-		if (r4x == _PCSTR_ ("."))
-			continue ;
-		if (r4x == _PCSTR_ (".."))
-			continue ;
-		rax += r4x ;
-		auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
-		if (!r1.exist ())
-			continue ;
-		r1 (rax) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r4x == _PCSTR_ ("."))
+				break ;
+			if (r4x == _PCSTR_ (".."))
+				break ;
+			rax += r4x ;
+			auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
+			if (!r1.exist ())
+				break ;
+			r1 (rax) ;
+		}
 		rax[r1x] = 0 ;
 	}
 }

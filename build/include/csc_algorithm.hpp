@@ -22,9 +22,12 @@ public:
 		initialize (len) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const BitSet<> &query () const {
+	const BitSet<> &query () const & {
 		return mPrimeSet ;
+	}
+
+	BitSet<> query () && {
+		return std::move (mPrimeSet) ;
 	}
 
 private:
@@ -115,8 +118,7 @@ public:
 		initialize (adjacency ,root) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const UNIT &query (INDEX index) const {
+	UNIT query (INDEX index) const {
 		return mDistance[index] ;
 	}
 
@@ -224,9 +226,12 @@ public:
 		initialize (dataset ,distance ,center) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Set<BitSet<>> &query () const {
+	const Set<BitSet<>> &query () const & {
 		return mClusterSet ;
+	}
+
+	Set<BitSet<>> query () && {
+		return std::move (mClusterSet) ;
 	}
 
 private:
@@ -389,14 +394,16 @@ public:
 		initialize (adjacency) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const UNIT &query () const {
+	UNIT query () const {
 		return mWeight ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Array<ARRAY2<INDEX>> &query_match () const {
+	const Array<ARRAY2<INDEX>> &query_match () const & {
 		return mMatch ;
+	}
+
+	Array<ARRAY2<INDEX>> query_match () && {
+		return std::move (mMatch) ;
 	}
 
 private:
@@ -579,9 +586,12 @@ public:
 		initialize (vertex) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Array<ARRAY3<INDEX>> &query () const {
+	const Array<ARRAY3<INDEX>> &query () const & {
 		return mTriangle ;
+	}
+
+	Array<ARRAY3<INDEX>> query () && {
+		return std::move (mTriangle) ;
 	}
 
 private:
@@ -746,13 +756,15 @@ public:
 		initialize (loss ,fdx) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Array<UNIT> &query () const {
+	const Array<UNIT> &query () const & {
 		return mDX ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const UNIT &query_loss () const {
+	Array<UNIT> query () && {
+		return std::move (mDX) ;
+	}
+
+	UNIT query_loss () const {
 		return mDXLoss ;
 	}
 
@@ -825,7 +837,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				sx[i] = dx[i] ;
 			for (INDEX i = 0 ; i < dg.length () ; i++) {
 				const auto r1x = sx[i] ;
-				sx[i] += mTolerance ;
+				sx[i] = r1x + mTolerance ;
 				dg[i] = (mLossFunc (sx) - mLossFunc (dx)) / mTolerance ;
 				sx[i] = r1x ;
 			}
@@ -1033,10 +1045,10 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r3x > bound[rot][1])
 					break ;
-				const auto r4x = bound[rot][0] ;
+				const auto r5x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
 				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][0] = r4x ;
+				bound[rot][0] = r5x ;
 			}
 		}) ;
 	}
@@ -1225,14 +1237,16 @@ public:
 		initialize (adjacency ,source ,sink) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const UNIT &query () const {
+	UNIT query () const {
 		return mMaxFlow ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const SoftImage<UNIT> &query_flow () const {
+	const SoftImage<UNIT> &query_flow () const & {
 		return mCurrentFlow ;
+	}
+
+	SoftImage<UNIT> query_flow () && {
+		return std::move (mCurrentFlow) ;
 	}
 
 private:
@@ -1276,7 +1290,7 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 			for (auto &&i : mAdjacency.range ()) {
 				if (i[0] == i[1])
 					continue ;
-				ret = _MAX_ (ret ,r1x) ;
+				ret = _MAX_ (ret ,mAdjacency[i]) ;
 			}
 			return std::move (ret) ;
 		}

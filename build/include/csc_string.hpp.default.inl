@@ -54,17 +54,17 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 	}) ;
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
 	const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (r1x != 0)
+	if (ret.size () > 0 && r1x != 0)
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r1x != NULL) ;
-	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C"))) ;
+	const auto r2x = std::setlocale (LC_CTYPE ,NULL) ;
+	_DEBUG_ASSERT_ (r2x != NULL) ;
+	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r2x[0]] ,_PCSTRA_ ("C"))) ;
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
-	const auto r2x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
-	if (r2x != 0)
+	const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
+	if (ret.size () > 0 && r3x != 0)
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #endif
@@ -83,17 +83,17 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 	}) ;
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
 	const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (r1x != 0)
+	if (ret.size () > 0 && r1x != 0)
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r1x != NULL) ;
-	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C"))) ;
+	const auto r2x = std::setlocale (LC_CTYPE ,NULL) ;
+	_DEBUG_ASSERT_ (r2x != NULL) ;
+	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r2x[0]] ,_PCSTRA_ ("C"))) ;
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
-	const auto r2x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
-	if (r2x != 0)
+	const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
+	if (ret.size () > 0 && r3x != 0)
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #endif
@@ -195,7 +195,9 @@ public:
 		if (expr.empty ())
 			return FALSE ;
 		const auto r1x = _U8STOUAS_ (expr) ;
-		return std::regex_match (r1x.raw ().self ,mRegex.self) ;
+		if (!std::regex_match (r1x.raw ().self ,mRegex.self))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
@@ -222,21 +224,16 @@ public:
 	}
 
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
-		String<STRU8> ret ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (expr.empty ())
-				break ;
-			const auto r5x = _U8STOUAS_ (expr) ;
-			const auto r6x = _U8STOUAS_ (rep) ;
-			const auto r1x = std::string (r5x.raw ().self) ;
-			const auto r2x = std::string (r6x.raw ().self) ;
-			const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
-			if (r3x.empty ())
-				break ;
-			ret = _UASTOU8S_ (PTRTOARR[&r3x[0]]) ;
-			_DEBUG_ASSERT_ (ret.size () > 0) ;
-		}
-		return std::move (ret) ;
+		if (expr.empty ())
+			return String<STRU8> () ;
+		const auto r5x = _U8STOUAS_ (expr) ;
+		const auto r6x = _U8STOUAS_ (rep) ;
+		const auto r1x = std::string (r5x.raw ().self) ;
+		const auto r2x = std::string (r6x.raw ().self) ;
+		const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
+		if (r3x.empty ())
+			return String<STRU8> () ;
+		return _UASTOU8S_ (PTRTOARR[&r3x[0]]) ;
 	}
 } ;
 

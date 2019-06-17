@@ -129,14 +129,14 @@ public:
 		return !equal (right) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const String<STRU8> &name () const {
+	const String<STRU8> &name () const & {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		return mHeap.self[mIndex].mName ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const String<STRU8> &attribute (const String<STRU8> &tag) const {
+	const String<STRU8> &name () && = delete ;
+
+	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
 		auto &r1 = _CACHE_ ([] () {
 			return String<STRU8> () ;
 		}) ;
@@ -148,14 +148,70 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const String<STRU8> &value () const {
+	const String<STRU8> &attribute (const String<STRU8> &) && = delete ;
+
+	template <class _ARG1>
+	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		_ARG1 ret ;
+		_CALL_TRY_ ([&] () {
+			ret = convert (attribute (tag)) ;
+		} ,[&] () {
+			ret = def ;
+		}) ;
+		return std::move (ret) ;
+	}
+
+	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
+		return attribute (tag ,def ,Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>)) ;
+	}
+
+	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
+
+	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
+		return attribute (tag ,def ,Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>)) ;
+	}
+
+	VAR64 attribute (const String<STRU8> &tag ,const VAR64 &def) const {
+		return attribute (tag ,def ,Function<VAR64 (const String<STRU8> &)> (&_PARSEVAR64S_<STRU8>)) ;
+	}
+
+	VAL32 attribute (const String<STRU8> &tag ,const VAL32 &def) const {
+		return attribute (tag ,def ,Function<VAL32 (const String<STRU8> &)> (&_PARSEVAL32S_<STRU8>)) ;
+	}
+
+	VAL64 attribute (const String<STRU8> &tag ,const VAL64 &def) const {
+		return attribute (tag ,def ,Function<VAL64 (const String<STRU8> &)> (&_PARSEVAL64S_<STRU8>)) ;
+	}
+
+	String<STRU8> attribute (const String<STRU8> &tag ,const String<STRU8> &def) const {
+		return attribute (tag ,def ,Function<String<STRU8> (const String<STRU8> &)> (&_COPY_<String<STRU8>>)) ;
+	}
+
+	String<STRU16> attribute (const String<STRU8> &tag ,const String<STRU16> &def) const {
+		return attribute (tag ,def ,Function<String<STRU16> (const String<STRU8> &)> (&_U8STOU16S_)) ;
+	}
+
+	String<STRU32> attribute (const String<STRU8> &tag ,const String<STRU32> &def) const {
+		return attribute (tag ,def ,Function<String<STRU32> (const String<STRU8> &)> (&_U8STOU32S_)) ;
+	}
+
+	String<STRA> attribute (const String<STRU8> &tag ,const String<STRA> &def) const {
+		return attribute (tag ,def ,Function<String<STRA> (const String<STRU8> &)> (&_U8STOAS_)) ;
+	}
+
+	String<STRW> attribute (const String<STRU8> &tag ,const String<STRW> &def) const {
+		return attribute (tag ,def ,Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_)) ;
+	}
+
+	const String<STRU8> &value () const & {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mMemberSet.size () == 0) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mAttributeSet.length () == 1) ;
 		INDEX ix = mHeap.self[mIndex].mAttributeSet.min_one () ;
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
+
+	const String<STRU8> &value () && = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -263,9 +319,9 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (r1x[1] != 0)
 				discard ;
-			auto &r1 = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r1.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r1.mAttributeSet) {
+			auto &r2 = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r2.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r2.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
@@ -279,16 +335,16 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (r1x[1] != 0)
 				discard ;
-			auto &r1 = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r1.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r1.mAttributeSet) {
+			auto &r3 = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r3.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r3.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ (">") ;
 			rax[1].clear () ;
-			for (INDEX i = r1.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
+			for (INDEX i = r3.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
 				rax[1].add ({i ,FLAG (0)}) ;
 			rax[1].add ({r1x[0] ,FLAG (1)}) ;
 			rax[0].appand (rax[1]) ;
@@ -1004,12 +1060,13 @@ public:
 		return !equal (right) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const String<STRU8> &value () const {
+	const String<STRU8> &value () const & {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (string_type ()) ;
 		return mHeap.self[mIndex].mValue.rebind<String<STRU8>> () ;
 	}
+
+	const String<STRU8> &value () && = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1114,9 +1171,9 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (r2x[1] != 0)
 				discard ;
-			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
+			auto &r2 = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
-			writer << r1 ;
+			writer << r2 ;
 			writer << _PCSTRU8_ ("\"") ;
 		} ,[&] (BOOL &if_flag) {
 			//@info: case '[(yyy(,yyy)*)?]'
@@ -1126,11 +1183,11 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (r2x[1] != 0)
 				discard ;
-			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			auto &r3 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rax[1].clear () ;
 			rax[1].add ({VAR_NONE ,FLAG (2)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r1) {
+			for (auto &&i : r3) {
 				if (ir > 0)
 					rax[1].add ({VAR_NONE ,FLAG (3)}) ;
 				ir++ ;
@@ -1146,11 +1203,11 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (r2x[1] != 0)
 				discard ;
-			auto &r1 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r4 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rax[1].clear () ;
 			rax[1].add ({VAR_NONE ,FLAG (5)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r1) {
+			for (auto &&i : r4) {
 				if (ir > 0)
 					rax[1].add ({VAR_NONE ,FLAG (6)}) ;
 				ir++ ;
@@ -1579,8 +1636,7 @@ public:
 		return mOptionSet.find (tag) != VAR_NONE ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const String<STRU8> &attribute (const String<STRU8> &tag) const {
+	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
 		auto &r1 = _CACHE_ ([] () {
 			return String<STRU8> () ;
 		}) ;
@@ -1589,6 +1645,8 @@ public:
 			return r1 ;
 		return mAttributeSet[ix].item ;
 	}
+
+	const String<STRU8> &attribute (const String<STRU8> &) && = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1643,10 +1701,11 @@ public:
 		return attribute (tag ,def ,Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_)) ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Array<String<STRU8>> &command () const {
+	const Array<String<STRU8>> &command () const & {
 		return mCommand ;
 	}
+
+	const Array<String<STRU8>> &command () && = delete ;
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;

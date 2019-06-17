@@ -323,7 +323,7 @@ inline exports void TCPSocket::Listener::listen () {
 	mThis.rebind<Implement> ()->listen () ;
 }
 
-inline exports void TCPSocket::Listener::accept (TCPSocket &linker) {
+inline exports void TCPSocket::Listener::accept (TCPSocket &linker) popping {
 	mThis.rebind<Implement> ()->accept (linker) ;
 }
 

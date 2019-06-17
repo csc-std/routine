@@ -117,9 +117,10 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.default.inl">
       <Filter>csc</Filter>
     </None>
-    <None Include="..\..\..\..\..\Depends\__CSC__\csc.vs.hint" />
+    <None Include="..\..\..\..\..\Depends\__CSC__\cpp.hint" />
+    <None Include="..\..\..\..\..\Depends\__CSC__\csc.rule" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\..\..\..\..\Depends\__CSC__\csc.vs.natvis" />
+    <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />
   </ItemGroup>
 </Project>

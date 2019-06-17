@@ -140,10 +140,11 @@ public:
 		reset () ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	Attribute &attr () const {
+	Attribute &attr () const & {
 		return mHolder ;
 	}
+
+	Attribute &attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -419,10 +420,11 @@ public:
 		reset () ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	Attribute &attr () const {
+	Attribute &attr () const & {
 		return mHolder ;
 	}
+
+	Attribute &attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -762,10 +764,11 @@ public:
 		reset () ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	Attribute &attr () const {
+	Attribute &attr () const & {
 		return mHolder ;
 	}
+
+	Attribute &attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1263,10 +1266,11 @@ public:
 		reset () ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	Attribute &attr () const {
+	Attribute &attr () const & {
 		return mHolder ;
 	}
+
+	Attribute &attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1539,42 +1543,42 @@ private:
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
+			const auto r10x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r4x <= 0)
+			if (r10x <= 0)
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
 		} ,[&] (BOOL &if_flag) {
 			if (rax[1] >= 1 - r3x)
 				discard ;
-			const auto r4x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
+			const auto r9x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
 				rax[0] /= mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r4x <= 0)
+			if (r9x <= 0)
 				return ;
 			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
 			rax[1]++ ;
 		}) ;
-		const auto r4x = log_of_number (rax[0]) ;
+		const auto r8x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			//@info: case 'x.xxxExxx'
-			if (_ABS_ (r4x - 1 + rax[1]) < 6)
+			if (_ABS_ (r8x - 1 + rax[1]) < 6)
 				discard ;
-			try_write_number ((r4x - 1 + rax[1]) ,out ,iw) ;
+			try_write_number ((r8x - 1 + rax[1]) ,out ,iw) ;
 			if (out[iw] != UNIT ('-'))
 				out[--iw] = UNIT ('+') ;
 			out[--iw] = UNIT ('e') ;
-			const auto r5x = _MAX_ ((r4x - 7) ,VAR_ZERO) ;
+			const auto r5x = _MAX_ ((r8x - 7) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r5x ,ie = r4x - 1 ; i < ie ; i++) {
+			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
 				rax[0] /= mHolder->varify_radix () ;
@@ -1589,47 +1593,47 @@ private:
 				discard ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = mHolder->convert_number_w (0) ;
-			for (INDEX i = 0 ; i < r4x ; i++) {
+			for (INDEX i = 0 ; i < r8x ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
 		} ,[&] (BOOL &if_flag) {
 			//@info: case 'xxx.xxx'
-			if (rax[1] < 1 - r4x)
+			if (rax[1] < 1 - r8x)
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r5x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r5x ; i++)
+			const auto r7x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			for (INDEX i = 0 ; i < r7x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r5x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
+			for (INDEX i = r7x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
 			out[--iw] = UNIT ('.') ;
 			iw += EFLAG (out[ix] == UNIT ('.')) ;
-			for (INDEX i = 0 ,ie = LENGTH (r4x + rax[1]) ; i < ie ; i++) {
+			for (INDEX i = 0 ,ie = LENGTH (r8x + rax[1]) ; i < ie ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
 		} ,[&] (BOOL &if_flag) {
 			//@info: case '0.000xxx'
-			if (rax[1] >= 1 - r4x)
+			if (rax[1] >= 1 - r8x)
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r5x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r5x ; i++)
+			const auto r6x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			for (INDEX i = 0 ; i < r6x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r5x ; i < r4x ; i++) {
+			for (INDEX i = r6x ; i < r8x ; i++) {
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-			for (INDEX i = _MAX_ (r5x ,r4x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
+			for (INDEX i = _MAX_ (r6x ,r8x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
 				out[--iw] = mHolder->convert_number_w (0) ;
 				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
 			}

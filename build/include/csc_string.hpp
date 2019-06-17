@@ -977,18 +977,18 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
 			break ;
-		const auto r1x = ((i & STRU8 (0X80)) == 0) ? (M_TABLE.P1[LENGTH (i) - 32]) : VAR_NONE ;
-		if (rax == 0 && r1x >= 0) {
-			rbx = CHAR (r1x & 63) ;
+		const auto r2x = ((i & STRU8 (0X80)) == 0) ? (M_TABLE.P1[LENGTH (i) - 32]) : VAR_NONE ;
+		if (rax == 0 && r2x >= 0) {
+			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
-		} else if (rax == 1 && r1x >= 0) {
-			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
+		} else if (rax == 1 && r2x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 2 ;
-		} else if (rax == 2 && r1x >= 0) {
-			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
+		} else if (rax == 2 && r2x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 3 ;
-		} else if (rax == 3 && r1x >= 0) {
-			rbx = CHAR ((rbx << 6) | CHAR (r1x & 63)) ;
+		} else if (rax == 3 && r2x >= 0) {
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 0 ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;

@@ -16,6 +16,7 @@
 namespace CSC {
 class TCPSocket {
 public:
+	_STATIC_WARNING_ ("mark") ;
 	class Listener ;
 
 private:
@@ -76,7 +77,7 @@ public:
 
 	void listen () ;
 
-	void accept (TCPSocket &linker) ;
+	void accept (TCPSocket &linker) popping ;
 } ;
 
 class UDPSocket {

@@ -25,20 +25,23 @@ private:
 public:
 	Mesh () = default ;
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Set<ARRAY3<VAL32>> &vertex () const {
+	const Set<ARRAY3<VAL32>> &vertex () const & {
 		return mVertexSet ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Queue<ARRAY3<INDEX>> &element () const {
+	const Set<ARRAY3<VAL32>> &vertex () && = delete ;
+
+	const Queue<ARRAY3<INDEX>> &element () const & {
 		return mElementList ;
 	}
 
-	_STATIC_WARNING_ ("unqualified") ;
-	const Array<SoftImage<COLOR_BGR>> &texture () const {
+	const Queue<ARRAY3<INDEX>> &element () && = delete ;
+
+	const Array<SoftImage<COLOR_BGR>> &texture () const & {
 		return mTexture ;
 	}
+
+	const Array<SoftImage<COLOR_BGR>> &texture () && = delete ;
 
 	void add_vertex (const Set<ARRAY3<VAL32>> &_vertex) {
 		mVertexSet.appand (_vertex) ;
@@ -104,18 +107,18 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_nu == UNIT (0))
 				break ;
-			const auto r1x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
-			const auto r2x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
-			mEyeU = r1x.normalize () ;
-			mEyeN = r2x.normalize () ;
+			const auto r3x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
+			const auto r4x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
+			mEyeU = r3x.normalize () ;
+			mEyeN = r4x.normalize () ;
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_uv == UNIT (0))
 				break ;
-			const auto r1x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
-			const auto r2x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
-			mEyeV = r1x.normalize () ;
-			mEyeU = r2x.normalize () ;
+			const auto r5x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
+			const auto r6x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
+			mEyeV = r5x.normalize () ;
+			mEyeU = r6x.normalize () ;
 		}
 		mViewMatrix.signal () ;
 	}
@@ -159,18 +162,18 @@ public:
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
-		mProjectionMatrix[0][0] = UNIT (2) * _near / mScreenW ;
+		mProjectionMatrix[0][0] = UNIT (2) * _near * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][1] = UNIT (0) ;
-		mProjectionMatrix[0][2] = (right + left) / mScreenW ;
+		mProjectionMatrix[0][2] = (right + left) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][3] = UNIT (0) ;
 		mProjectionMatrix[1][0] = UNIT (0) ;
-		mProjectionMatrix[1][1] = UNIT (2) * _near / mScreenH ;
-		mProjectionMatrix[1][2] = (top + bottom) / mScreenH ;
+		mProjectionMatrix[1][1] = UNIT (2) * _near * _PINV_ (mScreenH) ;
+		mProjectionMatrix[1][2] = (top + bottom) * _PINV_ (mScreenH) ;
 		mProjectionMatrix[1][3] = UNIT (0) ;
 		mProjectionMatrix[2][0] = UNIT (0) ;
 		mProjectionMatrix[2][1] = UNIT (0) ;
-		mProjectionMatrix[2][2] = -(_far + _near) / mScreenD ;
-		mProjectionMatrix[2][3] = -(UNIT (2) * _near * _far) / mScreenD ;
+		mProjectionMatrix[2][2] = -(_far + _near) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[2][3] = -(UNIT (2) * _near * _far) * _PINV_ (mScreenD) ;
 		mProjectionMatrix[3][0] = UNIT (0) ;
 		mProjectionMatrix[3][1] = UNIT (0) ;
 		mProjectionMatrix[3][2] = UNIT (-1) ;
@@ -184,21 +187,21 @@ public:
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
-		mProjectionMatrix[0][0] = UNIT (2) / mScreenW ;
+		mProjectionMatrix[0][0] = UNIT (2) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][1] = UNIT (0) ;
 		mProjectionMatrix[0][2] = UNIT (0) ;
 		mProjectionMatrix[0][3] = UNIT (0) ;
 		mProjectionMatrix[1][0] = UNIT (0) ;
-		mProjectionMatrix[1][1] = UNIT (2) / mScreenH ;
+		mProjectionMatrix[1][1] = UNIT (2) * _PINV_ (mScreenH) ;
 		mProjectionMatrix[1][2] = UNIT (0) ;
 		mProjectionMatrix[1][3] = UNIT (0) ;
 		mProjectionMatrix[2][0] = UNIT (0) ;
 		mProjectionMatrix[2][1] = UNIT (0) ;
-		mProjectionMatrix[2][2] = UNIT (-2) / mScreenD ;
+		mProjectionMatrix[2][2] = UNIT (-2) * _PINV_ (mScreenD) ;
 		mProjectionMatrix[2][3] = UNIT (0) ;
-		mProjectionMatrix[3][0] = -(right + left) / mScreenW ;
-		mProjectionMatrix[3][1] = -(top + bottom) / mScreenH ;
-		mProjectionMatrix[3][2] = -(_far + _near) / mScreenD ;
+		mProjectionMatrix[3][0] = -(right + left) * _PINV_ (mScreenW) ;
+		mProjectionMatrix[3][1] = -(top + bottom) * _PINV_ (mScreenH) ;
+		mProjectionMatrix[3][2] = -(_far + _near) * _PINV_ (mScreenD) ;
 		mProjectionMatrix[3][3] = UNIT (1) ;
 	}
 
@@ -230,8 +233,6 @@ private:
 
 class AbstractShader {
 public:
-	class Sprite ;
-
 	exports struct Abstract :public Interface {
 		virtual void load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
 		virtual void active_pipeline (AnyRef<void> &_this) const = 0 ;
@@ -246,6 +247,9 @@ public:
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
 	} ;
 
+	_STATIC_WARNING_ ("mark") ;
+	class Sprite ;
+
 private:
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
@@ -254,12 +258,14 @@ private:
 public:
 	AbstractShader () = default ;
 
-	explicit AbstractShader (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
+	explicit AbstractShader (const PhanRef<const Abstract> &_abstract) :mAbstract (PhanRef<const Abstract>::make (_abstract)) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
 			return FALSE ;
-		return mHolder.exist () ;
+		if (!mHolder.exist ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void load_data (const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) {
@@ -357,14 +363,14 @@ private:
 	AnyRef<void> mHolder ;
 
 public:
-	Sprite () = default ;
-
-	explicit Sprite (const PhanRef<const Abstract> &engine) :mAbstract (PhanRef<const Abstract>::make (engine)) {}
+	Sprite () = delete ;
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
 			return FALSE ;
-		return mHolder.exist () ;
+		if (!mHolder.exist ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void load_data (const Mesh &mesh) {

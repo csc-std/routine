@@ -1456,7 +1456,9 @@ public:
 	BOOL equal (const Priority &right) const {
 		if (length () != right.length ())
 			return FALSE ;
-		return _MEMEQUAL_ (mPriority ,right.mPriority ,length ()) ;
+		if (!_MEMEQUAL_ (mPriority ,right.mPriority ,length ()))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Priority &right) const {
@@ -1921,17 +1923,20 @@ private:
 private:
 	INDEX access (INDEX pos ,INDEX ib ,INDEX jb) const {
 		INDEX ret = VAR_NONE ;
+		INDEX ix = ib ;
+		INDEX iy = jb ;
 		while (TRUE) {
-			if (ib > jb)
+			if (ix > iy)
 				break ;
-			ret = ib + (jb - ib + 1) / 2 ;
-			INDEX ix = position_before (ret) ;
-			if (ix == pos && mDeque[ret][0] != VAR_NONE)
+			ret = ix + (iy - ix + 1) / 2 ;
+			INDEX jx = position_before (ret) ;
+			if (jx == pos && mDeque[ret][0] != VAR_NONE)
 				break ;
-			const auto r1x = (ix < pos) ? (ret + 1) : (ret - 1) ;
-			auto &r1 = (ix < pos) ? ib : jb ;
+			const auto r1x = (jx < pos) ? (ret + 1) : (ret - 1) ;
+			auto &r1 = (jx < pos) ? ix : iy ;
 			r1 = r1x ;
 		}
+		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
 		ret = mDeque[ret][0] ;
 		return std::move (ret) ;
 	}
@@ -2250,6 +2255,14 @@ public:
 
 	INDEX inext (INDEX index) const {
 		return mList[index].mRight ;
+	}
+
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
 	}
 
 	BOOL equal (const QList &right) const {
@@ -2656,6 +2669,14 @@ public:
 			if (get (i))
 				return i ;
 		return VAR_NONE ;
+	}
+
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
 	}
 
 	BOOL equal (const BitSet &right) const {
@@ -3212,6 +3233,14 @@ public:
 		return VAR_NONE ;
 	}
 
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
+	}
+
 	BOOL equal (const Set &right) const {
 		return equal_each (right ,mRoot ,right.mRoot) ;
 	}
@@ -3394,9 +3423,9 @@ private:
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &r2 = prev_next (iy) ;
-			rotate_right (r2) ;
-			r2 = mTop ;
+			auto &r3 = prev_next (iy) ;
+			rotate_right (r3) ;
+			r3 = mTop ;
 			mTop = it ;
 		}) ;
 	}
@@ -3430,9 +3459,9 @@ private:
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &r2 = prev_next (iy) ;
-			rotate_left (r2) ;
-			r2 = mTop ;
+			auto &r3 = prev_next (iy) ;
+			rotate_left (r3) ;
+			r3 = mTop ;
 			mTop = it ;
 		}) ;
 	}
@@ -3493,9 +3522,9 @@ private:
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
-			auto &r3 = prev_next (jt) ;
-			rotate_left (r3) ;
-			r3 = mTop ;
+			auto &r4 = prev_next (jt) ;
+			rotate_left (r4) ;
+			r4 = mTop ;
 			mTop = mRoot ;
 		}) ;
 	}
@@ -3538,9 +3567,9 @@ private:
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
-			auto &r3 = prev_next (jt) ;
-			rotate_right (r3) ;
-			r3 = mTop ;
+			auto &r4 = prev_next (jt) ;
+			rotate_right (r4) ;
+			r4 = mTop ;
 			mTop = mRoot ;
 		}) ;
 	}
@@ -3959,6 +3988,14 @@ public:
 			if (mSet.used (i))
 				return i ;
 		return VAR_NONE ;
+	}
+
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
 	}
 
 	BOOL equal (const HashSet &right) const {
@@ -4484,12 +4521,22 @@ public:
 		return mSet.self[index].mNext ;
 	}
 
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
+	}
+
 	BOOL equal (const SoftSet &right) const {
 		if (!mHolder.exist () && !right.mHolder.exist ())
 			return TRUE ;
 		if (!mHolder.exist () || !right.mHolder.exist ())
 			return FALSE ;
-		return equal_each (right ,mHolder->mRoot ,right.mHolder->mRoot) ;
+		if (!equal_each (right ,mHolder->mRoot ,right.mHolder->mRoot))
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const SoftSet &right) const {

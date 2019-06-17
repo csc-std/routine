@@ -325,6 +325,7 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 	RemoveDirectory (dire.raw ().self) ;
 }
 
+//@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	rax += dire ;
@@ -355,8 +356,8 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 				break ;
 			rax += String<STR> (rbx.cFileName) ;
 			r1 (rax) ;
-			rax[r1x] = 0 ;
 		}
+		rax[r1x] = 0 ;
 		rbx.cFileName[0] = 0 ;
 		FindNextFile (r2x ,&rbx) ;
 	}
