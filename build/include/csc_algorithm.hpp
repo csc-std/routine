@@ -489,15 +489,19 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				} else if (mTempState == 4) {
-					mTempState = (mTempStack[ix][0] < mAdjacency.cx ()) ? 5 : 16 ;
+					const auto r1x = (mTempStack[ix][0] < mAdjacency.cx ()) ? 5 : 16 ;
+					mTempState = r1x ;
 				} else if (mTempState == 5) {
-					mTempState = (mXVisit[mTempStack[ix][0]]) ? 15 : 6 ;
+					const auto r2x = (mXVisit[mTempStack[ix][0]]) ? 15 : 6 ;
+					mTempState = r2x ;
 				} else if (mTempState == 6) {
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					mTempState = (mLackWeight[0] < mTolerance) ? 8 : 12 ;
+					const auto r3x = (mLackWeight[0] < mTolerance) ? 8 : 12 ;
+					mTempState = r3x ;
 				} else if (mTempState == 7) {
 					ix = mTempStack.peek () ;
-					mTempState = (mTempStack[ix][1] == VAR_NONE) ? 2 : 3 ;
+					const auto r4x = (mTempStack[ix][1] == VAR_NONE) ? 2 : 3 ;
+					mTempState = r4x ;
 				} else if (mTempState == 8) {
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add ({0 ,mXYLink[mTempStack[ix][0]]}) ;
@@ -506,13 +510,15 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					ix = mTempStack.peek () ;
 					mTempState = 10 ;
 				} else if (mTempState == 10) {
-					mTempState = mTempRet ? 11 : 15 ;
+					const auto r5x = mTempRet ? 11 : 15 ;
+					mTempState = r5x ;
 				} else if (mTempState == 11) {
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				} else if (mTempState == 12) {
-					mTempState = (mLackWeight[1] < mTolerance) ? 13 : 14 ;
+					const auto r6x = (mLackWeight[1] < mTolerance) ? 13 : 14 ;
+					mTempState = r6x ;
 				} else if (mTempState == 13) {
 					mLackWeight[1] = mLackWeight[0] ;
 					mTempState = 15 ;
@@ -527,9 +533,11 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					mTempState = 17 ;
 				} else if (mTempState = 17) {
 					mTempStack.take () ;
-					mTempState = (mTempStack.length () > 0) ? 9 : 18 ;
+					const auto r7x = (mTempStack.length () > 0) ? 9 : 18 ;
+					mTempState = r7x ;
 				} else if (mTempState == 18) {
-					mTempState = mTempRet ? 19 : 20 ;
+					const auto r8x = mTempRet ? 19 : 20 ;
+					mTempState = r8x ;
 				} else if (mTempState == 19) {
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
@@ -691,7 +699,10 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			INDEX ix = mPloygonVertexList.access ((it - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ()) ;
 			INDEX iy = mPloygonVertexList.access (it) ;
 			INDEX iz = mPloygonVertexList.access ((it + 1) % mPloygonVertexList.length ()) ;
-			if (math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) >= UNIT (0))
+			const auto r1x = math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) ;
+			if (r1x > UNIT (0))
+				return FALSE ;
+			if (r1x == UNIT (0))
 				return FALSE ;
 			if (!edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]))
 				return FALSE ;
@@ -711,6 +722,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			const auto r1x = math_cross_product_z (mVertex ,v1 ,v2 ,v4) ;
 			const auto r2x = math_cross_product_z (mVertex ,v2 ,v3 ,v4) ;
 			const auto r3x = math_cross_product_z (mVertex ,v3 ,v1 ,v4) ;
+			_STATIC_WARNING_ ("mark") ;
 			if (r1x < UNIT (0) && r2x < UNIT (0) && r3x <= UNIT (0))
 				return FALSE ;
 			if (r1x < UNIT (0) && r2x <= UNIT (0) && r3x < UNIT (0))
@@ -835,11 +847,12 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		inline void compute_gradient_of_loss (const Array<UNIT> &dx ,Array<UNIT> &dg ,Array<UNIT> &sx) const {
 			for (INDEX i = 0 ; i < dx.length () ; i++)
 				sx[i] = dx[i] ;
+			const auto r1x = _PINV_ (mTolerance) ;
 			for (INDEX i = 0 ; i < dg.length () ; i++) {
-				const auto r1x = sx[i] ;
-				sx[i] = r1x + mTolerance ;
-				dg[i] = (mLossFunc (sx) - mLossFunc (dx)) / mTolerance ;
-				sx[i] = r1x ;
+				const auto r3x = sx[i] ;
+				sx[i] = r3x + mTolerance ;
+				dg[i] = (mLossFunc (sx) - mLossFunc (dx)) * r1x ;
+				sx[i] = r3x ;
 			}
 		}
 
@@ -994,7 +1007,7 @@ public:
 	}
 
 	Queue<INDEX> query (const ARRAY3<UNIT> &point ,const UNIT &width) const {
-		_DEBUG_ASSERT_ (width >= UNIT (0)) ;
+		_DEBUG_ASSERT_ (width > UNIT (0)) ;
 		Queue<INDEX> ret ;
 		auto rax = ARRAY3<ARRAY2<UNIT>> () ;
 		rax[0][0] = _MAX_ ((point[0] - width) ,mBound[0][0]) ;

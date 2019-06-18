@@ -55,7 +55,9 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Vector &right) const {
-		return mVector == right.mVector ;
+		if (mVector != right.mVector)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Vector &right) const {
@@ -67,7 +69,9 @@ public:
 	}
 
 	BOOL less (const Vector &right) const {
-		return mVector < right.mVector ;
+		if (mVector >= right.mVector)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Vector &right) const {
@@ -361,7 +365,9 @@ public:
 	inline Row<Matrix> operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Matrix &right) const {
-		return mMatrix == right.mMatrix ;
+		if (mMatrix != right.mMatrix)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Matrix &right) const {
@@ -373,7 +379,9 @@ public:
 	}
 
 	BOOL less (const Matrix &right) const {
-		return mMatrix < right.mMatrix ;
+		if (mMatrix >= right.mMatrix)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Matrix &right) const {
@@ -545,12 +553,13 @@ public:
 					ret.get (ix ,j) = r1x ;
 				}
 			}
-			if (ret.get (i ,i) == 0)
+			const auto r2x = _PINV_ (ret.get (i ,i)) ;
+			if (r2x == UNIT (0))
 				continue ;
 			for (INDEX j = i + 1 ; j < 4 ; j++) {
-				const auto r2x = ret.get (j ,i) / ret.get (i ,i) ;
+				const auto r3x = ret.get (j ,i) * r2x ;
 				for (INDEX k = i + 1 ; k < 4 ; k++)
-					ret.get (j ,k) -= r2x * ret.get (i ,k) ;
+					ret.get (j ,k) -= r3x * ret.get (i ,k) ;
 				ret.get (j ,i) = UNIT (0) ;
 			}
 		}
@@ -743,8 +752,10 @@ public:
 		ARRAY4<UNIT> ret ;
 		const auto r1x = rotation.decompose () ;
 		const auto r2x = r1x[2] ;
-		_DEBUG_ASSERT_ (UNIT (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] >= UNIT (0)) ;
-		const auto r3x = UNIT (2) * _SQRT_ (UNIT (1) + r2x[0][0] + r2x[1][1] + r2x[2][2]) ;
+		const auto r5x = UNIT (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] ;
+		_STATIC_WARNING_ ("mark") ;
+		_DEBUG_ASSERT_ (r5x >= UNIT (0)) ;
+		const auto r3x = UNIT (2) * _SQRT_ (r5x) ;
 		const auto r4x = _PINV_ (r3x) ;
 		ret[0] = (r2x[2][1] - r2x[1][2]) * r4x ;
 		ret[1] = (r2x[0][2] - r2x[2][0]) * r4x ;
@@ -757,10 +768,11 @@ public:
 		ARRAY3<UNIT> ret ;
 		const auto r1x = make_rotation_quat (rotation) ;
 		const auto r2x = Vector<UNIT> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
-		const auto r3x = (r2x != UNIT (0)) ? (UNIT (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) : (UNIT (2)) ;
-		ret[0] = r1x[0] * r3x ;
-		ret[1] = r1x[1] * r3x ;
-		ret[2] = r1x[2] * r3x ;
+		_STATIC_WARNING_ ("mark") ;
+		const auto r4x = (r2x != UNIT (0)) ? (UNIT (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) : (UNIT (2)) ;
+		ret[0] = r1x[0] * r4x ;
+		ret[1] = r1x[1] * r4x ;
+		ret[2] = r1x[2] * r4x ;
 		return std::move (ret) ;
 	}
 

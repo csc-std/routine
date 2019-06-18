@@ -16,6 +16,8 @@ public:
 		_UNITTEST_ASSERT_ (r1x == VAR64_MAX) ;
 		const auto r2x = VAR128 (VAR64_MAX) / (VAR64_MAX / 2 - 1) ;
 		_UNITTEST_ASSERT_ (r2x == 2) ;
+		_UNITTEST_ASSERT_ (VAR128 (22) < VAR128 (33)) ;
+		_UNITTEST_ASSERT_ (VAR128 (-22) >= VAR128 (-33)) ;
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
@@ -97,7 +99,7 @@ public:
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
 			const auto r4x = (arg2 < VAR_ZERO) ? (-arg1) : arg1 ;
 			const auto r5x = _ABS_ (arg2) ;
-			VAR ret = VAR (r5x * VAR64 (r4x / r5x)) ;
+			VAR ret = VAR (r5x * VAR (r4x / r5x)) ;
 			if (r4x < 0 && ret > r4x)
 				ret -= r5x ;
 			if (arg2 < 0)

@@ -23,7 +23,9 @@ private:
 		inline Iterator () = delete ;
 
 		inline BOOL operator!= (const Iterator &right) const {
-			return mIndex != right.mIndex ;
+			if (mIndex == right.mIndex)
+				return FALSE ;
+			return TRUE ;
 		}
 
 		inline const Array<LENGTH ,SIZE> &operator* () const {
@@ -396,6 +398,29 @@ public:
 
 	inline SoftImage &operator/= (const SoftImage &right) {
 		divto (right) ;
+		return *this ;
+	}
+
+	SoftImage mod (const SoftImage &right) const {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		SoftImage ret = SoftImage (mCX ,mCY) ;
+		for (auto &&i : range ())
+			ret.get (i) = get (i) % right.get (i) ;
+		return std::move (ret) ;
+	}
+
+	inline SoftImage operator% (const SoftImage &right) const {
+		return mod (right) ;
+	}
+
+	void modto (const SoftImage &right) {
+		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+		for (auto &&i : range ())
+			get (i) %= right.get (i) ;
+	}
+
+	inline SoftImage &operator%= (const SoftImage &right) {
+		modto (right) ;
 		return *this ;
 	}
 
@@ -794,6 +819,7 @@ public:
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Pack> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
 
+private:
 	void update_layout () {
 		_DEBUG_ASSERT_ (exist ()) ;
 		static_update_layout (mAbstract ,mThis) ;

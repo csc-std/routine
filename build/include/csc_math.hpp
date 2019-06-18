@@ -148,7 +148,7 @@ inline _ARG1 _SIGN_ (const _ARG1 &x) {
 
 template <class _ARG1>
 inline _ARG1 _PINV_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,VAL32>::value || stl::is_same<_ARG1 ,VAL64>::value || stl::is_same<_ARG1 ,VALX>::value) ;
 	if (x == _ARG1 (0))
 		return _ARG1 (0) ;
 	return _ARG1 (1) / x ;
@@ -156,7 +156,7 @@ inline _ARG1 _PINV_ (const _ARG1 &x) {
 
 template <class _ARG1>
 inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,VAL32>::value || stl::is_same<_ARG1 ,VAL64>::value || stl::is_same<_ARG1 ,VALX>::value) ;
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	if (_ABS_ (x) < y)
 		return _ARG1 (0) ;
@@ -165,7 +165,7 @@ inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
 
 inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
-	const auto r1x = VAR64 (x / y) ;
+	const auto r1x = VAR64 (x * _PINV_  (y)) ;
 	VALX ret = y * VALX (r1x) ;
 	if (x < 0 && x < ret)
 		ret = y * VALX (r1x - 1) ;
@@ -180,7 +180,7 @@ inline _ARG1 _FLOOR_ (const _ARG1 &x ,const _ARG1 &y) {
 
 inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
-	const auto r1x = VAR64 (x / y) ;
+	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
 	if (0 < x && ret < x)
 		ret = y * VALX (r1x + 1) ;
@@ -239,16 +239,16 @@ inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
 		if ((ret[0] & DATA (0X8000000000000000)) != 0)
 			ret[0] = ~ret[0] + 1 ;
 		while (ret[0] != 0 && (ret[0] & ~0X000FFFFFFFFFFFFF) != 0X0010000000000000) {
-			ret[0] <<= 1 ;
+			ret[0] = ret[0] << 1 ;
 			ret[1]-- ;
 		}
 		const auto r3x = VAR64 (ret[1]) ;
 		while (VAR64 (ret[1]) <= -1075) {
-			ret[0] >>= 1 ;
+			ret[0] = ret[0] >> 1 ;
 			ret[1]++ ;
 		}
 		ret[1] = ret[1] + 1075 - EFLAG (r3x <= -1075) ;
-		ret[1] <<= 52 ;
+		ret[1] = ret[1] << 52 ;
 		if (ret[0] == 0)
 			ret[1] = 0 ;
 		return std::move (ret) ;
@@ -271,7 +271,7 @@ inline ARRAY2<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	ret[1] = r2x >> 52 ;
 	ret[1] -= DATA (1074 + EFLAG (r2x != 0)) ;
 	while (ret[0] != 0 && (ret[0] & DATA (0X0000000000000001)) == 0) {
-		ret[0] >>= 1 ;
+		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
 	if ((r1x & DATA (0X8000000000000000)) != 0)
@@ -293,7 +293,7 @@ inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
 			ret[0] = ~ret[0] + 1 ;
 		_DEBUG_ASSERT_ ((ret[0] & DATA (0X8000000000000000)) == 0) ;
 		while (ret[0] != 0 && (ret[0] & ~0X000FFFFFFFFFFFFF) != 0X0010000000000000) {
-			ret[0] <<= 1 ;
+			ret[0] = ret[0] << 1 ;
 			ret[1]-- ;
 		}
 		return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
@@ -333,11 +333,11 @@ inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
 	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (2 ,(r2x - VAR64 (r2x))) + VAL64 (0.5))) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (ret[0] != 0 && (ret[0] & DATA (~0X001FFFFFFFFFFFFF)) != 0) {
-		ret[0] >>= 1 ;
+		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
 	while (ret[0] != 0 && (ret[0] & DATA (0X0000000000000001)) == 0) {
-		ret[0] >>= 1 ;
+		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
 	if (sne10[0] < 0)

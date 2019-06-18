@@ -953,15 +953,21 @@ public:
 	}
 
 	BOOL string_type () const {
-		return mHeap.self[mIndex].mTypeID == TYPE_ID_STRING ;
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_STRING)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL array_type () const {
-		return mHeap.self[mIndex].mTypeID == TYPE_ID_ARRAY ;
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_ARRAY)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL object_type () const {
-		return mHeap.self[mIndex].mTypeID == TYPE_ID_OBJECT ;
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_OBJECT)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	JsonParser root () const {
@@ -1633,7 +1639,10 @@ public:
 #endif
 
 	BOOL option (const String<STRU8> &tag) const {
-		return mOptionSet.find (tag) != VAR_NONE ;
+		INDEX ix = mOptionSet.find (tag) ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {

@@ -94,7 +94,7 @@ public:
 		mViewMatrix.signal () ;
 	}
 
-	//@info: angle_vn-angle_nu-angle_uv <<==>> pitch-yaw-roll (heading-pitch-bank)
+	//@info: 'angle_vn-angle_nu-angle_uv' equals to 'pitch-yaw-roll' (heading-pitch-bank)
 	void rotate (const UNIT &angle_vn ,const UNIT &angle_nu ,const UNIT &angle_uv) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_vn == UNIT (0))

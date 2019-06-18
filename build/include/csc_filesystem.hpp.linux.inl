@@ -104,7 +104,9 @@ inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
 			return ;
 		close (me) ;
 	}) ;
-	return r1x >= 0 ;
+	if (r1x < 0)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline exports BOOL _inline_FINDJUNTION_ (const String<STRA> &dire) popping {
@@ -115,7 +117,9 @@ inline exports BOOL _inline_FINDJUNTION_ (const String<STRA> &dire) popping {
 			return ;
 		closedir (me) ;
 	}) ;
-	return r1x.self != NULL ;
+	if (r1x.self == NULL)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline exports void _ERASEFILE_ (const String<STR> &file) {
@@ -285,7 +289,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 inline exports String<STR> _MODULEFILEPATH_ () {
 	auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-	if (r1x < 0 || r1x >= rax.size ())
+	if (!(r1x >= 0 && r1x < rax.size ()))
 		rax.clear () ;
 	String<STR> ret = _PARSESTRS_ (rax) ;
 	ret = _PARSEFILEPATH_ (ret) ;
@@ -296,7 +300,7 @@ inline exports String<STR> _MODULEFILEPATH_ () {
 inline exports String<STR> _MODULEFILENAME_ () {
 	auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-	if (r1x < 0 || r1x >= rax.size ())
+	if (!(r1x >= 0 && r1x < rax.size ()))
 		rax.clear () ;
 	const auto r2x = _PARSESTRS_ (rax) ;
 	return _PARSEFILENAME_ (r2x) ;
@@ -311,7 +315,9 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 			return ;
 		closedir (me) ;
 	}) ;
-	return r1x.self != NULL ;
+	if (r1x.self == NULL)
+		return FALSE ;
+	return TRUE ;
 }
 
 inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {

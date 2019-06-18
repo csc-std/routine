@@ -107,11 +107,15 @@ public:
 	}
 
 	inline BOOL operator== (const VAR128 &right) const {
-		return BOOL (v2i1 == right.v2i1 && v2i0 == right.v2i0) ;
+		if (v2i1 != right.v2i1)
+			return FALSE ;
+		if (v2i0 != right.v2i0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator!= (const VAR128 &right) const {
-		return BOOL (v2i1 != right.v2i1 || v2i0 != right.v2i0) ;
+		return !operator== (right) ;
 	}
 
 	inline BOOL operator< (const VAR128 &right) const {
@@ -127,144 +131,38 @@ public:
 	}
 
 	inline BOOL operator>= (const VAR128 &right) const {
-		const auto r1x = _CAST_<VAR64> (v2i0) ;
-		const auto r2x = _CAST_<VAR64> (right.v2i0) ;
-		if (r1x < r2x)
-			return FALSE ;
-		if (r1x > r2x)
-			return TRUE ;
-		if (v2i1 < right.v2i1)
-			return FALSE ;
-		return TRUE ;
+		return !operator< (right) ;
 	}
 
 	inline BOOL operator> (const VAR128 &right) const {
-		const auto r1x = _CAST_<VAR64> (right.v2i0) ;
-		const auto r2x = _CAST_<VAR64> (v2i0) ;
-		if (r1x < r2x)
-			return FALSE ;
-		if (r1x > r2x)
-			return TRUE ;
-		if (v2i1 <= right.v2i1)
-			return FALSE ;
-		return TRUE ;
+		return right.operator< (*this) ;
 	}
 
 	inline BOOL operator<= (const VAR128 &right) const {
-		const auto r1x = _CAST_<VAR64> (right.v2i0) ;
-		const auto r2x = _CAST_<VAR64> (v2i0) ;
-		if (r1x < r2x)
-			return TRUE ;
-		if (r1x > r2x)
-			return FALSE ;
-		if (v2i1 > right.v2i1)
-			return TRUE ;
-		return FALSE ;
+		return !operator> (right) ;
 	}
 
-	inline VAR128 operator& (const VAR128 &right) const {
-		VAR128 ret = 0 ;
-		ret.v2i1 = v2i1 & right.v2i1 ;
-		ret.v2i0 = v2i0 & right.v2i0 ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator& (const VAR128 &) const = delete ;
 
-	inline VAR128 &operator&= (const VAR128 &right) {
-		v2i1 &= right.v2i1 ;
-		v2i0 &= right.v2i0 ;
-		return *this ;
-	}
+	inline VAR128 &operator&= (const VAR128 &) = delete ;
 
-	inline VAR128 operator| (const VAR128 &right) const {
-		VAR128 ret = 0 ;
-		ret.v2i1 = v2i1 | right.v2i1 ;
-		ret.v2i0 = v2i0 | right.v2i0 ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator| (const VAR128 &) const = delete ;
 
-	inline VAR128 &operator|= (const VAR128 &right) {
-		v2i1 |= right.v2i1 ;
-		v2i0 |= right.v2i0 ;
-		return *this ;
-	}
+	inline VAR128 &operator|= (const VAR128 &) = delete ;
 
-	inline VAR128 operator^ (const VAR128 &right) const {
-		VAR128 ret = 0 ;
-		ret.v2i1 = v2i1 ^ right.v2i1 ;
-		ret.v2i0 = v2i0 ^ right.v2i0 ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator^ (const VAR128 &) const = delete ;
 
-	inline VAR128 &operator^= (const VAR128 &right) {
-		v2i1 ^= right.v2i1 ;
-		v2i0 ^= right.v2i0 ;
-		return *this ;
-	}
+	inline VAR128 &operator^= (const VAR128 &) = delete ;
 
-	inline VAR128 operator~ () const {
-		VAR128 ret = 0 ;
-		ret.v2i1 = ~v2i1 ;
-		ret.v2i0 = ~v2i0 ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator~ () const = delete ;
 
-	inline VAR128 operator>> (VAR scale) const {
-		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
-		VAR128 ret = *this ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (scale < 64)
-				break ;
-			ret.v2i1 = v2i0 ;
-			ret.v2i0 = 0 ;
-			scale -= 64 ;
-		}
-		ret.v2i1 = (ret.v2i0 << (64 - scale)) | (ret.v2i1 >> scale) ;
-		ret.v2i0 >>= scale ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator>> (VAR) const = delete ;
 
-	inline VAR128 &operator>>= (VAR scale) {
-		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (scale < 64)
-				break ;
-			v2i1 = v2i0 ;
-			v2i0 = 0 ;
-			scale -= 64 ;
-		}
-		v2i1 = (v2i0 << (64 - scale)) | (v2i1 >> scale) ;
-		v2i0 >>= scale ;
-		return *this ;
-	}
+	inline VAR128 &operator>>= (VAR) = delete ;
 
-	inline VAR128 operator<< (VAR scale) const {
-		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
-		VAR128 ret = *this ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (scale < 64)
-				break ;
-			ret.v2i0 = v2i1 ;
-			ret.v2i1 = 0 ;
-			scale -= 64 ;
-		}
-		ret.v2i0 = (ret.v2i0 << scale) | (ret.v2i1 >> (64 - scale)) ;
-		ret.v2i1 <<= scale ;
-		return std::move (ret) ;
-	}
+	inline VAR128 operator<< (VAR) const = delete ;
 
-	inline VAR128 &operator<<= (VAR scale) {
-		_DEBUG_ASSERT_ (scale >= 0 && scale < 128) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (scale < 64)
-				break ;
-			v2i0 = v2i1 ;
-			v2i1 = 0 ;
-			scale -= 64 ;
-		}
-		v2i0 = (v2i0 << scale) | (v2i1 >> (64 - scale)) ;
-		v2i1 <<= scale ;
-		return *this ;
-	}
+	inline VAR128 &operator<<= (VAR) = delete ;
 
 	inline VAR128 operator+ (const VAR128 &right) const {
 		VAR128 ret = 0 ;
@@ -322,7 +220,7 @@ public:
 	}
 
 	inline VAR128 operator/ (const VAR128 &right) const {
-		_DEBUG_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
+		_DYNAMIC_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
 		VAR128 ret = 0 ;
 		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
 		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
@@ -349,15 +247,23 @@ public:
 		} ,[&] (BOOL &if_flag) {
 			if (r1x)
 				discard ;
-			const auto r4x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
-			const auto r5x = r4x ? (-(-(*this + right) / right + 1)) : (-(-*this / right)) ;
-			ret = r5x ;
+			if (v2i0 == DATA (VAR64_MIN) && v2i1 == 0)
+				discard ;
+			ret = -(-*this / right) ;
+		} ,[&] (BOOL &if_flag) {
+			if (r1x)
+				discard ;
+			ret = -(-(*this + right) / right + 1) ;
 		} ,[&] (BOOL &if_flag) {
 			if (r2x)
 				discard ;
-			const auto r6x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
-			const auto r7x = r6x ? (VAR128 (0)) : (*this / -right) ;
-			ret = r7x ;
+			if (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0)
+				discard ;
+			ret = *this / -right ;
+		} ,[&] (BOOL &if_flag) {
+			if (r2x)
+				discard ;
+			ret = VAR128 (0) ;
 		} ,[&] (BOOL &if_flag) {
 			ret = slow_divide (*this ,right) ;
 		}) ;
@@ -370,7 +276,7 @@ public:
 	}
 
 	inline VAR128 operator% (const VAR128 &right) const {
-		_DEBUG_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
+		_DYNAMIC_ASSERT_ (right.v2i1 != 0 || right.v2i0 != 0) ;
 		VAR128 ret = 0 ;
 		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
 		const auto r2x = BOOL (_CAST_<VAR64> (right.v2i0) >= 0) ;
@@ -397,15 +303,23 @@ public:
 		} ,[&] (BOOL &if_flag) {
 			if (r1x)
 				discard ;
-			const auto r4x = BOOL (v2i0 == DATA (VAR64_MIN) && v2i1 == 0) ;
-			const auto r5x = r4x ? (-(-(*this + right) % right)) : (-(-*this % right)) ;
-			ret = r5x ;
+			if (v2i0 == DATA (VAR64_MIN) && v2i1 == 0)
+				discard ;
+			ret = -(-*this % right) ;
+		} ,[&] (BOOL &if_flag) {
+			if (r1x)
+				discard ;
+			ret = -(-(*this + right) % right) ;
 		} ,[&] (BOOL &if_flag) {
 			if (r2x)
 				discard ;
-			const auto r6x = BOOL (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0) ;
-			const auto r7x = r6x ? (*this) : (*this % -right) ;
-			ret = r7x ;
+			if (right.v2i0 == DATA (VAR64_MIN) && right.v2i1 == 0)
+				discard ;
+			ret = *this % -right ;
+		} ,[&] (BOOL &if_flag) {
+			if (r2x)
+				discard ;
+			ret = *this ;
 		} ,[&] (BOOL &if_flag) {
 			ret = right - slow_divide (*this ,right) * right ;
 		}) ;
@@ -465,8 +379,8 @@ private:
 			const auto r2x = x * ret ;
 			if (r2x == y)
 				break ;
-			const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
 			auto &r1 = (r2x < y) ? (rax[0]) : (rax[1]) ;
+			const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
 			r1 = r3x ;
 		}
 		ret -= EFLAG (ret * x > y) ;
@@ -561,6 +475,134 @@ private:
 #pragma endregion
 } ;
 
+class VAL128 {
+#pragma region
+#pragma push_macro ("v2f0")
+#pragma push_macro ("v2f1")
+#undef v2f0
+#undef v2f1
+#define v2f0 m_v2f0 ()
+#define v2f1 m_v2f1 ()
+
+private:
+	MEGA mData ;
+
+public:
+	inline VAL128 () = default ;
+
+	inline implicit VAL128 (VAL64 right) {
+		v2f1 = right ;
+		v2f0 = 1 ;
+	}
+
+	inline explicit operator VAL32 () const {
+		return VAL32 (v2f1) ;
+	}
+
+	inline explicit operator VAL64 () const {
+		return VAL64 (v2f1) ;
+	}
+
+	inline BOOL operator== (const VAL128 &) const = delete ;
+
+	inline BOOL operator!= (const VAL128 &) const = delete ;
+
+	inline BOOL operator< (const VAL128 &right) const {
+		if (v2f1 >= right.v2f1)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	inline BOOL operator>= (const VAL128 &) const = delete ;
+
+	inline BOOL operator> (const VAL128 &right) const {
+		return right.operator< (*this) ;
+	}
+
+	inline BOOL operator<= (const VAL128 &) const = delete ;
+
+	inline VAL128 operator+ (const VAL128 &right) const {
+		VAL128 ret = 0 ;
+		ret.v2f1 = v2f1 + right.v2f1 ;
+		return std::move (ret) ;
+	}
+
+	inline VAL128 &operator+= (const VAL128 &right) {
+		v2f1 += right.v2f1 ;
+		return *this ;
+	}
+
+	inline VAL128 operator- (const VAL128 &right) const {
+		VAL128 ret = 0 ;
+		ret.v2f1 = v2f1 - right.v2f1 ;
+		return std::move (ret) ;
+	}
+
+	inline VAL128 &operator-= (const VAL128 &right) {
+		v2f1 -= right.v2f1 ;
+		return *this ;
+	}
+
+	inline VAL128 operator* (const VAL128 &right) const {
+		VAL128 ret = 0 ;
+		ret.v2f1 = v2f1 * right.v2f1 ;
+		return std::move (ret) ;
+	}
+
+	inline VAL128 &operator*= (const VAL128 &right) {
+		v2f1 *= right.v2f1 ;
+		return *this ;
+	}
+
+	inline VAL128 operator/ (const VAL128 &right) const {
+		VAL128 ret = 0 ;
+		ret.v2f1 = v2f1 / right.v2f1 ;
+		return std::move (ret) ;
+	}
+
+	inline VAL128 &operator/= (const VAL128 &right) {
+		v2f1 *= right.v2f1 ;
+		return *this ;
+	}
+
+	inline VAL128 operator+ () const {
+		return *this ;
+	}
+
+	inline VAL128 operator- () const {
+		VAL128 ret = 0 ;
+		ret.v2f1 = -v2f1 ;
+		return std::move (ret) ;
+	}
+
+private:
+	inline VAL64 &m_v2f0 () & {
+		return _CAST_<VAL64[2]> (mData)[0] ;
+	}
+
+	inline const VAL64 &m_v2f0 () const & {
+		return _CAST_<VAL64[2]> (mData)[0] ;
+	}
+
+	inline VAL64 &m_v2f0 () && = delete ;
+
+	inline VAL64 &m_v2f1 () & {
+		return _CAST_<VAL64[2]> (mData)[1] ;
+	}
+
+	inline const VAL64 &m_v2f1 () const & {
+		return _CAST_<VAL64[2]> (mData)[1] ;
+	}
+
+	inline VAL64 &m_v2f1 () && = delete ;
+
+#undef v2f0
+#undef v2f1
+#pragma pop_macro ("v2f0")
+#pragma pop_macro ("v2f1")
+#pragma endregion
+} ;
+
 namespace U {
 struct OPERATOR_CRC32 {
 	inline static constexpr BOOL ensure_index (INDEX index ,INDEX ib ,INDEX ie) {
@@ -571,9 +613,13 @@ struct OPERATOR_CRC32 {
 		return each ;
 	}
 
+	inline static constexpr CHAR expr_crc32_next (CHAR each) {
+		return ((each & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320) ^ (each >> 1)) ;
+	}
+
 	template <INDEX _VAL1 ,class = ENABLE_TYPE<ensure_index (_VAL1 ,0 ,8)>>
 	inline static constexpr CHAR expr_crc32_table (CHAR each ,const ARGC<_VAL1> &) {
-		return expr_crc32_table (((((each & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320)) ^ (each >> 1))) ,_NULL_<const ARGC<_VAL1 + 1>> ()) ;
+		return expr_crc32_table (expr_crc32_next (each) ,_NULL_<const ARGC<_VAL1 + 1>> ()) ;
 	}
 
 	inline static constexpr CHAR expr_crc32_table (INDEX each) {
@@ -823,14 +869,18 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mIndex != VAR_NONE ;
+		if (mIndex == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	template <class _RET>
 	inline BOOL available () const {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value != VAR_NONE) ;
-		return mIndex == INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value ;
+		if (mIndex != INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline VISITOF_TRATIS_TYPE<0 ,TYPES...> &to () {
@@ -1269,32 +1319,32 @@ public:
 private:
 	template <class _ARG1 ,class _ARG2>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-		return arg1 == arg2 ;
+		return BOOL (arg1 == arg2) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-		return arg2 == arg1 ;
+		return BOOL (arg2 == arg1) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-		return arg2 == arg1 ;
+		return BOOL (arg2 == arg1) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-		return arg1 < arg2 ;
+		return BOOL (arg1 < arg2) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-		return arg2 > arg1 ;
+		return BOOL (arg2 > arg1) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-		return arg2 > arg1 ;
+		return BOOL (arg2 > arg1) ;
 	}
 
 	template <class _ARG1>
@@ -1445,32 +1495,32 @@ public:
 private:
 	template <class _ARG1 ,class _ARG2>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-		return arg1 == arg2 ;
+		return BOOL (arg1 == arg2) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-		return arg2 == arg1 ;
+		return BOOL (arg2 == arg1) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_equal (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-		return arg2 == arg1 ;
+		return BOOL (arg2 == arg1) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-		return arg1 < arg2 ;
+		return BOOL (arg1 < arg2) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-		return arg2 > arg1 ;
+		return BOOL (arg2 > arg1) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static BOOL operator_less (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-		return arg2 > arg1 ;
+		return BOOL (arg2 > arg1) ;
 	}
 
 	template <class _ARG1>
@@ -2004,7 +2054,9 @@ public:
 	}
 
 	inline BOOL equal (const SoftRef &right) const {
-		return super == right.super ;
+		if (super != right.super)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const SoftRef &right) const {
@@ -2016,7 +2068,9 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef<TYPE> &right) const {
-		return super == right ;
+		if (super != right)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const StrongRef<TYPE> &right) const {
@@ -2033,7 +2087,7 @@ public:
 
 	inline void assign (const StrongRef<TYPE> &right) {
 		detach () ;
-		super = _COPY_ (right) ;
+		super = right ;
 		attach () ;
 	}
 
@@ -2093,7 +2147,7 @@ private:
 			if (r1x <= 0)
 				break ;
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
-				mHeap.self[i].mWeight >>= r1x ;
+				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
 		if (mIndex == VAR_NONE)
 			mIndex = mHeap->alloc () ;
@@ -2243,7 +2297,9 @@ public:
 
 	inline BOOL exist () const {
 		const auto r1x = mPointer.load () ;
-		return r1x != NULL ;
+		if (r1x == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline IntrusiveRef copy () popping {
@@ -2266,6 +2322,7 @@ public:
 private:
 	inline explicit IntrusiveRef (const decltype (ARGVP0) &) noexcept :mPointer (NULL) ,mSemaphore (FALSE) {}
 
+private:
 	inline void lock () noexcept {
 		auto rax = FALSE ;
 		INDEX ir = 0 ;
@@ -2380,7 +2437,7 @@ private:
 	} ;
 
 	inline static constexpr VAR expr_ceil (VAR base ,VAR align) {
-		return (base / align + EFLAG (base % align != 0)) * align ;
+		return (align > 0) ? ((base / align + EFLAG (base % align != 0)) * align) : 0 ;
 	}
 
 	inline static constexpr VAL64 expr_pow (VAL64 base ,LENGTH power) {
@@ -2472,7 +2529,7 @@ private:
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
 			_DEBUG_ASSERT_ (len <= SIZE::value) ;
 			reserve () ;
-			const auto r1x = _COPY_ (mFree) ;
+			const auto r1x = mFree ;
 			mFree = r1x->next ;
 			mLength += SIZE::value ;
 			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (VAR_USED) ;
@@ -3074,6 +3131,6 @@ template <class TYPE1 ,class TYPE2>
 inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'TYPE1' becomes a function-local-type
 	_DEBUG_ASSERT_ (FALSE) ;
-}
+	}
 #endif
 } ;

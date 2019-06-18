@@ -27,7 +27,9 @@ public:
 	inline ForwardIterator &operator= (ForwardIterator &&) = delete ;
 
 	inline BOOL operator!= (const ForwardIterator &right) const {
-		return mIndex != right.mIndex ;
+		if (mIndex == right.mIndex)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline ITEM_TYPE operator* () const {
@@ -246,7 +248,9 @@ public:
 	}
 
 	BOOL equal (const Array &right) const {
-		return mArray == right.mArray ;
+		if (mArray != right.mArray)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator== (const Array &right) const {
@@ -258,7 +262,9 @@ public:
 	}
 
 	BOOL less (const Array &right) const {
-		return mArray < right.mArray ;
+		if (mArray >= right.mArray)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Array &right) const {
@@ -431,7 +437,7 @@ public:
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mString.at (item) ;
-		if (ret < 0 || ret >= length ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -664,7 +670,7 @@ public:
 	}
 
 	ITEM &get (INDEX index) & {
-		_DEBUG_ASSERT_ (index >= 0 && index < length ()) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return mStack[index] ;
 	}
 
@@ -673,7 +679,7 @@ public:
 	}
 
 	const ITEM &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (index >= 0 && index < length ()) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return mStack[index] ;
 	}
 
@@ -687,7 +693,7 @@ public:
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mStack.at (item) ;
-		if (ret < 0 || ret >= length ())
+		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -726,11 +732,15 @@ public:
 	}
 
 	BOOL empty () const {
-		return mWrite == 0 ;
+		if (mWrite > 0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL full () const {
-		return mWrite == size () ;
+		if (mWrite < mStack.size ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void add (const ITEM &item) {
@@ -1000,7 +1010,9 @@ public:
 	}
 
 	BOOL empty () const {
-		return mRead == mWrite ;
+		if (mRead != mWrite)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL full () const {
@@ -1405,7 +1417,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<Priority> get (INDEX index) & {
-		_DEBUG_ASSERT_ (index >= 0 && index < length ()) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair<Priority> (*this ,index) ;
 	}
 
@@ -1415,7 +1427,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<const Priority> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (index >= 0 && index < length ()) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair<const Priority> (*this ,index) ;
 	}
 
@@ -1429,14 +1441,14 @@ public:
 
 	INDEX at (const Pair<Priority> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (ret < 0 || ret >= length ())
+		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
 	INDEX at (const Pair<const Priority> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (ret < 0 || ret >= length ())
+		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -1470,11 +1482,15 @@ public:
 	}
 
 	BOOL empty () const {
-		return mWrite == 0 ;
+		if (mWrite > 0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL full () const {
-		return mWrite == size () ;
+		if (mWrite < mPriority.size ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	using SPECIALIZATION_BASE::add ;
@@ -1537,7 +1553,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		_DEBUG_ASSERT_ (index >= 0 && index < length ()) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		mPriority[index] = std::move (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (index) ;
@@ -1773,11 +1789,15 @@ public:
 	}
 
 	BOOL empty () const {
-		return mList.length () == 0 ;
+		if (mList.length () > 0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL full () const {
-		return mList.length () == mList.size () ;
+		if (mList.length () < mList.size ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void add (const ITEM &item) {
@@ -1932,8 +1952,8 @@ private:
 			INDEX jx = position_before (ret) ;
 			if (jx == pos && mDeque[ret][0] != VAR_NONE)
 				break ;
-			const auto r1x = (jx < pos) ? (ret + 1) : (ret - 1) ;
 			auto &r1 = (jx < pos) ? ix : iy ;
+			const auto r1x = (jx < pos) ? (ret + 1) : (ret - 1) ;
 			r1 = r1x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
@@ -2292,11 +2312,15 @@ public:
 	}
 
 	BOOL empty () const {
-		return mFirst == VAR_NONE ;
+		if (mList.length () > 0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	BOOL full () const {
-		return mList.length () == mList.size () ;
+		if (mList.length () < mList.size ())
+			return FALSE ;
+		return TRUE ;
 	}
 
 	void add (const ITEM &item) {
@@ -2513,7 +2537,10 @@ private:
 		inline explicit operator BOOL () const & = delete ;
 
 		inline implicit operator BOOL () && {
-			return (mBase.mSet[mIndex / 8] & (BYTE (0X01) << (mIndex % 8))) != 0 ;
+			const auto r1x = mBase.mSet[mIndex / 8] & (BYTE (0X01) << (mIndex % 8)) ;
+			if (r1x == 0)
+				return FALSE ;
+			return TRUE ;
 		}
 
 #ifdef __CSC_CONFIG_VAR32__

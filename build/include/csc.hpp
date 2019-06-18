@@ -425,7 +425,6 @@ static constexpr auto VALX_LOG2E = VALX (1.44269504088896340736) ;
 static constexpr auto VALX_LOG10E = VALX (0.434294481903251827651) ;
 static constexpr auto VALX_LOGE2 = VALX (0.693147180559945309417) ;
 static constexpr auto VALX_LOGE10 = VALX (2.30258509299404568402) ;
-static constexpr auto VALX_EPS = VALX (1E-10) ;
 
 inline namespace S {
 template <class _ARG1>
@@ -1930,7 +1929,9 @@ public:
 	inline AutoRef () = default ;
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline TYPE &to () {
@@ -2036,7 +2037,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline TYPE &to () const {
@@ -2148,7 +2151,9 @@ public:
 	inline AnyRef<_RET> &rebind () && = delete ;
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline FLAG type () const {
@@ -2255,7 +2260,9 @@ public:
 	inline AnyRef<_RET> &rebind () && = delete ;
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline FLAG type () const {
@@ -2338,7 +2345,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline const TYPE &to () const {
@@ -2442,7 +2451,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 } ;
 
@@ -2478,7 +2489,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return mPointer != NULL ;
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline TYPE &to () const {
@@ -2850,7 +2863,7 @@ public:
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - mBuffer ;
-		if (ret < 0 || ret >= size ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -2869,7 +2882,9 @@ public:
 
 	inline BOOL less (const Buffer &right) const {
 		const auto r1x = _MEMCOMP_ (mBuffer ,PTRTOARR[&right.mBuffer[0]]) ;
-		return r1x < 0 ;
+		if (r1x >= 0)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline BOOL operator< (const Buffer &right) const {
@@ -3000,7 +3015,7 @@ public:
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (ret < 0 || ret >= size ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3268,7 +3283,7 @@ public:
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (ret < 0 || ret >= size ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3414,7 +3429,7 @@ public:
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (ret < 0 || ret >= size ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3586,7 +3601,7 @@ public:
 
 	inline INDEX at (const TYPE &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (ret < 0 || ret >= size ())
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3934,7 +3949,9 @@ public:
 	}
 
 	inline BOOL used (INDEX index) const {
-		return mAllocator[index].mNext == VAR_USED ;
+		if (mAllocator[index].mNext != VAR_USED)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline TYPE &get (INDEX index) & {
