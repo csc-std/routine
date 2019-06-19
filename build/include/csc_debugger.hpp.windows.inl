@@ -184,9 +184,9 @@ public:
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mLogPath == r1x)
-				break ;
+				continue ;
 			if (!mLogFileStream.exist ())
-				break ;
+				continue ;
 			mLogFileStream->flush () ;
 			mLogFileStream = AutoRef<StreamLoader> () ;
 		}

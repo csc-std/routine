@@ -99,7 +99,11 @@ struct OPERATOR_SORT {
 		for (INDEX i = ib + 1 ; i <= jb ; i++) {
 			INDEX iw = i ;
 			auto rax = std::move (out[iw]) ;
-			while (iw - 1 >= ib && array[rax] < array[out[iw - 1]]) {
+			while (TRUE) {
+				if (iw - 1 < ib)
+					break ;
+				if (!(array[rax] < array[out[iw - 1]]))
+					break ;
 				out[iw] = std::move (out[iw - 1]) ;
 				iw-- ;
 			}
@@ -118,7 +122,7 @@ struct OPERATOR_SORT {
 			if (ix >= iy)
 				break ;
 			out[ix++] = std::move (out[iy]) ;
-			while (ix < iy && array[rax] > array[out[ix]])
+			while (ix < iy && array[out[ix]] < array[rax])
 				ix++ ;
 			if (ix >= iy)
 				break ;
@@ -131,7 +135,11 @@ struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,LENGTH ideal) {
 		INDEX ix = ib ;
-		while (ix < jb && ideal > 0) {
+		while (TRUE) {
+			if (ix >= jb)
+				break ;
+			if (ideal <= 0)
+				break ;
 			ideal = ideal / 2 + ideal / 4 ;
 			INDEX jx = VAR_NONE ;
 			quick_sort_partition (array ,out ,ix ,jb ,jx) ;
@@ -505,7 +513,7 @@ public:
 		INDEX ir = 0 ;
 		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
 			ir++ ;
-		if (mString[ir] >= right.mString[ir])
+		if (!(mString[ir] < right.mString[ir]))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -810,7 +818,11 @@ public:
 	INDEX insert_sort (const ITEM &item) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
-		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
+		while (TRUE) {
+			if (ret - 1 < 0)
+				break ;
+			if (!(mStack[ret - 1] < item))
+				break ;
 			mStack[ret] = std::move (mStack[ret - 1]) ;
 			ret-- ;
 		}
@@ -822,7 +834,11 @@ public:
 	INDEX insert_sort (ITEM &&item) popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
-		while (ret - 1 >= 0 && mStack[ret - 1] < item) {
+		while (TRUE) {
+			if (ret - 1 < 0)
+				break ;
+			if (mStack[ret - 1] >= item)
+				break ;
 			mStack[ret] = std::move (mStack[ret - 1]) ;
 			ret-- ;
 		}
@@ -990,7 +1006,13 @@ public:
 		INDEX ie = iend () ;
 		INDEX jr = right.ibegin () ;
 		INDEX je = right.iend () ;
-		while (ir != ie && jr != je && get (ir) == right.get (jr)) {
+		while (TRUE) {
+			if (ir == ie)
+				break ;
+			if (jr == je)
+				break ;
+			if (get (ir) == right.get (jr))
+				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
@@ -1152,7 +1174,7 @@ private:
 		INDEX iy = mQueue.size () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mRead == 0)
-				break ;
+				continue ;
 			ix = mRead + rax.size () - mQueue.size () ;
 			iy = mWrite ;
 		}
@@ -1204,6 +1226,9 @@ private:
 	private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
+
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
 		return (len > 0) ? (len + 1) : len ;
@@ -1312,6 +1337,9 @@ private:
 	private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mPriority[index].mKey) {}
 	} ;
+
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
 		return (len > 0) ? (len + 1) : len ;
@@ -1446,7 +1474,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	INDEX at (const Pair<const Priority> &item) const {
+	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
@@ -1566,7 +1595,9 @@ public:
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		INDEX jw = iw ;
-		while (jw >= 2) {
+		while (TRUE) {
+			if (jw < 2)
+				break ;
 			jw-- ;
 			_SWAP_ (ret[0] ,ret[jw]) ;
 			compute_esort (ret ,jw) ;
@@ -1601,29 +1632,29 @@ private:
 		auto rax = std::move (mPriority[ix]) ;
 		while (TRUE) {
 			//@info: '(0 - 1) >> 1' is not the same as '(0 - 1) / 2'
-			INDEX jx = (ix - 1) >> 1 ;
-			if (jx < 0)
+			INDEX iy = (ix - 1) >> 1 ;
+			if (iy < 0)
 				break ;
-			if (rax.mKey >= mPriority[jx].mKey)
+			if (!(rax.mKey < mPriority[iy].mKey))
+				break ;
+			mPriority[ix] = std::move (mPriority[iy]) ;
+			ix = iy ;
+		}
+		while (TRUE) {
+			INDEX iy = ix * 2 + 1 ;
+			if (iy >= mWrite)
+				break ;
+			INDEX jx = ix ;
+			if (mPriority[iy].mKey < rax.mKey)
+				jx = iy ;
+			iy++ ;
+			auto &r1 = (jx != ix) ? (mPriority[jx].mKey) : (rax.mKey) ;
+			if (iy < mWrite && r1 > mPriority[iy].mKey)
+				jx = iy ;
+			if (jx == ix)
 				break ;
 			mPriority[ix] = std::move (mPriority[jx]) ;
 			ix = jx ;
-		}
-		while (TRUE) {
-			INDEX jx = ix * 2 + 1 ;
-			if (jx >= mWrite)
-				break ;
-			INDEX jy = ix ;
-			if (rax.mKey > mPriority[jx].mKey)
-				jy = jx ;
-			jx = jx + 1 ;
-			auto &r1 = (jy != ix) ? (mPriority[jy].mKey) : (rax.mKey) ;
-			if (jx < mWrite && r1 > mPriority[jx].mKey)
-				jy = jx ;
-			if (jy == ix)
-				break ;
-			mPriority[ix] = std::move (mPriority[jy]) ;
-			ix = jy ;
 		}
 		mPriority[ix] = std::move (rax) ;
 		mTop = ix ;
@@ -1633,20 +1664,20 @@ private:
 		INDEX ix = 0 ;
 		const auto r1x = out[ix] ;
 		while (TRUE) {
-			INDEX jx = ix * 2 + 1 ;
-			if (jx >= len)
+			INDEX iy = ix * 2 + 1 ;
+			if (iy >= len)
 				break ;
-			INDEX jy = ix ;
-			if (mPriority[r1x].mKey > mPriority[out[jx]].mKey)
-				jy = jx ;
-			jx = jx + 1 ;
-			auto &r1 = (jy != ix) ? (mPriority[out[jy]].mKey) : (mPriority[r1x].mKey) ;
-			if (jx < len && r1 > mPriority[out[jx]].mKey)
-				jy = jx ;
-			if (jy == ix)
+			INDEX jx = ix ;
+			if (mPriority[out[iy]].mKey < mPriority[r1x].mKey)
+				jx = iy ;
+			iy++ ;
+			auto &r1 = (jx != ix) ? (mPriority[out[jx]].mKey) : (mPriority[r1x].mKey) ;
+			if (iy < len && r1 > mPriority[out[iy]].mKey)
+				jx = iy ;
+			if (jx == ix)
 				break ;
-			out[ix] = out[jy] ;
-			ix = jy ;
+			out[ix] = out[jx] ;
+			ix = jx ;
 		}
 		out[ix] = r1x ;
 	}
@@ -1769,7 +1800,13 @@ public:
 		INDEX ie = iend () ;
 		INDEX jr = right.ibegin () ;
 		INDEX je = right.iend () ;
-		while (ir != ie && jr != je && get (ir) == right.get (jr)) {
+		while (TRUE) {
+			if (ir == ie)
+				break ;
+			if (jr == je)
+				break ;
+			if (get (ir) == right.get (jr))
+				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
@@ -1964,7 +2001,9 @@ private:
 	INDEX position_before (INDEX it) const {
 		INDEX ret = 0 ;
 		INDEX ix = it ;
-		while (ix >= 0) {
+		while (TRUE) {
+			if (ix < 0)
+				break ;
 			ret += mDeque[ix][1] ;
 			ix -= (ix + 1) & -(ix + 1) ;
 		}
@@ -2169,7 +2208,9 @@ private:
 		mList[jt].mHead = ix ;
 		if (r1x != VAR_NONE)
 			return ;
-		while (ix < mDeque.size ()) {
+		while (TRUE) {
+			if (ix >= mDeque.size ())
+				break ;
 			mDeque[ix][1]++ ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
@@ -2178,7 +2219,9 @@ private:
 	void update_remove (INDEX it) {
 		INDEX ix = it ;
 		mDeque[ix][0] = VAR_NONE ;
-		while (ix < mDeque.size ()) {
+		while (TRUE) {
+			if (ix >= mDeque.size ())
+				break ;
 			mDeque[ix][1]-- ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
@@ -2292,7 +2335,13 @@ public:
 		INDEX ie = iend () ;
 		INDEX jr = right.ibegin () ;
 		INDEX je = right.iend () ;
-		while (ir != ie && jr != je && get (ir) == right.get (jr)) {
+		while (TRUE) {
+			if (ir == ie)
+				break ;
+			if (jr == je)
+				break ;
+			if (get (ir) == right.get (jr))
+				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
 		}
@@ -2986,6 +3035,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 private:
 	friend SPECIALIZATION_TYPE ;
 	Allocator<Node ,SIZE> mSet ;
@@ -3009,7 +3061,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3030,7 +3082,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3109,6 +3161,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 private:
 	friend SPECIALIZATION_TYPE ;
 	Allocator<Node ,SIZE> mSet ;
@@ -3128,7 +3183,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3145,7 +3200,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3238,7 +3293,8 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	INDEX at (const Pair<const Set> &item) const {
+	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
@@ -3298,7 +3354,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ret) ;
 			mRoot = mTop ;
@@ -3312,7 +3368,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ret) ;
 			mRoot = mTop ;
@@ -3515,7 +3571,7 @@ private:
 		auto &r1 = mSet[jt].mRight ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!mSet[r1].mRed)
-				break ;
+				continue ;
 			mSet[r1].mRed = FALSE ;
 			mSet[jt].mRed = TRUE ;
 			auto &r2 = prev_next (jt) ;
@@ -3560,7 +3616,7 @@ private:
 		auto &r1 = mSet[jt].mLeft ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!mSet[r1].mRed)
-				break ;
+				continue ;
 			mSet[r1].mRed = FALSE ;
 			mSet[jt].mRed = TRUE ;
 			auto &r2 = prev_next (jt) ;
@@ -3727,6 +3783,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 private:
 	friend SPECIALIZATION_TYPE ;
 	Allocator<Node ,SIZE> mSet ;
@@ -3750,7 +3809,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3771,7 +3830,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3858,6 +3917,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 private:
 	friend SPECIALIZATION_TYPE ;
 	Allocator<Node ,SIZE> mSet ;
@@ -3877,7 +3939,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3894,7 +3956,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3995,7 +4057,8 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	INDEX at (const Pair<const HashSet> &item) const {
+	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
@@ -4060,7 +4123,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
@@ -4074,7 +4137,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
@@ -4093,7 +4156,7 @@ public:
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (size () == 0)
-				break ;
+				continue ;
 			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mHead[r1x % mHead.size ()] ;
@@ -4212,6 +4275,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 	class Attribute {
 	private:
 		friend SoftSet ;
@@ -4251,7 +4317,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ix ;
@@ -4276,7 +4342,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ix ;
@@ -4357,6 +4423,9 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet.self[index].mKey) {}
 	} ;
 
+	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+
 	class Attribute {
 	private:
 		friend SoftSet ;
@@ -4392,7 +4461,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ix ;
@@ -4413,7 +4482,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
-				break ;
+				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ix ;
@@ -4530,7 +4599,8 @@ public:
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	INDEX at (const Pair<const SoftSet> &item) const {
+	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
@@ -4593,7 +4663,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ret ;
@@ -4611,7 +4681,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
-				break ;
+				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
 			r1 = ret ;
@@ -4711,7 +4781,7 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1x < r2x)
-				break ;
+				continue ;
 			auto &r1 = mSet.self[ix].mLeft ;
 			rotate_left (r1) ;
 			r1 = mHolder->mTop ;
@@ -4744,7 +4814,7 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1x < r2x)
-				break ;
+				continue ;
 			auto &r1 = mSet.self[ix].mRight ;
 			rotate_right (r1) ;
 			r1 = mHolder->mTop ;

@@ -52,7 +52,9 @@ public:
 		for (INDEX i = 0 ; i < rax.length () ; i++)
 			_UNITTEST_ASSERT_ (rbx[r2x[i]] == rax[i]) ;
 		INDEX ir = 0 ;
-		while (!rbx.empty ()) {
+		while (TRUE) {
+			if (rbx.empty ())
+				break ;
 			const auto r3x = rbx[rbx.peek ()].key ;
 			rbx.take () ;
 			_UNITTEST_ASSERT_ (r3x == rax[ir]) ;
@@ -85,7 +87,9 @@ public:
 	TEST_METHOD (TEST_CSC_ARRAY_SET) {
 		auto rax = Set<INDEX> (233) ;
 		auto rbx = AutoRef<std::random_device>::make () ;
-		while (rax.length () < rax.size ()) {
+		while (TRUE) {
+			if (rax.length () >= rax.size ())
+				break ;
 			const auto r1x = rbx.self () ;
 			rax.add (r1x) ;
 			for (auto &&i : rax) {
@@ -109,7 +113,9 @@ public:
 	TEST_METHOD (TEST_CSC_ARRAY_SOFTSET) {
 		auto rax = SoftSet<INDEX> (233) ;
 		auto rbx = AutoRef<std::random_device>::make () ;
-		while (rax.length () < rax.size ()) {
+		while (TRUE) {
+			if (rax.length () >= rax.size ())
+				break ;
 			const auto r1x = rbx.self () ;
 			rax.add (r1x) ;
 			for (auto &&j : rax) {

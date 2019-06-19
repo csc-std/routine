@@ -1046,7 +1046,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ris.copy () >> rax ;
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (rax != _ARG1 (':'))
-			break ;
+			continue ;
 		ris >> rax ;
 		ris >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 65536) ;
@@ -1071,7 +1071,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (r1[3]) ;
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (stru.P1 == 0)
-			break ;
+			continue ;
 		wos << _RET (':') ;
 		wos << VAR (stru.P1) ;
 	}

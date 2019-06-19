@@ -86,7 +86,11 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
-		while (r1.mThreadFlag.exist () && r1.mItemQueue->empty ()) {
+		while (TRUE) {
+			if (!r1.mThreadFlag.exist ())
+				break ;
+			if (!r1.mItemQueue->empty ())
+				break ;
 			const auto r2x = predicate () ;
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
@@ -139,7 +143,7 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r1.mException.exist ())
-					break ;
+					continue ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -350,7 +354,11 @@ public:
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
-		while (r1.mThreadFlag.exist () && r1.mItemQueue->full ()) {
+		while (TRUE) {
+			if (!r1.mThreadFlag.exist ())
+				break ;
+			if (!r1.mItemQueue->full ())
+				break ;
 			const auto r2x = predicate () ;
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
@@ -365,7 +373,11 @@ public:
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
-		while (r1.mThreadFlag.exist () && r1.mItemQueue->full ()) {
+		while (TRUE) {
+			if (!r1.mThreadFlag.exist ())
+				break ;
+			if (!r1.mItemQueue->full ())
+				break ;
 			const auto r2x = predicate () ;
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
@@ -413,7 +425,7 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!r1.mException.exist ())
-					break ;
+					continue ;
 				const auto r2x = std::move (r1.mException) ;
 				throw r2x.self ;
 			}
@@ -764,7 +776,11 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack &> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
-		while (r1.mThreadFlag.exist () && r1.mThreadFlag.self) {
+		while (TRUE) {
+			if (!r1.mThreadFlag.exist ())
+				break ;
+			if (!r1.mThreadFlag.self)
+				break ;
 			const auto r2x = predicate () ;
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
@@ -812,9 +828,9 @@ public:
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r1.mThreadFlag.self)
-					break ;
+					continue ;
 				if (r1.mItem.exist ())
-					break ;
+					continue ;
 				rax = std::move (r1.mThreadProc) ;
 			}
 		}

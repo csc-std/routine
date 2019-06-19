@@ -17,7 +17,9 @@ public:
 		const auto r4x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r4x == -1) ;
 		INDEX ir = 0 ;
-		while (!rax.ready ()) {
+		while (TRUE) {
+			if (rax.ready ())
+				break ;
 			ir++ ;
 			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
 		}

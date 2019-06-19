@@ -63,7 +63,11 @@ public:
 		INDEX iy = 0 ;
 		if (target.size () - ib < mNext.length ())
 			return VAR_NONE ;
-		while (ix < target.size () && iy < mNext.length ()) {
+		while (TRUE) {
+			if (ix >= target.size ())
+				break ;
+			if (iy >= mNext.length ())
+				break ;
 			while (iy != VAR_NONE && target[ix] != mPattern[iy])
 				iy = mNext[iy] ;
 			ix++ ;
@@ -93,7 +97,9 @@ inline void KMPAlgorithm<UNIT>::initialize (const PhanBuffer<const UNIT> &patter
 	INDEX iy = VAR_NONE ;
 	mNext[ix] = VAR_NONE ;
 	mPattern[ix] = pattern[ix] ;
-	while (ix < pattern.size () - 1) {
+	while (TRUE) {
+		if (ix >= pattern.size () - 1)
+			break ;
 		while (iy != VAR_NONE && pattern[ix] != pattern[iy])
 			iy = mNext[iy] ;
 		ix++ ;
@@ -178,7 +184,9 @@ inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		}
 
 		inline void generate () {
-			while (!mPriority.empty ()) {
+			while (TRUE) {
+				if (mPriority.empty ())
+					break ;
 				const auto r1x = mPriority[mPriority.peek ()].item ;
 				mPriority.take () ;
 				update_distance (r1x) ;
@@ -476,7 +484,9 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 			mTempState = 1 ;
 			mTempRet = FALSE ;
 			INDEX ix = VAR_NONE ;
-			while (mTempState != 0) {
+			while (TRUE) {
+				if (mTempState == 0)
+					break ;
 				if (mTempState == 1) {
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
@@ -635,7 +645,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			mClockwiseFlag = r1x ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (!mClockwiseFlag)
-					break ;
+					continue ;
 				for (auto &&i : mPloygonVertexList)
 					i = mVertex.length () + ~i ;
 			}
@@ -875,21 +885,25 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			mDXLambda[0] = UNIT (0) ;
 			mDXLambda[1] = mDXLambdaFirst ;
 			mDXLambda[2] = mDXLambda[0] ;
-			while (mDXLambda[1] >= mTolerance && mDXLoss[2] > UNIT (0)) {
+			while (TRUE) {
+				if (mDXLambda[1] < mTolerance)
+					break ;
+				if (mDXLoss[2] <= UNIT (0))
+					break ;
 				for (INDEX i = 0 ; i < mIX.length () ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
 				mDXLoss[1] = mLossFunc (mIX) ;
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
-						break ;
+						continue ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
 					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
-						break ;
+						continue ;
 					mDXLoss[2] = UNIT (0) ;
 				}
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (mDXLoss[1] >= mDXLoss[2])
-						break ;
+						continue ;
 					mDXLoss[2] = mDXLoss[1] ;
 					mDXLambda[2] = mDXLambda[1] ;
 				}
@@ -1049,7 +1063,7 @@ private:
 			const auto r3x = mHeap[it].mKey ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r3x < bound[rot][0])
-					break ;
+					continue ;
 				const auto r4x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
 				compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
@@ -1057,7 +1071,7 @@ private:
 			}
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r3x > bound[rot][1])
-					break ;
+					continue ;
 				const auto r5x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
 				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
@@ -1083,7 +1097,11 @@ private:
 			INDEX ix = mHeap[it].mLeaf ;
 			const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
 			INDEX iw = out.length () ;
-			while (iw - 1 >= 0 && r2x < out[iw - 1].P2) {
+			while (TRUE) {
+				if (iw - 1 < 0)
+					break ;
+				if (r2x >= out[iw - 1].P2)
+					break ;
 				out[iw] = out[iw - 1] ;
 				iw-- ;
 			}
@@ -1329,7 +1347,9 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 			mTempQueue.clear () ;
 			mBFSPath.fill (VAR_NONE) ;
 			mTempQueue.add (mSink) ;
-			while (!mTempQueue.empty ()) {
+			while (TRUE) {
+				if (mTempQueue.empty ())
+					break ;
 				INDEX ix = mTempQueue[mTempQueue.peek ()] ;
 				mTempQueue.take () ;
 				for (INDEX i = 0 ; i < mAdjacency.cy () ; i++) {

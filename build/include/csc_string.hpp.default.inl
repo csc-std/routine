@@ -204,7 +204,7 @@ public:
 		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (expr.empty ())
-				break ;
+				continue ;
 			auto rax = AutoRef<std::smatch>::make () ;
 			const auto r5x = _U8STOUAS_ (expr) ;
 			const auto r1x = std::string (r5x.raw ().self) ;

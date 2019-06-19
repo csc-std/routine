@@ -844,7 +844,7 @@ public:
 	inline Variant &operator= (const Variant &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -861,7 +861,7 @@ public:
 	inline Variant &operator= (Variant &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -1001,7 +1001,7 @@ private:
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r1x)
-				break ;
+				continue ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
@@ -1751,7 +1751,7 @@ public:
 	inline StrongRef &operator= (const StrongRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -1766,7 +1766,7 @@ public:
 	inline StrongRef &operator= (StrongRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -2028,7 +2028,7 @@ public:
 	inline SoftRef &operator= (SoftRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (right)) ;
 		}
@@ -2140,12 +2140,12 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mHeap->length () < mHeap->size ())
-				break ;
+				continue ;
 			mIndex = min_weight_one () ;
 			_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 			const auto r1x = expr_log2 (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
-				break ;
+				continue ;
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
@@ -2288,7 +2288,7 @@ public:
 	inline IntrusiveRef &operator= (IntrusiveRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (right)) ;
 		}
@@ -2326,7 +2326,9 @@ private:
 	inline void lock () noexcept {
 		auto rax = FALSE ;
 		INDEX ir = 0 ;
-		while (!mSemaphore.compare_exchange_weak (rax ,TRUE)) {
+		while (TRUE) {
+			if (mSemaphore.compare_exchange_weak (rax ,TRUE))
+				break ;
 			ir++ ;
 			_DEBUG_ASSERT_ (ir < RETRY_TIMES_SIZE::value) ;
 			std::this_thread::yield () ;
@@ -2787,7 +2789,7 @@ private:
 			auto rbx = IntrusiveRef<Pack> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
-					break ;
+					continue ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r2x = rbx.watch () ;
@@ -2923,7 +2925,7 @@ public:
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (rax != NULL)
-				break ;
+				continue ;
 			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
@@ -2989,7 +2991,7 @@ public:
 			auto rbx = IntrusiveRef<Pack> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
-					break ;
+					continue ;
 				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL

@@ -1113,7 +1113,7 @@ inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH le
 		ir++ ;
 	if (ir < len && src1[ir] < src2[ir])
 		return -1 ;
-	if (ir < len && src1[ir] > src2[ir])
+	if (ir < len && src2[ir] < src1[ir])
 		return +1 ;
 	return 0 ;
 #pragma GCC diagnostic pop
@@ -1703,7 +1703,9 @@ public:
 		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
 		if (r1x == NULL)
 			return ;
-		while (mWrite < len) {
+		while (TRUE) {
+			if (mWrite >= len)
+				break ;
 			_CREATE_ (&(*r1x)[mWrite]) ;
 			mWrite++ ;
 		}
@@ -1714,7 +1716,9 @@ public:
 		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
 		if (r1x == NULL)
 			return ;
-		while (mWrite < len) {
+		while (TRUE) {
+			if (mWrite >= len)
+				break ;
 			_CREATE_ (&(*r1x)[mWrite] ,src[mWrite]) ;
 			mWrite++ ;
 		}
@@ -1724,7 +1728,9 @@ public:
 		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
 		if (r1x == NULL)
 			return ;
-		while (mWrite >= 0) {
+		while (TRUE) {
+			if (mWrite <= 0)
+				break ;
 			_DESTROY_ (&(*r1x)[mWrite]) ;
 			mWrite-- ;
 		}
@@ -1835,7 +1841,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1890,7 +1896,7 @@ public:
 	inline AutoRef &operator= (const AutoRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1904,7 +1910,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -2003,7 +2009,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = --mPointer->mCounter == 0 ;
 			if (!r1x)
-				break ;
+				continue ;
 			mPointer->~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
@@ -2015,7 +2021,7 @@ public:
 	inline SharedRef &operator= (const SharedRef &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -2029,7 +2035,7 @@ public:
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -2128,7 +2134,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2237,7 +2243,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2337,7 +2343,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2443,7 +2449,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2481,7 +2487,7 @@ public:
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (right)) ;
 		}
@@ -2580,7 +2586,7 @@ public:
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (mFunction_a == NULL)
-				break ;
+				continue ;
 			mFunction_a->~Holder () ;
 			GlobalHeap::free (mFunction_a) ;
 		}
@@ -2599,7 +2605,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2700,7 +2706,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2745,7 +2751,7 @@ public:
 
 public:
 	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept {
-		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) == _ALIGNOF_ (TEMP<ImplHolder>)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
@@ -2777,7 +2783,7 @@ public:
 
 public:
 	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept {
-		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) == _ALIGNOF_ (TEMP<ImplHolder>)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
@@ -3137,7 +3143,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3197,7 +3203,7 @@ public:
 	inline Buffer &operator= (const Buffer &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3212,7 +3218,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3388,7 +3394,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3560,7 +3566,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3803,7 +3809,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3879,7 +3885,7 @@ public:
 	inline Allocator &operator= (const Allocator &right) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3902,7 +3908,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (this == &right)
-				break ;
+				continue ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3995,7 +4001,7 @@ public:
 		const auto r1x = BOOL (mFree == VAR_NONE) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r1x)
-				break ;
+				continue ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -4007,7 +4013,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1x)
-				break ;
+				continue ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
 		}
 		INDEX ret = mFree ;

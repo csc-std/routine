@@ -546,7 +546,7 @@ public:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				INDEX ix = ret.max_row_one (i) ;
 				if (ix == i)
-					break ;
+					continue ;
 				for (INDEX j = i ; j < 4 ; j++) {
 					const auto r1x = -ret.get (i ,j) ;
 					ret.get (i ,j) = ret.get (ix ,j) ;
@@ -612,11 +612,11 @@ public:
 		ret *= _PINV_ (r1x) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (get (3 ,3) != UNIT (1))
-				break ;
+				continue ;
 			if (!affine_matrix_like ())
-				break ;
+				continue ;
 			if (!ret.affine_matrix_like ())
-				break ;
+				continue ;
 			const auto r7x = _PINV_ (ret.get (3 ,3)) ;
 			ret *= r7x ;
 			ret.get (3 ,3) = UNIT (1) ;

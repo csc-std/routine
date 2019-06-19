@@ -1086,7 +1086,11 @@ private:
 		auto ris = copy () ;
 		auto rax = STRX () ;
 		ris.read (rax) ;
-		while (rax != mHolder->varify_ending_item () && !mHolder->varify_space (rax)) {
+		while (TRUE) {
+			if (rax == mHolder->varify_ending_item ())
+				break ;
+			if (mHolder->varify_space (rax))
+				break ;
 			ret++ ;
 			ris.read (rax) ;
 		}
@@ -1100,7 +1104,9 @@ private:
 		auto rax = first ;
 		data = mHolder->convert_number_r (rax) ;
 		ris.read (rax) ;
-		while (mHolder->varify_number_item (rax)) {
+		while (TRUE) {
+			if (!mHolder->varify_number_item (rax))
+				break ;
 			const auto r1x = data * mHolder->varify_radix () + mHolder->convert_number_r (rax) ;
 			_DYNAMIC_ASSERT_ (data <= r1x) ;
 			data = r1x ;
@@ -1114,7 +1120,9 @@ private:
 		_DEBUG_ASSERT_ (mHolder->varify_number_item (first)) ;
 		auto ris = copy () ;
 		auto rax = first ;
-		while (mHolder->convert_number_r (rax) == 0) {
+		while (TRUE) {
+			if (mHolder->convert_number_r (rax) != 0)
+				break ;
 			*this = ris.copy () ;
 			ris.read (rax) ;
 		}
@@ -1123,7 +1131,7 @@ private:
 		try_read_number_decimal (rbx ,ris ,rax) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (rax != STRX ('e') && rax != STRX ('E'))
-				break ;
+				continue ;
 			rbx[1] += ris.template read<VAR32> () ;
 			*this = ris.copy () ;
 		}
@@ -1137,7 +1145,9 @@ private:
 		data[0] = mHolder->convert_number_r (top) ;
 		*this = reader.copy () ;
 		reader.read (top) ;
-		while (mHolder->varify_number_item (top)) {
+		while (TRUE) {
+			if (!mHolder->varify_number_item (top))
+				break ;
 			_CALL_IF_ ([&] (BOOL &if_flag) {
 				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 				if (data[0] > r1x)
@@ -1157,11 +1167,13 @@ private:
 		*this = reader.copy () ;
 		reader.read (top) ;
 		_DYNAMIC_ASSERT_ (mHolder->varify_number_item (top)) ;
-		while (mHolder->varify_number_item (top)) {
+		while (TRUE) {
+			if (!mHolder->varify_number_item (top))
+				break ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 				if (data[0] > r1x)
-					break ;
+					continue ;
 				data[0] = r1x ;
 				data[1]-- ;
 			}
@@ -1507,7 +1519,9 @@ private:
 			if (data <= 0)
 				discard ;
 			auto rax = data ;
-			while (rax != 0) {
+			while (TRUE) {
+				if (rax == 0)
+					break ;
 				out[--iw] = mHolder->convert_number_w (rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
@@ -1515,7 +1529,9 @@ private:
 			if (data >= 0)
 				discard ;
 			auto rax = data ;
-			while (rax != 0) {
+			while (TRUE) {
+				if (rax == 0)
+					break ;
 				out[--iw] = mHolder->convert_number_w (-rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
@@ -1782,7 +1798,9 @@ inline void _GAP_ (TextReader<_ARG1> &reader) {
 	auto ris = reader.copy () ;
 	auto rax = _ARG1 () ;
 	ris >> rax ;
-	while (ris.attr ().varify_space (rax)) {
+	while (TRUE) {
+		if (!ris.attr ().varify_space (rax))
+			break ;
 		reader = ris.copy () ;
 		ris >> rax ;
 	}
@@ -1798,7 +1816,9 @@ inline void _GAP_ (TextWriter<_ARG1> &writer) {
 inline void _EOS_ (ByteReader &reader) {
 	auto ris = reader.copy () ;
 	auto rax = BYTE () ;
-	while (ris.length () > 0) {
+	while (TRUE) {
+		if (ris.length () == 0)
+			break ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == BYTE (0XFF)) ;
 	}
@@ -2116,7 +2136,7 @@ public:
 		data.clear () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r2x)
-				break ;
+				continue ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2138,7 +2158,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!r2x)
-				break ;
+				continue ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2172,7 +2192,7 @@ public:
 		auto ris = shadow () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-				break ;
+				continue ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2180,35 +2200,43 @@ public:
 		_DYNAMIC_ASSERT_ (r1x >= STRU8 ('0') && r1x <= STRU8 ('9')) ;
 		ris++ ;
 		ret++ ;
-		while (r1x != STRU8 ('0') && ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) {
+		while (TRUE) {
+			if (r1x == STRU8 ('0'))
+				break ;
+			if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+				break ;
 			ris++ ;
 			ret++ ;
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('.'))
-				break ;
+				continue ;
 			ris++ ;
 			ret++ ;
-			while (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) {
+			while (TRUE) {
+				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+					break ;
 				ris++ ;
 				ret++ ;
 			}
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
-				break ;
+				continue ;
 			ris++ ;
 			ret++ ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-					break ;
+					continue ;
 				ris++ ;
 				ret++ ;
 			}
 			_DYNAMIC_ASSERT_ (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
 			ris++ ;
 			ret++ ;
-			while (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) {
+			while (TRUE) {
+				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+					break ;
 				ris++ ;
 				ret++ ;
 			}
@@ -2222,7 +2250,11 @@ public:
 		auto rax = STRU8 () ;
 		_DYNAMIC_ASSERT_ (ris[0] == STRU8 ('\"')) ;
 		ris++ ;
-		while (ris[0] != STRU8 ('\0') && ris[0] != STRU8 ('\"')) {
+		while (TRUE) {
+			if (ris[0] == STRU8 ('\0'))
+				break ;
+			if (ris[0] == STRU8 ('\"'))
+				break ;
 			rax = ris[0] ;
 			ris++ ;
 			_CALL_IF_ ([&] (BOOL &if_flag) {
@@ -2246,7 +2278,11 @@ public:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		auto &r1 = mReader->attr () ;
-		while (ris[0] != r1.varify_ending_item () && !r1.varify_space (ris[0])) {
+		while (TRUE) {
+			if (ris[0] == r1.varify_ending_item ())
+				break ;
+			if (r1.varify_space (ris[0]))
+				break ;
 			_DYNAMIC_ASSERT_ (!r1.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;
@@ -2258,7 +2294,11 @@ public:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		auto &r1 = mReader->attr () ;
-		while (ris[0] != r1.varify_ending_item () && !r1.varify_space (ris[0] ,2)) {
+		while (TRUE) {
+			if (ris[0] == r1.varify_ending_item ())
+				break ;
+			if (r1.varify_space (ris[0] ,2))
+				break ;
 			_DYNAMIC_ASSERT_ (!r1.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;

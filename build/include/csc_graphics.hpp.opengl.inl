@@ -336,7 +336,7 @@ public:
 		glBindVertexArray (r1.mVAO) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (r1.mTexture == VAR_NONE)
-				break ;
+				continue ;
 			glActiveTexture (GL_TEXTURE_2D) ;
 			glBindTexture (GL_TEXTURE_2D ,r1.mVTO.self[r1.mTexture]) ;
 		}

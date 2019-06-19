@@ -117,6 +117,8 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #else
 	Assert::Fail () ;
 #endif
+#else
+	(void) what ;
 #endif
 }
 #endif

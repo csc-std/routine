@@ -151,7 +151,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = _cy * _cw + _ck ;
 			if (r1x == 0)
-				break ;
+				continue ;
 			mHolder->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
 			mImage = PhanBuffer<TYPE>::make (mHolder->mBuffer.self) ;
 		}

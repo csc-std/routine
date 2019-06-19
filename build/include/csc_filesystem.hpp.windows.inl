@@ -254,11 +254,11 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		ret += _PCSTR_ ("\\") ;
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (r4x || r5x)
-			break ;
+			continue ;
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
 		if (!r6x && !r7x)
-			break ;
+			continue ;
 		ret += _WORKINGPATH_ () ;
 	}
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
@@ -345,15 +345,17 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 	}) ;
 	if (r2x == NULL)
 		return ;
-	while (rbx.cFileName[0] != 0) {
+	while (TRUE) {
+		if (rbx.cFileName[0] == 0)
+			break ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ (".")))
-				break ;
+				continue ;
 			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ ("..")))
-				break ;
+				continue ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
-				break ;
+				continue ;
 			rax += String<STR> (rbx.cFileName) ;
 			r1 (rax) ;
 		}
@@ -373,7 +375,9 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 		rax.add ({_dire ,FALSE}) ;
 	}) ;
 	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
-	while (!rax.empty ()) {
+	while (TRUE) {
+		if (rax.empty ())
+			break ;
 		INDEX ix = rax.peek () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {

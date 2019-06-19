@@ -98,7 +98,7 @@ public:
 	void rotate (const UNIT &angle_vn ,const UNIT &angle_nu ,const UNIT &angle_uv) {
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_vn == UNIT (0))
-				break ;
+				continue ;
 			const auto r1x = mEyeN * _COS_ (angle_vn) - mEyeV * _SIN_ (angle_vn) ;
 			const auto r2x = mEyeV * _COS_ (angle_vn) + mEyeN * _SIN_ (angle_vn) ;
 			mEyeN = r1x.normalize () ;
@@ -106,7 +106,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_nu == UNIT (0))
-				break ;
+				continue ;
 			const auto r3x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
 			const auto r4x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
 			mEyeU = r3x.normalize () ;
@@ -114,7 +114,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (angle_uv == UNIT (0))
-				break ;
+				continue ;
 			const auto r5x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
 			const auto r6x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
 			mEyeV = r5x.normalize () ;
