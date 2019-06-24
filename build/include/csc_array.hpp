@@ -37,7 +37,7 @@ public:
 	}
 
 	inline void operator++ () {
-		mIndex = _XVALUE_<const BASE &> (mBase).inext (mIndex) ;
+		mIndex = _XVALUE_<const BASE> (mBase).inext (mIndex) ;
 	}
 
 private:
@@ -45,11 +45,11 @@ private:
 
 public:
 	inline static ForwardIterator friend_begin (BASE &base) {
-		return ForwardIterator (base ,_XVALUE_<const BASE &> (base).ibegin ()) ;
+		return ForwardIterator (base ,_XVALUE_<const BASE> (base).ibegin ()) ;
 	}
 
 	inline static ForwardIterator friend_end (BASE &base) {
-		return ForwardIterator (base ,_XVALUE_<const BASE &> (base).iend ()) ;
+		return ForwardIterator (base ,_XVALUE_<const BASE> (base).iend ()) ;
 	}
 } ;
 
@@ -357,7 +357,7 @@ template <class ITEM ,class SIZE>
 class String {
 private:
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? (len + 1) : len ;
+		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
@@ -640,11 +640,12 @@ private:
 	} ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? (len + 1) : len ;
+		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
 	Buffer<ITEM ,ARGC<expr_size (SIZE::value)>> mStack ;
+	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
@@ -674,6 +675,7 @@ public:
 	}
 
 	void clear () {
+		mRead = 0 ;
 		mWrite = 0 ;
 	}
 
@@ -712,15 +714,17 @@ public:
 	}
 
 	INDEX ibegin () const {
-		return 0 ;
+		if (mStack.size () == 0)
+			return VAR_NONE ;
+		return mWrite - 1 ;
 	}
 
 	INDEX iend () const {
-		return length () ;
+		return VAR_NONE ;
 	}
 
 	INDEX inext (INDEX index) const {
-		return index + 1 ;
+		return index - 1 ;
 	}
 
 	BOOL equal (const Stack &right) const {
@@ -866,6 +870,10 @@ public:
 		U::OPERATOR_SORT<void ,void>::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
 	}
 
+	void reverse () {
+		_MEMRCOPY_ (mStack.self ,mStack.self ,mWrite) ;
+	}
+
 private:
 	explicit Stack (const decltype (ARGVP0) & ,LENGTH len) :mStack (len) {}
 
@@ -908,7 +916,7 @@ private:
 	} ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? (len + 1) : len ;
+		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
@@ -1011,7 +1019,7 @@ public:
 				break ;
 			if (jr == je)
 				break ;
-			if (get (ir) == right.get (jr))
+			if (get (ir) != right.get (jr))
 				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
@@ -1231,7 +1239,7 @@ private:
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? (len + 1) : len ;
+		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
@@ -1342,7 +1350,7 @@ private:
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? (len + 1) : len ;
+		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
@@ -1776,7 +1784,9 @@ public:
 	}
 
 	INDEX ibegin () const {
-		for (INDEX i = mRead ,ie = _MIN_ ((mWrite + 1) ,mDeque.size ()) ; i < ie ; i++)
+		if (mDeque.size () == 0)
+			return VAR_NONE ;
+		for (INDEX i = mRead ; i <= mWrite ; i++)
 			if (mDeque[i][0] != VAR_NONE)
 				return mDeque[i][0] ;
 		return VAR_NONE ;
@@ -1805,7 +1815,7 @@ public:
 				break ;
 			if (jr == je)
 				break ;
-			if (get (ir) == right.get (jr))
+			if (get (ir) != right.get (jr))
 				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
@@ -1908,6 +1918,14 @@ public:
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead) : mWrite ;
+		update_compress_left (r1x ,ret) ;
+		return std::move (ret) ;
+	}
+
+	INDEX insert_after (INDEX index) popping {
+		INDEX ret = mList.alloc (VAR_NONE) ;
+		update_resize (ret) ;
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead + 1) : mRead ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -2340,7 +2358,7 @@ public:
 				break ;
 			if (jr == je)
 				break ;
-			if (get (ir) == right.get (jr))
+			if (get (ir) != right.get (jr))
 				break ;
 			ir = inext (ir) ;
 			jr = right.inext (jr) ;
@@ -2457,6 +2475,11 @@ public:
 		return std::move (ret) ;
 	}
 
+	INDEX insert_after (INDEX index) popping {
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mRight) : mFirst ;
+		return insert_before (r1x) ;
+	}
+
 	void pop () {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mLast ;
@@ -2566,7 +2589,7 @@ template <class SIZE>
 class BitSet {
 private:
 	inline static constexpr LENGTH expr_size (LENGTH len) {
-		return (len > 0) ? ((len + 7) / 8) : len ;
+		return (len <= 0) ? len : ((len + 7) / 8) ;
 	}
 
 	template <class BASE>

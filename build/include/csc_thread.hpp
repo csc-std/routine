@@ -42,7 +42,7 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mItemQueue.exist ())
 			return 0 ;
@@ -51,7 +51,7 @@ public:
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mItemQueue.exist ())
 			return 0 ;
@@ -61,7 +61,7 @@ public:
 	void reserve (LENGTH post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (r1.mItemQueue.exist () && r1.mItemQueue->length () + post_len <= r1.mItemQueue->size ())
 			return ;
@@ -72,7 +72,7 @@ public:
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (r1.mThreadFlag.exist () && r1.mItemQueue->empty ())
 			r1.mThreadCondition.self.wait (sgd) ;
@@ -84,7 +84,7 @@ public:
 
 	ITEM poll (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (TRUE) {
 			if (!r1.mThreadFlag.exist ())
@@ -108,7 +108,7 @@ public:
 		for (auto &&i : proc)
 			_DEBUG_ASSERT_ (i.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r1.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1.mThreadCounter == 0) ;
@@ -136,7 +136,7 @@ public:
 
 	void join (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -297,7 +297,7 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mItemQueue.exist ())
 			return 0 ;
@@ -306,7 +306,7 @@ public:
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mItemQueue.exist ())
 			return 0 ;
@@ -316,7 +316,7 @@ public:
 	void reserve (LENGTH post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (r1.mItemQueue.exist () && r1.mItemQueue->length () + post_len <= r1.mItemQueue->size ())
 			return ;
@@ -327,7 +327,7 @@ public:
 
 	void post (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (r1.mThreadFlag.exist () && r1.mItemQueue->full ())
@@ -339,7 +339,7 @@ public:
 
 	void post (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (r1.mThreadFlag.exist () && r1.mItemQueue->full ())
@@ -351,7 +351,7 @@ public:
 
 	void post (const ITEM &item ,const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -370,7 +370,7 @@ public:
 
 	void post (ITEM &&item ,const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -391,7 +391,7 @@ public:
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r1.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1.mThreadCounter == 0) ;
@@ -419,7 +419,7 @@ public:
 
 	void join (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
@@ -585,7 +585,7 @@ public:
 
 	void start () {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r1.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1.mThreadCounter == 0) ;
@@ -601,7 +601,7 @@ public:
 	void start (Function<ITEM ()> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r1.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1.mThreadCounter == 0) ;
@@ -749,7 +749,7 @@ public:
 
 	BOOL ready () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (!r1.mThreadFlag.exist ())
 			return TRUE ;
@@ -760,7 +760,7 @@ public:
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (r1.mThreadFlag.exist () && r1.mThreadFlag.self)
 			r1.mThreadCondition.self.wait (sgd) ;
@@ -774,7 +774,7 @@ public:
 
 	ITEM poll (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (TRUE) {
 			if (!r1.mThreadFlag.exist ())
@@ -796,7 +796,7 @@ public:
 	ITEM value (const ITEM &def) popping {
 		_STATIC_ASSERT_ (std::is_copy_constructible<ITEM>::value && std::is_nothrow_move_constructible<ITEM>::value) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		if (r1.mThreadFlag.exist () && !r1.mThreadFlag.self && r1.mItem.exist ())
 			return r1.mItem.self ;
@@ -806,7 +806,7 @@ public:
 	void then (Function<void (ITEM &)> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r1 = _XVALUE_<Pack &> (r1x) ;
+		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r1.mCallbackProc.exist ()) ;
@@ -823,7 +823,7 @@ public:
 		auto rax = Function<ITEM ()> () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = mThis.watch () ;
-			auto &r1 = _XVALUE_<Pack &> (r1x) ;
+			auto &r1 = _XVALUE_<Pack> (r1x) ;
 			ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {

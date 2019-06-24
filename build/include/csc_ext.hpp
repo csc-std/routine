@@ -609,36 +609,22 @@ struct OPERATOR_CRC32 {
 		return BOOL (index >= ib && index < ie) ;
 	}
 
-	inline static constexpr CHAR expr_crc32_table (CHAR each ,const ARGC<8> &) {
-		return each ;
-	}
-
 	inline static constexpr CHAR expr_crc32_next (CHAR each) {
 		return ((each & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320) ^ (each >> 1)) ;
 	}
 
-	template <INDEX _VAL1 ,class = ENABLE_TYPE<ensure_index (_VAL1 ,0 ,8)>>
-	inline static constexpr CHAR expr_crc32_table (CHAR each ,const ARGC<_VAL1> &) {
-		return expr_crc32_table (expr_crc32_next (each) ,_NULL_<const ARGC<_VAL1 + 1>> ()) ;
-	}
-
-	inline static constexpr CHAR expr_crc32_table (INDEX each) {
-		return expr_crc32_table (CHAR (each) ,_NULL_<const ARGC<0>> ()) ;
+	inline static constexpr CHAR expr_crc32_table (CHAR each ,INDEX it) {
+		return (it < 0 || it >= 8) ? each : expr_crc32_table (expr_crc32_next (each) ,(it + 1)) ;
 	}
 
 	template <LENGTH _VAL1>
-	inline static constexpr CHAR expr_crc32_hash (const DEF<STR[_VAL1]> &stri ,CHAR each ,const ARGC<_VAL1 - 1> &) {
-		return each ;
-	}
-
-	template <LENGTH _VAL1 ,INDEX _VAL2 ,class = ENABLE_TYPE<ensure_index (_VAL2 ,0 ,_VAL1 - 1)>>
-	inline static constexpr CHAR expr_crc32_hash (const DEF<STR[_VAL1]> &stri ,CHAR each ,const ARGC<_VAL2> &) {
-		return expr_crc32_hash (stri ,(expr_crc32_table (INDEX ((CHAR (each) ^ CHAR (stri[_VAL2])) & CHAR (0X000000FF))) ^ (each >> 8)) ,_NULL_<const ARGC<_VAL2 + 1>> ()) ;
+	inline static constexpr CHAR expr_crc32_hash (const DEF<STR[_VAL1]> &stri ,CHAR each ,INDEX it) {
+		return (it < 0 || it >= _VAL1) ? each : expr_crc32_hash (stri ,(expr_crc32_table (INDEX ((CHAR (each) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (each >> 8)) ,(it + 1)) ;
 	}
 
 	template <LENGTH _VAL1>
 	inline static constexpr FLAG invoke (const DEF<STR[_VAL1]> &stri) {
-		return FLAG (VAR32 (expr_crc32_hash (stri ,CHAR (0XFFFFFFFF) ,_NULL_<const ARGC<0>> ())) & VAR32_MAX) ;
+		return FLAG (VAR32 (expr_crc32_hash (stri ,CHAR (0XFFFFFFFF) ,0)) & VAR32_MAX) ;
 	}
 } ;
 } ;
@@ -714,14 +700,6 @@ public:
 		proc (mData) ;
 		mStatus = STATUS_CACHED ;
 	}
-
-#ifdef __CSC_DEPRECATED__
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value>>
-	inline void apply_lambda (const _ARG1 &proc) const {
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator()) ;
-		apply (r1x) ;
-	}
-#endif
 
 	inline void signal () const {
 		if (mStatus != STATUS_CACHED)
@@ -848,7 +826,7 @@ public:
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
-		return _XVALUE_<Variant &> (*this) ;
+		return _XVALUE_<Variant> (*this) ;
 	}
 
 	inline Variant (Variant &&right) noexcept {
@@ -865,7 +843,7 @@ public:
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
-		return _XVALUE_<Variant &> (*this) ;
+		return _XVALUE_<Variant> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -930,14 +908,6 @@ public:
 			return ;
 		proc (_LOAD_<_ARG1> (mVariant.unused)) ;
 	}
-
-#ifdef __CSC_DEPRECATED__
-	template <class _RET ,class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULTOF_TYPE<_ARG1 (_RET &)> ,void>::value>>
-	inline void apply_lambda (const _ARG1 &proc) const {
-		const auto r1x = Function<DEF<void (_RET &)> NONE::*> (PhanRef<const _ARG1>::make (proc) ,&_ARG1::operator()) ;
-		apply (r1x) ;
-	}
-#endif
 
 	template <class _RET ,class... _ARGS>
 	inline void recreate (_ARGS &&...args) {
@@ -1217,37 +1187,37 @@ template <class TYPE1 ,class... TYPES>
 template <class... _TYPES>
 class Function<TYPE1 (TYPES...)>::ImplHolder<PTR<TYPE1 (TYPES... ,_TYPES...)>> :public Function<TYPE1 (TYPES...)>::Holder {
 private:
-	PTR<TYPE1 (TYPES... ,_TYPES...)> mFunctor ;
+	PTR<TYPE1 (TYPES... ,_TYPES...)> mFunction ;
 	Tuple<REMOVE_CVR_TYPE<_TYPES>...> mParameters ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<TYPE1 (TYPES... ,_TYPES...)> functor ,const REMOVE_CVR_TYPE<_TYPES> &...args) :mFunctor (functor) ,mParameters (args...) {}
+	inline explicit ImplHolder (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,const REMOVE_CVR_TYPE<_TYPES> &...args) :mFunction (function) ,mParameters (args...) {}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
-		return template_apply (mFunctor ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)... ,mParameters) ;
+		return template_apply (mFunction ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)... ,mParameters) ;
 	}
 
 private:
-	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> functor ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<> &parameters ,const REMOVE_CVR_TYPE<_TYPES> &...args2) popping {
-		_DEBUG_ASSERT_ (functor != NULL) ;
-		return functor (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,args2...) ;
+	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<> &parameters ,const REMOVE_CVR_TYPE<_TYPES> &...args2) popping {
+		_DEBUG_ASSERT_ (function != NULL) ;
+		return function (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,args2...) ;
 	}
 
 	template <class... _ARGS1 ,class... _ARGS2>
-	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> functor ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<_ARGS2...> &parameters ,const _ARGS1 &...args2) popping {
-		return template_apply (functor ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,parameters.rest () ,args2... ,parameters.one ()) ;
+	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<_ARGS2...> &parameters ,const _ARGS1 &...args2) popping {
+		return template_apply (function ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,parameters.rest () ,args2... ,parameters.one ()) ;
 	}
 } ;
 
 template <class TYPE1 ,class... TYPES>
 template <class... _ARGS>
-inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (PTR<TYPE1 (TYPES... ,_ARGS...)> functor ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
+inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (PTR<TYPE1 (TYPES... ,_ARGS...)> function ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
 	auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>> () ;
-	ScopedHolder<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> ANONYMOUS (sgd ,functor ,args...) ;
-	const auto r1x = &_LOAD_<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> (_XVALUE_<const PTR<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>> &> (sgd)) ;
-	Function ret = Function (_XVALUE_<const PTR<Holder> &> (r1x)) ;
+	ScopedHolder<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> ANONYMOUS (sgd ,function ,args...) ;
+	const auto r1x = &_LOAD_<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>>> (sgd)) ;
+	Function ret = Function (_XVALUE_<PTR<Holder>> (r1x)) ;
 	sgd = NULL ;
 	return std::move (ret) ;
 }
@@ -1283,37 +1253,37 @@ public:
 
 	template <class _ARG1>
 	inline implicit operator BOOL () const {
-		return template_cast (_XVALUE_<const Tuple<const TYPES &...> &> (*this)) ;
+		return template_cast (_XVALUE_<Tuple<const TYPES &...>> (*this)) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator== (const _ARG1 &right) const {
-		return template_equal (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator!= (const _ARG1 &right) const {
-		return template_not_equal (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator< (const _ARG1 &right) const {
-		return template_less (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator>= (const _ARG1 &right) const {
-		return template_not_less (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator> (const _ARG1 &right) const {
-		return template_bigger (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator<= (const _ARG1 &right) const {
-		return template_not_bigger (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 private:
@@ -1459,37 +1429,37 @@ public:
 
 	template <class _ARG1>
 	inline implicit operator BOOL () const {
-		return template_cast (_XVALUE_<const Tuple<const TYPES &...> &> (*this)) ;
+		return template_cast (_XVALUE_<Tuple<const TYPES &...>> (*this)) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator== (const _ARG1 &right) const {
-		return template_equal (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator!= (const _ARG1 &right) const {
-		return template_not_equal (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator< (const _ARG1 &right) const {
-		return template_less (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator>= (const _ARG1 &right) const {
-		return template_not_less (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator> (const _ARG1 &right) const {
-		return template_bigger (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator<= (const _ARG1 &right) const {
-		return template_not_bigger (_XVALUE_<const Tuple<const TYPES &...> &> (*this) ,right) ;
+		return template_not_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
 	}
 
 private:
@@ -1755,7 +1725,7 @@ public:
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
-		return _XVALUE_<StrongRef &> (*this) ;
+		return _XVALUE_<StrongRef> (*this) ;
 	}
 
 	inline StrongRef (StrongRef &&right) noexcept {
@@ -1770,7 +1740,7 @@ public:
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
-		return _XVALUE_<StrongRef &> (*this) ;
+		return _XVALUE_<StrongRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1864,7 +1834,7 @@ private:
 
 	template <class _ARG1>
 	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG1 ,TYPE>::value>> & ,const decltype (ARGVP3) &) {
-		return _XVALUE_<const PTR<_ARG1> &> (pointer) ;
+		return _XVALUE_<PTR<_ARG1>> (pointer) ;
 	}
 
 	template <class _ARG1>
@@ -1894,7 +1864,7 @@ template <class _ARG1>
 inline StrongRef<_ARG1> WeakRef<void>::strong_from_this (PTR<_ARG1> _this) {
 	_STATIC_ASSERT_ (stl::is_virtual_base_of<WeakRef<void> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (_this != NULL) ;
-	const auto r1x = _XVALUE_<const PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>> &> (_this) ;
+	const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>>> (_this) ;
 	return StrongRef<_ARG1> (r1x->mHolder ,_this) ;
 }
 
@@ -2032,7 +2002,7 @@ public:
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (right)) ;
 		}
-		return _XVALUE_<SoftRef &> (*this) ;
+		return _XVALUE_<SoftRef> (*this) ;
 	}
 
 	LENGTH capacity () const {
@@ -2261,8 +2231,9 @@ private:
 public:
 	inline IntrusiveRef () :IntrusiveRef (ARGVP0) {}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<TYPE>>::value>>
+	template <class _ARG1>
 	inline explicit IntrusiveRef (const _ARG1 &address) popping : IntrusiveRef (ARGVP0) {
+		_STATIC_ASSERT_ (std::is_same<_ARG1 ,PTR<TYPE>>::value) ;
 		//@warn: address must be from 'IntrusiveRef::make'
 		acquire (address ,FALSE) ;
 		update_pointer (address) ;
@@ -2292,7 +2263,7 @@ public:
 			this->~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (right)) ;
 		}
-		return _XVALUE_<IntrusiveRef &> (*this) ;
+		return _XVALUE_<IntrusiveRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2377,7 +2348,7 @@ public:
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto sgd = GlobalHeap::alloc<TEMP<TYPE>> () ;
 		ScopedHolder<TYPE> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		const auto r1x = &_LOAD_<TYPE> (_XVALUE_<const PTR<TEMP<TYPE>> &> (sgd)) ;
+		const auto r1x = &_LOAD_<TYPE> (_XVALUE_<PTR<TEMP<TYPE>>> (sgd)) ;
 		acquire (r1x ,TRUE) ;
 		ret.update_pointer (r1x) ;
 		sgd = NULL ;
@@ -2439,37 +2410,37 @@ private:
 	} ;
 
 	inline static constexpr VAR expr_ceil (VAR base ,VAR align) {
-		return (align > 0) ? ((base / align + EFLAG (base % align != 0)) * align) : 0 ;
+		return (align <= 0) ? 0 : ((base / align + EFLAG (base % align != 0)) * align) ;
 	}
 
 	inline static constexpr VAL64 expr_pow (VAL64 base ,LENGTH power) {
-		return (power % 2 != 0) ? (base * expr_pow (base ,(power - 1))) : (power != 0) ? (_SQE_ (expr_pow (base ,(power / 2)))) : 1 ;
+		return (power <= 0) ? 1 : (power % 2 != 0) ? (base * expr_pow (base ,(power - 1))) : (_SQE_ (expr_pow (base ,(power / 2)))) ;
 	}
 
 	template <class SIZE>
 	class ImplPool :public Pool {
 	private:
 		struct BLOCK {
-			PTR<struct BLOCK> next ;
-			HEADER flex_data ;
+			PTR<struct BLOCK> mNext ;
+			HEADER mFlexData ;
 		} ;
 
 		struct CHUNK {
-			PTR<ARR<BYTE>> origin ;
-			PTR<struct CHUNK> prev ;
-			PTR<struct CHUNK> next ;
-			LENGTH count ;
+			PTR<ARR<BYTE>> mOrigin ;
+			PTR<struct CHUNK> mPrev ;
+			PTR<struct CHUNK> mNext ;
+			LENGTH mCount ;
 		} ;
 
 	private:
-		PTR<CHUNK> mFirst ;
+		PTR<CHUNK> mRoot ;
 		PTR<BLOCK> mFree ;
 		LENGTH mSize ;
 		LENGTH mLength ;
 
 	public:
 		inline ImplPool () {
-			mFirst = NULL ;
+			mRoot = NULL ;
 			mFree = NULL ;
 			mSize = 0 ;
 			mLength = 0 ;
@@ -2488,11 +2459,11 @@ private:
 		}
 
 		inline void clear () noexcept {
-			for (PTR<CHUNK> i = mFirst ,ir ; i != NULL ; i = ir) {
-				ir = i->next ;
-				GlobalHeap::free (i->origin) ;
+			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
+				GlobalHeap::free (i->mOrigin) ;
 			}
-			mFirst = NULL ;
+			mRoot = NULL ;
 			mFree = NULL ;
 			mSize = 0 ;
 			mLength = 0 ;
@@ -2509,20 +2480,20 @@ private:
 			const auto r1x = LENGTH (expr_pow (VAL64 (1.25) ,_MAX_ (VAR (1) ,(16 - SIZE::value / 8))) + VAL64 (1)) ;
 			const auto r2x = _ALIGNOF_ (CHUNK) + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) + r1x * (_SIZEOF_ (BLOCK) + SIZE::value) ;
 			auto sgd = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (_XVALUE_<const PTR<ARR<BYTE>> &> (sgd)) ,_ALIGNOF_ (CHUNK)) ;
+			const auto r3x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (sgd)) ,_ALIGNOF_ (CHUNK)) ;
 			const auto r4x = &_LOAD_<CHUNK> (r3x) ;
-			r4x->origin = _XVALUE_<const PTR<ARR<BYTE>> &> (sgd) ;
-			r4x->prev = NULL ;
-			r4x->next = mFirst ;
-			r4x->count = r1x ;
-			if (mFirst != NULL)
-				mFirst->prev = r4x ;
-			mFirst = r4x ;
+			r4x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (sgd) ;
+			r4x->mPrev = NULL ;
+			r4x->mNext = mRoot ;
+			r4x->mCount = r1x ;
+			if (mRoot != NULL)
+				mRoot->mPrev = r4x ;
+			mRoot = r4x ;
 			mSize += r1x * SIZE::value ;
 			const auto r5x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (r3x) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ,ie = mFirst->count ; i < ie ; i++) {
+			for (INDEX i = 0 ,ie = mRoot->mCount ; i < ie ; i++) {
 				const auto r6x = &_LOAD_<BLOCK> (r5x + i * (_SIZEOF_ (BLOCK) + SIZE::value)) ;
-				r6x->next = mFree ;
+				r6x->mNext = mFree ;
 				mFree = r6x ;
 			}
 			sgd = NULL ;
@@ -2532,18 +2503,18 @@ private:
 			_DEBUG_ASSERT_ (len <= SIZE::value) ;
 			reserve () ;
 			const auto r1x = mFree ;
-			mFree = r1x->next ;
+			mFree = r1x->mNext ;
 			mLength += SIZE::value ;
 			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (VAR_USED) ;
-			r1x->next = _LOAD_<PTR<BLOCK>> (&r2x) ;
-			return &r1x->flex_data ;
+			r1x->mNext = _LOAD_<PTR<BLOCK>> (&r2x) ;
+			return &r1x->mFlexData ;
 		}
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_OFFSET_ (&BLOCK::flex_data ,*address) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (r1x->next) == VAR_USED) ;
-			r1x->next = mFree ;
+			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,*address) ;
+			_DEBUG_ASSERT_ (_ADDRESS_ (r1x->mNext) == VAR_USED) ;
+			r1x->mNext = mFree ;
 			mFree = r1x ;
 			mLength -= SIZE::value ;
 		}
@@ -2551,24 +2522,24 @@ private:
 		inline void clean () override {
 			if (mSize == mLength)
 				return ;
-			for (PTR<CHUNK> i = mFirst ,ir ; i != NULL ; i = ir) {
-				ir = i->next ;
+			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
 				if (!empty_node (i))
 					continue ;
-				auto &r1 = (i->prev != NULL) ? (i->prev->next) : mFirst ;
-				r1 = i->next ;
-				if (i->next != NULL)
-					i->next->prev = i->prev ;
-				mSize -= i->count * SIZE::value ;
-				GlobalHeap::free (i->origin) ;
+				auto &r1 = (i->mPrev != NULL) ? (i->mPrev->mNext) : mRoot ;
+				r1 = i->mNext ;
+				if (i->mNext != NULL)
+					i->mNext->mPrev = i->mPrev ;
+				mSize -= i->mCount * SIZE::value ;
+				GlobalHeap::free (i->mOrigin) ;
 			}
 		}
 
 	private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
 			const auto r1x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ,ie = node->count ; i < ie ; i++)
-				if (_ADDRESS_ (_LOAD_<BLOCK> (r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value)).next) == VAR_USED)
+			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++)
+				if (_ADDRESS_ (_LOAD_<BLOCK> (r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value)).mNext) == VAR_USED)
 					return FALSE ;
 			return TRUE ;
 		}
@@ -2577,20 +2548,20 @@ private:
 	class HugePool :public Pool {
 	private:
 		struct BLOCK {
-			PTR<ARR<BYTE>> origin ;
-			PTR<struct BLOCK> prev ;
-			PTR<struct BLOCK> next ;
-			LENGTH count ;
-			HEADER flex_data ;
+			PTR<ARR<BYTE>> mOrigin ;
+			PTR<struct BLOCK> mPrev ;
+			PTR<struct BLOCK> mNext ;
+			LENGTH mCount ;
+			HEADER mFlexData ;
 		} ;
 
 	private:
-		PTR<BLOCK> mFirst ;
+		PTR<BLOCK> mRoot ;
 		LENGTH mSize ;
 
 	public:
 		inline HugePool () {
-			mFirst = NULL ;
+			mRoot = NULL ;
 			mSize = 0 ;
 		}
 
@@ -2607,40 +2578,40 @@ private:
 		}
 
 		inline void clear () noexcept {
-			for (PTR<BLOCK> i = mFirst ,ir ; i != NULL ; i = ir) {
-				ir = i->next ;
-				GlobalHeap::free (i->origin) ;
+			for (PTR<BLOCK> i = mRoot ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
+				GlobalHeap::free (i->mOrigin) ;
 			}
-			mFirst = NULL ;
+			mRoot = NULL ;
 			mSize = 0 ;
 		}
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
 			const auto r1x = _ALIGNOF_ (BLOCK) + _SIZEOF_ (BLOCK) + len ;
 			auto sgd = GlobalHeap::alloc<BYTE> (r1x) ;
-			const auto r2x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (_XVALUE_<const PTR<ARR<BYTE>> &> (sgd)) ,_ALIGNOF_ (BLOCK)) ;
+			const auto r2x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (sgd)) ,_ALIGNOF_ (BLOCK)) ;
 			const auto r3x = &_LOAD_<BLOCK> (r2x) ;
-			r3x->origin = _XVALUE_<const PTR<ARR<BYTE>> &> (sgd) ;
-			r3x->prev = NULL ;
-			r3x->next = mFirst ;
-			r3x->count = len ;
-			if (mFirst != NULL)
-				mFirst->prev = r3x ;
-			mFirst = r3x ;
+			r3x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (sgd) ;
+			r3x->mPrev = NULL ;
+			r3x->mNext = mRoot ;
+			r3x->mCount = len ;
+			if (mRoot != NULL)
+				mRoot->mPrev = r3x ;
+			mRoot = r3x ;
 			mSize += len ;
 			sgd = NULL ;
-			return &r3x->flex_data ;
+			return &r3x->mFlexData ;
 		}
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_OFFSET_ (&BLOCK::flex_data ,*address) ;
-			auto &r1 = (r1x->prev != NULL) ? (r1x->prev->next) : mFirst ;
-			r1 = r1x->next ;
-			if (r1x->next != NULL)
-				r1x->next->prev = r1x->prev ;
-			mSize -= r1x->count ;
-			GlobalHeap::free (r1x->origin) ;
+			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,*address) ;
+			auto &r1 = (r1x->mPrev != NULL) ? (r1x->mPrev->mNext) : mRoot ;
+			r1 = r1x->mNext ;
+			if (r1x->mNext != NULL)
+				r1x->mNext->mPrev = r1x->mPrev ;
+			mSize -= r1x->mCount ;
+			GlobalHeap::free (r1x->mOrigin) ;
 		}
 
 		inline void clean () override {
@@ -2666,11 +2637,11 @@ private:
 	ImplPool<ARGC<120>> mPool15 ;
 	ImplPool<ARGC<128>> mPool16 ;
 	HugePool mPool17 ;
-	Buffer<PTR<Pool> ,ARGC<17>> mPool ;
+	Monostate<Buffer<PTR<Pool> ,ARGC<17>>> mPool ;
 
 public:
 	inline MemoryPool () {
-		mPool = Buffer<PTR<Pool> ,ARGC<17>> ({
+		mPool.self = Buffer<PTR<Pool> ,ARGC<17>> ({
 			&mPool1 ,&mPool2 ,&mPool3 ,&mPool4 ,&mPool5 ,&mPool6 ,&mPool7 ,&mPool8 ,
 			&mPool9 ,&mPool10 ,&mPool11 ,&mPool12 ,&mPool13 ,&mPool14 ,&mPool15 ,&mPool16 ,
 			&mPool17}) ;
@@ -2678,15 +2649,15 @@ public:
 
 	inline LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ; i < mPool.size () ; i++)
-			ret += mPool[i]->size () ;
+		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+			ret += mPool.self[i]->size () ;
 		return std::move (ret) ;
 	}
 
 	inline LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ; i < mPool.size () ; i++)
-			ret += mPool[i]->length () ;
+		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+			ret += mPool.self[i]->length () ;
 		return std::move (ret) ;
 	}
 
@@ -2697,10 +2668,10 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		const auto r1x = _SIZEOF_ (_RET) + _MAX_ ((_ALIGNOF_ (_RET) - 8) ,VAR_ZERO) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mPool[ix]->alloc (r1x) ;
+		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) - _SIZEOF_ (HEADER) ;
 		const auto r4x = &_LOAD_<HEADER> (r3x) ;
-		r4x->P1 = mPool[ix] ;
+		r4x->P1 = mPool.self[ix] ;
 		r4x->P2 = r2x ;
 		return &_LOAD_<_RET> (r3x + _SIZEOF_ (HEADER)) ;
 	}
@@ -2713,10 +2684,10 @@ public:
 		const auto r1x = len * _SIZEOF_ (_RET) + _MAX_ ((_ALIGNOF_ (_RET) - 8) ,VAR_ZERO) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mPool[ix]->alloc (r1x) ;
+		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = &_NULL_<BYTE> () + expr_ceil (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) - _SIZEOF_ (HEADER) ;
 		const auto r4x = &_LOAD_<HEADER> (r3x) ;
-		r4x->P1 = mPool[ix] ;
+		r4x->P1 = mPool.self[ix] ;
 		r4x->P2 = r2x ;
 		return &_LOAD_<ARR<_RET>> (r3x + _SIZEOF_ (HEADER)) ;
 	}
@@ -2726,14 +2697,14 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		const auto r2x = &_LOAD_<HEADER> (r1x) ;
-		INDEX ix = _MEMCHR_ (mPool.self ,mPool.size () ,r2x->P1) ;
+		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2x->P1) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-		mPool[ix]->free (r2x->P2) ;
+		mPool.self[ix]->free (r2x->P2) ;
 	}
 
 	inline void clean () {
-		for (INDEX i = 0 ; i < mPool.size () ; i++)
-			mPool[i]->clean () ;
+		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+			mPool.self[i]->clean () ;
 	}
 } ;
 
@@ -2745,7 +2716,7 @@ class GlobalStatic<void> final :private Wrapped<void> {
 private:
 	struct NODE_A {
 		FLAG mGUID ;
-		PTR<struct NODE_A> mRight ;
+		PTR<struct NODE_A> mNext ;
 		BOOL mReadOnly ;
 		VAR mData ;
 	} ;
@@ -2754,7 +2725,7 @@ private:
 
 	struct NODE_B {
 		GUID_TYPE mGUID ;
-		PTR<struct NODE_B> mRight ;
+		PTR<struct NODE_B> mNext ;
 		BOOL mReadOnly ;
 		PTR<NONE> mData ;
 	} ;
@@ -2770,9 +2741,9 @@ private:
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		LENGTH mLength_a ;
-		PTR<NODE_A> mFirst_a ;
+		PTR<NODE_A> mRoot_a ;
 		LENGTH mLength_b ;
-		PTR<NODE_B> mFirst_b ;
+		PTR<NODE_B> mRoot_b ;
 	} ;
 
 private:
@@ -2793,7 +2764,7 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r2x = rbx.watch () ;
-				const auto r3x = &_XVALUE_<Pack &> (r2x) ;
+				const auto r3x = &_XVALUE_<Pack> (r2x) ;
 				const auto r4x = &_LOAD_<NONE> (r3x) ;
 				rax = unique_atomic_address (NULL ,r4x) ;
 			}
@@ -2807,11 +2778,11 @@ private:
 		//@warn: sure 'GlobalHeap' can be used across DLL
 		auto sgd = GlobalHeap::alloc<TEMP<NODE_A>> () ;
 		ScopedHolder<NODE_A> ANONYMOUS (sgd) ;
-		PTR<NODE_A> ret = &_LOAD_<NODE_A> (_XVALUE_<const PTR<TEMP<NODE_A>> &> (sgd)) ;
+		PTR<NODE_A> ret = &_LOAD_<NODE_A> (_XVALUE_<PTR<TEMP<NODE_A>>> (sgd)) ;
 		_DEBUG_ASSERT_ (ret != NULL) ;
 		ret->mGUID = guid ;
-		ret->mRight = _self.mFirst_a ;
-		_self.mFirst_a = ret ;
+		ret->mNext = _self.mRoot_a ;
+		_self.mRoot_a = ret ;
 		_self.mLength_a++ ;
 		sgd = NULL ;
 		return std::move (ret) ;
@@ -2821,25 +2792,25 @@ private:
 		//@warn: sure 'GlobalHeap' can be used across DLL
 		auto sgd = GlobalHeap::alloc<TEMP<NODE_B>> () ;
 		ScopedHolder<NODE_B> ANONYMOUS (sgd) ;
-		PTR<NODE_B> ret = &_LOAD_<NODE_B> (_XVALUE_<const PTR<TEMP<NODE_B>> &> (sgd)) ;
+		PTR<NODE_B> ret = &_LOAD_<NODE_B> (_XVALUE_<PTR<TEMP<NODE_B>>> (sgd)) ;
 		_DEBUG_ASSERT_ (ret != NULL) ;
 		ret->mGUID = guid ;
-		ret->mRight = _self.mFirst_b ;
-		_self.mFirst_b = ret ;
+		ret->mNext = _self.mRoot_b ;
+		_self.mRoot_b = ret ;
 		_self.mLength_b++ ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
 
 	inline static PTR<NODE_A> static_find_node (Pack &_self ,FLAG guid) {
-		for (PTR<NODE_A> i = _self.mFirst_a ; i != NULL ; i = i->mRight)
+		for (PTR<NODE_A> i = _self.mRoot_a ; i != NULL ; i = i->mNext)
 			if (i->mGUID == guid)
 				return i ;
 		return NULL ;
 	}
 
 	inline static PTR<NODE_B> static_find_node (Pack &_self ,const GUID_TYPE &guid) {
-		for (PTR<NODE_B> i = _self.mFirst_b ; i != NULL ; i = i->mRight)
+		for (PTR<NODE_B> i = _self.mRoot_b ; i != NULL ; i = i->mNext)
 			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[&guid.unused[0]]))
 				return i ;
 		return NULL ;
@@ -2849,30 +2820,30 @@ private:
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_self.mCounter.self = 0 ;
 		_self.mLength_a = 0 ;
-		_self.mFirst_a = NULL ;
+		_self.mRoot_a = NULL ;
 		_self.mLength_b = 0 ;
-		_self.mFirst_b = NULL ;
+		_self.mRoot_b = NULL ;
 	}
 
 	inline static void intrusive_destroy (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_CALL_EH_ ([&] () {
-			for (PTR<NODE_A> i = _self.mFirst_a ,ir ; i != NULL ; i = ir) {
-				ir = i->mRight ;
+			for (PTR<NODE_A> i = _self.mRoot_a ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
 				i->~NODE_A () ;
 				GlobalHeap::free (i) ;
 			}
 			_self.mLength_a = 0 ;
-			_self.mFirst_a = NULL ;
+			_self.mRoot_a = NULL ;
 		}) ;
 		_CALL_EH_ ([&] () {
-			for (PTR<NODE_B> i = _self.mFirst_b ,ir ; i != NULL ; i = ir) {
-				ir = i->mRight ;
+			for (PTR<NODE_B> i = _self.mRoot_b ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
 				i->~NODE_B () ;
 				GlobalHeap::free (i) ;
 			}
 			_self.mLength_b = 0 ;
-			_self.mFirst_b = NULL ;
+			_self.mRoot_b = NULL ;
 		}) ;
 	}
 
@@ -2913,7 +2884,7 @@ public:
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		_DEBUG_ASSERT_ (!r1x->mReadOnly) ;
+		_DYNAMIC_ASSERT_ (!r1x->mReadOnly) ;
 		if (r1x->mData == expect)
 			r1x->mData = data ;
 		return r1x->mData ;
@@ -2930,7 +2901,7 @@ public:
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
-		_DEBUG_ASSERT_ (!rax->mReadOnly) ;
+		_DYNAMIC_ASSERT_ (!rax->mReadOnly) ;
 		rax->mData = data ;
 	}
 } ;
@@ -2997,13 +2968,40 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r3x = rbx.watch () ;
-				const auto r4x = &_XVALUE_<Pack &> (r3x) ;
+				const auto r4x = &_XVALUE_<Pack> (r3x) ;
+				rax->mReadOnly = FALSE ;
+				rax->mData = &_LOAD_<NONE> (r4x) ;
+			}
+			_DYNAMIC_ASSERT_ (!rax->mReadOnly) ;
+			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
+			return IntrusiveRef<Pack> (r5x).watch () ;
+		}) ;
+		return _XVALUE_<Pack> (r1).mData ;
+	}
+
+	inline static const TYPE &const_unique () popping {
+		auto &r1 = _CACHE_ ([] () {
+			auto &r2 = GlobalStatic<void>::unique () ;
+			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
+			const auto r2x = guid_from_typeid_name () ;
+			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
+			auto rbx = IntrusiveRef<Pack> () ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (rax != NULL)
+					continue ;
+				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
+				_DYNAMIC_ASSERT_ (rax != NULL) ;
+				//@warn: sure 'GlobalHeap' can be used across DLL
+				rbx = IntrusiveRef<Pack>::make () ;
+				const auto r3x = rbx.watch () ;
+				const auto r4x = &_XVALUE_<Pack> (r3x) ;
+				rax->mReadOnly = TRUE ;
 				rax->mData = &_LOAD_<NONE> (r4x) ;
 			}
 			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
 			return IntrusiveRef<Pack> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Pack &> (r1).mData ;
+		return _XVALUE_<Pack> (r1).mData ;
 	}
 } ;
 
@@ -3033,10 +3031,10 @@ private:
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
 			mTypeID = _TYPEID_<_ARG1> () ;
-			mConstrutor = _XVALUE_<const PTR<void (PTR<NONE>)> &> ([] (PTR<NONE> address) {
+			mConstrutor = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address)) ;
 			}) ;
-			mDestructor = _XVALUE_<const PTR<void (PTR<NONE>)> &> ([] (PTR<NONE> address) {
+			mDestructor = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address)) ;
 			}) ;
 		}
@@ -3133,6 +3131,6 @@ template <class TYPE1 ,class TYPE2>
 inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'TYPE1' becomes a function-local-type
 	_DEBUG_ASSERT_ (FALSE) ;
-	}
+}
 #endif
 } ;

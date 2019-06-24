@@ -732,7 +732,6 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			const auto r1x = math_cross_product_z (mVertex ,v1 ,v2 ,v4) ;
 			const auto r2x = math_cross_product_z (mVertex ,v2 ,v3 ,v4) ;
 			const auto r3x = math_cross_product_z (mVertex ,v3 ,v1 ,v4) ;
-			_STATIC_WARNING_ ("mark") ;
 			if (r1x < UNIT (0) && r2x < UNIT (0) && r3x <= UNIT (0))
 				return FALSE ;
 			if (r1x < UNIT (0) && r2x <= UNIT (0) && r3x < UNIT (0))

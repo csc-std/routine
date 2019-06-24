@@ -943,8 +943,22 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (DEF<_ARG1 _ARG2::*> arg1 ,_ARG3
 }
 
 template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_REFERENCE_TYPE<_RET> &arg1) noexcept {
-	_STATIC_ASSERT_ (std::is_lvalue_reference<_RET>::value) ;
+inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	//@warn: required 'std::launder'
+	return arg1 ;
+}
+
+template <class _RET>
+inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	//@warn: required 'std::launder'
+	return arg1 ;
+}
+
+template <class _RET>
+inline const volatile REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const volatile REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	//@warn: required 'std::launder'
 	return arg1 ;
 }
@@ -1547,7 +1561,7 @@ public:
 		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
 		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
 		mInstance.self.P1[3] = 0 ;
-		const auto r2x = _XVALUE_<const volatile PTR<void (_ARG2 &)> &> (mInstance.self.P2) ;
+		const auto r2x = _XVALUE_<PTR<void (_ARG2 &)>> (mInstance.self.P2) ;
 		if (r2x == NULL)
 			return ;
 		r2x (data) ;
@@ -1590,7 +1604,7 @@ private:
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const PTR<TYPE> & ,_RET>::value>>
 		inline implicit operator _RET () const & {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return _RET (_XVALUE_<const PTR<TYPE> &> (mPointer)) ;
+			return _RET (_XVALUE_<PTR<TYPE>> (mPointer)) ;
 		}
 
 		template <class _RET>
@@ -1673,12 +1687,12 @@ public:
 
 	template <class... _ARGS>
 	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) popping :mAddress (address) {
-		const auto r1x = _XVALUE_<const volatile PTR<TEMP<TYPE>> &> (mAddress) ;
+		const auto r1x = _XVALUE_<PTR<TEMP<TYPE>>> (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<const volatile PTR<TEMP<TYPE>> &> (mAddress) ;
+		const auto r1x = _XVALUE_<PTR<TEMP<TYPE>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		_DESTROY_ (r1x) ;
@@ -1700,7 +1714,7 @@ public:
 	inline ScopedHolder () = delete ;
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
-		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
+		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1713,7 +1727,7 @@ public:
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
+		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1725,7 +1739,7 @@ public:
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<const volatile PTR<ARR<TEMP<TYPE>>> &> (mAddress) ;
+		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1764,7 +1778,7 @@ private:
 	inline Singleton () {
 		auto sgd = GlobalHeap::alloc<TEMP<Pack>> () ;
 		ScopedHolder<Pack> ANONYMOUS (sgd) ;
-		mPointer = &_LOAD_<Pack> (_XVALUE_<const PTR<TEMP<Pack>> &> (sgd)) ;
+		mPointer = &_LOAD_<Pack> (_XVALUE_<PTR<TEMP<Pack>>> (sgd)) ;
 		sgd = NULL ;
 	}
 
@@ -1845,7 +1859,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
-		return _XVALUE_<AutoRef &> (*this) ;
+		return _XVALUE_<AutoRef> (*this) ;
 	}
 
 private:
@@ -1888,8 +1902,8 @@ public:
 
 	inline AutoRef (const AutoRef &right) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (sgd ,_XVALUE_<const TYPE &> (right.mPointer->mData)) ;
-		mPointer = &_LOAD_<Holder> (_XVALUE_<const PTR<TEMP<Holder>> &> (sgd)) ;
+		ScopedHolder<Holder> ANONYMOUS (sgd ,_XVALUE_<TYPE> (right.mPointer->mData)) ;
+		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
 		sgd = NULL ;
 	}
 
@@ -1900,7 +1914,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
-		return _XVALUE_<AutoRef &> (*this) ;
+		return _XVALUE_<AutoRef> (*this) ;
 	}
 
 	inline AutoRef (AutoRef &&right) noexcept {
@@ -1914,7 +1928,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
-		return _XVALUE_<AutoRef &> (*this) ;
+		return _XVALUE_<AutoRef> (*this) ;
 	}
 
 private:
@@ -1974,7 +1988,7 @@ public:
 	inline static AutoRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		AutoRef ret = AutoRef (&_LOAD_<Holder> (_XVALUE_<const PTR<TEMP<Holder>> &> (sgd))) ;
+		AutoRef ret = AutoRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2025,7 +2039,7 @@ public:
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
-		return _XVALUE_<SharedRef &> (*this) ;
+		return _XVALUE_<SharedRef> (*this) ;
 	}
 
 	inline SharedRef (SharedRef &&right) noexcept {
@@ -2039,7 +2053,7 @@ public:
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
-		return _XVALUE_<SharedRef &> (*this) ;
+		return _XVALUE_<SharedRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2076,7 +2090,7 @@ public:
 	inline static SharedRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		SharedRef ret = SharedRef (&_LOAD_<Holder> (_XVALUE_<const PTR<TEMP<Holder>> &> (sgd))) ;
+		SharedRef ret = SharedRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2138,7 +2152,7 @@ public:
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
-		return _XVALUE_<AnyRef &> (*this) ;
+		return _XVALUE_<AnyRef> (*this) ;
 	}
 
 	template <class _RET>
@@ -2201,7 +2215,7 @@ public:
 	inline static AnyRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<TYPE>>> () ;
 		ScopedHolder<ImplHolder<TYPE>> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		AnyRef ret = AnyRef (&_LOAD_<ImplHolder<TYPE>> (_XVALUE_<const PTR<TEMP<ImplHolder<TYPE>>> &> (sgd))) ;
+		AnyRef ret = AnyRef (&_LOAD_<ImplHolder<TYPE>> (_XVALUE_<PTR<TEMP<ImplHolder<TYPE>>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2247,7 +2261,7 @@ public:
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
-		return _XVALUE_<AnyRef &> (*this) ;
+		return _XVALUE_<AnyRef> (*this) ;
 	}
 
 	template <class _RET>
@@ -2316,7 +2330,7 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void (TYPE &)>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
 		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<const PTR<TEMP<ImplHolder<_ARG2>>> &> (sgd)) ;
+		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<PTR<TEMP<ImplHolder<_ARG2>>>> (sgd)) ;
 		constructor (r1x->mData) ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2347,7 +2361,7 @@ public:
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
-		return _XVALUE_<UniqueRef &> (*this) ;
+		return _XVALUE_<UniqueRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2376,11 +2390,11 @@ public:
 	template <class... _ARGS>
 	inline static UniqueRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (TYPE &)>>>> () ;
-		const auto r1x = _XVALUE_<const PTR<void (TYPE &)> &> ([] (TYPE &) {}) ;
+		const auto r1x = _XVALUE_<PTR<void (TYPE &)>> ([] (TYPE &) {}) ;
 		ScopedHolder<ImplHolder<PTR<void (TYPE &)>>> ANONYMOUS (sgd ,r1x) ;
-		const auto r2x = &_LOAD_<ImplHolder<PTR<void (TYPE &)>>> (_XVALUE_<const PTR<TEMP<ImplHolder<PTR<void (TYPE &)>>>> &> (sgd)) ;
+		const auto r2x = &_LOAD_<ImplHolder<PTR<void (TYPE &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (TYPE &)>>>>> (sgd)) ;
 		r2x->mData = TYPE (std::forward<_ARGS> (args)...) ;
-		UniqueRef ret = UniqueRef (_XVALUE_<const PTR<Holder> &> (r2x)) ;
+		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (r2x)) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2422,7 +2436,7 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void ()>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
 		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<const PTR<TEMP<ImplHolder<_ARG2>>> &> (sgd)) ;
+		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<PTR<TEMP<ImplHolder<_ARG2>>>> (sgd)) ;
 		constructor () ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2453,7 +2467,7 @@ public:
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
-		return _XVALUE_<UniqueRef &> (*this) ;
+		return _XVALUE_<UniqueRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2491,7 +2505,7 @@ public:
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (right)) ;
 		}
-		return _XVALUE_<PhanRef &> (*this) ;
+		return _XVALUE_<PhanRef> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2576,7 +2590,7 @@ public:
 		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG1> (TYPES...)> ,TYPE1>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (right)) ;
-		mFunction_a = &_LOAD_<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> (_XVALUE_<const PTR<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> &> (sgd)) ;
+		mFunction_a = &_LOAD_<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>>> (sgd)) ;
 		mFunction_b = NULL ;
 		sgd = NULL ;
 	}
@@ -2609,7 +2623,7 @@ public:
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
-		return _XVALUE_<Function &> (*this) ;
+		return _XVALUE_<Function> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2637,7 +2651,7 @@ private:
 public:
 	//@info: the function is incompleted without 'csc_ext.hpp'
 	template <class... _ARGS>
-	inline static Function make (PTR<TYPE1 (TYPES... ,_ARGS...)> functor ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
+	inline static Function make (PTR<TYPE1 (TYPES... ,_ARGS...)> function ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
 } ;
 
 template <class TYPE1 ,class... TYPES>
@@ -2689,7 +2703,7 @@ public:
 	inline ~Function () noexcept {
 		if (!exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<FakeHolder> (mVariant)).~Holder () ;
+		_XVALUE_<Holder> (_CAST_<FakeHolder> (mVariant)).~Holder () ;
 		_ZERO_ (mVariant) ;
 	}
 
@@ -2700,7 +2714,7 @@ public:
 		_ZERO_ (mVariant) ;
 		if (!right.exist ())
 			return ;
-		_XVALUE_<const Holder &> (_CAST_<FakeHolder> (right.mVariant)).address_copy (&mVariant) ;
+		_XVALUE_<Holder> (_CAST_<FakeHolder> (right.mVariant)).address_copy (&mVariant) ;
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
@@ -2710,7 +2724,7 @@ public:
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
-		return _XVALUE_<Function &> (*this) ;
+		return _XVALUE_<Function> (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2721,7 +2735,7 @@ public:
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _XVALUE_<const Holder &> (_CAST_<FakeHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return _XVALUE_<Holder> (_CAST_<FakeHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2755,8 +2769,8 @@ public:
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
 		_CREATE_ (r1x ,context ,function) ;
 	}
 } ;
@@ -2787,8 +2801,8 @@ public:
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<const Holder &> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
 		_CREATE_ (r1x ,context ,function) ;
 	}
 } ;
@@ -2952,8 +2966,8 @@ public:
 		if (len == 0)
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<TYPE>> (len) ;
-		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd)) ;
+		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd) ,len) ;
+		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3116,8 +3130,8 @@ public:
 		if (len == 0)
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<TYPE>> (len) ;
-		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd)) ;
+		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd) ,len) ;
+		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3147,7 +3161,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
-		return _XVALUE_<Buffer &> (*this) ;
+		return _XVALUE_<Buffer> (*this) ;
 	}
 } ;
 
@@ -3172,8 +3186,8 @@ public:
 		if (len == 0)
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<TYPE>> (len) ;
-		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd)) ;
+		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd) ,len) ;
+		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3194,8 +3208,8 @@ public:
 		if (right.mSize == 0)
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<TYPE>> (right.mSize) ;
-		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd) ,*right.mBuffer ,right.mSize) ;
-		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<const PTR<ARR<TEMP<TYPE>>> &> (sgd)) ;
+		ScopedHolder<ARR<TYPE>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd) ,*right.mBuffer ,right.mSize) ;
+		mBuffer = &_LOAD_<ARR<TYPE>> (_XVALUE_<PTR<ARR<TEMP<TYPE>>>> (sgd)) ;
 		mSize = right.mSize ;
 		sgd = NULL ;
 	}
@@ -3207,7 +3221,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
-		return _XVALUE_<Buffer &> (*this) ;
+		return _XVALUE_<Buffer> (*this) ;
 	}
 
 	inline Buffer (Buffer &&right) noexcept {
@@ -3222,7 +3236,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
-		return _XVALUE_<Buffer &> (*this) ;
+		return _XVALUE_<Buffer> (*this) ;
 	}
 } ;
 
@@ -3398,7 +3412,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
-		return _XVALUE_<Buffer &> (*this) ;
+		return _XVALUE_<Buffer> (*this) ;
 	}
 
 	inline const ARR<TYPE> &to () const {
@@ -3570,7 +3584,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
-		return _XVALUE_<Buffer &> (*this) ;
+		return _XVALUE_<Buffer> (*this) ;
 	}
 
 	inline ARR<TYPE> &to () const {
@@ -3813,7 +3827,7 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
-		return _XVALUE_<Allocator &> (*this) ;
+		return _XVALUE_<Allocator> (*this) ;
 	}
 } ;
 
@@ -3889,7 +3903,7 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
-		return _XVALUE_<Allocator &> (*this) ;
+		return _XVALUE_<Allocator> (*this) ;
 	}
 
 	inline Allocator (Allocator &&right) noexcept :mAllocator (std::move (right.mAllocator)) {
@@ -3912,7 +3926,7 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
-		return _XVALUE_<Allocator &> (*this) ;
+		return _XVALUE_<Allocator> (*this) ;
 	}
 } ;
 

@@ -245,15 +245,13 @@ public:
 	}
 
 	Vector normalize () const {
+		_DEBUG_ASSERT_ (mVector[3] == UNIT (0)) ;
 		Vector ret ;
-		const auto r1x = BOOL (mVector[3] == UNIT (0)) ;
-		const auto r2x = r1x ? (magnitude ()) : (mVector[3]) ;
-		const auto r3x = _PINV_ (r2x) ;
-		ret.mVector[0] = mVector[0] * r3x ;
-		ret.mVector[1] = mVector[1] * r3x ;
-		ret.mVector[2] = mVector[2] * r3x ;
-		const auto r4x = r1x ? (UNIT (0)) : (UNIT (1)) ;
-		ret.mVector[3] = r4x ;
+		const auto r1x = _PINV_ (magnitude ()) ;
+		ret.mVector[0] = mVector[0] * r1x ;
+		ret.mVector[1] = mVector[1] * r1x ;
+		ret.mVector[2] = mVector[2] * r1x ;
+		ret.mVector[3] = UNIT (0) ;
 		return std::move (ret) ;
 	}
 
@@ -263,8 +261,28 @@ public:
 		const auto r1x = _PINV_ (mVector[3]) ;
 		ret.mVector[0] = mVector[0] * r1x ;
 		ret.mVector[1] = mVector[1] * r1x ;
+		ret.mVector[2] = mVector[2] * r1x ;
+		ret.mVector[3] = UNIT (1) ;
+		return std::move (ret) ;
+	}
+
+	Vector projection_z () const {
+		_DEBUG_ASSERT_ (mVector[3] != UNIT (0)) ;
+		Vector ret ;
+		const auto r1x = _PINV_ (mVector[3]) ;
+		ret.mVector[0] = mVector[0] * r1x ;
+		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = UNIT (0) ;
 		ret.mVector[3] = UNIT (1) ;
+		return std::move (ret) ;
+	}
+
+	Vector homogenize () const {
+		Vector ret ;
+		ret.mVector[0] = mVector[0] ;
+		ret.mVector[1] = mVector[1] ;
+		ret.mVector[2] = mVector[2] ;
+		ret.mVector[3] = UNIT (1) - mVector[3] ;
 		return std::move (ret) ;
 	}
 
@@ -753,7 +771,6 @@ public:
 		const auto r1x = rotation.decompose () ;
 		const auto r2x = r1x[2] ;
 		const auto r5x = UNIT (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] ;
-		_STATIC_WARNING_ ("mark") ;
 		_DEBUG_ASSERT_ (r5x >= UNIT (0)) ;
 		const auto r3x = UNIT (2) * _SQRT_ (r5x) ;
 		const auto r4x = _PINV_ (r3x) ;
@@ -768,16 +785,15 @@ public:
 		ARRAY3<UNIT> ret ;
 		const auto r1x = make_rotation_quat (rotation) ;
 		const auto r2x = Vector<UNIT> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
-		_STATIC_WARNING_ ("mark") ;
-		const auto r4x = (r2x != UNIT (0)) ? (UNIT (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) : (UNIT (2)) ;
-		ret[0] = r1x[0] * r4x ;
-		ret[1] = r1x[1] * r4x ;
-		ret[2] = r1x[2] * r4x ;
+		const auto r3x = (r2x != UNIT (0)) ? (UNIT (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) : (UNIT (2)) ;
+		ret[0] = r1x[0] * r3x ;
+		ret[1] = r1x[1] * r3x ;
+		ret[2] = r1x[2] * r3x ;
 		return std::move (ret) ;
 	}
 
-	static Matrix make_translation (const Vector<UNIT> &direction) {
-		const auto r1x = (direction[3] != UNIT (0)) ? (Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)} -direction.normalize ()) : direction ;
+	static Matrix make_translation (const Vector<UNIT> &position) {
+		const auto r1x = (position[3] != UNIT (0)) ? (-position.projection ().homogenize ()) : position ;
 		return Matrix ({
 			{UNIT (1) ,UNIT (0) ,UNIT (0) ,r1x[0]} ,
 			{UNIT (0) ,UNIT (1) ,UNIT (0) ,r1x[1]} ,
@@ -811,7 +827,7 @@ public:
 		_DEBUG_ASSERT_ (normal[3] == UNIT (0) && center[3] == UNIT (1)) ;
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x[0] != UNIT (0) || r1x[1] != UNIT (0) || r1x[2] != UNIT (0)) ;
-		const auto r2x = light.normalize () ;
+		const auto r2x = (r2x[3] != UNIT (0)) ? (light.projection ()) : (light.normalize ()) ;
 		const auto r3x = Vector<UNIT> {center[0] ,center[1] ,center[2] ,UNIT (0)} *r1x ;
 		const auto r4x = Vector<UNIT> {r2x[0] ,r2x[1] ,r2x[2] ,UNIT (0)} *r1x ;
 		const auto r7x = Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (0)} ;

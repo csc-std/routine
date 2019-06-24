@@ -662,7 +662,7 @@ private:
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Pack> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_COPY_ (_this)) {}
+		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Pack> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_this) {}
 	} ;
 
 private:
