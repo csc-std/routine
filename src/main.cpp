@@ -14,7 +14,7 @@ static const CSC::UniqueRef<void> ANONYMOUS ([] () {
 }) ;
 
 namespace UNITTEST {
-class A {} ;
+
 } ;
 
 TEST_CLASS (UNITTEST_MAIN) {

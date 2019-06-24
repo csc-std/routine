@@ -43,14 +43,14 @@ public:
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<const A>::make (rax) ,&A::test2)) ;
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<const A>::make (rax) ,&A::test3)) ;
 		_CALL_ (Function<void ()> (&A::test4)) ;
-		const auto r1x = _XVALUE_<const PTR<int (const int & ,const int &)> &> ([] (const int &arg1 ,const int &arg2) {
+		const auto r1x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
 			if (arg2 == 1)
 				return arg1 ;
 			if (arg2 == 2)
 				return _SQE_ (arg1) ;
 			return 0 ;
 		}) ;
-		const auto r2x = Function<int (const int &)>::make (r1x ,_XVALUE_<const int &> (2)) ;
+		const auto r2x = Function<int (const int &)>::make (r1x ,_XVALUE_<int> (2)) ;
 		_UNITTEST_ASSERT_ (r2x (2) == 4) ;
 		_UNITTEST_ASSERT_ (r2x (3) == 9) ;
 		const auto r3x = Function<int (const int & ,const int &)>::make (r1x) ;
@@ -97,7 +97,7 @@ public:
 	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
 		const auto r2x = rax->alloc<int> () ;
-		const auto r10x = _XVALUE_<const PTR<VAR (const VAR & ,const VAR &)> &> ([] (const VAR &arg1 ,const VAR &arg2) {
+		const auto r10x = _XVALUE_<PTR<VAR (const VAR & ,const VAR &)>> ([] (const VAR &arg1 ,const VAR &arg2) {
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
 			const auto r4x = (arg2 < VAR_ZERO) ? (-arg1) : arg1 ;
 			const auto r5x = _ABS_ (arg2) ;
