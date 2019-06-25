@@ -159,7 +159,7 @@ public:
 				wrapped_string::mData += _BUILDVAL32S_<STRU8> (stru) ;
 			}
 		} ;
-		const auto r1x = PACK<int ,float> ({1 ,2.1f}) ;
+		const auto r1x = PACK<int ,float> {1 ,2.1f} ;
 		const auto r2x = Serializer<wrapped_string ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
 		auto &r1 = _CAST_<wrapped_string> (rax) ;

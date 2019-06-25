@@ -257,7 +257,7 @@ struct OPERATOR_TYPENAME {
 	}
 
 	inline static String<STR> invoke () {
-		return _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (&OPERATOR_TYPENAME::invoke)) ;
+		return _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (OPERATOR_TYPENAME::invoke)) ;
 	}
 } ;
 } ;

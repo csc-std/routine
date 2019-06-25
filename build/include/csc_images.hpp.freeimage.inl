@@ -87,7 +87,7 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = COLOR_BGR ({0 ,0 ,0}) ;
+		const auto r1x = COLOR_BGR {0 ,0 ,0} ;
 		FreeImage_FillBackground (rax ,&r1x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
@@ -197,7 +197,7 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = COLOR_BGRA ({0 ,0 ,0 ,0}) ;
+		const auto r1x = COLOR_BGRA {0 ,0 ,0 ,0} ;
 		FreeImage_FillBackground (rax ,&r1x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}

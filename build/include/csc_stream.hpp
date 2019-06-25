@@ -661,8 +661,10 @@ private:
 
 		STRX convert_endian (const STRX &item) const {
 			TEMP<STRX> ret ;
-			const auto r1x = mEndianFlag ? (_XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (&_MEMRCOPY_<BYTE ,_SIZEOF_ (STRX)>)) : (_XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (&_MEMCOPY_<BYTE ,_SIZEOF_ (STRX)>)) ;
-			r1x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
+			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMRCOPY_) ;
+			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMCOPY_) ;
+			const auto r3x = mEndianFlag ? r1x : r2x ;
+			r3x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
 			return std::move (_CAST_<STRX> (ret)) ;
 		}
 

@@ -277,7 +277,7 @@ private:
 		_ERASEFILE_ (r2x) ;
 		_MOVEFILE_ (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
-		const auto r3x = _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (&_BOM_)) ;
+		const auto r3x = _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
 	}
 } ;

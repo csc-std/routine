@@ -1040,7 +1040,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ris >> rbx ;
 	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
 	const auto r4x = BYTE (rbx) ;
-	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> ({r1x ,r2x ,r3x ,r4x}) ;
+	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x).merge () ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;

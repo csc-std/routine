@@ -245,9 +245,12 @@ public:
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
 		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
+
+		virtual void sprite_load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
+		virtual void sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
+		virtual void sprite_draw (const AnyRef<void> &_this) const = 0 ;
 	} ;
 
-	_STATIC_WARNING_ ("mark") ;
 	class Sprite ;
 
 private:
@@ -269,6 +272,7 @@ public:
 	}
 
 	void load_data (const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) {
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->load_data (mHolder ,vs ,fs) ;
 	}
 
@@ -348,17 +352,13 @@ public:
 			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
 		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
+
+	Sprite create_sprite () popping ;
 } ;
 
 class AbstractShader::Sprite {
-public:
-	exports struct Abstract :public Interface {
-		virtual void load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
-		virtual void active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
-		virtual void draw (const AnyRef<void> &_this) const = 0 ;
-	} ;
-
 private:
+	friend AbstractShader ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
 
@@ -374,19 +374,27 @@ public:
 	}
 
 	void load_data (const Mesh &mesh) {
-		mAbstract->load_data (mHolder ,mesh) ;
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+		mAbstract->sprite_load_data (mHolder ,mesh) ;
 	}
 
 	void active_texture (INDEX texture) {
 		if (!exist ())
 			return ;
-		mAbstract->active_texture (mHolder ,texture) ;
+		mAbstract->sprite_active_texture (mHolder ,texture) ;
 	}
 
 	void draw () {
 		if (!exist ())
 			return ;
-		mAbstract->draw (mHolder) ;
+		mAbstract->sprite_draw (mHolder) ;
 	}
+
+private:
+	explicit Sprite (const PhanRef<const Abstract> &_abstract) :mAbstract (PhanRef<const Abstract>::make (_abstract)) {}
 } ;
+
+inline AbstractShader::Sprite AbstractShader::create_sprite () popping {
+	return Sprite (mAbstract) ;
+}
 } ;

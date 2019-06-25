@@ -259,6 +259,8 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
 		if (!r6x && !r7x)
 			continue ;
+		//@debug: not absolute path really
+		_STATIC_WARNING_ ("mark") ;
 		ret += _WORKINGPATH_ () ;
 	}
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {

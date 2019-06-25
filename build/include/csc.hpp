@@ -935,7 +935,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (DEF<_ARG1 _ARG2::*> arg1 ,_ARG3 &arg2) noexcept {
+inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1 ,_ARG3 &arg2) noexcept {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG3> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (arg1 != NULL) ;
 	const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (&arg2) - _ADDRESS_ (&(_NULL_<_ARG2> ().*arg1)) ;
@@ -950,14 +950,14 @@ inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexc
 }
 
 template <class _RET>
-inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &&arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	//@warn: required 'std::launder'
 	return arg1 ;
 }
 
 template <class _RET>
-inline const volatile REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const volatile REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	//@warn: required 'std::launder'
 	return arg1 ;
@@ -1570,7 +1570,7 @@ public:
 		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
 		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
 		mInstance.self.P1[3] = 0 ;
-		const auto r2x = _XVALUE_<volatile PTR<void (_ARG2 &)>> (mInstance.self.P2) ;
+		const auto r2x = _COPY_ (mInstance.self.P2) ;
 		if (r2x == NULL)
 			return ;
 		r2x (data) ;
@@ -1696,12 +1696,12 @@ public:
 
 	template <class... _ARGS>
 	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) popping :mAddress (address) {
-		const auto r1x = _XVALUE_<volatile PTR<TEMP<TYPE>>> (mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<volatile PTR<TEMP<TYPE>>> (mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		_DESTROY_ (r1x) ;
@@ -1723,7 +1723,7 @@ public:
 	inline ScopedHolder () = delete ;
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
-		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1736,7 +1736,7 @@ public:
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1748,7 +1748,7 @@ public:
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -2702,13 +2702,13 @@ public:
 	inline Function () = delete ;
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,DEF<DEF<TYPE1 (TYPES...)> _ARG1::*> function) noexcept {
+	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...)> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
 		ImplHolder<_ARG1>::address_create (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<const _ARG1> &context ,DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> function) noexcept {
+	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
 		ImplHolder<const _ARG1>::address_create (&mVariant ,&context.self ,function) ;
 	}
@@ -2766,7 +2766,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<_TYPE> context ,const DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
 	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		address_create (address ,mContext ,mFunction) ;
@@ -2777,7 +2777,7 @@ public:
 	}
 
 public:
-	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<_TYPE> context ,DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> function) noexcept {
+	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<_TYPE> context ,const DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> &function) noexcept {
 		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
@@ -2798,7 +2798,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<const _TYPE> context ,const DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
 	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		address_create (address ,mContext ,mFunction) ;
@@ -2809,7 +2809,7 @@ public:
 	}
 
 public:
-	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<const _TYPE> context ,DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> function) noexcept {
+	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<const _TYPE> context ,const DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> &function) noexcept {
 		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;

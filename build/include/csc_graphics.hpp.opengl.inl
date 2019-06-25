@@ -121,8 +121,28 @@ template <class _ARG1>
 using OPENGL_TRAITS_TYPE = typename U::OPENGL_TRAITS<_ARG1>::TYPE ;
 
 class AbstractShader_Engine_OPENGL :public AbstractShader::Abstract {
+private:
+	//@warn: bind to (layout == 1) Vec3 in GLSL
+	static constexpr auto LAYOUT_POSITION = CHAR (1) ;
+	//@warn: bind to (layout == 2) Vec2 in GLSL
+	static constexpr auto LAYOUT_TEXCOORD = CHAR (2) ;
+	//@warn: bind to (layout == 3) Vec3 in GLSL
+	static constexpr auto LAYOUT_NORMAL = CHAR (3) ;
+
+	class Pack {
+	private:
+		friend AbstractShader_Engine_OPENGL ;
+		UniqueRef<CHAR> mVAO ;
+		UniqueRef<AutoBuffer<CHAR>> mVBO ;
+		UniqueRef<AutoBuffer<CHAR>> mVTO ;
+		LENGTH mSize ;
+		FLAG mMode ;
+		INDEX mTexture ;
+	} ;
+
 public:
 	using NATIVE_TYPE = UniqueRef<CHAR> ;
+	using SPRITE_NATIVE_TYPE = Pack ;
 
 public:
 	AbstractShader_Engine_OPENGL () {
@@ -221,6 +241,53 @@ public:
 		glUniformMatrix4dv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
+	void sprite_load_data (AnyRef<void> &_this ,const Mesh &mesh) const override {
+		auto rax = Pack () ;
+		rax.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
+			glGenVertexArrays (1 ,&me) ;
+			_DYNAMIC_ASSERT_ (me != GL_INVALID_VALUE) ;
+		} ,[] (CHAR &me) {
+			_DEBUG_ASSERT_ (me != GL_INVALID_VALUE) ;
+			glDeleteVertexArrays (1 ,&me) ;
+
+		}) ;
+		rax.mVBO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
+			me = AutoBuffer<CHAR> (1) ;
+			glGenBuffers (VAR32 (me.size ()) ,me.self) ;
+		} ,[] (AutoBuffer<CHAR> &me) {
+			_DEBUG_ASSERT_ (me.self != NULL) ;
+			glDeleteBuffers (VAR32 (me.size ()) ,me.self) ;
+		}) ;
+		rax.mVTO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
+			me = AutoBuffer<CHAR> (1) ;
+			glGenTextures (VAR32 (me.size ()) ,me.self) ;
+		} ,[] (AutoBuffer<CHAR> &me) {
+			_DEBUG_ASSERT_ (me.self != NULL) ;
+			glDeleteTextures (VAR32 (me.size ()) ,me.self) ;
+		}) ;
+		transfer_data (rax ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
+		transfer_data (rax ,mesh.texture ()[0]) ;
+		_this = AnyRef<SPRITE_NATIVE_TYPE>::make (std::move (rax)) ;
+	}
+
+	void sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const override {
+		auto &r1 = _this.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1.mVTO->size ()) ;
+		r1.mTexture = texture ;
+	}
+
+	void sprite_draw (const AnyRef<void> &_this) const override {
+		auto &r1 = _this.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		glBindVertexArray (r1.mVAO) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1.mTexture == VAR_NONE)
+				continue ;
+			glActiveTexture (GL_TEXTURE_2D) ;
+			glBindTexture (GL_TEXTURE_2D ,r1.mVTO.self[r1.mTexture]) ;
+		}
+		glDrawArrays (CHAR (r1.mMode) ,0 ,VAR32 (r1.mSize)) ;
+	}
+
 private:
 	void attach_shaderiv (CHAR shader) const {
 		const auto r1x = _CALL_ ([&] () {
@@ -260,90 +327,6 @@ private:
 		_DYNAMIC_ASSERT_ (rax.empty ()) ;
 	}
 
-private:
-	static void debug_check_error (UniqueRef<CHAR> &_self) {
-		const auto r1x = glGetError () ;
-		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
-	}
-} ;
-
-class AbstractShader_Sprite_Engine_OPENGL :public AbstractShader::Sprite::Abstract {
-private:
-	//@warn: bind to (layout == 1) Vec3 in GLSL
-	static constexpr auto LAYOUT_POSITION = CHAR (1) ;
-	//@warn: bind to (layout == 2) Vec2 in GLSL
-	static constexpr auto LAYOUT_TEXCOORD = CHAR (2) ;
-	//@warn: bind to (layout == 3) Vec3 in GLSL
-	static constexpr auto LAYOUT_NORMAL = CHAR (3) ;
-
-	class Pack {
-	private:
-		friend AbstractShader_Sprite_Engine_OPENGL ;
-		UniqueRef<CHAR> mVAO ;
-		UniqueRef<AutoBuffer<CHAR>> mVBO ;
-		UniqueRef<AutoBuffer<CHAR>> mVTO ;
-		LENGTH mSize ;
-		FLAG mMode ;
-		INDEX mTexture ;
-	} ;
-
-public:
-	using NATIVE_TYPE = Pack ;
-
-public:
-	AbstractShader_Sprite_Engine_OPENGL () {
-		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
-	}
-
-	void load_data (AnyRef<void> &_this ,const Mesh &mesh) const override {
-		auto rax = Pack () ;
-		rax.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
-			glGenVertexArrays (1 ,&me) ;
-			_DYNAMIC_ASSERT_ (me != GL_INVALID_VALUE) ;
-		} ,[] (CHAR &me) {
-			_DEBUG_ASSERT_ (me != GL_INVALID_VALUE) ;
-			glDeleteVertexArrays (1 ,&me) ;
-
-		}) ;
-		rax.mVBO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
-			me = AutoBuffer<CHAR> (1) ;
-			glGenBuffers (VAR32 (me.size ()) ,me.self) ;
-		} ,[] (AutoBuffer<CHAR> &me) {
-			_DEBUG_ASSERT_ (me.self != NULL) ;
-			glDeleteBuffers (VAR32 (me.size ()) ,me.self) ;
-		}) ;
-		rax.mVTO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
-			me = AutoBuffer<CHAR> (1) ;
-			glGenTextures (VAR32 (me.size ()) ,me.self) ;
-		} ,[] (AutoBuffer<CHAR> &me) {
-			_DEBUG_ASSERT_ (me.self != NULL) ;
-			glDeleteTextures (VAR32 (me.size ()) ,me.self) ;
-		}) ;
-		transfer_data (rax ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
-		transfer_data (rax ,mesh.texture ()[0]) ;
-		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
-	}
-
-	void active_texture (AnyRef<void> &_this ,INDEX texture) const override {
-		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1.mVTO->size ()) ;
-		r1.mTexture = texture ;
-	}
-
-	void draw (const AnyRef<void> &_this) const override {
-		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		glBindVertexArray (r1.mVAO) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (r1.mTexture == VAR_NONE)
-				continue ;
-			glActiveTexture (GL_TEXTURE_2D) ;
-			glBindTexture (GL_TEXTURE_2D ,r1.mVTO.self[r1.mTexture]) ;
-		}
-		glDrawArrays (CHAR (r1.mMode) ,0 ,VAR32 (r1.mSize)) ;
-	}
-
-private:
 	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Queue<ARRAY1<INDEX>> &element) const {
 		Array<ARRAY1<ARRAY3<VAL32>>> ret = Array<ARRAY1<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
@@ -529,7 +512,7 @@ private:
 	}
 
 private:
-	static void debug_check_error (Pack &_self) {
+	static void debug_check_error (UniqueRef<CHAR> &_self) {
 		const auto r1x = glGetError () ;
 		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
 	}
