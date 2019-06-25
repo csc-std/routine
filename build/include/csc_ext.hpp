@@ -2946,8 +2946,8 @@ private:
 		GUID_TYPE ret ;
 		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (TYPE).name ()) ;
 		const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
-		_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (decltype (ret))) ;
-		const auto r3x = _MIN_ (r2x ,_SIZEOF_ (decltype (ret))) ;
+		_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
+		const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
 		_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,PTRTOARR[&r1x[0]] ,r3x) ;
 		return std::move (ret) ;
 	}

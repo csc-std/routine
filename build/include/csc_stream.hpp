@@ -100,7 +100,7 @@ public:
 	inline TYPE merge () const {
 		TEMP<TYPE> ret ;
 		_ZERO_ (ret) ;
-		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (EndianBytes::mData)) ; i++)
+		for (INDEX i = 0 ; i < capacity () ; i++)
 			ret.unused[i] = (*this)[i] ;
 		return std::move (_CAST_<TYPE> (ret)) ;
 	}
@@ -1951,7 +1951,7 @@ private:
 	private:
 		TextReader<STRU8> mReader ;
 		Array<STRU8 ,SIZE> mCache ;
-		INDEX mWrite ;
+		INDEX mRead ;
 
 	public:
 		inline Shadow () = delete ;
@@ -1959,18 +1959,18 @@ private:
 		inline explicit Shadow (LLTextReader &context) popping {
 			mReader = context.mReader->copy () ;
 			mCache = context.mCache ;
-			mWrite = context.mWrite ;
+			mRead = context.mRead ;
 		}
 
 		inline const STRU8 &operator[] (INDEX index) const {
 			_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
-			_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mCache.length ()) ;
-			return mCache[(mWrite + index) % mCache.length ()] ;
+			_DEBUG_ASSERT_ (mRead >= 0 && mRead < mCache.length ()) ;
+			return mCache[(mRead + index) % mCache.length ()] ;
 		}
 
 		inline void operator++ (int) {
-			mReader.read (mCache[mWrite]) ;
-			mWrite = (mWrite + 1) % mCache.length () ;
+			mReader.read (mCache[mRead]) ;
+			mRead = (mRead + 1) % mCache.length () ;
 		}
 	} ;
 
@@ -1978,7 +1978,7 @@ private:
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 	PhanRef<TextReader<STRU8>> mReader ;
 	Array<STRU8 ,SIZE> mCache ;
-	INDEX mWrite ;
+	INDEX mRead ;
 	BOOL mHintHyperTextFlag ;
 	BOOL mHintStringTextFlag ;
 	LENGTH mHintNextTextSize ;
@@ -1986,7 +1986,7 @@ private:
 public:
 	LLTextReader () {
 		mCache.fill (0) ;
-		mWrite = 0 ;
+		mRead = 0 ;
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
@@ -2011,7 +2011,7 @@ public:
 		mReader.self >> _BOM_ ;
 		for (INDEX i = 0 ; i < mCache.length () ; i++)
 			mReader.self >> mCache[i] ;
-		mWrite = 0 ;
+		mRead = 0 ;
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
@@ -2023,8 +2023,8 @@ public:
 
 	const STRU8 &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
-		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mCache.length ()) ;
-		return mCache[(mWrite + index) % mCache.length ()] ;
+		_DEBUG_ASSERT_ (mRead >= 0 && mRead < mCache.length ()) ;
+		return mCache[(mRead + index) % mCache.length ()] ;
 	}
 
 	inline const STRU8 &operator[] (INDEX index) const & {
@@ -2036,8 +2036,8 @@ public:
 	inline const STRU8 &operator[] (INDEX) && = delete ;
 
 	void read () {
-		mReader.self >> mCache[mWrite] ;
-		mWrite = (mWrite + 1) % mCache.length () ;
+		mReader.self >> mCache[mRead] ;
+		mRead = (mRead + 1) % mCache.length () ;
 	}
 
 	inline void operator++ (int) {

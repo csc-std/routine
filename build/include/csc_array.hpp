@@ -1992,6 +1992,27 @@ public:
 		mWrite = _MAX_ ((r1x.length () - 1) ,VAR_ZERO) ;
 	}
 
+	void reverse () {
+		if (mDeque.size () == 0)
+			return ;
+		INDEX ix = mRead ;
+		INDEX iy = mWrite ;
+		while (TRUE) {
+			while (ix < iy && mDeque[ix] != VAR_NONE)
+				ix++ ;
+			if (ix >= iy)
+				break ;
+			while (ix < iy && mDeque[iy] != VAR_NONE)
+				iy-- ;
+			if (ix >= iy)
+				break ;
+			const auto r1x = mDeque[ix] ;
+			const auto r2x = mDeque[iy] ;
+			update_rewrite (ix ,r2x) ;
+			update_rewrite (iy ,r1x) ;
+		}
+	}
+
 private:
 	explicit Deque (const decltype (ARGVP0) & ,LENGTH len) :mList (len) ,mDeque (len) {}
 

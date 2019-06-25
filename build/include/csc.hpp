@@ -1034,45 +1034,51 @@ inline FLAG _TYPEID_ () noexcept {
 
 template <class _ARG1>
 inline RESULTOF_TYPE<_ARG1 ()> _CALL_ (_ARG1 &&arg1) popping {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULTOF_TYPE<_ARG1 ()>>::value) ;
 	return arg1 () ;
 }
 
 template <class _ARG1>
-inline void _CALL_IF_ (const _ARG1 &arg1) {
+inline void _CALL_IF_ (_ARG1 &&arg1) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
 	auto rax = TRUE ;
 	arg1 (rax) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline void _CALL_IF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
+inline void _CALL_IF_ (_ARG1 &&arg1 ,_ARGS &&...args) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
 	auto rax = TRUE ;
 	arg1 (rax) ;
 	if (rax)
 		return ;
-	_CALL_IF_ (args...) ;
+	_CALL_IF_ (std::forward<_ARGS> (args)...) ;
 }
 
 //@warn: assure ruined object when an exception was thrown
 template <class _ARG1>
-inline void _CALL_TRY_ (const _ARG1 &arg1) {
+inline void _CALL_TRY_ (_ARG1 &&arg1) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
 	arg1 () ;
 }
 
 //@warn: assure ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARGS &...args) ;
+inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) ;
 
 template <class _ARG1>
-inline void _CALL_EH_ (const _ARG1 &arg1) noexcept {
+inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
 	arg1 () ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_EH_ (const _ARG1 &arg1 ,const _ARG2 &arg2) noexcept ;
+inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
 template <class _ARG1>
 inline const RESULTOF_TYPE<_ARG1 ()> &_CACHE_ (_ARG1 &&arg1) popping {
@@ -1461,7 +1467,8 @@ private:
 
 //@warn: assure ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
-inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARGS &...args) {
+inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
 	try {
 		arg1 () ;
@@ -1470,12 +1477,14 @@ inline void _CALL_TRY_ (const _ARG1 &arg1 ,const _ARGS &...args) {
 		const auto r1x = e.what () ;
 		(void) r1x ;
 	}
-	_CALL_TRY_ (args...) ;
+	_CALL_TRY_ (std::forward<_ARGS> (args)...) ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_EH_ (const _ARG1 &arg1 ,const _ARG2 &arg2) noexcept {
+inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (const Exception &)> ,void>::value) ;
 	try {
 		arg1 () ;
@@ -1561,7 +1570,7 @@ public:
 		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
 		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
 		mInstance.self.P1[3] = 0 ;
-		const auto r2x = _XVALUE_<PTR<void (_ARG2 &)>> (mInstance.self.P2) ;
+		const auto r2x = _XVALUE_<volatile PTR<void (_ARG2 &)>> (mInstance.self.P2) ;
 		if (r2x == NULL)
 			return ;
 		r2x (data) ;
@@ -1687,12 +1696,12 @@ public:
 
 	template <class... _ARGS>
 	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) popping :mAddress (address) {
-		const auto r1x = _XVALUE_<PTR<TEMP<TYPE>>> (mAddress) ;
+		const auto r1x = _XVALUE_<volatile PTR<TEMP<TYPE>>> (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<PTR<TEMP<TYPE>>> (mAddress) ;
+		const auto r1x = _XVALUE_<volatile PTR<TEMP<TYPE>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		_DESTROY_ (r1x) ;
@@ -1714,7 +1723,7 @@ public:
 	inline ScopedHolder () = delete ;
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
-		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1727,7 +1736,7 @@ public:
 
 	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1739,7 +1748,7 @@ public:
 	}
 
 	inline ~ScopedHolder () noexcept {
-		const auto r1x = _XVALUE_<PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
+		const auto r1x = _XVALUE_<volatile PTR<ARR<TEMP<TYPE>>>> (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1902,7 +1911,7 @@ public:
 
 	inline AutoRef (const AutoRef &right) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (sgd ,_XVALUE_<TYPE> (right.mPointer->mData)) ;
+		ScopedHolder<Holder> ANONYMOUS (sgd ,_XVALUE_<const TYPE> (right.mPointer->mData)) ;
 		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
 		sgd = NULL ;
 	}
@@ -2325,8 +2334,10 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) popping {
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value && std::is_same<RESULTOF_TYPE<_ARG2 (TYPE &)> ,void>::value) ;
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
+		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG2> (TYPE &)> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void (TYPE &)>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
 		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
@@ -2431,8 +2442,10 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) popping {
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value && std::is_same<RESULTOF_TYPE<_ARG2 ()> ,void>::value) ;
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
+		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG2> ()> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void ()>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
 		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;

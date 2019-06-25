@@ -121,12 +121,11 @@ public:
 		r1.mException = AutoRef<Exception> () ;
 		r1.mThreadPool = Array<AutoRef<std::thread>> (pid.size ()) ;
 		for (INDEX i = 0 ; i < r1.mThreadPool.length () ; i++) {
-			const auto r2x = &r1 ;
-			const auto r3x = pid[i] ;
+			const auto r2x = PACK<PTR<Pack> ,INDEX> {&r1 ,pid[i]} ;
 			//@warn: move object having captured context
-			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x ,r3x] () noexcept {
+			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					static_execute (*r2x ,r3x) ;
+					static_execute (*r2x.P1 ,r2x.P2) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;

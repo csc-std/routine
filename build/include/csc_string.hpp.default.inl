@@ -44,7 +44,7 @@ inline namespace S {
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 #ifdef _CLOCALE_
 	auto &r1 = _CACHE_ ([] () {
-		return UniqueRef<_locale_t> ([] (_locale_t &me) {
+		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (_locale_t &me) {
@@ -73,7 +73,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 #ifdef _CLOCALE_
 	auto &r1 = _CACHE_ ([] () {
-		return UniqueRef<_locale_t> ([] (_locale_t &me) {
+		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (_locale_t &me) {

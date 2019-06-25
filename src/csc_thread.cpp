@@ -31,7 +31,7 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_THREAD_PROMISE) {
-		auto rax = CSC::Promise<int>::async ([] () {
+		auto rax = CSC::Promise<int>::async ([&] () {
 			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
 			return 1 ;
 		}) ;

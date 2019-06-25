@@ -606,7 +606,7 @@ public:
 
 private:
 	explicit Implement (const decltype (ARGVP0) &) {
-		mThis = UniqueRef<Holder> ([] (Holder &me) {
+		mThis = UniqueRef<Holder> ([&] (Holder &me) {
 			me.mFile.self = UniqueRef<HANDLE> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;
 			me.mBuffer.self = UniqueRef<PhanBuffer<BYTE>> () ;

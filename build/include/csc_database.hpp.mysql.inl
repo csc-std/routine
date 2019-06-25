@@ -63,7 +63,7 @@ public:
 	}
 
 	void load_data (AnyRef<void> &_this) override {
-		auto rax = UniqueRef<MYSQL> ([] (MYSQL &me) {
+		auto rax = UniqueRef<MYSQL> ([&] (MYSQL &me) {
 			mysql_init (&me) ;
 		} ,[] (MYSQL &me) {
 			mysql_close (&me) ;
