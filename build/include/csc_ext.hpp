@@ -798,9 +798,8 @@ public:
 		mIndex = template_construct (&mVariant ,_NULL_<const ARGVS<TYPES...>> ()) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_ARG1> ,TYPES...>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&right) {
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_ARG1> ,TYPES...>::value != VAR_NONE) ;
 		mIndex = template_init_construct (&mVariant ,std::forward<_ARG1> (right)) ;
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 	}
@@ -954,11 +953,16 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		if (r1x)
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				continue ;
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
-		if (r1x)
-			return ;
-		template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1x)
+				continue ;
+			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) {
@@ -976,9 +980,11 @@ private:
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
 		}
-		if (r1x)
-			return ;
-		template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1x)
+				continue ;
+			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) noexcept {
@@ -990,11 +996,16 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		if (r1x)
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1x)
+				continue ;
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
-		if (r1x)
-			return ;
-		template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (r1x)
+				continue ;
+			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
+		}
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1193,27 +1204,27 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,const REMOVE_CVR_TYPE<_TYPES> &...args) :mFunction (function) ,mParameters (args...) {}
+	inline explicit ImplHolder (const PTR<TYPE1 (TYPES... ,_TYPES...)> &function ,const REMOVE_CVR_TYPE<_TYPES> &...args) :mFunction (function) ,mParameters (args...) {}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
 		return template_apply (mFunction ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)... ,mParameters) ;
 	}
 
 private:
-	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<> &parameters ,const REMOVE_CVR_TYPE<_TYPES> &...args2) popping {
+	inline static TYPE1 template_apply (const PTR<TYPE1 (TYPES... ,_TYPES...)> &function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<> &parameters ,const REMOVE_CVR_TYPE<_TYPES> &...args2) popping {
 		_DEBUG_ASSERT_ (function != NULL) ;
 		return function (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,args2...) ;
 	}
 
 	template <class... _ARGS1 ,class... _ARGS2>
-	inline static TYPE1 template_apply (PTR<TYPE1 (TYPES... ,_TYPES...)> function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<_ARGS2...> &parameters ,const _ARGS1 &...args2) popping {
+	inline static TYPE1 template_apply (const PTR<TYPE1 (TYPES... ,_TYPES...)> &function ,FORWARD_TRAITS_TYPE<TYPES> &&...args1 ,const Tuple<_ARGS2...> &parameters ,const _ARGS1 &...args2) popping {
 		return template_apply (function ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args1)... ,parameters.rest () ,args2... ,parameters.one ()) ;
 	}
 } ;
 
 template <class TYPE1 ,class... TYPES>
 template <class... _ARGS>
-inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (PTR<TYPE1 (TYPES... ,_ARGS...)> function ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
+inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (const PTR<TYPE1 (TYPES... ,_ARGS...)> &function ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
 	auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>> () ;
 	ScopedHolder<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> ANONYMOUS (sgd ,function ,args...) ;
 	const auto r1x = &_LOAD_<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>>> (sgd)) ;
@@ -2119,8 +2130,11 @@ private:
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
-		if (mIndex == VAR_NONE)
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mIndex != VAR_NONE)
+				continue ;
 			mIndex = mHeap->alloc () ;
+		}
 		mHeap.self[mIndex].mData = super ;
 		mHeap.self[mIndex].mWeight = 3 ;
 	}
@@ -2833,18 +2847,18 @@ private:
 				i->~NODE_A () ;
 				GlobalHeap::free (i) ;
 			}
-			_self.mLength_a = 0 ;
-			_self.mRoot_a = NULL ;
 		}) ;
+		_self.mLength_a = 0 ;
+		_self.mRoot_a = NULL ;
 		_CALL_EH_ ([&] () {
 			for (PTR<NODE_B> i = _self.mRoot_b ,ir ; i != NULL ; i = ir) {
 				ir = i->mNext ;
 				i->~NODE_B () ;
 				GlobalHeap::free (i) ;
 			}
-			_self.mLength_b = 0 ;
-			_self.mRoot_b = NULL ;
 		}) ;
+		_self.mLength_b = 0 ;
+		_self.mRoot_b = NULL ;
 	}
 
 	inline static LENGTH intrusive_attach (Pack &_self) popping {
@@ -3131,6 +3145,6 @@ template <class TYPE1 ,class TYPE2>
 inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'TYPE1' becomes a function-local-type
 	_DEBUG_ASSERT_ (FALSE) ;
-}
+	}
 #endif
 } ;

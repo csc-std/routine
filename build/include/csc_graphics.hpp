@@ -210,24 +210,24 @@ public:
 	}
 
 private:
-	void compute_view_matrix (Matrix<UNIT> &me) const {
+	void compute_view_matrix (Matrix<UNIT> &view_mat) const {
 		const auto r1x = Vector<UNIT> {-mEyeP[0] ,-mEyeP[1] ,-mEyeP[2] ,UNIT (0)} ;
-		me[0][0] = mEyeU[0] ;
-		me[0][1] = -mEyeU[1] ;
-		me[0][2] = -mEyeU[2] ;
-		me[0][3] = mEyeU * r1x ;
-		me[1][0] = mEyeV[0] ;
-		me[1][1] = -mEyeV[1] ;
-		me[1][2] = -mEyeV[2] ;
-		me[1][3] = mEyeV * r1x ;
-		me[2][0] = mEyeN[0] ;
-		me[2][1] = -mEyeN[1] ;
-		me[2][2] = -mEyeN[2] ;
-		me[2][3] = mEyeN * r1x - UNIT (1) ;
-		me[3][0] = UNIT (0) ;
-		me[3][1] = UNIT (0) ;
-		me[3][2] = UNIT (0) ;
-		me[3][3] = UNIT (1) ;
+		view_mat[0][0] = mEyeU[0] ;
+		view_mat[0][1] = -mEyeU[1] ;
+		view_mat[0][2] = -mEyeU[2] ;
+		view_mat[0][3] = mEyeU * r1x ;
+		view_mat[1][0] = mEyeV[0] ;
+		view_mat[1][1] = -mEyeV[1] ;
+		view_mat[1][2] = -mEyeV[2] ;
+		view_mat[1][3] = mEyeV * r1x ;
+		view_mat[2][0] = mEyeN[0] ;
+		view_mat[2][1] = -mEyeN[1] ;
+		view_mat[2][2] = -mEyeN[2] ;
+		view_mat[2][3] = mEyeN * r1x - UNIT (1) ;
+		view_mat[3][0] = UNIT (0) ;
+		view_mat[3][1] = UNIT (0) ;
+		view_mat[3][2] = UNIT (0) ;
+		view_mat[3][3] = UNIT (1) ;
 	}
 } ;
 

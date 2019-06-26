@@ -251,7 +251,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 				if (r1x[ix] != _PCSTR_ (".."))
 					discard ;
 				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
-					return ;
+					discard ;
 				ret.take () ;
 			} ,[&] (BOOL &if_flag) {
 				ret.add (ix) ;
@@ -261,8 +261,11 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	}) ;
 	const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 	const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-	if (r4x || r5x)
+	for (FOR_ONCE_DO_WHILE_FALSE) {
+		if (!r4x && !r5x)
+			continue ;
 		ret += _PCSTR_ ("/") ;
+	}
 	for (FOR_ONCE_DO_WHILE_FALSE) {
 		if (r4x || r5x)
 			continue ;

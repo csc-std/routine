@@ -16,7 +16,6 @@
 namespace CSC {
 class TCPSocket {
 public:
-	_STATIC_WARNING_ ("mark") ;
 	class Listener ;
 
 private:
@@ -31,6 +30,8 @@ public:
 	String<STRU8> sock_name () const ;
 
 	String<STRU8> peer_sock_name () const ;
+
+	Listener listener () popping ;
 
 	void link (const String<STRU8> &addr) ;
 
@@ -67,18 +68,25 @@ public:
 
 class TCPSocket::Listener {
 private:
+	friend TCPSocket ;
 	class Implement ;
 	AnyRef<void> mThis ;
 
 public:
 	Listener () = delete ;
 
-	explicit Listener (const String<STRU8> &addr) ;
+	void wait_linker () ;
 
-	void listen () ;
+	void accept () ;
 
-	void accept (TCPSocket &linker) popping ;
+private:
+	explicit Listener (const AnyRef<void> &_socket) ;
 } ;
+
+inline TCPSocket::Listener TCPSocket::listener () popping {
+	_DEBUG_ASSERT_ (mThis.exist ()) ;
+	return TCPSocket::Listener (mThis) ;
+}
 
 class UDPSocket {
 private:

@@ -272,8 +272,8 @@ private:
 
 	void attach_log_file () {
 		mLogFileStream = AutoRef<StreamLoader> () ;
-		const auto r1x = mLogPath + _PCSTR_ ("logger.log") ;
-		const auto r2x = mLogPath + _PCSTR_ ("logger.old.log") ;
+		const auto r1x = mLogPath + _PCSTR_ ("console.log") ;
+		const auto r2x = mLogPath + _PCSTR_ ("console.old.log") ;
 		_ERASEFILE_ (r2x) ;
 		_MOVEFILE_ (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;

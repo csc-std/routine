@@ -367,12 +367,12 @@ public:
 		return *this ;
 	}
 
-	void read (PTR<void (ByteReader &)> proc) {
+	void read (const PTR<void (ByteReader &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
 		proc (*this) ;
 	}
 
-	inline ByteReader &operator>> (PTR<void (ByteReader &)> proc) {
+	inline ByteReader &operator>> (const PTR<void (ByteReader &)> &proc) {
 		read (proc) ;
 		return *this ;
 	}
@@ -627,12 +627,12 @@ public:
 		return *this ;
 	}
 
-	void write (PTR<void (ByteWriter &)> proc) {
+	void write (const PTR<void (ByteWriter &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
 		proc (*this) ;
 	}
 
-	inline ByteWriter &operator<< (PTR<void (ByteWriter &)> proc) {
+	inline ByteWriter &operator<< (const PTR<void (ByteWriter &)> &proc) {
 		write (proc) ;
 		return *this ;
 	}
@@ -1072,12 +1072,12 @@ public:
 		return *this ;
 	}
 
-	void read (PTR<void (TextReader &)> proc) {
+	void read (const PTR<void (TextReader &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
 		proc (*this) ;
 	}
 
-	inline TextReader &operator>> (PTR<void (TextReader &)> proc) {
+	inline TextReader &operator>> (const PTR<void (TextReader &)> &proc) {
 		read (proc) ;
 		return *this ;
 	}
@@ -1503,12 +1503,12 @@ public:
 		return *this ;
 	}
 
-	void write (PTR<void (TextWriter &)> proc) {
+	void write (const PTR<void (TextWriter &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
 		proc (*this) ;
 	}
 
-	inline TextWriter &operator<< (PTR<void (TextWriter &)> proc) {
+	inline TextWriter &operator<< (const PTR<void (TextWriter &)> &proc) {
 		write (proc) ;
 		return *this ;
 	}
@@ -1926,7 +1926,7 @@ private:
 	class HINT_IDENTIFY_TEXT_TYPE ;
 	class HINT_VALUE_TEXT_TYPE ;
 	class HINT_STRING_TEXT_TYPE ;
-	class HINT_GAP_TEXT_TYPE ;
+	class HINT_NEWGAP_TEXT_TYPE ;
 	class HINT_NEWLINE_TEXT_TYPE ;
 	class SKIP_GAP_TYPE ;
 	class SKIP_GAP_SPACE_ONLY_TYPE ;
@@ -1938,7 +1938,7 @@ public:
 	static constexpr auto HINT_IDENTIFY_TEXT = ARGV<HINT_IDENTIFY_TEXT_TYPE> {} ;
 	static constexpr auto HINT_VALUE_TEXT = ARGV<HINT_VALUE_TEXT_TYPE> {} ;
 	static constexpr auto HINT_STRING_TEXT = ARGV<HINT_STRING_TEXT_TYPE> {} ;
-	static constexpr auto HINT_GAP_TEXT = ARGV<HINT_GAP_TEXT_TYPE> {} ;
+	static constexpr auto HINT_NEWGAP_TEXT = ARGV<HINT_NEWGAP_TEXT_TYPE> {} ;
 	static constexpr auto HINT_NEWLINE_TEXT = ARGV<HINT_NEWLINE_TEXT_TYPE> {} ;
 	static constexpr auto SKIP_GAP = ARGV<SKIP_GAP_TYPE> {} ;
 	static constexpr auto SKIP_GAP_SPACE_ONLY = ARGV<SKIP_GAP_SPACE_ONLY_TYPE> {} ;
@@ -2084,7 +2084,7 @@ public:
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_GAP_TEXT_TYPE>) {
+	void read (ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE>) {
 		mHintHyperTextFlag = FALSE ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_gap_text_size () ;

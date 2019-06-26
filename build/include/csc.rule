@@ -13,3 +13,8 @@ R.102 [A] : 检查ret重复赋值
 R.103 [A] : 检查for|while中断
 (^(\t+)for \([^\r]+\) {(\r\n(\2)(?!}\r\n)[^\r]+)*\r\n(\2)\tif \([^\r]+\)\r\n(\2)\t\t)break ;
 (^(\t+)while \([^\r]+\) {(\r\n(\2)(?!}\r\n)[^\r]+)*\r\n(\2)\tif \([^\r]+\)\r\n(\2)\t\t)continue ;
+
+R.104 [A] : 重复的if判断语句
+^\t+if \(([^\r]+)\)\r\n[^\r]+;\r\n\t+if \((\1)\)
+^(\t+)for \(FOR_ONCE_DO_WHILE_FALSE\) {(\r\n(?!(\1)}\r\n)[^\r]+)*\r\n(\1)}\r\n\t+if \([^\r]+\)
+^(\t+)if \([^\r]+\)\r\n[^\r]+\r\n(\1)for \(FOR_ONCE_DO_WHILE_FALSE\)

@@ -418,12 +418,12 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$8 $7 $9
-			$1->记号串
-			$2->"文本串"
+			$1->${identity}
+			$2->"${string}"
 			$3->$1 = $2
 			$4->ε|$3 $4
 			$5-><$1 $4 />|<$1 $4 > $7 </$1 >
-			$6-><!--注释-->
+			$6-><!--comment-->
 			$7->ε|$5 $7|$6 $7
 			$8->ε|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
 			$9->#
@@ -452,12 +452,12 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestIndex = ix ;
 		}
 
-		//@info: $1->记号串
+		//@info: $1->${identity}
 		inline void update_shift_e1 () {
 			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
 		}
 
-		//@info: $2->"文本串"
+		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
 			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
@@ -525,7 +525,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestIndex = ix ;
 		}
 
-		//@info: $6-><!--注释-->
+		//@info: $6-><!--${comment}-->
 		inline void update_shift_e6 () {
 			mRis >> _PCSTRU8_ ("<!--") ;
 			while (TRUE) {
@@ -1344,10 +1344,10 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$11 $10 $12
-			$1->数值串
+			$1->${value}
 			$2->true|TRUE|false|FALSE
 			$2x->null
-			$3->"文本串"
+			$3->"${string}"
 			$4->$1|$2|$2x|$3|$6|$9
 			$5->$4|$4 , $5
 			$6->[ ]|[ $5 ]
@@ -1375,7 +1375,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestIndex = ix ;
 		}
 
-		//@info: $1->数值串
+		//@info: $1->${value}
 		inline void update_shift_e1 () {
 			mRis >> LLTextReader<>::HINT_VALUE_TEXT >> mLatestString ;
 		}
@@ -1413,7 +1413,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestString = String<STRU8> () ;
 		}
 
-		//@info: $3->"文本串"
+		//@info: $3->"${string}"
 		inline void update_shift_e3 () {
 			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
@@ -1765,9 +1765,9 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			_STATIC_WARNING_ ("note") ;
 			/*
 			$0->$8 $7 $9
-			$1->记号串
-			$2->"文本串"
-			$3->单字符串
+			$1->${identity}
+			$2->"${string}"
+			$3->${newgap}
 			$4->/$1
 			$5->-$1|-$1=$2|-$1=$3
 			$6->$2|$3
@@ -1788,19 +1788,19 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e9 () ;
 		}
 
-		//@info: $1->记号串
+		//@info: $1->${identity}
 		inline void update_shift_e1 () {
 			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
 		}
 
-		//@info: $2->"文本串"
+		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
 			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
 		}
 
-		//@info: $3->单字符串
+		//@info: $3->${newgap}
 		inline void update_shift_e3 () {
-			mRis >> LLTextReader<>::HINT_GAP_TEXT >> mLatestString ;
+			mRis >> LLTextReader<>::HINT_NEWGAP_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->/$1

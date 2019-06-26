@@ -11,9 +11,10 @@ public:
 				return 3 ;
 			}
 		} ;
-		auto rax = Promise<int>::async ([&] () {
+		const auto r1x = _XVALUE_<PTR<int ()>> ([] () {
 			return A ().work () ;
 		}) ;
+		auto rax = Promise<int>::async (r1x) ;
 		const auto r4x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r4x == -1) ;
 		INDEX ir = 0 ;
@@ -31,14 +32,21 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_THREAD_PROMISE) {
-		auto rax = CSC::Promise<int>::async ([&] () {
+		const auto r1x = _XVALUE_<PTR<int ()>> ([] () {
 			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
 			return 1 ;
 		}) ;
+		auto rax = Promise<int>::async (r1x) ;
 		auto rbx = AutoRef<std::atomic<int>>::make (0) ;
-		rax.then ([&] (int &item) {
+		UniqueRef<PTR<Promise<int>::Future>> ANONYMOUS ([&] (PTR<Promise<int>::Future> &me) {
+			me = &rax ;
+		} ,[] (PTR<Promise<int>::Future> &me) {
+			me->stop () ;
+		}) ;
+		const auto r2x = Function<void (int &)> ([&] (int &item) {
 			rbx.self = item ;
 		}) ;
+		rax.then (Function<DEF<void (int &)> NONE::*> (PhanRef<const Function<void (int &)>>::make (r2x) ,&Function<void (int &)>::operator())) ;
 		std::this_thread::sleep_for (std::chrono::milliseconds (100)) ;
 		_UNITTEST_ASSERT_ (rbx.self == 1) ;
 	}

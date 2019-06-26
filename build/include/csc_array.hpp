@@ -56,13 +56,11 @@ public:
 inline namespace S {
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().ibegin ())>::value>>
 inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> begin (_ARG1 &&arg1) popping {
-	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG1 &&>::value) ;
 	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_begin (arg1) ;
 }
 
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().iend ())>::value>>
 inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping {
-	_STATIC_ASSERT_ (std::is_lvalue_reference<_ARG1 &&>::value) ;
 	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_end (arg1) ;
 }
 } ;
@@ -2771,6 +2769,22 @@ public:
 		if (this == &item.mBase)
 			return VAR_NONE ;
 		return INDEX (item) ;
+	}
+
+	INDEX access (INDEX pos) const {
+		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
+		INDEX ret = ibegin () ;
+		INDEX ie = iend () ;
+		INDEX ix = 0 ;
+		while (TRUE) {
+			if (ix == ie)
+				break ;
+			if (ix >= pos)
+				break ;
+			ret = inext (ret) ;
+			ix++ ;
+		}
+		return std::move (ret) ;
 	}
 
 	INDEX ibegin () const {

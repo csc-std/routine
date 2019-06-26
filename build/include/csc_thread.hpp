@@ -25,7 +25,7 @@ private:
 		Monostate<std::condition_variable> mThreadCondition ;
 		AutoRef<BOOL> mThreadFlag ;
 		LENGTH mThreadCounter ;
-		Array<Function<ITEM ()>> mThreadProc ;
+		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
 		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
@@ -101,7 +101,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void start (const Array<INDEX> &pid ,Array<Function<ITEM ()>> &&proc) {
+	void start (const Array<INDEX> &pid ,Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (pid.length () > 0) ;
 		for (auto &&i : pid)
 			_DEBUG_ASSERT_ (i >= 0 && i < proc.size ()) ;
@@ -140,12 +140,8 @@ public:
 		_DYNAMIC_ASSERT_ (r1.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (!r1.mException.exist ())
-					continue ;
-				const auto r2x = std::move (r1.mException) ;
-				throw r2x.self ;
-			}
+			if (r1.mException.exist ())
+				break ;
 			if (r1.mItemQueue->full ())
 				break ;
 			const auto r3x = predicate () ;
@@ -153,6 +149,10 @@ public:
 				break ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
+		if (!r1.mException.exist ())
+			return ;
+		const auto r2x = std::move (r1.mException) ;
+		throw r2x.self ;
 	}
 
 	void stop () {
@@ -177,8 +177,12 @@ private:
 		while (TRUE) {
 			_CALL_EH_ ([&] () {
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
-			} ,[&] (const Exception &e) {
-				static_rethrow (_self ,e) ;
+			} ,[&] (const Exception &e) noexcept {
+				_CALL_TRY_ ([&] () {
+					static_rethrow (_self ,e) ;
+				} ,[&] () {
+					_STATIC_WARNING_ ("noop") ;
+				}) ;
 			}) ;
 			static_push (_self ,std::move (rax)) ;
 			rax = Optional<ITEM>::nullopt () ;
@@ -202,10 +206,14 @@ private:
 		if (!item.exist ())
 			return ;
 		_DYNAMIC_ASSERT_ (_self.mItemQueue->size () > 0) ;
-		if (_self.mItemQueue->full ())
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!_self.mItemQueue->full ())
+				continue ;
 			_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
-		if (_self.mItemQueue->full ())
+			if (!_self.mItemQueue->full ())
+				continue ;
 			_self.mItemQueue->take () ;
+		}
 		_self.mItemQueue->add (std::move (item.self)) ;
 		_self.mThreadCondition.self.notify_all () ;
 	}
@@ -240,7 +248,7 @@ private:
 		_self.mThreadFlag = AutoRef<BOOL> () ;
 		_self.mThreadCounter = 0 ;
 		_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-		_self.mThreadProc = Array<Function<ITEM ()>> () ;
+		_self.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
 	static LENGTH intrusive_attach (Pack &_self) popping {
@@ -279,7 +287,7 @@ private:
 		LENGTH mThreadCounter ;
 		LENGTH mThreadWaitCounter ;
 		AutoRef<BOOL> mThreadFlag ;
-		Function<void (const ITEM &)> mThreadProc ;
+		Function<DEF<void (const ITEM &)> NONE::*> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
 		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
@@ -386,7 +394,7 @@ public:
 		r1.mThreadCondition.self.notify_all () ;
 	}
 
-	void start (LENGTH count ,Function<void (const ITEM &)> &&proc) {
+	void start (LENGTH count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
@@ -422,12 +430,8 @@ public:
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (!r1.mException.exist ())
-					continue ;
-				const auto r2x = std::move (r1.mException) ;
-				throw r2x.self ;
-			}
+			if (r1.mException.exist ())
+				break ;
 			if (r1.mThreadWaitCounter >= r1.mThreadPool.length () && r1.mItemQueue->empty ())
 				break ;
 			const auto r3x = predicate () ;
@@ -435,6 +439,10 @@ public:
 				break ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
+		if (!r1.mException.exist ())
+			return ;
+		const auto r2x = std::move (r1.mException) ;
+		throw r2x.self ;
 	}
 
 	void stop () {
@@ -459,8 +467,12 @@ private:
 			const auto r2x = static_poll (_self) ;
 			_CALL_EH_ ([&] () {
 				_self.mThreadProc (r2x) ;
-			} ,[&] (const Exception &e) {
-				static_rethrow (_self ,e) ;
+			} ,[&] (const Exception &e) noexcept {
+				_CALL_TRY_ ([&] () {
+					static_rethrow (_self ,e) ;
+				} ,[&] () {
+					_STATIC_WARNING_ ("noop") ;
+				}) ;
 			}) ;
 		}
 	}
@@ -518,7 +530,7 @@ private:
 		_self.mThreadCounter = 0 ;
 		_self.mThreadWaitCounter = 0 ;
 		_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-		_self.mThreadProc = Function<void (const ITEM &)> () ;
+		_self.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
 	static LENGTH intrusive_attach (Pack &_self) popping {
@@ -549,8 +561,8 @@ private:
 		Monostate<std::condition_variable> mThreadCondition ;
 		LENGTH mThreadCounter ;
 		AutoRef<BOOL> mThreadFlag ;
-		Function<ITEM ()> mThreadProc ;
-		Function<void (ITEM &)> mCallbackProc ;
+		Function<DEF<ITEM ()> NONE::*> mThreadProc ;
+		Function<DEF<void (ITEM &)> NONE::*> mCallbackProc ;
 		AutoRef<std::thread> mThreadPool ;
 		AutoRef<ITEM> mItem ;
 		AutoRef<Exception> mException ;
@@ -590,14 +602,14 @@ public:
 		_DEBUG_ASSERT_ (r1.mThreadCounter == 0) ;
 		r1.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r1.mThreadCounter = 0 ;
-		r1.mThreadProc = Function<ITEM ()> () ;
-		r1.mCallbackProc = Function<void (ITEM &)> () ;
+		r1.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
+		r1.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r1.mItem = AutoRef<ITEM> () ;
 		r1.mException = AutoRef<Exception> () ;
 		r1.mThreadPool = AutoRef<std::thread> () ;
 	}
 
-	void start (Function<ITEM ()> &&proc) {
+	void start (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack> (r1x) ;
@@ -607,7 +619,7 @@ public:
 		r1.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r1.mThreadCounter = 0 ;
 		r1.mThreadProc = std::move (proc) ;
-		r1.mCallbackProc = Function<void (ITEM &)> () ;
+		r1.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r1.mItem = AutoRef<ITEM> () ;
 		r1.mException = AutoRef<Exception> () ;
 		const auto r2x = &r1 ;
@@ -649,8 +661,12 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		_CALL_EH_ ([&] () {
 			static_push (_self ,_self.mThreadProc ()) ;
-		} ,[&] (const Exception &e) {
-			static_rethrow (_self ,e) ;
+		} ,[&] (const Exception &e) noexcept {
+			_CALL_TRY_ ([&] () {
+				static_rethrow (_self ,e) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
 		}) ;
 		static_signal (_self) ;
 	}
@@ -696,7 +712,7 @@ private:
 		_self.mThreadCondition.self.notify_all () ;
 		if (_self.mItem.exist () && _self.mCallbackProc.exist ())
 			_self.mCallbackProc (_self.mItem) ;
-		_self.mCallbackProc = Function<void (ITEM &)> () ;
+		_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
 	static void intrusive_create (Pack &_self) {
@@ -718,8 +734,8 @@ private:
 		_self.mThreadFlag = AutoRef<BOOL> () ;
 		_self.mThreadCounter = 0 ;
 		_self.mThreadPool = AutoRef<std::thread> () ;
-		_self.mThreadProc = Function<ITEM ()> () ;
-		_self.mCallbackProc = Function<void (ITEM &)> () ;
+		_self.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
+		_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
 	static LENGTH intrusive_attach (Pack &_self) popping {
@@ -731,7 +747,7 @@ private:
 	}
 
 public:
-	static Future async (Function<ITEM ()> &&proc) ;
+	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
 } ;
 
 template <class ITEM>
@@ -802,7 +818,7 @@ public:
 		return def ;
 	}
 
-	void then (Function<void (ITEM &)> &&proc) {
+	void then (Function<DEF<void (ITEM &)> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack> (r1x) ;
@@ -815,29 +831,12 @@ public:
 		if (!r1.mItem.exist ())
 			return ;
 		r1.mCallbackProc (r1.mItem.self) ;
-		r1.mCallbackProc = Function<void (ITEM &)> () ;
+		r1.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	void retry () {
-		auto rax = Function<ITEM ()> () ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			const auto r1x = mThis.watch () ;
-			auto &r1 = _XVALUE_<Pack> (r1x) ;
-			ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-			_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				if (r1.mThreadFlag.self)
-					continue ;
-				if (r1.mItem.exist ())
-					continue ;
-				rax = std::move (r1.mThreadProc) ;
-			}
-		}
-		if (!rax.exist ())
-			return ;
-		const auto r2x = Promise<ITEM> (mThis) ;
-		r2x.stop () ;
-		r2x.start (std::move (rax)) ;
+	void stop () {
+		const auto r1x = mThis.watch () ;
+		intrusive_destroy (r1x) ;
 	}
 
 private:
@@ -850,7 +849,7 @@ inline typename Promise<ITEM>::Future Promise<ITEM>::future () popping {
 }
 
 template <class ITEM>
-inline typename Promise<ITEM>::Future Promise<ITEM>::async (Function<ITEM ()> &&proc) {
+inline typename Promise<ITEM>::Future Promise<ITEM>::async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 	auto rax = Promise<ITEM> () ;
 	rax.start (std::move (proc)) ;
 	return rax.future () ;

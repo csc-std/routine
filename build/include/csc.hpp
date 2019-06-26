@@ -2337,11 +2337,11 @@ public:
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG2> (TYPE &)> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void (TYPE &)>>::value) ;
-		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
-		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<PTR<TEMP<ImplHolder<_ARG2>>>> (sgd)) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG2> (TYPE &)> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (TYPE &)>>::value) ;
+		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
+		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
+		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
 		constructor (r1x->mData) ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2445,11 +2445,11 @@ public:
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG2> ()> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_convertible<_ARG2 ,PTR<void ()>>::value) ;
-		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<_ARG2>>> () ;
-		ScopedHolder<ImplHolder<_ARG2>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<_ARG2>> (_XVALUE_<PTR<TEMP<ImplHolder<_ARG2>>>> (sgd)) ;
+		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG2> ()> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
+		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
+		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
+		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
 		constructor () ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2593,17 +2593,16 @@ public:
 		mFunction_b = NULL ;
 	}
 
-	inline implicit Function (PTR<TYPE1 (TYPES...)> right) {
+	inline implicit Function (const PTR<TYPE1 (TYPES...)> &right) {
 		mFunction_a = NULL ;
 		mFunction_b = right ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG1> (TYPES...)> ,TYPE1>::value>>
 	inline implicit Function (_ARG1 &&right) {
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_CVR_TYPE<_ARG1> (TYPES...)> ,TYPE1>::value) ;
-		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>> () ;
-		ScopedHolder<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (right)) ;
-		mFunction_a = &_LOAD_<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_CVR_TYPE<_ARG1>>>>> (sgd)) ;
+		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
+		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (right)) ;
+		mFunction_a = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (sgd)) ;
 		mFunction_b = NULL ;
 		sgd = NULL ;
 	}
@@ -2664,7 +2663,7 @@ private:
 public:
 	//@info: the function is incompleted without 'csc_ext.hpp'
 	template <class... _ARGS>
-	inline static Function make (PTR<TYPE1 (TYPES... ,_ARGS...)> function ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
+	inline static Function make (const PTR<TYPE1 (TYPES... ,_ARGS...)> &function ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
 } ;
 
 template <class TYPE1 ,class... TYPES>
@@ -2680,9 +2679,6 @@ private:
 		virtual TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping = 0 ;
 	} ;
 
-	template <class>
-	class ImplHolder ;
-
 	class FakeHolder :public Holder {
 	private:
 		PTR<NONE> mContext ;
@@ -2695,22 +2691,62 @@ private:
 		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override ;
 	} ;
 
+	class ImplPureHolder :public Holder {
+	private:
+		PTR<TYPE1 (TYPES...)> mFunction ;
+
+	public:
+		inline ImplPureHolder () = delete ;
+
+		inline explicit ImplPureHolder (const PTR<TYPE1 (TYPES...)> &function) noexcept :mFunction (function) {}
+
+		inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+			address_create<ImplPureHolder> (address ,mFunction) ;
+		}
+
+		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
+			return mFunction (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		}
+	} ;
+
+	template <class>
+	class ImplHolder ;
+
 private:
 	TEMP<FakeHolder> mVariant ;
 
 public:
-	inline Function () = delete ;
+	inline Function () noexcept {
+		_ZERO_ (mVariant) ;
+	}
+
+	inline implicit Function (const PTR<TYPE1 (TYPES...)> &right) noexcept {
+		_DEBUG_ASSERT_ (right != NULL) ;
+		address_create<ImplPureHolder> (&mVariant ,right) ;
+	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...)> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		ImplHolder<_ARG1>::address_create (&mVariant ,&context.self ,function) ;
+		address_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,function) ;
+	}
+
+	template <class _ARG1>
+	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
+		_DEBUG_ASSERT_ (function != NULL) ;
+		address_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		ImplHolder<const _ARG1>::address_create (&mVariant ,&context.self ,function) ;
+		address_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
+	}
+
+	template <class _ARG1>
+	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (_ARG1 & ,TYPES...)> &function) noexcept {
+		_DEBUG_ASSERT_ (function != NULL) ;
+		address_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,function) ;
 	}
 
 	inline ~Function () noexcept {
@@ -2754,6 +2790,18 @@ public:
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		return invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
+
+private:
+	template <class _RET ,class... _ARGS>
+	inline static void address_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...args) noexcept {
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
+		_DEBUG_ASSERT_ (address != NULL) ;
+		const auto r1x = &_LOAD_<TEMP<_RET>> (address->unused) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
+		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<_RET> (*r1x))) == _ADDRESS_ (r1x)) ;
+		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
+	}
 } ;
 
 template <class TYPE1 ,class... TYPES>
@@ -2769,22 +2817,11 @@ public:
 	inline explicit ImplHolder (PTR<_TYPE> context ,const DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
 	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		address_create (address ,mContext ,mFunction) ;
+		address_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
 		return (mContext->*mFunction) (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
-	}
-
-public:
-	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<_TYPE> context ,const DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> &function) noexcept {
-		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
-		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
-		_DEBUG_ASSERT_ (address != NULL) ;
-		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
-		_CREATE_ (r1x ,context ,function) ;
 	}
 } ;
 
@@ -2801,22 +2838,32 @@ public:
 	inline explicit ImplHolder (PTR<const _TYPE> context ,const DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
 	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		address_create (address ,mContext ,mFunction) ;
+		address_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
 		return (mContext->*mFunction) (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
+} ;
+
+template <class TYPE1 ,class... TYPES>
+template <class _TYPE>
+class Function<FIX_MSVC_DEDUCTION_2<TYPE1 ,TYPES...>>::ImplHolder<PTR<_TYPE>> :public Holder {
+private:
+	PTR<_TYPE> mContext ;
+	PTR<TYPE1 (_TYPE & ,TYPES...)> mFunction ;
 
 public:
-	inline static void address_create (PTR<TEMP<FakeHolder>> address ,PTR<const _TYPE> context ,const DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> &function) noexcept {
-		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<ImplHolder>)) ;
-		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<ImplHolder>)) ;
-		_DEBUG_ASSERT_ (address != NULL) ;
-		const auto r1x = &_LOAD_<TEMP<ImplHolder>> (address->unused) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<ImplHolder> (*r1x))) == _ADDRESS_ (r1x)) ;
-		_CREATE_ (r1x ,context ,function) ;
+	inline ImplHolder () = delete ;
+
+	inline explicit ImplHolder (PTR<_TYPE> context ,const PTR<TYPE1 (_TYPE & ,TYPES...)> &function) noexcept :mContext (context) ,mFunction (function) {}
+
+	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+		address_create<ImplHolder> (address ,mContext ,mFunction) ;
+	}
+
+	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
+		return mFunction (mContext ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 } ;
 
