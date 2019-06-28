@@ -225,49 +225,48 @@ inline exports String<STR> _WORKINGPATH_ () {
 	return std::move (ret) ;
 }
 
+inline Stack<INDEX> _inline_RELATIVEPATHNAME_ (const Queue<String<STR>> &path_name) {
+	Stack<INDEX> ret = Stack<INDEX> (path_name.length ()) ;
+	for (INDEX i = 0 ; i < path_name.length () ; i++) {
+		INDEX ix = path_name.access (i) ;
+		if (path_name[ix] == _PCSTR_ ("."))
+			continue ;
+		_CALL_IF_ ([&] (BOOL &if_flag) {
+			if (ret.empty ())
+				discard ;
+			if (path_name[ix] != _PCSTR_ (".."))
+				discard ;
+			if (path_name[ret[ret.peek ()]] == _PCSTR_ (".."))
+				discard ;
+			ret.take () ;
+		} ,[&] (BOOL &if_flag) {
+			ret.add (ix) ;
+		}) ;
+	}
+	return std::move (ret) ;
+}
+
 inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = _DECOUPLEPATHNAME_ (path) ;
-	const auto r2x = _CALL_ ([&] () {
-		Stack<INDEX> ret = Stack<INDEX> (r1x.length ()) ;
-		for (INDEX i = 0 ; i < r1x.length () ; i++) {
-			INDEX ix = r1x.access (i) ;
-			if (r1x[ix] == _PCSTR_ ("."))
-				continue ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
-				if (ret.empty ())
-					discard ;
-				if (r1x[ix] != _PCSTR_ (".."))
-					discard ;
-				if (r1x[ret[ret.peek ()]] == _PCSTR_ (".."))
-					discard ;
-				ret.take () ;
-			} ,[&] (BOOL &if_flag) {
-				ret.add (ix) ;
-			}) ;
-		}
-		return std::move (ret) ;
-	}) ;
-	const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
-	const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-	for (FOR_ONCE_DO_WHILE_FALSE) {
+	const auto r2x = _inline_RELATIVEPATHNAME_ (r1x) ;
+	_CALL_IF_ ([&] (BOOL &if_flag) {
+		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
+		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
 		if (!r4x && !r5x)
-			continue ;
+			discard ;
 		ret += _PCSTR_ ("\\") ;
-	}
-	for (FOR_ONCE_DO_WHILE_FALSE) {
-		if (r4x || r5x)
-			continue ;
+	} ,[&] (BOOL &if_flag) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
 		if (!r6x && !r7x)
-			continue ;
+			discard ;
 		//@debug: not absolute path really
 		_STATIC_WARNING_ ("mark") ;
 		ret += _WORKINGPATH_ () ;
-	}
+	}) ;
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
-		if (i != 0)
+		if (i > 0)
 			ret += _PCSTR_ ("\\") ;
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += r1x[ix] ;
@@ -315,7 +314,7 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	if (r2x || r3x)
 		rax += _PCSTR_ ("\\") ;
 	for (INDEX i = 0 ; i < r1x.length () ; i++) {
-		if (i != 0)
+		if (i > 0)
 			rax += _PCSTR_ ("\\") ;
 		INDEX ix = r1x.access (i) ;
 		rax += r1x[ix] ;
@@ -377,7 +376,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	}) ;
 	const auto r2x = Function<void (const String<STR> &)> ([&] (const String<STR> &_dire) {
 		_DYNAMIC_ASSERT_ (!rax.full () || rax.size () < DEFAULT_EXPANDGUARD_SIZE::value) ;
-		rax.add ({_dire ,FALSE}) ;
+		rax.add (PACK<String<STR> ,BOOL> {_dire ,FALSE}) ;
 	}) ;
 	_ENUMDIRECTORY_ (dire ,r1x ,r2x) ;
 	while (TRUE) {
@@ -610,7 +609,7 @@ public:
 	}
 
 private:
-	explicit Implement (const decltype (ARGVP0) &) {
+	explicit Implement (const DEF<decltype (ARGVP0)> &) {
 		mThis = UniqueRef<Holder> ([&] (Holder &me) {
 			me.mFile.self = UniqueRef<HANDLE> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;

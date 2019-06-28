@@ -64,22 +64,22 @@ using STRUW = TEXT_TRAITS_TYPE<STRW> ;
 template <class TYPE>
 class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (TYPE)]> {
 private:
-	inline static constexpr BYTE expr_endian_value (const ARGV<BYTE> &) {
+	inline static constexpr BYTE expr_endian_index (const ARGV<BYTE> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return BYTE (0X00) ;
 	}
 
-	inline static constexpr WORD expr_endian_value (const ARGV<WORD> &) {
+	inline static constexpr WORD expr_endian_index (const ARGV<WORD> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return WORD (0X0001) ;
 	}
 
-	inline static constexpr CHAR expr_endian_value (const ARGV<CHAR> &) {
+	inline static constexpr CHAR expr_endian_index (const ARGV<CHAR> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return CHAR (0X00010203) ;
 	}
 
-	inline static constexpr DATA expr_endian_value (const ARGV<DATA> &) {
+	inline static constexpr DATA expr_endian_index (const ARGV<DATA> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return DATA (0X0001020304050607) ;
 	}
@@ -93,11 +93,20 @@ public:
 	}
 
 	inline const BYTE &operator[] (INDEX index) const {
-		const auto r1x = expr_endian_value (_NULL_<const ARGV<TYPE>> ()) ;
+		const auto r1x = expr_endian_index (_NULL_<const ARGV<TYPE>> ()) ;
 		return EndianBytes::mData[_CAST_<BYTE[_SIZEOF_ (TYPE)]> (r1x)[index]] ;
 	}
 
-	inline TYPE merge () const {
+	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const TYPE & ,_RET>::value>>
+	inline implicit operator _RET () const & {
+		return _RET (big_endian_value ()) ;
+	}
+
+	template <class _RET>
+	inline implicit operator _RET () && = delete ;
+
+private:
+	inline TYPE big_endian_value () const {
 		TEMP<TYPE> ret ;
 		_ZERO_ (ret) ;
 		for (INDEX i = 0 ; i < capacity () ; i++)
@@ -215,7 +224,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
 		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (rax.P1)) ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<WORD>> (rax).merge () ;
+		data = _CAST_<EndianBytes<WORD>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) popping {
@@ -227,7 +236,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
 		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (rax.P1)) ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<CHAR>> (rax).merge () ;
+		data = _CAST_<EndianBytes<CHAR>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) popping {
@@ -239,7 +248,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
 		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (rax.P1)) ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<DATA>> (rax).merge () ;
+		data = _CAST_<EndianBytes<DATA>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) popping {
@@ -830,15 +839,17 @@ public:
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mRead >= mWrite)
 				discard ;
-			data = mHolder->convert_endian (mStream[mRead]) ;
-			const auto r2x = mHolder->varify_escape_r (data) ;
-			mRead++ ;
-			if (!r2x)
-				return ;
-			_DYNAMIC_ASSERT_ (mRead < mWrite) ;
-			data = mHolder->convert_endian (mStream[mRead]) ;
-			data = mHolder->convert_escape (data) ;
-			mRead++ ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				data = mHolder->convert_endian (mStream[mRead]) ;
+				const auto r2x = mHolder->varify_escape_r (data) ;
+				mRead++ ;
+				if (!r2x)
+					continue ;
+				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
+				data = mHolder->convert_endian (mStream[mRead]) ;
+				data = mHolder->convert_escape (data) ;
+				mRead++ ;
+			}
 		} ,[&] (BOOL &if_flag) {
 			data = mHolder->varify_ending_item () ;
 		}) ;
@@ -926,7 +937,7 @@ public:
 		const auto r1x = BOOL (rax == STRX ('-')) ;
 		if (rax == STRX ('+') || rax == STRX ('-'))
 			ris.read (rax) ;
-		ris.try_read_number (data ,rax) ;
+		compute_read_number (data ,ris ,rax) ;
 		if (r1x)
 			data = -data ;
 		*this = std::move (ris) ;
@@ -989,7 +1000,7 @@ public:
 			const auto r2x = mHolder->varify_number_item (rax) ;
 			if (!r2x)
 				discard ;
-			ris.try_read_number (data ,rax) ;
+			compute_read_number (data ,ris ,rax) ;
 		} ,[&] (BOOL &if_flag) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
@@ -1099,89 +1110,83 @@ private:
 		return std::move (ret) ;
 	}
 
-	void try_read_number (VAR64 &data ,const STRX &first) popping {
+	void compute_read_number (VAR64 &data ,TextReader &reader ,STRX &top) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
-		_DEBUG_ASSERT_ (mHolder->varify_number_item (first)) ;
-		auto ris = copy () ;
-		auto rax = first ;
-		data = mHolder->convert_number_r (rax) ;
-		ris.read (rax) ;
+		_DEBUG_ASSERT_ (mHolder->varify_number_item (top)) ;
+		auto ris = reader.copy () ;
+		data = mHolder->convert_number_r (top) ;
+		ris.read (top) ;
 		while (TRUE) {
-			if (!mHolder->varify_number_item (rax))
+			if (!mHolder->varify_number_item (top))
 				break ;
-			const auto r1x = data * mHolder->varify_radix () + mHolder->convert_number_r (rax) ;
+			const auto r1x = data * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r1x) ;
 			data = r1x ;
-			*this = ris.copy () ;
-			ris.read (rax) ;
+			reader = ris.copy () ;
+			ris.read (top) ;
 		}
 	}
 
-	void try_read_number (VAL64 &data ,const STRX &first) popping {
+	void compute_read_number (VAL64 &data ,TextReader &reader ,STRX &top) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
-		_DEBUG_ASSERT_ (mHolder->varify_number_item (first)) ;
-		auto ris = copy () ;
-		auto rax = first ;
+		_DEBUG_ASSERT_ (mHolder->varify_number_item (top)) ;
+		auto ris = reader.copy () ;
 		while (TRUE) {
-			if (mHolder->convert_number_r (rax) != 0)
+			if (mHolder->convert_number_r (top) != 0)
 				break ;
-			*this = ris.copy () ;
-			ris.read (rax) ;
+			reader = ris.copy () ;
+			ris.read (top) ;
 		}
-		ARRAY2<VAR64> rbx = ARRAY2<VAR64> {0 ,0} ;
-		try_read_number_digital (rbx ,ris ,rax) ;
-		try_read_number_decimal (rbx ,ris ,rax) ;
+		auto rax = ARRAY2<VAR64> {0 ,0} ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (rax != STRX ('e') && rax != STRX ('E'))
+			if (!mHolder->varify_number_item (top))
 				continue ;
-			rbx[1] += ris.template read<VAR32> () ;
-			*this = ris.copy () ;
-		}
-		const auto r3x = _IEEE754_E10TOE2_ (rbx) ;
-		data = _IEEE754_ENCODE_ (r3x) ;
-	}
-
-	void try_read_number_digital (ARRAY2<VAR64> &data ,TextReader &reader ,STRX &top) popping {
-		if (!mHolder->varify_number_item (top))
-			return ;
-		data[0] = mHolder->convert_number_r (top) ;
-		*this = reader.copy () ;
-		reader.read (top) ;
-		while (TRUE) {
-			if (!mHolder->varify_number_item (top))
-				break ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
-				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
-				if (data[0] > r1x)
-					discard ;
-				data[0] = r1x ;
-			} ,[&] (BOOL &if_flag) {
-				data[1]++ ;
-			}) ;
-			*this = reader.copy () ;
-			reader.read (top) ;
-		}
-	}
-
-	void try_read_number_decimal (ARRAY2<VAR64> &data ,TextReader &reader ,STRX &top) popping {
-		if (top != STRX ('.'))
-			return ;
-		*this = reader.copy () ;
-		reader.read (top) ;
-		_DYNAMIC_ASSERT_ (mHolder->varify_number_item (top)) ;
-		while (TRUE) {
-			if (!mHolder->varify_number_item (top))
-				break ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
-				const auto r1x = data[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
-				if (data[0] > r1x)
-					continue ;
-				data[0] = r1x ;
-				data[1]-- ;
+			rax[0] = mHolder->convert_number_r (top) ;
+			reader = ris.copy () ;
+			ris.read (top) ;
+			while (TRUE) {
+				if (!mHolder->varify_number_item (top))
+					break ;
+				_CALL_IF_ ([&] (BOOL &if_flag) {
+					const auto r1x = rax[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+					if (rax[0] > r1x)
+						discard ;
+					rax[0] = r1x ;
+				} ,[&] (BOOL &if_flag) {
+					rax[1]++ ;
+				}) ;
+				reader = ris.copy () ;
+				ris.read (top) ;
 			}
-			*this = reader.copy () ;
-			reader.read (top) ;
 		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (top != STRX ('.'))
+				continue ;
+			reader = ris.copy () ;
+			ris.read (top) ;
+			_DYNAMIC_ASSERT_ (mHolder->varify_number_item (top)) ;
+			while (TRUE) {
+				if (!mHolder->varify_number_item (top))
+					break ;
+				for (FOR_ONCE_DO_WHILE_FALSE) {
+					const auto r2x = rax[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+					if (rax[0] > r2x)
+						continue ;
+					rax[0] = r2x ;
+					rax[1]-- ;
+				}
+				reader = ris.copy () ;
+				ris.read (top) ;
+			}
+		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (top != STRX ('e') && top != STRX ('E'))
+				continue ;
+			rax[1] += ris.template read<VAR32> () ;
+			reader = ris.copy () ;
+		}
+		const auto r3x = _IEEE754_E10TOE2_ (rax) ;
+		data = _IEEE754_ENCODE_ (r3x) ;
 	}
 } ;
 
@@ -1388,7 +1393,7 @@ public:
 	void write (const VAR64 &data) {
 		auto rax = Buffer<STRX ,ARGC<128>> () ;
 		INDEX iw = rax.size () ;
-		try_write_number (data ,PhanBuffer<STRX>::make (rax) ,iw) ;
+		compute_write_number (data ,PhanBuffer<STRX>::make (rax) ,iw) ;
 		write (PhanBuffer<const STRX>::make (PTRTOARR[&rax.self[iw]] ,(rax.size () - iw))) ;
 	}
 
@@ -1398,7 +1403,34 @@ public:
 	}
 
 	void write (const VAL32 &data) {
-		write (VAL64 (data)) ;
+		static constexpr auto M_NAN = PACK<STRX[3]> ({
+			STRX ('n') ,STRX ('a') ,STRX ('n')}) ;
+		static constexpr auto M_INF = PACK<STRX[4]> ({
+			STRX ('+') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
+		static constexpr auto M_SINF = PACK<STRX[4]> ({
+			STRX ('-') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
+		_CALL_IF_ ([&] (BOOL &if_flag) {
+			if (!_ISNAN_ (data))
+				discard ;
+			write (PhanBuffer<const STRX>::make (M_NAN.P1)) ;
+		} ,[&] (BOOL &if_flag) {
+			if (!_ISINF_ (data))
+				discard ;
+			if (data < 0)
+				discard ;
+			write (PhanBuffer<const STRX>::make (M_INF.P1)) ;
+		} ,[&] (BOOL &if_flag) {
+			if (!_ISINF_ (data))
+				discard ;
+			if (data > 0)
+				discard ;
+			write (PhanBuffer<const STRX>::make (M_SINF.P1)) ;
+		} ,[&] (BOOL &if_flag) {
+			auto rax = Buffer<STRX ,ARGC<256>> () ;
+			INDEX iw = rax.size () ;
+			compute_write_number (data ,VAL32_PCS ,PhanBuffer<STRX>::make (rax) ,iw) ;
+			write (PhanBuffer<const STRX>::make (PTRTOARR[&rax.self[iw]] ,(rax.size () - iw))) ;
+		}) ;
 	}
 
 	inline TextWriter &operator<< (const VAL32 &data) {
@@ -1432,7 +1464,7 @@ public:
 		} ,[&] (BOOL &if_flag) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
-			try_write_number (data ,PhanBuffer<STRX>::make (rax) ,iw) ;
+			compute_write_number (data ,VAL64_PCS ,PhanBuffer<STRX>::make (rax) ,iw) ;
 			write (PhanBuffer<const STRX>::make (PTRTOARR[&rax.self[iw]] ,(rax.size () - iw))) ;
 		}) ;
 	}
@@ -1514,7 +1546,7 @@ public:
 	}
 
 private:
-	void try_write_number (const VAR64 &data ,const PhanBuffer<STRX> &out ,INDEX &it) const {
+	void compute_write_number (const VAR64 &data ,const PhanBuffer<STRX> &out ,INDEX &it) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
 		INDEX iw = it ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {
@@ -1544,7 +1576,7 @@ private:
 		it = iw ;
 	}
 
-	void try_write_number (const VAL64 &data ,const PhanBuffer<STRX> &out ,INDEX &it) const {
+	void compute_write_number (const VAL64 &data ,LENGTH precision ,const PhanBuffer<STRX> &out ,INDEX &it) const {
 		_DEBUG_ASSERT_ (mHolder->varify_radix () == 10) ;
 		INDEX iw = it ;
 		const auto r1x = _IEEE754_DECODE_ (data) ;
@@ -1554,54 +1586,60 @@ private:
 			rax[0] = -rax[0] ;
 		const auto r3x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {
-			if (_ABS_ (r3x - 1 + rax[1]) < 6)
+			if (_ABS_ (r3x - 1 + rax[1]) < precision)
 				discard ;
-			const auto r4x = _MAX_ ((r3x - 7) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
-				rax[0] /= mHolder->varify_radix () ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				const auto r4x = _MAX_ ((r3x - 1 - precision) ,VAR_ZERO) ;
+				for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
+					rax[0] /= mHolder->varify_radix () ;
+					rax[1]++ ;
+				}
+				if (r4x <= 0)
+					continue ;
+				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r4x <= 0)
-				return ;
-			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
-			rax[1]++ ;
 		} ,[&] (BOOL &if_flag) {
 			if (rax[1] < 1 - r3x)
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r10x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
-				rax[0] /= mHolder->varify_radix () ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				const auto r10x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
+				for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
+					rax[0] /= mHolder->varify_radix () ;
+					rax[1]++ ;
+				}
+				if (r10x <= 0)
+					continue ;
+				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r10x <= 0)
-				return ;
-			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
-			rax[1]++ ;
 		} ,[&] (BOOL &if_flag) {
 			if (rax[1] >= 1 - r3x)
 				discard ;
-			const auto r9x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
-				rax[0] /= mHolder->varify_radix () ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
+				for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
+					rax[0] /= mHolder->varify_radix () ;
+					rax[1]++ ;
+				}
+				if (r9x <= 0)
+					continue ;
+				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r9x <= 0)
-				return ;
-			rax[0] = (rax[0] + mHolder->varify_radix () / 2) / mHolder->varify_radix () ;
-			rax[1]++ ;
 		}) ;
 		const auto r8x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			//@info: case 'x.xxxExxx'
-			if (_ABS_ (r8x - 1 + rax[1]) < 6)
+			if (_ABS_ (r8x - 1 + rax[1]) < precision)
 				discard ;
-			try_write_number ((r8x - 1 + rax[1]) ,out ,iw) ;
+			compute_write_number ((r8x - 1 + rax[1]) ,out ,iw) ;
 			if (out[iw] != STRX ('-'))
 				out[--iw] = STRX ('+') ;
 			out[--iw] = STRX ('e') ;
-			const auto r5x = _MAX_ ((r8x - 7) ,VAR_ZERO) ;
+			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
@@ -1630,7 +1668,7 @@ private:
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r7x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			const auto r7x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r7x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;
@@ -1651,7 +1689,7 @@ private:
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			const auto r6x = _MAX_ (LENGTH (-rax[1] - 6) ,VAR_ZERO) ;
+			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r6x ; i++)
 				rax[0] /= mHolder->varify_radix () ;
 			INDEX ix = iw - 1 ;

@@ -62,7 +62,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void load_data (AnyRef<void> &_this) override {
+	void compute_load_data (AnyRef<void> &_this) override {
 		auto rax = UniqueRef<MYSQL> ([&] (MYSQL &me) {
 			mysql_init (&me) ;
 		} ,[] (MYSQL &me) {
@@ -72,8 +72,8 @@ public:
 	}
 
 private:
-	static void debug_check_error (MYSQL &_self) {
-		const auto r1x = _LOAD_<ARR<STRA>> (mysql_error (&_self)) ;
+	static void compute_check_error (MYSQL &_self) {
+		const auto r1x = &_LOAD_<ARR<STRA>> (mysql_error (&_self)) ;
 		_DYNAMIC_ASSERT_ (r1x == NULL) ;
 	}
 } ;

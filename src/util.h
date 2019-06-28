@@ -71,11 +71,15 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
-	const auto r1x = _CACHE_ ([] () {
-		return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
+	PTR<NONE> ret = NULL ;
+	_CALL_EH_ ([&] () {
+		const auto r1x = _CACHE_ ([] () {
+			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
+		}) ;
+		r1x->compare_exchange_strong (expect ,data) ;
+		ret = r1x->load () ;
 	}) ;
-	r1x->compare_exchange_strong (expect ,data) ;
-	return r1x->load () ;
+	return std::move (ret) ;
 }
 } ;
 

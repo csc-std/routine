@@ -125,7 +125,7 @@ public:
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					static_execute (*r2x.P1 ,r2x.P2) ;
+					compute_execute (*r2x.P1 ,r2x.P2) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -161,15 +161,15 @@ public:
 	}
 
 private:
-	static void static_execute (Pack &_self ,INDEX pid) {
+	static void compute_execute (Pack &_self ,INDEX pid) {
 		class Finally :private Wrapped<Pack> {
 		public:
 			inline void lock () {
-				static_attach (Finally::mData) ;
+				compute_attach (Finally::mData) ;
 			}
 
 			inline void unlock () {
-				static_detach (Finally::mData) ;
+				compute_detach (Finally::mData) ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
@@ -179,27 +179,27 @@ private:
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
-					static_rethrow (_self ,e) ;
+					compute_rethrow (_self ,e) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
-			static_push (_self ,std::move (rax)) ;
+			compute_push (_self ,std::move (rax)) ;
 			rax = Optional<ITEM>::nullopt () ;
 		}
 	}
 
-	static void static_attach (Pack &_self) {
+	static void compute_attach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter++ ;
 	}
 
-	static void static_detach (Pack &_self) {
+	static void compute_detach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter-- ;
 	}
 
-	static void static_push (Pack &_self ,Optional<ITEM> &&item) {
+	static void compute_push (Pack &_self ,Optional<ITEM> &&item) {
 		ScopedGuard<std::mutex> sgd (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -218,7 +218,7 @@ private:
 		_self.mThreadCondition.self.notify_all () ;
 	}
 
-	static void static_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
@@ -416,7 +416,7 @@ public:
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					static_execute (*r2x) ;
+					compute_execute (*r2x) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -451,55 +451,56 @@ public:
 	}
 
 private:
-	static void static_execute (Pack &_self) {
+	static void compute_execute (Pack &_self) {
 		class Finally :private Wrapped<Pack> {
 		public:
 			inline void lock () {
-				static_attach (Finally::mData) ;
+				compute_attach (Finally::mData) ;
 			}
 
 			inline void unlock () {
-				static_detach (Finally::mData) ;
+				compute_detach (Finally::mData) ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
+		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			const auto r2x = static_poll (_self) ;
+			compute_poll (_self ,rax) ;
 			_CALL_EH_ ([&] () {
-				_self.mThreadProc (r2x) ;
+				_self.mThreadProc (rax.self) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
-					static_rethrow (_self ,e) ;
+					compute_rethrow (_self ,e) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
+			rax = Optional<ITEM>::nullopt () ;
 		}
 	}
 
-	static void static_attach (Pack &_self) {
+	static void compute_attach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter++ ;
 	}
 
-	static void static_detach (Pack &_self) {
+	static void compute_detach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter-- ;
 	}
 
-	static ITEM static_poll (Pack &_self) popping {
+	static void compute_poll (Pack &_self ,Optional<ITEM> &item) popping {
 		std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (_self.mThreadWaitCounter)) ;
 		while (_self.mThreadFlag.self && _self.mItemQueue->empty ())
 			_self.mThreadCondition.self.wait (sgd) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
-		ITEM ret = std::move (_self.mItemQueue.self[_self.mItemQueue->peek ()]) ;
+		item = std::move (_self.mItemQueue.self[_self.mItemQueue->peek ()]) ;
 		_self.mItemQueue->take () ;
-		return std::move (ret) ;
 	}
 
-	static void static_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
@@ -581,17 +582,17 @@ public:
 
 	void push (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
-		static_push (r1x) ;
+		compute_push (r1x) ;
 	}
 
 	void push (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
-		static_push (r1x) ;
+		compute_push (r1x) ;
 	}
 
 	void rethrow (const Exception &e) {
 		const auto r1x = mThis.watch () ;
-		static_rethrow (r1x) ;
+		compute_rethrow (r1x) ;
 	}
 
 	void start () {
@@ -626,7 +627,7 @@ public:
 		//@warn: move object having captured context
 		r1.mThreadPool = AutoRef<std::thread>::make ([r2x] () noexcept {
 			_CALL_TRY_ ([&] () {
-				static_execute (*r2x) ;
+				compute_execute (*r2x) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -635,7 +636,7 @@ public:
 
 	void signal () {
 		const auto r1x = mThis.watch () ;
-		static_signal (r1x) ;
+		compute_signal (r1x) ;
 	}
 
 	void stop () {
@@ -647,41 +648,41 @@ private:
 	explicit Promise (IntrusiveRef<Pack> &_this) popping : mThis (_this.copy ()) {}
 
 private:
-	static void static_execute (Pack &_self) {
+	static void compute_execute (Pack &_self) {
 		class Finally :private Wrapped<Pack> {
 		public:
 			inline void lock () {
-				static_attach (Finally::mData) ;
+				compute_attach (Finally::mData) ;
 			}
 
 			inline void unlock () {
-				static_detach (Finally::mData) ;
+				compute_detach (Finally::mData) ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		_CALL_EH_ ([&] () {
-			static_push (_self ,_self.mThreadProc ()) ;
+			compute_push (_self ,_self.mThreadProc ()) ;
 		} ,[&] (const Exception &e) noexcept {
 			_CALL_TRY_ ([&] () {
-				static_rethrow (_self ,e) ;
+				compute_rethrow (_self ,e) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
 		}) ;
-		static_signal (_self) ;
+		compute_signal (_self) ;
 	}
 
-	static void static_attach (Pack &_self) {
+	static void compute_attach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter++ ;
 	}
 
-	static void static_detach (Pack &_self) {
+	static void compute_detach (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mThreadCounter-- ;
 	}
 
-	static void static_push (Pack &_self ,const ITEM &item) {
+	static void compute_push (Pack &_self ,const ITEM &item) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -689,7 +690,7 @@ private:
 		_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	static void static_push (Pack &_self ,ITEM &&item) {
+	static void compute_push (Pack &_self ,ITEM &&item) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -697,7 +698,7 @@ private:
 		_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	static void static_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
@@ -705,7 +706,7 @@ private:
 		_self.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void static_signal (Pack &_self) {
+	static void compute_signal (Pack &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_self.mThreadFlag.self = FALSE ;

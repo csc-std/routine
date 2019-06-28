@@ -713,7 +713,7 @@ public:
 
 private:
 	template <class... _ARGS>
-	inline explicit Mutable (const decltype (ARGVP0) & ,_ARGS &&...args) : mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_SIGNALED) {}
+	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_SIGNALED) {}
 } ;
 
 namespace U {
@@ -920,6 +920,12 @@ public:
 		mIndex = template_create (_NULL_<const ARGC<TRUE>> () ,r1x ,std::forward<_ARGS> (args)...) ;
 	}
 
+	//@warn: none class shall be base on its address
+	inline void address_swap (Variant &right) noexcept popping {
+		_SWAP_ (mVariant ,right.mVariant) ;
+		_SWAP_ (mIndex ,right.mIndex) ;
+	}
+
 private:
 	inline explicit Variant (const ARGV<NULLOPT> &) noexcept :mIndex (VAR_NONE) {}
 
@@ -958,11 +964,9 @@ private:
 				continue ;
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (r1x)
-				continue ;
-			template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		if (r1x)
+			return ;
+		template_destruct (address ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) {
@@ -980,11 +984,9 @@ private:
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (r1x)
-				continue ;
-			template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		if (r1x)
+			return ;
+		template_copy_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<> &) noexcept {
@@ -1001,11 +1003,9 @@ private:
 				continue ;
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (r1x)
-				continue ;
-			template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		}
+		if (r1x)
+			return ;
+		template_move_construct (address ,src ,(index - 1) ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1022,12 +1022,6 @@ private:
 public:
 	inline static Variant nullopt () noexcept {
 		return Variant (_NULL_<const ARGV<NULLOPT>> ()) ;
-	}
-
-	//@warn: none class shall be base on its address
-	inline static void address_swap (Variant &left ,Variant &right) noexcept {
-		_SWAP_ (left.mVariant ,right.mVariant) ;
-		_SWAP_ (left.mIndex ,right.mIndex) ;
 	}
 } ;
 
@@ -1844,18 +1838,18 @@ private:
 	}
 
 	template <class _ARG1>
-	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG1 ,TYPE>::value>> & ,const decltype (ARGVP3) &) {
+	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG1 ,TYPE>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return _XVALUE_<PTR<_ARG1>> (pointer) ;
 	}
 
 	template <class _ARG1>
-	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,TYPE>::value && stl::is_always_base_of<Interface ,_ARG1>::value>> & ,const decltype (ARGVP2) &) {
+	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,TYPE>::value && stl::is_always_base_of<Interface ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		//@warn: RTTI might be different across DLL
 		return dynamic_cast<PTR<_ARG1>> (pointer) ;
 	}
 
 	template <class _ARG1>
-	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<VOID> & ,const decltype (ARGVP1) &) {
+	inline static PTR<_ARG1> template_recast (PTR<TYPE> pointer ,const ARGV<_ARG1> & ,const ARGV<VOID> & ,const DEF<decltype (ARGVP1)> &) {
 		return NULL ;
 	}
 
@@ -2246,7 +2240,7 @@ public:
 	inline IntrusiveRef () :IntrusiveRef (ARGVP0) {}
 
 	template <class _ARG1>
-	inline explicit IntrusiveRef (const _ARG1 &address) popping : IntrusiveRef (ARGVP0) {
+	inline explicit IntrusiveRef (const _ARG1 &address) : IntrusiveRef (ARGVP0) {
 		_STATIC_ASSERT_ (std::is_same<_ARG1 ,PTR<TYPE>>::value) ;
 		//@warn: address must be from 'IntrusiveRef::make'
 		acquire (address ,FALSE) ;
@@ -2305,7 +2299,7 @@ public:
 	}
 
 private:
-	inline explicit IntrusiveRef (const decltype (ARGVP0) &) noexcept :mPointer (NULL) ,mSemaphore (FALSE) {}
+	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mSemaphore (FALSE) {}
 
 private:
 	inline void lock () noexcept {
@@ -2816,14 +2810,14 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline static PTR<NODE_A> static_find_node (Pack &_self ,FLAG guid) {
+	inline static PTR<NODE_A> static_find_node (const Pack &_self ,FLAG guid) {
 		for (PTR<NODE_A> i = _self.mRoot_a ; i != NULL ; i = i->mNext)
 			if (i->mGUID == guid)
 				return i ;
 		return NULL ;
 	}
 
-	inline static PTR<NODE_B> static_find_node (Pack &_self ,const GUID_TYPE &guid) {
+	inline static PTR<NODE_B> static_find_node (const Pack &_self ,const GUID_TYPE &guid) {
 		for (PTR<NODE_B> i = _self.mRoot_b ; i != NULL ; i = i->mNext)
 			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[&guid.unused[0]]))
 				return i ;
@@ -3134,7 +3128,7 @@ public:
 	template <class... _ARGS>
 	inline explicit Serializer (const DEF<_ARGS TYPE2::*> &...args) :mBinder (StrongRef<const ImplBinder<_ARGS...>>::make (args...)) {}
 
-	inline Member operator() (TYPE2 &context) const {
+	inline Member operator() (TYPE2 &context) const popping {
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
 		return Member (*this ,context) ;
 	}
@@ -3145,6 +3139,6 @@ template <class TYPE1 ,class TYPE2>
 inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'TYPE1' becomes a function-local-type
 	_DEBUG_ASSERT_ (FALSE) ;
-	}
+}
 #endif
 } ;

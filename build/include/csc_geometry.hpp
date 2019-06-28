@@ -21,7 +21,7 @@ private:
 public:
 	Vector () = default ;
 
-	implicit Vector (const ARRAY3<UNIT> &xyz ,const UNIT &w) : Vector (xyz[0] ,xyz[1] ,xyz[2] ,w) {}
+	implicit Vector (const ARRAY3<UNIT> &xyz ,const UNIT &w) :Vector (xyz[0] ,xyz[1] ,xyz[2] ,w) {}
 
 	implicit Vector (const UNIT &x ,const UNIT &y ,const UNIT &z ,const UNIT &w) {
 		mVector[0] = x ;
@@ -289,6 +289,31 @@ public:
 	Vector reflect (const Vector<UNIT> &normal) const {
 		const auto r1x = normal * (2 * mul (normal)) ;
 		return sub (r1x) ;
+	}
+
+public:
+	static const Vector &axis_x () {
+		return _CACHE_ ([] () {
+			return Vector {UNIT (1) ,UNIT (0) ,UNIT (0) ,UNIT (0)} ;
+		}) ;
+	}
+
+	static const Vector &axis_y () {
+		return _CACHE_ ([] () {
+			return Vector {UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)} ;
+		}) ;
+	}
+
+	static const Vector &axis_z () {
+		return _CACHE_ ([] () {
+			return Vector {UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (0)} ;
+		}) ;
+	}
+
+	static const Vector &axis_w () {
+		return _CACHE_ ([] () {
+			return Vector {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)} ;
+		}) ;
 	}
 } ;
 
@@ -653,22 +678,17 @@ public:
 	ARRAY5<Matrix> decompose () const {
 		_DEBUG_ASSERT_ (affine_matrix_like ()) ;
 		ARRAY5<Matrix> ret ;
-		const auto r10x = ARRAY4<Vector<UNIT>> ({
-			Vector<UNIT> {UNIT (1) ,UNIT (0) ,UNIT (0) ,UNIT (0)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (0)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)}}) ;
-		const auto r1x = mul (r10x[0]) ;
-		const auto r2x = mul (r10x[1]) ;
-		const auto r3x = mul (r10x[2]) ;
+		const auto r1x = mul (Vector<UNIT>::axis_x ()) ;
+		const auto r2x = mul (Vector<UNIT>::axis_y ()) ;
+		const auto r3x = mul (Vector<UNIT>::axis_z ()) ;
 		ret[0] = Matrix::make_diag (r1x.magnitude () ,r2x.magnitude () ,r3x.magnitude () ,UNIT (1)) ;
 		const auto r4x = r1x.normalize () ;
 		const auto r5x = r2x.normalize () ;
 		const auto r6x = r3x.normalize () ;
 		ret[1] = Matrix::make_shear (r4x ,r5x ,r6x) ;
-		const auto r7x = Matrix {r4x ,r5x ,r6x ,r10x[3]} ;
+		const auto r7x = Matrix {r4x ,r5x ,r6x ,Vector<UNIT>::axis_w ()} ;
 		ret[2] = r7x * ret[1].inverse () ;
-		const auto r8x = mul (r10x[3]) ;
+		const auto r8x = mul (Vector<UNIT>::axis_w ()) ;
 		ret[3] = Matrix::make_translation (r8x.homogenize ()) ;
 		ret[4] = Matrix::make_diag (UNIT (1) ,UNIT (1) ,UNIT (1) ,r8x[3]) ;
 		return std::move (ret) ;
@@ -815,19 +835,15 @@ public:
 
 	static Matrix make_view (const Vector<UNIT> &normal ,const Vector<UNIT> &center) {
 		_DEBUG_ASSERT_ (normal[3] == UNIT (0) && center[3] == UNIT (1)) ;
-		const auto r10x = ARRAY3<Vector<UNIT>> ({
-			Vector<UNIT> {UNIT (1) ,UNIT (0) ,UNIT (0) ,UNIT (0)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (0)}}) ;
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x[0] != UNIT (0) || r1x[1] != UNIT (0) || r1x[2] != UNIT (0)) ;
 		const auto r2x = Vector<UNIT> {_ABS_ (normal[0]) ,_ABS_ (normal[1]) ,_ABS_ (normal[2]) ,UNIT (0)} ;
-		const auto r3x = (r2x[0] < r2x[2]) ? (r10x[0]) : (r10x[2]) ;
-		const auto r4x = (r2x[1] < r2x[2]) ? (r10x[1]) : (r10x[2]) ;
+		const auto r3x = (r2x[0] < r2x[2]) ? (Vector<UNIT>::axis_x ()) : (Vector<UNIT>::axis_z ()) ;
+		const auto r4x = (r2x[1] < r2x[2]) ? (Vector<UNIT>::axis_y ()) : (Vector<UNIT>::axis_z ()) ;
 		const auto r5x = (r2x[0] < r2x[1]) ? r3x : r4x ;
 		const auto r6x = (r1x ^ r5x).normalize () ;
 		const auto r7x = (r1x ^ r6x).normalize () ;
-		return Matrix {r6x ,r7x ,r1x ,center}  ;
+		return Matrix {r6x ,r7x ,r1x ,center} ;
 	}
 
 	static Matrix make_perspective (const UNIT &fx ,const UNIT &fy ,const UNIT &wx ,const UNIT &wy) {

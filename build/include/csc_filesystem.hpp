@@ -160,19 +160,9 @@ public:
 		mThis->load_file (file ,data) ;
 	}
 
-	template <class _ARG1>
-	void load_file (const String<STR> &file ,Buffer<BYTE ,_ARG1> &data) {
-		load_file (file ,PhanBuffer<BYTE>::make (data)) ;
-	}
-
 	void save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->save_file (file ,data) ;
-	}
-
-	template <class _ARG1>
-	void save_file (const String<STR> &file ,const Buffer<BYTE ,_ARG1> &data) {
-		save_file (file ,PhanBuffer<const BYTE>::make (data)) ;
 	}
 
 	PhanBuffer<const BYTE> load_asset_file (FLAG resource) popping {

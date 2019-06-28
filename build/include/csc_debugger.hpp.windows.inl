@@ -363,7 +363,8 @@ public:
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (!mSymbolFromAddress.exist ())
 				discard ;
-			auto rax = AutoBuffer<BYTE> (_SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value)) ;
+			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
+			auto rax = AutoBuffer<BYTE> (r1x) ;
 			auto &r1 = _LOAD_<SYMBOL_INFO> (rax.self) ;
 			r1.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
 			r1.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;

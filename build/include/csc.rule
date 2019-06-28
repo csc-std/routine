@@ -14,7 +14,15 @@ R.103 [A] : 检查for|while中断
 (^(\t+)for \([^\r]+\) {(\r\n(\2)(?!}\r\n)[^\r]+)*\r\n(\2)\tif \([^\r]+\)\r\n(\2)\t\t)break ;
 (^(\t+)while \([^\r]+\) {(\r\n(\2)(?!}\r\n)[^\r]+)*\r\n(\2)\tif \([^\r]+\)\r\n(\2)\t\t)continue ;
 
-R.104 [A] : 重复的if判断语句
+R.104 [A] : 检查重复的if判断语句
 ^\t+if \(([^\r]+)\)\r\n[^\r]+;\r\n\t+if \((\1)\)
 ^(\t+)for \(FOR_ONCE_DO_WHILE_FALSE\) {(\r\n(?!(\1)}\r\n)[^\r]+)*\r\n(\1)}\r\n\t+if \([^\r]+\)
 ^(\t+)if \([^\r]+\)\r\n[^\r]+\r\n(\1)for \(FOR_ONCE_DO_WHILE_FALSE\)
+
+R.105 [A] : 检查过程化的函数
+const (Phan(Ref|Buffer)|SharedRef|StrongRef)<(?!const)[^\r]+> &
+^\t+(inline )?(export |static |implicit |explicit )?(\w+(<[^\r*\(\)]>)? )?(\w+::)*(?!compute_|template_|friend_)\w+ \(([^\r\(\)]+ ,)*\w+(<[^\r]*>)? &(?!(if_flag|me)\W)\w*( ,[^\r\(\)]+)*\) ((?!popping)\w+ )*(:[^\r{]+)?{
+
+R.106 [A] : 检查函数调用的匿名参数
+(?<!RangeFolder<ARGC<\d+>> )(\(| ,){[^\r]+}( ,|\))
+((\(| ,)([\w:]+(<[^\r]*>)? )?{[^\r]+}( ,)|( ,)([\w:]+(<[^\r]*>)? )?{[^\r]+}( ,|\)))

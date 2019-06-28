@@ -34,7 +34,7 @@ private:
 
 		inline void operator++ () {
 			mIndex++ ;
-			mBase.template_incrase (mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
+			template_incrase (mBase.mRange ,mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
 		}
 
 	private:
@@ -77,19 +77,19 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<0> &) const {
-		_DEBUG_ASSERT_ (index[0] < mRange[0]) ;
+	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGC<0> &) {
+		_DEBUG_ASSERT_ (index[0] < range[0]) ;
 		index[0]++ ;
 	}
 
 	template <INDEX _VAL1>
-	inline void template_incrase (Array<LENGTH ,SIZE> &index ,const ARGC<_VAL1> &) const {
+	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGC<_VAL1> &) {
 		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < SIZE::value) ;
 		index[_VAL1]++ ;
-		if (index[_VAL1] < mRange[_VAL1])
+		if (index[_VAL1] < range[_VAL1])
 			return ;
 		index[_VAL1] = 0 ;
-		template_incrase (index ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
+		template_incrase (range ,index ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
 	}
 } ;
 
@@ -577,12 +577,12 @@ template <class TYPE>
 class AbstractImage {
 public:
 	exports struct Abstract :public Interface {
-		virtual PACK<PTR<ARR<TYPE>> ,LENGTH[4]> layout (AnyRef<void> &_this) const = 0 ;
-		virtual void load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
-		virtual void load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
-		virtual void load_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
-		virtual void save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const = 0 ;
+		virtual void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<TYPE>> ,LENGTH[4]> &layout) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
+		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
+		virtual void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
+		virtual void compute_save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const = 0 ;
 	} ;
 
 private:
@@ -631,7 +631,7 @@ private:
 
 		inline ~NativeProxy () noexcept {
 			_CALL_EH_ ([&] () {
-				static_update_layout (mAbstract ,mThis) ;
+				compute_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}
 
@@ -713,6 +713,7 @@ public:
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
@@ -720,6 +721,7 @@ public:
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
@@ -770,6 +772,7 @@ public:
 	inline NativeProxy<_RET> native () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
+		mThis->mImage = PhanBuffer<TYPE> () ;
 		return NativeProxy<_RET> (mAbstract ,mThis) ;
 	}
 
@@ -786,55 +789,52 @@ public:
 		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->load_data (mThis->mHolder ,_cx ,_cy) ;
-		update_layout () ;
+		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;
+		compute_update_layout (mAbstract ,mThis) ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		mAbstract->load_data (mThis->mHolder ,data) ;
-		update_layout () ;
+		mAbstract->compute_load_data (mThis->mHolder ,data) ;
+		compute_update_layout (mAbstract ,mThis) ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &param) popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->load_data (mThis->mHolder ,data ,param) ;
-		update_layout () ;
+		mAbstract->compute_load_data (mThis->mHolder ,data ,param) ;
+		compute_update_layout (mAbstract ,mThis) ;
 	}
 
 	void load_file (const String<STR> &file) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		mAbstract->load_file (mThis->mHolder ,file) ;
-		update_layout () ;
+		mAbstract->compute_load_file (mThis->mHolder ,file) ;
+		compute_update_layout (mAbstract ,mThis) ;
 	}
 
 	void save_file (const String<STR> &file ,const AnyRef<void> &param) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->save_file (mThis->mHolder ,file ,param) ;
-		update_layout () ;
+		mAbstract->compute_save_file (mThis->mHolder ,file ,param) ;
+		compute_update_layout (mAbstract ,mThis) ;
 	}
 
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Pack> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
 
 private:
-	void update_layout () {
-		_DEBUG_ASSERT_ (exist ()) ;
-		static_update_layout (mAbstract ,mThis) ;
-	}
-
-	static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Pack> &_this) {
+	static void compute_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Pack> &_this) {
 		_DEBUG_ASSERT_ (_abstract.exist ()) ;
 		_DEBUG_ASSERT_ (_this.exist ()) ;
 		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
-		const auto r1x = _abstract->layout (_this->mHolder) ;
-		_this->mImage = PhanBuffer<TYPE>::make (*r1x.P1 ,(r1x.P2[1] * r1x.P2[2] + r1x.P2[3])) ;
-		_this->mCX = r1x.P2[0] ;
-		_this->mCY = r1x.P2[1] ;
-		_this->mCW = r1x.P2[2] ;
-		_this->mCK = r1x.P2[3] ;
+		auto rax = PACK<PTR<ARR<TYPE>> ,LENGTH[4]> () ;
+		_ZERO_ (rax) ;
+		_abstract->compute_layout (_this->mHolder ,rax) ;
+		_this->mImage = PhanBuffer<TYPE>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
+		_this->mCX = rax.P2[0] ;
+		_this->mCY = rax.P2[1] ;
+		_this->mCW = rax.P2[2] ;
+		_this->mCK = rax.P2[3] ;
 	}
 } ;
 } ;

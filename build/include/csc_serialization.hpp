@@ -293,7 +293,7 @@ public:
 inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 	auto rax = Stack<ARRAY2<INDEX>> () ;
 	auto rbx = Queue<ARRAY2<INDEX>> () ;
-	rax.add ({mIndex ,FLAG (0)}) ;
+	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
@@ -312,7 +312,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _GAP_ ;
 			rbx.clear () ;
 			for (INDEX i = r1.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
-				rbx.add ({i ,FLAG (0)}) ;
+				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			rax.appand (rbx) ;
 		} ,[&] (BOOL &if_flag) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
@@ -348,8 +348,8 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
 			for (INDEX i = r3.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
-				rbx.add ({i ,FLAG (0)}) ;
-			rbx.add ({r1x[0] ,FLAG (1)}) ;
+				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
+			rbx.add (ARRAY2<INDEX> {r1x[0] ,FLAG (1)}) ;
 			rax.appand (rbx) ;
 		} ,[&] (BOOL &if_flag) {
 			//@info: case '</xxx>'
@@ -1143,6 +1143,18 @@ private:
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 
+	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
+		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
+		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
+			if (mHeap.self[i].mTypeID != TYPE_ID_OBJECT)
+				continue ;
+			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			for (auto &&j : r1)
+				ret.add (&j.key) ;
+		}
+		return std::move (ret) ;
+	}
+
 public:
 	inline static JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
@@ -1154,18 +1166,8 @@ public:
 inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 	auto rax = Stack<ARRAY2<INDEX>> () ;
 	auto rbx = Queue<ARRAY2<INDEX>> () ;
-	rax.add ({mIndex ,FLAG (0)}) ;
-	const auto r1x = _CALL_ ([&] () {
-		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
-		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
-			if (mHeap.self[i].mTypeID != TYPE_ID_OBJECT)
-				continue ;
-			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			for (auto &&j : r1)
-				ret.add (&j.key) ;
-		}
-		return std::move (ret) ;
-	}) ;
+	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
+	const auto r1x = object_key_adress_set () ;
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
@@ -1202,15 +1204,15 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			auto &r3 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rbx.clear () ;
-			rbx.add ({VAR_NONE ,FLAG (2)}) ;
+			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (2)}) ;
 			INDEX ir = 0 ;
 			for (auto &&i : r3) {
 				if (ir > 0)
-					rbx.add ({VAR_NONE ,FLAG (3)}) ;
+					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (3)}) ;
 				ir++ ;
-				rbx.add ({i.item ,FLAG (0)}) ;
+				rbx.add (ARRAY2<INDEX> {i.item ,FLAG (0)}) ;
 			}
-			rbx.add ({VAR_NONE ,FLAG (4)}) ;
+			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (4)}) ;
 			rax.appand (rbx) ;
 		} ,[&] (BOOL &if_flag) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
@@ -1222,19 +1224,19 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 				discard ;
 			auto &r4 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rbx.clear () ;
-			rbx.add ({VAR_NONE ,FLAG (5)}) ;
+			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (5)}) ;
 			INDEX ir = 0 ;
 			for (auto &&i : r4) {
 				if (ir > 0)
-					rbx.add ({VAR_NONE ,FLAG (6)}) ;
+					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (6)}) ;
 				ir++ ;
 				INDEX ix = r1x.find (&i.key) ;
 				_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-				rbx.add ({ix ,FLAG (1)}) ;
-				rbx.add ({VAR_NONE ,FLAG (7)}) ;
-				rbx.add ({i.item ,FLAG (0)}) ;
+				rbx.add (ARRAY2<INDEX> {ix ,FLAG (1)}) ;
+				rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (7)}) ;
+				rbx.add (ARRAY2<INDEX> {i.item ,FLAG (0)}) ;
 			}
-			rbx.add ({VAR_NONE ,FLAG (8)}) ;
+			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (8)}) ;
 			rax.appand (rbx) ;
 		} ,[&] (BOOL &if_flag) {
 			if (r2x[0] == VAR_NONE)

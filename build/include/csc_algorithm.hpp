@@ -480,7 +480,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 
 		inline void update_lack_weight (INDEX y) {
 			mTempStack.clear () ;
-			mTempStack.add ({0 ,y}) ;
+			mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 			mTempState = 1 ;
 			mTempRet = FALSE ;
 			INDEX ix = VAR_NONE ;
@@ -514,7 +514,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 					mTempState = r4x ;
 				} else if (mTempState == 8) {
 					mXVisit[mTempStack[ix][0]] = TRUE ;
-					mTempStack.add ({0 ,mXYLink[mTempStack[ix][0]]}) ;
+					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				} else if (mTempState == 9) {
 					ix = mTempStack.peek () ;
@@ -1029,7 +1029,7 @@ public:
 		rax[1][1] = _MIN_ ((point[1] + width) ,mBound[1][1]) ;
 		rax[2][0] = _MAX_ ((point[2] - width) ,mBound[2][0]) ;
 		rax[2][1] = _MIN_ ((point[2] + width) ,mBound[2][1]) ;
-		compute_query_range (point ,_SQE_ (width) ,mRoot ,0 ,rax ,ret) ;
+		compute_search_range (point ,_SQE_ (width) ,mRoot ,0 ,rax ,ret) ;
 		return std::move (ret) ;
 	}
 
@@ -1042,22 +1042,24 @@ public:
 			ret[i].P1 = r2x[i] ;
 			ret[i].P2 = r1x[r2x[i]] ;
 		}
-		compute_query_range (point ,mRoot ,0 ,ret) ;
+		compute_search_range (point ,mRoot ,0 ,ret) ;
 		return std::move (ret) ;
 	}
 
 private:
 	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
 
-	void compute_query_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
+	void compute_search_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			INDEX ix = mHeap[it].mLeaf ;
-			const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
-			if (r2x > sqe_range)
-				return ;
-			out.add (ix) ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				INDEX ix = mHeap[it].mLeaf ;
+				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
+				if (r2x > sqe_range)
+					continue ;
+				out.add (ix) ;
+			}
 		} ,[&] (BOOL &if_flag) {
 			const auto r3x = mHeap[it].mKey ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1065,7 +1067,7 @@ private:
 					continue ;
 				const auto r4x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
-				compute_query_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
+				compute_search_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r4x ;
 			}
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1073,7 +1075,7 @@ private:
 					continue ;
 				const auto r5x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
-				compute_query_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
+				compute_search_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][0] = r5x ;
 			}
 		}) ;
@@ -1089,31 +1091,33 @@ private:
 		return std::move (ret) ;
 	}
 
-	void compute_query_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
+	void compute_search_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			INDEX ix = mHeap[it].mLeaf ;
-			const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
-			INDEX iw = out.length () ;
-			while (TRUE) {
-				if (iw - 1 < 0)
-					break ;
-				if (r2x >= out[iw - 1].P2)
-					break ;
-				out[iw] = out[iw - 1] ;
-				iw-- ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				INDEX ix = mHeap[it].mLeaf ;
+				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
+				INDEX iw = out.length () ;
+				while (TRUE) {
+					if (iw - 1 < 0)
+						break ;
+					if (r2x >= out[iw - 1].P2)
+						break ;
+					out[iw] = out[iw - 1] ;
+					iw-- ;
+				}
+				if (iw >= out.length ())
+					continue ;
+				out[iw].P1 = ix ;
+				out[iw].P2 = r2x ;
 			}
-			if (iw >= out.length ())
-				return ;
-			out[iw].P1 = ix ;
-			out[iw].P2 = r2x ;
 		} ,[&] (BOOL &if_flag) {
 			const auto r3x = mHeap[it].mKey ;
 			if (r3x >= point[rot] - out[out.length () - 1].P2)
-				compute_query_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
+				compute_search_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
 			if (r3x <= point[rot] + out[out.length () - 1].P2)
-				compute_query_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
+				compute_search_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
 			_STATIC_WARNING_ ("unqualified") ;
 		}) ;
 	}

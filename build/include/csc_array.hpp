@@ -44,11 +44,11 @@ private:
 	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) popping : mBase (base) ,mIndex (std::move (index)) {}
 
 public:
-	inline static ForwardIterator friend_begin (BASE &base) {
+	inline static ForwardIterator friend_begin (BASE &base) popping {
 		return ForwardIterator (base ,_XVALUE_<const BASE> (base).ibegin ()) ;
 	}
 
-	inline static ForwardIterator friend_end (BASE &base) {
+	inline static ForwardIterator friend_end (BASE &base) popping {
 		return ForwardIterator (base ,_XVALUE_<const BASE> (base).iend ()) ;
 	}
 } ;
@@ -93,7 +93,7 @@ struct OPERATOR_SORT<void ,void> {
 template <class TYPE1 ,class TYPE2>
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	inline static void insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb) {
+	inline static void compute_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb) {
 		for (INDEX i = ib + 1 ; i <= jb ; i++) {
 			INDEX iw = i ;
 			auto rax = std::move (out[iw]) ;
@@ -110,7 +110,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,INDEX &it) {
+	inline static void compute_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,INDEX &it) {
 		INDEX ix = ib ;
 		INDEX iy = jb ;
 		auto rax = std::move (out[ix]) ;
@@ -131,7 +131,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,LENGTH ideal) {
+	inline static void compute_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,LENGTH ideal) {
 		INDEX ix = ib ;
 		while (TRUE) {
 			if (ix >= jb)
@@ -140,17 +140,17 @@ struct OPERATOR_SORT {
 				break ;
 			ideal = ideal / 2 + ideal / 4 ;
 			INDEX jx = VAR_NONE ;
-			quick_sort_partition (array ,out ,ix ,jb ,jx) ;
-			quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
+			compute_quick_sort_partition (array ,out ,ix ,jb ,jx) ;
+			compute_quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
 			ix = jx + 1 ;
 		}
 		if (ix >= jb)
 			return ;
-		insert_sort (array ,out ,ix ,jb) ;
+		compute_insert_sort (array ,out ,ix ,jb) ;
 	}
 
 	inline static void invoke (const TYPE1 &array ,TYPE2 &out ,INDEX ib ,INDEX ie) {
-		quick_sort (array ,out ,ib ,(ie - 1) ,ie) ;
+		compute_quick_sort (array ,out ,ib ,(ie - 1) ,ie) ;
 	}
 } ;
 } ;
@@ -159,12 +159,12 @@ namespace U {
 template <class TYPE>
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().hash ()) ,FLAG>::value>> & ,const decltype (ARGVP2) &) {
+	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().hash ()) ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		return left.hash () ;
 	}
 
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const decltype (ARGVP1) &) {
+	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (left)) ;
 	}
 
@@ -605,7 +605,7 @@ public:
 	}
 
 private:
-	explicit String (const decltype (ARGVP0) & ,LENGTH len) :mString (len) {}
+	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mString (len) {}
 
 private:
 	inline static LENGTH raw_string_length (const ARR<ITEM> &src) {
@@ -873,7 +873,7 @@ public:
 	}
 
 private:
-	explicit Stack (const decltype (ARGVP0) & ,LENGTH len) :mStack (len) {}
+	explicit Stack (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mStack (len) {}
 
 private:
 	void reserve (LENGTH len) {
@@ -1135,7 +1135,7 @@ public:
 	}
 
 private:
-	explicit Queue (const decltype (ARGVP0) & ,LENGTH len) :mQueue (len) {}
+	explicit Queue (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mQueue (len) {}
 
 private:
 	BOOL ensure_index (INDEX index) const {
@@ -1230,7 +1230,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -1304,7 +1304,7 @@ public:
 	}
 
 private:
-	explicit Priority (const decltype (ARGVP0) & ,LENGTH len) :mPriority (len) {}
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
 } ;
 
 template <class KEY ,class SIZE>
@@ -1341,7 +1341,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mPriority[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -1405,7 +1405,7 @@ public:
 	}
 
 private:
-	explicit Priority (const decltype (ARGVP0) & ,LENGTH len) :mPriority (len) {}
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -2012,7 +2012,7 @@ public:
 	}
 
 private:
-	explicit Deque (const decltype (ARGVP0) & ,LENGTH len) :mList (len) ,mDeque (len) {}
+	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mDeque (len) {}
 
 private:
 	INDEX access (INDEX pos ,INDEX ib ,INDEX jb) const {
@@ -2581,7 +2581,7 @@ public:
 	}
 
 private:
-	explicit QList (const decltype (ARGVP0) & ,LENGTH len) :mList (len) {}
+	explicit QList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) {}
 
 private:
 	INDEX &prev_next (INDEX it) & {
@@ -3016,9 +3016,9 @@ public:
 	}
 
 private:
-	explicit BitSet (const decltype (ARGVP0) &) :mWidth (0) {}
+	explicit BitSet (const DEF<decltype (ARGVP0)> &) :mWidth (0) {}
 
-	explicit BitSet (const decltype (ARGVP0) & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
+	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
 
 private:
 	inline static LENGTH expr_size (const std::initializer_list<INDEX> &right) {
@@ -3060,7 +3060,7 @@ private:
 
 		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
 		inline explicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
@@ -3090,7 +3090,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -3168,7 +3168,7 @@ public:
 	}
 
 private:
-	explicit Set (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) {}
+	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
 } ;
 
 template <class KEY ,class SIZE>
@@ -3216,7 +3216,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -3286,7 +3286,7 @@ public:
 	}
 
 private:
-	explicit Set (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) {}
+	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3838,7 +3838,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -3916,7 +3916,7 @@ public:
 	}
 
 private:
-	explicit HashSet (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
 	BOOL equal_each (const HashSet &right ,INDEX it) const {
@@ -3972,7 +3972,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -4042,7 +4042,7 @@ public:
 	}
 
 private:
-	explicit HashSet (const decltype (ARGVP0) & ,LENGTH len) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
 	BOOL equal_each (const HashSet &right ,INDEX it) const {
@@ -4330,7 +4330,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
@@ -4478,7 +4478,7 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) :key (base.mSet.self[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) {}
 	} ;
 
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;

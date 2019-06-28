@@ -390,11 +390,13 @@ using VAL64 = double ;
 static constexpr auto VAL32_MAX = VAL32 (3.402823466E+38) ;
 static constexpr auto VAL32_MIN = VAL32 (1.175494351E-38) ;
 static constexpr auto VAL32_EPS = VAL32 (1.192092896E-07) ;
+static constexpr auto VAL32_PCS = LENGTH (6) ;
+static constexpr auto VAL32_INF = std::numeric_limits<VAL32>::infinity () ;
+static constexpr auto VAL32_NAN = std::numeric_limits<VAL32>::quiet_NaN () ;
 static constexpr auto VAL64_MAX = VAL64 (1.7976931348623158E+308) ;
 static constexpr auto VAL64_MIN = VAL64 (2.2250738585072014E-308) ;
 static constexpr auto VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
-static constexpr auto VAL32_INF = std::numeric_limits<VAL32>::infinity () ;
-static constexpr auto VAL32_NAN = std::numeric_limits<VAL32>::quiet_NaN () ;
+static constexpr auto VAL64_PCS = LENGTH (15) ;
 static constexpr auto VAL64_INF = std::numeric_limits<VAL64>::infinity () ;
 static constexpr auto VAL64_NAN = std::numeric_limits<VAL64>::quiet_NaN () ;
 
@@ -404,6 +406,7 @@ using VAL = VAL32 ;
 static constexpr auto VAL_MAX = VAL32_MAX ;
 static constexpr auto VAL_MIN = VAL32_MIN ;
 static constexpr auto VAL_EPS = VAL32_EPS ;
+static constexpr auto VAL_PCS = VAL32_PCS ;
 static constexpr auto VAL_INF = VAL32_INF ;
 static constexpr auto VAL_NAN = VAL32_NAN ;
 #elif defined __CSC_CONFIG_VAL64__
@@ -412,6 +415,7 @@ using VAL = VAL64 ;
 static constexpr auto VAL_MAX = VAL64_MAX ;
 static constexpr auto VAL_MIN = VAL64_MIN ;
 static constexpr auto VAL_EPS = VAL64_EPS ;
+static constexpr auto VAL_PCS = VAL64_PCS ;
 static constexpr auto VAL_INF = VAL64_INF ;
 static constexpr auto VAL_NAN = VAL64_NAN ;
 #endif
@@ -1020,7 +1024,9 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	_LOAD_<_ARG1> (address).~_ARG1 () ;
+	const auto r1x = &_LOAD_<_ARG1> (address) ;
+	r1x->~_ARG1 () ;
+	(void) r1x ;
 }
 
 template <class _ARG1>
@@ -1695,7 +1701,7 @@ public:
 	inline ScopedHolder () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) popping :mAddress (address) {
+	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) :mAddress (address) {
 		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
@@ -1722,7 +1728,7 @@ private:
 public:
 	inline ScopedHolder () = delete ;
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) :mAddress (address) ,mWrite (0) {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
@@ -1734,7 +1740,7 @@ public:
 		}
 	}
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
@@ -2085,7 +2091,7 @@ public:
 	}
 
 private:
-	inline explicit SharedRef (PTR<Holder> pointer) popping {
+	inline explicit SharedRef (PTR<Holder> pointer) {
 		mPointer = _COPY_ (pointer) ;
 		if (mPointer == NULL)
 			return ;
@@ -2691,26 +2697,26 @@ private:
 		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override ;
 	} ;
 
-	class ImplPureHolder :public Holder {
+	template <class>
+	class ImplHolder ;
+
+	class PureHolder :public Holder {
 	private:
 		PTR<TYPE1 (TYPES...)> mFunction ;
 
 	public:
-		inline ImplPureHolder () = delete ;
+		inline PureHolder () = delete ;
 
-		inline explicit ImplPureHolder (const PTR<TYPE1 (TYPES...)> &function) noexcept :mFunction (function) {}
+		inline explicit PureHolder (const PTR<TYPE1 (TYPES...)> &function) noexcept :mFunction (function) {}
 
 		inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-			address_create<ImplPureHolder> (address ,mFunction) ;
+			address_create<PureHolder> (address ,mFunction) ;
 		}
 
 		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
 			return mFunction (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 		}
 	} ;
-
-	template <class>
-	class ImplHolder ;
 
 private:
 	TEMP<FakeHolder> mVariant ;
@@ -2722,7 +2728,7 @@ public:
 
 	inline implicit Function (const PTR<TYPE1 (TYPES...)> &right) noexcept {
 		_DEBUG_ASSERT_ (right != NULL) ;
-		address_create<ImplPureHolder> (&mVariant ,right) ;
+		address_create<PureHolder> (&mVariant ,right) ;
 	}
 
 	template <class _ARG1>
@@ -2777,9 +2783,12 @@ public:
 	}
 
 	inline BOOL exist () const {
-		auto rax = PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> () ;
-		_ZERO_ (rax) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&rax.P1[0]]) ;
+		auto &r1 = _CACHE_ ([] () {
+			PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> ret ;
+			_ZERO_ (ret) ;
+			return std::move (ret) ;
+		}) ;
+		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&r1.P1[0]]) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2863,7 +2872,7 @@ public:
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
-		return mFunction (mContext ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return mFunction (*mContext ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 } ;
 
@@ -4072,9 +4081,11 @@ public:
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
-		const auto r1x = BOOL (mFree == VAR_NONE) ;
+		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!r1x)
+			if (ret != VAR_NONE)
+				continue ;
+			if (mFree != VAR_NONE)
 				continue ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
@@ -4084,13 +4095,16 @@ public:
 			}
 			mAllocator.swap (rax) ;
 			update_free (mLength ,mFree) ;
+			ret = mFree ;
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (r1x)
+			if (ret != VAR_NONE)
+				continue ;
+			if (mFree == VAR_NONE)
 				continue ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
+			ret = mFree ;
 		}
-		INDEX ret = mFree ;
 		mFree = mAllocator[mFree].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
 		mLength++ ;

@@ -165,7 +165,7 @@ inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
 
 inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
-	const auto r1x = VAR64 (x * _PINV_  (y)) ;
+	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
 	if (x < 0 && x < ret)
 		ret = y * VALX (r1x - 1) ;
@@ -230,7 +230,6 @@ inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1 ,const _ARG1 &arg2 ,const _ARGS &
 }
 
 inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
-	DATA ret = 0 ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY3<DATA> ret ;
 		ret[0] = DATA (sne2[0]) ;
@@ -261,6 +260,7 @@ inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
 	}) ;
 	_DYNAMIC_ASSERT_ ((r1x[0] & ~0X001FFFFFFFFFFFFF) == 0) ;
 	_DYNAMIC_ASSERT_ ((r1x[1] & ~0X7FF0000000000000) == 0) ;
+	DATA ret = 0 ;
 	ret |= r1x[0] & DATA (0X000FFFFFFFFFFFFF) ;
 	ret |= r1x[1] & DATA (0X7FF0000000000000) ;
 	ret |= r1x[2] & DATA (0X8000000000000000) ;
@@ -526,7 +526,7 @@ inline Function<_ARG1 (const _ARGS &...)> _BIND_ (const PTR<_ARG1 (const _ARGS &
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4>
-inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const decltype (ARGVP1) & ,const decltype (ARGVP1) & ,const decltype (ARGVP2) & ,const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2) {
+inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP2)> & ,const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2) {
 	return Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> ([&] (const _ARG2 &op1 ,const _ARG3 &op2) {
 		return func2 (op1 ,func1 (op1 ,op2)) ;
 	}) ;

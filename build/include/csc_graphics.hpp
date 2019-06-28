@@ -234,21 +234,20 @@ private:
 class AbstractShader {
 public:
 	exports struct Abstract :public Interface {
-		virtual void load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
-		virtual void active_pipeline (AnyRef<void> &_this) const = 0 ;
-		virtual INDEX uniform_find (const AnyRef<void> &_this ,const String<STR> &name) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAR32 &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAR64 &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAL32 &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const VAL64 &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
-		virtual void uniform_write (const AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
-
-		virtual void sprite_load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
-		virtual void sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
-		virtual void sprite_draw (const AnyRef<void> &_this) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
+		virtual void compute_active_pipeline (AnyRef<void> &_this) const = 0 ;
+		virtual void compute_uniform_find (AnyRef<void> &_this ,const String<STR> &name ,INDEX &index) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
+		virtual void compute_sprite_load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
+		virtual void compute_sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
+		virtual void compute_sprite_draw (AnyRef<void> &_this) const = 0 ;
 	} ;
 
 	class Sprite ;
@@ -273,84 +272,108 @@ public:
 
 	void load_data (const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->load_data (mHolder ,vs ,fs) ;
+		mAbstract->compute_load_data (mHolder ,vs ,fs) ;
 	}
 
 	void active_pipeline () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->active_pipeline (mHolder) ;
+		mAbstract->compute_active_pipeline (mHolder) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAR32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAR64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAL32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAL64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mUniformSet.length () ;
 		INDEX ix = mUniformSet.insert (name) ;
-		if (mUniformSet.length () > r1x)
-			mUniformSet[ix].item = mAbstract->uniform_find (mHolder ,name) ;
-		mAbstract->uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mUniformSet.length () == r1x)
+				continue ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+		}
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
 	Sprite create_sprite () popping ;
@@ -375,19 +398,19 @@ public:
 
 	void load_data (const Mesh &mesh) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->sprite_load_data (mHolder ,mesh) ;
+		mAbstract->compute_sprite_load_data (mHolder ,mesh) ;
 	}
 
 	void active_texture (INDEX texture) {
 		if (!exist ())
 			return ;
-		mAbstract->sprite_active_texture (mHolder ,texture) ;
+		mAbstract->compute_sprite_active_texture (mHolder ,texture) ;
 	}
 
 	void draw () {
 		if (!exist ())
 			return ;
-		mAbstract->sprite_draw (mHolder) ;
+		mAbstract->compute_sprite_draw (mHolder) ;
 	}
 
 private:
