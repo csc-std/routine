@@ -291,12 +291,24 @@ inline ARRAY2<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
 }
 
+inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
+	VAL64 ret = 1 ;
+	const auto r1x = logex * _ABS_ (ly) ;
+	auto rax = VAL64 (1) ;
+	auto rbx = VAL64 (1) ;
+	while (TRUE) {
+		rax = rax * r1x / rbx ;
+		if (rax < VAL64_EPS)
+			break ;
+		ret += rax ;
+		rbx++ ;
+	}
+	if (ly < 0)
+		ret = _PINV_ (ret) ;
+	return std::move (ret) ;
+}
+
 inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
-	_STATIC_WARNING_ ("note") ;
-	/*
-	X^(b/a) => { Y[0]=X^b ; Y[K+1]=Y[k]+((X^b)/(Y[k]^(a-1))-Y[k])/a ; }
-	X^(b/a) = Y[inf]
-	*/
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY2<DATA> ret = _CAST_<ARRAY2<DATA>> (sne2) ;
 		if (sne2[0] < 0)
@@ -312,9 +324,11 @@ inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
 		}
 		return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
 	}) ;
-	const auto r2x = (VALX_LOGE2 / VALX_LOGE10) * r1x[1] ;
 	ARRAY2<DATA> ret ;
-	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (10 ,(r2x - VAR64 (r2x))) + VAL64 (0.5))) ;
+	const auto r2x = VAL64 (VALX_LOGE2 / VALX_LOGE10) * VAL64 (r1x[1]) ;
+	//@warn: without enough precision
+	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE10) ,(r2x - VAR64 (r2x))) ;
+	ret[0] = DATA (VAR64 (VAL64 (r1x[0]) * r3x)) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (TRUE) {
 		if (ret[0] == 0)
@@ -330,11 +344,6 @@ inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
 }
 
 inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
-	_STATIC_WARNING_ ("note") ;
-	/*
-	X^(b/a) => { Y[0]=X^b ; Y[K+1]=Y[k]+((X^b)/(Y[k]^(a-1))-Y[k])/a ; }
-	X^(b/a) = Y[inf]
-	*/
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY2<DATA> ret = _CAST_<ARRAY2<DATA>> (sne10) ;
 		if (sne10[0] < 0)
@@ -350,9 +359,11 @@ inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
 		}
 		return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
 	}) ;
-	const auto r2x = (VALX_LOGE10 / VALX_LOGE2) * r1x[1] ;
 	ARRAY2<DATA> ret ;
-	ret[0] = DATA (VAR64 (r1x[0] * _POW_ (2 ,(r2x - VAR64 (r2x))) + VAL64 (0.5))) ;
+	const auto r2x = VAL64 (VALX_LOGE10 / VALX_LOGE2) * VAL64 (r1x[1]) ;
+	//@warn: without enough precision
+	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE2) ,(r2x - VAR64 (r2x))) ;
+	ret[0] = DATA (VAR64 (VAL64 (r1x[0]) * r3x)) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (TRUE) {
 		if (ret[0] == 0)
@@ -454,10 +465,14 @@ inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &array1 ,const Array<BOOL> &ele
 template <class _ARG1>
 inline Array<_ARG1> _REDUCE_ (const _ARG1 &first ,LENGTH count ,const Function<_ARG1 (const _ARG1 &)> &func) {
 	Array<_ARG1> ret = Array<_ARG1> (count) ;
-	for (INDEX i = 0 ,ie = _MIN_ (LENGTH (1) ,ret.length ()) ; i < ie ; i++)
-		ret[i] = first ;
-	for (INDEX i = 1 ; i < ret.length () ; i++)
-		ret[i] = func (ret[i - 1]) ;
+	for (FOR_ONCE_DO_WHILE_FALSE) {
+		if (ret.size () == 0)
+			continue ;
+		for (INDEX i = 0 ; i < 1 ; i++)
+			ret[i] = first ;
+		for (INDEX i = 1 ; i < ret.length () ; i++)
+			ret[i] = func (ret[i - 1]) ;
+	}
 	return std::move (ret) ;
 }
 

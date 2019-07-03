@@ -39,9 +39,11 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	mPrimeSet.fill (BYTE (0XAA)) ;
 	mPrimeSet[1] = FALSE ;
 	mPrimeSet[2] = TRUE ;
-	for (INDEX i = 3 ,ie = _SQRT_ (mPrimeSet.size ()) + 2 ; i < ie ; i += 2)
-		for (INDEX j = _SQE_ (i) ; j < mPrimeSet.size () ; j += i * 2)
+	for (INDEX i = 3 ,ie = _SQRT_ (mPrimeSet.size ()) + 1 ; i < ie ; i += 2) {
+		const auto r1x = i * 2 ;
+		for (INDEX j = _SQE_ (i) ; j < mPrimeSet.size () ; j += r1x)
 			mPrimeSet[j] = FALSE ;
+	}
 }
 
 template <class UNIT>
@@ -57,11 +59,11 @@ public:
 		initialize (pattern) ;
 	}
 
-	INDEX query (const PhanBuffer<const UNIT> &target ,INDEX ib) const {
-		_DEBUG_ASSERT_ (ib >= 0 && ib < target.size ()) ;
-		INDEX ix = ib ;
+	INDEX query (const PhanBuffer<const UNIT> &target ,INDEX seg) const {
+		_DEBUG_ASSERT_ (seg >= 0 && seg < target.size ()) ;
+		INDEX ix = seg ;
 		INDEX iy = 0 ;
-		if (target.size () - ib < mNext.length ())
+		if (target.size () - seg < mNext.length ())
 			return VAR_NONE ;
 		while (TRUE) {
 			if (ix >= target.size ())
@@ -133,6 +135,7 @@ public:
 		INDEX iw = ret.length () ;
 		for (INDEX i = index ; i != VAR_NONE ; i = mPrev[i])
 			ret[--iw] = i ;
+		_DEBUG_ASSERT_ (iw == 0) ;
 		return std::move (ret) ;
 	}
 
@@ -1098,19 +1101,20 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
-				INDEX iw = out.length () ;
+				INDEX jx = out.length () ;
 				while (TRUE) {
-					if (iw - 1 < 0)
+					if (jx - 1 < 0)
 						break ;
-					if (r2x >= out[iw - 1].P2)
+					if (r2x >= out[jx - 1].P2)
 						break ;
-					out[iw] = out[iw - 1] ;
-					iw-- ;
+					if (jx < out.length ())
+						out[jx] = out[jx - 1] ;
+					jx-- ;
 				}
-				if (iw >= out.length ())
+				if (jx >= out.length ())
 					continue ;
-				out[iw].P1 = ix ;
-				out[iw].P2 = r2x ;
+				out[jx].P1 = ix ;
+				out[jx].P2 = r2x ;
 			}
 		} ,[&] (BOOL &if_flag) {
 			const auto r3x = mHeap[it].mKey ;
@@ -1118,7 +1122,6 @@ private:
 				compute_search_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
 			if (r3x <= point[rot] + out[out.length () - 1].P2)
 				compute_search_range (point ,mHeap[it].mRight ,mNextRot[rot] ,out) ;
-			_STATIC_WARNING_ ("unqualified") ;
 		}) ;
 	}
 } ;
@@ -1137,7 +1140,6 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		INDEX mRoot ;
 		INDEX mLatestIndex ;
 
-		BitSet<> mTempMark ;
 		Array<INDEX> mTempOrder ;
 
 	public:
@@ -1167,82 +1169,72 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		inline void generate () {
 			update_bound () ;
-			update_build_tree (mRoot ,0 ,0 ,(mVertex.length () - 1)) ;
+			update_build_tree (mRoot ,0 ,0 ,mVertex.length ()) ;
 			mRoot = mLatestIndex ;
 		}
 
 		inline void update_bound () {
 			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
-			for (INDEX i = 0 ; i < 1 ; i++) {
-				mBound[0][0] = mVertex[i][0] ;
-				mBound[0][1] = mVertex[i][0] ;
-				mBound[1][0] = mVertex[i][1] ;
-				mBound[1][1] = mVertex[i][1] ;
-				mBound[2][0] = mVertex[i][2] ;
-				mBound[2][1] = mVertex[i][2] ;
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				mBound[0][0] = mVertex[0][0] ;
+				mBound[0][1] = mVertex[0][0] ;
+				mBound[1][0] = mVertex[0][1] ;
+				mBound[1][1] = mVertex[0][1] ;
+				mBound[2][0] = mVertex[0][2] ;
+				mBound[2][1] = mVertex[0][2] ;
 			}
-			for (INDEX i = 1 ; i < mVertex.length () ; i++) {
-				mBound[0][0] = _MIN_ (mBound[0][0] ,mVertex[i][0]) ;
-				mBound[0][1] = _MAX_ (mBound[0][1] ,mVertex[i][0]) ;
-				mBound[1][0] = _MIN_ (mBound[1][0] ,mVertex[i][1]) ;
-				mBound[1][1] = _MAX_ (mBound[1][1] ,mVertex[i][1]) ;
-				mBound[2][0] = _MIN_ (mBound[2][0] ,mVertex[i][2]) ;
-				mBound[2][1] = _MAX_ (mBound[2][1] ,mVertex[i][2]) ;
+			for (auto &&i : mVertex) {
+				mBound[0][0] = _MIN_ (mBound[0][0] ,i[0]) ;
+				mBound[0][1] = _MAX_ (mBound[0][1] ,i[0]) ;
+				mBound[1][0] = _MIN_ (mBound[1][0] ,i[1]) ;
+				mBound[1][1] = _MAX_ (mBound[1][1] ,i[1]) ;
+				mBound[2][0] = _MIN_ (mBound[2][0] ,i[2]) ;
+				mBound[2][1] = _MAX_ (mBound[2][1] ,i[2]) ;
 			}
 		}
 
-		void update_build_tree (INDEX it ,INDEX rot ,INDEX ib ,INDEX jb) {
-			_DEBUG_ASSERT_ (ib <= jb) ;
+		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
+			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_CALL_IF_ ([&] (BOOL &if_flag) {
-				if (ib != jb)
+				if (seg_len > 1)
 					discard ;
 				INDEX jx = mHeap.alloc () ;
 				mHeap[jx].mKey = UNIT (0) ;
-				mHeap[jx].mLeaf = mOrder[rot][ib] ;
+				mHeap[jx].mLeaf = mOrder[rot][seg] ;
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
 				mLatestIndex = jx ;
 			} ,[&] (BOOL &if_flag) {
-				INDEX ix = ib + (jb - ib + 1) / 2 ;
-				for (INDEX i = ib ; i + 1 <= jb ; i++)
+				INDEX ix = seg + seg_len / 2 ;
+				for (INDEX i = seg ,ie = seg + seg_len - 1 ; i < ie ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
-				update_order (rot ,mNextRot[rot] ,ib ,jb ,ix) ;
-				update_order (rot ,mNextRot[mNextRot[rot]] ,ib ,jb ,ix) ;
+				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg ,ix ,seg_len) ;
+				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg ,ix ,seg_len) ;
 				INDEX jx = mHeap.alloc () ;
 				mHeap[jx].mKey = mVertex[mOrder[rot][ix]][rot] ;
 				mHeap[jx].mLeaf = VAR_NONE ;
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
-				update_build_tree (mHeap[jx].mLeft ,mNextRot[rot] ,ib ,(ix - 1)) ;
+				update_build_tree (mHeap[jx].mLeft ,mNextRot[rot] ,seg ,(ix - seg)) ;
 				mHeap[jx].mLeft = mLatestIndex ;
-				update_build_tree (mHeap[jx].mRight ,mNextRot[rot] ,ix ,jb) ;
+				update_build_tree (mHeap[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;
 				mHeap[jx].mRight = mLatestIndex ;
 				mLatestIndex = it ;
 			}) ;
 		}
 
-		void update_order (INDEX rot ,INDEX n_rot ,INDEX ib ,INDEX jb ,INDEX ie) {
-			if (mTempMark.size () != mVertex.size ())
-				mTempMark = BitSet<> (mVertex.size ()) ;
-			if (mTempOrder.size () != mVertex.size ())
-				mTempOrder = Array<INDEX> (mVertex.size ()) ;
-			mTempMark.clear () ;
-			for (INDEX i = ib ; i < ie ; i++)
-				mTempMark[mOrder[rot][i]] = TRUE ;
+		void compute_order (Array<INDEX> &tmp_order ,ARRAY3<Array<INDEX>> &order ,INDEX rot ,INDEX n_rot ,INDEX seg_a ,INDEX seg_b ,LENGTH seg_len) const {
+			if (tmp_order.size () != mVertex.size ())
+				tmp_order = Array<INDEX> (mVertex.size ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = ib ; i <= jb ; i++) {
-				if (!mTempMark[mOrder[n_rot][i]])
-					continue ;
-				mTempOrder[iw++] = mOrder[n_rot][i] ;
-			}
-			for (INDEX i = ib ; i <= jb ; i++) {
-				if (mTempMark[mOrder[n_rot][i]])
-					continue ;
-				mTempOrder[iw++] = mOrder[n_rot][i] ;
-			}
+			for (INDEX i = seg_a ; i < seg_b ; i++)
+				tmp_order[iw++] = mOrder[n_rot][i] ;
+			for (INDEX i = seg_b ,ie = seg_a + seg_len ; i < ie ; i++)
+				tmp_order[iw++] = mOrder[n_rot][i] ;
 			const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
 			for (INDEX i = r1x[0] ; i < r1x[1] ; i++)
-				mOrder[n_rot][ib + i] = mTempOrder[i] ;
+				order[n_rot][seg_a + i] = tmp_order[i] ;
+			_DEBUG_ASSERT_ (iw == seg_len) ;
 		}
 
 		inline void refresh () {

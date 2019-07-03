@@ -135,7 +135,6 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 		me = CreateFile (file1.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
-		_STATIC_WARNING_ ("unqualified") ;
 	} ,[] (HANDLE &me) {
 		if (me == NULL)
 			return ;
@@ -150,7 +149,6 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 		me = CreateFile (file2.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
-		_STATIC_WARNING_ ("unqualified") ;
 	} ,[] (HANDLE &me) {
 		if (me == NULL)
 			return ;
@@ -195,8 +193,8 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 inline exports Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
-	ris.attr ().modify_space (STR ('\\')) ;
-	ris.attr ().modify_space (STR ('/')) ;
+	ris.attr ().modify_space (STR ('\\') ,0) ;
+	ris.attr ().modify_space (STR ('/') ,0) ;
 	auto rax = STR () ;
 	Queue<String<STR>> ret = Queue<String<STR>> (DEFAULT_RECURSIVE_SIZE::value) ;
 	INDEX ix = ret.insert () ;
@@ -204,7 +202,7 @@ inline exports Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	if (ris.attr ().varify_space (rax))
 		ris >> rax ;
 	while (TRUE) {
-		ret[ix] = ris.template read<String<STR>> () ;
+		ris >> ret[ix] ;
 		if (ret[ix].empty ())
 			break ;
 		ix = ret.insert () ;
@@ -262,7 +260,6 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		if (!r6x && !r7x)
 			discard ;
 		//@debug: not absolute path really
-		_STATIC_WARNING_ ("mark") ;
 		ret += _WORKINGPATH_ () ;
 	}) ;
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {

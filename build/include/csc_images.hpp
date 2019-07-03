@@ -96,13 +96,6 @@ private:
 template <class TYPE>
 class SoftImage {
 private:
-	class Attribute final :private Interface {
-	private:
-		friend SoftImage ;
-		SharedRef<FixedBuffer<TYPE>> mBuffer ;
-		ARRAY5<LENGTH> mWidth ;
-	} ;
-
 	template <class BASE>
 	class Row {
 	private:
@@ -125,8 +118,15 @@ private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
+	class Pack {
+	private:
+		friend SoftImage ;
+		SharedRef<FixedBuffer<TYPE>> mBuffer ;
+		ARRAY5<LENGTH> mWidth ;
+	} ;
+
 private:
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Pack> mHolder ;
 	PhanBuffer<TYPE> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -147,7 +147,7 @@ public:
 		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
-		mHolder = SharedRef<Attribute>::make () ;
+		mHolder = SharedRef<Pack>::make () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = _cy * _cw + _ck ;
 			if (r1x == 0)
@@ -164,7 +164,7 @@ public:
 
 	explicit SoftImage (const PhanBuffer<TYPE> &image) {
 		_DEBUG_ASSERT_ (image.size () > 0) ;
-		mHolder = SharedRef<Attribute>::make () ;
+		mHolder = SharedRef<Pack>::make () ;
 		mHolder->mWidth[0] = mImage.size () ;
 		mHolder->mWidth[1] = 1 ;
 		mHolder->mWidth[2] = mImage.size () ;

@@ -59,7 +59,7 @@
 namespace CSC {
 inline namespace NETWORK {
 template <class _RET ,class _ARG1>
-inline _RET _inline_BITWISE_COPY_ (const _ARG1 &arg1) noexcept {
+inline _RET _inline_BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
@@ -75,7 +75,7 @@ inline TIMEVAL _inline_SOCKET_CVTTO_TIMEVAL_ (LENGTH src) {
 
 inline String<STRU8> _inline_SOCKET_CVTTO_IPV4S_ (const SOCKADDR &src) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
-	const auto r1x = _inline_BITWISE_COPY_<SOCKADDR_IN> (src) ;
+	const auto r1x = _inline_BITWISE_CAST_<SOCKADDR_IN> (src) ;
 	const auto r2x = _CALL_ ([&] () {
 		PACK<WORD ,CHAR> ret ;
 		ret.P1 = _CAST_<EndianBytes<WORD>> (r1x.sin_port) ;
@@ -96,7 +96,7 @@ inline SOCKADDR _inline_SOCKET_CVTTO_SOCKETADDR_ (const String<STRU8> &src) {
 		ret.sin_addr.S_un.S_addr = _CAST_<EndianBytes<CHAR>> (r2x.P2) ;
 		return std::move (ret) ;
 	}) ;
-	return _inline_BITWISE_COPY_<SOCKADDR> (r1x) ;
+	return _inline_BITWISE_CAST_<SOCKADDR> (r1x) ;
 }
 
 inline void _inline_SOCKET_BIND_ (const SOCKET &_socket ,const String<STRU8> &addr) {
@@ -238,7 +238,7 @@ private:
 		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,&r1x[1]) != 0) ;
 		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
 		::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,_ZERO_ (rax.P1) ,&(rax.P2 = VAR32 (_SIZEOF_ (VAR32)))) ;
-		const auto r3x = _inline_BITWISE_COPY_<VAR32> (rax.P1) ;
+		const auto r3x = _inline_BITWISE_CAST_<VAR32> (rax.P1) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r3x == 0) ;
 	}

@@ -1113,7 +1113,7 @@ inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &
 template <class _RET>
 inline String<_RET> _BUILDDATES_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	String<STR> ret = String<STR> (16) ;
+	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
 	wos << r1x[0] ;
@@ -1159,7 +1159,7 @@ inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &
 template <class _RET>
 inline String<_RET> _BUILDHOURS_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	String<STR> ret = String<STR> (16) ;
+	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
 	if (r1x[5] < 10)
@@ -1222,7 +1222,7 @@ inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &
 template <class _RET>
 inline String<_RET> _BUILDTIMES_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	String<STR> ret = String<STR> (32) ;
+	String<STR> ret = String<STR> (63) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
 	wos << r1x[0] ;

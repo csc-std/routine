@@ -72,8 +72,8 @@ struct OPERATOR_SORT ;
 template <>
 struct OPERATOR_SORT<void ,void> {
 	template <class _ARG1 ,class _ARG2>
-	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX ie) {
-		OPERATOR_SORT<_ARG1 ,_ARG2>::invoke (array ,out ,ib ,ie) ;
+	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+		OPERATOR_SORT<_ARG1 ,_ARG2>::invoke (array ,out ,seg ,seg_len) ;
 	}
 
 	class ForwardArray :private Wrapped<ARGV<NONE>> {
@@ -85,34 +85,34 @@ struct OPERATOR_SORT<void ,void> {
 	} ;
 
 	template <class _ARG1>
-	inline static void invoke (_ARG1 &out ,INDEX ib ,INDEX ie) {
-		OPERATOR_SORT<ForwardArray ,_ARG1>::invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,ib ,ie) ;
+	inline static void invoke (_ARG1 &out ,INDEX seg ,LENGTH seg_len) {
+		OPERATOR_SORT<ForwardArray ,_ARG1>::invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,seg ,seg_len) ;
 	}
 } ;
 
 template <class TYPE1 ,class TYPE2>
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb) {
-		for (INDEX i = ib + 1 ; i <= jb ; i++) {
-			INDEX iw = i ;
-			auto rax = std::move (out[iw]) ;
+	inline static void compute_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+		for (INDEX i = seg_a + 1 ,ie = seg_b + 1 ; i < ie ; i++) {
+			INDEX ix = i ;
+			auto rax = std::move (out[ix]) ;
 			while (TRUE) {
-				if (iw - 1 < ib)
+				if (ix - 1 < seg_a)
 					break ;
-				if (!(array[rax] < array[out[iw - 1]]))
+				if (!(array[rax] < array[out[ix - 1]]))
 					break ;
-				out[iw] = std::move (out[iw - 1]) ;
-				iw-- ;
+				out[ix] = std::move (out[ix - 1]) ;
+				ix-- ;
 			}
-			out[iw] = std::move (rax) ;
+			out[ix] = std::move (rax) ;
 		}
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,INDEX &it) {
-		INDEX ix = ib ;
-		INDEX iy = jb ;
+	inline static void compute_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &it) {
+		INDEX ix = seg_a ;
+		INDEX iy = seg_b ;
 		auto rax = std::move (out[ix]) ;
 		while (TRUE) {
 			while (ix < iy && array[rax] < array[out[iy]])
@@ -131,26 +131,26 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX ib ,INDEX jb ,LENGTH ideal) {
-		INDEX ix = ib ;
+	inline static void compute_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+		INDEX ix = seg_a ;
 		while (TRUE) {
-			if (ix >= jb)
+			if (ix >= seg_b)
 				break ;
 			if (ideal <= 0)
 				break ;
 			ideal = ideal / 2 + ideal / 4 ;
 			INDEX jx = VAR_NONE ;
-			compute_quick_sort_partition (array ,out ,ix ,jb ,jx) ;
+			compute_quick_sort_partition (array ,out ,ix ,seg_b ,jx) ;
 			compute_quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
 			ix = jx + 1 ;
 		}
-		if (ix >= jb)
+		if (ix >= seg_b)
 			return ;
-		compute_insert_sort (array ,out ,ix ,jb) ;
+		compute_insert_sort (array ,out ,ix ,seg_b) ;
 	}
 
-	inline static void invoke (const TYPE1 &array ,TYPE2 &out ,INDEX ib ,INDEX ie) {
-		compute_quick_sort (array ,out ,ib ,(ie - 1) ,ie) ;
+	inline static void invoke (const TYPE1 &array ,TYPE2 &out ,INDEX seg ,LENGTH seg_len) {
+		compute_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 } ;
 } ;
@@ -300,18 +300,9 @@ public:
 		U::OPERATOR_SORT<void ,void>::invoke (mArray ,0 ,mArray.size ()) ;
 	}
 
-	void fill (const ITEM &each) {
+	void fill (const ITEM &val) {
 		for (INDEX i = 0 ; i < mArray.size () ; i++)
-			mArray[i] = each ;
-	}
-
-	template <class _ARG1>
-	void fill (const Array<ITEM ,_ARG1> &each) {
-		INDEX ir = 0 ;
-		for (INDEX i = 0 ; i < mArray.size () ; i++) {
-			mArray[i] = each[ir] ;
-			ir = (ir + 1) % each.size () ;
-		}
+			mArray[i] = val ;
 	}
 } ;
 
@@ -485,10 +476,10 @@ public:
 			return TRUE ;
 		if (size () == 0 || right.size () == 0)
 			return FALSE ;
-		INDEX ir = 0 ;
-		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
-			ir++ ;
-		if (mString[ir] != right.mString[ir])
+		INDEX ix = 0 ;
+		while (mString[ix] != ITEM (0) && mString[ix] == right.mString[ix])
+			ix++ ;
+		if (mString[ix] != right.mString[ix])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -508,10 +499,10 @@ public:
 			return TRUE ;
 		if (right.size () == 0)
 			return FALSE ;
-		INDEX ir = 0 ;
-		while (mString[ir] != ITEM (0) && mString[ir] == right.mString[ir])
-			ir++ ;
-		if (!(mString[ir] < right.mString[ir]))
+		INDEX ix = 0 ;
+		while (mString[ix] != ITEM (0) && mString[ix] == right.mString[ix])
+			ix++ ;
+		if (!(mString[ix] < right.mString[ix]))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -596,11 +587,11 @@ public:
 		return *this ;
 	}
 
-	String segment (INDEX ib ,INDEX ie) const {
-		_DEBUG_ASSERT_ (ib >= 0 && ib <= ie && ie <= size ()) ;
-		String ret = String (ie - ib) ;
+	String segment (INDEX seg ,LENGTH seg_len) const {
+		_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= size ()) ;
+		String ret = String (seg_len) ;
 		for (INDEX i = 0 ; i < ret.size () ; i++)
-			ret.get (i) = get (ib + i) ;
+			ret.get (i) = get (seg + i) ;
 		return std::move (ret) ;
 	}
 
@@ -860,7 +851,7 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.size ()) ;
+		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1126,7 +1117,7 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.size ()) ;
+		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1600,13 +1591,13 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		INDEX jw = iw ;
+		INDEX ix = ret.length () ;
 		while (TRUE) {
-			if (jw < 2)
+			if (ix - 1 < 1)
 				break ;
-			jw-- ;
-			_SWAP_ (ret[0] ,ret[jw]) ;
-			compute_esort (ret ,jw) ;
+			_SWAP_ (ret[0] ,ret[ix - 1]) ;
+			compute_esort (ret ,ix - 1) ;
+			ix-- ;
 		}
 		if (ret.size () > 0)
 			_MEMRCOPY_ (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;
@@ -1778,13 +1769,13 @@ public:
 			return mDeque[mRead + pos][0] ;
 		if (mWrite - mRead == mList.length () && mDeque[mRead][0] == VAR_NONE)
 			return mDeque[mRead + pos + 1][0] ;
-		return access (pos ,mRead ,mWrite) ;
+		return access (pos ,mRead ,(mWrite - mRead + 1)) ;
 	}
 
 	INDEX ibegin () const {
 		if (mDeque.size () == 0)
 			return VAR_NONE ;
-		for (INDEX i = mRead ; i <= mWrite ; i++)
+		for (INDEX i = mRead ,ie = mWrite + 1 ; i < ie ; i++)
 			if (mDeque[i][0] != VAR_NONE)
 				return mDeque[i][0] ;
 		return VAR_NONE ;
@@ -1795,7 +1786,7 @@ public:
 	}
 
 	INDEX inext (INDEX index) const {
-		for (INDEX i = mList[index].mHead + 1 ; i <= mWrite ; i++)
+		for (INDEX i = mList[index].mHead + 1 ,ie = mWrite + 1 ; i < ie ; i++)
 			if (mDeque[i][0] != VAR_NONE)
 				return mDeque[i][0] ;
 		return VAR_NONE ;
@@ -1886,7 +1877,7 @@ public:
 		while (mDeque[mRead][0] == VAR_NONE)
 			mRead++ ;
 		INDEX ix = mDeque[mRead][0] ;
-		update_remove (ix) ;
+		deque_remove (ix) ;
 		mList.free (ix) ;
 	}
 
@@ -1896,7 +1887,7 @@ public:
 			mRead++ ;
 		INDEX ix = mDeque[mRead][0] ;
 		item = std::move (mList[ix].mItem) ;
-		update_remove (mRead) ;
+		deque_remove (mRead) ;
 		mList.free (ix) ;
 	}
 
@@ -1933,31 +1924,31 @@ public:
 		while (mDeque[mWrite][0] == VAR_NONE)
 			mWrite-- ;
 		INDEX ix = mDeque[mWrite][0] ;
-		update_remove (mWrite) ;
+		deque_remove (mWrite) ;
 		mList.free (ix) ;
 	}
 
 	void swap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
-		update_rewrite (mList[index1].mHead ,index2) ;
-		update_rewrite (mList[index2].mHead ,index1) ;
+		deque_rewrite (mList[index1].mHead ,index2) ;
+		deque_rewrite (mList[index2].mHead ,index1) ;
 	}
 
-	void splice (INDEX index ,INDEX ib ,INDEX jb) {
-		INDEX ix = mList[index].mHead ;
-		INDEX jx = mList[ib].mHead ;
-		INDEX jy = mList[jb].mHead ;
-		_DEBUG_ASSERT_ (jx <= jy) ;
-		_DEBUG_ASSERT_ (ix < jx || ix > jy) ;
-		if (position_before (index) - 1 == position_before (jb))
-			return ;
-		const auto r1x = ib + jy - jx + 1 ;
-		update_compress_splice_force (ix ,ib ,r1x) ;
+	void splice_before (INDEX index ,INDEX seg) {
+		deque_remove (mList[seg].mHead) ;
+		const auto r1x = insert_before (index ,seg) ;
+		(void) r1x ;
+	}
+
+	void splice_after (INDEX index ,INDEX seg) {
+		deque_remove (mList[seg].mHead) ;
+		const auto r1x = insert_after (index ,seg) ;
+		(void) r1x ;
 	}
 
 	void remove (INDEX index) {
-		update_remove (mList[index].mHead) ;
+		deque_remove (mList[index].mHead) ;
 		mList.free (index) ;
 	}
 
@@ -1974,7 +1965,7 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.size ()) ;
+		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1983,9 +1974,9 @@ public:
 			return ;
 		const auto r1x = esort () ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++)
-			update_rewrite (i ,r1x[i]) ;
+			deque_rewrite (i ,r1x[i]) ;
 		for (INDEX i = r1x.length () ; i < mDeque.size () ; i++)
-			update_remove (i) ;
+			deque_remove (i) ;
 		mRead = 0 ;
 		mWrite = _MAX_ ((r1x.length () - 1) ,VAR_ZERO) ;
 	}
@@ -2006,8 +1997,8 @@ public:
 				break ;
 			const auto r1x = mDeque[ix] ;
 			const auto r2x = mDeque[iy] ;
-			update_rewrite (ix ,r2x) ;
-			update_rewrite (iy ,r1x) ;
+			deque_rewrite (ix ,r2x) ;
+			deque_rewrite (iy ,r1x) ;
 		}
 	}
 
@@ -2015,10 +2006,11 @@ private:
 	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mDeque (len) {}
 
 private:
-	INDEX access (INDEX pos ,INDEX ib ,INDEX jb) const {
+	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
+		_DEBUG_ASSERT_ (seg_len > 0) ;
 		INDEX ret = VAR_NONE ;
-		INDEX ix = ib ;
-		INDEX iy = jb ;
+		INDEX ix = seg ;
+		INDEX iy = seg + seg_len - 1 ;
 		while (TRUE) {
 			if (ix > iy)
 				break ;
@@ -2059,7 +2051,7 @@ private:
 				continue ;
 			if (!mList.used (i))
 				continue ;
-			update_rewrite (mList[i].mHead ,i) ;
+			deque_rewrite (mList[i].mHead ,i) ;
 		}
 		mDeque.swap (rax) ;
 	}
@@ -2068,7 +2060,7 @@ private:
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mDeque[it][0] != VAR_NONE)
 				discard ;
-			update_rewrite (it ,jt) ;
+			deque_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mDeque.size () - 1)) ;
 		} ,[&] (BOOL &if_flag) {
 			INDEX ix = it + 1 ;
@@ -2076,7 +2068,7 @@ private:
 				discard ;
 			if (mDeque[ix][0] != VAR_NONE)
 				discard ;
-			update_rewrite (ix ,jt) ;
+			deque_rewrite (ix ,jt) ;
 			mWrite = _MIN_ ((ix + 1) ,(mDeque.size () - 1)) ;
 		} ,[&] (BOOL &if_flag) {
 			update_compress_left_force (it ,jt) ;
@@ -2095,7 +2087,7 @@ private:
 					discard ;
 				if (r1x != VAR_NONE)
 					discard ;
-				update_rewrite (i ,iy) ;
+				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			} ,[&] (BOOL &if_flag) {
@@ -2103,14 +2095,14 @@ private:
 					discard ;
 				if (r1x == VAR_NONE)
 					discard ;
-				update_rewrite (i ,iy) ;
+				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
 			} ,[&] (BOOL &if_flag) {
 				if (mRead == i)
 					discard ;
-				update_rewrite (i ,mDeque[mRead][0]) ;
-				update_remove (mRead) ;
+				deque_rewrite (i ,mDeque[mRead][0]) ;
+				deque_remove (mRead) ;
 			}) ;
 			mRead++ ;
 		}
@@ -2122,7 +2114,7 @@ private:
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (mDeque[it][0] != VAR_NONE)
 				discard ;
-			update_rewrite (it ,jt) ;
+			deque_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
 		} ,[&] (BOOL &if_flag) {
 			INDEX ix = it - 1 ;
@@ -2130,7 +2122,7 @@ private:
 				discard ;
 			if (mDeque[ix][0] != VAR_NONE)
 				discard ;
-			update_rewrite (ix ,jt) ;
+			deque_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
 		} ,[&] (BOOL &if_flag) {
 			update_compress_right_force (it ,jt) ;
@@ -2140,16 +2132,17 @@ private:
 	void update_compress_right_force (INDEX it ,INDEX jt) {
 		INDEX ix = it ;
 		INDEX iy = jt ;
-		for (INDEX i = (mDeque.size () - 1) ,ie = mDeque.size () - mList.length () ; i >= ie ; i--) {
+		for (INDEX i = 0 ; i < mList.length () ; i++) {
+			INDEX jx = mDeque.size () + ~i ;
 			while (mWrite != ix && mDeque[mWrite][0] == VAR_NONE)
 				mWrite-- ;
-			const auto r1x = mDeque[i][0] ;
+			const auto r1x = mDeque[jx][0] ;
 			_CALL_IF_ ([&] (BOOL &if_flag) {
 				if (mWrite != ix)
 					discard ;
 				if (r1x != VAR_NONE)
 					discard ;
-				update_rewrite (i ,iy) ;
+				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			} ,[&] (BOOL &if_flag) {
@@ -2157,14 +2150,14 @@ private:
 					discard ;
 				if (r1x == VAR_NONE)
 					discard ;
-				update_rewrite (i ,iy) ;
+				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
 			} ,[&] (BOOL &if_flag) {
-				if (mWrite == i)
+				if (mWrite == jx)
 					discard ;
-				update_rewrite (i ,mDeque[mWrite][0]) ;
-				update_remove (mWrite) ;
+				deque_rewrite (jx ,mDeque[mWrite][0]) ;
+				deque_remove (mWrite) ;
 			}) ;
 			mWrite-- ;
 		}
@@ -2172,72 +2165,7 @@ private:
 		mWrite = mDeque.size () - 1 ;
 	}
 
-	void update_compress_splice_force (INDEX it ,INDEX ib ,INDEX ie) {
-		auto rax = Queue<INDEX> (ie - ib) ;
-		for (INDEX i = 0 ; i < rax.size () ; i++) {
-			rax.add (mDeque[i + ib][0]) ;
-			update_remove (i + ib) ;
-		}
-		INDEX ix = it ;
-		INDEX iy = rax[rax.peek ()] ;
-		rax.take () ;
-		for (INDEX i = 0 ; i < mList.length () ; i++) {
-			while (mRead != ix && mDeque[mRead][0] == VAR_NONE)
-				mRead++ ;
-			const auto r1x = mDeque[i][0] ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
-				if (mRead != ix)
-					discard ;
-				if (!rax.empty ())
-					discard ;
-				if (r1x != VAR_NONE)
-					discard ;
-				update_rewrite (i ,iy) ;
-				ix = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
-				if (mRead != ix)
-					discard ;
-				if (!rax.empty ())
-					discard ;
-				if (r1x == VAR_NONE)
-					discard ;
-				update_rewrite (i ,iy) ;
-				ix = VAR_NONE ;
-				rax.add (r1x) ;
-			} ,[&] (BOOL &if_flag) {
-				if (mRead != ix)
-					discard ;
-				if (rax.empty ())
-					discard ;
-				if (r1x != VAR_NONE)
-					discard ;
-				update_rewrite (i ,iy) ;
-				rax.take (iy) ;
-				ix++ ;
-			} ,[&] (BOOL &if_flag) {
-				if (mRead != ix)
-					discard ;
-				if (rax.empty ())
-					discard ;
-				if (r1x == VAR_NONE)
-					discard ;
-				update_rewrite (i ,iy) ;
-				rax.take (iy) ;
-				ix++ ;
-				rax.add (r1x) ;
-			} ,[&] (BOOL &if_flag) {
-				if (mRead == i)
-					discard ;
-				update_rewrite (i ,mDeque[mRead][0]) ;
-				update_remove (mRead) ;
-			}) ;
-			mRead++ ;
-		}
-		mRead = 0 ;
-		mWrite = _MIN_ (mList.length () ,(mDeque.size () - 1)) ;
-	}
-
-	void update_rewrite (INDEX it ,INDEX jt) {
+	void deque_rewrite (INDEX it ,INDEX jt) {
 		_DEBUG_ASSERT_ (jt != VAR_NONE) ;
 		INDEX ix = it ;
 		const auto r1x = mDeque[it][0] ;
@@ -2253,7 +2181,7 @@ private:
 		}
 	}
 
-	void update_remove (INDEX it) {
+	void deque_remove (INDEX it) {
 		INDEX ix = it ;
 		mDeque[ix][0] = VAR_NONE ;
 		while (TRUE) {
@@ -2523,22 +2451,19 @@ public:
 		_SWAP_ (mList[index1].mRight ,mList[index2].mRight) ;
 	}
 
-	void splice (INDEX index ,INDEX ib ,INDEX jb) {
-		for (INDEX i = ib ,ie = inext (jb) ; i != ie ; i = inext (i)) {
-			_DEBUG_ASSERT_ (i != VAR_NONE) ;
-			_DEBUG_ASSERT_ (index != i) ;
-			(void) i ;
-		}
-		if (index != VAR_NONE && mList[index].mLeft == jb)
-			return ;
-		prev_next (ib) = mList[jb].mRight ;
-		next_prev (jb) = mList[ib].mLeft ;
-		mList[jb].mRight = index ;
+	void splice_before (INDEX index ,INDEX seg) {
+		prev_next (seg) = mList[seg].mRight ;
+		next_prev (seg) = mList[seg].mLeft ;
 		auto &r1 = (index != VAR_NONE) ? (mList[index].mLeft) : mLast ;
-		mList[ib].mLeft = r1 ;
+		mList[seg].mLeft = r1 ;
 		auto &r2 = (r1 != VAR_NONE) ? (mList[r1].mRight) : mFirst ;
-		r2 = ib ;
-		r1 = jb ;
+		r2 = seg ;
+		r1 = seg ;
+	}
+
+	void splice_after (INDEX index ,INDEX seg) {
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mRight) : mFirst ;
+		splice_before (r1x ,seg) ;
 	}
 
 	void remove (INDEX index) {
@@ -2560,7 +2485,7 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.size ()) ;
+		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2568,16 +2493,21 @@ public:
 		if (length () < 2)
 			return ;
 		const auto r1x = esort () ;
-		for (INDEX i = 1 ; i + 1 < r1x.length () ; i++) {
+		_DEBUG_ASSERT_ (r1x.length () >= 2) ;
+		for (INDEX i = 0 ; i < 1 ; i++) {
+			mList[r1x[i]].mLeft = VAR_NONE ;
+			mList[r1x[i]].mRight = r1x[i + 1] ;
+			mFirst = r1x[i] ;
+		}
+		for (INDEX i = 1 ,ie = r1x.length () - 1 ; i < ie ; i++) {
 			mList[r1x[i]].mLeft = r1x[i - 1] ;
 			mList[r1x[i]].mRight = r1x[i + 1] ;
 		}
-		mFirst = r1x[0] ;
-		mList[mFirst].mLeft = VAR_NONE ;
-		mList[mFirst].mRight = r1x[1] ;
-		mLast = r1x[r1x.length () - 1] ;
-		mList[mLast].mLeft = r1x[r1x.length () - 2] ;
-		mList[mLast].mRight = VAR_NONE ;
+		for (INDEX i = r1x.length () - 1 ; i < r1x.length () ; i++) {
+			mList[r1x[i]].mLeft = r1x[i - 1] ;
+			mList[r1x[i]].mRight = VAR_NONE ;
+			mLast = r1x[i] ;
+		}
 	}
 
 private:
@@ -3001,18 +2931,9 @@ public:
 		return std::move (ret) ;
 	}
 
-	void fill (const BYTE &each) {
+	void fill (const BYTE &val) {
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] = each ;
-	}
-
-	template <class _ARG1>
-	void fill (const Array<BYTE ,_ARG1> &each) {
-		INDEX ir = 0 ;
-		for (INDEX i = 0 ; i < mSet.size () ; i++) {
-			mSet[i] = each[ir] ;
-			ir = (ir + 1) % each.size () ;
-		}
+			mSet[i] = val ;
 	}
 
 private:
@@ -4266,11 +4187,16 @@ private:
 		INDEX ix = mSet[it].mHash % mHead.size () ;
 		if (mHead[ix] == it)
 			return mHead[ix] ;
-		for (INDEX i = mHead[ix] ; mSet[i].mNext != VAR_NONE ; i = mSet[i].mNext)
-			if (mSet[i].mNext == it)
-				return mSet[i].mNext ;
-		_DEBUG_ASSERT_ (FALSE) ;
-		return _NULL_<INDEX> () ;
+		ix = mHead[ix] ;
+		while (TRUE) {
+			if (mSet[ix].mNext == VAR_NONE)
+				break ;
+			if (mSet[ix].mNext == it)
+				break ;
+			ix = mSet[ix].mNext ;
+		}
+		_DEBUG_ASSERT_ (mSet[ix].mNext == it) ;
+		return mSet[ix].mNext ;
 	}
 
 	INDEX &prev_next (INDEX) && = delete ;
@@ -4336,7 +4262,7 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Attribute {
+	class Pack {
 	private:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4350,14 +4276,14 @@ private:
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Pack> mHolder ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 
 public:
 	SoftSet () = default ;
 
 	explicit SoftSet (LENGTH len) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mHolder = SharedRef<Pack>::make () ;
 		mHolder->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
 		mHolder->mLength = 0 ;
 		mHolder->mFirst = VAR_NONE ;
@@ -4484,7 +4410,7 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Attribute {
+	class Pack {
 	private:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4498,14 +4424,14 @@ private:
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Pack> mHolder ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 
 public:
 	SoftSet () = default ;
 
 	explicit SoftSet (LENGTH len) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mHolder = SharedRef<Pack>::make () ;
 		mHolder->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
 		mHolder->mLength = 0 ;
 		mHolder->mFirst = VAR_NONE ;
@@ -4581,7 +4507,7 @@ private:
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
-	using Attribute = typename SPECIALIZATION_BASE::Attribute ;
+	using Pack = typename SPECIALIZATION_BASE::Pack ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -4614,7 +4540,7 @@ public:
 	void reset () {
 		if (!mHolder.exist ())
 			return ;
-		auto rax = SharedRef<Attribute>::make () ;
+		auto rax = SharedRef<Pack>::make () ;
 		rax->mHeap = mHolder->mHeap ;
 		rax->mLength = 0 ;
 		rax->mFirst = VAR_NONE ;

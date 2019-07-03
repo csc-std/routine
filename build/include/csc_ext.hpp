@@ -26,6 +26,7 @@
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :5039)
 #endif
+#include <exception>
 #include <chrono>
 #include <atomic>
 #include <mutex>
@@ -45,6 +46,10 @@
 
 namespace CSC {
 namespace stl {
+using std::exception_ptr ;
+using std::current_exception ;
+using std::rethrow_exception ;
+
 using std::mutex ;
 using std::recursive_mutex ;
 using std::atomic ;
@@ -605,21 +610,21 @@ private:
 
 namespace U {
 struct OPERATOR_CRC32 {
-	inline static constexpr BOOL ensure_index (INDEX index ,INDEX ib ,INDEX ie) {
-		return BOOL (index >= ib && index < ie) ;
+	inline static constexpr BOOL ensure_index (INDEX index ,LENGTH range) {
+		return BOOL (index >= 0 && index < range) ;
 	}
 
-	inline static constexpr CHAR expr_crc32_next (CHAR each) {
-		return ((each & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320) ^ (each >> 1)) ;
+	inline static constexpr CHAR expr_crc32_next (CHAR val) {
+		return ((val & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320) ^ (val >> 1)) ;
 	}
 
-	inline static constexpr CHAR expr_crc32_table (CHAR each ,INDEX it) {
-		return (it < 0 || it >= 8) ? each : expr_crc32_table (expr_crc32_next (each) ,(it + 1)) ;
+	inline static constexpr CHAR expr_crc32_table (CHAR val ,INDEX it) {
+		return (!ensure_index (it ,8)) ? val : expr_crc32_table (expr_crc32_next (val) ,(it + 1)) ;
 	}
 
 	template <LENGTH _VAL1>
-	inline static constexpr CHAR expr_crc32_hash (const DEF<STR[_VAL1]> &stri ,CHAR each ,INDEX it) {
-		return (it < 0 || it >= _VAL1) ? each : expr_crc32_hash (stri ,(expr_crc32_table (INDEX ((CHAR (each) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (each >> 8)) ,(it + 1)) ;
+	inline static constexpr CHAR expr_crc32_hash (const DEF<STR[_VAL1]> &stri ,CHAR val ,INDEX it) {
+		return (!ensure_index (it ,_VAL1)) ? val : expr_crc32_hash (stri ,(expr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)) ;
 	}
 
 	template <LENGTH _VAL1>
@@ -2306,10 +2311,11 @@ private:
 		auto rax = FALSE ;
 		INDEX ir = 0 ;
 		while (TRUE) {
+			INDEX ix = ir++ ;
+			_DEBUG_ASSERT_ (ix < RETRY_TIMES_SIZE::value) ;
+			(void) ix ;
 			if (mSemaphore.compare_exchange_weak (rax ,TRUE))
 				break ;
-			ir++ ;
-			_DEBUG_ASSERT_ (ir < RETRY_TIMES_SIZE::value) ;
 			std::this_thread::yield () ;
 			rax = FALSE ;
 		}
@@ -2363,6 +2369,19 @@ public:
 		return std::move (ret) ;
 	}
 } ;
+
+template <class _ARG1 ,class _ARG2>
+inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (std::exception_ptr &&)> ,void>::value) ;
+	try {
+		arg1 () ;
+	} catch (...) {
+		arg2 (std::current_exception ()) ;
+	}
+}
 
 template <class TYPE>
 class Monostate {

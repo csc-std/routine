@@ -17,14 +17,14 @@ public:
 		auto rax = Promise<int>::async (r1x) ;
 		const auto r4x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r4x == -1) ;
-		INDEX ir = 0 ;
+		INDEX ix = 0 ;
 		while (TRUE) {
 			if (rax.ready ())
 				break ;
-			ir++ ;
 			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
+			ix++ ;
 		}
-		_UNITTEST_ASSERT_ (_ABS_ (ir - 10) < 2) ;
+		_UNITTEST_ASSERT_ (_ABS_ (ix - 10) < 2) ;
 		const auto r5x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r5x == 3) ;
 		const auto r6x = rax.poll () ;

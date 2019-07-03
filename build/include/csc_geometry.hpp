@@ -92,7 +92,7 @@ public:
 
 	Vector mul (const UNIT &scale) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			ret.mVector[i] = mVector[i] * scale ;
 		return std::move (ret) ;
 	}
@@ -102,7 +102,7 @@ public:
 	}
 
 	void multo (const UNIT &scale) {
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			mVector[i] *= scale ;
 	}
 
@@ -130,7 +130,7 @@ public:
 
 	Vector add (const Vector &right) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			ret.mVector[i] = mVector[i] + right.mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -140,7 +140,7 @@ public:
 	}
 
 	void addto (const Vector &right) {
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			mVector[i] += right.mVector[i] ;
 	}
 
@@ -151,7 +151,7 @@ public:
 
 	Vector sub (const Vector &right) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			ret.mVector[i] = mVector[i] - right.mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -161,7 +161,7 @@ public:
 	}
 
 	void subto (const Vector &right) {
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			mVector[i] -= right.mVector[i] ;
 	}
 
@@ -172,7 +172,7 @@ public:
 
 	Vector plus () const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			ret.mVector[i] = +mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -183,7 +183,7 @@ public:
 
 	Vector minus () const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ; i < mVector.size () ; i++)
 			ret.mVector[i] = -mVector[i] ;
 		return std::move (ret) ;
 	}

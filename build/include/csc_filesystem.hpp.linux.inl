@@ -202,8 +202,8 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 inline exports Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
-	ris.attr ().modify_space (STR ('\\')) ;
-	ris.attr ().modify_space (STR ('/')) ;
+	ris.attr ().modify_space (STR ('\\') ,0) ;
+	ris.attr ().modify_space (STR ('/') ,0) ;
 	auto rax = STR () ;
 	Queue<String<STR>> ret = Queue<String<STR>> (DEFAULT_RECURSIVE_SIZE::value) ;
 	INDEX ix = ret.insert () ;
@@ -211,7 +211,7 @@ inline exports Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	if (ris.attr ().varify_space (rax))
 		ris >> rax ;
 	while (TRUE) {
-		ret[ix] = ris.template read<String<STR>> () ;
+		ris >> ret[ix] ;
 		if (ret[ix].empty ())
 			break ;
 		ix = ret.insert () ;

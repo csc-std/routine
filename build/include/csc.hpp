@@ -1083,6 +1083,7 @@ inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
 	arg1 () ;
 }
 
+//@info: the function is incompleted without 'csc_ext.hpp'
 template <class _ARG1 ,class _ARG2>
 inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
@@ -1134,12 +1135,12 @@ inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH le
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (src1 == src2)
 		return 0 ;
-	INDEX ir = 0 ;
-	while (ir < len && src1[ir] == src2[ir])
-		ir++ ;
-	if (ir < len && src1[ir] < src2[ir])
+	INDEX ix = 0 ;
+	while (ix < len && src1[ix] == src2[ix])
+		ix++ ;
+	if (ix < len && src1[ix] < src2[ix])
 		return -1 ;
-	if (ir < len && src2[ir] < src1[ir])
+	if (ix < len && src2[ix] < src1[ix])
 		return +1 ;
 	return 0 ;
 #pragma GCC diagnostic pop
@@ -1214,9 +1215,9 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #endif
 	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
 	_DEBUG_ASSERT_ (len >= 0) ;
-	for (INDEX i = len - 1 ; i >= 0 ; i--)
-		if (src[i] == val)
-			return i ;
+	for (INDEX i = 0 ; i < len ; i++)
+		if (src[len + ~i] == val)
+			return (len + ~i) ;
 	return VAR_NONE ;
 #pragma GCC diagnostic pop
 }
@@ -1309,8 +1310,8 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
 	} ,[&] (BOOL &if_flag) {
-		for (INDEX i = len - 1 ; i >= 0 ; i--)
-			dst1[i] = std::move (dst2[i]) ;
+		for (INDEX i = 0 ; i < len ; i++)
+			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
 	}) ;
 #pragma GCC diagnostic pop
 }
@@ -1484,19 +1485,6 @@ inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 		(void) r1x ;
 	}
 	_CALL_TRY_ (std::forward<_ARGS> (args)...) ;
-}
-
-template <class _ARG1 ,class _ARG2>
-inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (const Exception &)> ,void>::value) ;
-	try {
-		arg1 () ;
-	} catch (const Exception &e) {
-		arg2 (e) ;
-	}
 }
 
 class Interface {
@@ -3165,11 +3153,6 @@ public:
 	inline void swap (Buffer<TYPE ,SAUTO> &right) popping {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
-
-	inline void swap (Buffer &right) popping {
-		_SWAP_ (mBuffer ,right.mBuffer) ;
-		_SWAP_ (mSize ,right.mSize) ;
-	}
 } ;
 
 template <class TYPE>
@@ -4027,14 +4010,17 @@ public:
 	}
 
 	inline void clear () noexcept {
-		mLength = 0 ;
-		mFree = VAR_NONE ;
-		for (INDEX i = mAllocator.size () - 1 ; i >= 0 ; i--) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_DESTROY_ (&mAllocator[i].mData) ;
-			mAllocator[i].mNext = mFree ;
-			mFree = i ;
+		INDEX ix = VAR_NONE ;
+		INDEX iy = VAR_NONE ;
+		for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
+			iy = ix ;
+			ix = mAllocator.size () + ~i ;
+			if (mAllocator[ix].mNext == VAR_USED)
+				_DESTROY_ (&mAllocator[ix].mData) ;
+			mAllocator[ix].mNext = iy ;
 		}
+		mLength = 0 ;
+		mFree = ix ;
 	}
 
 	inline BOOL used (INDEX index) const {
@@ -4105,7 +4091,7 @@ public:
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
 			ret = mFree ;
 		}
-		mFree = mAllocator[mFree].mNext ;
+		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
 		mLength++ ;
 		return std::move (ret) ;
@@ -4142,28 +4128,28 @@ public:
 		const auto r1x = shrink_size () ;
 		if (r1x == mAllocator.size ())
 			return ;
+		_DYNAMIC_ASSERT_ (r1x == mLength) ;
 		auto rax = mAllocator.expand (r1x) ;
-		mFree = VAR_NONE ;
-		for (INDEX i = r1x - 1 ; i >= 0 ; i--) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&rax[i].mData ,std::move (_CAST_<TYPE> (mAllocator[i].mData))) ;
-			rax[i].mNext = mAllocator[i].mNext ;
-			if (rax[i].mNext == VAR_USED)
-				continue ;
-			rax[i].mNext = mFree ;
-			mFree = i ;
+		for (INDEX i = 0 ; i < rax.size () ; i++) {
+			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
+			_CREATE_ (&rax[i].mData ,std::move (_CAST_<TYPE> (mAllocator[i].mData))) ;
+			rax[i].mNext = VAR_USED ;
 		}
 		mAllocator.swap (rax) ;
+		update_free (mLength ,VAR_NONE) ;
 	}
 
 private:
 	inline void update_free (INDEX _length ,INDEX _free) {
-		mLength = _length ;
-		mFree = _free ;
-		for (INDEX i = mAllocator.size () - 1 ; i >= _length ; i--) {
-			mAllocator[i].mNext = mFree ;
-			mFree = i ;
+		INDEX ix = _free ;
+		INDEX iy = VAR_NONE ;
+		for (INDEX i = 0 ,ie = mAllocator.size () - _length ; i < ie ; i++) {
+			iy = ix ;
+			ix = mAllocator.size () + ~i ;
+			mAllocator[ix].mNext = iy ;
 		}
+		mLength = _length ;
+		mFree = ix ;
 	}
 
 	inline LENGTH shrink_size () const {

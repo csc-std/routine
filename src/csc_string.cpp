@@ -13,6 +13,10 @@ public:
 		_UNITTEST_ASSERT_ (r3x == 3332) ;
 		const auto r4x = _PARSEVARS_ (String<STR> (_PCSTR_ ("-01"))) ;
 		_UNITTEST_ASSERT_ (r4x == -1) ;
+		const auto r11x = _PARSEVALS_ (String<STR> (_PCSTR_ ("0.0"))) ;
+		_UNITTEST_ASSERT_ (_ABS_ (r11x - VAL (0.0)) < VAL (VAL32_EPS)) ;
+		const auto r12x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.0"))) ;
+		_UNITTEST_ASSERT_ (_ABS_ (r12x - VAL (1.0)) < VAL (VAL32_EPS)) ;
 		const auto r5x = _PARSEVALS_ (String<STR> (_PCSTR_ ("-0.0122"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r5x - VAL (-0.0122)) < VAL (1E-4)) ;
 		const auto r6x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.42E38"))) ;

@@ -28,7 +28,7 @@ private:
 		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
 		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
-		AutoRef<Exception> mException ;
+		AutoRef<std::exception_ptr> mException ;
 	} ;
 
 private:
@@ -118,7 +118,7 @@ public:
 		if (!r1.mItemQueue.exist ())
 			r1.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (pid.length ()) ;
 		r1.mItemQueue->clear () ;
-		r1.mException = AutoRef<Exception> () ;
+		r1.mException = AutoRef<std::exception_ptr> () ;
 		r1.mThreadPool = Array<AutoRef<std::thread>> (pid.size ()) ;
 		for (INDEX i = 0 ; i < r1.mThreadPool.length () ; i++) {
 			const auto r2x = PACK<PTR<Pack> ,INDEX> {&r1 ,pid[i]} ;
@@ -152,7 +152,7 @@ public:
 		if (!r1.mException.exist ())
 			return ;
 		const auto r2x = std::move (r1.mException) ;
-		throw r2x.self ;
+		std::rethrow_exception (r2x.self) ;
 	}
 
 	void stop () {
@@ -177,9 +177,9 @@ private:
 		while (TRUE) {
 			_CALL_EH_ ([&] () {
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
-			} ,[&] (const Exception &e) noexcept {
+			} ,[&] (std::exception_ptr &&e) noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_rethrow (_self ,e) ;
+					compute_rethrow (_self ,std::move (e)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -218,12 +218,12 @@ private:
 		_self.mThreadCondition.self.notify_all () ;
 	}
 
-	static void compute_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,std::exception_ptr &&e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
 			return ;
-		_self.mException = AutoRef<Exception>::make (e) ;
+		_self.mException = AutoRef<std::exception_ptr>::make (e) ;
 	}
 
 	static void intrusive_create (Pack &_self) {
@@ -290,7 +290,7 @@ private:
 		Function<DEF<void (const ITEM &)> NONE::*> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
 		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
-		AutoRef<Exception> mException ;
+		AutoRef<std::exception_ptr> mException ;
 	} ;
 
 private:
@@ -409,7 +409,7 @@ public:
 		if (!r1.mItemQueue.exist ())
 			r1.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (count) ;
 		r1.mItemQueue->clear () ;
-		r1.mException = AutoRef<Exception> () ;
+		r1.mException = AutoRef<std::exception_ptr> () ;
 		r1.mThreadPool = Array<AutoRef<std::thread>> (count) ;
 		for (INDEX i = 0 ; i < r1.mThreadPool.length () ; i++) {
 			const auto r2x = &r1 ;
@@ -442,7 +442,7 @@ public:
 		if (!r1.mException.exist ())
 			return ;
 		const auto r2x = std::move (r1.mException) ;
-		throw r2x.self ;
+		std::rethrow_exception (r2x.self) ;
 	}
 
 	void stop () {
@@ -468,9 +468,9 @@ private:
 			compute_poll (_self ,rax) ;
 			_CALL_EH_ ([&] () {
 				_self.mThreadProc (rax.self) ;
-			} ,[&] (const Exception &e) noexcept {
+			} ,[&] (std::exception_ptr &&e) noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_rethrow (_self ,e) ;
+					compute_rethrow (_self ,std::move (e)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -500,12 +500,12 @@ private:
 		_self.mItemQueue->take () ;
 	}
 
-	static void compute_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,std::exception_ptr &&e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
 			return ;
-		_self.mException = AutoRef<Exception>::make (e) ;
+		_self.mException = AutoRef<std::exception_ptr>::make (e) ;
 	}
 
 	static void intrusive_create (Pack &_self) {
@@ -566,7 +566,7 @@ private:
 		Function<DEF<void (ITEM &)> NONE::*> mCallbackProc ;
 		AutoRef<std::thread> mThreadPool ;
 		AutoRef<ITEM> mItem ;
-		AutoRef<Exception> mException ;
+		AutoRef<std::exception_ptr> mException ;
 	} ;
 
 private:
@@ -590,7 +590,7 @@ public:
 		compute_push (r1x) ;
 	}
 
-	void rethrow (const Exception &e) {
+	void rethrow (std::exception_ptr &&e) {
 		const auto r1x = mThis.watch () ;
 		compute_rethrow (r1x) ;
 	}
@@ -606,7 +606,7 @@ public:
 		r1.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
 		r1.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r1.mItem = AutoRef<ITEM> () ;
-		r1.mException = AutoRef<Exception> () ;
+		r1.mException = AutoRef<std::exception_ptr> () ;
 		r1.mThreadPool = AutoRef<std::thread> () ;
 	}
 
@@ -622,7 +622,7 @@ public:
 		r1.mThreadProc = std::move (proc) ;
 		r1.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r1.mItem = AutoRef<ITEM> () ;
-		r1.mException = AutoRef<Exception> () ;
+		r1.mException = AutoRef<std::exception_ptr> () ;
 		const auto r2x = &r1 ;
 		//@warn: move object having captured context
 		r1.mThreadPool = AutoRef<std::thread>::make ([r2x] () noexcept {
@@ -662,9 +662,9 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		_CALL_EH_ ([&] () {
 			compute_push (_self ,_self.mThreadProc ()) ;
-		} ,[&] (const Exception &e) noexcept {
+		} ,[&] (std::exception_ptr &&e) noexcept {
 			_CALL_TRY_ ([&] () {
-				compute_rethrow (_self ,e) ;
+				compute_rethrow (_self ,std::move (e)) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -698,12 +698,12 @@ private:
 		_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	static void compute_rethrow (Pack &_self ,const Exception &e) {
+	static void compute_rethrow (Pack &_self ,std::exception_ptr &&e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
 		_self.mItem = AutoRef<ITEM> () ;
-		_self.mException = AutoRef<Exception>::make (e) ;
+		_self.mException = AutoRef<std::exception_ptr>::make (e) ;
 	}
 
 	static void compute_signal (Pack &_self) {
@@ -780,8 +780,11 @@ public:
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (r1.mThreadFlag.exist () && r1.mThreadFlag.self)
 			r1.mThreadCondition.self.wait (sgd) ;
-		if (r1.mException.exist ())
-			throw r1.mException.self ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1.mException.exist ())
+				continue ;
+			std::rethrow_exception (r1.mException.self) ;
+		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
 		ITEM ret = std::move (r1.mItem.self) ;
 		r1.mItem = AutoRef<ITEM> () ;
@@ -801,8 +804,11 @@ public:
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		if (r1.mException.exist ())
-			throw r1.mException.self ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (!r1.mException.exist ())
+				continue ;
+			std::rethrow_exception (r1.mException.self) ;
+		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
 		ITEM ret = std::move (r1.mItem.self) ;
 		r1.mItem = AutoRef<ITEM> () ;
