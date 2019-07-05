@@ -914,9 +914,8 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			_CALL_IF_ ([&] (BOOL &if_flag) {
 				if (mDXLoss[0] < mDXLoss[2])
 					discard ;
-				mDXLoss[0] = mDXLoss[1] ;
-				if (mDXLoss[2] > UNIT (0))
-					mDXLoss[0] = mDXLoss[2] ;
+				const auto r2x = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
+				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			} ,[&] (BOOL &if_flag) {

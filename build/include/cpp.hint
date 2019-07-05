@@ -8,7 +8,7 @@
 #define discard
 
 #define M_DATE
-#define M_TIME
+#define M_HOUR
 #define M_FILE
 #define M_LINE
 #define M_FUNC

@@ -3360,12 +3360,14 @@ public:
 	void remove (INDEX index) {
 		if (mSet[index].mLeft != VAR_NONE && mSet[index].mRight != VAR_NONE)
 			swap (index ,successor_one (index)) ;
-		const auto r1x = (mSet[index].mLeft != VAR_NONE) ? (mSet[index].mLeft) : (mSet[index].mRight) ;
-		prev_next (index) = r1x ;
-		if (r1x != VAR_NONE)
-			mSet[r1x].mUp = mSet[index].mUp ;
+		INDEX ix = mSet[index].mLeft ;
+		if (ix == VAR_NONE)
+			ix = mSet[index].mRight ;
+		prev_next (index) = ix ;
+		if (ix != VAR_NONE)
+			mSet[ix].mUp = mSet[index].mUp ;
 		if (!mSet[index].mRed)
-			update_remove (r1x ,mSet[index].mUp) ;
+			update_remove (ix ,mSet[index].mUp) ;
 		mSet.free (index) ;
 	}
 

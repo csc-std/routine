@@ -80,8 +80,9 @@ public:
 	}
 
 	void modify_option (FLAG option) override {
-		const auto r1x = (option == OPTION_DEFAULT) ? option : (mOptionFlag | option) ;
-		mOptionFlag = r1x ;
+		if (option == OPTION_DEFAULT)
+			mOptionFlag = OPTION_DEFAULT ;
+		mOptionFlag |= option ;
 	}
 
 	void print (const Binder &msg) override {
@@ -315,7 +316,7 @@ private:
 		_ERASEFILE_ (r2x) ;
 		_MOVEFILE_ (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
-		const auto r3x = _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
+		const auto r3x = String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
 	}
 } ;
@@ -372,11 +373,11 @@ public:
 				SymFromAddr (mSymbolFromAddress ,i ,NULL ,&r1) ;
 				const auto r2x = _BUILDHEX16S_<STR> (DATA (r1.Address)) ;
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r1.Name[0]])) ;
-				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
 		} ,[&] (BOOL &if_flag) {
 			for (auto &&i : address)
-				ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
 		}) ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

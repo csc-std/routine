@@ -71,10 +71,10 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!exist ())
 				continue ;
-			ix = mHeap.self[mIndex].mObjectSet.find (name) ;
-			if (ix == VAR_NONE)
+			INDEX jx = mHeap.self[mIndex].mObjectSet.find (name) ;
+			if (jx == VAR_NONE)
 				continue ;
-			ix = mHeap.self[mIndex].mObjectSet[ix].item ;
+			ix = mHeap.self[mIndex].mObjectSet[jx].item ;
 		}
 		return XmlParser (mHeap ,ix) ;
 	}
@@ -634,7 +634,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		const String<STRU8> mFinalTypeString = String<STRU8> (_PCSTRU8_ ("final")) ;
 
 		Stack<PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>>> mNodeStack ;
-		ARRAY4<DEF<DEF<void (const XmlParser &)> Lambda::*>> mFoundNodeType ;
+		ARRAY4<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
@@ -663,10 +663,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	private:
 		inline void prepare () {
 			mNodeStack = Stack<PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>>> () ;
-			mFoundNodeType[0] = &Lambda::update_found_table_node ;
-			mFoundNodeType[1] = &Lambda::update_found_object_node ;
-			mFoundNodeType[2] = &Lambda::update_found_array_node ;
-			mFoundNodeType[3] = &Lambda::update_found_table_node ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_table_node) ;
+			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_object_node) ;
+			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_array_node) ;
+			mFoundNodeProc[3] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
@@ -732,9 +732,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				for (FOR_ONCE_DO_WHILE_FALSE) {
 					if (mTempNode.P2 == VAR_NONE)
 						continue ;
-					const auto r1x = mFoundNodeType[mTempNode.P2] ;
 					for (auto &&i : mTempNode.P1)
-						(this->*r1x) (i) ;
+						mFoundNodeProc[mTempNode.P2] (i) ;
 					update_merge_found_node (mTempNode.P3[0]) ;
 					mTempNode.P1.clear () ;
 					mFoundNodeBaseRecycle.add (std::move (mTempNode.P1)) ;
@@ -779,8 +778,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
 				mFoundNodeList[iy][0] = mFoundNodeNameSet.insert (i.name ()) ;
-				if (mFoundNodeNameSet.length () > r1x)
+				for (FOR_ONCE_DO_WHILE_FALSE) {
+					if (mFoundNodeNameSet.length () == r1x)
+						continue ;
 					mFoundNodeNameSet[mFoundNodeList[iy][0]].item = iy ;
+				}
 				mFoundNodeList[iy][1] = mFoundNodeAttributeSet.insert () ;
 				mFoundNodeList[iy][2] = node_type (i) ;
 				mFoundNodeList[iy][3] = mFoundNodeBase.insert () ;
@@ -807,8 +809,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					iy = mFoundNodeList.insert () ;
 					const auto r1x = mFoundNodeNameSet.length () ;
 					mFoundNodeList[iy][0] = mFoundNodeNameSet.insert (i.name ()) ;
-					if (mFoundNodeNameSet.length () > r1x)
+					for (FOR_ONCE_DO_WHILE_FALSE) {
+						if (mFoundNodeNameSet.length () == r1x)
+							continue ;
 						mFoundNodeNameSet[mFoundNodeList[iy][0]].item = iy ;
+					}
 					mFoundNodeList[iy][1] = mFoundNodeAttributeSet.insert () ;
 					mFoundNodeList[iy][2] = node_type (i) ;
 					mFoundNodeList[iy][3] = mFoundNodeBase.insert () ;
@@ -835,8 +840,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
 				mFoundNodeList[iy][0] = mFoundNodeNameSet.insert (i.name ()) ;
-				if (mFoundNodeNameSet.length () > r1x)
+				for (FOR_ONCE_DO_WHILE_FALSE) {
+					if (mFoundNodeNameSet.length () == r1x)
+						continue ;
 					mFoundNodeNameSet[mFoundNodeList[iy][0]].item = iy ;
+				}
 				mFoundNodeList[iy][1] = mFoundNodeAttributeSet.insert () ;
 				mFoundNodeList[iy][2] = node_type (i) ;
 				mFoundNodeList[iy][3] = mFoundNodeBase.insert () ;
@@ -1010,10 +1018,10 @@ public:
 			if (!object_type ())
 				continue ;
 			auto &r1 = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			ix = r1.find (key) ;
-			if (ix == VAR_NONE)
+			INDEX jx = r1.find (key) ;
+			if (jx == VAR_NONE)
 				continue ;
-			ix = r1[ix].item ;
+			ix = r1[jx].item ;
 		}
 		return JsonParser (mHeap ,ix) ;
 	}

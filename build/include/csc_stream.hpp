@@ -1135,7 +1135,7 @@ private:
 			reader = ris.copy () ;
 			ris.read (top) ;
 		}
-		auto rax = ARRAY2<VAR64> {0 ,0} ;
+		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (!mHolder->varify_number_item (top))
 				continue ;
@@ -1183,6 +1183,16 @@ private:
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
 			reader = ris.copy () ;
+		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (rax[0] >= 0)
+				continue ;
+			rax[0] = -rax[0] ;
+			rax[2] = -1 ;
+			if (rax[0] >= 0)
+				continue ;
+			rax[0] = -(rax[0] / mHolder->varify_radix ()) ;
+			rax[1]++ ;
 		}
 		const auto r4x = _IEEE754_E10TOE2_ (rax) ;
 		data = _IEEE754_ENCODE_ (r4x) ;
@@ -1594,9 +1604,6 @@ private:
 		INDEX iw = it ;
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
-		const auto r2x = BOOL (rax[0] < 0) ;
-		if (r2x)
-			rax[0] = -rax[0] ;
 		const auto r3x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &if_flag) {
 			if (_ABS_ (r3x - 1 + rax[1]) < precision)
@@ -1650,8 +1657,11 @@ private:
 			if (_ABS_ (r11x) < precision)
 				discard ;
 			compute_write_number (r11x ,out ,iw) ;
-			if (r11x > 0)
+			for (FOR_ONCE_DO_WHILE_FALSE) {
+				if (r11x <= 0)
+					continue ;
 				out[--iw] = STRX ('+') ;
+			}
 			out[--iw] = STRX ('e') ;
 			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
@@ -1725,8 +1735,11 @@ private:
 				discard ;
 			out[--iw] = mHolder->convert_number_w (0) ;
 		}) ;
-		if (r2x)
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (rax[2] == 0)
+				continue ;
 			out[--iw] = STRX ('-') ;
+		}
 		it = iw ;
 	}
 

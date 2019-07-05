@@ -59,8 +59,9 @@ public:
 	}
 
 	void modify_option (FLAG option) override {
-		const auto r1x = (option == OPTION_DEFAULT) ? option : (mOptionFlag | option) ;
-		mOptionFlag = r1x ;
+		if (option == OPTION_DEFAULT)
+			mOptionFlag = OPTION_DEFAULT ;
+		mOptionFlag |= option ;
 	}
 
 	void print (const Binder &msg) override {
@@ -277,7 +278,7 @@ private:
 		_ERASEFILE_ (r2x) ;
 		_MOVEFILE_ (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
-		const auto r3x = _PRINTS_<STR> (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
+		const auto r3x = String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
 	}
 } ;
@@ -319,7 +320,7 @@ public:
 			const auto r2x = backtrace_symbols (&r1x ,1) ;
 			const auto r3x = _BUILDHEX16S_<STR> (i) ;
 			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r2x[0][0]])) ;
-			ret[iw++] = _PRINTS_<STR> (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
+			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

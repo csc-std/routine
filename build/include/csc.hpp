@@ -273,7 +273,7 @@ using std::remove_extent ;
 } ;
 
 #define M_DATE __DATE__
-#define M_TIME __TIME__
+#define M_HOUR __TIME__
 #define M_FILE __FILE__
 #define M_LINE __LINE__
 
@@ -4109,11 +4109,11 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
 		const auto r1x = mAllocator.size () ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		len = _MAX_ (len - (r1x - mLength) ,VAR_ZERO) ;
-		if (len == 0)
+		const auto r2x = _MAX_ (len - (r1x - mLength) ,VAR_ZERO) ;
+		if (r2x == 0)
 			return ;
-		_DEBUG_ASSERT_ (r1x + len > r1x) ;
-		auto rax = mAllocator.expand (r1x + len) ;
+		_DEBUG_ASSERT_ (r1x + r2x > r1x) ;
+		auto rax = mAllocator.expand (r1x + r2x) ;
 		for (INDEX i = 0 ; i < r1x ; i++) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<TYPE> (mAllocator[i].mData))) ;

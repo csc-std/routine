@@ -229,14 +229,9 @@ inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1 ,const _ARG1 &arg2 ,const _ARGS &
 	return _MAX_ (arg1 ,_MAXOF_ (arg2 ,args...)) ;
 }
 
-inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
+inline VAL64 _IEEE754_ENCODE_ (const ARRAY3<VAR64> &sne2) {
 	const auto r1x = _CALL_ ([&] () {
-		ARRAY3<DATA> ret ;
-		ret[0] = DATA (sne2[0]) ;
-		ret[1] = DATA (sne2[1]) ;
-		ret[2] = ret[0] ;
-		if ((ret[0] & DATA (0X8000000000000000)) != 0)
-			ret[0] = ~ret[0] + 1 ;
+		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
 		while (TRUE) {
 			if (ret[0] == 0)
 				break ;
@@ -245,17 +240,18 @@ inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
 			ret[0] = ret[0] << 1 ;
 			ret[1]-- ;
 		}
-		const auto r3x = VAR64 (ret[1]) ;
+		if (ret[0] == 0)
+			ret[1] = 0 ;
 		while (TRUE) {
 			if (VAR64 (ret[1]) > -1075)
 				break ;
 			ret[0] = ret[0] >> 1 ;
 			ret[1]++ ;
 		}
-		ret[1] = ret[1] + 1075 - EFLAG (r3x <= -1075) ;
+		const auto r3x = VAR64 (ret[1]) + 1074 ;
+		if (ret[0] != 0)
+			ret[1] += DATA (1075 - EFLAG (r3x == 0)) ;
 		ret[1] = ret[1] << 52 ;
-		if (ret[0] == 0)
-			ret[1] = 0 ;
 		return std::move (ret) ;
 	}) ;
 	_DYNAMIC_ASSERT_ ((r1x[0] & ~0X001FFFFFFFFFFFFF) == 0) ;
@@ -267,15 +263,16 @@ inline VAL64 _IEEE754_ENCODE_ (const ARRAY2<VAR64> &sne2) {
 	return std::move (_CAST_<VAL64> (ret)) ;
 }
 
-inline ARRAY2<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
-	ARRAY2<DATA> ret ;
+inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
+	ARRAY3<DATA> ret ;
 	const auto r1x = _CAST_<DATA> (ieee754) ;
 	ret[0] = r1x & DATA (0X000FFFFFFFFFFFFF) ;
-	const auto r2x = r1x & DATA (0X7FF0000000000000) ;
-	if (r2x != 0)
+	const auto r3x = r1x & DATA (0X7FF0000000000000) ;
+	if (r3x != 0)
 		ret[0] |= DATA (0X0010000000000000) ;
-	ret[1] = r2x >> 52 ;
-	ret[1] -= DATA (1074 + EFLAG (r2x != 0)) ;
+	ret[1] = r3x >> 52 ;
+	if (ret[0] != 0)
+		ret[1] -= DATA (1075 - EFLAG (r3x == 0)) ;
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
@@ -284,11 +281,9 @@ inline ARRAY2<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	if ((r1x & DATA (0X8000000000000000)) != 0)
-		ret[0] = ~ret[0] + 1 ;
-	if (r1x == 0)
-		ret[1] = 0 ;
-	return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
+	const auto r4x = ((r1x & DATA (0X8000000000000000)) == 0) ? DATA (0) : DATA (-1) ;
+	ret[2] = r4x ;
+	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
 inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
@@ -297,7 +292,7 @@ inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
 	auto rax = VAL64 (1) ;
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
-		rax = rax * r1x / rbx ;
+		rax *= r1x * _PINV_ (rbx) ;
 		if (rax < VAL64_EPS)
 			break ;
 		ret += rax ;
@@ -308,12 +303,9 @@ inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
 	return std::move (ret) ;
 }
 
-inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
+inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
 	const auto r1x = _CALL_ ([&] () {
-		ARRAY2<DATA> ret = _CAST_<ARRAY2<DATA>> (sne2) ;
-		if (sne2[0] < 0)
-			ret[0] = ~ret[0] + 1 ;
-		_DEBUG_ASSERT_ ((ret[0] & DATA (0X8000000000000000)) == 0) ;
+		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
 		while (TRUE) {
 			if (ret[0] == 0)
 				break ;
@@ -322,9 +314,9 @@ inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
 			ret[0] = ret[0] << 1 ;
 			ret[1]-- ;
 		}
-		return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
+		return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 	}) ;
-	ARRAY2<DATA> ret ;
+	ARRAY3<DATA> ret ;
 	const auto r2x = VAL64 (VALX_LOGE2 / VALX_LOGE10) * VAL64 (r1x[1]) ;
 	//@warn: without enough precision
 	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE10) ,(r2x - VAR64 (r2x))) ;
@@ -338,17 +330,13 @@ inline ARRAY2<VAR64> _IEEE754_E2TOE10_ (const ARRAY2<VAR64> &sne2) {
 		ret[0] /= 10 ;
 		ret[1]++ ;
 	}
-	if (sne2[0] < 0)
-		ret[0] = ~ret[0] + 1 ;
-	return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
+	ret[2] = r1x[2] ;
+	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
-inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
+inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
 	const auto r1x = _CALL_ ([&] () {
-		ARRAY2<DATA> ret = _CAST_<ARRAY2<DATA>> (sne10) ;
-		if (sne10[0] < 0)
-			ret[0] = ~ret[0] + 1 ;
-		_DEBUG_ASSERT_ ((ret[0] & DATA (0X8000000000000000)) == 0) ;
+		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne10) ;
 		while (TRUE) {
 			if (ret[0] == 0)
 				break ;
@@ -357,9 +345,9 @@ inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
 			ret[0] = (ret[0] << 3) + (ret[0] << 1) ;
 			ret[1]-- ;
 		}
-		return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
+		return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 	}) ;
-	ARRAY2<DATA> ret ;
+	ARRAY3<DATA> ret ;
 	const auto r2x = VAL64 (VALX_LOGE10 / VALX_LOGE2) * VAL64 (r1x[1]) ;
 	//@warn: without enough precision
 	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE2) ,(r2x - VAR64 (r2x))) ;
@@ -381,9 +369,8 @@ inline ARRAY2<VAR64> _IEEE754_E10TOE2_ (const ARRAY2<VAR64> &sne10) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	if (sne10[0] < 0)
-		ret[0] = ~ret[0] + 1 ;
-	return std::move (_CAST_<ARRAY2<VAR64>> (ret)) ;
+	ret[2] = r1x[2] ;
+	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 } ;
 
