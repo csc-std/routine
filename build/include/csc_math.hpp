@@ -229,31 +229,33 @@ inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1 ,const _ARG1 &arg2 ,const _ARGS &
 	return _MAX_ (arg1 ,_MAXOF_ (arg2 ,args...)) ;
 }
 
-inline VAL64 _IEEE754_ENCODE_ (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _CALL_ ([&] () {
-		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
-		while (TRUE) {
-			if (ret[0] == 0)
-				break ;
-			if ((ret[0] & ~0X000FFFFFFFFFFFFF) == 0X0010000000000000)
-				break ;
-			ret[0] = ret[0] << 1 ;
-			ret[1]-- ;
-		}
+inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
+	ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
+	while (TRUE) {
 		if (ret[0] == 0)
-			ret[1] = 0 ;
-		while (TRUE) {
-			if (VAR64 (ret[1]) > -1075)
-				break ;
-			ret[0] = ret[0] >> 1 ;
-			ret[1]++ ;
-		}
-		const auto r3x = VAR64 (ret[1]) + 1074 ;
-		if (ret[0] != 0)
-			ret[1] += DATA (1075 - EFLAG (r3x == 0)) ;
-		ret[1] = ret[1] << 52 ;
-		return std::move (ret) ;
-	}) ;
+			break ;
+		if ((ret[0] & ~0X000FFFFFFFFFFFFF) == 0X0010000000000000)
+			break ;
+		ret[0] = ret[0] << 1 ;
+		ret[1]-- ;
+	}
+	if (ret[0] == 0)
+		ret[1] = 0 ;
+	while (TRUE) {
+		if (VAR64 (ret[1]) > -1075)
+			break ;
+		ret[0] = ret[0] >> 1 ;
+		ret[1]++ ;
+	}
+	const auto r3x = VAR64 (ret[1]) + 1074 ;
+	if (ret[0] != 0)
+		ret[1] += DATA (1075 - EFLAG (r3x == 0)) ;
+	ret[1] = ret[1] << 52 ;
+	return std::move (ret) ;
+}
+
+inline VAL64 _IEEE754_ENCODE_ (const ARRAY3<VAR64> &sne2) {
+	const auto r1x = _inline_IEEE754_ENCODE_PART_ (sne2) ;
 	_DYNAMIC_ASSERT_ ((r1x[0] & ~0X001FFFFFFFFFFFFF) == 0) ;
 	_DYNAMIC_ASSERT_ ((r1x[1] & ~0X7FF0000000000000) == 0) ;
 	DATA ret = 0 ;
@@ -303,19 +305,21 @@ inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
 	return std::move (ret) ;
 }
 
+inline ARRAY3<VAR64> _inline_IEEE754_E2TOE10_PART_ (const ARRAY3<VAR64> &sne2) {
+	ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
+	while (TRUE) {
+		if (ret[0] == 0)
+			break ;
+		if ((ret[0] & ~0X000FFFFFFFFFFFFF) == 0X0010000000000000)
+			break ;
+		ret[0] = ret[0] << 1 ;
+		ret[1]-- ;
+	}
+	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+}
+
 inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _CALL_ ([&] () {
-		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne2) ;
-		while (TRUE) {
-			if (ret[0] == 0)
-				break ;
-			if ((ret[0] & ~0X000FFFFFFFFFFFFF) == 0X0010000000000000)
-				break ;
-			ret[0] = ret[0] << 1 ;
-			ret[1]-- ;
-		}
-		return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
-	}) ;
+	const auto r1x = _inline_IEEE754_E2TOE10_PART_ (sne2) ;
 	ARRAY3<DATA> ret ;
 	const auto r2x = VAL64 (VALX_LOGE2 / VALX_LOGE10) * VAL64 (r1x[1]) ;
 	//@warn: without enough precision
@@ -334,19 +338,21 @@ inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
+inline ARRAY3<VAR64> _inline_IEEE754_E10TOE2_PART_ (const ARRAY3<VAR64> &sne10) {
+	ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne10) ;
+	while (TRUE) {
+		if (ret[0] == 0)
+			break ;
+		if ((ret[0] & ~0X000FFFFFFFFFFFFF) != 0)
+			break ;
+		ret[0] = (ret[0] << 3) + (ret[0] << 1) ;
+		ret[1]-- ;
+	}
+	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+}
+
 inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
-	const auto r1x = _CALL_ ([&] () {
-		ARRAY3<DATA> ret = _CAST_<ARRAY3<DATA>> (sne10) ;
-		while (TRUE) {
-			if (ret[0] == 0)
-				break ;
-			if ((ret[0] & ~0X000FFFFFFFFFFFFF) != 0)
-				break ;
-			ret[0] = (ret[0] << 3) + (ret[0] << 1) ;
-			ret[1]-- ;
-		}
-		return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
-	}) ;
+	const auto r1x = _inline_IEEE754_E10TOE2_PART_ (sne10) ;
 	ARRAY3<DATA> ret ;
 	const auto r2x = VAL64 (VALX_LOGE10 / VALX_LOGE2) * VAL64 (r1x[1]) ;
 	//@warn: without enough precision
@@ -425,13 +431,15 @@ inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &array1 ,const Array<INDEX> &el
 	return std::move (ret) ;
 }
 
+inline LENGTH _inline_ELEMENT_LENGTH_ (const Array<BOOL> &elem) {
+	LENGTH ret = 0 ;
+	for (auto &&i : elem)
+		ret += EFLAG (i) ;
+	return std::move (ret) ;
+}
+
 inline Array<INDEX> _ELEMENT_ (const Array<BOOL> &elem) {
-	const auto r1x = _CALL_ ([&] () {
-		LENGTH ret = 0 ;
-		for (auto &&i : elem)
-			ret += EFLAG (i) ;
-		return std::move (ret) ;
-	}) ;
+	const auto r1x = _inline_ELEMENT_LENGTH_ (elem) ;
 	Array<INDEX> ret = Array<INDEX> (r1x) ;
 	INDEX iw = 0 ;
 	for (INDEX i = 0 ; i < elem.length () ; i++) {
@@ -506,13 +514,16 @@ inline Array<_ARG1> _CONCAT_ (const Array<_ARG1> &array1 ,const Array<_ARG1> &ar
 }
 
 template <class _ARG1>
+inline LENGTH _inline_FLATTEN_LENGTH_ (const Array<Array<_ARG1>> &array1) {
+	LENGTH ret = 0 ;
+	for (auto &&i : array1)
+		ret += i.length () ;
+	return std::move (ret) ;
+}
+
+template <class _ARG1>
 inline Array<_ARG1> _FLATTEN_ (const Array<Array<_ARG1>> &array1) {
-	const auto r1x = _CALL_ ([&] () {
-		LENGTH ret = 0 ;
-		for (auto &&i : array1)
-			ret += i.length () ;
-		return std::move (ret) ;
-	}) ;
+	const auto r1x = _inline_FLATTEN_LENGTH_ (array1) ;
 	Array<_ARG1> ret = Array<_ARG1> (r1x) ;
 	INDEX iw = 0 ;
 	for (auto &&i : array1)
@@ -529,6 +540,7 @@ inline Function<_ARG1 (const _ARGS &...)> _BIND_ (const PTR<_ARG1 (const _ARGS &
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4>
 inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP2)> & ,const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2) {
+	_STATIC_WARNING_ ("mark") ;
 	return Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> ([&] (const _ARG2 &op1 ,const _ARG3 &op2) {
 		return func2 (op1 ,func1 (op1 ,op2)) ;
 	}) ;

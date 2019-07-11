@@ -45,35 +45,35 @@ namespace U {
 template <>
 struct OPERATOR_TO_STRING<String<STRU8> ,String<STRU8>> {
 	inline static String<STRU8> invoke (const String<STRU8> &src) {
-		return src ;
+		return _COPY_ (src) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_TO_STRING<String<STRU16> ,String<STRU16>> {
 	inline static String<STRU16> invoke (const String<STRU16> &src) {
-		return src ;
+		return _COPY_ (src) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_TO_STRING<String<STRU32> ,String<STRU32>> {
 	inline static String<STRU32> invoke (const String<STRU32> &src) {
-		return src ;
+		return _COPY_ (src) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_TO_STRING<String<STRA> ,String<STRA>> {
 	inline static String<STRA> invoke (const String<STRA> &src) {
-		return src ;
+		return _COPY_ (src) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_TO_STRING<String<STRW> ,String<STRW>> {
 	inline static String<STRW> invoke (const String<STRW> &src) {
-		return src ;
+		return _COPY_ (src) ;
 	}
 } ;
 
@@ -550,8 +550,9 @@ inline String<STRU8> _UASTOU8S_ (const String<STRA> &src) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (src)) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		const auto r1x = i ;
+		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
+		(void) r1x ;
 	}
 	return std::move (ret) ;
 }
@@ -560,8 +561,9 @@ inline String<STRU8> _UASTOU8S_ (String<STRA> &&src) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (src)) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		const auto r1x = i ;
+		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
+		(void) r1x ;
 	}
 	return std::move (ret) ;
 }
@@ -570,8 +572,9 @@ inline String<STRA> _U8STOUAS_ (const String<STRU8> &src) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (src) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		const auto r1x = i ;
+		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
+		(void) r1x ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
@@ -580,8 +583,9 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&src) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (src) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		const auto r1x = i ;
+		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
+		(void) r1x ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
@@ -1080,8 +1084,8 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 }
 
 #ifdef __CSC_EXT__
-inline imports DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &src)> _LOCALE_CVTTO_TIMEMETRIC_ ;
-inline imports DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &src)> _LOCALE_CVTTO_TIMEPOINT_ ;
+inline imports DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &src)> _LOCALE_MAKE_TIMEMETRIC_ ;
+inline imports DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &src)> _LOCALE_MAKE_TIMEPOINT_ ;
 
 template <class _ARG1>
 inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &stri) {
@@ -1107,7 +1111,7 @@ inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &
 		ris >> _EOS_ ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_CVTTO_TIMEPOINT_ (r1x) ;
+	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
 template <class _RET>
@@ -1115,7 +1119,7 @@ inline String<_RET> _BUILDDATES_ (const std::chrono::system_clock::time_point &s
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
+	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
 	wos << r1x[0] ;
 	wos << STR ('-') ;
 	if (r1x[1] < 10)
@@ -1153,7 +1157,7 @@ inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &
 		ris >> _EOS_ ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_CVTTO_TIMEPOINT_ (r1x) ;
+	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
 template <class _RET>
@@ -1161,7 +1165,7 @@ inline String<_RET> _BUILDHOURS_ (const std::chrono::system_clock::time_point &s
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
+	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
 	if (r1x[5] < 10)
 		wos << STR ('0') ;
 	wos << r1x[5] ;
@@ -1216,7 +1220,7 @@ inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &
 		ris >> _EOS_ ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_CVTTO_TIMEPOINT_ (r1x) ;
+	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
 template <class _RET>
@@ -1224,7 +1228,7 @@ inline String<_RET> _BUILDTIMES_ (const std::chrono::system_clock::time_point &s
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_CVTTO_TIMEMETRIC_ (stru) ;
+	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
 	wos << r1x[0] ;
 	wos << STR ('-') ;
 	if (r1x[1] < 10)

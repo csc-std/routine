@@ -19,7 +19,6 @@
 namespace CSC {
 #ifdef __CSC_DEPRECATED__
 namespace U {
-template <class TYPE>
 struct OPERATOR_TYPENAME {
 	template <class _ARG1>
 	inline static void compute_write_typename_cvs (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
@@ -252,12 +251,14 @@ struct OPERATOR_TYPENAME {
 		compute_write_typename_refs (writer ,_NULL_<const ARGV<REMOVE_CONST_TYPE<REMOVE_VOLATILE_TYPE<_ARG1>>>> ()) ;
 	}
 
+	template <class _RET>
 	inline static void serialize (TextWriter<STR> &writer) {
-		compute_write_typename_xs (writer ,_NULL_<const ARGV<TYPE>> ()) ;
+		compute_write_typename_xs (writer ,_NULL_<const ARGV<_RET>> ()) ;
 	}
 
+	template <class _RET>
 	inline static String<STR> invoke () {
-		return String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (OPERATOR_TYPENAME::serialize)) ;
+		return String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (OPERATOR_TYPENAME::serialize<_RET>)) ;
 	}
 } ;
 } ;

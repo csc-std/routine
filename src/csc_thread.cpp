@@ -7,7 +7,7 @@ public:
 	TEST_METHOD (TEST_CSC_THREAD) {
 		struct A {
 			inline int work () const {
-				std::this_thread::sleep_for (std::chrono::milliseconds (100)) ;
+				GlobalRuntime::thread_sleep (std::chrono::milliseconds (100)) ;
 				return 3 ;
 			}
 		} ;
@@ -21,7 +21,7 @@ public:
 		while (TRUE) {
 			if (rax.ready ())
 				break ;
-			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
+			GlobalRuntime::thread_sleep (std::chrono::milliseconds (10)) ;
 			ix++ ;
 		}
 		_UNITTEST_ASSERT_ (_ABS_ (ix - 10) < 2) ;
@@ -33,7 +33,7 @@ public:
 
 	TEST_METHOD (TEST_CSC_THREAD_PROMISE) {
 		const auto r1x = _XVALUE_<PTR<int ()>> ([] () {
-			std::this_thread::sleep_for (std::chrono::milliseconds (10)) ;
+			GlobalRuntime::thread_sleep (std::chrono::milliseconds (10)) ;
 			return 1 ;
 		}) ;
 		auto rax = Promise<int>::async (r1x) ;
@@ -47,7 +47,7 @@ public:
 			rbx.self = item ;
 		}) ;
 		rax.then (Function<DEF<void (int &)> NONE::*> (PhanRef<const Function<void (int &)>>::make (r2x) ,&Function<void (int &)>::operator())) ;
-		std::this_thread::sleep_for (std::chrono::milliseconds (100)) ;
+		GlobalRuntime::thread_sleep (std::chrono::milliseconds (100)) ;
 		_UNITTEST_ASSERT_ (rbx.self == 1) ;
 	}
 } ;

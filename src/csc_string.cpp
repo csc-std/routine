@@ -23,11 +23,11 @@ public:
 		_UNITTEST_ASSERT_ (_ABS_ (r6x - VAL (1.42E38)) < VAL (1E34)) ;
 		const auto r7x = _PARSEVALS_ (String<STR> (_PCSTR_ ("0.99287"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r7x - VAL (0.99287)) < VAL (1E-4)) ;
-		const auto r8x = _BUILDDATES_<STR> (std::chrono::system_clock::now ()) ;
+		const auto r8x = _BUILDDATES_<STR> (GlobalRuntime::clock_now ()) ;
 		_UNITTEST_ASSERT_ (r8x.size () > 0) ;
-		const auto r9x = _BUILDHOURS_<STR> (std::chrono::system_clock::now ()) ;
+		const auto r9x = _BUILDHOURS_<STR> (GlobalRuntime::clock_now ()) ;
 		_UNITTEST_ASSERT_ (r9x.size () > 0) ;
-		const auto r10x = _BUILDTIMES_<STR> (std::chrono::system_clock::now ()) ;
+		const auto r10x = _BUILDTIMES_<STR> (GlobalRuntime::clock_now ()) ;
 		_UNITTEST_ASSERT_ (r10x.size () > 0) ;
 	}
 

@@ -175,7 +175,7 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			_CALL_EH_ ([&] () {
+			_CALL_SEH_ ([&] () {
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
 			} ,[&] (std::exception_ptr &&e) noexcept {
 				_CALL_TRY_ ([&] () {
@@ -257,6 +257,10 @@ private:
 
 	static LENGTH intrusive_detach (Pack &_self) popping {
 		return --_self.mCounter.self ;
+	}
+
+	static void intrusive_latch () {
+		GlobalRuntime::thread_sleep () ;
 	}
 } ;
 
@@ -466,7 +470,7 @@ private:
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			compute_poll (_self ,rax) ;
-			_CALL_EH_ ([&] () {
+			_CALL_SEH_ ([&] () {
 				_self.mThreadProc (rax.self) ;
 			} ,[&] (std::exception_ptr &&e) noexcept {
 				_CALL_TRY_ ([&] () {
@@ -540,6 +544,10 @@ private:
 
 	static LENGTH intrusive_detach (Pack &_self) popping {
 		return --_self.mCounter.self ;
+	}
+
+	static void intrusive_latch () {
+		GlobalRuntime::thread_sleep () ;
 	}
 } ;
 
@@ -660,7 +668,7 @@ private:
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
-		_CALL_EH_ ([&] () {
+		_CALL_SEH_ ([&] () {
 			compute_push (_self ,_self.mThreadProc ()) ;
 		} ,[&] (std::exception_ptr &&e) noexcept {
 			_CALL_TRY_ ([&] () {
@@ -747,6 +755,10 @@ private:
 		return --_self.mCounter.self ;
 	}
 
+	static void intrusive_latch () {
+		GlobalRuntime::thread_sleep () ;
+	}
+
 public:
 	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
 } ;
@@ -820,9 +832,13 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Pack> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;
-		if (r1.mThreadFlag.exist () && !r1.mThreadFlag.self && r1.mItem.exist ())
-			return r1.mItem.self ;
-		return def ;
+		if (!r1.mThreadFlag.exist ())
+			return def ;
+		if (r1.mThreadFlag.self)
+			return def ;
+		if (!r1.mItem.exist ())
+			return def ;
+		return r1.mItem.self ;
 	}
 
 	void then (Function<DEF<void (ITEM &)> NONE::*> &&proc) {

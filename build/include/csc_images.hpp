@@ -630,7 +630,7 @@ private:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
-			_CALL_EH_ ([&] () {
+			_CALL_SEH_ ([&] () {
 				compute_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}

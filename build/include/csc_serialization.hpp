@@ -299,7 +299,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			break ;
 		const auto r1x = std::move (rax[rax.peek ()]) ;
 		rax.take () ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			//@info: case '<?xml ...>'
 			if (r1x[0] == VAR_NONE)
 				discard ;
@@ -314,7 +314,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			for (INDEX i = r1.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			rax.appand (rbx) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
 			if (r1x[0] == VAR_NONE)
 				discard ;
@@ -330,7 +330,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				writer << i.item << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ ("/>") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?>'
 			if (r1x[0] == VAR_NONE)
 				discard ;
@@ -351,7 +351,7 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			rbx.add (ARRAY2<INDEX> {r1x[0] ,FLAG (1)}) ;
 			rax.appand (rbx) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '</xxx>'
 			if (r1x[0] == VAR_NONE)
 				discard ;
@@ -502,7 +502,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			update_shift_e4 (ix) ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('>'))
 					discard ;
 				mRis++ ;
@@ -519,7 +519,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
 				mRis >> _PCSTRU8_ (">") ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				mRis >> _PCSTRU8_ ("/>") ;
 			}) ;
 			mLatestIndex = ix ;
@@ -548,11 +548,11 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 				const auto r2x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
 				if (!r1x && !r2x)
 					break ;
-				_CALL_IF_ ([&] (BOOL &if_flag) {
+				_CALL_ONE_ ([&] (BOOL &if_context) {
 					if (!r1x)
 						discard ;
 					update_shift_e6 () ;
-				} ,[&] (BOOL &if_flag) {
+				} ,[&] (BOOL &if_context) {
 					if (!r2x)
 						discard ;
 					update_shift_e5 (it) ;
@@ -1181,7 +1181,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			break ;
 		const auto r2x = std::move (rax[rax.peek ()]) ;
 		rax.take () ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			//@info: case 'null'
 			if (r2x[0] == VAR_NONE)
 				discard ;
@@ -1190,7 +1190,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			if (r2x[1] != 0)
 				discard ;
 			writer << _PCSTRU8_ ("null") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '"xxx"'
 			if (r2x[0] == VAR_NONE)
 				discard ;
@@ -1202,7 +1202,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("\"") ;
 			writer << r2 ;
 			writer << _PCSTRU8_ ("\"") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '[(yyy(,yyy)*)?]'
 			if (r2x[0] == VAR_NONE)
 				discard ;
@@ -1222,7 +1222,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			}
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (4)}) ;
 			rax.appand (rbx) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
 			if (r2x[0] == VAR_NONE)
 				discard ;
@@ -1246,7 +1246,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			}
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (8)}) ;
 			rax.appand (rbx) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] == VAR_NONE)
 				discard ;
 			if (r2x[1] != 1)
@@ -1254,43 +1254,43 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("\"") ;
 			writer << (*r1x[r2x[0]]) ;
 			writer << _PCSTRU8_ ("\"") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 2)
 				discard ;
 			writer << _PCSTRU8_ ("[") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 3)
 				discard ;
 			writer << _PCSTRU8_ (",") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 4)
 				discard ;
 			writer << _PCSTRU8_ ("]") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 5)
 				discard ;
 			writer << _PCSTRU8_ ("{") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 6)
 				discard ;
 			writer << _PCSTRU8_ (",") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 7)
 				discard ;
 			writer << _PCSTRU8_ (":") ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x[0] != VAR_NONE)
 				discard ;
 			if (r2x[1] != 8)
@@ -1392,27 +1392,27 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $2->true|TRUE|false|FALSE
 		inline void update_shift_e2 () {
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('t'))
 					discard ;
 				mRis >> _PCSTRU8_ ("true") ;
 				mLatestString = _PCSTRU8_ ("true") ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('T'))
 					discard ;
 				mRis >> _PCSTRU8_ ("TRUE") ;
 				mLatestString = _PCSTRU8_ ("TRUE") ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('f'))
 					discard ;
 				mRis >> _PCSTRU8_ ("false") ;
 				mLatestString = _PCSTRU8_ ("false") ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('F'))
 					discard ;
 				mRis >> _PCSTRU8_ ("FALSE") ;
 				mLatestString = _PCSTRU8_ ("FALSE") ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				_DEBUG_ASSERT_ (FALSE) ;
 			}) ;
 		}
@@ -1432,7 +1432,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void update_shift_e4 (INDEX it) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
 				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
 				if (!r1x && !r2x)
@@ -1444,7 +1444,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')) ;
 				const auto r4x = BOOL (mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
 				if (!r3x && !r4x)
@@ -1456,7 +1456,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('n'))
 					discard ;
 				ix = mNodeHeap.alloc () ;
@@ -1465,7 +1465,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('\"'))
 					discard ;
 				ix = mNodeHeap.alloc () ;
@@ -1475,17 +1475,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('['))
 					discard ;
 				update_shift_e6 (it) ;
 				ix = mLatestIndex ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('{'))
 					discard ;
 				update_shift_e9 (it) ;
 				ix = mLatestIndex ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}) ;
 			mLatestIndex = ix ;
@@ -1827,7 +1827,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = mAttributeSet.find (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 			ix = mAttributeSet.insert (std::move (mLatestString)) ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('='))
 					discard ;
 				if (mRis[1] != STRU8 ('\"'))
@@ -1835,24 +1835,24 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e2 () ;
 				mAttributeSet[ix].item = std::move (mLatestString) ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('='))
 					discard ;
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e3 () ;
 				mAttributeSet[ix].item = std::move (mLatestString) ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				mAttributeSet[ix].item = _PCSTRU8_ ("TRUE") ;
 			}) ;
 		}
 
 		//@info: $6->$2|$3
 		inline void update_shift_e6 () {
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mRis[0] != STRU8 ('\"'))
 					discard ;
 				update_shift_e2 () ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				update_shift_e3 () ;
 			}) ;
 			mCommandList.add (std::move (mLatestString)) ;
@@ -1863,15 +1863,15 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			while (TRUE) {
 				if (mRis[0] == STRU8 ('\0'))
 					break ;
-				_CALL_IF_ ([&] (BOOL &if_flag) {
+				_CALL_ONE_ ([&] (BOOL &if_context) {
 					if (mRis[0] != STRU8 ('/'))
 						discard ;
 					update_shift_e4 () ;
-				} ,[&] (BOOL &if_flag) {
+				} ,[&] (BOOL &if_context) {
 					if (mRis[0] != STRU8 ('-'))
 						discard ;
 					update_shift_e5 () ;
-				} ,[&] (BOOL &if_flag) {
+				} ,[&] (BOOL &if_context) {
 					update_shift_e6 () ;
 				}) ;
 				mRis >> LLTextReader<>::SKIP_GAP_SPACE_ONLY ;

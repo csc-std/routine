@@ -159,17 +159,17 @@ public:
 			const auto r3x = VAR32 (vs.size ()) ;
 			glShaderSource (r1x ,1 ,&r2x ,&r3x) ;
 			glCompileShader (r1x) ;
-			attach_shaderiv (r1x) ;
+			check_shaderiv (r1x) ;
 			glAttachShader (me ,r1x) ;
 			const auto r4x = glCreateShader (GL_FRAGMENT_SHADER) ;
 			const auto r5x = _LOAD_<ARR<STRA>> (fs.self) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			glShaderSource (r4x ,1 ,&r5x ,&r6x) ;
 			glCompileShader (r4x) ;
-			attach_shaderiv (r4x) ;
+			check_shaderiv (r4x) ;
 			glAttachShader (me ,r4x) ;
 			glLinkProgram (me) ;
-			attach_programiv (me) ;
+			check_programiv (me) ;
 		} ,[] (CHAR &me) {
 			_DEBUG_ASSERT_ (me != 0) ;
 			glDeleteProgram (me) ;
@@ -294,7 +294,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	void attach_shaderiv (CHAR shader) const {
+	void check_shaderiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
 		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(rax[0] = GL_FALSE)) ;
 		if (rax[0] == GL_TRUE)
@@ -307,7 +307,7 @@ private:
 		_DYNAMIC_ASSERT_ (rbx.empty ()) ;
 	}
 
-	void attach_programiv (CHAR shader) const {
+	void check_programiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
 		glGetProgramiv (shader ,GL_LINK_STATUS ,&(rax[0] = GL_FALSE)) ;
 		if (rax[0] == GL_TRUE)

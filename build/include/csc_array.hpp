@@ -10,8 +10,8 @@ namespace CSC {
 template <class BASE>
 class ForwardIterator final {
 private:
-	using ITERATOR = decltype (_NULL_<const BASE> ().ibegin ()) ;
-	using ITEM_TYPE = decltype (_NULL_<BASE> ().get (_NULL_<const ITERATOR> ())) ;
+	using ITERATOR = DEF<decltype (_NULL_<const BASE> ().ibegin ())> ;
+	using ITEM_TYPE = DEF<decltype (_NULL_<BASE> ().get (_NULL_<const ITERATOR> ()))> ;
 
 private:
 	BASE &mBase ;
@@ -66,31 +66,6 @@ inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping 
 } ;
 
 namespace U {
-template <class ,class>
-struct OPERATOR_SORT ;
-
-template <>
-struct OPERATOR_SORT<void ,void> {
-	template <class _ARG1 ,class _ARG2>
-	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
-		OPERATOR_SORT<_ARG1 ,_ARG2>::invoke (array ,out ,seg ,seg_len) ;
-	}
-
-	class ForwardArray :private Wrapped<ARGV<NONE>> {
-	public:
-		template <class _ARG1>
-		inline _ARG1 &operator[] (_ARG1 &arg1) const {
-			return arg1 ;
-		}
-	} ;
-
-	template <class _ARG1>
-	inline static void invoke (_ARG1 &out ,INDEX seg ,LENGTH seg_len) {
-		OPERATOR_SORT<ForwardArray ,_ARG1>::invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,seg ,seg_len) ;
-	}
-} ;
-
-template <class TYPE1 ,class TYPE2>
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void compute_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
@@ -149,17 +124,30 @@ struct OPERATOR_SORT {
 		compute_insert_sort (array ,out ,ix ,seg_b) ;
 	}
 
-	inline static void invoke (const TYPE1 &array ,TYPE2 &out ,INDEX seg ,LENGTH seg_len) {
+	template <class _ARG1 ,class _ARG2>
+	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 		compute_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+	}
+
+	class ForwardArray :private Wrapped<ARGV<NONE>> {
+	public:
+		template <class _ARG1>
+		inline _ARG1 &operator[] (_ARG1 &arg1) const {
+			return arg1 ;
+		}
+	} ;
+
+	template <class _ARG1>
+	inline static void invoke (_ARG1 &out ,INDEX seg ,LENGTH seg_len) {
+		invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,seg ,seg_len) ;
 	}
 } ;
 } ;
 
 namespace U {
-template <class TYPE>
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().hash ()) ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		return left.hash () ;
 	}
 
@@ -168,7 +156,8 @@ struct OPERATOR_HASH {
 		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (left)) ;
 	}
 
-	inline static FLAG invoke (const TYPE &left) {
+	template <class _ARG1>
+	inline static FLAG invoke (const _ARG1 &left) {
 		FLAG ret = template_hash (left ,ARGV_VOID ,ARGVP9) ;
 		ret &= VAR_MAX ;
 		return std::move (ret) ;
@@ -297,7 +286,7 @@ public:
 	}
 
 	void sort () {
-		U::OPERATOR_SORT<void ,void>::invoke (mArray ,0 ,mArray.size ()) ;
+		U::OPERATOR_SORT::invoke (mArray ,0 ,mArray.size ()) ;
 	}
 
 	void fill (const ITEM &val) {
@@ -531,7 +520,7 @@ public:
 		return TRUE ;
 	}
 
-	String add (const String &right) const {
+	String app (const String &right) const {
 		const auto r1x = length () ;
 		const auto r2x = right.length () ;
 		String ret = String (r1x + r2x) ;
@@ -541,13 +530,13 @@ public:
 	}
 
 	inline String operator+ (const String &right) const {
-		return add (right) ;
+		return app (right) ;
 	}
 
 	template <LENGTH _VAL1>
-	void addto (const DEF<ITEM[_VAL1]> &right) {
+	void appto (const DEF<ITEM[_VAL1]> &right) {
 		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mString.size () == 0)
 				discard ;
 			const auto r1x = length () ;
@@ -556,19 +545,19 @@ public:
 				discard ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[&right[0]] ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} ,[&] (BOOL &if_flag) {
-			*this = add (right) ;
+		} ,[&] (BOOL &if_context) {
+			*this = app (right) ;
 		}) ;
 	}
 
 	template <LENGTH _VAL1>
 	inline String &operator+= (const DEF<ITEM[_VAL1]> &right) {
-		addto (right) ;
+		appto (right) ;
 		return *this ;
 	}
 
-	void addto (const String &right) {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+	void appto (const String &right) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mString.size () == 0)
 				discard ;
 			const auto r1x = length () ;
@@ -577,13 +566,13 @@ public:
 				discard ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,right.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} ,[&] (BOOL &if_flag) {
-			*this = add (right) ;
+		} ,[&] (BOOL &if_context) {
+			*this = app (right) ;
 		}) ;
 	}
 
 	inline String &operator+= (const String &right) {
-		addto (right) ;
+		appto (right) ;
 		return *this ;
 	}
 
@@ -851,12 +840,12 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
 	void sort () {
-		U::OPERATOR_SORT<void ,void>::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
+		U::OPERATOR_SORT::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
 	}
 
 	void reverse () {
@@ -1117,12 +1106,12 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
 	void sort () {
-		U::OPERATOR_SORT<void ,void>::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
+		U::OPERATOR_SORT::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
 	}
 
 private:
@@ -1144,13 +1133,13 @@ private:
 		const auto r1x = _MAX_ (len - (mQueue.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mRead > mWrite)
 				discard ;
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mQueue.self[mRead]] ,(mWrite - mRead)) ;
 			mQueue.swap (rax) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mQueue.size () ;
@@ -1959,13 +1948,22 @@ public:
 		return VAR_NONE ;
 	}
 
+	void erase (const ITEM &item) {
+		for (INDEX i = ibegin () ,ir ,ie = iend () ; i != ie ; i = ir) {
+			ir = inext (i) ;
+			if (!(get (i) == item))
+				continue ;
+			remove (i) ;
+		}
+	}
+
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2057,12 +2055,12 @@ private:
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mDeque[it][0] != VAR_NONE)
 				discard ;
 			deque_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mDeque.size () - 1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			INDEX ix = it + 1 ;
 			if (ix >= mDeque.size ())
 				discard ;
@@ -2070,7 +2068,7 @@ private:
 				discard ;
 			deque_rewrite (ix ,jt) ;
 			mWrite = _MIN_ ((ix + 1) ,(mDeque.size () - 1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			update_compress_left_force (it ,jt) ;
 		}) ;
 	}
@@ -2082,7 +2080,7 @@ private:
 			while (mRead != ix && mDeque[mRead][0] == VAR_NONE)
 				mRead++ ;
 			const auto r1x = mDeque[i][0] ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mRead != ix)
 					discard ;
 				if (r1x != VAR_NONE)
@@ -2090,7 +2088,7 @@ private:
 				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRead != ix)
 					discard ;
 				if (r1x == VAR_NONE)
@@ -2098,7 +2096,7 @@ private:
 				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mRead == i)
 					discard ;
 				deque_rewrite (i ,mDeque[mRead][0]) ;
@@ -2111,12 +2109,12 @@ private:
 	}
 
 	void update_compress_right (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mDeque[it][0] != VAR_NONE)
 				discard ;
 			deque_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			INDEX ix = it - 1 ;
 			if (ix < 0)
 				discard ;
@@ -2124,7 +2122,7 @@ private:
 				discard ;
 			deque_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			update_compress_right_force (it ,jt) ;
 		}) ;
 	}
@@ -2137,7 +2135,7 @@ private:
 			while (mWrite != ix && mDeque[mWrite][0] == VAR_NONE)
 				mWrite-- ;
 			const auto r1x = mDeque[jx][0] ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mWrite != ix)
 					discard ;
 				if (r1x != VAR_NONE)
@@ -2145,7 +2143,7 @@ private:
 				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mWrite != ix)
 					discard ;
 				if (r1x == VAR_NONE)
@@ -2153,7 +2151,7 @@ private:
 				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				if (mWrite == jx)
 					discard ;
 				deque_rewrite (jx ,mDeque[mWrite][0]) ;
@@ -2479,13 +2477,22 @@ public:
 		return VAR_NONE ;
 	}
 
+	void erase (const ITEM &item) {
+		for (INDEX i = ibegin () ,ir ,ie = iend () ; i != ie ; i = ir) {
+			ir = inext (i) ;
+			if (!(get (i) == item))
+				continue ;
+			remove (i) ;
+		}
+	}
+
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT<void ,void>::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2807,12 +2814,6 @@ public:
 	inline BitSet &operator<< (INDEX item) {
 		add (item) ;
 		return *this ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		for (auto &&i : src)
-			add (i) ;
 	}
 
 	void erase (INDEX item) {
@@ -3430,11 +3431,11 @@ private:
 	}
 
 	void update_emplace (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (it != VAR_NONE)
 				discard ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			mSet[jt].mUp = it ;
 			auto &r1 = (mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) : (mSet[it].mRight) ;
 			update_emplace (r1 ,jt) ;
@@ -3461,7 +3462,7 @@ private:
 	void update_insert_left (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mSet[iy].mRight == VAR_NONE)
 				discard ;
 			if (!mSet[mSet[iy].mRight].mRed)
@@ -3470,7 +3471,7 @@ private:
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (it != mSet[ix].mRight)
 				discard ;
 			auto &r1 = mSet[iy].mLeft ;
@@ -3482,7 +3483,7 @@ private:
 			rotate_right (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (it != mSet[ix].mLeft)
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3497,7 +3498,7 @@ private:
 	void update_insert_right (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mSet[iy].mLeft == VAR_NONE)
 				discard ;
 			if (!mSet[mSet[iy].mLeft].mRed)
@@ -3506,7 +3507,7 @@ private:
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (it != mSet[ix].mLeft)
 				discard ;
 			auto &r1 = mSet[iy].mRight ;
@@ -3518,7 +3519,7 @@ private:
 			rotate_left (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (it != mSet[ix].mRight)
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3561,14 +3562,14 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (r1x)
 				discard ;
 			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x)
 				discard ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3582,7 +3583,7 @@ private:
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3606,14 +3607,14 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (r1x)
 				discard ;
 			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (r2x)
 				discard ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3627,7 +3628,7 @@ private:
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3791,7 +3792,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
@@ -3812,7 +3813,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
@@ -3921,7 +3922,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
@@ -3938,7 +3939,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
@@ -4105,7 +4106,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
 			update_insert (ret) ;
@@ -4119,7 +4120,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
 			update_insert (ret) ;
@@ -4138,7 +4139,7 @@ public:
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (size () == 0)
 				continue ;
-			const auto r1x = U::OPERATOR_HASH<KEY>::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mHead[r1x % mHead.size ()] ;
 			while (TRUE) {
@@ -4737,11 +4738,11 @@ private:
 
 	void update_insert (INDEX it) {
 		INDEX ix = it ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (ix != VAR_NONE)
 				discard ;
 			mHolder->mTop = mHolder->mLast ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mHolder->mLast].mKey < mSet.self[ix].mKey) ;
 			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;

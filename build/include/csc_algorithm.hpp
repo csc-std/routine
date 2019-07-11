@@ -674,9 +674,8 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 				INDEX ix = mPloygonVertexList.access ((i - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ()) ;
 				INDEX iy = mPloygonVertexList.access (i) ;
 				INDEX iz = mPloygonVertexList.access ((i + 1) % mPloygonVertexList.length ()) ;
-				const auto r1x = (mVertex[mPloygonVertexList[iy]][0] - mVertex[mPloygonVertexList[ix]][0]) * (mVertex[mPloygonVertexList[iz]][1] - mVertex[mPloygonVertexList[iy]][1]) ;
-				const auto r2x = (mVertex[mPloygonVertexList[iy]][1] - mVertex[mPloygonVertexList[ix]][1]) * (mVertex[mPloygonVertexList[iz]][0] - mVertex[mPloygonVertexList[iy]][0]) ;
-				ret += _SIGN_ (r1x - r2x) ;
+				const auto r1x = math_cross_product_z (mVertex ,mPloygonVertexList[iy] ,mPloygonVertexList[ix] ,mPloygonVertexList[iz]) ;
+				ret -= _SIGN_ (r1x) ;
 			}
 			return std::move (ret) ;
 		}
@@ -911,14 +910,14 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				}
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (mDXLoss[0] < mDXLoss[2])
 					discard ;
 				const auto r2x = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				mIG.fill (UNIT (0)) ;
 			}) ;
 		}
@@ -1052,7 +1051,7 @@ private:
 	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
 
 	void compute_search_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1062,7 +1061,7 @@ private:
 					continue ;
 				out.add (ix) ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			const auto r3x = mHeap[it].mKey ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (r3x < bound[rot][0])
@@ -1094,7 +1093,7 @@ private:
 	}
 
 	void compute_search_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1115,7 +1114,7 @@ private:
 				out[jx].P1 = ix ;
 				out[jx].P2 = r2x ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			const auto r3x = mHeap[it].mKey ;
 			if (r3x >= point[rot] - out[out.length () - 1].P2)
 				compute_search_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
@@ -1194,7 +1193,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (seg_len > 1)
 					discard ;
 				INDEX jx = mHeap.alloc () ;
@@ -1203,7 +1202,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 				mHeap[jx].mLeft = VAR_NONE ;
 				mHeap[jx].mRight = VAR_NONE ;
 				mLatestIndex = jx ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				INDEX ix = seg + seg_len / 2 ;
 				for (INDEX i = seg ,ie = seg + seg_len - 1 ; i < ie ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;

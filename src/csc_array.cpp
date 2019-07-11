@@ -57,9 +57,9 @@ public:
 				break ;
 			const auto r3x = rbx[rbx.peek ()].key ;
 			rbx.take () ;
-			INDEX ix = ir++ ;
-			_UNITTEST_ASSERT_ (r3x == rax[ix]) ;
-			(void) ix ;
+			const auto r4x = ir++ ;
+			_UNITTEST_ASSERT_ (r3x == rax[r4x]) ;
+			(void) r4x ;
 		}
 	}
 

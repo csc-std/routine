@@ -72,7 +72,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	PTR<NONE> ret = NULL ;
-	_CALL_EH_ ([&] () {
+	_CALL_SEH_ ([&] () {
 		const auto r1x = _CACHE_ ([] () {
 			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 		}) ;
@@ -86,7 +86,7 @@ inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> ex
 namespace CSC {
 template <>
 inline exports ConsoleService &Singleton<ConsoleService>::instance () {
-	return GlobalStatic<ARGV<Singleton<ConsoleService>>>::unique () ;
+	return GlobalStatic<Singleton<ConsoleService>>::unique () ;
 }
 } ;
 
@@ -94,14 +94,14 @@ inline exports ConsoleService &Singleton<ConsoleService>::instance () {
 namespace CSC {
 template <>
 inline exports NetworkService &Singleton<NetworkService>::instance () {
-	return GlobalStatic<ARGV<Singleton<NetworkService>>>::unique () ;
+	return GlobalStatic<Singleton<NetworkService>>::unique () ;
 }
 } ;
 
 namespace CSC {
 template <>
 inline exports DebuggerService &Singleton<DebuggerService>::instance () {
-	return GlobalStatic<ARGV<Singleton<DebuggerService>>>::unique () ;
+	return GlobalStatic<Singleton<DebuggerService>>::unique () ;
 }
 } ;
 #endif
@@ -122,7 +122,8 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 	Assert::Fail () ;
 #endif
 #else
-	(void) what ;
+	Singleton<ConsoleService>::instance ().fatal (String<STR> (what)) ;
+	_DYNAMIC_ASSERT_ (FALSE) ;
 #endif
 }
 #endif
@@ -132,7 +133,7 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #ifdef __CSC_COMPILER_MSVC__
 #define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) UNITTEST::_UNITTEST_ASSERT_HANDLER_ (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," _STR_ (M_LINE))).what ()) ; } while (FALSE)
 #else
-#define _UNITTEST_ASSERT_(...) do { (void) (_UNW_ (__VA_ARGS__)) ; } while (FALSE)
+#define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) UNITTEST::_UNITTEST_ASSERT_HANDLER_ (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," _STR_ (M_LINE))).what ()) ; } while (FALSE)
 #endif
 #else
 #define _UNITTEST_ASSERT_(...) do {} while (FALSE)

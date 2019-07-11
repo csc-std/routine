@@ -58,10 +58,6 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	//@warn: not thread-safe due to internel storage
-	const auto r2x = std::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r2x != NULL) ;
-	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r2x[0]] ,_PCSTRA_ ("C"))) ;
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
 	const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
 	if (ret.size () > 0 && r3x != 0)
@@ -87,10 +83,6 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	//@warn: not thread-safe due to internel storage
-	const auto r2x = std::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r2x != NULL) ;
-	_DYNAMIC_ASSERT_ (!_MEMEQUAL_ (PTRTOARR[&r2x[0]] ,_PCSTRA_ ("C"))) ;
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
 	const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
 	if (ret.size () > 0 && r3x != 0)
@@ -133,7 +125,7 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
 #if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
 #if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
 inline namespace S {
-inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::system_clock::time_point &src) {
+inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &src) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
 	const auto r1x = time_t (std::chrono::system_clock::to_time_t (src)) ;
@@ -155,7 +147,7 @@ inline exports ARRAY8<VAR32> _LOCALE_CVTTO_TIMEMETRIC_ (const std::chrono::syste
 	return std::move (ret) ;
 }
 
-inline exports std::chrono::system_clock::time_point _LOCALE_CVTTO_TIMEPOINT_ (const ARRAY8<VAR32> &src) {
+inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (const ARRAY8<VAR32> &src) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
 	const auto r1x = (src[0] > 0) ? (src[0] - 1900) : 0 ;

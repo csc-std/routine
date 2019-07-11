@@ -209,12 +209,12 @@ public:
 	}
 
 	void read (BYTE &data) popping {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mRead >= mWrite)
 				discard ;
 			data = mStream[mRead] ;
 			mRead++ ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			data = mHolder->varify_ending_item () ;
 		}) ;
 	}
@@ -837,7 +837,7 @@ public:
 	}
 
 	void read (STRX &data) popping {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mRead >= mWrite)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -851,7 +851,7 @@ public:
 				data = mHolder->convert_escape_r (data) ;
 				mRead++ ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			data = mHolder->varify_ending_item () ;
 		}) ;
 	}
@@ -864,7 +864,7 @@ public:
 	void read (BOOL &data) popping {
 		auto rax = STRX () ;
 		read (rax) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (rax != STRX ('t'))
 				discard ;
 			read (rax) ;
@@ -874,7 +874,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('e')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('T'))
 				discard ;
 			read (rax) ;
@@ -884,7 +884,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('E')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('f'))
 				discard ;
 			read (rax) ;
@@ -896,7 +896,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('e')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('F'))
 				discard ;
 			read (rax) ;
@@ -908,7 +908,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('E')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 	}
@@ -964,7 +964,7 @@ public:
 		const auto r1x = BOOL (rax == STRX ('-')) ;
 		if (rax == STRX ('+') || rax == STRX ('-'))
 			read (rax) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (rax != STRX ('i'))
 				discard ;
 			read (rax) ;
@@ -972,7 +972,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('f')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('I'))
 				discard ;
 			read (rax) ;
@@ -980,7 +980,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('F')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('n'))
 				discard ;
 			read (rax) ;
@@ -988,7 +988,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('n')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax != STRX ('N'))
 				discard ;
 			read (rax) ;
@@ -996,12 +996,12 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('N')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			const auto r2x = mHolder->varify_number_item (rax) ;
 			if (!r2x)
 				discard ;
 			compute_read_number (data ,*this ,rax) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1145,12 +1145,12 @@ private:
 			while (TRUE) {
 				if (!mHolder->varify_number_item (top))
 					break ;
-				_CALL_IF_ ([&] (BOOL &if_flag) {
+				_CALL_ONE_ ([&] (BOOL &if_context) {
 					const auto r1x = rax[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
 					if (rax[0] > r1x)
 						discard ;
 					rax[0] = r1x ;
-				} ,[&] (BOOL &if_flag) {
+				} ,[&] (BOOL &if_context) {
 					rax[1]++ ;
 				}) ;
 				reader = ris.copy () ;
@@ -1366,7 +1366,7 @@ public:
 	}
 
 	void write (const STRX &data) {
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (!mHolder->varify_escape_w (data))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
@@ -1376,7 +1376,7 @@ public:
 			const auto r2x = mHolder->convert_escape_w (data) ;
 			mStream[mWrite] = mHolder->convert_endian (r2x) ;
 			mWrite++ ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
 			mStream[mWrite] = mHolder->convert_endian (data) ;
 			mWrite++ ;
@@ -1434,23 +1434,23 @@ public:
 			STRX ('+') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
 		static constexpr auto M_SINF = PACK<STRX[4]> ({
 			STRX ('-') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (!_ISNAN_ (data))
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_NAN.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (!_ISINF_ (data))
 				discard ;
 			if (data < 0)
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_INF.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (!_ISINF_ (data))
 				discard ;
 			if (data > 0)
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_SINF.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			compute_write_number (data ,VAL32_PCS ,PhanBuffer<STRX>::make (rax) ,ix) ;
@@ -1470,23 +1470,23 @@ public:
 			STRX ('+') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
 		static constexpr auto M_SINF = PACK<STRX[4]> ({
 			STRX ('-') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (!_ISNAN_ (data))
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_NAN.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (!_ISINF_ (data))
 				discard ;
 			if (data < 0)
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_INF.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (!_ISINF_ (data))
 				discard ;
 			if (data > 0)
 				discard ;
 			write (PhanBuffer<const STRX>::make (M_SINF.P1)) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			compute_write_number (data ,VAL64_PCS ,PhanBuffer<STRX>::make (rax) ,ix) ;
@@ -1573,7 +1573,7 @@ public:
 private:
 	void compute_write_number (const VAR64 &data ,const PhanBuffer<STRX> &out ,INDEX &it) const {
 		INDEX iw = it ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (data <= 0)
 				discard ;
 			auto rax = data ;
@@ -1583,7 +1583,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax % mHolder->varify_radix ()) ;
 				rax /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (data >= 0)
 				discard ;
 			auto rax = data ;
@@ -1594,7 +1594,7 @@ private:
 				rax /= mHolder->varify_radix () ;
 			}
 			out[--iw] = STRX ('-') ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			out[--iw] = mHolder->convert_number_w (0) ;
 		}) ;
 		it = iw ;
@@ -1605,7 +1605,7 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r3x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (_ABS_ (r3x - 1 + rax[1]) < precision)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1619,7 +1619,7 @@ private:
 				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax[1] < 1 - r3x)
 				discard ;
 			if (rax[1] >= 0)
@@ -1635,7 +1635,7 @@ private:
 				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
 				rax[1]++ ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			if (rax[1] >= 1 - r3x)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -1651,7 +1651,7 @@ private:
 			}
 		}) ;
 		const auto r8x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (BOOL &if_flag) {
+		_CALL_ONE_ ([&] (BOOL &if_context) {
 			//@info: case 'x.xxxExxx'
 			const auto r11x = r8x - 1 + rax[1] ;
 			if (_ABS_ (r11x) < precision)
@@ -1676,7 +1676,7 @@ private:
 			iw += EFLAG (out[ix] == STRX ('.')) ;
 			out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 			rax[0] /= mHolder->varify_radix () ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case 'xxx000'
 			if (rax[1] <= 0)
 				discard ;
@@ -1686,7 +1686,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case 'xxx.xxx'
 			if (rax[1] < 1 - r8x)
 				discard ;
@@ -1707,7 +1707,7 @@ private:
 				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
 				rax[0] /= mHolder->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '0.000xxx'
 			if (rax[1] >= 1 - r8x)
 				discard ;
@@ -1729,7 +1729,7 @@ private:
 			out[--iw] = STRX ('.') ;
 			iw += EFLAG (out[ix] == STRX ('.')) ;
 			out[--iw] = mHolder->convert_number_w (0) ;
-		} ,[&] (BOOL &if_flag) {
+		} ,[&] (BOOL &if_context) {
 			//@info: case '0'
 			if (rax[1] != 0)
 				discard ;
@@ -2219,14 +2219,14 @@ public:
 		for (INDEX i = 0 ; i < r3x ; i++) {
 			rax = get (0) ;
 			read () ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				const auto r4x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
 				if (!r4x)
 					discard ;
 				rax = get (0) ;
 				read () ;
 				rax = mReader->attr ().convert_escape_r (rax) ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
 			}) ;
 			data[i] = rax ;
@@ -2333,14 +2333,14 @@ private:
 				break ;
 			rax = ris[0] ;
 			ris++ ;
-			_CALL_IF_ ([&] (BOOL &if_flag) {
+			_CALL_ONE_ ([&] (BOOL &if_context) {
 				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
 				if (!r1x)
 					discard ;
 				rax = ris[0] ;
 				ris++ ;
 				rax = mReader->attr ().convert_escape_r (rax) ;
-			} ,[&] (BOOL &if_flag) {
+			} ,[&] (BOOL &if_context) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
 			}) ;
 			ret++ ;
