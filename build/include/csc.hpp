@@ -193,7 +193,6 @@
 #include <type_traits>
 #include <initializer_list>
 #include <new>
-#include <exception>
 #include <typeinfo>
 #include <utility>
 
@@ -396,13 +395,11 @@ using VAL64 = double ;
 static constexpr auto VAL32_MAX = VAL32 (3.402823466E+38) ;
 static constexpr auto VAL32_MIN = VAL32 (1.175494351E-38) ;
 static constexpr auto VAL32_EPS = VAL32 (1.192092896E-07) ;
-static constexpr auto VAL32_PCS = LENGTH (6) ;
 static constexpr auto VAL32_INF = std::numeric_limits<VAL32>::infinity () ;
 static constexpr auto VAL32_NAN = std::numeric_limits<VAL32>::quiet_NaN () ;
 static constexpr auto VAL64_MAX = VAL64 (1.7976931348623158E+308) ;
 static constexpr auto VAL64_MIN = VAL64 (2.2250738585072014E-308) ;
 static constexpr auto VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
-static constexpr auto VAL64_PCS = LENGTH (15) ;
 static constexpr auto VAL64_INF = std::numeric_limits<VAL64>::infinity () ;
 static constexpr auto VAL64_NAN = std::numeric_limits<VAL64>::quiet_NaN () ;
 
@@ -412,7 +409,6 @@ using VAL = VAL32 ;
 static constexpr auto VAL_MAX = VAL32_MAX ;
 static constexpr auto VAL_MIN = VAL32_MIN ;
 static constexpr auto VAL_EPS = VAL32_EPS ;
-static constexpr auto VAL_PCS = VAL32_PCS ;
 static constexpr auto VAL_INF = VAL32_INF ;
 static constexpr auto VAL_NAN = VAL32_NAN ;
 #elif defined __CSC_CONFIG_VAL64__
@@ -421,7 +417,6 @@ using VAL = VAL64 ;
 static constexpr auto VAL_MAX = VAL64_MAX ;
 static constexpr auto VAL_MIN = VAL64_MIN ;
 static constexpr auto VAL_EPS = VAL64_EPS ;
-static constexpr auto VAL_PCS = VAL64_PCS ;
 static constexpr auto VAL_INF = VAL64_INF ;
 static constexpr auto VAL_NAN = VAL64_NAN ;
 #endif
@@ -477,6 +472,11 @@ namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
 	inline ARR<_ARG1> &operator[] (const PTR<_ARG1> &src) const noexcept {
+		return *PTR<ARR<_ARG1>> (src) ;
+	}
+
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline ARR<_ARG1> &operator[] (const DEF<_ARG1[_VAL1]> &src) const noexcept {
 		return *PTR<ARR<_ARG1>> (src) ;
 	}
 } ;
@@ -889,12 +889,12 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
-	return _MEMEQUAL_ (src1 ,PTRTOARR[&src2[0]] ,_VAL1) ;
+	return _MEMEQUAL_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline BOOL _MEMEQUAL_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
-	return _MEMEQUAL_ (PTRTOARR[&src1[0]] ,src2 ,_VAL1) ;
+	return _MEMEQUAL_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -921,12 +921,12 @@ inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH le
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
-	return _MEMCOMP_ (src1 ,PTRTOARR[&src2[0]] ,_VAL1) ;
+	return _MEMCOMP_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline FLAG _MEMCOMP_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
-	return _MEMCOMP_ (PTRTOARR[&src1[0]] ,src2 ,_VAL1) ;
+	return _MEMCOMP_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -957,7 +957,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline FLAG _MEMHASH_ (const DEF<_ARG1[_VAL1]> &src) {
-	return _MEMHASH_ (PTRTOARR[&src[0]] ,_VAL1) ;
+	return _MEMHASH_ (PTRTOARR[src] ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -977,7 +977,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline INDEX _MEMCHR_ (const DEF<_ARG1[_VAL1]> &src ,const _ARG1 &val) {
-	return _MEMCHR_ (PTRTOARR[&src[0]] ,_VAL1 ,val) ;
+	return _MEMCHR_ (PTRTOARR[src] ,_VAL1 ,val) ;
 }
 
 template <class _ARG1>
@@ -997,7 +997,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline INDEX _MEMRCHR_ (const DEF<_ARG1[_VAL1]> &src ,const _ARG1 &val) {
-	return _MEMRCHR_ (PTRTOARR[&src[0]] ,_VAL1 ,val) ;
+	return _MEMRCHR_ (PTRTOARR[src] ,_VAL1 ,val) ;
 }
 
 template <class _ARG1>
@@ -1019,12 +1019,12 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const DEF<_ARG1[_VAL1]> &src) {
-	_MEMCOPY_ (dst ,PTRTOARR[&src[0]] ,_VAL1) ;
+	_MEMCOPY_ (dst ,PTRTOARR[src] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMCOPY_ (DEF<_ARG1[_VAL1]> &dst ,const ARR<_ARG1> &src) {
-	_MEMCOPY_ (PTRTOARR[&dst[0]] ,src ,_VAL1) ;
+	_MEMCOPY_ (PTRTOARR[dst] ,src ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -1058,12 +1058,12 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const DEF<_ARG1[_VAL1]> &src) {
-	_MEMRCOPY_ (dst ,PTRTOARR[&src[0]] ,_VAL1) ;
+	_MEMRCOPY_ (dst ,PTRTOARR[src] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMRCOPY_ (DEF<_ARG1[_VAL1]> &dst ,const ARR<_ARG1> &src) {
-	_MEMRCOPY_ (PTRTOARR[&dst[0]] ,src ,_VAL1) ;
+	_MEMRCOPY_ (PTRTOARR[dst] ,src ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -1091,12 +1091,12 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,DEF<_ARG1[_VAL1]> &dst2) {
-	_MEMMOVE_ (dst1 ,PTRTOARR[&dst2[0]] ,_VAL1) ;
+	_MEMMOVE_ (dst1 ,PTRTOARR[dst2] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMMOVE_ (DEF<_ARG1[_VAL1]> &dst1 ,ARR<_ARG1> &dst2) {
-	_MEMMOVE_ (PTRTOARR[&dst1[0]] ,dst2 ,_VAL1) ;
+	_MEMMOVE_ (PTRTOARR[dst1] ,dst2 ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -1118,12 +1118,12 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,DEF<_ARG1[_VAL1]> &dst2) {
-	_MEMSWAP_ (dst1 ,PTRTOARR[&dst2[0]] ,_VAL1) ;
+	_MEMSWAP_ (dst1 ,PTRTOARR[dst2] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMSWAP_ (DEF<_ARG1[_VAL1]> &dst1 ,ARR<_ARG1> &dst2) {
-	_MEMSWAP_ (PTRTOARR[&dst1[0]] ,dst2 ,_VAL1) ;
+	_MEMSWAP_ (PTRTOARR[dst1] ,dst2 ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -1141,7 +1141,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _MEMFILL_ (DEF<_ARG1[_VAL1]> &dst ,const _ARG1 &val) {
-	_MEMFILL_ (PTRTOARR[&dst[0]] ,_VAL1 ,val) ;
+	_MEMFILL_ (PTRTOARR[dst] ,_VAL1 ,val) ;
 }
 } ;
 
@@ -1154,6 +1154,7 @@ private:
 	template <class SIZE>
 	class Holder {
 	private:
+		friend Exception ;
 		DEF<STR[SIZE::value]> mString ;
 
 	public:
@@ -1170,14 +1171,6 @@ private:
 			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
 			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
 		}
-
-		inline const ARR<STR> &to () const noexcept {
-			return PTRTOARR[&mString[0]] ;
-		}
-
-		inline implicit operator const ARR<STR> & () const noexcept {
-			return to () ;
-		}
 	} ;
 
 private:
@@ -1187,7 +1180,7 @@ public:
 	inline Exception () = delete ;
 
 	template <LENGTH _VAL1>
-	inline explicit Exception (const DEF<STR[_VAL1]> &what) noexcept :mWhat (PTRTOARR[&what[0]]) {}
+	inline explicit Exception (const DEF<STR[_VAL1]> &what) noexcept :mWhat (PTRTOARR[what]) {}
 
 	template <LENGTH _VAL1>
 	inline explicit Exception (DEF<STR[_VAL1]> &) = delete ;
@@ -1206,17 +1199,19 @@ private:
 	template <class _ARG1 ,LENGTH... _VALS>
 	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
 		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
-		return _CACHE_ ([r1x] () noexcept {
+		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
+		return PTRTOARR[r1.mString] ;
 	}
 
 	template <class _ARG1 ,LENGTH... _VALS>
 	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
 		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
-		return _CACHE_ ([r1x] () noexcept {
+		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
+		return PTRTOARR[r1.mString] ;
 	}
 
 	template <LENGTH _VAL1>
@@ -1302,49 +1297,6 @@ public:
 	inline Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
-
-#ifdef __CSC_UNITTEST__
-class GlobalWatch final :private Wrapped<void> {
-private:
-	template <class _ARG1 ,class _ARG2>
-	class Storage final :private Interface {
-	private:
-		PACK<FLAG[4] ,PTR<void (_ARG2 &)>> mData ;
-
-	public:
-		inline Storage () {
-			mData.P1[0] = 0 ;
-			mData.P1[1] = 0 ;
-			mData.P1[2] = 0 ;
-			mData.P1[3] = 0 ;
-			mData.P2 = NULL ;
-		} ;
-
-		inline volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> &to () volatile {
-			return mData ;
-		}
-
-		inline implicit operator volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> & () volatile {
-			return to () ;
-		}
-	} ;
-
-public:
-	template <class _ARG1 ,class _ARG2 ,LENGTH _VAL1>
-	inline static void watch (const ARGV<_ARG1> & ,const DEF<STR[_VAL1]> &name ,_ARG2 &data) noexcept {
-		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
-		mInstance.self.P1[0] = _ADDRESS_ (&name) ;
-		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
-		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
-		mInstance.self.P1[3] = 0 ;
-		const auto r2x = _COPY_ (mInstance.self.P2) ;
-		if (r2x == NULL)
-			return ;
-		r2x (data) ;
-		r2x (data) ;
-	}
-} ;
-#endif
 
 class GlobalHeap final :private Wrapped<void> {
 private:
@@ -1462,7 +1414,7 @@ public:
 	inline ScopedHolder () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) :mAddress (address) {
+	inline explicit ScopedHolder (const volatile PTR<TEMP<TYPE>> &address ,_ARGS &&...args) popping :mAddress (address) {
 		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
@@ -1489,7 +1441,7 @@ private:
 public:
 	inline ScopedHolder () = delete ;
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
@@ -1501,7 +1453,7 @@ public:
 		}
 	}
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<TYPE>>> &address ,const ARR<TYPE> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
@@ -1535,7 +1487,7 @@ public:
 template <class TYPE>
 class Singleton final {
 private:
-	class Pack {
+	class Holder {
 	private:
 		friend Singleton ;
 		TYPE mData ;
@@ -1548,19 +1500,19 @@ private:
 	friend TYPE ;
 	template <class>
 	friend class GlobalStatic ;
-	PTR<Pack> mPointer ;
+	PTR<Holder> mPointer ;
 
 private:
 	inline Singleton () {
-		auto sgd = GlobalHeap::alloc<TEMP<Pack>> () ;
-		ScopedHolder<Pack> ANONYMOUS (sgd) ;
-		mPointer = &_LOAD_<Pack> (_XVALUE_<PTR<TEMP<Pack>>> (sgd)) ;
+		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
+		ScopedHolder<Holder> ANONYMOUS (sgd) ;
+		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
 		sgd = NULL ;
 	}
 
 	inline ~Singleton () noexcept {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
-		mPointer->~Pack () ;
+		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -2511,9 +2463,15 @@ public:
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (_ARG1 & ,TYPES...)> &function) noexcept {
+	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (PTR<_ARG1> ,TYPES...)> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
 		address_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,function) ;
+	}
+
+	template <class _ARG1>
+	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (PTR<const _ARG1> ,TYPES...)> &function) noexcept {
+		_DEBUG_ASSERT_ (function != NULL) ;
+		address_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,function) ;
 	}
 
 	inline ~Function () noexcept {
@@ -2549,7 +2507,7 @@ public:
 			_ZERO_ (ret) ;
 			return std::move (ret) ;
 		}) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[&r1.P1[0]]) ;
+		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[r1.P1]) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
@@ -2621,19 +2579,19 @@ template <class _TYPE>
 class Function<FIX_MSVC_DEDUCTION_2<TYPE1 ,TYPES...>>::ImplHolder<PTR<_TYPE>> :public Holder {
 private:
 	PTR<_TYPE> mContext ;
-	PTR<TYPE1 (_TYPE & ,TYPES...)> mFunction ;
+	PTR<TYPE1 (PTR<_TYPE> ,TYPES...)> mFunction ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_TYPE> context ,const PTR<TYPE1 (_TYPE & ,TYPES...)> &function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<_TYPE> context ,const PTR<TYPE1 (PTR<_TYPE> ,TYPES...)> &function) noexcept :mContext (context) ,mFunction (function) {}
 
 	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		address_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
-		return mFunction (*mContext ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		return mFunction (mContext ,std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
 } ;
 
@@ -2666,7 +2624,7 @@ public:
 	inline implicit Buffer (DEF<TYPE[SIZE]> &&right) : Buffer (std::move (Buffer::from (right))) {}
 
 	inline ARR<TYPE> &to () {
-		return PTRTOARR[&mBuffer[0]] ;
+		return PTRTOARR[mBuffer] ;
 	}
 
 	inline implicit operator ARR<TYPE> & () {
@@ -2676,7 +2634,7 @@ public:
 	inline implicit operator PTR<TYPE> () = delete ;
 
 	inline const ARR<TYPE> &to () const {
-		return PTRTOARR[&mBuffer[0]] ;
+		return PTRTOARR[mBuffer] ;
 	}
 
 	inline implicit operator const ARR<TYPE> & () const {
@@ -2719,7 +2677,7 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &right) const {
-		return _MEMEQUAL_ (mBuffer ,PTRTOARR[&right.mBuffer[0]]) ;
+		return _MEMEQUAL_ (mBuffer ,PTRTOARR[right.mBuffer]) ;
 	}
 
 	inline BOOL operator== (const Buffer &right) const {
@@ -2731,7 +2689,7 @@ public:
 	}
 
 	inline BOOL less (const Buffer &right) const {
-		const auto r1x = _MEMCOMP_ (mBuffer ,PTRTOARR[&right.mBuffer[0]]) ;
+		const auto r1x = _MEMCOMP_ (mBuffer ,PTRTOARR[right.mBuffer]) ;
 		if (r1x >= 0)
 			return FALSE ;
 		return TRUE ;
@@ -3352,7 +3310,7 @@ public:
 
 	template <LENGTH _VAL1>
 	inline static Buffer make (const DEF<TYPE[_VAL1]> &src) {
-		return make (PTRTOARR[&src[0]] ,_VAL1) ;
+		return make (PTRTOARR[src] ,_VAL1) ;
 	}
 
 	template <class _ARG1>
@@ -3524,7 +3482,7 @@ public:
 
 	template <LENGTH _VAL1>
 	inline static Buffer make (DEF<TYPE[_VAL1]> &src) {
-		return make (PTRTOARR[&src[0]] ,_VAL1) ;
+		return make (PTRTOARR[src] ,_VAL1) ;
 	}
 
 	template <class _ARG1>
@@ -3563,27 +3521,30 @@ private:
 	using SPECIALIZATION_TYPE = Allocator<TYPE ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Pack {
+	class Node {
 	private:
 		friend Allocator ;
 		friend SPECIALIZATION_TYPE ;
 		TEMP<TYPE> mData ;
 		INDEX mNext ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Pack ,SIZE> mAllocator ;
+	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
@@ -3602,27 +3563,30 @@ private:
 	using SPECIALIZATION_TYPE = Allocator<TYPE ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Pack {
+	class Node {
 	private:
 		friend Allocator ;
 		friend SPECIALIZATION_TYPE ;
 		TEMP<TYPE> mData ;
 		INDEX mNext ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Pack ,SIZE> mAllocator ;
+	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
@@ -3662,27 +3626,30 @@ private:
 	using SPECIALIZATION_TYPE = Allocator<TYPE ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Pack {
+	class Node {
 	private:
 		friend Allocator ;
 		friend SPECIALIZATION_TYPE ;
 		TEMP<TYPE> mData ;
 		INDEX mNext ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Pack ,SIZE> mAllocator ;
+	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_free (0 ,VAR_NONE) ;
+		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
@@ -3759,7 +3726,7 @@ template <class TYPE ,class SIZE>
 class Allocator :private Allocator<SPECIALIZATION<TYPE ,(std::is_copy_constructible<Buffer<TYPE ,SIZE>>::value && std::is_nothrow_move_constructible<Buffer<TYPE ,SIZE>>::value) ,std::is_nothrow_move_constructible<Buffer<TYPE ,SIZE>>::value> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<TYPE ,(std::is_copy_constructible<Buffer<TYPE ,SIZE>>::value && std::is_nothrow_move_constructible<Buffer<TYPE ,SIZE>>::value) ,std::is_nothrow_move_constructible<Buffer<TYPE ,SIZE>>::value> ,SIZE> ;
-	using Pack = typename SPECIALIZATION_BASE::Pack ;
+	using Node = typename SPECIALIZATION_BASE::Node ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3825,7 +3792,7 @@ public:
 	inline TYPE &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const TYPE &item) const {
-		INDEX ret = mAllocator.at (_OFFSET_ (&Pack::mData ,_CAST_<TEMP<TYPE>> (item))) ;
+		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,_CAST_<TEMP<TYPE>> (item))) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -3853,7 +3820,7 @@ public:
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
-			update_free (mLength ,mFree) ;
+			update_reset (mLength ,mFree) ;
 			ret = mFree ;
 		}
 		for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -3893,7 +3860,7 @@ public:
 			rax[i].mNext = mAllocator[i].mNext ;
 		}
 		mAllocator.swap (rax) ;
-		update_free (r1x ,mFree) ;
+		update_reset (r1x ,mFree) ;
 	}
 
 	inline void clean () {
@@ -3909,11 +3876,11 @@ public:
 			rax[i].mNext = VAR_USED ;
 		}
 		mAllocator.swap (rax) ;
-		update_free (mLength ,VAR_NONE) ;
+		update_reset (mLength ,VAR_NONE) ;
 	}
 
 private:
-	inline void update_free (INDEX _length ,INDEX _free) {
+	inline void update_reset (INDEX _length ,INDEX _free) {
 		INDEX ix = _free ;
 		INDEX iy = VAR_NONE ;
 		for (INDEX i = 0 ,ie = mAllocator.size () - _length ; i < ie ; i++) {

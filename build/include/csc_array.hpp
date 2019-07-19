@@ -366,7 +366,7 @@ public:
 	template <LENGTH _VAL1>
 	implicit String (const DEF<ITEM[_VAL1]> &right) : String (_VAL1 - 1) {
 		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
-		_MEMCOPY_ (mString.self ,PTRTOARR[&right[0]] ,size ()) ;
+		_MEMCOPY_ (mString.self ,PTRTOARR[right] ,size ()) ;
 	}
 
 	LENGTH size () const {
@@ -543,7 +543,7 @@ public:
 			const auto r2x = _VAL1 - 1 ;
 			if (r1x + r2x > size ())
 				discard ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[&right[0]] ,r2x) ;
+			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[right] ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		} ,[&] (BOOL &if_context) {
 			*this = app (right) ;
@@ -1185,6 +1185,9 @@ private:
 		friend SPECIALIZATION_TYPE ;
 		KEY mKey ;
 		ITEM mItem ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 	using ITEM_TYPE = PACK<KEY ,ITEM> ;
@@ -1297,6 +1300,9 @@ private:
 		friend Priority ;
 		friend SPECIALIZATION_TYPE ;
 		KEY mKey ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 	using ITEM_TYPE = PACK<KEY> ;
@@ -2817,6 +2823,7 @@ public:
 	}
 
 	void erase (INDEX item) {
+		_DYNAMIC_ASSERT_ (item >= 0 && item < mWidth) ;
 		get (item) = FALSE ;
 	}
 
@@ -4265,7 +4272,7 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Pack {
+	class Holder {
 	private:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4279,20 +4286,20 @@ private:
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Pack> mHolder ;
+	SharedRef<Holder> mThis ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 
 public:
 	SoftSet () = default ;
 
 	explicit SoftSet (LENGTH len) {
-		mHolder = SharedRef<Pack>::make () ;
-		mHolder->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mHolder->mLength = 0 ;
-		mHolder->mFirst = VAR_NONE ;
-		mHolder->mLast = VAR_NONE ;
-		mHolder->mRoot = VAR_NONE ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHolder->mHeap.self) ;
+		mThis = SharedRef<Holder>::make () ;
+		mThis->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
+		mThis->mLength = 0 ;
+		mThis->mFirst = VAR_NONE ;
+		mThis->mLast = VAR_NONE ;
+		mThis->mRoot = VAR_NONE ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
 	}
 
 	void add (const KEY &key ,const ITEM &item) {
@@ -4300,20 +4307,20 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ix ;
-			mHolder->mLast = ix ;
-			mHolder->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ix ;
+			mThis->mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	void add (const ITEM_TYPE &item) {
@@ -4325,20 +4332,20 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ix ;
-			mHolder->mLast = ix ;
-			mHolder->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ix ;
+			mThis->mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	void add (ITEM_TYPE &&item) {
@@ -4347,7 +4354,7 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
@@ -4355,7 +4362,7 @@ public:
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
@@ -4413,7 +4420,7 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Pack {
+	class Holder {
 	private:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4427,37 +4434,37 @@ private:
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Pack> mHolder ;
+	SharedRef<Holder> mThis ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 
 public:
 	SoftSet () = default ;
 
 	explicit SoftSet (LENGTH len) {
-		mHolder = SharedRef<Pack>::make () ;
-		mHolder->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mHolder->mLength = 0 ;
-		mHolder->mFirst = VAR_NONE ;
-		mHolder->mLast = VAR_NONE ;
-		mHolder->mRoot = VAR_NONE ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHolder->mHeap.self) ;
+		mThis = SharedRef<Holder>::make () ;
+		mThis->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
+		mThis->mLength = 0 ;
+		mThis->mFirst = VAR_NONE ;
+		mThis->mLast = VAR_NONE ;
+		mThis->mRoot = VAR_NONE ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
 	}
 
 	void add (const KEY &key) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ix ;
-			mHolder->mLast = ix ;
-			mHolder->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ix ;
+			mThis->mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	void add (const ITEM_TYPE &item) {
@@ -4465,20 +4472,20 @@ public:
 	}
 
 	void add (KEY &&key) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ix ;
-			mHolder->mLast = ix ;
-			mHolder->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ix ;
+			mThis->mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	void add (ITEM_TYPE &&item) {
@@ -4487,7 +4494,7 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
@@ -4495,7 +4502,7 @@ public:
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
@@ -4510,11 +4517,11 @@ private:
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
-	using Pack = typename SPECIALIZATION_BASE::Pack ;
+	using Holder = typename SPECIALIZATION_BASE::Holder ;
 
 private:
 	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mHolder ;
+	using SPECIALIZATION_BASE::mThis ;
 	using SPECIALIZATION_BASE::mSet ;
 
 public:
@@ -4523,45 +4530,45 @@ public:
 	explicit SoftSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
 	LENGTH capacity () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return 0 ;
 		return mSet->size () ;
 	}
 
 	LENGTH size () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return 0 ;
-		return mSet->size () - (mSet->length () - mHolder->mLength) ;
+		return mSet->size () - (mSet->length () - mThis->mLength) ;
 	}
 
 	LENGTH length () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return 0 ;
-		return mHolder->mLength ;
+		return mThis->mLength ;
 	}
 
 	void reset () {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return ;
-		auto rax = SharedRef<Pack>::make () ;
-		rax->mHeap = mHolder->mHeap ;
+		auto rax = SharedRef<Holder>::make () ;
+		rax->mHeap = mThis->mHeap ;
 		rax->mLength = 0 ;
 		rax->mFirst = VAR_NONE ;
 		rax->mLast = VAR_NONE ;
 		rax->mRoot = VAR_NONE ;
-		mHolder = std::move (rax) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHolder->mHeap.self) ;
+		mThis = std::move (rax) ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
 	}
 
 	SoftSet copy () popping {
 		SoftSet ret ;
-		ret.mHolder = mHolder ;
+		ret.mThis = mThis ;
 		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (mSet) ;
 		return std::move (ret) ;
 	}
 
 	Pair<SoftSet> get (INDEX index) & {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return Pair<SoftSet> (*this ,index) ;
 	}
 
@@ -4570,7 +4577,7 @@ public:
 	}
 
 	Pair<const SoftSet> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return Pair<const SoftSet> (*this ,index) ;
 	}
 
@@ -4592,9 +4599,9 @@ public:
 	}
 
 	INDEX ibegin () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return VAR_NONE ;
-		return mHolder->mFirst ;
+		return mThis->mFirst ;
 	}
 
 	INDEX iend () const {
@@ -4614,11 +4621,11 @@ public:
 	}
 
 	BOOL equal (const SoftSet &right) const {
-		if (!mHolder.exist () && !right.mHolder.exist ())
+		if (!mThis.exist () && !right.mThis.exist ())
 			return TRUE ;
-		if (!mHolder.exist () || !right.mHolder.exist ())
+		if (!mThis.exist () || !right.mThis.exist ())
 			return FALSE ;
-		if (!equal_each (right ,mHolder->mRoot ,right.mHolder->mRoot))
+		if (!equal_each (right ,mThis->mRoot ,right.mThis->mRoot))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -4646,54 +4653,54 @@ public:
 	using SPECIALIZATION_BASE::appand ;
 
 	INDEX insert (const KEY &key) popping {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ret ;
-			mHolder->mLast = ret ;
-			mHolder->mLength++ ;
-			update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ret ;
+			mThis->mLength++ ;
+			update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ret ;
+		mThis->mTop = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX insert (KEY &&key) popping {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mHolder->mLast != VAR_NONE) ? (mSet.self[mHolder->mLast].mNext) : (mHolder->mFirst) ;
+			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
 			r1 = ret ;
-			mHolder->mLast = ret ;
-			mHolder->mLength++ ;
-			update_insert (mHolder->mRoot) ;
-			mHolder->mRoot = mHolder->mTop ;
+			mThis->mLast = ret ;
+			mThis->mLength++ ;
+			update_insert (mThis->mRoot) ;
+			mThis->mRoot = mThis->mTop ;
 		}
-		mHolder->mTop = ret ;
+		mThis->mTop = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX min_one () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return VAR_NONE ;
-		for (INDEX i = mHolder->mRoot ; i != VAR_NONE ; i = mSet.self[i].mLeft)
+		for (INDEX i = mThis->mRoot ; i != VAR_NONE ; i = mSet.self[i].mLeft)
 			if (mSet.self[i].mLeft == VAR_NONE)
 				return i ;
 		return VAR_NONE ;
 	}
 
 	INDEX max_one () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return VAR_NONE ;
-		for (INDEX i = mHolder->mRoot ; i != VAR_NONE ; i = mSet.self[i].mRight)
+		for (INDEX i = mThis->mRoot ; i != VAR_NONE ; i = mSet.self[i].mRight)
 			if (mSet.self[i].mRight == VAR_NONE)
 				return i ;
 		return VAR_NONE ;
@@ -4701,8 +4708,8 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		if (mHolder.exist ())
-			ret = mHolder->mRoot ;
+		if (mThis.exist ())
+			ret = mThis->mRoot ;
 		while (TRUE) {
 			if (ret == VAR_NONE)
 				break ;
@@ -4716,7 +4723,7 @@ public:
 	}
 
 	void clean () {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return ;
 		mSet->clean () ;
 	}
@@ -4741,29 +4748,29 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (ix != VAR_NONE)
 				discard ;
-			mHolder->mTop = mHolder->mLast ;
+			mThis->mTop = mThis->mLast ;
 		} ,[&] (BOOL &if_context) {
 			mSet.self[ix].mWeight++ ;
-			const auto r1x = BOOL (mSet.self[mHolder->mLast].mKey < mSet.self[ix].mKey) ;
+			const auto r1x = BOOL (mSet.self[mThis->mLast].mKey < mSet.self[ix].mKey) ;
 			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;
 			update_insert (r2) ;
-			r2 = mHolder->mTop ;
+			r2 = mThis->mTop ;
 			const auto r2x = r1x ? (&SoftSet::update_insert_left) : (&SoftSet::update_insert_right) ;
 			(this->*r2x) (ix) ;
-			ix = mHolder->mTop ;
-			mHolder->mTop = ix ;
+			ix = mThis->mTop ;
+			mThis->mTop = ix ;
 		}) ;
 	}
 
 	void update_insert_left (INDEX it) {
 		INDEX ix = it ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 		if (mSet.self[ix].mLeft == VAR_NONE)
 			return ;
 		const auto r1x = node_weight (mSet.self[ix].mRight) ;
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mLeft].mLeft) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mLeft].mRight) ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -4771,32 +4778,32 @@ private:
 				continue ;
 			auto &r1 = mSet.self[ix].mLeft ;
 			rotate_left (r1) ;
-			r1 = mHolder->mTop ;
+			r1 = mThis->mTop ;
 		}
 		rotate_right (ix) ;
-		ix = mHolder->mTop ;
+		ix = mThis->mTop ;
 		auto &r2 = mSet.self[ix].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mHolder->mTop ;
+		r2 = mThis->mTop ;
 		auto &r3 = mSet.self[ix].mRight ;
 		update_insert_right (r3) ;
-		r3 = mHolder->mTop ;
+		r3 = mThis->mTop ;
 		update_insert_left (ix) ;
-		ix = mHolder->mTop ;
+		ix = mThis->mTop ;
 		update_insert_right (ix) ;
-		ix = mHolder->mTop ;
-		mHolder->mTop = ix ;
+		ix = mThis->mTop ;
+		mThis->mTop = ix ;
 	}
 
 	void update_insert_right (INDEX it) {
 		INDEX ix = it ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 		if (mSet.self[ix].mRight == VAR_NONE)
 			return ;
 		const auto r1x = node_weight (mSet.self[ix].mLeft) ;
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mRight].mRight) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mRight].mLeft) ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
@@ -4804,21 +4811,21 @@ private:
 				continue ;
 			auto &r1 = mSet.self[ix].mRight ;
 			rotate_right (r1) ;
-			r1 = mHolder->mTop ;
+			r1 = mThis->mTop ;
 		}
 		rotate_left (ix) ;
-		ix = mHolder->mTop ;
+		ix = mThis->mTop ;
 		auto &r2 = mSet.self[ix].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mHolder->mTop ;
+		r2 = mThis->mTop ;
 		auto &r3 = mSet.self[ix].mRight ;
 		update_insert_right (r3) ;
-		r3 = mHolder->mTop ;
+		r3 = mThis->mTop ;
 		update_insert_left (ix) ;
-		ix = mHolder->mTop ;
+		ix = mThis->mTop ;
 		update_insert_right (ix) ;
-		ix = mHolder->mTop ;
-		mHolder->mTop = ix ;
+		ix = mThis->mTop ;
+		mThis->mTop = ix ;
 	}
 
 	void rotate_left (INDEX it) {
@@ -4829,7 +4836,7 @@ private:
 		const auto r1x = node_weight (mSet.self[it].mLeft) ;
 		const auto r2x = node_weight (mSet.self[it].mRight) ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	void rotate_right (INDEX it) {
@@ -4840,7 +4847,7 @@ private:
 		const auto r1x = node_weight (mSet.self[it].mLeft) ;
 		const auto r2x = node_weight (mSet.self[it].mRight) ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mHolder->mTop = ix ;
+		mThis->mTop = ix ;
 	}
 
 	LENGTH node_weight (INDEX it) const {

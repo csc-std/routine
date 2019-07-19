@@ -3,6 +3,8 @@
 #include <iomanip>
 using namespace std ;
 
+#include <csc_runtime.hpp.default.inl>
+
 //@info: static field of module 'main.cpp'
 static const CSC::UniqueRef<void> ANONYMOUS ([] () {
 	using namespace UNITTEST ;
@@ -21,7 +23,7 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-		
+
 	}
 } ;
 

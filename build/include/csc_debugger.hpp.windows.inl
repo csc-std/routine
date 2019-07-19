@@ -196,7 +196,7 @@ public:
 
 	template <LENGTH _VAL1>
 	void log (const DEF<STR[_VAL1]> &tag ,const Binder &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[&tag[0]] ,(_VAL1 - 1)) ,msg) ;
+		log (PhanBuffer<const STR>::make (PTRTOARR[tag] ,(_VAL1 - 1)) ,msg) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -372,7 +372,7 @@ public:
 			for (auto &&i : address) {
 				SymFromAddr (mSymbolFromAddress ,i ,NULL ,&r1) ;
 				const auto r2x = _BUILDHEX16S_<STR> (DATA (r1.Address)) ;
-				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[&r1.Name[0]])) ;
+				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r1.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
 		} ,[&] (BOOL &if_context) {

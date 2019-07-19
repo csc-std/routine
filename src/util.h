@@ -123,7 +123,6 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #endif
 #else
 	Singleton<ConsoleService>::instance ().fatal (String<STR> (what)) ;
-	_DYNAMIC_ASSERT_ (FALSE) ;
 #endif
 }
 #endif
@@ -133,7 +132,7 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 #ifdef __CSC_COMPILER_MSVC__
 #define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) UNITTEST::_UNITTEST_ASSERT_HANDLER_ (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," _STR_ (M_LINE))).what ()) ; } while (FALSE)
 #else
-#define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) UNITTEST::_UNITTEST_ASSERT_HANDLER_ (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," _STR_ (M_LINE))).what ()) ; } while (FALSE)
+#define _UNITTEST_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) UNITTEST::_UNITTEST_ASSERT_HANDLER_ (CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," _STR_ (M_LINE)).what ()) ; } while (FALSE)
 #endif
 #else
 #define _UNITTEST_ASSERT_(...) do {} while (FALSE)

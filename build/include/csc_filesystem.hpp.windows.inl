@@ -354,9 +354,9 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		if (rbx.cFileName[0] == 0)
 			break ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ (".")))
+			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ (".")))
 				continue ;
-			if (_MEMEQUAL_ (PTRTOARR[&rbx.cFileName[0]] ,_PCSTR_ ("..")))
+			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ ("..")))
 				continue ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
@@ -474,7 +474,8 @@ private:
 public:
 	Implement () = delete ;
 
-	explicit Implement (const String<STR> &file) :Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file) {
+		update_reset () ;
 		auto &r1 = mThis->mFile.self ;
 		auto &r2 = mThis->mMapping.self ;
 		auto &r3 = mThis->mBuffer.self ;
@@ -506,8 +507,9 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,LENGTH file_len) :Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,LENGTH file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
+		update_reset () ;
 		auto &r1 = mThis->mFile.self ;
 		auto &r2 = mThis->mMapping.self ;
 		auto &r3 = mThis->mBuffer.self ;
@@ -538,8 +540,9 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,BOOL cache) :Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,BOOL cache) {
 		_DEBUG_ASSERT_ (cache) ;
+		update_reset () ;
 		auto &r2 = mThis->mMapping.self ;
 		auto &r3 = mThis->mBuffer.self ;
 		r2 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
@@ -570,9 +573,10 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) :Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
+		update_reset () ;
 		auto &r2 = mThis->mMapping.self ;
 		auto &r3 = mThis->mBuffer.self ;
 		r2 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
@@ -610,7 +614,7 @@ public:
 	}
 
 private:
-	explicit Implement (const DEF<decltype (ARGVP0)> &) {
+	void update_reset () {
 		mThis = UniqueRef<Holder> ([&] (Holder &me) {
 			me.mFile.self = UniqueRef<HANDLE> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;
@@ -619,7 +623,7 @@ private:
 			me.mBuffer.self = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping.self = UniqueRef<HANDLE> () ;
 			me.mFile.self = UniqueRef<HANDLE> () ;
-		}) ;
+		}) ; ;
 	}
 } ;
 

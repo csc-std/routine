@@ -120,7 +120,7 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &_socket ,LENGTH time
 
 class TCPSocket::Implement final :private Interface {
 private:
-	class Pack {
+	class Holder {
 	private:
 		friend Implement ;
 		friend Listener::Implement ;
@@ -130,13 +130,13 @@ private:
 
 private:
 	friend Listener::Implement ;
-	SharedRef<Pack> mThis ;
+	SharedRef<Holder> mThis ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &addr) {
-		mThis = SharedRef<Pack>::make () ;
+		mThis = SharedRef<Holder>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = ::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -268,7 +268,7 @@ inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
 
 class TCPSocket::Listener::Implement final :private Interface {
 private:
-	SharedRef<TCPSocket::Implement::Pack> mThis ;
+	SharedRef<TCPSocket::Implement::Holder> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 

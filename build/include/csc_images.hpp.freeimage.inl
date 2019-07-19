@@ -130,7 +130,7 @@ public:
 		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
 		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
-		_MEMCOPY_ (data.self ,PTRTOARR[&rax.P1[0]] ,data.size ()) ;
+		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}
 
 	void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
@@ -238,7 +238,7 @@ public:
 		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
 		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
-		_MEMCOPY_ (data.self ,PTRTOARR[&rax.P1[0]] ,data.size ()) ;
+		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}
 
 	void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const override {

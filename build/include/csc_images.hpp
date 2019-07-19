@@ -118,7 +118,7 @@ private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
-	class Pack {
+	class Attribute final :private Interface {
 	private:
 		friend SoftImage ;
 		SharedRef<FixedBuffer<TYPE>> mBuffer ;
@@ -126,7 +126,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Pack> mHolder ;
+	SharedRef<Attribute> mAttribute ;
 	PhanBuffer<TYPE> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -147,28 +147,28 @@ public:
 		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
-		mHolder = SharedRef<Pack>::make () ;
+		mAttribute = SharedRef<Attribute>::make () ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			const auto r1x = _cy * _cw + _ck ;
 			if (r1x == 0)
 				continue ;
-			mHolder->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
-			mImage = PhanBuffer<TYPE>::make (mHolder->mBuffer.self) ;
+			mAttribute->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
+			mImage = PhanBuffer<TYPE>::make (mAttribute->mBuffer.self) ;
 		}
-		mHolder->mWidth[0] = _cx ;
-		mHolder->mWidth[1] = _cy ;
-		mHolder->mWidth[2] = _cw ;
-		mHolder->mWidth[3] = _ck ;
+		mAttribute->mWidth[0] = _cx ;
+		mAttribute->mWidth[1] = _cy ;
+		mAttribute->mWidth[2] = _cw ;
+		mAttribute->mWidth[3] = _ck ;
 		reset () ;
 	}
 
 	explicit SoftImage (const PhanBuffer<TYPE> &image) {
 		_DEBUG_ASSERT_ (image.size () > 0) ;
-		mHolder = SharedRef<Pack>::make () ;
-		mHolder->mWidth[0] = mImage.size () ;
-		mHolder->mWidth[1] = 1 ;
-		mHolder->mWidth[2] = mImage.size () ;
-		mHolder->mWidth[3] = 0 ;
+		mAttribute = SharedRef<Attribute>::make () ;
+		mAttribute->mWidth[0] = mImage.size () ;
+		mAttribute->mWidth[1] = 1 ;
+		mAttribute->mWidth[2] = mImage.size () ;
+		mAttribute->mWidth[3] = 0 ;
 		mImage = PhanBuffer<TYPE>::make (image) ;
 		reset () ;
 	}
@@ -206,19 +206,19 @@ public:
 	PhanBuffer<TYPE> raw () && = delete ;
 
 	void reset () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		mCX = mHolder->mWidth[0] ;
-		mCY = mHolder->mWidth[1] ;
-		mCW = mHolder->mWidth[2] ;
-		mCK = mHolder->mWidth[3] ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
+		mCX = mAttribute->mWidth[0] ;
+		mCY = mAttribute->mWidth[1] ;
+		mCW = mAttribute->mWidth[2] ;
+		mCK = mAttribute->mWidth[3] ;
 	}
 
 	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
 		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		const auto r1x = mHolder->mWidth[1] * mHolder->mWidth[2] + mHolder->mWidth[3] ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
+		const auto r1x = mAttribute->mWidth[1] * mAttribute->mWidth[2] + mAttribute->mWidth[3] ;
 		_DEBUG_ASSERT_ (_cy * _cw + _ck <= r1x) ;
 		(void) r1x ;
 		mCX = _cx ;
@@ -229,7 +229,7 @@ public:
 
 	SoftImage copy () popping {
 		SoftImage ret ;
-		ret.mHolder = mHolder ;
+		ret.mAttribute = mAttribute ;
 		ret.mImage = PhanBuffer<TYPE>::make (mImage) ;
 		ret.mCX = mCX ;
 		ret.mCY = mCY ;
@@ -608,7 +608,7 @@ private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
-	class Pack {
+	class Holder {
 	private:
 		friend AbstractImage ;
 		AnyRef<void> mHolder ;
@@ -624,7 +624,7 @@ private:
 	private:
 		friend AbstractImage ;
 		PhanRef<const Abstract> mAbstract ;
-		SharedRef<Pack> mThis ;
+		SharedRef<Holder> mThis ;
 
 	public:
 		inline NativeProxy () = delete ;
@@ -662,17 +662,17 @@ private:
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Pack> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_this) {}
+		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Holder> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_this) {}
 	} ;
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	SharedRef<Pack> mThis ;
+	SharedRef<Holder> mThis ;
 
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &_abstract) :AbstractImage (PhanRef<const Abstract>::make (_abstract) ,SharedRef<Pack>::make ()) {}
+	explicit AbstractImage (const PhanRef<const Abstract> &_abstract) :AbstractImage (PhanRef<const Abstract>::make (_abstract) ,SharedRef<Holder>::make ()) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -820,10 +820,10 @@ public:
 	}
 
 private:
-	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Pack> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
+	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Holder> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
 
 private:
-	static void compute_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Pack> &_this) {
+	static void compute_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
 		_DEBUG_ASSERT_ (_abstract.exist ()) ;
 		_DEBUG_ASSERT_ (_this.exist ()) ;
 		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;

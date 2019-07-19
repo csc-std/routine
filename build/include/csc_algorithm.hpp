@@ -1002,7 +1002,9 @@ private:
 		INDEX mRight ;
 
 	public:
-		inline Node () = default ;
+		inline Node () = delete ;
+
+		inline explicit Node (const UNIT &key ,INDEX leaf ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -1196,11 +1198,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (seg_len > 1)
 					discard ;
-				INDEX jx = mHeap.alloc () ;
-				mHeap[jx].mKey = UNIT (0) ;
-				mHeap[jx].mLeaf = mOrder[rot][seg] ;
-				mHeap[jx].mLeft = VAR_NONE ;
-				mHeap[jx].mRight = VAR_NONE ;
+				INDEX jx = mHeap.alloc (UNIT (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
 			} ,[&] (BOOL &if_context) {
 				INDEX ix = seg + seg_len / 2 ;
@@ -1208,11 +1206,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
 				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg ,ix ,seg_len) ;
 				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg ,ix ,seg_len) ;
-				INDEX jx = mHeap.alloc () ;
-				mHeap[jx].mKey = mVertex[mOrder[rot][ix]][rot] ;
-				mHeap[jx].mLeaf = VAR_NONE ;
-				mHeap[jx].mLeft = VAR_NONE ;
-				mHeap[jx].mRight = VAR_NONE ;
+				INDEX jx = mHeap.alloc (mVertex[mOrder[rot][ix]][rot] ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 				update_build_tree (mHeap[jx].mLeft ,mNextRot[rot] ,seg ,(ix - seg)) ;
 				mHeap[jx].mLeft = mLatestIndex ;
 				update_build_tree (mHeap[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;

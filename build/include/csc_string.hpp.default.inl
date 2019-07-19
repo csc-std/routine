@@ -95,12 +95,12 @@ inline exports String<STRW> _ASTOWS_ (const String<STRA> &src) {
 	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
-	const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,VAR32_MAX ,STRA (0)) ;
-	if (_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C")))
+	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
+	if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C")))
 		return _U8STOWS_ (_UASTOU8S_ (src)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[&_PCSTRA_ (".936")[0]] ,4))
+	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[_PCSTRA_ (".936")] ,4))
 		return _GBKSTOWS_ (src) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[&r1x[0]] ,PTRTOARR[&_PCSTRA_ ("zh_CN")[0]] ,5))
+	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,PTRTOARR[_PCSTRA_ ("zh_CN")] ,5))
 		return _GBKSTOWS_ (src) ;
 	return _inline_LOCALE_LASTOWS_ (src) ;
 }
@@ -109,12 +109,12 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
 	//@warn: not thread-safe due to internel storage
 	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
-	const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,VAR32_MAX ,STRA (0)) ;
-	if (_MEMEQUAL_ (PTRTOARR[&r1x[0]] ,_PCSTRA_ ("C")))
+	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
+	if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C")))
 		return _U8STOUAS_ (_WSTOU8S_ (src)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[&_PCSTRA_ (".936")[0]] ,4))
+	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[_PCSTRA_ (".936")] ,4))
 		return _WSTOGBKS_ (src) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[&r1x[0]] ,PTRTOARR[&_PCSTRA_ ("zh_CN")[0]] ,5))
+	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,PTRTOARR[_PCSTRA_ ("zh_CN")] ,5))
 		return _WSTOGBKS_ (src) ;
 	return _inline_LOCALE_WSTOLAS_ (src) ;
 }
@@ -225,7 +225,7 @@ public:
 		const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
 		if (r3x.empty ())
 			return String<STRU8> () ;
-		return _UASTOU8S_ (PTRTOARR[&r3x[0]]) ;
+		return _UASTOU8S_ (PTRTOARR[r3x.c_str ()]) ;
 	}
 } ;
 

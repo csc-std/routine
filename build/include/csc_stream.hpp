@@ -136,7 +136,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Attribute> mAttribute ;
 	PhanBuffer<const BYTE> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -148,13 +148,13 @@ public:
 	}
 
 	explicit ByteReader (const PhanBuffer<const BYTE> &stream) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mAttribute = SharedRef<Attribute>::make () ;
 		mStream = PhanBuffer<const BYTE>::make (stream) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHolder ;
+		return mAttribute ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -177,13 +177,13 @@ public:
 	PhanBuffer<const BYTE> raw () && = delete ;
 
 	void reset () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		mRead = 0 ;
 		mWrite = mStream.size () ;
 	}
 
 	void reset (INDEX _read ,INDEX _write) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
@@ -193,7 +193,7 @@ public:
 
 	ByteReader copy () popping {
 		ByteReader ret ;
-		ret.mHolder = mHolder ;
+		ret.mAttribute = mAttribute ;
 		ret.mStream = PhanBuffer<const BYTE>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
@@ -215,7 +215,7 @@ public:
 			data = mStream[mRead] ;
 			mRead++ ;
 		} ,[&] (BOOL &if_context) {
-			data = mHolder->varify_ending_item () ;
+			data = mAttribute->varify_ending_item () ;
 		}) ;
 	}
 
@@ -411,7 +411,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Attribute> mAttribute ;
 	PhanBuffer<BYTE> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -423,20 +423,20 @@ public:
 	}
 
 	explicit ByteWriter (const PhanBuffer<BYTE> &stream) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mAttribute = SharedRef<Attribute>::make () ;
 		mStream = PhanBuffer<BYTE>::make (stream) ;
 		reset () ;
 	}
 
 	explicit ByteWriter (SharedRef<FixedBuffer<BYTE>> &&stream) {
-		mHolder = SharedRef<Attribute>::make () ;
-		mHolder->mBuffer = std::move (stream) ;
-		mStream = PhanBuffer<BYTE>::make (mHolder->mBuffer.self) ;
+		mAttribute = SharedRef<Attribute>::make () ;
+		mAttribute->mBuffer = std::move (stream) ;
+		mStream = PhanBuffer<BYTE>::make (mAttribute->mBuffer.self) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHolder ;
+		return mAttribute ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -459,13 +459,13 @@ public:
 	PhanBuffer<const BYTE> raw () && = delete ;
 
 	void reset () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		mRead = 0 ;
 		mWrite = 0 ;
 	}
 
 	void reset (INDEX _read ,INDEX _write) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
@@ -475,7 +475,7 @@ public:
 
 	ByteWriter copy () popping {
 		ByteWriter ret ;
-		ret.mHolder = mHolder ;
+		ret.mAttribute = mAttribute ;
 		ret.mStream = PhanBuffer<BYTE>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
@@ -683,7 +683,7 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
+			r3x (PTRTOARR[_ZERO_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
 			return std::move (_CAST_<STRX> (ret)) ;
 		}
 
@@ -764,7 +764,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Attribute> mAttribute ;
 	PhanBuffer<const STRX> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -776,13 +776,13 @@ public:
 	}
 
 	explicit TextReader (const PhanBuffer<const STRX> &stream) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mAttribute = SharedRef<Attribute>::make () ;
 		mStream = PhanBuffer<const STRX>::make (stream) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHolder ;
+		return mAttribute ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -805,13 +805,13 @@ public:
 	PhanBuffer<const STRX> raw () && = delete ;
 
 	void reset () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		mRead = 0 ;
 		mWrite = mStream.size () ;
 	}
 
 	void reset (INDEX _read ,INDEX _write) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
@@ -821,7 +821,7 @@ public:
 
 	TextReader copy () popping {
 		TextReader ret ;
-		ret.mHolder = mHolder ;
+		ret.mAttribute = mAttribute ;
 		ret.mStream = PhanBuffer<const STRX>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
@@ -841,18 +841,18 @@ public:
 			if (mRead >= mWrite)
 				discard ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
-				data = mHolder->convert_endian (mStream[mRead]) ;
-				const auto r2x = mHolder->varify_escape_r (data) ;
+				data = mAttribute->convert_endian (mStream[mRead]) ;
+				const auto r2x = mAttribute->varify_escape_r (data) ;
 				mRead++ ;
 				if (!r2x)
 					continue ;
 				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
-				data = mHolder->convert_endian (mStream[mRead]) ;
-				data = mHolder->convert_escape_r (data) ;
+				data = mAttribute->convert_endian (mStream[mRead]) ;
+				data = mAttribute->convert_escape_r (data) ;
 				mRead++ ;
 			}
 		} ,[&] (BOOL &if_context) {
-			data = mHolder->varify_ending_item () ;
+			data = mAttribute->varify_ending_item () ;
 		}) ;
 	}
 
@@ -997,7 +997,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == STRX ('N')) ;
 			data = VAL64_NAN ;
 		} ,[&] (BOOL &if_context) {
-			const auto r2x = mHolder->varify_number_item (rax) ;
+			const auto r2x = mAttribute->varify_number_item (rax) ;
 			if (!r2x)
 				discard ;
 			compute_read_number (data ,*this ,rax) ;
@@ -1100,9 +1100,9 @@ private:
 		auto rax = STRX () ;
 		ris.read (rax) ;
 		while (TRUE) {
-			if (rax == mHolder->varify_ending_item ())
+			if (rax == mAttribute->varify_ending_item ())
 				break ;
-			if (mHolder->varify_space (rax))
+			if (mAttribute->varify_space (rax))
 				break ;
 			ret++ ;
 			ris.read (rax) ;
@@ -1111,14 +1111,14 @@ private:
 	}
 
 	void compute_read_number (VAR64 &data ,TextReader &reader ,STRX &top) const {
-		_DEBUG_ASSERT_ (mHolder->varify_number_item (top)) ;
+		_DEBUG_ASSERT_ (mAttribute->varify_number_item (top)) ;
 		auto ris = reader.copy () ;
-		data = mHolder->convert_number_r (top) ;
+		data = mAttribute->convert_number_r (top) ;
 		ris.read (top) ;
 		while (TRUE) {
-			if (!mHolder->varify_number_item (top))
+			if (!mAttribute->varify_number_item (top))
 				break ;
-			const auto r1x = data * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+			const auto r1x = data * mAttribute->varify_radix () + mAttribute->convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r1x) ;
 			data = r1x ;
 			reader = ris.copy () ;
@@ -1127,26 +1127,26 @@ private:
 	}
 
 	void compute_read_number (VAL64 &data ,TextReader &reader ,STRX &top) const {
-		_DEBUG_ASSERT_ (mHolder->varify_number_item (top)) ;
+		_DEBUG_ASSERT_ (mAttribute->varify_number_item (top)) ;
 		auto ris = reader.copy () ;
 		while (TRUE) {
-			if (mHolder->convert_number_r (top) != 0)
+			if (mAttribute->convert_number_r (top) != 0)
 				break ;
 			reader = ris.copy () ;
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (!mHolder->varify_number_item (top))
+			if (!mAttribute->varify_number_item (top))
 				continue ;
-			rax[0] = mHolder->convert_number_r (top) ;
+			rax[0] = mAttribute->convert_number_r (top) ;
 			reader = ris.copy () ;
 			ris.read (top) ;
 			while (TRUE) {
-				if (!mHolder->varify_number_item (top))
+				if (!mAttribute->varify_number_item (top))
 					break ;
 				_CALL_ONE_ ([&] (BOOL &if_context) {
-					const auto r1x = rax[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+					const auto r1x = rax[0] * mAttribute->varify_radix () + mAttribute->convert_number_r (top) ;
 					if (rax[0] > r1x)
 						discard ;
 					rax[0] = r1x ;
@@ -1162,12 +1162,12 @@ private:
 				continue ;
 			reader = ris.copy () ;
 			ris.read (top) ;
-			_DYNAMIC_ASSERT_ (mHolder->varify_number_item (top)) ;
+			_DYNAMIC_ASSERT_ (mAttribute->varify_number_item (top)) ;
 			while (TRUE) {
-				if (!mHolder->varify_number_item (top))
+				if (!mAttribute->varify_number_item (top))
 					break ;
 				for (FOR_ONCE_DO_WHILE_FALSE) {
-					const auto r2x = rax[0] * mHolder->varify_radix () + mHolder->convert_number_r (top) ;
+					const auto r2x = rax[0] * mAttribute->varify_radix () + mAttribute->convert_number_r (top) ;
 					if (rax[0] > r2x)
 						continue ;
 					rax[0] = r2x ;
@@ -1191,7 +1191,7 @@ private:
 			rax[2] = -1 ;
 			if (rax[0] >= 0)
 				continue ;
-			rax[0] = -(rax[0] / mHolder->varify_radix ()) ;
+			rax[0] = -(rax[0] / mAttribute->varify_radix ()) ;
 			rax[1]++ ;
 		}
 		const auto r4x = _IEEE754_E10TOE2_ (rax) ;
@@ -1229,8 +1229,16 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
+			r3x (PTRTOARR[_ZERO_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
 			return std::move (_CAST_<STRX> (ret)) ;
+		}
+
+		LENGTH varify_val32_precision () {
+			return 6 ;
+		}
+
+		LENGTH varify_val64_precision () {
+			return 15 ;
 		}
 
 		VAR64 varify_radix () const {
@@ -1294,7 +1302,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
-	SharedRef<Attribute> mHolder ;
+	SharedRef<Attribute> mAttribute ;
 	PhanBuffer<STRX> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -1306,20 +1314,20 @@ public:
 	}
 
 	explicit TextWriter (const PhanBuffer<STRX> &stream) {
-		mHolder = SharedRef<Attribute>::make () ;
+		mAttribute = SharedRef<Attribute>::make () ;
 		mStream = PhanBuffer<STRX>::make (stream) ;
 		reset () ;
 	}
 
 	explicit TextWriter (SharedRef<FixedBuffer<STRX>> &&stream) {
-		mHolder = SharedRef<Attribute>::make () ;
-		mHolder->mBuffer = std::move (stream) ;
-		mStream = PhanBuffer<STRX>::make (mHolder->mBuffer.self) ;
+		mAttribute = SharedRef<Attribute>::make () ;
+		mAttribute->mBuffer = std::move (stream) ;
+		mStream = PhanBuffer<STRX>::make (mAttribute->mBuffer.self) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHolder ;
+		return mAttribute ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -1342,13 +1350,13 @@ public:
 	PhanBuffer<const STRX> raw () && = delete ;
 
 	void reset () {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		mRead = 0 ;
 		mWrite = 0 ;
 	}
 
 	void reset (INDEX _read ,INDEX _write) {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mAttribute.exist ()) ;
 		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
@@ -1358,7 +1366,7 @@ public:
 
 	TextWriter copy () popping {
 		TextWriter ret ;
-		ret.mHolder = mHolder ;
+		ret.mAttribute = mAttribute ;
 		ret.mStream = PhanBuffer<STRX>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
@@ -1367,18 +1375,18 @@ public:
 
 	void write (const STRX &data) {
 		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!mHolder->varify_escape_w (data))
+			if (!mAttribute->varify_escape_w (data))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
-			const auto r1x = mHolder->varify_escape_item () ;
-			mStream[mWrite] = mHolder->convert_endian (r1x) ;
+			const auto r1x = mAttribute->varify_escape_item () ;
+			mStream[mWrite] = mAttribute->convert_endian (r1x) ;
 			mWrite++ ;
-			const auto r2x = mHolder->convert_escape_w (data) ;
-			mStream[mWrite] = mHolder->convert_endian (r2x) ;
+			const auto r2x = mAttribute->convert_escape_w (data) ;
+			mStream[mWrite] = mAttribute->convert_endian (r2x) ;
 			mWrite++ ;
 		} ,[&] (BOOL &if_context) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
-			mStream[mWrite] = mHolder->convert_endian (data) ;
+			mStream[mWrite] = mAttribute->convert_endian (data) ;
 			mWrite++ ;
 		}) ;
 	}
@@ -1453,7 +1461,8 @@ public:
 		} ,[&] (BOOL &if_context) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
-			compute_write_number (data ,VAL32_PCS ,PhanBuffer<STRX>::make (rax) ,ix) ;
+			const auto r1x = mAttribute->varify_val32_precision () ;
+			compute_write_number (data ,r1x ,PhanBuffer<STRX>::make (rax) ,ix) ;
 			write (PhanBuffer<const STRX>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}) ;
 	}
@@ -1489,7 +1498,8 @@ public:
 		} ,[&] (BOOL &if_context) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
-			compute_write_number (data ,VAL64_PCS ,PhanBuffer<STRX>::make (rax) ,ix) ;
+			const auto r1x = mAttribute->varify_val64_precision () ;
+			compute_write_number (data ,r1x ,PhanBuffer<STRX>::make (rax) ,ix) ;
 			write (PhanBuffer<const STRX>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}) ;
 	}
@@ -1580,8 +1590,8 @@ private:
 			while (TRUE) {
 				if (rax == 0)
 					break ;
-				out[--iw] = mHolder->convert_number_w (rax % mHolder->varify_radix ()) ;
-				rax /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax % mAttribute->varify_radix ()) ;
+				rax /= mAttribute->varify_radix () ;
 			}
 		} ,[&] (BOOL &if_context) {
 			if (data >= 0)
@@ -1590,12 +1600,12 @@ private:
 			while (TRUE) {
 				if (rax == 0)
 					break ;
-				out[--iw] = mHolder->convert_number_w (-rax % mHolder->varify_radix ()) ;
-				rax /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (-rax % mAttribute->varify_radix ()) ;
+				rax /= mAttribute->varify_radix () ;
 			}
 			out[--iw] = STRX ('-') ;
 		} ,[&] (BOOL &if_context) {
-			out[--iw] = mHolder->convert_number_w (0) ;
+			out[--iw] = mAttribute->convert_number_w (0) ;
 		}) ;
 		it = iw ;
 	}
@@ -1611,12 +1621,12 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				const auto r4x = _MAX_ ((r3x - 1 - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
-					rax[0] /= mHolder->varify_radix () ;
+					rax[0] /= mAttribute->varify_radix () ;
 					rax[1]++ ;
 				}
 				if (r4x <= 0)
 					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
+				rax[0] = _ROUND_ (rax[0] ,mAttribute->varify_radix ()) / mAttribute->varify_radix () ;
 				rax[1]++ ;
 			}
 		} ,[&] (BOOL &if_context) {
@@ -1627,12 +1637,12 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				const auto r10x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
-					rax[0] /= mHolder->varify_radix () ;
+					rax[0] /= mAttribute->varify_radix () ;
 					rax[1]++ ;
 				}
 				if (r10x <= 0)
 					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
+				rax[0] = _ROUND_ (rax[0] ,mAttribute->varify_radix ()) / mAttribute->varify_radix () ;
 				rax[1]++ ;
 			}
 		} ,[&] (BOOL &if_context) {
@@ -1641,12 +1651,12 @@ private:
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
-					rax[0] /= mHolder->varify_radix () ;
+					rax[0] /= mAttribute->varify_radix () ;
 					rax[1]++ ;
 				}
 				if (r9x <= 0)
 					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHolder->varify_radix ()) / mHolder->varify_radix () ;
+				rax[0] = _ROUND_ (rax[0] ,mAttribute->varify_radix ()) / mAttribute->varify_radix () ;
 				rax[1]++ ;
 			}
 		}) ;
@@ -1665,26 +1675,26 @@ private:
 			out[--iw] = STRX ('e') ;
 			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
-				rax[0] /= mHolder->varify_radix () ;
+				rax[0] /= mAttribute->varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
-				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
-				rax[0] /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+				iw += EFLAG (out[ix] == mAttribute->convert_number_w (0)) ;
+				rax[0] /= mAttribute->varify_radix () ;
 			}
 			out[--iw] = STRX ('.') ;
 			iw += EFLAG (out[ix] == STRX ('.')) ;
-			out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-			rax[0] /= mHolder->varify_radix () ;
+			out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+			rax[0] /= mAttribute->varify_radix () ;
 		} ,[&] (BOOL &if_context) {
 			//@info: case 'xxx000'
 			if (rax[1] <= 0)
 				discard ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
-				out[--iw] = mHolder->convert_number_w (0) ;
+				out[--iw] = mAttribute->convert_number_w (0) ;
 			for (INDEX i = 0 ; i < r8x ; i++) {
-				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-				rax[0] /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+				rax[0] /= mAttribute->varify_radix () ;
 			}
 		} ,[&] (BOOL &if_context) {
 			//@info: case 'xxx.xxx'
@@ -1694,18 +1704,18 @@ private:
 				discard ;
 			const auto r7x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r7x ; i++)
-				rax[0] /= mHolder->varify_radix () ;
+				rax[0] /= mAttribute->varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r7x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
-				rax[0] /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+				iw += EFLAG (out[ix] == mAttribute->convert_number_w (0)) ;
+				rax[0] /= mAttribute->varify_radix () ;
 			}
 			out[--iw] = STRX ('.') ;
 			iw += EFLAG (out[ix] == STRX ('.')) ;
 			for (INDEX i = 0 ,ie = LENGTH (r8x + rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-				rax[0] /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+				rax[0] /= mAttribute->varify_radix () ;
 			}
 		} ,[&] (BOOL &if_context) {
 			//@info: case '0.000xxx'
@@ -1715,25 +1725,25 @@ private:
 				discard ;
 			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r6x ; i++)
-				rax[0] /= mHolder->varify_radix () ;
+				rax[0] /= mAttribute->varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r6x ; i < r8x ; i++) {
-				out[--iw] = mHolder->convert_number_w (rax[0] % mHolder->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
-				rax[0] /= mHolder->varify_radix () ;
+				out[--iw] = mAttribute->convert_number_w (rax[0] % mAttribute->varify_radix ()) ;
+				iw += EFLAG (out[ix] == mAttribute->convert_number_w (0)) ;
+				rax[0] /= mAttribute->varify_radix () ;
 			}
 			for (INDEX i = _MAX_ (r6x ,r8x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHolder->convert_number_w (0) ;
-				iw += EFLAG (out[ix] == mHolder->convert_number_w (0)) ;
+				out[--iw] = mAttribute->convert_number_w (0) ;
+				iw += EFLAG (out[ix] == mAttribute->convert_number_w (0)) ;
 			}
 			out[--iw] = STRX ('.') ;
 			iw += EFLAG (out[ix] == STRX ('.')) ;
-			out[--iw] = mHolder->convert_number_w (0) ;
+			out[--iw] = mAttribute->convert_number_w (0) ;
 		} ,[&] (BOOL &if_context) {
 			//@info: case '0'
 			if (rax[1] != 0)
 				discard ;
-			out[--iw] = mHolder->convert_number_w (0) ;
+			out[--iw] = mAttribute->convert_number_w (0) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (rax[2] == 0)
@@ -1750,7 +1760,7 @@ private:
 			if (rax > arg1)
 				break ;
 			ret++ ;
-			rax *= mHolder->varify_radix () ;
+			rax *= mAttribute->varify_radix () ;
 		}
 		return std::move (ret) ;
 	}

@@ -13,7 +13,7 @@
 namespace CSC {
 class XmlParser {
 private:
-	class Pack {
+	class Node {
 	private:
 		friend XmlParser ;
 		String<STRU8> mName ;
@@ -23,10 +23,13 @@ private:
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 private:
-	SharedRef<FixedBuffer<Pack>> mHeap ;
+	SharedRef<FixedBuffer<Node>> mHeap ;
 	INDEX mIndex ;
 
 public:
@@ -269,7 +272,7 @@ public:
 	void serialize (TextWriter<STRU8> &writer) const ;
 
 private:
-	explicit XmlParser (const SharedRef<FixedBuffer<Pack>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
+	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -387,8 +390,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
-		Allocator<Pack ,SAUTO> mNodeHeap ;
-		SharedRef<FixedBuffer<Pack>> mHeap ;
+		Allocator<Node ,SAUTO> mNodeHeap ;
+		SharedRef<FixedBuffer<Node>> mHeap ;
 		INDEX mRoot ;
 		INDEX mLatestIndex ;
 		String<STRU8> mLatestString ;
@@ -409,8 +412,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
-			mNodeHeap = Allocator<Pack ,SAUTO> () ;
-			mHeap = SharedRef<FixedBuffer<Pack>> () ;
+			mNodeHeap = Allocator<Node ,SAUTO> () ;
+			mHeap = SharedRef<FixedBuffer<Node>> () ;
 			mRoot = VAR_NONE ;
 		}
 
@@ -604,7 +607,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void update_heap () {
 			mAttributeSoftSet.clean () ;
 			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<Pack>>::make (mNodeHeap.length ()) ;
+			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
 			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
 				if (!mNodeHeap.used (i))
@@ -638,7 +641,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
-		Allocator<Pack ,SAUTO> mNodeHeap ;
+		Allocator<Node ,SAUTO> mNodeHeap ;
 		String<STRU8> mRootName ;
 		INDEX mRootType ;
 		Queue<ARRAY4<INDEX>> mFoundNodeList ;
@@ -646,7 +649,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		Queue<SoftSet<String<STRU8> ,String<STRU8>>> mFoundNodeAttributeSet ;
 		Queue<Queue<XmlParser>> mFoundNodeBase ;
 		Queue<Queue<XmlParser>> mFoundNodeBaseRecycle ;
-		SharedRef<FixedBuffer<Pack>> mHeap ;
+		SharedRef<FixedBuffer<Node>> mHeap ;
 		INDEX mRoot ;
 
 		PACK<Queue<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
@@ -670,7 +673,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
-			mNodeHeap = Allocator<Pack ,SAUTO> () ;
+			mNodeHeap = Allocator<Node ,SAUTO> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				mRootName.clear () ;
 				mRootType = VAR_NONE ;
@@ -699,7 +702,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mFoundNodeAttributeSet = Queue<SoftSet<String<STRU8> ,String<STRU8>>> () ;
 			mFoundNodeBase = Queue<Queue<XmlParser>> () ;
 			mFoundNodeBaseRecycle = Queue<Queue<XmlParser>> () ;
-			mHeap = SharedRef<FixedBuffer<Pack>>::make () ;
+			mHeap = SharedRef<FixedBuffer<Node>>::make () ;
 		}
 
 		inline INDEX normal_node_one () const {
@@ -916,7 +919,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		inline void update_heap () {
 			mAttributeSoftSet.clean () ;
 			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<Pack>>::make (mNodeHeap.length ()) ;
+			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
 			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
 				if (!mNodeHeap.used (i))
@@ -941,7 +944,7 @@ private:
 	static constexpr auto TYPE_ID_ARRAY = FLAG (3) ;
 	static constexpr auto TYPE_ID_OBJECT = FLAG (4) ;
 
-	class Pack {
+	class Node {
 	private:
 		friend JsonParser ;
 		AnyRef<void> mValue ;
@@ -949,10 +952,13 @@ private:
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 private:
-	SharedRef<FixedBuffer<Pack>> mHeap ;
+	SharedRef<FixedBuffer<Node>> mHeap ;
 	INDEX mIndex ;
 
 public:
@@ -1146,7 +1152,7 @@ public:
 	void serialize (TextWriter<STRU8> &writer) const ;
 
 private:
-	explicit JsonParser (const SharedRef<FixedBuffer<Pack>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
+	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -1324,8 +1330,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		LENGTH mRecursiveCounter ;
 		SoftSet<INDEX ,INDEX> mArraySoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
-		Allocator<Pack ,SAUTO> mNodeHeap ;
-		SharedRef<FixedBuffer<Pack>> mHeap ;
+		Allocator<Node ,SAUTO> mNodeHeap ;
+		SharedRef<FixedBuffer<Node>> mHeap ;
 		INDEX mRoot ;
 		INDEX mLatestIndex ;
 		String<STRU8> mLatestString ;
@@ -1345,8 +1351,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRecursiveCounter = 0 ;
 			mArraySoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
-			mNodeHeap = Allocator<Pack ,SAUTO> () ;
-			mHeap = SharedRef<FixedBuffer<Pack>> () ;
+			mNodeHeap = Allocator<Node ,SAUTO> () ;
+			mHeap = SharedRef<FixedBuffer<Node>> () ;
 			mRoot = VAR_NONE ;
 		}
 
@@ -1612,7 +1618,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void update_heap () {
 			mArraySoftSet.clean () ;
 			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<Pack>>::make (mNodeHeap.length ()) ;
+			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
 			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
 				if (!mNodeHeap.used (i))
@@ -1649,7 +1655,7 @@ public:
 			String<STRU8> ret = String<STRU8> (DEFAULT_LONGSTRING_SIZE::value) ;
 			auto wos = TextWriter<STRU8> (ret.raw ()) ;
 			for (INDEX i = 1 ,ie = LENGTH (argc) ; i < ie ; i++) {
-				wos << _ASTOU8S_ (PTRTOARR[&argv[i][0]]) ;
+				wos << _ASTOU8S_ (PTRTOARR[argv[i]]) ;
 				wos << _PCSTRU8_ (" ") ;
 			}
 			wos << _EOS_ ;

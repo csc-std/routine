@@ -28,7 +28,6 @@
 #endif
 #include <cstdlib>
 #include <locale>
-#include <exception>
 #include <chrono>
 #include <atomic>
 #include <mutex>
@@ -48,11 +47,6 @@
 
 namespace CSC {
 namespace stl {
-using std::exception_ptr ;
-
-using std::current_exception ;
-using std::rethrow_exception ;
-
 using std::mutex ;
 using std::recursive_mutex ;
 using std::atomic ;
@@ -91,18 +85,105 @@ using std::raise ;
 #endif
 } ;
 
+class GlobalRuntime :private Wrapped<void> {
+public:
+	inline static std::chrono::system_clock::time_point clock_now () {
+		return std::chrono::system_clock::now () ;
+	}
+
+	inline static std::thread::id thread_id () {
+		return std::this_thread::get_id () ;
+	}
+
+	template <class... _ARGS>
+	inline static void thread_sleep (const std::chrono::duration<_ARGS...> &_time) {
+		std::this_thread::sleep_for (_time) ;
+	}
+
+	template <class... _ARGS>
+	inline static void thread_sleep (const std::chrono::time_point<_ARGS...> &_time) {
+		std::this_thread::sleep_for (_time) ;
+	}
+
+	inline static void thread_sleep () {
+		std::this_thread::yield () ;
+	}
+
+	inline static LENGTH thread_concurrency () {
+		return LENGTH (std::thread::hardware_concurrency ()) ;
+	}
+
+	template <LENGTH _VAL1>
+	inline static void locale_init (const DEF<STRA[_VAL1]> &_locale) {
+		std::setlocale (LC_ALL ,_locale) ;
+	}
+
+	inline static void process_exit () {
+		std::exit (-1) ;
+	}
+
+	inline static void process_abort () {
+		std::abort () ;
+	}
+} ;
+
 template <class _ARG1 ,class _ARG2>
 inline void _CALL_SEH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (std::exception_ptr &&)> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (const Exception &)> ,void>::value) ;
 	try {
 		arg1 () ;
+	} catch (const Exception &e) {
+		arg2 (e) ;
 	} catch (...) {
-		arg2 (std::current_exception ()) ;
+		arg2 (Exception (_PCSTR_ ("unknown C++ exception"))) ;
 	}
 }
+
+#ifdef __CSC_UNITTEST__
+class GlobalWatch final :private Wrapped<void> {
+private:
+	template <class _ARG1 ,class _ARG2>
+	class Storage final :private Interface {
+	private:
+		PACK<FLAG[4] ,PTR<void (_ARG2 &)>> mData ;
+
+	public:
+		inline Storage () {
+			mData.P1[0] = 0 ;
+			mData.P1[1] = 0 ;
+			mData.P1[2] = 0 ;
+			mData.P1[3] = 0 ;
+			mData.P2 = NULL ;
+		} ;
+
+		inline volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> &to () volatile {
+			return mData ;
+		}
+
+		inline implicit operator volatile PACK<FLAG[4] ,PTR<void (_ARG2 &)>> & () volatile {
+			return to () ;
+		}
+	} ;
+
+public:
+	template <class _ARG1 ,class _ARG2 ,LENGTH _VAL1>
+	inline static void watch (const ARGV<_ARG1> & ,const DEF<STR[_VAL1]> &name ,_ARG2 &data) noexcept {
+		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
+		mInstance.self.P1[0] = _ADDRESS_ (&name) ;
+		mInstance.self.P1[1] = _ADDRESS_ (&data) ;
+		mInstance.self.P1[2] = _ADDRESS_ (&watch<_ARG1 ,_ARG2 ,_VAL1>) ;
+		mInstance.self.P1[3] = 0 ;
+		const auto r2x = _COPY_ (mInstance.self.P2) ;
+		if (r2x == NULL)
+			return ;
+		r2x (data) ;
+		r2x (data) ;
+	}
+} ;
+#endif
 
 class VAR128 {
 #pragma region
@@ -680,15 +761,13 @@ private:
 	mutable FLAG mStatus ;
 
 public:
-	inline Mutable () :Mutable (ARGVP0) {}
-
-	inline implicit Mutable (const TYPE &right) : Mutable (ARGVP0 ,std::move (right)) {
-		mStatus = STATUS_CACHED ;
+	inline Mutable () {
+		mStatus = STATUS_SIGNALED ;
 	}
 
-	inline implicit Mutable (TYPE &&right) : Mutable (ARGVP0 ,std::move (right)) {
-		mStatus = STATUS_CACHED ;
-	}
+	inline implicit Mutable (const TYPE &right) :Mutable (ARGVP0 ,std::move (right)) {}
+
+	inline implicit Mutable (TYPE &&right) : Mutable (ARGVP0 ,std::move (right)) {}
 
 	inline const TYPE &to () const {
 		return mData ;
@@ -738,7 +817,7 @@ public:
 
 private:
 	template <class... _ARGS>
-	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_SIGNALED) {}
+	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
 template <class _ARG1 ,class... _ARGS>
@@ -1226,6 +1305,89 @@ inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (const PTR<TY
 	sgd = NULL ;
 	return std::move (ret) ;
 }
+
+template <class TYPE>
+class Lazy {
+private:
+	class ApplyTo :private Wrapped<TYPE> {
+	public:
+		inline void apply_to (TYPE &data) {
+			data = std::move (ApplyTo::mData) ;
+		}
+
+		inline void apply_to (TYPE &data) const {
+			data = std::move (ApplyTo::mData) ;
+		}
+	} ;
+
+	class Holder {
+	private:
+		friend Lazy ;
+		Mutable<TYPE> mData ;
+		Function<TYPE ()> mEvaluation1 ;
+		Function<DEF<TYPE ()> NONE::*> mEvaluation2 ;
+	} ;
+
+private:
+	SharedRef<Holder> mThis ;
+
+public:
+	inline Lazy () = default ;
+
+	inline implicit Lazy (const TYPE &right) {
+		mThis = SharedRef<Holder>::make () ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+	inline implicit Lazy (TYPE &&right) {
+		mThis = SharedRef<Holder>::make () ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+#ifdef __CSC_DEPRECATED__
+	inline implicit Lazy (Function<TYPE ()> &&right) {
+		mThis = SharedRef<Holder>::make () ;
+		mThis->mData.signal () ;
+		mThis->mEvaluation1 = std::move (right) ;
+	}
+#endif
+
+	inline implicit Lazy (Function<DEF<TYPE ()> NONE::*> &&right) {
+		mThis = SharedRef<Holder>::make () ;
+		mThis->mData.signal () ;
+		mThis->mEvaluation2 = std::move (right) ;
+	}
+
+	inline const TYPE &to () const popping {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		finish () ;
+		return mThis->mData.self ;
+	}
+
+	inline implicit operator const TYPE & () const popping {
+		return to () ;
+	}
+
+	inline void finish () const {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+public:
+	inline void compute_evaluation (TYPE &data) const {
+		_DYNAMIC_ASSERT_ (EFLAG (mThis->mEvaluation1.exist ()) != EFLAG (mThis->mEvaluation2.exist ())) ;
+		if (mThis->mEvaluation1.exist ())
+			data = mThis->mEvaluation1 () ;
+		if (mThis->mEvaluation2.exist ())
+			data = mThis->mEvaluation2 () ;
+	}
+} ;
 
 template <class...>
 class AllOfTuple ;
@@ -1941,11 +2103,14 @@ class SoftRef :public WeakRef<TYPE> {
 #define super m_super ()
 
 private:
-	class Pack {
+	class Node {
 	private:
 		friend SoftRef ;
 		StrongRef<TYPE> mData ;
 		LENGTH mWeight ;
+
+	public:
+		inline Node () = default ;
 	} ;
 
 	inline static constexpr VAR expr_log2 (VAR arg1) {
@@ -1953,14 +2118,14 @@ private:
 	}
 
 private:
-	SharedRef<Allocator<Pack ,SFIXED>> mHeap ;
+	SharedRef<Allocator<Node ,SFIXED>> mHeap ;
 	INDEX mIndex ;
 
 public:
 	inline SoftRef () = default ;
 
 	inline explicit SoftRef (LENGTH len) {
-		mHeap = SharedRef<Allocator<Pack ,SFIXED>>::make (len) ;
+		mHeap = SharedRef<Allocator<Node ,SFIXED>>::make (len) ;
 	}
 
 	inline ~SoftRef () noexcept {
@@ -1996,6 +2161,11 @@ public:
 
 	inline BOOL exist () const {
 		return super.exist () ;
+	}
+
+	void reset () {
+		super = WeakRef<TYPE> () ;
+		mIndex = VAR_NONE ;
 	}
 
 	inline SoftRef copy () popping {
@@ -2221,13 +2391,13 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<TYPE>>::value>>
 	inline explicit IntrusiveRef (const _ARG1 &right) : IntrusiveRef (ARGVP0) {
 		acquire (right ,FALSE) ;
-		const auto r1x = exchange (right) ;
+		const auto r1x = exchange_ownership (right) ;
 		_DEBUG_ASSERT_ (r1x == NULL) ;
 		(void) r1x ;
 	}
 
 	inline ~IntrusiveRef () noexcept {
-		const auto r1x = exchange (NULL) ;
+		const auto r1x = exchange_ownership (NULL) ;
 		_CALL_SEH_ ([&] () {
 			release (r1x) ;
 		}) ;
@@ -2237,8 +2407,8 @@ public:
 	inline IntrusiveRef &operator= (const IntrusiveRef &) = delete ;
 
 	inline IntrusiveRef (IntrusiveRef &&right) noexcept :IntrusiveRef (ARGVP0) {
-		const auto r1x = right.exchange (NULL) ;
-		const auto r2x = exchange (r1x) ;
+		const auto r1x = right.exchange_ownership (NULL) ;
+		const auto r2x = exchange_ownership (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 	}
@@ -2265,7 +2435,7 @@ public:
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		const auto r1x = mPointer.load () ;
 		acquire (r1x ,FALSE) ;
-		const auto r2x = ret.exchange (r1x) ;
+		const auto r2x = ret.exchange_ownership (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		return std::move (ret) ;
@@ -2294,17 +2464,21 @@ private:
 		(void) r1x ;
 	}
 
-	inline PTR<TYPE> exchange (PTR<TYPE> address) noexcept popping {
+	inline PTR<TYPE> exchange_ownership (PTR<TYPE> address) noexcept popping {
 		PTR<TYPE> ret = mPointer.exchange (address) ;
-		INDEX ir = 0 ;
-		while (TRUE) {
-			const auto r1x = ir++ ;
-			_DEBUG_ASSERT_ (r1x < RETRY_TIMES_SIZE::value) ;
-			(void) r1x ;
-			const auto r2x = mLatch.load () ;
-			if (r2x == 0)
-				break ;
-			INTRUSIVE_TYPE::intrusive_latch () ;
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (ret == NULL)
+				continue ;
+			INDEX ir = 0 ;
+			while (TRUE) {
+				const auto r1x = ir++ ;
+				_DEBUG_ASSERT_ (r1x < RETRY_TIMES_SIZE::value) ;
+				(void) r1x ;
+				const auto r2x = mLatch.load () ;
+				if (r2x == 0)
+					break ;
+				INTRUSIVE_TYPE::intrusive_latch (*ret) ;
+			}
 		}
 		return std::move (ret) ;
 	}
@@ -2340,7 +2514,7 @@ public:
 		ScopedHolder<TYPE> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
 		const auto r1x = &_LOAD_<TYPE> (_XVALUE_<PTR<TEMP<TYPE>>> (sgd)) ;
 		acquire (r1x ,TRUE) ;
-		const auto r2x = ret.exchange (r1x) ;
+		const auto r2x = ret.exchange_ownership (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		sgd = NULL ;
@@ -2392,7 +2566,7 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value && std::is_pod<_ARG1>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
-	_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1)) ;
+	_MEMCOPY_ (PTRTOARR[_ZERO_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1)) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;
@@ -2841,4 +3015,4 @@ inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif
-	} ;
+} ;

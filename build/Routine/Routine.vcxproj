@@ -69,6 +69,7 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_images.hpp.opencv.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_math.hpp.default.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_network.hpp.windows.inl" />
+    <None Include="..\..\..\..\..\Depends\__CSC__\csc_runtime.hpp.default.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.default.inl" />
   </ItemGroup>
   <ItemGroup>

@@ -9,48 +9,6 @@
 #include "csc_array.hpp"
 
 namespace CSC {
-class GlobalRuntime :private Wrapped<void> {
-public:
-	inline static std::chrono::system_clock::time_point clock_now () {
-		return std::chrono::system_clock::now () ;
-	}
-
-	inline static std::thread::id thread_id () {
-		return std::this_thread::get_id () ;
-	}
-
-	template <class... _ARGS>
-	inline static void thread_sleep (const std::chrono::duration<_ARGS...> &_time) {
-		std::this_thread::sleep_for (_time) ;
-	}
-
-	template <class... _ARGS>
-	inline static void thread_sleep (const std::chrono::time_point<_ARGS...> &_time) {
-		std::this_thread::sleep_for (_time) ;
-	}
-
-	inline static void thread_sleep () {
-		std::this_thread::yield () ;
-	}
-
-	inline static LENGTH thread_concurrency () {
-		return LENGTH (std::thread::hardware_concurrency ()) ;
-	}
-
-	template <LENGTH _VAL1>
-	inline static void locale_init (const DEF<STRA[_VAL1]> &_locale) {
-		std::setlocale (LC_ALL ,_locale) ;
-	}
-
-	inline static void process_exit () {
-		std::exit (-1) ;
-	}
-
-	inline static void process_abort () {
-		std::abort () ;
-	}
-} ;
-
 template <class>
 class GlobalStatic ;
 
@@ -72,14 +30,14 @@ private:
 		PTR<NONE> mData ;
 	} ;
 
-	class Pack {
+	class Holder {
 	public:
 		using INTRUSIVE_TYPE = GlobalStatic ;
 
 	private:
 		template <class>
 		friend class GlobalStatic ;
-		friend IntrusiveRef<Pack> ;
+		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		LENGTH mLength_a ;
@@ -91,33 +49,34 @@ private:
 private:
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<Pack> ;
+	friend IntrusiveRef<Holder> ;
 
 private:
-	//@warn: this function should be implemented in 'routime.dll'
-	inline static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
+	//@warn: this function should be implemented with a 'runtime.dll'
+	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
-	inline static Pack &unique () popping {
+	static Holder &unique () popping {
 		return _CACHE_ ([] () {
+			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<Pack> () ;
+			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
 					continue ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack>::make () ;
+				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r2x = rbx.watch () ;
-				const auto r3x = &_XVALUE_<Pack> (r2x) ;
+				const auto r3x = &_XVALUE_<Holder> (r2x) ;
 				const auto r4x = &_LOAD_<NONE> (r3x) ;
 				rax = unique_atomic_address (NULL ,r4x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r5x = &_LOAD_<Pack> (rax) ;
-			return IntrusiveRef<Pack> (r5x).watch () ;
+			const auto r5x = &_LOAD_<Holder> (rax) ;
+			return IntrusiveRef<Holder> (r5x).watch () ;
 		}) ;
 	}
 
-	inline static PTR<NODE_A> static_new_node (Pack &_self ,FLAG guid) popping {
+	static PTR<NODE_A> static_new_node (Holder &_self ,FLAG guid) popping {
 		//@warn: sure 'GlobalHeap' can be used across DLL
 		auto sgd = GlobalHeap::alloc<TEMP<NODE_A>> () ;
 		ScopedHolder<NODE_A> ANONYMOUS (sgd) ;
@@ -131,7 +90,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline static PTR<NODE_B> static_new_node (Pack &_self ,const GUID_TYPE &guid) popping {
+	static PTR<NODE_B> static_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
 		//@warn: sure 'GlobalHeap' can be used across DLL
 		auto sgd = GlobalHeap::alloc<TEMP<NODE_B>> () ;
 		ScopedHolder<NODE_B> ANONYMOUS (sgd) ;
@@ -145,21 +104,21 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline static PTR<NODE_A> static_find_node (const Pack &_self ,FLAG guid) {
+	static PTR<NODE_A> static_find_node (const Holder &_self ,FLAG guid) {
 		for (PTR<NODE_A> i = _self.mRoot_a ; i != NULL ; i = i->mNext)
 			if (i->mGUID == guid)
 				return i ;
 		return NULL ;
 	}
 
-	inline static PTR<NODE_B> static_find_node (const Pack &_self ,const GUID_TYPE &guid) {
+	static PTR<NODE_B> static_find_node (const Holder &_self ,const GUID_TYPE &guid) {
 		for (PTR<NODE_B> i = _self.mRoot_b ; i != NULL ; i = i->mNext)
-			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[&guid.unused[0]]))
+			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[guid.unused]))
 				return i ;
 		return NULL ;
 	}
 
-	inline static void intrusive_create (Pack &_self) {
+	static void intrusive_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_self.mCounter.self = 0 ;
 		_self.mLength_a = 0 ;
@@ -168,7 +127,7 @@ private:
 		_self.mRoot_b = NULL ;
 	}
 
-	inline static void intrusive_destroy (Pack &_self) {
+	static void intrusive_destroy (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_CALL_SEH_ ([&] () {
 			for (PTR<NODE_A> i = _self.mRoot_a ,ir ; i != NULL ; i = ir) {
@@ -190,15 +149,15 @@ private:
 		_self.mRoot_b = NULL ;
 	}
 
-	inline static LENGTH intrusive_attach (Pack &_self) popping {
+	static LENGTH intrusive_attach (Holder &_self) popping {
 		return ++_self.mCounter.self ;
 	}
 
-	inline static LENGTH intrusive_detach (Pack &_self) popping {
+	static LENGTH intrusive_detach (Holder &_self) popping {
 		return --_self.mCounter.self ;
 	}
 
-	inline static void intrusive_latch () {
+	static void intrusive_latch (Holder &_self) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -206,7 +165,7 @@ private:
 template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
-	inline static void init (VAR data ,BOOL read_only) {
+	static void init (VAR data ,BOOL read_only) {
 		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
@@ -218,7 +177,7 @@ public:
 		r2x->mData = data ;
 	}
 
-	inline static VAR load () popping {
+	static VAR load () popping {
 		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
@@ -226,7 +185,7 @@ public:
 		return r1x->mData ;
 	}
 
-	inline static VAR compare_and_swap (VAR expect ,VAR data) popping {
+	static VAR compare_and_swap (VAR expect ,VAR data) popping {
 		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
@@ -237,7 +196,7 @@ public:
 		return r1x->mData ;
 	}
 
-	inline static void save (VAR data) {
+	static void save (VAR data) {
 		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
@@ -256,12 +215,12 @@ public:
 template <class TYPE>
 class GlobalStatic<Singleton<TYPE>> final :private Wrapped<void> {
 private:
-	class Pack {
+	class Holder {
 	public:
 		using INTRUSIVE_TYPE = GlobalStatic ;
 
 	public:
-		friend IntrusiveRef<Pack> ;
+		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Singleton<TYPE> mData ;
 	} ;
@@ -269,63 +228,63 @@ private:
 	using GUID_TYPE = typename GlobalStatic<void>::GUID_TYPE ;
 
 private:
-	friend IntrusiveRef<Pack> ;
+	friend IntrusiveRef<Holder> ;
 
 private:
-	inline static void intrusive_create (Pack &_self) {
+	static void intrusive_create (Holder &_self) {
 		_self.mCounter.self = 0 ;
 	}
 
-	inline static void intrusive_destroy (Pack &_self) {
+	static void intrusive_destroy (Holder &_self) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline static LENGTH intrusive_attach (Pack &_self) popping {
+	static LENGTH intrusive_attach (Holder &_self) popping {
 		return ++_self.mCounter.self ;
 	}
 
-	inline static LENGTH intrusive_detach (Pack &_self) popping {
+	static LENGTH intrusive_detach (Holder &_self) popping {
 		return --_self.mCounter.self ;
 	}
 
-	inline static void intrusive_latch () {
+	static void intrusive_latch (Holder &_self) {
 		GlobalRuntime::thread_sleep () ;
 	}
 
-	inline static GUID_TYPE guid_from_typeid_name () {
+	static GUID_TYPE guid_from_typeid_name () {
 		GUID_TYPE ret ;
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (TYPE).name ()) ;
-		const auto r2x = _MEMCHR_ (PTRTOARR[&r1x[0]] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
+		const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
 		_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
 		const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
-		_MEMCOPY_ (PTRTOARR[&_ZERO_ (ret).unused[0]] ,PTRTOARR[&r1x[0]] ,r3x) ;
+		_MEMCOPY_ (PTRTOARR[_ZERO_ (ret).unused] ,PTRTOARR[r1x] ,r3x) ;
 		return std::move (ret) ;
 	}
 
 public:
-	inline static Singleton<TYPE> &unique () popping {
+	static Singleton<TYPE> &unique () popping {
 		auto &r1 = _CACHE_ ([] () {
 			auto &r2 = GlobalStatic<void>::unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
 			const auto r2x = guid_from_typeid_name () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
-			auto rbx = IntrusiveRef<Pack> () ;
+			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO_WHILE_FALSE) {
 				if (rax != NULL)
 					continue ;
 				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack>::make () ;
+				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r3x = rbx.watch () ;
-				const auto r4x = &_XVALUE_<Pack> (r3x) ;
+				const auto r4x = &_XVALUE_<Holder> (r3x) ;
 				rax->mData = &_LOAD_<NONE> (r4x) ;
 			}
-			const auto r5x = &_LOAD_<Pack> (rax->mData) ;
-			return IntrusiveRef<Pack> (r5x).watch () ;
+			const auto r5x = &_LOAD_<Holder> (rax->mData) ;
+			return IntrusiveRef<Holder> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Pack> (r1).mData ;
+		return _XVALUE_<Holder> (r1).mData ;
 	}
 } ;
 
@@ -480,11 +439,134 @@ public:
 private:
 	void store_break_point (ARRAY2<PTR<void>> &bp) noexcept {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
 	void goto_break_point (ARRAY2<PTR<void>> &bp) noexcept {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DEBUG_ASSERT_ (FALSE) ;
 	}
 } ;
 #endif
+
+class RandomService final :private Interface {
+private:
+	exports struct Abstract :public Interface {
+		virtual VAL entropy () const = 0 ;
+		virtual void reset_seed (VAR _seed) = 0 ;
+		virtual VAR random_value () popping = 0 ;
+		virtual void random_skip (LENGTH len) = 0 ;
+	} ;
+
+private:
+	class Implement ;
+	friend Singleton<RandomService> ;
+	Monostate<std::recursive_mutex> mMutex ;
+	StrongRef<Abstract> mThis ;
+
+public:
+	VAL entropy () const {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		return mThis->entropy () ;
+	}
+
+	void reset_seed (VAR _seed) {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		mThis->reset_seed (_seed) ;
+	}
+
+	VAR random_value (VAR _min ,VAR _max) popping {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		_DEBUG_ASSERT_ (_min >= 0 && _min <= _max) ;
+		const auto r1x = mThis->random_value () ;
+		return r1x % (_max - _min + 1) + _min ;
+	}
+
+	Array<VAR> random_value (VAR _min ,VAR _max ,LENGTH len) popping {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		Array<VAR> ret = Array<VAR> (len) ;
+		const auto r1x = _max - _min + 1 ;
+		for (INDEX i = 0 ; i < ret.length () ; i++) {
+			const auto r2x = mThis->random_value () ;
+			ret[i] = r2x % r1x + _min ;
+		}
+		return std::move (ret) ;
+	}
+
+	BitSet<> random_shuffle (LENGTH count ,LENGTH range) popping {
+		return random_shuffle (count ,range ,BitSet<> (range)) ;
+	}
+
+	BitSet<> random_shuffle (LENGTH count ,LENGTH range ,BitSet<> &&res) popping {
+		_DEBUG_ASSERT_ (count >= 0 && count < range) ;
+		_DEBUG_ASSERT_ (res.size () == range) ;
+		BitSet<> ret = std::move (res) ;
+		ret.clear () ;
+		while (TRUE) {
+			if (ret.length () >= count)
+				break ;
+			INDEX ix = random_value (0 ,(range - 1)) ;
+			ret[ix] = TRUE ;
+		}
+		return std::move (ret) ;
+	}
+
+	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range) popping {
+		return random_shuffle (count ,range ,BitSet<> (range.size ())) ;
+	}
+
+	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &&res) popping {
+		_DEBUG_ASSERT_ (count >= 0 && count < range.size ()) ;
+		_DEBUG_ASSERT_ (res.size () == range.size ()) ;
+		BitSet<> ret = std::move (res) ;
+		ret.clear () ;
+		while (TRUE) {
+			if (ret.length () >= count)
+				break ;
+			INDEX ix = random_value (0 ,(range.size () - 1)) ;
+			ret[ix] = range[ix] ;
+		}
+		return std::move (ret) ;
+	}
+
+	String<STR> random_uuid () popping {
+		String<STR> ret = String<STR> (_COUNTOF_ (decltype (_PCSTR_ ("00000000-0000-0000-000000000000")))) ;
+		INDEX iw = 0 ;
+		const auto r5x = random_value (0 ,36 ,28) ;
+		for (INDEX i = 0 ; i < 8 ; i++) {
+			INDEX ix = 0 + i ;
+			const auto r1x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+			ret[iw++] = STRU8 (r1x + r5x[ix]) ;
+		}
+		ret[iw++] = STRU8 ('-') ;
+		for (INDEX i = 0 ; i < 4 ; i++) {
+			INDEX ix = 8 + i ;
+			const auto r2x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+			ret[iw++] = STRU8 (r2x + r5x[ix]) ;
+		}
+		ret[iw++] = STRU8 ('-') ;
+		for (INDEX i = 0 ; i < 4 ; i++) {
+			INDEX ix = 12 + i ;
+			const auto r3x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+			ret[iw++] = STRU8 (r3x + r5x[ix]) ;
+		}
+		ret[iw++] = STRU8 ('-') ;
+		for (INDEX i = 0 ; i < 12 ; i++) {
+			INDEX ix = 16 + i ;
+			const auto r4x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+			ret[iw++] = STRU8 (r4x + r5x[ix]) ;
+		}
+		if (iw < ret.size ())
+			ret[iw] = 0 ;
+		return std::move (ret) ;
+	}
+
+	void random_skip (LENGTH len) {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		return mThis->random_skip (len) ;
+	}
+
+private:
+	RandomService () ;
+} ;
 } ;
