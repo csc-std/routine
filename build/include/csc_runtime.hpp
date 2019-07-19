@@ -298,15 +298,16 @@ private:
 	static constexpr auto STATUS_STOPPED = FLAG (3) ;
 
 private:
+	class Implement ;
 	Monostate<FLAG> mCoroutine ;
+	AnyRef<void> mCoBreakPoint ;
+	AnyRef<void> mCoResult ;
 	Array<Function<DEF<void (Coroutine &)> NONE::*>> mSubProc ;
-	Array<ARRAY2<PTR<void>>> mSubBreakPoint ;
-	ARRAY2<PTR<void>> mCoBreakPoint ;
+	Array<AnyRef<void>> mSubBreakPoint ;
 	Array<TYPE> mSubContext ;
 	Queue<INDEX> mSubQueue ;
 	Queue<INDEX> mSubAwaitQueue ;
 	INDEX mSubCurr ;
-	AnyRef<void> mCoResult ;
 
 public:
 	Coroutine () {
@@ -336,38 +337,54 @@ public:
 
 	void start (Array<Function<DEF<void (Coroutine &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
+		mCoBreakPoint = AnyRef<void> () ;
+		mCoResult = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
-		mSubBreakPoint = Array<ARRAY2<PTR<void>>> (mSubProc.size ()) ;
-		const auto r1x = ARRAY2<PTR<void>> {NULL ,NULL} ;
-		mSubBreakPoint.fill (r1x) ;
+		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
 		mSubContext = Array<TYPE> (mSubProc.size ()) ;
 		mSubQueue = Queue<INDEX> (mSubProc.length ()) ;
 		for (INDEX i = 0 ; i < mSubProc.length () ; i++)
 			mSubQueue.add (i) ;
 		mSubAwaitQueue = Queue<INDEX> (mSubProc.length ()) ;
-		mCoResult = AnyRef<void> () ;
 		mSubCurr = VAR_NONE ;
 	}
 
 	void stop () {
 		mSubProc = Array<Function<DEF<void (Coroutine &)> NONE::*>> () ;
-		mSubBreakPoint = Array<ARRAY2<PTR<void>>> () ;
 		mSubContext = Array<TYPE> () ;
 		mSubQueue = Queue<INDEX> () ;
 		mSubAwaitQueue = Queue<INDEX> () ;
-		mCoResult = AnyRef<void> () ;
 		mSubCurr = VAR_NONE ;
 	}
 
 	void execute () {
 		_DEBUG_ASSERT_ (mSubCurr == VAR_NONE) ;
-		_DEBUG_ASSERT_ (mSubQueue.length () > 0) ;
-		mCoroutine.self = STATUS_RUNNING ;
+		mCoroutine.self = STATUS_CREATED ;
+		init_break_point (mCoBreakPoint) ;
 		store_break_point (mCoBreakPoint) ;
-		if (mCoroutine.self != STATUS_RUNNING)
+		if (mCoroutine.self != STATUS_CREATED)
 			return ;
-		mSubQueue.take (mSubCurr) ;
+		for (auto &&i : mSubQueue) {
+			if (mCoroutine.self != STATUS_CREATED)
+				continue ;
+			init_break_point (mSubBreakPoint[i]) ;
+			store_break_point (mSubBreakPoint[i]) ;
+		}
+		for (auto &&i : mSubAwaitQueue) {
+			if (mCoroutine.self != STATUS_CREATED)
+				continue ;
+			init_break_point (mSubBreakPoint[i]) ;
+			store_break_point (mSubBreakPoint[i]) ;
+		}
+		for (FOR_ONCE_DO_WHILE_FALSE) {
+			if (mCoroutine.self != STATUS_CREATED)
+				continue ;
+			_DYNAMIC_ASSERT_ (mSubQueue.length () > 0) ;
+			mSubQueue.take (mSubCurr) ;
+			mCoroutine.self = STATUS_RUNNING ;
+		}
 		mSubProc[mSubCurr] (*this) ;
+		sub_return () ;
 	}
 
 	TYPE &sub_context () & {
@@ -407,7 +424,7 @@ public:
 
 	void sub_yield () {
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		if (mSubQueue.length () == 1)
+		if (mSubQueue.length () == 0)
 			return ;
 		mCoroutine.self = STATUS_SUSPEND ;
 		store_break_point (mSubBreakPoint[mSubCurr]) ;
@@ -426,7 +443,7 @@ public:
 		mSubAwaitQueue.clear () ;
 		mSubCurr = VAR_NONE ;
 		mCoroutine.self = STATUS_STOPPED ;
-		goto_break_point (mCoBreakPoint) ;
+		goto_break_point (mSubBreakPoint[mSubCurr]) ;
 	}
 
 	template <class _ARG1>
@@ -437,15 +454,11 @@ public:
 	}
 
 private:
-	void store_break_point (ARRAY2<PTR<void>> &bp) noexcept {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DEBUG_ASSERT_ (FALSE) ;
-	}
+	static void init_break_point (AnyRef<void> &bp) ;
 
-	void goto_break_point (ARRAY2<PTR<void>> &bp) noexcept {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DEBUG_ASSERT_ (FALSE) ;
-	}
+	static void store_break_point (AnyRef<void> &bp) noexcept ;
+
+	static void goto_break_point (AnyRef<void> &bp) noexcept ;
 } ;
 #endif
 
@@ -535,26 +548,22 @@ public:
 		const auto r5x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ; i < 8 ; i++) {
 			INDEX ix = 0 + i ;
-			const auto r1x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
-			ret[iw++] = STRU8 (r1x + r5x[ix]) ;
+			ret[iw++] = index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 8 + i ;
-			const auto r2x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
-			ret[iw++] = STRU8 (r2x + r5x[ix]) ;
+			ret[iw++] = index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 12 + i ;
-			const auto r3x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
-			ret[iw++] = STRU8 (r3x + r5x[ix]) ;
+			ret[iw++] = index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 12 ; i++) {
 			INDEX ix = 16 + i ;
-			const auto r4x = (r5x[ix] < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
-			ret[iw++] = STRU8 (r4x + r5x[ix]) ;
+			ret[iw++] = index_to_hex (r5x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
@@ -568,5 +577,11 @@ public:
 
 private:
 	RandomService () ;
+
+private:
+	static STRU8 index_to_hex (INDEX index) {
+		const auto r1x = (index < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+		return STRU8 (r1x + index) ;
+	}
 } ;
 } ;

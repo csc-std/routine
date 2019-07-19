@@ -234,23 +234,30 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
+		if ((ret[0] & DATA (~0X001FFFFFFFFFFFFF)) == 0)
+			break ;
+		ret[0] = ret[0] >> 1 ;
+		ret[1]++ ;
+	}
+	while (TRUE) {
+		if (ret[0] == 0)
+			break ;
 		if ((ret[0] & ~0X000FFFFFFFFFFFFF) == 0X0010000000000000)
 			break ;
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
+	for (FOR_ONCE_DO_WHILE_FALSE) {
+		const auto r1x = -1074 - VAR64 (ret[1]) ;
+		if (r1x <= 0)
+			break ;
+		ret[0] = ret[0] >> r1x ;
+		ret[1] = DATA (-1075) ;
+	}
+	ret[1] += 1075 ;
+	ret[1] = ret[1] << 52 ;
 	if (ret[0] == 0)
 		ret[1] = 0 ;
-	while (TRUE) {
-		if (VAR64 (ret[1]) > -1075)
-			break ;
-		ret[0] = ret[0] >> 1 ;
-		ret[1]++ ;
-	}
-	const auto r3x = VAR64 (ret[1]) + 1074 ;
-	if (ret[0] != 0)
-		ret[1] += DATA (1075 - EFLAG (r3x == 0)) ;
-	ret[1] = ret[1] << 52 ;
 	return std::move (ret) ;
 }
 
@@ -273,8 +280,9 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	if (r3x != 0)
 		ret[0] |= DATA (0X0010000000000000) ;
 	ret[1] = r3x >> 52 ;
-	if (ret[0] != 0)
-		ret[1] -= DATA (1075 - EFLAG (r3x == 0)) ;
+	ret[1] -= DATA (1075 - EFLAG (r3x == 0)) ;
+	if (ret[0] == 0)
+		ret[1] = 0 ;
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
@@ -288,20 +296,18 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
-inline VAL64 _inline_TAYLOR_POW_ (VAL64 logex ,VAL64 ly) {
+inline VAL64 _inline_TAYLOR_POW_ (VAL64 lnx ,VAL64 y) {
 	VAL64 ret = 1 ;
-	const auto r1x = logex * _ABS_ (ly) ;
+	const auto r1x = lnx * y ;
 	auto rax = VAL64 (1) ;
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
 		rax *= r1x * _PINV_ (rbx) ;
-		if (rax < VAL64_EPS)
+		if (_ABS_ (rax) < VAL64_EPS)
 			break ;
 		ret += rax ;
 		rbx++ ;
 	}
-	if (ly < 0)
-		ret = _PINV_ (ret) ;
 	return std::move (ret) ;
 }
 
@@ -359,14 +365,6 @@ inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
 	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE2) ,(r2x - VAR64 (r2x))) ;
 	ret[0] = DATA (VAR64 (VAL64 (r1x[0]) * r3x)) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
-	while (TRUE) {
-		if (ret[0] == 0)
-			break ;
-		if ((ret[0] & DATA (~0X001FFFFFFFFFFFFF)) == 0)
-			break ;
-		ret[0] = ret[0] >> 1 ;
-		ret[1]++ ;
-	}
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;

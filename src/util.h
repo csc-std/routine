@@ -15,11 +15,11 @@
 #include <csc_serialization.hpp>
 #include <csc_runtime.hpp>
 #include <csc_thread.hpp>
+#include <csc_graphics.hpp>
 #include <csc_filesystem.hpp>
 #include <csc_network.hpp>
 #include <csc_database.hpp>
 #include <csc_debugger.hpp>
-#include <csc_graphics.hpp>
 
 #ifdef __CSC_SYSTEM_WINDOWS__
 #pragma region
@@ -146,6 +146,10 @@ inline exports void _UNITTEST_ASSERT_HANDLER_ (const ARR<STR> &what) {
 
 #ifdef __CSC_STRING__
 #include "csc_string.hpp.default.inl"
+#endif
+
+#ifdef __CSC_RUNTIME__
+#include <csc_runtime.hpp.default.inl>
 #endif
 
 #ifdef __CSC_FILESYSTEM__

@@ -569,9 +569,9 @@ using COLOR_GRAY32 = VAL32 ;
 using COLOR_GRAY64 = VAL64 ;
 using COLOR_BGR = ARRAY3<BYTE> ;
 using COLOR_BGRA = ARRAY4<BYTE> ;
-using COLOR_HSV = CHAR ;
-using COLOR_YUV = ARRAY3<VAL32> ;
-using COLOR_OPP = ARRAY3<VAL64> ;
+using COLOR_LAB4 = CHAR ;
+using COLOR_XYZ32 = ARRAY3<VAL32> ;
+using COLOR_XYZ64 = ARRAY3<VAL64> ;
 
 template <class TYPE>
 class AbstractImage {
