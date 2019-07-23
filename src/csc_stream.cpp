@@ -29,7 +29,7 @@ public:
 	TEST_METHOD (TEST_CSC_STREAM_TEXTREADER) {
 		struct wrappered_int :private Wrapped<int> {
 			inline void friend_read (TextReader<STRU8> &reader) popping {
-				reader >> wrappered_int::mData >> _GAP_ ;
+				reader >> wrappered_int::mSelf >> _GAP_ ;
 			}
 		} ;
 		auto rax = Buffer<int ,ARGC<4>> () ;

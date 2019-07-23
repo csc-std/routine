@@ -1180,7 +1180,7 @@ public:
 	inline Exception () = delete ;
 
 	template <LENGTH _VAL1>
-	inline explicit Exception (const DEF<STR[_VAL1]> &what) noexcept :mWhat (PTRTOARR[what]) {}
+	inline explicit Exception (const DEF<STR[_VAL1]> &_what) noexcept :mWhat (PTRTOARR[_what]) {}
 
 	template <LENGTH _VAL1>
 	inline explicit Exception (DEF<STR[_VAL1]> &) = delete ;
@@ -1191,7 +1191,7 @@ public:
 	template <class _ARG1 ,LENGTH... _VALS>
 	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept :mWhat (expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
 
-	inline const ARR<STR> &what () const {
+	inline const ARR<STR> &what () const noexcept {
 		return mWhat ;
 	}
 
@@ -1276,7 +1276,7 @@ inline FLAG _TYPEID_ (const ARGV<_ARG1> &) noexcept {
 template <class TYPE>
 class Wrapped {
 protected:
-	TYPE mData ;
+	TYPE mSelf ;
 
 public:
 	inline Wrapped () = delete ;
@@ -3660,21 +3660,21 @@ public:
 		class Finally :private Wrapped<Allocator> {
 		public:
 			inline void lock () noexcept {
-				Finally::mData.mLength = 0 ;
-				Finally::mData.mFree = VAR_NONE ;
+				Finally::mSelf.mLength = 0 ;
+				Finally::mSelf.mFree = VAR_NONE ;
 			}
 
 			inline void unlock () noexcept {
-				if (Finally::mData.mLength > 0)
+				if (Finally::mSelf.mLength > 0)
 					return ;
-				const auto r1x = (std::is_pod<TYPE>::value) ? (Finally::mData.mAllocator.size ()) : 0 ;
-				for (INDEX i = r1x ; i < Finally::mData.mAllocator.size () ; i++) {
-					if (Finally::mData.mAllocator[i].mNext != VAR_USED)
+				const auto r1x = (std::is_pod<TYPE>::value) ? (Finally::mSelf.mAllocator.size ()) : 0 ;
+				for (INDEX i = r1x ; i < Finally::mSelf.mAllocator.size () ; i++) {
+					if (Finally::mSelf.mAllocator[i].mNext != VAR_USED)
 						continue ;
-					_DESTROY_ (&Finally::mData.mAllocator[i].mData) ;
+					_DESTROY_ (&Finally::mSelf.mAllocator[i].mData) ;
 				}
-				Finally::mData.mLength = 0 ;
-				Finally::mData.mFree = VAR_NONE ;
+				Finally::mSelf.mLength = 0 ;
+				Finally::mSelf.mFree = VAR_NONE ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (*this)) ;

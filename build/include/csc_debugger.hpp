@@ -20,6 +20,38 @@ namespace CSC {
 #ifdef __CSC_DEPRECATED__
 namespace U {
 struct OPERATOR_TYPENAME {
+	struct ZString {
+		String<STR> mSelf ;
+	} ;
+
+	template <class _RET>
+	inline static ZString type_name_from_func () {
+		ZString ret ;
+		ret.mSelf = _PARSESTRS_ (String<STRA> (M_FUNC)) ;
+#ifdef __CSC_COMPILER_MSVC__
+		static const auto &M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::ZString __cdecl CSC::U::OPERATOR_TYPENAME::type_name_from_func<") ;
+		static const auto &M_SUFFIX = _PCSTR_ (">(void)") ;
+		const auto r1x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
+		const auto r2x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		ret.mSelf = ret.mSelf.segment (r1x ,(ret.mSelf.length () - r1x - r2x)) ;
+#elif defined __CSC_COMPILER_GNUC__
+		static const auto &M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::ZString CSC::U::OPERATOR_TYPENAME::type_name_from_func() [with _RET = ") ;
+		static const auto &M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r1x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
+		const auto r2x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		ret.mSelf = ret.mSelf.segment (r1x ,(ret.mSelf.length () - r1x - r2x)) ;
+#elif defined __CSC_COMPILER_CLANG__
+		static const auto &M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::ZString CSC::U::OPERATOR_TYPENAME::type_name_from_func() [_RET = ") ;
+		static const auto &M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r1x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
+		const auto r2x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		ret.mSelf = ret.mSelf.segment (r1x ,(ret.mSelf.length () - r1x - r2x)) ;
+#else
+		ret.mSelf = _BUILDVAR64S_<STR> (_TYPEID_<_RET> ()) ;
+#endif
+		return std::move (ret) ;
+	}
+
 	template <class _ARG1>
 	inline static void compute_write_typename_cvs (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
 		_STATIC_WARNING_ ("noop") ;
@@ -129,14 +161,14 @@ struct OPERATOR_TYPENAME {
 	template <class _ARG1>
 	inline static void compute_write_typename_clazzs (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
 		writer << _PCSTR_ ("class '") ;
-		writer << _TYPEID_<_ARG1> () ;
+		writer << type_name_from_func<_ARG1> ().mSelf ;
 		writer << _PCSTR_ ("'") ;
 	}
 
 	template <template <class...> class _ARGT ,class..._ARGS>
 	inline static void compute_write_typename_clazzs (TextWriter<STR> &writer ,const ARGV<_ARGT<_ARGS...>> &) {
 		writer << _PCSTR_ ("class '") ;
-		writer << _TYPEID_<_ARGT<_ARGS...>> () ;
+		writer << type_name_from_func<_ARGT<_ARGS...>> ().mSelf ;
 		writer << _PCSTR_ ("'<") ;
 		compute_write_typename_params (writer ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 		writer << _PCSTR_ (">") ;

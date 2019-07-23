@@ -533,6 +533,20 @@ public:
 		return app (right) ;
 	}
 
+	inline String operator- (const String &right) const {
+		return right.app (*this) ;
+	}
+
+	inline String &operator+= (const String &right) {
+		*this = app (right) ;
+		return *this ;
+	}
+
+	inline String &operator-= (const String &right) {
+		*this = right.app (*this) ;
+		return *this ;
+	}
+
 	template <LENGTH _VAL1>
 	void appto (const DEF<ITEM[_VAL1]> &right) {
 		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
@@ -552,26 +566,6 @@ public:
 
 	template <LENGTH _VAL1>
 	inline String &operator+= (const DEF<ITEM[_VAL1]> &right) {
-		appto (right) ;
-		return *this ;
-	}
-
-	void appto (const String &right) {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mString.size () == 0)
-				discard ;
-			const auto r1x = length () ;
-			const auto r2x = right.length () ;
-			if (r1x + r2x > size ())
-				discard ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,right.mString.self ,r2x) ;
-			mString[r1x + r2x] = ITEM (0) ;
-		} ,[&] (BOOL &if_context) {
-			*this = app (right) ;
-		}) ;
-	}
-
-	inline String &operator+= (const String &right) {
 		appto (right) ;
 		return *this ;
 	}
@@ -609,11 +603,11 @@ private:
 	class AccessArray :private Wrapped<Stack> {
 	public:
 		inline ITEM &operator[] (INDEX index) {
-			return AccessArray::mData[AccessArray::mData.access (index)] ;
+			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
 		}
 
 		inline const ITEM &operator[] (INDEX index) const {
-			return AccessArray::mData[AccessArray::mData.access (index)] ;
+			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
 		}
 	} ;
 
@@ -885,11 +879,11 @@ private:
 	class AccessArray :private Wrapped<Queue> {
 	public:
 		inline ITEM &operator[] (INDEX index) {
-			return AccessArray::mData[AccessArray::mData.access (index)] ;
+			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
 		}
 
 		inline const ITEM &operator[] (INDEX index) const {
-			return AccessArray::mData[AccessArray::mData.access (index)] ;
+			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
 		}
 	} ;
 

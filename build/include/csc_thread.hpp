@@ -166,13 +166,13 @@ private:
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter++ ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter++ ;
 			}
 
 			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter-- ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter-- ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
@@ -267,11 +267,11 @@ private:
 	class Counter :private Wrapped<LENGTH> {
 	public:
 		inline void lock () {
-			Counter::mData++ ;
+			Counter::mSelf++ ;
 		}
 
 		inline void unlock () {
-			Counter::mData-- ;
+			Counter::mSelf-- ;
 		}
 	} ;
 
@@ -457,13 +457,13 @@ private:
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter++ ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter++ ;
 			}
 
 			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter-- ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter-- ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
@@ -656,13 +656,13 @@ private:
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter++ ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter++ ;
 			}
 
 			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (Finally::mData.mThreadMutex) ;
-				Finally::mData.mThreadCounter-- ;
+				ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
+				Finally::mSelf.mThreadCounter-- ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;

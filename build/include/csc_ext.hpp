@@ -1306,89 +1306,6 @@ inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (const PTR<TY
 	return std::move (ret) ;
 }
 
-template <class TYPE>
-class Lazy {
-private:
-	class ApplyTo :private Wrapped<TYPE> {
-	public:
-		inline void apply_to (TYPE &data) {
-			data = std::move (ApplyTo::mData) ;
-		}
-
-		inline void apply_to (TYPE &data) const {
-			data = std::move (ApplyTo::mData) ;
-		}
-	} ;
-
-	class Holder {
-	private:
-		friend Lazy ;
-		Mutable<TYPE> mData ;
-		Function<TYPE ()> mEvaluation1 ;
-		Function<DEF<TYPE ()> NONE::*> mEvaluation2 ;
-	} ;
-
-private:
-	SharedRef<Holder> mThis ;
-
-public:
-	inline Lazy () = default ;
-
-	inline implicit Lazy (const TYPE &right) {
-		mThis = SharedRef<Holder>::make () ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
-	}
-
-	inline implicit Lazy (TYPE &&right) {
-		mThis = SharedRef<Holder>::make () ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
-	}
-
-#ifdef __CSC_DEPRECATED__
-	inline implicit Lazy (Function<TYPE ()> &&right) {
-		mThis = SharedRef<Holder>::make () ;
-		mThis->mData.signal () ;
-		mThis->mEvaluation1 = std::move (right) ;
-	}
-#endif
-
-	inline implicit Lazy (Function<DEF<TYPE ()> NONE::*> &&right) {
-		mThis = SharedRef<Holder>::make () ;
-		mThis->mData.signal () ;
-		mThis->mEvaluation2 = std::move (right) ;
-	}
-
-	inline const TYPE &to () const popping {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		finish () ;
-		return mThis->mData.self ;
-	}
-
-	inline implicit operator const TYPE & () const popping {
-		return to () ;
-	}
-
-	inline void finish () const {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
-	}
-
-public:
-	inline void compute_evaluation (TYPE &data) const {
-		_DYNAMIC_ASSERT_ (EFLAG (mThis->mEvaluation1.exist ()) != EFLAG (mThis->mEvaluation2.exist ())) ;
-		if (mThis->mEvaluation1.exist ())
-			data = mThis->mEvaluation1 () ;
-		if (mThis->mEvaluation2.exist ())
-			data = mThis->mEvaluation2 () ;
-	}
-} ;
-
 template <class...>
 class AllOfTuple ;
 
@@ -1790,6 +1707,9 @@ using is_always_base_of = U::is_always_base_of<_ARG1 ,_ARG2> ;
 
 template <>
 class WeakRef<void> {
+public:
+	class Virtual ;
+
 private:
 	class Holder {
 	private:
@@ -1809,7 +1729,7 @@ private:
 	SharedRef<Holder> mHolder ;
 } ;
 
-class VirtualWeakRef :public virtual WeakRef<void> {
+class WeakRef<void>::Virtual :public virtual WeakRef<void> {
 private:
 	template <class>
 	friend class StrongRef ;
@@ -1835,9 +1755,9 @@ public:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<TYPE>>::value>>
 	inline explicit StrongRef (const _ARG1 &right) {
-		_STATIC_ASSERT_ (stl::is_always_base_of<VirtualWeakRef ,TYPE>::value) ;
+		_STATIC_ASSERT_ (stl::is_always_base_of<WeakRef<void>::Virtual ,TYPE>::value) ;
 		_DEBUG_ASSERT_ (right != NULL) ;
-		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<VirtualWeakRef ,TYPE>>> (right) ;
+		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,TYPE>>> (right) ;
 		const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,TYPE>>> (r1x) ;
 		mHolder = r2x->mHolder ;
 		mPointer = right ;
@@ -1973,9 +1893,9 @@ private:
 
 private:
 	template <class _ARG1>
-	inline static void template_enable_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> _this ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<VirtualWeakRef ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static void template_enable_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> _this ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		_DEBUG_ASSERT_ (_this != NULL) ;
-		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<VirtualWeakRef ,_ARG1>>> (_this) ;
+		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (_this) ;
 		const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>>> (r1x) ;
 		_this->mHolder = holder ;
 	}
@@ -2329,6 +2249,127 @@ inline BOOL StrongRef<TYPE>::equal (const SoftRef<TYPE> &right) const {
 }
 
 template <class TYPE>
+class Lazy {
+private:
+	class ApplyTo :private Wrapped<TYPE> {
+	public:
+		inline void apply_to (TYPE &data) {
+			data = std::move (ApplyTo::mSelf) ;
+		}
+
+		inline void apply_to (TYPE &data) const {
+			data = std::move (ApplyTo::mSelf) ;
+		}
+	} ;
+
+	class Holder :public WeakRef<void>::Virtual {
+	private:
+		friend Lazy ;
+		Mutable<TYPE> mData ;
+		Function<DEF<TYPE ()> NONE::*> mEvaluator ;
+		AnyRef<void> mFunction ;
+		WeakRef<Holder> mParam1 ;
+		WeakRef<Holder> mParam2 ;
+		WeakRef<Holder> mParam3 ;
+		WeakRef<Holder> mParam4 ;
+		WeakRef<Holder> mParam5 ;
+		WeakRef<Holder> mParam6 ;
+		WeakRef<Holder> mParam7 ;
+		WeakRef<Holder> mParam8 ;
+		WeakRef<Holder> mParam9 ;
+	} ;
+
+private:
+	StrongRef<Holder> mThis ;
+
+public:
+	inline Lazy () = default ;
+
+	inline implicit Lazy (const TYPE &right) {
+		mThis = StrongRef<Holder>::make () ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+	inline implicit Lazy (TYPE &&right) {
+		mThis = StrongRef<Holder>::make () ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+	inline implicit Lazy (Function<DEF<TYPE ()> NONE::*> &&right) {
+		mThis = StrongRef<Holder>::make () ;
+		mThis->mData.signal () ;
+		mThis->mEvaluator = std::move (right) ;
+	}
+
+#ifdef __CSC_DEPRECATED__
+	inline explicit Lazy (Function<TYPE ()> &&right) {
+		mThis = StrongRef<Holder>::make () ;
+		mThis->mData.signal () ;
+		mThis->mFunction = AnyRef<Function<TYPE ()>>::make (std::move (right)) ;
+		auto &r1 = mThis->mFunction.template rebind<Function<TYPE ()>> ().self ;
+		mThis->mEvaluator = Function<DEF<TYPE ()> NONE::*>::make (PhanRef<Function<TYPE ()>> (r1) ,&Function<TYPE ()>::invoke) ;
+	}
+#endif
+
+	inline const TYPE &to () const popping {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		finish () ;
+		return mThis->mData.self ;
+	}
+
+	inline implicit operator const TYPE & () const popping {
+		return to () ;
+	}
+
+	inline LENGTH degree () const {
+		_DEBUG_ASSERT_ (FALSE) ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		return 0 ;
+	}
+
+	inline void finish () const {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
+		mThis->mData.apply (r1x) ;
+		mThis->mData.finish () ;
+	}
+
+	inline Lazy app (const Lazy &right) const {
+		_DEBUG_ASSERT_ (FALSE) ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		return Lazy () ;
+	}
+
+	inline Lazy operator+ (const Lazy &right) const {
+		return app (right) ;
+	}
+	
+	inline Lazy &operator+= (const Lazy &right) {
+		*this = app (right) ;
+		return *this ;
+	}
+
+	inline Lazy operator- (const Lazy &right) const {
+		return right.app (*this) ;
+	}
+
+	inline Lazy &operator-= (const Lazy &right) {
+		*this = right.app (*this) ;
+		return *this ;
+	}
+
+public:
+	inline void compute_evaluation (TYPE &data) const {
+		_DYNAMIC_ASSERT_ (mThis->mEvaluator.exist ()) ;
+		data = mThis->mEvaluator () ;
+	}
+} ;
+
+template <class TYPE>
 class IntrusiveRef {
 private:
 	using RETRY_TIMES_SIZE = ARGC<128> ;
@@ -2378,6 +2419,21 @@ private:
 		inline explicit WatcherProxy (PTR<TYPE> pointer) noexcept :mPointer (pointer) {}
 	} ;
 
+	class Counter :private Wrapped<std::atomic<LENGTH>> {
+	public:
+		inline void lock () {
+			const auto r1x = ++Counter::mSelf ;
+			_DEBUG_ASSERT_ (r1x >= 1) ;
+			(void) r1x ;
+		}
+
+		inline void unlock () {
+			const auto r1x = --Counter::mSelf ;
+			_DEBUG_ASSERT_ (r1x >= 0) ;
+			(void) r1x ;
+		}
+	} ;
+
 private:
 	_STATIC_ASSERT_ (_SIZEOF_ (TYPE) > 0) ;
 	friend ScopedGuard<IntrusiveRef> ;
@@ -2391,13 +2447,13 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<TYPE>>::value>>
 	inline explicit IntrusiveRef (const _ARG1 &right) : IntrusiveRef (ARGVP0) {
 		acquire (right ,FALSE) ;
-		const auto r1x = exchange_ownership (right) ;
+		const auto r1x = safe_exchange (right) ;
 		_DEBUG_ASSERT_ (r1x == NULL) ;
 		(void) r1x ;
 	}
 
 	inline ~IntrusiveRef () noexcept {
-		const auto r1x = exchange_ownership (NULL) ;
+		const auto r1x = safe_exchange (NULL) ;
 		_CALL_SEH_ ([&] () {
 			release (r1x) ;
 		}) ;
@@ -2407,8 +2463,8 @@ public:
 	inline IntrusiveRef &operator= (const IntrusiveRef &) = delete ;
 
 	inline IntrusiveRef (IntrusiveRef &&right) noexcept :IntrusiveRef (ARGVP0) {
-		const auto r1x = right.exchange_ownership (NULL) ;
-		const auto r2x = exchange_ownership (r1x) ;
+		const auto r1x = right.safe_exchange (NULL) ;
+		const auto r2x = safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 	}
@@ -2431,18 +2487,18 @@ public:
 	}
 
 	inline IntrusiveRef copy () popping {
-		ScopedGuard<IntrusiveRef> ANONYMOUS (*this) ;
+		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mLatch)) ;
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		const auto r1x = mPointer.load () ;
 		acquire (r1x ,FALSE) ;
-		const auto r2x = ret.exchange_ownership (r1x) ;
+		const auto r2x = ret.safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		return std::move (ret) ;
 	}
 
 	inline WatcherProxy watch () popping {
-		ScopedGuard<IntrusiveRef> ANONYMOUS (*this) ;
+		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		acquire (r1x ,FALSE) ;
@@ -2452,19 +2508,7 @@ public:
 private:
 	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mLatch (0) {}
 
-	inline void lock () noexcept {
-		const auto r1x = ++mLatch ;
-		_DEBUG_ASSERT_ (r1x >= 1) ;
-		(void) r1x ;
-	}
-
-	inline void unlock () noexcept {
-		const auto r1x = --mLatch ;
-		_DEBUG_ASSERT_ (r1x >= 0) ;
-		(void) r1x ;
-	}
-
-	inline PTR<TYPE> exchange_ownership (PTR<TYPE> address) noexcept popping {
+	inline PTR<TYPE> safe_exchange (PTR<TYPE> address) noexcept popping {
 		PTR<TYPE> ret = mPointer.exchange (address) ;
 		for (FOR_ONCE_DO_WHILE_FALSE) {
 			if (ret == NULL)
@@ -2514,7 +2558,7 @@ public:
 		ScopedHolder<TYPE> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
 		const auto r1x = &_LOAD_<TYPE> (_XVALUE_<PTR<TEMP<TYPE>>> (sgd)) ;
 		acquire (r1x ,TRUE) ;
-		const auto r2x = ret.exchange_ownership (r1x) ;
+		const auto r2x = ret.safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		sgd = NULL ;
@@ -2893,7 +2937,7 @@ struct Objective :public Interface {
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
-class Object :public Objective ,public VirtualWeakRef {
+class Object :public Objective ,public WeakRef<void>::Virtual {
 private:
 	class Metadata {
 	private:

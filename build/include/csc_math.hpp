@@ -537,10 +537,10 @@ inline Function<_ARG1 (const _ARGS &...)> _BIND_ (const PTR<_ARG1 (const _ARGS &
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4>
-inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP2)> & ,const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2) {
+inline Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> _BIND_ (const Function<_ARG4 (const _ARG2 & ,const _ARG3 &)> &func1 ,const Function<_ARG1 (const _ARG2 & ,const _ARG4 &)> &func2 ,const DEF<decltype (ARGVP2)> & ,const DEF<decltype (ARGVP1)> & ,const DEF<decltype (ARGVP1)> &) {
 	_STATIC_WARNING_ ("mark") ;
 	return Function<_ARG1 (const _ARG2 & ,const _ARG3 &)> ([&] (const _ARG2 &op1 ,const _ARG3 &op2) {
-		return func2 (op1 ,func1 (op1 ,op2)) ;
+		return func1 (op1 ,func2 (op1 ,op2)) ;
 	}) ;
 }
 
@@ -550,7 +550,7 @@ inline Array<Array<_ARG1>> _GROUP_ (const Array<_ARG1> &array1 ,const Array<Func
 	const auto r2x = _REDUCE_ (array1 ,func.length () ,r1x) ;
 	const auto r3x = _BIND_<Array<BOOL> ,Array<_ARG1> ,Function<BOOL (const _ARG1 &)>> (&_MAP_<_ARG1 ,BOOL>) ;
 	const auto r4x = _BIND_<Array<_ARG1> ,Array<_ARG1> ,Array<BOOL>> (&_FILTER_< _ARG1>) ;
-	const auto r5x = _BIND_ (ARGVP1 ,ARGVP1 ,ARGVP2 ,r3x ,r4x) ;
+	const auto r5x = _BIND_ (r4x ,r3x ,ARGVP2 ,ARGVP1 ,ARGVP1) ;
 	const auto r6x = _MAP_ (r2x ,func ,r5x) ;
 	const auto r7x = _BIND_<Array<Array<_ARG1>> ,Array<Array<_ARG1>> ,Array<_ARG1>> (&_CONCAT_<Array<_ARG1>>) ;
 	const auto r8x = Array<Array<_ARG1>> () ;

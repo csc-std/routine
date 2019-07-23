@@ -39,7 +39,11 @@ namespace CSC {
 template <class TYPE>
 class Coroutine<TYPE>::Implement {
 private:
-	static constexpr auto BREAK_POINT_SIZE = _SIZEOF_ (jmp_buf) + _ALIGNOF_ (jmp_buf) ;
+	struct BREAKPOINT {
+		jmp_buf unused ;
+	} ;
+
+	static constexpr auto BREAK_POINT_SIZE = _SIZEOF_ (BREAKPOINT) + _ALIGNOF_ (BREAKPOINT) ;
 	static constexpr auto STACK_FRAME_SIZE = 65536 ;
 
 	struct BREAK_POINT {
@@ -65,13 +69,13 @@ public:
 		auto &r1 = bp->rebind<BREAK_POINT> ().self ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[0] != NULL) ;
 		r1.mStackPoint[1] = &bp ;
-		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (jmp_buf) ;
-		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (jmp_buf) - r1x) : 0 ;
+		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (BREAKPOINT) ;
+		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (BREAKPOINT) - r1x) : 0 ;
 		const auto r3x = &_NULL_<BYTE> () + (_ADDRESS_ (&r1.mBreakPoint) + r1x) ;
 		const auto r4x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
 		_DEBUG_ASSERT_ (_ABS_ (r4x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1.mStackPoint[EFLAG (r4x < 0)]) ,_ABS_ (r4x)) ;
-		const auto r5x = setjmp (_LOAD_<jmp_buf> (r3x)) ;
+		const auto r5x = setjmp (_LOAD_<BREAKPOINT> (r3x)) ;
 		(void) r5x ;
 	}
 
@@ -82,13 +86,13 @@ public:
 		r1.mStackPoint[2] = &bp ;
 		_STATIC_WARNING_ ("mark") ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[2] == r1.mStackPoint[1]);
-		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (jmp_buf) ;
-		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (jmp_buf) - r1x) : 0 ;
+		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (BREAKPOINT) ;
+		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (BREAKPOINT) - r1x) : 0 ;
 		const auto r3x = &_NULL_<BYTE> () + (_ADDRESS_ (&r1.mBreakPoint) + r1x) ;
 		const auto r4x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
 		_DEBUG_ASSERT_ (_ABS_ (r4x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1.mStackPoint[EFLAG (r4x < 0)]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r4x)) ;
-		longjmp (_LOAD_<jmp_buf> (r3x) ,1) ;
+		longjmp (_LOAD_<BREAKPOINT> (r3x) ,1) ;
 	}
 } ;
 
@@ -112,12 +116,12 @@ class RandomService::Implement final :private RandomService::Abstract {
 private:
 	friend RandomService ;
 	friend StrongRef<Implement> ;
-	AutoRef<std::random_device> mRandomSeed ;
+	SharedRef<std::random_device> mRandomSeed ;
 	AutoRef<std::mt19937> mRandomDevice ;
 
 public:
 	Implement () {
-		mRandomSeed = AutoRef<std::random_device>::make () ;
+		mRandomSeed = SharedRef<std::random_device>::make () ;
 		mRandomDevice = AutoRef<std::mt19937>::make (CHAR (mRandomSeed.self ())) ;
 	}
 

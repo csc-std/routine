@@ -291,166 +291,104 @@ public:
 #ifdef __CSC_DEPRECATED__
 template <class TYPE>
 class Coroutine {
+public:
+	class SubRef ;
+
 private:
 	static constexpr auto STATUS_CREATED = FLAG (0) ;
 	static constexpr auto STATUS_RUNNING = FLAG (1) ;
 	static constexpr auto STATUS_SUSPEND = FLAG (2) ;
 	static constexpr auto STATUS_STOPPED = FLAG (3) ;
 
+	class CoroutineException {
+	public:
+		inline CoroutineException () = default ;
+
+		inline const ARR<STR> &what () const noexcept {
+			return _PCSTR_ ("coroutine stack unwinding") ;
+		}
+	} ;
+
 private:
 	class Implement ;
-	Monostate<FLAG> mCoroutine ;
+	Monostate<FLAG> mCoStatus ;
+	AutoRef<TYPE> mCoContext ;
 	AnyRef<void> mCoBreakPoint ;
-	AnyRef<void> mCoResult ;
-	Array<Function<DEF<void (Coroutine &)> NONE::*>> mSubProc ;
+	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 	Array<AnyRef<void>> mSubBreakPoint ;
-	Array<TYPE> mSubContext ;
 	Queue<INDEX> mSubQueue ;
-	Queue<INDEX> mSubAwaitQueue ;
+	Priority<VAR ,INDEX> mSubAwaitQueue ;
 	INDEX mSubCurr ;
 
 public:
 	Coroutine () {
-		mCoroutine.self = STATUS_CREATED ;
+		mCoStatus.self = STATUS_CREATED ;
 		mSubCurr = VAR_NONE ;
 	}
 
 	BOOL ready () const {
-		if (mCoroutine.self != STATUS_STOPPED)
+		if (mCoStatus.self != STATUS_STOPPED)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	AnyRef<void> poll () popping {
-		return std::move (mCoResult) ;
+	TYPE &context () & {
+		_DEBUG_ASSERT_ (mCoContext.exist ()) ;
+		return mCoContext ;
 	}
 
-	template <class _ARG1>
-	_ARG1 value (const _ARG1 &def) const {
-		_STATIC_ASSERT_ (std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value) ;
-		if (!mCoResult.exist ())
-			return def ;
-		if (mCoResult.type () != _TYPEID_<_ARG1> ())
-			return def ;
-		return mCoResult.rebind<_ARG1> ().self ;
-	}
+	TYPE &context () && = delete ;
 
-	void start (Array<Function<DEF<void (Coroutine &)> NONE::*>> &&proc) {
+	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
+		mCoContext = AutoRef<TYPE>::make () ;
 		mCoBreakPoint = AnyRef<void> () ;
-		mCoResult = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
-		mSubContext = Array<TYPE> (mSubProc.size ()) ;
 		mSubQueue = Queue<INDEX> (mSubProc.length ()) ;
 		for (INDEX i = 0 ; i < mSubProc.length () ; i++)
 			mSubQueue.add (i) ;
-		mSubAwaitQueue = Queue<INDEX> (mSubProc.length ()) ;
-		mSubCurr = VAR_NONE ;
-	}
-
-	void stop () {
-		mSubProc = Array<Function<DEF<void (Coroutine &)> NONE::*>> () ;
-		mSubContext = Array<TYPE> () ;
-		mSubQueue = Queue<INDEX> () ;
-		mSubAwaitQueue = Queue<INDEX> () ;
-		mSubCurr = VAR_NONE ;
+		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProc.length ()) ;
+		mSubQueue.take (mSubCurr) ;
 	}
 
 	void execute () {
-		_DEBUG_ASSERT_ (mSubCurr == VAR_NONE) ;
-		mCoroutine.self = STATUS_CREATED ;
+		_DEBUG_ASSERT_ (!mCoBreakPoint.exist ()) ;
 		init_break_point (mCoBreakPoint) ;
+		for (auto &&i : mSubBreakPoint) {
+			_DEBUG_ASSERT_ (!i.exist ()) ;
+			init_break_point (i) ;
+		}
+		mCoStatus.self = STATUS_CREATED ;
 		store_break_point (mCoBreakPoint) ;
-		if (mCoroutine.self != STATUS_CREATED)
-			return ;
-		for (auto &&i : mSubQueue) {
-			if (mCoroutine.self != STATUS_CREATED)
+		for (auto &&i : mSubBreakPoint) {
+			if (mCoStatus.self != STATUS_STOPPED)
 				continue ;
-			init_break_point (mSubBreakPoint[i]) ;
-			store_break_point (mSubBreakPoint[i]) ;
-		}
-		for (auto &&i : mSubAwaitQueue) {
-			if (mCoroutine.self != STATUS_CREATED)
+			if (!i.exist ())
 				continue ;
-			init_break_point (mSubBreakPoint[i]) ;
-			store_break_point (mSubBreakPoint[i]) ;
+			goto_break_point (i) ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
-			if (mCoroutine.self != STATUS_CREATED)
+		if (mCoStatus.self != STATUS_CREATED)
+			return ;
+		for (auto &&i : mSubBreakPoint) {
+			if (mCoStatus.self != STATUS_CREATED)
 				continue ;
-			_DYNAMIC_ASSERT_ (mSubQueue.length () > 0) ;
-			mSubQueue.take (mSubCurr) ;
-			mCoroutine.self = STATUS_RUNNING ;
+			store_break_point (i) ;
 		}
-		mSubProc[mSubCurr] (*this) ;
-		sub_return () ;
-	}
-
-	TYPE &sub_context () & {
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		return mSubContext[mSubCurr] ;
-	}
-
-	TYPE &sub_context () && = delete ;
-
-	void sub_await () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		mCoroutine.self = STATUS_SUSPEND ;
-		store_break_point (mSubBreakPoint[mSubCurr]) ;
-		if (mCoroutine.self != STATUS_SUSPEND)
-			return ;
-		mSubAwaitQueue.add (mSubCurr) ;
-		_DYNAMIC_ASSERT_ (mSubQueue.length () > 0) ;
-		mSubQueue.take (mSubCurr) ;
-		mCoroutine.self = STATUS_RUNNING ;
-		goto_break_point (mSubBreakPoint[mSubCurr]) ;
-	}
-
-	void sub_resume_one () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		if (mSubAwaitQueue.length () == 0)
-			return ;
-		INDEX ix = VAR_NONE ;
-		mSubAwaitQueue.take (ix) ;
-		mSubQueue.add (ix) ;
-	}
-
-	void sub_resume_all () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		mSubQueue.appand (mSubAwaitQueue) ;
-		mSubAwaitQueue.clear () ;
-	}
-
-	void sub_yield () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		if (mSubQueue.length () == 0)
-			return ;
-		mCoroutine.self = STATUS_SUSPEND ;
-		store_break_point (mSubBreakPoint[mSubCurr]) ;
-		if (mCoroutine.self != STATUS_SUSPEND)
-			return ;
-		mSubQueue.add (mSubCurr) ;
-		_DYNAMIC_ASSERT_ (mSubQueue.length () > 0) ;
-		mSubQueue.take (mSubCurr) ;
-		mCoroutine.self = STATUS_RUNNING ;
-		goto_break_point (mSubBreakPoint[mSubCurr]) ;
-	}
-
-	void sub_return () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		mSubQueue.clear () ;
-		mSubAwaitQueue.clear () ;
-		mSubCurr = VAR_NONE ;
-		mCoroutine.self = STATUS_STOPPED ;
-		goto_break_point (mSubBreakPoint[mSubCurr]) ;
-	}
-
-	template <class _ARG1>
-	void sub_return (_ARG1 &&result) {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		mCoResult = AnyRef<_ARG1>::make (std::forward<_ARG1> (result)) ;
-		sub_return () ;
+		const auto r1x = mSubCurr ;
+		_CALL_SEH_ ([&] () {
+			if (mCoStatus.self == STATUS_STOPPED)
+				return ;
+			mCoStatus.self = STATUS_RUNNING ;
+			mSubProc[r1x] (_CAST_<SubRef> (*this)) ;
+		} ,[&] (const Exception &e) {
+			const auto r2x = e.what () ;
+			(void) r2x ;
+		}) ;
+		mSubBreakPoint[r1x] = AnyRef<void> () ;
+		mCoStatus.self = STATUS_STOPPED ;
+		goto_break_point (mCoBreakPoint) ;
 	}
 
 private:
@@ -459,6 +397,100 @@ private:
 	static void store_break_point (AnyRef<void> &bp) noexcept ;
 
 	static void goto_break_point (AnyRef<void> &bp) noexcept ;
+} ;
+
+template <class TYPE>
+class Coroutine<TYPE>::SubRef :private Wrapped<Coroutine<TYPE>> {
+private:
+	using CoroutineException = typename Coroutine<TYPE>::CoroutineException ;
+	using Wrapped<Coroutine<TYPE>>::mSelf ;
+
+public:
+	TYPE &to () {
+		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
+		return mSelf.mCoContext ;
+	}
+
+	inline implicit operator TYPE & () {
+		return to () ;
+	}
+
+	inline PTR<TYPE> operator-> () {
+		return &to () ;
+	}
+
+	const TYPE &to () const {
+		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
+		return mSelf.mCoContext ;
+	}
+
+	inline implicit operator const TYPE & () const {
+		return to () ;
+	}
+
+	inline PTR<const TYPE> operator-> () const {
+		return &to () ;
+	}
+
+	void sub_await () {
+		sub_await (mSelf.mSubAwaitQueue.length ()) ;
+	}
+
+	void sub_await (VAR priority) {
+		_DEBUG_ASSERT_ (priority >= 0) ;
+		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
+		mSelf.mCoStatus.self = STATUS_SUSPEND ;
+		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+		if (mSelf.mCoStatus.self == STATUS_STOPPED)
+			throw CoroutineException () ;
+		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
+			return ;
+		mSelf.mSubAwaitQueue.add (priority ,mSelf.mSubCurr) ;
+		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
+		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
+		mSelf.mCoStatus.self = STATUS_RUNNING ;
+		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+	}
+
+	void sub_resume () {
+		sub_resume (mSelf.mSubAwaitQueue.length ()) ;
+	}
+
+	void sub_resume (LENGTH count) {
+		for (INDEX i = 0 ; i < count ; i++) {
+			if (mSelf.mSubAwaitQueue.empty ())
+				continue ;
+			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.peek ()].item ;
+			mSelf.mSubAwaitQueue.take () ;
+			mSelf.mSubQueue.add (r1x) ;
+		}
+	}
+
+	void sub_yield () {
+		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
+		if (mSelf.mSubQueue.empty ())
+			return ;
+		mSelf.mCoStatus.self = STATUS_SUSPEND ;
+		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+		if (mSelf.mCoStatus.self == STATUS_STOPPED)
+			throw CoroutineException () ;
+		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
+			return ;
+		mSelf.mSubQueue.add (mSelf.mSubCurr) ;
+		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
+		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
+		mSelf.mCoStatus.self = STATUS_RUNNING ;
+		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+	}
+
+	void sub_return () {
+		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
+		mSelf.mSubQueue.clear () ;
+		mSelf.mSubAwaitQueue.clear () ;
+		mSelf.mSubCurr = VAR_NONE ;
+		mSelf.mCoStatus.self = STATUS_STOPPED ;
+		goto_break_point (mSelf.mCoBreakPoint) ;
+	}
 } ;
 #endif
 

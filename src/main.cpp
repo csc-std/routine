@@ -6,16 +6,14 @@ using namespace std ;
 //@info: static field of module 'main.cpp'
 static const CSC::UniqueRef<void> ANONYMOUS ([] () {
 	using namespace UNITTEST ;
+#ifdef __CSC_COMPILER_MSVC__
 	Singleton<DebuggerService>::instance ().output_memory_leaks_report (TRUE) ;
+#endif
 	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("static constructor for main.cpp")) ;
 } ,[] () {
 	using namespace UNITTEST ;
 	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("static destructor for main.cpp")) ;
 }) ;
-
-namespace UNITTEST {
-
-} ;
 
 TEST_CLASS (UNITTEST_MAIN) {
 public:

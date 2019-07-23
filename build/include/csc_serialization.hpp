@@ -372,12 +372,12 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		class Counter :private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
-				_DYNAMIC_ASSERT_ (Counter::mData < DEFAULT_RECURSIVE_SIZE::value) ;
-				Counter::mData++ ;
+				_DYNAMIC_ASSERT_ (Counter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				Counter::mSelf++ ;
 			}
 
 			inline void unlock () {
-				Counter::mData-- ;
+				Counter::mSelf-- ;
 			}
 		} ;
 
@@ -1313,12 +1313,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		class Counter :private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
-				_DYNAMIC_ASSERT_ (Counter::mData < DEFAULT_RECURSIVE_SIZE::value) ;
-				Counter::mData++ ;
+				_DYNAMIC_ASSERT_ (Counter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				Counter::mSelf++ ;
 			}
 
 			inline void unlock () {
-				Counter::mData-- ;
+				Counter::mSelf-- ;
 			}
 		} ;
 

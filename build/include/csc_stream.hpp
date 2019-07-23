@@ -88,13 +88,13 @@ private:
 	_STATIC_ASSERT_ (std::is_same<TYPE ,BYTE>::value || std::is_same<TYPE ,WORD>::value || std::is_same<TYPE ,CHAR>::value || std::is_same<TYPE ,DATA>::value) ;
 
 public:
-	inline LENGTH capacity () const {
+	inline LENGTH size () const {
 		return _SIZEOF_ (TYPE) ;
 	}
 
 	inline const BYTE &operator[] (INDEX index) const {
 		const auto r1x = expr_endian_index (_NULL_<const ARGV<TYPE>> ()) ;
-		return EndianBytes::mData[_CAST_<BYTE[_SIZEOF_ (TYPE)]> (r1x)[index]] ;
+		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (TYPE)]> (r1x)[index]] ;
 	}
 
 	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const TYPE & ,_RET>::value>>
@@ -109,7 +109,7 @@ private:
 	inline TYPE big_endian_value () const {
 		TEMP<TYPE> ret ;
 		_ZERO_ (ret) ;
-		for (INDEX i = 0 ; i < capacity () ; i++)
+		for (INDEX i = 0 ; i < size () ; i++)
 			ret.unused[i] = (*this)[i] ;
 		return std::move (_CAST_<TYPE> (ret)) ;
 	}
@@ -495,7 +495,7 @@ public:
 
 	void write (const WORD &data) {
 		auto &r1 = _CAST_<EndianBytes<WORD>> (data) ;
-		for (INDEX i = 0 ; i < r1.capacity () ; i++)
+		for (INDEX i = 0 ; i < r1.size () ; i++)
 			write (r1[i]) ;
 	}
 
@@ -506,7 +506,7 @@ public:
 
 	void write (const CHAR &data) {
 		auto &r1 = _CAST_<EndianBytes<CHAR>> (data) ;
-		for (INDEX i = 0 ; i < r1.capacity () ; i++)
+		for (INDEX i = 0 ; i < r1.size () ; i++)
 			write (r1[i]) ;
 	}
 
@@ -517,7 +517,7 @@ public:
 
 	void write (const DATA &data) {
 		auto &r1 = _CAST_<EndianBytes<DATA>> (data) ;
-		for (INDEX i = 0 ; i < r1.capacity () ; i++)
+		for (INDEX i = 0 ; i < r1.size () ; i++)
 			write (r1[i]) ;
 	}
 

@@ -90,7 +90,7 @@ inline exports ConsoleService &Singleton<ConsoleService>::instance () {
 }
 } ;
 
-#ifdef __CSC_SYSTEM_WINDOWS__
+#ifdef __CSC_COMPILER_MSVC__
 namespace CSC {
 template <>
 inline exports NetworkService &Singleton<NetworkService>::instance () {
