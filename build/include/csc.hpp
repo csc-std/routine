@@ -296,7 +296,7 @@ using std::remove_extent ;
 #elif defined __CSC_COMPILER_CLANG__
 #define M_FUNC __PRETTY_FUNCTION__
 #else
-#define M_FUNC __FUNCTION__
+#define M_FUNC __func__
 #endif
 
 #define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
@@ -315,12 +315,10 @@ using std::remove_extent ;
 #define _DEBUG_ASSERT_(...) do {} while (FALSE)
 #endif
 
-#ifdef __CSC_COMPILER_CLANG__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," M_LINE) ; } while (FALSE)
-#elif defined __CSC_COMPILER_GNUC__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," M_LINE) ; } while (FALSE)
-#elif defined __CSC_COMPILER_MSVC__
+#ifdef __CSC_COMPILER_MSVC__
 #define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)) ; } while (FALSE)
+#else
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE) ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
@@ -423,13 +421,12 @@ static constexpr auto VAL_NAN = VAL64_NAN ;
 
 using VALX = long double ;
 
-static constexpr auto VALX_E = VALX (2.71828182845904523536) ;
-static constexpr auto VALX_PI = VALX (3.14159265358979323846) ;
-static constexpr auto VALX_SQRT2 = VALX (1.41421356237309504880) ;
-static constexpr auto VALX_LOG2E = VALX (1.44269504088896340736) ;
-static constexpr auto VALX_LOG10E = VALX (0.434294481903251827651) ;
-static constexpr auto VALX_LOGE2 = VALX (0.693147180559945309417) ;
-static constexpr auto VALX_LOGE10 = VALX (2.30258509299404568402) ;
+static constexpr auto MATH_E = VALX (2.71828182845904523536) ;
+static constexpr auto MATH_PI = VALX (3.14159265358979323846) ;
+static constexpr auto MATH_SQRT2 = VALX (1.41421356237309504880) ;
+static constexpr auto MATH_LN2 = VALX (0.693147180559945309417) ;
+static constexpr auto MATH_LN10 = VALX (2.30258509299404568402) ;
+static constexpr auto MATH_GR = VALX (1.61803398874989484820) ;
 
 inline namespace S {
 template <class _ARG1>
@@ -3129,7 +3126,7 @@ public:
 	}
 
 	inline Buffer expand () const {
-		const auto r1x = _MAX_ (LENGTH (VALX_SQRT2 * mSize) ,(mSize + DEFAULT_EXPANDFIRST_SIZE::value)) ;
+		const auto r1x = _MAX_ (LENGTH (mSize * MATH_SQRT2) ,(mSize + DEFAULT_EXPANDFIRST_SIZE::value)) ;
 		return expand (r1x) ;
 	}
 

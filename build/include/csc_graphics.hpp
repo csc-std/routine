@@ -150,7 +150,7 @@ public:
 	void perspective (const UNIT &fov ,const UNIT &aspect ,const UNIT &_near ,const UNIT &_far) {
 		_DEBUG_ASSERT_ (fov > UNIT (0) && fov < UNIT (180)) ;
 		_DEBUG_ASSERT_ (aspect > UNIT (0)) ;
-		const auto r1x = _near * _TAN_ (fov * UNIT (VALX_PI / 180) * UNIT (0.5)) ;
+		const auto r1x = _near * _TAN_ (fov * UNIT (MATH_PI / 180) * UNIT (0.5)) ;
 		const auto r2x = r1x * aspect ;
 		frustum (-r2x ,r2x ,-r1x ,r1x ,_near ,_far) ;
 	}

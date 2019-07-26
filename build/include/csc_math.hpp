@@ -327,9 +327,9 @@ inline ARRAY3<VAR64> _inline_IEEE754_E2TOE10_PART_ (const ARRAY3<VAR64> &sne2) {
 inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
 	const auto r1x = _inline_IEEE754_E2TOE10_PART_ (sne2) ;
 	ARRAY3<DATA> ret ;
-	const auto r2x = VAL64 (VALX_LOGE2 / VALX_LOGE10) * VAL64 (r1x[1]) ;
+	const auto r2x = VAL64 (MATH_LN2 / MATH_LN10) * VAL64 (r1x[1]) ;
 	_STATIC_WARNING_ ("mark") ;
-	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE10) ,(r2x - VAR64 (r2x))) ;
+	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (MATH_LN10) ,(r2x - VAR64 (r2x))) ;
 	ret[0] = DATA (VAR64 (VAL64 (r1x[0]) * r3x)) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (TRUE) {
@@ -360,9 +360,9 @@ inline ARRAY3<VAR64> _inline_IEEE754_E10TOE2_PART_ (const ARRAY3<VAR64> &sne10) 
 inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
 	const auto r1x = _inline_IEEE754_E10TOE2_PART_ (sne10) ;
 	ARRAY3<DATA> ret ;
-	const auto r2x = VAL64 (VALX_LOGE10 / VALX_LOGE2) * VAL64 (r1x[1]) ;
+	const auto r2x = VAL64 (MATH_LN10 / MATH_LN2) * VAL64 (r1x[1]) ;
 	_STATIC_WARNING_ ("mark") ;
-	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (VALX_LOGE2) ,(r2x - VAR64 (r2x))) ;
+	const auto r3x = _inline_TAYLOR_POW_ (VAL64 (MATH_LN2) ,(r2x - VAR64 (r2x))) ;
 	ret[0] = DATA (VAR64 (VAL64 (r1x[0]) * r3x)) ;
 	ret[1] = DATA (VAR64 (r2x)) ;
 	while (TRUE) {

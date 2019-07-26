@@ -85,6 +85,28 @@ using std::raise ;
 #endif
 } ;
 
+#ifdef __CSC_COMPILER_MSVC__
+#define DLLABI_IMPORT __declspec (dllimport)
+#define DLLABI_EXPORT __declspec (dllexport)
+#define DLLABI_API __stdcall
+#define DLLABI_NATIVE extern "C"
+#elif defined __CSC_COMPILER_GNUC__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#elif defined __CSC_COMPILER_CLANG__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#else
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#endif
+
 class GlobalRuntime :private Wrapped<void> {
 public:
 	inline static std::chrono::system_clock::time_point clock_now () {
@@ -1266,7 +1288,7 @@ private:
 } ;
 
 template <class... TYPES>
-using TupleBinder = Tuple<REMOVE_REFERENCE_TYPE<TYPES> &...> ;
+using TupleBinder = Tuple<TYPES &...> ;
 
 template <class TYPE1 ,class... TYPES>
 template <class... _TYPES>

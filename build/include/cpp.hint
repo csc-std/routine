@@ -43,3 +43,8 @@
 #define _PCSTRA_
 #define _PCSTRW_
 #define _PCSTR_
+
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT
+#define DLLABI_API
+#define DLLABI_NATIVE
