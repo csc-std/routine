@@ -127,11 +127,11 @@ private:
 		}
 
 		BYTE varify_ending_item () const {
-			return 0 ;
+			return BYTE (0X00) ;
 		}
 
 		BYTE varify_space_item () const {
-			return 0 ;
+			return BYTE (0X00) ;
 		}
 	} ;
 
@@ -402,11 +402,11 @@ private:
 		}
 
 		BYTE varify_ending_item () const {
-			return 0 ;
+			return BYTE (0X00) ;
 		}
 
 		BYTE varify_space_item () const {
-			return 0 ;
+			return BYTE (0X00) ;
 		}
 	} ;
 
@@ -691,6 +691,14 @@ private:
 			return 10 ;
 		}
 
+		LENGTH varify_val32_precision () {
+			return 6 ;
+		}
+
+		LENGTH varify_val64_precision () {
+			return 15 ;
+		}
+
 		BOOL varify_number_item (const STRX &item) const {
 			if (item < STRX ('0') || item > STRX ('9'))
 				return FALSE ;
@@ -840,7 +848,7 @@ public:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mRead >= mWrite)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				data = mAttribute->convert_endian (mStream[mRead]) ;
 				const auto r2x = mAttribute->varify_escape_r (data) ;
 				mRead++ ;
@@ -1004,7 +1012,7 @@ public:
 		} ,[&] (BOOL &if_context) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r1x)
 				break ;
 			data = -data ;
@@ -1136,7 +1144,7 @@ private:
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!mAttribute->varify_number_item (top))
 				continue ;
 			rax[0] = mAttribute->convert_number_r (top) ;
@@ -1157,7 +1165,7 @@ private:
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (top != STRX ('.'))
 				continue ;
 			reader = ris.copy () ;
@@ -1166,7 +1174,7 @@ private:
 			while (TRUE) {
 				if (!mAttribute->varify_number_item (top))
 					break ;
-				for (FOR_ONCE_DO_WHILE_FALSE) {
+				for (FOR_ONCE_DO) {
 					const auto r2x = rax[0] * mAttribute->varify_radix () + mAttribute->convert_number_r (top) ;
 					if (rax[0] > r2x)
 						continue ;
@@ -1177,14 +1185,14 @@ private:
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (top != STRX ('e') && top != STRX ('E'))
 				continue ;
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
 			reader = ris.copy () ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (rax[0] >= 0)
 				continue ;
 			rax[0] = -rax[0] ;
@@ -1233,16 +1241,16 @@ private:
 			return std::move (_CAST_<STRX> (ret)) ;
 		}
 
+		VAR64 varify_radix () const {
+			return 10 ;
+		}
+
 		LENGTH varify_val32_precision () {
 			return 6 ;
 		}
 
 		LENGTH varify_val64_precision () {
 			return 15 ;
-		}
-
-		VAR64 varify_radix () const {
-			return 10 ;
 		}
 
 		BOOL varify_number_item (const STRX &item) const {
@@ -1618,7 +1626,7 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (_ABS_ (r3x - 1 + rax[1]) < precision)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				const auto r4x = _MAX_ ((r3x - 1 - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 					rax[0] /= mAttribute->varify_radix () ;
@@ -1634,7 +1642,7 @@ private:
 				discard ;
 			if (rax[1] >= 0)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				const auto r10x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
 					rax[0] /= mAttribute->varify_radix () ;
@@ -1648,7 +1656,7 @@ private:
 		} ,[&] (BOOL &if_context) {
 			if (rax[1] >= 1 - r3x)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
 					rax[0] /= mAttribute->varify_radix () ;
@@ -1667,7 +1675,7 @@ private:
 			if (_ABS_ (r11x) < precision)
 				discard ;
 			compute_write_number (r11x ,out ,iw) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (r11x <= 0)
 					continue ;
 				out[--iw] = STRX ('+') ;
@@ -1745,7 +1753,7 @@ private:
 				discard ;
 			out[--iw] = mAttribute->convert_number_w (0) ;
 		}) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (rax[2] == 0)
 				continue ;
 			out[--iw] = STRX ('-') ;
@@ -1948,71 +1956,27 @@ inline void _EOS_ (TextWriter<_ARG1> &writer) {
 }
 } ;
 
-template <class...>
-class StreamBinder ;
+inline namespace S {
+inline void _PRINTS_ (ByteWriter &writer) {
+	_STATIC_WARNING_ ("noop") ;
+}
 
-template <>
-class StreamBinder<> {
-public:
-	inline StreamBinder () = default ;
+template <class _ARG1 ,class... _ARGS>
+inline void _PRINTS_ (ByteWriter &writer ,const _ARG1 &arg1 ,const _ARGS &...args) {
+	writer << arg1 ;
+	_PRINTS_ (writer ,args...) ;
+}
 
-	inline StreamBinder (const StreamBinder &) = delete ;
-	inline StreamBinder &operator= (const StreamBinder &) = delete ;
+template <class _ARG1>
+inline void _PRINTS_ (TextWriter<_ARG1> &writer) {
+	_STATIC_WARNING_ ("noop") ;
+}
 
-	inline StreamBinder (StreamBinder &&) noexcept = default ;
-	inline StreamBinder &operator= (StreamBinder &&) = delete ;
-
-	inline void friend_read (ByteReader &reader) const {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	inline void friend_write (ByteWriter &writer) const {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline void friend_read (TextReader<_ARG1> &reader) const {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline void friend_write (TextWriter<_ARG1> &writer) const {
-		_STATIC_WARNING_ ("noop") ;
-	}
-} ;
-
-template <class TYPE1 ,class... TYPES>
-class StreamBinder<TYPE1 ,TYPES...> :private StreamBinder<TYPES...> {
-private:
-	_STATIC_ASSERT_ (!std::is_reference<TYPE1>::value) ;
-	TYPE1 &mBase ;
-
-public:
-	inline StreamBinder () = delete ;
-
-	inline explicit StreamBinder (TYPE1 &arg1 ,TYPES &...args) popping :StreamBinder<TYPES...> (args...) ,mBase (arg1) {}
-
-	inline void friend_read (ByteReader &reader) const {
-		reader >> mBase ;
-		StreamBinder<TYPES...>::friend_read (reader) ;
-	}
-
-	inline void friend_write (ByteWriter &writer) const {
-		writer << mBase ;
-		StreamBinder<TYPES...>::friend_write (writer) ;
-	}
-
-	template <class _ARG1>
-	inline void friend_read (TextReader<_ARG1> &reader) const {
-		reader >> mBase ;
-		StreamBinder<TYPES...>::friend_read (reader) ;
-	}
-
-	template <class _ARG1>
-	inline void friend_write (TextWriter<_ARG1> &writer) const {
-		writer << mBase ;
-		StreamBinder<TYPES...>::friend_write (writer) ;
-	}
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &arg1 ,const _ARGS &...args) {
+	writer << arg1 ;
+	_PRINTS_ (writer ,args...) ;
+}
 } ;
 
 template <class SIZE = void>
@@ -2104,6 +2068,7 @@ public:
 		r1.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
 		r1.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
 		r1.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
+		_STATIC_WARNING_ ("mark") ;
 		//@info: disable default escape-str convertion 
 		r1.enable_escape (FALSE) ;
 		mReader.self >> _BOM_ ;
@@ -2220,7 +2185,7 @@ public:
 			data = String<STRU8> (r3x) ;
 		data.clear () ;
 		auto rax = STRU8 () ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r2x)
 				continue ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2241,7 +2206,7 @@ public:
 			}) ;
 			data[i] = rax ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r2x)
 				continue ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2276,7 +2241,7 @@ private:
 	LENGTH next_value_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
 				continue ;
 			ris++ ;
@@ -2294,7 +2259,7 @@ private:
 			ris++ ;
 			ret++ ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ris[0] != STRU8 ('.'))
 				continue ;
 			ris++ ;
@@ -2306,12 +2271,12 @@ private:
 				ret++ ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
 				continue ;
 			ris++ ;
 			ret++ ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
 					continue ;
 				ris++ ;

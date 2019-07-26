@@ -795,23 +795,17 @@ inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return U::OPERATOR_TO_STRING<String<_RET> ,String<STR>>::invoke (stru) ;
 }
-
-template <class _RET ,class... _ARGS>
-inline String<_RET> _PRINTS_ (const _ARGS &...args) {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	String<_RET> ret = String<_RET> (DEFAULT_LONGSTRING_SIZE::value) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << StreamBinder<const _ARGS...> (args...) ;
-	wos << _EOS_ ;
-	return std::move (ret) ;
-}
 } ;
 
 template <class TYPE ,class SIZE>
 template <class... _ARGS>
 inline String<TYPE ,SIZE> String<TYPE ,SIZE>::make (const _ARGS &...args) {
 	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
-	return _PRINTS_<TYPE> (args...) ;
+	String<TYPE> ret = String<TYPE> (DEFAULT_LONGSTRING_SIZE::value) ;
+	auto wos = TextWriter<TYPE> (ret.raw ()) ;
+	_PRINTS_ (wos ,args...) ;
+	wos << _EOS_ ;
+	return std::move (ret) ;
 }
 
 class RegexMatcher {
@@ -1048,7 +1042,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
-	for (FOR_ONCE_DO_WHILE_FALSE) {
+	for (FOR_ONCE_DO) {
 		if (rax != _ARG1 (':'))
 			continue ;
 		ris >> rax ;
@@ -1073,7 +1067,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (r1[2]) ;
 	wos << _RET ('.') ;
 	wos << VAR (r1[3]) ;
-	for (FOR_ONCE_DO_WHILE_FALSE) {
+	for (FOR_ONCE_DO) {
 		if (stru.P1 == 0)
 			continue ;
 		wos << _RET (':') ;

@@ -866,12 +866,14 @@ private:
 
 public:
 	inline Variant () {
-		mIndex = template_construct (&mVariant ,_NULL_<const ARGVS<TYPES...>> ()) ;
+		mIndex = VAR_NONE ;
+		template_construct (&mVariant ,mIndex ,_NULL_<const ARGVS<TYPES...>> ()) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_ARG1> ,TYPES...>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&right) {
-		mIndex = template_init_construct (&mVariant ,std::forward<_ARG1> (right)) ;
+		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (mVariant.unused) ;
+		mIndex = template_create (_NULL_<const ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>> () ,r1x ,std::forward<_ARG1> (right)) ;
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 	}
 
@@ -890,7 +892,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Variant () ;
@@ -907,7 +909,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Variant () ;
@@ -984,9 +986,12 @@ public:
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
-		if (mIndex != VAR_NONE)
+		for (FOR_ONCE_DO) {
+			if (mIndex == VAR_NONE)
+				continue ;
 			template_destruct (&mVariant ,mIndex ,_NULL_<const ARGVS<TYPES...>> ()) ;
-		mIndex = VAR_NONE ;
+			mIndex = VAR_NONE ;
+		}
 		const auto r1x = &_LOAD_<TEMP<_RET>> (mVariant.unused) ;
 		mIndex = template_create (_NULL_<const ARGC<TRUE>> () ,r1x ,std::forward<_ARGS> (args)...) ;
 	}
@@ -1001,24 +1006,18 @@ private:
 	inline explicit Variant (const ARGV<NULLOPT> &) noexcept :mIndex (VAR_NONE) {}
 
 private:
-	inline static INDEX template_construct (PTR<TEMP<VARIANT>> address ,const ARGVS<> &) popping {
-		return VAR_NONE ;
+	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX &index ,const ARGVS<> &) {
+		index = VAR_NONE ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline static INDEX template_construct (PTR<TEMP<VARIANT>> address ,const ARGVS<_ARG1 ,_ARGS...> &) popping {
+	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX &index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		const auto r1x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
-		INDEX ret = template_create (_NULL_<const ARGC<std::is_default_constructible<_ARG1>::value>> () ,r1x) ;
-		if (ret == VAR_NONE)
-			ret = template_construct (address ,_NULL_<const ARGVS<_ARGS...>> ()) ;
-		return std::move (ret) ;
-	}
-
-	template <class _ARG1>
-	inline static INDEX template_init_construct (PTR<TEMP<VARIANT>> address ,_ARG1 &&arg1) popping {
-		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (address->unused) ;
-		return template_create (_NULL_<const ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>> () ,r1x ,std::forward<_ARG1> (arg1)) ;
+		index = template_create (_NULL_<const ARGC<std::is_default_constructible<_ARG1>::value>> () ,r1x) ;
+		if (index != VAR_NONE)
+			return ;
+		template_construct (address ,index ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
 
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<> &) noexcept {
@@ -1030,7 +1029,7 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r1x)
 				continue ;
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
@@ -1048,7 +1047,7 @@ private:
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r1x)
 				continue ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
@@ -1069,7 +1068,7 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!r1x)
 				continue ;
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
@@ -1155,6 +1154,7 @@ public:
 template <class TYPE1 ,class... TYPES>
 class Tuple<TYPE1 ,TYPES...> :private Tuple<TYPES...> {
 private:
+	_STATIC_ASSERT_ (!std::is_rvalue_reference<TYPE1>::value) ;
 	template <class...>
 	friend class Tuple ;
 	TYPE1 mData ;
@@ -1162,9 +1162,7 @@ private:
 public:
 	inline constexpr Tuple () = default ;
 
-	inline constexpr implicit Tuple (const REMOVE_REFERENCE_TYPE<TYPE1> &arg1 ,const REMOVE_REFERENCE_TYPE<TYPES> &...args) :Tuple<TYPES...> (std::move (args)...) ,mData (std::move (arg1)) {}
-
-	inline constexpr implicit Tuple (REMOVE_REFERENCE_TYPE<TYPE1> &&arg1 ,REMOVE_REFERENCE_TYPE<TYPES> &&...args) : Tuple<TYPES...> (std::move (args)...) ,mData (std::move (arg1)) {}
+	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<TYPE1> &&arg1 ,FORWARD_TRAITS_TYPE<TYPES> &&...args) :Tuple<TYPES...> (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<TYPE1>> (arg1)) {}
 
 	inline constexpr LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
@@ -1267,6 +1265,9 @@ private:
 	}
 } ;
 
+template <class... TYPES>
+using TupleBinder = Tuple<REMOVE_REFERENCE_TYPE<TYPES> &...> ;
+
 template <class TYPE1 ,class... TYPES>
 template <class... _TYPES>
 class Function<TYPE1 (TYPES...)>::ImplHolder<PTR<TYPE1 (TYPES... ,_TYPES...)>> :public Function<TYPE1 (TYPES...)>::Holder {
@@ -1318,7 +1319,7 @@ using is_all_same = U::is_all_same<_ARGS...> ;
 } ;
 
 template <class... TYPES>
-class AllOfTuple :private Tuple<const TYPES &...> {
+class AllOfTuple :private TupleBinder<const TYPES...> {
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (TYPES) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<TYPES...>::value) ;
@@ -1327,38 +1328,38 @@ public:
 	inline AllOfTuple () = delete ;
 
 	template <class _ARG1>
-	inline implicit operator BOOL () const {
-		return template_cast (_XVALUE_<Tuple<const TYPES &...>> (*this)) ;
+	inline implicit operator BOOL () const && {
+		return template_cast (_XVALUE_<TupleBinder<const TYPES...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &right) const {
-		return template_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator== (const _ARG1 &right) const && {
+		return template_equal (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &right) const {
-		return template_not_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator!= (const _ARG1 &right) const && {
+		return template_not_equal (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &right) const {
-		return template_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator< (const _ARG1 &right) const && {
+		return template_less (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &right) const {
-		return template_not_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator>= (const _ARG1 &right) const && {
+		return template_not_less (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &right) const {
-		return template_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator> (const _ARG1 &right) const && {
+		return template_bigger (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &right) const {
-		return template_not_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator<= (const _ARG1 &right) const && {
+		return template_not_bigger (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 private:
@@ -1494,7 +1495,7 @@ private:
 } ;
 
 template <class... TYPES>
-class AnyOfTuple :private Tuple<const TYPES &...> {
+class AnyOfTuple :private TupleBinder<const TYPES...> {
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (TYPES) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<TYPES...>::value) ;
@@ -1503,38 +1504,38 @@ public:
 	inline AnyOfTuple () = delete ;
 
 	template <class _ARG1>
-	inline implicit operator BOOL () const {
-		return template_cast (_XVALUE_<Tuple<const TYPES &...>> (*this)) ;
+	inline implicit operator BOOL () const && {
+		return template_cast (_XVALUE_<TupleBinder<const TYPES...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &right) const {
-		return template_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator== (const _ARG1 &right) const && {
+		return template_equal (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &right) const {
-		return template_not_equal (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator!= (const _ARG1 &right) const && {
+		return template_not_equal (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &right) const {
-		return template_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator< (const _ARG1 &right) const && {
+		return template_less (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &right) const {
-		return template_not_less (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator>= (const _ARG1 &right) const && {
+		return template_not_less (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &right) const {
-		return template_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator> (const _ARG1 &right) const && {
+		return template_bigger (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &right) const {
-		return template_not_bigger (_XVALUE_<Tuple<const TYPES &...>> (*this) ,right) ;
+	inline BOOL operator<= (const _ARG1 &right) const && {
+		return template_not_bigger (_XVALUE_<TupleBinder<const TYPES...>> (*this) ,right) ;
 	}
 
 private:
@@ -1672,13 +1673,13 @@ private:
 namespace S {
 template <class _ARG1 ,class... _ARGS>
 inline static AllOfTuple<_ARG1 ,_ARGS...> _ALLOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	const auto r1x = Tuple<const _ARG1 & ,const _ARGS &...> (arg1 ,args...) ;
+	const auto r1x = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
 	return _CAST_<AllOfTuple<_ARG1 ,_ARGS...>> (r1x) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
 inline static AnyOfTuple<_ARG1 ,_ARGS...> _ANYOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	const auto r1x = Tuple<const _ARG1 & ,const _ARGS &...> (arg1 ,args...) ;
+	const auto r1x = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
 	return _CAST_<AnyOfTuple<_ARG1 ,_ARGS...>> (r1x) ;
 }
 } ;
@@ -1787,7 +1788,7 @@ public:
 	inline StrongRef (const StrongRef &right) :StrongRef (right.mHolder ,right.mPointer) {}
 
 	inline StrongRef &operator= (const StrongRef &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~StrongRef () ;
@@ -1802,7 +1803,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~StrongRef () ;
@@ -2064,7 +2065,7 @@ public:
 	}
 
 	inline SoftRef &operator= (SoftRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~SoftRef () ;
@@ -2181,7 +2182,7 @@ private:
 	inline void attach () {
 		if (linked ())
 			return ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (mHeap->length () < mHeap->size ())
 				continue ;
 			mIndex = min_weight_one () ;
@@ -2192,7 +2193,7 @@ private:
 			for (INDEX i = 0 ; i < mHeap->size () ; i++)
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (mIndex != VAR_NONE)
 				continue ;
 			mIndex = mHeap->alloc () ;
@@ -2338,27 +2339,27 @@ public:
 		mThis->mData.finish () ;
 	}
 
-	inline Lazy app (const Lazy &right) const {
+	inline Lazy concat (const Lazy &right) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		return Lazy () ;
 	}
 
 	inline Lazy operator+ (const Lazy &right) const {
-		return app (right) ;
+		return concat (right) ;
 	}
-	
+
 	inline Lazy &operator+= (const Lazy &right) {
-		*this = app (right) ;
+		*this = concat (right) ;
 		return *this ;
 	}
 
 	inline Lazy operator- (const Lazy &right) const {
-		return right.app (*this) ;
+		return right.concat (*this) ;
 	}
 
 	inline Lazy &operator-= (const Lazy &right) {
-		*this = right.app (*this) ;
+		*this = right.concat (*this) ;
 		return *this ;
 	}
 
@@ -2470,7 +2471,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~IntrusiveRef () ;
@@ -2510,7 +2511,7 @@ private:
 
 	inline PTR<TYPE> safe_exchange (PTR<TYPE> address) noexcept popping {
 		PTR<TYPE> ret = mPointer.exchange (address) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret == NULL)
 				continue ;
 			INDEX ir = 0 ;

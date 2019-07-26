@@ -646,7 +646,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			mPloygonVertexList = ploygon_vertex_list () ;
 			const auto r1x = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
 			mClockwiseFlag = r1x ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (!mClockwiseFlag)
 					continue ;
 				for (auto &&i : mPloygonVertexList)
@@ -894,7 +894,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				for (INDEX i = 0 ; i < mIX.length () ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
 				mDXLoss[1] = mLossFunc (mIX) ;
-				for (FOR_ONCE_DO_WHILE_FALSE) {
+				for (FOR_ONCE_DO) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
 						continue ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
@@ -902,7 +902,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 						continue ;
 					mDXLoss[2] = UNIT (0) ;
 				}
-				for (FOR_ONCE_DO_WHILE_FALSE) {
+				for (FOR_ONCE_DO) {
 					if (mDXLoss[1] >= mDXLoss[2])
 						continue ;
 					mDXLoss[2] = mDXLoss[1] ;
@@ -1056,7 +1056,7 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 				if (r2x > sqe_range)
@@ -1065,7 +1065,7 @@ private:
 			}
 		} ,[&] (BOOL &if_context) {
 			const auto r3x = mHeap[it].mKey ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (r3x < bound[rot][0])
 					continue ;
 				const auto r4x = bound[rot][1] ;
@@ -1073,7 +1073,7 @@ private:
 				compute_search_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r4x ;
 			}
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (r3x > bound[rot][1])
 					continue ;
 				const auto r5x = bound[rot][0] ;
@@ -1098,7 +1098,7 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
 				INDEX jx = out.length () ;
@@ -1175,7 +1175,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		inline void update_bound () {
 			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				mBound[0][0] = mVertex[0][0] ;
 				mBound[0][1] = mVertex[0][0] ;
 				mBound[1][0] = mVertex[0][1] ;

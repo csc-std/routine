@@ -94,7 +94,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("PRINT") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("PRINT") ,r1x) ;
 	}
 
 	void fatal (const Binder &msg) override {
@@ -108,7 +108,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("FATAL") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("FATAL") ,r1x) ;
 	}
 
 	void error (const Binder &msg) override {
@@ -122,7 +122,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("ERROR") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("ERROR") ,r1x) ;
 	}
 
 	void warn (const Binder &msg) override {
@@ -136,7 +136,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("WARN") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("WARN") ,r1x) ;
 	}
 
 	void info (const Binder &msg) override {
@@ -150,7 +150,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("INFO") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("INFO") ,r1x) ;
 	}
 
 	void debug (const Binder &msg) override {
@@ -164,7 +164,7 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("DEBUG") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("DEBUG") ,r1x) ;
 	}
 
 	void verbose (const Binder &msg) override {
@@ -178,12 +178,12 @@ public:
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
-		log (_PCSTR_ ("VERBOSE") ,ImplBinder<StreamBinder<const PhanBuffer<const STR>>> (r1x)) ;
+		log (_PCSTR_ ("VERBOSE") ,r1x) ;
 	}
 
 	void attach_log (const String<STR> &path) override {
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (mLogPath == r1x)
 				continue ;
 			if (!mLogFileStream.exist ())
@@ -195,8 +195,8 @@ public:
 	}
 
 	template <LENGTH _VAL1>
-	void log (const DEF<STR[_VAL1]> &tag ,const Binder &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[tag] ,(_VAL1 - 1)) ,msg) ;
+	void log (const DEF<STR[_VAL1]> &tag ,const PhanBuffer<const STR> &msg) {
+		log (PhanBuffer<const STR>::make (PTRTOARR[tag] ,(_VAL1 - 1)) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {

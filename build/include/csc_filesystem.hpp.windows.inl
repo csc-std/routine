@@ -353,7 +353,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 	while (TRUE) {
 		if (rbx.cFileName[0] == 0)
 			break ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ (".")))
 				continue ;
 			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ ("..")))

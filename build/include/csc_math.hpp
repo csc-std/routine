@@ -247,7 +247,7 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
-	for (FOR_ONCE_DO_WHILE_FALSE) {
+	for (FOR_ONCE_DO) {
 		const auto r1x = -1074 - VAR64 (ret[1]) ;
 		if (r1x <= 0)
 			break ;
@@ -458,7 +458,7 @@ inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &array1 ,const Array<BOOL> &ele
 template <class _ARG1>
 inline Array<_ARG1> _REDUCE_ (const _ARG1 &first ,LENGTH count ,const Function<_ARG1 (const _ARG1 &)> &func) {
 	Array<_ARG1> ret = Array<_ARG1> (count) ;
-	for (FOR_ONCE_DO_WHILE_FALSE) {
+	for (FOR_ONCE_DO) {
 		if (ret.size () == 0)
 			continue ;
 		for (INDEX i = 0 ; i < 1 ; i++)

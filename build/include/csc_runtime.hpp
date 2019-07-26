@@ -60,7 +60,7 @@ private:
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					continue ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -200,7 +200,7 @@ public:
 		auto &r1 = GlobalStatic<void>::unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (rax != NULL)
 				continue ;
 			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
@@ -270,7 +270,7 @@ public:
 			const auto r2x = guid_from_typeid_name () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					continue ;
 				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;

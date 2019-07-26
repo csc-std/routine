@@ -148,7 +148,7 @@ public:
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
 		mAttribute = SharedRef<Attribute>::make () ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			const auto r1x = _cy * _cw + _ck ;
 			if (r1x == 0)
 				continue ;

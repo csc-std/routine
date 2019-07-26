@@ -520,7 +520,7 @@ public:
 		return TRUE ;
 	}
 
-	String app (const String &right) const {
+	String concat (const String &right) const {
 		const auto r1x = length () ;
 		const auto r2x = right.length () ;
 		String ret = String (r1x + r2x) ;
@@ -530,25 +530,25 @@ public:
 	}
 
 	inline String operator+ (const String &right) const {
-		return app (right) ;
+		return concat (right) ;
 	}
 
 	inline String operator- (const String &right) const {
-		return right.app (*this) ;
+		return right.concat (*this) ;
 	}
 
 	inline String &operator+= (const String &right) {
-		*this = app (right) ;
+		*this = concat (right) ;
 		return *this ;
 	}
 
 	inline String &operator-= (const String &right) {
-		*this = right.app (*this) ;
+		*this = right.concat (*this) ;
 		return *this ;
 	}
 
 	template <LENGTH _VAL1>
-	void appto (const DEF<ITEM[_VAL1]> &right) {
+	void concatto (const DEF<ITEM[_VAL1]> &right) {
 		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mString.size () == 0)
@@ -560,13 +560,13 @@ public:
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[right] ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		} ,[&] (BOOL &if_context) {
-			*this = app (right) ;
+			*this = concat (right) ;
 		}) ;
 	}
 
 	template <LENGTH _VAL1>
 	inline String &operator+= (const DEF<ITEM[_VAL1]> &right) {
-		appto (right) ;
+		concatto (right) ;
 		return *this ;
 	}
 
@@ -1152,7 +1152,7 @@ private:
 		_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mQueue.size () ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (mRead == 0)
 				continue ;
 			ix = mRead + rax.size () - mQueue.size () ;
@@ -3040,7 +3040,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3061,7 +3061,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3162,7 +3162,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3179,7 +3179,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3333,7 +3333,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3347,7 +3347,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3552,7 +3552,7 @@ private:
 
 	void update_remove_left (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mRight ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				continue ;
 			mSet[r1].mRed = FALSE ;
@@ -3597,7 +3597,7 @@ private:
 
 	void update_remove_right (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mLeft ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				continue ;
 			mSet[r1].mRed = FALSE ;
@@ -3790,7 +3790,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3811,7 +3811,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3920,7 +3920,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3937,7 +3937,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4104,7 +4104,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4118,7 +4118,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4137,7 +4137,7 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (size () == 0)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4303,7 +4303,7 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4328,7 +4328,7 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4447,7 +4447,7 @@ public:
 	void add (const KEY &key) {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4468,7 +4468,7 @@ public:
 	void add (KEY &&key) {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4649,7 +4649,7 @@ public:
 	INDEX insert (const KEY &key) popping {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4667,7 +4667,7 @@ public:
 	INDEX insert (KEY &&key) popping {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4767,7 +4767,7 @@ private:
 		mThis->mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				continue ;
 			auto &r1 = mSet.self[ix].mLeft ;
@@ -4800,7 +4800,7 @@ private:
 		mThis->mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				continue ;
 			auto &r1 = mSet.self[ix].mRight ;

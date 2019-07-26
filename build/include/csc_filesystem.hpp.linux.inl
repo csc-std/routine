@@ -76,7 +76,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 }
 
 inline exports void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
-	const auto r5x = _BUILDSTRS_<STRA> (file);
+	const auto r5x = _BUILDSTRS_<STRA> (file) ;
 	_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 	const auto r1x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = open (r5x.raw ().self ,mode_t (O_CREAT | O_WRONLY | O_TRUNC) ,mode_t (S_IRWXU | S_IRWXG | S_IRWXO)) ;
@@ -382,7 +382,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		if (r3x == NULL)
 			break ;
 		const auto r4x = _PARSESTRS_ (String<STRA> (r3x->d_name)) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (r4x == _PCSTR_ ("."))
 				continue ;
 			if (r4x == _PCSTR_ (".."))

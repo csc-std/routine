@@ -586,7 +586,7 @@ public:
 	Matrix triangular () const {
 		Matrix ret = *this ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
-			for (FOR_ONCE_DO_WHILE_FALSE) {
+			for (FOR_ONCE_DO) {
 				INDEX ix = ret.max_row_one (i) ;
 				if (ix == i)
 					continue ;
@@ -653,7 +653,7 @@ public:
 			}
 		}
 		ret *= _PINV_ (r1x) ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (get (3 ,3) != UNIT (1))
 				continue ;
 			if (!affine_matrix_like ())

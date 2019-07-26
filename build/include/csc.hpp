@@ -277,10 +277,17 @@ using std::remove_pointer ;
 using std::remove_extent ;
 } ;
 
+#define _UNWIND_X_(...) __VA_ARGS__
+#define _UNW_(...) _UNWIND_X_(__VA_ARGS__)
+#define _STRINGIZE_X_(...) #__VA_ARGS__
+#define _STR_(...) _STRINGIZE_X_(__VA_ARGS__)
+#define _CONCAT_X_(arg1 ,arg2) arg1 ## arg2
+#define _CAT_(arg1 ,arg2) _CONCAT_X_(arg1 ,arg2)
+
 #define M_DATE __DATE__
 #define M_HOUR __TIME__
 #define M_FILE __FILE__
-#define M_LINE __LINE__
+#define M_LINE _STR_ (__LINE__)
 
 #ifdef __CSC_COMPILER_MSVC__
 #define M_FUNC __FUNCSIG__
@@ -291,13 +298,6 @@ using std::remove_extent ;
 #else
 #define M_FUNC __FUNCTION__
 #endif
-
-#define _UNW_X_(...) __VA_ARGS__
-#define _UNW_(...) _UNW_X_(__VA_ARGS__)
-#define _STR_X_(...) #__VA_ARGS__
-#define _STR_(...) _STR_X_(__VA_ARGS__)
-#define _CAT_X_(arg1 ,arg2) arg1 ## arg2
-#define _CAT_(arg1 ,arg2) _CAT_X_(arg1 ,arg2)
 
 #define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
 
@@ -316,11 +316,11 @@ using std::remove_extent ;
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," _STR_ (M_LINE)) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," M_LINE) ; } while (FALSE)
 #elif defined __CSC_COMPILER_GNUC__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," _STR_ (M_LINE)) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " M_FILE " ," M_LINE) ; } while (FALSE)
 #elif defined __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," _STR_ (M_LINE))) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)) ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
@@ -329,14 +329,14 @@ using std::remove_extent ;
 #define _UNITTEST_WATCH_(...) do {} while (FALSE)
 #endif
 
-#define ANONYMOUS _CAT_ (_anonymous_ ,M_LINE)
+#define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
 #ifdef __CSC_COMPILER_MSVC__
-#define FOR_ONCE_DO_WHILE_FALSE auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
+#define FOR_ONCE_DO auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
 #elif defined __CSC_COMPILER_GNUC__
-#define FOR_ONCE_DO_WHILE_FALSE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
+#define FOR_ONCE_DO __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #else
-#define FOR_ONCE_DO_WHILE_FALSE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
+#define FOR_ONCE_DO auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #endif
 
 using BOOL = bool ;
@@ -721,13 +721,6 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1
 
 template <class _RET>
 inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	//@warn: required 'std::launder'
-	return arg1 ;
-}
-
-template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &&arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	//@warn: required 'std::launder'
 	return arg1 ;
@@ -1581,7 +1574,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1636,7 +1629,7 @@ public:
 	}
 
 	inline AutoRef &operator= (const AutoRef &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1650,7 +1643,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1748,7 +1741,7 @@ public:
 	inline ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			const auto r1x = --mPointer->mCounter == 0 ;
 			if (!r1x)
 				continue ;
@@ -1761,7 +1754,7 @@ public:
 	inline SharedRef (const SharedRef &right) :SharedRef (right.mPointer) {}
 
 	inline SharedRef &operator= (const SharedRef &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~SharedRef () ;
@@ -1775,7 +1768,7 @@ public:
 	}
 
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~SharedRef () ;
@@ -1874,7 +1867,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~AnyRef () ;
@@ -1983,7 +1976,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~AnyRef () ;
@@ -2085,7 +2078,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~UniqueRef () ;
@@ -2193,7 +2186,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~UniqueRef () ;
@@ -2231,7 +2224,7 @@ public:
 	}
 
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~PhanRef () ;
@@ -2329,7 +2322,7 @@ public:
 	inline ~Function () noexcept {
 		if (mFunction_a == NULL && mFunction_b == NULL)
 			return ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (mFunction_a == NULL)
 				continue ;
 			mFunction_a->~Holder () ;
@@ -2348,7 +2341,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Function () ;
@@ -2492,7 +2485,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Function () ;
@@ -2938,7 +2931,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -2998,7 +2991,7 @@ public:
 	}
 
 	inline Buffer &operator= (const Buffer &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3013,7 +3006,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3189,7 +3182,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3361,7 +3354,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3610,7 +3603,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3689,7 +3682,7 @@ public:
 	}
 
 	inline Allocator &operator= (const Allocator &right) {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3712,7 +3705,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3808,7 +3801,7 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
 		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			if (mFree != VAR_NONE)
@@ -3823,7 +3816,7 @@ public:
 			update_reset (mLength ,mFree) ;
 			ret = mFree ;
 		}
-		for (FOR_ONCE_DO_WHILE_FALSE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				continue ;
 			if (mFree == VAR_NONE)

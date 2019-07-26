@@ -85,7 +85,7 @@ public:
 		_DEBUG_ASSERT_ (r1.mStackPoint[1] != NULL) ;
 		r1.mStackPoint[2] = &bp ;
 		_STATIC_WARNING_ ("mark") ;
-		_DEBUG_ASSERT_ (r1.mStackPoint[2] == r1.mStackPoint[1]);
+		_DEBUG_ASSERT_ (r1.mStackPoint[2] == r1.mStackPoint[1]) ;
 		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (BREAKPOINT) ;
 		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (BREAKPOINT) - r1x) : 0 ;
 		const auto r3x = &_NULL_<BYTE> () + (_ADDRESS_ (&r1.mBreakPoint) + r1x) ;

@@ -16,8 +16,8 @@ R.103 [A] : 检查for|while中断
 
 R.104 [A] : 检查重复的if判断语句
 ^\t+if \(([^\r]+)\)\r\n[^\r]+;\r\n\t+if \((\1)\)
-^(\t+)for \(FOR_ONCE_DO_WHILE_FALSE\) {(\r\n(?!(\1)}\r\n)[^\r]+)*\r\n(\1)}\r\n\t+if \([^\r]+\)
-^(\t+)if \([^\r]+\)\r\n[^\r]+\r\n(\1)for \(FOR_ONCE_DO_WHILE_FALSE\)
+^(\t+)for \(FOR_ONCE_DO\) {(\r\n(?!(\1)}\r\n)[^\r]+)*\r\n(\1)}\r\n\t+if \([^\r]+\)
+^(\t+)if \([^\r]+\)\r\n[^\r]+\r\n(\1)for \(FOR_ONCE_DO\)
 
 R.105 [A] : 检查过程化的函数
 const (Phan(Ref|Buffer)|SharedRef|StrongRef)<(?!const)[^\r]+> &
