@@ -194,7 +194,7 @@ public:
 
 	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
 		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (expr.empty ())
 				continue ;
 			auto rax = AutoRef<std::smatch>::make () ;

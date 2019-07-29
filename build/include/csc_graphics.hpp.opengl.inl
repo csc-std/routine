@@ -271,7 +271,7 @@ public:
 	void compute_sprite_draw (AnyRef<void> &_this) const override {
 		auto &r1 = _this.rebind<SPRITE_NATIVE_TYPE> ().self ;
 		glBindVertexArray (r1.mVAO) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (r1.mTexture == VAR_NONE)
 				continue ;
 			glActiveTexture (GL_TEXTURE_2D) ;
@@ -492,7 +492,7 @@ private:
 		glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Holder &_self ,const SoftImage<COLOR_BGR> &image) const {
+	void compute_transfer_data (Holder &_self ,const Bitmap<COLOR_BGR> &image) const {
 		_self.mTexture = 0 ;
 		glBindVertexArray (_self.mVAO) ;
 		glBindTexture (GL_TEXTURE_2D ,_self.mVTO.self[0]) ;

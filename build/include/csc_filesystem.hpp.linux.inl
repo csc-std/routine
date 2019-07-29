@@ -382,7 +382,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		if (r3x == NULL)
 			break ;
 		const auto r4x = _PARSESTRS_ (String<STRA> (r3x->d_name)) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (r4x == _PCSTR_ ("."))
 				continue ;
 			if (r4x == _PCSTR_ (".."))
@@ -508,11 +508,13 @@ public:
 
 	PhanBuffer<BYTE> watch () & {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<BYTE> () ;
 	}
 
 	PhanBuffer<const BYTE> watch () const & {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<const BYTE> () ;
 	}
 
@@ -520,6 +522,7 @@ public:
 
 	void flush () {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 

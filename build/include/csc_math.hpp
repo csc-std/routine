@@ -247,7 +247,7 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
-	for (FOR_ONCE_DO) {
+	for (FOR_ONCE_DO_WHILE) {
 		const auto r1x = -1074 - VAR64 (ret[1]) ;
 		if (r1x <= 0)
 			break ;
@@ -378,16 +378,10 @@ inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
 }
 } ;
 
-template <class TYPE ,class SUBJECT = VAR>
-struct Classified {
+template <class TYPE ,class SUBJECT>
+struct Component {
 	TYPE mValue ;
-	SUBJECT mClassi ;
-} ;
-
-template <class TYPE ,class SUBJECT = VAL>
-struct Weighted {
-	TYPE mValue ;
-	SUBJECT mWeight ;
+	SUBJECT mSubject ;
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -458,7 +452,7 @@ inline Array<_ARG1> _FILTER_ (const Array<_ARG1> &array1 ,const Array<BOOL> &ele
 template <class _ARG1>
 inline Array<_ARG1> _REDUCE_ (const _ARG1 &first ,LENGTH count ,const Function<_ARG1 (const _ARG1 &)> &func) {
 	Array<_ARG1> ret = Array<_ARG1> (count) ;
-	for (FOR_ONCE_DO) {
+	for (FOR_ONCE_DO_WHILE) {
 		if (ret.size () == 0)
 			continue ;
 		for (INDEX i = 0 ; i < 1 ; i++)
@@ -560,10 +554,11 @@ inline Array<Array<_ARG1>> _GROUP_ (const Array<_ARG1> &array1 ,const Array<Func
 #endif
 
 #ifdef __CSC_DEPRECATED__
-class Number {
+class Operand {
 public:
-	Number () {
+	Operand () {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 #endif
@@ -573,6 +568,7 @@ class Operator {
 public:
 	Operator () {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 #endif
@@ -582,6 +578,7 @@ class Expression {
 public:
 	Expression () {
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 #endif

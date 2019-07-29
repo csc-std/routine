@@ -25,7 +25,7 @@
 
 #define ANONYMOUS
 
-#define FOR_ONCE_DO
+#define FOR_ONCE_DO_WHILE
 
 #define FALSE
 #define TRUE

@@ -121,7 +121,7 @@ private:
 public:
 	DijstraAlgorithm () = delete ;
 
-	explicit DijstraAlgorithm (const SoftImage<UNIT> &adjacency ,INDEX root) {
+	explicit DijstraAlgorithm (const Bitmap<UNIT> &adjacency ,INDEX root) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
 		initialize (adjacency ,root) ;
 	}
@@ -140,7 +140,7 @@ public:
 	}
 
 private:
-	void initialize (const SoftImage<UNIT> &adjacency ,INDEX root) ;
+	void initialize (const Bitmap<UNIT> &adjacency ,INDEX root) ;
 
 	LENGTH query_path_depth (INDEX index) const {
 		LENGTH ret = 0 ;
@@ -151,11 +151,11 @@ private:
 } ;
 
 template <class UNIT>
-inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency ,INDEX root) {
+inline void DijstraAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,INDEX root) {
 	class Lambda {
 	private:
 		DijstraAlgorithm &mContext ;
-		const SoftImage<UNIT> &mAdjacency ;
+		const Bitmap<UNIT> &mAdjacency ;
 
 		INDEX mRoot ;
 		Array<INDEX> mPrev ;
@@ -165,7 +165,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context ,const SoftImage<UNIT> &adjancency ,INDEX root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
+		inline explicit Lambda (DijstraAlgorithm &context ,const Bitmap<UNIT> &adjancency ,INDEX root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -401,7 +401,7 @@ private:
 public:
 	KMHungarianAlgorithm () = delete ;
 
-	explicit KMHungarianAlgorithm (const SoftImage<UNIT> &adjacency) {
+	explicit KMHungarianAlgorithm (const Bitmap<UNIT> &adjacency) {
 		initialize (adjacency) ;
 	}
 
@@ -418,15 +418,15 @@ public:
 	}
 
 private:
-	void initialize (const SoftImage<UNIT> &adjacency) ;
+	void initialize (const Bitmap<UNIT> &adjacency) ;
 } ;
 
 template <class UNIT>
-inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency) {
+inline void KMHungarianAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency) {
 	class Lambda {
 	private:
 		KMHungarianAlgorithm &mContext ;
-		const SoftImage<UNIT> &mAdjacency ;
+		const Bitmap<UNIT> &mAdjacency ;
 		const UNIT mTolerance = UNIT (1E-6) ;
 
 		Array<INDEX> mXYLink ;
@@ -441,7 +441,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjac
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const SoftImage<UNIT> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<UNIT> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -646,7 +646,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			mPloygonVertexList = ploygon_vertex_list () ;
 			const auto r1x = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
 			mClockwiseFlag = r1x ;
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				if (!mClockwiseFlag)
 					continue ;
 				for (auto &&i : mPloygonVertexList)
@@ -808,12 +808,12 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		const ARRAY2<UNIT> mDXC1C2 = ARRAY2<UNIT> {UNIT (1E-4) ,UNIT (0.9)} ;
 
 		Array<UNIT> mDX ;
-		SoftImage<UNIT> mDM ;
+		Bitmap<UNIT> mDM ;
 		Array<UNIT> mDG ;
 		ARRAY3<UNIT> mDXLoss ;
 		ARRAY3<UNIT> mDXLambda ;
 		Array<UNIT> mIX ;
-		SoftImage<UNIT> mIM ;
+		Bitmap<UNIT> mIM ;
 		Array<UNIT> mIG ;
 		Array<UNIT> mIS ;
 		Array<UNIT> mIY ;
@@ -831,13 +831,13 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 	private:
 		inline void prepare () {
 			mDX = mFDX ;
-			mDM = SoftImage<UNIT> (mDX.size () ,mDX.size ()) ;
+			mDM = Bitmap<UNIT> (mDX.size () ,mDX.size ()) ;
 			mDM.fill (UNIT (0)) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++)
 				mDM[i][i] = UNIT (1) ;
 			mDG = Array<UNIT> (mDX.size ()) ;
 			mIX = Array<UNIT> (mDX.size ()) ;
-			mIM = SoftImage<UNIT> (mDX.size () ,mDX.size ()) ;
+			mIM = Bitmap<UNIT> (mDX.size () ,mDX.size ()) ;
 			mIG = Array<UNIT> (mDX.size ()) ;
 			mIS = Array<UNIT> (mDX.size ()) ;
 			mIY = Array<UNIT> (mDX.size ()) ;
@@ -858,6 +858,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		inline void compute_gradient_of_loss (const Array<UNIT> &dx ,Array<UNIT> &dg ,Array<UNIT> &sx) const {
 			for (INDEX i = 0 ; i < dx.length () ; i++)
 				sx[i] = dx[i] ;
+			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = _PINV_ (mTolerance) ;
 			for (INDEX i = 0 ; i < dg.length () ; i++) {
 				const auto r3x = sx[i] ;
@@ -894,7 +895,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				for (INDEX i = 0 ; i < mIX.length () ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
 				mDXLoss[1] = mLossFunc (mIX) ;
-				for (FOR_ONCE_DO) {
+				for (FOR_ONCE_DO_WHILE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
 						continue ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
@@ -902,7 +903,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 						continue ;
 					mDXLoss[2] = UNIT (0) ;
 				}
-				for (FOR_ONCE_DO) {
+				for (FOR_ONCE_DO_WHILE) {
 					if (mDXLoss[1] >= mDXLoss[2])
 						continue ;
 					mDXLoss[2] = mDXLoss[1] ;
@@ -922,7 +923,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			}) ;
 		}
 
-		inline UNIT math_matrix_mul (const SoftImage<UNIT> &mat ,INDEX y ,const Array<UNIT> &v) const {
+		inline UNIT math_matrix_mul (const Bitmap<UNIT> &mat ,INDEX y ,const Array<UNIT> &v) const {
 			UNIT ret = UNIT (0) ;
 			for (INDEX i = 0 ; i < v.length () ; i++)
 				ret += mat[y][i] * v[i] ;
@@ -1056,7 +1057,7 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 				if (r2x > sqe_range)
@@ -1065,7 +1066,7 @@ private:
 			}
 		} ,[&] (BOOL &if_context) {
 			const auto r3x = mHeap[it].mKey ;
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				if (r3x < bound[rot][0])
 					continue ;
 				const auto r4x = bound[rot][1] ;
@@ -1073,7 +1074,7 @@ private:
 				compute_search_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r4x ;
 			}
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				if (r3x > bound[rot][1])
 					continue ;
 				const auto r5x = bound[rot][0] ;
@@ -1098,7 +1099,7 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (mHeap[it].mLeaf == VAR_NONE)
 				discard ;
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
 				INDEX jx = out.length () ;
@@ -1175,7 +1176,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		inline void update_bound () {
 			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
-			for (FOR_ONCE_DO) {
+			for (FOR_ONCE_DO_WHILE) {
 				mBound[0][0] = mVertex[0][0] ;
 				mBound[0][1] = mVertex[0][0] ;
 				mBound[1][0] = mVertex[0][1] ;
@@ -1195,6 +1196,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
+			_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= mVertex.size ()) ;
 			_CALL_ONE_ ([&] (BOOL &if_context) {
 				if (seg_len > 1)
 					discard ;
@@ -1243,13 +1245,13 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 template <class UNIT>
 class MaxFlowAlgorithm {
 private:
-	SoftImage<UNIT> mCurrentFlow ;
+	Bitmap<UNIT> mCurrentFlow ;
 	UNIT mMaxFlow ;
 
 public:
 	MaxFlowAlgorithm () = delete ;
 
-	explicit MaxFlowAlgorithm (const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) {
+	explicit MaxFlowAlgorithm (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
 		_DEBUG_ASSERT_ (source != sink) ;
 		initialize (adjacency ,source ,sink) ;
@@ -1259,35 +1261,35 @@ public:
 		return mMaxFlow ;
 	}
 
-	const SoftImage<UNIT> &query_flow () const & {
+	const Bitmap<UNIT> &query_flow () const & {
 		return mCurrentFlow ;
 	}
 
-	SoftImage<UNIT> query_flow () && {
+	Bitmap<UNIT> query_flow () && {
 		return std::move (mCurrentFlow) ;
 	}
 
 private:
-	void initialize (const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) ;
+	void initialize (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) ;
 } ;
 
 template <class UNIT>
-inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) {
+inline void MaxFlowAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) {
 	class Lambda {
 	private:
 		MaxFlowAlgorithm &mContext ;
-		const SoftImage<UNIT> &mAdjacency ;
+		const Bitmap<UNIT> &mAdjacency ;
 
 		INDEX mSource ;
 		INDEX mSink ;
 		UNIT mSingleFlow ;
-		SoftImage<UNIT> mCurrentFlow ;
+		Bitmap<UNIT> mCurrentFlow ;
 		Array<INDEX> mBFSPath ;
 
 		Queue<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context ,const SoftImage<UNIT> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
+		inline explicit Lambda (MaxFlowAlgorithm &context ,const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1298,7 +1300,7 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const SoftImage<UNIT> &adjacency
 	private:
 		inline void prepare () {
 			mSingleFlow = single_flow () ;
-			mCurrentFlow = SoftImage<UNIT> (mAdjacency.cx () ,mAdjacency.cy ()) ;
+			mCurrentFlow = Bitmap<UNIT> (mAdjacency.cx () ,mAdjacency.cy ()) ;
 			mCurrentFlow.fill (UNIT (0)) ;
 			mBFSPath = Array<INDEX> (mAdjacency.cx ()) ;
 		}

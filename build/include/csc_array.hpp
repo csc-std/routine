@@ -126,6 +126,8 @@ struct OPERATOR_SORT {
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+		_DEBUG_ASSERT_ (seg_len > 0) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= out.size ()) ;
 		compute_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 
@@ -571,6 +573,7 @@ public:
 	}
 
 	String segment (INDEX seg ,LENGTH seg_len) const {
+		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= size ()) ;
 		String ret = String (seg_len) ;
 		for (INDEX i = 0 ; i < ret.size () ; i++)
@@ -982,23 +985,23 @@ public:
 	BOOL equal (const Queue &right) const {
 		if (length () != right.length ())
 			return FALSE ;
-		INDEX ir = ibegin () ;
+		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jr = right.ibegin () ;
+		INDEX jb = right.ibegin () ;
 		INDEX je = right.iend () ;
 		while (TRUE) {
-			if (ir == ie)
+			if (ib == ie)
 				break ;
-			if (jr == je)
+			if (jb == je)
 				break ;
-			if (get (ir) != right.get (jr))
+			if (get (ib) != right.get (jb))
 				break ;
-			ir = inext (ir) ;
-			jr = right.inext (jr) ;
+			ib = inext (ib) ;
+			jb = right.inext (jb) ;
 		}
-		if (ir != ie)
+		if (ib != ie)
 			return FALSE ;
-		if (jr != je)
+		if (jb != je)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1152,7 +1155,7 @@ private:
 		_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mQueue.size () ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (mRead == 0)
 				continue ;
 			ix = mRead + rax.size () - mQueue.size () ;
@@ -1784,23 +1787,23 @@ public:
 	BOOL equal (const Deque &right) const {
 		if (length () != right.length ())
 			return FALSE ;
-		INDEX ir = ibegin () ;
+		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jr = right.ibegin () ;
+		INDEX jb = right.ibegin () ;
 		INDEX je = right.iend () ;
 		while (TRUE) {
-			if (ir == ie)
+			if (ib == ie)
 				break ;
-			if (jr == je)
+			if (jb == je)
 				break ;
-			if (get (ir) != right.get (jr))
+			if (get (ib) != right.get (jb))
 				break ;
-			ir = inext (ir) ;
-			jr = right.inext (jr) ;
+			ib = inext (ib) ;
+			jb = right.inext (jb) ;
 		}
-		if (ir != ie)
+		if (ib != ie)
 			return FALSE ;
-		if (jr != je)
+		if (jb != je)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2006,6 +2009,7 @@ private:
 private:
 	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= mDeque.size ()) ;
 		INDEX ret = VAR_NONE ;
 		INDEX ix = seg ;
 		INDEX iy = seg + seg_len - 1 ;
@@ -2294,23 +2298,23 @@ public:
 	BOOL equal (const QList &right) const {
 		if (length () != right.length ())
 			return FALSE ;
-		INDEX ir = ibegin () ;
+		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jr = right.ibegin () ;
+		INDEX jb = right.ibegin () ;
 		INDEX je = right.iend () ;
 		while (TRUE) {
-			if (ir == ie)
+			if (ib == ie)
 				break ;
-			if (jr == je)
+			if (jb == je)
 				break ;
-			if (get (ir) != right.get (jr))
+			if (get (ib) != right.get (jb))
 				break ;
-			ir = inext (ir) ;
-			jr = right.inext (jr) ;
+			ib = inext (ib) ;
+			jb = right.inext (jb) ;
 		}
-		if (ir != ie)
+		if (ib != ie)
 			return FALSE ;
-		if (jr != je)
+		if (jb != je)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2710,17 +2714,19 @@ public:
 
 	INDEX access (INDEX pos) const {
 		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
-		INDEX ret = ibegin () ;
-		INDEX ie = iend () ;
 		INDEX ix = 0 ;
+		INDEX ib = ibegin () ;
+		INDEX ie = iend () ;
 		while (TRUE) {
-			if (ix == ie)
+			if (ib == ie)
 				break ;
 			if (ix >= pos)
 				break ;
-			ret = inext (ret) ;
 			ix++ ;
+			ib = inext (ib) ;
 		}
+		INDEX ret = ib ;
+		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
 		return std::move (ret) ;
 	}
 
@@ -3040,7 +3046,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3061,7 +3067,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3162,7 +3168,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3179,7 +3185,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3333,7 +3339,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3347,7 +3353,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3552,7 +3558,7 @@ private:
 
 	void update_remove_left (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mRight ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!mSet[r1].mRed)
 				continue ;
 			mSet[r1].mRed = FALSE ;
@@ -3597,7 +3603,7 @@ private:
 
 	void update_remove_right (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mLeft ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!mSet[r1].mRed)
 				continue ;
 			mSet[r1].mRed = FALSE ;
@@ -3790,7 +3796,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3811,7 +3817,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3920,7 +3926,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3937,7 +3943,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4104,7 +4110,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4118,7 +4124,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4137,7 +4143,7 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (size () == 0)
 				continue ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4266,34 +4272,31 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Holder {
-	private:
-		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
-		SharedRef<Allocator<Node ,SIZE>> mHeap ;
-		LENGTH mLength ;
-		INDEX mFirst ;
-		INDEX mLast ;
-		INDEX mRoot ;
-		INDEX mTop ;
-	} ;
-
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Holder> mThis ;
+	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
+	LENGTH mLength ;
+	INDEX mFirst ;
+	INDEX mLast ;
+	INDEX mRoot ;
+	INDEX mTop ;
 
 public:
-	SoftSet () = default ;
+	SoftSet () {
+		mLength = 0 ;
+		mFirst = VAR_NONE ;
+		mLast = VAR_NONE ;
+		mRoot = VAR_NONE ;
+	}
 
 	explicit SoftSet (LENGTH len) {
-		mThis = SharedRef<Holder>::make () ;
-		mThis->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mThis->mLength = 0 ;
-		mThis->mFirst = VAR_NONE ;
-		mThis->mLast = VAR_NONE ;
-		mThis->mRoot = VAR_NONE ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
+		mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap.self) ;
+		mLength = 0 ;
+		mFirst = VAR_NONE ;
+		mLast = VAR_NONE ;
+		mRoot = VAR_NONE ;
 	}
 
 	void add (const KEY &key ,const ITEM &item) {
@@ -4301,20 +4304,20 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
-			mThis->mLast = ix ;
-			mThis->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ix ;
+			mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	void add (const ITEM_TYPE &item) {
@@ -4326,20 +4329,20 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
-			mThis->mLast = ix ;
-			mThis->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ix ;
+			mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	void add (ITEM_TYPE &&item) {
@@ -4348,7 +4351,7 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
@@ -4356,7 +4359,7 @@ public:
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
@@ -4414,51 +4417,48 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	class Holder {
-	private:
-		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
-		SharedRef<Allocator<Node ,SIZE>> mHeap ;
-		LENGTH mLength ;
-		INDEX mFirst ;
-		INDEX mLast ;
-		INDEX mRoot ;
-		INDEX mTop ;
-	} ;
-
 private:
 	friend SPECIALIZATION_TYPE ;
-	SharedRef<Holder> mThis ;
+	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
+	LENGTH mLength ;
+	INDEX mFirst ;
+	INDEX mLast ;
+	INDEX mRoot ;
+	INDEX mTop ;
 
 public:
-	SoftSet () = default ;
+	SoftSet () {
+		mLength = 0 ;
+		mFirst = VAR_NONE ;
+		mLast = VAR_NONE ;
+		mRoot = VAR_NONE ;
+	}
 
 	explicit SoftSet (LENGTH len) {
-		mThis = SharedRef<Holder>::make () ;
-		mThis->mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mThis->mLength = 0 ;
-		mThis->mFirst = VAR_NONE ;
-		mThis->mLast = VAR_NONE ;
-		mThis->mRoot = VAR_NONE ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
+		mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap.self) ;
+		mLength = 0 ;
+		mFirst = VAR_NONE ;
+		mLast = VAR_NONE ;
+		mRoot = VAR_NONE ;
 	}
 
 	void add (const KEY &key) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
-			mThis->mLast = ix ;
-			mThis->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ix ;
+			mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	void add (const ITEM_TYPE &item) {
@@ -4466,20 +4466,20 @@ public:
 	}
 
 	void add (KEY &&key) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				continue ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
-			mThis->mLast = ix ;
-			mThis->mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ix ;
+			mLength++ ;
+			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	void add (ITEM_TYPE &&item) {
@@ -4488,7 +4488,7 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
@@ -4496,7 +4496,7 @@ public:
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
@@ -4511,12 +4511,16 @@ private:
 	using ITEM_TYPE = typename SPECIALIZATION_BASE::ITEM_TYPE ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
-	using Holder = typename SPECIALIZATION_BASE::Holder ;
 
 private:
 	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mThis ;
+	using SPECIALIZATION_BASE::mHeap ;
 	using SPECIALIZATION_BASE::mSet ;
+	using SPECIALIZATION_BASE::mLength ;
+	using SPECIALIZATION_BASE::mFirst ;
+	using SPECIALIZATION_BASE::mLast ;
+	using SPECIALIZATION_BASE::mRoot ;
+	using SPECIALIZATION_BASE::mTop ;
 
 public:
 	SoftSet () = default ;
@@ -4524,45 +4528,36 @@ public:
 	explicit SoftSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
 	LENGTH capacity () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return 0 ;
 		return mSet->size () ;
 	}
 
 	LENGTH size () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return 0 ;
-		return mSet->size () - (mSet->length () - mThis->mLength) ;
+		return mSet->size () - (mSet->length () - mLength) ;
 	}
 
 	LENGTH length () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return 0 ;
-		return mThis->mLength ;
+		return mLength ;
 	}
 
-	void reset () {
-		if (!mThis.exist ())
-			return ;
-		auto rax = SharedRef<Holder>::make () ;
-		rax->mHeap = mThis->mHeap ;
-		rax->mLength = 0 ;
-		rax->mFirst = VAR_NONE ;
-		rax->mLast = VAR_NONE ;
-		rax->mRoot = VAR_NONE ;
-		mThis = std::move (rax) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mThis->mHeap.self) ;
-	}
-
-	SoftSet copy () popping {
+	inline SoftSet share () popping {
 		SoftSet ret ;
-		ret.mThis = mThis ;
-		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (mSet) ;
+		ret.mHeap = mHeap ;
+		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap.self) ;
+		ret.mLength = 0 ;
+		ret.mFirst = VAR_NONE ;
+		ret.mLast = VAR_NONE ;
+		ret.mRoot = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
 	Pair<SoftSet> get (INDEX index) & {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair<SoftSet> (*this ,index) ;
 	}
 
@@ -4571,7 +4566,7 @@ public:
 	}
 
 	Pair<const SoftSet> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair<const SoftSet> (*this ,index) ;
 	}
 
@@ -4593,9 +4588,9 @@ public:
 	}
 
 	INDEX ibegin () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return VAR_NONE ;
-		return mThis->mFirst ;
+		return mFirst ;
 	}
 
 	INDEX iend () const {
@@ -4615,11 +4610,11 @@ public:
 	}
 
 	BOOL equal (const SoftSet &right) const {
-		if (!mThis.exist () && !right.mThis.exist ())
+		if (!mHeap.exist () && !right.mHeap.exist ())
 			return TRUE ;
-		if (!mThis.exist () || !right.mThis.exist ())
+		if (!mHeap.exist () || !right.mHeap.exist ())
 			return FALSE ;
-		if (!equal_each (right ,mThis->mRoot ,right.mThis->mRoot))
+		if (!equal_each (right ,mRoot ,right.mRoot))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -4647,54 +4642,54 @@ public:
 	using SPECIALIZATION_BASE::appand ;
 
 	INDEX insert (const KEY &key) popping {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ret ;
-			mThis->mLast = ret ;
-			mThis->mLength++ ;
-			update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ret ;
+			mLength++ ;
+			update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ret ;
+		mTop = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX insert (KEY &&key) popping {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mThis->mLast != VAR_NONE) ? (mSet.self[mThis->mLast].mNext) : (mThis->mFirst) ;
+			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ret ;
-			mThis->mLast = ret ;
-			mThis->mLength++ ;
-			update_insert (mThis->mRoot) ;
-			mThis->mRoot = mThis->mTop ;
+			mLast = ret ;
+			mLength++ ;
+			update_insert (mRoot) ;
+			mRoot = mTop ;
 		}
-		mThis->mTop = ret ;
+		mTop = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX min_one () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return VAR_NONE ;
-		for (INDEX i = mThis->mRoot ; i != VAR_NONE ; i = mSet.self[i].mLeft)
+		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet.self[i].mLeft)
 			if (mSet.self[i].mLeft == VAR_NONE)
 				return i ;
 		return VAR_NONE ;
 	}
 
 	INDEX max_one () const {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return VAR_NONE ;
-		for (INDEX i = mThis->mRoot ; i != VAR_NONE ; i = mSet.self[i].mRight)
+		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet.self[i].mRight)
 			if (mSet.self[i].mRight == VAR_NONE)
 				return i ;
 		return VAR_NONE ;
@@ -4702,8 +4697,8 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		if (mThis.exist ())
-			ret = mThis->mRoot ;
+		if (mHeap.exist ())
+			ret = mRoot ;
 		while (TRUE) {
 			if (ret == VAR_NONE)
 				break ;
@@ -4717,7 +4712,7 @@ public:
 	}
 
 	void clean () {
-		if (!mThis.exist ())
+		if (!mHeap.exist ())
 			return ;
 		mSet->clean () ;
 	}
@@ -4742,84 +4737,84 @@ private:
 		_CALL_ONE_ ([&] (BOOL &if_context) {
 			if (ix != VAR_NONE)
 				discard ;
-			mThis->mTop = mThis->mLast ;
+			mTop = mLast ;
 		} ,[&] (BOOL &if_context) {
 			mSet.self[ix].mWeight++ ;
-			const auto r1x = BOOL (mSet.self[mThis->mLast].mKey < mSet.self[ix].mKey) ;
+			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
 			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;
 			update_insert (r2) ;
-			r2 = mThis->mTop ;
+			r2 = mTop ;
 			const auto r2x = r1x ? (&SoftSet::update_insert_left) : (&SoftSet::update_insert_right) ;
 			(this->*r2x) (ix) ;
-			ix = mThis->mTop ;
-			mThis->mTop = ix ;
+			ix = mTop ;
+			mTop = ix ;
 		}) ;
 	}
 
 	void update_insert_left (INDEX it) {
 		INDEX ix = it ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 		if (mSet.self[ix].mLeft == VAR_NONE)
 			return ;
 		const auto r1x = node_weight (mSet.self[ix].mRight) ;
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mLeft].mLeft) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mLeft].mRight) ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (r1x < r2x)
 				continue ;
 			auto &r1 = mSet.self[ix].mLeft ;
 			rotate_left (r1) ;
-			r1 = mThis->mTop ;
+			r1 = mTop ;
 		}
 		rotate_right (ix) ;
-		ix = mThis->mTop ;
+		ix = mTop ;
 		auto &r2 = mSet.self[ix].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mThis->mTop ;
+		r2 = mTop ;
 		auto &r3 = mSet.self[ix].mRight ;
 		update_insert_right (r3) ;
-		r3 = mThis->mTop ;
+		r3 = mTop ;
 		update_insert_left (ix) ;
-		ix = mThis->mTop ;
+		ix = mTop ;
 		update_insert_right (ix) ;
-		ix = mThis->mTop ;
-		mThis->mTop = ix ;
+		ix = mTop ;
+		mTop = ix ;
 	}
 
 	void update_insert_right (INDEX it) {
 		INDEX ix = it ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 		if (mSet.self[ix].mRight == VAR_NONE)
 			return ;
 		const auto r1x = node_weight (mSet.self[ix].mLeft) ;
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mRight].mRight) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mRight].mLeft) ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (r1x < r2x)
 				continue ;
 			auto &r1 = mSet.self[ix].mRight ;
 			rotate_right (r1) ;
-			r1 = mThis->mTop ;
+			r1 = mTop ;
 		}
 		rotate_left (ix) ;
-		ix = mThis->mTop ;
+		ix = mTop ;
 		auto &r2 = mSet.self[ix].mLeft ;
 		update_insert_left (r2) ;
-		r2 = mThis->mTop ;
+		r2 = mTop ;
 		auto &r3 = mSet.self[ix].mRight ;
 		update_insert_right (r3) ;
-		r3 = mThis->mTop ;
+		r3 = mTop ;
 		update_insert_left (ix) ;
-		ix = mThis->mTop ;
+		ix = mTop ;
 		update_insert_right (ix) ;
-		ix = mThis->mTop ;
-		mThis->mTop = ix ;
+		ix = mTop ;
+		mTop = ix ;
 	}
 
 	void rotate_left (INDEX it) {
@@ -4830,7 +4825,7 @@ private:
 		const auto r1x = node_weight (mSet.self[it].mLeft) ;
 		const auto r2x = node_weight (mSet.self[it].mRight) ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	void rotate_right (INDEX it) {
@@ -4841,7 +4836,7 @@ private:
 		const auto r1x = node_weight (mSet.self[it].mLeft) ;
 		const auto r2x = node_weight (mSet.self[it].mRight) ;
 		mSet.self[it].mWeight = r1x + r2x + 1 ;
-		mThis->mTop = ix ;
+		mTop = ix ;
 	}
 
 	LENGTH node_weight (INDEX it) const {

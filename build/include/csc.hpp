@@ -330,11 +330,11 @@ using std::remove_extent ;
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
 #ifdef __CSC_COMPILER_MSVC__
-#define FOR_ONCE_DO auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
+#define FOR_ONCE_DO_WHILE auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
 #elif defined __CSC_COMPILER_GNUC__
-#define FOR_ONCE_DO __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
+#define FOR_ONCE_DO_WHILE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #else
-#define FOR_ONCE_DO auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
+#define FOR_ONCE_DO_WHILE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #endif
 
 using BOOL = bool ;
@@ -1571,7 +1571,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1626,7 +1626,7 @@ public:
 	}
 
 	inline AutoRef &operator= (const AutoRef &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1640,7 +1640,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~AutoRef () ;
@@ -1738,9 +1738,9 @@ public:
 	inline ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		for (FOR_ONCE_DO) {
-			const auto r1x = --mPointer->mCounter == 0 ;
-			if (!r1x)
+		for (FOR_ONCE_DO_WHILE) {
+			const auto r1x = --mPointer->mCounter ;
+			if (r1x != 0)
 				continue ;
 			mPointer->~Holder () ;
 			GlobalHeap::free (mPointer) ;
@@ -1751,7 +1751,7 @@ public:
 	inline SharedRef (const SharedRef &right) :SharedRef (right.mPointer) {}
 
 	inline SharedRef &operator= (const SharedRef &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~SharedRef () ;
@@ -1765,7 +1765,7 @@ public:
 	}
 
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~SharedRef () ;
@@ -1864,7 +1864,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~AnyRef () ;
@@ -1973,7 +1973,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~AnyRef () ;
@@ -2075,7 +2075,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~UniqueRef () ;
@@ -2183,7 +2183,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~UniqueRef () ;
@@ -2221,7 +2221,7 @@ public:
 	}
 
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~PhanRef () ;
@@ -2319,7 +2319,7 @@ public:
 	inline ~Function () noexcept {
 		if (mFunction_a == NULL && mFunction_b == NULL)
 			return ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (mFunction_a == NULL)
 				continue ;
 			mFunction_a->~Holder () ;
@@ -2338,7 +2338,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Function () ;
@@ -2482,7 +2482,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Function () ;
@@ -2928,7 +2928,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -2988,7 +2988,7 @@ public:
 	}
 
 	inline Buffer &operator= (const Buffer &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3003,7 +3003,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3179,7 +3179,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3351,7 +3351,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Buffer () ;
@@ -3600,7 +3600,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3679,7 +3679,7 @@ public:
 	}
 
 	inline Allocator &operator= (const Allocator &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3702,7 +3702,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Allocator () ;
@@ -3798,7 +3798,7 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<TYPE>::value && std::is_nothrow_move_assignable<TYPE>::value) ;
 		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			if (mFree != VAR_NONE)
@@ -3813,7 +3813,7 @@ public:
 			update_reset (mLength ,mFree) ;
 			ret = mFree ;
 		}
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
 				continue ;
 			if (mFree == VAR_NONE)

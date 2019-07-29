@@ -1042,7 +1042,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
-	for (FOR_ONCE_DO) {
+	for (FOR_ONCE_DO_WHILE) {
 		if (rax != _ARG1 (':'))
 			continue ;
 		ris >> rax ;
@@ -1067,7 +1067,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (r1[2]) ;
 	wos << _RET ('.') ;
 	wos << VAR (r1[3]) ;
-	for (FOR_ONCE_DO) {
+	for (FOR_ONCE_DO_WHILE) {
 		if (stru.P1 == 0)
 			continue ;
 		wos << _RET (':') ;

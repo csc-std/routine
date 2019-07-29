@@ -914,7 +914,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Variant () ;
@@ -931,7 +931,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~Variant () ;
@@ -1008,7 +1008,7 @@ public:
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (mIndex == VAR_NONE)
 				continue ;
 			template_destruct (&mVariant ,mIndex ,_NULL_<const ARGVS<TYPES...>> ()) ;
@@ -1051,7 +1051,7 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
 				continue ;
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
@@ -1069,7 +1069,7 @@ private:
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
 				continue ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
@@ -1090,7 +1090,7 @@ private:
 		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
 				continue ;
 			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
@@ -1801,8 +1801,8 @@ public:
 			return ;
 		if (!mHolder->mData.exist ())
 			return ;
-		const auto r1x = BOOL (--mHolder->mCounter == 0) ;
-		if (r1x)
+		const auto r1x = --mHolder->mCounter ;
+		if (r1x == 0)
 			mHolder->mData = AnyRef<void> () ;
 		mPointer = NULL ;
 	}
@@ -1810,7 +1810,7 @@ public:
 	inline StrongRef (const StrongRef &right) :StrongRef (right.mHolder ,right.mPointer) {}
 
 	inline StrongRef &operator= (const StrongRef &right) {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~StrongRef () ;
@@ -1825,7 +1825,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~StrongRef () ;
@@ -2016,7 +2016,7 @@ public:
 		return !equal (right) ;
 	}
 
-	inline StrongRef<TYPE> strong () const {
+	inline StrongRef<TYPE> watch () const {
 		return StrongRef<TYPE> (mHolder ,mPointer) ;
 	}
 
@@ -2024,14 +2024,10 @@ public:
 		mHolder = right.mHolder ;
 		mPointer = right.mPointer ;
 	}
-
-	inline void operator= (const StrongRef<TYPE> &right) {
-		assign (right) ;
-	}
 } ;
 
 template <class TYPE>
-inline StrongRef<TYPE>::StrongRef (const WeakRef<TYPE> &right) :StrongRef (right.strong ()) {}
+inline StrongRef<TYPE>::StrongRef (const WeakRef<TYPE> &right) :StrongRef (right.watch ()) {}
 
 template <class TYPE>
 inline BOOL StrongRef<TYPE>::equal (const WeakRef<TYPE> &right) const {
@@ -2039,18 +2035,14 @@ inline BOOL StrongRef<TYPE>::equal (const WeakRef<TYPE> &right) const {
 }
 
 template <class TYPE>
-class SoftRef :public WeakRef<TYPE> {
-#pragma region
-#pragma push_macro ("super")
-#undef super
-#define super m_super ()
-
+class SoftRef {
 private:
 	class Node {
 	private:
 		friend SoftRef ;
 		StrongRef<TYPE> mData ;
 		LENGTH mWeight ;
+		LENGTH mCounter ;
 
 	public:
 		inline Node () = default ;
@@ -2062,32 +2054,44 @@ private:
 
 private:
 	SharedRef<Allocator<Node ,SFIXED>> mHeap ;
+	WeakRef<TYPE> mWeakRef ;
 	INDEX mIndex ;
 
 public:
-	inline SoftRef () = default ;
+	inline SoftRef () {
+		mIndex = VAR_NONE ;
+	}
 
 	inline explicit SoftRef (LENGTH len) {
 		mHeap = SharedRef<Allocator<Node ,SFIXED>>::make (len) ;
+		mIndex = VAR_NONE ;
 	}
 
-	inline ~SoftRef () noexcept {
-		_CALL_SEH_ ([&] () {
-			detach () ;
-		}) ;
+	inline SoftRef (const SoftRef &right) {
+		mHeap = right.mHeap ;
+		mWeakRef = right.mWeakRef ;
+		mIndex = right.mIndex ;
+		attach () ;
 	}
 
-	inline SoftRef (const SoftRef &) = delete ;
-	inline SoftRef &operator= (const SoftRef &) = delete ;
+	inline SoftRef &operator= (const SoftRef &right) {
+		for (FOR_ONCE_DO_WHILE) {
+			if (this == &right)
+				continue ;
+			this->~SoftRef () ;
+			new (this) SoftRef (std::move (right)) ;
+		}
+		return _XVALUE_<SoftRef> (*this) ;
+	}
 
 	inline SoftRef (SoftRef &&right) noexcept {
-		super = std::move (right.super) ;
 		mHeap = std::move (right.mHeap) ;
+		mWeakRef = std::move (right.mWeakRef) ;
 		mIndex = right.mIndex ;
 	}
 
 	inline SoftRef &operator= (SoftRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~SoftRef () ;
@@ -2103,24 +2107,18 @@ public:
 	}
 
 	inline BOOL exist () const {
-		return super.exist () ;
+		return mWeakRef.exist () ;
 	}
 
-	void reset () {
-		super = WeakRef<TYPE> () ;
-		mIndex = VAR_NONE ;
-	}
-
-	inline SoftRef copy () popping {
+	inline SoftRef share () popping {
 		SoftRef ret ;
-		ret.super = super ;
 		ret.mHeap = mHeap ;
-		ret.mIndex = mIndex ;
+		ret.mIndex = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
 	inline BOOL equal (const SoftRef &right) const {
-		if (super != right.super)
+		if (mWeakRef != right.mWeakRef)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2134,7 +2132,7 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef<TYPE> &right) const {
-		if (super != right)
+		if (mWeakRef != right)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2147,31 +2145,33 @@ public:
 		return !equal (right) ;
 	}
 
-	inline StrongRef<TYPE> strong () const {
-		return super.strong () ;
+	inline StrongRef<TYPE> watch () const {
+		for (FOR_ONCE_DO_WHILE) {
+			if (!linked ())
+				continue ;
+			auto &r1 = mHeap.self[mIndex].mWeight ;
+			const auto r1x = EFLAG (r1 >= 0 && r1 < VAR32_MAX) ;
+			const auto r2x = EFLAG (r1 < 0 && r1 >= -VAR32_MAX) ;
+			r1 += r1x - r2x ;
+		}
+		return mWeakRef.watch () ;
 	}
 
 	inline void assign (const StrongRef<TYPE> &right) {
 		detach () ;
-		super = right ;
+		mWeakRef = right ;
 		attach () ;
 	}
 
-	inline void operator= (const StrongRef<TYPE> &right) {
-		assign (right) ;
-	}
-
-	inline void lock () const {
+	inline void as_strong () const {
 		if (!linked ())
 			return ;
 		if (mHeap.self[mIndex].mWeight < 0)
 			return ;
-		const auto r1x = BOOL (mHeap.self[mIndex].mWeight >= 0 && mHeap.self[mIndex].mWeight < VAR32_MAX) ;
-		mHeap.self[mIndex].mWeight += EFLAG (r1x) ;
 		mHeap.self[mIndex].mWeight = ~mHeap.self[mIndex].mWeight ;
 	}
 
-	inline void unlock () const {
+	inline void as_weak () const {
 		if (!linked ())
 			return ;
 		if (mHeap.self[mIndex].mWeight >= 0)
@@ -2196,32 +2196,39 @@ private:
 			return FALSE ;
 		if (!mHeap->used (mIndex))
 			return FALSE ;
-		if (super != mHeap.self[mIndex].mData)
+		if (mWeakRef != mHeap.self[mIndex].mData)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	inline void attach () {
-		if (linked ())
-			return ;
-		for (FOR_ONCE_DO) {
-			if (mHeap->length () < mHeap->size ())
-				continue ;
-			mIndex = min_weight_one () ;
-			_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
-			const auto r1x = expr_log2 (mHeap.self[mIndex].mWeight) ;
-			if (r1x <= 0)
-				continue ;
-			for (INDEX i = 0 ; i < mHeap->size () ; i++)
-				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
-		}
-		for (FOR_ONCE_DO) {
-			if (mIndex != VAR_NONE)
-				continue ;
-			mIndex = mHeap->alloc () ;
-		}
-		mHeap.self[mIndex].mData = super ;
-		mHeap.self[mIndex].mWeight = 3 ;
+		_CALL_ONE_ ([&] (BOOL &if_context) {
+			if (!linked ())
+				discard ;
+			const auto r1x = mHeap.self[mIndex].mCounter++ ;
+			_DEBUG_ASSERT_ (r1x > 0) ;
+			(void) r1x ;
+		} ,[&] (BOOL &if_context) {
+			for (FOR_ONCE_DO_WHILE) {
+				if (mHeap->length () < mHeap->size ())
+					continue ;
+				mIndex = min_weight_one () ;
+				_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
+				const auto r2x = expr_log2 (mHeap.self[mIndex].mWeight) ;
+				if (r2x <= 0)
+					continue ;
+				for (INDEX i = 0 ; i < mHeap->size () ; i++)
+					mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r2x ;
+			}
+			for (FOR_ONCE_DO_WHILE) {
+				if (mIndex != VAR_NONE)
+					continue ;
+				mIndex = mHeap->alloc () ;
+			}
+			mHeap.self[mIndex].mData = mWeakRef ;
+			mHeap.self[mIndex].mWeight = 3 ;
+			mHeap.self[mIndex].mCounter = 1 ;
+		}) ;
 	}
 
 	inline INDEX min_weight_one () const {
@@ -2242,29 +2249,16 @@ private:
 	inline void detach () {
 		if (!linked ())
 			return ;
-		_DEBUG_ASSERT_ (mHeap.self[mIndex].mWeight >= 0) ;
+		const auto r1x = --mHeap.self[mIndex].mCounter ;
+		if (r1x != 0)
+			return ;
 		mHeap->free (mIndex) ;
 		mIndex = VAR_NONE ;
 	}
-
-private:
-	inline WeakRef<TYPE> &m_super () & {
-		return *this ;
-	}
-
-	inline const WeakRef<TYPE> &m_super () const & {
-		return *this ;
-	}
-
-	inline WeakRef<TYPE> &m_super () && = delete ;
-
-#undef super
-#pragma pop_macro ("super")
-#pragma endregion
 } ;
 
 template <class TYPE>
-inline StrongRef<TYPE>::StrongRef (const SoftRef<TYPE> &right) :StrongRef (right.strong ()) {}
+inline StrongRef<TYPE>::StrongRef (const SoftRef<TYPE> &right) :StrongRef (right.watch ()) {}
 
 template <class TYPE>
 inline BOOL StrongRef<TYPE>::equal (const SoftRef<TYPE> &right) const {
@@ -2291,57 +2285,67 @@ private:
 		Mutable<TYPE> mData ;
 		Function<DEF<TYPE ()> NONE::*> mEvaluator ;
 		AnyRef<void> mFunction ;
-		WeakRef<Holder> mParam1 ;
-		WeakRef<Holder> mParam2 ;
-		WeakRef<Holder> mParam3 ;
-		WeakRef<Holder> mParam4 ;
-		WeakRef<Holder> mParam5 ;
-		WeakRef<Holder> mParam6 ;
-		WeakRef<Holder> mParam7 ;
-		WeakRef<Holder> mParam8 ;
-		WeakRef<Holder> mParam9 ;
 	} ;
 
 private:
-	StrongRef<Holder> mThis ;
+	SoftRef<Holder> mThis ;
 
 public:
 	inline Lazy () = default ;
 
 	inline implicit Lazy (const TYPE &right) {
-		mThis = StrongRef<Holder>::make () ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
+		mThis = SoftRef<Holder> (9) ;
+		const auto r1x = StrongRef<Holder>::make () ;
+		const auto r2x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		r1x->mData.apply (r2x) ;
+		r1x->mData.finish () ;
+		mThis.assign (r1x) ;
+		mThis.as_strong () ;
 	}
 
 	inline implicit Lazy (TYPE &&right) {
-		mThis = StrongRef<Holder>::make () ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
+		mThis = SoftRef<Holder> (9) ;
+		const auto r1x = StrongRef<Holder>::make () ;
+		const auto r2x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<ApplyTo>::make (right) ,&ApplyTo::apply_to) ;
+		r1x->mData.apply (r2x) ;
+		r1x->mData.finish () ;
+		mThis.assign (r1x) ;
+		mThis.as_strong () ;
 	}
 
 	inline implicit Lazy (Function<DEF<TYPE ()> NONE::*> &&right) {
-		mThis = StrongRef<Holder>::make () ;
-		mThis->mData.signal () ;
-		mThis->mEvaluator = std::move (right) ;
+		mThis = SoftRef<Holder> (9) ;
+		const auto r1x = StrongRef<Holder>::make () ;
+		r1x = StrongRef<Holder>::make () ;
+		r1x->mData.signal () ;
+		r1x->mEvaluator = std::move (right) ;
+		mThis.assign (r1x) ;
+		mThis.as_strong () ;
 	}
 
 #ifdef __CSC_DEPRECATED__
 	inline explicit Lazy (Function<TYPE ()> &&right) {
-		mThis = StrongRef<Holder>::make () ;
-		mThis->mData.signal () ;
-		mThis->mFunction = AnyRef<Function<TYPE ()>>::make (std::move (right)) ;
-		auto &r1 = mThis->mFunction.template rebind<Function<TYPE ()>> ().self ;
-		mThis->mEvaluator = Function<DEF<TYPE ()> NONE::*>::make (PhanRef<Function<TYPE ()>> (r1) ,&Function<TYPE ()>::invoke) ;
+		mThis = SoftRef<Holder> (9) ;
+		const auto r1x = StrongRef<Holder>::make () ;
+		r1x = StrongRef<Holder>::make () ;
+		r1x->mData.signal () ;
+		r1x->mFunction = AnyRef<Function<TYPE ()>>::make (std::move (right)) ;
+		auto &r1 = r1x->mFunction.template rebind<Function<TYPE ()>> ().self ;
+		r1x->mEvaluator = Function<DEF<TYPE ()> NONE::*>::make (PhanRef<Function<TYPE ()>> (r1) ,&Function<TYPE ()>::invoke) ;
+		mThis.assign (r1x) ;
+		mThis.as_strong () ;
 	}
 #endif
 
+	inline BOOL exist () const {
+		return mThis.exist () ;
+	}
+
 	inline const TYPE &to () const popping {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (exist ()) ;
 		finish () ;
-		return mThis->mData.self ;
+		const auto r1x = mThis.watch () ;
+		return r1x->mData.self ;
 	}
 
 	inline implicit operator const TYPE & () const popping {
@@ -2349,21 +2353,26 @@ public:
 	}
 
 	inline LENGTH degree () const {
-		_DEBUG_ASSERT_ (FALSE) ;
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 		return 0 ;
 	}
 
 	inline void finish () const {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		const auto r1x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
-		mThis->mData.apply (r1x) ;
-		mThis->mData.finish () ;
+		_DEBUG_ASSERT_ (exist ()) ;
+		const auto r1x = mThis.watch () ;
+		const auto r2x = Function<DEF<void (TYPE &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
+		r1x->mData.apply (r2x) ;
+		r1x->mData.finish () ;
 	}
 
 	inline Lazy concat (const Lazy &right) const {
-		_DEBUG_ASSERT_ (FALSE) ;
+		if (!exist ())
+			return right ;
+		if (!right.exist ())
+			return *this ;
 		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Lazy () ;
 	}
 
@@ -2385,10 +2394,11 @@ public:
 		return *this ;
 	}
 
-public:
+private:
 	inline void compute_evaluation (TYPE &data) const {
-		_DYNAMIC_ASSERT_ (mThis->mEvaluator.exist ()) ;
-		data = mThis->mEvaluator () ;
+		const auto r1x = mThis.watch () ;
+		_DYNAMIC_ASSERT_ (r1x->mEvaluator.exist ()) ;
+		data = r1x->mEvaluator () ;
 	}
 } ;
 
@@ -2493,7 +2503,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&right) noexcept {
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
 				continue ;
 			this->~IntrusiveRef () ;
@@ -2533,7 +2543,7 @@ private:
 
 	inline PTR<TYPE> safe_exchange (PTR<TYPE> address) noexcept popping {
 		PTR<TYPE> ret = mPointer.exchange (address) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (ret == NULL)
 				continue ;
 			INDEX ir = 0 ;
@@ -2743,7 +2753,7 @@ private:
 				mFree = r6x ;
 			}
 			sgd = NULL ;
-		}
+	}
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
 			_DEBUG_ASSERT_ (len <= SIZE::value) ;
@@ -2789,7 +2799,7 @@ private:
 					return FALSE ;
 			return TRUE ;
 		}
-	} ;
+} ;
 
 	class HugePool :public Pool {
 	private:
@@ -3082,4 +3092,4 @@ inline void Serializer<TYPE1 ,TYPE2>::Binder::friend_visit (TYPE1 &visitor ,TYPE
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif
-} ;
+	} ;

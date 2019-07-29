@@ -199,7 +199,7 @@ private:
 		if (!item.exist ())
 			return ;
 		_DYNAMIC_ASSERT_ (_self.mItemQueue->size () > 0) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!_self.mItemQueue->full ())
 				continue ;
 			_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
@@ -785,7 +785,7 @@ public:
 		std::unique_lock<std::mutex> sgd (r1.mThreadMutex) ;
 		while (r1.mThreadFlag.exist () && r1.mThreadFlag.self)
 			r1.mThreadCondition.self.wait (sgd) ;
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
 				continue ;
 			throw r1.mException.self ;
@@ -809,7 +809,7 @@ public:
 			_DYNAMIC_ASSERT_ (r2x) ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		for (FOR_ONCE_DO) {
+		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
 				continue ;
 			throw r1.mException.self ;
