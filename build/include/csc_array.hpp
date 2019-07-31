@@ -26,10 +26,12 @@ public:
 	inline ForwardIterator (ForwardIterator &&) noexcept = default ;
 	inline ForwardIterator &operator= (ForwardIterator &&) = delete ;
 
+	inline BOOL operator== (const ForwardIterator &right) const {
+		return BOOL (mIndex == right.mIndex) ;
+	}
+
 	inline BOOL operator!= (const ForwardIterator &right) const {
-		if (mIndex == right.mIndex)
-			return FALSE ;
-		return TRUE ;
+		return BOOL (mIndex != right.mIndex) ;
 	}
 
 	inline ITEM_TYPE operator* () const {
@@ -245,9 +247,7 @@ public:
 	}
 
 	BOOL equal (const Array &right) const {
-		if (mArray != right.mArray)
-			return FALSE ;
-		return TRUE ;
+		return BOOL (mArray == right.mArray) ;
 	}
 
 	inline BOOL operator== (const Array &right) const {
@@ -259,9 +259,7 @@ public:
 	}
 
 	BOOL less (const Array &right) const {
-		if (mArray >= right.mArray)
-			return FALSE ;
-		return TRUE ;
+		return BOOL (mArray < right.mArray) ;
 	}
 
 	inline BOOL operator< (const Array &right) const {
@@ -361,14 +359,12 @@ public:
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &right) :String (raw_string_length (right)) {
+	implicit String (const ARR<ITEM> &right) :String (plain_string_length (right)) {
 		_MEMCOPY_ (mString.self ,right ,size ()) ;
 	}
 
-	template <LENGTH _VAL1>
-	implicit String (const DEF<ITEM[_VAL1]> &right) : String (_VAL1 - 1) {
-		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
-		_MEMCOPY_ (mString.self ,PTRTOARR[right] ,size ()) ;
+	implicit String (const Plain<ITEM> &right) : String (right.size ()) {
+		_MEMCOPY_ (mString.self ,right.self ,size ()) ;
 	}
 
 	LENGTH size () const {
@@ -442,23 +438,19 @@ public:
 		return index + 1 ;
 	}
 
-	template <LENGTH _VAL1>
-	BOOL equal (const DEF<ITEM[_VAL1]> &right) const {
-		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
-		if (mString.size () < _VAL1)
+	BOOL equal (const Plain<ITEM> &right) const {
+		if (mString.size () < right.size () + 1)
 			return FALSE ;
-		if (!_MEMEQUAL_ (mString.self ,right))
+		if (!_MEMEQUAL_ (mString.self ,right.self ,right.size () + 1))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	template <LENGTH _VAL1>
-	inline BOOL operator== (const DEF<ITEM[_VAL1]> &right) const {
+	inline BOOL operator== (const Plain<ITEM> &right) const {
 		return equal (right) ;
 	}
 
-	template <LENGTH _VAL1>
-	inline BOOL operator!= (const DEF<ITEM[_VAL1]> &right) const {
+	inline BOOL operator!= (const Plain<ITEM> &right) const {
 		return !equal (right) ;
 	}
 
@@ -549,25 +541,20 @@ public:
 		return *this ;
 	}
 
-	template <LENGTH _VAL1>
-	void concatto (const DEF<ITEM[_VAL1]> &right) {
-		_STATIC_ASSERT_ (stl::is_literals<ITEM>::value) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mString.size () == 0)
-				discard ;
+	void concatto (const Plain<ITEM> &right) {
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mString.size () > 0) ;
 			const auto r1x = length () ;
-			const auto r2x = _VAL1 - 1 ;
-			if (r1x + r2x > size ())
-				discard ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,PTRTOARR[right] ,r2x) ;
+			const auto r2x = right.size () ;
+			_CASE_REQUIRE_ (r1x + r2x <= size ()) ;
+			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,right.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			*this = concat (right) ;
 		}) ;
 	}
 
-	template <LENGTH _VAL1>
-	inline String &operator+= (const DEF<ITEM[_VAL1]> &right) {
+	inline String &operator+= (const Plain<ITEM> &right) {
 		concatto (right) ;
 		return *this ;
 	}
@@ -585,7 +572,7 @@ private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mString (len) {}
 
 private:
-	inline static LENGTH raw_string_length (const ARR<ITEM> &src) {
+	inline static LENGTH plain_string_length (const ARR<ITEM> &src) {
 		LENGTH ret = _MEMCHR_ (src ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
 		return std::move (ret) ;
@@ -1130,13 +1117,13 @@ private:
 		const auto r1x = _MAX_ (len - (mQueue.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mRead > mWrite)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRead <= mWrite) ;
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mQueue.self[mRead]] ,(mWrite - mRead)) ;
 			mQueue.swap (rax) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRead > mWrite) ;
 			auto rax = mQueue.expand (mQueue.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mQueue.size () ;
@@ -1168,7 +1155,7 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
 class Priority ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -1620,7 +1607,7 @@ private:
 		INDEX ix = it ;
 		auto rax = std::move (mPriority[ix]) ;
 		while (TRUE) {
-			//@info: '(0 - 1) >> 1' is not the same as '(0 - 1) / 2'
+			//@info: '-1 >> 1' is not the same as '-1 / 2'
 			INDEX iy = (ix - 1) >> 1 ;
 			if (iy < 0)
 				break ;
@@ -2059,20 +2046,17 @@ private:
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mDeque[it][0] != VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mDeque[it][0] == VAR_NONE) ;
 			deque_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mDeque.size () - 1)) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			INDEX ix = it + 1 ;
-			if (ix >= mDeque.size ())
-				discard ;
-			if (mDeque[ix][0] != VAR_NONE)
-				discard ;
+			_CASE_REQUIRE_ (ix < mDeque.size ()) ;
+			_CASE_REQUIRE_ (mDeque[ix][0] == VAR_NONE) ;
 			deque_rewrite (ix ,jt) ;
 			mWrite = _MIN_ ((ix + 1) ,(mDeque.size () - 1)) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			update_compress_left_force (it ,jt) ;
 		}) ;
 	}
@@ -2084,25 +2068,20 @@ private:
 			while (mRead != ix && mDeque[mRead][0] == VAR_NONE)
 				mRead++ ;
 			const auto r1x = mDeque[i][0] ;
-			_CALL_ONE_ ([&] (BOOL &if_context) {
-				if (mRead != ix)
-					discard ;
-				if (r1x != VAR_NONE)
-					discard ;
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mRead == ix) ;
+				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
 				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &if_context) {
-				if (mRead != ix)
-					discard ;
-				if (r1x == VAR_NONE)
-					discard ;
+			} ,[&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mRead == ix) ;
+				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
 				deque_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
-			} ,[&] (BOOL &if_context) {
-				if (mRead == i)
-					discard ;
+			} ,[&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mRead != i) ;
 				deque_rewrite (i ,mDeque[mRead][0]) ;
 				deque_remove (mRead) ;
 			}) ;
@@ -2113,20 +2092,17 @@ private:
 	}
 
 	void update_compress_right (INDEX it ,INDEX jt) {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mDeque[it][0] != VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mDeque[it][0] == VAR_NONE) ;
 			deque_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			INDEX ix = it - 1 ;
-			if (ix < 0)
-				discard ;
-			if (mDeque[ix][0] != VAR_NONE)
-				discard ;
+			_CASE_REQUIRE_ (ix >= 0) ;
+			_CASE_REQUIRE_ (mDeque[ix][0] == VAR_NONE) ;
 			deque_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			update_compress_right_force (it ,jt) ;
 		}) ;
 	}
@@ -2139,25 +2115,20 @@ private:
 			while (mWrite != ix && mDeque[mWrite][0] == VAR_NONE)
 				mWrite-- ;
 			const auto r1x = mDeque[jx][0] ;
-			_CALL_ONE_ ([&] (BOOL &if_context) {
-				if (mWrite != ix)
-					discard ;
-				if (r1x != VAR_NONE)
-					discard ;
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mWrite == ix) ;
+				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
 				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &if_context) {
-				if (mWrite != ix)
-					discard ;
-				if (r1x == VAR_NONE)
-					discard ;
+			} ,[&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mWrite == ix) ;
+				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
 				deque_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
-			} ,[&] (BOOL &if_context) {
-				if (mWrite == jx)
-					discard ;
+			} ,[&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mWrite != jx) ;
 				deque_rewrite (jx ,mDeque[mWrite][0]) ;
 				deque_remove (mWrite) ;
 			}) ;
@@ -2647,7 +2618,7 @@ public:
 	}
 
 	LENGTH length () const {
-		static constexpr auto M_TABLE = PACK<VAR32[256]> ({
+		static constexpr auto M_LENGTH = PACK<VAR32[256]> ({
 			0 ,1 ,1 ,2 ,1 ,2 ,2 ,3 ,1 ,2 ,2 ,3 ,2 ,3 ,3 ,4 ,
 			1 ,2 ,2 ,3 ,2 ,3 ,3 ,4 ,2 ,3 ,3 ,4 ,3 ,4 ,4 ,5 ,
 			1 ,2 ,2 ,3 ,2 ,3 ,3 ,4 ,2 ,3 ,3 ,4 ,3 ,4 ,4 ,5 ,
@@ -2666,9 +2637,9 @@ public:
 			4 ,5 ,5 ,6 ,5 ,6 ,6 ,7 ,5 ,6 ,6 ,7 ,6 ,7 ,7 ,8}) ;
 		LENGTH ret = 0 ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			ret += M_TABLE.P1[mSet[i]] ;
+			ret += M_LENGTH.P1[mSet[i]] ;
 		if (mWidth % 8 != 0)
-			ret -= M_TABLE.P1[mSet[mWidth / 8] & ~((VAR (1) << (mWidth % 8)) - 1)] ;
+			ret -= M_LENGTH.P1[mSet[mWidth / 8] & ~((VAR (1) << (mWidth % 8)) - 1)] ;
 		return std::move (ret) ;
 	}
 
@@ -2965,7 +2936,7 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
 class Set ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3438,11 +3409,11 @@ private:
 	}
 
 	void update_emplace (INDEX it ,INDEX jt) {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (it != VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it == VAR_NONE) ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it != VAR_NONE) ;
 			mSet[jt].mUp = it ;
 			auto &r1 = (mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) : (mSet[it].mRight) ;
 			update_emplace (r1 ,jt) ;
@@ -3469,18 +3440,15 @@ private:
 	void update_insert_left (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mSet[iy].mRight == VAR_NONE)
-				discard ;
-			if (!mSet[mSet[iy].mRight].mRed)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mSet[iy].mRight != VAR_NONE) ;
+			_CASE_REQUIRE_ (mSet[mSet[iy].mRight].mRed) ;
 			mSet[mSet[iy].mRight].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &if_context) {
-			if (it != mSet[ix].mRight)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it == mSet[ix].mRight) ;
 			auto &r1 = mSet[iy].mLeft ;
 			rotate_left (r1) ;
 			r1 = mTop ;
@@ -3490,9 +3458,8 @@ private:
 			rotate_right (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &if_context) {
-			if (it != mSet[ix].mLeft)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it == mSet[ix].mLeft) ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
@@ -3505,18 +3472,15 @@ private:
 	void update_insert_right (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mSet[iy].mLeft == VAR_NONE)
-				discard ;
-			if (!mSet[mSet[iy].mLeft].mRed)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mSet[iy].mLeft != VAR_NONE) ;
+			_CASE_REQUIRE_ (mSet[mSet[iy].mLeft].mRed) ;
 			mSet[mSet[iy].mLeft].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &if_context) {
-			if (it != mSet[ix].mLeft)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it == mSet[ix].mLeft) ;
 			auto &r1 = mSet[iy].mRight ;
 			rotate_right (r1) ;
 			r1 = mTop ;
@@ -3526,9 +3490,8 @@ private:
 			rotate_left (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &if_context) {
-			if (it != mSet[ix].mRight)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (it == mSet[ix].mRight) ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
@@ -3569,16 +3532,13 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (r1x)
-				discard ;
-			if (r2x)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (!r1x) ;
+			_CASE_REQUIRE_ (!r2x) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_context) {
-			if (r2x)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (!r2x) ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_right (r1) ;
@@ -3590,7 +3550,7 @@ private:
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3614,16 +3574,13 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (r1x)
-				discard ;
-			if (r2x)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (!r1x) ;
+			_CASE_REQUIRE_ (!r2x) ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &if_context) {
-			if (r2x)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (!r2x) ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_left (r1) ;
@@ -3635,7 +3592,7 @@ private:
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3717,7 +3674,7 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
 class HashSet ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -4212,7 +4169,7 @@ private:
 	INDEX &prev_next (INDEX) && = delete ;
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
 class SoftSet ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -4734,11 +4691,10 @@ private:
 
 	void update_insert (INDEX it) {
 		INDEX ix = it ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (ix != VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (ix == VAR_NONE) ;
 			mTop = mLast ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
 			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;

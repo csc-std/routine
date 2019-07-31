@@ -207,12 +207,11 @@ public:
 	}
 
 	void read (BYTE &data) popping {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mRead >= mWrite)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRead < mWrite) ;
 			data = mStream[mRead] ;
 			mRead++ ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			data = mHeap->varify_ending_item () ;
 		}) ;
 	}
@@ -319,18 +318,17 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,LENGTH _VAL1>
-	void read (const DEF<_ARG1[_VAL1]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
+	template <class _ARG1>
+	void read (const Plain<_ARG1> &data) {
 		auto rax = _ARG1 () ;
-		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
+		for (INDEX i = 0 ; i < data.size () ; i++) {
 			read (rax) ;
-			_DYNAMIC_ASSERT_ (rax == data[i]) ;
+			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
 	}
 
-	template <class _ARG1 ,LENGTH _VAL1>
-	inline ByteReader &operator>> (const DEF<_ARG1[_VAL1]> &data) {
+	template <class _ARG1>
+	inline ByteReader &operator>> (const Plain<_ARG1> &data) {
 		read (data) ;
 		return *this ;
 	}
@@ -586,15 +584,14 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,LENGTH _VAL1>
-	void write (const DEF<_ARG1[_VAL1]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
-		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
-			write (data[i]) ;
+	template <class _ARG1>
+	void write (const Plain<_ARG1> &data) {
+		for (INDEX i = 0 ; i < data.size () ; i++)
+			write (data.self[i]) ;
 	}
 
-	template <class _ARG1 ,LENGTH _VAL1>
-	inline ByteWriter &operator<< (const DEF<_ARG1[_VAL1]> &data) {
+	template <class _ARG1>
+	inline ByteWriter &operator<< (const Plain<_ARG1> &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -840,9 +837,8 @@ public:
 	}
 
 	void read (STRX &data) popping {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mRead >= mWrite)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRead < mWrite) ;
 			for (FOR_ONCE_DO_WHILE) {
 				data = mHeap->convert_endian (mStream[mRead]) ;
 				const auto r2x = mHeap->varify_escape_r (data) ;
@@ -854,7 +850,7 @@ public:
 				data = mHeap->convert_escape_r (data) ;
 				mRead++ ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			data = mHeap->varify_ending_item () ;
 		}) ;
 	}
@@ -867,9 +863,8 @@ public:
 	void read (BOOL &data) popping {
 		auto rax = STRX () ;
 		read (rax) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (rax != STRX ('t'))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('t')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('r')) ;
 			read (rax) ;
@@ -877,9 +872,8 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('e')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('T'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('T')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('R')) ;
 			read (rax) ;
@@ -887,9 +881,8 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('E')) ;
 			data = TRUE ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('f'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('f')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('a')) ;
 			read (rax) ;
@@ -899,9 +892,8 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('e')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('F'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('F')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('A')) ;
 			read (rax) ;
@@ -911,7 +903,7 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('E')) ;
 			data = FALSE ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 	}
@@ -967,44 +959,39 @@ public:
 		const auto r1x = BOOL (rax == STRX ('-')) ;
 		if (rax == STRX ('+') || rax == STRX ('-'))
 			read (rax) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (rax != STRX ('i'))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('i')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('n')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('f')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('I'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('I')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('N')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('F')) ;
 			data = VAL64_INF ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('n'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('n')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('a')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('n')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_context) {
-			if (rax != STRX ('N'))
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax == STRX ('N')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('A')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == STRX ('N')) ;
 			data = VAL64_NAN ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			const auto r2x = mHeap->varify_number_item (rax) ;
-			if (!r2x)
-				discard ;
+			_CASE_REQUIRE_ (r2x) ;
 			compute_read_number (data ,*this ,rax) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {
@@ -1030,18 +1017,15 @@ public:
 		return *this ;
 	}
 
-	template <LENGTH _VAL1>
-	void read (const DEF<STRX[_VAL1]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
+	void read (const Plain<STRX> &data) {
 		auto rax = STRX () ;
-		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
+		for (INDEX i = 0 ; i < data.size () ; i++) {
 			read (rax) ;
-			_DYNAMIC_ASSERT_ (rax == data[i]) ;
+			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
 	}
 
-	template <LENGTH _VAL1>
-	inline TextReader &operator>> (const DEF<STRX[_VAL1]> &data) {
+	inline TextReader &operator>> (const Plain<STRX> &data) {
 		read (data) ;
 		return *this ;
 	}
@@ -1148,12 +1132,11 @@ private:
 			while (TRUE) {
 				if (!mHeap->varify_number_item (top))
 					break ;
-				_CALL_ONE_ ([&] (BOOL &if_context) {
+				_CALL_IF_ ([&] (BOOL &_case_req) {
 					const auto r1x = rax[0] * mHeap->varify_radix () + mHeap->convert_number_r (top) ;
-					if (rax[0] > r1x)
-						discard ;
+					_CASE_REQUIRE_ (rax[0] < r1x) ;
 					rax[0] = r1x ;
-				} ,[&] (BOOL &if_context) {
+				} ,[&] (BOOL &_case_req) {
 					rax[1]++ ;
 				}) ;
 				reader = ris.copy () ;
@@ -1376,9 +1359,8 @@ public:
 	}
 
 	void write (const STRX &data) {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!mHeap->varify_escape_w (data))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mHeap->varify_escape_w (data)) ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
 			const auto r1x = mHeap->varify_escape_item () ;
 			mStream[mWrite] = mHeap->convert_endian (r1x) ;
@@ -1386,7 +1368,7 @@ public:
 			const auto r2x = mHeap->convert_escape_w (data) ;
 			mStream[mWrite] = mHeap->convert_endian (r2x) ;
 			mWrite++ ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
 			mStream[mWrite] = mHeap->convert_endian (data) ;
 			mWrite++ ;
@@ -1444,23 +1426,18 @@ public:
 			STRX ('+') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
 		static constexpr auto M_SINF = PACK<STRX[4]> ({
 			STRX ('-') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!_ISNAN_ (data))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISNAN_ (data)) ;
 			write (PhanBuffer<const STRX>::make (M_NAN.P1)) ;
-		} ,[&] (BOOL &if_context) {
-			if (!_ISINF_ (data))
-				discard ;
-			if (data < 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISINF_ (data)) ;
+			_CASE_REQUIRE_ (data > 0) ;
 			write (PhanBuffer<const STRX>::make (M_INF.P1)) ;
-		} ,[&] (BOOL &if_context) {
-			if (!_ISINF_ (data))
-				discard ;
-			if (data > 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISINF_ (data)) ;
+			_CASE_REQUIRE_ (data < 0) ;
 			write (PhanBuffer<const STRX>::make (M_SINF.P1)) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r1x = mHeap->varify_val32_precision () ;
@@ -1481,23 +1458,18 @@ public:
 			STRX ('+') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
 		static constexpr auto M_SINF = PACK<STRX[4]> ({
 			STRX ('-') ,STRX ('i') ,STRX ('n') ,STRX ('f')}) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!_ISNAN_ (data))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISNAN_ (data)) ;
 			write (PhanBuffer<const STRX>::make (M_NAN.P1)) ;
-		} ,[&] (BOOL &if_context) {
-			if (!_ISINF_ (data))
-				discard ;
-			if (data < 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISINF_ (data)) ;
+			_CASE_REQUIRE_ (data > 0) ;
 			write (PhanBuffer<const STRX>::make (M_INF.P1)) ;
-		} ,[&] (BOOL &if_context) {
-			if (!_ISINF_ (data))
-				discard ;
-			if (data > 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ISINF_ (data)) ;
+			_CASE_REQUIRE_ (data < 0) ;
 			write (PhanBuffer<const STRX>::make (M_SINF.P1)) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			auto rax = Buffer<STRX ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r1x = mHeap->varify_val64_precision () ;
@@ -1522,15 +1494,12 @@ public:
 		return *this ;
 	}
 
-	template <LENGTH _VAL1>
-	void write (const DEF<STRX[_VAL1]> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
-		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++)
-			write (data[i]) ;
+	void write (const Plain<STRX> &data) {
+		for (INDEX i = 0 ; i < data.size () ; i++)
+			write (data.self[i]) ;
 	}
 
-	template <LENGTH _VAL1>
-	inline TextWriter &operator<< (const DEF<STRX[_VAL1]> &data) {
+	inline TextWriter &operator<< (const Plain<STRX> &data) {
 		write (data) ;
 		return *this ;
 	}
@@ -1585,9 +1554,8 @@ public:
 private:
 	void compute_write_number (const VAR64 &data ,const PhanBuffer<STRX> &out ,INDEX &it) const {
 		INDEX iw = it ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (data <= 0)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (data > 0) ;
 			auto rax = data ;
 			while (TRUE) {
 				if (rax == 0)
@@ -1595,9 +1563,8 @@ private:
 				out[--iw] = mHeap->convert_number_w (rax % mHeap->varify_radix ()) ;
 				rax /= mHeap->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_context) {
-			if (data >= 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (data < 0) ;
 			auto rax = data ;
 			while (TRUE) {
 				if (rax == 0)
@@ -1606,7 +1573,8 @@ private:
 				rax /= mHeap->varify_radix () ;
 			}
 			out[--iw] = STRX ('-') ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (data == 0) ;
 			out[--iw] = mHeap->convert_number_w (0) ;
 		}) ;
 		it = iw ;
@@ -1617,9 +1585,8 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r3x = log_of_number (rax[0]) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (_ABS_ (r3x - 1 + rax[1]) < precision)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (_ABS_ (r3x - 1 + rax[1]) >= precision) ;
 			for (FOR_ONCE_DO_WHILE) {
 				const auto r4x = _MAX_ ((r3x - 1 - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
@@ -1631,11 +1598,9 @@ private:
 				rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
 				rax[1]++ ;
 			}
-		} ,[&] (BOOL &if_context) {
-			if (rax[1] < 1 - r3x)
-				discard ;
-			if (rax[1] >= 0)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax[1] >= 1 - r3x) ;
+			_CASE_REQUIRE_ (rax[1] < 0) ;
 			for (FOR_ONCE_DO_WHILE) {
 				const auto r10x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
@@ -1647,9 +1612,8 @@ private:
 				rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
 				rax[1]++ ;
 			}
-		} ,[&] (BOOL &if_context) {
-			if (rax[1] >= 1 - r3x)
-				discard ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax[1] < 1 - r3x) ;
 			for (FOR_ONCE_DO_WHILE) {
 				const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 				for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
@@ -1663,11 +1627,10 @@ private:
 			}
 		}) ;
 		const auto r8x = log_of_number (rax[0]) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
+		_CALL_IF_ ([&] (BOOL &_case_req) {
 			//@info: case 'x.xxxExxx'
 			const auto r11x = r8x - 1 + rax[1] ;
-			if (_ABS_ (r11x) < precision)
-				discard ;
+			_CASE_REQUIRE_ (_ABS_ (r11x) >= precision) ;
 			compute_write_number (r11x ,out ,iw) ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (r11x <= 0)
@@ -1688,22 +1651,19 @@ private:
 			iw += EFLAG (out[ix] == STRX ('.')) ;
 			out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
 			rax[0] /= mHeap->varify_radix () ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			//@info: case 'xxx000'
-			if (rax[1] <= 0)
-				discard ;
+			_CASE_REQUIRE_ (rax[1] > 0) ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = mHeap->convert_number_w (0) ;
 			for (INDEX i = 0 ; i < r8x ; i++) {
 				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
 				rax[0] /= mHeap->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			//@info: case 'xxx.xxx'
-			if (rax[1] < 1 - r8x)
-				discard ;
-			if (rax[1] >= 0)
-				discard ;
+			_CASE_REQUIRE_ (rax[1] >= 1 - r8x) ;
+			_CASE_REQUIRE_ (rax[1] < 0) ;
 			const auto r7x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r7x ; i++)
 				rax[0] /= mHeap->varify_radix () ;
@@ -1719,12 +1679,10 @@ private:
 				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
 				rax[0] /= mHeap->varify_radix () ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			//@info: case '0.000xxx'
-			if (rax[1] >= 1 - r8x)
-				discard ;
-			if (rax[1] >= 0)
-				discard ;
+			_CASE_REQUIRE_ (rax[1] < 1 - r8x) ;
+			_CASE_REQUIRE_ (rax[1] < 0) ;
 			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r6x ; i++)
 				rax[0] /= mHeap->varify_radix () ;
@@ -1741,10 +1699,9 @@ private:
 			out[--iw] = STRX ('.') ;
 			iw += EFLAG (out[ix] == STRX ('.')) ;
 			out[--iw] = mHeap->convert_number_w (0) ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			//@info: case '0'
-			if (rax[1] != 0)
-				discard ;
+			_CASE_REQUIRE_ (rax[1] == 0) ;
 			out[--iw] = mHeap->convert_number_w (0) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {
@@ -1973,11 +1930,11 @@ inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &arg1 ,const _ARGS 
 }
 } ;
 
-template <class SIZE = void>
+template <class SIZE = VOID>
 class LLTextReader ;
 
 template <>
-class LLTextReader<void> final :private Wrapped<void> {
+class LLTextReader<void> :private Wrapped<void> {
 private:
 	template <class>
 	friend class LLTextReader ;
@@ -2100,16 +2057,14 @@ public:
 		read () ;
 	}
 
-	template <LENGTH _VAL1>
-	void read (const DEF<STRU8[_VAL1]> &data) {
-		for (INDEX i = 0 ; i < _VAL1 - 1 ; i++) {
-			_DYNAMIC_ASSERT_ (get (0) == data[i]) ;
+	void read (const Plain<STRU8> &data) {
+		for (INDEX i = 0 ; i < data.size () ; i++) {
+			_DYNAMIC_ASSERT_ (get (0) == data.self[i]) ;
 			read () ;
 		}
 	}
 
-	template <LENGTH _VAL1>
-	inline LLTextReader &operator>> (const DEF<STRU8[_VAL1]> &data) {
+	inline LLTextReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
 		return *this ;
 	}
@@ -2186,19 +2141,19 @@ public:
 			read () ;
 		}
 		for (INDEX i = 0 ; i < r3x ; i++) {
-			rax = get (0) ;
-			read () ;
-			_CALL_ONE_ ([&] (BOOL &if_context) {
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				rax = get (0) ;
+				read () ;
 				const auto r4x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!r4x)
-					discard ;
+				_CASE_REQUIRE_ (r4x) ;
 				rax = get (0) ;
 				read () ;
 				rax = mReader->attr ().convert_escape_r (rax) ;
-			} ,[&] (BOOL &if_context) {
+				data[i] = rax ;
+			} ,[&] (BOOL &_case_req) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
+				data[i] = rax ;
 			}) ;
-			data[i] = rax ;
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r2x)
@@ -2300,19 +2255,19 @@ private:
 				break ;
 			if (ris[0] == STRU8 ('\"'))
 				break ;
-			rax = ris[0] ;
-			ris++ ;
-			_CALL_ONE_ ([&] (BOOL &if_context) {
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				rax = ris[0] ;
+				ris++ ;
 				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!r1x)
-					discard ;
+				_CASE_REQUIRE_ (r1x) ;
 				rax = ris[0] ;
 				ris++ ;
 				rax = mReader->attr ().convert_escape_r (rax) ;
-			} ,[&] (BOOL &if_context) {
+				ret++ ;
+			} ,[&] (BOOL &_case_req) {
 				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
+				ret++ ;
 			}) ;
-			ret++ ;
 		}
 		_DYNAMIC_ASSERT_ (ris[0] == STRU8 ('\"')) ;
 		ris++ ;

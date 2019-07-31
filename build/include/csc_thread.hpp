@@ -124,11 +124,10 @@ public:
 			const auto r2x = PACK<PTR<Holder> ,INDEX> {&r1 ,pid[i]} ;
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
-				_CALL_SEH_ ([&] () {
+				_CALL_TRY_ ([&] () {
 					compute_execute (*r2x.P1 ,r2x.P2) ;
-				} ,[&] (const Exception &e) {
-					const auto r3x = e.what () ;
-					(void) r3x ;
+				} ,[&] () {
+					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
 		}
@@ -150,10 +149,10 @@ public:
 				break ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		if (!r1.mException.exist ())
-			return ;
 		const auto r2x = std::move (r1.mException) ;
-		throw r2x.self ;
+		if (!r2x.exist ())
+			return ;
+		r2x->raise () ;
 	}
 
 	void stop () {
@@ -178,7 +177,7 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			_CALL_SEH_ ([&] () {
+			_CALL_EH_ ([&] () {
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
@@ -416,11 +415,10 @@ public:
 			const auto r2x = &r1 ;
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
-				_CALL_SEH_ ([&] () {
+				_CALL_TRY_ ([&] () {
 					compute_execute (*r2x) ;
-				} ,[&] (const Exception &e) {
-					const auto r3x = e.what () ;
-					(void) r3x ;
+				} ,[&] () {
+					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
 		}
@@ -441,10 +439,10 @@ public:
 				break ;
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		if (!r1.mException.exist ())
-			return ;
 		const auto r2x = std::move (r1.mException) ;
-		throw r2x.self ;
+		if (!r2x.exist ())
+			return ;
+		r2x->raise () ;
 	}
 
 	void stop () {
@@ -470,7 +468,7 @@ private:
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			compute_poll (_self ,rax) ;
-			_CALL_SEH_ ([&] () {
+			_CALL_EH_ ([&] () {
 				_self.mThreadProc (rax.self) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
@@ -629,11 +627,10 @@ public:
 		const auto r2x = &r1 ;
 		//@warn: move object having captured context
 		r1.mThreadPool = AutoRef<std::thread>::make ([r2x] () noexcept {
-			_CALL_SEH_ ([&] () {
+			_CALL_TRY_ ([&] () {
 				compute_execute (*r2x) ;
-			} ,[&] (const Exception &e) {
-				const auto r3x = e.what () ;
-				(void) r3x ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
 			}) ;
 		}) ;
 	}
@@ -666,7 +663,7 @@ private:
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
-		_CALL_SEH_ ([&] () {
+		_CALL_EH_ ([&] () {
 			compute_push (_self ,_self.mThreadProc ()) ;
 		} ,[&] (const Exception &e) noexcept {
 			_CALL_TRY_ ([&] () {
@@ -788,7 +785,7 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
 				continue ;
-			throw r1.mException.self ;
+			r1.mException->raise () ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
 		ITEM ret = std::move (r1.mItem.self) ;
@@ -812,7 +809,7 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
 				continue ;
-			throw r1.mException.self ;
+			r1.mException->raise () ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
 		ITEM ret = std::move (r1.mItem.self) ;

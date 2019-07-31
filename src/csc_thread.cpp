@@ -5,7 +5,7 @@ namespace UNITTEST {
 TEST_CLASS (UNITTEST_CSC_THREAD) {
 public:
 	TEST_METHOD (TEST_CSC_THREAD) {
-		struct A {
+		struct A :public Interface {
 			inline int work () const {
 				GlobalRuntime::thread_sleep (std::chrono::milliseconds (100)) ;
 				return 3 ;

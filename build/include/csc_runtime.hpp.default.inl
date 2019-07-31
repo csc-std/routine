@@ -10,13 +10,11 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -31,7 +29,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -39,15 +36,15 @@ namespace CSC {
 template <class TYPE>
 class Coroutine<TYPE>::Implement {
 private:
-	struct BREAKPOINT {
-		jmp_buf unused ;
+	struct CONTEXT_EBP {
+		jmp_buf mEbp ;
 	} ;
 
-	static constexpr auto BREAK_POINT_SIZE = _SIZEOF_ (BREAKPOINT) + _ALIGNOF_ (BREAKPOINT) ;
+	static constexpr auto CONTEXT_EBP_SIZE = _SIZEOF_ (CONTEXT_EBP) + _ALIGNOF_ (CONTEXT_EBP) ;
 	static constexpr auto STACK_FRAME_SIZE = 65536 ;
 
-	struct BREAK_POINT {
-		DEF<BYTE[BREAK_POINT_SIZE]> mBreakPoint ;
+	struct BREAKPOINT {
+		DEF<BYTE[CONTEXT_EBP_SIZE]> mContextEbp ;
 		ARRAY3<PTR<void>> mStackPoint ;
 		DEF<BYTE[STACK_FRAME_SIZE]> mStackFrame ;
 	} ;
@@ -57,42 +54,45 @@ private:
 
 public:
 	static void init_break_point (PTR<AnyRef<void>> bp) {
-		auto rax = BREAK_POINT () ;
+		auto rax = BREAKPOINT () ;
 		_ZERO_ (rax) ;
 		rax.mStackPoint[0] = &bp ;
 		rax.mStackPoint[1] = NULL ;
 		rax.mStackPoint[2] = NULL ;
-		*bp = AnyRef<BREAK_POINT>::make (std::move (rax)) ;
+		*bp = AnyRef<BREAKPOINT>::make (std::move (rax)) ;
 	}
 
 	static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
-		auto &r1 = bp->rebind<BREAK_POINT> ().self ;
+		auto &r1 = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[0] != NULL) ;
 		r1.mStackPoint[1] = &bp ;
-		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (BREAKPOINT) ;
-		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (BREAKPOINT) - r1x) : 0 ;
-		const auto r3x = &_NULL_<BYTE> () + (_ADDRESS_ (&r1.mBreakPoint) + r1x) ;
-		const auto r4x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
-		_DEBUG_ASSERT_ (_ABS_ (r4x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
-		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1.mStackPoint[EFLAG (r4x < 0)]) ,_ABS_ (r4x)) ;
-		const auto r5x = setjmp (_LOAD_<BREAKPOINT> (r3x)) ;
-		(void) r5x ;
+		const auto r1x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
+		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
+		const auto r2x = EFLAG (r1x < 0) ;
+		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,_ABS_ (r1x)) ;
+		const auto r3x = setjmp (load_context_ebp (&r1.mContextEbp).mEbp) ;
+		(void) r3x ;
 	}
 
 	static void goto_break_point (PTR<AnyRef<void>> bp) noexcept {
-		auto &r1 = bp->rebind<BREAK_POINT> ().self ;
+		auto &r1 = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[0] != NULL) ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[1] != NULL) ;
 		r1.mStackPoint[2] = &bp ;
 		_STATIC_WARNING_ ("mark") ;
 		_DEBUG_ASSERT_ (r1.mStackPoint[2] == r1.mStackPoint[1]) ;
-		const auto r1x = _ADDRESS_ (&r1.mBreakPoint) % _ALIGNOF_ (BREAKPOINT) ;
-		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (BREAKPOINT) - r1x) : 0 ;
-		const auto r3x = &_NULL_<BYTE> () + (_ADDRESS_ (&r1.mBreakPoint) + r1x) ;
-		const auto r4x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
-		_DEBUG_ASSERT_ (_ABS_ (r4x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
-		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1.mStackPoint[EFLAG (r4x < 0)]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r4x)) ;
-		longjmp (_LOAD_<BREAKPOINT> (r3x) ,1) ;
+		const auto r1x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
+		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
+		const auto r2x = EFLAG (r1x < 0) ;
+		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r1x)) ;
+		longjmp (load_context_ebp (&r1.mContextEbp).mEbp ,1) ;
+	}
+
+	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE]> address) noexcept {
+		const auto r1x = _ADDRESS_ (address) % _ALIGNOF_ (CONTEXT_EBP) ;
+		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (CONTEXT_EBP) - r1x) : 0 ;
+		const auto r3x = &_NULL_<BYTE> () + _ADDRESS_ (address) + r1x ;
+		return _LOAD_<CONTEXT_EBP> (r3x) ;
 	}
 } ;
 
@@ -138,10 +138,7 @@ public:
 	}
 
 	void random_skip (LENGTH len) override {
-#pragma push_macro ("discard")
-#undef discard
 		mRandomDevice->discard (len) ;
-#pragma pop_macro ("discard")
 	}
 } ;
 

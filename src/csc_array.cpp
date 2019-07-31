@@ -9,7 +9,7 @@ public:
 	TEST_METHOD (TEST_CSC_ARRAY_STRING) {
 		const auto r1x = String<STR> () ;
 		_UNITTEST_ASSERT_ (r1x.size () == 0) ;
-		const auto r2x = String<STR> (PTRTOARR[_PCSTR_ ("")]) ;
+		const auto r2x = String<STR> (_PCSTR_ ("").self) ;
 		_UNITTEST_ASSERT_ (r2x.size () == 0) ;
 		const auto r3x = String<STR> (_PCSTR_ ("")) ;
 		_UNITTEST_ASSERT_ (r3x.size () == 0) ;

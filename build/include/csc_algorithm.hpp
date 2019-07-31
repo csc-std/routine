@@ -911,14 +911,13 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 				}
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
-			_CALL_ONE_ ([&] (BOOL &if_context) {
-				if (mDXLoss[0] < mDXLoss[2])
-					discard ;
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (mDXLoss[0] >= mDXLoss[2]) ;
 				const auto r2x = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
-			} ,[&] (BOOL &if_context) {
+			} ,[&] (BOOL &_case_req) {
 				mIG.fill (UNIT (0)) ;
 			}) ;
 		}
@@ -963,7 +962,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 		inline UNIT hessian_matrix_each (INDEX y ,INDEX x ,const UNIT &ys) const {
 			UNIT ret = UNIT (0) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++) {
-				const auto r1x = hessian_matrix_each_part (x ,i ,ys) ;
+				const auto r1x = hessian_matrix_each_factor (x ,i ,ys) ;
 				ret += r1x * (-mIS[y] * mIY[i] * ys) ;
 				if (i == y)
 					continue ;
@@ -972,7 +971,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			return std::move (ret) ;
 		}
 
-		inline UNIT hessian_matrix_each_part (INDEX x ,INDEX z ,const UNIT &ys) const {
+		inline UNIT hessian_matrix_each_factor (INDEX x ,INDEX z ,const UNIT &ys) const {
 			UNIT ret = UNIT (0) ;
 			for (INDEX i = 0 ; i < mDM.cx () ; i++) {
 				ret += mDM[z][i] * (-mIY[i] * mIS[x] * ys) ;
@@ -1054,9 +1053,8 @@ private:
 	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
 
 	void compute_search_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mHeap[it].mLeaf == VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mHeap[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
@@ -1064,7 +1062,8 @@ private:
 					continue ;
 				out.add (ix) ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mHeap[it].mLeaf == VAR_NONE) ;
 			const auto r3x = mHeap[it].mKey ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (r3x < bound[rot][0])
@@ -1096,9 +1095,8 @@ private:
 	}
 
 	void compute_search_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (mHeap[it].mLeaf == VAR_NONE)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mHeap[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
@@ -1117,7 +1115,8 @@ private:
 				out[jx].P1 = ix ;
 				out[jx].P2 = r2x ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mHeap[it].mLeaf == VAR_NONE) ;
 			const auto r3x = mHeap[it].mKey ;
 			if (r3x >= point[rot] - out[out.length () - 1].P2)
 				compute_search_range (point ,mHeap[it].mLeft ,mNextRot[rot] ,out) ;
@@ -1197,12 +1196,12 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= mVertex.size ()) ;
-			_CALL_ONE_ ([&] (BOOL &if_context) {
-				if (seg_len > 1)
-					discard ;
+			_CALL_IF_ ([&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (seg_len == 1) ;
 				INDEX jx = mHeap.alloc (UNIT (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
-			} ,[&] (BOOL &if_context) {
+			} ,[&] (BOOL &_case_req) {
+				_CASE_REQUIRE_ (seg_len > 1) ;
 				INDEX ix = seg + seg_len / 2 ;
 				for (INDEX i = seg ,ie = seg + seg_len - 1 ; i < ie ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;

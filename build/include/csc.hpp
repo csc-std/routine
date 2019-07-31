@@ -26,7 +26,6 @@
 
 #if defined (linux) || defined (__linux) || defined (__linux__)
 #define __CSC_SYSTEM_LINUX__
-#elif defined SAG_COM
 #elif defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
 #define __CSC_SYSTEM_WINDOWS__
 #endif
@@ -164,11 +163,6 @@
 #error "∑(っ°Д° ;)っ : defined 'exports'"
 #endif
 #define exports
-
-#ifdef discard
-#error "∑(っ°Д° ;)っ : defined 'discard'"
-#endif
-#define discard return (void) (if_context = FALSE)
 #endif
 
 #ifdef __CSC__
@@ -177,13 +171,11 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #include <cstddef>
@@ -202,7 +194,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -316,9 +307,9 @@ using std::remove_extent ;
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
 #else
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
@@ -336,6 +327,8 @@ using std::remove_extent ;
 #else
 #define FOR_ONCE_DO_WHILE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #endif
+
+#define _CASE_REQUIRE_(...) do {if (!(_UNW_ (__VA_ARGS__))) return (void) (_case_req = FALSE) ; } while (FALSE)
 
 using BOOL = bool ;
 
@@ -508,15 +501,15 @@ using STRU8 = BYTE ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
-#define _PCSTRU8_(arg1) CSC::_CAST_<const CSC::STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,arg1)))]> (_CAT_ (u8 ,arg1))
-#define _PCSTRU16_(arg1) CSC::_CAST_<const CSC::STRU16[_COUNTOF_ (decltype (_CAT_ (u ,arg1)))]> (_CAT_ (u ,arg1))
-#define _PCSTRU32_(arg1) CSC::_CAST_<const CSC::STRU32[_COUNTOF_ (decltype (_CAT_ (U ,arg1)))]> (_CAT_ (U ,arg1))
+#define _PCSTRU8_(arg1) CSC::Plain<CSC::STRU8> (_CAT_ (u8 ,arg1))
+#define _PCSTRU16_(arg1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg1))
+#define _PCSTRU32_(arg1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg1))
 
 using STRA = char ;
 using STRW = wchar_t ;
 
-#define _PCSTRA_(arg1) CSC::_CAST_<const CSC::STRA[_COUNTOF_ (decltype (_UNW_ (arg1)))]> (_UNW_ (arg1))
-#define _PCSTRW_(arg1) CSC::_CAST_<const CSC::STRW[_COUNTOF_ (decltype (_CAT_ (L ,arg1)))]> (_CAT_ (L ,arg1))
+#define _PCSTRA_(arg1) CSC::Plain<CSC::STRA> (_UNW_ (arg1))
+#define _PCSTRW_(arg1) CSC::Plain<CSC::STRW> (_CAT_ (L ,arg1))
 
 #ifdef __CSC_CONFIG_STRA__
 using STR = STRA ;
@@ -580,6 +573,7 @@ using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 using DEFAULT_HUGEBUFFER_SIZE = ARGC<8388608> ;
 using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+using DEFAULT_RETRYTIMES_SIZE = ARGC<64> ;
 using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
 using DEFAULT_EXPANDGUARD_SIZE = ARGC<65536> ;
 
@@ -809,7 +803,7 @@ inline RESULTOF_TYPE<_ARG1 ()> _CALL_ (_ARG1 &&arg1) popping {
 }
 
 template <class _ARG1>
-inline void _CALL_ONE_ (_ARG1 &&arg1) {
+inline void _CALL_IF_ (_ARG1 &&arg1) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
 	auto rax = TRUE ;
@@ -817,14 +811,14 @@ inline void _CALL_ONE_ (_ARG1 &&arg1) {
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline void _CALL_ONE_ (_ARG1 &&arg1 ,_ARGS &&...args) {
+inline void _CALL_IF_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
 	auto rax = TRUE ;
 	arg1 (rax) ;
 	if (rax)
 		return ;
-	_CALL_ONE_ (std::forward<_ARGS> (args)...) ;
+	_CALL_IF_ (std::forward<_ARGS> (args)...) ;
 }
 
 //@warn: assure ruined object when an exception was thrown
@@ -840,7 +834,7 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) ;
 
 template <class _ARG1>
-inline void _CALL_SEH_ (_ARG1 &&arg1) noexcept {
+inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
 	arg1 () ;
@@ -848,7 +842,7 @@ inline void _CALL_SEH_ (_ARG1 &&arg1) noexcept {
 
 //@info: the function is incompleted without 'csc_ext.hpp'
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_SEH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
+inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
 template <class _ARG1>
 inline const RESULTOF_TYPE<_ARG1 ()> &_CACHE_ (_ARG1 &&arg1) popping {
@@ -1031,12 +1025,12 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	_CALL_ONE_ ([&] (BOOL &if_context) {
-		if (dst == src)
-			discard ;
+	_CALL_IF_ ([&] (BOOL &_case_req) {
+		_CASE_REQUIRE_ (dst != src) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst[i] = src[len + ~i] ;
-	} ,[&] (BOOL &if_context) {
+	} ,[&] (BOOL &_case_req) {
+		_CASE_REQUIRE_ (dst == src) ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
@@ -1067,12 +1061,12 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (dst1 == dst2)
 		return ;
-	_CALL_ONE_ ([&] (BOOL &if_context) {
-		if (dst1 > dst2)
-			discard ;
+	_CALL_IF_ ([&] (BOOL &_case_req) {
+		_CASE_REQUIRE_ (dst1 < dst2) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
-	} ,[&] (BOOL &if_context) {
+	} ,[&] (BOOL &_case_req) {
+		_CASE_REQUIRE_ (dst1 > dst2) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
 	}) ;
@@ -1135,116 +1129,6 @@ inline void _MEMFILL_ (DEF<_ARG1[_VAL1]> &dst ,const _ARG1 &val) {
 }
 } ;
 
-class Exception final {
-private:
-	inline static constexpr LENGTH expr_sub (LENGTH arg1) {
-		return arg1 - 1 ;
-	}
-
-	template <class SIZE>
-	class Holder {
-	private:
-		friend Exception ;
-		DEF<STR[SIZE::value]> mString ;
-
-	public:
-		inline Holder () = delete ;
-
-		template <LENGTH... _VALS>
-		inline explicit Holder (const DEF<STRA[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
-			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
-		}
-
-		template <LENGTH... _VALS>
-		inline explicit Holder (const DEF<STRW[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
-			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
-		}
-	} ;
-
-private:
-	const ARR<STR> &mWhat ;
-
-public:
-	inline Exception () = delete ;
-
-	template <LENGTH _VAL1>
-	inline explicit Exception (const DEF<STR[_VAL1]> &_what) noexcept :mWhat (PTRTOARR[_what]) {}
-
-	template <LENGTH _VAL1>
-	inline explicit Exception (DEF<STR[_VAL1]> &) = delete ;
-
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept :mWhat (expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
-
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept :mWhat (expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
-
-	inline const ARR<STR> &what () const noexcept {
-		return mWhat ;
-	}
-
-private:
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
-		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
-		auto &r1 = _CACHE_ ([r1x] () noexcept {
-			return r1x ;
-		}) ;
-		return PTRTOARR[r1.mString] ;
-	}
-
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
-		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
-		auto &r1 = _CACHE_ ([r1x] () noexcept {
-			return r1x ;
-		}) ;
-		return PTRTOARR[r1.mString] ;
-	}
-
-	template <LENGTH _VAL1>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
-		array[_VAL1 - 1] = 0 ;
-	}
-
-	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
-		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
-			_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
-			array[i + _VAL2] = STR (arg1[i]) ;
-		}
-		template_write (array ,_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
-	}
-
-	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
-		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
-			_DEBUG_ASSERT_ (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ;
-			array[i + _VAL2] = STR (arg1[i]) ;
-		}
-		template_write (_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
-	}
-} ;
-
-//@warn: assure ruined object when an exception was thrown
-template <class _ARG1 ,class... _ARGS>
-inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-	try {
-		arg1 () ;
-		return ;
-	} catch (const Exception &e) {
-		const auto r1x = e.what () ;
-		(void) r1x ;
-	}
-	_CALL_TRY_ (std::forward<_ARGS> (args)...) ;
-}
-
 class Interface {
 public:
 	inline Interface () = default ;
@@ -1287,6 +1171,149 @@ public:
 	inline Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
+
+template <class TYPE>
+class Plain final {
+private:
+	_STATIC_ASSERT_ (stl::is_literals<TYPE>::value) ;
+	const ARR<TYPE> &mPlain ;
+	LENGTH mSize ;
+
+public:
+	inline Plain () = delete ;
+
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline constexpr implicit Plain (const DEF<_ARG1[_VAL1]> &right) :mPlain (PTRTOARR[_CAST_<TYPE[_VAL1]> (right)]) ,mSize (_VAL1 - 1) {}
+
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline constexpr implicit Plain (DEF<_ARG1[_VAL1]> &) = delete ;
+
+	inline constexpr LENGTH size () const {
+		return mSize ;
+	}
+
+	inline const ARR<TYPE> &to () const noexcept {
+		return mPlain ;
+	}
+
+	inline implicit operator const ARR<TYPE> & () const noexcept {
+		return to () ;
+	}
+} ;
+
+template <>
+class Plain<void> :private Wrapped<void> {
+private:
+	template <class SIZE>
+	class Holder {
+	private:
+		friend Plain ;
+		DEF<STR[SIZE::value]> mString ;
+
+	public:
+		inline Holder () = delete ;
+
+		template <LENGTH... _VALS>
+		inline explicit Holder (const DEF<STRA[_VALS]> &...args) noexcept {
+			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
+			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
+		}
+
+		template <LENGTH... _VALS>
+		inline explicit Holder (const DEF<STRW[_VALS]> &...args) noexcept {
+			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
+			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
+		}
+	} ;
+
+public:
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
+		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
+		auto &r1 = _CACHE_ ([r1x] () noexcept {
+			return r1x ;
+		}) ;
+		return PTRTOARR[r1.mString] ;
+	}
+
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
+		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
+		auto &r1 = _CACHE_ ([r1x] () noexcept {
+			return r1x ;
+		}) ;
+		return PTRTOARR[r1.mString] ;
+	}
+
+private:
+	template <LENGTH _VAL1>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
+		array[_VAL1 - 1] = 0 ;
+	}
+
+	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
+			const auto r1x = (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ? (STR (arg1[i])) : (STR ('?')) ;
+			array[i + _VAL2] = r1x ;
+		}
+		template_write (array ,_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
+	}
+
+	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
+			const auto r1x = (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ? (STR (arg1[i])) : (STR ('?')) ;
+			array[i + _VAL2] = r1x ;
+		}
+		template_write (_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
+	}
+} ;
+
+class Exception final {
+private:
+	inline static constexpr LENGTH expr_sub (LENGTH arg1) {
+		return arg1 - 1 ;
+	}
+
+private:
+	const ARR<STR> &mWhat ;
+
+public:
+	inline Exception () = delete ;
+
+	inline explicit Exception (const Plain<STR> &_what) noexcept :mWhat (_what.self) {}
+
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept :mWhat (Plain<void>::expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
+
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept :mWhat (Plain<void>::expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
+
+	inline const ARR<STR> &what () const noexcept {
+		return mWhat ;
+	}
+
+	inline void raise () const {
+		throw *this ;
+	}
+} ;
+
+//@warn: assure ruined object when an exception was thrown
+template <class _ARG1 ,class... _ARGS>
+inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	try {
+		arg1 () ;
+		return ;
+	} catch (const Exception &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+	_CALL_TRY_ (std::forward<_ARGS> (args)...) ;
+}
 
 class GlobalHeap final :private Wrapped<void> {
 private:
@@ -1384,7 +1411,7 @@ public:
 	}
 
 	inline ~ScopedGuard () noexcept {
-		_CALL_SEH_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mLock.unlock () ;
 		}) ;
 	}
@@ -2059,7 +2086,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CALL_SEH_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;
@@ -2167,7 +2194,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CALL_SEH_ ([&] () {
+		_CALL_EH_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;
@@ -2441,12 +2468,6 @@ public:
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
-		_DEBUG_ASSERT_ (function != NULL) ;
-		address_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
-	}
-
-	template <class _ARG1>
 	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
 		address_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
@@ -2591,7 +2612,6 @@ class Buffer ;
 using SFLEX = ARGC<0> ;
 using SFIXED = ARGC<-1> ;
 using SAUTO = ARGC<-2> ;
-using SPHAN = ARGC<-3> ;
 using SCPHAN = ARGC<-4> ;
 using SMPHAN = ARGC<-5> ;
 

@@ -10,18 +10,17 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
 #include <cstdio>
 #include <cstdlib>
+#include <signal.h>
 
 #include <unistd.h>
 #include <execinfo.h>
@@ -33,7 +32,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -180,9 +178,8 @@ public:
 		mLogPath = r1x ;
 	}
 
-	template <LENGTH _VAL1>
-	void log (const DEF<STR[_VAL1]> &tag ,const PhanBuffer<const STR> &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[tag] ,(_VAL1 - 1)) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
+	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
+		log (PhanBuffer<const STR>::make (tag.self ,tag.size ()) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -295,7 +292,18 @@ private:
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		std::atexit (std::abort) ;
+		std::atexit ([] () noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGFPE ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGILL ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGSEGV ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {

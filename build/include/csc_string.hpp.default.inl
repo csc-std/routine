@@ -10,13 +10,11 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -34,7 +32,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -93,28 +90,28 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 
 inline exports String<STRW> _ASTOWS_ (const String<STRA> &src) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C")))
+	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
 		return _U8STOWS_ (_UASTOU8S_ (src)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[_PCSTRA_ (".936")] ,4))
+	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
 		return _GBKSTOWS_ (src) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,PTRTOARR[_PCSTRA_ ("zh_CN")] ,5))
+	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
 		return _GBKSTOWS_ (src) ;
 	return _inline_LOCALE_LASTOWS_ (src) ;
 }
 
 inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = std::setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C")))
+	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
 		return _U8STOUAS_ (_WSTOU8S_ (src)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,PTRTOARR[_PCSTRA_ (".936")] ,4))
+	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
 		return _WSTOGBKS_ (src) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,PTRTOARR[_PCSTRA_ ("zh_CN")] ,5))
+	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
 		return _WSTOGBKS_ (src) ;
 	return _inline_LOCALE_WSTOLAS_ (src) ;
 }

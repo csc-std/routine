@@ -10,13 +10,11 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -27,6 +25,7 @@
 #pragma region
 #include <cstdlib>
 #include <crtdbg.h>
+#include <signal.h>
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4091)
@@ -52,7 +51,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -194,9 +192,8 @@ public:
 		mLogPath = r1x ;
 	}
 
-	template <LENGTH _VAL1>
-	void log (const DEF<STR[_VAL1]> &tag ,const PhanBuffer<const STR> &msg) {
-		log (PhanBuffer<const STR>::make (PTRTOARR[tag] ,(_VAL1 - 1)) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
+	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
+		log (PhanBuffer<const STR>::make (tag.self ,tag.size ()) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -337,7 +334,18 @@ private:
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		std::atexit (std::abort) ;
+		std::atexit ([] () noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGFPE ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGILL ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
+		signal (SIGSEGV ,[] (int err_code) noexcept {
+			GlobalRuntime::process_abort () ;
+		}) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {
@@ -361,9 +369,8 @@ public:
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!mSymbolFromAddress.exist ())
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mSymbolFromAddress.exist ()) ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			auto &r1 = _LOAD_<SYMBOL_INFO> (rax.self) ;
@@ -375,7 +382,7 @@ public:
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r1.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			for (auto &&i : address)
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
 		}) ;

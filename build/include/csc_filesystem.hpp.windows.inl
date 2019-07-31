@@ -10,13 +10,11 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
-#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -29,7 +27,6 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -229,15 +226,12 @@ inline Stack<INDEX> _inline_RELATIVEPATHNAME_ (const Queue<String<STR>> &path_na
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (ret.empty ())
-				discard ;
-			if (path_name[ix] != _PCSTR_ (".."))
-				discard ;
-			if (path_name[ret[ret.peek ()]] == _PCSTR_ (".."))
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (!ret.empty ()) ;
+			_CASE_REQUIRE_ (path_name[ix] == _PCSTR_ ("..")) ;
+			_CASE_REQUIRE_ (path_name[ret[ret.peek ()]] != _PCSTR_ ("..")) ;
 			ret.take () ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			ret.add (ix) ;
 		}) ;
 	}
@@ -248,17 +242,15 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = _DECOUPLEPATHNAME_ (path) ;
 	const auto r2x = _inline_RELATIVEPATHNAME_ (r1x) ;
-	_CALL_ONE_ ([&] (BOOL &if_context) {
+	_CALL_IF_ ([&] (BOOL &_case_req) {
 		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		if (!r4x && !r5x)
-			discard ;
+		_CASE_REQUIRE_ (r4x || r5x) ;
 		ret += _PCSTR_ ("\\") ;
-	} ,[&] (BOOL &if_context) {
+	} ,[&] (BOOL &_case_req) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		if (!r6x && !r7x)
-			discard ;
+		_CASE_REQUIRE_ (r6x || r7x) ;
 		//@debug: not absolute path really
 		ret += _WORKINGPATH_ () ;
 	}) ;
@@ -354,14 +346,14 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		if (rbx.cFileName[0] == 0)
 			break ;
 		for (FOR_ONCE_DO_WHILE) {
-			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ (".")))
+			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ (".").self ,2))
 				continue ;
-			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ ("..")))
+			if (_MEMEQUAL_ (PTRTOARR[rbx.cFileName] ,_PCSTR_ ("..").self ,3))
 				continue ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
 				continue ;
-			rax += String<STR> (rbx.cFileName) ;
+			rax += String<STR> (PTRTOARR[rbx.cFileName]) ;
 			r1 (rax) ;
 		}
 		rax[r1x] = 0 ;
@@ -385,11 +377,10 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			break ;
 		INDEX ix = rax.peek () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
-		_CALL_ONE_ ([&] (BOOL &if_context) {
-			if (!rax[ix].P2)
-				discard ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (rax[ix].P2) ;
 			rax.take () ;
-		} ,[&] (BOOL &if_context) {
+		} ,[&] (BOOL &_case_req) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
 		}) ;

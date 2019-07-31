@@ -10,22 +10,24 @@
 
 namespace CSC {
 template <class SIZE>
-class RangeFolder {
+class ArrayRange {
 private:
 	class Iterator {
 	private:
-		friend RangeFolder ;
-		const RangeFolder &mBase ;
+		friend ArrayRange ;
+		const ArrayRange &mBase ;
 		Array<LENGTH ,SIZE> mItem ;
 		INDEX mIndex ;
 
 	public:
 		inline Iterator () = delete ;
 
+		inline BOOL operator== (const Iterator &right) const {
+			return BOOL (mIndex == right.mIndex) ;
+		}
+
 		inline BOOL operator!= (const Iterator &right) const {
-			if (mIndex == right.mIndex)
-				return FALSE ;
-			return TRUE ;
+			return BOOL (mIndex != right.mIndex) ;
 		}
 
 		inline const Array<LENGTH ,SIZE> &operator* () const {
@@ -38,7 +40,7 @@ private:
 		}
 
 	private:
-		inline explicit Iterator (const RangeFolder &base ,Array<LENGTH ,SIZE> &&item ,INDEX index) :mBase (base) ,mItem (std::move (item)) ,mIndex (index) {}
+		inline explicit Iterator (const ArrayRange &base ,Array<LENGTH ,SIZE> &&item ,INDEX index) :mBase (base) ,mItem (std::move (item)) ,mIndex (index) {}
 	} ;
 
 private:
@@ -46,9 +48,9 @@ private:
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
-	inline RangeFolder () = delete ;
+	inline ArrayRange () = delete ;
 
-	inline explicit RangeFolder (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
+	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
 
 	inline Iterator begin () const {
 		return Iterator (*this ,first_item () ,0) ;
@@ -196,8 +198,8 @@ public:
 		return mCK ;
 	}
 
-	RangeFolder<ARGC<2>> range () const {
-		return RangeFolder<ARGC<2>> ({mCY ,mCX}) ;
+	ArrayRange<ARGC<2>> range () const {
+		return ArrayRange<ARGC<2>> ({mCY ,mCX}) ;
 	}
 
 	PhanBuffer<TYPE> raw () & {
@@ -537,7 +539,7 @@ public:
 	Bitmap matrix_product (const Bitmap &right) const {
 		_DEBUG_ASSERT_ (mCX == right.mCY) ;
 		Bitmap ret = Bitmap (right.mCX ,mCY) ;
-		for (auto &&i : RangeFolder<ARGC<2>> ({mCY ,right.mCX})) {
+		for (auto &&i : ArrayRange<ARGC<2>> ({mCY ,right.mCX})) {
 			ret.get (i) = TYPE (0) ;
 			for (INDEX j = 0 ; j < mCX ; j++)
 				ret.get (i) += get (i[0] ,j) * right.get (j ,i[1]) ;
@@ -638,7 +640,7 @@ private:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
-			_CALL_SEH_ ([&] () {
+			_CALL_EH_ ([&] () {
 				compute_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}
@@ -717,9 +719,9 @@ public:
 		return mThis->mCK ;
 	}
 
-	RangeFolder<ARGC<2>> range () const {
+	ArrayRange<ARGC<2>> range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return RangeFolder<ARGC<2>> ({mThis->mCY ,mThis->mCX}) ;
+		return ArrayRange<ARGC<2>> ({mThis->mCY ,mThis->mCX}) ;
 	}
 
 	TYPE &get (INDEX y ,INDEX x) & {

@@ -72,7 +72,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	PTR<NONE> ret = NULL ;
-	_CALL_SEH_ ([&] () {
+	_CALL_EH_ ([&] () {
 		const auto r1x = _CACHE_ ([] () {
 			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 		}) ;

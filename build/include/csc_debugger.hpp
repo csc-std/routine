@@ -20,35 +20,35 @@ namespace CSC {
 #ifdef __CSC_DEPRECATED__
 namespace U {
 struct OPERATOR_TYPENAME {
-	struct ZString {
+	struct TYPESTRING {
 		String<STR> mSelf ;
 	} ;
 
 	template <class _RET>
-	inline static ZString type_name_from_func () {
-		ZString ret ;
+	inline static TYPESTRING type_name_from_func () {
+		TYPESTRING ret ;
 		ret.mSelf = _PARSESTRS_ (String<STRA> (M_FUNC)) ;
 #ifdef __CSC_COMPILER_MSVC__
-		static const auto &M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::ZString __cdecl CSC::U::OPERATOR_TYPENAME::type_name_from_func<") ;
-		static const auto &M_SUFFIX = _PCSTR_ (">(void)") ;
-		const auto r1x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
-		const auto r2x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPESTRING __cdecl CSC::U::OPERATOR_TYPENAME::type_name_from_func<") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
+		const auto r1x = M_PREFIX.size () ;
+		const auto r2x = M_SUFFIX.size () ;
 		const auto r7x = ret.mSelf.length () - r1x - r2x ;
 		_DYNAMIC_ASSERT_ (r7x > 0) ;
 		ret.mSelf = ret.mSelf.segment (r1x ,r7x) ;
 #elif defined __CSC_COMPILER_GNUC__
-		static const auto &M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::ZString CSC::U::OPERATOR_TYPENAME::type_name_from_func() [with _RET = ") ;
-		static const auto &M_SUFFIX = _PCSTR_ ("]") ;
-		const auto r3x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
-		const auto r4x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPESTRING CSC::U::OPERATOR_TYPENAME::type_name_from_func() [with _RET = ") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r3x = M_PREFIX.size () ;
+		const auto r4x = M_SUFFIX.size () ;
 		const auto r8x = ret.mSelf.length () - r3x - r4x ;
 		_DYNAMIC_ASSERT_ (r8x > 0) ;
 		ret.mSelf = ret.mSelf.segment (r3x ,r8x) ;
 #elif defined __CSC_COMPILER_CLANG__
-		static const auto &M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::ZString CSC::U::OPERATOR_TYPENAME::type_name_from_func() [_RET = ") ;
-		static const auto &M_SUFFIX = _PCSTR_ ("]") ;
-		const auto r5x = _COUNTOF_ (decltype (M_PREFIX)) - 1 ;
-		const auto r6x = _COUNTOF_ (decltype (M_SUFFIX)) - 1 ;
+		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPESTRING CSC::U::OPERATOR_TYPENAME::type_name_from_func() [_RET = ") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r5x = M_PREFIX.size () ;
+		const auto r6x = M_SUFFIX.size () ;
 		const auto r9x = ret.mSelf.length () - r5x - r6x ;
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mSelf = ret.mSelf.segment (r5x ,r9x) ;

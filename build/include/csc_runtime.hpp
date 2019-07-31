@@ -15,18 +15,18 @@ class GlobalStatic ;
 template <>
 class GlobalStatic<void> final :private Wrapped<void> {
 private:
-	struct NODE_A {
+	struct VALUE_NODE {
 		FLAG mGUID ;
-		PTR<struct NODE_A> mNext ;
+		PTR<struct VALUE_NODE> mNext ;
 		BOOL mReadOnly ;
 		VAR mData ;
 	} ;
 
 	using GUID_TYPE = TEMP<BYTE[DEFAULT_RECURSIVE_SIZE::value]> ;
 
-	struct NODE_B {
+	struct CLASS_NODE {
 		GUID_TYPE mGUID ;
-		PTR<struct NODE_B> mNext ;
+		PTR<struct CLASS_NODE> mNext ;
 		PTR<NONE> mData ;
 	} ;
 
@@ -40,10 +40,10 @@ private:
 		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
-		LENGTH mLength_a ;
-		PTR<NODE_A> mRoot_a ;
-		LENGTH mLength_b ;
-		PTR<NODE_B> mRoot_b ;
+		LENGTH mVNLength ;
+		PTR<VALUE_NODE> mVNRoot ;
+		LENGTH mCNLength ;
+		PTR<CLASS_NODE> mCNRoot ;
 	} ;
 
 private:
@@ -52,7 +52,7 @@ private:
 	friend IntrusiveRef<Holder> ;
 
 private:
-	//@warn: this function should be implemented with a 'runtime.dll'
+	//@warn: this function should be implemented in a 'runtime.dll'
 	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 	static Holder &unique () popping {
@@ -76,43 +76,43 @@ private:
 		}) ;
 	}
 
-	static PTR<NODE_A> static_new_node (Holder &_self ,FLAG guid) popping {
+	static PTR<VALUE_NODE> static_new_node (Holder &_self ,FLAG guid) popping {
 		//@warn: sure 'GlobalHeap' can be used across DLL
-		auto sgd = GlobalHeap::alloc<TEMP<NODE_A>> () ;
-		ScopedHolder<NODE_A> ANONYMOUS (sgd) ;
-		PTR<NODE_A> ret = &_LOAD_<NODE_A> (_XVALUE_<PTR<TEMP<NODE_A>>> (sgd)) ;
+		auto sgd = GlobalHeap::alloc<TEMP<VALUE_NODE>> () ;
+		ScopedHolder<VALUE_NODE> ANONYMOUS (sgd) ;
+		PTR<VALUE_NODE> ret = &_LOAD_<VALUE_NODE> (_XVALUE_<PTR<TEMP<VALUE_NODE>>> (sgd)) ;
 		_DEBUG_ASSERT_ (ret != NULL) ;
 		ret->mGUID = guid ;
-		ret->mNext = _self.mRoot_a ;
-		_self.mRoot_a = ret ;
-		_self.mLength_a++ ;
+		ret->mNext = _self.mVNRoot ;
+		_self.mVNRoot = ret ;
+		_self.mVNLength++ ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
 
-	static PTR<NODE_B> static_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
+	static PTR<CLASS_NODE> static_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
 		//@warn: sure 'GlobalHeap' can be used across DLL
-		auto sgd = GlobalHeap::alloc<TEMP<NODE_B>> () ;
-		ScopedHolder<NODE_B> ANONYMOUS (sgd) ;
-		PTR<NODE_B> ret = &_LOAD_<NODE_B> (_XVALUE_<PTR<TEMP<NODE_B>>> (sgd)) ;
+		auto sgd = GlobalHeap::alloc<TEMP<CLASS_NODE>> () ;
+		ScopedHolder<CLASS_NODE> ANONYMOUS (sgd) ;
+		PTR<CLASS_NODE> ret = &_LOAD_<CLASS_NODE> (_XVALUE_<PTR<TEMP<CLASS_NODE>>> (sgd)) ;
 		_DEBUG_ASSERT_ (ret != NULL) ;
 		ret->mGUID = guid ;
-		ret->mNext = _self.mRoot_b ;
-		_self.mRoot_b = ret ;
-		_self.mLength_b++ ;
+		ret->mNext = _self.mCNRoot ;
+		_self.mCNRoot = ret ;
+		_self.mCNLength++ ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
 
-	static PTR<NODE_A> static_find_node (const Holder &_self ,FLAG guid) {
-		for (PTR<NODE_A> i = _self.mRoot_a ; i != NULL ; i = i->mNext)
+	static PTR<VALUE_NODE> static_find_node (const Holder &_self ,FLAG guid) {
+		for (PTR<VALUE_NODE> i = _self.mVNRoot ; i != NULL ; i = i->mNext)
 			if (i->mGUID == guid)
 				return i ;
 		return NULL ;
 	}
 
-	static PTR<NODE_B> static_find_node (const Holder &_self ,const GUID_TYPE &guid) {
-		for (PTR<NODE_B> i = _self.mRoot_b ; i != NULL ; i = i->mNext)
+	static PTR<CLASS_NODE> static_find_node (const Holder &_self ,const GUID_TYPE &guid) {
+		for (PTR<CLASS_NODE> i = _self.mCNRoot ; i != NULL ; i = i->mNext)
 			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[guid.unused]))
 				return i ;
 		return NULL ;
@@ -121,32 +121,32 @@ private:
 	static void intrusive_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_self.mCounter.self = 0 ;
-		_self.mLength_a = 0 ;
-		_self.mRoot_a = NULL ;
-		_self.mLength_b = 0 ;
-		_self.mRoot_b = NULL ;
+		_self.mVNLength = 0 ;
+		_self.mVNRoot = NULL ;
+		_self.mCNLength = 0 ;
+		_self.mCNRoot = NULL ;
 	}
 
 	static void intrusive_destroy (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-		_CALL_SEH_ ([&] () {
-			for (PTR<NODE_A> i = _self.mRoot_a ,ir ; i != NULL ; i = ir) {
+		_CALL_EH_ ([&] () {
+			for (PTR<VALUE_NODE> i = _self.mVNRoot ,ir ; i != NULL ; i = ir) {
 				ir = i->mNext ;
-				i->~NODE_A () ;
+				i->~VALUE_NODE () ;
 				GlobalHeap::free (i) ;
 			}
 		}) ;
-		_self.mLength_a = 0 ;
-		_self.mRoot_a = NULL ;
-		_CALL_SEH_ ([&] () {
-			for (PTR<NODE_B> i = _self.mRoot_b ,ir ; i != NULL ; i = ir) {
+		_self.mVNLength = 0 ;
+		_self.mVNRoot = NULL ;
+		_CALL_EH_ ([&] () {
+			for (PTR<CLASS_NODE> i = _self.mCNRoot ,ir ; i != NULL ; i = ir) {
 				ir = i->mNext ;
-				i->~NODE_B () ;
+				i->~CLASS_NODE () ;
 				GlobalHeap::free (i) ;
 			}
 		}) ;
-		_self.mLength_b = 0 ;
-		_self.mRoot_b = NULL ;
+		_self.mCNLength = 0 ;
+		_self.mCNRoot = NULL ;
 	}
 
 	static LENGTH intrusive_attach (Holder &_self) popping {
@@ -300,15 +300,6 @@ private:
 	static constexpr auto STATUS_SUSPEND = FLAG (2) ;
 	static constexpr auto STATUS_STOPPED = FLAG (3) ;
 
-	class CoroutineException {
-	public:
-		inline CoroutineException () = default ;
-
-		inline const ARR<STR> &what () const noexcept {
-			return _PCSTR_ ("coroutine stack unwinding") ;
-		}
-	} ;
-
 private:
 	class Implement ;
 	Monostate<FLAG> mCoStatus ;
@@ -377,14 +368,13 @@ public:
 		}
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
 		const auto r1x = mSubCurr ;
-		_CALL_SEH_ ([&] () {
+		_CALL_TRY_ ([&] () {
 			if (mCoStatus.self == STATUS_STOPPED)
 				return ;
 			mCoStatus.self = STATUS_RUNNING ;
 			mSubProc[r1x] (_CAST_<SubRef> (*this)) ;
-		} ,[&] (const Exception &e) {
-			const auto r2x = e.what () ;
-			(void) r2x ;
+		} ,[&] () {
+			_STATIC_WARNING_ ("noop") ;
 		}) ;
 		mSubBreakPoint[r1x] = AnyRef<void> () ;
 		mCoStatus.self = STATUS_STOPPED ;
@@ -402,7 +392,6 @@ private:
 template <class TYPE>
 class Coroutine<TYPE>::SubRef :private Wrapped<Coroutine<TYPE>> {
 private:
-	using CoroutineException = typename Coroutine<TYPE>::CoroutineException ;
 	using Wrapped<Coroutine<TYPE>>::mSelf ;
 
 public:
@@ -441,8 +430,7 @@ public:
 		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
 		mSelf.mCoStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		if (mSelf.mCoStatus.self == STATUS_STOPPED)
-			throw CoroutineException () ;
+		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
 		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
 			return ;
 		mSelf.mSubAwaitQueue.add (priority ,mSelf.mSubCurr) ;
@@ -472,8 +460,7 @@ public:
 			return ;
 		mSelf.mCoStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		if (mSelf.mCoStatus.self == STATUS_STOPPED)
-			throw CoroutineException () ;
+		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
 		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
 			return ;
 		mSelf.mSubQueue.add (mSelf.mSubCurr) ;
@@ -575,7 +562,7 @@ public:
 	}
 
 	String<STR> random_uuid () popping {
-		String<STR> ret = String<STR> (_COUNTOF_ (decltype (_PCSTR_ ("00000000-0000-0000-000000000000")))) ;
+		String<STR> ret = String<STR> (_COUNTOF_ (decltype ("00000000-0000-0000-000000000000"))) ;
 		INDEX iw = 0 ;
 		const auto r5x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ; i < 8 ; i++) {

@@ -5,7 +5,6 @@
 #define popping
 #define imports
 #define exports
-#define discard
 
 #define M_DATE
 #define M_HOUR
@@ -26,6 +25,8 @@
 #define ANONYMOUS
 
 #define FOR_ONCE_DO_WHILE
+
+#define _CASE_REQUIRE_
 
 #define FALSE
 #define TRUE

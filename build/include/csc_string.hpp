@@ -902,7 +902,7 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 
 template <class _RET>
 inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
-	static constexpr auto M_TABLE = PACK<STRU8[66]> ({
+	static constexpr auto M_BASE64 = PACK<STRU8[66]> ({
 		STRU8 ('-') ,STRU8 ('A') ,STRU8 ('B') ,STRU8 ('C') ,STRU8 ('D') ,STRU8 ('E') ,STRU8 ('F') ,STRU8 ('G') ,
 		STRU8 ('H') ,STRU8 ('I') ,STRU8 ('J') ,STRU8 ('K') ,STRU8 ('L') ,STRU8 ('M') ,STRU8 ('N') ,STRU8 ('O') ,
 		STRU8 ('P') ,STRU8 ('Q') ,STRU8 ('R') ,STRU8 ('S') ,STRU8 ('T') ,STRU8 ('U') ,STRU8 ('V') ,STRU8 ('W') ,
@@ -930,10 +930,10 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 		} else if (rax == 2) {
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 0 ;
-			ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_TABLE.P1[INDEX (rbx & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (rbx & CHAR (0X3F))]) ;
 		} else {
 			ret.clear () ;
 			rax = VAR_NONE ;
@@ -941,16 +941,16 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	}
 	if (rax == 1) {
 		rbx = CHAR (rbx << 16) ;
-		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_TABLE.P1[64]) ;
-		ret[iw++] = _RET (M_TABLE.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
 	} else if (rax == 2) {
 		rbx = CHAR (rbx << 8) ;
-		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_TABLE.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_TABLE.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -959,7 +959,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 
 template <class _ARG1>
 inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
-	static constexpr auto M_TABLE = PACK<INDEX[96]> ({
+	static constexpr auto M_BASE64 = PACK<INDEX[96]> ({
 		-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,+0 ,64 ,-1 ,
 		54 ,55 ,56 ,57 ,58 ,59 ,60 ,61 ,62 ,63 ,64 ,-1 ,-1 ,-1 ,-1 ,-1 ,
 		-1 ,+1 ,+2 ,+3 ,+4 ,+5 ,+6 ,+7 ,+8 ,+9 ,10 ,11 ,12 ,13 ,14 ,15 ,
@@ -975,7 +975,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 		_STATIC_WARNING_ ("unqualified") ;
 		if (rax == VAR_NONE)
 			break ;
-		const auto r2x = ((i & STRU8 (0X80)) == 0) ? (M_TABLE.P1[LENGTH (i) - 32]) : VAR_NONE ;
+		const auto r2x = ((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) : VAR_NONE ;
 		if (rax == 0 && r2x >= 0) {
 			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
