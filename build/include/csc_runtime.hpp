@@ -562,7 +562,8 @@ public:
 	}
 
 	String<STR> random_uuid () popping {
-		String<STR> ret = String<STR> (_COUNTOF_ (decltype ("00000000-0000-0000-000000000000"))) ;
+		static constexpr auto M_UUID = _PCSTR_ ("00000000-0000-0000-000000000000") ;
+		String<STR> ret = String<STR> (M_UUID.size ()) ;
 		INDEX iw = 0 ;
 		const auto r5x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ; i < 8 ; i++) {

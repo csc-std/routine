@@ -335,7 +335,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (String<_ARG1 ,_ARG2> &data) popping {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_plain_strx<_ARG1>::value) ;
 		const auto r1x = LENGTH (read<VAR32> ()) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
@@ -598,7 +598,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const String<_ARG1 ,_ARG2> &data) {
-		_STATIC_ASSERT_ (stl::is_literals<_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_plain_strx<_ARG1>::value) ;
 		const auto r1x = data.length () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		write (VAR32 (r1x)) ;
@@ -765,7 +765,7 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
+	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
 	SharedRef<Attribute> mHeap ;
 	PhanBuffer<const STRX> mStream ;
 	INDEX mRead ;
@@ -1288,7 +1288,7 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_literals<STRX>::value) ;
+	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
 	SharedRef<Attribute> mHeap ;
 	PhanBuffer<STRX> mStream ;
 	INDEX mRead ;

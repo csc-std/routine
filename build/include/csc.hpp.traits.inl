@@ -34,22 +34,22 @@ struct is_arithmetic<VALX> :public stl::true_type {} ;
 
 namespace U {
 template <class>
-struct is_literals :public stl::false_type {} ;
+struct is_plain_strx :public stl::false_type {} ;
 
 template <>
-struct is_literals<STRU8> :public stl::true_type {} ;
+struct is_plain_strx<STRU8> :public stl::true_type {} ;
 
 template <>
-struct is_literals<STRU16> :public stl::true_type {} ;
+struct is_plain_strx<STRU16> :public stl::true_type {} ;
 
 template <>
-struct is_literals<STRU32> :public stl::true_type {} ;
+struct is_plain_strx<STRU32> :public stl::true_type {} ;
 
 template <>
-struct is_literals<STRA> :public stl::true_type {} ;
+struct is_plain_strx<STRA> :public stl::true_type {} ;
 
 template <>
-struct is_literals<STRW> :public stl::true_type {} ;
+struct is_plain_strx<STRW> :public stl::true_type {} ;
 } ;
 
 namespace U {

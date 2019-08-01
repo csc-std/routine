@@ -295,15 +295,15 @@ public:
 		std::atexit ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		signal (SIGFPE ,[] (int err_code) noexcept {
+		signal (SIGFPE ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
-		signal (SIGILL ,[] (int err_code) noexcept {
+		})) ;
+		signal (SIGILL ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
-		signal (SIGSEGV ,[] (int err_code) noexcept {
+		})) ;
+		signal (SIGSEGV ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
+		})) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {

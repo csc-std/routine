@@ -373,7 +373,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		const auto r3x = readdir (r2x) ;
 		if (r3x == NULL)
 			break ;
-		const auto r4x = _PARSESTRS_ (String<STRA> (r3x->d_name)) ;
+		const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3x->d_name])) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (r4x == _PCSTR_ ("."))
 				continue ;

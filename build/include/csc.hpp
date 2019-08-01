@@ -450,7 +450,7 @@ template <class TYPE>
 using PTR = TYPE * ;
 
 #ifdef __CSC_COMPILER_GNUC__
-//@error: poor gcc may check range of ARR
+//@error: g++4.8 is to shit to check range of ARR
 template <class TYPE>
 using ARR = TYPE[0] ;
 #else
@@ -461,13 +461,13 @@ using ARR = TYPE[] ;
 namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
-	inline ARR<_ARG1> &operator[] (const PTR<_ARG1> &src) const noexcept {
+	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &src) const {
 		return *PTR<ARR<_ARG1>> (src) ;
 	}
 
 	template <class _ARG1 ,LENGTH _VAL1>
-	inline ARR<_ARG1> &operator[] (const DEF<_ARG1[_VAL1]> &src) const noexcept {
-		return *PTR<ARR<_ARG1>> (src) ;
+	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &src) const {
+		return *PTR<ARR<_ARG1>> (&src) ;
 	}
 } ;
 } ;
@@ -618,7 +618,7 @@ template <class _ARG1>
 using is_arithmetic = U::is_arithmetic<_ARG1> ;
 
 template <class _ARG1>
-using is_literals = U::is_literals<_ARG1> ;
+using is_plain_strx = U::is_plain_strx<_ARG1> ;
 } ;
 
 template <BOOL _VAL1>
@@ -1172,31 +1172,38 @@ public:
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
-template <class TYPE>
+template <class STRX>
 class Plain final {
 private:
-	_STATIC_ASSERT_ (stl::is_literals<TYPE>::value) ;
-	const ARR<TYPE> &mPlain ;
+	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
+	_STATIC_WARNING_ ("mark") ;
+	PTR<const STRX> mPlain ;
 	LENGTH mSize ;
 
 public:
 	inline Plain () = delete ;
 
-	template <class _ARG1 ,LENGTH _VAL1>
-	inline constexpr implicit Plain (const DEF<_ARG1[_VAL1]> &right) :mPlain (PTRTOARR[_CAST_<TYPE[_VAL1]> (right)]) ,mSize (_VAL1 - 1) {}
+	template <LENGTH _VAL1>
+	inline constexpr implicit Plain (const DEF<STRX[_VAL1]> &right) :mPlain (&right[0]) ,mSize (_VAL1 - 1) {}
+
+	template <LENGTH _VAL1>
+	inline constexpr implicit Plain (DEF<STRX[_VAL1]> &) = delete ;
+
+	template <class _ARG1 ,LENGTH _VAL1 ,class = ENABLE_TYPE<!std::is_same<_ARG1 ,STRX>::value>>
+	inline explicit Plain (const DEF<_ARG1[_VAL1]> &right) :Plain (_CAST_<STRX[_VAL1]> (right)) {}
 
 	template <class _ARG1 ,LENGTH _VAL1>
-	inline constexpr implicit Plain (DEF<_ARG1[_VAL1]> &) = delete ;
+	inline explicit Plain (DEF<_ARG1[_VAL1]> &) = delete ;
 
 	inline constexpr LENGTH size () const {
 		return mSize ;
 	}
 
-	inline const ARR<TYPE> &to () const noexcept {
-		return mPlain ;
+	inline constexpr const ARR<STRX> &to () const {
+		return PTRTOARR[mPlain] ;
 	}
 
-	inline implicit operator const ARR<TYPE> & () const noexcept {
+	inline constexpr implicit operator const ARR<STRX> & () const {
 		return to () ;
 	}
 } ;
@@ -1204,6 +1211,10 @@ public:
 template <>
 class Plain<void> :private Wrapped<void> {
 private:
+	inline static constexpr LENGTH expr_sub (LENGTH arg1) {
+		return arg1 - 1 ;
+	}
+
 	template <class SIZE>
 	class Holder {
 	private:
@@ -1273,11 +1284,6 @@ private:
 } ;
 
 class Exception final {
-private:
-	inline static constexpr LENGTH expr_sub (LENGTH arg1) {
-		return arg1 - 1 ;
-	}
-
 private:
 	const ARR<STR> &mWhat ;
 

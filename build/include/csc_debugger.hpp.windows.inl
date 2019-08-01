@@ -333,19 +333,26 @@ private:
 
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
+#pragma region
+#pragma warning (push)
+#ifdef __CSC_COMPILER_MSVC__
+#pragma warning (disable :5039)
+#endif
 		_DEBUG_ASSERT_ (flag) ;
-		std::atexit ([] () noexcept {
+		std::atexit (_XVALUE_<PTR<void ()>> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
-		signal (SIGFPE ,[] (int err_code) noexcept {
+		})) ;
+		signal (SIGFPE ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
-		signal (SIGILL ,[] (int err_code) noexcept {
+		})) ;
+		signal (SIGILL ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
-		signal (SIGSEGV ,[] (int err_code) noexcept {
+		})) ;
+		signal (SIGSEGV ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
 			GlobalRuntime::process_abort () ;
-		}) ;
+		})) ;
+#pragma warning (pop)
+#pragma endregion
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {
