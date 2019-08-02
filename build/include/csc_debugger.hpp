@@ -103,9 +103,9 @@ struct OPERATOR_TYPENAME {
 	template <class _ARG1>
 	inline static void static_write_typename_ids (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_member_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP7)> &) {
 		writer << _PCSTR_ ("DEF<") ;
-		static_write_typename_xs (writer ,_NULL_<const ARGV<REMOVE_MEMBER_POINTER_TYPE<_ARG1>>> ()) ;
+		static_write_typename_xs (writer ,_NULL_<const ARGV<MEMBER_TO_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (" ") ;
-		static_write_typename_xs (writer ,_NULL_<const ARGV<MEMBEROF_TRAITS_TYPE<_ARG1>>> ()) ;
+		static_write_typename_xs (writer ,_NULL_<const ARGV<MEMBER_OF_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ ("::*>") ;
 	}
 

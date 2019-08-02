@@ -250,15 +250,6 @@ using std::is_nothrow_move_constructible ;
 using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
 
-#pragma region
-#pragma warning (push)
-#ifdef __CSC_COMPILER_MSVC__
-#pragma warning (disable :4996)
-#endif
-using std::result_of ;
-#pragma warning (pop)
-#pragma endregion
-
 using std::enable_if ;
 using std::conditional ;
 using std::remove_reference ;
@@ -621,12 +612,6 @@ template <class _ARG1>
 using is_plain_strx = U::is_plain_strx<_ARG1> ;
 } ;
 
-template <BOOL _VAL1>
-using ENABLE_TYPE = U::ENABLE_TYPE<_VAL1> ;
-
-template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = U::CONDITIONAL_TYPE<_VAL1 ,_ARG1 ,_ARG2> ;
-
 template <class _ARG1>
 using REMOVE_REFERENCE_TYPE = U::REMOVE_REFERENCE_TYPE<_ARG1> ;
 
@@ -645,23 +630,38 @@ using REMOVE_POINTER_TYPE = U::REMOVE_POINTER_TYPE<_ARG1> ;
 template <class _ARG1>
 using REMOVE_ARRAY_TYPE = U::REMOVE_ARRAY_TYPE<_ARG1> ;
 
-template <class _ARG1>
-using REMOVE_MEMBER_POINTER_TYPE = U::REMOVE_MEMBER_POINTER_TYPE<_ARG1> ;
+template <BOOL _VAL1>
+using ENABLE_TYPE = U::ENABLE_TYPE<_VAL1> ;
+
+template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
+using CONDITIONAL_TYPE = U::CONDITIONAL_TYPE<_VAL1 ,_ARG1 ,_ARG2> ;
 
 template <class _ARG1>
-using MEMBEROF_TRAITS_TYPE = U::MEMBEROF_TRAITS_TYPE<_ARG1> ;
+using MEMBER_TO_TYPE = U::MEMBER_TO_TYPE<_ARG1> ;
+
+template <class _ARG1>
+using MEMBER_OF_TYPE = U::MEMBER_OF_TYPE<_ARG1> ;
+
+template <class _ARG1>
+using MEMFUNC_TRAITS_TYPE = U::MEMFUNC_TRAITS_TYPE<_ARG1> ;
+
+template <class _ARG1>
+using INVOKE_OF_TYPE = U::INVOKE_OF_TYPE<_ARG1> ;
+
+template <class _ARG1>
+using INVOKE_TO_TYPE = U::INVOKE_TO_TYPE<_ARG1> ;
+
+template <class _ARG1 ,class _ARG2>
+using RESULT_OF_TYPE = U::RESULT_OF_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1>
 using FORWARD_TRAITS_TYPE = U::FORWARD_TRAITS_TYPE<_ARG1> ;
-
-template <class _ARG1>
-using RESULTOF_TYPE = U::RESULTOF_TYPE<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
 using CAST_TRAITS_TYPE = U::CAST_TRAITS_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
-using LOAD_TRATIS_TYPE = U::LOAD_TRATIS_TYPE<_ARG1 ,_ARG2> ;
+using LOAD_CHECK_TYPE = U::LOAD_CHECK_TYPE<_ARG1 ,_ARG2> ;
 
 template <class TYPE>
 struct TEMP {
@@ -694,7 +694,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (LOAD_TRATIS_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value ,ARGV<NONE> ,REMOVE_ARRAY_TYPE<_RET>>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
@@ -796,16 +796,16 @@ inline FLAG _TYPEID_ () noexcept {
 }
 
 template <class _ARG1>
-inline RESULTOF_TYPE<_ARG1 ()> _CALL_ (_ARG1 &&arg1) popping {
+inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&arg1) popping {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULTOF_TYPE<_ARG1 ()>>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return arg1 () ;
 }
 
 template <class _ARG1>
 inline void _CALL_IF_ (_ARG1 &&arg1) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<BOOL &>> ,void>::value) ;
 	auto rax = TRUE ;
 	arg1 (rax) ;
 }
@@ -813,7 +813,7 @@ inline void _CALL_IF_ (_ARG1 &&arg1) {
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_IF_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (BOOL &)> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<BOOL &>> ,void>::value) ;
 	auto rax = TRUE ;
 	arg1 (rax) ;
 	if (rax)
@@ -825,7 +825,7 @@ inline void _CALL_IF_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 template <class _ARG1>
 inline void _CALL_TRY_ (_ARG1 &&arg1) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	arg1 () ;
 }
 
@@ -836,7 +836,7 @@ inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) ;
 template <class _ARG1>
 inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	arg1 () ;
 }
 
@@ -845,10 +845,10 @@ template <class _ARG1 ,class _ARG2>
 inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
 template <class _ARG1>
-inline const RESULTOF_TYPE<_ARG1 ()> &_CACHE_ (_ARG1 &&arg1) popping {
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&arg1) popping {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULTOF_TYPE<_ARG1 ()>>::value) ;
-	static const RESULTOF_TYPE<_ARG1 ()> mInstance = arg1 () ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = arg1 () ;
 	return mInstance ;
 }
 
@@ -1315,7 +1315,7 @@ public:
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	try {
 		arg1 () ;
 		return ;
@@ -2082,8 +2082,8 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 (TYPE &)> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG2> (TYPE &)> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<TYPE &>> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<TYPE &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (TYPE &)>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
@@ -2190,8 +2190,8 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG2> ()> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
@@ -2344,7 +2344,7 @@ public:
 		mFunction_b = right ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULTOF_TYPE<REMOVE_REFERENCE_TYPE<_ARG1> (TYPES...)> ,TYPE1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<TYPES...>> ,TYPE1>::value>>
 	inline implicit Function (_ARG1 &&right) {
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (right)) ;
@@ -2404,7 +2404,7 @@ public:
 	}
 
 private:
-	inline explicit Function (PTR<Holder> pointer) :mFunction_a (pointer) ,mFunction_b (NULL) {}
+	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> pointer) :mFunction_a (pointer) ,mFunction_b (NULL) {}
 
 public:
 	//@info: the function is incompleted without 'csc_ext.hpp'
@@ -3343,7 +3343,7 @@ public:
 		return make (src ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_TRATIS_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
@@ -3515,7 +3515,7 @@ public:
 		return make (src.self ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_TRATIS_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
@@ -3526,7 +3526,7 @@ public:
 		return make (src.self ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_TRATIS_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<TYPE ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &src) {
 		if (src.size () == 0)
 			return Buffer () ;

@@ -338,13 +338,13 @@ public:
 		std::atexit (_XVALUE_<PTR<void ()>> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		})) ;
-		signal (SIGFPE ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
+		signal (SIGFPE ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		})) ;
-		signal (SIGILL ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
+		signal (SIGILL ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		})) ;
-		signal (SIGSEGV ,_XVALUE_<PTR<void (int)>> ([] (int) noexcept {
+		signal (SIGSEGV ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		})) ;
 #pragma warning (pop)

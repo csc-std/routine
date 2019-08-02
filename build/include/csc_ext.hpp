@@ -102,6 +102,35 @@ using std::abort ;
 #define DLLABI_NATIVE extern "C"
 #endif
 
+namespace stl {
+template <class... _ARGS>
+using is_all_same = U::is_all_same<_ARGS...> ;
+
+template <class... _ARGS>
+using is_any_same = U::is_any_same<_ARGS...> ;
+
+template <class _ARG1>
+using is_template_type = U::is_template_type<_ARG1> ;
+
+template <template <class...> class _ARGT ,class... _ARGS>
+using is_template_of = U::is_template_of<_ARGT ,_ARGS...> ;
+
+template <class _ARG1>
+using is_complete_type = U::is_complete_type<_ARG1> ;
+
+template <class _ARG1>
+using is_interface_type = U::is_interface_type<_ARG1 ,Interface> ;
+
+template <class _ARG1 ,class _ARG2>
+using is_always_base_of = U::is_always_base_of<_ARG1 ,_ARG2> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using INDEX_OF_TYPE = U::INDEX_OF_TYPE<_ARG1 ,_ARG2> ;
+
+template <class _ARG1 ,class _ARG2>
+using VISIT_OF_TYPE = U::VISIT_OF_TYPE<_ARG1 ,_ARG2> ;
+
 class GlobalRuntime final :private Wrapped<void> {
 public:
 	inline static std::chrono::system_clock::time_point clock_now () {
@@ -150,9 +179,9 @@ public:
 template <class _ARG1 ,class _ARG2>
 inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG1 ()> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULTOF_TYPE<_ARG2 (const Exception &)> ,void>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
 	try {
 		arg1 () ;
 		return ;
@@ -815,12 +844,6 @@ private:
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
-template <class _ARG1 ,class... _ARGS>
-using INDEXOF_TRAITS_TYPE = U::INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...> ;
-
-template <INDEX _VAL1 ,class... _ARGS>
-using VISITOF_TRATIS_TYPE = U::VISITOF_TRATIS_TYPE<_VAL1 ,_ARGS...> ;
-
 template <class... TYPES>
 class Variant {
 private:
@@ -853,6 +876,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (TYPES) > 0) ;
+	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<TYPES>...>::value) ;
 	class Detail ;
 	TEMP<VARIANT> mVariant ;
 	INDEX mIndex ;
@@ -863,11 +887,12 @@ public:
 		Detail::template_construct (&mVariant ,mIndex ,_NULL_<const ARGVS<TYPES...>> ()) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_ARG1> ,TYPES...>::value != VAR_NONE>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<_ARG1 ,ARGVS<TYPES...>>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&right) {
 		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (mVariant.unused) ;
-		mIndex = Detail::template_create (_NULL_<const ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>> () ,r1x ,std::forward<_ARG1> (right)) ;
-		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
+		const auto r2x = Detail::template_create (_NULL_<const ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>> () ,r1x ,std::forward<_ARG1> (right)) ;
+		_DYNAMIC_ASSERT_ (r2x) ;
+		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<TYPES...>>::value ;
 	}
 
 	inline ~Variant () noexcept {
@@ -920,29 +945,29 @@ public:
 	template <class _RET>
 	inline BOOL available () const {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value != VAR_NONE) ;
-		if (mIndex != INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value)
+		_STATIC_ASSERT_ (INDEX_OF_TYPE<_RET ,ARGVS<TYPES...>>::value != VAR_NONE) ;
+		if (mIndex != INDEX_OF_TYPE<_RET ,ARGVS<TYPES...>>::value)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline VISITOF_TRATIS_TYPE<0 ,TYPES...> &to () {
+	inline VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>> &to () {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (TYPES) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		return _LOAD_<VISITOF_TRATIS_TYPE<0 ,TYPES...>> (mVariant.unused) ;
+		return _LOAD_<VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>>> (mVariant.unused) ;
 	}
 
-	inline implicit operator VISITOF_TRATIS_TYPE<0 ,TYPES...> & () {
+	inline implicit operator VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>> & () {
 		return to () ;
 	}
 
-	inline const VISITOF_TRATIS_TYPE<0 ,TYPES...> &to () const {
+	inline const VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>> &to () const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (TYPES) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		return _LOAD_<VISITOF_TRATIS_TYPE<0 ,TYPES...>> (mVariant.unused) ;
+		return _LOAD_<VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>>> (mVariant.unused) ;
 	}
 
-	inline implicit operator const VISITOF_TRATIS_TYPE<0 ,TYPES...> & () const {
+	inline implicit operator const VISIT_OF_TYPE<ARGC<0> ,ARGVS<TYPES...>> & () const {
 		return to () ;
 	}
 
@@ -977,7 +1002,7 @@ public:
 	template <class _RET ,class... _ARGS>
 	inline void recreate (_ARGS &&...args) {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_RET> ,TYPES...>::value != VAR_NONE) ;
+		_STATIC_ASSERT_ (INDEX_OF_TYPE<_RET ,ARGVS<TYPES...>>::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mIndex == VAR_NONE)
@@ -986,7 +1011,9 @@ public:
 			mIndex = VAR_NONE ;
 		}
 		const auto r1x = &_LOAD_<TEMP<_RET>> (mVariant.unused) ;
-		mIndex = Detail::template_create (_NULL_<const ARGC<TRUE>> () ,r1x ,std::forward<_ARGS> (args)...) ;
+		const auto r2x = Detail::template_create (_NULL_<const ARGC<TRUE>> () ,r1x ,std::forward<_ARGS> (args)...) ;
+		_DYNAMIC_ASSERT_ (r2x) ;
+		mIndex = INDEX_OF_TYPE<_RET ,ARGVS<TYPES...>>::value ;
 	}
 
 	//@warn: none class shall be base on its address
@@ -996,11 +1023,11 @@ public:
 	}
 
 private:
-	inline explicit Variant (const ARGV<NULLOPT> &) noexcept :mIndex (VAR_NONE) {}
+	inline explicit Variant (const DEF<decltype (ARGVP0)> & ,const ARGV<NULLOPT> &) noexcept :mIndex (VAR_NONE) {}
 
 public:
 	inline static Variant nullopt () noexcept {
-		return Variant (_NULL_<const ARGV<NULLOPT>> ()) ;
+		return Variant (ARGVP0 ,_NULL_<const ARGV<NULLOPT>> ()) ;
 	}
 } ;
 
@@ -1013,10 +1040,10 @@ public:
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX &index ,const ARGVS<_ARG1 ,_ARGS...> &) {
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		const auto r1x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
-		index = template_create (_NULL_<const ARGC<std::is_default_constructible<_ARG1>::value>> () ,r1x) ;
-		if (index != VAR_NONE)
+		const auto r2x = template_create (_NULL_<const ARGC<std::is_default_constructible<_ARG1>::value>> () ,r1x) ;
+		index = INDEX_OF_TYPE<_ARG1 ,ARGVS<TYPES...>>::value ;
+		if (r2x)
 			return ;
 		template_construct (address ,index ,_NULL_<const ARGVS<_ARGS...>> ()) ;
 	}
@@ -1027,7 +1054,6 @@ public:
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
@@ -1046,14 +1072,13 @@ public:
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
 				continue ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
-			_DYNAMIC_ASSERT_ (r3x != VAR_NONE) ;
+			_DYNAMIC_ASSERT_ (r3x) ;
 		}
 		if (r1x)
 			return ;
@@ -1066,13 +1091,13 @@ public:
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> src ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
-		_STATIC_ASSERT_ (INDEXOF_TRAITS_TYPE<_ARG1 ,_ARGS...>::value == VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
 				continue ;
-			_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
+			const auto r2x = Detail::template_create (_NULL_<const ARGC<TRUE>> () ,&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
+			_DEBUG_ASSERT_ (r2x) ;
 		}
 		if (r1x)
 			return ;
@@ -1080,14 +1105,14 @@ public:
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline static INDEX template_create (const ARGC<TRUE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) popping {
+	inline static BOOL template_create (const ARGC<TRUE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) popping {
 		_CREATE_ (address ,std::forward<_ARGS> (args)...) ;
-		return INDEXOF_TRAITS_TYPE<REMOVE_CVR_TYPE<_ARG1> ,TYPES...>::value ;
+		return TRUE ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline static INDEX template_create (const ARGC<FALSE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) popping {
-		return VAR_NONE ;
+	inline static BOOL template_create (const ARGC<FALSE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) popping {
+		return FALSE ;
 	}
 } ;
 
@@ -1096,14 +1121,6 @@ using Optional = Variant<TYPE> ;
 
 template <class...>
 class Tuple ;
-
-namespace stl {
-template <class _ARG1>
-using is_template_type = U::is_template_type<_ARG1> ;
-
-template <template <class...> class _ARGT ,class... _ARGS>
-using is_template_of = U::is_template_of<_ARGT ,_ARGS...> ;
-} ;
 
 template <>
 class Tuple<> {
@@ -1185,18 +1202,18 @@ public:
 
 	inline Tuple<TYPES...> &rest () && = delete ;
 
-	template <INDEX _VAL1>
-	inline VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () & {
-		return Detail::template_visit (*this ,_NULL_<const ARGC<_VAL1>> ()) ;
+	template <class _ARG1>
+	inline VISIT_OF_TYPE<_ARG1 ,ARGVS<TYPE1 ,TYPES...>> &visit () & {
+		return Detail::template_visit (*this ,_NULL_<const _ARG1> ()) ;
 	}
 
-	template <INDEX _VAL1>
-	inline constexpr const VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () const & {
-		return Detail::template_visit (*this ,_NULL_<const ARGC<_VAL1>> ()) ;
+	template <class _ARG1>
+	inline constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<TYPE1 ,TYPES...>> &visit () const & {
+		return Detail::template_visit (*this ,_NULL_<const _ARG1> ()) ;
 	}
 
-	template <INDEX _VAL1>
-	inline VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &visit () && = delete ;
+	template <class _ARG1>
+	inline VISIT_OF_TYPE<_ARG1 ,ARGVS<TYPE1 ,TYPES...>> &visit () && = delete ;
 
 	inline BOOL equal (const Tuple &right) const {
 		if (one () != right.one ())
@@ -1244,22 +1261,22 @@ public:
 template <class TYPE1 ,class... TYPES>
 class Tuple<TYPE1 ,TYPES...>::Detail :private Wrapped<void> {
 public:
-	inline static VISITOF_TRATIS_TYPE<0 ,TYPE1 ,TYPES...> &template_visit (Tuple &_self ,const ARGC<0> &) {
+	inline static TYPE1 &template_visit (Tuple &_self ,const ARGC<0> &) {
 		return _self.one () ;
 	}
 
 	template <INDEX _VAL1>
-	inline static VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &template_visit (Tuple &_self ,const ARGC<_VAL1> &) {
+	inline static VISIT_OF_TYPE<ARGC<_VAL1> ,ARGVS<TYPE1 ,TYPES...>> &template_visit (Tuple &_self ,const ARGC<_VAL1> &) {
 		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < 1 + _CAPACITYOF_ (TYPES)) ;
 		return Tuple<TYPES...>::template_visit (_self.rest () ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
 	}
 
-	inline static constexpr const VISITOF_TRATIS_TYPE<0 ,TYPE1 ,TYPES...> &template_visit (const Tuple &_self ,const ARGC<0> &) {
+	inline static constexpr const TYPE1 &template_visit (const Tuple &_self ,const ARGC<0> &) {
 		return _self.one () ;
 	}
 
 	template <INDEX _VAL1>
-	inline static constexpr const VISITOF_TRATIS_TYPE<_VAL1 ,TYPE1 ,TYPES...> &template_visit (const Tuple &_self ,const ARGC<_VAL1> &) {
+	inline static constexpr const VISIT_OF_TYPE<ARGC<_VAL1> ,ARGVS<TYPE1 ,TYPES...>> &template_visit (const Tuple &_self ,const ARGC<_VAL1> &) {
 		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < 1 + _CAPACITYOF_ (TYPES)) ;
 		return Tuple<TYPES...>::template_visit (_self.rest () ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
 	}
@@ -1307,7 +1324,7 @@ inline Function<TYPE1 (TYPES...)> Function<TYPE1 (TYPES...)>::make (const PTR<TY
 	auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>> () ;
 	ScopedHolder<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> ANONYMOUS (sgd ,function ,args...) ;
 	const auto r1x = &_LOAD_<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<TYPE1 (TYPES... ,_ARGS...)>>>>> (sgd)) ;
-	Function ret = Function (_XVALUE_<PTR<Holder>> (r1x)) ;
+	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (r1x)) ;
 	sgd = NULL ;
 	return std::move (ret) ;
 }
@@ -1317,11 +1334,6 @@ class AllOfTuple ;
 
 template <class...>
 class AnyOfTuple ;
-
-namespace stl {
-template <class... _ARGS>
-using is_all_same = U::is_all_same<_ARGS...> ;
-} ;
 
 template <class... TYPES>
 class AllOfTuple :private TupleBinder<const TYPES...> {
@@ -1705,19 +1717,6 @@ class WeakRef ;
 
 template <class>
 class SoftRef ;
-
-namespace stl {
-template <class _ARG1>
-using is_complete_type = U::is_complete_type<_ARG1> ;
-
-template <class _ARG1>
-using is_interface_type = U::is_interface_type<_ARG1 ,Interface> ;
-} ;
-
-namespace stl {
-template <class _ARG1 ,class _ARG2>
-using is_always_base_of = U::is_always_base_of<_ARG1 ,_ARG2> ;
-} ;
 
 template <>
 class WeakRef<void> {
