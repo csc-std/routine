@@ -35,10 +35,8 @@
 #endif
 
 namespace CSC {
-class ConsoleService::Implement final :private ConsoleService::Abstract {
+class ConsoleService::Implement :public ConsoleService::Abstract {
 private:
-	friend ConsoleService ;
-	friend StrongRef<Implement> ;
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
 	FLAG mOptionFlag ;
@@ -284,11 +282,7 @@ inline exports ConsoleService::ConsoleService () {
 	mThis = StrongRef<Implement>::make () ;
 }
 
-class DebuggerService::Implement final :private DebuggerService::Abstract {
-private:
-	friend DebuggerService ;
-	friend StrongRef<Implement> ;
-
+class DebuggerService::Implement :public DebuggerService::Abstract {
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;

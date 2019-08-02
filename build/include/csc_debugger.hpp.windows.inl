@@ -54,10 +54,8 @@
 #endif
 
 namespace CSC {
-class ConsoleService::Implement final :private ConsoleService::Abstract {
+class ConsoleService::Implement :public ConsoleService::Abstract {
 private:
-	friend ConsoleService ;
-	friend StrongRef<Implement> ;
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
 	FLAG mOptionFlag ;
@@ -325,10 +323,8 @@ inline exports ConsoleService::ConsoleService () {
 #if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
 #ifdef _DBGHELP_
 #ifdef _INC_CRTDBG
-class DebuggerService::Implement final :private DebuggerService::Abstract {
+class DebuggerService::Implement :public DebuggerService::Abstract {
 private:
-	friend DebuggerService ;
-	friend StrongRef<Implement> ;
 	UniqueRef<HANDLE> mSymbolFromAddress ;
 
 public:

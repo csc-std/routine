@@ -17,6 +17,12 @@ public:
 		_UNITTEST_ASSERT_ (_ABS_ (r11x - VAL (0.0)) < VAL (VAL32_EPS)) ;
 		const auto r12x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.0"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r12x - VAL (1.0)) < VAL (VAL32_EPS)) ;
+		const auto r13x = _BUILDVAL64S_<STR> (VAL64 (15.234999999999975)) ;
+		_UNITTEST_ASSERT_ (r13x == _PCSTR_ ("15.235")) ;
+		const auto r14x = _BUILDVAL64S_<STR> (VAL64 (1234E20)) ;
+		_UNITTEST_ASSERT_ (r14x == _PCSTR_ ("1.234e+23")) ;
+		const auto r15x = _BUILDVAL64S_<STR> (VAL64 (0)) ;
+		_UNITTEST_ASSERT_ (r15x == _PCSTR_ ("0")) ;
 		const auto r5x = _PARSEVALS_ (String<STR> (_PCSTR_ ("-0.0122"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r5x - VAL (-0.0122)) < VAL (1E-4)) ;
 		const auto r6x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.42E38"))) ;

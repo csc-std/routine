@@ -34,7 +34,7 @@
 namespace CSC {
 #ifdef __CSC_DEPRECATED__
 template <class TYPE>
-class Coroutine<TYPE>::Implement {
+class Coroutine<TYPE>::Implement final :private Interface {
 private:
 	struct CONTEXT_EBP {
 		jmp_buf mEbp ;
@@ -112,10 +112,8 @@ inline exports void Coroutine<TYPE>::goto_break_point (AnyRef<void> &bp) noexcep
 }
 #endif
 
-class RandomService::Implement final :private RandomService::Abstract {
+class RandomService::Implement :public RandomService::Abstract {
 private:
-	friend RandomService ;
-	friend StrongRef<Implement> ;
 	SharedRef<std::random_device> mRandomSeed ;
 	AutoRef<std::mt19937> mRandomDevice ;
 

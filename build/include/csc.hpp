@@ -307,13 +307,13 @@ using std::remove_extent ;
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)) ; } while (FALSE)
 #else
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)) ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
-#define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::watch (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
+#define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
 #else
 #define _UNITTEST_WATCH_(...) do {} while (FALSE)
 #endif
@@ -1176,7 +1176,7 @@ template <class STRX>
 class Plain final {
 private:
 	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
-	_STATIC_WARNING_ ("mark") ;
+	class Detail ;
 	PTR<const STRX> mPlain ;
 	LENGTH mSize ;
 
@@ -1190,16 +1190,23 @@ public:
 	inline constexpr implicit Plain (DEF<STRX[_VAL1]> &) = delete ;
 
 	template <class _ARG1 ,LENGTH _VAL1 ,class = ENABLE_TYPE<!std::is_same<_ARG1 ,STRX>::value>>
-	inline explicit Plain (const DEF<_ARG1[_VAL1]> &right) :Plain (_CAST_<STRX[_VAL1]> (right)) {}
+	inline explicit Plain (const DEF<_ARG1[_VAL1]> &right) noexcept :Plain (_CAST_<STRX[_VAL1]> (right)) {}
 
 	template <class _ARG1 ,LENGTH _VAL1>
 	inline explicit Plain (DEF<_ARG1[_VAL1]> &) = delete ;
+
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline explicit Plain (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept :Plain (Detail::plain_string (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
+
+	template <class _ARG1 ,LENGTH... _VALS>
+	inline explicit Plain (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept :Plain (Detail::plain_string (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
 
 	inline constexpr LENGTH size () const {
 		return mSize ;
 	}
 
 	inline constexpr const ARR<STRX> &to () const {
+		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
@@ -1208,77 +1215,80 @@ public:
 	}
 } ;
 
-template <>
-class Plain<void> :private Wrapped<void> {
-private:
-	inline static constexpr LENGTH expr_sub (LENGTH arg1) {
+template <class STRX>
+class Plain<STRX>::Detail :private Wrapped<void> {
+public:
+	inline static constexpr LENGTH constexpr_sub (LENGTH arg1) {
 		return arg1 - 1 ;
 	}
 
 	template <class SIZE>
-	class Holder {
+	class PlainString {
 	private:
 		friend Plain ;
-		DEF<STR[SIZE::value]> mString ;
+		DEF<STRX[SIZE::value]> mString ;
 
 	public:
-		inline Holder () = delete ;
+		inline PlainString () = delete ;
 
 		template <LENGTH... _VALS>
-		inline explicit Holder (const DEF<STRA[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
+		inline explicit PlainString (const DEF<STRA[_VALS]> &...args) noexcept {
+			_STATIC_ASSERT_ (ARGCS<1 ,constexpr_sub (_VALS)...>::value == SIZE::value) ;
 			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
 		}
 
 		template <LENGTH... _VALS>
-		inline explicit Holder (const DEF<STRW[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,expr_sub (_VALS)...>::value == SIZE::value) ;
+		inline explicit PlainString (const DEF<STRW[_VALS]> &...args) noexcept {
+			_STATIC_ASSERT_ (ARGCS<1 ,constexpr_sub (_VALS)...>::value == SIZE::value) ;
 			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
 		}
 	} ;
 
-public:
 	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
-		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
+	inline static const DEF<STRX[ARGCS<1 ,constexpr_sub (_VALS)...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
+		const auto r1x = PlainString<ARGCS<1 ,constexpr_sub (_VALS)...>> (args...) ;
 		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
-		return PTRTOARR[r1.mString] ;
+		return r1.mString ;
 	}
 
 	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const ARR<STR> &expr_what (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
-		const auto r1x = Holder<ARGCS<1 ,expr_sub (_VALS)...>> (args...) ;
+	inline static const DEF<STRX[ARGCS<1 ,constexpr_sub (_VALS)...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
+		const auto r1x = PlainString<ARGCS<1 ,constexpr_sub (_VALS)...>> (args...) ;
 		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
-		return PTRTOARR[r1.mString] ;
+		return r1.mString ;
 	}
 
-private:
 	template <LENGTH _VAL1>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
 		array[_VAL1 - 1] = 0 ;
 	}
 
+	template <class _ARG1>
+	inline static STRX raw_to_plain_strx (const _ARG1 &arg) noexcept {
+		if (arg >= _ARG1 (32) && arg <= _ARG1 (126))
+			return arg ;
+		if (arg == _ARG1 ('\t') || arg == _ARG1 ('\v'))
+			return arg ;
+		return _ARG1 ('?') ;
+	}
+
 	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
 		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
-			const auto r1x = (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ? (STR (arg1[i])) : (STR ('?')) ;
-			array[i + _VAL2] = r1x ;
-		}
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
+			array[i + _VAL2] = raw_to_plain_strx (arg1[i]) ;
 		template_write (array ,_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
 	}
 
 	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STR[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
 		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++) {
-			const auto r1x = (VAR32 (arg1[i]) > 0 && VAR32 (arg1[i]) <= 127) ? (STR (arg1[i])) : (STR ('?')) ;
-			array[i + _VAL2] = r1x ;
-		}
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
+			array[i + _VAL2] = raw_to_plain_strx (arg1[i]) ;
 		template_write (_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
 	}
 } ;
@@ -1292,17 +1302,11 @@ public:
 
 	inline explicit Exception (const Plain<STR> &_what) noexcept :mWhat (_what.self) {}
 
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept :mWhat (Plain<void>::expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
-
-	template <class _ARG1 ,LENGTH... _VALS>
-	inline explicit Exception (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept :mWhat (Plain<void>::expr_what (_NULL_<const ARGV<_ARG1>> () ,args...)) {}
-
 	inline const ARR<STR> &what () const noexcept {
 		return mWhat ;
 	}
 
-	inline void raise () const {
+	inline void rethrow () const {
 		throw *this ;
 	}
 } ;
@@ -2417,7 +2421,7 @@ private:
 	class FakeHolder ;
 
 	struct Holder :public Interface {
-		virtual void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
+		virtual void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping = 0 ;
 	} ;
 
@@ -2429,32 +2433,15 @@ private:
 	public:
 		inline FakeHolder () = delete ;
 
-		inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
+		inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
 		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override ;
 	} ;
 
 	template <class>
 	class ImplHolder ;
 
-	class PureHolder :public Holder {
-	private:
-		PTR<TYPE1 (TYPES...)> mFunction ;
-
-	public:
-		inline PureHolder () = delete ;
-
-		inline explicit PureHolder (const PTR<TYPE1 (TYPES...)> &function) noexcept :mFunction (function) {}
-
-		inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-			address_create<PureHolder> (address ,mFunction) ;
-		}
-
-		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
-			return mFunction (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
-		}
-	} ;
-
 private:
+	class Detail ;
 	TEMP<FakeHolder> mVariant ;
 
 public:
@@ -2464,31 +2451,31 @@ public:
 
 	inline implicit Function (const PTR<TYPE1 (TYPES...)> &right) noexcept {
 		_DEBUG_ASSERT_ (right != NULL) ;
-		address_create<PureHolder> (&mVariant ,right) ;
+		Detail::template static_create<typename Detail::PureHolder> (&mVariant ,right) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...)> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		address_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,function) ;
+		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<TYPE1 (TYPES...) const> _ARG1::*> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		address_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
+		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (PTR<_ARG1> ,TYPES...)> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		address_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,function) ;
+		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,function) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<TYPE1 (PTR<const _ARG1> ,TYPES...)> &function) noexcept {
 		_DEBUG_ASSERT_ (function != NULL) ;
-		address_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,function) ;
+		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,function) ;
 	}
 
 	inline ~Function () noexcept {
@@ -2505,7 +2492,7 @@ public:
 		_ZERO_ (mVariant) ;
 		if (!right.exist ())
 			return ;
-		_XVALUE_<Holder> (_CAST_<FakeHolder> (right.mVariant)).address_copy (&mVariant) ;
+		_XVALUE_<Holder> (_CAST_<FakeHolder> (right.mVariant)).compute_copy (&mVariant) ;
 	}
 
 	inline Function &operator= (Function &&right) noexcept {
@@ -2535,10 +2522,32 @@ public:
 	inline TYPE1 operator() (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping {
 		return invoke (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
 	}
+} ;
 
-private:
+template <class TYPE1 ,class... TYPES>
+class Function<FIX_MSVC_DEDUCTION_2<TYPE1 ,TYPES...>>::Detail :private Wrapped<void> {
+public:
+	class PureHolder :public Holder {
+	private:
+		PTR<TYPE1 (TYPES...)> mFunction ;
+
+	public:
+		inline PureHolder () = delete ;
+
+		inline explicit PureHolder (const PTR<TYPE1 (TYPES...)> &function) noexcept :mFunction (function) {}
+
+		inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+			static_create<PureHolder> (address ,mFunction) ;
+		}
+
+		inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
+			return mFunction (std::forward<FORWARD_TRAITS_TYPE<TYPES>> (args)...) ;
+		}
+	} ;
+
+public:
 	template <class _RET ,class... _ARGS>
-	inline static void address_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...args) noexcept {
+	inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...args) noexcept {
 		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 		_DEBUG_ASSERT_ (address != NULL) ;
@@ -2561,8 +2570,8 @@ public:
 
 	inline explicit ImplHolder (PTR<_TYPE> context ,const DEF<DEF<TYPE1 (TYPES...)> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		address_create<ImplHolder> (address ,mContext ,mFunction) ;
+	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
@@ -2582,8 +2591,8 @@ public:
 
 	inline explicit ImplHolder (PTR<const _TYPE> context ,const DEF<DEF<TYPE1 (TYPES...) const> _TYPE::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		address_create<ImplHolder> (address ,mContext ,mFunction) ;
+	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
@@ -2603,8 +2612,8 @@ public:
 
 	inline explicit ImplHolder (PTR<_TYPE> context ,const PTR<TYPE1 (PTR<_TYPE> ,TYPES...)> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void address_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		address_create<ImplHolder> (address ,mContext ,mFunction) ;
+	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline TYPE1 invoke (FORWARD_TRAITS_TYPE<TYPES> &&...args) const popping override {
@@ -3236,7 +3245,7 @@ public:
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline const TYPE &operator[] (INDEX index) const & {
 		return get (index) ;
@@ -3408,7 +3417,7 @@ public:
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline TYPE &operator[] (INDEX index) const & {
 		return get (index) ;

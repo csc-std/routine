@@ -64,22 +64,22 @@ using STRUW = TEXT_TRAITS_TYPE<STRW> ;
 template <class TYPE>
 class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (TYPE)]> {
 private:
-	inline static constexpr BYTE expr_endian_index (const ARGV<BYTE> &) {
+	inline static constexpr BYTE constexpr_big_endian (const ARGV<BYTE> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return BYTE (0X00) ;
 	}
 
-	inline static constexpr WORD expr_endian_index (const ARGV<WORD> &) {
+	inline static constexpr WORD constexpr_big_endian (const ARGV<WORD> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return WORD (0X0001) ;
 	}
 
-	inline static constexpr CHAR expr_endian_index (const ARGV<CHAR> &) {
+	inline static constexpr CHAR constexpr_big_endian (const ARGV<CHAR> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return CHAR (0X00010203) ;
 	}
 
-	inline static constexpr DATA expr_endian_index (const ARGV<DATA> &) {
+	inline static constexpr DATA constexpr_big_endian (const ARGV<DATA> &) {
 		//@info: 'big endian' [0] -> 0X00
 		return DATA (0X0001020304050607) ;
 	}
@@ -93,7 +93,7 @@ public:
 	}
 
 	inline const BYTE &operator[] (INDEX index) const {
-		const auto r1x = expr_endian_index (_NULL_<const ARGV<TYPE>> ()) ;
+		const auto r1x = constexpr_big_endian (_NULL_<const ARGV<TYPE>> ()) ;
 		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (TYPE)]> (r1x)[index]] ;
 	}
 
@@ -1585,47 +1585,17 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r3x = log_of_number (rax[0]) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (_ABS_ (r3x - 1 + rax[1]) >= precision) ;
-			for (FOR_ONCE_DO_WHILE) {
-				const auto r4x = _MAX_ ((r3x - 1 - precision) ,VAR_ZERO) ;
-				for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
-					rax[0] /= mHeap->varify_radix () ;
-					rax[1]++ ;
-				}
-				if (r4x <= 0)
-					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
+		for (FOR_ONCE_DO_WHILE) {
+			const auto r4x = r3x - precision ;
+			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
+				rax[0] /= mHeap->varify_radix () ;
 				rax[1]++ ;
 			}
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (rax[1] >= 1 - r3x) ;
-			_CASE_REQUIRE_ (rax[1] < 0) ;
-			for (FOR_ONCE_DO_WHILE) {
-				const auto r10x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
-				for (INDEX i = 0 ,ie = r10x - 1 ; i < ie ; i++) {
-					rax[0] /= mHeap->varify_radix () ;
-					rax[1]++ ;
-				}
-				if (r10x <= 0)
-					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
-				rax[1]++ ;
-			}
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (rax[1] < 1 - r3x) ;
-			for (FOR_ONCE_DO_WHILE) {
-				const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
-				for (INDEX i = 0 ,ie = r9x - 1 ; i < ie ; i++) {
-					rax[0] /= mHeap->varify_radix () ;
-					rax[1]++ ;
-				}
-				if (r9x <= 0)
-					continue ;
-				rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
-				rax[1]++ ;
-			}
-		}) ;
+			if (r4x <= 0)
+				continue ;
+			rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
+			rax[1]++ ;
+		}
 		const auto r8x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			//@info: case 'x.xxxExxx'
@@ -1701,7 +1671,7 @@ private:
 			out[--iw] = mHeap->convert_number_w (0) ;
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '0'
-			_CASE_REQUIRE_ (rax[1] == 0) ;
+			_CASE_REQUIRE_ (rax[0] == 0) ;
 			out[--iw] = mHeap->convert_number_w (0) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {
@@ -2009,10 +1979,12 @@ public:
 		auto &r1 = mReader->attr () ;
 		r1.modify_space (STRU8 (' ') ,1) ;
 		r1.modify_space (STRU8 ('\t') ,1) ;
+		r1.modify_space (STRU8 ('\v') ,1) ;
 		r1.modify_space (STRU8 ('\r') ,2) ;
 		r1.modify_space (STRU8 ('\n') ,2) ;
 		r1.modify_space (STRU8 ('\f') ,2) ;
 		r1.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
+		r1.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
 		r1.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
 		r1.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
 		r1.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;

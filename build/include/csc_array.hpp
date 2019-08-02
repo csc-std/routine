@@ -70,7 +70,7 @@ inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping 
 namespace U {
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+	inline static void static_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
 		for (INDEX i = seg_a + 1 ,ie = seg_b + 1 ; i < ie ; i++) {
 			INDEX ix = i ;
 			auto rax = std::move (out[ix]) ;
@@ -87,7 +87,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &it) {
+	inline static void static_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &it) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
 		auto rax = std::move (out[ix]) ;
@@ -108,7 +108,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void compute_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+	inline static void static_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
 		INDEX ix = seg_a ;
 		while (TRUE) {
 			if (ix >= seg_b)
@@ -117,20 +117,20 @@ struct OPERATOR_SORT {
 				break ;
 			ideal = ideal / 2 + ideal / 4 ;
 			INDEX jx = VAR_NONE ;
-			compute_quick_sort_partition (array ,out ,ix ,seg_b ,jx) ;
-			compute_quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
+			static_quick_sort_partition (array ,out ,ix ,seg_b ,jx) ;
+			static_quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
 			ix = jx + 1 ;
 		}
 		if (ix >= seg_b)
 			return ;
-		compute_insert_sort (array ,out ,ix ,seg_b) ;
+		static_insert_sort (array ,out ,ix ,seg_b) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= out.size ()) ;
-		compute_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+		static_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 
 	class ForwardArray :private Wrapped<ARGV<NONE>> {
@@ -334,19 +334,20 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
-	Buffer<ITEM ,ARGC<expr_size (SIZE::value)>> mString ;
+	class Detail ;
+	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mString ;
 
 public:
 	String () {
 		clear () ;
 	}
 
-	explicit String (LENGTH len) :String (ARGVP0 ,expr_size (len)) {
+	explicit String (LENGTH len) :String (ARGVP0 ,constexpr_size (len)) {
 		clear () ;
 	}
 
@@ -359,7 +360,7 @@ public:
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &right) :String (plain_string_length (right)) {
+	implicit String (const ARR<ITEM> &right) :String (Detail::plain_string_length (right)) {
 		_MEMCOPY_ (mString.self ,right ,size ()) ;
 	}
 
@@ -571,17 +572,20 @@ public:
 private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mString (len) {}
 
-private:
+public:
+	//@info: the function is incompleted without 'csc_string.hpp'
+	template <class... _ARGS>
+	inline static String make (const _ARGS &...args) ;
+} ;
+
+template <class ITEM ,class SIZE>
+class String<ITEM ,SIZE>::Detail :private Wrapped<void> {
+public:
 	inline static LENGTH plain_string_length (const ARR<ITEM> &src) {
 		LENGTH ret = _MEMCHR_ (src ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
 		return std::move (ret) ;
 	}
-
-public:
-	//@info: the function is incompleted without 'csc_string.hpp'
-	template <class... _ARGS>
-	inline static String make (const _ARGS &...args) ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -601,12 +605,12 @@ private:
 		}
 	} ;
 
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
-	Buffer<ITEM ,ARGC<expr_size (SIZE::value)>> mStack ;
+	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mStack ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -615,7 +619,7 @@ public:
 		clear () ;
 	}
 
-	explicit Stack (LENGTH len) :Stack (ARGVP0 ,expr_size (len)) {
+	explicit Stack (LENGTH len) :Stack (ARGVP0 ,constexpr_size (len)) {
 		clear () ;
 	}
 
@@ -877,12 +881,12 @@ private:
 		}
 	} ;
 
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
-	Buffer<ITEM ,ARGC<expr_size (SIZE::value)>> mQueue ;
+	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mQueue ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -891,7 +895,7 @@ public:
 		clear () ;
 	}
 
-	explicit Queue (LENGTH len) :Queue (ARGVP0 ,expr_size (len)) {
+	explicit Queue (LENGTH len) :Queue (ARGVP0 ,constexpr_size (len)) {
 		clear () ;
 	}
 
@@ -1203,13 +1207,13 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Node ,ARGC<expr_size (SIZE::value)>> mPriority ;
+	Buffer<Node ,ARGC<constexpr_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -1218,7 +1222,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,expr_size (len)) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -1317,13 +1321,13 @@ private:
 	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : (len + 1) ;
 	}
 
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Node ,ARGC<expr_size (SIZE::value)>> mPriority ;
+	Buffer<Node ,ARGC<constexpr_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -1332,7 +1336,7 @@ public:
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,expr_size (len)) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
 		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
 	}
 
@@ -2519,7 +2523,7 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
-	inline static constexpr LENGTH expr_size (LENGTH len) {
+	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return (len <= 0) ? len : ((len + 7) / 8) ;
 	}
 
@@ -2594,7 +2598,8 @@ private:
 	} ;
 
 private:
-	Buffer<BYTE ,ARGC<expr_size (SIZE::value)>> mSet ;
+	class Detail ;
+	Buffer<BYTE ,ARGC<constexpr_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
 public:
@@ -2602,11 +2607,11 @@ public:
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,expr_size (len) ,expr_width (len)) {
+	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,constexpr_size (len) ,Detail::runtime_width (len)) {
 		clear () ;
 	}
 
-	implicit BitSet (const std::initializer_list<INDEX> &right) : BitSet (expr_size (right)) {
+	implicit BitSet (const std::initializer_list<INDEX> &right) : BitSet (Detail::runtime_size (right)) {
 		for (auto &&i : right)
 			get (i) = TRUE ;
 	}
@@ -2919,9 +2924,12 @@ private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> &) :mWidth (0) {}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
+} ;
 
-private:
-	inline static LENGTH expr_size (const std::initializer_list<INDEX> &right) {
+template <class SIZE>
+class BitSet<SIZE>::Detail :private Wrapped<void> {
+public:
+	inline static LENGTH runtime_size (const std::initializer_list<INDEX> &right) {
 		LENGTH ret = VAR_NONE ;
 		for (auto &&i : right)
 			ret = _MAX_ (ret ,i) ;
@@ -2930,7 +2938,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline static LENGTH expr_width (LENGTH width) {
+	inline static LENGTH runtime_width (LENGTH width) {
 		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 		return width ;
 	}

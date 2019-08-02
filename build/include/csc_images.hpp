@@ -12,6 +12,8 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange {
 private:
+	class Detail ;
+
 	class Iterator {
 	private:
 		friend ArrayRange ;
@@ -36,7 +38,7 @@ private:
 
 		inline void operator++ () {
 			mIndex++ ;
-			template_incrase (mBase.mRange ,mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
+			Detail::template_incrase (mBase.mRange ,mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
 		}
 
 	private:
@@ -45,6 +47,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
+	class Detail ;
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
@@ -78,7 +81,11 @@ private:
 		ret.fill (0) ;
 		return std::move (ret) ;
 	}
+} ;
 
+template <class SIZE>
+class ArrayRange<SIZE>::Detail :private Wrapped<void> {
+public:
 	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGC<0> &) {
 		_DEBUG_ASSERT_ (index[0] < range[0]) ;
 		index[0]++ ;
@@ -629,6 +636,8 @@ private:
 		LENGTH mCK ;
 	} ;
 
+	class Detail ;
+
 	template <class _TYPE>
 	class NativeProxy {
 	private:
@@ -641,7 +650,7 @@ private:
 
 		inline ~NativeProxy () noexcept {
 			_CALL_EH_ ([&] () {
-				compute_update_layout (mAbstract ,mThis) ;
+				Detail::static_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}
 
@@ -676,6 +685,7 @@ private:
 	} ;
 
 private:
+	class Detail ;
 	PhanRef<const Abstract> mAbstract ;
 	SharedRef<Holder> mThis ;
 
@@ -805,40 +815,43 @@ public:
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;
-		compute_update_layout (mAbstract ,mThis) ;
+		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,data) ;
-		compute_update_layout (mAbstract ,mThis) ;
+		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &param) popping {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,data ,param) ;
-		compute_update_layout (mAbstract ,mThis) ;
+		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
 	void load_file (const String<STR> &file) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mAbstract->compute_load_file (mThis->mHolder ,file) ;
-		compute_update_layout (mAbstract ,mThis) ;
+		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
 	void save_file (const String<STR> &file ,const AnyRef<void> &param) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_save_file (mThis->mHolder ,file ,param) ;
-		compute_update_layout (mAbstract ,mThis) ;
+		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Holder> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
+} ;
 
-private:
-	static void compute_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
+template <class TYPE>
+class AbstractImage<TYPE>::Detail :private Wrapped<void> {
+public:
+	inline static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
 		_DEBUG_ASSERT_ (_abstract.exist ()) ;
 		_DEBUG_ASSERT_ (_this.exist ()) ;
 		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;

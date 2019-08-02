@@ -48,7 +48,6 @@
 #endif
 
 namespace CSC {
-template <class>
 class AbstractDatabase_Engine_MYSQL :public AbstractDatabase::Abstract {
 public:
 	using NATIVE_TYPE = UniqueRef<MYSQL> ;
@@ -69,7 +68,7 @@ public:
 	}
 
 private:
-	static void compute_check_error (MYSQL &_self) {
+	inline void compute_check_error (MYSQL &_self) const {
 		const auto r1x = &_LOAD_<ARR<STRA>> (mysql_error (&_self)) ;
 		_DYNAMIC_ASSERT_ (r1x == NULL) ;
 	}

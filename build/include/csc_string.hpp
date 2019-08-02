@@ -687,7 +687,7 @@ inline BOOL _PARSEBOOLS_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDBOOLS_ (const BOOL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (7) ;
@@ -702,7 +702,7 @@ inline VAR32 _PARSEVAR32S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVAR32S_ (const VAR32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
@@ -717,7 +717,7 @@ inline VAR64 _PARSEVAR64S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVAR64S_ (const VAR64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
@@ -732,7 +732,7 @@ inline VAR _PARSEVARS_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVARS_ (const VAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
@@ -747,7 +747,7 @@ inline VAL32 _PARSEVAL32S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVAL32S_ (const VAL32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
@@ -762,7 +762,7 @@ inline VAL64 _PARSEVAL64S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVAL64S_ (const VAL64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
@@ -777,7 +777,7 @@ inline VAL _PARSEVALS_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDVALS_ (const VAL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
@@ -790,7 +790,7 @@ inline String<STR> _PARSESTRS_ (const String<_ARG1> &stri) {
 	return U::OPERATOR_TO_STRING<String<STR> ,String<_ARG1>>::invoke (stri) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return U::OPERATOR_TO_STRING<String<_RET> ,String<STR>>::invoke (stru) ;
@@ -847,7 +847,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (15) ;
@@ -884,7 +884,7 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (31) ;
@@ -900,7 +900,7 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	static constexpr auto M_BASE64 = PACK<STRU8[66]> ({
 		STRU8 ('-') ,STRU8 ('A') ,STRU8 ('B') ,STRU8 ('C') ,STRU8 ('D') ,STRU8 ('E') ,STRU8 ('F') ,STRU8 ('G') ,
@@ -1054,7 +1054,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	return std::move (ret) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
@@ -1108,7 +1108,7 @@ inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &
 	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDDATES_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
@@ -1154,7 +1154,7 @@ inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &
 	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDHOURS_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
@@ -1217,7 +1217,7 @@ inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &
 	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
 }
 
-template <class _RET>
+template <class _RET = STR>
 inline String<_RET> _BUILDTIMES_ (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;

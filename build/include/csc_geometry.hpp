@@ -226,7 +226,7 @@ public:
 		return cross (right) ;
 	}
 
-	void crossto (const Vector &right) const {
+	void crossto (const Vector &right) {
 		*this = cross (right) ;
 	}
 

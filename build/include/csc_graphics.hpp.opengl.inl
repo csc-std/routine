@@ -156,17 +156,17 @@ public:
 			const auto r3x = VAR32 (vs.size ()) ;
 			glShaderSource (r1x ,1 ,&r2x ,&r3x) ;
 			glCompileShader (r1x) ;
-			check_shaderiv (r1x) ;
+			compute_check_shaderiv (r1x) ;
 			glAttachShader (me ,r1x) ;
 			const auto r4x = glCreateShader (GL_FRAGMENT_SHADER) ;
 			const auto r5x = _LOAD_<ARR<STRA>> (fs.self) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			glShaderSource (r4x ,1 ,&r5x ,&r6x) ;
 			glCompileShader (r4x) ;
-			check_shaderiv (r4x) ;
+			compute_check_shaderiv (r4x) ;
 			glAttachShader (me ,r4x) ;
 			glLinkProgram (me) ;
-			check_programiv (me) ;
+			compute_check_programiv (me) ;
 		} ,[] (CHAR &me) {
 			_DEBUG_ASSERT_ (me != 0) ;
 			glDeleteProgram (me) ;
@@ -278,20 +278,7 @@ public:
 	}
 
 private:
-	String<STRA> identity_name (const String<STR> &name) const {
-		String<STRA> ret = String<STRA> (name.length ()) ;
-		for (INDEX i = 0 ; i < ret.size () ; i++) {
-			const auto r2x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
-			const auto r3x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
-			const auto r4x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;
-			const auto r5x = BOOL (name[i] == STR ('_')) ;
-			_DEBUG_ASSERT_ (r2x || r3x || r4x || r5x) ;
-			ret[i] = STRA (name[i]) ;
-		}
-		return std::move (ret) ;
-	}
-
-	void check_shaderiv (CHAR shader) const {
+	void compute_check_shaderiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
 		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&(rax[0] = GL_FALSE)) ;
 		if (rax[0] == GL_TRUE)
@@ -304,7 +291,7 @@ private:
 		_DYNAMIC_ASSERT_ (rbx.empty ()) ;
 	}
 
-	void check_programiv (CHAR shader) const {
+	void compute_check_programiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
 		glGetProgramiv (shader ,GL_LINK_STATUS ,&(rax[0] = GL_FALSE)) ;
 		if (rax[0] == GL_TRUE)
@@ -501,8 +488,20 @@ private:
 		glBindVertexArray (0) ;
 	}
 
-private:
-	static void compute_check_error (UniqueRef<CHAR> &_self) {
+	inline String<STRA> identity_name (const String<STR> &name) const {
+		String<STRA> ret = String<STRA> (name.length ()) ;
+		for (INDEX i = 0 ; i < ret.size () ; i++) {
+			const auto r2x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
+			const auto r3x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
+			const auto r4x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;
+			const auto r5x = BOOL (name[i] == STR ('_')) ;
+			_DEBUG_ASSERT_ (r2x || r3x || r4x || r5x) ;
+			ret[i] = STRA (name[i]) ;
+		}
+		return std::move (ret) ;
+	}
+
+	inline void compute_check_error (UniqueRef<CHAR> &_self) const {
 		const auto r1x = glGetError () ;
 		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
 	}

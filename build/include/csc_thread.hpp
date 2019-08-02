@@ -13,9 +13,11 @@ namespace CSC {
 template <class ITEM>
 class CalcThread {
 private:
+	class Detail ;
+
 	class Holder {
 	public:
-		using INTRUSIVE_TYPE = CalcThread ;
+		using INTRUSIVE_TYPE = Detail ;
 
 	private:
 		friend CalcThread ;
@@ -32,6 +34,7 @@ private:
 	} ;
 
 private:
+	class Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -125,7 +128,7 @@ public:
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_execute (*r2x.P1 ,r2x.P2) ;
+					Detail::static_execute (*r2x.P1 ,r2x.P2) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -152,16 +155,19 @@ public:
 		const auto r2x = std::move (r1.mException) ;
 		if (!r2x.exist ())
 			return ;
-		r2x->raise () ;
+		r2x->rethrow () ;
 	}
 
 	void stop () {
 		const auto r1x = mThis.watch () ;
-		intrusive_destroy (r1x) ;
+		Detail::friend_destroy (r1x) ;
 	}
+} ;
 
-private:
-	static void compute_execute (Holder &_self ,INDEX pid) {
+template <class ITEM>
+class CalcThread<ITEM>::Detail :private Wrapped<void> {
+public:
+	inline static void static_execute (Holder &_self ,INDEX pid) {
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
@@ -181,17 +187,17 @@ private:
 				rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_rethrow (_self ,e) ;
+					static_rethrow (_self ,e) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
-			compute_push (_self ,std::move (rax)) ;
+			static_push (_self ,std::move (rax)) ;
 			rax = Optional<ITEM>::nullopt () ;
 		}
 	}
 
-	static void compute_push (Holder &_self ,Optional<ITEM> &&item) {
+	inline static void static_push (Holder &_self ,Optional<ITEM> &&item) {
 		ScopedGuard<std::mutex> sgd (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -210,7 +216,7 @@ private:
 		_self.mThreadCondition.self.notify_all () ;
 	}
 
-	static void compute_rethrow (Holder &_self ,const Exception &e) {
+	inline static void static_rethrow (Holder &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
@@ -218,7 +224,7 @@ private:
 		_self.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void intrusive_create (Holder &_self) {
+	inline static void friend_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mCounter.self = 0 ;
 		_self.mThreadFlag = AutoRef<BOOL> () ;
@@ -227,7 +233,7 @@ private:
 		_self.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	static void intrusive_destroy (Holder &_self) {
+	inline static void friend_destroy (Holder &_self) {
 		std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
 		if (!_self.mThreadFlag.exist ())
 			return ;
@@ -247,15 +253,15 @@ private:
 		_self.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	static LENGTH intrusive_attach (Holder &_self) popping {
+	inline static LENGTH friend_attach (Holder &_self) popping {
 		return ++_self.mCounter.self ;
 	}
 
-	static LENGTH intrusive_detach (Holder &_self) popping {
+	inline static LENGTH friend_detach (Holder &_self) popping {
 		return --_self.mCounter.self ;
 	}
 
-	static void intrusive_latch (Holder &_self) {
+	inline static void friend_latch (Holder &_self) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -263,6 +269,8 @@ private:
 template <class ITEM>
 class WorkThread {
 private:
+	class Detail ;
+
 	class Counter :private Wrapped<LENGTH> {
 	public:
 		inline void lock () {
@@ -276,7 +284,7 @@ private:
 
 	class Holder {
 	public:
-		using INTRUSIVE_TYPE = WorkThread ;
+		using INTRUSIVE_TYPE = Detail ;
 
 	private:
 		friend WorkThread ;
@@ -294,6 +302,7 @@ private:
 	} ;
 
 private:
+	class Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -416,7 +425,7 @@ public:
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_execute (*r2x) ;
+					Detail::static_execute (*r2x) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -442,16 +451,19 @@ public:
 		const auto r2x = std::move (r1.mException) ;
 		if (!r2x.exist ())
 			return ;
-		r2x->raise () ;
+		r2x->rethrow () ;
 	}
 
 	void stop () {
 		const auto r1x = mThis.watch () ;
-		intrusive_destroy (r1x) ;
+		Detail::friend_destroy (r1x) ;
 	}
+} ;
 
-private:
-	static void compute_execute (Holder &_self) {
+template <class ITEM>
+class WorkThread<ITEM>::Detail :private Wrapped<void> {
+public:
+	inline static void static_execute (Holder &_self) {
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
@@ -467,12 +479,12 @@ private:
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			compute_poll (_self ,rax) ;
+			static_poll (_self ,rax) ;
 			_CALL_EH_ ([&] () {
 				_self.mThreadProc (rax.self) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
-					compute_rethrow (_self ,e) ;
+					static_rethrow (_self ,e) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -481,7 +493,7 @@ private:
 		}
 	}
 
-	static void compute_poll (Holder &_self ,Optional<ITEM> &item) popping {
+	inline static void static_poll (Holder &_self ,Optional<ITEM> &item) popping {
 		std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (_self.mThreadWaitCounter)) ;
@@ -492,7 +504,7 @@ private:
 		_self.mItemQueue->take () ;
 	}
 
-	static void compute_rethrow (Holder &_self ,const Exception &e) {
+	inline static void static_rethrow (Holder &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		if (_self.mException.exist ())
@@ -500,7 +512,7 @@ private:
 		_self.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void intrusive_create (Holder &_self) {
+	inline static void friend_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mCounter.self = 0 ;
 		_self.mThreadFlag = AutoRef<BOOL> () ;
@@ -510,7 +522,7 @@ private:
 		_self.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	static void intrusive_destroy (Holder &_self) {
+	inline static void friend_destroy (Holder &_self) {
 		std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
 		if (!_self.mThreadFlag.exist ())
 			return ;
@@ -531,15 +543,15 @@ private:
 		_self.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH intrusive_attach (Holder &_self) popping {
+	inline static LENGTH friend_attach (Holder &_self) popping {
 		return ++_self.mCounter.self ;
 	}
 
-	static LENGTH intrusive_detach (Holder &_self) popping {
+	inline static LENGTH friend_detach (Holder &_self) popping {
 		return --_self.mCounter.self ;
 	}
 
-	static void intrusive_latch (Holder &_self) {
+	inline static void friend_latch (Holder &_self) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -550,9 +562,11 @@ public:
 	class Future ;
 
 private:
+	class Detail ;
+
 	class Holder {
 	public:
-		using INTRUSIVE_TYPE = Promise ;
+		using INTRUSIVE_TYPE = Detail ;
 
 	private:
 		friend Promise ;
@@ -571,6 +585,7 @@ private:
 	} ;
 
 private:
+	class Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -583,17 +598,17 @@ public:
 
 	void push (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
-		compute_push (r1x) ;
+		Detail::static_push (r1x) ;
 	}
 
 	void push (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
-		compute_push (r1x) ;
+		Detail::static_push (r1x) ;
 	}
 
 	void rethrow (const Exception &e) {
 		const auto r1x = mThis.watch () ;
-		compute_rethrow (r1x) ;
+		Detail::static_rethrow (r1x) ;
 	}
 
 	void start () {
@@ -628,7 +643,7 @@ public:
 		//@warn: move object having captured context
 		r1.mThreadPool = AutoRef<std::thread>::make ([r2x] () noexcept {
 			_CALL_TRY_ ([&] () {
-				compute_execute (*r2x) ;
+				Detail::static_execute (*r2x) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -637,19 +652,25 @@ public:
 
 	void signal () {
 		const auto r1x = mThis.watch () ;
-		compute_signal (r1x) ;
+		Detail::static_signal (r1x) ;
 	}
 
 	void stop () {
 		const auto r1x = mThis.watch () ;
-		intrusive_destroy (r1x) ;
+		Detail::friend_destroy (r1x) ;
 	}
 
 private:
 	explicit Promise (IntrusiveRef<Holder> &_this) popping : mThis (_this.copy ()) {}
 
-private:
-	static void compute_execute (Holder &_self) {
+public:
+	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
+} ;
+
+template <class ITEM>
+class Promise<ITEM>::Detail :private Wrapped<void> {
+public:
+	inline static void static_execute (Holder &_self) {
 		class Finally :private Wrapped<Holder> {
 		public:
 			inline void lock () {
@@ -664,18 +685,18 @@ private:
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 		_CALL_EH_ ([&] () {
-			compute_push (_self ,_self.mThreadProc ()) ;
+			static_push (_self ,_self.mThreadProc ()) ;
 		} ,[&] (const Exception &e) noexcept {
 			_CALL_TRY_ ([&] () {
-				compute_rethrow (_self ,e) ;
+				static_rethrow (_self ,e) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
 		}) ;
-		compute_signal (_self) ;
+		static_signal (_self) ;
 	}
 
-	static void compute_push (Holder &_self ,const ITEM &item) {
+	inline static void static_push (Holder &_self ,const ITEM &item) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -683,7 +704,7 @@ private:
 		_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	static void compute_push (Holder &_self ,ITEM &&item) {
+	inline static void static_push (Holder &_self ,ITEM &&item) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
@@ -691,7 +712,7 @@ private:
 		_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	static void compute_rethrow (Holder &_self ,const Exception &e) {
+	inline static void static_rethrow (Holder &_self ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
@@ -699,7 +720,7 @@ private:
 		_self.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void compute_signal (Holder &_self) {
+	inline static void static_signal (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 		_self.mThreadFlag.self = FALSE ;
@@ -709,7 +730,7 @@ private:
 		_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static void intrusive_create (Holder &_self) {
+	inline static void friend_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
 		_self.mCounter.self = 0 ;
 		_self.mThreadFlag = AutoRef<BOOL> () ;
@@ -719,7 +740,7 @@ private:
 		_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static void intrusive_destroy (Holder &_self) {
+	inline static void friend_destroy (Holder &_self) {
 		std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
 		if (!_self.mThreadFlag.exist ())
 			return ;
@@ -737,26 +758,24 @@ private:
 		_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH intrusive_attach (Holder &_self) popping {
+	inline static LENGTH friend_attach (Holder &_self) popping {
 		return ++_self.mCounter.self ;
 	}
 
-	static LENGTH intrusive_detach (Holder &_self) popping {
+	inline static LENGTH friend_detach (Holder &_self) popping {
 		return --_self.mCounter.self ;
 	}
 
-	static void intrusive_latch (Holder &_self) {
+	inline static void friend_latch (Holder &_self) {
 		GlobalRuntime::thread_sleep () ;
 	}
-
-public:
-	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
 } ;
 
 template <class ITEM>
 class Promise<ITEM>::Future {
 private:
 	using Holder = typename Promise<ITEM>::Holder ;
+	using Detail = typename Promise<ITEM>::Detail ;
 
 private:
 	friend Promise<ITEM> ;
@@ -785,7 +804,7 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
 				continue ;
-			r1.mException->raise () ;
+			r1.mException->rethrow () ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
 		ITEM ret = std::move (r1.mItem.self) ;
@@ -849,7 +868,7 @@ public:
 
 	void stop () {
 		const auto r1x = mThis.watch () ;
-		intrusive_destroy (r1x) ;
+		Detail::friend_destroy (r1x) ;
 	}
 
 private:

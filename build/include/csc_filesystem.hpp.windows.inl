@@ -647,11 +647,7 @@ inline exports void BufferLoader::flush () {
 	mThis.rebind<Implement> ()->flush () ;
 }
 
-class FileSystemService::Implement final :private FileSystemService::Abstract {
-private:
-	friend FileSystemService ;
-	friend StrongRef<Implement> ;
-
+class FileSystemService::Implement :public FileSystemService::Abstract {
 public:
 	AutoBuffer<BYTE> load_file (const String<STR> &file) popping override {
 		return _LOADFILE_ (file) ;
