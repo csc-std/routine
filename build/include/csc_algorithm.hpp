@@ -46,20 +46,20 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	}
 }
 
-template <class UNIT>
+template <class REAL>
 class KMPAlgorithm {
 private:
 	Array<INDEX> mNext ;
-	Array<UNIT> mPattern ;
+	Array<REAL> mPattern ;
 
 public:
 	KMPAlgorithm () = delete ;
 
-	explicit KMPAlgorithm (const PhanBuffer<const UNIT> &pattern) {
+	explicit KMPAlgorithm (const PhanBuffer<const REAL> &pattern) {
 		initialize (pattern) ;
 	}
 
-	INDEX query (const PhanBuffer<const UNIT> &target ,INDEX seg) const {
+	INDEX query (const PhanBuffer<const REAL> &target ,INDEX seg) const {
 		_DEBUG_ASSERT_ (seg >= 0 && seg < target.size ()) ;
 		INDEX ix = seg ;
 		INDEX iy = 0 ;
@@ -81,7 +81,7 @@ public:
 	}
 
 private:
-	void initialize (const PhanBuffer<const UNIT> &pattern) ;
+	void initialize (const PhanBuffer<const REAL> &pattern) ;
 
 	INDEX find_next (INDEX slow ,INDEX fast) const {
 		for (INDEX i = fast ; i != VAR_NONE ; i = mNext[i])
@@ -91,10 +91,10 @@ private:
 	}
 } ;
 
-template <class UNIT>
-inline void KMPAlgorithm<UNIT>::initialize (const PhanBuffer<const UNIT> &pattern) {
+template <class REAL>
+inline void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL> &pattern) {
 	mNext = Array<INDEX> (pattern.size ()) ;
-	mPattern = Array<UNIT> (pattern.size ()) ;
+	mPattern = Array<REAL> (pattern.size ()) ;
 	INDEX ix = 0 ;
 	INDEX iy = VAR_NONE ;
 	mNext[ix] = VAR_NONE ;
@@ -111,22 +111,22 @@ inline void KMPAlgorithm<UNIT>::initialize (const PhanBuffer<const UNIT> &patter
 	}
 }
 
-template <class UNIT>
+template <class REAL>
 class DijstraAlgorithm {
 private:
 	Array<INDEX> mPrev ;
-	Array<UNIT> mDistance ;
+	Array<REAL> mDistance ;
 	INDEX mRoot ;
 
 public:
 	DijstraAlgorithm () = delete ;
 
-	explicit DijstraAlgorithm (const Bitmap<UNIT> &adjacency ,INDEX root) {
+	explicit DijstraAlgorithm (const Bitmap<REAL> &adjacency ,INDEX root) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
 		initialize (adjacency ,root) ;
 	}
 
-	UNIT query (INDEX index) const {
+	REAL query (INDEX index) const {
 		return mDistance[index] ;
 	}
 
@@ -140,7 +140,7 @@ public:
 	}
 
 private:
-	void initialize (const Bitmap<UNIT> &adjacency ,INDEX root) ;
+	void initialize (const Bitmap<REAL> &adjacency ,INDEX root) ;
 
 	LENGTH query_path_depth (INDEX index) const {
 		LENGTH ret = 0 ;
@@ -150,22 +150,22 @@ private:
 	}
 } ;
 
-template <class UNIT>
-inline void DijstraAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,INDEX root) {
+template <class REAL>
+inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX root) {
 	class Lambda {
 	private:
 		DijstraAlgorithm &mContext ;
-		const Bitmap<UNIT> &mAdjacency ;
+		const Bitmap<REAL> &mAdjacency ;
 
 		INDEX mRoot ;
 		Array<INDEX> mPrev ;
-		Array<UNIT> mDistance ;
-		Priority<UNIT ,INDEX> mPriority ;
+		Array<REAL> mDistance ;
+		Priority<REAL ,INDEX> mPriority ;
 		BitSet<> mXVisit ;
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context ,const Bitmap<UNIT> &adjancency ,INDEX root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
+		inline explicit Lambda (DijstraAlgorithm &context ,const Bitmap<REAL> &adjancency ,INDEX root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -177,9 +177,9 @@ inline void DijstraAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 		inline void prepare () {
 			mPrev = Array<INDEX> (mAdjacency.cx ()) ;
 			mPrev.fill (VAR_NONE) ;
-			mDistance = Array<UNIT> (mAdjacency.cx ()) ;
-			mDistance[mRoot] = UNIT (0) ;
-			mPriority = Priority<UNIT ,INDEX> (mAdjacency.cy ()) ;
+			mDistance = Array<REAL> (mAdjacency.cx ()) ;
+			mDistance[mRoot] = REAL (0) ;
+			mPriority = Priority<REAL ,INDEX> (mAdjacency.cy ()) ;
 			mPriority.add (mDistance[mRoot] ,mRoot) ;
 			mXVisit = BitSet<> (mAdjacency.cx ()) ;
 			mXVisit[mRoot] = TRUE ;
@@ -203,7 +203,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 			for (INDEX i = 0 ; i < mPrev.length () ; i++) {
 				if (i == y)
 					continue ;
-				if (mAdjacency[y][i] < UNIT (0))
+				if (mAdjacency[y][i] < REAL (0))
 					continue ;
 				const auto r1x = mDistance[y] + mAdjacency[y][i] ;
 				if (mXVisit[i] && mDistance[i] <= r1x)
@@ -224,7 +224,7 @@ inline void DijstraAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 	_CALL_ (Lambda (*this ,adjacency ,root)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class KMeansAlgorithm {
 private:
 	Set<BitSet<>> mClusterSet ;
@@ -232,7 +232,7 @@ private:
 public:
 	KMeansAlgorithm () = delete ;
 
-	explicit KMeansAlgorithm (const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) {
+	explicit KMeansAlgorithm (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		_DEBUG_ASSERT_ (dataset.length () >= 2 && center.length () >= 2) ;
 		initialize (dataset ,distance ,center) ;
 	}
@@ -246,27 +246,27 @@ public:
 	}
 
 private:
-	void initialize (const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) ;
+	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) ;
 } ;
 
-template <class UNIT>
-inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) {
+template <class REAL>
+inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 	class Lambda {
 	private:
 		KMeansAlgorithm &mContext ;
-		const Set<UNIT> &mDataSet ;
-		const Function<UNIT (const UNIT & ,const UNIT &)> &mDistanceFunc ;
-		const Array<UNIT> &mCenter ;
-		const UNIT mTolerance = UNIT (1E-6) ;
+		const Set<REAL> &mDataSet ;
+		const Function<REAL (const REAL & ,const REAL &)> &mDistanceFunc ;
+		const Array<REAL> &mCenter ;
+		const REAL mTolerance = REAL (1E-6) ;
 
-		Queue<UNIT> mCurrCenterList ;
-		Queue<UNIT> mNextCenterList ;
+		Queue<REAL> mCurrCenterList ;
+		Queue<REAL> mNextCenterList ;
 		Array<ARRAY2<INDEX>> mCenterIndex ;
 		Set<INDEX ,BitSet<>> mClusterSet ;
-		ARRAY3<UNIT> mConvergence ;
+		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context ,const Set<UNIT> &dataset ,const Function<UNIT (const UNIT & ,const UNIT &)> &distance ,const Array<UNIT> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
+		inline explicit Lambda (KMeansAlgorithm &context ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -276,8 +276,8 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 
 	private:
 		inline void prepare () {
-			mCurrCenterList = Queue<UNIT> (mCenterIndex.length ()) ;
-			mNextCenterList = Queue<UNIT> (mCenterIndex.length ()) ;
+			mCurrCenterList = Queue<REAL> (mCenterIndex.length ()) ;
+			mNextCenterList = Queue<REAL> (mCenterIndex.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
 			mCenterIndex = Array<ARRAY2<INDEX>> (mCurrCenterList.length ()) ;
 			INDEX iw = 0 ;
@@ -285,7 +285,7 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 				mCenterIndex[iw++][0] = mCurrCenterList.at (i) ;
 			_DEBUG_ASSERT_ (iw == mCenterIndex.length ()) ;
 			mClusterSet = Set<INDEX ,BitSet<>> () ;
-			mConvergence.fill (UNIT (-1)) ;
+			mConvergence.fill (REAL (-1)) ;
 		}
 
 		inline void generate () {
@@ -312,9 +312,9 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 				mClusterSet.add (i ,BitSet<> ()) ;
 		}
 
-		inline INDEX closest_center_of_point (const UNIT &point) const {
+		inline INDEX closest_center_of_point (const REAL &point) const {
 			INDEX ret = VAR_NONE ;
-			auto rax = UNIT () ;
+			auto rax = REAL () ;
 			for (auto &&i : mCurrCenterList) {
 				const auto r1x = mDistanceFunc (point ,i) ;
 				if (ret != VAR_NONE && rax <= r1x)
@@ -338,34 +338,34 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 			_DEBUG_ASSERT_ (iw == mCenterIndex.length ()) ;
 		}
 
-		inline UNIT average_center (const BitSet<> &cluster) const {
-			UNIT ret = UNIT (0) ;
+		inline REAL average_center (const BitSet<> &cluster) const {
+			REAL ret = REAL (0) ;
 			const auto r1x = cluster.length () ;
 			_DEBUG_ASSERT_ (r1x != 0) ;
 			for (auto &&i : cluster)
 				ret += mDataSet[i] ;
-			ret *= _PINV_ (UNIT (r1x)) ;
+			ret *= _PINV_ (REAL (r1x)) ;
 			return std::move (ret) ;
 		}
 
 		inline void update_convergence () {
 			mConvergence[0] = mConvergence[1] ;
 			mConvergence[1] = mConvergence[2] ;
-			mConvergence[2] = UNIT (-1) ;
+			mConvergence[2] = REAL (-1) ;
 			if (mCurrCenterList.length () != mNextCenterList.length ())
 				return ;
-			mConvergence[2] = UNIT (0) ;
+			mConvergence[2] = REAL (0) ;
 			_DEBUG_ASSERT_ (mCurrCenterList.length () == mNextCenterList.length ()) ;
 			for (auto &&i : mCenterIndex)
 				mConvergence[2] = _MAX_ (mConvergence[2] ,mDistanceFunc (mCurrCenterList[i[0]] ,mNextCenterList[i[1]])) ;
 		}
 
 		inline BOOL reach_convergence () const {
-			if (mConvergence[0] < UNIT (0))
+			if (mConvergence[0] < REAL (0))
 				return FALSE ;
-			if (mConvergence[1] < UNIT (0))
+			if (mConvergence[1] < REAL (0))
 				return FALSE ;
-			if (mConvergence[2] < UNIT (0))
+			if (mConvergence[2] < REAL (0))
 				return FALSE ;
 			if (mConvergence[0] > mConvergence[1] || mConvergence[1] > mConvergence[2])
 				return FALSE ;
@@ -392,20 +392,20 @@ inline void KMeansAlgorithm<UNIT>::initialize (const Set<UNIT> &dataset ,const F
 	_CALL_ (Lambda (*this ,dataset ,distance ,center)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class KMHungarianAlgorithm {
 private:
-	UNIT mWeight ;
+	REAL mWeight ;
 	Array<ARRAY2<INDEX>> mMatch ;
 
 public:
 	KMHungarianAlgorithm () = delete ;
 
-	explicit KMHungarianAlgorithm (const Bitmap<UNIT> &adjacency) {
+	explicit KMHungarianAlgorithm (const Bitmap<REAL> &adjacency) {
 		initialize (adjacency) ;
 	}
 
-	UNIT query () const {
+	REAL query () const {
 		return mWeight ;
 	}
 
@@ -418,30 +418,30 @@ public:
 	}
 
 private:
-	void initialize (const Bitmap<UNIT> &adjacency) ;
+	void initialize (const Bitmap<REAL> &adjacency) ;
 } ;
 
-template <class UNIT>
-inline void KMHungarianAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency) {
+template <class REAL>
+inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
 	class Lambda {
 	private:
 		KMHungarianAlgorithm &mContext ;
-		const Bitmap<UNIT> &mAdjacency ;
-		const UNIT mTolerance = UNIT (1E-6) ;
+		const Bitmap<REAL> &mAdjacency ;
+		const REAL mTolerance = REAL (1E-6) ;
 
 		Array<INDEX> mXYLink ;
 		BitSet<> mXVisit ;
 		BitSet<> mYVisit ;
-		Array<UNIT> mXWeight ;
-		Array<UNIT> mYWeight ;
-		ARRAY2<UNIT> mLackWeight ;
+		Array<REAL> mXWeight ;
+		Array<REAL> mYWeight ;
+		ARRAY2<REAL> mLackWeight ;
 
 		Stack<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<UNIT> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<REAL> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -455,12 +455,12 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacenc
 			mXYLink.fill (VAR_NONE) ;
 			mXVisit = BitSet<> (mAdjacency.cx ()) ;
 			mYVisit = BitSet<> (mAdjacency.cy ()) ;
-			mXWeight = Array<UNIT> (mAdjacency.cx ()) ;
-			mXWeight.fill (UNIT (0)) ;
-			mYWeight = Array<UNIT> (mAdjacency.cy ()) ;
-			mYWeight.fill (UNIT (0)) ;
+			mXWeight = Array<REAL> (mAdjacency.cx ()) ;
+			mXWeight.fill (REAL (0)) ;
+			mYWeight = Array<REAL> (mAdjacency.cy ()) ;
+			mYWeight.fill (REAL (0)) ;
 			for (auto &&i : mAdjacency.range ()) {
-				_DYNAMIC_ASSERT_ (mAdjacency[i] >= UNIT (0)) ;
+				_DYNAMIC_ASSERT_ (mAdjacency[i] >= REAL (0)) ;
 				mYWeight[i[0]] = _MAX_ (mYWeight[i[0]] ,mAdjacency[i]) ;
 			}
 		}
@@ -566,8 +566,8 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacenc
 			mContext.mMatch = best_match () ;
 		}
 
-		inline UNIT best_weight () const {
-			UNIT ret = UNIT (0) ;
+		inline REAL best_weight () const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < mXYLink.length () ; i++)
 				ret += mAdjacency[mXYLink[i]][i] ;
 			return std::move (ret) ;
@@ -595,7 +595,7 @@ inline void KMHungarianAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacenc
 	_CALL_ (Lambda (*this ,adjacency)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class TriangulateAlgorithm {
 private:
 	Array<ARRAY3<INDEX>> mTriangle ;
@@ -603,7 +603,7 @@ private:
 public:
 	TriangulateAlgorithm () = delete ;
 
-	explicit TriangulateAlgorithm (const Array<ARRAY2<UNIT>> &vertex) {
+	explicit TriangulateAlgorithm (const Array<ARRAY2<REAL>> &vertex) {
 		initialize (vertex) ;
 	}
 
@@ -616,16 +616,16 @@ public:
 	}
 
 private:
-	void initialize (const Array<ARRAY2<UNIT>> &vertex) ;
+	void initialize (const Array<ARRAY2<REAL>> &vertex) ;
 } ;
 
-template <class UNIT>
-inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &vertex) {
+template <class REAL>
+inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &vertex) {
 	class Lambda {
 	private:
 		TriangulateAlgorithm &mContext ;
-		const Array<ARRAY2<UNIT>> &mVertex ;
-		const UNIT mTolerance = UNIT (1E-6) ;
+		const Array<ARRAY2<REAL>> &mVertex ;
+		const REAL mTolerance = REAL (1E-6) ;
 
 		Deque<INDEX> mPloygonVertexList ;
 		BOOL mClockwiseFlag ;
@@ -633,7 +633,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 		Array<ARRAY3<INDEX>> mTriangle ;
 
 	public:
-		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<UNIT>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (TriangulateAlgorithm &context ,const Array<ARRAY2<REAL>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -644,7 +644,7 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 	private:
 		inline void prepare () {
 			mPloygonVertexList = ploygon_vertex_list () ;
-			const auto r1x = BOOL (ploygon_vertex_clockwise () > UNIT (0)) ;
+			const auto r1x = BOOL (ploygon_vertex_clockwise () > REAL (0)) ;
 			mClockwiseFlag = r1x ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (!mClockwiseFlag)
@@ -668,8 +668,8 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			return std::move (ret) ;
 		}
 
-		inline UNIT ploygon_vertex_clockwise () const {
-			UNIT ret = UNIT (0) ;
+		inline REAL ploygon_vertex_clockwise () const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < mPloygonVertexList.length () ; i++) {
 				INDEX ix = mPloygonVertexList.access ((i - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ()) ;
 				INDEX iy = mPloygonVertexList.access (i) ;
@@ -712,9 +712,9 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			INDEX iy = mPloygonVertexList.access (it) ;
 			INDEX iz = mPloygonVertexList.access ((it + 1) % mPloygonVertexList.length ()) ;
 			const auto r1x = math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) ;
-			if (r1x > UNIT (0))
+			if (r1x > REAL (0))
 				return FALSE ;
-			if (r1x == UNIT (0))
+			if (r1x == REAL (0))
 				return FALSE ;
 			if (!edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]))
 				return FALSE ;
@@ -734,16 +734,16 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 			const auto r1x = math_cross_product_z (mVertex ,v1 ,v2 ,v4) ;
 			const auto r2x = math_cross_product_z (mVertex ,v2 ,v3 ,v4) ;
 			const auto r3x = math_cross_product_z (mVertex ,v3 ,v1 ,v4) ;
-			if (r1x < UNIT (0) && r2x < UNIT (0) && r3x <= UNIT (0))
+			if (r1x < REAL (0) && r2x < REAL (0) && r3x <= REAL (0))
 				return FALSE ;
-			if (r1x < UNIT (0) && r2x <= UNIT (0) && r3x < UNIT (0))
+			if (r1x < REAL (0) && r2x <= REAL (0) && r3x < REAL (0))
 				return FALSE ;
-			if (r1x <= UNIT (0) && r2x < UNIT (0) && r3x < UNIT (0))
+			if (r1x <= REAL (0) && r2x < REAL (0) && r3x < REAL (0))
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline UNIT math_cross_product_z (const Array<ARRAY2<UNIT>> &vertex ,INDEX v1 ,INDEX v2 ,INDEX v3) const {
+		inline REAL math_cross_product_z (const Array<ARRAY2<REAL>> &vertex ,INDEX v1 ,INDEX v2 ,INDEX v3) const {
 			const auto r1x = (vertex[v2][0] - vertex[v1][0]) * (vertex[v3][1] - vertex[v1][1]) ;
 			const auto r2x = (vertex[v2][1] - vertex[v1][1]) * (vertex[v3][0] - vertex[v1][0]) ;
 			return r1x - r2x ;
@@ -766,61 +766,61 @@ inline void TriangulateAlgorithm<UNIT>::initialize (const Array<ARRAY2<UNIT>> &v
 	_CALL_ (Lambda (*this ,vertex)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class BFGSAlgorithm {
 private:
-	Array<UNIT> mDX ;
-	UNIT mDXLoss ;
+	Array<REAL> mDX ;
+	REAL mDXLoss ;
 
 public:
 	BFGSAlgorithm () = delete ;
 
-	explicit BFGSAlgorithm (const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) {
+	explicit BFGSAlgorithm (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 		initialize (loss ,fdx) ;
 	}
 
-	const Array<UNIT> &query () const & {
+	const Array<REAL> &query () const & {
 		return mDX ;
 	}
 
-	Array<UNIT> query () && {
+	Array<REAL> query () && {
 		return std::move (mDX) ;
 	}
 
-	UNIT query_loss () const {
+	REAL query_loss () const {
 		return mDXLoss ;
 	}
 
 private:
-	void initialize (const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) ;
+	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) ;
 } ;
 
-template <class UNIT>
-inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) {
+template <class REAL>
+inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 	class Lambda {
 	private:
 		BFGSAlgorithm &mContext ;
-		const Function<UNIT (const Array<UNIT> &)> &mLossFunc ;
-		const Array<UNIT> &mFDX ;
-		const UNIT mTolerance = UNIT (1E-6) ;
-		const UNIT mDXLambdaFirst = UNIT (1000) ;
-		const UNIT mDXLambdaPower = UNIT (0.618) ;
-		const ARRAY2<UNIT> mDXC1C2 = ARRAY2<UNIT> {UNIT (1E-4) ,UNIT (0.9)} ;
+		const Function<REAL (const Array<REAL> &)> &mLossFunc ;
+		const Array<REAL> &mFDX ;
+		const REAL mTolerance = REAL (1E-6) ;
+		const REAL mDXLambdaFirst = REAL (1000) ;
+		const REAL mDXLambdaPower = REAL (0.618) ;
+		const ARRAY2<REAL> mDXC1C2 = ARRAY2<REAL> {REAL (1E-4) ,REAL (0.9)} ;
 
-		Array<UNIT> mDX ;
-		Bitmap<UNIT> mDM ;
-		Array<UNIT> mDG ;
-		ARRAY3<UNIT> mDXLoss ;
-		ARRAY3<UNIT> mDXLambda ;
-		Array<UNIT> mIX ;
-		Bitmap<UNIT> mIM ;
-		Array<UNIT> mIG ;
-		Array<UNIT> mIS ;
-		Array<UNIT> mIY ;
-		Array<UNIT> mSX ;
+		Array<REAL> mDX ;
+		Bitmap<REAL> mDM ;
+		Array<REAL> mDG ;
+		ARRAY3<REAL> mDXLoss ;
+		ARRAY3<REAL> mDXLambda ;
+		Array<REAL> mIX ;
+		Bitmap<REAL> mIM ;
+		Array<REAL> mIG ;
+		Array<REAL> mIS ;
+		Array<REAL> mIY ;
+		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context ,const Function<UNIT (const Array<UNIT> &)> &loss ,const Array<UNIT> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
+		inline explicit Lambda (BFGSAlgorithm &context ,const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -831,17 +831,17 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 	private:
 		inline void prepare () {
 			mDX = mFDX ;
-			mDM = Bitmap<UNIT> (mDX.size () ,mDX.size ()) ;
-			mDM.fill (UNIT (0)) ;
+			mDM = Bitmap<REAL> (mDX.size () ,mDX.size ()) ;
+			mDM.fill (REAL (0)) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++)
-				mDM[i][i] = UNIT (1) ;
-			mDG = Array<UNIT> (mDX.size ()) ;
-			mIX = Array<UNIT> (mDX.size ()) ;
-			mIM = Bitmap<UNIT> (mDX.size () ,mDX.size ()) ;
-			mIG = Array<UNIT> (mDX.size ()) ;
-			mIS = Array<UNIT> (mDX.size ()) ;
-			mIY = Array<UNIT> (mDX.size ()) ;
-			mSX = Array<UNIT> (mDX.size ()) ;
+				mDM[i][i] = REAL (1) ;
+			mDG = Array<REAL> (mDX.size ()) ;
+			mIX = Array<REAL> (mDX.size ()) ;
+			mIM = Bitmap<REAL> (mDX.size () ,mDX.size ()) ;
+			mIG = Array<REAL> (mDX.size ()) ;
+			mIS = Array<REAL> (mDX.size ()) ;
+			mIY = Array<REAL> (mDX.size ()) ;
+			mSX = Array<REAL> (mDX.size ()) ;
 			compute_gradient_of_loss (mDX ,mDG ,mSX) ;
 		}
 
@@ -855,7 +855,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			}
 		}
 
-		inline void compute_gradient_of_loss (const Array<UNIT> &dx ,Array<UNIT> &dg ,Array<UNIT> &sx) const {
+		inline void compute_gradient_of_loss (const Array<REAL> &dx ,Array<REAL> &dg ,Array<REAL> &sx) const {
 			for (INDEX i = 0 ; i < dx.length () ; i++)
 				sx[i] = dx[i] ;
 			_STATIC_WARNING_ ("mark") ;
@@ -884,13 +884,13 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			const auto r1x = math_vector_dot (mDG ,mIS) ;
 			mDXLoss[0] = mLossFunc (mDX) ;
 			mDXLoss[2] = mDXLoss[0] ;
-			mDXLambda[0] = UNIT (0) ;
+			mDXLambda[0] = REAL (0) ;
 			mDXLambda[1] = mDXLambdaFirst ;
 			mDXLambda[2] = mDXLambda[0] ;
 			while (TRUE) {
 				if (mDXLambda[1] < mTolerance)
 					break ;
-				if (mDXLoss[2] <= UNIT (0))
+				if (mDXLoss[2] <= REAL (0))
 					break ;
 				for (INDEX i = 0 ; i < mIX.length () ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
@@ -901,7 +901,7 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
 					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
 						continue ;
-					mDXLoss[2] = UNIT (0) ;
+					mDXLoss[2] = REAL (0) ;
 				}
 				for (FOR_ONCE_DO_WHILE) {
 					if (mDXLoss[1] >= mDXLoss[2])
@@ -913,32 +913,32 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			}
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mDXLoss[0] >= mDXLoss[2]) ;
-				const auto r2x = (mDXLoss[2] > UNIT (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
+				const auto r2x = (mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			} ,[&] (BOOL &_case_req) {
-				mIG.fill (UNIT (0)) ;
+				mIG.fill (REAL (0)) ;
 			}) ;
 		}
 
-		inline UNIT math_matrix_mul (const Bitmap<UNIT> &mat ,INDEX y ,const Array<UNIT> &v) const {
-			UNIT ret = UNIT (0) ;
+		inline REAL math_matrix_mul (const Bitmap<REAL> &mat ,INDEX y ,const Array<REAL> &v) const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < v.length () ; i++)
 				ret += mat[y][i] * v[i] ;
 			return std::move (ret) ;
 		}
 
-		inline UNIT math_vector_dot (const Array<UNIT> &v1 ,const Array<UNIT> &v2) const {
+		inline REAL math_vector_dot (const Array<REAL> &v1 ,const Array<REAL> &v2) const {
 			_DEBUG_ASSERT_ (v1.length () == v2.length ()) ;
-			UNIT ret = UNIT (0) ;
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < v1.length () ; i++)
 				ret += v1[i] * v2[i] ;
 			return std::move (ret) ;
 		}
 
-		inline UNIT current_convergence () const {
-			UNIT ret = UNIT (0) ;
+		inline REAL current_convergence () const {
+			REAL ret = REAL (0) ;
 			for (auto &&i : mIG)
 				ret += _SQE_ (i) ;
 			ret = _SQRT_ (ret) ;
@@ -959,8 +959,8 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			_SWAP_ (mDM ,mIM) ;
 		}
 
-		inline UNIT hessian_matrix_each (INDEX y ,INDEX x ,const UNIT &ys) const {
-			UNIT ret = UNIT (0) ;
+		inline REAL hessian_matrix_each (INDEX y ,INDEX x ,const REAL &ys) const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < mDM.cy () ; i++) {
 				const auto r1x = hessian_matrix_each_factor (x ,i ,ys) ;
 				ret += r1x * (-mIS[y] * mIY[i] * ys) ;
@@ -971,8 +971,8 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 			return std::move (ret) ;
 		}
 
-		inline UNIT hessian_matrix_each_factor (INDEX x ,INDEX z ,const UNIT &ys) const {
-			UNIT ret = UNIT (0) ;
+		inline REAL hessian_matrix_each_factor (INDEX x ,INDEX z ,const REAL &ys) const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < mDM.cx () ; i++) {
 				ret += mDM[z][i] * (-mIY[i] * mIS[x] * ys) ;
 				if (i == x)
@@ -990,13 +990,13 @@ inline void BFGSAlgorithm<UNIT>::initialize (const Function<UNIT (const Array<UN
 	_CALL_ (Lambda (*this ,loss ,fdx)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class KDimensionTreeAlgorithm {
 private:
 	class Node {
 	private:
 		friend KDimensionTreeAlgorithm ;
-		UNIT mKey ;
+		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
 		INDEX mRight ;
@@ -1004,28 +1004,28 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const UNIT &key ,INDEX leaf ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
-	Array<ARRAY3<UNIT>> mVertex ;
+	Array<ARRAY3<REAL>> mVertex ;
 	ARRAY3<INDEX> mNextRot ;
-	ARRAY3<ARRAY2<UNIT>> mBound ;
+	ARRAY3<ARRAY2<REAL>> mBound ;
 	Allocator<Node ,SAUTO> mHeap ;
 	INDEX mRoot ;
 
 public:
 	KDimensionTreeAlgorithm () = delete ;
 
-	explicit KDimensionTreeAlgorithm (const Array<ARRAY3<UNIT>> &vertex) {
+	explicit KDimensionTreeAlgorithm (const Array<ARRAY3<REAL>> &vertex) {
 		_DEBUG_ASSERT_ (vertex.length () > 0) ;
 		initialize (vertex) ;
 	}
 
-	Queue<INDEX> query (const ARRAY3<UNIT> &point ,const UNIT &width) const {
-		_DEBUG_ASSERT_ (width > UNIT (0)) ;
+	Queue<INDEX> query (const ARRAY3<REAL> &point ,const REAL &width) const {
+		_DEBUG_ASSERT_ (width > REAL (0)) ;
 		Queue<INDEX> ret ;
-		auto rax = ARRAY3<ARRAY2<UNIT>> () ;
+		auto rax = ARRAY3<ARRAY2<REAL>> () ;
 		rax[0][0] = _MAX_ ((point[0] - width) ,mBound[0][0]) ;
 		rax[0][1] = _MIN_ ((point[0] + width) ,mBound[0][1]) ;
 		rax[1][0] = _MAX_ ((point[1] - width) ,mBound[1][0]) ;
@@ -1036,11 +1036,11 @@ public:
 		return std::move (ret) ;
 	}
 
-	Array<PACK<INDEX ,UNIT>> query_nearst (const ARRAY3<UNIT> &point ,LENGTH count) const {
+	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		const auto r1x = first_count_vertex (point ,count) ;
 		const auto r2x = r1x.esort () ;
-		Array<PACK<INDEX ,UNIT>> ret = Array<PACK<INDEX ,UNIT>> (count) ;
+		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
 		for (INDEX i = 0 ; i < ret.length () ; i++) {
 			ret[i].P1 = r2x[i] ;
 			ret[i].P2 = r1x[r2x[i]] ;
@@ -1050,9 +1050,9 @@ public:
 	}
 
 private:
-	void initialize (const Array<ARRAY3<UNIT>> &vertex) ;
+	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
-	void compute_search_range (const ARRAY3<UNIT> &point ,const UNIT &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<UNIT>> &bound ,Queue<INDEX> &out) const {
+	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Queue<INDEX> &out) const {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mHeap[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
@@ -1084,9 +1084,9 @@ private:
 		}) ;
 	}
 
-	Stack<UNIT> first_count_vertex (const ARRAY3<UNIT> &point ,LENGTH count) const {
+	Stack<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
-		Stack<UNIT> ret = Stack<UNIT> (count) ;
+		Stack<REAL> ret = Stack<REAL> (count) ;
 		for (INDEX i = 0 ; i < count ; i++) {
 			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
 			ret.add (r1x) ;
@@ -1094,12 +1094,12 @@ private:
 		return std::move (ret) ;
 	}
 
-	void compute_search_range (const ARRAY3<UNIT> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,UNIT>> &out) const {
+	void compute_search_range (const ARRAY3<REAL> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mHeap[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mHeap[it].mLeaf ;
-				const auto r2x = (Vector<UNIT> {mVertex[ix] ,UNIT (0)} -Vector<UNIT> {point ,UNIT (0)}).magnitude () ;
+				const auto r2x = (Vector<REAL> {mVertex[ix] ,REAL (0)} -Vector<REAL> {point ,REAL (0)}).magnitude () ;
 				INDEX jx = out.length () ;
 				while (TRUE) {
 					if (jx - 1 < 0)
@@ -1126,16 +1126,16 @@ private:
 	}
 } ;
 
-template <class UNIT>
-inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>> &vertex) {
+template <class REAL>
+inline void KDimensionTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
 	class Lambda {
 	private:
 		KDimensionTreeAlgorithm &mContext ;
-		const Array<ARRAY3<UNIT>> &mVertex ;
+		const Array<ARRAY3<REAL>> &mVertex ;
 
 		ARRAY3<INDEX> mNextRot ;
 		ARRAY3<Array<INDEX>> mOrder ;
-		ARRAY3<ARRAY2<UNIT>> mBound ;
+		ARRAY3<ARRAY2<REAL>> mBound ;
 		Allocator<Node ,SAUTO> mHeap ;
 		INDEX mRoot ;
 		INDEX mLatestIndex ;
@@ -1143,7 +1143,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<UNIT>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<REAL>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1198,7 +1198,7 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 			_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= mVertex.size ()) ;
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (seg_len == 1) ;
-				INDEX jx = mHeap.alloc (UNIT (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
+				INDEX jx = mHeap.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
 			} ,[&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (seg_len > 1) ;
@@ -1241,54 +1241,54 @@ inline void KDimensionTreeAlgorithm<UNIT>::initialize (const Array<ARRAY3<UNIT>>
 	_CALL_ (Lambda (*this ,vertex)) ;
 }
 
-template <class UNIT>
+template <class REAL>
 class MaxFlowAlgorithm {
 private:
-	Bitmap<UNIT> mCurrentFlow ;
-	UNIT mMaxFlow ;
+	Bitmap<REAL> mCurrentFlow ;
+	REAL mMaxFlow ;
 
 public:
 	MaxFlowAlgorithm () = delete ;
 
-	explicit MaxFlowAlgorithm (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) {
+	explicit MaxFlowAlgorithm (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
 		_DEBUG_ASSERT_ (source != sink) ;
 		initialize (adjacency ,source ,sink) ;
 	}
 
-	UNIT query () const {
+	REAL query () const {
 		return mMaxFlow ;
 	}
 
-	const Bitmap<UNIT> &query_flow () const & {
+	const Bitmap<REAL> &query_flow () const & {
 		return mCurrentFlow ;
 	}
 
-	Bitmap<UNIT> query_flow () && {
+	Bitmap<REAL> query_flow () && {
 		return std::move (mCurrentFlow) ;
 	}
 
 private:
-	void initialize (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) ;
+	void initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) ;
 } ;
 
-template <class UNIT>
-inline void MaxFlowAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) {
+template <class REAL>
+inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) {
 	class Lambda {
 	private:
 		MaxFlowAlgorithm &mContext ;
-		const Bitmap<UNIT> &mAdjacency ;
+		const Bitmap<REAL> &mAdjacency ;
 
 		INDEX mSource ;
 		INDEX mSink ;
-		UNIT mSingleFlow ;
-		Bitmap<UNIT> mCurrentFlow ;
+		REAL mSingleFlow ;
+		Bitmap<REAL> mCurrentFlow ;
 		Array<INDEX> mBFSPath ;
 
 		Queue<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context ,const Bitmap<UNIT> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
+		inline explicit Lambda (MaxFlowAlgorithm &context ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1299,13 +1299,13 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 	private:
 		inline void prepare () {
 			mSingleFlow = single_flow () ;
-			mCurrentFlow = Bitmap<UNIT> (mAdjacency.cx () ,mAdjacency.cy ()) ;
-			mCurrentFlow.fill (UNIT (0)) ;
+			mCurrentFlow = Bitmap<REAL> (mAdjacency.cx () ,mAdjacency.cy ()) ;
+			mCurrentFlow.fill (REAL (0)) ;
 			mBFSPath = Array<INDEX> (mAdjacency.cx ()) ;
 		}
 
-		inline UNIT single_flow () const {
-			UNIT ret = UNIT (0) ;
+		inline REAL single_flow () const {
+			REAL ret = REAL (0) ;
 			for (auto &&i : mAdjacency.range ()) {
 				if (i[0] == i[1])
 					continue ;
@@ -1353,8 +1353,8 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 			}
 		}
 
-		inline UNIT augument_max_flow () const {
-			UNIT ret = mSingleFlow ;
+		inline REAL augument_max_flow () const {
+			REAL ret = mSingleFlow ;
 			for (INDEX i = mSource ; i != mSink ; i = mBFSPath[i]) {
 				INDEX ix = mBFSPath[i] ;
 				_DEBUG_ASSERT_ (i != ix) ;
@@ -1369,8 +1369,8 @@ inline void MaxFlowAlgorithm<UNIT>::initialize (const Bitmap<UNIT> &adjacency ,I
 			mContext.mCurrentFlow = std::move (mCurrentFlow) ;
 		}
 
-		inline UNIT max_flow () const {
-			UNIT ret = UNIT (0) ;
+		inline REAL max_flow () const {
+			REAL ret = REAL (0) ;
 			for (INDEX i = 0 ; i < mCurrentFlow.cy () ; i++)
 				ret += mCurrentFlow[i][mSink] ;
 			return std::move (ret) ;

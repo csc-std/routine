@@ -20,13 +20,13 @@ namespace CSC {
 #ifdef __CSC_DEPRECATED__
 namespace U {
 struct OPERATOR_TYPENAME {
-	struct TYPESTRING {
+	struct UNITSTRING {
 		String<STR> mSelf ;
 	} ;
 
 	template <class _RET>
-	inline static TYPESTRING type_name_from_func () {
-		TYPESTRING ret ;
+	inline static UNITSTRING type_name_from_func () {
+		UNITSTRING ret ;
 		ret.mSelf = _PARSESTRS_ (String<STRA> (M_FUNC)) ;
 #ifdef __CSC_COMPILER_MSVC__
 		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPESTRING __cdecl CSC::U::OPERATOR_TYPENAME::type_name_from_func<") ;
@@ -319,13 +319,13 @@ private:
 		virtual void friend_write (TextWriter<STR> &writer) const = 0 ;
 	} ;
 
-	template <class... TYPES>
+	template <class... UNITS>
 	class ImplBinder :public Binder {
 	private:
-		TupleBinder<const TYPES...> mBinder ;
+		TupleBinder<const UNITS...> mBinder ;
 
 	public:
-		inline explicit ImplBinder (const TYPES &...args) :mBinder (args...) {}
+		inline explicit ImplBinder (const UNITS &...args) :mBinder (args...) {}
 
 		inline void friend_write (TextWriter<STR> &writer) const popping override {
 			template_write (writer ,mBinder) ;

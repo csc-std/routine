@@ -33,8 +33,8 @@
 
 namespace CSC {
 #ifdef __CSC_DEPRECATED__
-template <class TYPE>
-class Coroutine<TYPE>::Implement final :private Interface {
+template <class UNIT>
+class Coroutine<UNIT>::Implement final :private Interface {
 private:
 	struct CONTEXT_EBP {
 		jmp_buf mEbp ;
@@ -50,7 +50,7 @@ private:
 	} ;
 
 private:
-	friend Coroutine<TYPE> ;
+	friend Coroutine<UNIT> ;
 
 public:
 	static void init_break_point (PTR<AnyRef<void>> bp) {
@@ -96,18 +96,18 @@ public:
 	}
 } ;
 
-template <class TYPE>
-inline exports void Coroutine<TYPE>::init_break_point (AnyRef<void> &bp) {
+template <class UNIT>
+inline exports void Coroutine<UNIT>::init_break_point (AnyRef<void> &bp) {
 	Implement::init_break_point (&bp) ;
 }
 
-template <class TYPE>
-inline exports void Coroutine<TYPE>::store_break_point (AnyRef<void> &bp) noexcept {
+template <class UNIT>
+inline exports void Coroutine<UNIT>::store_break_point (AnyRef<void> &bp) noexcept {
 	Implement::store_break_point (&bp) ;
 }
 
-template <class TYPE>
-inline exports void Coroutine<TYPE>::goto_break_point (AnyRef<void> &bp) noexcept {
+template <class UNIT>
+inline exports void Coroutine<UNIT>::goto_break_point (AnyRef<void> &bp) noexcept {
 	Implement::goto_break_point (&bp) ;
 }
 #endif

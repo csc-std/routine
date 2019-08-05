@@ -68,8 +68,8 @@ private:
 		_DEBUG_ASSERT_ (mRange.length () > 0) ;
 		LENGTH ret = 1 ;
 		for (auto &&i : mRange) {
-			_DEBUG_ASSERT_ (i > 0) ;
-			_DEBUG_ASSERT_ (ret * i > 0) ;
+			_DEBUG_ASSERT_ (i >= 0) ;
+			_DEBUG_ASSERT_ (ret * i >= 0) ;
 			ret *= i ;
 		}
 		return std::move (ret) ;
@@ -102,7 +102,7 @@ public:
 	}
 } ;
 
-template <class TYPE>
+template <class UNIT>
 class Bitmap {
 private:
 	template <class BASE>
@@ -119,7 +119,7 @@ private:
 
 		inline Row (Row &&) noexcept = default ;
 
-		inline CAST_TRAITS_TYPE<TYPE ,BASE> &operator[] (INDEX x) && {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) && {
 			return mBase.get (mY ,x) ;
 		}
 
@@ -130,13 +130,13 @@ private:
 	class Attribute final :private Interface {
 	private:
 		friend Bitmap ;
-		SharedRef<FixedBuffer<TYPE>> mBuffer ;
+		SharedRef<FixedBuffer<UNIT>> mBuffer ;
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
 private:
 	SharedRef<Attribute> mHeap ;
-	PhanBuffer<TYPE> mImage ;
+	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
 	LENGTH mCW ;
@@ -155,33 +155,33 @@ public:
 		_DEBUG_ASSERT_ (_ck >= 0) ;
 		mHeap = SharedRef<Attribute>::make () ;
 		const auto r1x = _cy * _cw + _ck ;
-		mHeap->mBuffer = SharedRef<FixedBuffer<TYPE>>::make (r1x) ;
+		mHeap->mBuffer = SharedRef<FixedBuffer<UNIT>>::make (r1x) ;
 		mHeap->mWidth[0] = _cx ;
 		mHeap->mWidth[1] = _cy ;
 		mHeap->mWidth[2] = _cw ;
 		mHeap->mWidth[3] = _ck ;
-		mImage = PhanBuffer<TYPE>::make (mHeap->mBuffer.self) ;
+		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
-	explicit Bitmap (const PhanBuffer<TYPE> &image) {
+	explicit Bitmap (const PhanBuffer<UNIT> &image) {
 		mHeap = SharedRef<Attribute>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mImage.size () ;
 		mHeap->mWidth[3] = 0 ;
-		mImage = PhanBuffer<TYPE>::make (image) ;
+		mImage = PhanBuffer<UNIT>::make (image) ;
 		reset () ;
 	}
 
-	explicit Bitmap (SharedRef<FixedBuffer<TYPE>> &&image) {
+	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
 		mHeap = SharedRef<Attribute>::make () ;
 		mHeap->mBuffer = std::move (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mImage.size () ;
 		mHeap->mWidth[3] = 0 ;
-		mImage = PhanBuffer<TYPE>::make (mHeap->mBuffer.self) ;
+		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
@@ -209,17 +209,17 @@ public:
 		return ArrayRange<ARGC<2>> ({mCY ,mCX}) ;
 	}
 
-	PhanBuffer<TYPE> raw () & {
+	PhanBuffer<UNIT> raw () & {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
-		return PhanBuffer<TYPE>::make (mImage) ;
+		return PhanBuffer<UNIT>::make (mImage) ;
 	}
 
-	PhanBuffer<const TYPE> raw () const & {
+	PhanBuffer<const UNIT> raw () const & {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
-		return PhanBuffer<const TYPE>::make (mImage) ;
+		return PhanBuffer<const UNIT>::make (mImage) ;
 	}
 
-	PhanBuffer<TYPE> raw () && = delete ;
+	PhanBuffer<UNIT> raw () && = delete ;
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
@@ -247,7 +247,7 @@ public:
 	Bitmap copy () popping {
 		Bitmap ret ;
 		ret.mHeap = mHeap ;
-		ret.mImage = PhanBuffer<TYPE>::make (mImage) ;
+		ret.mImage = PhanBuffer<UNIT>::make (mImage) ;
 		ret.mCX = mCX ;
 		ret.mCY = mCY ;
 		ret.mCW = mCW ;
@@ -255,39 +255,39 @@ public:
 		return std::move (ret) ;
 	}
 
-	TYPE &get (INDEX y ,INDEX x) & {
+	UNIT &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	const TYPE &get (INDEX y ,INDEX x) const & {
+	const UNIT &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	TYPE &get (INDEX ,INDEX) && = delete ;
+	UNIT &get (INDEX ,INDEX) && = delete ;
 
-	TYPE &get (const ARRAY2<INDEX> &index) & {
+	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline TYPE &operator[] (const ARRAY2<INDEX> &index) & {
+	inline UNIT &operator[] (const ARRAY2<INDEX> &index) & {
 		return get (index) ;
 	}
 
-	const TYPE &get (const ARRAY2<INDEX> &index) const & {
+	const UNIT &get (const ARRAY2<INDEX> &index) const & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const & {
+	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const & {
 		return get (index) ;
 	}
 
-	TYPE &get (const ARRAY2<INDEX> &) && = delete ;
+	UNIT &get (const ARRAY2<INDEX> &) && = delete ;
 
-	inline TYPE &operator[] (const ARRAY2<INDEX> &) && = delete ;
+	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
 	Row<Bitmap> get (INDEX y) & {
 		return Row<Bitmap> (*this ,y) ;
@@ -547,7 +547,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == right.mCY) ;
 		Bitmap ret = Bitmap (right.mCX ,mCY) ;
 		for (auto &&i : ArrayRange<ARGC<2>> ({mCY ,right.mCX})) {
-			ret.get (i) = TYPE (0) ;
+			ret.get (i) = UNIT (0) ;
 			for (INDEX j = 0 ; j < mCX ; j++)
 				ret.get (i) += get (i[0] ,j) * right.get (j ,i[1]) ;
 		}
@@ -575,7 +575,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void fill (const TYPE &val) {
+	void fill (const UNIT &val) {
 		for (auto &&i : range ())
 			get (i) = val ;
 	}
@@ -590,11 +590,11 @@ using COLOR_LAB4 = CHAR ;
 using COLOR_XYZ32 = ARRAY3<VAL32> ;
 using COLOR_XYZ64 = ARRAY3<VAL64> ;
 
-template <class TYPE>
+template <class UNIT>
 class AbstractImage {
 public:
 	exports struct Abstract :public Interface {
-		virtual void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<TYPE>> ,LENGTH[4]> &layout) const = 0 ;
+		virtual void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<UNIT>> ,LENGTH[4]> &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
@@ -617,7 +617,7 @@ private:
 
 		inline Row (Row &&) noexcept = default ;
 
-		inline CAST_TRAITS_TYPE<TYPE ,BASE> &operator[] (INDEX x) && {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) && {
 			return mBase.get (mY ,x) ;
 		}
 
@@ -629,7 +629,7 @@ private:
 	private:
 		friend AbstractImage ;
 		AnyRef<void> mHolder ;
-		PhanBuffer<TYPE> mImage ;
+		PhanBuffer<UNIT> mImage ;
 		LENGTH mCX ;
 		LENGTH mCY ;
 		LENGTH mCW ;
@@ -638,7 +638,7 @@ private:
 
 	class Detail ;
 
-	template <class _TYPE>
+	template <class _UNIT>
 	class NativeProxy {
 	private:
 		friend AbstractImage ;
@@ -660,21 +660,21 @@ private:
 		inline NativeProxy (NativeProxy &&) noexcept = default ;
 		inline NativeProxy &operator= (NativeProxy &&) = delete ;
 
-		inline implicit operator _TYPE & () const & {
+		inline implicit operator _UNIT & () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return mThis->mHolder.template rebind<_TYPE> ().self ;
+			return mThis->mHolder.template rebind<_UNIT> ().self ;
 		}
 
-		inline implicit operator _TYPE & () && = delete ;
+		inline implicit operator _UNIT & () && = delete ;
 
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_TYPE & ,_RET>::value>>
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_UNIT & ,_RET>::value>>
 		inline implicit operator _RET () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return _RET (mThis->mHolder.template rebind<_TYPE> ().self) ;
+			return _RET (mThis->mHolder.template rebind<_UNIT> ().self) ;
 		}
 
 		template <class _RET>
@@ -734,7 +734,7 @@ public:
 		return ArrayRange<ARGC<2>> ({mThis->mCY ,mThis->mCX}) ;
 	}
 
-	TYPE &get (INDEX y ,INDEX x) & {
+	UNIT &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -742,7 +742,7 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	const TYPE &get (INDEX y ,INDEX x) const & {
+	const UNIT &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -750,27 +750,27 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	TYPE &get (INDEX ,INDEX) && = delete ;
+	UNIT &get (INDEX ,INDEX) && = delete ;
 
-	TYPE &get (const ARRAY2<INDEX> &index) & {
+	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline TYPE &operator[] (const ARRAY2<INDEX> &index) & {
+	inline UNIT &operator[] (const ARRAY2<INDEX> &index) & {
 		return get (index) ;
 	}
 
-	const TYPE &get (const ARRAY2<INDEX> &index) const & {
+	const UNIT &get (const ARRAY2<INDEX> &index) const & {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const TYPE &operator[] (const ARRAY2<INDEX> &index) const & {
+	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const & {
 		return get (index) ;
 	}
 
-	TYPE &get (const ARRAY2<INDEX> &) && = delete ;
+	UNIT &get (const ARRAY2<INDEX> &) && = delete ;
 
-	inline TYPE &operator[] (const ARRAY2<INDEX> &) && = delete ;
+	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
 	Row<AbstractImage> get (INDEX y) & {
 		return Row<AbstractImage> (*this ,y) ;
@@ -797,13 +797,13 @@ public:
 	inline NativeProxy<_RET> native () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		mThis->mImage = PhanBuffer<TYPE> () ;
+		mThis->mImage = PhanBuffer<UNIT> () ;
 		return NativeProxy<_RET> (mAbstract ,mThis) ;
 	}
 
-	Bitmap<TYPE> standardize () const {
+	Bitmap<UNIT> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		Bitmap<TYPE> ret = Bitmap<TYPE> (mThis->mCX ,mThis->mCY) ;
+		Bitmap<UNIT> ret = Bitmap<UNIT> (mThis->mCX ,mThis->mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ;
 		return std::move (ret) ;
@@ -848,17 +848,17 @@ private:
 	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Holder> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
 } ;
 
-template <class TYPE>
-class AbstractImage<TYPE>::Detail :private Wrapped<void> {
+template <class UNIT>
+class AbstractImage<UNIT>::Detail :private Wrapped<void> {
 public:
 	inline static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
 		_DEBUG_ASSERT_ (_abstract.exist ()) ;
 		_DEBUG_ASSERT_ (_this.exist ()) ;
 		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
-		auto rax = PACK<PTR<ARR<TYPE>> ,LENGTH[4]> () ;
+		auto rax = PACK<PTR<ARR<UNIT>> ,LENGTH[4]> () ;
 		_ZERO_ (rax) ;
 		_abstract->compute_layout (_this->mHolder ,rax) ;
-		_this->mImage = PhanBuffer<TYPE>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
+		_this->mImage = PhanBuffer<UNIT>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
 		_this->mCX = rax.P2[0] ;
 		_this->mCY = rax.P2[1] ;
 		_this->mCW = rax.P2[2] ;

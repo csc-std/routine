@@ -219,8 +219,8 @@ public:
 	}
 } ;
 
-template <class TYPE>
-class GlobalStatic<Singleton<TYPE>> final :private Wrapped<void> {
+template <class UNIT>
+class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
 private:
 	class Detail ;
 
@@ -231,7 +231,7 @@ private:
 	public:
 		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
-		Singleton<TYPE> mData ;
+		Singleton<UNIT> mData ;
 	} ;
 
 	using GUID_TYPE = typename GlobalStatic<void>::GUID_TYPE ;
@@ -241,7 +241,7 @@ private:
 	friend IntrusiveRef<Holder> ;
 
 public:
-	static Singleton<TYPE> &unique () popping {
+	static Singleton<UNIT> &unique () popping {
 		auto &r1 = _CACHE_ ([] () {
 			auto &r2 = GlobalStatic<void>::friend_unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
@@ -266,8 +266,8 @@ public:
 	}
 } ;
 
-template <class TYPE>
-class GlobalStatic<Singleton<TYPE>>::Detail :private Wrapped<void> {
+template <class UNIT>
+class GlobalStatic<Singleton<UNIT>>::Detail :private Wrapped<void> {
 public:
 	inline static void friend_create (Holder &_self) {
 		_self.mCounter.self = 0 ;
@@ -292,7 +292,7 @@ public:
 	inline static GUID_TYPE guid_from_typeid_name () {
 		GUID_TYPE ret ;
 		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (TYPE).name ()) ;
+		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (UNIT).name ()) ;
 		const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
 		_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
 		const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
@@ -302,7 +302,7 @@ public:
 } ;
 
 #ifdef __CSC_DEPRECATED__
-template <class TYPE>
+template <class UNIT>
 class Coroutine {
 public:
 	class SubRef ;
@@ -316,7 +316,7 @@ private:
 private:
 	class Implement ;
 	Monostate<FLAG> mCoStatus ;
-	AutoRef<TYPE> mCoContext ;
+	AutoRef<UNIT> mCoContext ;
 	AnyRef<void> mCoBreakPoint ;
 	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 	Array<AnyRef<void>> mSubBreakPoint ;
@@ -336,16 +336,16 @@ public:
 		return TRUE ;
 	}
 
-	TYPE &context () & {
+	UNIT &context () & {
 		_DEBUG_ASSERT_ (mCoContext.exist ()) ;
 		return mCoContext ;
 	}
 
-	TYPE &context () && = delete ;
+	UNIT &context () && = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
-		mCoContext = AutoRef<TYPE>::make () ;
+		mCoContext = AutoRef<UNIT>::make () ;
 		mCoBreakPoint = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
@@ -402,35 +402,35 @@ private:
 	void goto_break_point (AnyRef<void> &bp) noexcept ;
 } ;
 
-template <class TYPE>
-class Coroutine<TYPE>::SubRef :private Wrapped<Coroutine<TYPE>> {
+template <class UNIT>
+class Coroutine<UNIT>::SubRef :private Wrapped<Coroutine<UNIT>> {
 private:
-	using Wrapped<Coroutine<TYPE>>::mSelf ;
+	using Wrapped<Coroutine<UNIT>>::mSelf ;
 
 public:
-	TYPE &to () {
+	UNIT &to () {
 		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
 		return mSelf.mCoContext ;
 	}
 
-	inline implicit operator TYPE & () {
+	inline implicit operator UNIT & () {
 		return to () ;
 	}
 
-	inline PTR<TYPE> operator-> () {
+	inline PTR<UNIT> operator-> () {
 		return &to () ;
 	}
 
-	const TYPE &to () const {
+	const UNIT &to () const {
 		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
 		return mSelf.mCoContext ;
 	}
 
-	inline implicit operator const TYPE & () const {
+	inline implicit operator const UNIT & () const {
 		return to () ;
 	}
 
-	inline PTR<const TYPE> operator-> () const {
+	inline PTR<const UNIT> operator-> () const {
 		return &to () ;
 	}
 

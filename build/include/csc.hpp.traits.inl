@@ -299,7 +299,6 @@ template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct RESULT_OF {
 	using TYPE = NONE ;
 } ;
-#else
 #endif
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -507,7 +506,7 @@ struct INDEX_OF {
 } ;
 
 template <INDEX _VAL1 ,class _ARG1 ,class... _ARGS>
-struct INDEX_OF<ARGC<_VAL1> ,const volatile _ARG1 & ,ARGVS<_ARG1 ,_ARGS...>> {
+struct INDEX_OF<ARGC<_VAL1> ,REMOVE_CVR_TYPE<_ARG1> ,ARGVS<_ARG1 ,_ARGS...>> {
 	using TYPE = ARGC<_VAL1> ;
 } ;
 
@@ -517,7 +516,7 @@ struct INDEX_OF<ARGC<_VAL1> ,_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,const volatile _ARG1 & ,_ARG2>::TYPE ;
+using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,REMOVE_CVR_TYPE<_ARG1> ,_ARG2>::TYPE ;
 } ;
 
 namespace U {

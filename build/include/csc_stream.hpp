@@ -61,8 +61,8 @@ using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)>>::TYPE ;
 using STRUA = TEXT_TRAITS_TYPE<STRA> ;
 using STRUW = TEXT_TRAITS_TYPE<STRW> ;
 
-template <class TYPE>
-class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (TYPE)]> {
+template <class UNIT>
+class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (UNIT)]> {
 private:
 	inline static constexpr BYTE constexpr_big_endian (const ARGV<BYTE> &) {
 		//@info: 'big endian' [0] -> 0X00
@@ -85,19 +85,19 @@ private:
 	}
 
 private:
-	_STATIC_ASSERT_ (std::is_same<TYPE ,BYTE>::value || std::is_same<TYPE ,WORD>::value || std::is_same<TYPE ,CHAR>::value || std::is_same<TYPE ,DATA>::value) ;
+	_STATIC_ASSERT_ (std::is_same<UNIT ,BYTE>::value || std::is_same<UNIT ,WORD>::value || std::is_same<UNIT ,CHAR>::value || std::is_same<UNIT ,DATA>::value) ;
 
 public:
 	inline LENGTH size () const {
-		return _SIZEOF_ (TYPE) ;
+		return _SIZEOF_ (UNIT) ;
 	}
 
 	inline const BYTE &operator[] (INDEX index) const {
-		const auto r1x = constexpr_big_endian (_NULL_<const ARGV<TYPE>> ()) ;
-		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (TYPE)]> (r1x)[index]] ;
+		const auto r1x = constexpr_big_endian (_NULL_<const ARGV<UNIT>> ()) ;
+		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)[index]] ;
 	}
 
-	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const TYPE & ,_RET>::value>>
+	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const UNIT & ,_RET>::value>>
 	inline implicit operator _RET () const & {
 		return _RET (big_endian_value ()) ;
 	}
@@ -106,12 +106,12 @@ public:
 	inline implicit operator _RET () && = delete ;
 
 private:
-	inline TYPE big_endian_value () const {
-		TEMP<TYPE> ret ;
+	inline UNIT big_endian_value () const {
+		TEMP<UNIT> ret ;
 		_ZERO_ (ret) ;
 		for (INDEX i = 0 ; i < size () ; i++)
 			ret.unused[i] = (*this)[i] ;
-		return std::move (_CAST_<TYPE> (ret)) ;
+		return std::move (_CAST_<UNIT> (ret)) ;
 	}
 } ;
 

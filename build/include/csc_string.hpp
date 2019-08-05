@@ -797,12 +797,12 @@ inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 }
 } ;
 
-template <class TYPE ,class SIZE>
+template <class ITEM ,class SIZE>
 template <class... _ARGS>
-inline String<TYPE ,SIZE> String<TYPE ,SIZE>::make (const _ARGS &...args) {
+inline String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...args) {
 	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
-	String<TYPE> ret = String<TYPE> (DEFAULT_LONGSTRING_SIZE::value) ;
-	auto wos = TextWriter<TYPE> (ret.raw ()) ;
+	String<ITEM> ret = String<ITEM> (DEFAULT_LONGSTRING_SIZE::value) ;
+	auto wos = TextWriter<ITEM> (ret.raw ()) ;
 	_PRINTS_ (wos ,args...) ;
 	wos << _EOS_ ;
 	return std::move (ret) ;

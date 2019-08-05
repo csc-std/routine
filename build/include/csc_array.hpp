@@ -295,38 +295,38 @@ public:
 	}
 } ;
 
-template <class TYPE>
-using ARRAY1 = Array<TYPE ,ARGC<1>> ;
-template <class TYPE>
-using ARRAY2 = Array<TYPE ,ARGC<2>> ;
-template <class TYPE>
-using ARRAY3 = Array<TYPE ,ARGC<3>> ;
-template <class TYPE>
-using ARRAY4 = Array<TYPE ,ARGC<4>> ;
-template <class TYPE>
-using ARRAY5 = Array<TYPE ,ARGC<5>> ;
-template <class TYPE>
-using ARRAY6 = Array<TYPE ,ARGC<6>> ;
-template <class TYPE>
-using ARRAY7 = Array<TYPE ,ARGC<7>> ;
-template <class TYPE>
-using ARRAY8 = Array<TYPE ,ARGC<8>> ;
-template <class TYPE>
-using ARRAY9 = Array<TYPE ,ARGC<9>> ;
-template <class TYPE>
-using ARRAY10 = Array<TYPE ,ARGC<10>> ;
-template <class TYPE>
-using ARRAY11 = Array<TYPE ,ARGC<11>> ;
-template <class TYPE>
-using ARRAY12 = Array<TYPE ,ARGC<12>> ;
-template <class TYPE>
-using ARRAY13 = Array<TYPE ,ARGC<13>> ;
-template <class TYPE>
-using ARRAY14 = Array<TYPE ,ARGC<14>> ;
-template <class TYPE>
-using ARRAY15 = Array<TYPE ,ARGC<15>> ;
-template <class TYPE>
-using ARRAY16 = Array<TYPE ,ARGC<16>> ;
+template <class ITEM>
+using ARRAY1 = Array<ITEM ,ARGC<1>> ;
+template <class ITEM>
+using ARRAY2 = Array<ITEM ,ARGC<2>> ;
+template <class ITEM>
+using ARRAY3 = Array<ITEM ,ARGC<3>> ;
+template <class ITEM>
+using ARRAY4 = Array<ITEM ,ARGC<4>> ;
+template <class ITEM>
+using ARRAY5 = Array<ITEM ,ARGC<5>> ;
+template <class ITEM>
+using ARRAY6 = Array<ITEM ,ARGC<6>> ;
+template <class ITEM>
+using ARRAY7 = Array<ITEM ,ARGC<7>> ;
+template <class ITEM>
+using ARRAY8 = Array<ITEM ,ARGC<8>> ;
+template <class ITEM>
+using ARRAY9 = Array<ITEM ,ARGC<9>> ;
+template <class ITEM>
+using ARRAY10 = Array<ITEM ,ARGC<10>> ;
+template <class ITEM>
+using ARRAY11 = Array<ITEM ,ARGC<11>> ;
+template <class ITEM>
+using ARRAY12 = Array<ITEM ,ARGC<12>> ;
+template <class ITEM>
+using ARRAY13 = Array<ITEM ,ARGC<13>> ;
+template <class ITEM>
+using ARRAY14 = Array<ITEM ,ARGC<14>> ;
+template <class ITEM>
+using ARRAY15 = Array<ITEM ,ARGC<15>> ;
+template <class ITEM>
+using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 template <class ITEM ,class SIZE = SAUTO>
 class String ;
@@ -1775,6 +1775,14 @@ public:
 		return VAR_NONE ;
 	}
 
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		return std::move (ret) ;
+	}
+
 	BOOL equal (const Deque &right) const {
 		if (length () != right.length ())
 			return FALSE ;
@@ -2686,24 +2694,6 @@ public:
 		if (this == &item.mBase)
 			return VAR_NONE ;
 		return INDEX (item) ;
-	}
-
-	INDEX access (INDEX pos) const {
-		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
-		INDEX ix = 0 ;
-		INDEX ib = ibegin () ;
-		INDEX ie = iend () ;
-		while (TRUE) {
-			if (ib == ie)
-				break ;
-			if (ix >= pos)
-				break ;
-			ix++ ;
-			ib = inext (ib) ;
-		}
-		INDEX ret = ib ;
-		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
-		return std::move (ret) ;
 	}
 
 	INDEX ibegin () const {

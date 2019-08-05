@@ -56,7 +56,7 @@
   
   <Type Name="CSC::UniqueRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>((CSC::UniqueRef&lt;$T1&gt;::ImplHolder&lt;void (*) (TYPE &amp;)&gt;*)mPointer)->mData</ExpandedItem>
+      <ExpandedItem>((CSC::UniqueRef&lt;$T1&gt;::ImplHolder&lt;void (*) ($T1 &amp;)&gt;*)mPointer)->mData</ExpandedItem>
     </Expand>
   </Type>
 
