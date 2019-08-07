@@ -10,11 +10,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -34,6 +36,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -376,13 +379,13 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3x->d_name])) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (r4x == _PCSTR_ ("."))
-				continue ;
+				discard ;
 			if (r4x == _PCSTR_ (".."))
-				continue ;
+				discard ;
 			rax += r4x ;
 			auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
 			if (!r1.exist ())
-				continue ;
+				discard ;
 			r1 (rax) ;
 		}
 		rax[r1x] = 0 ;

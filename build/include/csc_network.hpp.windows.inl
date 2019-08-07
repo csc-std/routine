@@ -10,11 +10,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -51,6 +53,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -107,7 +110,7 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &_socket ,LENGTH time
 		const auto r1x = ::select (FD_SETSIZE ,&ret[0] ,&ret[1] ,NULL ,&rax) ;
 		if (r1x >= 0)
 			break ;
-		_STATIC_WARNING_ ("unqualified") ;
+		_STATIC_WARNING_ ("noop") ;
 	}
 	_ZERO_ (rax) ;
 	return std::move (ret) ;

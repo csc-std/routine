@@ -10,11 +10,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -32,6 +34,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -193,7 +196,7 @@ public:
 		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (expr.empty ())
-				continue ;
+				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;
 			const auto r5x = _U8STOUAS_ (expr) ;
 			const auto r1x = std::string (r5x.raw ().self) ;

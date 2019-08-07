@@ -206,10 +206,10 @@ public:
 		_DYNAMIC_ASSERT_ (_self.mItemQueue->size () > 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!_self.mItemQueue->full ())
-				continue ;
+				discard ;
 			_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
 			if (!_self.mItemQueue->full ())
-				continue ;
+				discard ;
 			_self.mItemQueue->take () ;
 		}
 		_self.mItemQueue->add (std::move (item.self)) ;
@@ -803,7 +803,7 @@ public:
 			r1.mThreadCondition.self.wait (sgd) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
-				continue ;
+				discard ;
 			r1.mException->rethrow () ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;
@@ -827,7 +827,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1.mException.exist ())
-				continue ;
+				discard ;
 			r1.mException->raise () ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mItem.exist ()) ;

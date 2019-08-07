@@ -648,7 +648,7 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 			mClockwiseFlag = r1x ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (!mClockwiseFlag)
-					continue ;
+					discard ;
 				for (auto &&i : mPloygonVertexList)
 					i = mVertex.length () + ~i ;
 			}
@@ -897,15 +897,15 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				mDXLoss[1] = mLossFunc (mIX) ;
 				for (FOR_ONCE_DO_WHILE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
-						continue ;
+						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
 					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
-						continue ;
+						discard ;
 					mDXLoss[2] = REAL (0) ;
 				}
 				for (FOR_ONCE_DO_WHILE) {
 					if (mDXLoss[1] >= mDXLoss[2])
-						continue ;
+						discard ;
 					mDXLoss[2] = mDXLoss[1] ;
 					mDXLambda[2] = mDXLambda[1] ;
 				}
@@ -991,11 +991,11 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 }
 
 template <class REAL>
-class KDimensionTreeAlgorithm {
+class KDTreeAlgorithm {
 private:
 	class Node {
 	private:
-		friend KDimensionTreeAlgorithm ;
+		friend KDTreeAlgorithm ;
 		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
@@ -1015,9 +1015,9 @@ private:
 	INDEX mRoot ;
 
 public:
-	KDimensionTreeAlgorithm () = delete ;
+	KDTreeAlgorithm () = delete ;
 
-	explicit KDimensionTreeAlgorithm (const Array<ARRAY3<REAL>> &vertex) {
+	explicit KDTreeAlgorithm (const Array<ARRAY3<REAL>> &vertex) {
 		_DEBUG_ASSERT_ (vertex.length () > 0) ;
 		initialize (vertex) ;
 	}
@@ -1059,7 +1059,7 @@ private:
 				INDEX ix = mHeap[it].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 				if (r2x > sqe_range)
-					continue ;
+					discard ;
 				out.add (ix) ;
 			}
 		} ,[&] (BOOL &_case_req) {
@@ -1067,7 +1067,7 @@ private:
 			const auto r3x = mHeap[it].mKey ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (r3x < bound[rot][0])
-					continue ;
+					discard ;
 				const auto r4x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
 				compute_search_range (point ,sqe_range ,mHeap[it].mLeft ,mNextRot[rot] ,bound ,out) ;
@@ -1075,7 +1075,7 @@ private:
 			}
 			for (FOR_ONCE_DO_WHILE) {
 				if (r3x > bound[rot][1])
-					continue ;
+					discard ;
 				const auto r5x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
 				compute_search_range (point ,sqe_range ,mHeap[it].mRight ,mNextRot[rot] ,bound ,out) ;
@@ -1111,7 +1111,7 @@ private:
 					jx-- ;
 				}
 				if (jx >= out.length ())
-					continue ;
+					discard ;
 				out[jx].P1 = ix ;
 				out[jx].P2 = r2x ;
 			}
@@ -1127,10 +1127,10 @@ private:
 } ;
 
 template <class REAL>
-inline void KDimensionTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
+inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
 	class Lambda {
 	private:
-		KDimensionTreeAlgorithm &mContext ;
+		KDTreeAlgorithm &mContext ;
 		const Array<ARRAY3<REAL>> &mVertex ;
 
 		ARRAY3<INDEX> mNextRot ;
@@ -1143,7 +1143,7 @@ inline void KDimensionTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDimensionTreeAlgorithm &context ,const Array<ARRAY3<REAL>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
+		inline explicit Lambda (KDTreeAlgorithm &context ,const Array<ARRAY3<REAL>> &vertex) popping : mContext (context) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;

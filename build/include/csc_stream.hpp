@@ -10,53 +10,53 @@
 
 namespace CSC {
 namespace U {
-template <class>
+template <class ,class>
 struct BYTE_TRAITS ;
 
 template <>
-struct BYTE_TRAITS<ARGC<_SIZEOF_ (BYTE)>> {
+struct BYTE_TRAITS<ARGC<_SIZEOF_ (BYTE)> ,ARGC<_ALIGNOF_ (BYTE)>> {
 	using TYPE = BYTE ;
 } ;
 
 template <>
-struct BYTE_TRAITS<ARGC<_SIZEOF_ (WORD)>> {
+struct BYTE_TRAITS<ARGC<_SIZEOF_ (WORD)> ,ARGC<_ALIGNOF_ (WORD)>> {
 	using TYPE = WORD ;
 } ;
 
 template <>
-struct BYTE_TRAITS<ARGC<_SIZEOF_ (CHAR)>> {
+struct BYTE_TRAITS<ARGC<_SIZEOF_ (CHAR)> ,ARGC<_ALIGNOF_ (CHAR)>> {
 	using TYPE = CHAR ;
 } ;
 
 template <>
-struct BYTE_TRAITS<ARGC<_SIZEOF_ (DATA)>> {
+struct BYTE_TRAITS<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
 	using TYPE = DATA ;
 } ;
 
-template <class>
+template <class ,class>
 struct TEXT_TRAITS ;
 
 template <>
-struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU8)>> {
+struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU8)> ,ARGC<_ALIGNOF_ (STRU8)>> {
 	using TYPE = STRU8 ;
 } ;
 
 template <>
-struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU16)>> {
+struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU16)> ,ARGC<_ALIGNOF_ (STRU16)>> {
 	using TYPE = STRU16 ;
 } ;
 
 template <>
-struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU32)>> {
+struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
 	using TYPE = STRU32 ;
 } ;
 } ;
 
 template <class _ARG1>
-using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG1)>>::TYPE ;
+using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 
 template <class _ARG1>
-using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)>>::TYPE ;
+using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 
 using STRUA = TEXT_TRAITS_TYPE<STRA> ;
 using STRUW = TEXT_TRAITS_TYPE<STRW> ;
@@ -844,7 +844,7 @@ public:
 				const auto r2x = mHeap->varify_escape_r (data) ;
 				mRead++ ;
 				if (!r2x)
-					continue ;
+					discard ;
 				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
 				data = mHeap->convert_endian (mStream[mRead]) ;
 				data = mHeap->convert_escape_r (data) ;
@@ -1125,7 +1125,7 @@ private:
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!mHeap->varify_number_item (top))
-				continue ;
+				discard ;
 			rax[0] = mHeap->convert_number_r (top) ;
 			reader = ris.copy () ;
 			ris.read (top) ;
@@ -1145,7 +1145,7 @@ private:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (top != STRX ('.'))
-				continue ;
+				discard ;
 			reader = ris.copy () ;
 			ris.read (top) ;
 			_DYNAMIC_ASSERT_ (mHeap->varify_number_item (top)) ;
@@ -1155,7 +1155,7 @@ private:
 				for (FOR_ONCE_DO_WHILE) {
 					const auto r2x = rax[0] * mHeap->varify_radix () + mHeap->convert_number_r (top) ;
 					if (rax[0] > r2x)
-						continue ;
+						discard ;
 					rax[0] = r2x ;
 					rax[1]-- ;
 				}
@@ -1165,18 +1165,18 @@ private:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (top != STRX ('e') && top != STRX ('E'))
-				continue ;
+				discard ;
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
 			reader = ris.copy () ;
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (rax[0] >= 0)
-				continue ;
+				discard ;
 			rax[0] = -rax[0] ;
 			rax[2] = -1 ;
 			if (rax[0] >= 0)
-				continue ;
+				discard ;
 			rax[0] = -(rax[0] / mHeap->varify_radix ()) ;
 			rax[1]++ ;
 		}
@@ -1592,7 +1592,7 @@ private:
 				rax[1]++ ;
 			}
 			if (r4x <= 0)
-				continue ;
+				discard ;
 			rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
 			rax[1]++ ;
 		}
@@ -1604,7 +1604,7 @@ private:
 			compute_write_number (r11x ,out ,iw) ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (r11x <= 0)
-					continue ;
+					discard ;
 				out[--iw] = STRX ('+') ;
 			}
 			out[--iw] = STRX ('e') ;
@@ -1676,7 +1676,7 @@ private:
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (rax[2] == 0)
-				continue ;
+				discard ;
 			out[--iw] = STRX ('-') ;
 		}
 		it = iw ;
@@ -2108,7 +2108,7 @@ public:
 		auto rax = STRU8 () ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r2x)
-				continue ;
+				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2129,7 +2129,7 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r2x)
-				continue ;
+				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
@@ -2164,7 +2164,7 @@ private:
 		auto ris = shadow () ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-				continue ;
+				discard ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2182,7 +2182,7 @@ private:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (ris[0] != STRU8 ('.'))
-				continue ;
+				discard ;
 			ris++ ;
 			ret++ ;
 			while (TRUE) {
@@ -2194,12 +2194,12 @@ private:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (ris[0] != STRU8 ('e') && ris[0] != STRU8 ('E'))
-				continue ;
+				discard ;
 			ris++ ;
 			ret++ ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (ris[0] != STRU8 ('+') && ris[0] != STRU8 ('-'))
-					continue ;
+					discard ;
 				ris++ ;
 				ret++ ;
 			}

@@ -1148,7 +1148,7 @@ private:
 		INDEX iy = mQueue.size () ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mRead == 0)
-				continue ;
+				discard ;
 			ix = mRead + rax.size () - mQueue.size () ;
 			iy = mWrite ;
 		}
@@ -1454,7 +1454,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
@@ -1780,6 +1780,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1960,11 +1961,7 @@ public:
 	}
 
 	Array<INDEX> esort () const {
-		Array<INDEX> ret = Array<INDEX> (length ()) ;
-		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			ret[iw++] = i ;
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
@@ -2275,6 +2272,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2474,11 +2472,7 @@ public:
 	}
 
 	Array<INDEX> esort () const {
-		Array<INDEX> ret = Array<INDEX> (length ()) ;
-		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			ret[iw++] = i ;
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
@@ -2719,6 +2713,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2896,15 +2891,6 @@ public:
 		return bnot () ;
 	}
 
-	Array<INDEX> esort () const {
-		Array<INDEX> ret = Array<INDEX> (length ()) ;
-		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			ret[iw++] = i ;
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return std::move (ret) ;
-	}
-
 	void fill (const BYTE &val) {
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
 			mSet[i] = val ;
@@ -3017,7 +3003,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3038,7 +3024,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3139,7 +3125,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3156,7 +3142,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
@@ -3249,7 +3235,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -3277,6 +3263,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -3310,7 +3297,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ret) ;
 			mRoot = mTop ;
@@ -3324,7 +3311,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ret) ;
 			mRoot = mTop ;
@@ -3521,7 +3508,7 @@ private:
 		auto &r1 = mSet[jt].mRight ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!mSet[r1].mRed)
-				continue ;
+				discard ;
 			mSet[r1].mRed = FALSE ;
 			mSet[jt].mRed = TRUE ;
 			auto &r2 = prev_next (jt) ;
@@ -3563,7 +3550,7 @@ private:
 		auto &r1 = mSet[jt].mLeft ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!mSet[r1].mRed)
-				continue ;
+				discard ;
 			mSet[r1].mRed = FALSE ;
 			mSet[jt].mRed = TRUE ;
 			auto &r2 = prev_next (jt) ;
@@ -3753,7 +3740,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3774,7 +3761,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3883,7 +3870,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -3900,7 +3887,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
@@ -4001,7 +3988,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4029,6 +4016,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -4067,7 +4055,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
@@ -4081,7 +4069,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
 			update_resize (ret) ;
@@ -4100,7 +4088,7 @@ public:
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (size () == 0)
-				continue ;
+				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mHead[r1x % mHead.size ()] ;
@@ -4263,7 +4251,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
@@ -4288,7 +4276,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
@@ -4404,7 +4392,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
@@ -4425,7 +4413,7 @@ public:
 		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
-				continue ;
+				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ix ;
@@ -4537,7 +4525,7 @@ public:
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: the same as 'const Pair<const X> &' but acceptable in vs2015
+	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4561,6 +4549,7 @@ public:
 		INDEX iw = 0 ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -4601,7 +4590,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ret ;
@@ -4619,7 +4608,7 @@ public:
 		INDEX ret = find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
 			r1 = ret ;
@@ -4718,7 +4707,7 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (r1x < r2x)
-				continue ;
+				discard ;
 			auto &r1 = mSet.self[ix].mLeft ;
 			rotate_left (r1) ;
 			r1 = mTop ;
@@ -4751,7 +4740,7 @@ private:
 			return ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (r1x < r2x)
-				continue ;
+				discard ;
 			auto &r1 = mSet.self[ix].mRight ;
 			rotate_right (r1) ;
 			r1 = mTop ;

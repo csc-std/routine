@@ -91,14 +91,14 @@ public:
 		index[0]++ ;
 	}
 
-	template <INDEX _VAL1>
-	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGC<_VAL1> &) {
-		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < SIZE::value) ;
-		index[_VAL1]++ ;
-		if (index[_VAL1] < range[_VAL1])
+	template <class _ARG1>
+	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const _ARG1 &) {
+		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
+		index[_ARG1::value]++ ;
+		if (index[_ARG1::value] < range[_ARG1::value])
 			return ;
-		index[_VAL1] = 0 ;
-		template_incrase (range ,index ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
+		index[_ARG1::value] = 0 ;
+		template_incrase (range ,index ,_NULL_<const ARGC<_ARG1::value - 1>> ()) ;
 	}
 } ;
 

@@ -12,11 +12,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #pragma region
@@ -41,6 +43,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -109,11 +112,8 @@ using is_all_same = U::is_all_same<_ARGS...> ;
 template <class... _ARGS>
 using is_any_same = U::is_any_same<_ARGS...> ;
 
-template <class _ARG1>
-using is_template_type = U::is_template_type<_ARG1> ;
-
-template <template <class...> class _ARGT ,class... _ARGS>
-using is_template_of = U::is_template_of<_ARGT ,_ARGS...> ;
+template <template <class...> class _ARGT ,class _ARG1>
+using is_template_of = U::is_template_of<_ARGT ,_ARG1> ;
 
 template <class _ARG1>
 using is_complete_type = U::is_complete_type<_ARG1> ;
@@ -865,11 +865,13 @@ private:
 		return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<const ARGVS<_ARGS...>> ())) ;
 	}
 
+	//@error: g++4.8 is too useless to use constexpr value in alignas expression
 	template <LENGTH _VAL1 ,LENGTH _VAL2>
 	struct ALIGNED_UNION {
 		alignas (_VAL1) DEF<BYTE[_VAL2]> unused ;
 	} ;
 
+	//@error: 'std::aligned_union' is not avaliable in g++4.8
 	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<const ARGVS<UNITS...>> ()) ,constexpr_max_sizeof (_NULL_<const ARGVS<UNITS...>> ())> ;
 
 	struct NULLOPT ;
@@ -912,7 +914,7 @@ public:
 	inline Variant &operator= (const Variant &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -929,7 +931,7 @@ public:
 	inline Variant &operator= (Variant &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Variant () ;
 			new (this) Variant (std::move (right)) ;
 		}
@@ -1006,7 +1008,7 @@ public:
 		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mIndex == VAR_NONE)
-				continue ;
+				discard ;
 			Detail::template_destruct (&mVariant ,mIndex ,_NULL_<const ARGVS<UNITS...>> ()) ;
 			mIndex = VAR_NONE ;
 		}
@@ -1058,7 +1060,7 @@ public:
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
-				continue ;
+				discard ;
 			_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (address->unused)) ;
 		}
 		if (r1x)
@@ -1075,7 +1077,7 @@ public:
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
-				continue ;
+				discard ;
 			const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
 			const auto r3x = template_create (_NULL_<const ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (src->unused)) ;
 			_DYNAMIC_ASSERT_ (r3x) ;
@@ -1095,9 +1097,10 @@ public:
 		const auto r1x = BOOL (index == 0) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!r1x)
-				continue ;
+				discard ;
 			const auto r2x = Detail::template_create (_NULL_<const ARGC<TRUE>> () ,&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (src->unused))) ;
 			_DEBUG_ASSERT_ (r2x) ;
+			(void) r2x ;
 		}
 		if (r1x)
 			return ;
@@ -1265,20 +1268,20 @@ public:
 		return _self.one () ;
 	}
 
-	template <INDEX _VAL1>
-	inline static VISIT_OF_TYPE<ARGC<_VAL1> ,ARGVS<UNIT1 ,UNITS...>> &template_visit (Tuple &_self ,const ARGC<_VAL1> &) {
-		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < 1 + _CAPACITYOF_ (UNITS)) ;
-		return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
+	template <class _ARG1>
+	inline static VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (Tuple &_self ,const _ARG1 &) {
+		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < 1 + _CAPACITYOF_ (UNITS)) ;
+		return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<const ARGC<_ARG1::value - 1>> ()) ;
 	}
 
 	inline static constexpr const UNIT1 &template_visit (const Tuple &_self ,const ARGC<0> &) {
 		return _self.one () ;
 	}
 
-	template <INDEX _VAL1>
-	inline static constexpr const VISIT_OF_TYPE<ARGC<_VAL1> ,ARGVS<UNIT1 ,UNITS...>> &template_visit (const Tuple &_self ,const ARGC<_VAL1> &) {
-		_STATIC_ASSERT_ (_VAL1 > 0 && _VAL1 < 1 + _CAPACITYOF_ (UNITS)) ;
-		return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<const ARGC<_VAL1 - 1>> ()) ;
+	template <class _ARG1>
+	inline static constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (const Tuple &_self ,const _ARG1 &) {
+		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < 1 + _CAPACITYOF_ (UNITS)) ;
+		return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<const ARGC<_ARG1::value - 1>> ()) ;
 	}
 } ;
 
@@ -1709,6 +1712,120 @@ inline static AnyOfTuple<_ARG1 ,_ARGS...> _ANYOF_ (const _ARG1 &arg1 ,const _ARG
 }
 } ;
 
+template <class UNIT>
+class LinkedRef {
+private:
+	class Node {
+	private:
+		friend LinkedRef ;
+		UNIT mData ;
+		PTR<class Node> mPrev ;
+		PTR<class Node> mNext ;
+
+	public:
+		inline Node () = default ;
+	} ;
+
+private:
+	PTR<Node> mRoot ;
+
+public:
+	inline LinkedRef () {
+		mRoot = NULL ;
+	}
+
+	inline ~LinkedRef () noexcept {
+		for (FOR_ONCE_DO_WHILE) {
+			if (mRoot == NULL)
+				discard ;
+			mRoot->mPrev->mNext = NULL ;
+			mRoot->mPrev = NULL ;
+		}
+		for (PTR<Node> i = mRoot ,ir ; i != NULL ; i = ir) {
+			ir = i->mNext ;
+			i->~Node () ;
+			GlobalHeap::free (i) ;
+		}
+		mRoot = NULL ;
+	}
+
+	inline LinkedRef (const LinkedRef &) = delete ;
+	inline LinkedRef &operator= (const LinkedRef &) = delete ;
+
+	inline LinkedRef (LinkedRef &&right) noexcept {
+		mRoot = _EXCHANGE_ (right.mRoot) ;
+	}
+
+	inline LinkedRef &operator= (LinkedRef &&right) noexcept {
+		for (FOR_ONCE_DO_WHILE) {
+			if (this == &right)
+				discard ;
+			this->~LinkedRef () ;
+			new (this) LinkedRef (std::move (right)) ;
+		}
+		return _XVALUE_<LinkedRef> (*this) ;
+	}
+
+	inline BOOL exist () const {
+		if (mRoot == NULL)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	inline UNIT &to () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return mRoot->mData ;
+	}
+
+	inline implicit operator UNIT & () const {
+		return to () ;
+	}
+
+	inline PTR<UNIT> operator-> () const {
+		return &to () ;
+	}
+
+	inline void fetch (LinkedRef &right) popping {
+		if (right.mRoot == NULL)
+			return ;
+		_CALL_EH_ ([&] () {
+			const auto r1x = right.mRoot->mPrev ;
+			const auto r2x = right.mRoot->mNext ;
+			r1x->mNext = r2x ;
+			r2x->mPrev = r1x ;
+			right.mRoot->mPrev = right.mRoot ;
+			right.mRoot->mNext = right.mRoot ;
+			mRoot = right.mRoot ;
+			const auto r3x = (right.mRoot != r2x) ? r2x : NULL ;
+			right.mRoot = r3x ;
+		}) ;
+	}
+
+	inline void push () {
+		auto sgd = GlobalHeap::alloc<TEMP<Node>> () ;
+		ScopedHolder<Node> ANONYMOUS (sgd) ;
+		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (sgd)) ;
+		_CALL_IF_ ([&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRoot == NULL) ;
+			r1x->mPrev = r1x ;
+			r1x->mNext = r1x ;
+		} ,[&] (BOOL &_case_req) {
+			_CASE_REQUIRE_ (mRoot != NULL) ;
+			r1x->mPrev = mRoot->mPrev ;
+			r1x->mNext = mRoot ;
+			mRoot->mPrev->mNext = r1x ;
+			mRoot->mPrev = r1x ;
+		}) ;
+		mRoot = r1x ;
+		sgd = NULL ;
+	}
+
+	inline void cycle () {
+		_DEBUG_ASSERT_ (exist ()) ;
+		mRoot = mRoot->mNext ;
+	}
+} ;
+
 template <class>
 class StrongRef ;
 
@@ -1803,7 +1920,7 @@ public:
 	inline StrongRef &operator= (const StrongRef &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -1818,7 +1935,7 @@ public:
 	inline StrongRef &operator= (StrongRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (right)) ;
 		}
@@ -2040,10 +2157,9 @@ private:
 		friend SoftRef ;
 		StrongRef<UNIT> mData ;
 		LENGTH mWeight ;
-		LENGTH mCounter ;
 
 	public:
-		inline Node () = default ;
+		inline Node () :mWeight (0) {}
 	} ;
 
 	inline static constexpr VAR constexpr_log2x (VAR arg1) {
@@ -2051,7 +2167,7 @@ private:
 	}
 
 private:
-	SharedRef<Allocator<Node ,SFIXED>> mHeap ;
+	SharedRef<FixedBuffer<Node>> mHeap ;
 	WeakRef<UNIT> mWeakRef ;
 	INDEX mIndex ;
 
@@ -2061,7 +2177,7 @@ public:
 	}
 
 	inline explicit SoftRef (LENGTH len) {
-		mHeap = SharedRef<Allocator<Node ,SFIXED>>::make (len) ;
+		mHeap = SharedRef<FixedBuffer<Node>>::make (len) ;
 		mIndex = VAR_NONE ;
 	}
 
@@ -2069,13 +2185,13 @@ public:
 		mHeap = right.mHeap ;
 		mWeakRef = right.mWeakRef ;
 		mIndex = right.mIndex ;
-		attach () ;
+		acquire () ;
 	}
 
 	inline SoftRef &operator= (const SoftRef &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (right)) ;
 		}
@@ -2091,7 +2207,7 @@ public:
 	inline SoftRef &operator= (SoftRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (right)) ;
 		}
@@ -2142,7 +2258,7 @@ public:
 	inline StrongRef<UNIT> watch () const {
 		for (FOR_ONCE_DO_WHILE) {
 			if (!linked ())
-				continue ;
+				discard ;
 			auto &r1 = mHeap.self[mIndex].mWeight ;
 			const auto r1x = EFLAG (r1 >= 0 && r1 < VAR32_MAX) ;
 			const auto r2x = EFLAG (r1 < 0 && r1 >= -VAR32_MAX) ;
@@ -2152,10 +2268,9 @@ public:
 	}
 
 	inline void assign (const StrongRef<UNIT> &right) {
-		detach () ;
 		mIndex = has_linked_one (right) ;
 		mWeakRef <<= right ;
-		attach () ;
+		acquire () ;
 	}
 
 	inline void operator<<= (const StrongRef<UNIT> &right) {
@@ -2182,8 +2297,6 @@ public:
 		if (!mHeap.exist ())
 			return ;
 		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
-			if (!mHeap->used (i))
-				continue ;
 			if (mHeap.self[i].mWeight < 0)
 				continue ;
 			mHeap.self[i].mData = StrongRef<UNIT> () ;
@@ -2195,9 +2308,9 @@ private:
 	inline BOOL linked () const {
 		if (!mHeap.exist ())
 			return FALSE ;
-		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
+		if (!mWeakRef.exist ())
 			return FALSE ;
-		if (!mHeap->used (mIndex))
+		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
 			return FALSE ;
 		if (mWeakRef != mHeap.self[mIndex].mData)
 			return FALSE ;
@@ -2206,40 +2319,31 @@ private:
 
 	inline INDEX has_linked_one (const StrongRef<UNIT> &right) const {
 		for (INDEX i = 0 ; i < mHeap->size () ; i++)
-			if (mHeap->used (i) && mHeap.self[i].mData == right)
+			if (mHeap.self[i].mData == right)
 				return i ;
 		return VAR_NONE ;
 	}
 
-	inline void attach () {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (linked ()) ;
-			const auto r1x = mHeap.self[mIndex].mCounter++ ;
-			_DEBUG_ASSERT_ (r1x > 0) ;
-			(void) r1x ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mHeap.exist ()) ;
-			_CASE_REQUIRE_ (mWeakRef.exist ()) ;
-			for (FOR_ONCE_DO_WHILE) {
-				if (mHeap->length () < mHeap->size ())
-					continue ;
-				mIndex = min_weight_one () ;
-				_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
-				const auto r2x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
-				if (r2x <= 0)
-					continue ;
-				for (INDEX i = 0 ; i < mHeap->size () ; i++) {
-					if (!mHeap->used (i))
-						continue ;
-					mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r2x ;
-				}
-			}
+	inline void acquire () {
+		if (linked ())
+			return ;
+		if (!mHeap.exist ())
+			return ;
+		if (!mWeakRef.exist ())
+			return ;
+		for (FOR_ONCE_DO_WHILE) {
+			mIndex = min_weight_one () ;
 			if (mIndex == VAR_NONE)
-				mIndex = mHeap->alloc () ;
-			mHeap.self[mIndex].mData = mWeakRef ;
-			mHeap.self[mIndex].mWeight = 3 ;
-			mHeap.self[mIndex].mCounter = 1 ;
-		}) ;
+				discard ;
+			const auto r2x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
+			if (r2x <= 0)
+				discard ;
+			for (INDEX i = 0 ; i < mHeap->size () ; i++)
+				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r2x ;
+		}
+		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
+		mHeap.self[mIndex].mData = mWeakRef ;
+		mHeap.self[mIndex].mWeight = 3 ;
 	}
 
 	inline INDEX min_weight_one () const {
@@ -2255,16 +2359,6 @@ private:
 			rax = r1x ;
 		}
 		return std::move (ret) ;
-	}
-
-	inline void detach () {
-		if (!linked ())
-			return ;
-		const auto r1x = --mHeap.self[mIndex].mCounter ;
-		if (r1x != 0)
-			return ;
-		mHeap->free (mIndex) ;
-		mIndex = VAR_NONE ;
 	}
 } ;
 
@@ -2380,7 +2474,7 @@ public:
 	inline IntrusiveRef &operator= (IntrusiveRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (right)) ;
 		}
@@ -2420,7 +2514,7 @@ private:
 		PTR<UNIT> ret = mPointer.exchange (address) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret == NULL)
-				continue ;
+				discard ;
 			INDEX ir = 0 ;
 			while (TRUE) {
 				const auto r1x = ir++ ;
@@ -3118,4 +3212,4 @@ public:
 		template_visit (visitor ,context ,members.rest ()) ;
 	}
 } ;
-} ;
+	} ;

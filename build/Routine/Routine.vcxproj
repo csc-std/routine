@@ -58,7 +58,6 @@
   <ItemGroup>
     <None Include="..\..\..\..\..\Depends\__CSC__\cpp.hint" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc.hpp.traits.inl" />
-    <None Include="..\..\..\..\..\Depends\__CSC__\csc.rule" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_database.hpp.mysql.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_debugger.hpp.linux.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_debugger.hpp.windows.inl" />

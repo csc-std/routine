@@ -19,7 +19,6 @@ private:
 
 	struct VALUE_NODE {
 		FLAG mGUID ;
-		PTR<struct VALUE_NODE> mNext ;
 		BOOL mReadOnly ;
 		VAR mData ;
 	} ;
@@ -28,7 +27,6 @@ private:
 
 	struct CLASS_NODE {
 		GUID_TYPE mGUID ;
-		PTR<struct CLASS_NODE> mNext ;
 		PTR<NONE> mData ;
 	} ;
 
@@ -42,10 +40,8 @@ private:
 		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
-		LENGTH mVNLength ;
-		PTR<VALUE_NODE> mVNRoot ;
-		LENGTH mCNLength ;
-		PTR<CLASS_NODE> mCNRoot ;
+		LinkedRef<VALUE_NODE> mValueNode ;
+		LinkedRef<CLASS_NODE> mClassNode ;
 	} ;
 
 private:
@@ -62,7 +58,7 @@ private:
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (rax != NULL)
-					continue ;
+					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r2x = rbx.watch () ;
@@ -77,45 +73,53 @@ private:
 	}
 
 	static PTR<VALUE_NODE> friend_new_node (Holder &_self ,FLAG guid) popping {
-		//@warn: sure 'GlobalHeap' can be used across DLL
-		auto sgd = GlobalHeap::alloc<TEMP<VALUE_NODE>> () ;
-		ScopedHolder<VALUE_NODE> ANONYMOUS (sgd) ;
-		PTR<VALUE_NODE> ret = &_LOAD_<VALUE_NODE> (_XVALUE_<PTR<TEMP<VALUE_NODE>>> (sgd)) ;
-		_DEBUG_ASSERT_ (ret != NULL) ;
-		ret->mGUID = guid ;
-		ret->mNext = _self.mVNRoot ;
-		_self.mVNRoot = ret ;
-		_self.mVNLength++ ;
-		sgd = NULL ;
-		return std::move (ret) ;
+		_self.mValueNode.push () ;
+		_self.mValueNode->mGUID = guid ;
+		return &_self.mValueNode.self ;
 	}
 
 	static PTR<CLASS_NODE> friend_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
-		//@warn: sure 'GlobalHeap' can be used across DLL
-		auto sgd = GlobalHeap::alloc<TEMP<CLASS_NODE>> () ;
-		ScopedHolder<CLASS_NODE> ANONYMOUS (sgd) ;
-		PTR<CLASS_NODE> ret = &_LOAD_<CLASS_NODE> (_XVALUE_<PTR<TEMP<CLASS_NODE>>> (sgd)) ;
-		_DEBUG_ASSERT_ (ret != NULL) ;
-		ret->mGUID = guid ;
-		ret->mNext = _self.mCNRoot ;
-		_self.mCNRoot = ret ;
-		_self.mCNLength++ ;
-		sgd = NULL ;
+		_self.mClassNode.push () ;
+		_self.mClassNode->mGUID = guid ;
+		return &_self.mClassNode.self ;
+	}
+
+	static PTR<VALUE_NODE> friend_find_node (Holder &_self ,FLAG guid) {
+		PTR<VALUE_NODE> ret = NULL ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (!_self.mValueNode.exist ())
+				discard ;
+			const auto r1x = &_self.mValueNode.self ;
+			while (TRUE) {
+				if (ret != NULL)
+					break ;
+				if (_self.mValueNode->mGUID == guid)
+					ret = &_self.mValueNode.self ;
+				if (&_self.mValueNode.self == r1x)
+					break ;
+				_self.mValueNode.cycle () ;
+			}
+		}
 		return std::move (ret) ;
 	}
 
-	static PTR<VALUE_NODE> friend_find_node (const Holder &_self ,FLAG guid) {
-		for (PTR<VALUE_NODE> i = _self.mVNRoot ; i != NULL ; i = i->mNext)
-			if (i->mGUID == guid)
-				return i ;
-		return NULL ;
-	}
-
-	static PTR<CLASS_NODE> friend_find_node (const Holder &_self ,const GUID_TYPE &guid) {
-		for (PTR<CLASS_NODE> i = _self.mCNRoot ; i != NULL ; i = i->mNext)
-			if (_MEMEQUAL_ (i->mGUID.unused ,PTRTOARR[guid.unused]))
-				return i ;
-		return NULL ;
+	static PTR<CLASS_NODE> friend_find_node (Holder &_self ,const GUID_TYPE &guid) {
+		PTR<CLASS_NODE> ret = NULL ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (!_self.mClassNode.exist ())
+				discard ;
+			const auto r1x = &_self.mClassNode.self ;
+			while (TRUE) {
+				if (ret != NULL)
+					break ;
+				if (_MEMEQUAL_ (_self.mClassNode->mGUID.unused ,PTRTOARR[guid.unused]))
+					ret = &_self.mClassNode.self ;
+				if (&_self.mClassNode.self == r1x)
+					break ;
+				_self.mClassNode.cycle () ;
+			}
+		}
+		return std::move (ret) ;
 	}
 
 public:
@@ -128,32 +132,14 @@ public:
 	inline static void friend_create (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
 		_self.mCounter.self = 0 ;
-		_self.mVNLength = 0 ;
-		_self.mVNRoot = NULL ;
-		_self.mCNLength = 0 ;
-		_self.mCNRoot = NULL ;
+		_self.mValueNode = LinkedRef<VALUE_NODE> () ;
+		_self.mClassNode = LinkedRef<CLASS_NODE> () ;
 	}
 
 	inline static void friend_destroy (Holder &_self) {
 		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-		_CALL_EH_ ([&] () {
-			for (PTR<VALUE_NODE> i = _self.mVNRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
-				i->~VALUE_NODE () ;
-				GlobalHeap::free (i) ;
-			}
-		}) ;
-		_self.mVNLength = 0 ;
-		_self.mVNRoot = NULL ;
-		_CALL_EH_ ([&] () {
-			for (PTR<CLASS_NODE> i = _self.mCNRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
-				i->~CLASS_NODE () ;
-				GlobalHeap::free (i) ;
-			}
-		}) ;
-		_self.mCNLength = 0 ;
-		_self.mCNRoot = NULL ;
+		_self.mValueNode = LinkedRef<VALUE_NODE> () ;
+		_self.mClassNode = LinkedRef<CLASS_NODE> () ;
 	}
 
 	inline static LENGTH friend_attach (Holder &_self) popping {
@@ -209,7 +195,7 @@ public:
 		auto rax = GlobalStatic<void>::friend_find_node (r1 ,GUID) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (rax != NULL)
-				continue ;
+				discard ;
 			rax = GlobalStatic<void>::friend_new_node (r1 ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
@@ -250,7 +236,7 @@ public:
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (rax != NULL)
-					continue ;
+					discard ;
 				rax = GlobalStatic<void>::friend_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -504,6 +490,7 @@ private:
 	} ;
 
 private:
+	class Detail ;
 	class Implement ;
 	friend Singleton<RandomService> ;
 	Monostate<std::recursive_mutex> mMutex ;
@@ -611,7 +598,7 @@ public:
 private:
 	RandomService () ;
 
-public:
+private:
 	inline static STRU8 index_to_hex (INDEX index) {
 		const auto r1x = (index < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
 		return STRU8 (r1x + index) ;

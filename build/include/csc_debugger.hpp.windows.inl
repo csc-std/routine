@@ -10,11 +10,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -51,6 +53,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -181,9 +184,9 @@ public:
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mLogPath == r1x)
-				continue ;
+				discard ;
 			if (!mLogFileStream.exist ())
-				continue ;
+				discard ;
 			mLogFileStream->flush () ;
 			mLogFileStream = AutoRef<StreamLoader> () ;
 		}

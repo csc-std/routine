@@ -10,11 +10,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #ifndef _INC_WINDOWS
@@ -27,6 +29,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -348,12 +351,12 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 		for (FOR_ONCE_DO_WHILE) {
 			const auto r4x = String<STR> (PTRTOARR[rbx.cFileName]) ;
 			if (r4x == _PCSTR_ ("."))
-				continue ;
+				discard ;
 			if (r4x == _PCSTR_ (".."))
-				continue ;
+				discard ;
 			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
 			if (!r1.exist ())
-				continue ;
+				discard ;
 			rax += r4x ;
 			r1 (rax) ;
 		}

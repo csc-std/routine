@@ -6,58 +6,10 @@
 
 namespace U {
 template <class>
-struct is_arithmetic :public stl::false_type {} ;
-
-template <>
-struct is_arithmetic<VAR32> :public stl::true_type {} ;
-
-template <>
-struct is_arithmetic<VAR64> :public stl::true_type {} ;
-
-#ifdef __CSC_COMPILER_MSVC__
-template <>
-struct is_arithmetic<VARX> :public stl::true_type {} ;
-
-template <>
-struct is_arithmetic<VARY> :public stl::true_type {} ;
-#endif
-
-template <>
-struct is_arithmetic<VAL32> :public stl::true_type {} ;
-
-template <>
-struct is_arithmetic<VAL64> :public stl::true_type {} ;
-
-template <>
-struct is_arithmetic<VALX> :public stl::true_type {} ;
-} ;
-
-namespace U {
-template <class>
-struct is_plain_strx :public stl::false_type {} ;
-
-template <>
-struct is_plain_strx<STRU8> :public stl::true_type {} ;
-
-template <>
-struct is_plain_strx<STRU16> :public stl::true_type {} ;
-
-template <>
-struct is_plain_strx<STRU32> :public stl::true_type {} ;
-
-template <>
-struct is_plain_strx<STRA> :public stl::true_type {} ;
-
-template <>
-struct is_plain_strx<STRW> :public stl::true_type {} ;
-} ;
-
-namespace U {
-template <BOOL>
 struct ENABLE ;
 
 template <>
-struct ENABLE<TRUE> {
+struct ENABLE<ARGC<TRUE>> {
 	using TYPE = VOID ;
 } ;
 
@@ -66,16 +18,16 @@ using ENABLE_TYPE = typename stl::enable_if<_VAL1 ,VOID>::type ;
 } ;
 
 namespace U {
-template <BOOL ,class ,class>
+template <class ,class ,class>
 struct CONDITIONAL ;
 
 template <class _ARG1 ,class _ARG2>
-struct CONDITIONAL<TRUE ,_ARG1 ,_ARG2> {
+struct CONDITIONAL<ARGC<TRUE> ,_ARG1 ,_ARG2> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct CONDITIONAL<FALSE ,_ARG1 ,_ARG2> {
+struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 	using TYPE = _ARG2 ;
 } ;
 
@@ -190,6 +142,56 @@ using REMOVE_TEMP_TYPE = typename REMOVE_TEMP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 
 namespace U {
 template <class>
+struct REMOVE_MEMFUNC ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...)> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) const> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) volatile> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) const volatile> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+#if _HAS_CXX17
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) noexcept> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) const noexcept> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) volatile noexcept> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) const volatile noexcept> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+#endif
+
+template <class _ARG1>
+using REMOVE_MEMFUNC_TYPE = typename REMOVE_MEMFUNC<_ARG1>::TYPE ;
+} ;
+
+namespace U {
+template <class>
 struct MEMBER_TO ;
 
 template <class _ARG1 ,class _ARG2>
@@ -212,56 +214,6 @@ struct MEMBER_OF<_ARG1 _ARG2::*> {
 
 template <class _ARG1>
 using MEMBER_OF_TYPE = typename MEMBER_OF<_ARG1>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct MEMFUNC_TRAITS ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...)> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) const> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) volatile> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) const volatile> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-#if _HAS_CXX17
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) noexcept> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) const noexcept> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) volatile noexcept> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct MEMFUNC_TRAITS<_ARG1 (_ARGS...) const volatile noexcept> {
-	using TYPE = DEF<_ARG1 (_ARGS...)> ;
-} ;
-#endif
-
-template <class _ARG1>
-using MEMFUNC_TRAITS_TYPE = typename MEMFUNC_TRAITS<MEMBER_TO_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -308,7 +260,7 @@ struct RESULT_OF<_ARG1 (_ARGS...) ,ARGVS<_ARGS...> ,_ARG2> {
 
 template <class _ARG1 ,class _ARG2>
 struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
-	using TYPE = typename RESULT_OF<MEMFUNC_TRAITS_TYPE<decltype (&_ARG1::operator())> ,_ARG2 ,VOID>::TYPE ;
+	using TYPE = typename RESULT_OF<REMOVE_MEMFUNC_TYPE<MEMBER_TO_TYPE<decltype (&_ARG1::operator())>> ,_ARG2 ,VOID>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -505,14 +457,14 @@ struct INDEX_OF {
 	using TYPE = ARGC<VAR_NONE> ;
 } ;
 
-template <INDEX _VAL1 ,class _ARG1 ,class... _ARGS>
-struct INDEX_OF<ARGC<_VAL1> ,REMOVE_CVR_TYPE<_ARG1> ,ARGVS<_ARG1 ,_ARGS...>> {
-	using TYPE = ARGC<_VAL1> ;
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct INDEX_OF<_ARG1 ,REMOVE_CVR_TYPE<_ARG2> ,ARGVS<_ARG2 ,_ARGS...>> {
+	using TYPE = _ARG1 ;
 } ;
 
-template <INDEX _VAL1 ,class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct INDEX_OF<ARGC<_VAL1> ,_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
-	using TYPE = typename INDEX_OF<ARGC<_VAL1 + 1> ,_ARG1 ,ARGVS<_ARGS...>>::TYPE ;
+template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
+struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
+	using TYPE = typename INDEX_OF<ARGC<_ARG1::value + 1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -540,79 +492,129 @@ using VISIT_OF_TYPE = typename VISIT_OF<_ARG1 ,_ARG2>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct _is_complete_type_x :public stl::false_type {} ;
+struct is_arithmetic_help :public stl::false_type {} ;
+
+template <>
+struct is_arithmetic_help<VAR32 ,VOID> :public stl::true_type {} ;
+
+template <>
+struct is_arithmetic_help<VAR64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct _is_complete_type_x<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> :public stl::true_type {} ;
+struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
-using is_complete_type = _is_complete_type_x<_ARG1 ,VOID> ;
-} ;
+struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
 
-namespace U {
-template <class ,class ,class>
-struct _is_interface_type_x :public stl::false_type {} ;
+template <>
+struct is_arithmetic_help<VAL32 ,VOID> :public stl::true_type {} ;
 
-template <class _ARG1 ,class _ARG2>
-struct _is_interface_type_x<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> :public stl::is_base_of<_ARG2 ,_ARG1> {} ;
-
-template <class _ARG1 ,class _ARG2>
-using is_interface_type = _is_interface_type_x<_ARG1 ,_ARG2 ,VOID> ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct _is_always_base_of_x :public stl::false_type {} ;
-
-template <class _ARG1 ,class _ARG2>
-struct _is_always_base_of_x<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> :public stl::is_base_of<_ARG1 ,_ARG2> {} ;
-
-template <class _ARG1 ,class _ARG2>
-using is_always_base_of = _is_always_base_of_x<_ARG1 ,_ARG2 ,VOID> ;
-} ;
-
-namespace U {
-template <class...>
-struct is_all_same :public stl::false_type {} ;
+template <>
+struct is_arithmetic_help<VAL64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_all_same<_ARG1> :public stl::true_type {} ;
+struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_all_same<_ARG1 ,_ARG1> :public stl::true_type {} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct is_all_same<_ARG1 ,_ARG1 ,_ARGS...> :public is_all_same<_ARG1 ,_ARGS...> {} ;
-} ;
-
-namespace U {
-template <class...>
-struct is_any_same :public stl::false_type {} ;
-
-template <class _ARG1>
-struct is_any_same<_ARG1> :public stl::false_type {} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct is_any_same<_ARG1 ,_ARG1 ,_ARGS...> :public stl::true_type {} ;
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct is_any_same<_ARG1 ,_ARG2 ,_ARGS...> :public CONDITIONAL_TYPE<(is_any_same<_ARG1 ,_ARGS...>::value && is_any_same<_ARG2 ,_ARGS...>::value) ,stl::true_type ,stl::false_type> {} ;
+using is_arithmetic = is_arithmetic_help<_ARG1 ,VOID> ;
 } ;
 
 namespace U {
 template <class>
-struct is_template_type :public stl::false_type {} ;
+struct is_plain_strx :public stl::false_type {} ;
 
-template <template <class...> class _ARGT ,class... _ARGS>
-struct is_template_type<_ARGT<_ARGS...>> :public stl::true_type {} ;
+template <>
+struct is_plain_strx<STRU8> :public stl::true_type {} ;
+
+template <>
+struct is_plain_strx<STRU16> :public stl::true_type {} ;
+
+template <>
+struct is_plain_strx<STRU32> :public stl::true_type {} ;
+
+template <>
+struct is_plain_strx<STRA> :public stl::true_type {} ;
+
+template <>
+struct is_plain_strx<STRW> :public stl::true_type {} ;
+} ;
+
+namespace U {
+template <class ,class>
+struct is_complete_type_help :public stl::false_type {} ;
+
+template <class _ARG1>
+struct is_complete_type_help<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> :public stl::true_type {} ;
+
+template <class _ARG1>
+using is_complete_type = is_complete_type_help<_ARG1 ,VOID> ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct is_interface_type_help :public stl::false_type {} ;
+
+template <class _ARG1 ,class _ARG2>
+struct is_interface_type_help<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> :public stl::is_base_of<_ARG2 ,_ARG1> {} ;
+
+template <class _ARG1 ,class _ARG2>
+using is_interface_type = is_interface_type_help<_ARG1 ,_ARG2 ,VOID> ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct is_always_base_of_help :public stl::false_type {} ;
+
+template <class _ARG1 ,class _ARG2>
+struct is_always_base_of_help<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> :public stl::is_base_of<_ARG1 ,_ARG2> {} ;
+
+template <class _ARG1 ,class _ARG2>
+using is_always_base_of = is_always_base_of_help<_ARG1 ,_ARG2 ,VOID> ;
+} ;
+
+namespace U {
+template <class...>
+struct is_all_same_help :public stl::false_type {} ;
+
+template <class _ARG1>
+struct is_all_same_help<_ARG1> :public stl::true_type {} ;
+
+template <class _ARG1>
+struct is_all_same_help<_ARG1 ,_ARG1> :public stl::true_type {} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct is_all_same_help<_ARG1 ,_ARG1 ,_ARGS...> :public is_all_same_help<_ARG1 ,_ARGS...> {} ;
+
+template <class... _ARGS>
+using is_all_same = is_all_same_help<_ARGS...> ;
+} ;
+
+namespace U {
+template <class...>
+struct is_any_same_help :public stl::false_type {} ;
+
+template <class _ARG1>
+struct is_any_same_help<_ARG1> :public stl::false_type {} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct is_any_same_help<_ARG1 ,_ARG1 ,_ARGS...> :public stl::true_type {} ;
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct is_any_same_help<_ARG1 ,_ARG2 ,_ARGS...> :public CONDITIONAL_TYPE<(is_any_same_help<_ARG1 ,_ARGS...>::value && is_any_same_help<_ARG2 ,_ARGS...>::value) ,stl::true_type ,stl::false_type> {} ;
+
+template <class... _ARGS>
+using is_any_same = is_any_same_help<_ARGS...> ;
 } ;
 
 namespace U {
 template <template <class...> class ,class>
-struct is_template_of :public stl::false_type {} ;
+struct is_template_of_help :public stl::false_type {} ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct is_template_of<_ARGT ,_ARGT<_ARGS...>> :public stl::true_type {} ;
+struct is_template_of_help<_ARGT ,_ARGT<_ARGS...>> :public stl::true_type {} ;
+
+template <template <class...> class _ARGT ,class _ARG1>
+using is_template_of = is_template_of_help<_ARGT ,_ARG1> ;
 } ;
 
 namespace U {

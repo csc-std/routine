@@ -163,6 +163,11 @@
 #error "∑(っ°Д° ;)っ : defined 'exports'"
 #endif
 #define exports
+
+#ifdef discard
+#error "∑(っ°Д° ;)っ : defined 'discard'"
+#endif
+#define discard break
 #endif
 
 #ifdef __CSC__
@@ -171,11 +176,13 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef discard
 #endif
 
 #include <cstddef>
@@ -194,6 +201,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("discard")
 #endif
 
 namespace CSC {
@@ -604,13 +612,11 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 #undef __CSC_USE_TRAITS__
 #pragma endregion
 
-namespace stl {
-template <class _ARG1>
-using is_arithmetic = U::is_arithmetic<_ARG1> ;
+template <BOOL _VAL1>
+using ENABLE_TYPE = U::ENABLE_TYPE<_VAL1> ;
 
-template <class _ARG1>
-using is_plain_strx = U::is_plain_strx<_ARG1> ;
-} ;
+template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
+using CONDITIONAL_TYPE = U::CONDITIONAL_TYPE<_VAL1 ,_ARG1 ,_ARG2> ;
 
 template <class _ARG1>
 using REMOVE_REFERENCE_TYPE = U::REMOVE_REFERENCE_TYPE<_ARG1> ;
@@ -630,20 +636,14 @@ using REMOVE_POINTER_TYPE = U::REMOVE_POINTER_TYPE<_ARG1> ;
 template <class _ARG1>
 using REMOVE_ARRAY_TYPE = U::REMOVE_ARRAY_TYPE<_ARG1> ;
 
-template <BOOL _VAL1>
-using ENABLE_TYPE = U::ENABLE_TYPE<_VAL1> ;
-
-template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = U::CONDITIONAL_TYPE<_VAL1 ,_ARG1 ,_ARG2> ;
+template <class _ARG1>
+using REMOVE_MEMFUNC_TYPE = U::REMOVE_MEMFUNC_TYPE<_ARG1> ;
 
 template <class _ARG1>
 using MEMBER_TO_TYPE = U::MEMBER_TO_TYPE<_ARG1> ;
 
 template <class _ARG1>
 using MEMBER_OF_TYPE = U::MEMBER_OF_TYPE<_ARG1> ;
-
-template <class _ARG1>
-using MEMFUNC_TRAITS_TYPE = U::MEMFUNC_TRAITS_TYPE<_ARG1> ;
 
 template <class _ARG1>
 using INVOKE_OF_TYPE = U::INVOKE_OF_TYPE<_ARG1> ;
@@ -662,6 +662,14 @@ using CAST_TRAITS_TYPE = U::CAST_TRAITS_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
 using LOAD_CHECK_TYPE = U::LOAD_CHECK_TYPE<_ARG1 ,_ARG2> ;
+
+namespace stl {
+template <class _ARG1>
+using is_arithmetic = U::is_arithmetic<_ARG1> ;
+
+template <class _ARG1>
+using is_plain_strx = U::is_plain_strx<_ARG1> ;
+} ;
 
 template <class UNIT>
 struct TEMP {
@@ -1218,10 +1226,6 @@ public:
 template <class STRX>
 class Plain<STRX>::Detail :private Wrapped<void> {
 public:
-	inline static constexpr LENGTH constexpr_sub (LENGTH arg1) {
-		return arg1 - 1 ;
-	}
-
 	template <class SIZE>
 	class PlainString {
 	private:
@@ -1233,20 +1237,20 @@ public:
 
 		template <LENGTH... _VALS>
 		inline explicit PlainString (const DEF<STRA[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,constexpr_sub (_VALS)...>::value == SIZE::value) ;
+			_STATIC_ASSERT_ (ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>::value == LENGTH (SIZE::value)) ;
 			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
 		}
 
 		template <LENGTH... _VALS>
 		inline explicit PlainString (const DEF<STRW[_VALS]> &...args) noexcept {
-			_STATIC_ASSERT_ (ARGCS<1 ,constexpr_sub (_VALS)...>::value == SIZE::value) ;
+			_STATIC_ASSERT_ (ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>::value == LENGTH (SIZE::value)) ;
 			template_write (mString ,_NULL_<const ARGC<0>> () ,args...) ;
 		}
 	} ;
 
 	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const DEF<STRX[ARGCS<1 ,constexpr_sub (_VALS)...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
-		const auto r1x = PlainString<ARGCS<1 ,constexpr_sub (_VALS)...>> (args...) ;
+	inline static const DEF<STRX[ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRA[_VALS]> &...args) noexcept {
+		const auto r1x = PlainString<ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>> (args...) ;
 		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
@@ -1254,42 +1258,45 @@ public:
 	}
 
 	template <class _ARG1 ,LENGTH... _VALS>
-	inline static const DEF<STRX[ARGCS<1 ,constexpr_sub (_VALS)...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
-		const auto r1x = PlainString<ARGCS<1 ,constexpr_sub (_VALS)...>> (args...) ;
+	inline static const DEF<STRX[ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>::value]> &plain_string (const ARGV<_ARG1> & ,const DEF<STRW[_VALS]> &...args) noexcept {
+		const auto r1x = PlainString<ARGCS<(1 - _CAPACITYOF_ (_VALS)) ,_VALS...>> (args...) ;
 		auto &r1 = _CACHE_ ([r1x] () noexcept {
 			return r1x ;
 		}) ;
 		return r1.mString ;
 	}
 
-	template <LENGTH _VAL1>
-	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL1 - 1> &) noexcept {
-		array[_VAL1 - 1] = 0 ;
+	template <class _ARG1 ,LENGTH _VAL1>
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const _ARG1 &) noexcept {
+		_STATIC_ASSERT_ (_ARG1::value == _VAL1 - 1) ;
+		array[_ARG1::value] = 0 ;
+	}
+
+	template <class _ARG1 ,LENGTH _VAL1 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const _ARG1 & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
+			array[i + _ARG1::value] = raw_to_plain (arg1[i]) ;
+		template_write (array ,_NULL_<const ARGC<_ARG1::value + _VAL3 - 1>> () ,args...) ;
+	}
+
+	template <class _ARG1 ,LENGTH _VAL1 ,LENGTH _VAL3 ,LENGTH... _VALS>
+	inline static void template_write (DEF<STRX[_VAL1]> &array ,const _ARG1 & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
+		_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < _VAL1) ;
+		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
+			array[i + _ARG1::value] = raw_to_plain (arg1[i]) ;
+		template_write (_NULL_<const ARGC<_ARG1::value + _VAL3 - 1>> () ,args...) ;
 	}
 
 	template <class _ARG1>
-	inline static STRX raw_to_plain_strx (const _ARG1 &arg) noexcept {
+	inline static STRX raw_to_plain (const _ARG1 &arg) noexcept {
 		if (arg >= _ARG1 (32) && arg <= _ARG1 (126))
 			return arg ;
 		if (arg == _ARG1 ('\t') || arg == _ARG1 ('\v'))
 			return arg ;
+		if (arg == _ARG1 ('\r') || arg == _ARG1 ('\n') || arg == _ARG1 ('\f'))
+			return arg ;
 		return _ARG1 ('?') ;
-	}
-
-	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRA[_VAL3]> &arg1 ,const DEF<STRA[_VALS]> &...args) noexcept {
-		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
-			array[i + _VAL2] = raw_to_plain_strx (arg1[i]) ;
-		template_write (array ,_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
-	}
-
-	template <LENGTH _VAL1 ,INDEX _VAL2 ,LENGTH _VAL3 ,LENGTH... _VALS>
-	inline static void template_write (DEF<STRX[_VAL1]> &array ,const ARGC<_VAL2> & ,const DEF<STRW[_VAL3]> &arg1 ,const DEF<STRW[_VALS]> &...args) noexcept {
-		_STATIC_ASSERT_ (_VAL2 >= 0 && _VAL2 < _VAL1) ;
-		for (INDEX i = 0 ; i < _VAL3 - 1 ; i++)
-			array[i + _VAL2] = raw_to_plain_strx (arg1[i]) ;
-		template_write (_NULL_<const ARGC<_VAL2 + _VAL3 - 1>> () ,args...) ;
 	}
 } ;
 
@@ -1610,7 +1617,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1665,7 +1672,7 @@ public:
 	inline AutoRef &operator= (const AutoRef &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1679,7 +1686,7 @@ public:
 	inline AutoRef &operator= (AutoRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (right)) ;
 		}
@@ -1778,7 +1785,7 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			const auto r1x = --mPointer->mCounter ;
 			if (r1x != 0)
-				continue ;
+				discard ;
 			mPointer->~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
@@ -1790,7 +1797,7 @@ public:
 	inline SharedRef &operator= (const SharedRef &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -1804,7 +1811,7 @@ public:
 	inline SharedRef &operator= (SharedRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (right)) ;
 		}
@@ -1903,7 +1910,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2012,7 +2019,7 @@ public:
 	inline AnyRef &operator= (AnyRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (right)) ;
 		}
@@ -2114,7 +2121,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2222,7 +2229,7 @@ public:
 	inline UniqueRef &operator= (UniqueRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (right)) ;
 		}
@@ -2260,7 +2267,7 @@ public:
 	inline PhanRef &operator= (PhanRef &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (right)) ;
 		}
@@ -2358,7 +2365,7 @@ public:
 			return ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mFunction_a == NULL)
-				continue ;
+				discard ;
 			mFunction_a->~Holder () ;
 			GlobalHeap::free (mFunction_a) ;
 		}
@@ -2377,7 +2384,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2498,7 +2505,7 @@ public:
 	inline Function &operator= (Function &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Function () ;
 			new (this) Function (std::move (right)) ;
 		}
@@ -2965,7 +2972,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3025,7 +3032,7 @@ public:
 	inline Buffer &operator= (const Buffer &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3040,7 +3047,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3216,7 +3223,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3388,7 +3395,7 @@ public:
 	inline Buffer &operator= (Buffer &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Buffer () ;
 			new (this) Buffer (std::move (right)) ;
 		}
@@ -3637,7 +3644,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3716,7 +3723,7 @@ public:
 	inline Allocator &operator= (const Allocator &right) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3739,7 +3746,7 @@ public:
 	inline Allocator &operator= (Allocator &&right) noexcept {
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &right)
-				continue ;
+				discard ;
 			this->~Allocator () ;
 			new (this) Allocator (std::move (right)) ;
 		}
@@ -3835,9 +3842,9 @@ public:
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			if (mFree != VAR_NONE)
-				continue ;
+				discard ;
 			auto rax = mAllocator.expand () ;
 			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
@@ -3850,9 +3857,9 @@ public:
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
-				continue ;
+				discard ;
 			if (mFree == VAR_NONE)
-				continue ;
+				discard ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
 			ret = mFree ;
 		}
