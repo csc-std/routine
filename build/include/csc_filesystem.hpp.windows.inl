@@ -48,7 +48,7 @@ inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 	_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r2x) ;
 	auto rax = VARY () ;
-	const auto r3x = ReadFile (r1x ,ret.self ,VARY (r2x) ,&(rax = VARY (0)) ,NULL) ;
+	const auto r3x = ReadFile (r1x ,ret.self ,VARY (r2x) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 	_DYNAMIC_ASSERT_ (r3x) ;
 	return std::move (ret) ;
 }
@@ -66,7 +66,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 	const auto r2x = LENGTH (GetFileSize (r1x ,NULL)) ;
 	_DYNAMIC_ASSERT_ (r2x > 0 && r2x <= data.size ()) ;
 	auto rax = VARY () ;
-	const auto r3x = ReadFile (r1x ,data ,VARY (r2x) ,&(rax = VARY (0)) ,NULL) ;
+	const auto r3x = ReadFile (r1x ,data ,VARY (r2x) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 	_DYNAMIC_ASSERT_ (r3x) ;
 }
 
@@ -82,7 +82,7 @@ inline exports void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const 
 		CloseHandle (me) ;
 	}) ;
 	auto rax = VARY () ;
-	const auto r2x = WriteFile (r1x ,data ,VARY (data.size ()) ,&(rax = VARY (0)) ,NULL) ;
+	const auto r2x = WriteFile (r1x ,data ,VARY (data.size ()) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 	_DYNAMIC_ASSERT_ (r2x) ;
 }
 
@@ -140,7 +140,7 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 			return ;
 		CloseHandle (me) ;
 	}) ;
-	const auto r2x = GetFileInformationByHandle (r1x ,&_ZERO_ (rax[0])) ;
+	const auto r2x = GetFileInformationByHandle (r1x ,&_RESET_ (rax[0])) ;
 	if (r2x == 0)
 		return FALSE ;
 	if (rax[0].nNumberOfLinks == 0)
@@ -154,7 +154,7 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 			return ;
 		CloseHandle (me) ;
 	}) ;
-	const auto r4x = GetFileInformationByHandle (r3x ,&_ZERO_ (rax[1])) ;
+	const auto r4x = GetFileInformationByHandle (r3x ,&_RESET_ (rax[1])) ;
 	if (r4x == 0)
 		return FALSE ;
 	if (rax[1].nNumberOfLinks == 0)
@@ -334,7 +334,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 	auto rbx = WIN32_FIND_DATA () ;
 	const auto r2x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		rax += _PCSTR_ ("*.*") ;
-		me = FindFirstFile (rax.raw ().self ,&_ZERO_ (rbx)) ;
+		me = FindFirstFile (rax.raw ().self ,&_RESET_ (rbx)) ;
 		if (me == INVALID_HANDLE_VALUE)
 			me = NULL ;
 		rax[r1x] = 0 ;
@@ -414,7 +414,7 @@ public:
 	void read (const PhanBuffer<BYTE> &data) popping {
 		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
-		const auto r1x = ReadFile (mFile ,data ,VARY (data.size ()) ,&(rax = 0) ,NULL) ;
+		const auto r1x = ReadFile (mFile ,data ,VARY (data.size ()) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
@@ -426,7 +426,7 @@ public:
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
-		const auto r1x = WriteFile (mFile ,data ,VARY (data.size ()) ,&(rax = 0) ,NULL) ;
+		const auto r1x = WriteFile (mFile ,data ,VARY (data.size ()) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
@@ -557,7 +557,7 @@ public:
 				UnmapViewOfFile (me.self) ;
 			}) ;
 			auto rax = MEMORY_BASIC_INFORMATION () ;
-			const auto r3x = VirtualQuery (r1x->self ,&_ZERO_ (rax) ,_SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
+			const auto r3x = VirtualQuery (r1x->self ,&_RESET_ (rax) ,_SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
 			_DYNAMIC_ASSERT_ (r3x == _SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
 			const auto r4x = MapViewOfFile (r2 ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
 			_DYNAMIC_ASSERT_ (r4x != NULL) ;

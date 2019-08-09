@@ -54,36 +54,36 @@ public:
 
 	inline REAL &operator[] (INDEX) && = delete ;
 
-	BOOL equal (const Vector &right) const {
-		return BOOL (mVector == right.mVector) ;
+	BOOL equal (const Vector &that) const {
+		return BOOL (mVector == that.mVector) ;
 	}
 
-	inline BOOL operator== (const Vector &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Vector &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Vector &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Vector &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL less (const Vector &right) const {
-		return BOOL (mVector < right.mVector) ;
+	BOOL less (const Vector &that) const {
+		return BOOL (mVector < that.mVector) ;
 	}
 
-	inline BOOL operator< (const Vector &right) const {
-		return less (right) ;
+	inline BOOL operator< (const Vector &that) const {
+		return less (that) ;
 	}
 
-	inline BOOL operator>= (const Vector &right) const {
-		return !less (right) ;
+	inline BOOL operator>= (const Vector &that) const {
+		return !less (that) ;
 	}
 
-	inline BOOL operator> (const Vector &right) const {
-		return right.less (*this) ;
+	inline BOOL operator> (const Vector &that) const {
+		return that.less (*this) ;
 	}
 
-	inline BOOL operator<= (const Vector &right) const {
-		return !right.less (*this) ;
+	inline BOOL operator<= (const Vector &that) const {
+		return !that.less (*this) ;
 	}
 
 	Vector mul (const REAL &scale) const {
@@ -124,45 +124,45 @@ public:
 		return *this ;
 	}
 
-	Vector add (const Vector &right) const {
+	Vector add (const Vector &that) const {
 		Vector ret ;
 		for (INDEX i = 0 ; i < mVector.size () ; i++)
-			ret.mVector[i] = mVector[i] + right.mVector[i] ;
+			ret.mVector[i] = mVector[i] + that.mVector[i] ;
 		return std::move (ret) ;
 	}
 
-	inline Vector operator+ (const Vector &right) const {
-		return add (right) ;
+	inline Vector operator+ (const Vector &that) const {
+		return add (that) ;
 	}
 
-	void addto (const Vector &right) {
+	void addto (const Vector &that) {
 		for (INDEX i = 0 ; i < mVector.size () ; i++)
-			mVector[i] += right.mVector[i] ;
+			mVector[i] += that.mVector[i] ;
 	}
 
-	inline Vector &operator+= (const Vector &right) {
-		addto (right) ;
+	inline Vector &operator+= (const Vector &that) {
+		addto (that) ;
 		return *this ;
 	}
 
-	Vector sub (const Vector &right) const {
+	Vector sub (const Vector &that) const {
 		Vector ret ;
 		for (INDEX i = 0 ; i < mVector.size () ; i++)
-			ret.mVector[i] = mVector[i] - right.mVector[i] ;
+			ret.mVector[i] = mVector[i] - that.mVector[i] ;
 		return std::move (ret) ;
 	}
 
-	inline Vector operator- (const Vector &right) const {
-		return sub (right) ;
+	inline Vector operator- (const Vector &that) const {
+		return sub (that) ;
 	}
 
-	void subto (const Vector &right) {
+	void subto (const Vector &that) {
 		for (INDEX i = 0 ; i < mVector.size () ; i++)
-			mVector[i] -= right.mVector[i] ;
+			mVector[i] -= that.mVector[i] ;
 	}
 
-	inline Vector &operator-= (const Vector &right) {
-		subto (right) ;
+	inline Vector &operator-= (const Vector &that) {
+		subto (that) ;
 		return *this ;
 	}
 
@@ -188,50 +188,50 @@ public:
 		return minus () ;
 	}
 
-	REAL mul (const Vector &right) const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && right.mVector[3] == REAL (0)) ;
-		return mVector[0] * right.mVector[0] + mVector[1] * right.mVector[1] + mVector[2] * right.mVector[2] ;
+	REAL mul (const Vector &that) const {
+		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && that.mVector[3] == REAL (0)) ;
+		return mVector[0] * that.mVector[0] + mVector[1] * that.mVector[1] + mVector[2] * that.mVector[2] ;
 	}
 
-	inline REAL operator* (const Vector &right) const {
-		return mul (right) ;
+	inline REAL operator* (const Vector &that) const {
+		return mul (that) ;
 	}
 
-	Vector mul (const Matrix<REAL> &right) const ;
+	Vector mul (const Matrix<REAL> &that) const ;
 
-	inline Vector operator* (const Matrix<REAL> &right) const {
-		return mul (right) ;
+	inline Vector operator* (const Matrix<REAL> &that) const {
+		return mul (that) ;
 	}
 
-	void multo (const Matrix<REAL> &right) {
-		*this = mul (right) ;
+	void multo (const Matrix<REAL> &that) {
+		*this = mul (that) ;
 	}
 
-	inline Vector &operator*= (const Matrix<REAL> &right) {
-		multo (right) ;
+	inline Vector &operator*= (const Matrix<REAL> &that) {
+		multo (that) ;
 		return *this ;
 	}
 
-	Vector cross (const Vector &right) const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && right.mVector[3] == REAL (0)) ;
+	Vector cross (const Vector &that) const {
+		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && that.mVector[3] == REAL (0)) ;
 		Vector ret ;
-		ret.mVector[0] = mVector[1] * right.mVector[2] - mVector[2] * right.mVector[1] ;
-		ret.mVector[1] = mVector[2] * right.mVector[0] - mVector[0] * right.mVector[2] ;
-		ret.mVector[2] = mVector[0] * right.mVector[1] - mVector[1] * right.mVector[0] ;
+		ret.mVector[0] = mVector[1] * that.mVector[2] - mVector[2] * that.mVector[1] ;
+		ret.mVector[1] = mVector[2] * that.mVector[0] - mVector[0] * that.mVector[2] ;
+		ret.mVector[2] = mVector[0] * that.mVector[1] - mVector[1] * that.mVector[0] ;
 		ret.mVector[3] = REAL (0) ;
 		return std::move (ret) ;
 	}
 
-	inline Vector operator^ (const Vector &right) const {
-		return cross (right) ;
+	inline Vector operator^ (const Vector &that) const {
+		return cross (that) ;
 	}
 
-	void crossto (const Vector &right) {
-		*this = cross (right) ;
+	void crossto (const Vector &that) {
+		*this = cross (that) ;
 	}
 
-	inline Vector &operator^= (const Vector &right) {
-		crossto (right) ;
+	inline Vector &operator^= (const Vector &that) {
+		crossto (that) ;
 		return *this ;
 	}
 
@@ -403,36 +403,36 @@ public:
 
 	inline Row<Matrix> operator[] (INDEX) && = delete ;
 
-	BOOL equal (const Matrix &right) const {
-		return BOOL (mMatrix == right.mMatrix) ;
+	BOOL equal (const Matrix &that) const {
+		return BOOL (mMatrix == that.mMatrix) ;
 	}
 
-	inline BOOL operator== (const Matrix &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Matrix &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Matrix &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Matrix &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL less (const Matrix &right) const {
-		return BOOL (mMatrix < right.mMatrix) ;
+	BOOL less (const Matrix &that) const {
+		return BOOL (mMatrix < that.mMatrix) ;
 	}
 
-	inline BOOL operator< (const Matrix &right) const {
-		return less (right) ;
+	inline BOOL operator< (const Matrix &that) const {
+		return less (that) ;
 	}
 
-	inline BOOL operator>= (const Matrix &right) const {
-		return !less (right) ;
+	inline BOOL operator>= (const Matrix &that) const {
+		return !less (that) ;
 	}
 
-	inline BOOL operator> (const Matrix &right) const {
-		return right.less (*this) ;
+	inline BOOL operator> (const Matrix &that) const {
+		return that.less (*this) ;
 	}
 
-	inline BOOL operator<= (const Matrix &right) const {
-		return !right.less (*this) ;
+	inline BOOL operator<= (const Matrix &that) const {
+		return !that.less (*this) ;
 	}
 
 	Matrix mul (const REAL &scale) const {
@@ -473,45 +473,45 @@ public:
 		return *this ;
 	}
 
-	Matrix add (const Matrix &right) const {
+	Matrix add (const Matrix &that) const {
 		Matrix ret ;
 		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
-			ret.mMatrix[i] = mMatrix[i] + right.mMatrix[i] ;
+			ret.mMatrix[i] = mMatrix[i] + that.mMatrix[i] ;
 		return std::move (ret) ;
 	}
 
-	inline Matrix operator+ (const Matrix &right) const {
-		return add (right) ;
+	inline Matrix operator+ (const Matrix &that) const {
+		return add (that) ;
 	}
 
-	void addto (const Matrix &right) {
+	void addto (const Matrix &that) {
 		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
-			mMatrix[i] += right.mMatrix[i] ;
+			mMatrix[i] += that.mMatrix[i] ;
 	}
 
-	inline Matrix &operator+= (const Matrix &right) {
-		addto (right) ;
+	inline Matrix &operator+= (const Matrix &that) {
+		addto (that) ;
 		return *this ;
 	}
 
-	Matrix sub (const Matrix &right) const {
+	Matrix sub (const Matrix &that) const {
 		Matrix ret ;
 		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
-			ret.mMatrix[i] = mMatrix[i] - right.mMatrix[i] ;
+			ret.mMatrix[i] = mMatrix[i] - that.mMatrix[i] ;
 		return std::move (ret) ;
 	}
 
-	inline Matrix operator- (const Matrix &right) const {
-		return sub (right) ;
+	inline Matrix operator- (const Matrix &that) const {
+		return sub (that) ;
 	}
 
-	void subto (const Matrix &right) {
+	void subto (const Matrix &that) {
 		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
-			mMatrix[i] -= right.mMatrix[i] ;
+			mMatrix[i] -= that.mMatrix[i] ;
 	}
 
-	inline Matrix &operator-= (const Matrix &right) {
-		subto (right) ;
+	inline Matrix &operator-= (const Matrix &that) {
+		subto (that) ;
 		return *this ;
 	}
 
@@ -537,35 +537,35 @@ public:
 		return minus () ;
 	}
 
-	Matrix mul (const Matrix &right) const {
+	Matrix mul (const Matrix &that) const {
 		Matrix ret ;
 		for (auto &&i : ArrayRange<ARGC<2>> ({4 ,4})) {
-			const auto r1x = get (i[0] ,0) * right.get (0 ,i[1]) ;
-			const auto r2x = get (i[0] ,1) * right.get (1 ,i[1]) ;
-			const auto r3x = get (i[0] ,2) * right.get (2 ,i[1]) ;
-			const auto r4x = get (i[0] ,3) * right.get (3 ,i[1]) ;
+			const auto r1x = get (i[0] ,0) * that.get (0 ,i[1]) ;
+			const auto r2x = get (i[0] ,1) * that.get (1 ,i[1]) ;
+			const auto r3x = get (i[0] ,2) * that.get (2 ,i[1]) ;
+			const auto r4x = get (i[0] ,3) * that.get (3 ,i[1]) ;
 			ret.get (i[0] ,i[1]) = r1x + r2x + r3x + r4x ;
 		}
 		return std::move (ret) ;
 	}
 
-	inline Matrix operator* (const Matrix &right) const {
-		return mul (right) ;
+	inline Matrix operator* (const Matrix &that) const {
+		return mul (that) ;
 	}
 
-	void multo (const Matrix &right) {
-		*this = mul (right) ;
+	void multo (const Matrix &that) {
+		*this = mul (that) ;
 	}
 
-	inline Matrix &operator*= (const Matrix &right) {
-		multo (right) ;
+	inline Matrix &operator*= (const Matrix &that) {
+		multo (that) ;
 		return *this ;
 	}
 
-	Vector<REAL> mul (const Vector<REAL> &right) const ;
+	Vector<REAL> mul (const Vector<REAL> &that) const ;
 
-	inline Vector<REAL> operator* (const Vector<REAL> &right) const {
-		return mul (right) ;
+	inline Vector<REAL> operator* (const Vector<REAL> &that) const {
+		return mul (that) ;
 	}
 
 	Matrix transpose () const {
@@ -886,18 +886,18 @@ public:
 } ;
 
 template <class REAL>
-inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &right) const {
+inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
 	Vector<REAL> ret ;
 	for (INDEX i = 0 ; i < 4 ; i++)
-		ret.get (i) = get (0) * right.get (0 ,i) + get (1) * right.get (1 ,i) + get (2) * right.get (2 ,i) + get (3) * right.get (3 ,i) ;
+		ret.get (i) = get (0) * that.get (0 ,i) + get (1) * that.get (1 ,i) + get (2) * that.get (2 ,i) + get (3) * that.get (3 ,i) ;
 	return std::move (ret) ;
 }
 
 template <class REAL>
-inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &right) const {
+inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &that) const {
 	Vector<REAL> ret ;
 	for (INDEX i = 0 ; i < 4 ; i++)
-		ret.get (i) = get (i ,0) * right.get (0) + get (i ,1) * right.get (1) + get (i ,2) * right.get (2) + get (i ,3) * right.get (3) ;
+		ret.get (i) = get (i ,0) * that.get (0) + get (i ,1) * that.get (1) + get (i ,2) * that.get (2) + get (i ,3) * that.get (3) ;
 	return std::move (ret) ;
 }
 } ;

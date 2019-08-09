@@ -93,7 +93,7 @@ public:
 	}
 
 	inline const BYTE &operator[] (INDEX index) const {
-		const auto r1x = constexpr_big_endian (_NULL_<const ARGV<UNIT>> ()) ;
+		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
 		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)[index]] ;
 	}
 
@@ -335,7 +335,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (String<_ARG1 ,_ARG2> &data) popping {
-		_STATIC_ASSERT_ (stl::is_plain_strx<_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_plain_str<_ARG1>::value) ;
 		const auto r1x = LENGTH (read<VAR32> ()) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
@@ -363,12 +363,12 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
 	void read (_ARG1 &data) popping {
 		data.friend_read (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
 	inline ByteReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
 		return *this ;
@@ -598,7 +598,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const String<_ARG1 ,_ARG2> &data) {
-		_STATIC_ASSERT_ (stl::is_plain_strx<_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_plain_str<_ARG1>::value) ;
 		const auto r1x = data.length () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		write (VAR32 (r1x)) ;
@@ -624,12 +624,12 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
 		data.friend_write (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	inline ByteWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return *this ;
@@ -676,7 +676,7 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[_ZERO_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
+			r3x (PTRTOARR[_RESET_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
 			return std::move (_CAST_<STRX> (ret)) ;
 		}
 
@@ -765,7 +765,7 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
+	_STATIC_ASSERT_ (stl::is_plain_str<STRX>::value) ;
 	SharedRef<Attribute> mHeap ;
 	PhanBuffer<const STRX> mStream ;
 	INDEX mRead ;
@@ -1059,12 +1059,12 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
 	void read (_ARG1 &data) popping {
 		data.friend_read (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
 	inline TextReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
 		return *this ;
@@ -1215,7 +1215,7 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (STRX)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[_ZERO_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
+			r3x (PTRTOARR[_RESET_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (STRX)]> (item)) ;
 			return std::move (_CAST_<STRX> (ret)) ;
 		}
 
@@ -1288,7 +1288,7 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_plain_strx<STRX>::value) ;
+	_STATIC_ASSERT_ (stl::is_plain_str<STRX>::value) ;
 	SharedRef<Attribute> mHeap ;
 	PhanBuffer<STRX> mStream ;
 	INDEX mRead ;
@@ -1530,12 +1530,12 @@ public:
 		return *this ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
 		data.friend_write (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ())) ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	inline TextWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return *this ;

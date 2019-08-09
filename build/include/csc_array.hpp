@@ -26,12 +26,12 @@ public:
 	inline ForwardIterator (ForwardIterator &&) noexcept = default ;
 	inline ForwardIterator &operator= (ForwardIterator &&) = delete ;
 
-	inline BOOL operator== (const ForwardIterator &right) const {
-		return BOOL (mIndex == right.mIndex) ;
+	inline BOOL operator== (const ForwardIterator &that) const {
+		return BOOL (mIndex == that.mIndex) ;
 	}
 
-	inline BOOL operator!= (const ForwardIterator &right) const {
-		return BOOL (mIndex != right.mIndex) ;
+	inline BOOL operator!= (const ForwardIterator &that) const {
+		return BOOL (mIndex != that.mIndex) ;
 	}
 
 	inline ITEM_TYPE operator* () const {
@@ -133,7 +133,7 @@ struct OPERATOR_SORT {
 		static_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 
-	class ForwardArray :private Wrapped<ARGV<NONE>> {
+	class ForwardArray :private Wrapped<decltype (ARGVPY)> {
 	public:
 		template <class _ARG1>
 		inline _ARG1 &operator[] (_ARG1 &arg1) const {
@@ -143,7 +143,7 @@ struct OPERATOR_SORT {
 
 	template <class _ARG1>
 	inline static void invoke (_ARG1 &out ,INDEX seg ,LENGTH seg_len) {
-		invoke (_CAST_<ForwardArray> (ARGV_NONE) ,out ,seg ,seg_len) ;
+		invoke (_CAST_<ForwardArray> (ARGVPY) ,out ,seg ,seg_len) ;
 	}
 } ;
 } ;
@@ -151,18 +151,18 @@ struct OPERATOR_SORT {
 namespace U {
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-		return left.hash () ;
+	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		return _self.hash () ;
 	}
 
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &left ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (left)) ;
+	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self)) ;
 	}
 
 	template <class _ARG1>
-	inline static FLAG invoke (const _ARG1 &left) {
-		FLAG ret = template_hash (left ,ARGV_VOID ,ARGVP9) ;
+	inline static FLAG invoke (const _ARG1 &_self) {
+		FLAG ret = template_hash (_self ,ARGVPX ,ARGVP9) ;
 		ret &= VAR_MAX ;
 		return std::move (ret) ;
 	}
@@ -182,10 +182,10 @@ public:
 
 	explicit Array (LENGTH len) :mArray (len) {}
 
-	implicit Array (const std::initializer_list<ITEM> &right) : Array (right.size ()) {
-		_DEBUG_ASSERT_ (size () == LENGTH (right.size ())) ;
+	implicit Array (const std::initializer_list<ITEM> &that) : Array (that.size ()) {
+		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
-		for (auto &&i : right)
+		for (auto &&i : that)
 			mArray[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == mArray.size ()) ;
 	}
@@ -246,36 +246,36 @@ public:
 		return index + 1 ;
 	}
 
-	BOOL equal (const Array &right) const {
-		return BOOL (mArray == right.mArray) ;
+	BOOL equal (const Array &that) const {
+		return BOOL (mArray == that.mArray) ;
 	}
 
-	inline BOOL operator== (const Array &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Array &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Array &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Array &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL less (const Array &right) const {
-		return BOOL (mArray < right.mArray) ;
+	BOOL less (const Array &that) const {
+		return BOOL (mArray < that.mArray) ;
 	}
 
-	inline BOOL operator< (const Array &right) const {
-		return less (right) ;
+	inline BOOL operator< (const Array &that) const {
+		return less (that) ;
 	}
 
-	inline BOOL operator>= (const Array &right) const {
-		return !less (right) ;
+	inline BOOL operator>= (const Array &that) const {
+		return !less (that) ;
 	}
 
-	inline BOOL operator> (const Array &right) const {
-		return right.less (*this) ;
+	inline BOOL operator> (const Array &that) const {
+		return that.less (*this) ;
 	}
 
-	inline BOOL operator<= (const Array &right) const {
-		return !right.less (*this) ;
+	inline BOOL operator<= (const Array &that) const {
+		return !that.less (*this) ;
 	}
 
 	INDEX find (const ITEM &item) const {
@@ -351,21 +351,21 @@ public:
 		clear () ;
 	}
 
-	implicit String (const std::initializer_list<ITEM> &right) : String (right.size ()) {
-		_DEBUG_ASSERT_ (size () == LENGTH (right.size ())) ;
+	implicit String (const std::initializer_list<ITEM> &that) : String (that.size ()) {
+		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
-		for (auto &&i : right)
+		for (auto &&i : that)
 			mString[iw++] = i ;
 		mString[iw++] = ITEM (0) ;
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &right) :String (Detail::plain_string_length (right)) {
-		_MEMCOPY_ (mString.self ,right ,size ()) ;
+	implicit String (const ARR<ITEM> &that) :String (Detail::plain_string_length (that)) {
+		_MEMCOPY_ (mString.self ,that ,size ()) ;
 	}
 
-	implicit String (const Plain<ITEM> &right) : String (right.size ()) {
-		_MEMCOPY_ (mString.self ,right.self ,size ()) ;
+	implicit String (const Plain<ITEM> &that) : String (that.size ()) {
+		_MEMCOPY_ (mString.self ,that.self ,size ()) ;
 	}
 
 	LENGTH size () const {
@@ -439,72 +439,72 @@ public:
 		return index + 1 ;
 	}
 
-	BOOL equal (const Plain<ITEM> &right) const {
-		if (mString.size () < right.size () + 1)
+	BOOL equal (const Plain<ITEM> &that) const {
+		if (mString.size () < that.size () + 1)
 			return FALSE ;
-		if (!_MEMEQUAL_ (mString.self ,right.self ,right.size () + 1))
+		if (!_MEMEQUAL_ (mString.self ,that.self ,that.size () + 1))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Plain<ITEM> &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Plain<ITEM> &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Plain<ITEM> &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Plain<ITEM> &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL equal (const String &right) const {
-		if (size () == 0 && right.size () == 0)
+	BOOL equal (const String &that) const {
+		if (size () == 0 && that.size () == 0)
 			return TRUE ;
-		if (size () == 0 || right.size () == 0)
+		if (size () == 0 || that.size () == 0)
 			return FALSE ;
 		INDEX ix = 0 ;
-		while (mString[ix] != ITEM (0) && mString[ix] == right.mString[ix])
+		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
 			ix++ ;
-		if (mString[ix] != right.mString[ix])
+		if (mString[ix] != that.mString[ix])
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const String &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const String &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const String &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const String &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL less (const String &right) const {
-		if (size () == 0 && right.size () == 0)
+	BOOL less (const String &that) const {
+		if (size () == 0 && that.size () == 0)
 			return FALSE ;
 		if (size () == 0)
 			return TRUE ;
-		if (right.size () == 0)
+		if (that.size () == 0)
 			return FALSE ;
 		INDEX ix = 0 ;
-		while (mString[ix] != ITEM (0) && mString[ix] == right.mString[ix])
+		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
 			ix++ ;
-		if (!(mString[ix] < right.mString[ix]))
+		if (!(mString[ix] < that.mString[ix]))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator< (const String &right) const {
-		return less (right) ;
+	inline BOOL operator< (const String &that) const {
+		return less (that) ;
 	}
 
-	inline BOOL operator>= (const String &right) const {
-		return !less (right) ;
+	inline BOOL operator>= (const String &that) const {
+		return !less (that) ;
 	}
 
-	inline BOOL operator> (const String &right) const {
-		return right.less (*this) ;
+	inline BOOL operator> (const String &that) const {
+		return that.less (*this) ;
 	}
 
-	inline BOOL operator<= (const String &right) const {
-		return !right.less (*this) ;
+	inline BOOL operator<= (const String &that) const {
+		return !that.less (*this) ;
 	}
 
 	BOOL empty () const {
@@ -515,48 +515,48 @@ public:
 		return TRUE ;
 	}
 
-	String concat (const String &right) const {
+	String concat (const String &that) const {
 		const auto r1x = length () ;
-		const auto r2x = right.length () ;
+		const auto r2x = that.length () ;
 		String ret = String (r1x + r2x) ;
 		_MEMCOPY_ (ret.mString.self ,mString.self ,r1x) ;
-		_MEMCOPY_ (PTRTOARR[&ret.mString.self[r1x]] ,right.mString.self ,r2x) ;
+		_MEMCOPY_ (PTRTOARR[&ret.mString.self[r1x]] ,that.mString.self ,r2x) ;
 		return std::move (ret) ;
 	}
 
-	inline String operator+ (const String &right) const {
-		return concat (right) ;
+	inline String operator+ (const String &that) const {
+		return concat (that) ;
 	}
 
-	inline String operator- (const String &right) const {
-		return right.concat (*this) ;
+	inline String operator- (const String &that) const {
+		return that.concat (*this) ;
 	}
 
-	inline String &operator+= (const String &right) {
-		*this = concat (right) ;
+	inline String &operator+= (const String &that) {
+		*this = concat (that) ;
 		return *this ;
 	}
 
-	inline String &operator-= (const String &right) {
-		*this = right.concat (*this) ;
+	inline String &operator-= (const String &that) {
+		*this = that.concat (*this) ;
 		return *this ;
 	}
 
-	void concatto (const Plain<ITEM> &right) {
+	void concatto (const Plain<ITEM> &that) {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mString.size () > 0) ;
 			const auto r1x = length () ;
-			const auto r2x = right.size () ;
+			const auto r2x = that.size () ;
 			_CASE_REQUIRE_ (r1x + r2x <= size ()) ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,right.self ,r2x) ;
+			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		} ,[&] (BOOL &_case_req) {
-			*this = concat (right) ;
+			*this = concat (that) ;
 		}) ;
 	}
 
-	inline String &operator+= (const Plain<ITEM> &right) {
-		concatto (right) ;
+	inline String &operator+= (const Plain<ITEM> &that) {
+		concatto (that) ;
 		return *this ;
 	}
 
@@ -576,16 +576,16 @@ public:
 	//@info: the function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
 	inline static String make (const _ARGS &...args) ;
-} ;
 
-template <class ITEM ,class SIZE>
-class String<ITEM ,SIZE>::Detail :private Wrapped<void> {
-public:
-	inline static LENGTH plain_string_length (const ARR<ITEM> &src) {
-		LENGTH ret = _MEMCHR_ (src ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
-		_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
-		return std::move (ret) ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static LENGTH plain_string_length (const ARR<ITEM> &src) {
+			LENGTH ret = _MEMCHR_ (src ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
+			_DYNAMIC_ASSERT_ (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value) ;
+			return std::move (ret) ;
+		}
+	} ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -623,8 +623,8 @@ public:
 		clear () ;
 	}
 
-	implicit Stack (const std::initializer_list<ITEM> &right) : Stack (right.size ()) {
-		for (auto &&i : right)
+	implicit Stack (const std::initializer_list<ITEM> &that) : Stack (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -693,20 +693,20 @@ public:
 		return index - 1 ;
 	}
 
-	BOOL equal (const Stack &right) const {
-		if (length () != right.length ())
+	BOOL equal (const Stack &that) const {
+		if (length () != that.length ())
 			return FALSE ;
-		if (!_MEMEQUAL_ (mStack ,right.mStack ,length ()))
+		if (!_MEMEQUAL_ (mStack ,that.mStack ,length ()))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Stack &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Stack &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Stack &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Stack &that) const {
+		return !equal (that) ;
 	}
 
 	BOOL empty () const {
@@ -899,8 +899,8 @@ public:
 		clear () ;
 	}
 
-	implicit Queue (const std::initializer_list<ITEM> &right) : Queue (right.size ()) {
-		for (auto &&i : right)
+	implicit Queue (const std::initializer_list<ITEM> &that) : Queue (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -973,22 +973,22 @@ public:
 		return (index + 1) % mQueue.size () ;
 	}
 
-	BOOL equal (const Queue &right) const {
-		if (length () != right.length ())
+	BOOL equal (const Queue &that) const {
+		if (length () != that.length ())
 			return FALSE ;
 		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jb = right.ibegin () ;
-		INDEX je = right.iend () ;
+		INDEX jb = that.ibegin () ;
+		INDEX je = that.iend () ;
 		while (TRUE) {
 			if (ib == ie)
 				break ;
 			if (jb == je)
 				break ;
-			if (get (ib) != right.get (jb))
+			if (get (ib) != that.get (jb))
 				break ;
 			ib = inext (ib) ;
-			jb = right.inext (jb) ;
+			jb = that.inext (jb) ;
 		}
 		if (ib != ie)
 			return FALSE ;
@@ -997,12 +997,12 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Queue &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Queue &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Queue &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Queue &that) const {
+		return !equal (that) ;
 	}
 
 	BOOL empty () const {
@@ -1402,8 +1402,8 @@ public:
 
 	explicit Priority (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit Priority (const std::initializer_list<ITEM_TYPE> &right) : Priority (right.size ()) {
-		for (auto &&i : right)
+	implicit Priority (const std::initializer_list<ITEM_TYPE> &that) : Priority (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -1454,7 +1454,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
+	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
@@ -1474,20 +1474,20 @@ public:
 		return index + 1 ;
 	}
 
-	BOOL equal (const Priority &right) const {
-		if (length () != right.length ())
+	BOOL equal (const Priority &that) const {
+		if (length () != that.length ())
 			return FALSE ;
-		if (!_MEMEQUAL_ (mPriority ,right.mPriority ,length ()))
+		if (!_MEMEQUAL_ (mPriority ,that.mPriority ,length ()))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Priority &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Priority &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Priority &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Priority &that) const {
+		return !equal (that) ;
 	}
 
 	BOOL empty () const {
@@ -1700,8 +1700,8 @@ public:
 		clear () ;
 	}
 
-	implicit Deque (const std::initializer_list<ITEM> &right) : Deque (right.size ()) {
-		for (auto &&i : right)
+	implicit Deque (const std::initializer_list<ITEM> &that) : Deque (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -1784,22 +1784,22 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const Deque &right) const {
-		if (length () != right.length ())
+	BOOL equal (const Deque &that) const {
+		if (length () != that.length ())
 			return FALSE ;
 		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jb = right.ibegin () ;
-		INDEX je = right.iend () ;
+		INDEX jb = that.ibegin () ;
+		INDEX je = that.iend () ;
 		while (TRUE) {
 			if (ib == ie)
 				break ;
 			if (jb == je)
 				break ;
-			if (get (ib) != right.get (jb))
+			if (get (ib) != that.get (jb))
 				break ;
 			ib = inext (ib) ;
-			jb = right.inext (jb) ;
+			jb = that.inext (jb) ;
 		}
 		if (ib != ie)
 			return FALSE ;
@@ -1808,12 +1808,12 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Deque &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Deque &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Deque &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Deque &that) const {
+		return !equal (that) ;
 	}
 
 	BOOL empty () const {
@@ -2212,8 +2212,8 @@ public:
 		clear () ;
 	}
 
-	implicit QList (const std::initializer_list<ITEM> &right) : QList (right.size ()) {
-		for (auto &&i : right)
+	implicit QList (const std::initializer_list<ITEM> &that) : QList (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -2276,22 +2276,22 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const QList &right) const {
-		if (length () != right.length ())
+	BOOL equal (const QList &that) const {
+		if (length () != that.length ())
 			return FALSE ;
 		INDEX ib = ibegin () ;
 		INDEX ie = iend () ;
-		INDEX jb = right.ibegin () ;
-		INDEX je = right.iend () ;
+		INDEX jb = that.ibegin () ;
+		INDEX je = that.iend () ;
 		while (TRUE) {
 			if (ib == ie)
 				break ;
 			if (jb == je)
 				break ;
-			if (get (ib) != right.get (jb))
+			if (get (ib) != that.get (jb))
 				break ;
 			ib = inext (ib) ;
-			jb = right.inext (jb) ;
+			jb = that.inext (jb) ;
 		}
 		if (ib != ie)
 			return FALSE ;
@@ -2300,12 +2300,12 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const QList &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const QList &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const QList &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const QList &that) const {
+		return !equal (that) ;
 	}
 
 	BOOL empty () const {
@@ -2578,20 +2578,20 @@ private:
 		inline explicit operator VAR64 () && = delete ;
 #endif
 
-		inline void operator= (const BOOL &right) && {
+		inline void operator= (const BOOL &that) && {
 			const auto r1x = mBase.mSet[mIndex / 8] ;
-			const auto r2x = right ? (~r1x) : r1x ;
+			const auto r2x = that ? (~r1x) : r1x ;
 			const auto r3x = BYTE (r2x & (BYTE (0X01) << (mIndex % 8))) ;
 			mBase.mSet[mIndex / 8] = BYTE (r1x ^ r3x) ;
 		}
 
-		inline void operator= (Bit<BitSet> &&right) && {
-			const auto r1x = BOOL (std::move (right)) ;
+		inline void operator= (Bit<BitSet> &&that) && {
+			const auto r1x = BOOL (std::move (that)) ;
 			std::move (*this) = r1x ;
 		}
 
-		inline void operator= (Bit<const BitSet> &&right) && {
-			const auto r1x = BOOL (std::move (right)) ;
+		inline void operator= (Bit<const BitSet> &&that) && {
+			const auto r1x = BOOL (std::move (that)) ;
 			std::move (*this) = r1x ;
 		}
 
@@ -2613,8 +2613,8 @@ public:
 		clear () ;
 	}
 
-	implicit BitSet (const std::initializer_list<INDEX> &right) : BitSet (Detail::runtime_size (right)) {
-		for (auto &&i : right)
+	implicit BitSet (const std::initializer_list<INDEX> &that) : BitSet (Detail::runtime_size (that)) {
+		for (auto &&i : that)
 			get (i) = TRUE ;
 	}
 
@@ -2717,60 +2717,60 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BOOL equal (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return TRUE ;
 		for (INDEX i = 0 ; i < ix ; i++)
-			if (mSet[i] != right.mSet[i])
+			if (mSet[i] != that.mSet[i])
 				return FALSE ;
 		const auto r1x = mSet[ix] & (mWidth % 8 - 1) ;
-		const auto r2x = right.mSet[ix] & (mWidth % 8 - 1) ;
+		const auto r2x = that.mSet[ix] & (mWidth % 8 - 1) ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const BitSet &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const BitSet &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const BitSet &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const BitSet &that) const {
+		return !equal (that) ;
 	}
 
-	BOOL less (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BOOL less (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return FALSE ;
-		const auto r1x = _MEMLESS_ (mSet ,right.mSet ,ix) ;
+		const auto r1x = _MEMLESS_ (mSet ,that.mSet ,ix) ;
 		if (r1x < 0)
 			return TRUE ;
 		if (r1x > 0)
 			return FALSE ;
 		const auto r2x = mSet[ix] & (mWidth % 8 - 1) ;
-		const auto r3x = right.mSet[ix] & (mWidth % 8 - 1) ;
+		const auto r3x = that.mSet[ix] & (mWidth % 8 - 1) ;
 		if (r2x >= r3x)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator< (const BitSet &right) const {
-		return less (right) ;
+	inline BOOL operator< (const BitSet &that) const {
+		return less (that) ;
 	}
 
-	inline BOOL operator>= (const BitSet &right) const {
-		return !less (right) ;
+	inline BOOL operator>= (const BitSet &that) const {
+		return !less (that) ;
 	}
 
-	inline BOOL operator> (const BitSet &right) const {
-		return right.less (*this) ;
+	inline BOOL operator> (const BitSet &that) const {
+		return that.less (*this) ;
 	}
 
-	inline BOOL operator<= (const BitSet &right) const {
-		return !right.less (*this) ;
+	inline BOOL operator<= (const BitSet &that) const {
+		return !that.less (*this) ;
 	}
 
 	void add (INDEX item) {
@@ -2788,95 +2788,95 @@ public:
 		get (item) = FALSE ;
 	}
 
-	BitSet band (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BitSet band (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		BitSet ret = BitSet (mWidth) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			ret.mSet[i] = mSet[i] & right.mSet[i] ;
+			ret.mSet[i] = mSet[i] & that.mSet[i] ;
 		return std::move (ret) ;
 	}
 
-	inline BitSet operator& (const BitSet &right) const {
-		return band (right) ;
+	inline BitSet operator& (const BitSet &that) const {
+		return band (that) ;
 	}
 
-	void bandto (const BitSet &right) {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	void bandto (const BitSet &that) {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] &= right.mSet[i] ;
+			mSet[i] &= that.mSet[i] ;
 	}
 
-	inline BitSet &operator&= (const BitSet &right) {
-		bandto (right) ;
+	inline BitSet &operator&= (const BitSet &that) {
+		bandto (that) ;
 		return *this ;
 	}
 
-	BitSet bor (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BitSet bor (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		BitSet ret = BitSet (mWidth) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			ret.mSet[i] = mSet[i] | right.mSet[i] ;
+			ret.mSet[i] = mSet[i] | that.mSet[i] ;
 		return std::move (ret) ;
 	}
 
-	inline BitSet operator| (const BitSet &right) const {
-		return bor (right) ;
+	inline BitSet operator| (const BitSet &that) const {
+		return bor (that) ;
 	}
 
-	void borto (const BitSet &right) {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	void borto (const BitSet &that) {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] |= right.mSet[i] ;
+			mSet[i] |= that.mSet[i] ;
 	}
 
-	inline BitSet &operator|= (const BitSet &right) {
-		borto (right) ;
+	inline BitSet &operator|= (const BitSet &that) {
+		borto (that) ;
 		return *this ;
 	}
 
-	BitSet bxor (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BitSet bxor (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		BitSet ret = BitSet (mWidth) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			ret.mSet[i] = mSet[i] ^ right.mSet[i] ;
+			ret.mSet[i] = mSet[i] ^ that.mSet[i] ;
 		return std::move (ret) ;
 	}
 
-	inline BitSet operator^ (const BitSet &right) const {
-		return bxor (right) ;
+	inline BitSet operator^ (const BitSet &that) const {
+		return bxor (that) ;
 	}
 
-	void bxorto (const BitSet &right) {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	void bxorto (const BitSet &that) {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] ^= right.mSet[i] ;
+			mSet[i] ^= that.mSet[i] ;
 	}
 
-	inline BitSet &operator^= (const BitSet &right) {
-		bxorto (right) ;
+	inline BitSet &operator^= (const BitSet &that) {
+		bxorto (that) ;
 		return *this ;
 	}
 
-	BitSet bsub (const BitSet &right) const {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	BitSet bsub (const BitSet &that) const {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		BitSet ret = BitSet (mWidth) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			ret.mSet[i] = mSet[i] & ~right.mSet[i] ;
+			ret.mSet[i] = mSet[i] & ~that.mSet[i] ;
 		return std::move (ret) ;
 	}
 
-	inline BitSet operator- (const BitSet &right) const {
-		return bsub (right) ;
+	inline BitSet operator- (const BitSet &that) const {
+		return bsub (that) ;
 	}
 
-	void bsubto (const BitSet &right) {
-		_DEBUG_ASSERT_ (size () == right.size ()) ;
+	void bsubto (const BitSet &that) {
+		_DEBUG_ASSERT_ (size () == that.size ()) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++)
-			mSet[i] &= ~right.mSet[i] ;
+			mSet[i] &= ~that.mSet[i] ;
 	}
 
-	inline BitSet &operator-= (const BitSet &right) {
-		bsubto (right) ;
+	inline BitSet &operator-= (const BitSet &that) {
+		bsubto (that) ;
 		return *this ;
 	}
 
@@ -2900,24 +2900,24 @@ private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> &) :mWidth (0) {}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
-} ;
 
-template <class SIZE>
-class BitSet<SIZE>::Detail :private Wrapped<void> {
-public:
-	inline static LENGTH runtime_size (const std::initializer_list<INDEX> &right) {
-		LENGTH ret = VAR_NONE ;
-		for (auto &&i : right)
-			ret = _MAX_ (ret ,i) ;
-		_DEBUG_ASSERT_ (ret >= 0) ;
-		ret++ ;
-		return std::move (ret) ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static LENGTH runtime_size (const std::initializer_list<INDEX> &that) {
+			LENGTH ret = VAR_NONE ;
+			for (auto &&i : that)
+				ret = _MAX_ (ret ,i) ;
+			_DEBUG_ASSERT_ (ret >= 0) ;
+			ret++ ;
+			return std::move (ret) ;
+		}
 
-	inline static LENGTH runtime_width (LENGTH width) {
-		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
-		return width ;
-	}
+		inline static LENGTH runtime_width (LENGTH width) {
+			_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
+			return width ;
+		}
+	} ;
 } ;
 
 template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
@@ -3193,8 +3193,8 @@ public:
 
 	explicit Set (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit Set (const std::initializer_list<ITEM_TYPE> &right) : Set (right.size ()) {
-		for (auto &&i : right)
+	implicit Set (const std::initializer_list<ITEM_TYPE> &that) : Set (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -3235,7 +3235,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
+	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -3267,16 +3267,16 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const Set &right) const {
-		return equal_each (right ,mRoot ,right.mRoot) ;
+	BOOL equal (const Set &that) const {
+		return equal_each (that ,mRoot ,that.mRoot) ;
 	}
 
-	inline BOOL operator== (const Set &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Set &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Set &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Set &that) const {
+		return !equal (that) ;
 	}
 
 	using SPECIALIZATION_BASE::add ;
@@ -3379,16 +3379,16 @@ public:
 	}
 
 private:
-	BOOL equal_each (const Set &right ,INDEX it ,INDEX jt) const {
+	BOOL equal_each (const Set &that ,INDEX it ,INDEX jt) const {
 		if (it == VAR_NONE && jt == VAR_NONE)
 			return TRUE ;
 		if (it == VAR_NONE || jt == VAR_NONE)
 			return FALSE ;
-		if (!equal_each (right ,mSet[it].mLeft ,right.mSet[jt].mLeft))
+		if (!equal_each (that ,mSet[it].mLeft ,that.mSet[jt].mLeft))
 			return FALSE ;
-		if (mSet[it].mKey != right.mSet[jt].mKey)
+		if (mSet[it].mKey != that.mSet[jt].mKey)
 			return FALSE ;
-		if (!equal_each (right ,mSet[it].mRight ,right.mSet[jt].mRight))
+		if (!equal_each (that ,mSet[it].mRight ,that.mSet[jt].mRight))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -3792,11 +3792,11 @@ private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
-	BOOL equal_each (const HashSet &right ,INDEX it) const {
-		INDEX ix = right.find (mSet[it].mKey) ;
+	BOOL equal_each (const HashSet &that ,INDEX it) const {
+		INDEX ix = that.find (mSet[it].mKey) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
-		if (mSet[it].mItem != right.mSet[ix].mItem)
+		if (mSet[it].mItem != that.mSet[ix].mItem)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -3918,8 +3918,8 @@ private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
 
 private:
-	BOOL equal_each (const HashSet &right ,INDEX it) const {
-		INDEX ix = right.find (mSet[it].mKey) ;
+	BOOL equal_each (const HashSet &that ,INDEX it) const {
+		INDEX ix = that.find (mSet[it].mKey) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
 		return TRUE ;
@@ -3946,8 +3946,8 @@ public:
 
 	explicit HashSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit HashSet (const std::initializer_list<ITEM_TYPE> &right) : HashSet (right.size ()) {
-		for (auto &&i : right)
+	implicit HashSet (const std::initializer_list<ITEM_TYPE> &that) : HashSet (that.size ()) {
+		for (auto &&i : that)
 			add (i) ;
 	}
 
@@ -3988,7 +3988,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
+	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4020,21 +4020,21 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const HashSet &right) const {
-		if (length () != right.length ())
+	BOOL equal (const HashSet &that) const {
+		if (length () != that.length ())
 			return FALSE ;
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			if (!equal_each (right ,i))
+			if (!equal_each (that ,i))
 				return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const HashSet &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const HashSet &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const HashSet &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const HashSet &that) const {
+		return !equal (that) ;
 	}
 
 	using SPECIALIZATION_BASE::add ;
@@ -4525,7 +4525,7 @@ public:
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@info: 'SPECIALIZATION_BASE::template Pair<const BASE>' is not avaliable in vs2015
+	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4553,22 +4553,22 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const SoftSet &right) const {
-		if (!mHeap.exist () && !right.mHeap.exist ())
+	BOOL equal (const SoftSet &that) const {
+		if (!mHeap.exist () && !that.mHeap.exist ())
 			return TRUE ;
-		if (!mHeap.exist () || !right.mHeap.exist ())
+		if (!mHeap.exist () || !that.mHeap.exist ())
 			return FALSE ;
-		if (!equal_each (right ,mRoot ,right.mRoot))
+		if (!equal_each (that ,mRoot ,that.mRoot))
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const SoftSet &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const SoftSet &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const SoftSet &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const SoftSet &that) const {
+		return !equal (that) ;
 	}
 
 	using SPECIALIZATION_BASE::add ;
@@ -4662,16 +4662,16 @@ public:
 	}
 
 private:
-	BOOL equal_each (const SoftSet &right ,INDEX it ,INDEX jt) const {
+	BOOL equal_each (const SoftSet &that ,INDEX it ,INDEX jt) const {
 		if (it == VAR_NONE && jt == VAR_NONE)
 			return TRUE ;
 		if (it == VAR_NONE || jt == VAR_NONE)
 			return FALSE ;
-		if (!equal_each (right ,mSet.self[it].mLeft ,right.mSet.self[jt].mLeft))
+		if (!equal_each (that ,mSet.self[it].mLeft ,that.mSet.self[jt].mLeft))
 			return FALSE ;
-		if (mSet.self[it].mKey != right.mSet.self[jt].mKey)
+		if (mSet.self[it].mKey != that.mSet.self[jt].mKey)
 			return FALSE ;
-		if (!equal_each (right ,mSet.self[it].mRight ,right.mSet.self[jt].mRight))
+		if (!equal_each (that ,mSet.self[it].mRight ,that.mSet.self[jt].mRight))
 			return FALSE ;
 		return TRUE ;
 	}

@@ -117,24 +117,24 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const XmlParser &right) const {
-		if (!exist () && !right.exist ())
+	BOOL equal (const XmlParser &that) const {
+		if (!exist () && !that.exist ())
 			return TRUE ;
-		if (!exist () || !right.exist ())
+		if (!exist () || !that.exist ())
 			return FALSE ;
-		if (&mHeap.self != &right.mHeap.self)
+		if (&mHeap.self != &that.mHeap.self)
 			return FALSE ;
-		if (mIndex != right.mIndex)
+		if (mIndex != that.mIndex)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const XmlParser &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const XmlParser &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const XmlParser &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const XmlParser &that) const {
+		return !equal (that) ;
 	}
 
 	const String<STRU8> &name () const & {
@@ -1046,24 +1046,24 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const JsonParser &right) const {
-		if (!exist () && !right.exist ())
+	BOOL equal (const JsonParser &that) const {
+		if (!exist () && !that.exist ())
 			return TRUE ;
-		if (!exist () || !right.exist ())
+		if (!exist () || !that.exist ())
 			return FALSE ;
-		if (&mHeap.self != &right.mHeap.self)
+		if (&mHeap.self != &that.mHeap.self)
 			return FALSE ;
-		if (mIndex != right.mIndex)
+		if (mIndex != that.mIndex)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const JsonParser &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const JsonParser &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const JsonParser &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const JsonParser &that) const {
+		return !equal (that) ;
 	}
 
 	const String<STRU8> &value () const & {

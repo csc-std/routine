@@ -12,8 +12,6 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange {
 private:
-	class Detail ;
-
 	class Iterator {
 	private:
 		friend ArrayRange ;
@@ -24,12 +22,12 @@ private:
 	public:
 		inline Iterator () = delete ;
 
-		inline BOOL operator== (const Iterator &right) const {
-			return BOOL (mIndex == right.mIndex) ;
+		inline BOOL operator== (const Iterator &that) const {
+			return BOOL (mIndex == that.mIndex) ;
 		}
 
-		inline BOOL operator!= (const Iterator &right) const {
-			return BOOL (mIndex != right.mIndex) ;
+		inline BOOL operator!= (const Iterator &that) const {
+			return BOOL (mIndex != that.mIndex) ;
 		}
 
 		inline const Array<LENGTH ,SIZE> &operator* () const {
@@ -38,7 +36,7 @@ private:
 
 		inline void operator++ () {
 			mIndex++ ;
-			Detail::template_incrase (mBase.mRange ,mItem ,_NULL_<const ARGC<SIZE::value - 1>> ()) ;
+			Detail::template_incrase (mBase.mRange ,mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
 		}
 
 	private:
@@ -81,25 +79,25 @@ private:
 		ret.fill (0) ;
 		return std::move (ret) ;
 	}
-} ;
 
-template <class SIZE>
-class ArrayRange<SIZE>::Detail :private Wrapped<void> {
-public:
-	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGC<0> &) {
-		_DEBUG_ASSERT_ (index[0] < range[0]) ;
-		index[0]++ ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<ARGC<0>> &) {
+			_DEBUG_ASSERT_ (index[0] < range[0]) ;
+			index[0]++ ;
+		}
 
-	template <class _ARG1>
-	inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const _ARG1 &) {
-		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
-		index[_ARG1::value]++ ;
-		if (index[_ARG1::value] < range[_ARG1::value])
-			return ;
-		index[_ARG1::value] = 0 ;
-		template_incrase (range ,index ,_NULL_<const ARGC<_ARG1::value - 1>> ()) ;
-	}
+		template <class _ARG1>
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<_ARG1> &) {
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)) ;
+			index[_ARG1::value]++ ;
+			if (index[_ARG1::value] < range[_ARG1::value])
+				return ;
+			index[_ARG1::value] = 0 ;
+			template_incrase (range ,index ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+		}
+	} ;
 } ;
 
 template <class UNIT>
@@ -309,135 +307,135 @@ public:
 
 	inline Row<Bitmap> operator[] (INDEX) && = delete ;
 
-	BOOL equal (const Bitmap &right) const {
-		if (mCX != right.mCX || mCY != right.mCY)
+	BOOL equal (const Bitmap &that) const {
+		if (mCX != that.mCX || mCY != that.mCY)
 			return FALSE ;
 		for (auto &&i : range ())
-			if (get (i) != right.get (i))
+			if (get (i) != that.get (i))
 				return FALSE ;
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Bitmap &right) const {
-		return equal (right) ;
+	inline BOOL operator== (const Bitmap &that) const {
+		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Bitmap &right) const {
-		return !equal (right) ;
+	inline BOOL operator!= (const Bitmap &that) const {
+		return !equal (that) ;
 	}
 
-	Bitmap add (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap add (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) + right.get (i) ;
+			ret.get (i) = get (i) + that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator+ (const Bitmap &right) const {
-		return add (right) ;
+	inline Bitmap operator+ (const Bitmap &that) const {
+		return add (that) ;
 	}
 
-	void addto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void addto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) += right.get (i) ;
+			get (i) += that.get (i) ;
 	}
 
-	inline Bitmap &operator+= (const Bitmap &right) {
-		addto (right) ;
+	inline Bitmap &operator+= (const Bitmap &that) {
+		addto (that) ;
 		return *this ;
 	}
 
-	Bitmap sub (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap sub (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) - right.get (i) ;
+			ret.get (i) = get (i) - that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator- (const Bitmap &right) const {
-		return sub (right) ;
+	inline Bitmap operator- (const Bitmap &that) const {
+		return sub (that) ;
 	}
 
-	void subto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void subto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) -= right.get (i) ;
+			get (i) -= that.get (i) ;
 	}
 
-	inline Bitmap &operator-= (const Bitmap &right) {
-		subto (right) ;
+	inline Bitmap &operator-= (const Bitmap &that) {
+		subto (that) ;
 		return *this ;
 	}
 
-	Bitmap mul (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap mul (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) * right.get (i) ;
+			ret.get (i) = get (i) * that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator* (const Bitmap &right) const {
-		return mul (right) ;
+	inline Bitmap operator* (const Bitmap &that) const {
+		return mul (that) ;
 	}
 
-	void multo (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void multo (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) *= right.get (i) ;
+			get (i) *= that.get (i) ;
 	}
 
-	inline Bitmap &operator*= (const Bitmap &right) {
-		multo (right) ;
+	inline Bitmap &operator*= (const Bitmap &that) {
+		multo (that) ;
 		return *this ;
 	}
 
-	Bitmap div (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap div (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) / right.get (i) ;
+			ret.get (i) = get (i) / that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator/ (const Bitmap &right) const {
-		return div (right) ;
+	inline Bitmap operator/ (const Bitmap &that) const {
+		return div (that) ;
 	}
 
-	void divto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void divto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) /= right.get (i) ;
+			get (i) /= that.get (i) ;
 	}
 
-	inline Bitmap &operator/= (const Bitmap &right) {
-		divto (right) ;
+	inline Bitmap &operator/= (const Bitmap &that) {
+		divto (that) ;
 		return *this ;
 	}
 
-	Bitmap mod (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap mod (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) % right.get (i) ;
+			ret.get (i) = get (i) % that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator% (const Bitmap &right) const {
-		return mod (right) ;
+	inline Bitmap operator% (const Bitmap &that) const {
+		return mod (that) ;
 	}
 
-	void modto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void modto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) %= right.get (i) ;
+			get (i) %= that.get (i) ;
 	}
 
-	inline Bitmap &operator%= (const Bitmap &right) {
-		modto (right) ;
+	inline Bitmap &operator%= (const Bitmap &that) {
+		modto (that) ;
 		return *this ;
 	}
 
@@ -463,72 +461,72 @@ public:
 		return minus () ;
 	}
 
-	Bitmap band (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap band (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) & right.get (i) ;
+			ret.get (i) = get (i) & that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator& (const Bitmap &right) const {
-		return band (right) ;
+	inline Bitmap operator& (const Bitmap &that) const {
+		return band (that) ;
 	}
 
-	void bandto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void bandto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) &= right.get (i) ;
+			get (i) &= that.get (i) ;
 	}
 
-	inline Bitmap &operator&= (const Bitmap &right) {
-		bandto (right) ;
+	inline Bitmap &operator&= (const Bitmap &that) {
+		bandto (that) ;
 		return *this ;
 	}
 
-	Bitmap bor (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap bor (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) | right.get (i) ;
+			ret.get (i) = get (i) | that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator| (const Bitmap &right) const {
-		return bor (right) ;
+	inline Bitmap operator| (const Bitmap &that) const {
+		return bor (that) ;
 	}
 
-	void borto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void borto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) |= right.get (i) ;
+			get (i) |= that.get (i) ;
 	}
 
-	inline Bitmap &operator|= (const Bitmap &right) {
-		borto (right) ;
+	inline Bitmap &operator|= (const Bitmap &that) {
+		borto (that) ;
 		return *this ;
 	}
 
-	Bitmap bxor (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	Bitmap bxor (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
-			ret.get (i) = get (i) ^ right.get (i) ;
+			ret.get (i) = get (i) ^ that.get (i) ;
 		return std::move (ret) ;
 	}
 
-	inline Bitmap operator^ (const Bitmap &right) const {
-		return bxor (right) ;
+	inline Bitmap operator^ (const Bitmap &that) const {
+		return bxor (that) ;
 	}
 
-	void bxorto (const Bitmap &right) {
-		_DEBUG_ASSERT_ (mCX == right.mCX && mCY == right.mCY) ;
+	void bxorto (const Bitmap &that) {
+		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
 		for (auto &&i : range ())
-			get (i) ^= right.get (i) ;
+			get (i) ^= that.get (i) ;
 	}
 
-	inline Bitmap &operator^= (const Bitmap &right) {
-		bxorto (right) ;
+	inline Bitmap &operator^= (const Bitmap &that) {
+		bxorto (that) ;
 		return *this ;
 	}
 
@@ -543,13 +541,13 @@ public:
 		return bnot () ;
 	}
 
-	Bitmap matrix_product (const Bitmap &right) const {
-		_DEBUG_ASSERT_ (mCX == right.mCY) ;
-		Bitmap ret = Bitmap (right.mCX ,mCY) ;
-		for (auto &&i : ArrayRange<ARGC<2>> ({mCY ,right.mCX})) {
+	Bitmap matrix_product (const Bitmap &that) const {
+		_DEBUG_ASSERT_ (mCX == that.mCY) ;
+		Bitmap ret = Bitmap (that.mCX ,mCY) ;
+		for (auto &&i : ArrayRange<ARGC<2>> ({mCY ,that.mCX})) {
 			ret.get (i) = UNIT (0) ;
 			for (INDEX j = 0 ; j < mCX ; j++)
-				ret.get (i) += get (i[0] ,j) * right.get (j ,i[1]) ;
+				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
 		}
 		return std::move (ret) ;
 	}
@@ -635,8 +633,6 @@ private:
 		LENGTH mCW ;
 		LENGTH mCK ;
 	} ;
-
-	class Detail ;
 
 	template <class _UNIT>
 	class NativeProxy {
@@ -846,23 +842,23 @@ public:
 
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Holder> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
-} ;
 
-template <class UNIT>
-class AbstractImage<UNIT>::Detail :private Wrapped<void> {
-public:
-	inline static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
-		_DEBUG_ASSERT_ (_abstract.exist ()) ;
-		_DEBUG_ASSERT_ (_this.exist ()) ;
-		_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
-		auto rax = PACK<PTR<ARR<UNIT>> ,LENGTH[4]> () ;
-		_ZERO_ (rax) ;
-		_abstract->compute_layout (_this->mHolder ,rax) ;
-		_this->mImage = PhanBuffer<UNIT>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
-		_this->mCX = rax.P2[0] ;
-		_this->mCY = rax.P2[1] ;
-		_this->mCW = rax.P2[2] ;
-		_this->mCK = rax.P2[3] ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
+			_DEBUG_ASSERT_ (_abstract.exist ()) ;
+			_DEBUG_ASSERT_ (_this.exist ()) ;
+			_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
+			auto rax = PACK<PTR<ARR<UNIT>> ,LENGTH[4]> () ;
+			_ZERO_ (rax) ;
+			_abstract->compute_layout (_this->mHolder ,rax) ;
+			_this->mImage = PhanBuffer<UNIT>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
+			_this->mCX = rax.P2[0] ;
+			_this->mCY = rax.P2[1] ;
+			_this->mCW = rax.P2[2] ;
+			_this->mCK = rax.P2[3] ;
+		}
+	} ;
 } ;
 } ;

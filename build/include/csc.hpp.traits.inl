@@ -192,15 +192,15 @@ using REMOVE_MEMFUNC_TYPE = typename REMOVE_MEMFUNC<_ARG1>::TYPE ;
 
 namespace U {
 template <class>
-struct MEMBER_TO ;
+struct REMOVE_MEMBER ;
 
 template <class _ARG1 ,class _ARG2>
-struct MEMBER_TO<_ARG1 _ARG2::*> {
+struct REMOVE_MEMBER<_ARG1 _ARG2::*> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1>
-using MEMBER_TO_TYPE = typename MEMBER_TO<_ARG1>::TYPE ;
+using REMOVE_MEMBER_TYPE = typename REMOVE_MEMBER<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -218,28 +218,28 @@ using MEMBER_OF_TYPE = typename MEMBER_OF<_ARG1>::TYPE ;
 
 namespace U {
 template <class>
-struct INVOKE_OF ;
+struct INVOKE_RESULT ;
 
 template <class _ARG1 ,class... _ARGS>
-struct INVOKE_OF<_ARG1 (_ARGS...)> {
+struct INVOKE_RESULT<_ARG1 (_ARGS...)> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1>
-using INVOKE_OF_TYPE = typename INVOKE_OF<_ARG1>::TYPE ;
+using INVOKE_RESULT_TYPE = typename INVOKE_RESULT<_ARG1>::TYPE ;
 } ;
 
 namespace U {
 template <class>
-struct INVOKE_TO ;
+struct INVOKE_PARAMS ;
 
 template <class _ARG1 ,class... _ARGS>
-struct INVOKE_TO<_ARG1 (_ARGS...)> {
+struct INVOKE_PARAMS<_ARG1 (_ARGS...)> {
 	using TYPE = ARGVS<_ARGS...> ;
 } ;
 
 template <class _ARG1>
-using INVOKE_TO_TYPE = typename INVOKE_TO<_ARG1>::TYPE ;
+using INVOKE_PARAMS_TYPE = typename INVOKE_PARAMS<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -260,7 +260,7 @@ struct RESULT_OF<_ARG1 (_ARGS...) ,ARGVS<_ARGS...> ,_ARG2> {
 
 template <class _ARG1 ,class _ARG2>
 struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
-	using TYPE = typename RESULT_OF<REMOVE_MEMFUNC_TYPE<MEMBER_TO_TYPE<decltype (&_ARG1::operator())>> ,_ARG2 ,VOID>::TYPE ;
+	using TYPE = typename RESULT_OF<REMOVE_MEMFUNC_TYPE<REMOVE_MEMBER_TYPE<decltype (&_ARG1::operator())>> ,_ARG2 ,VOID>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -283,6 +283,17 @@ struct COUNTOF_TRAITS<_ARG1[_VAL1]> {
 
 template <class _ARG1>
 using COUNTOF_TRAITS_TYPE = typename COUNTOF_TRAITS<_ARG1>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct is_full_array_of_help :public stl::false_type {} ;
+
+template <class _ARG1 ,LENGTH _VAL1>
+struct is_full_array_of_help<_ARG1 ,_ARG1[_VAL1] ,ENABLE_TYPE<(_VAL1 > 0)>> :public stl::true_type {} ;
+
+template <class _ARG1 ,class _ARG2>
+using is_full_array_of = is_full_array_of_help<_ARG1 ,_ARG2 ,VOID> ;
 } ;
 
 namespace U {
@@ -482,7 +493,7 @@ struct VISIT_OF<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct VISIT_OF<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
-	_STATIC_ASSERT_ (_ARG1::value > 0) ;
+	_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0) ;
 	using TYPE = typename VISIT_OF<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
@@ -521,22 +532,25 @@ using is_arithmetic = is_arithmetic_help<_ARG1 ,VOID> ;
 
 namespace U {
 template <class>
-struct is_plain_strx :public stl::false_type {} ;
+struct is_plain_str_help :public stl::false_type {} ;
 
 template <>
-struct is_plain_strx<STRU8> :public stl::true_type {} ;
+struct is_plain_str_help<STRU8> :public stl::true_type {} ;
 
 template <>
-struct is_plain_strx<STRU16> :public stl::true_type {} ;
+struct is_plain_str_help<STRU16> :public stl::true_type {} ;
 
 template <>
-struct is_plain_strx<STRU32> :public stl::true_type {} ;
+struct is_plain_str_help<STRU32> :public stl::true_type {} ;
 
 template <>
-struct is_plain_strx<STRA> :public stl::true_type {} ;
+struct is_plain_str_help<STRA> :public stl::true_type {} ;
 
 template <>
-struct is_plain_strx<STRW> :public stl::true_type {} ;
+struct is_plain_str_help<STRW> :public stl::true_type {} ;
+
+template <class _ARG1>
+using is_plain_str = is_plain_str_help<_ARG1> ;
 } ;
 
 namespace U {
@@ -607,25 +621,38 @@ using is_any_same = is_any_same_help<_ARGS...> ;
 } ;
 
 namespace U {
-template <template <class...> class ,class>
-struct is_template_of_help :public stl::false_type {} ;
+template <class>
+struct is_template_help :public stl::false_type {} ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct is_template_of_help<_ARGT ,_ARGT<_ARGS...>> :public stl::true_type {} ;
+struct is_template_help<_ARGT<_ARGS...>> :public stl::true_type {} ;
 
-template <template <class...> class _ARGT ,class _ARG1>
-using is_template_of = is_template_of_help<_ARGT ,_ARG1> ;
+template <class _ARG1>
+using is_template = is_template_help<_ARG1> ;
 } ;
 
 namespace U {
 template <class>
-struct TEMPLATE_TO ;
+struct REMOVE_TEMPLATE ;
+
+template <template <class> class _ARGT ,class _ARG1>
+struct REMOVE_TEMPLATE<_ARGT<_ARG1>> {
+	using TYPE = _ARG1 ;
+} ;
+
+template <class _ARG1>
+using REMOVE_TEMPLATE_TYPE = typename REMOVE_TEMPLATE<_ARG1>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct TEMPLATE_PARAMS ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct TEMPLATE_TO<_ARGT<_ARGS...>> {
+struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
 	using TYPE = ARGVS<_ARGS...> ;
 } ;
 
 template <class _ARG1>
-using TEMPLATE_TO_TYPE = typename TEMPLATE_TO<_ARG1>::TYPE ;
+using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<_ARG1>::TYPE ;
 } ;

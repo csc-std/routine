@@ -544,7 +544,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 				} else if (mTempState == 16) {
 					mTempRet = FALSE ;
 					mTempState = 17 ;
-				} else if (mTempState = 17) {
+				} else if (mTempState == 17) {
 					mTempStack.take () ;
 					const auto r7x = (mTempStack.length () > 0) ? 9 : 18 ;
 					mTempState = r7x ;

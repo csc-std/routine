@@ -15,8 +15,6 @@ class GlobalStatic ;
 template <>
 class GlobalStatic<void> final :private Wrapped<void> {
 private:
-	class Detail ;
-
 	struct VALUE_NODE {
 		FLAG mGUID ;
 		BOOL mReadOnly ;
@@ -30,9 +28,11 @@ private:
 		PTR<NONE> mData ;
 	} ;
 
+	class Detail ;
+
 	class Holder {
 	public:
-		using INTRUSIVE_TYPE = Detail ;
+		using INTRUSIVE_TYPE = typename GlobalStatic::Detail ;
 
 	private:
 		template <class>
@@ -51,7 +51,7 @@ private:
 	friend IntrusiveRef<Holder> ;
 
 private:
-	static Holder &friend_unique () popping {
+	static Holder &static_unique () popping {
 		return _CACHE_ ([] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
@@ -72,19 +72,19 @@ private:
 		}) ;
 	}
 
-	static PTR<VALUE_NODE> friend_new_node (Holder &_self ,FLAG guid) popping {
+	static PTR<VALUE_NODE> static_new_node (Holder &_self ,FLAG guid) popping {
 		_self.mValueNode.push () ;
 		_self.mValueNode->mGUID = guid ;
 		return &_self.mValueNode.self ;
 	}
 
-	static PTR<CLASS_NODE> friend_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
+	static PTR<CLASS_NODE> static_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
 		_self.mClassNode.push () ;
 		_self.mClassNode->mGUID = guid ;
 		return &_self.mClassNode.self ;
 	}
 
-	static PTR<VALUE_NODE> friend_find_node (Holder &_self ,FLAG guid) {
+	static PTR<VALUE_NODE> static_find_node (Holder &_self ,FLAG guid) {
 		PTR<VALUE_NODE> ret = NULL ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!_self.mValueNode.exist ())
@@ -103,7 +103,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	static PTR<CLASS_NODE> friend_find_node (Holder &_self ,const GUID_TYPE &guid) {
+	static PTR<CLASS_NODE> static_find_node (Holder &_self ,const GUID_TYPE &guid) {
 		PTR<CLASS_NODE> ret = NULL ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (!_self.mClassNode.exist ())
@@ -125,63 +125,64 @@ private:
 public:
 	//@warn: this function should be implemented in a 'runtime.dll'
 	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
-} ;
 
-class GlobalStatic<void>::Detail :private Wrapped<void> {
-public:
-	inline static void friend_create (Holder &_self) {
-		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-		_self.mCounter.self = 0 ;
-		_self.mValueNode = LinkedRef<VALUE_NODE> () ;
-		_self.mClassNode = LinkedRef<CLASS_NODE> () ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static void friend_create (Holder &_self) {
+			ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
+			_self.mCounter.self = 0 ;
+			_self.mValueNode = LinkedRef<VALUE_NODE> () ;
+			_self.mClassNode = LinkedRef<CLASS_NODE> () ;
+		}
 
-	inline static void friend_destroy (Holder &_self) {
-		ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-		_self.mValueNode = LinkedRef<VALUE_NODE> () ;
-		_self.mClassNode = LinkedRef<CLASS_NODE> () ;
-	}
+		inline static void friend_destroy (Holder &_self) {
+			ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
+			_self.mValueNode = LinkedRef<VALUE_NODE> () ;
+			_self.mClassNode = LinkedRef<CLASS_NODE> () ;
+		}
 
-	inline static LENGTH friend_attach (Holder &_self) popping {
-		return ++_self.mCounter.self ;
-	}
+		inline static LENGTH friend_attach (Holder &_self) popping {
+			return ++_self.mCounter.self ;
+		}
 
-	inline static LENGTH friend_detach (Holder &_self) popping {
-		return --_self.mCounter.self ;
-	}
+		inline static LENGTH friend_detach (Holder &_self) popping {
+			return --_self.mCounter.self ;
+		}
 
-	inline static void friend_latch (Holder &_self) {
-		GlobalRuntime::thread_sleep () ;
-	}
+		inline static void friend_latch (Holder &_self) {
+			GlobalRuntime::thread_sleep () ;
+		}
+	} ;
 } ;
 
 template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
 	static void init (VAR data ,BOOL read_only) {
-		auto &r1 = GlobalStatic<void>::friend_unique () ;
+		auto &r1 = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::friend_find_node (r1 ,GUID) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		if (r1x != NULL)
 			return ;
-		const auto r2x = GlobalStatic<void>::friend_new_node (r1 ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		r2x->mReadOnly = read_only ;
 		r2x->mData = data ;
 	}
 
 	static VAR load () popping {
-		auto &r1 = GlobalStatic<void>::friend_unique () ;
+		auto &r1 = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::friend_find_node (r1 ,GUID) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		return r1x->mData ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &r1 = GlobalStatic<void>::friend_unique () ;
+		auto &r1 = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::friend_find_node (r1 ,GUID) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r1x->mReadOnly) ;
 		if (r1x->mData == expect)
@@ -190,13 +191,13 @@ public:
 	}
 
 	static void save (VAR data) {
-		auto &r1 = GlobalStatic<void>::friend_unique () ;
+		auto &r1 = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::friend_find_node (r1 ,GUID) ;
+		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::friend_new_node (r1 ,GUID) ;
+			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -212,7 +213,7 @@ private:
 
 	class Holder {
 	public:
-		using INTRUSIVE_TYPE = Detail ;
+		using INTRUSIVE_TYPE = typename GlobalStatic::Detail ;
 
 	public:
 		friend IntrusiveRef<Holder> ;
@@ -229,15 +230,15 @@ private:
 public:
 	static Singleton<UNIT> &unique () popping {
 		auto &r1 = _CACHE_ ([] () {
-			auto &r2 = GlobalStatic<void>::friend_unique () ;
+			auto &r2 = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
 			const auto r2x = Detail::guid_from_typeid_name () ;
-			auto rax = GlobalStatic<void>::friend_find_node (r2 ,r2x) ;
+			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::friend_new_node (r2 ,r2x) ;
+				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
@@ -250,41 +251,41 @@ public:
 		}) ;
 		return _XVALUE_<Holder> (r1).mData ;
 	}
-} ;
 
-template <class UNIT>
-class GlobalStatic<Singleton<UNIT>>::Detail :private Wrapped<void> {
-public:
-	inline static void friend_create (Holder &_self) {
-		_self.mCounter.self = 0 ;
-	}
+private:
+	class Detail :private Wrapped<void> {
+	public:
+		inline static void friend_create (Holder &_self) {
+			_self.mCounter.self = 0 ;
+		}
 
-	inline static void friend_destroy (Holder &_self) {
-		_STATIC_WARNING_ ("noop") ;
-	}
+		inline static void friend_destroy (Holder &_self) {
+			_STATIC_WARNING_ ("noop") ;
+		}
 
-	inline static LENGTH friend_attach (Holder &_self) popping {
-		return ++_self.mCounter.self ;
-	}
+		inline static LENGTH friend_attach (Holder &_self) popping {
+			return ++_self.mCounter.self ;
+		}
 
-	inline static LENGTH friend_detach (Holder &_self) popping {
-		return --_self.mCounter.self ;
-	}
+		inline static LENGTH friend_detach (Holder &_self) popping {
+			return --_self.mCounter.self ;
+		}
 
-	inline static void friend_latch (Holder &_self) {
-		GlobalRuntime::thread_sleep () ;
-	}
+		inline static void friend_latch (Holder &_self) {
+			GlobalRuntime::thread_sleep () ;
+		}
 
-	inline static GUID_TYPE guid_from_typeid_name () {
-		GUID_TYPE ret ;
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (UNIT).name ()) ;
-		const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
-		_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
-		const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
-		_MEMCOPY_ (PTRTOARR[_ZERO_ (ret).unused] ,PTRTOARR[r1x] ,r3x) ;
-		return std::move (ret) ;
-	}
+		inline static GUID_TYPE guid_from_typeid_name () {
+			GUID_TYPE ret ;
+			_STATIC_WARNING_ ("mark") ;
+			const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (UNIT).name ()) ;
+			const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
+			_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
+			const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
+			_MEMCOPY_ (PTRTOARR[_RESET_ (ret).unused] ,PTRTOARR[r1x] ,r3x) ;
+			return std::move (ret) ;
+		}
+	} ;
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -568,22 +569,22 @@ public:
 		const auto r5x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ; i < 8 ; i++) {
 			INDEX ix = 0 + i ;
-			ret[iw++] = index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 8 + i ;
-			ret[iw++] = index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 12 + i ;
-			ret[iw++] = index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 12 ; i++) {
 			INDEX ix = 16 + i ;
-			ret[iw++] = index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
@@ -599,9 +600,12 @@ private:
 	RandomService () ;
 
 private:
-	inline static STRU8 index_to_hex (INDEX index) {
-		const auto r1x = (index < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
-		return STRU8 (r1x + index) ;
-	}
+	class Detail :private Wrapped<void> {
+	public:
+		inline static STRU8 index_to_hex (INDEX index) {
+			const auto r1x = (index < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
+			return STRU8 (r1x + index) ;
+		}
+	} ;
 } ;
 } ;

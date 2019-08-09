@@ -88,8 +88,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -102,8 +102,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -116,8 +116,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -130,8 +130,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -144,8 +144,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -158,8 +158,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -172,8 +172,8 @@ public:
 		write_con_buffer (msg) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&(rax = VARY (0)) ,NULL) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&(rax = VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
+		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&_RESET_ (rax ,VARY (0)) ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;

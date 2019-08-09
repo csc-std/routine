@@ -125,7 +125,7 @@ public:
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		const auto r4x = FreeImage_AcquireMemory (r1x ,&(rax.P1 = NULL) ,&(rax.P2 = 0)) ;
+		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
 		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
 		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
@@ -233,7 +233,7 @@ public:
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		const auto r4x = FreeImage_AcquireMemory (r1x ,&(rax.P1 = NULL) ,&(rax.P2 = 0)) ;
+		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
 		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
 		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
