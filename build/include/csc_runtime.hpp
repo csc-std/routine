@@ -307,7 +307,7 @@ private:
 	AnyRef<void> mCoBreakPoint ;
 	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 	Array<AnyRef<void>> mSubBreakPoint ;
-	Queue<INDEX> mSubQueue ;
+	Deque<INDEX> mSubQueue ;
 	Priority<VAR ,INDEX> mSubAwaitQueue ;
 	INDEX mSubCurr ;
 
@@ -336,7 +336,7 @@ public:
 		mCoBreakPoint = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
-		mSubQueue = Queue<INDEX> (mSubProc.length ()) ;
+		mSubQueue = Deque<INDEX> (mSubProc.length ()) ;
 		for (INDEX i = 0 ; i < mSubProc.length () ; i++)
 			mSubQueue.add (i) ;
 		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProc.length ()) ;
@@ -569,22 +569,22 @@ public:
 		const auto r5x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ; i < 8 ; i++) {
 			INDEX ix = 0 + i ;
-			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 8 + i ;
-			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			INDEX ix = 12 + i ;
-			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ; i < 12 ; i++) {
 			INDEX ix = 16 + i ;
-			ret[iw++] = Detail::index_to_hex (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
@@ -602,7 +602,7 @@ private:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static STRU8 index_to_hex (INDEX index) {
+		inline static STRU8 index_to_hex_str (INDEX index) {
 			const auto r1x = (index < 10) ? (STRU8 ('0')) : (STRU8 ('A') - 10) ;
 			return STRU8 (r1x + index) ;
 		}

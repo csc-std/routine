@@ -192,8 +192,8 @@ public:
 		return TRUE ;
 	}
 
-	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
-		Queue<ARRAY2<INDEX>> ret = Queue<ARRAY2<INDEX>> (expr.length ()) ;
+	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
+		Deque<ARRAY2<INDEX>> ret = Deque<ARRAY2<INDEX>> (expr.length ()) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (expr.empty ())
 				discard ;
@@ -237,7 +237,7 @@ inline exports BOOL RegexMatcher::match (const String<STRU8> &expr) const {
 	return mThis.rebind<Implement> ()->match (expr) ;
 }
 
-inline exports Queue<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &expr) const {
+inline exports Deque<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &expr) const {
 	return mThis.rebind<Implement> ()->search (expr) ;
 }
 

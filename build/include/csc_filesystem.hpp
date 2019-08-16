@@ -40,7 +40,7 @@ inline imports DEF<String<STR> (const String<STR> &file)> _PARSEFILEPATH_ ;
 
 inline imports DEF<String<STR> (const String<STR> &file)> _PARSEFILENAME_ ;
 
-inline imports DEF<Queue<String<STR>> (const String<STR> &file)> _DECOUPLEPATHNAME_ ;
+inline imports DEF<Deque<String<STR>> (const String<STR> &file)> _DECOUPLEPATHNAME_ ;
 
 inline imports DEF<String<STR> ()> _WORKINGPATH_ ;
 
@@ -131,7 +131,7 @@ private:
 		virtual BOOL identical_file (const String<STR> &file1 ,const String<STR> &file2) popping = 0 ;
 		virtual String<STR> parse_file_path (const String<STR> &file) const = 0 ;
 		virtual String<STR> parse_file_name (const String<STR> &file) const = 0 ;
-		virtual Queue<String<STR>> decouple_path_name (const String<STR> &file) const = 0 ;
+		virtual Deque<String<STR>> decouple_path_name (const String<STR> &file) const = 0 ;
 		virtual String<STR> working_path () const = 0 ;
 		virtual String<STR> absolute_path (const String<STR> &path) const = 0 ;
 		virtual String<STR> module_file_path () const = 0 ;
@@ -210,7 +210,7 @@ public:
 		return mThis->parse_file_name (file) ;
 	}
 
-	Queue<String<STR>> decouple_path_name (const String<STR> &file) const {
+	Deque<String<STR>> decouple_path_name (const String<STR> &file) const {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->decouple_path_name (file) ;
 	}

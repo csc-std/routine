@@ -199,13 +199,13 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 	return std::move (ret) ;
 }
 
-inline exports Queue<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
+inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
 	auto rax = STR () ;
-	Queue<String<STR>> ret = Queue<String<STR>> (DEFAULT_RECURSIVE_SIZE::value) ;
+	Deque<String<STR>> ret = Deque<String<STR>> (DEFAULT_RECURSIVE_SIZE::value) ;
 	INDEX ix = ret.insert () ;
 	ris.copy () >> rax ;
 	if (ris.attr ().varify_space (rax))
@@ -243,8 +243,8 @@ inline exports String<STR> _WORKINGPATH_ () {
 	return _PARSESTRS_ (rax) ;
 }
 
-inline Queue<INDEX> _inline_RELATIVEPATHNAME_ (const Queue<String<STR>> &path_name) {
-	Queue<INDEX> ret = Queue<INDEX> (path_name.length ()) ;
+inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_name) {
+	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
 	for (INDEX i = 0 ; i < path_name.length () ; i++) {
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
@@ -408,7 +408,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 }
 
 inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
-	auto rax = Queue<PACK<String<STR> ,BOOL>> () ;
+	auto rax = Deque<PACK<String<STR> ,BOOL>> () ;
 	const auto r1x = Function<void (const String<STR> &)> ([&] (const String<STR> &_file) {
 		_ERASEFILE_ (_file) ;
 	}) ;
@@ -617,7 +617,7 @@ public:
 		return _PARSEFILENAME_ (file) ;
 	}
 
-	Queue<String<STR>> decouple_path_name (const String<STR> &file) const override {
+	Deque<String<STR>> decouple_path_name (const String<STR> &file) const override {
 		return _DECOUPLEPATHNAME_ (file) ;
 	}
 

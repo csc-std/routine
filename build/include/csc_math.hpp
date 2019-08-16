@@ -125,7 +125,7 @@ inline imports DEF<VALX (const VALX &x)> _ATAN_ ;
 
 template <class _ARG1>
 inline _ARG1 _ATAN_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_ATAN_ (VALX (x))) ;
 }
 

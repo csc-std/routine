@@ -15,8 +15,8 @@ public:
 		_UNITTEST_ASSERT_ (r3x.size () == 0) ;
 	}
 
-	TEST_METHOD (TEST_CSC_ARRAY_QUEUE) {
-		auto rax = Queue<int> {1 ,2 ,3 ,4} ;
+	TEST_METHOD (TEST_CSC_ARRAY_DEQUE) {
+		auto rax = Deque<int> {1 ,2 ,3 ,4} ;
 		rax.take () ;
 		rax.add (5) ;
 		rax.add (6) ;
@@ -49,8 +49,8 @@ public:
 		}
 	}
 
-	TEST_METHOD (TEST_CSC_ARRAY_DEQUE) {
-		auto rax = Deque<INDEX> (100000) ;
+	TEST_METHOD (TEST_CSC_ARRAY_SLIST) {
+		auto rax = SList<INDEX> (100000) ;
 		for (INDEX i = 0 ; i < rax.size () ; i++)
 			rax.add (i) ;
 		rax.remove (1) ;

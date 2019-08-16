@@ -812,7 +812,7 @@ public:
 
 	BOOL match (const String<STRU8> &expr) const ;
 
-	Queue<ARRAY2<INDEX>> search (const String<STRU8> &expr) const ;
+	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const ;
 
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
 } ;

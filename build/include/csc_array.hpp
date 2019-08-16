@@ -585,12 +585,12 @@ private:
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
-class Queue ;
+class Deque ;
 
 template <class ITEM ,class SIZE>
-class Queue {
+class Deque {
 private:
-	class AccessArray :private Wrapped<Queue> {
+	class AccessArray :private Wrapped<Deque> {
 	public:
 		inline ITEM &operator[] (INDEX index) {
 			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
@@ -606,34 +606,34 @@ private:
 	}
 
 private:
-	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mQueue ;
+	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
-	Queue () {
+	Deque () {
 		clear () ;
 	}
 
-	explicit Queue (LENGTH len) :Queue (ARGVP0 ,constexpr_size (len)) {
+	explicit Deque (LENGTH len) :Deque (ARGVP0 ,constexpr_size (len)) {
 		clear () ;
 	}
 
-	implicit Queue (const std::initializer_list<ITEM> &that) : Queue (that.size ()) {
+	implicit Deque (const std::initializer_list<ITEM> &that) : Deque (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
 
 	LENGTH size () const {
-		if (mQueue.size () == 0)
+		if (mDeque.size () == 0)
 			return 0 ;
-		return mQueue.size () - 1 ;
+		return mDeque.size () - 1 ;
 	}
 
 	LENGTH length () const {
-		if (mQueue.size () == 0)
+		if (mDeque.size () == 0)
 			return 0 ;
-		return (mWrite - mRead + mQueue.size ()) % mQueue.size () ;
+		return (mWrite - mRead + mDeque.size ()) % mDeque.size () ;
 	}
 
 	void clear () {
@@ -644,7 +644,7 @@ public:
 	//@warn: index would be no longer valid once resized
 	ITEM &get (INDEX index) & {
 		_DEBUG_ASSERT_ (ensure_index (index)) ;
-		return mQueue[index] ;
+		return mDeque[index] ;
 	}
 
 	inline ITEM &operator[] (INDEX index) & {
@@ -654,7 +654,7 @@ public:
 	//@warn: index would be no longer valid once resized
 	const ITEM &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (ensure_index (index)) ;
-		return mQueue[index] ;
+		return mDeque[index] ;
 	}
 
 	inline const ITEM &operator[] (INDEX index) const & {
@@ -666,7 +666,7 @@ public:
 	inline ITEM &operator[] (INDEX) && = delete ;
 
 	INDEX at (const ITEM &item) const {
-		INDEX ret = mQueue.at (item) ;
+		INDEX ret = mDeque.at (item) ;
 		if (!ensure_index (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -674,26 +674,26 @@ public:
 
 	INDEX access (INDEX pos) const {
 		_DEBUG_ASSERT_ (DECAY[pos >= 0 && pos < length ()]) ;
-		return (mRead + pos) % mQueue.size () ;
+		return (mRead + pos) % mDeque.size () ;
 	}
 
 	INDEX ibegin () const {
-		if (mQueue.size () == 0)
+		if (mDeque.size () == 0)
 			return VAR_NONE ;
 		return mRead ;
 	}
 
 	INDEX iend () const {
-		if (mQueue.size () == 0)
+		if (mDeque.size () == 0)
 			return VAR_NONE ;
 		return mWrite ;
 	}
 
 	INDEX inext (INDEX index) const {
-		return (index + 1) % mQueue.size () ;
+		return (index + 1) % mDeque.size () ;
 	}
 
-	BOOL equal (const Queue &that) const {
+	BOOL equal (const Deque &that) const {
 		if (length () != that.length ())
 			return FALSE ;
 		INDEX ib = ibegin () ;
@@ -717,11 +717,11 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Queue &that) const {
+	inline BOOL operator== (const Deque &that) const {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Queue &that) const {
+	inline BOOL operator!= (const Deque &that) const {
 		return !equal (that) ;
 	}
 
@@ -732,31 +732,31 @@ public:
 	}
 
 	BOOL full () const {
-		if (mQueue.size () == 0)
+		if (mDeque.size () == 0)
 			return TRUE ;
-		if (mRead != (mWrite + 1) % mQueue.size ())
+		if (mRead != (mWrite + 1) % mDeque.size ())
 			return FALSE ;
 		return TRUE ;
 	}
 
 	void add (const ITEM &item) {
 		reserve (1) ;
-		mQueue[mWrite] = std::move (item) ;
+		mDeque[mWrite] = std::move (item) ;
 		update_resize () ;
 	}
 
-	inline Queue &operator<< (const ITEM &item) {
+	inline Deque &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return *this ;
 	}
 
 	void add (ITEM &&item) {
 		reserve (1) ;
-		mQueue[mWrite] = std::move (item) ;
+		mDeque[mWrite] = std::move (item) ;
 		update_resize () ;
 	}
 
-	inline Queue &operator<< (ITEM &&item) {
+	inline Deque &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return *this ;
 	}
@@ -777,16 +777,16 @@ public:
 
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		mRead = (mRead + 1) % mQueue.size () ;
+		mRead = (mRead + 1) % mDeque.size () ;
 	}
 
 	void take (ITEM &item) popping {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		item = std::move (mQueue[mRead]) ;
-		mRead = (mRead + 1) % mQueue.size () ;
+		item = std::move (mDeque[mRead]) ;
+		mRead = (mRead + 1) % mDeque.size () ;
 	}
 
-	inline Queue &operator>> (ITEM &item) popping {
+	inline Deque &operator>> (ITEM &item) popping {
 		take (item) ;
 		return *this ;
 	}
@@ -798,7 +798,7 @@ public:
 
 	INDEX tail () const {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		return (mWrite - 1 + mQueue.size ()) % mQueue.size () ;
+		return (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
 	}
 
 	INDEX insert () popping {
@@ -815,12 +815,12 @@ public:
 		while (TRUE) {
 			if (ret - 1 < 0)
 				break ;
-			if (mQueue[ret - 1] >= item)
+			if (mDeque[ret - 1] >= item)
 				break ;
-			mQueue[ret] = std::move (mQueue[ret - 1]) ;
+			mDeque[ret] = std::move (mDeque[ret - 1]) ;
 			ret-- ;
 		}
-		mQueue[ret] = std::move (item) ;
+		mDeque[ret] = std::move (item) ;
 		update_resize () ;
 		return std::move (ret) ;
 	}
@@ -832,19 +832,19 @@ public:
 		while (TRUE) {
 			if (ret - 1 < 0)
 				break ;
-			if (mQueue[ret - 1] >= item)
+			if (mDeque[ret - 1] >= item)
 				break ;
-			mQueue[ret] = std::move (mQueue[ret - 1]) ;
+			mDeque[ret] = std::move (mDeque[ret - 1]) ;
 			ret-- ;
 		}
-		mQueue[ret] = std::move (item) ;
+		mDeque[ret] = std::move (item) ;
 		update_resize () ;
 		return std::move (ret) ;
 	}
 
 	void pop () {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		mWrite = (mWrite - 1 + mQueue.size ()) % mQueue.size () ;
+		mWrite = (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
 	}
 
 	Array<INDEX> esort () const {
@@ -862,7 +862,7 @@ public:
 	}
 
 private:
-	explicit Queue (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mQueue (len) {}
+	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mDeque (len) {}
 
 private:
 	BOOL ensure_index (INDEX index) const {
@@ -871,49 +871,49 @@ private:
 		if (r1x && !r2x)
 			return FALSE ;
 		const auto r3x = BOOL (index >= 0 && index < mWrite) ;
-		const auto r4x = BOOL (index >= mRead && index < mQueue.size ()) ;
+		const auto r4x = BOOL (index >= mRead && index < mDeque.size ()) ;
 		if (!r1x && !r3x && !r4x)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	void reserve (LENGTH len) {
-		const auto r1x = _MAX_ (len - (mQueue.size () - length ()) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ (len - (mDeque.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mRead <= mWrite) ;
-			auto rax = mQueue.expand (mQueue.size () + r1x) ;
-			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mQueue.self[mRead]] ,(mWrite - mRead)) ;
-			mQueue.swap (rax) ;
+			auto rax = mDeque.expand (mDeque.size () + r1x) ;
+			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
+			mDeque.swap (rax) ;
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mRead > mWrite) ;
-			auto rax = mQueue.expand (mQueue.size () + r1x) ;
-			_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
-			INDEX ix = mRead + rax.size () - mQueue.size () ;
-			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mQueue.self[mRead]] ,(mQueue.size () - mRead)) ;
-			mQueue.swap (rax) ;
+			auto rax = mDeque.expand (mDeque.size () + r1x) ;
+			_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
+			INDEX ix = mRead + rax.size () - mDeque.size () ;
+			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+			mDeque.swap (rax) ;
 			mRead = ix ;
 		}) ;
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (DECAY[mWrite >= 0 && mWrite < mQueue.size ()]) ;
-		mWrite = (mWrite + 1) % mQueue.size () ;
+		_DEBUG_ASSERT_ (DECAY[mWrite >= 0 && mWrite < mDeque.size ()]) ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		if (mRead != mWrite)
 			return ;
-		auto rax = mQueue.expand () ;
-		_MEMMOVE_ (rax.self ,mQueue.self ,mWrite) ;
+		auto rax = mDeque.expand () ;
+		_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
-		INDEX iy = mQueue.size () ;
+		INDEX iy = mDeque.size () ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (mRead == 0)
 				discard ;
-			ix = mRead + rax.size () - mQueue.size () ;
+			ix = mRead + rax.size () - mDeque.size () ;
 			iy = mWrite ;
 		}
-		_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mQueue.self[mRead]] ,(mQueue.size () - mRead)) ;
-		mQueue.swap (rax) ;
+		_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+		mDeque.swap (rax) ;
 		mRead = ix ;
 		mWrite = iy ;
 	}
@@ -1767,43 +1767,43 @@ private:
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
-class Deque ;
+class SList ;
 
 template <class ITEM ,class SIZE>
-class Deque {
+class SList {
 private:
 	class Node {
 	private:
-		friend Deque ;
+		friend SList ;
 		ITEM mItem ;
-		INDEX mHead ;
+		INDEX mSequ ;
 
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (INDEX _head) :mHead (_head) {}
+		inline explicit Node (INDEX sequ) :mSequ (sequ) {}
 
-		inline explicit Node (const ITEM &item ,INDEX _head) : mItem (std::move (item)) ,mHead (_head) {}
+		inline explicit Node (const ITEM &item ,INDEX sequ) : mItem (std::move (item)) ,mSequ (sequ) {}
 
-		inline explicit Node (ITEM &&item ,INDEX _head) : mItem (std::move (item)) ,mHead (_head) {}
+		inline explicit Node (ITEM &&item ,INDEX sequ) : mItem (std::move (item)) ,mSequ (sequ) {}
 	} ;
 
 private:
 	Allocator<Node ,SIZE> mList ;
-	Buffer<Buffer<INDEX ,ARGC<2>> ,SIZE> mDeque ;
+	Buffer<Buffer<INDEX ,ARGC<2>> ,SIZE> mHead ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
-	Deque () {
+	SList () {
 		clear () ;
 	}
 
-	explicit Deque (LENGTH len) :Deque (ARGVP0 ,len) {
+	explicit SList (LENGTH len) :SList (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit Deque (const std::initializer_list<ITEM> &that) : Deque (that.size ()) {
+	implicit SList (const std::initializer_list<ITEM> &that) : SList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1818,7 +1818,7 @@ public:
 
 	void clear () {
 		const auto r1x = Buffer<INDEX ,ARGC<2>> ({VAR_NONE ,VAR_ZERO}) ;
-		_MEMFILL_ (mDeque.self ,mDeque.size () ,r1x) ;
+		_MEMFILL_ (mHead.self ,mHead.size () ,r1x) ;
 		mRead = 0 ;
 		mWrite = 0 ;
 	}
@@ -1850,20 +1850,20 @@ public:
 	INDEX access (INDEX pos) const {
 		_DEBUG_ASSERT_ (DECAY[pos >= 0 && pos < length ()]) ;
 		if (mWrite - mRead + 1 == mList.length ())
-			return mDeque[mRead + pos][0] ;
-		if (mWrite - mRead == mList.length () && mDeque[mWrite][0] == VAR_NONE)
-			return mDeque[mRead + pos][0] ;
-		if (mWrite - mRead == mList.length () && mDeque[mRead][0] == VAR_NONE)
-			return mDeque[mRead + pos + 1][0] ;
+			return mHead[mRead + pos][0] ;
+		if (mWrite - mRead == mList.length () && mHead[mWrite][0] == VAR_NONE)
+			return mHead[mRead + pos][0] ;
+		if (mWrite - mRead == mList.length () && mHead[mRead][0] == VAR_NONE)
+			return mHead[mRead + pos + 1][0] ;
 		return access (pos ,mRead ,(mWrite - mRead + 1)) ;
 	}
 
 	INDEX ibegin () const {
-		if (mDeque.size () == 0)
+		if (mHead.size () == 0)
 			return VAR_NONE ;
 		for (INDEX i = mRead ,ie = mWrite + 1 ; i < ie ; i++)
-			if (mDeque[i][0] != VAR_NONE)
-				return mDeque[i][0] ;
+			if (mHead[i][0] != VAR_NONE)
+				return mHead[i][0] ;
 		return VAR_NONE ;
 	}
 
@@ -1872,9 +1872,9 @@ public:
 	}
 
 	INDEX inext (INDEX index) const {
-		for (INDEX i = mList[index].mHead + 1 ,ie = mWrite + 1 ; i < ie ; i++)
-			if (mDeque[i][0] != VAR_NONE)
-				return mDeque[i][0] ;
+		for (INDEX i = mList[index].mSequ + 1 ,ie = mWrite + 1 ; i < ie ; i++)
+			if (mHead[i][0] != VAR_NONE)
+				return mHead[i][0] ;
 		return VAR_NONE ;
 	}
 
@@ -1887,7 +1887,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const Deque &that) const {
+	BOOL equal (const SList &that) const {
 		if (length () != that.length ())
 			return FALSE ;
 		INDEX ib = ibegin () ;
@@ -1911,11 +1911,11 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const Deque &that) const {
+	inline BOOL operator== (const SList &that) const {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const Deque &that) const {
+	inline BOOL operator!= (const SList &that) const {
 		return !equal (that) ;
 	}
 
@@ -1925,7 +1925,7 @@ public:
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline Deque &operator<< (const ITEM &item) {
+	inline SList &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return *this ;
 	}
@@ -1936,7 +1936,7 @@ public:
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline Deque &operator<< (ITEM &&item) {
+	inline SList &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return *this ;
 	}
@@ -1965,7 +1965,7 @@ public:
 	INDEX insert_before (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead) : mWrite ;
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mSequ) : mWrite ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -1973,7 +1973,7 @@ public:
 	INDEX insert_after (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mHead + 1) : mRead ;
+		const auto r1x = (index != VAR_NONE) ? (mList[index].mSequ + 1) : mRead ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -1981,24 +1981,24 @@ public:
 	void swap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
-		deque_rewrite (mList[index1].mHead ,index2) ;
-		deque_rewrite (mList[index2].mHead ,index1) ;
+		sequence_rewrite (mList[index1].mSequ ,index2) ;
+		sequence_rewrite (mList[index2].mSequ ,index1) ;
 	}
 
 	void splice_before (INDEX index ,INDEX seg) {
-		deque_remove (mList[seg].mHead) ;
+		sequence_remove (mList[seg].mSequ) ;
 		const auto r1x = insert_before (index ,seg) ;
 		(void) r1x ;
 	}
 
 	void splice_after (INDEX index ,INDEX seg) {
-		deque_remove (mList[seg].mHead) ;
+		sequence_remove (mList[seg].mSequ) ;
 		const auto r1x = insert_after (index ,seg) ;
 		(void) r1x ;
 	}
 
 	void remove (INDEX index) {
-		deque_remove (mList[index].mHead) ;
+		sequence_remove (mList[index].mSequ) ;
 		mList.free (index) ;
 	}
 
@@ -2029,41 +2029,41 @@ public:
 			return ;
 		const auto r1x = esort () ;
 		for (INDEX i = 0 ; i < r1x.length () ; i++)
-			deque_rewrite (i ,r1x[i]) ;
-		for (INDEX i = r1x.length () ; i < mDeque.size () ; i++)
-			deque_remove (i) ;
+			sequence_rewrite (i ,r1x[i]) ;
+		for (INDEX i = r1x.length () ; i < mHead.size () ; i++)
+			sequence_remove (i) ;
 		mRead = 0 ;
 		mWrite = _MAX_ ((r1x.length () - 1) ,VAR_ZERO) ;
 	}
 
 	void reverse () {
-		if (mDeque.size () == 0)
+		if (mHead.size () == 0)
 			return ;
 		INDEX ix = mRead ;
 		INDEX iy = mWrite ;
 		while (TRUE) {
-			while (ix < iy && mDeque[ix] != VAR_NONE)
+			while (ix < iy && mHead[ix] != VAR_NONE)
 				ix++ ;
 			if (ix >= iy)
 				break ;
-			while (ix < iy && mDeque[iy] != VAR_NONE)
+			while (ix < iy && mHead[iy] != VAR_NONE)
 				iy-- ;
 			if (ix >= iy)
 				break ;
-			const auto r1x = mDeque[ix] ;
-			const auto r2x = mDeque[iy] ;
-			deque_rewrite (ix ,r2x) ;
-			deque_rewrite (iy ,r1x) ;
+			const auto r1x = mHead[ix] ;
+			const auto r2x = mHead[iy] ;
+			sequence_rewrite (ix ,r2x) ;
+			sequence_rewrite (iy ,r1x) ;
 		}
 	}
 
 private:
-	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mDeque (len) {}
+	explicit SList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mHead (len) {}
 
 private:
 	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= mDeque.size () - seg_len]) ;
+		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= mHead.size () - seg_len]) ;
 		INDEX ret = VAR_NONE ;
 		INDEX ix = seg ;
 		INDEX iy = seg + seg_len - 1 ;
@@ -2072,14 +2072,14 @@ private:
 				break ;
 			ret = ix + (iy - ix + 1) / 2 ;
 			INDEX jx = position_before (ret) ;
-			if (jx == pos && mDeque[ret][0] != VAR_NONE)
+			if (jx == pos && mHead[ret][0] != VAR_NONE)
 				break ;
 			auto &r1 = (jx < pos) ? ix : iy ;
 			const auto r1x = (jx < pos) ? (ret + 1) : (ret - 1) ;
 			r1 = r1x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
-		ret = mDeque[ret][0] ;
+		ret = mHead[ret][0] ;
 		return std::move (ret) ;
 	}
 
@@ -2089,7 +2089,7 @@ private:
 		while (TRUE) {
 			if (ix < 0)
 				break ;
-			ret += mDeque[ix][1] ;
+			ret += mHead[ix][1] ;
 			ix -= (ix + 1) & -(ix + 1) ;
 		}
 		ret-- ;
@@ -2097,9 +2097,9 @@ private:
 	}
 
 	void update_resize (INDEX it) {
-		if (mDeque.size () == mList.size ())
+		if (mHead.size () == mList.size ())
 			return ;
-		auto rax = mDeque.expand (mList.size ()) ;
+		auto rax = mHead.expand (mList.size ()) ;
 		const auto r1x = Buffer<INDEX ,ARGC<2>> ({VAR_NONE ,VAR_ZERO}) ;
 		_MEMFILL_ (rax.self ,rax.size () ,r1x) ;
 		for (INDEX i = 0 ; i < mList.size () ; i++) {
@@ -2107,22 +2107,22 @@ private:
 				continue ;
 			if (!mList.used (i))
 				continue ;
-			deque_rewrite (mList[i].mHead ,i) ;
+			sequence_rewrite (mList[i].mSequ ,i) ;
 		}
-		mDeque.swap (rax) ;
+		mHead.swap (rax) ;
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mDeque[it][0] == VAR_NONE) ;
-			deque_rewrite (it ,jt) ;
-			mWrite = _MIN_ ((it + 1) ,(mDeque.size () - 1)) ;
+			_CASE_REQUIRE_ (mHead[it][0] == VAR_NONE) ;
+			sequence_rewrite (it ,jt) ;
+			mWrite = _MIN_ ((it + 1) ,(mHead.size () - 1)) ;
 		} ,[&] (BOOL &_case_req) {
 			INDEX ix = it + 1 ;
-			_CASE_REQUIRE_ (ix < mDeque.size ()) ;
-			_CASE_REQUIRE_ (mDeque[ix][0] == VAR_NONE) ;
-			deque_rewrite (ix ,jt) ;
-			mWrite = _MIN_ ((ix + 1) ,(mDeque.size () - 1)) ;
+			_CASE_REQUIRE_ (ix < mHead.size ()) ;
+			_CASE_REQUIRE_ (mHead[ix][0] == VAR_NONE) ;
+			sequence_rewrite (ix ,jt) ;
+			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
 		} ,[&] (BOOL &_case_req) {
 			update_compress_left_force (it ,jt) ;
 		}) ;
@@ -2132,42 +2132,42 @@ private:
 		INDEX ix = it ;
 		INDEX iy = jt ;
 		for (INDEX i = 0 ; i < mList.length () ; i++) {
-			while (mRead != ix && mDeque[mRead][0] == VAR_NONE)
+			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
 				mRead++ ;
-			const auto r1x = mDeque[i][0] ;
+			const auto r1x = mHead[i][0] ;
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mRead == ix) ;
 				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
-				deque_rewrite (i ,iy) ;
+				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			} ,[&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mRead == ix) ;
 				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
-				deque_rewrite (i ,iy) ;
+				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
 			} ,[&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mRead != i) ;
-				deque_rewrite (i ,mDeque[mRead][0]) ;
-				deque_remove (mRead) ;
+				sequence_rewrite (i ,mHead[mRead][0]) ;
+				sequence_remove (mRead) ;
 			}) ;
 			mRead++ ;
 		}
 		mRead = 0 ;
-		mWrite = _MIN_ (mList.length () ,(mDeque.size () - 1)) ;
+		mWrite = _MIN_ (mList.length () ,(mHead.size () - 1)) ;
 	}
 
 	void update_compress_right (INDEX it ,INDEX jt) {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mDeque[it][0] == VAR_NONE) ;
-			deque_rewrite (it ,jt) ;
+			_CASE_REQUIRE_ (mHead[it][0] == VAR_NONE) ;
+			sequence_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
 		} ,[&] (BOOL &_case_req) {
 			INDEX ix = it - 1 ;
 			_CASE_REQUIRE_ (ix >= 0) ;
-			_CASE_REQUIRE_ (mDeque[ix][0] == VAR_NONE) ;
-			deque_rewrite (ix ,jt) ;
+			_CASE_REQUIRE_ (mHead[ix][0] == VAR_NONE) ;
+			sequence_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
 		} ,[&] (BOOL &_case_req) {
 			update_compress_right_force (it ,jt) ;
@@ -2178,56 +2178,56 @@ private:
 		INDEX ix = it ;
 		INDEX iy = jt ;
 		for (INDEX i = 0 ; i < mList.length () ; i++) {
-			INDEX jx = mDeque.size () + ~i ;
-			while (mWrite != ix && mDeque[mWrite][0] == VAR_NONE)
+			INDEX jx = mHead.size () + ~i ;
+			while (mWrite != ix && mHead[mWrite][0] == VAR_NONE)
 				mWrite-- ;
-			const auto r1x = mDeque[jx][0] ;
+			const auto r1x = mHead[jx][0] ;
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mWrite == ix) ;
 				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
-				deque_rewrite (jx ,iy) ;
+				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			} ,[&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mWrite == ix) ;
 				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
-				deque_rewrite (jx ,iy) ;
+				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
 			} ,[&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mWrite != jx) ;
-				deque_rewrite (jx ,mDeque[mWrite][0]) ;
-				deque_remove (mWrite) ;
+				sequence_rewrite (jx ,mHead[mWrite][0]) ;
+				sequence_remove (mWrite) ;
 			}) ;
 			mWrite-- ;
 		}
-		mRead = _MAX_ (mDeque.size () - 1 - mList.length () ,VAR_ZERO) ;
-		mWrite = mDeque.size () - 1 ;
+		mRead = _MAX_ (mHead.size () - 1 - mList.length () ,VAR_ZERO) ;
+		mWrite = mHead.size () - 1 ;
 	}
 
-	void deque_rewrite (INDEX it ,INDEX jt) {
+	void sequence_rewrite (INDEX it ,INDEX jt) {
 		_DEBUG_ASSERT_ (jt != VAR_NONE) ;
 		INDEX ix = it ;
-		const auto r1x = mDeque[it][0] ;
-		mDeque[ix][0] = jt ;
-		mList[jt].mHead = ix ;
+		const auto r1x = mHead[it][0] ;
+		mHead[ix][0] = jt ;
+		mList[jt].mSequ = ix ;
 		if (r1x != VAR_NONE)
 			return ;
 		while (TRUE) {
-			if (ix >= mDeque.size ())
+			if (ix >= mHead.size ())
 				break ;
-			mDeque[ix][1]++ ;
+			mHead[ix][1]++ ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
 	}
 
-	void deque_remove (INDEX it) {
+	void sequence_remove (INDEX it) {
 		INDEX ix = it ;
-		mDeque[ix][0] = VAR_NONE ;
+		mHead[ix][0] = VAR_NONE ;
 		while (TRUE) {
-			if (ix >= mDeque.size ())
+			if (ix >= mHead.size ())
 				break ;
-			mDeque[ix][1]-- ;
+			mHead[ix][1]-- ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
 	}
@@ -4426,4 +4426,7 @@ private:
 		jt = iw ;
 	}
 } ;
+
+template <class ITEM ,class SIZE = SAUTO>
+class Graph ;
 } ;

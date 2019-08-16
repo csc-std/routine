@@ -260,8 +260,8 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		const Array<REAL> &mCenter ;
 		const REAL mTolerance = REAL (1E-6) ;
 
-		Queue<REAL> mCurrCenterList ;
-		Queue<REAL> mNextCenterList ;
+		Deque<REAL> mCurrCenterList ;
+		Deque<REAL> mNextCenterList ;
 		Array<ARRAY2<INDEX>> mCenterIndex ;
 		Set<INDEX ,BitSet<>> mClusterSet ;
 		ARRAY3<REAL> mConvergence ;
@@ -277,8 +277,8 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 
 	private:
 		inline void prepare () {
-			mCurrCenterList = Queue<REAL> (mCenterIndex.length ()) ;
-			mNextCenterList = Queue<REAL> (mCenterIndex.length ()) ;
+			mCurrCenterList = Deque<REAL> (mCenterIndex.length ()) ;
+			mNextCenterList = Deque<REAL> (mCenterIndex.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
 			mCenterIndex = Array<ARRAY2<INDEX>> (mCurrCenterList.length ()) ;
 			INDEX iw = 0 ;
@@ -439,7 +439,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		Array<REAL> mYWeight ;
 		ARRAY2<REAL> mLackWeight ;
 
-		Queue<ARRAY2<INDEX>> mTempStack ;
+		Deque<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
 		FLAG mTempState ;
 
@@ -630,9 +630,9 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 		const Array<ARRAY2<REAL>> &mVertex ;
 		const REAL mTolerance = REAL (1E-6) ;
 
-		Deque<INDEX> mPolygonVertexList ;
+		SList<INDEX> mPolygonVertexList ;
 		BOOL mClockwiseFlag ;
-		Queue<ARRAY3<INDEX>> mTriangleList ;
+		Deque<ARRAY3<INDEX>> mTriangleList ;
 		Array<ARRAY3<INDEX>> mTriangle ;
 
 	public:
@@ -655,12 +655,12 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 				for (auto &&i : mPolygonVertexList)
 					i = mVertex.length () + ~i ;
 			}
-			mTriangleList = Queue<ARRAY3<INDEX>> () ;
+			mTriangleList = Deque<ARRAY3<INDEX>> () ;
 			mTriangle = Array<ARRAY3<INDEX>> () ;
 		}
 
-		inline Deque<INDEX> polygon_vertex_list () const {
-			Deque<INDEX> ret = Deque<INDEX> (mVertex.length ()) ;
+		inline SList<INDEX> polygon_vertex_list () const {
+			SList<INDEX> ret = SList<INDEX> (mVertex.length ()) ;
 			for (INDEX i = 0 ; i < mVertex.length () ; i++) {
 				INDEX ix = i ;
 				INDEX iy = (i + 1) % mVertex.length () ;
@@ -1027,9 +1027,9 @@ public:
 		initialize (vertex) ;
 	}
 
-	Queue<INDEX> query (const ARRAY3<REAL> &point ,const REAL &width) const {
+	Deque<INDEX> query (const ARRAY3<REAL> &point ,const REAL &width) const {
 		_DEBUG_ASSERT_ (width > REAL (0)) ;
-		Queue<INDEX> ret ;
+		Deque<INDEX> ret ;
 		auto rax = ARRAY3<ARRAY2<REAL>> () ;
 		rax[0][0] = _MAX_ ((point[0] - width) ,mBound[0][0]) ;
 		rax[0][1] = _MIN_ ((point[0] + width) ,mBound[0][1]) ;
@@ -1057,7 +1057,7 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
-	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Queue<INDEX> &out) const {
+	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mHeap[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
@@ -1089,9 +1089,9 @@ private:
 		}) ;
 	}
 
-	Queue<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
+	Deque<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
 		_DEBUG_ASSERT_ (DECAY[count >= 1 && count <= mVertex.length ()]) ;
-		Queue<REAL> ret = Queue<REAL> (count) ;
+		Deque<REAL> ret = Deque<REAL> (count) ;
 		for (INDEX i = 0 ; i < count ; i++) {
 			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
 			ret.add (r1x) ;
@@ -1165,8 +1165,8 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 			mRoot = VAR_NONE ;
 		}
 
-		Queue<INDEX> stack_of_order (INDEX rot) const {
-			Queue<INDEX> ret = Queue<INDEX> (mVertex.length ()) ;
+		Deque<INDEX> stack_of_order (INDEX rot) const {
+			Deque<INDEX> ret = Deque<INDEX> (mVertex.length ()) ;
 			for (auto &&i : mVertex)
 				ret.add (i[rot]) ;
 			return std::move (ret) ;
@@ -1290,7 +1290,7 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 		Bitmap<REAL> mCurrentFlow ;
 		Array<INDEX> mBFSPath ;
 
-		Queue<INDEX> mTempQueue ;
+		Deque<INDEX> mTempQueue ;
 
 	public:
 		inline explicit Lambda (MaxFlowAlgorithm &context ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
@@ -1336,7 +1336,7 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 
 		inline void update_augument_bfs () {
 			if (mTempQueue.size () != mAdjacency.cx ())
-				mTempQueue = Queue<INDEX> (mAdjacency.cx ()) ;
+				mTempQueue = Deque<INDEX> (mAdjacency.cx ()) ;
 			mTempQueue.clear () ;
 			mBFSPath.fill (VAR_NONE) ;
 			mTempQueue.add (mSink) ;

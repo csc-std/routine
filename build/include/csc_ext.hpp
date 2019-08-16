@@ -1828,6 +1828,7 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (mRoot == NULL)
 				discard ;
+			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
 			mRoot->mPrev->mNext = NULL ;
 			mRoot->mPrev = NULL ;
 		}
@@ -2780,7 +2781,7 @@ public:
 		return to () ;
 	}
 
-	inline LENGTH degree () const {
+	inline LENGTH rank () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return 0 ;
 	}

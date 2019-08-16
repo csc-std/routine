@@ -277,11 +277,11 @@
   </Type>
 
 
-  <Type Name="CSC::Queue&lt;*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::Deque&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mRead]">mRead</Item>
       <Item Name="[mWrite]">mWrite</Item>
-      <ExpandedItem>mQueue</ExpandedItem>
+      <ExpandedItem>mDeque</ExpandedItem>
     </Expand>
   </Type>
 
@@ -294,11 +294,10 @@
   </Type>
 
 
-  <Type Name="CSC::Deque&lt;*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::QList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
-      <Item Name="[mDeque]">mDeque</Item>
-      <Item Name="[mRead]">mRead</Item>
-      <Item Name="[mWrite]">mWrite</Item>
+      <Item Name="[mFirst]">mFirst</Item>
+      <Item Name="[mLast]">mLast</Item>
       <ExpandedItem>mList</ExpandedItem>
     </Expand>
   </Type>
@@ -306,16 +305,9 @@
 
   <Type Name="CSC::SList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
-      <Item Name="[mLast]">mLast</Item>
-      <ExpandedItem>mList</ExpandedItem>
-    </Expand>
-  </Type>
-
-
-  <Type Name="CSC::QList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
-    <Expand>
-      <Item Name="[mFirst]">mFirst</Item>
-      <Item Name="[mLast]">mLast</Item>
+      <Item Name="[mHead]">mHead</Item>
+      <Item Name="[mRead]">mRead</Item>
+      <Item Name="[mWrite]">mWrite</Item>
       <ExpandedItem>mList</ExpandedItem>
     </Expand>
   </Type>

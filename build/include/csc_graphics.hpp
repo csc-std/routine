@@ -19,7 +19,7 @@ namespace CSC {
 class Mesh {
 private:
 	Set<ARRAY3<VAL32>> mVertexSet ;
-	Queue<ARRAY3<INDEX>> mElementList ;
+	Deque<ARRAY3<INDEX>> mElementList ;
 	Array<Bitmap<COLOR_BGR>> mTexture ;
 
 public:
@@ -31,11 +31,11 @@ public:
 
 	const Set<ARRAY3<VAL32>> &vertex () && = delete ;
 
-	const Queue<ARRAY3<INDEX>> &element () const & {
+	const Deque<ARRAY3<INDEX>> &element () const & {
 		return mElementList ;
 	}
 
-	const Queue<ARRAY3<INDEX>> &element () && = delete ;
+	const Deque<ARRAY3<INDEX>> &element () && = delete ;
 
 	const Array<Bitmap<COLOR_BGR>> &texture () const & {
 		return mTexture ;
@@ -47,7 +47,7 @@ public:
 		mVertexSet.appand (_vertex) ;
 	}
 
-	void add_element (const Queue<ARRAY3<INDEX>> &_element) {
+	void add_element (const Deque<ARRAY3<INDEX>> &_element) {
 		mElementList.appand (_element) ;
 	}
 
