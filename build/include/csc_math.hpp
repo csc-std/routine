@@ -53,7 +53,7 @@ inline imports DEF<VALX (const VALX &x)> _SQRT_ ;
 
 template <class _ARG1>
 inline _ARG1 _SQRT_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (DECAY[stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value]) ;
 	return _ARG1 (_SQRT_ (VALX (x))) ;
 }
 
@@ -61,7 +61,7 @@ inline imports DEF<VALX (const VALX &x ,const VALX &y)> _POW_ ;
 
 template <class _ARG1>
 inline _ARG1 _POW_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (DECAY[stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value]) ;
 	return _ARG1 (_POW_ (VALX (x) ,VALX (y))) ;
 }
 
@@ -69,7 +69,7 @@ inline imports DEF<VALX (const VALX &x)> _EXP_ ;
 
 template <class _ARG1>
 inline _ARG1 _EXP_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_EXP_ (VALX (x))) ;
 }
 
@@ -77,7 +77,7 @@ inline imports DEF<VALX (const VALX &x)> _LOG_ ;
 
 template <class _ARG1>
 inline _ARG1 _LOG_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_LOG_ (VALX (x))) ;
 }
 
@@ -85,7 +85,7 @@ inline imports DEF<VALX (const VALX &x)> _SIN_ ;
 
 template <class _ARG1>
 inline _ARG1 _SIN_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_SIN_ (VALX (x))) ;
 }
 
@@ -93,7 +93,7 @@ inline imports DEF<VALX (const VALX &x)> _COS_ ;
 
 template <class _ARG1>
 inline _ARG1 _COS_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_COS_ (VALX (x))) ;
 }
 
@@ -101,7 +101,7 @@ inline imports DEF<VALX (const VALX &x)> _TAN_ ;
 
 template <class _ARG1>
 inline _ARG1 _TAN_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_TAN_ (VALX (x))) ;
 }
 
@@ -109,7 +109,7 @@ inline imports DEF<VALX (const VALX &y)> _ASIN_ ;
 
 template <class _ARG1>
 inline _ARG1 _ASIN_ (const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_ASIN_ (VALX (y))) ;
 }
 
@@ -117,7 +117,7 @@ inline imports DEF<VALX (const VALX &x)> _ACOS_ ;
 
 template <class _ARG1>
 inline _ARG1 _ACOS_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_ACOS_ (VALX (x))) ;
 }
 
@@ -125,7 +125,7 @@ inline imports DEF<VALX (const VALX &x)> _ATAN_ ;
 
 template <class _ARG1>
 inline _ARG1 _ATAN_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>) ;
 	return _ARG1 (_ATAN_ (VALX (x))) ;
 }
 
@@ -133,7 +133,7 @@ inline imports DEF<VALX (const VALX &y ,const VALX &x)> _ATAN_ ;
 
 template <class _ARG1>
 inline _ARG1 _ATAN_ (const _ARG1 &y ,const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_ATAN_ (VALX (y) ,VALX (x))) ;
 }
 
@@ -148,7 +148,7 @@ inline _ARG1 _SIGN_ (const _ARG1 &x) {
 
 template <class _ARG1>
 inline _ARG1 _PINV_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,VAL32>::value || stl::is_same<_ARG1 ,VAL64>::value || stl::is_same<_ARG1 ,VALX>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	if (x == _ARG1 (0))
 		return _ARG1 (0) ;
 	return _ARG1 (1) / x ;
@@ -156,7 +156,7 @@ inline _ARG1 _PINV_ (const _ARG1 &x) {
 
 template <class _ARG1>
 inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,VAL32>::value || stl::is_same<_ARG1 ,VAL64>::value || stl::is_same<_ARG1 ,VALX>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	if (_ABS_ (x) < y)
 		return _ARG1 (0) ;
@@ -167,14 +167,19 @@ inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
-	if (x < 0 && x < ret)
+	for (FOR_ONCE_DO_WHILE) {
+		if (x >= 0)
+			discard ;
+		if (x >= ret)
+			discard ;
 		ret = y * VALX (r1x - 1) ;
+	}
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline _ARG1 _FLOOR_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (DECAY[stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value]) ;
 	return _ARG1 (_FLOOR_ (VALX (x) ,VALX (y))) ;
 }
 
@@ -182,20 +187,25 @@ inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
-	if (0 < x && ret < x)
+	for (FOR_ONCE_DO_WHILE) {
+		if (x <= 0)
+			discard ;
+		if (x <= ret)
+			discard ;
 		ret = y * VALX (r1x + 1) ;
+	}
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline _ARG1 _CEIL_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (DECAY[stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value]) ;
 	return _ARG1 (_CEIL_ (VALX (x) ,VALX (y))) ;
 }
 
 template <class _ARG1>
 inline _ARG1 _ROUND_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_arithmetic<_ARG1>::value) ;
+	_STATIC_ASSERT_ (DECAY[stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value]) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	return _ARG1 (_FLOOR_ (VALX (x) + VALX (y) / 2 ,VALX (y))) ;
 }
@@ -250,7 +260,7 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 	for (FOR_ONCE_DO_WHILE) {
 		const auto r1x = -1074 - VAR64 (ret[1]) ;
 		if (r1x <= 0)
-			break ;
+			discard ;
 		ret[0] = ret[0] >> r1x ;
 		ret[1] = DATA (-1075) ;
 	}

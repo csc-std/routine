@@ -117,7 +117,7 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void static_write_typename_arrs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_full_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static void static_write_typename_arrs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_full_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		writer << _PCSTR_ ("DEF<") ;
 		static_write_typename_xs (writer ,_NULL_<ARGV<REMOVE_ARRAY_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ ("[") ;
@@ -170,14 +170,14 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!stl::is_template<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!stl::is_template_type<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ ("class '") ;
 		writer << type_name_from_func<_ARG1> ().mSelf ;
 		writer << _PCSTR_ ("'") ;
 	}
 
 	template <class _ARG1>
-	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_template<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_template_type<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		writer << _PCSTR_ ("class '") ;
 		writer << type_name_from_func<_ARG1> ().mSelf ;
 		writer << _PCSTR_ ("'<") ;

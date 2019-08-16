@@ -290,10 +290,10 @@ template <class ,class ,class>
 struct is_full_array_of_help :public stl::false_type {} ;
 
 template <class _ARG1 ,LENGTH _VAL1>
-struct is_full_array_of_help<_ARG1 ,_ARG1[_VAL1] ,ENABLE_TYPE<(_VAL1 > 0)>> :public stl::true_type {} ;
+struct is_full_array_of_help<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> :public stl::true_type {} ;
 
 template <class _ARG1 ,class _ARG2>
-using is_full_array_of = is_full_array_of_help<_ARG1 ,_ARG2 ,VOID> ;
+using is_full_array_of = is_full_array_of_help<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID> ;
 } ;
 
 namespace U {
@@ -454,7 +454,7 @@ struct LOAD_CHECK<ARR<BYTE> ,ARR<STRW> ,ARGC<2>> {
 
 template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,BYTE ,ARGC<2>> {
-	//@info: not recommend
+	//@warn: not recommend but for compatibility
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -503,54 +503,85 @@ using VISIT_OF_TYPE = typename VISIT_OF<_ARG1 ,_ARG2>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct is_arithmetic_help :public stl::false_type {} ;
+struct is_var_xyz_help :public stl::false_type {} ;
 
 template <>
-struct is_arithmetic_help<VAR32 ,VOID> :public stl::true_type {} ;
+struct is_var_xyz_help<VAR32 ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_arithmetic_help<VAR64 ,VOID> :public stl::true_type {} ;
+struct is_var_xyz_help<VAR64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
+struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
+struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
+
+template <class _ARG1>
+using is_var_xyz = is_var_xyz_help<_ARG1 ,VOID> ;
+} ;
+
+namespace U {
+template <class ,class>
+struct is_val_xyz_help :public stl::false_type {} ;
 
 template <>
-struct is_arithmetic_help<VAL32 ,VOID> :public stl::true_type {} ;
+struct is_val_xyz_help<VAL32 ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_arithmetic_help<VAL64 ,VOID> :public stl::true_type {} ;
+struct is_val_xyz_help<VAL64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_arithmetic_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
+struct is_val_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
-using is_arithmetic = is_arithmetic_help<_ARG1 ,VOID> ;
+using is_val_xyz = is_val_xyz_help<_ARG1 ,VOID> ;
 } ;
 
 namespace U {
 template <class>
-struct is_plain_str_help :public stl::false_type {} ;
+struct is_byte_xyz_help :public stl::false_type {} ;
 
 template <>
-struct is_plain_str_help<STRU8> :public stl::true_type {} ;
+struct is_byte_xyz_help<BYTE> :public stl::true_type {} ;
 
 template <>
-struct is_plain_str_help<STRU16> :public stl::true_type {} ;
+struct is_byte_xyz_help<WORD> :public stl::true_type {} ;
 
 template <>
-struct is_plain_str_help<STRU32> :public stl::true_type {} ;
+struct is_byte_xyz_help<CHAR> :public stl::true_type {} ;
 
 template <>
-struct is_plain_str_help<STRA> :public stl::true_type {} ;
+struct is_byte_xyz_help<DATA> :public stl::true_type {} ;
 
 template <>
-struct is_plain_str_help<STRW> :public stl::true_type {} ;
+struct is_byte_xyz_help<MEGA> :public stl::true_type {} ;
 
 template <class _ARG1>
-using is_plain_str = is_plain_str_help<_ARG1> ;
+using is_byte_xyz = U::is_byte_xyz_help<_ARG1> ;
+} ;
+
+namespace U {
+template <class>
+struct is_str_xyz_help :public stl::false_type {} ;
+
+template <>
+struct is_str_xyz_help<STRU8> :public stl::true_type {} ;
+
+template <>
+struct is_str_xyz_help<STRU16> :public stl::true_type {} ;
+
+template <>
+struct is_str_xyz_help<STRU32> :public stl::true_type {} ;
+
+template <>
+struct is_str_xyz_help<STRA> :public stl::true_type {} ;
+
+template <>
+struct is_str_xyz_help<STRW> :public stl::true_type {} ;
+
+template <class _ARG1>
+using is_str_xyz = is_str_xyz_help<_ARG1> ;
 } ;
 
 namespace U {
@@ -622,13 +653,13 @@ using is_any_same = is_any_same_help<_ARGS...> ;
 
 namespace U {
 template <class>
-struct is_template_help :public stl::false_type {} ;
+struct is_template_type_help :public stl::false_type {} ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct is_template_help<_ARGT<_ARGS...>> :public stl::true_type {} ;
+struct is_template_type_help<_ARGT<_ARGS...>> :public stl::true_type {} ;
 
 template <class _ARG1>
-using is_template = is_template_help<_ARG1> ;
+using is_template_type = is_template_type_help<_ARG1> ;
 } ;
 
 namespace U {

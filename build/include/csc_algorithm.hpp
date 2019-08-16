@@ -60,7 +60,7 @@ public:
 	}
 
 	INDEX query (const PhanBuffer<const REAL> &target ,INDEX seg) const {
-		_DEBUG_ASSERT_ (seg >= 0 && seg < target.size ()) ;
+		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg < target.size ()]) ;
 		INDEX ix = seg ;
 		INDEX iy = 0 ;
 		if (target.size () - seg < mNext.length ())
@@ -190,7 +190,7 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 			while (TRUE) {
 				if (mPriority.empty ())
 					break ;
-				const auto r1x = mPriority[mPriority.peek ()].item ;
+				const auto r1x = mPriority[mPriority.head ()].item ;
 				mPriority.take () ;
 				update_distance (r1x) ;
 			}
@@ -233,7 +233,8 @@ public:
 	KMeansAlgorithm () = delete ;
 
 	explicit KMeansAlgorithm (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
-		_DEBUG_ASSERT_ (dataset.length () >= 2 && center.length () >= 2) ;
+		_DEBUG_ASSERT_ (dataset.length () >= 2) ;
+		_DEBUG_ASSERT_ (center.length () >= 2) ;
 		initialize (dataset ,distance ,center) ;
 	}
 
@@ -367,7 +368,9 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 				return FALSE ;
 			if (mConvergence[2] < REAL (0))
 				return FALSE ;
-			if (mConvergence[0] > mConvergence[1] || mConvergence[1] > mConvergence[2])
+			if (mConvergence[0] > mConvergence[1])
+				return FALSE ;
+			if (mConvergence[1] > mConvergence[2])
 				return FALSE ;
 			if (mConvergence[1] - mConvergence[2] >= mTolerance)
 				return FALSE ;
@@ -436,7 +439,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		Array<REAL> mYWeight ;
 		ARRAY2<REAL> mLackWeight ;
 
-		Stack<ARRAY2<INDEX>> mTempStack ;
+		Queue<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
 		FLAG mTempState ;
 
@@ -512,7 +515,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					const auto r3x = (mLackWeight[0] < mTolerance) ? 8 : 12 ;
 					mTempState = r3x ;
 				} else if (mTempState == 7) {
-					ix = mTempStack.peek () ;
+					ix = mTempStack.tail () ;
 					const auto r4x = (mTempStack[ix][1] == VAR_NONE) ? 2 : 3 ;
 					mTempState = r4x ;
 				} else if (mTempState == 8) {
@@ -520,7 +523,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				} else if (mTempState == 9) {
-					ix = mTempStack.peek () ;
+					ix = mTempStack.tail () ;
 					mTempState = 10 ;
 				} else if (mTempState == 10) {
 					const auto r5x = mTempRet ? 11 : 15 ;
@@ -545,7 +548,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempRet = FALSE ;
 					mTempState = 17 ;
 				} else if (mTempState == 17) {
-					mTempStack.take () ;
+					mTempStack.pop () ;
 					const auto r7x = (mTempStack.length () > 0) ? 9 : 18 ;
 					mTempState = r7x ;
 				} else if (mTempState == 18) {
@@ -627,7 +630,7 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 		const Array<ARRAY2<REAL>> &mVertex ;
 		const REAL mTolerance = REAL (1E-6) ;
 
-		Deque<INDEX> mPloygonVertexList ;
+		Deque<INDEX> mPolygonVertexList ;
 		BOOL mClockwiseFlag ;
 		Queue<ARRAY3<INDEX>> mTriangleList ;
 		Array<ARRAY3<INDEX>> mTriangle ;
@@ -643,38 +646,40 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 
 	private:
 		inline void prepare () {
-			mPloygonVertexList = ploygon_vertex_list () ;
-			const auto r1x = BOOL (ploygon_vertex_clockwise () > REAL (0)) ;
+			mPolygonVertexList = polygon_vertex_list () ;
+			const auto r1x = BOOL (polygon_vertex_clockwise () > REAL (0)) ;
 			mClockwiseFlag = r1x ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (!mClockwiseFlag)
 					discard ;
-				for (auto &&i : mPloygonVertexList)
+				for (auto &&i : mPolygonVertexList)
 					i = mVertex.length () + ~i ;
 			}
 			mTriangleList = Queue<ARRAY3<INDEX>> () ;
 			mTriangle = Array<ARRAY3<INDEX>> () ;
 		}
 
-		inline Deque<INDEX> ploygon_vertex_list () const {
+		inline Deque<INDEX> polygon_vertex_list () const {
 			Deque<INDEX> ret = Deque<INDEX> (mVertex.length ()) ;
 			for (INDEX i = 0 ; i < mVertex.length () ; i++) {
 				INDEX ix = i ;
 				INDEX iy = (i + 1) % mVertex.length () ;
-				if (_ABS_ (mVertex[iy][0] - mVertex[ix][0]) < mTolerance && _ABS_ (mVertex[iy][1] - mVertex[ix][1]) < mTolerance)
+				const auto r1x = _ABS_ (mVertex[iy][0] - mVertex[ix][0]) ;
+				const auto r2x = _ABS_ (mVertex[iy][1] - mVertex[ix][1]) ;
+				if (r1x < mTolerance && r2x < mTolerance)
 					continue ;
 				ret.add (i) ;
 			}
 			return std::move (ret) ;
 		}
 
-		inline REAL ploygon_vertex_clockwise () const {
+		inline REAL polygon_vertex_clockwise () const {
 			REAL ret = REAL (0) ;
-			for (INDEX i = 0 ; i < mPloygonVertexList.length () ; i++) {
-				INDEX ix = mPloygonVertexList.access ((i - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ()) ;
-				INDEX iy = mPloygonVertexList.access (i) ;
-				INDEX iz = mPloygonVertexList.access ((i + 1) % mPloygonVertexList.length ()) ;
-				const auto r1x = math_cross_product_z (mVertex ,mPloygonVertexList[iy] ,mPloygonVertexList[ix] ,mPloygonVertexList[iz]) ;
+			for (INDEX i = 0 ; i < mPolygonVertexList.length () ; i++) {
+				INDEX ix = mPolygonVertexList.access ((i - 1 + mPolygonVertexList.length ()) % mPolygonVertexList.length ()) ;
+				INDEX iy = mPolygonVertexList.access (i) ;
+				INDEX iz = mPolygonVertexList.access ((i + 1) % mPolygonVertexList.length ()) ;
+				const auto r1x = math_cross_product_z (mVertex ,mPolygonVertexList[iy] ,mPolygonVertexList[ix] ,mPolygonVertexList[iz]) ;
 				ret -= _SIGN_ (r1x) ;
 			}
 			return std::move (ret) ;
@@ -682,54 +687,54 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 
 		inline void generate () {
 			while (TRUE) {
-				if (mPloygonVertexList.length () <= 2)
+				if (mPolygonVertexList.length () <= 2)
 					break ;
 				INDEX ix = sharp_vertex_one () ;
 				if (ix == VAR_NONE)
 					break ;
 				INDEX jx = mTriangleList.insert () ;
 				const auto r1x = ARRAY3<INDEX> ({
-					mPloygonVertexList.access ((ix + 1) % mPloygonVertexList.length ()) ,
-					mPloygonVertexList.access (ix) ,
-					mPloygonVertexList.access ((ix - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ())}) ;
-				mTriangleList[jx][0] = mPloygonVertexList[r1x[0]] ;
-				mTriangleList[jx][1] = mPloygonVertexList[r1x[1]] ;
-				mTriangleList[jx][2] = mPloygonVertexList[r1x[2]] ;
-				mPloygonVertexList.remove (mPloygonVertexList.access (ix)) ;
+					mPolygonVertexList.access ((ix + 1) % mPolygonVertexList.length ()) ,
+					mPolygonVertexList.access (ix) ,
+					mPolygonVertexList.access ((ix - 1 + mPolygonVertexList.length ()) % mPolygonVertexList.length ())}) ;
+				mTriangleList[jx][0] = mPolygonVertexList[r1x[0]] ;
+				mTriangleList[jx][1] = mPolygonVertexList[r1x[1]] ;
+				mTriangleList[jx][2] = mPolygonVertexList[r1x[2]] ;
+				mPolygonVertexList.remove (mPolygonVertexList.access (ix)) ;
 			}
 			update_triangle () ;
 		}
 
 		inline INDEX sharp_vertex_one () const {
-			for (INDEX i = 0 ; i < mPloygonVertexList.length () ; i++)
+			for (INDEX i = 0 ; i < mPolygonVertexList.length () ; i++)
 				if (sharp_vertex_each (i))
 					return i ;
 			return VAR_NONE ;
 		}
 
 		inline BOOL sharp_vertex_each (INDEX it) const {
-			INDEX ix = mPloygonVertexList.access ((it - 1 + mPloygonVertexList.length ()) % mPloygonVertexList.length ()) ;
-			INDEX iy = mPloygonVertexList.access (it) ;
-			INDEX iz = mPloygonVertexList.access ((it + 1) % mPloygonVertexList.length ()) ;
-			const auto r1x = math_cross_product_z (mVertex ,mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]) ;
+			INDEX ix = mPolygonVertexList.access ((it - 1 + mPolygonVertexList.length ()) % mPolygonVertexList.length ()) ;
+			INDEX iy = mPolygonVertexList.access (it) ;
+			INDEX iz = mPolygonVertexList.access ((it + 1) % mPolygonVertexList.length ()) ;
+			const auto r1x = math_cross_product_z (mVertex ,mPolygonVertexList[ix] ,mPolygonVertexList[iy] ,mPolygonVertexList[iz]) ;
 			if (r1x > REAL (0))
 				return FALSE ;
 			if (r1x == REAL (0))
 				return FALSE ;
-			if (!edge_triangle (mPloygonVertexList[ix] ,mPloygonVertexList[iy] ,mPloygonVertexList[iz]))
+			if (!edge_triangle (mPolygonVertexList[ix] ,mPolygonVertexList[iy] ,mPolygonVertexList[iz]))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		inline BOOL edge_triangle (INDEX v1 ,INDEX v2 ,INDEX v3) const {
-			for (auto &&i : mPloygonVertexList)
+			for (auto &&i : mPolygonVertexList)
 				if (!edge_triangle_each (v1 ,v2 ,v3 ,i))
 					return FALSE ;
 			return TRUE ;
 		}
 
 		inline BOOL edge_triangle_each (INDEX v1 ,INDEX v2 ,INDEX v3 ,INDEX v4) const {
-			if (v4 == v1 || v4 == v2 || v4 == v3)
+			if (DECAY[v4 == v1 || v4 == v2 || v4 == v3])
 				return TRUE ;
 			const auto r1x = math_cross_product_z (mVertex ,v1 ,v2 ,v4) ;
 			const auto r2x = math_cross_product_z (mVertex ,v2 ,v3 ,v4) ;
@@ -1037,7 +1042,7 @@ public:
 	}
 
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
+		_DEBUG_ASSERT_ (DECAY[count >= 1 && count <= mVertex.length ()]) ;
 		const auto r1x = first_count_vertex (point ,count) ;
 		const auto r2x = r1x.esort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
@@ -1084,9 +1089,9 @@ private:
 		}) ;
 	}
 
-	Stack<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
-		Stack<REAL> ret = Stack<REAL> (count) ;
+	Queue<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
+		_DEBUG_ASSERT_ (DECAY[count >= 1 && count <= mVertex.length ()]) ;
+		Queue<REAL> ret = Queue<REAL> (count) ;
 		for (INDEX i = 0 ; i < count ; i++) {
 			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
 			ret.add (r1x) ;
@@ -1160,8 +1165,8 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 			mRoot = VAR_NONE ;
 		}
 
-		Stack<INDEX> stack_of_order (INDEX rot) const {
-			Stack<INDEX> ret = Stack<INDEX> (mVertex.length ()) ;
+		Queue<INDEX> stack_of_order (INDEX rot) const {
+			Queue<INDEX> ret = Queue<INDEX> (mVertex.length ()) ;
 			for (auto &&i : mVertex)
 				ret.add (i[rot]) ;
 			return std::move (ret) ;
@@ -1195,7 +1200,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
-			_DEBUG_ASSERT_ (seg >= 0 && seg + seg_len <= mVertex.size ()) ;
+			_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= mVertex.size () - seg_len]) ;
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (seg_len == 1) ;
 				INDEX jx = mHeap.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
@@ -1338,7 +1343,7 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 			while (TRUE) {
 				if (mTempQueue.empty ())
 					break ;
-				INDEX ix = mTempQueue[mTempQueue.peek ()] ;
+				INDEX ix = mTempQueue[mTempQueue.head ()] ;
 				mTempQueue.take () ;
 				for (INDEX i = 0 ; i < mAdjacency.cy () ; i++) {
 					if (i == ix)

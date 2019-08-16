@@ -49,7 +49,8 @@ public:
 		const auto r1x = RegexMatcher (_PCSTRU8_ ("test")) ;
 		const auto r3x = r1x.search (rax) ;
 		_UNITTEST_ASSERT_ (r3x.length () == 1) ;
-		_UNITTEST_ASSERT_ (r3x[r3x.peek ()][0] == 10 && r3x[r3x.peek ()][1] == 14) ;
+		_UNITTEST_ASSERT_ (r3x[r3x.head ()][0] == 10) ;
+		_UNITTEST_ASSERT_ (r3x[r3x.head ()][1] == 14) ;
 		rax = r1x.replace (rax ,_PCSTRU8_ ("unittest")) ;
 		_UNITTEST_ASSERT_ (rax == String<STRU8> (_PCSTRU8_ ("this is a unittest!"))) ;
 	}

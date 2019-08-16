@@ -264,7 +264,7 @@ public:
 
 	void compute_sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const override {
 		auto &r1 = _this.rebind<SPRITE_NATIVE_TYPE> ().self ;
-		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1.mVTO->size ()) ;
+		_DYNAMIC_ASSERT_ (DECAY[texture >= 0 && texture < r1.mVTO->size ()]) ;
 		r1.mTexture = texture ;
 	}
 
@@ -498,7 +498,7 @@ private:
 			const auto r3x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
 			const auto r4x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;
 			const auto r5x = BOOL (name[i] == STR ('_')) ;
-			_DEBUG_ASSERT_ (r2x || r3x || r4x || r5x) ;
+			_DEBUG_ASSERT_ (DECAY[r2x || r3x || r4x || r5x]) ;
 			ret[i] = STRA (name[i]) ;
 		}
 		return std::move (ret) ;

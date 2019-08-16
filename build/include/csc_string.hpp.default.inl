@@ -54,13 +54,13 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 	}) ;
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
 	const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (ret.size () > 0 && r1x != 0)
+	if (r1x != 0)
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
 	const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
-	if (ret.size () > 0 && r3x != 0)
+	if (r3x != 0)
 		ret = String<STRW> () ;
 	return std::move (ret) ;
 #endif
@@ -79,13 +79,13 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 	}) ;
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
 	const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (ret.size () > 0 && r1x != 0)
+	if (r1x != 0)
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
 	const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
-	if (ret.size () > 0 && r3x != 0)
+	if (r3x != 0)
 		ret = String<STRA> () ;
 	return std::move (ret) ;
 #endif
@@ -125,10 +125,10 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
 #if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
 #if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
 inline namespace S {
-inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &src) {
+inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = time_t (std::chrono::system_clock::to_time_t (src)) ;
+	const auto r1x = time_t (std::chrono::system_clock::to_time_t (val)) ;
 #ifdef _CTIME_
 	auto rax = std::tm () ;
 	localtime_s (&_RESET_ (rax) ,&r1x) ;
@@ -147,21 +147,21 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	return std::move (ret) ;
 }
 
-inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (const ARRAY8<VAR32> &src) {
+inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (const ARRAY8<VAR32> &val) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-	const auto r1x = (src[0] > 0) ? (src[0] - 1900) : 0 ;
+	const auto r1x = (val[0] > 0) ? (val[0] - 1900) : 0 ;
 	rax.tm_year = r1x ;
-	const auto r2x = (src[1] > 0) ? (src[1] - 1) : 0 ;
+	const auto r2x = (val[1] > 0) ? (val[1] - 1) : 0 ;
 	rax.tm_mon = r2x ;
-	rax.tm_mday = src[2] ;
-	const auto r3x = (src[3] > 0) ? (src[3] - 1) : 0 ;
+	rax.tm_mday = val[2] ;
+	const auto r3x = (val[3] > 0) ? (val[3] - 1) : 0 ;
 	rax.tm_wday = r3x ;
-	const auto r4x = (src[4] > 0) ? (src[4] - 1) : 0 ;
+	const auto r4x = (val[4] > 0) ? (val[4] - 1) : 0 ;
 	rax.tm_yday = r4x ;
-	rax.tm_hour = src[5] ;
-	rax.tm_min = src[6] ;
-	rax.tm_sec = src[7] ;
+	rax.tm_hour = val[5] ;
+	rax.tm_min = val[6] ;
+	rax.tm_sec = val[7] ;
 	const auto r5x = std::mktime (&rax) ;
 	return std::chrono::system_clock::from_time_t (r5x) ;
 }

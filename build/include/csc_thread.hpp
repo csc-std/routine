@@ -80,7 +80,7 @@ public:
 		while (r1.mThreadFlag.exist () && r1.mItemQueue->empty ())
 			r1.mThreadCondition.self.wait (sgd) ;
 		_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-		ITEM ret = std::move (r1.mItemQueue.self[r1.mItemQueue->peek ()]) ;
+		ITEM ret = std::move (r1.mItemQueue.self[r1.mItemQueue->head ()]) ;
 		r1.mItemQueue->take () ;
 		return std::move (ret) ;
 	}
@@ -99,7 +99,7 @@ public:
 			r1.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r1.mThreadFlag.exist ()) ;
-		ITEM ret = std::move (r1.mItemQueue.self[r1.mItemQueue->peek ()]) ;
+		ITEM ret = std::move (r1.mItemQueue.self[r1.mItemQueue->head ()]) ;
 		r1.mItemQueue->take () ;
 		return std::move (ret) ;
 	}
@@ -107,7 +107,7 @@ public:
 	void start (const Array<INDEX> &pid ,Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (pid.length () > 0) ;
 		for (auto &&i : pid)
-			_DEBUG_ASSERT_ (i >= 0 && i < proc.size ()) ;
+			_DEBUG_ASSERT_ (DECAY[i >= 0 && i < proc.size ()]) ;
 		for (auto &&i : proc)
 			_DEBUG_ASSERT_ (i.exist ()) ;
 		const auto r1x = mThis.watch () ;
@@ -499,7 +499,7 @@ private:
 			while (_self.mThreadFlag.self && _self.mItemQueue->empty ())
 				_self.mThreadCondition.self.wait (sgd) ;
 			_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
-			item = std::move (_self.mItemQueue.self[_self.mItemQueue->peek ()]) ;
+			item = std::move (_self.mItemQueue.self[_self.mItemQueue->head ()]) ;
 			_self.mItemQueue->take () ;
 		}
 
@@ -724,8 +724,13 @@ private:
 			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
 			_self.mThreadFlag.self = FALSE ;
 			_self.mThreadCondition.self.notify_all () ;
-			if (_self.mItem.exist () && _self.mCallbackProc.exist ())
+			for (FOR_ONCE_DO_WHILE) {
+				if (!_self.mItem.exist ())
+					discard ;
+				if (!_self.mCallbackProc.exist ())
+					discard ;
 				_self.mCallbackProc (_self.mItem) ;
+			}
 			_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		}
 
@@ -837,7 +842,6 @@ public:
 	}
 
 	ITEM value (const ITEM &def) popping {
-		_STATIC_ASSERT_ (std::is_copy_constructible<ITEM>::value && std::is_nothrow_move_constructible<ITEM>::value) ;
 		const auto r1x = mThis.watch () ;
 		auto &r1 = _XVALUE_<Holder> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mThreadMutex) ;

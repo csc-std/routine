@@ -15,7 +15,7 @@ class Matrix ;
 template <class REAL>
 class Vector {
 private:
-	_STATIC_ASSERT_ (std::is_same<REAL ,VAL32>::value || std::is_same<REAL ,VAL64>::value || std::is_same<REAL ,VALX>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 	Buffer<REAL ,ARGC<4>> mVector ;
 
 public:
@@ -66,24 +66,24 @@ public:
 		return !equal (that) ;
 	}
 
-	BOOL less (const Vector &that) const {
-		return BOOL (mVector < that.mVector) ;
+	FLAG compr (const Vector &that) const {
+		return mVector.compr (that.mVector) ;
 	}
 
 	inline BOOL operator< (const Vector &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Vector &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Vector &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Vector &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	Vector mul (const REAL &scale) const {
@@ -189,7 +189,8 @@ public:
 	}
 
 	REAL mul (const Vector &that) const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && that.mVector[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (that.mVector[3] == REAL (0)) ;
 		return mVector[0] * that.mVector[0] + mVector[1] * that.mVector[1] + mVector[2] * that.mVector[2] ;
 	}
 
@@ -213,7 +214,8 @@ public:
 	}
 
 	Vector cross (const Vector &that) const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0) && that.mVector[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (that.mVector[3] == REAL (0)) ;
 		Vector ret ;
 		ret.mVector[0] = mVector[1] * that.mVector[2] - mVector[2] * that.mVector[1] ;
 		ret.mVector[1] = mVector[2] * that.mVector[0] - mVector[0] * that.mVector[2] ;
@@ -344,7 +346,7 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (std::is_same<REAL ,VAL32>::value || std::is_same<REAL ,VAL64>::value || std::is_same<REAL ,VALX>::value) ;
+	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 	Buffer<REAL ,ARGC<16>> mMatrix ;
 
 public:
@@ -370,14 +372,14 @@ public:
 	}
 
 	REAL &get (INDEX y ,INDEX x) & {
-		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < 4]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < 4]) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
 	const REAL &get (INDEX y ,INDEX x) const & {
-		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < 4]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < 4]) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
@@ -415,24 +417,24 @@ public:
 		return !equal (that) ;
 	}
 
-	BOOL less (const Matrix &that) const {
-		return BOOL (mMatrix < that.mMatrix) ;
+	FLAG compr (const Matrix &that) const {
+		return mMatrix.compr (that.mMatrix) ;
 	}
 
 	inline BOOL operator< (const Matrix &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Matrix &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Matrix &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Matrix &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	Matrix mul (const REAL &scale) const {
@@ -826,9 +828,10 @@ public:
 	}
 
 	static Matrix make_view (const Vector<REAL> &normal ,const Vector<REAL> &center) {
-		_DEBUG_ASSERT_ (normal[3] == REAL (0) && center[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
 		const auto r1x = normal.normalize () ;
-		_DEBUG_ASSERT_ (r1x[0] != REAL (0) || r1x[1] != REAL (0) || r1x[2] != REAL (0)) ;
+		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = Vector<REAL> {_ABS_ (normal[0]) ,_ABS_ (normal[1]) ,_ABS_ (normal[2]) ,REAL (0)} ;
 		const auto r3x = (r2x[0] < r2x[2]) ? (Vector<REAL>::axis_x ()) : (Vector<REAL>::axis_z ()) ;
 		const auto r4x = (r2x[1] < r2x[2]) ? (Vector<REAL>::axis_y ()) : (Vector<REAL>::axis_z ()) ;
@@ -839,7 +842,8 @@ public:
 	}
 
 	static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
-		_DEBUG_ASSERT_ (fx > REAL (0) && fy > REAL (0)) ;
+		_DEBUG_ASSERT_ (fx > REAL (0)) ;
+		_DEBUG_ASSERT_ (fy > REAL (0)) ;
 		Matrix ret = Matrix ({
 			{fx ,REAL (0) ,wx ,REAL (0)} ,
 			{REAL (0) ,fy ,wy ,REAL (0)} ,
@@ -849,9 +853,10 @@ public:
 	}
 
 	static Matrix make_projection (const Vector<REAL> &normal ,const Vector<REAL> &center ,const Vector<REAL> &light) {
-		_DEBUG_ASSERT_ (normal[3] == REAL (0) && center[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
 		const auto r1x = normal.normalize () ;
-		_DEBUG_ASSERT_ (r1x[0] != REAL (0) || r1x[1] != REAL (0) || r1x[2] != REAL (0)) ;
+		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = (r2x[3] != REAL (0)) ? (light.projection ()) : (light.normalize ()) ;
 		const auto r3x = center.homogenize () * r1x ;
 		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} *r1x ;

@@ -277,14 +277,6 @@
   </Type>
 
 
-  <Type Name="CSC::Stack&lt;*,CSC::ARGC&lt;*&gt; &gt;">
-    <Expand>
-      <Item Name="[mWrite]">mWrite</Item>
-      <ExpandedItem>mStack</ExpandedItem>
-    </Expand>
-  </Type>
-
-
   <Type Name="CSC::Queue&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mRead]">mRead</Item>

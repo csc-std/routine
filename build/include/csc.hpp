@@ -341,6 +341,17 @@ using BOOL = bool ;
 #endif
 #define TRUE true
 
+namespace U {
+struct OPERATOR_DECAY {
+	template <class _ARG1>
+	inline constexpr BOOL operator[] (const _ARG1 &that) const {
+		return BOOL (that) ;
+	}
+} ;
+} ;
+
+static constexpr auto DECAY = U::OPERATOR_DECAY {} ;
+
 using VAR32 = std::int32_t ;
 using VAR64 = std::int64_t ;
 
@@ -474,13 +485,13 @@ using ARR = DEF<TYPE[]> ;
 namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
-	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &src) const {
-		return *PTR<ARR<_ARG1>> (src) ;
+	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
+		return *PTR<ARR<_ARG1>> (that) ;
 	}
 
 	template <class _ARG1 ,LENGTH _VAL1>
-	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &src) const {
-		return *PTR<ARR<_ARG1>> (&src) ;
+	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &that) const {
+		return *PTR<ARR<_ARG1>> (&that) ;
 	}
 } ;
 } ;
@@ -667,10 +678,16 @@ using LOAD_CHECK_TYPE = U::LOAD_CHECK_TYPE<_ARG1 ,_ARG2> ;
 
 namespace stl {
 template <class _ARG1>
-using is_arithmetic = U::is_arithmetic<_ARG1> ;
+using is_var_xyz = U::is_var_xyz<_ARG1> ;
 
 template <class _ARG1>
-using is_plain_str = U::is_plain_str<_ARG1> ;
+using is_val_xyz = U::is_val_xyz<_ARG1> ;
+
+template <class _ARG1>
+using is_byte_xyz = U::is_byte_xyz<_ARG1> ;
+
+template <class _ARG1>
+using is_str_xyz = U::is_str_xyz<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
 using is_full_array_of = U::is_full_array_of<_ARG1 ,_ARG2> ;
@@ -780,7 +797,8 @@ inline _ARG1 _COPY_ (const _ARG1 &arg1) {
 
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &arg1 ,_ARG1 &arg2) noexcept {
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 	auto rax = std::move (arg1) ;
 	arg1 = std::move (arg2) ;
 	arg2 = std::move (rax) ;
@@ -788,7 +806,8 @@ inline void _SWAP_ (_ARG1 &arg1 ,_ARG1 &arg2) noexcept {
 
 template <class _ARG1 ,LENGTH _VAL1>
 inline void _SWAP_ (DEF<_ARG1[_VAL1]> &arg1 ,DEF<_ARG1[_VAL1]> &arg2) noexcept {
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value && std::is_nothrow_move_assignable<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 	_SWAP_ (_CAST_<PACK<_ARG1[_VAL1]>> (arg1) ,_CAST_<PACK<_ARG1[_VAL1]>> (arg2)) ;
 }
 
@@ -885,13 +904,17 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src1 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (src2 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src1 != NULL) ;
+		_DEBUG_ASSERT_ (src2 != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	if (src1 == src2)
 		return TRUE ;
 	for (INDEX i = 0 ; i < len ; i++)
-		if (!(src1[i] == src2[i]))
+		if (!DECAY[src1[i] == src2[i]])
 			return FALSE ;
 	return TRUE ;
 #pragma GCC diagnostic pop
@@ -908,35 +931,55 @@ inline BOOL _MEMEQUAL_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
 }
 
 template <class _ARG1>
-inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
+inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src1 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (src2 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
-	if (src1 == src2)
-		return 0 ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src1 != NULL) ;
+		_DEBUG_ASSERT_ (src2 != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
+	FLAG ret = 0 ;
 	INDEX ix = 0 ;
-	while (ix < len && src1[ix] == src2[ix])
+	if (src1 == src2)
+		ix = len ;
+	while (TRUE) {
+		if (ix >= len)
+			break ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (ret != 0)
+				discard ;
+			if (!DECAY[src1[ix] < src2[ix]])
+				discard ;
+			ret = -1 ;
+		}
+		for (FOR_ONCE_DO_WHILE) {
+			if (ret != 0)
+				discard ;
+			if (!DECAY[src2[ix] < src1[ix]])
+				discard ;
+			ret = +1 ;
+		}
+		if (ret != 0)
+			break ;
 		ix++ ;
-	if (ix < len && src1[ix] < src2[ix])
-		return -1 ;
-	if (ix < len && src2[ix] < src1[ix])
-		return +1 ;
-	return 0 ;
+	}
+	return std::move (ret) ;
 #pragma GCC diagnostic pop
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
-inline FLAG _MEMCOMP_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
-	return _MEMCOMP_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
+inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
+	return _MEMCOMPR_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
 }
 
 template <class _ARG1 ,LENGTH _VAL1>
-inline FLAG _MEMCOMP_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
-	return _MEMCOMP_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
+inline FLAG _MEMCOMPR_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
+	return _MEMCOMPR_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -946,8 +989,12 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
-	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 #ifdef __CSC_CONFIG_VAR32__
 	static constexpr auto M_MAGIC_N1 = VAR (-2128831035) ;
 	static constexpr auto M_MAGIC_N2 = VAR (16777619) ;
@@ -976,8 +1023,12 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	for (INDEX i = 0 ; i < len ; i++)
 		if (src[i] == val)
 			return i ;
@@ -996,8 +1047,12 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	for (INDEX i = 0 ; i < len ; i++)
 		if (src[len + ~i] == val)
 			return (len + ~i) ;
@@ -1016,9 +1071,13 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (dst != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (dst != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	if (dst == src)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
@@ -1043,16 +1102,20 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (dst != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
-	_DEBUG_ASSERT_ (dst == src || _ABS_ (dst - src) >= len) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (dst != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	if (dst == NULL)
 		return ;
 	if (src == NULL)
 		return ;
 	_CALL_IF_ ([&] (BOOL &_case_req) {
 		_CASE_REQUIRE_ (dst != src) ;
+		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst[i] = src[len + ~i] ;
 	} ,[&] (BOOL &_case_req) {
@@ -1082,9 +1145,13 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (dst1 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (dst2 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (dst1 != NULL) ;
+		_DEBUG_ASSERT_ (dst2 != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	if (dst1 == dst2)
 		return ;
 	_CALL_IF_ ([&] (BOOL &_case_req) {
@@ -1115,9 +1182,13 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (dst1 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (dst2 != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (dst1 != NULL) ;
+		_DEBUG_ASSERT_ (dst2 != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	if (dst1 == dst2)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst1 - dst2) >= len) ;
@@ -1142,8 +1213,12 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_DEBUG_ASSERT_ (dst != NULL || len == 0) ;
-	_DEBUG_ASSERT_ (len >= 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (dst != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
+	}
 	for (INDEX i = 0 ; i < len ; i++)
 		dst[i] = val ;
 #pragma GCC diagnostic pop
@@ -1198,25 +1273,25 @@ public:
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
-template <class STRX>
+template <class REAL>
 class Plain final {
 private:
-	_STATIC_ASSERT_ (stl::is_plain_str<STRX>::value) ;
+	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 	class Detail ;
-	PTR<const STRX> mPlain ;
+	PTR<const REAL> mPlain ;
 	LENGTH mSize ;
 
 public:
 	inline Plain () = delete ;
 
 	template <LENGTH _VAL1>
-	inline constexpr implicit Plain (const DEF<STRX[_VAL1]> &that) :mPlain (&that[0]) ,mSize (_VAL1 - 1) {}
+	inline constexpr implicit Plain (const DEF<REAL[_VAL1]> &that) :mPlain (&that[0]) ,mSize (_VAL1 - 1) {}
 
 	template <LENGTH _VAL1>
-	inline constexpr implicit Plain (DEF<STRX[_VAL1]> &) = delete ;
+	inline constexpr implicit Plain (DEF<REAL[_VAL1]> &) = delete ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_full_array_of<STRX ,_ARG1>::value>>
-	inline explicit Plain (const _ARG1 &that) noexcept :Plain (_CAST_<STRX[_COUNTOF_ (_ARG1)]> (that)) {}
+	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_full_array_of<REAL ,_ARG1>::value>>
+	inline explicit Plain (const _ARG1 &that) noexcept :Plain (_CAST_<REAL[_COUNTOF_ (_ARG1)]> (that)) {}
 
 	template <class _ARG1>
 	inline explicit Plain (_ARG1 &) = delete ;
@@ -1228,12 +1303,12 @@ public:
 		return mSize ;
 	}
 
-	inline constexpr const ARR<STRX> &to () const {
+	inline constexpr const ARR<REAL> &to () const {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
-	inline constexpr implicit operator const ARR<STRX> & () const {
+	inline constexpr implicit operator const ARR<REAL> & () const {
 		return to () ;
 	}
 
@@ -1244,7 +1319,7 @@ private:
 		class PlainString {
 		private:
 			friend Plain ;
-			DEF<STRX[SIZE::value]> mString ;
+			DEF<REAL[SIZE::value]> mString ;
 
 		public:
 			inline PlainString () = delete ;
@@ -1268,39 +1343,39 @@ private:
 		using PLAIN_STRING_SIZE = ARGC<constexpr_plain_string_size (_NULL_<ARGVS<_ARGS...>> ())> ;
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static const DEF<STRX[PLAIN_STRING_SIZE<_ARGS...>::value]> &plain_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
+		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &plain_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
 			auto &r1 = _CACHE_ ([r1x] () noexcept {
-				return r1x ;
+				return _COPY_ (r1x) ;
 			}) ;
 			return r1.mString ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
 		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> &) noexcept {
-			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG1>::value) ;
+			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
 			array[_ARG2::value] = 0 ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> & ,const _ARG3 &arg1 ,const _ARGS &...args) noexcept {
-			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG1>::value) ;
-			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
-			_STATIC_ASSERT_ (stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
+			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
+			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)]) ;
+			_STATIC_ASSERT_ (DECAY[stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value]) ;
 			for (INDEX i = 0 ; i < _COUNTOF_ (_ARG3) - 1 ; i++)
 				array[i + _ARG2::value] = raw_to_plain_str (arg1[i]) ;
 			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,args...) ;
 		}
 
 		template <class _ARG1>
-		inline static STRX raw_to_plain_str (const _ARG1 &arg) noexcept {
-			if (arg >= _ARG1 (32) && arg <= _ARG1 (126))
-				return arg ;
-			if (arg == _ARG1 ('\t') || arg == _ARG1 ('\v'))
-				return arg ;
-			if (arg == _ARG1 ('\r') || arg == _ARG1 ('\n') || arg == _ARG1 ('\f'))
-				return arg ;
+		inline static REAL raw_to_plain_str (const _ARG1 &arg1) noexcept {
+			if (arg1 >= _ARG1 (32) && arg1 <= _ARG1 (126))
+				return arg1 ;
+			if (DECAY[arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v')])
+				return arg1 ;
+			if (DECAY[arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f')])
+				return arg1 ;
 			return _ARG1 ('?') ;
 		}
 	} ;
@@ -2304,14 +2379,14 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static PhanRef make (UNIT &src) {
-		return PhanRef (&src) ;
+	inline static PhanRef make (UNIT &val) {
+		return PhanRef (&val) ;
 	}
 
-	inline static PhanRef make (const PhanRef<UNIT> &src) {
-		if (!src.exist ())
+	inline static PhanRef make (const PhanRef<UNIT> &val) {
+		if (!val.exist ())
 			return PhanRef () ;
-		return make (src.self) ;
+		return make (val.self) ;
 	}
 } ;
 
@@ -2520,12 +2595,11 @@ public:
 	}
 
 	inline BOOL exist () const {
-		auto &r1 = _CACHE_ ([] () {
-			PACK<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> ret ;
-			_ZERO_ (ret) ;
-			return std::move (ret) ;
-		}) ;
-		return !_MEMEQUAL_ (_CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ,PTRTOARR[r1.P1]) ;
+		auto &r1 = _CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ;
+		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (r1)) ; i++)
+			if (r1[i] != 0)
+				return TRUE ;
+		return FALSE ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping {
@@ -2654,7 +2728,7 @@ public:
 	inline Buffer () = default ;
 
 	inline explicit Buffer (LENGTH len) {
-		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE) ;
+		_DEBUG_ASSERT_ (DECAY[len >= 0 && len <= SIZE]) ;
 	}
 
 	inline implicit Buffer (const DEF<UNIT[SIZE]> &that) :Buffer (std::move (Buffer::from (that))) {}
@@ -2686,7 +2760,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return mBuffer[index] ;
 	}
 
@@ -2695,7 +2769,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return mBuffer[index] ;
 	}
 
@@ -2709,7 +2783,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - mBuffer ;
-		if (!(ret >= 0 && ret < size ()))
+		if (!DECAY[ret >= 0 && ret < size ()])
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -2726,27 +2800,24 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL less (const Buffer &that) const {
-		const auto r1x = _MEMCOMP_ (mBuffer ,PTRTOARR[that.mBuffer]) ;
-		if (r1x >= 0)
-			return FALSE ;
-		return TRUE ;
+	inline FLAG compr (const Buffer &that) const {
+		return _MEMCOMPR_ (mBuffer ,PTRTOARR[that.mBuffer]) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Buffer &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Buffer &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Buffer &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline Buffer expand () const {
@@ -2838,7 +2909,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2847,7 +2918,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2861,7 +2932,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!(ret >= 0 && ret < size ()))
+		if (!DECAY[ret >= 0 && ret < size ()])
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -2882,32 +2953,28 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL less (const Buffer &that) const {
+	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMP_ (*mBuffer ,*that.mBuffer ,r1x) ;
-		if (r2x < 0)
-			return TRUE ;
-		if (r2x > 0)
-			return FALSE ;
-		if (mSize >= that.mSize)
-			return FALSE ;
-		return TRUE ;
+		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		if (r2x != 0)
+			return _COPY_ (r2x) ;
+		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Buffer &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Buffer &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Buffer &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline Buffer<UNIT ,SAUTO> expand () const {
@@ -3101,7 +3168,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3110,7 +3177,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3124,7 +3191,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!(ret >= 0 && ret < size ()))
+		if (!DECAY[ret >= 0 && ret < size ()])
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3145,32 +3212,28 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL less (const Buffer &that) const {
+	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMP_ (*mBuffer ,*that.mBuffer ,r1x) ;
-		if (r2x < 0)
-			return TRUE ;
-		if (r2x > 0)
-			return FALSE ;
-		if (mSize >= that.mSize)
-			return FALSE ;
-		return TRUE ;
+		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		if (r2x != 0)
+			return _COPY_ (r2x) ;
+		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Buffer &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Buffer &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Buffer &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline Buffer expand () const {
@@ -3255,7 +3318,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
 	}
@@ -3270,7 +3333,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!(ret >= 0 && ret < size ()))
+		if (!DECAY[ret >= 0 && ret < size ()])
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3291,32 +3354,28 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL less (const Buffer &that) const {
+	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMP_ (*mBuffer ,*that.mBuffer ,r1x) ;
-		if (r2x < 0)
-			return TRUE ;
-		if (r2x > 0)
-			return FALSE ;
-		if (mSize >= that.mSize)
-			return FALSE ;
-		return TRUE ;
+		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		if (r2x != 0)
+			return _COPY_ (r2x) ;
+		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Buffer &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Buffer &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Buffer &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline Buffer expand () const {
@@ -3339,10 +3398,10 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	inline static Buffer make (const ARR<UNIT> &src ,LENGTH len) {
-		_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
 		if (len == 0)
 			return Buffer (NULL ,0) ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
 		return Buffer (&src ,len) ;
 	}
 
@@ -3427,7 +3486,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
+		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
 	}
@@ -3442,7 +3501,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!(ret >= 0 && ret < size ()))
+		if (!DECAY[ret >= 0 && ret < size ()])
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3463,32 +3522,28 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL less (const Buffer &that) const {
+	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMP_ (*mBuffer ,*that.mBuffer ,r1x) ;
-		if (r2x < 0)
-			return TRUE ;
-		if (r2x > 0)
-			return FALSE ;
-		if (mSize >= that.mSize)
-			return FALSE ;
-		return TRUE ;
+		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		if (r2x != 0)
+			return _COPY_ (r2x) ;
+		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
-		return less (that) ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const Buffer &that) const {
-		return !less (that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const Buffer &that) const {
-		return that.less (*this) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const Buffer &that) const {
-		return !that.less (*this) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline Buffer expand () const {
@@ -3511,10 +3566,10 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	inline static Buffer make (ARR<UNIT> &src ,LENGTH len) {
-		_DEBUG_ASSERT_ (src != NULL || len == 0) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
 		if (len == 0)
 			return Buffer (NULL ,0) ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len >= 0) ;
 		return Buffer (&src ,len) ;
 	}
 
@@ -3571,6 +3626,8 @@ private:
 	} ;
 
 private:
+	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3613,6 +3670,8 @@ private:
 	} ;
 
 private:
+	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3635,7 +3694,6 @@ public:
 	inline Allocator &operator= (const Allocator &) = delete ;
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value && std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = (std::is_pod<UNIT>::value) ? (mAllocator.size ()) : 0 ;
 		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
@@ -3676,6 +3734,8 @@ private:
 	} ;
 
 private:
+	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3737,7 +3797,6 @@ public:
 	}
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value && std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = (std::is_pod<UNIT>::value) ? (mAllocator.size ()) : 0 ;
 		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
@@ -3844,7 +3903,6 @@ public:
 
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value && std::is_nothrow_move_assignable<UNIT>::value) ;
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
@@ -3884,7 +3942,6 @@ public:
 	}
 
 	inline void reserve (LENGTH len) {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value && std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = mAllocator.size () ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 		const auto r2x = _MAX_ (len - (r1x - mLength) ,VAR_ZERO) ;
@@ -3902,7 +3959,6 @@ public:
 	}
 
 	inline void clean () {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value && std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = shrink_size () ;
 		if (r1x == mAllocator.size ())
 			return ;

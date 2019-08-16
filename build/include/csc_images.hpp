@@ -63,7 +63,6 @@ public:
 
 private:
 	inline LENGTH total_length () const {
-		_DEBUG_ASSERT_ (mRange.length () > 0) ;
 		LENGTH ret = 1 ;
 		for (auto &&i : mRange) {
 			_DEBUG_ASSERT_ (i >= 0) ;
@@ -74,7 +73,6 @@ private:
 	}
 
 	inline Array<LENGTH ,SIZE> first_item () const {
-		_DEBUG_ASSERT_ (mRange.length () > 0) ;
 		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
 		ret.fill (0) ;
 		return std::move (ret) ;
@@ -90,7 +88,7 @@ private:
 
 		template <class _ARG1>
 		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)) ;
+			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)]) ;
 			index[_ARG1::value]++ ;
 			if (index[_ARG1::value] < range[_ARG1::value])
 				return ;
@@ -148,7 +146,8 @@ public:
 	explicit Bitmap (LENGTH _cx ,LENGTH _cy) :Bitmap (_cx ,_cy ,_cx ,0) {}
 
 	explicit Bitmap (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
+		_DEBUG_ASSERT_ (_cx >= 0) ;
+		_DEBUG_ASSERT_ (_cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
 		mHeap = SharedRef<Attribute>::make () ;
@@ -229,7 +228,8 @@ public:
 	}
 
 	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cy >= 0) ;
+		_DEBUG_ASSERT_ (_cx >= 0) ;
+		_DEBUG_ASSERT_ (_cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
@@ -254,14 +254,14 @@ public:
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {
-		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mCX]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mCY]) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
-		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mCX]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mCY]) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
@@ -308,7 +308,9 @@ public:
 	inline Row<Bitmap> operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Bitmap &that) const {
-		if (mCX != that.mCX || mCY != that.mCY)
+		if (mCX != that.mCX)
+			return FALSE ;
+		if (mCY != that.mCY)
 			return FALSE ;
 		for (auto &&i : range ())
 			if (get (i) != that.get (i))
@@ -325,7 +327,8 @@ public:
 	}
 
 	Bitmap add (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) + that.get (i) ;
@@ -337,7 +340,8 @@ public:
 	}
 
 	void addto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) += that.get (i) ;
 	}
@@ -348,7 +352,8 @@ public:
 	}
 
 	Bitmap sub (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) - that.get (i) ;
@@ -360,7 +365,8 @@ public:
 	}
 
 	void subto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) -= that.get (i) ;
 	}
@@ -371,7 +377,8 @@ public:
 	}
 
 	Bitmap mul (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) * that.get (i) ;
@@ -383,7 +390,8 @@ public:
 	}
 
 	void multo (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) *= that.get (i) ;
 	}
@@ -394,7 +402,8 @@ public:
 	}
 
 	Bitmap div (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) / that.get (i) ;
@@ -406,7 +415,8 @@ public:
 	}
 
 	void divto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) /= that.get (i) ;
 	}
@@ -417,7 +427,8 @@ public:
 	}
 
 	Bitmap mod (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) % that.get (i) ;
@@ -429,7 +440,8 @@ public:
 	}
 
 	void modto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) %= that.get (i) ;
 	}
@@ -462,7 +474,8 @@ public:
 	}
 
 	Bitmap band (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) & that.get (i) ;
@@ -474,7 +487,8 @@ public:
 	}
 
 	void bandto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) &= that.get (i) ;
 	}
@@ -485,7 +499,8 @@ public:
 	}
 
 	Bitmap bor (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) | that.get (i) ;
@@ -497,7 +512,8 @@ public:
 	}
 
 	void borto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) |= that.get (i) ;
 	}
@@ -508,7 +524,8 @@ public:
 	}
 
 	Bitmap bxor (const Bitmap &that) const {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ^ that.get (i) ;
@@ -520,7 +537,8 @@ public:
 	}
 
 	void bxorto (const Bitmap &that) {
-		_DEBUG_ASSERT_ (mCX == that.mCX && mCY == that.mCY) ;
+		_DEBUG_ASSERT_ (mCX == that.mCX) ;
+		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		for (auto &&i : range ())
 			get (i) ^= that.get (i) ;
 	}
@@ -732,16 +750,16 @@ public:
 
 	UNIT &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mThis->mCX]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mThis->mCY]) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
+		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mThis->mCX]) ;
+		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mThis->mCY]) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
@@ -806,8 +824,8 @@ public:
 	}
 
 	void load_data (LENGTH _cx ,LENGTH _cy) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cx < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (DECAY[_cx >= 0 && _cx < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (DECAY[_cy >= 0 && _cy < VAR32_MAX]) ;
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;

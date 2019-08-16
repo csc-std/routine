@@ -127,8 +127,12 @@ public:
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
 		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
-		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (LENGTH (rax.P2) == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
+			_DYNAMIC_ASSERT_ (DECAY[LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX]) ;
+		}
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}
@@ -235,8 +239,12 @@ public:
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
 		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		_DYNAMIC_ASSERT_ (rax.P1 != NULL || rax.P2 == 0) ;
-		_DYNAMIC_ASSERT_ (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (LENGTH (rax.P2) == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
+			_DYNAMIC_ASSERT_ (DECAY[LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX]) ;
+		}
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}

@@ -57,31 +57,33 @@ public:
 	}
 } ;
 
-template <class UNIT>
+template <class REAL>
 class Camera {
 private:
-	Vector<UNIT> mEyeU ;
-	Vector<UNIT> mEyeV ;
-	Vector<UNIT> mEyeN ;
-	Vector<UNIT> mEyeP ;
-	Mutable<Matrix<UNIT>> mViewMatrix ;
-	UNIT mScreenW ;
-	UNIT mScreenH ;
-	UNIT mScreenD ;
-	Matrix<UNIT> mProjectionMatrix ;
+	Vector<REAL> mEyeU ;
+	Vector<REAL> mEyeV ;
+	Vector<REAL> mEyeN ;
+	Vector<REAL> mEyeP ;
+	Mutable<Matrix<REAL>> mViewMatrix ;
+	REAL mScreenW ;
+	REAL mScreenH ;
+	REAL mScreenD ;
+	Matrix<REAL> mProjectionMatrix ;
 
 public:
 	Camera () {
-		const auto r1x = ARRAY3<Vector<UNIT>> ({
-			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (1) ,UNIT (1)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (0) ,UNIT (0) ,UNIT (1)} ,
-			Vector<UNIT> {UNIT (0) ,UNIT (1) ,UNIT (0) ,UNIT (0)}}) ;
+		const auto r1x = ARRAY3<Vector<REAL>> ({
+			Vector<REAL> {REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)} ,
+			Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ,
+			Vector<REAL> {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)}}) ;
 		lookat (r1x[0] ,r1x[1] ,r1x[2]) ;
-		perspective (UNIT (90) ,UNIT (1) ,UNIT (1) ,UNIT (1000)) ;
+		perspective (REAL (90) ,REAL (1) ,REAL (1) ,REAL (1000)) ;
 	}
 
-	void lookat (const Vector<UNIT> &eye ,const Vector<UNIT> &center ,const Vector<UNIT> &up) {
-		_DEBUG_ASSERT_ (eye[3] == UNIT (1) && center[3] == UNIT (1) && up[3] == UNIT (0)) ;
+	void lookat (const Vector<REAL> &eye ,const Vector<REAL> &center ,const Vector<REAL> &up) {
+		_DEBUG_ASSERT_ (eye[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (up[3] == REAL (0)) ;
 		mEyeN = (center - eye).normalize () ;
 		mEyeU = (mEyeN ^ up).normalize () ;
 		mEyeV = (mEyeN ^ mEyeU).normalize () ;
@@ -89,15 +91,15 @@ public:
 		mViewMatrix.signal () ;
 	}
 
-	void translate (const UNIT &distance_u ,const UNIT &distance_v ,const UNIT &distance_n) {
+	void translate (const REAL &distance_u ,const REAL &distance_v ,const REAL &distance_n) {
 		mEyeP += mEyeU * distance_u + mEyeV * distance_v + mEyeN * distance_n ;
 		mViewMatrix.signal () ;
 	}
 
 	//@info: 'angle_vn-angle_nu-angle_uv' equals to 'pitch-yaw-roll' (heading-pitch-bank)
-	void rotate (const UNIT &angle_vn ,const UNIT &angle_nu ,const UNIT &angle_uv) {
+	void rotate (const REAL &angle_vn ,const REAL &angle_nu ,const REAL &angle_uv) {
 		for (FOR_ONCE_DO_WHILE) {
-			if (angle_vn == UNIT (0))
+			if (angle_vn == REAL (0))
 				discard ;
 			const auto r1x = mEyeN * _COS_ (angle_vn) - mEyeV * _SIN_ (angle_vn) ;
 			const auto r2x = mEyeV * _COS_ (angle_vn) + mEyeN * _SIN_ (angle_vn) ;
@@ -105,7 +107,7 @@ public:
 			mEyeV = r2x.normalize () ;
 		}
 		for (FOR_ONCE_DO_WHILE) {
-			if (angle_nu == UNIT (0))
+			if (angle_nu == REAL (0))
 				discard ;
 			const auto r3x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
 			const auto r4x = mEyeN * _COS_ (angle_nu) + mEyeU * _SIN_ (angle_nu) ;
@@ -113,7 +115,7 @@ public:
 			mEyeN = r4x.normalize () ;
 		}
 		for (FOR_ONCE_DO_WHILE) {
-			if (angle_uv == UNIT (0))
+			if (angle_uv == REAL (0))
 				discard ;
 			const auto r5x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
 			const auto r6x = mEyeU * _COS_ (angle_uv) + mEyeV * _SIN_ (angle_uv) ;
@@ -123,95 +125,95 @@ public:
 		mViewMatrix.signal () ;
 	}
 
-	void circle (const UNIT &_near ,const UNIT &angle_un ,const UNIT &angle_nv) {
+	void circle (const REAL &_near ,const REAL &angle_un ,const REAL &angle_nv) {
 		mEyeP += mEyeN * _near ;
 		rotate (angle_nv ,angle_un ,0) ;
 		mEyeP -= mEyeN * _near ;
 	}
 
-	Matrix<UNIT> view () const {
-		const auto r1x = Function<DEF<void (Matrix<UNIT> &)> NONE::*> (PhanRef<const Camera>::make (*this) ,&Camera::compute_view_matrix) ;
+	Matrix<REAL> view () const {
+		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (*this) ,&Camera::compute_view_matrix) ;
 		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
 	}
 
-	UNIT screen_w () const {
+	REAL screen_w () const {
 		return mScreenW ;
 	}
 
-	UNIT screen_h () const {
+	REAL screen_h () const {
 		return mScreenH ;
 	}
 
-	UNIT screen_d () const {
+	REAL screen_d () const {
 		return mScreenD ;
 	}
 
-	void perspective (const UNIT &fov ,const UNIT &aspect ,const UNIT &_near ,const UNIT &_far) {
-		_DEBUG_ASSERT_ (fov > UNIT (0) && fov < UNIT (180)) ;
-		_DEBUG_ASSERT_ (aspect > UNIT (0)) ;
-		const auto r1x = _near * _TAN_ (fov * UNIT (MATH_PI / 180) * UNIT (0.5)) ;
+	void perspective (const REAL &fov ,const REAL &aspect ,const REAL &_near ,const REAL &_far) {
+		_DEBUG_ASSERT_ (DECAY[fov > REAL (0) && fov < REAL (180)]) ;
+		_DEBUG_ASSERT_ (aspect > REAL (0)) ;
+		const auto r1x = _near * _TAN_ (fov * REAL (MATH_PI / 180) * REAL (0.5)) ;
 		const auto r2x = r1x * aspect ;
 		frustum (-r2x ,r2x ,-r1x ,r1x ,_near ,_far) ;
 	}
 
-	void frustum (const UNIT &left ,const UNIT &right ,const UNIT &bottom ,const UNIT &top ,const UNIT &_near ,const UNIT &_far) {
+	void frustum (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_far > _near && _near > UNIT (0)) ;
+		_DEBUG_ASSERT_ (DECAY[_near > REAL (0) && _near < _far]) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
-		mProjectionMatrix[0][0] = UNIT (2) * _near * _PINV_ (mScreenW) ;
-		mProjectionMatrix[0][1] = UNIT (0) ;
+		mProjectionMatrix[0][0] = REAL (2) * _near * _PINV_ (mScreenW) ;
+		mProjectionMatrix[0][1] = REAL (0) ;
 		mProjectionMatrix[0][2] = (right + left) * _PINV_ (mScreenW) ;
-		mProjectionMatrix[0][3] = UNIT (0) ;
-		mProjectionMatrix[1][0] = UNIT (0) ;
-		mProjectionMatrix[1][1] = UNIT (2) * _near * _PINV_ (mScreenH) ;
+		mProjectionMatrix[0][3] = REAL (0) ;
+		mProjectionMatrix[1][0] = REAL (0) ;
+		mProjectionMatrix[1][1] = REAL (2) * _near * _PINV_ (mScreenH) ;
 		mProjectionMatrix[1][2] = (top + bottom) * _PINV_ (mScreenH) ;
-		mProjectionMatrix[1][3] = UNIT (0) ;
-		mProjectionMatrix[2][0] = UNIT (0) ;
-		mProjectionMatrix[2][1] = UNIT (0) ;
+		mProjectionMatrix[1][3] = REAL (0) ;
+		mProjectionMatrix[2][0] = REAL (0) ;
+		mProjectionMatrix[2][1] = REAL (0) ;
 		mProjectionMatrix[2][2] = -(_far + _near) * _PINV_ (mScreenD) ;
-		mProjectionMatrix[2][3] = -(UNIT (2) * _near * _far) * _PINV_ (mScreenD) ;
-		mProjectionMatrix[3][0] = UNIT (0) ;
-		mProjectionMatrix[3][1] = UNIT (0) ;
-		mProjectionMatrix[3][2] = UNIT (-1) ;
-		mProjectionMatrix[3][3] = UNIT (0) ;
+		mProjectionMatrix[2][3] = -(REAL (2) * _near * _far) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[3][0] = REAL (0) ;
+		mProjectionMatrix[3][1] = REAL (0) ;
+		mProjectionMatrix[3][2] = REAL (-1) ;
+		mProjectionMatrix[3][3] = REAL (0) ;
 	}
 
-	void ortho (const UNIT &left ,const UNIT &right ,const UNIT &bottom ,const UNIT &top ,const UNIT &_near ,const UNIT &_far) {
+	void ortho (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_far > _near && _near > UNIT (0)) ;
+		_DEBUG_ASSERT_ (DECAY[_near > REAL (0) && _near < _far]) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
-		mProjectionMatrix[0][0] = UNIT (2) * _PINV_ (mScreenW) ;
-		mProjectionMatrix[0][1] = UNIT (0) ;
-		mProjectionMatrix[0][2] = UNIT (0) ;
-		mProjectionMatrix[0][3] = UNIT (0) ;
-		mProjectionMatrix[1][0] = UNIT (0) ;
-		mProjectionMatrix[1][1] = UNIT (2) * _PINV_ (mScreenH) ;
-		mProjectionMatrix[1][2] = UNIT (0) ;
-		mProjectionMatrix[1][3] = UNIT (0) ;
-		mProjectionMatrix[2][0] = UNIT (0) ;
-		mProjectionMatrix[2][1] = UNIT (0) ;
-		mProjectionMatrix[2][2] = UNIT (-2) * _PINV_ (mScreenD) ;
-		mProjectionMatrix[2][3] = UNIT (0) ;
+		mProjectionMatrix[0][0] = REAL (2) * _PINV_ (mScreenW) ;
+		mProjectionMatrix[0][1] = REAL (0) ;
+		mProjectionMatrix[0][2] = REAL (0) ;
+		mProjectionMatrix[0][3] = REAL (0) ;
+		mProjectionMatrix[1][0] = REAL (0) ;
+		mProjectionMatrix[1][1] = REAL (2) * _PINV_ (mScreenH) ;
+		mProjectionMatrix[1][2] = REAL (0) ;
+		mProjectionMatrix[1][3] = REAL (0) ;
+		mProjectionMatrix[2][0] = REAL (0) ;
+		mProjectionMatrix[2][1] = REAL (0) ;
+		mProjectionMatrix[2][2] = REAL (-2) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[2][3] = REAL (0) ;
 		mProjectionMatrix[3][0] = -(right + left) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[3][1] = -(top + bottom) * _PINV_ (mScreenH) ;
 		mProjectionMatrix[3][2] = -(_far + _near) * _PINV_ (mScreenD) ;
-		mProjectionMatrix[3][3] = UNIT (1) ;
+		mProjectionMatrix[3][3] = REAL (1) ;
 	}
 
-	Matrix<UNIT> projection () const {
+	Matrix<REAL> projection () const {
 		return mProjectionMatrix ;
 	}
 
 private:
-	void compute_view_matrix (Matrix<UNIT> &view_mat) const {
-		const auto r1x = Vector<UNIT> {-mEyeP[0] ,-mEyeP[1] ,-mEyeP[2] ,UNIT (0)} ;
+	void compute_view_matrix (Matrix<REAL> &view_mat) const {
+		const auto r1x = Vector<REAL> {-mEyeP[0] ,-mEyeP[1] ,-mEyeP[2] ,REAL (0)} ;
 		view_mat[0][0] = mEyeU[0] ;
 		view_mat[0][1] = -mEyeU[1] ;
 		view_mat[0][2] = -mEyeU[2] ;
@@ -223,11 +225,11 @@ private:
 		view_mat[2][0] = mEyeN[0] ;
 		view_mat[2][1] = -mEyeN[1] ;
 		view_mat[2][2] = -mEyeN[2] ;
-		view_mat[2][3] = mEyeN * r1x - UNIT (1) ;
-		view_mat[3][0] = UNIT (0) ;
-		view_mat[3][1] = UNIT (0) ;
-		view_mat[3][2] = UNIT (0) ;
-		view_mat[3][3] = UNIT (1) ;
+		view_mat[2][3] = mEyeN * r1x - REAL (1) ;
+		view_mat[3][0] = REAL (0) ;
+		view_mat[3][1] = REAL (0) ;
+		view_mat[3][2] = REAL (0) ;
+		view_mat[3][3] = REAL (1) ;
 	}
 } ;
 

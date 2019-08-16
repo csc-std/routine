@@ -90,8 +90,10 @@ public:
 		const auto r5x = r3x.recast<A> () ;
 		_UNITTEST_ASSERT_ (_ADDRESS_ (&r4x.self) != _ADDRESS_ (&r5x.self)) ;
 		_UNITTEST_ASSERT_ (r4x == r5x) ;
-		_UNITTEST_ASSERT_ (r4x->func1 () == 3 && r5x->func1 () == 3) ;
-		_UNITTEST_ASSERT_ (r4x->func2 () == 1 && r5x->func2 () == 2) ;
+		_UNITTEST_ASSERT_ (r4x->func1 () == 3) ;
+		_UNITTEST_ASSERT_ (r5x->func1 () == 3) ;
+		_UNITTEST_ASSERT_ (r4x->func2 () == 1) ;
+		_UNITTEST_ASSERT_ (r5x->func2 () == 2) ;
 		const auto r6x = r2x.recast<C> () ;
 		_UNITTEST_ASSERT_ (_ADDRESS_ (&r3x.self) == _ADDRESS_ (&r6x.self)) ;
 	}
@@ -104,8 +106,13 @@ public:
 			const auto r4x = (arg2 < VAR_ZERO) ? (-arg1) : arg1 ;
 			const auto r5x = _ABS_ (arg2) ;
 			VAR ret = VAR (r5x * VAR (r4x / r5x)) ;
-			if (r4x < 0 && ret > r4x)
+			for (FOR_ONCE_DO_WHILE) {
+				if (r4x >= 0)
+					discard ;
+				if (r4x >= ret)
+					discard ;
 				ret -= r5x ;
+			}
 			if (arg2 < 0)
 				ret = -ret ;
 			return std::move (ret) ;

@@ -58,14 +58,14 @@
 
 namespace CSC {
 inline namespace NETWORK {
-inline TIMEVAL _inline_SOCKET_MAKE_TIMEVAL_ (LENGTH src) {
-	_DEBUG_ASSERT_ (src >= 0) ;
-	return TIMEVAL {VAR32 (src / 1000) ,VAR32 ((src % 1000) * 1000)} ;
+inline TIMEVAL _inline_SOCKET_MAKE_TIMEVAL_ (LENGTH val) {
+	_DEBUG_ASSERT_ (val >= 0) ;
+	return TIMEVAL {VAR32 (val / 1000) ,VAR32 ((val % 1000) * 1000)} ;
 }
 
-inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &src) {
+inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
-	const auto r1x = _BITWISE_CAST_<SOCKADDR_IN> (src) ;
+	const auto r1x = _BITWISE_CAST_<SOCKADDR_IN> (val) ;
 	const auto r2x = _CALL_ ([&] () {
 		PACK<WORD ,CHAR> ret ;
 		ret.P1 = _CAST_<EndianBytes<WORD>> (r1x.sin_port) ;
@@ -75,13 +75,13 @@ inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &src) {
 	return _BUILDIPV4S_<STRU8> (r2x) ;
 }
 
-inline SOCKADDR _inline_SOCKET_MAKE_SOCKETADDR_ (const String<STRU8> &src) {
+inline SOCKADDR _inline_SOCKET_MAKE_SOCKETADDR_ (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _CALL_ ([&] () {
 		SOCKADDR_IN ret ;
 		_ZERO_ (ret) ;
 		ret.sin_family = AF_INET ;
-		const auto r2x = _PARSEIPV4S_ (src) ;
+		const auto r2x = _PARSEIPV4S_ (val) ;
 		ret.sin_port = _CAST_<EndianBytes<WORD>> (r2x.P1) ;
 		ret.sin_addr.S_un.S_addr = _CAST_<EndianBytes<CHAR>> (r2x.P2) ;
 		return std::move (ret) ;
@@ -170,14 +170,20 @@ public:
 		if (r1x == 0)
 			return ;
 		//@info: state of 'this' has been changed
-		const auto r2x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
-		_DYNAMIC_ASSERT_ (r1x >= 0 || r2x) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (r1x >= 0)
+				discard ;
+			const auto r2x = errno ;
+			if (r2x == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (DECAY[r2x == EINPROGRESS || r2x == EWOULDBLOCK]) ;
+		}
 		link_confirm () ;
 	}
 
 	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
-		_DEBUG_ASSERT_ (rcv_len >= 0 && rcv_len < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (snd_len >= 0 && snd_len < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (DECAY[rcv_len >= 0 && rcv_len < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (DECAY[snd_len >= 0 && snd_len < VAR32_MAX]) ;
 		const auto r1x = VAR32 (rcv_len) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVBUF ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 		const auto r2x = VAR32 (snd_len) ;
@@ -191,8 +197,14 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
-		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (r2x >= 0)
+				discard ;
+			const auto r4x = errno ;
+			if (r4x == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
@@ -204,8 +216,14 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
-		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (r2x >= 0)
+				discard ;
+			const auto r4x = errno ;
+			if (r4x == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+		}
 		it = r2x ;
 	}
 
@@ -216,8 +234,14 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		const auto r4x = BOOL (errno == 0 || errno == EINPROGRESS || errno == EWOULDBLOCK) ;
-		_DYNAMIC_ASSERT_ (r2x >= 0 || r4x) ;
+		for (FOR_ONCE_DO_WHILE) {
+			if (r2x >= 0)
+				discard ;
+			const auto r4x = errno ;
+			if (r4x == 0)
+				discard ;
+			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 

@@ -280,7 +280,7 @@ private:
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (typeid (UNIT).name ()) ;
 			const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
-			_DEBUG_ASSERT_ (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)) ;
+			_DEBUG_ASSERT_ (DECAY[r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE)]) ;
 			const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
 			_MEMCOPY_ (PTRTOARR[_RESET_ (ret).unused] ,PTRTOARR[r1x] ,r3x) ;
 			return std::move (ret) ;
@@ -448,7 +448,7 @@ public:
 		for (INDEX i = 0 ; i < count ; i++) {
 			if (mSelf.mSubAwaitQueue.empty ())
 				continue ;
-			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.peek ()].item ;
+			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.head ()].item ;
 			mSelf.mSubAwaitQueue.take () ;
 			mSelf.mSubQueue.add (r1x) ;
 		}
@@ -510,7 +510,7 @@ public:
 
 	VAR random_value (VAR _min ,VAR _max) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (_min >= 0 && _min <= _max) ;
+		_DEBUG_ASSERT_ (DECAY[_min >= 0 && _min <= _max]) ;
 		const auto r1x = mThis->random_value () ;
 		return r1x % (_max - _min + 1) + _min ;
 	}
@@ -531,7 +531,7 @@ public:
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range ,BitSet<> &&res) popping {
-		_DEBUG_ASSERT_ (count >= 0 && count < range) ;
+		_DEBUG_ASSERT_ (DECAY[count >= 0 && count < range]) ;
 		_DEBUG_ASSERT_ (res.size () == range) ;
 		BitSet<> ret = std::move (res) ;
 		ret.clear () ;
@@ -549,7 +549,7 @@ public:
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &&res) popping {
-		_DEBUG_ASSERT_ (count >= 0 && count < range.size ()) ;
+		_DEBUG_ASSERT_ (DECAY[count >= 0 && count < range.size ()]) ;
 		_DEBUG_ASSERT_ (res.size () == range.size ()) ;
 		BitSet<> ret = std::move (res) ;
 		ret.clear () ;
