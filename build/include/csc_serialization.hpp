@@ -1456,7 +1456,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
 				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
-				_CASE_REQUIRE_ (DECAY[r1x || r2x]) ;
+				_CASE_REQUIRE_ (BOOL (r1x || r2x)) ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
@@ -1467,7 +1467,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			} ,[&] (BOOL &_case_req) {
 				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')) ;
 				const auto r4x = BOOL (mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
-				_CASE_REQUIRE_ (DECAY[r3x || r4x]) ;
+				_CASE_REQUIRE_ (BOOL (r3x || r4x)) ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;

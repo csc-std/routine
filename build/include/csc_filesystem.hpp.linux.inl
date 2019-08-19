@@ -51,7 +51,7 @@ inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 		close (me) ;
 	}) ;
 	const auto r2x = LENGTH (lseek (r1x ,0 ,SEEK_END)) ;
-	_DYNAMIC_ASSERT_ (DECAY[r2x >= 0 && r2x < VAR32_MAX]) ;
+	_DYNAMIC_ASSERT_ (BOOL (r2x >= 0 && r2x < VAR32_MAX)) ;
 	lseek (r1x ,0 ,SEEK_SET) ;
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r2x) ;
 	const auto r3x = LENGTH (read (r1x ,ret.self ,r2x)) ;
@@ -69,7 +69,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 		close (me) ;
 	}) ;
 	const auto r2x = LENGTH (lseek (r1x ,0 ,SEEK_END)) ;
-	_DYNAMIC_ASSERT_ (DECAY[r2x > 0 && r2x <= data.size ()]) ;
+	_DYNAMIC_ASSERT_ (BOOL (r2x > 0 && r2x <= data.size ())) ;
 	lseek (r1x ,0 ,SEEK_SET) ;
 	const auto r3x = LENGTH (read (r1x ,data.self ,r2x)) ;
 	_DYNAMIC_ASSERT_ (r3x == r2x) ;
@@ -77,7 +77,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 
 inline exports void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
 	const auto r5x = _BUILDSTRS_<STRA> (file) ;
-	_DEBUG_ASSERT_ (DECAY[data.size () >= 0 && data.size () < VAR32_MAX]) ;
+	_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
 	const auto r1x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = open (r5x.raw ().self ,mode_t (O_CREAT | O_WRONLY | O_TRUNC) ,mode_t (S_IRWXU | S_IRWXG | S_IRWXO)) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
@@ -268,12 +268,12 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	_CALL_IF_ ([&] (BOOL &_case_req) {
 		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		_CASE_REQUIRE_ (DECAY[r4x || r5x]) ;
+		_CASE_REQUIRE_ (BOOL (r4x || r5x)) ;
 		ret += _PCSTR_ ("/") ;
 	} ,[&] (BOOL &_case_req) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		_CASE_REQUIRE_ (DECAY[r6x || r7x]) ;
+		_CASE_REQUIRE_ (BOOL (r6x || r7x)) ;
 		//@warn: not absolute path really
 		ret += _WORKINGPATH_ () ;
 	}) ;
@@ -300,7 +300,7 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 	return _CACHE_ ([] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-		if (!DECAY[r1x >= 0 && r1x < rax.size ()])
+		if (!BOOL (r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
 		String<STR> ret = _PARSESTRS_ (rax) ;
 		ret = _PARSEFILEPATH_ (ret) ;
@@ -313,7 +313,7 @@ inline exports const String<STR> &_MODULEFILENAME_ () popping {
 	return _CACHE_ ([] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-		if (!DECAY[r1x >= 0 && r1x < rax.size ()])
+		if (!BOOL (r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
 		const auto r2x = _PARSESTRS_ (rax) ;
 		return _PARSEFILENAME_ (r2x) ;
@@ -456,15 +456,15 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data) popping {
-		_DEBUG_ASSERT_ (DECAY[data.size () >= 0 && data.size () < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
 		const auto r1x = LENGTH (std::fread (data.self ,1 ,data.size () ,mFile)) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		_MEMFILL_ (PTRTOARR[&data.self[r1x]] ,(data.size () - r1x) ,BYTE (0X00)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
-		_DEBUG_ASSERT_ (DECAY[data.size () >= 0 && data.size () < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
 		const auto r1x = LENGTH (std::fwrite (data.self ,1 ,data.size () ,mFile)) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x == data.size ()) ;
@@ -501,7 +501,7 @@ public:
 	}
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len) {
-		_DEBUG_ASSERT_ (DECAY[file_len >= 0 && file_len < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (file_len >= 0 && file_len < VAR32_MAX)) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
@@ -513,7 +513,7 @@ public:
 	}
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
-		_DEBUG_ASSERT_ (DECAY[file_len >= 0 && file_len < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (file_len >= 0 && file_len < VAR32_MAX)) ;
 		_DEBUG_ASSERT_ (cache) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;

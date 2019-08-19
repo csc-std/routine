@@ -926,7 +926,7 @@ public:
 	inline implicit Variant (_ARG1 &&that) {
 		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value ;
 		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (mVariant.unused) ;
-		Detail::template_create (_NULL_<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>> () ,r1x ,std::forward<_ARG1> (that)) ;
+		Detail::template_create (_NULL_<ARGV<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ,r1x ,std::forward<_ARG1> (that)) ;
 	}
 
 	inline ~Variant () noexcept {
@@ -1045,7 +1045,7 @@ public:
 			mIndex = VAR_NONE ;
 		}
 		const auto r1x = &_LOAD_<TEMP<_RET>> (mVariant.unused) ;
-		Detail::template_create (_NULL_<ARGC<TRUE>> () ,r1x ,std::forward<_ARGS> (args)...) ;
+		Detail::template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,r1x ,std::forward<_ARGS> (args)...) ;
 		mIndex = INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value ;
 	}
 
@@ -1077,7 +1077,7 @@ private:
 				if (!r1x)
 					discard ;
 				const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
-				template_create (_NULL_<ARGC<std::is_default_constructible<_ARG1>::value>> () ,r2x) ;
+				template_create (_NULL_<ARGV<ARGC<std::is_default_constructible<_ARG1>::value>>> () ,r2x) ;
 			}
 			if (r1x)
 				return ;
@@ -1113,7 +1113,7 @@ private:
 				if (!r1x)
 					discard ;
 				const auto r2x = &_LOAD_<TEMP<_ARG1>> (address->unused) ;
-				template_create (_NULL_<ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>> () ,r2x ,_LOAD_<_ARG1> (val->unused)) ;
+				template_create (_NULL_<ARGV<ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>>> () ,r2x ,_LOAD_<_ARG1> (val->unused)) ;
 			}
 			if (r1x)
 				return ;
@@ -1132,7 +1132,7 @@ private:
 			for (FOR_ONCE_DO_WHILE) {
 				if (!r1x)
 					discard ;
-				template_create (_NULL_<ARGC<TRUE>> () ,&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (val->unused))) ;
+				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&_LOAD_<TEMP<_ARG1>> (address->unused) ,std::move (_LOAD_<_ARG1> (val->unused))) ;
 			}
 			if (r1x)
 				return ;
@@ -1140,12 +1140,12 @@ private:
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGC<TRUE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
+		inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
 			_CREATE_ (address ,std::forward<_ARGS> (args)...) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGC<FALSE> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
+		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	} ;
@@ -1299,7 +1299,7 @@ private:
 
 		template <class _ARG1>
 		inline static VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (Tuple &_self ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)]) ;
+			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS))) ;
 			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 
@@ -1309,7 +1309,7 @@ private:
 
 		template <class _ARG1>
 		inline static constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (const Tuple &_self ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)]) ;
+			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS))) ;
 			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
@@ -1381,7 +1381,7 @@ public:
 	inline AllOfTuple () = delete ;
 
 	inline implicit operator BOOL () const && {
-		return Detail::template_decay (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
@@ -1478,17 +1478,17 @@ private:
 		}
 
 		template <class _ARG1>
-		inline static BOOL template_decay (const Tuple<_ARG1> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
 			return BOOL (arg1.one ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_decay (const Tuple<_ARG1 ,_ARGS...> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
 			if (!BOOL (arg1.one ()))
 				return FALSE ;
-			if (!template_decay (arg1.rest ()))
+			if (!template_boolean (arg1.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1590,7 +1590,7 @@ public:
 	inline AnyOfTuple () = delete ;
 
 	inline implicit operator BOOL () const && {
-		return Detail::template_decay (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
@@ -1687,17 +1687,17 @@ private:
 		}
 
 		template <class _ARG1>
-		inline static BOOL template_decay (const Tuple<_ARG1> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
 			return BOOL (arg1.one ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_decay (const Tuple<_ARG1 ,_ARGS...> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
 			if (BOOL (arg1.one ()))
 				return TRUE ;
-			if (!template_decay (arg1.rest ()))
+			if (!template_boolean (arg1.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -2407,7 +2407,7 @@ private:
 			return FALSE ;
 		if (!mWeakRef.exist ())
 			return FALSE ;
-		if (!DECAY[mIndex >= 0 && mIndex < mHeap->size ()])
+		if (!BOOL (mIndex >= 0 && mIndex < mHeap->size ()))
 			return FALSE ;
 		if (mWeakRef != mHeap.self[mIndex].mData)
 			return FALSE ;

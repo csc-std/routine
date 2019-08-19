@@ -10,7 +10,7 @@
 
 namespace CSC {
 template <class SIZE>
-class ArrayRange {
+class ArrayRange final {
 private:
 	class Iterator {
 	private:
@@ -54,33 +54,32 @@ public:
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
 
 	inline Iterator begin () const {
-		return Iterator (*this ,first_item () ,0) ;
+		return Iterator (*this ,Detail::first_item (mRange) ,0) ;
 	}
 
 	inline Iterator end () const {
-		return Iterator (*this ,first_item () ,total_length ()) ;
-	}
-
-private:
-	inline LENGTH total_length () const {
-		LENGTH ret = 1 ;
-		for (auto &&i : mRange) {
-			_DEBUG_ASSERT_ (i >= 0) ;
-			_DEBUG_ASSERT_ (ret * i >= 0) ;
-			ret *= i ;
-		}
-		return std::move (ret) ;
-	}
-
-	inline Array<LENGTH ,SIZE> first_item () const {
-		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
-		ret.fill (0) ;
-		return std::move (ret) ;
+		return Iterator (*this ,Detail::first_item (mRange) ,Detail::total_length (mRange)) ;
 	}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
+		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range) {
+			LENGTH ret = 1 ;
+			for (auto &&i : range) {
+				_DEBUG_ASSERT_ (i >= 0) ;
+				_DEBUG_ASSERT_ (ret * i >= 0) ;
+				ret *= i ;
+			}
+			return std::move (ret) ;
+		}
+
+		inline static Array<LENGTH ,SIZE> first_item (const Array<LENGTH ,SIZE> &range) {
+			Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (range.size ()) ;
+			ret.fill (0) ;
+			return std::move (ret) ;
+		}
+
 		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<ARGC<0>> &) {
 			_DEBUG_ASSERT_ (index[0] < range[0]) ;
 			index[0]++ ;
@@ -88,7 +87,7 @@ private:
 
 		template <class _ARG1>
 		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)]) ;
+			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value))) ;
 			index[_ARG1::value]++ ;
 			if (index[_ARG1::value] < range[_ARG1::value])
 				return ;
@@ -254,14 +253,14 @@ public:
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {
-		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mCX]) ;
-		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mCY]) ;
+		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mCX)) ;
+		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mCY)) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
-		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mCX]) ;
-		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mCY]) ;
+		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mCX)) ;
+		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mCY)) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
@@ -750,16 +749,16 @@ public:
 
 	UNIT &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mThis->mCX]) ;
-		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mThis->mCY]) ;
+		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mThis->mCX)) ;
+		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mThis->mCY)) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[x >= 0 && x < mThis->mCX]) ;
-		_DEBUG_ASSERT_ (DECAY[y >= 0 && y < mThis->mCY]) ;
+		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mThis->mCX)) ;
+		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mThis->mCY)) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
@@ -824,8 +823,8 @@ public:
 	}
 
 	void load_data (LENGTH _cx ,LENGTH _cy) {
-		_DEBUG_ASSERT_ (DECAY[_cx >= 0 && _cx < VAR32_MAX]) ;
-		_DEBUG_ASSERT_ (DECAY[_cy >= 0 && _cy < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (_cx >= 0 && _cx < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (BOOL (_cy >= 0 && _cy < VAR32_MAX)) ;
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;

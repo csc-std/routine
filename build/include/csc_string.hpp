@@ -831,7 +831,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 		ris >> rax ;
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x || r2x]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x || r2x)) ;
 		const auto r3x = r1x ? (_ARG1 ('0')) : (_ARG1 ('A' - 10)) ;
 		ret = (ret << 4) | CHAR (rax - r3x) ;
 	}
@@ -868,7 +868,7 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 		ris >> rax ;
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x || r2x]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x || r2x)) ;
 		const auto r3x = r1x ? (_ARG1 ('0')) : (_ARG1 ('A' - 10)) ;
 		ret = (ret << 4) | DATA (rax - r3x) ;
 	}
@@ -942,6 +942,8 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
 		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
 		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+	} else {
+		_DEBUG_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -998,6 +1000,8 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 		ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
+	} else {
+		_DEBUG_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -1011,22 +1015,22 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	auto rax = _ARG1 () ;
 	auto rbx = VAR () ;
 	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx < 256]) ;
+	_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 256)) ;
 	const auto r1x = BYTE (rbx) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
 	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx < 256]) ;
+	_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 256)) ;
 	const auto r2x = BYTE (rbx) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
 	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx < 256]) ;
+	_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 256)) ;
 	const auto r3x = BYTE (rbx) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
 	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx < 256]) ;
+	_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 256)) ;
 	const auto r4x = BYTE (rbx) ;
 	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
@@ -1037,7 +1041,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 			discard ;
 		ris >> rax ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx < 65536]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 65536)) ;
 		ret.P1 = WORD (rbx) ;
 	}
 	ris >> _EOS_ ;
@@ -1085,12 +1089,12 @@ inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 1 && rbx <= 12]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 1 && rbx <= 12)) ;
 		ret[1] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 1 && rbx <= 31]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 1 && rbx <= 31)) ;
 		ret[2] = VAR32 (rbx) ;
 		ris >> _EOS_ ;
 		return std::move (ret) ;
@@ -1126,17 +1130,17 @@ inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &
 		auto rax = STR () ;
 		auto rbx = VAR () ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 23]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 23)) ;
 		ret[5] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 59]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 59)) ;
 		ret[6] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 60]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 60)) ;
 		ret[7] = VAR32 (rbx) ;
 		ris >> _EOS_ ;
 		return std::move (ret) ;
@@ -1179,27 +1183,27 @@ inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 1 && rbx <= 12]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 1 && rbx <= 12)) ;
 		ret[1] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 1 && rbx <= 31]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 1 && rbx <= 31)) ;
 		ret[2] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR (' ')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 23]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 23)) ;
 		ret[5] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 59]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 59)) ;
 		ret[6] = VAR32 (rbx) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
 		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (DECAY[rbx >= 0 && rbx <= 60]) ;
+		_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx <= 60)) ;
 		ret[7] = VAR32 (rbx) ;
 		ris >> _EOS_ ;
 		return std::move (ret) ;

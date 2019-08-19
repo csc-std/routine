@@ -341,17 +341,6 @@ using BOOL = bool ;
 #endif
 #define TRUE true
 
-namespace U {
-struct OPERATOR_DECAY {
-	template <class _ARG1>
-	inline constexpr BOOL operator[] (const _ARG1 &that) const {
-		return BOOL (that) ;
-	}
-} ;
-} ;
-
-static constexpr auto DECAY = U::OPERATOR_DECAY {} ;
-
 using VAR32 = std::int32_t ;
 using VAR64 = std::int64_t ;
 
@@ -768,9 +757,9 @@ inline _ARG1 &_RESET_ (_ARG1 &arg1) noexcept popping {
 }
 
 template <class _ARG1>
-inline _ARG1 &_RESET_ (_ARG1 &arg1 ,_ARG1 &&arg2) noexcept popping {
+inline _ARG1 &_RESET_ (_ARG1 &arg1 ,const REMOVE_CVR_TYPE<_ARG1> &arg2) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	arg1 = std::forward<_ARG1> (arg2) ;
+	arg1 = arg2 ;
 	return arg1 ;
 }
 
@@ -786,8 +775,20 @@ template <class _ARG1 ,class _ARG2>
 inline _ARG1 _EXCHANGE_ (_ARG1 &arg1 ,_ARG2 &&arg2) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_ARG1 ret = arg1 ;
-	arg1 = arg2 ;
+	arg1 = std::forward<_ARG2> (arg2) ;
 	return std::move (ret) ;
+}
+
+template <class _RET>
+inline _RET &_SWITCH_ (const PACK<_RET &> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return arg1.P1 ;
+}
+
+template <class _RET>
+inline const _RET &_SWITCH_ (const PACK<const _RET &> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return arg1.P1 ;
 }
 
 template <class _ARG1>
@@ -914,7 +915,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	if (src1 == src2)
 		return TRUE ;
 	for (INDEX i = 0 ; i < len ; i++)
-		if (!DECAY[src1[i] == src2[i]])
+		if (!BOOL (src1[i] == src2[i]))
 			return FALSE ;
 	return TRUE ;
 #pragma GCC diagnostic pop
@@ -953,14 +954,14 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != 0)
 				discard ;
-			if (!DECAY[src1[ix] < src2[ix]])
+			if (!BOOL (src1[ix] < src2[ix]))
 				discard ;
 			ret = -1 ;
 		}
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != 0)
 				discard ;
-			if (!DECAY[src2[ix] < src1[ix]])
+			if (!BOOL (src2[ix] < src1[ix]))
 				discard ;
 			ret = +1 ;
 		}
@@ -1361,8 +1362,8 @@ private:
 		template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> & ,const _ARG3 &arg1 ,const _ARGS &...args) noexcept {
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
-			_STATIC_ASSERT_ (DECAY[LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)]) ;
-			_STATIC_ASSERT_ (DECAY[stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value]) ;
+			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1))) ;
+			_STATIC_ASSERT_ (BOOL (stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value)) ;
 			for (INDEX i = 0 ; i < _COUNTOF_ (_ARG3) - 1 ; i++)
 				array[i + _ARG2::value] = raw_to_plain_str (arg1[i]) ;
 			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,args...) ;
@@ -1372,9 +1373,9 @@ private:
 		inline static REAL raw_to_plain_str (const _ARG1 &arg1) noexcept {
 			if (arg1 >= _ARG1 (32) && arg1 <= _ARG1 (126))
 				return arg1 ;
-			if (DECAY[arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v')])
+			if (BOOL (arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v')))
 				return arg1 ;
-			if (DECAY[arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f')])
+			if (BOOL (arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f')))
 				return arg1 ;
 			return _ARG1 ('?') ;
 		}
@@ -2728,7 +2729,7 @@ public:
 	inline Buffer () = default ;
 
 	inline explicit Buffer (LENGTH len) {
-		_DEBUG_ASSERT_ (DECAY[len >= 0 && len <= SIZE]) ;
+		_DEBUG_ASSERT_ (BOOL (len >= 0 && len <= SIZE)) ;
 	}
 
 	inline implicit Buffer (const DEF<UNIT[SIZE]> &that) :Buffer (std::move (Buffer::from (that))) {}
@@ -2760,7 +2761,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return mBuffer[index] ;
 	}
 
@@ -2769,7 +2770,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return mBuffer[index] ;
 	}
 
@@ -2783,7 +2784,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - mBuffer ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -2909,7 +2910,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2918,7 +2919,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2932,7 +2933,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3168,7 +3169,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3177,7 +3178,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3191,7 +3192,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3318,7 +3319,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
 	}
@@ -3333,7 +3334,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3486,7 +3487,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return (*mBuffer)[index] ;
 #pragma GCC diagnostic pop
 	}
@@ -3501,7 +3502,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - *mBuffer ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}

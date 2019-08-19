@@ -176,14 +176,14 @@ public:
 			const auto r2x = errno ;
 			if (r2x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (DECAY[r2x == EINPROGRESS || r2x == EWOULDBLOCK]) ;
+			_DYNAMIC_ASSERT_ (BOOL (r2x == EINPROGRESS || r2x == EWOULDBLOCK)) ;
 		}
 		link_confirm () ;
 	}
 
 	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
-		_DEBUG_ASSERT_ (DECAY[rcv_len >= 0 && rcv_len < VAR32_MAX]) ;
-		_DEBUG_ASSERT_ (DECAY[snd_len >= 0 && snd_len < VAR32_MAX]) ;
+		_DEBUG_ASSERT_ (BOOL (rcv_len >= 0 && rcv_len < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (BOOL (snd_len >= 0 && snd_len < VAR32_MAX)) ;
 		const auto r1x = VAR32 (rcv_len) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVBUF ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 		const auto r2x = VAR32 (snd_len) ;
@@ -203,7 +203,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
@@ -222,7 +222,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
 		}
 		it = r2x ;
 	}
@@ -240,7 +240,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (DECAY[r4x == EINPROGRESS || r4x == EWOULDBLOCK]) ;
+			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}

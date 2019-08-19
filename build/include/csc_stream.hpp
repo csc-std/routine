@@ -182,8 +182,8 @@ public:
 
 	void reset (INDEX _read ,INDEX _write) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[_read >= 0 && _read < mStream.size ()]) ;
-		_DEBUG_ASSERT_ (DECAY[_write >= 0 && _write < mStream.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (_read >= 0 && _read < mStream.size ())) ;
+		_DEBUG_ASSERT_ (BOOL (_write >= 0 && _write < mStream.size ())) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
 		mRead = _read ;
 		mWrite = _write ;
@@ -305,7 +305,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	void read (Array<_ARG1 ,_ARG2> &data) popping {
 		const auto r1x = LENGTH (read<VAR32> ()) ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		if (data.size () < r1x)
 			data = Array<_ARG1 ,_ARG2> (r1x) ;
 		for (INDEX i = 0 ; i < r1x ; i++)
@@ -337,7 +337,7 @@ public:
 	void read (String<_ARG1 ,_ARG2> &data) popping {
 		_STATIC_ASSERT_ (stl::is_str_xyz<_ARG1>::value) ;
 		const auto r1x = LENGTH (read<VAR32> ()) ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		if (data.size () < r1x)
 			data = String<_ARG1 ,_ARG2> (r1x) ;
 		data.clear () ;
@@ -460,8 +460,8 @@ public:
 
 	void reset (INDEX _read ,INDEX _write) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[_read >= 0 && _read < mStream.size ()]) ;
-		_DEBUG_ASSERT_ (DECAY[_write >= 0 && _write < mStream.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (_read >= 0 && _read < mStream.size ())) ;
+		_DEBUG_ASSERT_ (BOOL (_write >= 0 && _write < mStream.size ())) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
 		mRead = _read ;
 		mWrite = _write ;
@@ -572,7 +572,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	void write (const Array<_ARG1 ,_ARG2> &data) {
 		const auto r1x = data.length () ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		write (VAR32 (r1x)) ;
 		for (auto &&i : data)
 			write (i) ;
@@ -600,7 +600,7 @@ public:
 	void write (const String<_ARG1 ,_ARG2> &data) {
 		_STATIC_ASSERT_ (stl::is_str_xyz<_ARG1>::value) ;
 		const auto r1x = data.length () ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		write (VAR32 (r1x)) ;
 		for (auto &&i : data)
 			write (i) ;
@@ -694,7 +694,7 @@ private:
 		}
 
 		BOOL varify_number_item (const REAL &item) const {
-			if (!DECAY[item >= REAL ('0') && item <= REAL ('9')])
+			if (!BOOL (item >= REAL ('0') && item <= REAL ('9')))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -812,8 +812,8 @@ public:
 
 	void reset (INDEX _read ,INDEX _write) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[_read >= 0 && _read < mStream.size ()]) ;
-		_DEBUG_ASSERT_ (DECAY[_write >= 0 && _write < mStream.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (_read >= 0 && _read < mStream.size ())) ;
+		_DEBUG_ASSERT_ (BOOL (_write >= 0 && _write < mStream.size ())) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
 		mRead = _read ;
 		mWrite = _write ;
@@ -915,7 +915,7 @@ public:
 
 	void read (VAR32 &data) popping {
 		const auto r1x = read<VAR64> () ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= VAR32_MIN && r1x <= VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= VAR32_MIN && r1x <= VAR32_MAX)) ;
 		data = VAR32 (r1x) ;
 	}
 
@@ -929,7 +929,7 @@ public:
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
 		for (FOR_ONCE_DO_WHILE) {
-			if (!DECAY[rax == REAL ('+') || rax == REAL ('-')])
+			if (!BOOL (rax == REAL ('+') || rax == REAL ('-')))
 				discard ;
 			read (rax) ;
 		}
@@ -950,7 +950,7 @@ public:
 				discard ;
 			if (_ISNAN_ (r1x))
 				discard ;
-			_DYNAMIC_ASSERT_ (DECAY[r1x >= VAL32_MIN && r1x <= VAL32_MAX]) ;
+			_DYNAMIC_ASSERT_ (BOOL (r1x >= VAL32_MIN && r1x <= VAL32_MAX)) ;
 		}
 		data = VAL32 (r1x) ;
 	}
@@ -965,7 +965,7 @@ public:
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
 		for (FOR_ONCE_DO_WHILE) {
-			if (!DECAY[rax == REAL ('+') || rax == REAL ('-')])
+			if (!BOOL (rax == REAL ('+') || rax == REAL ('-')))
 				discard ;
 			read (rax) ;
 		}
@@ -1040,7 +1040,7 @@ public:
 	template <class _ARG1>
 	void read (String<REAL ,_ARG1> &data) popping {
 		const auto r1x = next_string_size () ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		if (data.size () < r1x)
 			data = String<REAL ,_ARG1> (r1x) ;
 		data.clear () ;
@@ -1171,7 +1171,7 @@ private:
 			}
 		}
 		for (FOR_ONCE_DO_WHILE) {
-			if (!DECAY[top == REAL ('e') || top == REAL ('E')])
+			if (!BOOL (top == REAL ('e') || top == REAL ('E')))
 				discard ;
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
@@ -1240,7 +1240,7 @@ private:
 		}
 
 		BOOL varify_number_item (const REAL &item) const {
-			if (!DECAY[item >= REAL ('0') && item <= REAL ('9')])
+			if (!BOOL (item >= REAL ('0') && item <= REAL ('9')))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1278,7 +1278,7 @@ private:
 		}
 
 		BOOL varify_space (const REAL &item) const {
-			if (!DECAY[item == REAL ('\r') || item == REAL ('\n')])
+			if (!BOOL (item == REAL ('\r') || item == REAL ('\n')))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1349,8 +1349,8 @@ public:
 
 	void reset (INDEX _read ,INDEX _write) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (DECAY[_read >= 0 && _read < mStream.size ()]) ;
-		_DEBUG_ASSERT_ (DECAY[_write >= 0 && _write < mStream.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (_read >= 0 && _read < mStream.size ())) ;
+		_DEBUG_ASSERT_ (BOOL (_write >= 0 && _write < mStream.size ())) ;
 		_DEBUG_ASSERT_ (_read <= _write) ;
 		mRead = _read ;
 		mWrite = _write ;
@@ -1514,7 +1514,7 @@ public:
 	template <class _ARG1>
 	void write (const String<REAL ,_ARG1> &data) {
 		const auto r1x = data.length () ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= 0 && r1x < VAR32_MAX]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
 		for (auto &&i : data)
 			write (i) ;
 	}
@@ -1750,7 +1750,7 @@ inline void _BOM_ (TextReader<STRU16> &reader) {
 	auto ris = reader.copy () ;
 	auto rax = STRU16 () ;
 	ris >> rax ;
-	if (!DECAY[rax == M_BOM.P1[0] || rax == M_BOM.P1[1]])
+	if (!BOOL (rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
 		return ;
 	const auto r1x = BOOL (rax != M_BOM.P1[0]) ;
 	ris.attr ().enable_endian (r1x) ;
@@ -1763,7 +1763,7 @@ inline void _BOM_ (TextReader<STRU32> &reader) {
 	auto ris = reader.copy () ;
 	auto rax = STRU32 () ;
 	ris >> rax ;
-	if (!DECAY[rax == M_BOM.P1[0] || rax == M_BOM.P1[1]])
+	if (!BOOL (rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
 		return ;
 	const auto r1x = BOOL (rax != M_BOM.P1[0]) ;
 	ris.attr ().enable_endian (r1x) ;
@@ -1953,8 +1953,8 @@ private:
 		inline explicit Shadow (TextReader<STRU8> &&reader ,const Array<STRU8 ,SIZE> &cache ,INDEX _peek) :mReader (std::move (reader)) ,mCache (cache) ,mPeek (_peek) {}
 
 		inline const STRU8 &operator[] (INDEX index) const {
-			_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mCache.length ()]) ;
-			_DEBUG_ASSERT_ (DECAY[mPeek >= 0 && mPeek < mCache.length ()]) ;
+			_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mCache.length ())) ;
+			_DEBUG_ASSERT_ (BOOL (mPeek >= 0 && mPeek < mCache.length ())) ;
 			return mCache[(mPeek + index) % mCache.length ()] ;
 		}
 
@@ -2014,8 +2014,8 @@ public:
 	}
 
 	const STRU8 &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mCache.length ()]) ;
-		_DEBUG_ASSERT_ (DECAY[mPeek >= 0 && mPeek < mCache.length ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mCache.length ())) ;
+		_DEBUG_ASSERT_ (BOOL (mPeek >= 0 && mPeek < mCache.length ())) ;
 		return mCache[(mPeek + index) % mCache.length ()] ;
 	}
 
@@ -2159,7 +2159,7 @@ private:
 			for (FOR_ONCE_DO_WHILE) {
 				if (ret > 0)
 					discard ;
-				_DYNAMIC_ASSERT_ (DECAY[r2x || r3x || r4x]) ;
+				_DYNAMIC_ASSERT_ (BOOL (r2x || r3x || r4x)) ;
 			}
 			const auto r5x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
 			const auto r6x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
@@ -2175,19 +2175,19 @@ private:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		for (FOR_ONCE_DO_WHILE) {
-			if (!DECAY[ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')])
+			if (!BOOL (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 				discard ;
 			ris++ ;
 			ret++ ;
 		}
 		const auto r1x = ris[0] ;
-		_DYNAMIC_ASSERT_ (DECAY[r1x >= STRU8 ('0') && r1x <= STRU8 ('9')]) ;
+		_DYNAMIC_ASSERT_ (BOOL (r1x >= STRU8 ('0') && r1x <= STRU8 ('9'))) ;
 		ris++ ;
 		ret++ ;
 		while (TRUE) {
 			if (r1x == STRU8 ('0'))
 				break ;
-			if (!DECAY[ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')])
+			if (!BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
 				break ;
 			ris++ ;
 			ret++ ;
@@ -2198,28 +2198,28 @@ private:
 			ris++ ;
 			ret++ ;
 			while (TRUE) {
-				if (!DECAY[ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')])
+				if (!BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
 					break ;
 				ris++ ;
 				ret++ ;
 			}
 		}
 		for (FOR_ONCE_DO_WHILE) {
-			if (!DECAY[ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')])
+			if (!BOOL (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')))
 				discard ;
 			ris++ ;
 			ret++ ;
 			for (FOR_ONCE_DO_WHILE) {
-				if (!DECAY[ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')])
+				if (!BOOL (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 					discard ;
 				ris++ ;
 				ret++ ;
 			}
-			_DYNAMIC_ASSERT_ (DECAY[ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')]) ;
+			_DYNAMIC_ASSERT_ (BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9'))) ;
 			ris++ ;
 			ret++ ;
 			while (TRUE) {
-				if (!DECAY[ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')])
+				if (!BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
 					break ;
 				ris++ ;
 				ret++ ;

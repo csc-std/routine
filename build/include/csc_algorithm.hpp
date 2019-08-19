@@ -60,7 +60,7 @@ public:
 	}
 
 	INDEX query (const PhanBuffer<const REAL> &target ,INDEX seg) const {
-		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg < target.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg < target.size ())) ;
 		INDEX ix = seg ;
 		INDEX iy = 0 ;
 		if (target.size () - seg < mNext.length ())
@@ -487,13 +487,13 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		inline void update_lack_weight (INDEX y) {
 			mTempStack.clear () ;
 			mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
-			mTempState = 1 ;
+			mTempState = VAR_ZERO ;
 			mTempRet = FALSE ;
 			INDEX ix = VAR_NONE ;
 			while (TRUE) {
-				if (mTempState == 0)
+				if (mTempState == VAR_NONE)
 					break ;
-				if (mTempState == 1) {
+				if (mTempState == 0) {
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 7 ;
@@ -559,7 +559,9 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mLackWeight[1] = 0 ;
 					mTempState = 20 ;
 				} else if (mTempState == 20) {
-					mTempState = 0 ;
+					mTempState = VAR_NONE ;
+				} else {
+					_DYNAMIC_ASSERT_ (FALSE) ;
 				}
 			}
 		}
@@ -734,7 +736,7 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 		}
 
 		inline BOOL edge_triangle_each (INDEX v1 ,INDEX v2 ,INDEX v3 ,INDEX v4) const {
-			if (DECAY[v4 == v1 || v4 == v2 || v4 == v3])
+			if (BOOL (v4 == v1 || v4 == v2 || v4 == v3))
 				return TRUE ;
 			const auto r1x = math_cross_product_z (mVertex ,v1 ,v2 ,v4) ;
 			const auto r2x = math_cross_product_z (mVertex ,v2 ,v3 ,v4) ;
@@ -1042,7 +1044,7 @@ public:
 	}
 
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (DECAY[count >= 1 && count <= mVertex.length ()]) ;
+		_DEBUG_ASSERT_ (BOOL (count >= 1 && count <= mVertex.length ())) ;
 		const auto r1x = first_count_vertex (point ,count) ;
 		const auto r2x = r1x.esort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
@@ -1090,7 +1092,7 @@ private:
 	}
 
 	Deque<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (DECAY[count >= 1 && count <= mVertex.length ()]) ;
+		_DEBUG_ASSERT_ (BOOL (count >= 1 && count <= mVertex.length ())) ;
 		Deque<REAL> ret = Deque<REAL> (count) ;
 		for (INDEX i = 0 ; i < count ; i++) {
 			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
@@ -1200,7 +1202,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
-			_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= mVertex.size () - seg_len]) ;
+			_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= mVertex.size () - seg_len)) ;
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (seg_len == 1) ;
 				INDEX jx = mHeap.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;

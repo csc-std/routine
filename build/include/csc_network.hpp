@@ -193,7 +193,7 @@ inline String<STRU8> NetworkService::http_get (const String<STRU8> &addr ,const 
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("GET ") ,site ,_PCSTRU8_ ("?") ,msg ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,r1x) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
-	_DYNAMIC_ASSERT_ (DECAY[iw >= 0 && iw < ret.size ()]) ;
+	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;
@@ -209,7 +209,7 @@ inline String<STRU8> NetworkService::http_post (const String<STRU8> &addr ,const
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("POST ") ,site ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,_PCSTRU8_ ("Content-Length: ") ,msg.length () ,r1x ,r1x ,msg) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
-	_DYNAMIC_ASSERT_ (DECAY[iw >= 0 && iw < ret.size ()]) ;
+	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;

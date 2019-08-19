@@ -129,7 +129,7 @@ struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= out.size () - seg_len]) ;
+		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= out.size () - seg_len)) ;
 		static_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 
@@ -399,7 +399,7 @@ public:
 	}
 
 	ITEM &get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return mString[index] ;
 	}
 
@@ -408,7 +408,7 @@ public:
 	}
 
 	const ITEM &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
 		return mString[index] ;
 	}
 
@@ -422,7 +422,7 @@ public:
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mString.at (item) ;
-		if (!DECAY[ret >= 0 && ret < size ()])
+		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -558,7 +558,7 @@ public:
 
 	String segment (INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= size () - seg_len]) ;
+		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= size () - seg_len)) ;
 		String ret = String (seg_len) ;
 		for (INDEX i = 0 ; i < ret.size () ; i++)
 			ret.get (i) = get (seg + i) ;
@@ -578,7 +578,7 @@ private:
 	public:
 		inline static LENGTH plain_string_length (const ARR<ITEM> &arg1) {
 			LENGTH ret = _MEMCHR_ (arg1 ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
-			_DYNAMIC_ASSERT_ (DECAY[ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value]) ;
+			_DYNAMIC_ASSERT_ (BOOL (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value)) ;
 			return std::move (ret) ;
 		}
 	} ;
@@ -673,7 +673,7 @@ public:
 	}
 
 	INDEX access (INDEX pos) const {
-		_DEBUG_ASSERT_ (DECAY[pos >= 0 && pos < length ()]) ;
+		_DEBUG_ASSERT_ (BOOL (pos >= 0 && pos < length ())) ;
 		return (mRead + pos) % mDeque.size () ;
 	}
 
@@ -898,7 +898,7 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (DECAY[mWrite >= 0 && mWrite < mDeque.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (mWrite >= 0 && mWrite < mDeque.size ())) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		if (mRead != mWrite)
 			return ;
@@ -1185,7 +1185,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<Priority> get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mWrite]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
 		return Pair<Priority> (*this ,index) ;
 	}
 
@@ -1195,7 +1195,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<const Priority> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mWrite]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
 		return Pair<const Priority> (*this ,index) ;
 	}
 
@@ -1209,7 +1209,7 @@ public:
 
 	INDEX at (const Pair<Priority> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (!DECAY[ret >= 0 && ret < mWrite])
+		if (!BOOL (ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -1217,7 +1217,7 @@ public:
 	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (!DECAY[ret >= 0 && ret < mWrite])
+		if (!BOOL (ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -1306,7 +1306,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mWrite]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
 		mPriority[index] = std::move (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (index) ;
@@ -1342,7 +1342,7 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (DECAY[mWrite >= 0 && mWrite < mPriority.size ()]) ;
+		_DEBUG_ASSERT_ (BOOL (mWrite >= 0 && mWrite < mPriority.size ())) ;
 		mWrite++ ;
 		if (mWrite < mPriority.size ())
 			return ;
@@ -1848,7 +1848,7 @@ public:
 	}
 
 	INDEX access (INDEX pos) const {
-		_DEBUG_ASSERT_ (DECAY[pos >= 0 && pos < length ()]) ;
+		_DEBUG_ASSERT_ (BOOL (pos >= 0 && pos < length ())) ;
 		if (mWrite - mRead + 1 == mList.length ())
 			return mHead[mRead + pos][0] ;
 		if (mWrite - mRead == mList.length () && mHead[mWrite][0] == VAR_NONE)
@@ -2063,7 +2063,7 @@ private:
 private:
 	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (DECAY[seg >= 0 && seg <= mHead.size () - seg_len]) ;
+		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= mHead.size () - seg_len)) ;
 		INDEX ret = VAR_NONE ;
 		INDEX ix = seg ;
 		INDEX iy = seg + seg_len - 1 ;
@@ -2370,7 +2370,7 @@ public:
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<BitSet> get (INDEX index) & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mWidth]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
 		return Bit<BitSet> (*this ,index) ;
 	}
 
@@ -2380,7 +2380,7 @@ public:
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<const BitSet> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (DECAY[index >= 0 && index < mWidth]) ;
+		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
 		return Bit<const BitSet> (*this ,index) ;
 	}
 
@@ -2484,7 +2484,7 @@ public:
 	}
 
 	void add (INDEX item) {
-		_DYNAMIC_ASSERT_ (DECAY[item >= 0 && item < mWidth]) ;
+		_DYNAMIC_ASSERT_ (BOOL (item >= 0 && item < mWidth)) ;
 		get (item) = TRUE ;
 	}
 
@@ -2494,7 +2494,7 @@ public:
 	}
 
 	void erase (INDEX item) {
-		_DYNAMIC_ASSERT_ (DECAY[item >= 0 && item < mWidth]) ;
+		_DYNAMIC_ASSERT_ (BOOL (item >= 0 && item < mWidth)) ;
 		get (item) = FALSE ;
 	}
 
@@ -2624,7 +2624,7 @@ private:
 		}
 
 		inline static LENGTH runtime_width (LENGTH width) {
-			_DEBUG_ASSERT_ (DECAY[width >= 0 && width < VAR32_MAX]) ;
+			_DEBUG_ASSERT_ (BOOL (width >= 0 && width < VAR32_MAX)) ;
 			return width ;
 		}
 	} ;

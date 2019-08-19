@@ -103,7 +103,11 @@ public:
 		const auto r2x = rax->alloc<int> () ;
 		const auto r10x = _XVALUE_<PTR<VAR (const VAR & ,const VAR &)>> ([] (const VAR &arg1 ,const VAR &arg2) {
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
-			const auto r4x = (arg2 < VAR_ZERO) ? (-arg1) : arg1 ;
+			const auto r4x = _CALL_ ([&] () {
+				if (arg2 < VAR_ZERO)
+					return -arg1 ;
+				return arg1 ;
+			}) ;
 			const auto r5x = _ABS_ (arg2) ;
 			VAR ret = VAR (r5x * VAR (r4x / r5x)) ;
 			for (FOR_ONCE_DO_WHILE) {

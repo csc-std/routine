@@ -131,7 +131,7 @@ public:
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
-			_DYNAMIC_ASSERT_ (DECAY[LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX]) ;
+			_DYNAMIC_ASSERT_ (BOOL (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX)) ;
 		}
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
@@ -243,7 +243,7 @@ public:
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
-			_DYNAMIC_ASSERT_ (DECAY[LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX]) ;
+			_DYNAMIC_ASSERT_ (BOOL (LENGTH (rax.P2) >= 0 && LENGTH (rax.P2) < VAR32_MAX)) ;
 		}
 		data = AutoBuffer<BYTE> (LENGTH (rax.P2)) ;
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;

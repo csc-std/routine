@@ -150,7 +150,7 @@ public:
 	}
 
 	void perspective (const REAL &fov ,const REAL &aspect ,const REAL &_near ,const REAL &_far) {
-		_DEBUG_ASSERT_ (DECAY[fov > REAL (0) && fov < REAL (180)]) ;
+		_DEBUG_ASSERT_ (BOOL (fov > REAL (0) && fov < REAL (180))) ;
 		_DEBUG_ASSERT_ (aspect > REAL (0)) ;
 		const auto r1x = _near * _TAN_ (fov * REAL (MATH_PI / 180) * REAL (0.5)) ;
 		const auto r2x = r1x * aspect ;
@@ -160,7 +160,7 @@ public:
 	void frustum (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (DECAY[_near > REAL (0) && _near < _far]) ;
+		_DEBUG_ASSERT_ (BOOL (_near > REAL (0) && _near < _far)) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
@@ -185,7 +185,7 @@ public:
 	void ortho (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (DECAY[_near > REAL (0) && _near < _far]) ;
+		_DEBUG_ASSERT_ (BOOL (_near > REAL (0) && _near < _far)) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
 		mScreenD = _far - _near ;
