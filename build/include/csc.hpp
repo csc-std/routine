@@ -327,7 +327,7 @@ using std::remove_extent ;
 #define FOR_ONCE_DO_WHILE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #endif
 
-#define _CASE_REQUIRE_(...) do {if (!(_UNW_ (__VA_ARGS__))) return (void) CSC::_RESET_ (_case_req ,FALSE) ; } while (FALSE)
+#define _CASE_REQUIRE_(...) do {if (!(_UNW_ (__VA_ARGS__))) return (void) (_case_req = FALSE) ; } while (FALSE)
 
 using BOOL = bool ;
 
@@ -433,12 +433,12 @@ inline constexpr _ARG1 _SQE_ (const _ARG1 &arg1) {
 
 template <class _ARG1>
 inline constexpr const _ARG1 &_MIN_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
-	return (!(arg2 < arg1)) ? arg1 : arg2 ;
+	return (!BOOL (arg2 < arg1)) ? arg1 : arg2 ;
 }
 
 template <class _ARG1>
 inline constexpr const _ARG1 &_MAX_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
-	return (!(arg1 < arg2)) ? arg1 : arg2 ;
+	return (!BOOL (arg1 < arg2)) ? arg1 : arg2 ;
 }
 } ;
 
@@ -750,20 +750,6 @@ inline void _ZERO_ (_ARG1 &arg1) noexcept {
 }
 
 template <class _ARG1>
-inline _ARG1 &_RESET_ (_ARG1 &arg1) noexcept popping {
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	_ZERO_ (arg1) ;
-	return arg1 ;
-}
-
-template <class _ARG1>
-inline _ARG1 &_RESET_ (_ARG1 &arg1 ,const REMOVE_CVR_TYPE<_ARG1> &arg2) noexcept popping {
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	arg1 = arg2 ;
-	return arg1 ;
-}
-
-template <class _ARG1>
 inline _ARG1 _EXCHANGE_ (_ARG1 &arg1) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_ARG1 ret = arg1 ;
@@ -771,24 +757,17 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &arg1) noexcept popping {
 	return std::move (ret) ;
 }
 
-template <class _ARG1 ,class _ARG2>
-inline _ARG1 _EXCHANGE_ (_ARG1 &arg1 ,_ARG2 &&arg2) noexcept popping {
+template <class _ARG1>
+inline _ARG1 _EXCHANGE_ (_ARG1 &arg1 ,const REMOVE_CVR_TYPE<_ARG1> &arg2) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_ARG1 ret = arg1 ;
-	arg1 = std::forward<_ARG2> (arg2) ;
+	arg1 = arg2 ;
 	return std::move (ret) ;
 }
 
-template <class _RET>
-inline _RET &_SWITCH_ (const PACK<_RET &> &arg1) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return arg1.P1 ;
-}
-
-template <class _RET>
-inline const _RET &_SWITCH_ (const PACK<const _RET &> &arg1) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return arg1.P1 ;
+template <class _ARG1>
+inline _ARG1 &_SWITCH_ (_ARG1 &arg1) noexcept {
+	return arg1 ;
 }
 
 template <class _ARG1>

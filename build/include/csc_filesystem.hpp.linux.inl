@@ -160,12 +160,14 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 	const auto r5x = _BUILDSTRS_<STRA> (file1) ;
 	const auto r6x = _BUILDSTRS_<STRA> (file2) ;
 	auto rax = ARRAY2<DEF<struct stat>> () ;
-	const auto r1x = stat (r5x.raw ().self ,&_RESET_ (rax[0])) ;
+	_ZERO_ (rax[0]) ;
+	const auto r1x = stat (r5x.raw ().self ,&rax[0]) ;
 	if (r1x != 0)
 		return FALSE ;
 	if (rax[0].st_nlink == 0)
 		return FALSE ;
-	const auto r2x = stat (r6x.raw ().self ,&_RESET_ (rax[1])) ;
+	_ZERO_ (rax[1]) ;
+	const auto r2x = stat (r6x.raw ().self ,&rax[1]) ;
 	if (r2x != 0)
 		return FALSE ;
 	if (rax[1].st_nlink == 0)

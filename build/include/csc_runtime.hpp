@@ -282,7 +282,8 @@ private:
 			const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
 			_DEBUG_ASSERT_ (BOOL (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE))) ;
 			const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
-			_MEMCOPY_ (PTRTOARR[_RESET_ (ret).unused] ,PTRTOARR[r1x] ,r3x) ;
+			_ZERO_ (ret) ;
+			_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1x] ,r3x) ;
 			return std::move (ret) ;
 		}
 	} ;

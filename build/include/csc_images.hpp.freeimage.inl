@@ -125,7 +125,9 @@ public:
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
+		rax.P1 = &_NULL_<BYTE> () ;
+		rax.P2 = VARY (0) ;
+		const auto r4x = FreeImage_AcquireMemory (r1x ,&rax.P1 ,&rax.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (LENGTH (rax.P2) == 0)
@@ -237,7 +239,9 @@ public:
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		const auto r4x = FreeImage_AcquireMemory (r1x ,&_RESET_ (rax.P1 ,&_NULL_<BYTE> ()) ,&_RESET_ (rax.P2 ,VARY (0))) ;
+		rax.P1 = &_NULL_<BYTE> () ;
+		rax.P2 = VARY (0) ;
+		const auto r4x = FreeImage_AcquireMemory (r1x ,&rax.P1 ,&rax.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (LENGTH (rax.P2) == 0)

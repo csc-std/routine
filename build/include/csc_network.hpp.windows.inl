@@ -151,7 +151,9 @@ public:
 
 	String<STRU8> sock_name () const {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		::getsockname (mThis->mSocket ,&_RESET_ (rax.P1) ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (SOCKADDR)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		::getsockname (mThis->mSocket ,&rax.P1 ,&rax.P2) ;
 		//@info: ipv6 is not supported
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		return _inline_SOCKET_MAKE_IPV4S_ (rax.P1) ;
@@ -164,9 +166,11 @@ public:
 	void link (const String<STRU8> &addr) {
 		mThis->mPeer = _inline_SOCKET_MAKE_SOCKETADDR_ (addr) ;
 		auto rax = ULONG () ;
-		::ioctlsocket (mThis->mSocket ,FIONBIO ,&_RESET_ (rax ,ULONG (1))) ;
+		rax = ULONG (1) ;
+		::ioctlsocket (mThis->mSocket ,FIONBIO ,&rax) ;
 		const auto r1x = ::connect (mThis->mSocket ,&mThis->mPeer ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
-		::ioctlsocket (mThis->mSocket ,FIONBIO ,&_RESET_ (rax ,ULONG (0))) ;
+		rax = ULONG (0) ;
+		::ioctlsocket (mThis->mSocket ,FIONBIO ,&rax) ;
 		if (r1x == 0)
 			return ;
 		//@info: state of 'this' has been changed
@@ -251,7 +255,9 @@ private:
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,&r1x[1]) != 0) ;
 		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
-		::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[_RESET_ (rax.P1)] ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (VAR32)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (VAR32)) ;
+		::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.P1] ,&rax.P2) ;
 		const auto r3x = _BITWISE_CAST_<VAR32> (rax.P1) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r3x == 0) ;
@@ -322,7 +328,9 @@ public:
 	void accept () {
 		mThis->mSocket = std::move (mLinker) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		::getpeername (mThis->mSocket ,&_RESET_ (rax.P1) ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (SOCKADDR)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		::getpeername (mThis->mSocket ,&rax.P1 ,&rax.P2) ;
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		mThis->mPeer = rax.P1 ;
 	}
@@ -366,7 +374,9 @@ public:
 
 	String<STRU8> sock_name () const {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		::getsockname (mSocket ,&_RESET_ (rax.P1) ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (SOCKADDR)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		::getsockname (mSocket ,&rax.P1 ,&rax.P2) ;
 		//@info: ipv6 is not supported
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		return _inline_SOCKET_MAKE_IPV4S_ (rax.P1) ;
@@ -385,7 +395,9 @@ public:
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		const auto r2x = ::recvfrom (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0 ,&_RESET_ (rax.P1) ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (SOCKADDR)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		const auto r2x = ::recvfrom (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
@@ -398,7 +410,9 @@ public:
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		const auto r2x = ::recvfrom (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0 ,&_RESET_ (rax.P1) ,&_RESET_ (rax.P2 ,VAR32 (_SIZEOF_ (SOCKADDR)))) ;
+		_ZERO_ (rax.P1) ;
+		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		const auto r2x = ::recvfrom (mSocket ,_LOAD_<ARR<STRA>> (data.self) ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		mPeer = rax.P1 ;
@@ -454,7 +468,8 @@ public:
 		mService = UniqueRef<void> ([&] () {
 			const auto r1x = (WORD (2) << (_SIZEOF_ (BYTE) * 8)) | WORD (2) ;
 			auto rax = WSADATA () ;
-			const auto r2x = WSAStartup (r1x ,&_RESET_ (rax)) ;
+			_ZERO_ (rax) ;
+			const auto r2x = WSAStartup (r1x ,&rax) ;
 			_DYNAMIC_ASSERT_ (r2x == 0) ;
 		} ,[] () {
 			WSACleanup () ;

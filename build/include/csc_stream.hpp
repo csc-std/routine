@@ -676,7 +676,8 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[_RESET_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
+			_ZERO_ (ret) ;
+			r3x (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1222,7 +1223,8 @@ private:
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMCOPY_) ;
 			const auto r3x = mEndianFlag ? r1x : r2x ;
-			r3x (PTRTOARR[_RESET_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
+			_ZERO_ (ret) ;
+			r3x (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 

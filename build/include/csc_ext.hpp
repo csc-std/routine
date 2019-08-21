@@ -2846,7 +2846,8 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
-	_MEMCOPY_ (PTRTOARR[_RESET_ (ret).unused] ,_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1)) ;
+	_ZERO_ (ret) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1)) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;

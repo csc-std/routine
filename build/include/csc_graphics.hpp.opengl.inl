@@ -283,10 +283,12 @@ public:
 private:
 	void compute_check_shaderiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
-		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&_RESET_ (rax[0] ,GL_FALSE)) ;
+		rax[0] = GL_FALSE ;
+		glGetShaderiv (shader ,GL_COMPILE_STATUS ,&rax[0]) ;
 		if (rax[0] == GL_TRUE)
 			return ;
-		glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&_RESET_ (rax[1] ,0)) ;
+		rax[1] = 0 ;
+		glGetShaderiv (shader ,GL_INFO_LOG_LENGTH ,&rax[1]) ;
 		if (rax[1] <= 0)
 			return ;
 		auto rbx = String<STRA> (rax[1]) ;
@@ -296,10 +298,12 @@ private:
 
 	void compute_check_programiv (CHAR shader) const {
 		auto rax = ARRAY2<VAR32> () ;
-		glGetProgramiv (shader ,GL_LINK_STATUS ,&_RESET_ (rax[0] ,GL_FALSE)) ;
+		rax[0] = GL_FALSE ;
+		glGetProgramiv (shader ,GL_LINK_STATUS ,&rax[0]) ;
 		if (rax[0] == GL_TRUE)
 			return ;
-		glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&_RESET_ (rax[1] ,0)) ;
+		rax[1] = 0 ;
+		glGetProgramiv (shader ,GL_INFO_LOG_LENGTH ,&rax[1]) ;
 		if (rax[1] <= 0)
 			return ;
 		auto rbx = String<STRA> (rax[1]) ;

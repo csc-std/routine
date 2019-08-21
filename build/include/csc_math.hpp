@@ -141,7 +141,7 @@ template <class _ARG1>
 inline _ARG1 _SIGN_ (const _ARG1 &x) {
 	if (x < _ARG1 (0))
 		return _ARG1 (-1) ;
-	if (_ARG1 (0) < x)
+	if (x > _ARG1 (0))
 		return _ARG1 (+1) ;
 	return _ARG1 (0) ;
 }
@@ -214,7 +214,7 @@ template <class _ARG1 ,class _ARG2>
 inline _ARG2 _CLAMP_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARG2 &arg3) {
 	if (arg1 < _ARG1 (arg2))
 		return arg2 ;
-	if (_ARG1 (arg3) < arg1)
+	if (arg1 > _ARG1 (arg3))
 		return arg3 ;
 	return _ARG2 (arg1) ;
 }

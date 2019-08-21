@@ -131,7 +131,8 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	const auto r1x = time_t (std::chrono::system_clock::to_time_t (val)) ;
 #ifdef _CTIME_
 	auto rax = std::tm () ;
-	localtime_s (&_RESET_ (rax) ,&r1x) ;
+	_ZERO_ (rax) ;
+	localtime_s (&rax ,&r1x) ;
 #elif defined _GLIBCXX_CTIME
 	//@warn: not thread-safe due to internel storage
 	auto rax = *std::localtime (&r1x) ;
