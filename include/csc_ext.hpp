@@ -105,6 +105,12 @@ using std::abort ;
 #define DLLABI_NATIVE extern "C"
 #endif
 
+template <class UNIT1 ,class UNIT2>
+struct Component {
+	UNIT1 mValue ;
+	UNIT2 mCompt ;
+} ;
+
 namespace stl {
 template <class... _ARGS>
 using is_all_same = U::is_all_same<_ARGS...> ;
@@ -2830,12 +2836,6 @@ private:
 	}
 } ;
 
-template <class UNIT ,class SUBJECT>
-struct Component {
-	UNIT mValue ;
-	SUBJECT mAddit ;
-} ;
-
 inline namespace S {
 template <class _RET ,class _ARG1>
 inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
@@ -2934,9 +2934,6 @@ private:
 			_STATIC_ASSERT_ (SIZE::value % 8 == 0) ;
 			if (mFree != NULL)
 				return ;
-#ifdef __CSC_COMPILER_GNUC__
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<decltype (16 - SIZE::value / 8)> ,VAR>::value) ;
-#endif
 			const auto r1x = LENGTH (constexpr_powx (VAL64 (1.25) ,_MAX_ (VAR (1) ,(16 - SIZE::value / 8))) + VAL64 (1)) ;
 			const auto r2x = _ALIGNOF_ (CHUNK) + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) + r1x * (_SIZEOF_ (BLOCK) + SIZE::value) ;
 			auto sgd = GlobalHeap::alloc<BYTE> (r2x) ;
@@ -2999,8 +2996,15 @@ private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
 			const auto r1x = &_NULL_<BYTE> () + constexpr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++)
-				if (_ADDRESS_ (_LOAD_<BLOCK> (r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value)).mNext) == VAR_USED)
+				if (!empty_node_each (r1x ,i))
 					return FALSE ;
+			return TRUE ;
+		}
+
+		inline BOOL empty_node_each (PTR<const BYTE> block_addr ,INDEX block) const {
+			auto &r1 = _LOAD_<BLOCK> (block_addr + block * (_SIZEOF_ (BLOCK) + SIZE::value)) ;
+			if (_ADDRESS_ (r1.mNext) == VAR_USED)
+				return FALSE ;
 			return TRUE ;
 		}
 	} ;

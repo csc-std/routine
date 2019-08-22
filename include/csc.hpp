@@ -323,6 +323,8 @@ using std::remove_extent ;
 #define FOR_ONCE_DO_WHILE auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
 #elif defined __CSC_COMPILER_GNUC__
 #define FOR_ONCE_DO_WHILE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
+#elif defined __CSC_COMPILER_CLANG__
+#define FOR_ONCE_DO_WHILE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #else
 #define FOR_ONCE_DO_WHILE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
 #endif

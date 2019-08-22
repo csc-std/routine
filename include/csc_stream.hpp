@@ -1925,8 +1925,8 @@ private:
 	class HINT_NEWLINE_TEXT_TYPE ;
 	class SKIP_GAP_TYPE ;
 	class SKIP_GAP_SPACE_ONLY_TYPE ;
-	class SKIP_GAP_NEWLINE_ONLY_TYPE ;
-	class SKIP_GAP_ENDLINE_TYPE ;
+	class SKIP_GAP_ENDLINE_ONLY_TYPE ;
+	class SKIP_LINE_TYPE ;
 
 public:
 	static constexpr auto HINT_IDENTIFY_TEXT = ARGV<HINT_IDENTIFY_TEXT_TYPE> {} ;
@@ -1936,8 +1936,8 @@ public:
 	static constexpr auto HINT_NEWLINE_TEXT = ARGV<HINT_NEWLINE_TEXT_TYPE> {} ;
 	static constexpr auto SKIP_GAP = ARGV<SKIP_GAP_TYPE> {} ;
 	static constexpr auto SKIP_GAP_SPACE_ONLY = ARGV<SKIP_GAP_SPACE_ONLY_TYPE> {} ;
-	static constexpr auto SKIP_GAP_NEWLINE_ONLY = ARGV<SKIP_GAP_NEWLINE_ONLY_TYPE> {} ;
-	static constexpr auto SKIP_GAP_ENDLINE = ARGV<SKIP_GAP_ENDLINE_TYPE> {} ;
+	static constexpr auto SKIP_GAP_ENDLINE_ONLY = ARGV<SKIP_GAP_ENDLINE_ONLY_TYPE> {} ;
+	static constexpr auto SKIP_LINE = ARGV<SKIP_LINE_TYPE> {} ;
 } ;
 
 template <class SIZE>
@@ -2050,52 +2050,56 @@ public:
 		return *this ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_IDENTIFY_TEXT_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::HINT_IDENTIFY_TEXT_TYPE> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_identifer_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_value_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE> &) {
 		mHintStringTextFlag = TRUE ;
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_gap_text_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newline_text_size () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::SKIP_GAP_TYPE> &) {
 		while (mReader->attr ().varify_space (get (0)))
 			read () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE> &) {
 		while (mReader->attr ().varify_space (get (0) ,1))
 			read () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_NEWLINE_ONLY_TYPE>) {
+	void read (const ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_ONLY_TYPE> &) {
 		while (mReader->attr ().varify_space (get (0) ,2))
 			read () ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_TYPE>) {
-		const auto r1x = get (0) ;
-		const auto r2x = BOOL (r1x == STRU8 ('\r') || r1x == STRU8 ('\n') || r1x == STRU8 ('\f')) ;
-		_DYNAMIC_ASSERT_ (r2x) ;
-		read () ;
-		if (r1x != STRU8 ('\r'))
+	void read (const ARGV<LLTextReader<void>::SKIP_LINE_TYPE> &) {
+		auto rax = STRU8 () ;
+		while (TRUE) {
+			rax = get (0) ;
+			const auto r2x = BOOL (rax == STRU8 ('\r') || rax == STRU8 ('\n') || rax == STRU8 ('\f')) ;
+			if (r2x)
+				break ;
+			read () ;
+		}
+		if (rax != STRU8 ('\r'))
 			return ;
 		const auto r3x = get (0) ;
 		if (r3x != STRU8 ('\n'))
@@ -2104,8 +2108,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline LLTextReader &operator>> (ARGV<_ARG1> data) {
-		read (data) ;
+	inline LLTextReader &operator>> (const ARGV<_ARG1> &) {
+		read (_NULL_<ARGV<_ARG1>> ()) ;
 		return *this ;
 	}
 

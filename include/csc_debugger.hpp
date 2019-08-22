@@ -171,15 +171,17 @@ struct OPERATOR_TYPENAME {
 
 	template <class _ARG1>
 	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!stl::is_template_type<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		const auto r1x = type_name_from_func<_ARG1> () ;
 		writer << _PCSTR_ ("class '") ;
-		writer << type_name_from_func<_ARG1> ().mSelf ;
+		writer << r1x.mSelf ;
 		writer << _PCSTR_ ("'") ;
 	}
 
 	template <class _ARG1>
 	inline static void static_write_typename_clazs (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_template_type<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		const auto r1x = type_name_from_func<_ARG1> () ;
 		writer << _PCSTR_ ("class '") ;
-		writer << type_name_from_func<_ARG1> ().mSelf ;
+		writer << r1x.mSelf ;
 		writer << _PCSTR_ ("'<") ;
 		static_write_typename_ys (writer ,_NULL_<ARGV<TEMPLATE_PARAMS_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (">") ;

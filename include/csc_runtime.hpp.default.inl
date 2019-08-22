@@ -73,7 +73,8 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		const auto r2x = EFLAG (r1x < 0) ;
 		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,_ABS_ (r1x)) ;
-		const auto r3x = setjmp (load_context_ebp (&r1.mContextEbp).mEbp) ;
+		auto &r2 = load_context_ebp (&r1.mContextEbp) ;
+		const auto r3x = setjmp (r2.mEbp) ;
 		(void) r3x ;
 	}
 
@@ -88,7 +89,8 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		const auto r2x = EFLAG (r1x < 0) ;
 		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r1x)) ;
-		longjmp (load_context_ebp (&r1.mContextEbp).mEbp ,1) ;
+		auto &r2 = load_context_ebp (&r1.mContextEbp) ;
+		longjmp (r2.mEbp ,1) ;
 	}
 
 	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE]> address) noexcept {
