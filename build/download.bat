@@ -1,6 +1,6 @@
 @echo off
 
-cd ..
+cd "%~p0/.."
 mkdir include
 call :dircls "include"
 set src=D:/Depends/__CSC__
