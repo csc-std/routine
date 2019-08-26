@@ -122,15 +122,13 @@ private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;
 
-	class Attribute final :private Interface {
-	private:
-		friend Bitmap ;
+	struct HEAP {
 		SharedRef<FixedBuffer<UNIT>> mBuffer ;
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
 private:
-	SharedRef<Attribute> mHeap ;
+	SharedRef<HEAP> mHeap ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -149,7 +147,7 @@ public:
 		_DEBUG_ASSERT_ (_cy >= 0) ;
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		const auto r1x = _cy * _cw + _ck ;
 		mHeap->mBuffer = SharedRef<FixedBuffer<UNIT>>::make (r1x) ;
 		mHeap->mWidth[0] = _cx ;
@@ -161,7 +159,7 @@ public:
 	}
 
 	explicit Bitmap (const PhanBuffer<UNIT> &image) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mImage.size () ;
@@ -171,7 +169,7 @@ public:
 	}
 
 	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mBuffer = std::move (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;

@@ -388,6 +388,9 @@ private:
 	void store_break_point (AnyRef<void> &bp) noexcept ;
 
 	void goto_break_point (AnyRef<void> &bp) noexcept ;
+
+public:
+	static void csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) ;
 } ;
 
 template <class UNIT>
@@ -429,6 +432,7 @@ public:
 	void sub_await (VAR priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
 		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
+		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
 		mSelf.mCoStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
 		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
@@ -459,6 +463,7 @@ public:
 		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
 		if (mSelf.mSubQueue.empty ())
 			return ;
+		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
 		mSelf.mCoStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
 		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
@@ -473,6 +478,7 @@ public:
 
 	void sub_return () {
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
+		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
 		mSelf.mSubQueue.clear () ;
 		mSelf.mSubAwaitQueue.clear () ;
 		mSelf.mSubCurr = VAR_NONE ;
@@ -481,6 +487,12 @@ public:
 	}
 } ;
 #endif
+
+template <class UNIT>
+inline void Coroutine<UNIT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
+	auto rax = Coroutine<UNIT> (std::move (proc)) ;
+	rax.execute () ;
+}
 
 class RandomService final :private Interface {
 private:

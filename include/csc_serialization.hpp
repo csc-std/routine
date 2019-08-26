@@ -974,10 +974,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 class JsonParser {
 private:
-	static constexpr auto UNIT_ID_NULL = FLAG (1) ;
-	static constexpr auto UNIT_ID_STRING = FLAG (2) ;
-	static constexpr auto UNIT_ID_ARRAY = FLAG (3) ;
-	static constexpr auto UNIT_ID_OBJECT = FLAG (4) ;
+	static constexpr auto TYPE_ID_NULL = FLAG (1) ;
+	static constexpr auto TYPE_ID_STRING = FLAG (2) ;
+	static constexpr auto TYPE_ID_ARRAY = FLAG (3) ;
+	static constexpr auto TYPE_ID_OBJECT = FLAG (4) ;
 
 	class Node {
 	private:
@@ -1010,19 +1010,19 @@ public:
 	}
 
 	BOOL string_type () const {
-		if (mHeap.self[mIndex].mTypeID != UNIT_ID_STRING)
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_STRING)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL array_type () const {
-		if (mHeap.self[mIndex].mTypeID != UNIT_ID_ARRAY)
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_ARRAY)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL object_type () const {
-		if (mHeap.self[mIndex].mTypeID != UNIT_ID_OBJECT)
+		if (mHeap.self[mIndex].mTypeID != TYPE_ID_OBJECT)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1197,7 +1197,7 @@ private:
 	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
 		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
 		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
-			if (mHeap.self[i].mTypeID != UNIT_ID_OBJECT)
+			if (mHeap.self[i].mTypeID != TYPE_ID_OBJECT)
 				continue ;
 			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			for (auto &&j : r1)
@@ -1227,13 +1227,13 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			//@info: case 'null'
 			_CASE_REQUIRE_ (r2x[0] != VAR_NONE) ;
-			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == UNIT_ID_NULL) ;
+			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == TYPE_ID_NULL) ;
 			_CASE_REQUIRE_ (r2x[1] == 0) ;
 			writer << _PCSTRU8_ ("null") ;
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '"xxx"'
 			_CASE_REQUIRE_ (r2x[0] != VAR_NONE) ;
-			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == UNIT_ID_STRING) ;
+			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == TYPE_ID_STRING) ;
 			_CASE_REQUIRE_ (r2x[1] == 0) ;
 			auto &r2 = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
@@ -1242,7 +1242,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '[(yyy(,yyy)*)?]'
 			_CASE_REQUIRE_ (r2x[0] != VAR_NONE) ;
-			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == UNIT_ID_ARRAY) ;
+			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == TYPE_ID_ARRAY) ;
 			_CASE_REQUIRE_ (r2x[1] == 0) ;
 			auto &r3 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rbx.clear () ;
@@ -1264,7 +1264,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
 			_CASE_REQUIRE_ (r2x[0] != VAR_NONE) ;
-			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == UNIT_ID_OBJECT) ;
+			_CASE_REQUIRE_ (mHeap.self[r2x[0]].mTypeID == TYPE_ID_OBJECT) ;
 			_CASE_REQUIRE_ (r2x[1] == 0) ;
 			auto &r4 = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rbx.clear () ;
@@ -1460,7 +1460,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = UNIT_ID_STRING ;
+				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1471,7 +1471,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = UNIT_ID_STRING ;
+				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1479,7 +1479,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				_CASE_REQUIRE_ (mRis[0] == STRU8 ('n')) ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2x () ;
-				mNodeHeap[ix].mTypeID = UNIT_ID_NULL ;
+				mNodeHeap[ix].mTypeID = TYPE_ID_NULL ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1488,7 +1488,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e3 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = UNIT_ID_STRING ;
+				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1532,7 +1532,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("[") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX ,INDEX>>::make (mArraySoftSet.share ()) ;
-			mNodeHeap[ix].mTypeID = UNIT_ID_ARRAY ;
+			mNodeHeap[ix].mTypeID = TYPE_ID_ARRAY ;
 			mNodeHeap[ix].mParent = it ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1584,7 +1584,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("{") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8> ,INDEX>>::make (mObjectSoftSet.share ()) ;
-			mNodeHeap[ix].mTypeID = UNIT_ID_OBJECT ;
+			mNodeHeap[ix].mTypeID = TYPE_ID_OBJECT ;
 			mNodeHeap[ix].mParent = it ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;

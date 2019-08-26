@@ -209,35 +209,37 @@ inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 #ifdef __CSC_UNITTEST__
 class GlobalWatch final :private Wrapped<void> {
 private:
-	template <class UNIT1 ,class UNIT2>
-	class Storage {
+	template <class UNIT>
+	class Storage final :private Interface {
 	private:
 		friend GlobalWatch ;
-		PACK<FLAG[4] ,PTR<void (UNIT2 &)>> mSelf ;
+		PTR<const STR> mName ;
+		FLAG mTypeID ;
+		PACK<LENGTH[2]> mAddress ;
+		PTR<void (const NONE &)> mWatch ;
 
 	public:
 		inline Storage () {
-			mSelf.P1[0] = 0 ;
-			mSelf.P1[1] = 0 ;
-			mSelf.P1[2] = 0 ;
-			mSelf.P1[3] = 0 ;
-			mSelf.P2 = NULL ;
+			mName = NULL ;
+			mTypeID = 0 ;
+			mAddress[0] = 0 ;
+			mAddress[1] = 0 ;
+			mWatch = NULL ;
 		} ;
 	} ;
 
 public:
 	template <class _ARG1 ,class _ARG2>
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
-		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
-		mInstance.mSelf.P1[0] = _ADDRESS_ (&name.self) ;
-		mInstance.mSelf.P1[1] = _ADDRESS_ (&data) ;
-		mInstance.mSelf.P1[2] = _ADDRESS_ (&done<_ARG1 ,_ARG2>) ;
-		mInstance.mSelf.P1[3] = 0 ;
-		const auto r2x = _COPY_ (mInstance.mSelf.P2) ;
+		static volatile Storage<_ARG1> mInstance ;
+		mInstance.mName = name.self ;
+		mInstance.mTypeID = _TYPEID_<_ARG2> () ;
+		mInstance.mAddress[0] = _ADDRESS_ (&data) ;
+		mInstance.mAddress[1] = _ADDRESS_ (&done<_ARG1 ,_ARG2>) ;
+		const auto r2x = _COPY_ (mInstance.mWatch) ;
 		if (r2x == NULL)
 			return ;
-		r2x (data) ;
-		r2x (data) ;
+		r2x (_LOAD_<NONE> (data)) ;
 	}
 } ;
 #endif

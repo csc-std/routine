@@ -117,15 +117,10 @@ private:
 
 class ByteReader {
 private:
-	class Attribute final :private Interface {
-	private:
-		friend ByteReader ;
+	struct HEAP {} ;
 
+	class Attribute :private Wrapped<HEAP> {
 	public:
-		Attribute () {
-			_STATIC_WARNING_ ("noop") ;
-		}
-
 		BYTE varify_ending_item () const {
 			return BYTE (0X00) ;
 		}
@@ -136,7 +131,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Attribute> mHeap ;
+	SharedRef<HEAP> mHeap ;
 	PhanBuffer<const BYTE> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -147,13 +142,13 @@ public:
 	}
 
 	explicit ByteReader (const PhanBuffer<const BYTE> &stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mStream = PhanBuffer<const BYTE>::make (stream) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHeap ;
+		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -212,7 +207,7 @@ public:
 			data = mStream[mRead] ;
 			mRead++ ;
 		} ,[&] (BOOL &_case_req) {
-			data = mHeap->varify_ending_item () ;
+			data = attr ().varify_ending_item () ;
 		}) ;
 	}
 
@@ -387,16 +382,12 @@ public:
 
 class ByteWriter {
 private:
-	class Attribute final :private Interface {
-	private:
-		friend ByteWriter ;
+	struct HEAP {
 		SharedRef<FixedBuffer<BYTE>> mBuffer ;
+	} ;
 
+	class Attribute :private Wrapped<HEAP> {
 	public:
-		Attribute () {
-			_STATIC_WARNING_ ("noop") ;
-		}
-
 		BYTE varify_ending_item () const {
 			return BYTE (0X00) ;
 		}
@@ -407,7 +398,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Attribute> mHeap ;
+	SharedRef<HEAP> mHeap ;
 	PhanBuffer<BYTE> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -418,20 +409,20 @@ public:
 	}
 
 	explicit ByteWriter (const PhanBuffer<BYTE> &stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mStream = PhanBuffer<BYTE>::make (stream) ;
 		reset () ;
 	}
 
 	explicit ByteWriter (SharedRef<FixedBuffer<BYTE>> &&stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
 		mStream = PhanBuffer<BYTE>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHeap ;
+		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -649,33 +640,28 @@ public:
 template <class REAL>
 class TextReader {
 private:
-	class Attribute final :private Interface {
-	private:
-		friend TextReader ;
+	struct HEAP {
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
 		HashSet<REAL ,REAL> mEscapeSet ;
 		HashSet<REAL ,FLAG> mSpaceSet ;
+	} ;
 
+	class Attribute :private Wrapped<HEAP> {
 	public:
-		Attribute () {
-			enable_endian (FALSE) ;
-			enable_escape (FALSE) ;
-		}
-
 		REAL varify_ending_item () const {
 			return REAL ('\0') ;
 		}
 
 		void enable_endian (BOOL flag) {
-			mEndianFlag = flag ;
+			Attribute::mSelf.mEndianFlag = flag ;
 		}
 
 		REAL convert_endian (const REAL &item) const {
 			TEMP<REAL> ret ;
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMCOPY_) ;
-			const auto r3x = mEndianFlag ? r1x : r2x ;
+			const auto r3x = Attribute::mSelf.mEndianFlag ? r1x : r2x ;
 			_ZERO_ (ret) ;
 			r3x (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
 			return std::move (_CAST_<REAL> (ret)) ;
@@ -705,7 +691,7 @@ private:
 		}
 
 		void enable_escape (BOOL flag) {
-			mEscapeFlag = flag ;
+			Attribute::mSelf.mEscapeFlag = flag ;
 		}
 
 		REAL varify_escape_item () const {
@@ -713,7 +699,7 @@ private:
 		}
 
 		BOOL varify_escape_r (const REAL &item) const {
-			if (!mEscapeFlag)
+			if (!Attribute::mSelf.mEscapeFlag)
 				return FALSE ;
 			if (item != varify_escape_item ())
 				return FALSE ;
@@ -722,36 +708,36 @@ private:
 
 		void modify_escape_r (const REAL &str_a ,const REAL &str_e) {
 			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mEscapeSet.find (str_a) == VAR_NONE) ;
-			mEscapeSet.add (str_a ,str_e) ;
+			_DEBUG_ASSERT_ (Attribute::mSelf.mEscapeSet.find (str_a) == VAR_NONE) ;
+			Attribute::mSelf.mEscapeSet.add (str_a ,str_e) ;
 		}
 
 		REAL convert_escape_r (const REAL &str_a) const {
-			INDEX ix = mEscapeSet.find (str_a) ;
+			INDEX ix = Attribute::mSelf.mEscapeSet.find (str_a) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mEscapeSet[ix].item ;
+			return Attribute::mSelf.mEscapeSet[ix].item ;
 		}
 
 		BOOL varify_space (const REAL &item) const {
-			INDEX ix = mSpaceSet.find (item) ;
+			INDEX ix = Attribute::mSelf.mSpaceSet.find (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
 		}
 
 		BOOL varify_space (const REAL &item ,VAR32 group) const {
-			INDEX ix = mSpaceSet.find (item) ;
+			INDEX ix = Attribute::mSelf.mSpaceSet.find (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
-			if (mSpaceSet[ix].item != group)
+			if (Attribute::mSelf.mSpaceSet[ix].item != group)
 				return FALSE ;
 			return TRUE ;
 		}
 
 		void modify_space (const REAL &item ,VAR32 group) {
 			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mSpaceSet.find (item) == VAR_NONE) ;
-			mSpaceSet.add (item ,group) ;
+			_DEBUG_ASSERT_ (Attribute::mSelf.mSpaceSet.find (item) == VAR_NONE) ;
+			Attribute::mSelf.mSpaceSet.add (item ,group) ;
 		}
 
 		BOOL varify_control (const REAL &item) const {
@@ -767,7 +753,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
-	SharedRef<Attribute> mHeap ;
+	SharedRef<HEAP> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -778,13 +764,15 @@ public:
 	}
 
 	explicit TextReader (const PhanBuffer<const REAL> &stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
+		attr ().enable_endian (FALSE) ;
+		attr ().enable_escape (FALSE) ;
 		mStream = PhanBuffer<const REAL>::make (stream) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHeap ;
+		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -841,18 +829,18 @@ public:
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mRead < mWrite) ;
 			for (FOR_ONCE_DO_WHILE) {
-				data = mHeap->convert_endian (mStream[mRead]) ;
-				const auto r2x = mHeap->varify_escape_r (data) ;
+				data = attr ().convert_endian (mStream[mRead]) ;
+				const auto r2x = attr ().varify_escape_r (data) ;
 				mRead++ ;
 				if (!r2x)
 					discard ;
 				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
-				data = mHeap->convert_endian (mStream[mRead]) ;
-				data = mHeap->convert_escape_r (data) ;
+				data = attr ().convert_endian (mStream[mRead]) ;
+				data = attr ().convert_escape_r (data) ;
 				mRead++ ;
 			}
 		} ,[&] (BOOL &_case_req) {
-			data = mHeap->varify_ending_item () ;
+			data = attr ().varify_ending_item () ;
 		}) ;
 	}
 
@@ -999,7 +987,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('N')) ;
 			data = VAL64_NAN ;
 		} ,[&] (BOOL &_case_req) {
-			const auto r2x = mHeap->varify_number_item (rax) ;
+			const auto r2x = attr ().varify_number_item (rax) ;
 			_CASE_REQUIRE_ (r2x) ;
 			compute_read_number (data ,*this ,rax) ;
 		} ,[&] (BOOL &_case_req) {
@@ -1095,9 +1083,9 @@ private:
 		auto rax = REAL () ;
 		ris.read (rax) ;
 		while (TRUE) {
-			if (rax == mHeap->varify_ending_item ())
+			if (rax == attr ().varify_ending_item ())
 				break ;
-			if (mHeap->varify_space (rax))
+			if (attr ().varify_space (rax))
 				break ;
 			ret++ ;
 			ris.read (rax) ;
@@ -1106,14 +1094,14 @@ private:
 	}
 
 	void compute_read_number (VAR64 &data ,TextReader &reader ,REAL &top) const {
-		_DEBUG_ASSERT_ (mHeap->varify_number_item (top)) ;
+		_DEBUG_ASSERT_ (attr ().varify_number_item (top)) ;
 		auto ris = reader.copy () ;
-		data = mHeap->convert_number_r (top) ;
+		data = attr ().convert_number_r (top) ;
 		ris.read (top) ;
 		while (TRUE) {
-			if (!mHeap->varify_number_item (top))
+			if (!attr ().varify_number_item (top))
 				break ;
-			const auto r1x = data * mHeap->varify_radix () + mHeap->convert_number_r (top) ;
+			const auto r1x = data * attr ().varify_radix () + attr ().convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r1x) ;
 			data = r1x ;
 			reader = ris.copy () ;
@@ -1122,26 +1110,26 @@ private:
 	}
 
 	void compute_read_number (VAL64 &data ,TextReader &reader ,REAL &top) const {
-		_DEBUG_ASSERT_ (mHeap->varify_number_item (top)) ;
+		_DEBUG_ASSERT_ (attr ().varify_number_item (top)) ;
 		auto ris = reader.copy () ;
 		while (TRUE) {
-			if (mHeap->convert_number_r (top) != 0)
+			if (attr ().convert_number_r (top) != 0)
 				break ;
 			reader = ris.copy () ;
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
 		for (FOR_ONCE_DO_WHILE) {
-			if (!mHeap->varify_number_item (top))
+			if (!attr ().varify_number_item (top))
 				discard ;
-			rax[0] = mHeap->convert_number_r (top) ;
+			rax[0] = attr ().convert_number_r (top) ;
 			reader = ris.copy () ;
 			ris.read (top) ;
 			while (TRUE) {
-				if (!mHeap->varify_number_item (top))
+				if (!attr ().varify_number_item (top))
 					break ;
 				_CALL_IF_ ([&] (BOOL &_case_req) {
-					const auto r1x = rax[0] * mHeap->varify_radix () + mHeap->convert_number_r (top) ;
+					const auto r1x = rax[0] * attr ().varify_radix () + attr ().convert_number_r (top) ;
 					_CASE_REQUIRE_ (rax[0] < r1x) ;
 					rax[0] = r1x ;
 				} ,[&] (BOOL &_case_req) {
@@ -1156,12 +1144,12 @@ private:
 				discard ;
 			reader = ris.copy () ;
 			ris.read (top) ;
-			_DYNAMIC_ASSERT_ (mHeap->varify_number_item (top)) ;
+			_DYNAMIC_ASSERT_ (attr ().varify_number_item (top)) ;
 			while (TRUE) {
-				if (!mHeap->varify_number_item (top))
+				if (!attr ().varify_number_item (top))
 					break ;
 				for (FOR_ONCE_DO_WHILE) {
-					const auto r2x = rax[0] * mHeap->varify_radix () + mHeap->convert_number_r (top) ;
+					const auto r2x = rax[0] * attr ().varify_radix () + attr ().convert_number_r (top) ;
 					if (rax[0] > r2x)
 						discard ;
 					rax[0] = r2x ;
@@ -1185,7 +1173,7 @@ private:
 			rax[2] = -1 ;
 			if (rax[0] >= 0)
 				discard ;
-			rax[0] = -(rax[0] / mHeap->varify_radix ()) ;
+			rax[0] = -(rax[0] / attr ().varify_radix ()) ;
 			rax[1]++ ;
 		}
 		const auto r4x = _IEEE754_E10TOE2_ (rax) ;
@@ -1196,33 +1184,28 @@ private:
 template <class REAL>
 class TextWriter {
 private:
-	class Attribute final :private Interface {
-	private:
-		friend TextWriter ;
+	struct HEAP {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
 		HashSet<REAL ,REAL> mEscapeSet ;
+	} ;
 
+	class Attribute :private Wrapped<HEAP> {
 	public:
-		Attribute () {
-			enable_endian (FALSE) ;
-			enable_escape (FALSE) ;
-		}
-
 		REAL varify_ending_item () const {
 			return REAL ('\0') ;
 		}
 
 		void enable_endian (BOOL flag) {
-			mEndianFlag = flag ;
+			Attribute::mSelf.mEndianFlag = flag ;
 		}
 
 		REAL convert_endian (const REAL &item) const {
 			TEMP<REAL> ret ;
 			const auto r1x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMRCOPY_) ;
 			const auto r2x = _XVALUE_<PTR<void (ARR<BYTE> & ,const DEF<BYTE[_SIZEOF_ (REAL)]> &)>> (_MEMCOPY_) ;
-			const auto r3x = mEndianFlag ? r1x : r2x ;
+			const auto r3x = Attribute::mSelf.mEndianFlag ? r1x : r2x ;
 			_ZERO_ (ret) ;
 			r3x (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (REAL)]> (item)) ;
 			return std::move (_CAST_<REAL> (ret)) ;
@@ -1252,7 +1235,7 @@ private:
 		}
 
 		void enable_escape (BOOL flag) {
-			mEscapeFlag = flag ;
+			Attribute::mSelf.mEscapeFlag = flag ;
 		}
 
 		REAL varify_escape_item () const {
@@ -1260,23 +1243,23 @@ private:
 		}
 
 		BOOL varify_escape_w (const REAL &key) const {
-			if (!mEscapeFlag)
+			if (!Attribute::mSelf.mEscapeFlag)
 				return FALSE ;
-			if (mEscapeSet.find (key) == VAR_NONE)
+			if (Attribute::mSelf.mEscapeSet.find (key) == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
 		}
 
 		void modify_escape_w (const REAL &str_a ,const REAL &str_e) {
 			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mEscapeSet.find (str_e) == VAR_NONE) ;
-			mEscapeSet.add (str_e ,str_a) ;
+			_DEBUG_ASSERT_ (Attribute::mSelf.mEscapeSet.find (str_e) == VAR_NONE) ;
+			Attribute::mSelf.mEscapeSet.add (str_e ,str_a) ;
 		}
 
 		REAL convert_escape_w (const REAL &str_e) const {
-			INDEX ix = mEscapeSet.find (str_e) ;
+			INDEX ix = Attribute::mSelf.mEscapeSet.find (str_e) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mEscapeSet[ix].item ;
+			return Attribute::mSelf.mEscapeSet[ix].item ;
 		}
 
 		BOOL varify_space (const REAL &item) const {
@@ -1298,7 +1281,7 @@ private:
 
 private:
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
-	SharedRef<Attribute> mHeap ;
+	SharedRef<HEAP> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -1309,20 +1292,24 @@ public:
 	}
 
 	explicit TextWriter (const PhanBuffer<REAL> &stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
+		attr ().enable_endian (FALSE) ;
+		attr ().enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
 	}
 
 	explicit TextWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
-		mHeap = SharedRef<Attribute>::make () ;
+		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
+		attr ().enable_endian (FALSE) ;
+		attr ().enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
 	Attribute &attr () const & {
-		return mHeap ;
+		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
 	Attribute &attr () && = delete ;
@@ -1369,17 +1356,17 @@ public:
 
 	void write (const REAL &data) {
 		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mHeap->varify_escape_w (data)) ;
+			_CASE_REQUIRE_ (attr ().varify_escape_w (data)) ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
-			const auto r1x = mHeap->varify_escape_item () ;
-			mStream[mWrite] = mHeap->convert_endian (r1x) ;
+			const auto r1x = attr ().varify_escape_item () ;
+			mStream[mWrite] = attr ().convert_endian (r1x) ;
 			mWrite++ ;
-			const auto r2x = mHeap->convert_escape_w (data) ;
-			mStream[mWrite] = mHeap->convert_endian (r2x) ;
+			const auto r2x = attr ().convert_escape_w (data) ;
+			mStream[mWrite] = attr ().convert_endian (r2x) ;
 			mWrite++ ;
 		} ,[&] (BOOL &_case_req) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
-			mStream[mWrite] = mHeap->convert_endian (data) ;
+			mStream[mWrite] = attr ().convert_endian (data) ;
 			mWrite++ ;
 		}) ;
 	}
@@ -1449,7 +1436,7 @@ public:
 		} ,[&] (BOOL &_case_req) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
-			const auto r1x = mHeap->varify_val32_precision () ;
+			const auto r1x = attr ().varify_val32_precision () ;
 			compute_write_number (data ,r1x ,PhanBuffer<REAL>::make (rax) ,ix) ;
 			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}) ;
@@ -1481,7 +1468,7 @@ public:
 		} ,[&] (BOOL &_case_req) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
-			const auto r1x = mHeap->varify_val64_precision () ;
+			const auto r1x = attr ().varify_val64_precision () ;
 			compute_write_number (data ,r1x ,PhanBuffer<REAL>::make (rax) ,ix) ;
 			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}) ;
@@ -1569,8 +1556,8 @@ private:
 			while (TRUE) {
 				if (rax == 0)
 					break ;
-				out[--iw] = mHeap->convert_number_w (rax % mHeap->varify_radix ()) ;
-				rax /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax % attr ().varify_radix ()) ;
+				rax /= attr ().varify_radix () ;
 			}
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (data < 0) ;
@@ -1578,13 +1565,13 @@ private:
 			while (TRUE) {
 				if (rax == 0)
 					break ;
-				out[--iw] = mHeap->convert_number_w (-rax % mHeap->varify_radix ()) ;
-				rax /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (-rax % attr ().varify_radix ()) ;
+				rax /= attr ().varify_radix () ;
 			}
 			out[--iw] = REAL ('-') ;
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (data == 0) ;
-			out[--iw] = mHeap->convert_number_w (0) ;
+			out[--iw] = attr ().convert_number_w (0) ;
 		}) ;
 		it = iw ;
 	}
@@ -1597,12 +1584,12 @@ private:
 		for (FOR_ONCE_DO_WHILE) {
 			const auto r4x = r3x - precision ;
 			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
-				rax[0] /= mHeap->varify_radix () ;
+				rax[0] /= attr ().varify_radix () ;
 				rax[1]++ ;
 			}
 			if (r4x <= 0)
 				discard ;
-			rax[0] = _ROUND_ (rax[0] ,mHeap->varify_radix ()) / mHeap->varify_radix () ;
+			rax[0] = _ROUND_ (rax[0] ,attr ().varify_radix ()) / attr ().varify_radix () ;
 			rax[1]++ ;
 		}
 		const auto r8x = log_of_number (rax[0]) ;
@@ -1619,25 +1606,25 @@ private:
 			out[--iw] = REAL ('e') ;
 			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r5x ; i++)
-				rax[0] /= mHeap->varify_radix () ;
+				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
-				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHeap->convert_number_w (0)) ;
-				rax[0] /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				rax[0] /= attr ().varify_radix () ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += EFLAG (out[ix] == REAL ('.')) ;
-			out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-			rax[0] /= mHeap->varify_radix () ;
+			out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+			rax[0] /= attr ().varify_radix () ;
 		} ,[&] (BOOL &_case_req) {
 			//@info: case 'xxx000'
 			_CASE_REQUIRE_ (rax[1] > 0) ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
-				out[--iw] = mHeap->convert_number_w (0) ;
+				out[--iw] = attr ().convert_number_w (0) ;
 			for (INDEX i = 0 ; i < r8x ; i++) {
-				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-				rax[0] /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+				rax[0] /= attr ().varify_radix () ;
 			}
 		} ,[&] (BOOL &_case_req) {
 			//@info: case 'xxx.xxx'
@@ -1645,18 +1632,18 @@ private:
 			_CASE_REQUIRE_ (rax[1] < 0) ;
 			const auto r7x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r7x ; i++)
-				rax[0] /= mHeap->varify_radix () ;
+				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r7x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHeap->convert_number_w (0)) ;
-				rax[0] /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				rax[0] /= attr ().varify_radix () ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += EFLAG (out[ix] == REAL ('.')) ;
 			for (INDEX i = 0 ,ie = LENGTH (r8x + rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-				rax[0] /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+				rax[0] /= attr ().varify_radix () ;
 			}
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '0.000xxx'
@@ -1664,24 +1651,24 @@ private:
 			_CASE_REQUIRE_ (rax[1] < 0) ;
 			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ; i < r6x ; i++)
-				rax[0] /= mHeap->varify_radix () ;
+				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r6x ; i < r8x ; i++) {
-				out[--iw] = mHeap->convert_number_w (rax[0] % mHeap->varify_radix ()) ;
-				iw += EFLAG (out[ix] == mHeap->convert_number_w (0)) ;
-				rax[0] /= mHeap->varify_radix () ;
+				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
+				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				rax[0] /= attr ().varify_radix () ;
 			}
 			for (INDEX i = _MAX_ (r6x ,r8x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
-				out[--iw] = mHeap->convert_number_w (0) ;
-				iw += EFLAG (out[ix] == mHeap->convert_number_w (0)) ;
+				out[--iw] = attr ().convert_number_w (0) ;
+				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += EFLAG (out[ix] == REAL ('.')) ;
-			out[--iw] = mHeap->convert_number_w (0) ;
+			out[--iw] = attr ().convert_number_w (0) ;
 		} ,[&] (BOOL &_case_req) {
 			//@info: case '0'
 			_CASE_REQUIRE_ (rax[0] == 0) ;
-			out[--iw] = mHeap->convert_number_w (0) ;
+			out[--iw] = attr ().convert_number_w (0) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (rax[2] == 0)
@@ -1698,7 +1685,7 @@ private:
 			if (rax > arg1)
 				break ;
 			ret++ ;
-			rax *= mHeap->varify_radix () ;
+			rax *= attr ().varify_radix () ;
 		}
 		return std::move (ret) ;
 	}

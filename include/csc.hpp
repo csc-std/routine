@@ -1226,7 +1226,7 @@ template <class _ARG1>
 inline FLAG _TYPEID_ (const ARGV<_ARG1> &) noexcept {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	//@warn: RTTI might be different across DLL
-	class UNITID final :private Interface {} ret ;
+	class Storage final :private Interface {} ret ;
 	return std::move (_CAST_<FLAG> (ret)) ;
 }
 
@@ -1279,7 +1279,7 @@ public:
 	inline explicit Plain (_ARG1 &) = delete ;
 
 	template <class _ARG1 ,class... _ARGS>
-	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept :Plain (Detail::plain_string (_NULL_<ARGV<_ARG1>> () ,args...)) {}
+	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept :Plain (Detail::cache_string (_NULL_<ARGV<_ARG1>> () ,args...)) {}
 
 	inline constexpr LENGTH size () const {
 		return mSize ;
@@ -1312,20 +1312,20 @@ private:
 			}
 		} ;
 
-		inline static constexpr LENGTH constexpr_plain_string_size (const ARGVS<> &) {
+		inline static constexpr LENGTH constexpr_cache_string_size (const ARGVS<> &) {
 			return 1 ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static constexpr LENGTH constexpr_plain_string_size (const ARGVS<_ARG1 ,_ARGS...> &) {
-			return _COUNTOF_ (_ARG1) - 1 + constexpr_plain_string_size (_NULL_<ARGVS<_ARGS...>> ()) ;
+		inline static constexpr LENGTH constexpr_cache_string_size (const ARGVS<_ARG1 ,_ARGS...> &) {
+			return _COUNTOF_ (_ARG1) - 1 + constexpr_cache_string_size (_NULL_<ARGVS<_ARGS...>> ()) ;
 		}
 
 		template <class... _ARGS>
-		using PLAIN_STRING_SIZE = ARGC<constexpr_plain_string_size (_NULL_<ARGVS<_ARGS...>> ())> ;
+		using PLAIN_STRING_SIZE = ARGC<constexpr_cache_string_size (_NULL_<ARGVS<_ARGS...>> ())> ;
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &plain_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
+		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
 			auto &r1 = _CACHE_ ([r1x] () noexcept {
 				return _COPY_ (r1x) ;
