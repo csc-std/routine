@@ -131,7 +131,7 @@ public:
 		mEyeP -= mEyeN * _near ;
 	}
 
-	Matrix<REAL> view () const {
+	Matrix<REAL> view_matrix () const {
 		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (*this) ,&Camera::compute_view_matrix) ;
 		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
@@ -207,7 +207,7 @@ public:
 		mProjectionMatrix[3][3] = REAL (1) ;
 	}
 
-	Matrix<REAL> projection () const {
+	Matrix<REAL> projection_matrix () const {
 		return mProjectionMatrix ;
 	}
 

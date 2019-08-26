@@ -222,8 +222,8 @@ private:
 		inline Storage () {
 			mName = NULL ;
 			mTypeID = 0 ;
-			mAddress[0] = 0 ;
-			mAddress[1] = 0 ;
+			mAddress.P1[0] = 0 ;
+			mAddress.P1[1] = 0 ;
 			mWatch = NULL ;
 		} ;
 	} ;
@@ -234,12 +234,12 @@ public:
 		static volatile Storage<_ARG1> mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mTypeID = _TYPEID_<_ARG2> () ;
-		mInstance.mAddress[0] = _ADDRESS_ (&data) ;
-		mInstance.mAddress[1] = _ADDRESS_ (&done<_ARG1 ,_ARG2>) ;
+		mInstance.mAddress.P1[0] = _ADDRESS_ (&data) ;
+		mInstance.mAddress.P1[1] = _ADDRESS_ (&done<_ARG1 ,_ARG2>) ;
 		const auto r2x = _COPY_ (mInstance.mWatch) ;
 		if (r2x == NULL)
 			return ;
-		r2x (_LOAD_<NONE> (data)) ;
+		r2x (_LOAD_<NONE> (&data)) ;
 	}
 } ;
 #endif

@@ -357,8 +357,10 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 				return ;
 			mConvergence[2] = REAL (0) ;
 			_DEBUG_ASSERT_ (mCurrCenterList.length () == mNextCenterList.length ()) ;
-			for (auto &&i : mCenterIndex)
-				mConvergence[2] = _MAX_ (mConvergence[2] ,mDistanceFunc (mCurrCenterList[i[0]] ,mNextCenterList[i[1]])) ;
+			for (auto &&i : mCenterIndex) {
+				const auto r1x = mDistanceFunc (mCurrCenterList[i[0]] ,mNextCenterList[i[1]]) ;
+				mConvergence[2] = _MAX_ (mConvergence[2] ,r1x) ;
+			}
 		}
 
 		inline BOOL reach_convergence () const {
@@ -1106,12 +1108,14 @@ private:
 			_CASE_REQUIRE_ (mKDTree[it].mLeaf != VAR_NONE) ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mKDTree[it].mLeaf ;
-				const auto r2x = (Vector<REAL> {mVertex[ix] ,REAL (0)} -Vector<REAL> {point ,REAL (0)}).magnitude () ;
+				const auto r1x = Vector<REAL> {mVertex[ix] ,REAL (0)} ;
+				const auto r2x = Vector<REAL> {point ,REAL (0)} ;
+				const auto r3x = (r1x - r2x).magnitude () ;
 				INDEX jx = out.length () ;
 				while (TRUE) {
 					if (jx - 1 < 0)
 						break ;
-					if (r2x >= out[jx - 1].P2)
+					if (r3x >= out[jx - 1].P2)
 						break ;
 					if (jx < out.length ())
 						out[jx] = out[jx - 1] ;
@@ -1120,14 +1124,14 @@ private:
 				if (jx >= out.length ())
 					discard ;
 				out[jx].P1 = ix ;
-				out[jx].P2 = r2x ;
+				out[jx].P2 = r3x ;
 			}
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mKDTree[it].mLeaf == VAR_NONE) ;
-			const auto r3x = mKDTree[it].mKey ;
-			if (r3x >= point[rot] - out[out.length () - 1].P2)
+			const auto r4x = mKDTree[it].mKey ;
+			if (r4x >= point[rot] - out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[it].mLeft ,mNextRot[rot] ,out) ;
-			if (r3x <= point[rot] + out[out.length () - 1].P2)
+			if (r4x <= point[rot] + out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[it].mRight ,mNextRot[rot] ,out) ;
 		}) ;
 	}

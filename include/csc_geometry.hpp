@@ -259,17 +259,6 @@ public:
 		const auto r1x = _PINV_ (mVector[3]) ;
 		ret.mVector[0] = mVector[0] * r1x ;
 		ret.mVector[1] = mVector[1] * r1x ;
-		ret.mVector[2] = mVector[2] * r1x ;
-		ret.mVector[3] = REAL (1) ;
-		return std::move (ret) ;
-	}
-
-	Vector projection_z () const {
-		_DEBUG_ASSERT_ (mVector[3] != REAL (0)) ;
-		Vector ret ;
-		const auto r1x = _PINV_ (mVector[3]) ;
-		ret.mVector[0] = mVector[0] * r1x ;
-		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = REAL (0) ;
 		ret.mVector[3] = REAL (1) ;
 		return std::move (ret) ;
@@ -818,11 +807,12 @@ public:
 	}
 
 	static Matrix make_translation (const Vector<REAL> &position) {
-		const auto r1x = (position[3] != REAL (0)) ? (-position.projection ().homogenize ()) : position ;
+		const auto r1x = -position * _PINV_ (position[3]) ;
+		const auto r2x = (position[3] != REAL (0)) ? r1x : position ;
 		Matrix ret = Matrix ({
-			{REAL (1) ,REAL (0) ,REAL (0) ,r1x[0]} ,
-			{REAL (0) ,REAL (1) ,REAL (0) ,r1x[1]} ,
-			{REAL (0) ,REAL (0) ,REAL (1) ,r1x[2]} ,
+			{REAL (1) ,REAL (0) ,REAL (0) ,r2x[0]} ,
+			{REAL (0) ,REAL (1) ,REAL (0) ,r2x[1]} ,
+			{REAL (0) ,REAL (0) ,REAL (1) ,r2x[2]} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
 		return std::move (ret) ;
 	}
@@ -857,9 +847,11 @@ public:
 		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
-		const auto r2x = (r2x[3] != REAL (0)) ? (light.projection ()) : (light.normalize ()) ;
+		const auto r8x = light * _PINV_ (light) ;
+		const auto r2x = (light[3] != REAL (0)) ? r8x : (light.normalize ()) ;
 		const auto r3x = center.homogenize () * r1x ;
-		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} *r1x ;
+		const auto r9x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
+		const auto r4x = r9x * r1x ;
 		const auto r7x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
 		const auto r5x = (r2x[3] != REAL (0)) ? r3x : r7x ;
 		const auto r6x = (r2x[3] != REAL (0)) ? r1x : r7x ;
