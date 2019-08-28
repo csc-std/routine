@@ -520,9 +520,9 @@ public:
 		return *this ;
 	}
 
-	void write (const PTR<const void> &) = delete ;
+	void write (const PTR<const VOID> &) = delete ;
 
-	inline ByteWriter &operator<< (const PTR<const void> &) = delete ;
+	inline ByteWriter &operator<< (const PTR<const VOID> &) = delete ;
 
 	void write (const VAR32 &data) {
 		write (_CAST_<BYTE_TRAITS_TYPE<VAR32>> (data)) ;
@@ -1390,9 +1390,9 @@ public:
 		return *this ;
 	}
 
-	void write (const PTR<const void> &) = delete ;
+	void write (const PTR<const VOID> &) = delete ;
 
-	inline TextWriter &operator<< (const PTR<const void> &) = delete ;
+	inline TextWriter &operator<< (const PTR<const VOID> &) = delete ;
 
 	void write (const VAR32 &data) {
 		write (VAR64 (data)) ;

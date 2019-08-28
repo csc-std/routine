@@ -245,7 +245,7 @@ private:
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
 		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
-		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
+		const auto r2x = PhanBuffer<const BYTE>::make (_DEREF_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)
@@ -322,10 +322,16 @@ public:
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : address) {
-			const auto r1x = PTR<VOID> (i) ;
-			const auto r2x = backtrace_symbols (&r1x ,1) ;
+			const auto r1x = &_DEREF_<VOID> (NULL ,i) ;
+			const auto r2x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
+				me = backtrace_symbols (&r1x ,1) ;
+			} ,[&] (PTR<PTR<STRA>> &me) {
+				if (me == NULL)
+					return ;
+				free (me) ;
+			}) ;
 			const auto r3x = _BUILDHEX16S_<STR> (i) ;
-			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x[0]])) ;
+			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x.self[0]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;

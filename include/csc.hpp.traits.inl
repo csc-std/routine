@@ -382,126 +382,6 @@ using CAST_TRAITS_TYPE = typename CAST_TRAITS<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
-template <class ,class ,class>
-struct LOAD_CHECK {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,ARGC<1>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,ARGC<2>>::TYPE ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,TEMP<_ARG1> ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<TEMP<_ARG1> ,_ARG1 ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,NONE ,ARGC<1>> {
-	using TYPE = ARGC<stl::is_class<_ARG1>::value> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<NONE ,_ARG1 ,ARGC<1>> {
-	using TYPE = ARGC<stl::is_class<_ARG1>::value> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,VOID ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<STRU8> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<STRU16> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<STRU32> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<STRA> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<STRW> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,BYTE ,ARGC<2>> {
-	//@warn: not recommend but for compatibility
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using LOAD_CHECK_TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,ARGC<1>>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct INDEX_OF {
-	using TYPE = ARGC<VAR_NONE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct INDEX_OF<_ARG1 ,REMOVE_CVR_TYPE<_ARG2> ,ARGVS<_ARG2 ,_ARGS...>> {
-	using TYPE = _ARG1 ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
-	using TYPE = typename INDEX_OF<ARGC<_ARG1::value + 1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,REMOVE_CVR_TYPE<_ARG1> ,_ARG2>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct VISIT_OF ;
-
-template <class _ARG1 ,class... _ARGS>
-struct VISIT_OF<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
-	using TYPE = _ARG1 ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct VISIT_OF<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
-	_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0) ;
-	using TYPE = typename VISIT_OF<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using VISIT_OF_TYPE = typename VISIT_OF<_ARG1 ,_ARG2>::TYPE ;
-} ;
-
-namespace U {
 template <class ,class>
 struct is_var_xyz_help :public stl::false_type {} ;
 
@@ -562,26 +442,153 @@ using is_byte_xyz = U::is_byte_xyz_help<_ARG1> ;
 } ;
 
 namespace U {
-template <class>
+template <class ,class>
 struct is_str_xyz_help :public stl::false_type {} ;
 
 template <>
-struct is_str_xyz_help<STRU8> :public stl::true_type {} ;
+struct is_str_xyz_help<STRU8 ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_str_xyz_help<STRU16> :public stl::true_type {} ;
+struct is_str_xyz_help<STRU16 ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_str_xyz_help<STRU32> :public stl::true_type {} ;
+struct is_str_xyz_help<STRU32 ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_str_xyz_help<STRA> :public stl::true_type {} ;
+struct is_str_xyz_help<STRA ,VOID> :public stl::true_type {} ;
 
 template <>
-struct is_str_xyz_help<STRW> :public stl::true_type {} ;
+struct is_str_xyz_help<STRW ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-using is_str_xyz = is_str_xyz_help<_ARG1> ;
+struct is_str_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,STRX>::value && !std::is_same<_ARG1 ,STRA>::value && !std::is_same<_ARG1 ,STRW>::value>> :public stl::true_type {} ;
+
+template <class _ARG1>
+using is_str_xyz = is_str_xyz_help<_ARG1 ,VOID> ;
+} ;
+
+namespace U {
+template <class ,class ,class ,class>
+struct LOAD_CHECK {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<TEMP<_ARG1> ,_ARG1 ,VOID ,ARGC<1>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,VOID ,ARGC<1>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <>
+struct LOAD_CHECK<ARR<BYTE> ,ARR<BOOL> ,VOID ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<is_var_xyz<_ARG1>::value> ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<is_val_xyz<_ARG1>::value> ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_byte_xyz<_ARG1>::value && !is_str_xyz<_ARG1>::value)> ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_str_xyz<_ARG1>::value && !is_byte_xyz<_ARG1>::value)> ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+struct LOAD_CHECK<_ARG1 ,VOID ,VOID ,ARGC<4>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using DEREF_CHECK_TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,VOID ,ARGC<1>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct INDEX_OF {
+	using TYPE = ARGC<VAR_NONE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct INDEX_OF<_ARG1 ,REMOVE_CVR_TYPE<_ARG2> ,ARGVS<_ARG2 ,_ARGS...>> {
+	using TYPE = _ARG1 ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
+struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
+	using TYPE = typename INDEX_OF<ARGC<_ARG1::value + 1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,REMOVE_CVR_TYPE<_ARG1> ,_ARG2>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct VISIT_OF ;
+
+template <class _ARG1 ,class... _ARGS>
+struct VISIT_OF<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
+	using TYPE = _ARG1 ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct VISIT_OF<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
+	_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0) ;
+	using TYPE = typename VISIT_OF<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using VISIT_OF_TYPE = typename VISIT_OF<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {

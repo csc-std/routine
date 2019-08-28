@@ -297,7 +297,7 @@ private:
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
 		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
-		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
+		const auto r2x = PhanBuffer<const BYTE>::make (_DEREF_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)
@@ -393,13 +393,13 @@ public:
 			_CASE_REQUIRE_ (mSymbolFromAddress.exist ()) ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
-			auto &r1 = _LOAD_<SYMBOL_INFO> (rax.self) ;
-			r1.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
-			r1.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
+			const auto r4x = &_DEREF_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
+			r4x->SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
+			r4x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : address) {
-				SymFromAddr (mSymbolFromAddress ,i ,NULL ,&r1) ;
-				const auto r2x = _BUILDHEX16S_<STR> (DATA (r1.Address)) ;
-				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r1.Name])) ;
+				SymFromAddr (mSymbolFromAddress ,i ,NULL ,r4x) ;
+				const auto r2x = _BUILDHEX16S_<STR> (DATA (r4x->Address)) ;
+				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x->Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
 		} ,[&] (BOOL &_case_req) {

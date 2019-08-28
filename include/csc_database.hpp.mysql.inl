@@ -72,8 +72,9 @@ public:
 
 private:
 	inline void compute_check_error (MYSQL &_self) const {
-		const auto r1x = &_LOAD_<ARR<STRA>> (mysql_error (&_self)) ;
-		_DYNAMIC_ASSERT_ (r1x == NULL) ;
+		const auto r1x = mysql_error (&_self) ;
+		const auto r2x = &_DEREF_<ARR<STRA>> (NULL ,_ADDRESS_ (r1x)) ;
+		_DYNAMIC_ASSERT_ (r2x == NULL) ;
 	}
 } ;
 } ;

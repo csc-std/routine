@@ -151,7 +151,7 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.P1 = &_LOAD_<ARR<COLOR_BGR>> (r1.data) ;
+		layout.P1 = &_DEREF_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1.data)) ;
 		layout.P2[0] = LENGTH (r1.cols) ;
 		layout.P2[1] = LENGTH (r1.rows) ;
 		_DEBUG_ASSERT_ (r1.step.p != NULL) ;
@@ -217,7 +217,7 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.P1 = &_LOAD_<ARR<COLOR_BGRA>> (r1.data) ;
+		layout.P1 = &_DEREF_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1.data)) ;
 		layout.P2[0] = LENGTH (r1.cols) ;
 		layout.P2[1] = LENGTH (r1.rows) ;
 		_DEBUG_ASSERT_ (r1.step.p != NULL) ;
@@ -283,7 +283,7 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_GRAY>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.P1 = &_LOAD_<ARR<COLOR_GRAY>> (r1.data) ;
+		layout.P1 = &_DEREF_<ARR<COLOR_GRAY>> (NULL ,_ADDRESS_ (r1.data)) ;
 		layout.P2[0] = LENGTH (r1.cols) ;
 		layout.P2[1] = LENGTH (r1.rows) ;
 		_DEBUG_ASSERT_ (r1.step.p != NULL) ;
@@ -349,7 +349,7 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_GRAY32>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.P1 = &_LOAD_<ARR<COLOR_GRAY32>> (r1.data) ;
+		layout.P1 = &_DEREF_<ARR<COLOR_GRAY32>> (NULL ,_ADDRESS_ (r1.data)) ;
 		layout.P2[0] = LENGTH (r1.cols) ;
 		layout.P2[1] = LENGTH (r1.rows) ;
 		_DEBUG_ASSERT_ (r1.step.p != NULL) ;
@@ -415,7 +415,7 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_GRAY64>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.P1 = &_LOAD_<ARR<COLOR_GRAY64>> (r1.data) ;
+		layout.P1 = &_DEREF_<ARR<COLOR_GRAY64>> (NULL ,_ADDRESS_ (r1.data)) ;
 		layout.P2[0] = LENGTH (r1.cols) ;
 		layout.P2[1] = LENGTH (r1.rows) ;
 		_DEBUG_ASSERT_ (r1.step.p != NULL) ;

@@ -48,7 +48,7 @@ private:
 
 	struct BREAKPOINT {
 		DEF<BYTE[CONTEXT_EBP_SIZE]> mContextEbp ;
-		ARRAY3<PTR<void>> mStackPoint ;
+		ARRAY3<PTR<VOID>> mStackPoint ;
 		DEF<BYTE[STACK_FRAME_SIZE]> mStackFrame ;
 	} ;
 
@@ -72,7 +72,7 @@ public:
 		const auto r1x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
 		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		const auto r2x = EFLAG (r1x < 0) ;
-		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,_ABS_ (r1x)) ;
+		_MEMCOPY_ (PTRTOARR[r1.mStackFrame] ,_DEREF_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,_ABS_ (r1x)) ;
 		auto &r2 = load_context_ebp (&r1.mContextEbp) ;
 		const auto r3x = setjmp (r2.mEbp) ;
 		(void) r3x ;
@@ -88,16 +88,16 @@ public:
 		const auto r1x = _ADDRESS_ (r1.mStackPoint[1]) - _ADDRESS_ (r1.mStackPoint[0]) ;
 		_DEBUG_ASSERT_ (_ABS_ (r1x) <= _COUNTOF_ (decltype (r1.mStackFrame))) ;
 		const auto r2x = EFLAG (r1x < 0) ;
-		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r1x)) ;
+		_MEMCOPY_ (_DEREF_<ARR<BYTE>> (r1.mStackPoint[r2x]) ,PTRTOARR[r1.mStackFrame] ,_ABS_ (r1x)) ;
 		auto &r2 = load_context_ebp (&r1.mContextEbp) ;
 		longjmp (r2.mEbp ,1) ;
 	}
 
-	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE]> address) noexcept {
-		const auto r1x = _ADDRESS_ (address) % _ALIGNOF_ (CONTEXT_EBP) ;
+	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE]> ebp) noexcept {
+		const auto r1x = _ADDRESS_ (ebp) % _ALIGNOF_ (CONTEXT_EBP) ;
 		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (CONTEXT_EBP) - r1x) : 0 ;
-		const auto r3x = &_NULL_<BYTE> () + _ADDRESS_ (address) + r1x ;
-		return _LOAD_<CONTEXT_EBP> (r3x) ;
+		const auto r3x = _ADDRESS_ (ebp) + r1x ;
+		return _DEREF_<CONTEXT_EBP> (NULL ,r3x) ;
 	}
 } ;
 

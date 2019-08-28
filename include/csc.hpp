@@ -500,7 +500,7 @@ struct __uint128_t {
 
 using MEGA = __uint128_t ;
 
-using STRU8 = BYTE ;
+using STRU8 = unsigned char ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
@@ -523,6 +523,8 @@ using STR = STRW ;
 
 #define _PCSTR_ _PCSTRW_
 #endif
+
+using STRX = signed char ;
 
 template <VAR _VAL1>
 struct ARGC {
@@ -665,7 +667,7 @@ template <class _ARG1 ,class _ARG2>
 using CAST_TRAITS_TYPE = U::CAST_TRAITS_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
-using LOAD_CHECK_TYPE = U::LOAD_CHECK_TYPE<_ARG1 ,_ARG2> ;
+using DEREF_CHECK_TYPE = U::DEREF_CHECK_TYPE<_ARG1 ,_ARG2> ;
 
 namespace stl {
 template <class _ARG1>
@@ -713,22 +715,30 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 
 //@warn: not type-safe ,be careful about strict-aliasing
 template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_DEREF_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+	_STATIC_ASSERT_ (DEREF_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value ,DEF<decltype (ARGVPY)> ,REMOVE_ARRAY_TYPE<_RET>>) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
 	(void) r1x ;
 	return *reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
+}
+
+//@warn: not type-safe ,be careful about strict-aliasing
+template <class _RET>
+inline _RET &_DEREF_ (const DEF<decltype (NULL)> & ,LENGTH address) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	const auto r1x = PTR<VOID> (address) ;
+	return _DEREF_<_RET> (r1x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1 ,_ARG3 &arg2) noexcept {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG3> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (arg1 != NULL) ;
-	const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (&arg2) - _ADDRESS_ (&(_NULL_<_ARG2> ().*arg1)) ;
-	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (r1x) ;
+	const auto r1x = _ADDRESS_ (&arg2) - _ADDRESS_ (&(_NULL_<_ARG2> ().*arg1)) ;
+	return _DEREF_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (NULL ,r1x) ;
 }
 
 template <class _RET>
@@ -799,7 +809,7 @@ inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = new (address) _ARG1 (std::forward<_ARGS> (args)...) ;
-	_DEBUG_ASSERT_ (r1x == &_LOAD_<_ARG1> (address)) ;
+	_DEBUG_ASSERT_ (r1x == &_DEREF_<_ARG1> (address)) ;
 	(void) r1x ;
 }
 
@@ -808,7 +818,7 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = &_LOAD_<_ARG1> (address) ;
+	const auto r1x = &_DEREF_<_ARG1> (address) ;
 	r1x->~_ARG1 () ;
 	(void) r1x ;
 }
@@ -1344,7 +1354,7 @@ private:
 		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> & ,const _ARG3 &arg1 ,const _ARGS &...args) noexcept {
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1))) ;
-			_STATIC_ASSERT_ (BOOL (stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value)) ;
+			_STATIC_ASSERT_ (BOOL (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value)) ;
 			for (INDEX i = 0 ; i < _COUNTOF_ (_ARG3) - 1 ; i++)
 				array[i + _ARG2::value] = raw_to_plain_str (arg1[i]) ;
 			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,args...) ;
@@ -1353,12 +1363,12 @@ private:
 		template <class _ARG1>
 		inline static REAL raw_to_plain_str (const _ARG1 &arg1) noexcept {
 			if (arg1 >= _ARG1 (32) && arg1 <= _ARG1 (126))
-				return arg1 ;
+				return REAL (arg1) ;
 			if (BOOL (arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v')))
-				return arg1 ;
+				return REAL (arg1) ;
 			if (BOOL (arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f')))
-				return arg1 ;
-			return _ARG1 ('?') ;
+				return REAL (arg1) ;
+			return REAL ('?') ;
 		}
 	} ;
 } ;
@@ -1442,7 +1452,7 @@ private:
 		inline void operator= (DEF<decltype (NULL)>) && = delete ;
 
 	private:
-		inline explicit OwnerProxy (PTR<UNIT> &&pointer) noexcept :mPointer (pointer) {}
+		inline explicit OwnerProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
 	} ;
 
 public:
@@ -1453,8 +1463,8 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_NULL_<BYTE> () + _ADDRESS_ (r1x) ;
-		return OwnerProxy<_RET> (&_LOAD_<_RET> (r2x)) ;
+		const auto r2x = &_DEREF_<_RET> (NULL ,_ADDRESS_ (r1x)) ;
+		return OwnerProxy<_RET> (r2x) ;
 	}
 
 	template <class _RET>
@@ -1466,14 +1476,14 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (len * _SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_NULL_<BYTE> () + _ADDRESS_ (r1x) ;
-		return OwnerProxy<ARR<_RET>> (&_LOAD_<ARR<_RET>> (r2x)) ;
+		const auto r2x = &_DEREF_<ARR<_RET>> (NULL ,_ADDRESS_ (r1x)) ;
+		return OwnerProxy<ARR<_RET>> (r2x) ;
 	}
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
 		_DEBUG_ASSERT_ (address != NULL) ;
-		const auto r1x = &_NULL_<BYTE> () + _ADDRESS_ (address) ;
+		const auto r1x = &_DEREF_<ARR<BYTE>> (NULL ,_ADDRESS_ (address)) ;
 		operator delete (r1x ,std::nothrow) ;
 	}
 } ;
@@ -1603,7 +1613,7 @@ private:
 	inline Singleton () {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd) ;
-		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
+		mPointer = &_DEREF_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
 		sgd = NULL ;
 	}
 
@@ -1728,7 +1738,7 @@ public:
 	inline AutoRef (const AutoRef &that) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
-		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
+		mPointer = &_DEREF_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd)) ;
 		sgd = NULL ;
 	}
 
@@ -1813,7 +1823,7 @@ public:
 	inline static AutoRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		AutoRef ret = AutoRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
+		AutoRef ret = AutoRef (&_DEREF_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -1915,7 +1925,7 @@ public:
 	inline static SharedRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedHolder<Holder> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		SharedRef ret = SharedRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
+		SharedRef ret = SharedRef (&_DEREF_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2040,7 +2050,7 @@ public:
 	inline static AnyRef make (_ARGS &&...args) {
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
 		ScopedHolder<ImplHolder<UNIT>> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		AnyRef ret = AnyRef (&_LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (sgd))) ;
+		AnyRef ret = AnyRef (&_DEREF_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (sgd))) ;
 		sgd = NULL ;
 		return std::move (ret) ;
 	}
@@ -2157,7 +2167,7 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
+		const auto r1x = &_DEREF_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
 		constructor (r1x->mData) ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2219,7 +2229,7 @@ public:
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (UNIT &)>>>> () ;
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedHolder<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (sgd ,r1x) ;
-		const auto r2x = &_LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (sgd)) ;
+		const auto r2x = &_DEREF_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (sgd)) ;
 		r2x->mData = UNIT (std::forward<_ARGS> (args)...) ;
 		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (r2x)) ;
 		sgd = NULL ;
@@ -2265,7 +2275,7 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (sgd ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
+		const auto r1x = &_DEREF_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (sgd)) ;
 		constructor () ;
 		mPointer = r1x ;
 		sgd = NULL ;
@@ -2418,7 +2428,7 @@ public:
 	inline implicit Function (_ARG1 &&that) {
 		auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (sgd ,std::forward<_ARG1> (that)) ;
-		mFunction_a = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (sgd)) ;
+		mFunction_a = &_DEREF_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (sgd)) ;
 		mFunction_b = NULL ;
 		sgd = NULL ;
 	}
@@ -2619,7 +2629,7 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_LOAD_<TEMP<_RET>> (address->unused) ;
+			const auto r1x = &_DEREF_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<FakeHolder> (*address))) == _ADDRESS_ (address)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (&_XVALUE_<Holder> (_CAST_<_RET> (*r1x))) == _ADDRESS_ (r1x)) ;
 			_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
@@ -2846,7 +2856,7 @@ public:
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
+		mBuffer = &_DEREF_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3001,7 +3011,7 @@ public:
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
+		mBuffer = &_DEREF_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3057,7 +3067,7 @@ public:
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
+		mBuffer = &_DEREF_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
 		mSize = len ;
 		sgd = NULL ;
 	}
@@ -3079,7 +3089,7 @@ public:
 			return ;
 		auto sgd = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
 		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd) ,*that.mBuffer ,that.mSize) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
+		mBuffer = &_DEREF_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (sgd)) ;
 		mSize = that.mSize ;
 		sgd = NULL ;
 	}
@@ -3397,11 +3407,11 @@ public:
 		return make (src ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && DEREF_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_DEREF_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3565,22 +3575,22 @@ public:
 		return make (src.self ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && DEREF_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_DEREF_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
 	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &src) {
 		return make (src.self ,src.size ()) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && DEREF_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &src) {
 		if (src.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_DEREF_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
