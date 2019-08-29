@@ -155,14 +155,14 @@ public:
 			me = glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = glCreateShader (GL_VERTEX_SHADER) ;
-			const auto r2x = _DEREF_<ARR<STRA>> (NULL ,_ADDRESS_ (&vs.self)) ;
+			const auto r2x = _LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&vs.self)) ;
 			const auto r3x = VAR32 (vs.size ()) ;
 			glShaderSource (r1x ,1 ,&r2x ,&r3x) ;
 			glCompileShader (r1x) ;
 			compute_check_shaderiv (r1x) ;
 			glAttachShader (me ,r1x) ;
 			const auto r4x = glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r5x = _DEREF_<ARR<STRA>> (NULL ,_ADDRESS_ (&vs.self)) ;
+			const auto r5x = _LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&vs.self)) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			glShaderSource (r4x ,1 ,&r5x ,&r6x) ;
 			glCompileShader (r4x) ;

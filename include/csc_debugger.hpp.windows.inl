@@ -297,7 +297,7 @@ private:
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
 		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
-		const auto r2x = PhanBuffer<const BYTE>::make (_DEREF_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
+		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)
@@ -393,7 +393,7 @@ public:
 			_CASE_REQUIRE_ (mSymbolFromAddress.exist ()) ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
-			const auto r4x = &_DEREF_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
+			const auto r4x = &_LOAD_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
 			r4x->SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
 			r4x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : address) {

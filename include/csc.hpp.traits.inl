@@ -549,7 +549,7 @@ struct LOAD_CHECK<_ARG1 ,VOID ,VOID ,ARGC<4>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using DEREF_CHECK_TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,VOID ,ARGC<1>>::TYPE ;
+using LOAD_CHECK_TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,VOID ,ARGC<1>>::TYPE ;
 } ;
 
 namespace U {

@@ -71,7 +71,7 @@ public:
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = FreeImage_GetBits (r1) ;
-		layout.P1 = &_DEREF_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1x)) ;
+		layout.P1 = &_LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1x)) ;
 		layout.P2[0] = LENGTH (FreeImage_GetWidth (r1)) ;
 		layout.P2[1] = LENGTH (FreeImage_GetHeight (r1)) ;
 		layout.P2[2] = layout.P2[0] ;
@@ -186,7 +186,7 @@ public:
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = FreeImage_GetBits (r1) ;
-		layout.P1 = &_DEREF_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1x)) ;
+		layout.P1 = &_LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1x)) ;
 		layout.P2[0] = LENGTH (FreeImage_GetWidth (r1)) ;
 		layout.P2[1] = LENGTH (FreeImage_GetHeight (r1)) ;
 		layout.P2[2] = layout.P2[0] ;

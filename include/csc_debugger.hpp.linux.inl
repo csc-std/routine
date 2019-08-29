@@ -245,7 +245,7 @@ private:
 		if (!mLogFileStream.exist ())
 			attach_log_file () ;
 		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
-		const auto r2x = PhanBuffer<const BYTE>::make (_DEREF_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
+		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)
@@ -322,7 +322,7 @@ public:
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : address) {
-			const auto r1x = &_DEREF_<VOID> (NULL ,i) ;
+			const auto r1x = &_LOAD_<VOID> (NULL ,i) ;
 			const auto r2x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
 				me = backtrace_symbols (&r1x ,1) ;
 			} ,[&] (PTR<PTR<STRA>> &me) {

@@ -1,6 +1,7 @@
 @echo off
 
-cd "%~p0/.."
+cd %~dp0%/..
+
 mkdir include
 call :dircls "include"
 set src=D:/Depends/__CSC__
@@ -9,6 +10,8 @@ for /f "tokens=*" %%i in ('dir /b "%src%"') do (
 
 cls
 exit
+
+rem ######################################################## rem
 
 goto :EOF
 :dircls
