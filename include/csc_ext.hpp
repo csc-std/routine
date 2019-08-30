@@ -102,7 +102,7 @@ using std::abort ;
 #define DLLABI_IMPORT
 #define DLLABI_EXPORT
 #define DLLABI_API
-#define DLLABI_NATIVE extern "C"
+#define DLLABI_NATIVE
 #endif
 
 template <class UNIT1 ,class UNIT2>
@@ -958,7 +958,7 @@ public:
 			this->~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return _XVALUE_<Variant> (*this) ;
+		return *this ;
 	}
 
 	inline Variant (Variant &&that) noexcept {
@@ -975,7 +975,7 @@ public:
 			this->~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return _XVALUE_<Variant> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -1388,67 +1388,67 @@ private:
 public:
 	inline AllOfTuple () = delete ;
 
-	inline implicit operator BOOL () const && {
+	inline implicit operator BOOL () && {
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &that) const && {
+	inline BOOL operator== (const _ARG1 &that) && {
 		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator== (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) == arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &that) const && {
+	inline BOOL operator!= (const _ARG1 &that) && {
 		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator!= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) != arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &that) const && {
+	inline BOOL operator< (const _ARG1 &that) && {
 		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator< (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) > arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &that) const && {
+	inline BOOL operator>= (const _ARG1 &that) && {
 		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator>= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) <= arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &that) const && {
+	inline BOOL operator> (const _ARG1 &that) && {
 		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator> (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) < arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &that) const && {
+	inline BOOL operator<= (const _ARG1 &that) && {
 		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &arg1 ,const AllOfTuple &&arg2) {
+	inline friend BOOL operator<= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
 		return std::move (arg2) >= arg1 ;
 	}
 
@@ -1597,67 +1597,67 @@ private:
 public:
 	inline AnyOfTuple () = delete ;
 
-	inline implicit operator BOOL () const && {
+	inline implicit operator BOOL () && {
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &that) const && {
+	inline BOOL operator== (const _ARG1 &that) && {
 		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator== (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) == arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &that) const && {
+	inline BOOL operator!= (const _ARG1 &that) && {
 		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator!= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) != arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &that) const && {
+	inline BOOL operator< (const _ARG1 &that) && {
 		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator< (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) > arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &that) const && {
+	inline BOOL operator>= (const _ARG1 &that) && {
 		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator>= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) <= arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &that) const && {
+	inline BOOL operator> (const _ARG1 &that) && {
 		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator> (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) < arg1 ;
 	}
 
 	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &that) const && {
+	inline BOOL operator<= (const _ARG1 &that) && {
 		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &arg1 ,const AnyOfTuple &&arg2) {
+	inline friend BOOL operator<= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
 		return std::move (arg2) >= arg1 ;
 	}
 
@@ -1862,7 +1862,7 @@ public:
 			this->~LinkedRef () ;
 			new (this) LinkedRef (std::move (that)) ;
 		}
-		return _XVALUE_<LinkedRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2023,7 +2023,7 @@ public:
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return _XVALUE_<StrongRef> (*this) ;
+		return *this ;
 	}
 
 	inline StrongRef (StrongRef &&that) noexcept {
@@ -2038,7 +2038,7 @@ public:
 			this->~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return _XVALUE_<StrongRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2300,7 +2300,7 @@ public:
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return _XVALUE_<SoftRef> (*this) ;
+		return *this ;
 	}
 
 	inline SoftRef (SoftRef &&that) noexcept {
@@ -2316,7 +2316,7 @@ public:
 			this->~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return _XVALUE_<SoftRef> (*this) ;
+		return *this ;
 	}
 
 	LENGTH capacity () const {
@@ -2581,7 +2581,7 @@ public:
 			this->~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (that)) ;
 		}
-		return _XVALUE_<IntrusiveRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {

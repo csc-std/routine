@@ -103,7 +103,7 @@
 #pragma warning (default :26401) //@info: warning C26401: Do not delete a raw pointer that is not an owner<T> (i.11).
 #pragma warning (default :26403) //@info: warning C26403: Reset or explicitly delete an owner<T> pointer 'xxx' (r.3).
 #pragma warning (default :26406) //@info: warning C26406: Do not assign a raw pointer to an owner<T> (r.3).
-#pragma warning (disable :26409) //@info: warning C26409: Avoid calling new and delete explicitly, use std::make_unique<T> instead (r.11).
+#pragma warning (default :26409) //@info: warning C26409: Avoid calling new and delete explicitly, use std::make_unique<T> instead (r.11).
 #pragma warning (default :26410) //@info: warning C26410: The parameter 'xxx' is a reference to const unique pointer, use const T* or const T& instead (r.32).
 #pragma warning (default :26411) //@info: warning C26411: The parameter 'xxx' is a reference to unique pointer and it is never reassigned or reset, use T* or T& instead (r.33).
 #pragma warning (default :26415) //@info: warning C26415: Smart pointer parameter 'xxx' is used only to access contained pointer. Use T* or T& instead (r.30).
@@ -111,29 +111,29 @@
 #pragma warning (default :26426) //@info: warning C26426: Global initializer calls a non-constexpr function 'xxx' (i.22).
 #pragma warning (default :26429) //@info: warning C26429: Symbol 'xxx' is never tested for nullness, it can be marked as not_null (f.23).
 #pragma warning (default :26432) //@info: warning C26432: If you define or delete any default operation in the type 'xxx', define or delete them all (c.21).
-#pragma warning (disable :26434) //@info: warning C26434: Function 'xxx' hides a non-virtual function 'xxx' (c.128).
-#pragma warning (disable :26435) //@info: warning C26435: Function 'xxx' should specify exactly one of 'virtual', 'override', or 'final' (c.128).
-#pragma warning (disable :26439) //@info: warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
-#pragma warning (disable :26440) //@info: warning C26440: Function 'xxx' can be declared 'noexcept' (f.6).
+#pragma warning (default :26434) //@info: warning C26434: Function 'xxx' hides a non-virtual function 'xxx' (c.128).
+#pragma warning (default :26435) //@info: warning C26435: Function 'xxx' should specify exactly one of 'virtual', 'override', or 'final' (c.128).
+#pragma warning (default :26439) //@info: warning C26439: This kind of function may not throw. Declare it 'noexcept' (f.6).
+#pragma warning (default :26440) //@info: warning C26440: Function 'xxx' can be declared 'noexcept' (f.6).
 #pragma warning (default :26443) //@info: warning C26443: Overriding destructor should not use explicit 'override' or 'virtual' specifiers (c.128).
-#pragma warning (disable :26446) //@info: warning C26446: Prefer to use gsl::at() instead of unchecked subscript operator (bounds.4).
-#pragma warning (disable :26447) //@info: warning C26447: The function is declared 'noexcept' but calls function 'xxx' which may throw exceptions (f.6).
-#pragma warning (disable :26455) //@info: warning C26455: Default constructor may not throw. Declare it 'noexcept' (f.6).
+#pragma warning (default :26446) //@info: warning C26446: Prefer to use gsl::at() instead of unchecked subscript operator (bounds.4).
+#pragma warning (default :26447) //@info: warning C26447: The function is declared 'noexcept' but calls function 'xxx' which may throw exceptions (f.6).
+#pragma warning (default :26455) //@info: warning C26455: Default constructor may not throw. Declare it 'noexcept' (f.6).
 #pragma warning (default :26460) //@info: warning C26460: The reference argument 'xxx' for function 'xxx' can be marked as const (con.3).
 #pragma warning (default :26466) //@info: warning C26466: Don't use static_cast downcasts. A cast from a polymorphic type should use dynamic_cast (type.2).
 #pragma warning (default :26471) //@info: warning C26471: Don't use reinterpret_cast. A cast from void* can use static_cast (type.1).
 #pragma warning (default :26473) //@info: warning C26473: Don't cast between pointer types where the source type and the target type are the same (type.1).
-#pragma warning (disable :26475) //@info: warning C26475: Do not use function style C-casts (es.49).
-#pragma warning (disable :26481) //@info: warning C26481: Don't use pointer arithmetic. Use span instead (bounds.1).
-#pragma warning (disable :26482) //@info: warning C26482: Only index into arrays using constant expressions (bounds.2).
-#pragma warning (disable :26485) //@info: warning C26485: Expression 'xxx': No array to pointer decay (bounds.3).
-#pragma warning (disable :26486) //@info: warning C26486: Don't pass a pointer that may be invalid to a function. Parameter ? 'xxx' in call to 'xxx' may be invalid (lifetime.1).
+#pragma warning (default :26475) //@info: warning C26475: Do not use function style C-casts (es.49).
+#pragma warning (default :26481) //@info: warning C26481: Don't use pointer arithmetic. Use span instead (bounds.1).
+#pragma warning (default :26482) //@info: warning C26482: Only index into arrays using constant expressions (bounds.2).
+#pragma warning (default :26485) //@info: warning C26485: Expression 'xxx': No array to pointer decay (bounds.3).
+#pragma warning (default :26486) //@info: warning C26486: Don't pass a pointer that may be invalid to a function. Parameter ? 'xxx' in call to 'xxx' may be invalid (lifetime.1).
 #pragma warning (default :26487) //@info: warning C26487: Don't return a pointer that may be invalid (lifetime.1).
-#pragma warning (disable :26489) //@info: warning C26489: Don't dereference a pointer that may be invalid: 'xxx'. 'xxx' may have been invalidated at line ? (lifetime.1).
+#pragma warning (default :26489) //@info: warning C26489: Don't dereference a pointer that may be invalid: 'xxx'. 'xxx' may have been invalidated at line ? (lifetime.1).
 #pragma warning (default :26490) //@info: warning C26490: Don't use reinterpret_cast (type.1).
 #pragma warning (default :26491) //@info: warning C26491: Don't use static_cast downcasts (type.2).
-#pragma warning (disable :26493) //@info: warning C26493: Don't use C-style casts (type.4).
-#pragma warning (disable :26495) //@info: warning C26495: Variable 'xxx' is uninitialized. Always initialize a member variable (type.6).
+#pragma warning (default :26493) //@info: warning C26493: Don't use C-style casts (type.4).
+#pragma warning (default :26495) //@info: warning C26495: Variable 'xxx' is uninitialized. Always initialize a member variable (type.6).
 #pragma warning (default :26496) //@info: warning C26496: The variable 'xxx' is assigned only once, mark it as const (con.4).
 #endif
 #endif
@@ -744,14 +744,12 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1
 template <class _RET>
 inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	//@warn: required 'std::launder'
 	return arg1 ;
 }
 
 template <class _RET>
 inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	//@warn: required 'std::launder'
 	return arg1 ;
 }
 
@@ -1458,7 +1456,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_LOAD_<_RET> (NULL ,_ADDRESS_ (r1x)) ;
+		const auto r2x = &_LOAD_<_RET> (r1x) ;
 		return OwnerProxy<_RET> (r2x) ;
 	}
 
@@ -1471,7 +1469,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (len * _SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_LOAD_<ARR<_RET>> (NULL ,_ADDRESS_ (r1x)) ;
+		const auto r2x = &_LOAD_<ARR<_RET>> (r1x) ;
 		return OwnerProxy<ARR<_RET>> (r2x) ;
 	}
 
@@ -1689,7 +1687,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return _XVALUE_<AutoRef> (*this) ;
+		return *this ;
 	}
 
 private:
@@ -1744,7 +1742,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return _XVALUE_<AutoRef> (*this) ;
+		return *this ;
 	}
 
 	inline AutoRef (AutoRef &&that) noexcept {
@@ -1758,7 +1756,7 @@ public:
 			this->~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return _XVALUE_<AutoRef> (*this) ;
+		return *this ;
 	}
 
 private:
@@ -1869,7 +1867,7 @@ public:
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (that)) ;
 		}
-		return _XVALUE_<SharedRef> (*this) ;
+		return *this ;
 	}
 
 	inline SharedRef (SharedRef &&that) noexcept {
@@ -1883,7 +1881,7 @@ public:
 			this->~SharedRef () ;
 			new (this) SharedRef (std::move (that)) ;
 		}
-		return _XVALUE_<SharedRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -1982,7 +1980,7 @@ public:
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (that)) ;
 		}
-		return _XVALUE_<AnyRef> (*this) ;
+		return *this ;
 	}
 
 	template <class _RET>
@@ -2013,7 +2011,8 @@ public:
 
 	inline UNIT &to () {
 		_DEBUG_ASSERT_ (type () == _TYPEID_<UNIT> ()) ;
-		return static_cast<PTR<ImplHolder<UNIT>>> (mPointer)->mData ;
+		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
+		return r1x->mData ;
 	}
 
 	inline implicit operator UNIT & () {
@@ -2026,7 +2025,8 @@ public:
 
 	inline const UNIT &to () const {
 		_DEBUG_ASSERT_ (type () == _TYPEID_<UNIT> ()) ;
-		return static_cast<PTR<ImplHolder<UNIT>>> (mPointer)->mData ;
+		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
+		return r1x->mData ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -2091,7 +2091,7 @@ public:
 			this->~AnyRef () ;
 			new (this) AnyRef (std::move (that)) ;
 		}
-		return _XVALUE_<AnyRef> (*this) ;
+		return *this ;
 	}
 
 	template <class _RET>
@@ -2193,7 +2193,7 @@ public:
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (that)) ;
 		}
-		return _XVALUE_<UniqueRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2204,7 +2204,8 @@ public:
 
 	inline const UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return static_cast<PTR<ImplHolder<PTR<void (UNIT &)>>>> (mPointer)->mData ;
+		const auto r1x = static_cast<PTR<ImplHolder<PTR<void (UNIT &)>>>> (mPointer) ;
+		return r1x->mData ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -2301,7 +2302,7 @@ public:
 			this->~UniqueRef () ;
 			new (this) UniqueRef (std::move (that)) ;
 		}
-		return _XVALUE_<UniqueRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2339,7 +2340,7 @@ public:
 			this->~PhanRef () ;
 			new (this) PhanRef (std::move (that)) ;
 		}
-		return _XVALUE_<PhanRef> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2456,7 +2457,7 @@ public:
 			this->~Function () ;
 			new (this) Function (std::move (that)) ;
 		}
-		return _XVALUE_<Function> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2578,7 +2579,7 @@ public:
 			this->~Function () ;
 			new (this) Function (std::move (that)) ;
 		}
-		return _XVALUE_<Function> (*this) ;
+		return *this ;
 	}
 
 	inline BOOL exist () const {
@@ -2628,6 +2629,7 @@ private:
 			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (*r1x)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<_RET>> (r2x))) ;
+			(void) r2x ;
 			_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 		}
 	} ;
@@ -3037,7 +3039,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return _XVALUE_<Buffer> (*this) ;
+		return *this ;
 	}
 } ;
 
@@ -3097,7 +3099,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return _XVALUE_<Buffer> (*this) ;
+		return *this ;
 	}
 
 	inline Buffer (Buffer &&that) noexcept {
@@ -3112,7 +3114,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return _XVALUE_<Buffer> (*this) ;
+		return *this ;
 	}
 } ;
 
@@ -3284,7 +3286,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return _XVALUE_<Buffer> (*this) ;
+		return *this ;
 	}
 
 	inline const ARR<UNIT> &to () const {
@@ -3452,7 +3454,7 @@ public:
 			this->~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return _XVALUE_<Buffer> (*this) ;
+		return *this ;
 	}
 
 	inline ARR<UNIT> &to () const {
@@ -3598,6 +3600,10 @@ class Allocator ;
 
 template <class UNIT ,class SIZE>
 class Allocator<SPECIALIZATION<UNIT ,FALSE ,FALSE> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
 
@@ -3623,25 +3629,42 @@ private:
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	inline Allocator (const Allocator &) = delete ;
 	inline Allocator &operator= (const Allocator &) = delete ;
 	inline Allocator (Allocator &&) = delete ;
 	inline Allocator &operator= (Allocator &&) = delete ;
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class UNIT ,class SIZE>
 class Allocator<SPECIALIZATION<UNIT ,FALSE ,TRUE> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
 
@@ -3667,15 +3690,15 @@ private:
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	inline Allocator (const Allocator &) = delete ;
@@ -3690,7 +3713,7 @@ public:
 		}
 		mLength = that.mLength ;
 		mFree = that.mFree ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (&that)->clear () ;
+		that.spec.clear () ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
@@ -3700,12 +3723,29 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return _XVALUE_<Allocator> (*this) ;
+		return *this ;
 	}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class UNIT ,class SIZE>
 class Allocator<SPECIALIZATION<UNIT ,TRUE ,TRUE> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
 
@@ -3731,15 +3771,15 @@ private:
 
 public:
 	inline Allocator () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_reset (0 ,VAR_NONE) ;
+		spec.update_reset (0 ,VAR_NONE) ;
 	}
 
 	inline ~Allocator () noexcept {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	inline Allocator (const Allocator &that) :mAllocator (std::move (that.mAllocator)) {
@@ -3781,7 +3821,7 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return _XVALUE_<Allocator> (*this) ;
+		return *this ;
 	}
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
@@ -3793,7 +3833,7 @@ public:
 		}
 		mLength = that.mLength ;
 		mFree = that.mFree ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (&that)->clear () ;
+		that.spec.clear () ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
@@ -3803,8 +3843,21 @@ public:
 			this->~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return _XVALUE_<Allocator> (*this) ;
+		return *this ;
 	}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class UNIT ,class SIZE>

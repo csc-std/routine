@@ -489,6 +489,11 @@ struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 } ;
 
 template <class _ARG1>
+struct LOAD_CHECK<_ARG1 ,_ARG1 ,VOID ,ARGC<1>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;

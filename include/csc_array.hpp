@@ -924,6 +924,10 @@ class Priority ;
 
 template <class KEY ,class ITEM ,class SIZE>
 class Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Priority<KEY ,ITEM ,SIZE> ;
 
@@ -979,11 +983,11 @@ private:
 
 public:
 	Priority () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key ,const ITEM &item) {
@@ -991,12 +995,12 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (1) ;
+		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize () ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+		spec.update_resize () ;
+		spec.update_insert (ix) ;
 	}
 
 	void add (const PAIR_TYPE &item) {
@@ -1008,12 +1012,12 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (1) ;
+		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize () ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+		spec.update_resize () ;
+		spec.update_insert (ix) ;
 	}
 
 	void add (PAIR_TYPE &&item) {
@@ -1022,24 +1026,41 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
+		spec.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
+		spec.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
 
 private:
 	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class SIZE>
 class Priority<KEY ,SPECIALIZATION<void> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Priority<KEY ,void ,SIZE> ;
 
@@ -1093,19 +1114,19 @@ private:
 
 public:
 	Priority () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (1) ;
+		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize () ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+		spec.update_resize () ;
+		spec.update_insert (ix) ;
 	}
 
 	void add (const PAIR_TYPE &item) {
@@ -1113,11 +1134,11 @@ public:
 	}
 
 	void add (KEY &&key) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (1) ;
+		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize () ;
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+		spec.update_resize () ;
+		spec.update_insert (ix) ;
 	}
 
 	void add (PAIR_TYPE &&item) {
@@ -1126,20 +1147,33 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &src) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
+		spec.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
 	template <class _ARG1>
 	void appand (_ARG1 &&src) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->reserve (src.length ()) ;
+		spec.reserve (src.length ()) ;
 		for (auto &&i : src)
 			add (i.key) ;
 	}
 
 private:
 	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -2635,6 +2669,10 @@ class Set ;
 
 template <class KEY ,class ITEM ,class SIZE>
 class Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Set<KEY ,ITEM ,SIZE> ;
 
@@ -2698,11 +2736,11 @@ private:
 
 public:
 	Set () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key ,const ITEM &item) {
@@ -2710,14 +2748,14 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
+			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -2731,14 +2769,14 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
+			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -2763,10 +2801,27 @@ public:
 
 private:
 	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class SIZE>
 class Set<KEY ,SPECIALIZATION<void> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = Set<KEY ,void ,SIZE> ;
 
@@ -2824,22 +2879,22 @@ private:
 
 public:
 	Set () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
+			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -2849,14 +2904,14 @@ public:
 	}
 
 	void add (KEY &&key) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_emplace (mRoot ,ix) ;
+			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -2881,6 +2936,19 @@ public:
 
 private:
 	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3353,6 +3421,10 @@ class HashSet ;
 
 template <class KEY ,class ITEM ,class SIZE>
 class HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = HashSet<KEY ,ITEM ,SIZE> ;
 
@@ -3414,11 +3486,11 @@ private:
 
 public:
 	HashSet () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key ,const ITEM &item) {
@@ -3426,14 +3498,14 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_resize (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -3447,14 +3519,14 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_resize (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -3479,10 +3551,27 @@ public:
 
 private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class SIZE>
 class HashSet<KEY ,SPECIALIZATION<void> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = HashSet<KEY ,void ,SIZE> ;
 
@@ -3538,22 +3627,22 @@ private:
 
 public:
 	HashSet () {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
-		static_cast<PTR<SPECIALIZATION_TYPE>> (this)->clear () ;
+		spec.clear () ;
 	}
 
 	void add (const KEY &key) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_resize (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -3563,14 +3652,14 @@ public:
 	}
 
 	void add (KEY &&key) {
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_resize (ix) ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (ix) ;
+			spec.update_resize (ix) ;
+			spec.update_insert (ix) ;
 		}
 		mTop = ix ;
 	}
@@ -3595,6 +3684,19 @@ public:
 
 private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3812,6 +3914,10 @@ class SoftSet ;
 
 template <class KEY ,class ITEM ,class SIZE>
 class SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = SoftSet<KEY ,ITEM ,SIZE> ;
 
@@ -3900,7 +4006,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -3909,7 +4015,7 @@ public:
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			spec.update_insert (mRoot) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -3925,7 +4031,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -3934,7 +4040,7 @@ public:
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			spec.update_insert (mRoot) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -3959,10 +4065,27 @@ public:
 		for (auto &&i : src)
 			add (i.key ,std::move (i.item)) ;
 	}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class SIZE>
 class SoftSet<KEY ,SPECIALIZATION<void> ,SIZE> {
+#pragma push_macro ("spec")
+#undef spec
+#define spec m_spec ()
+
 private:
 	using SPECIALIZATION_TYPE = SoftSet<KEY ,void ,SIZE> ;
 
@@ -4041,7 +4164,7 @@ public:
 
 	void add (const KEY &key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -4050,7 +4173,7 @@ public:
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			spec.update_insert (mRoot) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -4062,7 +4185,7 @@ public:
 
 	void add (KEY &&key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = static_cast<PTR<SPECIALIZATION_TYPE>> (this)->find (key) ;
+		INDEX ix = spec.find (key) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -4071,7 +4194,7 @@ public:
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
-			static_cast<PTR<SPECIALIZATION_TYPE>> (this)->update_insert (mRoot) ;
+			spec.update_insert (mRoot) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -4096,6 +4219,19 @@ public:
 		for (auto &&i : src)
 			add (i.key) ;
 	}
+
+private:
+	inline SPECIALIZATION_TYPE &m_spec () & {
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline const SPECIALIZATION_TYPE &m_spec () const & {
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+	}
+
+	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+#pragma pop_macro ("spec")
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>

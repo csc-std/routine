@@ -559,21 +559,21 @@ public:
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range) popping {
-		return random_shuffle (count ,range ,BitSet<> (range.size ())) ;
+		BitSet<> ret = BitSet<> (range.size ()) ;
+		compute_random_shuffle (count ,range ,ret) ;
+		return std::move (ret) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &&res) popping {
+	void compute_random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &chosen) popping {
 		_DEBUG_ASSERT_ (BOOL (count >= 0 && count < range.size ())) ;
-		_DEBUG_ASSERT_ (res.size () == range.size ()) ;
-		BitSet<> ret = std::move (res) ;
-		ret.clear () ;
+		_DEBUG_ASSERT_ (chosen.size () == range.size ()) ;
+		chosen.clear () ;
 		while (TRUE) {
-			if (ret.length () >= count)
+			if (chosen.length () >= count)
 				break ;
 			INDEX ix = random_value (0 ,(range.size () - 1)) ;
-			ret[ix] = range[ix] ;
+			chosen[ix] = range[ix] ;
 		}
-		return std::move (ret) ;
 	}
 
 	String<STR> random_uuid () popping {

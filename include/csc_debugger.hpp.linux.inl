@@ -202,7 +202,7 @@ public:
 	void pause () override {
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("press any key to continue...\n")) ;
-#else
+#elif defined __CSC_CONFIG_STRW__
 		std::wprintf (_PCSTR_ ("press any key to continue...\n")) ;
 #endif
 	}
@@ -322,7 +322,7 @@ public:
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : address) {
-			const auto r1x = &_LOAD_<VOID> (NULL ,i) ;
+			const auto r1x = _XVALUE_<PTR<VOID>> (&_LOAD_<ARR<BYTE>> (NULL ,LENGTH (i))) ;
 			const auto r2x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
 				me = backtrace_symbols (&r1x ,1) ;
 			} ,[&] (PTR<PTR<STRA>> &me) {
