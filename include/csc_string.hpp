@@ -490,7 +490,8 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
 }
 
 inline String<STRU8> _WSTOU8S_ (const String<STRW> &src) {
-	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (src)) ;
+	auto &r1 = _CAST_<String<STRUW>> (src) ;
+	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (r1) ;
 }
 
 inline String<STRW> _U8STOWS_ (const String<STRU8> &src) {
@@ -499,7 +500,8 @@ inline String<STRW> _U8STOWS_ (const String<STRU8> &src) {
 }
 
 inline String<STRU16> _WSTOU16S_ (const String<STRW> &src) {
-	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (src)) ;
+	auto &r1 = _CAST_<String<STRUW>> (src) ;
+	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (r1) ;
 }
 
 inline String<STRW> _U16STOWS_ (const String<STRU16> &src) {
@@ -508,7 +510,8 @@ inline String<STRW> _U16STOWS_ (const String<STRU16> &src) {
 }
 
 inline String<STRU32> _WSTOU32S_ (const String<STRW> &src) {
-	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (src)) ;
+	auto &r1 = _CAST_<String<STRUW>> (src) ;
+	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (r1) ;
 }
 
 inline String<STRW> _U32STOWS_ (const String<STRU32> &src) {
@@ -1032,7 +1035,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ris >> rbx ;
 	_DYNAMIC_ASSERT_ (BOOL (rbx >= 0 && rbx < 256)) ;
 	const auto r4x = BYTE (rbx) ;
-	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
+	const auto r5x = PACK<BYTE[4]> {r1x ,r2x ,r3x ,r4x} ;
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;

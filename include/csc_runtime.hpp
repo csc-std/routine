@@ -21,7 +21,7 @@ private:
 		VAR mData ;
 	} ;
 
-	using GUID_TYPE = TEMP<BYTE[DEFAULT_RECURSIVE_SIZE::value]> ;
+	using GUID_TYPE = PACK<BYTE[DEFAULT_RECURSIVE_SIZE::value]> ;
 
 	struct CLASS_NODE {
 		GUID_TYPE mGUID ;
@@ -112,7 +112,7 @@ private:
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
-				if (_MEMEQUAL_ (_self.mClassNode->mGUID.unused ,PTRTOARR[guid.unused]))
+				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,guid.P1))
 					ret = &_self.mClassNode.self ;
 				if (&_self.mClassNode.self == r1x)
 					break ;
@@ -276,16 +276,16 @@ private:
 		}
 
 		inline static GUID_TYPE guid_from_typeid_name () {
-			GUID_TYPE ret ;
+			DEF<BYTE[_SIZEOF_ (GUID_TYPE)]> ret ;
+			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = typeid (UNIT).name () ;
 			auto &r1 = _LOAD_<ARR<BYTE>> (&PTRTOARR[r1x]) ;
 			const auto r2x = _MEMCHR_ (r1 ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
 			_DEBUG_ASSERT_ (BOOL (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE))) ;
 			const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
-			_ZERO_ (ret) ;
-			_MEMCOPY_ (PTRTOARR[ret.unused] ,r1 ,r3x) ;
-			return std::move (ret) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,r1 ,r3x) ;
+			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;
 } ;
@@ -485,7 +485,7 @@ public:
 		mSelf.mSubCurr = VAR_NONE ;
 		mSelf.mCoStatus.self = STATUS_STOPPED ;
 		goto_break_point (mSelf.mCoBreakPoint) ;
-	}
+}
 } ;
 #endif
 

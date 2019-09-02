@@ -157,7 +157,8 @@ struct OPERATOR_HASH {
 
 	template <class _ARG1>
 	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		return _MEMHASH_ (_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self)) ;
+		auto &r1 = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self) ;
+		return _MEMHASH_ (r1) ;
 	}
 
 	template <class _ARG1>
@@ -479,8 +480,12 @@ public:
 	}
 
 	FLAG compr (const String &that) const {
-		if (size () == 0 && that.size () == 0)
-			return 0 ;
+		const auto r1x = size () ;
+		const auto r2x = that.size () ;
+		if (r1x == 0)
+			return _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+		if (r2x == 0)
+			return _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
 		INDEX ix = 0 ;
 		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
 			ix++ ;

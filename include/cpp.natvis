@@ -11,11 +11,6 @@
   <!--csc.hpp-->
 
 
-  <Type Name="CSC::__uint128_t">
-    <DisplayString>{{ {*(int*)&amp;unused[12],X} {*(int*)&amp;unused[8],X} {*(int*)&amp;unused[4],X} {*(int*)&amp;unused[0],X} }}</DisplayString>
-  </Type>
-
-
   <Type Name="CSC::TEMP&lt;*&gt;">
     <Expand>
       <ExpandedItem>*($T1*)&amp;unused</ExpandedItem>
@@ -25,6 +20,7 @@
 
   <Type Name="CSC::Interface" Inheritable="false" />
 
+  
   <Type Name="CSC::GlobalWatch::Storage&lt;*,*&gt;">
     <Expand>
       <Item Name="[name]">(const char*)mData.P1[0]</Item>

@@ -399,10 +399,10 @@ public:
 
 	inline VAR128 operator/ (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
-		const auto r2x = BOOL (_CAST_<VAR64> (that.v2i0) >= 0) ;
+		const auto r1x = _CAST_<VAR64> (v2i0) ;
+		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
 			_CASE_REQUIRE_ (that.v4i0 == 0) ;
 			_CASE_REQUIRE_ (that.v4i1 == 0) ;
 			_CASE_REQUIRE_ (that.v4i2 == 0) ;
@@ -420,24 +420,24 @@ public:
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x) ;
+			_CASE_REQUIRE_ (r2x >= 0) ;
 			ret = -(-(*this + that) / that + 1) ;
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (!r2x) ;
+			_CASE_REQUIRE_ (r2x < 0) ;
 			ret = -(-(*this - that) / that - 1) ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r1x) ;
+			_CASE_REQUIRE_ (r1x < 0) ;
 			ret = -(-*this / that) ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
 			_CASE_REQUIRE_ (that.v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (that.v2i1 == 0) ;
 			ret = VAR128 (0) ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
-			_CASE_REQUIRE_ (!r2x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
+			_CASE_REQUIRE_ (r2x < 0) ;
 			ret = *this / -that ;
 		} ,[&] (BOOL &_case_req) {
 			ret = Detail::slow_divide (*this ,that) ;
@@ -452,10 +452,10 @@ public:
 
 	inline VAR128 operator% (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		const auto r1x = BOOL (_CAST_<VAR64> (v2i0) >= 0) ;
-		const auto r2x = BOOL (_CAST_<VAR64> (that.v2i0) >= 0) ;
+		const auto r1x = _CAST_<VAR64> (v2i0) ;
+		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
 			_CASE_REQUIRE_ (that.v4i0 == 0) ;
 			_CASE_REQUIRE_ (that.v4i1 == 0) ;
 			_CASE_REQUIRE_ (that.v4i2 == 0) ;
@@ -473,24 +473,24 @@ public:
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x) ;
+			_CASE_REQUIRE_ (r2x >= 0) ;
 			ret = -(-(*this + that) % that) ;
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (!r2x) ;
+			_CASE_REQUIRE_ (r2x < 0) ;
 			ret = -(-(*this - that) % that) ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r1x) ;
+			_CASE_REQUIRE_ (r1x < 0) ;
 			ret = -(-*this % that) ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
 			_CASE_REQUIRE_ (that.v2i0 == DATA (VAR64_MIN)) ;
 			_CASE_REQUIRE_ (that.v2i1 == 0) ;
 			ret = *this ;
 		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x) ;
-			_CASE_REQUIRE_ (!r2x) ;
+			_CASE_REQUIRE_ (r1x >= 0) ;
+			_CASE_REQUIRE_ (r2x < 0) ;
 			ret = *this % -that ;
 		} ,[&] (BOOL &_case_req) {
 			ret = that - Detail::slow_divide (*this ,that) * that ;
@@ -1273,10 +1273,9 @@ public:
 	}
 
 	inline FLAG compr (const Tuple &that) const {
-		if (one () < that.one ())
-			return -1 ;
-		if (one () > that.one ())
-			return +1 ;
+		const auto r1x = _MEMCOMPR_ (PTRTOARR[&one ()] ,PTRTOARR[&that.one ()] ,1) ;
+		if (r1x != 0)
+			return _COPY_ (r1x) ;
 		return rest ().compr (that.rest ()) ;
 	}
 
@@ -2705,11 +2704,11 @@ class Lazy {
 private:
 	class ApplyTo :private Wrapped<UNIT> {
 	public:
-		inline void friend_applyto (UNIT &data) {
+		inline void friend_move (UNIT &data) {
 			data = std::move (ApplyTo::mSelf) ;
 		}
 
-		inline void friend_applyto (UNIT &data) const {
+		inline void friend_move (UNIT &data) const {
 			data = std::move (ApplyTo::mSelf) ;
 		}
 	} ;
@@ -2731,7 +2730,7 @@ public:
 	inline implicit Lazy (const UNIT &that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_applyto) ;
+		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r2x) ;
 		r1x->mData.finish () ;
 		mThis <<= r1x ;
@@ -2741,7 +2740,7 @@ public:
 	inline implicit Lazy (UNIT &&that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_applyto) ;
+		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r2x) ;
 		r1x->mData.finish () ;
 		mThis <<= r1x ;
@@ -2847,7 +2846,8 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
-	_MEMCOPY_ (PTRTOARR[ret.unused] ,_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1)) ;
+	auto &r1 = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,r1) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;

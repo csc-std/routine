@@ -756,7 +756,7 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 template <class _ARG1>
 inline void _ZERO_ (_ARG1 &arg1) noexcept {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	_CAST_<TEMP<_ARG1>> (arg1) = TEMP<_ARG1> {0} ;
+	_CAST_<TEMP<_ARG1>> (arg1) = {0} ;
 }
 
 template <class _ARG1>
@@ -2494,11 +2494,15 @@ using FIX_MSVC_DEDUCTION_2 = DEF<DEF<UNIT1 (UNITS...)> NONE::*> ;
 
 template <class UNIT1 ,class... UNITS>
 class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>> {
+#pragma push_macro ("fake")
+#undef fake
+#define fake m_fake ()
+
 private:
 	class FakeHolder ;
 
 	struct Holder :public Interface {
-		virtual void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
+		virtual void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping = 0 ;
 	} ;
 
@@ -2510,7 +2514,7 @@ private:
 	public:
 		inline FakeHolder () = delete ;
 
-		inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
+		inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
 		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping override ;
 	} ;
 
@@ -2558,7 +2562,7 @@ public:
 	inline ~Function () noexcept {
 		if (!exist ())
 			return ;
-		_XVALUE_<Holder> (_CAST_<FakeHolder> (mVariant)).~Holder () ;
+		fake.~Holder () ;
 		_ZERO_ (mVariant) ;
 	}
 
@@ -2569,7 +2573,7 @@ public:
 		_ZERO_ (mVariant) ;
 		if (!that.exist ())
 			return ;
-		_XVALUE_<Holder> (_CAST_<FakeHolder> (that.mVariant)).compute_copy (&mVariant) ;
+		that.fake.friend_copy (&mVariant) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -2592,12 +2596,23 @@ public:
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _XVALUE_<Holder> (_CAST_<FakeHolder> (mVariant)).invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args)...) ;
+		return fake.invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping {
 		return invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args)...) ;
 	}
+
+private:
+	inline Holder &m_fake () & {
+		return _CAST_<FakeHolder> (mVariant) ;
+	}
+
+	inline const Holder &m_fake () const & {
+		return _CAST_<FakeHolder> (mVariant) ;
+	}
+
+	inline Holder &m_fake () && = delete ;
 
 private:
 	class Detail :private Wrapped<void> {
@@ -2611,7 +2626,7 @@ private:
 
 			inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &function) noexcept :mFunction (function) {}
 
-			inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+			inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 				static_create<PureHolder> (address ,mFunction) ;
 			}
 
@@ -2625,14 +2640,16 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
-			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (*r1x)) ;
+			auto &r1 = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
+			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<_RET>> (r2x))) ;
 			(void) r2x ;
-			_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
+			_CREATE_ (&r1 ,std::forward<_ARGS> (args)...) ;
 		}
 	} ;
+
+#pragma pop_macro ("fake")
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -2647,7 +2664,7 @@ public:
 
 	inline explicit ImplHolder (PTR<_UNIT> context ,const DEF<DEF<UNIT1 (UNITS...)> _UNIT::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -2668,7 +2685,7 @@ public:
 
 	inline explicit ImplHolder (PTR<const _UNIT> context ,const DEF<DEF<UNIT1 (UNITS...) const> _UNIT::*> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -2689,7 +2706,7 @@ public:
 
 	inline explicit ImplHolder (PTR<_UNIT> context ,const PTR<UNIT1 (PTR<_UNIT> ,UNITS...)> &function) noexcept :mContext (context) ,mFunction (function) {}
 
-	inline void compute_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -3930,7 +3947,8 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,_CAST_<TEMP<UNIT>> (item))) ;
+		auto &r1 = _CAST_<TEMP<UNIT>> (item) ;
+		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,r1)) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;

@@ -164,22 +164,24 @@ public:
 #endif
 
 	TEST_METHOD (TEST_CSC_EXT_SERIALIZER) {
-		struct wrapped_string :private Wrapped<String<STRU8>> {
+		struct wrapped_String_STRU8 :private Wrapped<String<STRU8>> {
 			inline void visit (const int &stru) {
-				wrapped_string::mSelf += _BUILDVAR32S_<STRU8> (stru) ;
+				wrapped_String_STRU8::mSelf += _BUILDVAR32S_<STRU8> (stru) ;
 			}
 			inline void visit (const float &stru) {
-				wrapped_string::mSelf += _BUILDVAL32S_<STRU8> (stru) ;
+				wrapped_String_STRU8::mSelf += _BUILDVAL32S_<STRU8> (stru) ;
 			}
 		} ;
 		const auto r1x = PACK<int ,float> {1 ,2.1f} ;
-		const auto r2x = Serializer<wrapped_string ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
+		const auto r2x = Serializer<wrapped_String_STRU8 ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
-		auto &r1 = _CAST_<wrapped_string> (rax) ;
-		r2x (r1x).friend_visit (r1) ;
-		//@info: see also std::launder
-		const auto r3x = _CAST_<String<STRU8>> (r1) ;
-		_UNITTEST_ASSERT_ (r3x == String<STRU8> (_PCSTRU8_ ("12.1"))) ;
+		for (FOR_ONCE_DO_WHILE) {
+			auto &r1 = _CAST_<wrapped_String_STRU8> (rax) ;
+			r2x (r1x).friend_visit (r1) ;
+			//@info: see also std::launder
+			rax = std::move (_CAST_<String<STRU8>> (r1)) ;
+		}
+		_UNITTEST_ASSERT_ (rax == String<STRU8> (_PCSTRU8_ ("12.1"))) ;
 	}
 } ;
 } ;
