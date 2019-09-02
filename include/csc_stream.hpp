@@ -1594,6 +1594,10 @@ private:
 		}
 		const auto r8x = log_of_number (rax[0]) ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
+			//@info: case '0'
+			_CASE_REQUIRE_ (rax[0] == 0) ;
+			out[--iw] = attr ().convert_number_w (0) ;
+		} ,[&] (BOOL &_case_req) {
 			//@info: case 'x.xxxExxx'
 			const auto r11x = r8x - 1 + rax[1] ;
 			_CASE_REQUIRE_ (_ABS_ (r11x) >= precision) ;
@@ -1619,7 +1623,7 @@ private:
 			rax[0] /= attr ().varify_radix () ;
 		} ,[&] (BOOL &_case_req) {
 			//@info: case 'xxx000'
-			_CASE_REQUIRE_ (rax[1] > 0) ;
+			_CASE_REQUIRE_ (rax[1] >= 0) ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = attr ().convert_number_w (0) ;
 			for (INDEX i = 0 ; i < r8x ; i++) {
@@ -1664,10 +1668,6 @@ private:
 			}
 			out[--iw] = REAL ('.') ;
 			iw += EFLAG (out[ix] == REAL ('.')) ;
-			out[--iw] = attr ().convert_number_w (0) ;
-		} ,[&] (BOOL &_case_req) {
-			//@info: case '0'
-			_CASE_REQUIRE_ (rax[0] == 0) ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}) ;
 		for (FOR_ONCE_DO_WHILE) {

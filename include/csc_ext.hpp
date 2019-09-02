@@ -214,16 +214,15 @@ private:
 	private:
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
+		LENGTH mAddress ;
 		FLAG mTypeID ;
-		PACK<LENGTH[2]> mAddress ;
 		PTR<void (LENGTH)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
+			mAddress = 0 ;
 			mTypeID = 0 ;
-			mAddress.P1[0] = 0 ;
-			mAddress.P1[1] = 0 ;
 			mWatch = NULL ;
 		} ;
 	} ;
@@ -233,13 +232,12 @@ public:
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
 		static volatile Storage<_ARG1> mInstance ;
 		mInstance.mName = name.self ;
+		mInstance.mAddress = _ADDRESS_ (&data) ;
 		mInstance.mTypeID = _TYPEID_<_ARG2> () ;
-		mInstance.mAddress.P1[0] = _ADDRESS_ (&data) ;
-		mInstance.mAddress.P1[1] = _ADDRESS_ (&done<_ARG1 ,_ARG2>) ;
-		const auto r2x = _COPY_ (mInstance.mWatch) ;
-		if (r2x == NULL)
+		const auto r1x = _COPY_ (mInstance.mWatch) ;
+		if (r1x == NULL)
 			return ;
-		r2x (_ADDRESS_ (&data)) ;
+		r1x (_ADDRESS_ (&data)) ;
 	}
 } ;
 #endif

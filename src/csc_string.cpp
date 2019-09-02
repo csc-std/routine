@@ -23,6 +23,9 @@ public:
 		_UNITTEST_ASSERT_ (r14x == _PCSTR_ ("1.234e+23")) ;
 		const auto r15x = _BUILDVAL64S_<STR> (VAL64 (0)) ;
 		_UNITTEST_ASSERT_ (r15x == _PCSTR_ ("0")) ;
+		const auto r16x = DATA (4622945017495814113) ;
+		const auto r17x = _BUILDVAL64S_<STR> (_CAST_<VAL64> (r16x)) ;
+		_UNITTEST_ASSERT_ (!r17x.empty ()) ;
 		const auto r5x = _PARSEVALS_ (String<STR> (_PCSTR_ ("-0.0122"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r5x - VAL (-0.0122)) < VAL (1E-4)) ;
 		const auto r6x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.42E38"))) ;
