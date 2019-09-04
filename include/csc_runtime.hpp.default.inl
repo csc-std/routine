@@ -95,7 +95,9 @@ public:
 
 	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE]> ebp) noexcept {
 		const auto r1x = _ADDRESS_ (ebp) % _ALIGNOF_ (CONTEXT_EBP) ;
-		const auto r2x = (r1x != 0) ? (_ALIGNOF_ (CONTEXT_EBP) - r1x) : 0 ;
+		const auto r2x = _SWITCH_ (
+			(r1x != 0) ? (_ALIGNOF_ (CONTEXT_EBP) - r1x) :
+			0) ;
 		const auto r3x = _ADDRESS_ (ebp) + r1x ;
 		return _LOAD_<CONTEXT_EBP> (NULL ,r3x) ;
 	}

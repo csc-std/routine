@@ -559,7 +559,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					update_shift_e5 (it) ;
 					mNodeHeap[it].mMemberSet.add (mNodeHeap[it].mMemberSet.length () ,mLatestIndex) ;
 					mNodeHeap[it].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
-					auto &r1 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+					auto &r1 = _SWITCH_ (
+						(ix == VAR_NONE) ? ix :
+						(mNodeHeap[iy].mBrother)) ;
 					r1 = mLatestIndex ;
 					iy = mLatestIndex ;
 				}) ;
@@ -1514,7 +1516,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e4 (it) ;
 				auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 				r1.add (r1.length () ,mLatestIndex) ;
-				auto &r2 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+				auto &r2 = _SWITCH_ (
+					(ix == VAR_NONE) ? ix :
+					(mNodeHeap[iy].mBrother)) ;
 				r2 = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;
@@ -1566,7 +1570,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
 				update_shift_e7 (it) ;
-				auto &r1 = (ix == VAR_NONE) ? ix : (mNodeHeap[iy].mBrother) ;
+				auto &r1 = _SWITCH_ (
+					(ix == VAR_NONE) ? ix :
+					(mNodeHeap[iy].mBrother)) ;
 				r1 = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> LLTextReader<>::SKIP_GAP ;

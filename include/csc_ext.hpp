@@ -200,7 +200,7 @@ inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 	} catch (const Exception &e) {
 		arg2 (e) ;
 	} catch (const std::exception &) {
-		arg2 (Exception (_PCSTR_ ("unknown std::exception"))) ;
+		arg2 (Exception (_PCSTR_ ("std::exception"))) ;
 	} catch (...) {
 		arg2 (Exception (_PCSTR_ ("unknown C++ exception"))) ;
 	}
@@ -272,7 +272,9 @@ public:
 
 	inline implicit VAR128 (VAR64 that) {
 		v2i1 = DATA (that) ;
-		const auto r1x = (that >= 0) ? (DATA (0)) : (DATA (-1)) ;
+		const auto r1x = _SWITCH_ (
+			(that >= 0) ? (DATA (0)) :
+			(DATA (-1))) ;
 		v2i0 = r1x ;
 	}
 
@@ -626,8 +628,12 @@ private:
 				const auto r2x = x * ret ;
 				if (r2x == y)
 					break ;
-				auto &r1 = (r2x < y) ? (rax[0]) : (rax[1]) ;
-				const auto r3x = (r2x < y) ? (ret + 1) : (ret - 1) ;
+				auto &r1 = _SWITCH_ (
+					(r2x < y) ? (rax[0]) :
+					(rax[1])) ;
+				const auto r3x = _SWITCH_ (
+					(r2x < y) ? (ret + 1) :
+					(ret - 1)) ;
 				r1 = r3x ;
 			}
 			ret -= EFLAG (ret * x > y) ;
@@ -785,15 +791,21 @@ struct OPERATOR_CRC32 {
 	}
 
 	inline static constexpr CHAR constexpr_crc32_next (CHAR val) {
-		return ((val & CHAR (0X00000001)) != 0) ? (CHAR (0)) : (CHAR (0XEDB88320) ^ (val >> 1)) ;
+		return _SWITCH_ (
+			((val & CHAR (0X00000001)) != 0) ? (CHAR (0)) :
+			(CHAR (0XEDB88320) ^ (val >> 1))) ;
 	}
 
 	inline static constexpr CHAR constexpr_crc32_table (CHAR val ,INDEX it) {
-		return (!constexpr_check (it ,8)) ? val : constexpr_crc32_table (constexpr_crc32_next (val) ,(it + 1)) ;
+		return _SWITCH_ (
+			(!constexpr_check (it ,8)) ? val :
+			(constexpr_crc32_table (constexpr_crc32_next (val) ,(it + 1)))) ;
 	}
 
 	inline static constexpr CHAR constexpr_crc32_hash (const Plain<STR> &stri ,CHAR val ,INDEX it) {
-		return (!constexpr_check (it ,stri.size ())) ? val : constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)) ;
+		return _SWITCH_ (
+			(!constexpr_check (it ,stri.size ())) ? val :
+			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)))) ;
 	}
 
 	inline static constexpr FLAG invoke (const Plain<STR> &stri) {
@@ -912,7 +924,9 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<_ARG2 ,_ARGS...> &) {
-		return (std::is_default_constructible<_ARG2>::value) ? (_ARG1::value) : (default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGVS<_ARGS...>> ())) ;
+		return _SWITCH_ (
+			(std::is_default_constructible<_ARG2>::value) ? (_ARG1::value) :
+			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGVS<_ARGS...>> ()))) ;
 	}
 
 private:
@@ -1892,7 +1906,9 @@ public:
 			that.mRoot->mPrev = that.mRoot ;
 			that.mRoot->mNext = that.mRoot ;
 			mRoot = that.mRoot ;
-			const auto r3x = (that.mRoot != r2x) ? r2x : NULL ;
+			const auto r3x = _SWITCH_ (
+				(that.mRoot != r2x) ? r2x :
+				NULL) ;
 			that.mRoot = r3x ;
 		}) ;
 	}
@@ -2265,7 +2281,10 @@ private:
 	} ;
 
 	inline static constexpr VAR constexpr_log2x (VAR arg1) {
-		return (arg1 <= 0) ? VAR_NONE : (arg1 == 1) ? 0 : (1 + constexpr_log2x (arg1 / 2)) ;
+		return _SWITCH_ (
+			(arg1 <= 0) ? VAR_NONE :
+			(arg1 == 1) ? 0 :
+			(1 + constexpr_log2x (arg1 / 2))) ;
 	}
 
 private:
@@ -2870,11 +2889,16 @@ private:
 	} ;
 
 	inline static constexpr VAR constexpr_ceil (VAR base ,VAR align) {
-		return (align <= 0) ? 0 : ((base / align + EFLAG (base % align != 0)) * align) ;
+		return _SWITCH_ (
+			(align <= 0) ? 0 :
+			((base / align + EFLAG (base % align != 0)) * align)) ;
 	}
 
 	inline static constexpr VAL64 constexpr_powx (VAL64 base ,LENGTH power) {
-		return (power <= 0) ? 1 : (power % 2 != 0) ? (base * constexpr_powx (base ,(power - 1))) : (_SQE_ (constexpr_powx (base ,(power / 2)))) ;
+		return _SWITCH_ (
+			(power <= 0) ? 1 :
+			(power % 2 != 0) ? (base * constexpr_powx (base ,(power - 1))) :
+			(_SQE_ (constexpr_powx (base ,(power / 2))))) ;
 	}
 
 	template <class SIZE>
@@ -2984,7 +3008,9 @@ private:
 				ir = i->mNext ;
 				if (!empty_node (i))
 					continue ;
-				auto &r1 = (i->mPrev != NULL) ? (i->mPrev->mNext) : mRoot ;
+				auto &r1 = _SWITCH_ (
+					(i->mPrev != NULL) ? (i->mPrev->mNext) :
+					mRoot) ;
 				r1 = i->mNext ;
 				if (i->mNext != NULL)
 					i->mNext->mPrev = i->mPrev ;
@@ -3072,7 +3098,9 @@ private:
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
 			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,*address) ;
-			auto &r1 = (r1x->mPrev != NULL) ? (r1x->mPrev->mNext) : mRoot ;
+			auto &r1 = _SWITCH_ (
+				(r1x->mPrev != NULL) ? (r1x->mPrev->mNext) :
+				mRoot) ;
 			r1 = r1x->mNext ;
 			if (r1x->mNext != NULL)
 				r1x->mNext->mPrev = r1x->mPrev ;

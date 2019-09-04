@@ -196,7 +196,9 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 }
 
 inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
-	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
+	const auto r1x = _SWITCH_ (
+		(file.empty ()) ? (PhanBuffer<const STR> ()) :
+		(file.raw ())) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
@@ -368,7 +370,9 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 				discard ;
 			if (r4x == _PCSTR_ (".."))
 				discard ;
-			auto &r1 = ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc : dire_proc ;
+			auto &r1 = _SWITCH_ (
+				((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) ? file_proc :
+				dire_proc) ;
 			if (!r1.exist ())
 				discard ;
 			rax += r4x ;
@@ -434,7 +438,9 @@ public:
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = ReadFile (mFile ,data ,VARY (data.size ()) ,&rax ,NULL) ;
-		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
+		const auto r2x = _SWITCH_ (
+			(r1x != 0) ? (LENGTH (rax)) :
+			0) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (BOOL (r2x >= 0 && r2x < VAR32_MAX)) ;
 		if (data.size () - r2x == 0)
@@ -447,7 +453,9 @@ public:
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = WriteFile (mFile ,data ,VARY (data.size ()) ,&rax ,NULL) ;
-		const auto r2x = (r1x != 0) ? (LENGTH (rax)) : 0 ;
+		const auto r2x = _SWITCH_ (
+			(r1x != 0) ? (LENGTH (rax)) :
+			0) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}

@@ -329,7 +329,9 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		inline void update_next_center_list () {
 			mNextCenterList.clear () ;
 			for (auto &&i : mClusterSet) {
-				const auto r1x = (i.item.length () > 0) ? (average_center (i.item)) : (mCurrCenterList[i.key]) ;
+				const auto r1x = _SWITCH_ (
+					(i.item.length () > 0) ? (average_center (i.item)) :
+					(mCurrCenterList[i.key])) ;
 				mNextCenterList.add (r1x) ;
 			}
 			_DEBUG_ASSERT_ (mCenterIndex.size () == mNextCenterList.length ()) ;
@@ -507,18 +509,26 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				} else if (mTempState == 4) {
-					const auto r1x = (mTempStack[ix][0] < mAdjacency.cx ()) ? 5 : 16 ;
+					const auto r1x = _SWITCH_ (
+						(mTempStack[ix][0] < mAdjacency.cx ()) ? 5 :
+						16) ;
 					mTempState = r1x ;
 				} else if (mTempState == 5) {
-					const auto r2x = (mXVisit[mTempStack[ix][0]]) ? 15 : 6 ;
+					const auto r2x = _SWITCH_ (
+						(mXVisit[mTempStack[ix][0]]) ? 15 :
+						6) ;
 					mTempState = r2x ;
 				} else if (mTempState == 6) {
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					const auto r3x = (mLackWeight[0] < mTolerance) ? 8 : 12 ;
+					const auto r3x = _SWITCH_ (
+						(mLackWeight[0] < mTolerance) ? 8 :
+						12) ;
 					mTempState = r3x ;
 				} else if (mTempState == 7) {
 					ix = mTempStack.tail () ;
-					const auto r4x = (mTempStack[ix][1] == VAR_NONE) ? 2 : 3 ;
+					const auto r4x = _SWITCH_ (
+						(mTempStack[ix][1] == VAR_NONE) ? 2 :
+						3) ;
 					mTempState = r4x ;
 				} else if (mTempState == 8) {
 					mXVisit[mTempStack[ix][0]] = TRUE ;
@@ -528,14 +538,18 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					ix = mTempStack.tail () ;
 					mTempState = 10 ;
 				} else if (mTempState == 10) {
-					const auto r5x = mTempRet ? 11 : 15 ;
+					const auto r5x = _SWITCH_ (
+						mTempRet ? 11 :
+						15) ;
 					mTempState = r5x ;
 				} else if (mTempState == 11) {
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				} else if (mTempState == 12) {
-					const auto r6x = (mLackWeight[1] < mTolerance) ? 13 : 14 ;
+					const auto r6x = _SWITCH_ (
+						(mLackWeight[1] < mTolerance) ? 13 :
+						14) ;
 					mTempState = r6x ;
 				} else if (mTempState == 13) {
 					mLackWeight[1] = mLackWeight[0] ;
@@ -551,10 +565,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = 17 ;
 				} else if (mTempState == 17) {
 					mTempStack.pop () ;
-					const auto r7x = (mTempStack.length () > 0) ? 9 : 18 ;
+					const auto r7x = _SWITCH_ (
+						(mTempStack.length () > 0) ? 9 :
+						18) ;
 					mTempState = r7x ;
 				} else if (mTempState == 18) {
-					const auto r8x = mTempRet ? 19 : 20 ;
+					const auto r8x = _SWITCH_ (
+						mTempRet ? 19 :
+						20) ;
 					mTempState = r8x ;
 				} else if (mTempState == 19) {
 					mLackWeight[0] = 0 ;
@@ -922,7 +940,9 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			}
 			_CALL_IF_ ([&] (BOOL &_case_req) {
 				_CASE_REQUIRE_ (mDXLoss[0] >= mDXLoss[2]) ;
-				const auto r2x = (mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) : (mDXLoss[1]) ;
+				const auto r2x = _SWITCH_ (
+					(mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) :
+					(mDXLoss[1])) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;

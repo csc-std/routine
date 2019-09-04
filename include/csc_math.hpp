@@ -298,7 +298,9 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	const auto r4x = ((r1x & DATA (0X8000000000000000)) == 0) ? DATA (0) : DATA (-1) ;
+	const auto r4x = _SWITCH_ (
+		((r1x & DATA (0X8000000000000000)) == 0) ? (DATA (0)) :
+		(DATA (-1))) ;
 	ret[2] = r4x ;
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }

@@ -835,7 +835,9 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (BOOL (r1x || r2x)) ;
-		const auto r3x = r1x ? (_ARG1 ('0')) : (_ARG1 ('A' - 10)) ;
+		const auto r3x = _SWITCH_ (
+			r1x ? (_ARG1 ('0')) :
+			(_ARG1 ('A' - 10))) ;
 		ret = (ret << 4) | CHAR (rax - r3x) ;
 	}
 	ris >> _EOS_ ;
@@ -851,7 +853,9 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	wos << _RET ('H') ;
 	for (INDEX i = 0 ; i < 8 ; i++) {
 		const auto r1x = CHAR (stru >> (28 - i * 4)) & CHAR (0X0F) ;
-		const auto r2x = (r1x < DATA (10)) ? (_RET ('0')) : (_RET ('A') - 10) ;
+		const auto r2x = _SWITCH_ (
+			(r1x < DATA (10)) ? (_RET ('0')) :
+			(_RET ('A') - 10)) ;
 		wos << _RET (r2x + r1x) ;
 	}
 	wos << _EOS_ ;
@@ -872,7 +876,9 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (BOOL (r1x || r2x)) ;
-		const auto r3x = r1x ? (_ARG1 ('0')) : (_ARG1 ('A' - 10)) ;
+		const auto r3x = _SWITCH_ (
+			r1x ? (_ARG1 ('0')) :
+			(_ARG1 ('A' - 10))) ;
 		ret = (ret << 4) | DATA (rax - r3x) ;
 	}
 	ris >> _EOS_ ;
@@ -888,7 +894,9 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	wos << _RET ('H') ;
 	for (INDEX i = 0 ; i < 16 ; i++) {
 		const auto r1x = DATA (stru >> (60 - i * 4)) & DATA (0X0F) ;
-		const auto r2x = (r1x < DATA (10)) ? (_RET ('0')) : (_RET ('A') - 10) ;
+		const auto r2x = _SWITCH_ (
+			(r1x < DATA (10)) ? (_RET ('0')) :
+			(_RET ('A') - 10)) ;
 		wos << _RET (r2x + r1x) ;
 	}
 	wos << _EOS_ ;
@@ -970,7 +978,9 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		const auto r2x = ((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) : VAR_NONE ;
+		const auto r2x = _SWITCH_ (
+			((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) :
+			VAR_NONE) ;
 		if (rax == 0 && r2x >= 0) {
 			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;

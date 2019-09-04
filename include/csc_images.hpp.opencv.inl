@@ -178,7 +178,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r1x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -198,7 +200,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -244,7 +248,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r1x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -264,7 +270,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -310,7 +318,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r1x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -330,7 +340,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -376,7 +388,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r1x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r1x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r1x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -396,7 +410,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -442,7 +458,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -462,7 +480,9 @@ public:
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		const auto r2x = std::vector<VAR32> () ;
-		auto &r2 = (param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) : r2x ;
+		auto &r2 = _SWITCH_ (
+			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			r2x) ;
 		const auto r3x = cv::imwrite (r1x.raw ().self ,r1 ,r2) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}

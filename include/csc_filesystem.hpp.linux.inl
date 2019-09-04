@@ -202,7 +202,9 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 }
 
 inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
-	const auto r1x = (file.empty ()) ? (PhanBuffer<const STR> ()) : (file.raw ()) ;
+	const auto r1x = _SWITCH_ (
+		(file.empty ()) ? (PhanBuffer<const STR> ()) :
+		(file.raw ())) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
@@ -400,7 +402,9 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 			if (r4x == _PCSTR_ (".."))
 				discard ;
 			rax += r4x ;
-			auto &r1 = (_FINDDIRECTORY_ (rax)) ? dire_proc : file_proc ;
+			auto &r1 = _SWITCH_ (
+				(_FINDDIRECTORY_ (rax)) ? dire_proc :
+				file_proc) ;
 			if (!r1.exist ())
 				discard ;
 			r1 (rax) ;

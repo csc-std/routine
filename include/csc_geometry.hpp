@@ -631,7 +631,9 @@ public:
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
-				const auto r6x = ((i + j) % 2 != 0) ? (-r5x) : r5x ;
+				const auto r6x = _SWITCH_ (
+					((i + j) % 2 != 0) ? (-r5x) :
+					r5x) ;
 				ret.get (j ,i) = r6x ;
 			}
 		}
@@ -799,7 +801,9 @@ public:
 		ARRAY3<REAL> ret ;
 		const auto r1x = make_rotation_quat (rotation) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
-		const auto r3x = (r2x != REAL (0)) ? (REAL (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) : (REAL (2)) ;
+		const auto r3x = _SWITCH_ (
+			(r2x != REAL (0)) ? (REAL (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) :
+			(REAL (2))) ;
 		ret[0] = r1x[0] * r3x ;
 		ret[1] = r1x[1] * r3x ;
 		ret[2] = r1x[2] * r3x ;
@@ -808,7 +812,9 @@ public:
 
 	static Matrix make_translation (const Vector<REAL> &position) {
 		const auto r1x = -position * _PINV_ (position[3]) ;
-		const auto r2x = (position[3] != REAL (0)) ? r1x : position ;
+		const auto r2x = _SWITCH_ (
+			(position[3] != REAL (0)) ? r1x :
+			position) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,REAL (0) ,REAL (0) ,r2x[0]} ,
 			{REAL (0) ,REAL (1) ,REAL (0) ,r2x[1]} ,
@@ -823,9 +829,15 @@ public:
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = Vector<REAL> {_ABS_ (normal[0]) ,_ABS_ (normal[1]) ,_ABS_ (normal[2]) ,REAL (0)} ;
-		const auto r3x = (r2x[0] < r2x[2]) ? (Vector<REAL>::axis_x ()) : (Vector<REAL>::axis_z ()) ;
-		const auto r4x = (r2x[1] < r2x[2]) ? (Vector<REAL>::axis_y ()) : (Vector<REAL>::axis_z ()) ;
-		const auto r5x = (r2x[0] < r2x[1]) ? r3x : r4x ;
+		const auto r3x = _SWITCH_ (
+			(r2x[0] < r2x[2]) ? (Vector<REAL>::axis_x ()) :
+			(Vector<REAL>::axis_z ())) ;
+		const auto r4x = _SWITCH_ (
+			(r2x[1] < r2x[2]) ? (Vector<REAL>::axis_y ()) :
+			(Vector<REAL>::axis_z ())) ;
+		const auto r5x = _SWITCH_ (
+			(r2x[0] < r2x[1]) ? r3x :
+			r4x) ;
 		const auto r6x = (r1x ^ r5x).normalize () ;
 		const auto r7x = (r1x ^ r6x).normalize () ;
 		return Matrix {r6x ,r7x ,r1x ,center} ;
@@ -848,13 +860,19 @@ public:
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r8x = light * _PINV_ (light) ;
-		const auto r2x = (light[3] != REAL (0)) ? r8x : (light.normalize ()) ;
+		const auto r2x = _SWITCH_ (
+			(light[3] != REAL (0)) ? r8x :
+			(light.normalize ())) ;
 		const auto r3x = center.homogenize () * r1x ;
 		const auto r9x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
 		const auto r4x = r9x * r1x ;
 		const auto r7x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
-		const auto r5x = (r2x[3] != REAL (0)) ? r3x : r7x ;
-		const auto r6x = (r2x[3] != REAL (0)) ? r1x : r7x ;
+		const auto r5x = _SWITCH_ (
+			(r2x[3] != REAL (0)) ? r3x :
+			r7x) ;
+		const auto r6x = _SWITCH_ (
+			(r2x[3] != REAL (0)) ? r1x :
+			r7x) ;
 		Matrix ret = Matrix ({
 			{(r1x[0] * r2x[0] - r4x + r5x) ,(r1x[1] * r2x[0]) ,(r1x[2] * r2x[0]) ,(-r3x * r2x[0])} ,
 			{(r1x[0] * r2x[1]) ,(r1x[1] * r2x[1] - r4x + r5x) ,(r1x[2] * r2x[1]) ,(-r3x * r2x[1])} ,

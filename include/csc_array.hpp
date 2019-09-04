@@ -336,7 +336,9 @@ template <class ITEM ,class SIZE>
 class String {
 private:
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return (len <= 0) ? len : (len + 1) ;
+		return _SWITCH_ (
+			(len <= 0) ? len :
+			(len + 1)) ;
 	}
 
 private:
@@ -607,7 +609,9 @@ private:
 	} ;
 
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return (len <= 0) ? len : (len + 1) ;
+		return _SWITCH_ (
+			(len <= 0) ? len :
+			(len + 1)) ;
 	}
 
 private:
@@ -977,7 +981,9 @@ private:
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return (len <= 0) ? len : (len + 1) ;
+		return _SWITCH_ (
+			(len <= 0) ? len :
+			(len + 1)) ;
 	}
 
 private:
@@ -1108,7 +1114,9 @@ private:
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return (len <= 0) ? len : (len + 1) ;
+		return _SWITCH_ (
+			(len <= 0) ? len :
+			(len + 1)) ;
 	}
 
 private:
@@ -1411,7 +1419,9 @@ private:
 			if (rax.mKey > mPriority[iy].mKey)
 				jx = iy ;
 			iy++ ;
-			auto &r1 = (jx != ix) ? (mPriority[jx].mKey) : (rax.mKey) ;
+			auto &r1 = _SWITCH_ (
+				(jx != ix) ? (mPriority[jx].mKey) :
+				(rax.mKey)) ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (iy >= mWrite)
 					discard ;
@@ -1439,7 +1449,9 @@ private:
 			if (mPriority[r1x].mKey > mPriority[out[iy]].mKey)
 				jx = iy ;
 			iy++ ;
-			auto &r1 = (jx != ix) ? (mPriority[out[jx]].mKey) : (mPriority[r1x].mKey) ;
+			auto &r1 = _SWITCH_ (
+				(jx != ix) ? (mPriority[out[jx]].mKey) :
+				(mPriority[r1x].mKey)) ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (iy >= len)
 					discard ;
@@ -1603,7 +1615,9 @@ public:
 
 	void add (const ITEM &item) {
 		INDEX ix = mList.alloc (std::move (item) ,mLast ,VAR_NONE) ;
-		auto &r1 = (mLast != VAR_NONE) ? (mList[mLast].mRight) : mFirst ;
+		auto &r1 = _SWITCH_ (
+			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
+			mFirst) ;
 		r1 = ix ;
 		mLast = ix ;
 	}
@@ -1615,7 +1629,9 @@ public:
 
 	void add (ITEM &&item) {
 		INDEX ix = mList.alloc (std::move (item) ,mLast ,VAR_NONE) ;
-		auto &r1 = (mLast != VAR_NONE) ? (mList[mLast].mRight) : mFirst ;
+		auto &r1 = _SWITCH_ (
+			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
+			mFirst) ;
 		r1 = ix ;
 		mLast = ix ;
 	}
@@ -1643,7 +1659,9 @@ public:
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mFirst ;
 		mFirst = mList[ix].mRight ;
-		auto &r1 = (mFirst != VAR_NONE) ? (mList[mFirst].mLeft) : mLast ;
+		auto &r1 = _SWITCH_ (
+			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
+			mLast) ;
 		r1 = VAR_NONE ;
 		mList.free (ix) ;
 	}
@@ -1653,7 +1671,9 @@ public:
 		INDEX ix = mFirst ;
 		item = std::move (mList[ix].mItem) ;
 		mFirst = mList[ix].mRight ;
-		auto &r1 = (mFirst != VAR_NONE) ? (mList[mFirst].mLeft) : mLast ;
+		auto &r1 = _SWITCH_ (
+			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
+			mLast) ;
 		r1 = VAR_NONE ;
 		mList.free (ix) ;
 	}
@@ -1675,7 +1695,9 @@ public:
 
 	INDEX insert () popping {
 		INDEX ret = mList.alloc (mLast ,VAR_NONE) ;
-		auto &r1 = (mLast != VAR_NONE) ? (mList[mLast].mRight) : mFirst ;
+		auto &r1 = _SWITCH_ (
+			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
+			mFirst) ;
 		r1 = ret ;
 		mLast = ret ;
 		return std::move (ret) ;
@@ -1683,16 +1705,22 @@ public:
 
 	INDEX insert_before (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE ,index) ;
-		auto &r1 = (index != VAR_NONE) ? (mList[index].mLeft) : mLast ;
+		auto &r1 = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mLeft) :
+			mLast) ;
 		mList[ret].mLeft = r1 ;
-		auto &r2 = (r1 != VAR_NONE) ? (mList[r1].mRight) : mFirst ;
+		auto &r2 = _SWITCH_ (
+			(r1 != VAR_NONE) ? (mList[r1].mRight) :
+			mFirst) ;
 		r2 = ret ;
 		r1 = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX insert_after (INDEX index) popping {
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mRight) : mFirst ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mRight) :
+			mFirst) ;
 		return insert_before (r1x) ;
 	}
 
@@ -1700,7 +1728,9 @@ public:
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mLast ;
 		mLast = mList[ix].mLeft ;
-		auto &r1 = (mLast != VAR_NONE) ? (mList[mLast].mRight) : mFirst ;
+		auto &r1 = _SWITCH_ (
+			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
+			mFirst) ;
 		r1 = VAR_NONE ;
 		mList.free (ix) ;
 	}
@@ -1723,15 +1753,21 @@ public:
 	void splice_before (INDEX index ,INDEX seg) {
 		prev_next (seg) = mList[seg].mRight ;
 		next_prev (seg) = mList[seg].mLeft ;
-		auto &r1 = (index != VAR_NONE) ? (mList[index].mLeft) : mLast ;
+		auto &r1 = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mLeft) :
+			mLast) ;
 		mList[seg].mLeft = r1 ;
-		auto &r2 = (r1 != VAR_NONE) ? (mList[r1].mRight) : mFirst ;
+		auto &r2 = _SWITCH_ (
+			(r1 != VAR_NONE) ? (mList[r1].mRight) :
+			mFirst) ;
 		r2 = seg ;
 		r1 = seg ;
 	}
 
 	void splice_after (INDEX index ,INDEX seg) {
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mRight) : mFirst ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mRight) :
+			mFirst) ;
 		splice_before (r1x ,seg) ;
 	}
 
@@ -2004,7 +2040,9 @@ public:
 	INDEX insert_before (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mSequ) : mWrite ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mSequ) :
+			mWrite) ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -2012,7 +2050,9 @@ public:
 	INDEX insert_after (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
-		const auto r1x = (index != VAR_NONE) ? (mList[index].mSequ + 1) : mRead ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mSequ + 1) :
+			mRead) ;
 		update_compress_left (r1x ,ret) ;
 		return std::move (ret) ;
 	}
@@ -2113,8 +2153,12 @@ private:
 			INDEX jx = position_before (ret) ;
 			if (jx == pos && mHead[ret][0] != VAR_NONE)
 				break ;
-			auto &r1 = (jx < pos) ? ix : iy ;
-			const auto r1x = (jx < pos) ? (ret + 1) : (ret - 1) ;
+			auto &r1 = _SWITCH_ (
+				(jx < pos) ? ix :
+				iy) ;
+			const auto r1x = _SWITCH_ (
+				(jx < pos) ? (ret + 1) :
+				(ret - 1)) ;
 			r1 = r1x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
@@ -2279,7 +2323,9 @@ template <class SIZE>
 class BitSet {
 private:
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return (len <= 0) ? len : ((len + 7) / 8) ;
+		return _SWITCH_ (
+			(len <= 0) ? len :
+			((len + 7) / 8)) ;
 	}
 
 	template <class BASE>
@@ -2308,7 +2354,7 @@ private:
 #ifdef __CSC_CONFIG_VAR32__
 		inline implicit operator VAR32 () const & {
 			return VAR32 (mIndex) ;
-	}
+		}
 
 		inline explicit operator VAR32 () && = delete ;
 
@@ -2333,7 +2379,9 @@ private:
 
 		inline void operator= (const BOOL &that) && {
 			const auto r1x = mBase.mSet[mIndex / 8] ;
-			const auto r2x = that ? (~r1x) : r1x ;
+			const auto r2x = _SWITCH_ (
+				that ? (~r1x) :
+				r1x) ;
 			const auto r3x = BYTE (r2x & (BYTE (0X01) << (mIndex % 8))) ;
 			mBase.mSet[mIndex / 8] = BYTE (r1x ^ r3x) ;
 		}
@@ -2350,7 +2398,7 @@ private:
 
 	private:
 		inline explicit Bit (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
-} ;
+	} ;
 
 private:
 	class Detail ;
@@ -3133,7 +3181,9 @@ public:
 			const auto r1x = BOOL (key < mSet[ret].mKey) ;
 			if (!r1x && !(key > mSet[ret].mKey))
 				break ;
-			const auto r2x = r1x ? (mSet[ret].mLeft) : (mSet[ret].mRight) ;
+			const auto r2x = _SWITCH_ (
+				r1x ? (mSet[ret].mLeft) :
+				(mSet[ret].mRight)) ;
 			ret = r2x ;
 		}
 		return std::move (ret) ;
@@ -3162,7 +3212,9 @@ private:
 		} ,[&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (it != VAR_NONE) ;
 			mSet[jt].mUp = it ;
-			auto &r1 = (mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) : (mSet[it].mRight) ;
+			auto &r1 = _SWITCH_ (
+				(mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) :
+				(mSet[it].mRight)) ;
 			update_emplace (r1 ,jt) ;
 			r1 = mTop ;
 			mTop = it ;
@@ -3177,7 +3229,9 @@ private:
 				break ;
 			if (!mSet[jx].mRed)
 				break ;
-			const auto r1x = (jx == mSet[mSet[jx].mUp].mLeft) ? (&Set::update_insert_left) : (&Set::update_insert_right) ;
+			const auto r1x = _SWITCH_ (
+				(jx == mSet[mSet[jx].mUp].mLeft) ? (&Set::update_insert_left) :
+				(&Set::update_insert_right)) ;
 			(this->*r1x) (ix) ;
 			ix = mTop ;
 		}
@@ -3256,7 +3310,9 @@ private:
 				break ;
 			if (ix != VAR_NONE && mSet[ix].mRed)
 				break ;
-			const auto r1x = (ix == mSet[iy].mLeft) ? (&Set::update_remove_left) : (&Set::update_remove_right) ;
+			const auto r1x = _SWITCH_ (
+				(ix == mSet[iy].mLeft) ? (&Set::update_remove_left) :
+				(&Set::update_remove_right)) ;
 			(this->*r1x) (ix ,iy) ;
 			ix = mTop ;
 			iy = mSet[ix].mUp ;
@@ -3393,11 +3449,19 @@ private:
 		if (index1 == index2)
 			return ;
 		auto &r1 = prev_next (index2) ;
-		auto &r2 = (mSet[index2].mLeft != VAR_NONE) ? (mSet[mSet[index2].mLeft].mUp) : index1 ;
-		auto &r3 = (mSet[index2].mRight != VAR_NONE) ? (mSet[mSet[index2].mRight].mUp) : index1 ;
+		auto &r2 = _SWITCH_ (
+			(mSet[index2].mLeft != VAR_NONE) ? (mSet[mSet[index2].mLeft].mUp) :
+			index1) ;
+		auto &r3 = _SWITCH_ (
+			(mSet[index2].mRight != VAR_NONE) ? (mSet[mSet[index2].mRight].mUp) :
+			index1) ;
 		auto &r4 = prev_next (index1) ;
-		auto &r5 = (mSet[index1].mLeft != VAR_NONE) ? (mSet[mSet[index1].mLeft].mUp) : index2 ;
-		auto &r6 = (mSet[index1].mRight != VAR_NONE) ? (mSet[mSet[index1].mRight].mUp) : index2 ;
+		auto &r5 = _SWITCH_ (
+			(mSet[index1].mLeft != VAR_NONE) ? (mSet[mSet[index1].mLeft].mUp) :
+			index2) ;
+		auto &r6 = _SWITCH_ (
+			(mSet[index1].mRight != VAR_NONE) ? (mSet[mSet[index1].mRight].mUp) :
+			index2) ;
 		r1 = index1 ;
 		r2 = index1 ;
 		r3 = index1 ;
@@ -4016,7 +4080,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
@@ -4041,7 +4107,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
@@ -4174,7 +4242,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
@@ -4195,7 +4265,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ix ;
 			mLast = ix ;
 			mLength++ ;
@@ -4367,7 +4439,9 @@ public:
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ret ;
 			mLast = ret ;
 			mLength++ ;
@@ -4385,7 +4459,9 @@ public:
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1 = (mLast != VAR_NONE) ? (mSet.self[mLast].mNext) : (mFirst) ;
+			auto &r1 = _SWITCH_ (
+				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
+				(mFirst)) ;
 			r1 = ret ;
 			mLast = ret ;
 			mLength++ ;
@@ -4424,7 +4500,9 @@ public:
 			const auto r1x = BOOL (key < mSet.self[ret].mKey) ;
 			if (!r1x && !(key > mSet.self[ret].mKey))
 				break ;
-			const auto r2x = r1x ? (mSet.self[ret].mLeft) : (mSet.self[ret].mRight) ;
+			const auto r2x = _SWITCH_ (
+				r1x ? (mSet.self[ret].mLeft) :
+				(mSet.self[ret].mRight)) ;
 			ret = r2x ;
 		}
 		return std::move (ret) ;
@@ -4453,10 +4531,14 @@ private:
 		} ,[&] (BOOL &_case_req) {
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
-			auto &r2 = r1x ? (mSet.self[ix].mLeft) : (mSet.self[ix].mRight) ;
+			auto &r2 = _SWITCH_ (
+				r1x ? (mSet.self[ix].mLeft) :
+				(mSet.self[ix].mRight)) ;
 			update_insert (r2) ;
 			r2 = mTop ;
-			const auto r2x = r1x ? (&SoftSet::update_insert_left) : (&SoftSet::update_insert_right) ;
+			const auto r2x = _SWITCH_ (
+				r1x ? (&SoftSet::update_insert_left) :
+				(&SoftSet::update_insert_right)) ;
 			(this->*r2x) (ix) ;
 			ix = mTop ;
 			mTop = ix ;

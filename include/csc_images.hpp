@@ -217,7 +217,9 @@ public:
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
-		auto &r1 = (mHeap.exist ()) ? (mHeap->mWidth) : r1x ;
+		auto &r1 = _SWITCH_ (
+			(mHeap.exist ()) ? (mHeap->mWidth) :
+			r1x) ;
 		mCX = r1[0] ;
 		mCY = r1[1] ;
 		mCW = r1[2] ;

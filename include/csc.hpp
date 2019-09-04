@@ -719,6 +719,11 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1
 	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (NULL ,r1x) ;
 }
 
+template <class _ARG1>
+inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
+	return std::forward<_ARG1> (expr) ;
+}
+
 template <class _RET>
 inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -863,7 +868,9 @@ inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&arg1) popping {
 inline namespace S {
 template <class _ARG1>
 inline constexpr _ARG1 _ABS_ (const _ARG1 &arg1) {
-	return (arg1 < 0) ? (-arg1) : (+arg1) ;
+	return _SWITCH_ (
+		(arg1 < 0) ? (-arg1) :
+		(+arg1)) ;
 }
 
 template <class _ARG1>
@@ -873,12 +880,16 @@ inline constexpr _ARG1 _SQE_ (const _ARG1 &arg1) {
 
 template <class _ARG1>
 inline constexpr const _ARG1 &_MIN_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
-	return (!BOOL (arg2 < arg1)) ? arg1 : arg2 ;
+	return _SWITCH_ (
+		(!BOOL (arg2 < arg1)) ? arg1 :
+		arg2) ;
 }
 
 template <class _ARG1>
 inline constexpr const _ARG1 &_MAX_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
-	return (!BOOL (arg1 < arg2)) ? arg1 : arg2 ;
+	return _SWITCH_ (
+		(!BOOL (arg1 < arg2)) ? arg1 :
+		arg2) ;
 }
 } ;
 
@@ -3639,8 +3650,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3700,8 +3709,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3724,7 +3731,11 @@ public:
 	inline Allocator &operator= (const Allocator &) = delete ;
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
-		const auto r1x = (std::is_pod<UNIT>::value) ? (mAllocator.size ()) : 0 ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
+		const auto r1x = _SWITCH_ (
+			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
+			0) ;
 		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
 				continue ;
@@ -3781,8 +3792,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mLength ;
@@ -3804,15 +3813,17 @@ public:
 	inline Allocator (const Allocator &that) :mAllocator (std::move (that.mAllocator)) {
 		class Finally :private Wrapped<Allocator> {
 		public:
-			inline void lock () noexcept {
+			inline void lock () {
 				Finally::mSelf.mLength = 0 ;
 				Finally::mSelf.mFree = VAR_NONE ;
 			}
 
-			inline void unlock () noexcept {
+			inline void unlock () {
 				if (Finally::mSelf.mLength > 0)
 					return ;
-				const auto r1x = (std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) : 0 ;
+				const auto r1x = _SWITCH_ (
+					(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
+					0) ;
 				for (INDEX i = r1x ; i < Finally::mSelf.mAllocator.size () ; i++) {
 					if (Finally::mSelf.mAllocator[i].mNext != VAR_USED)
 						continue ;
@@ -3823,7 +3834,9 @@ public:
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (*this)) ;
-		const auto r2x = (std::is_pod<UNIT>::value) ? (mAllocator.size ()) : 0 ;
+		const auto r2x = _SWITCH_ (
+			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
+			0) ;
 		for (INDEX i = r2x ; i < mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
 				continue ;
@@ -3844,7 +3857,11 @@ public:
 	}
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
-		const auto r1x = (std::is_pod<UNIT>::value) ? (mAllocator.size ()) : 0 ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
+		const auto r1x = _SWITCH_ (
+			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
+			0) ;
 		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
 			if (mAllocator[i].mNext != VAR_USED)
 				continue ;
@@ -3964,6 +3981,8 @@ public:
 
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...args) popping {
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret != VAR_NONE)
@@ -4003,6 +4022,8 @@ public:
 	}
 
 	inline void reserve (LENGTH len) {
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = mAllocator.size () ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 		const auto r2x = _MAX_ (len - (r1x - mLength) ,VAR_ZERO) ;
@@ -4020,6 +4041,8 @@ public:
 	}
 
 	inline void clean () {
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = shrink_size () ;
 		if (r1x == mAllocator.size ())
 			return ;
