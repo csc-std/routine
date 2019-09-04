@@ -1361,11 +1361,11 @@ public:
 template <class UNIT1 ,class... UNITS>
 template <class... _ARGS>
 inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &function ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
-	auto sgd = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
-	ScopedHolder<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (sgd ,function ,args...) ;
-	const auto r1x = &_LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (sgd)) ;
+	auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
+	ScopedHolder<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,function ,args...) ;
+	const auto r1x = &_LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
 	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (r1x)) ;
-	sgd = NULL ;
+	rax = NULL ;
 	return std::move (ret) ;
 }
 
@@ -1898,9 +1898,9 @@ public:
 	}
 
 	inline void push () {
-		auto sgd = GlobalHeap::alloc<TEMP<Node>> () ;
-		ScopedHolder<Node> ANONYMOUS (sgd) ;
-		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (sgd)) ;
+		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
+		ScopedHolder<Node> ANONYMOUS (rax) ;
+		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
 		_CALL_IF_ ([&] (BOOL &_case_req) {
 			_CASE_REQUIRE_ (mRoot == NULL) ;
 			r1x->mPrev = r1x ;
@@ -1913,7 +1913,7 @@ public:
 			mRoot->mPrev = r1x ;
 		}) ;
 		mRoot = r1x ;
-		sgd = NULL ;
+		rax = NULL ;
 	}
 
 	inline void cycle () {
@@ -2477,15 +2477,15 @@ class IntrusiveRef {
 private:
 	using INTRUSIVE_TYPE = typename UNIT::INTRUSIVE_TYPE ;
 
-	class WatcherProxy {
+	class WatchProxy {
 	private:
 		friend IntrusiveRef ;
 		PTR<UNIT> mPointer ;
 
 	public:
-		inline WatcherProxy () = delete ;
+		inline WatchProxy () = delete ;
 
-		inline ~WatcherProxy () noexcept {
+		inline ~WatchProxy () noexcept {
 			if (mPointer == NULL)
 				return ;
 			_CALL_EH_ ([&] () {
@@ -2494,11 +2494,11 @@ private:
 			mPointer = NULL ;
 		}
 
-		inline WatcherProxy (const WatcherProxy &) = delete ;
-		inline WatcherProxy &operator= (const WatcherProxy &) = delete ;
+		inline WatchProxy (const WatchProxy &) = delete ;
+		inline WatchProxy &operator= (const WatchProxy &) = delete ;
 
-		inline WatcherProxy (WatcherProxy &&) noexcept = default ;
-		inline WatcherProxy &operator= (WatcherProxy &&) = delete ;
+		inline WatchProxy (WatchProxy &&) noexcept = default ;
+		inline WatchProxy &operator= (WatchProxy &&) = delete ;
 
 		inline implicit operator UNIT & () const & noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -2510,14 +2510,14 @@ private:
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
 		inline implicit operator _RET () const & {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return _RET (*mPointer) ;
+			return _RET (_XVALUE_<UNIT> (*mPointer)) ;
 		}
 
 		template <class _RET>
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit WatcherProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
+		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
 	} ;
 
 	class Counter :private Wrapped<std::atomic<LENGTH>> {
@@ -2599,12 +2599,12 @@ public:
 		return std::move (ret) ;
 	}
 
-	inline WatcherProxy watch () popping {
+	inline WatchProxy watch () popping {
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		Detail::acquire (r1x ,FALSE) ;
-		return WatcherProxy (r1x) ;
+		return WatchProxy (r1x) ;
 	}
 
 private:
@@ -2633,14 +2633,14 @@ public:
 	template <class... _ARGS>
 	inline static IntrusiveRef make (_ARGS &&...args) {
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
-		auto sgd = GlobalHeap::alloc<TEMP<UNIT>> () ;
-		ScopedHolder<UNIT> ANONYMOUS (sgd ,std::forward<_ARGS> (args)...) ;
-		const auto r1x = &_LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (sgd)) ;
+		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
+		ScopedHolder<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		const auto r1x = &_LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
 		Detail::acquire (r1x ,TRUE) ;
 		const auto r2x = ret.safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
-		sgd = NULL ;
+		rax = NULL ;
 		return std::move (ret) ;
 	}
 
@@ -2936,10 +2936,10 @@ private:
 				return ;
 			const auto r1x = LENGTH (constexpr_powx (VAL64 (1.25) ,_MAX_ (VAR (1) ,(16 - SIZE::value / 8))) + VAL64 (1)) ;
 			const auto r2x = _ALIGNOF_ (CHUNK) + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) + r1x * (_SIZEOF_ (BLOCK) + SIZE::value) ;
-			auto sgd = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = constexpr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (sgd)) ,_ALIGNOF_ (CHUNK)) ;
+			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
+			const auto r3x = constexpr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ,_ALIGNOF_ (CHUNK)) ;
 			const auto r4x = &_LOAD_<CHUNK> (NULL ,r3x) ;
-			r4x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (sgd) ;
+			r4x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r4x->mPrev = NULL ;
 			r4x->mNext = mRoot ;
 			r4x->mCount = r1x ;
@@ -2954,7 +2954,7 @@ private:
 				r7x->mNext = mFree ;
 				mFree = r7x ;
 			}
-			sgd = NULL ;
+			rax = NULL ;
 		}
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
@@ -3054,10 +3054,10 @@ private:
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
 			const auto r1x = _ALIGNOF_ (BLOCK) + _SIZEOF_ (BLOCK) + len ;
-			auto sgd = GlobalHeap::alloc<BYTE> (r1x) ;
-			const auto r2x = constexpr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (sgd)) ,_ALIGNOF_ (BLOCK)) ;
+			auto rax = GlobalHeap::alloc<BYTE> (r1x) ;
+			const auto r2x = constexpr_ceil (_ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ,_ALIGNOF_ (BLOCK)) ;
 			const auto r3x = &_LOAD_<BLOCK> (NULL ,r2x) ;
-			r3x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (sgd) ;
+			r3x->mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r3x->mPrev = NULL ;
 			r3x->mNext = mRoot ;
 			r3x->mCount = len ;
@@ -3065,7 +3065,7 @@ private:
 				mRoot->mPrev = r3x ;
 			mRoot = r3x ;
 			mSize += len ;
-			sgd = NULL ;
+			rax = NULL ;
 			return &r3x->mFlexData ;
 		}
 

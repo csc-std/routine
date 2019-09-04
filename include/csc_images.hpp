@@ -685,7 +685,7 @@ private:
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return _RET (mThis->mHolder.template rebind<_UNIT> ().self) ;
+			return _RET (_XVALUE_<_UNIT> (mThis->mHolder.template rebind<_UNIT> ().self)) ;
 		}
 
 		template <class _RET>

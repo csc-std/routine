@@ -99,7 +99,7 @@ public:
 
 	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const UNIT & ,_RET>::value>>
 	inline implicit operator _RET () const & {
-		return _RET (endian_bitwise_cast ()) ;
+		return _RET (_XVALUE_<const UNIT> (endian_bitwise_cast ())) ;
 	}
 
 	template <class _RET>
