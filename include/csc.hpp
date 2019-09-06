@@ -319,17 +319,9 @@ using std::remove_extent ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#ifdef __CSC_COMPILER_MSVC__
-#define FOR_ONCE_DO_WHILE auto ANONYMOUS : CSC::DEF<CSC::ARGVS<>[1]> {}
-#elif defined __CSC_COMPILER_GNUC__
-#define FOR_ONCE_DO_WHILE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
-#elif defined __CSC_COMPILER_CLANG__
-#define FOR_ONCE_DO_WHILE __attribute__ ((unused)) auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
-#else
-#define FOR_ONCE_DO_WHILE auto &ANONYMOUS : CSC::_NULL_<CSC::DEF<int[1]>> ()
-#endif
+#define FOR_ONCE_DO_WHILE auto ANONYMOUS = TRUE ; ANONYMOUS ; ANONYMOUS = FALSE
 
-#define _CASE_REQUIRE_(...) do {if (!(_UNW_ (__VA_ARGS__))) return (void) (_case_req = FALSE) ; } while (FALSE)
+#define SWITCH_CASE(arg1) (TRUE) for ( ; !arg1 ; arg1 = TRUE)
 
 using BOOL = bool ;
 
@@ -550,15 +542,6 @@ static constexpr auto ARGVP9 = ARGV<ARGVP<9>> {} ;
 
 static constexpr auto ARGVPX = ARGV<VOID> {} ;
 static constexpr auto ARGVPY = ARGV<NONE> {} ;
-
-using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
-using DEFAULT_HUGEBUFFER_SIZE = ARGC<8388608> ;
-using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
-using DEFAULT_RETRYTIMES_SIZE = ARGC<64> ;
-using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
-using DEFAULT_EXPANDGUARD_SIZE = ARGC<65536> ;
 
 template <class ,BOOL...>
 struct SPECIALIZATION ;
@@ -813,25 +796,6 @@ inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&arg1) popping {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return arg1 () ;
-}
-
-template <class _ARG1>
-inline void _CALL_IF_ (_ARG1 &&arg1) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<BOOL &>> ,void>::value) ;
-	auto rax = TRUE ;
-	arg1 (rax) ;
-}
-
-template <class _ARG1 ,class... _ARGS>
-inline void _CALL_IF_ (_ARG1 &&arg1 ,_ARGS &&...args) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<BOOL &>> ,void>::value) ;
-	auto rax = TRUE ;
-	arg1 (rax) ;
-	if (rax)
-		return ;
-	_CALL_IF_ (std::forward<_ARGS> (args)...) ;
 }
 
 //@warn: assure ruined object when an exception was thrown
@@ -1109,19 +1073,23 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	_CALL_IF_ ([&] (BOOL &_case_req) {
-		_CASE_REQUIRE_ (dst != src) ;
+	auto ifa = FALSE ;
+	if SWITCH_CASE (ifa) {
+		if (!BOOL (dst != src))
+			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst[i] = src[len + ~i] ;
-	} ,[&] (BOOL &_case_req) {
-		_CASE_REQUIRE_ (dst == src) ;
+	}
+	if SWITCH_CASE (ifa) {
+		if (!BOOL (dst == src))
+			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
 			dst[len + ~i] = r1x ;
 		}
-	}) ;
+	}
 #pragma GCC diagnostic pop
 }
 
@@ -1150,15 +1118,19 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	}
 	if (dst1 == dst2)
 		return ;
-	_CALL_IF_ ([&] (BOOL &_case_req) {
-		_CASE_REQUIRE_ (dst1 < dst2) ;
+	auto ifa = FALSE ;
+	if SWITCH_CASE (ifa) {
+		if (!BOOL (dst1 < dst2))
+			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
-	} ,[&] (BOOL &_case_req) {
-		_CASE_REQUIRE_ (dst1 > dst2) ;
+	}
+	if SWITCH_CASE (ifa) {
+		if (!BOOL (dst1 > dst2))
+			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
-	}) ;
+	}
 #pragma GCC diagnostic pop
 }
 
@@ -3257,6 +3229,7 @@ public:
 	}
 
 	inline Buffer expand () const {
+		using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
 		const auto r1x = _MAX_ (LENGTH (mSize * MATH_SQRT2) ,(mSize + DEFAULT_EXPANDFIRST_SIZE::value)) ;
 		return expand (r1x) ;
 	}

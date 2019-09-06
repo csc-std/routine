@@ -546,16 +546,20 @@ public:
 	}
 
 	void concatto (const Plain<ITEM> &that) {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mString.size () > 0) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mString.size () > 0))
+				discard ;
 			const auto r1x = length () ;
 			const auto r2x = that.size () ;
-			_CASE_REQUIRE_ (r1x + r2x <= size ()) ;
+			if (!BOOL (r1x + r2x <= size ()))
+				discard ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			*this = concat (that) ;
-		}) ;
+		}
 	}
 
 	inline String &operator+= (const Plain<ITEM> &that) {
@@ -584,8 +588,9 @@ private:
 	class Detail :private Wrapped<void> {
 	public:
 		inline static LENGTH plain_string_length (const ARR<ITEM> &arg1) {
-			LENGTH ret = _MEMCHR_ (arg1 ,DEFAULT_HUGEBUFFER_SIZE::value ,ITEM (0)) ;
-			_DYNAMIC_ASSERT_ (BOOL (ret >= 0 && ret < DEFAULT_HUGEBUFFER_SIZE::value)) ;
+			using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
+			LENGTH ret = _MEMCHR_ (arg1 ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
+			_DYNAMIC_ASSERT_ (BOOL (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value)) ;
 			return std::move (ret) ;
 		}
 	} ;
@@ -890,20 +895,24 @@ private:
 		const auto r1x = _MAX_ (len - (mDeque.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mRead <= mWrite) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mRead <= mWrite))
+				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
 			mDeque.swap (rax) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mRead > mWrite) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mRead > mWrite))
+				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mDeque.size () ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
 			mDeque.swap (rax) ;
 			mRead = ix ;
-		}) ;
+		}
 	}
 
 	void update_resize () {
@@ -2196,19 +2205,25 @@ private:
 	}
 
 	void update_compress_left (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mHead[it][0] == VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mHead[it][0] == VAR_NONE))
+				discard ;
 			sequence_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mHead.size () - 1)) ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			INDEX ix = it + 1 ;
-			_CASE_REQUIRE_ (ix < mHead.size ()) ;
-			_CASE_REQUIRE_ (mHead[ix][0] == VAR_NONE) ;
+			if (!BOOL (ix < mHead.size ()))
+				discard ;
+			if (!BOOL (mHead[ix][0] == VAR_NONE))
+				discard ;
 			sequence_rewrite (ix ,jt) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			update_compress_left_force (it ,jt) ;
-		}) ;
+		}
 	}
 
 	void update_compress_left_force (INDEX it ,INDEX jt) {
@@ -2218,23 +2233,31 @@ private:
 			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
 				mRead++ ;
 			const auto r1x = mHead[i][0] ;
-			_CALL_IF_ ([&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mRead == ix) ;
-				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mRead == ix))
+					discard ;
+				if (!BOOL (r1x == VAR_NONE))
+					discard ;
 				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mRead == ix) ;
-				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mRead == ix))
+					discard ;
+				if (!BOOL (r1x != VAR_NONE))
+					discard ;
 				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
-			} ,[&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mRead != i) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mRead != i))
+					discard ;
 				sequence_rewrite (i ,mHead[mRead][0]) ;
 				sequence_remove (mRead) ;
-			}) ;
+			}
 			mRead++ ;
 		}
 		mRead = 0 ;
@@ -2242,19 +2265,25 @@ private:
 	}
 
 	void update_compress_right (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mHead[it][0] == VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mHead[it][0] == VAR_NONE))
+				discard ;
 			sequence_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			INDEX ix = it - 1 ;
-			_CASE_REQUIRE_ (ix >= 0) ;
-			_CASE_REQUIRE_ (mHead[ix][0] == VAR_NONE) ;
+			if (!BOOL (ix >= 0))
+				discard ;
+			if (!BOOL (mHead[ix][0] == VAR_NONE))
+				discard ;
 			sequence_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			update_compress_right_force (it ,jt) ;
-		}) ;
+		}
 	}
 
 	void update_compress_right_force (INDEX it ,INDEX jt) {
@@ -2265,23 +2294,31 @@ private:
 			while (mWrite != ix && mHead[mWrite][0] == VAR_NONE)
 				mWrite-- ;
 			const auto r1x = mHead[jx][0] ;
-			_CALL_IF_ ([&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mWrite == ix) ;
-				_CASE_REQUIRE_ (r1x == VAR_NONE) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mWrite == ix))
+					discard ;
+				if (!BOOL (r1x == VAR_NONE))
+					discard ;
 				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
-			} ,[&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mWrite == ix) ;
-				_CASE_REQUIRE_ (r1x != VAR_NONE) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mWrite == ix))
+					discard ;
+				if (!BOOL (r1x != VAR_NONE))
+					discard ;
 				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
-			} ,[&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mWrite != jx) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mWrite != jx))
+					discard ;
 				sequence_rewrite (jx ,mHead[mWrite][0]) ;
 				sequence_remove (mWrite) ;
-			}) ;
+			}
 			mWrite-- ;
 		}
 		mRead = _MAX_ (mHead.size () - 1 - mList.length () ,VAR_ZERO) ;
@@ -3206,11 +3243,15 @@ public:
 
 private:
 	void update_emplace (INDEX it ,INDEX jt) {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it == VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it == VAR_NONE))
+				discard ;
 			mTop = jt ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it != VAR_NONE) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it != VAR_NONE))
+				discard ;
 			mSet[jt].mUp = it ;
 			auto &r1 = _SWITCH_ (
 				(mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) :
@@ -3218,7 +3259,7 @@ private:
 			update_emplace (r1 ,jt) ;
 			r1 = mTop ;
 			mTop = it ;
-		}) ;
+		}
 	}
 
 	void update_insert (INDEX it) {
@@ -3241,15 +3282,20 @@ private:
 	void update_insert_left (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mSet[iy].mRight != VAR_NONE) ;
-			_CASE_REQUIRE_ (mSet[mSet[iy].mRight].mRed) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mSet[iy].mRight != VAR_NONE))
+				discard ;
+			if (!BOOL (mSet[mSet[iy].mRight].mRed))
+				discard ;
 			mSet[mSet[iy].mRight].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it == mSet[ix].mRight) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it == mSet[ix].mRight))
+				discard ;
 			auto &r1 = mSet[iy].mLeft ;
 			rotate_left (r1) ;
 			r1 = mTop ;
@@ -3259,29 +3305,36 @@ private:
 			rotate_right (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it == mSet[ix].mLeft) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it == mSet[ix].mLeft))
+				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = it ;
-		}) ;
+		}
 	}
 
 	void update_insert_right (INDEX it) {
 		INDEX ix = mSet[it].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mSet[iy].mLeft != VAR_NONE) ;
-			_CASE_REQUIRE_ (mSet[mSet[iy].mLeft].mRed) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mSet[iy].mLeft != VAR_NONE))
+				discard ;
+			if (!BOOL (mSet[mSet[iy].mLeft].mRed))
+				discard ;
 			mSet[mSet[iy].mLeft].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it == mSet[ix].mLeft) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it == mSet[ix].mLeft))
+				discard ;
 			auto &r1 = mSet[iy].mRight ;
 			rotate_right (r1) ;
 			r1 = mTop ;
@@ -3291,15 +3344,17 @@ private:
 			rotate_left (r2) ;
 			r2 = mTop ;
 			mTop = ix ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (it == mSet[ix].mRight) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (it == mSet[ix].mRight))
+				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = it ;
-		}) ;
+		}
 	}
 
 	void update_remove (INDEX it ,INDEX jt) {
@@ -3335,13 +3390,18 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r1x) ;
-			_CASE_REQUIRE_ (!r2x) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (!r1x))
+				discard ;
+			if (!BOOL (!r2x))
+				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r2x) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (!r2x))
+				discard ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_right (r1) ;
@@ -3353,7 +3413,8 @@ private:
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3361,7 +3422,7 @@ private:
 			rotate_left (r4) ;
 			r4 = mTop ;
 			mTop = mRoot ;
-		}) ;
+		}
 	}
 
 	void update_remove_right (INDEX it ,INDEX jt) {
@@ -3377,13 +3438,18 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r1x) ;
-			_CASE_REQUIRE_ (!r2x) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (!r1x))
+				discard ;
+			if (!BOOL (!r2x))
+				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!r2x) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (!r2x))
+				discard ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
 			rotate_left (r1) ;
@@ -3395,7 +3461,8 @@ private:
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			mSet[r1].mRed = mSet[jt].mRed ;
 			mSet[jt].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3403,7 +3470,7 @@ private:
 			rotate_right (r4) ;
 			r4 = mTop ;
 			mTop = mRoot ;
-		}) ;
+		}
 	}
 
 	void rotate_left (INDEX it) {
@@ -4525,10 +4592,13 @@ public:
 private:
 	void update_insert (INDEX it) {
 		INDEX ix = it ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (ix == VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (ix == VAR_NONE))
+				discard ;
 			mTop = mLast ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
 			auto &r2 = _SWITCH_ (
@@ -4542,7 +4612,7 @@ private:
 			(this->*r2x) (ix) ;
 			ix = mTop ;
 			mTop = ix ;
-		}) ;
+		}
 	}
 
 	void update_insert_left (INDEX it) {

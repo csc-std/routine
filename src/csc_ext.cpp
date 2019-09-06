@@ -140,10 +140,10 @@ public:
 
 #ifdef __CSC_TARGET_EXE__
 	TEST_METHOD (TEST_CSC_EXT_GLOBALSTATIC) {
-		using UUID1 = ARGC<1> ;
-		using UUID2 = ARGC<2> ;
-		using UUID3 = ARGC<3> ;
-		using UUID4 = ARGC<4> ;
+		using UUID1 = ARGC<+1> ;
+		using UUID2 = ARGC<+2> ;
+		using UUID3 = ARGC<+3> ;
+		using UUID4 = ARGC<+4> ;
 		GlobalStatic<UUID1>::save (1) ;
 		GlobalStatic<UUID2>::save (2) ;
 		const auto r1x = GlobalStatic<UUID2>::load () ;

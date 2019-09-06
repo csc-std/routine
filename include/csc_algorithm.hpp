@@ -938,17 +938,20 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				}
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
-			_CALL_IF_ ([&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (mDXLoss[0] >= mDXLoss[2]) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (mDXLoss[0] >= mDXLoss[2]))
+					discard ;
 				const auto r2x = _SWITCH_ (
 					(mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) :
 					(mDXLoss[1])) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
-			} ,[&] (BOOL &_case_req) {
+			}
+			if SWITCH_CASE (ifa) {
 				mIG.fill (REAL (0)) ;
-			}) ;
+			}
 		}
 
 		inline REAL math_matrix_mul (const Bitmap<REAL> &mat ,INDEX y ,const Array<REAL> &v) const {
@@ -1082,8 +1085,10 @@ private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
 	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mKDTree[it].mLeaf != VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mKDTree[it].mLeaf != VAR_NONE))
+				discard ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mKDTree[it].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
@@ -1091,8 +1096,10 @@ private:
 					discard ;
 				out.add (ix) ;
 			}
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mKDTree[it].mLeaf == VAR_NONE) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mKDTree[it].mLeaf == VAR_NONE))
+				discard ;
 			const auto r3x = mKDTree[it].mKey ;
 			for (FOR_ONCE_DO_WHILE) {
 				if (r3x < bound[rot][0])
@@ -1110,7 +1117,7 @@ private:
 				compute_search_range (point ,sqe_range ,mKDTree[it].mRight ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][0] = r5x ;
 			}
-		}) ;
+		}
 	}
 
 	Deque<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
@@ -1124,8 +1131,10 @@ private:
 	}
 
 	void compute_search_range (const ARRAY3<REAL> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mKDTree[it].mLeaf != VAR_NONE) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mKDTree[it].mLeaf != VAR_NONE))
+				discard ;
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = mKDTree[it].mLeaf ;
 				const auto r1x = Vector<REAL> {mVertex[ix] ,REAL (0)} ;
@@ -1146,14 +1155,16 @@ private:
 				out[jx].P1 = ix ;
 				out[jx].P2 = r3x ;
 			}
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mKDTree[it].mLeaf == VAR_NONE) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mKDTree[it].mLeaf == VAR_NONE))
+				discard ;
 			const auto r4x = mKDTree[it].mKey ;
 			if (r4x >= point[rot] - out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[it].mLeft ,mNextRot[rot] ,out) ;
 			if (r4x <= point[rot] + out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[it].mRight ,mNextRot[rot] ,out) ;
-		}) ;
+		}
 	}
 } ;
 
@@ -1227,12 +1238,16 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= mVertex.size () - seg_len)) ;
-			_CALL_IF_ ([&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (seg_len == 1) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (seg_len == 1))
+					discard ;
 				INDEX jx = mKDTree.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
-			} ,[&] (BOOL &_case_req) {
-				_CASE_REQUIRE_ (seg_len > 1) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (seg_len > 1))
+					discard ;
 				INDEX ix = seg + seg_len / 2 ;
 				for (INDEX i = seg ,ie = seg + seg_len - 1 ; i < ie ; i++)
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
@@ -1244,7 +1259,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 				update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;
 				mKDTree[jx].mRight = mLatestIndex ;
 				mLatestIndex = it ;
-			}) ;
+			}
 		}
 
 		void compute_order (Array<INDEX> &tmp_order ,ARRAY3<Array<INDEX>> &order ,INDEX rot ,INDEX n_rot ,INDEX seg_a ,INDEX seg_b ,LENGTH seg_len) const {

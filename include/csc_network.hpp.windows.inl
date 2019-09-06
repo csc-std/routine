@@ -195,6 +195,7 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data) popping {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -232,6 +233,7 @@ public:
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::send (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -251,6 +253,7 @@ public:
 
 private:
 	void link_confirm () {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mThis->mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,&r1x[1]) != 0) ;
@@ -314,6 +317,7 @@ public:
 	}
 
 	void wait_linker () {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mListener ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mListener ,&r1x[0]) != 0) ;
@@ -392,6 +396,7 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data) popping {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;
@@ -421,6 +426,7 @@ public:
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[1]) != 0) ;
@@ -458,11 +464,51 @@ inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis.rebind<Implement> ()->write (data) ;
 }
 
+inline namespace S {
+inline String<STRU8> _HTTP_GET_ (const String<STRU8> &addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH max_len) popping {
+	using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+	String<STRU8> ret = String<STRU8> (max_len) ;
+	INDEX iw = 0 ;
+	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
+	rax.link (addr) ;
+	const auto r1x = _XVALUE_<PTR<void (TextWriter<STRU8> &)>> (_GAP_) ;
+	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("GET ") ,site ,_PCSTRU8_ ("?") ,msg ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,r1x) ;
+	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
+	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
+	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
+	if (iw < ret.size ())
+		ret[iw] = 0 ;
+	return std::move (ret) ;
+}
+
+inline String<STRU8> _HTTP_POST_ (const String<STRU8> &addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH max_len) popping {
+	using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+	String<STRU8> ret = String<STRU8> (max_len) ;
+	INDEX iw = 0 ;
+	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
+	rax.link (addr) ;
+	const auto r1x = _XVALUE_<PTR<void (TextWriter<STRU8> &)>> (_GAP_) ;
+	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("POST ") ,site ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,_PCSTRU8_ ("Content-Length: ") ,msg.length () ,r1x ,r1x ,msg) ;
+	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
+	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
+	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
+	if (iw < ret.size ())
+		ret[iw] = 0 ;
+	return std::move (ret) ;
+}
+} ;
+
 class NetworkService::Implement :public NetworkService::Abstract {
 private:
 	UniqueRef<void> mService ;
+	LENGTH mCurrentTimeout ;
 
 public:
+	Implement () {
+		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+		mCurrentTimeout = DEFAULT_TIMEOUT_SIZE::value ;
+	}
+
 	void startup () override {
 		if (mService.exist ())
 			return ;
@@ -489,6 +535,15 @@ public:
 
 	String<STRU8> host_addr () const override {
 		return String<STRU8> (_PCSTRU8_ ("127.0.0.1")) ;
+	}
+
+	LENGTH get_timeout () const override {
+		return mCurrentTimeout ;
+	}
+
+	void set_timeout (LENGTH timeout) override {
+		_DEBUG_ASSERT_ (timeout > 0) ;
+		mCurrentTimeout = timeout ;
 	}
 } ;
 

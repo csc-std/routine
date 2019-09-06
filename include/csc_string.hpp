@@ -795,6 +795,7 @@ inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 template <class ITEM ,class SIZE>
 template <class... _ARGS>
 inline String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...args) {
+	using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
 	String<ITEM> ret = String<ITEM> (DEFAULT_LONGSTRING_SIZE::value) ;
 	auto wos = TextWriter<ITEM> (ret.raw ()) ;

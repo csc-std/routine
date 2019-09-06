@@ -42,6 +42,7 @@ class ConsoleService::Implement :public ConsoleService::Abstract {
 private:
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
+	LENGTH mBufferSize ;
 	FLAG mOptionFlag ;
 	String<STR> mLogPath ;
 	AutoRef<StreamLoader> mLogFileStream ;
@@ -50,11 +51,17 @@ private:
 
 public:
 	Implement () {
-		const auto r1x = _COPY_ (DEFAULT_HUGEBUFFER_SIZE::value) ;
+		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
+		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
+		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
 		modify_option (OPTION_DEFAULT) ;
 		mLogPath = String<STR> () ;
+	}
+
+	LENGTH buffer_size () const override {
+		return mBufferSize ;
 	}
 
 	void modify_option (FLAG option) override {

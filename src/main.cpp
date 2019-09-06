@@ -15,10 +15,6 @@ static const CSC::UniqueRef<void> ANONYMOUS ([] () {
 	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("static destructor for main.cpp")) ;
 }) ;
 
-namespace UNITTEST {
-
-} ;
-
 TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {

@@ -22,7 +22,7 @@ public:
 
 	TEST_METHOD (TEST_CSC_STREAM_BYTEWRITER) {
 		auto rax = Buffer<int ,ARGC<4>> () ;
-		auto wos = ByteWriter (SharedRef<FixedBuffer<CSC::BYTE>>::make (DEFAULT_SHORTSTRING_SIZE::value)) ;
+		auto wos = ByteWriter (SharedRef<FixedBuffer<CSC::BYTE>>::make (1024)) ;
 		wos << rax ;
 	}
 
@@ -56,7 +56,7 @@ public:
 
 	TEST_METHOD (TEST_CSC_STREAM_TEXTWRITER) {
 		auto rax = Buffer<int ,ARGC<4>> () ;
-		auto wos = TextWriter<STRU8> (SharedRef<FixedBuffer<STRU8>>::make (DEFAULT_SHORTSTRING_SIZE::value)) ;
+		auto wos = TextWriter<STRU8> (SharedRef<FixedBuffer<STRU8>>::make (1024)) ;
 		wos << rax ;
 	}
 } ;

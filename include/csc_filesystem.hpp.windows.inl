@@ -174,6 +174,7 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 }
 
 inline exports String<STR> _PARSEFILEPATH_ (const String<STR> &file) {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
@@ -185,6 +186,7 @@ inline exports String<STR> _PARSEFILEPATH_ (const String<STR> &file) {
 }
 
 inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
@@ -203,7 +205,7 @@ inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
 	auto rax = STR () ;
-	Deque<String<STR>> ret = Deque<String<STR>> (DEFAULT_RECURSIVE_SIZE::value) ;
+	Deque<String<STR>> ret ;
 	INDEX ix = ret.insert () ;
 	ris.copy () >> rax ;
 	if (ris.attr ().varify_space (rax))
@@ -224,6 +226,7 @@ inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 }
 
 inline exports String<STR> _WORKINGPATH_ () {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	GetCurrentDirectory (VARY (ret.size ()) ,ret.raw ().self) ;
 	ret += _PCSTR_ ("\\") ;
@@ -236,34 +239,44 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (!ret.empty ()) ;
-			_CASE_REQUIRE_ (path_name[ix] == _PCSTR_ ("..")) ;
-			_CASE_REQUIRE_ (path_name[ret[ret.tail ()]] != _PCSTR_ ("..")) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (!ret.empty ()))
+				discard ;
+			if (!BOOL (path_name[ix] == _PCSTR_ ("..")))
+				discard ;
+			if (!BOOL (path_name[ret[ret.tail ()]] != _PCSTR_ ("..")))
+				discard ;
 			ret.pop () ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.add (ix) ;
-		}) ;
+		}
 	}
 	return std::move (ret) ;
 }
 
 inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = _DECOUPLEPATHNAME_ (path) ;
 	const auto r2x = _inline_RELATIVEPATHNAME_ (r1x) ;
-	_CALL_IF_ ([&] (BOOL &_case_req) {
+	auto ifa = FALSE ;
+	if SWITCH_CASE (ifa) {
 		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		_CASE_REQUIRE_ (BOOL (r4x || r5x)) ;
+		if (!BOOL (BOOL (r4x || r5x)))
+			discard ;
 		ret += _PCSTR_ ("\\") ;
-	} ,[&] (BOOL &_case_req) {
+	}
+	if SWITCH_CASE (ifa) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		_CASE_REQUIRE_ (BOOL (r6x || r7x)) ;
+		if (!BOOL (BOOL (r6x || r7x)))
+			discard ;
 		//@debug: not absolute path really
 		ret += _WORKINGPATH_ () ;
-	}) ;
+	}
 	for (INDEX i = 0 ; i < r2x.length () ; i++) {
 		if (i > 0)
 			ret += _PCSTR_ ("\\") ;
@@ -284,6 +297,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 }
 
 inline exports const String<STR> &_MODULEFILEPATH_ () popping {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([] () {
 		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
@@ -294,6 +308,7 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 }
 
 inline exports const String<STR> &_MODULEFILENAME_ () popping {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([] () {
 		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
@@ -312,6 +327,7 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 }
 
 inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	if (_FINDDIRECTORY_ (dire))
 		return ;
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
@@ -342,6 +358,7 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<void (const String<STR> &)> &file_proc ,const Function<void (const String<STR> &)> &dire_proc) popping {
+	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	rax += dire ;
 	rax += _PCSTR_ ("\\") ;
@@ -385,6 +402,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 }
 
 inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
+	using DEFAULT_EXPANDLIMIT_SIZE = ARGC<65536> ;
 	auto rax = Deque<PACK<String<STR> ,BOOL>> () ;
 	const auto r1x = Function<void (const String<STR> &)> ([&] (const String<STR> &_file) {
 		_ERASEFILE_ (_file) ;
@@ -393,7 +411,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 		for (FOR_ONCE_DO_WHILE) {
 			if (!rax.full ())
 				discard ;
-			_DYNAMIC_ASSERT_ (rax.size () < DEFAULT_EXPANDGUARD_SIZE::value) ;
+			_DYNAMIC_ASSERT_ (rax.size () < DEFAULT_EXPANDLIMIT_SIZE::value) ;
 		}
 		rax.add (PACK<String<STR> ,BOOL> {_dire ,FALSE}) ;
 	}) ;
@@ -403,13 +421,16 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			break ;
 		INDEX ix = rax.tail () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (rax[ix].P2) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax[ix].P2))
+				discard ;
 			rax.pop () ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,r1x ,r2x) ;
 			rax[ix].P2 = TRUE ;
-		}) ;
+		}
 	}
 }
 } ;

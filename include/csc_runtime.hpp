@@ -21,7 +21,7 @@ private:
 		VAR mData ;
 	} ;
 
-	using GUID_TYPE = PACK<BYTE[DEFAULT_RECURSIVE_SIZE::value]> ;
+	using GUID_TYPE = PACK<BYTE[256]> ;
 
 	struct CLASS_NODE {
 		GUID_TYPE mGUID ;
@@ -279,12 +279,11 @@ private:
 			DEF<BYTE[_SIZEOF_ (GUID_TYPE)]> ret ;
 			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
-			const auto r1x = typeid (UNIT).name () ;
-			auto &r1 = _LOAD_<ARR<BYTE>> (&PTRTOARR[r1x]) ;
-			const auto r2x = _MEMCHR_ (r1 ,DEFAULT_HUGEBUFFER_SIZE::value ,BYTE (0X00)) ;
-			_DEBUG_ASSERT_ (BOOL (r2x > 0 && r2x < _SIZEOF_ (GUID_TYPE))) ;
-			const auto r3x = _MIN_ (r2x ,_SIZEOF_ (GUID_TYPE)) ;
-			_MEMCOPY_ (PTRTOARR[ret] ,r1 ,r3x) ;
+			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
+			auto &r1 = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
+			_DEBUG_ASSERT_ (BOOL (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE))) ;
+			const auto r2x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,r1 ,r2x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;

@@ -200,7 +200,7 @@ inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 	} catch (const Exception &e) {
 		arg2 (e) ;
 	} catch (const std::exception &) {
-		arg2 (Exception (_PCSTR_ ("std::exception"))) ;
+		arg2 (Exception (_PCSTR_ ("std::exception : null"))) ;
 	} catch (...) {
 		arg2 (Exception (_PCSTR_ ("unknown C++ exception"))) ;
 	}
@@ -403,11 +403,16 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (that.v4i0 == 0) ;
-			_CASE_REQUIRE_ (that.v4i1 == 0) ;
-			_CASE_REQUIRE_ (that.v4i2 == 0) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (that.v4i0 == 0))
+				discard ;
+			if (!BOOL (that.v4i1 == 0))
+				discard ;
+			if (!BOOL (that.v4i2 == 0))
+				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (that.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -419,31 +424,49 @@ public:
 			ret.v4i2 = CHAR (rax / r3x) ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x >= 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (v2i1 == 0))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			ret = -(-(*this + that) / that + 1) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (v2i1 == 0))
+				discard ;
+			if (!BOOL (r2x < 0))
+				discard ;
 			ret = -(-(*this - that) / that - 1) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x < 0))
+				discard ;
 			ret = -(-*this / that) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (that.v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (that.v2i1 == 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (that.v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (that.v2i1 == 0))
+				discard ;
 			ret = VAR128 (0) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (r2x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (r2x < 0))
+				discard ;
 			ret = *this / -that ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			ret = Detail::slow_divide (*this ,that) ;
-		}) ;
+		}
 		return std::move (ret) ;
 	}
 
@@ -456,11 +479,16 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (that.v4i0 == 0) ;
-			_CASE_REQUIRE_ (that.v4i1 == 0) ;
-			_CASE_REQUIRE_ (that.v4i2 == 0) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (that.v4i0 == 0))
+				discard ;
+			if (!BOOL (that.v4i1 == 0))
+				discard ;
+			if (!BOOL (that.v4i2 == 0))
+				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (that.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
@@ -472,31 +500,49 @@ public:
 			ret.v4i2 = 0 ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x >= 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (v2i1 == 0))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			ret = -(-(*this + that) % that) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (v2i1 == 0) ;
-			_CASE_REQUIRE_ (r2x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (v2i1 == 0))
+				discard ;
+			if (!BOOL (r2x < 0))
+				discard ;
 			ret = -(-(*this - that) % that) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x < 0))
+				discard ;
 			ret = -(-*this % that) ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (that.v2i0 == DATA (VAR64_MIN)) ;
-			_CASE_REQUIRE_ (that.v2i1 == 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (that.v2i0 == DATA (VAR64_MIN)))
+				discard ;
+			if (!BOOL (that.v2i1 == 0))
+				discard ;
 			ret = *this ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (r1x >= 0) ;
-			_CASE_REQUIRE_ (r2x < 0) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (r1x >= 0))
+				discard ;
+			if (!BOOL (r2x < 0))
+				discard ;
 			ret = *this % -that ;
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			ret = that - Detail::slow_divide (*this ,that) * that ;
-		}) ;
+		}
 		return std::move (ret) ;
 	}
 
@@ -1917,17 +1963,21 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
 		ScopedHolder<Node> ANONYMOUS (rax) ;
 		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mRoot == NULL) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mRoot == NULL))
+				discard ;
 			r1x->mPrev = r1x ;
 			r1x->mNext = r1x ;
-		} ,[&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mRoot != NULL) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mRoot != NULL))
+				discard ;
 			r1x->mPrev = mRoot->mPrev ;
 			r1x->mNext = mRoot ;
 			mRoot->mPrev->mNext = r1x ;
 			mRoot->mPrev = r1x ;
-		}) ;
+		}
 		mRoot = r1x ;
 		rax = NULL ;
 	}
@@ -2630,6 +2680,7 @@ private:
 	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mLatch (0) {}
 
 	inline PTR<UNIT> safe_exchange (PTR<UNIT> address) noexcept popping {
+		using DEFAULT_RETRYTIMES_SIZE = ARGC<64> ;
 		PTR<UNIT> ret = mPointer.exchange (address) ;
 		for (FOR_ONCE_DO_WHILE) {
 			if (ret == NULL)

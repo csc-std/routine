@@ -61,6 +61,7 @@ class ConsoleService::Implement :public ConsoleService::Abstract {
 private:
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
+	LENGTH mBufferSize ;
 	FLAG mOptionFlag ;
 	UniqueRef<HANDLE> mConsole ;
 	String<STR> mLogPath ;
@@ -70,12 +71,19 @@ private:
 
 public:
 	Implement () {
-		const auto r1x = _COPY_ (DEFAULT_HUGEBUFFER_SIZE::value) ;
+		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
+		using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
+		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
+		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
 		attach_console () ;
 		modify_option (OPTION_DEFAULT) ;
 		mLogPath = String<STR> () ;
+	}
+
+	LENGTH buffer_size () const override {
+		return mBufferSize ;
 	}
 
 	void modify_option (FLAG option) override {
@@ -377,6 +385,7 @@ public:
 	}
 
 	Array<DATA> captrue_stack_trace () popping override {
+		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
 		Array<DATA> ret = Array<DATA> (r1x) ;
@@ -386,11 +395,14 @@ public:
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping override {
+		using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		_CALL_IF_ ([&] (BOOL &_case_req) {
-			_CASE_REQUIRE_ (mSymbolFromAddress.exist ()) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (mSymbolFromAddress.exist ()))
+				discard ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r4x = &_LOAD_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
@@ -402,10 +414,11 @@ public:
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x->Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
-		} ,[&] (BOOL &_case_req) {
+		}
+		if SWITCH_CASE (ifa) {
 			for (auto &&i : address)
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
-		}) ;
+		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;
 	}

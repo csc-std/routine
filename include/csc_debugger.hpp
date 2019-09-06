@@ -349,6 +349,7 @@ private:
 	} ;
 
 	exports struct Abstract :public Interface {
+		virtual LENGTH buffer_size () const = 0 ;
 		virtual void modify_option (FLAG option) = 0 ;
 		virtual void print (const Binder &msg) = 0 ;
 		virtual void fatal (const Binder &msg) = 0 ;
@@ -373,6 +374,11 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	LENGTH buffer_size () const {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		return mThis->buffer_size () ;
+	}
+
 	void modify_option (FLAG option) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->modify_option (option) ;

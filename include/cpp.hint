@@ -27,9 +27,7 @@
 
 #define FOR_ONCE_DO_WHILE
 
-#define NOTEXPR
-
-#define _CASE_REQUIRE_
+#define SWITCH_CASE
 
 #define FALSE
 #define TRUE
