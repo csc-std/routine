@@ -110,7 +110,7 @@ private:
 		TEMP<UNIT> ret ;
 		_ZERO_ (ret) ;
 		for (INDEX i = 0 ; i < size () ; i++)
-			ret.unused[i] = (*this)[i] ;
+			ret.unused[i] = ((*this))[i] ;
 		return std::move (_CAST_<UNIT> (ret)) ;
 	}
 } ;
@@ -216,7 +216,7 @@ public:
 
 	inline ByteReader &operator>> (BYTE &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (WORD &data) popping {
@@ -228,7 +228,7 @@ public:
 
 	inline ByteReader &operator>> (WORD &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (CHAR &data) popping {
@@ -240,7 +240,7 @@ public:
 
 	inline ByteReader &operator>> (CHAR &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (DATA &data) popping {
@@ -252,7 +252,7 @@ public:
 
 	inline ByteReader &operator>> (DATA &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (BOOL &data) popping {
@@ -263,7 +263,7 @@ public:
 
 	inline ByteReader &operator>> (BOOL &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAR32 &data) popping {
@@ -274,7 +274,7 @@ public:
 
 	inline ByteReader &operator>> (VAR32 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAR64 &data) popping {
@@ -285,7 +285,7 @@ public:
 
 	inline ByteReader &operator>> (VAR64 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAL32 &data) popping {
@@ -296,7 +296,7 @@ public:
 
 	inline ByteReader &operator>> (VAL32 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAL64 &data) popping {
@@ -307,7 +307,7 @@ public:
 
 	inline ByteReader &operator>> (VAL64 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -323,7 +323,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (Array<_ARG1 ,_ARG2> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -338,7 +338,7 @@ public:
 	template <class _ARG1>
 	inline ByteReader &operator>> (const Plain<_ARG1> &data) {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -356,7 +356,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (String<_ARG1 ,_ARG2> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -368,28 +368,28 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
 	void read (_ARG1 &data) popping {
-		data.friend_read (*this) ;
+		data.friend_read ((*this)) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
 	inline ByteReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (const PTR<void (ByteReader &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc (*this) ;
+		proc ((*this)) ;
 	}
 
 	inline ByteReader &operator>> (const PTR<void (ByteReader &)> &proc) {
 		read (proc) ;
-		return *this ;
+		return (*this) ;
 	}
 } ;
 
@@ -488,7 +488,7 @@ public:
 
 	inline ByteWriter &operator<< (const BYTE &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const WORD &data) {
@@ -499,7 +499,7 @@ public:
 
 	inline ByteWriter &operator<< (const WORD &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const CHAR &data) {
@@ -510,7 +510,7 @@ public:
 
 	inline ByteWriter &operator<< (const CHAR &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const DATA &data) {
@@ -521,7 +521,7 @@ public:
 
 	inline ByteWriter &operator<< (const DATA &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const BOOL &data) {
@@ -531,7 +531,7 @@ public:
 
 	inline ByteWriter &operator<< (const BOOL &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const PTR<const VOID> &) = delete ;
@@ -545,7 +545,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAR32 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAR64 &data) {
@@ -555,7 +555,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAR64 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAL32 &data) {
@@ -565,7 +565,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAL32 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAL64 &data) {
@@ -575,7 +575,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAL64 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -590,7 +590,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const Array<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -602,7 +602,7 @@ public:
 	template <class _ARG1>
 	inline ByteWriter &operator<< (const Plain<_ARG1> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -618,7 +618,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const String<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -630,28 +630,28 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const Buffer<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
-		data.friend_write (*this) ;
+		data.friend_write ((*this)) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	inline ByteWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const PTR<void (ByteWriter &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc (*this) ;
+		proc ((*this)) ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<void (ByteWriter &)> &proc) {
 		write (proc) ;
-		return *this ;
+		return (*this) ;
 	}
 } ;
 
@@ -864,7 +864,7 @@ public:
 
 	inline TextReader &operator>> (REAL &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (BOOL &data) popping {
@@ -920,13 +920,14 @@ public:
 			data = FALSE ;
 		}
 		if SWITCH_CASE (ifa) {
+			_STATIC_WARNING_ ("dead") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	}
 
 	inline TextReader &operator>> (BOOL &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAR32 &data) popping {
@@ -937,7 +938,7 @@ public:
 
 	inline TextReader &operator>> (VAR32 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAR64 &data) popping {
@@ -949,14 +950,14 @@ public:
 				discard ;
 			read (rax) ;
 		}
-		compute_read_number (data ,*this ,rax) ;
+		compute_read_number (data ,(*this) ,rax) ;
 		if (r1x)
 			data = -data ;
 	}
 
 	inline TextReader &operator>> (VAR64 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAL32 &data) popping {
@@ -973,7 +974,7 @@ public:
 
 	inline TextReader &operator>> (VAL32 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (VAL64 &data) popping {
@@ -1026,9 +1027,10 @@ public:
 			const auto r2x = attr ().varify_number_item (rax) ;
 			if (!BOOL (r2x))
 				discard ;
-			compute_read_number (data ,*this ,rax) ;
+			compute_read_number (data ,(*this) ,rax) ;
 		}
 		if SWITCH_CASE (ifa) {
+			_STATIC_WARNING_ ("dead") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 		if (r1x)
@@ -1037,18 +1039,19 @@ public:
 
 	inline TextReader &operator>> (VAL64 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Array<_ARG1 ,_ARG2> &data) popping {
+		_STATIC_WARNING_ ("dead") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline TextReader &operator>> (Array<_ARG1 ,_ARG2> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (const Plain<REAL> &data) {
@@ -1061,7 +1064,7 @@ public:
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -1078,7 +1081,7 @@ public:
 	template <class _ARG1>
 	inline TextReader &operator>> (String<REAL ,_ARG1> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1090,28 +1093,28 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
 	void read (_ARG1 &data) popping {
-		data.friend_read (*this) ;
+		data.friend_read ((*this)) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
 	inline TextReader &operator>> (_ARG1 &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (const PTR<void (TextReader &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc (*this) ;
+		proc ((*this)) ;
 	}
 
 	inline TextReader &operator>> (const PTR<void (TextReader &)> &proc) {
 		read (proc) ;
-		return *this ;
+		return (*this) ;
 	}
 
 private:
@@ -1414,7 +1417,7 @@ public:
 
 	inline TextWriter &operator<< (const REAL &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const BOOL &data) {
@@ -1430,7 +1433,7 @@ public:
 
 	inline TextWriter &operator<< (const BOOL &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const PTR<const VOID> &) = delete ;
@@ -1443,7 +1446,7 @@ public:
 
 	inline TextWriter &operator<< (const VAR32 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAR64 &data) {
@@ -1455,7 +1458,7 @@ public:
 
 	inline TextWriter &operator<< (const VAR64 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAL32 &data) {
@@ -1496,7 +1499,7 @@ public:
 
 	inline TextWriter &operator<< (const VAL32 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const VAL64 &data) {
@@ -1537,18 +1540,19 @@ public:
 
 	inline TextWriter &operator<< (const VAL64 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const Array<_ARG1 ,_ARG2> &data) {
+		_STATIC_WARNING_ ("dead") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline TextWriter &operator<< (const Array<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const Plain<REAL> &data) {
@@ -1558,7 +1562,7 @@ public:
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -1572,7 +1576,7 @@ public:
 	template <class _ARG1>
 	inline TextWriter &operator<< (const String<REAL ,_ARG1> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1584,28 +1588,28 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextWriter &operator<< (const Buffer<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
-		data.friend_write (*this) ;
+		data.friend_write ((*this)) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	inline TextWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void write (const PTR<void (TextWriter &)> &proc) {
 		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc (*this) ;
+		proc ((*this)) ;
 	}
 
 	inline TextWriter &operator<< (const PTR<void (TextWriter &)> &proc) {
 		write (proc) ;
-		return *this ;
+		return (*this) ;
 	}
 
 private:
@@ -2117,7 +2121,7 @@ public:
 
 	inline LLTextReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (const ARGV<LLTextReader<void>::HINT_IDENTIFY_TEXT_TYPE> &) {
@@ -2180,7 +2184,7 @@ public:
 	template <class _ARG1>
 	inline LLTextReader &operator>> (const ARGV<_ARG1> &) {
 		read (_NULL_<ARGV<_ARG1>> ()) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void read (String<STRU8> &data) popping {
@@ -2224,7 +2228,7 @@ public:
 
 	inline LLTextReader &operator>> (String<STRU8> &data) popping {
 		read (data) ;
-		return *this ;
+		return (*this) ;
 	}
 
 private:

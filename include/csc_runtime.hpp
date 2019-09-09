@@ -373,7 +373,7 @@ public:
 			if (mCoStatus.self == STATUS_STOPPED)
 				return ;
 			mCoStatus.self = STATUS_RUNNING ;
-			mSubProc[r1x] (_CAST_<SubRef> (*this)) ;
+			mSubProc[r1x] (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;

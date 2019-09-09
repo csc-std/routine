@@ -532,17 +532,17 @@ public:
 	}
 
 	inline String operator- (const String &that) const {
-		return that.concat (*this) ;
+		return that.concat ((*this)) ;
 	}
 
 	inline String &operator+= (const String &that) {
-		*this = concat (that) ;
-		return *this ;
+		(*this) = concat (that) ;
+		return (*this) ;
 	}
 
 	inline String &operator-= (const String &that) {
-		*this = that.concat (*this) ;
-		return *this ;
+		(*this) = that.concat ((*this)) ;
+		return (*this) ;
 	}
 
 	void concatto (const Plain<ITEM> &that) {
@@ -558,13 +558,13 @@ public:
 			mString[r1x + r2x] = ITEM (0) ;
 		}
 		if SWITCH_CASE (ifa) {
-			*this = concat (that) ;
+			(*this) = concat (that) ;
 		}
 	}
 
 	inline String &operator+= (const Plain<ITEM> &that) {
 		concatto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	String segment (INDEX seg ,LENGTH seg_len) const {
@@ -761,7 +761,7 @@ public:
 
 	inline Deque &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -772,7 +772,7 @@ public:
 
 	inline Deque &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -802,7 +802,7 @@ public:
 
 	inline Deque &operator>> (ITEM &item) popping {
 		take (item) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	INDEX head () const {
@@ -867,12 +867,12 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
 	void sort () {
-		U::OPERATOR_SORT::invoke (_CAST_<AccessArray> (*this) ,0 ,length ()) ;
+		U::OPERATOR_SORT::invoke (_CAST_<AccessArray> ((*this)) ,0 ,length ()) ;
 	}
 
 private:
@@ -1242,7 +1242,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	Pair<Priority> get (INDEX index) & {
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
-		return Pair<Priority> (*this ,index) ;
+		return Pair<Priority> ((*this) ,index) ;
 	}
 
 	inline Pair<Priority> operator[] (INDEX index) & {
@@ -1252,7 +1252,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	Pair<const Priority> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
-		return Pair<const Priority> (*this ,index) ;
+		return Pair<const Priority> ((*this) ,index) ;
 	}
 
 	inline Pair<const Priority> operator[] (INDEX index) const & {
@@ -1306,12 +1306,12 @@ public:
 
 	inline Priority &operator<< (const PAIR_TYPE &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Priority &operator<< (PAIR_TYPE &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	using SPECIALIZATION_BASE::appand ;
@@ -1333,7 +1333,7 @@ public:
 
 	inline Priority &operator>> (PAIR_TYPE &item) popping {
 		take (item) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	INDEX head () const {
@@ -1633,7 +1633,7 @@ public:
 
 	inline QList &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -1647,7 +1647,7 @@ public:
 
 	inline QList &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -1689,7 +1689,7 @@ public:
 
 	inline QList &operator>> (ITEM &item) popping {
 		take (item) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	INDEX head () const {
@@ -1804,7 +1804,7 @@ public:
 
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2011,7 +2011,7 @@ public:
 
 	inline SList &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -2022,7 +2022,7 @@ public:
 
 	inline SList &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _ARG1>
@@ -2108,7 +2108,7 @@ public:
 
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke (*this ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2425,12 +2425,12 @@ private:
 
 		inline void operator= (Bit<BitSet> &&that) && {
 			const auto r1x = BOOL (std::move (that)) ;
-			std::move (*this) = r1x ;
+			std::move ((*this)) = r1x ;
 		}
 
 		inline void operator= (Bit<const BitSet> &&that) && {
 			const auto r1x = BOOL (std::move (that)) ;
-			std::move (*this) = r1x ;
+			std::move ((*this)) = r1x ;
 		}
 
 	private:
@@ -2495,7 +2495,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<BitSet> get (INDEX index) & {
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
-		return Bit<BitSet> (*this ,index) ;
+		return Bit<BitSet> ((*this) ,index) ;
 	}
 
 	inline Bit<BitSet> operator[] (INDEX index) & {
@@ -2505,7 +2505,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<const BitSet> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
-		return Bit<const BitSet> (*this ,index) ;
+		return Bit<const BitSet> ((*this) ,index) ;
 	}
 
 	inline Bit<const BitSet> operator[] (INDEX index) const & {
@@ -2614,7 +2614,7 @@ public:
 
 	inline BitSet &operator<< (INDEX item) {
 		add (item) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	void erase (INDEX item) {
@@ -2642,7 +2642,7 @@ public:
 
 	inline BitSet &operator&= (const BitSet &that) {
 		bandto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	BitSet bor (const BitSet &that) const {
@@ -2665,7 +2665,7 @@ public:
 
 	inline BitSet &operator|= (const BitSet &that) {
 		borto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	BitSet bxor (const BitSet &that) const {
@@ -2688,7 +2688,7 @@ public:
 
 	inline BitSet &operator^= (const BitSet &that) {
 		bxorto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	BitSet bsub (const BitSet &that) const {
@@ -2711,7 +2711,7 @@ public:
 
 	inline BitSet &operator-= (const BitSet &that) {
 		bsubto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	BitSet bnot () const {
@@ -3080,7 +3080,7 @@ public:
 	}
 
 	Pair<Set> get (INDEX index) & {
-		return Pair<Set> (*this ,index) ;
+		return Pair<Set> ((*this) ,index) ;
 	}
 
 	inline Pair<Set> operator[] (INDEX index) & {
@@ -3088,7 +3088,7 @@ public:
 	}
 
 	Pair<const Set> get (INDEX index) const & {
-		return Pair<const Set> (*this ,index) ;
+		return Pair<const Set> ((*this) ,index) ;
 	}
 
 	inline Pair<const Set> operator[] (INDEX index) const & {
@@ -3139,12 +3139,12 @@ public:
 
 	inline Set &operator<< (const PAIR_TYPE &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Set &operator<< (PAIR_TYPE &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	using SPECIALIZATION_BASE::appand ;
@@ -3270,10 +3270,17 @@ private:
 				break ;
 			if (!mSet[jx].mRed)
 				break ;
-			const auto r1x = _SWITCH_ (
-				(jx == mSet[mSet[jx].mUp].mLeft) ? (&Set::update_insert_left) :
-				(&Set::update_insert_right)) ;
-			(this->*r1x) (ix) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (jx == mSet[mSet[jx].mUp].mLeft))
+					discard ;
+				update_insert_left (ix) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (jx == mSet[mSet[jx].mUp].mRight))
+					discard ;
+				update_insert_right (ix) ;
+			}
 			ix = mTop ;
 		}
 		mSet[mRoot].mRed = FALSE ;
@@ -3365,10 +3372,17 @@ private:
 				break ;
 			if (ix != VAR_NONE && mSet[ix].mRed)
 				break ;
-			const auto r1x = _SWITCH_ (
-				(ix == mSet[iy].mLeft) ? (&Set::update_remove_left) :
-				(&Set::update_remove_right)) ;
-			(this->*r1x) (ix ,iy) ;
+			auto ifa = FALSE ;
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (ix == mSet[iy].mLeft))
+					discard ;
+				update_remove_left (ix ,iy) ;
+			}
+			if SWITCH_CASE (ifa) {
+				if (!BOOL (ix == mSet[iy].mRight))
+					discard ;
+				update_remove_right (ix ,iy) ;
+			}
 			ix = mTop ;
 			iy = mSet[ix].mUp ;
 		}
@@ -3874,7 +3888,7 @@ public:
 	}
 
 	Pair<HashSet> get (INDEX index) & {
-		return Pair<HashSet> (*this ,index) ;
+		return Pair<HashSet> ((*this) ,index) ;
 	}
 
 	inline Pair<HashSet> operator[] (INDEX index) & {
@@ -3882,7 +3896,7 @@ public:
 	}
 
 	Pair<const HashSet> get (INDEX index) const & {
-		return Pair<const HashSet> (*this ,index) ;
+		return Pair<const HashSet> ((*this) ,index) ;
 	}
 
 	inline Pair<const HashSet> operator[] (INDEX index) const & {
@@ -3933,12 +3947,12 @@ public:
 
 	inline HashSet &operator<< (const PAIR_TYPE &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline HashSet &operator<< (PAIR_TYPE &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	using SPECIALIZATION_BASE::appand ;
@@ -4433,7 +4447,7 @@ public:
 
 	Pair<SoftSet> get (INDEX index) & {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair<SoftSet> (*this ,index) ;
+		return Pair<SoftSet> ((*this) ,index) ;
 	}
 
 	inline Pair<SoftSet> operator[] (INDEX index) & {
@@ -4442,7 +4456,7 @@ public:
 
 	Pair<const SoftSet> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair<const SoftSet> (*this ,index) ;
+		return Pair<const SoftSet> ((*this) ,index) ;
 	}
 
 	inline Pair<const SoftSet> operator[] (INDEX index) const & {
@@ -4489,12 +4503,12 @@ public:
 
 	inline SoftSet &operator<< (const PAIR_TYPE &item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline SoftSet &operator<< (PAIR_TYPE &&item) {
 		add (std::move (item)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	using SPECIALIZATION_BASE::appand ;
@@ -4606,10 +4620,17 @@ private:
 				(mSet.self[ix].mRight)) ;
 			update_insert (r2) ;
 			r2 = mTop ;
-			const auto r2x = _SWITCH_ (
-				r1x ? (&SoftSet::update_insert_left) :
-				(&SoftSet::update_insert_right)) ;
-			(this->*r2x) (ix) ;
+			auto ifb = FALSE ;
+			if SWITCH_CASE (ifb) {
+				if (!r1x)
+					discard ;
+				update_insert_left (ix) ;
+			}
+			if SWITCH_CASE (ifb) {
+				if (r1x)
+					discard ;
+				update_insert_right (ix) ;
+			}
 			ix = mTop ;
 			mTop = ix ;
 		}

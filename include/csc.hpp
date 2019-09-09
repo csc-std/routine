@@ -783,12 +783,12 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 }
 
 template <class _ARG1>
-inline FLAG _TYPEID_ (const ARGV<_ARG1> &) noexcept ;
+inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept ;
 
 template <class _RET>
-inline FLAG _TYPEID_ () noexcept {
+inline FLAG _TYPEUID_ () noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return _TYPEID_ (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
+	return _TYPEUID_ (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 }
 
 template <class _ARG1>
@@ -811,7 +811,7 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) ;
 
 template <class _ARG1>
-inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
+inline void _CATCH_ (_ARG1 &&arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	arg1 () ;
@@ -819,7 +819,7 @@ inline void _CALL_EH_ (_ARG1 &&arg1) noexcept {
 
 //@info: the function is incompleted without 'csc_ext.hpp'
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
+inline void _CATCH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
 template <class _ARG1>
 inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&arg1) popping {
@@ -1209,7 +1209,7 @@ public:
 } ;
 
 template <class _ARG1>
-inline FLAG _TYPEID_ (const ARGV<_ARG1> &) noexcept {
+inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	//@warn: RTTI might be different across DLL
 	class Storage final :private Interface {} ret ;
@@ -1363,7 +1363,7 @@ public:
 	}
 
 	inline void rethrow () const {
-		throw *this ;
+		throw (*this) ;
 	}
 } ;
 
@@ -1479,7 +1479,7 @@ public:
 	inline explicit ScopedGuard (UNIT &&) = delete ;
 
 	inline ~ScopedGuard () noexcept {
-		_CALL_EH_ ([&] () {
+		_CATCH_ ([&] () {
 			mLock.unlock () ;
 		}) ;
 	}
@@ -1491,42 +1491,42 @@ public:
 } ;
 
 template <class UNIT>
-class ScopedHolder final {
+class ScopedBuild final {
 private:
 	const volatile PTR<TEMP<UNIT>> &mAddress ;
 
 public:
-	inline ScopedHolder () = delete ;
+	inline ScopedBuild () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedHolder (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :mAddress (address) {
+	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :mAddress (address) {
 		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
 	}
 
-	inline ~ScopedHolder () noexcept {
+	inline ~ScopedBuild () noexcept {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		_DESTROY_ (r1x) ;
 	}
 
-	inline ScopedHolder (const ScopedHolder &) = delete ;
-	inline ScopedHolder &operator= (const ScopedHolder &) = delete ;
-	inline ScopedHolder (ScopedHolder &&) = delete ;
-	inline ScopedHolder &operator= (ScopedHolder &&) = delete ;
+	inline ScopedBuild (const ScopedBuild &) = delete ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
+	inline ScopedBuild (ScopedBuild &&) = delete ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 } ;
 
 template <class UNIT>
-class ScopedHolder<ARR<UNIT>> final {
+class ScopedBuild<ARR<UNIT>> final {
 private:
 	const volatile PTR<ARR<TEMP<UNIT>>> &mAddress ;
 	INDEX mWrite ;
 
 public:
-	inline ScopedHolder () = delete ;
+	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
@@ -1538,7 +1538,7 @@ public:
 		}
 	}
 
-	inline explicit ScopedHolder (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
@@ -1551,7 +1551,7 @@ public:
 		}
 	}
 
-	inline ~ScopedHolder () noexcept {
+	inline ~ScopedBuild () noexcept {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
@@ -1563,10 +1563,10 @@ public:
 		}
 	}
 
-	inline ScopedHolder (const ScopedHolder &) = delete ;
-	inline ScopedHolder &operator= (const ScopedHolder &) = delete ;
-	inline ScopedHolder (ScopedHolder &&) = delete ;
-	inline ScopedHolder &operator= (ScopedHolder &&) = delete ;
+	inline ScopedBuild (const ScopedBuild &) = delete ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
+	inline ScopedBuild (ScopedBuild &&) = delete ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 } ;
 
 template <class UNIT>
@@ -1590,7 +1590,7 @@ private:
 private:
 	inline Singleton () {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (rax) ;
+		ScopedBuild<Holder> ANONYMOUS (rax) ;
 		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
 		rax = NULL ;
 	}
@@ -1669,10 +1669,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~AutoRef () ;
+			(*this).~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 private:
@@ -1715,7 +1715,7 @@ public:
 
 	inline AutoRef (const AutoRef &that) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
 		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
 		rax = NULL ;
 	}
@@ -1724,10 +1724,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~AutoRef () ;
+			(*this).~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline AutoRef (AutoRef &&that) noexcept {
@@ -1738,10 +1738,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~AutoRef () ;
+			(*this).~AutoRef () ;
 			new (this) AutoRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 private:
@@ -1800,7 +1800,7 @@ public:
 	template <class... _ARGS>
 	inline static AutoRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
 		AutoRef ret = AutoRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax))) ;
 		rax = NULL ;
 		return std::move (ret) ;
@@ -1849,10 +1849,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~SharedRef () ;
+			(*this).~SharedRef () ;
 			new (this) SharedRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline SharedRef (SharedRef &&that) noexcept {
@@ -1863,10 +1863,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~SharedRef () ;
+			(*this).~SharedRef () ;
 			new (this) SharedRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1902,7 +1902,7 @@ public:
 	template <class... _ARGS>
 	inline static SharedRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedHolder<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
 		SharedRef ret = SharedRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax))) ;
 		rax = NULL ;
 		return std::move (ret) ;
@@ -1913,7 +1913,7 @@ template <class UNIT>
 class AnyRef {
 private:
 	struct Holder :public Interface {
-		virtual FLAG type () const = 0 ;
+		virtual FLAG typeuid () const = 0 ;
 	} ;
 
 	template <class _UNIT>
@@ -1926,8 +1926,8 @@ private:
 		template <class... _ARGS>
 		inline explicit ImplHolder (_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) {}
 
-		inline FLAG type () const override {
-			return _TYPEID_<_UNIT> () ;
+		inline FLAG typeuid () const override {
+			return _TYPEUID_<_UNIT> () ;
 		}
 	} ;
 
@@ -1962,22 +1962,22 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~AnyRef () ;
+			(*this).~AnyRef () ;
 			new (this) AnyRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _RET>
 	inline AnyRef<_RET> &rebind () & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		return _CAST_<AnyRef<_RET>> (*this) ;
+		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
 	inline const AnyRef<_RET> &rebind () const & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		return _CAST_<AnyRef<_RET>> (*this) ;
+		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
@@ -1989,13 +1989,13 @@ public:
 		return TRUE ;
 	}
 
-	inline FLAG type () const {
+	inline FLAG typeuid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->type () ;
+		return mPointer->typeuid () ;
 	}
 
 	inline UNIT &to () {
-		_DEBUG_ASSERT_ (type () == _TYPEID_<UNIT> ()) ;
+		_DEBUG_ASSERT_ (typeuid () == _TYPEUID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
 		return r1x->mData ;
 	}
@@ -2009,7 +2009,7 @@ public:
 	}
 
 	inline const UNIT &to () const {
-		_DEBUG_ASSERT_ (type () == _TYPEID_<UNIT> ()) ;
+		_DEBUG_ASSERT_ (typeuid () == _TYPEUID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
 		return r1x->mData ;
 	}
@@ -2029,7 +2029,7 @@ public:
 	template <class... _ARGS>
 	inline static AnyRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
-		ScopedHolder<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		ScopedBuild<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
 		AnyRef ret = AnyRef (&_LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax))) ;
 		rax = NULL ;
 		return std::move (ret) ;
@@ -2040,7 +2040,7 @@ template <>
 class AnyRef<void> {
 private:
 	struct Holder :public Interface {
-		virtual FLAG type () const = 0 ;
+		virtual FLAG typeuid () const = 0 ;
 	} ;
 
 private:
@@ -2073,22 +2073,22 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~AnyRef () ;
+			(*this).~AnyRef () ;
 			new (this) AnyRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	template <class _RET>
 	inline AnyRef<_RET> &rebind () & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		return _CAST_<AnyRef<_RET>> (*this) ;
+		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
 	inline const AnyRef<_RET> &rebind () const & {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		return _CAST_<AnyRef<_RET>> (*this) ;
+		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
@@ -2100,9 +2100,9 @@ public:
 		return TRUE ;
 	}
 
-	inline FLAG type () const {
+	inline FLAG typeuid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->type () ;
+		return mPointer->typeuid () ;
 	}
 } ;
 
@@ -2146,7 +2146,7 @@ public:
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
-		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
 		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
 		constructor (r1x->mData) ;
 		mPointer = r1x ;
@@ -2156,7 +2156,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CALL_EH_ ([&] () {
+		_CATCH_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;
@@ -2175,10 +2175,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~UniqueRef () ;
+			(*this).~UniqueRef () ;
 			new (this) UniqueRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2209,7 +2209,7 @@ public:
 	inline static UniqueRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (UNIT &)>>>> () ;
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
-		ScopedHolder<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (rax ,r1x) ;
+		ScopedBuild<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = &_LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
 		r2x->mData = UNIT (std::forward<_ARGS> (args)...) ;
 		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (r2x)) ;
@@ -2255,7 +2255,7 @@ public:
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
-		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
 		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
 		constructor () ;
 		mPointer = r1x ;
@@ -2265,7 +2265,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CALL_EH_ ([&] () {
+		_CATCH_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;
@@ -2284,10 +2284,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~UniqueRef () ;
+			(*this).~UniqueRef () ;
 			new (this) UniqueRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2322,10 +2322,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~PhanRef () ;
+			(*this).~PhanRef () ;
 			new (this) PhanRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2408,7 +2408,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
 	inline implicit Function (_ARG1 &&that) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
-		ScopedHolder<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
+		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
 		mFunction_a = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
 		mFunction_b = NULL ;
 		rax = NULL ;
@@ -2439,10 +2439,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Function () ;
+			(*this).~Function () ;
 			new (this) Function (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2565,10 +2565,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Function () ;
+			(*this).~Function () ;
 			new (this) Function (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2817,6 +2817,7 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
+		_STATIC_WARNING_ ("dead") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -2855,7 +2856,7 @@ public:
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mSize = len ;
 		rax = NULL ;
@@ -2974,11 +2975,13 @@ public:
 	}
 
 	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
+		_STATIC_WARNING_ ("dead") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
 	}
 
 	inline void swap (Buffer<UNIT ,SAUTO> &that) popping {
+		_STATIC_WARNING_ ("dead") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
@@ -3010,7 +3013,7 @@ public:
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mSize = len ;
 		rax = NULL ;
@@ -3038,10 +3041,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Buffer () ;
+			(*this).~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 } ;
 
@@ -3066,7 +3069,7 @@ public:
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mSize = len ;
 		rax = NULL ;
@@ -3088,7 +3091,7 @@ public:
 		if (that.mSize == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
-		ScopedHolder<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,*that.mBuffer ,that.mSize) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,*that.mBuffer ,that.mSize) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mSize = that.mSize ;
 		rax = NULL ;
@@ -3098,10 +3101,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Buffer () ;
+			(*this).~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Buffer (Buffer &&that) noexcept {
@@ -3113,10 +3116,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Buffer () ;
+			(*this).~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 } ;
 
@@ -3286,10 +3289,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Buffer () ;
+			(*this).~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline const ARR<UNIT> &to () const {
@@ -3376,6 +3379,7 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
+		_STATIC_WARNING_ ("dead") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -3454,10 +3458,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Buffer () ;
+			(*this).~Buffer () ;
 			new (this) Buffer (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline ARR<UNIT> &to () const {
@@ -3544,6 +3548,7 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
+		_STATIC_WARNING_ ("dead") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -3723,10 +3728,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Allocator () ;
+			(*this).~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 private:
@@ -3806,7 +3811,7 @@ public:
 				Finally::mSelf.mFree = VAR_NONE ;
 			}
 		} ;
-		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (*this)) ;
+		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> ((*this))) ;
 		const auto r2x = _SWITCH_ (
 			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
 			0) ;
@@ -3823,10 +3828,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Allocator () ;
+			(*this).~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
@@ -3849,10 +3854,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Allocator () ;
+			(*this).~Allocator () ;
 			new (this) Allocator (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 private:

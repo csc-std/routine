@@ -149,7 +149,7 @@ public:
 		return std::chrono::system_clock::now () ;
 	}
 
-	inline static std::thread::id thread_id () {
+	inline static std::thread::id thread_tid () {
 		return std::this_thread::get_id () ;
 	}
 
@@ -189,7 +189,7 @@ public:
 } ;
 
 template <class _ARG1 ,class _ARG2>
-inline void _CALL_EH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
+inline void _CATCH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
@@ -215,14 +215,14 @@ private:
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
 		LENGTH mAddress ;
-		FLAG mTypeID ;
+		FLAG mTypeId ;
 		PTR<void (LENGTH)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
 			mAddress = 0 ;
-			mTypeID = 0 ;
+			mTypeId = 0 ;
 			mWatch = NULL ;
 		} ;
 	} ;
@@ -233,7 +233,7 @@ public:
 		static volatile Storage<_ARG1> mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = _ADDRESS_ (&data) ;
-		mInstance.mTypeID = _TYPEID_<_ARG2> () ;
+		mInstance.mTypeId = _TYPEUID_<_ARG2> () ;
 		const auto r1x = _COPY_ (mInstance.mWatch) ;
 		if (r1x == NULL)
 			return ;
@@ -315,7 +315,7 @@ public:
 	}
 
 	inline BOOL operator> (const VAR128 &that) const {
-		return that.operator< (*this) ;
+		return that.operator< ((*this)) ;
 	}
 
 	inline BOOL operator<= (const VAR128 &that) const {
@@ -354,7 +354,7 @@ public:
 	inline VAR128 &operator+= (const VAR128 &that) {
 		v2i0 += that.v2i0 + EFLAG (v2i1 > ~that.v2i1) ;
 		v2i1 += that.v2i1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator- (const VAR128 &that) const {
@@ -367,7 +367,7 @@ public:
 	inline VAR128 &operator-= (const VAR128 &that) {
 		v2i0 -= that.v2i0 + EFLAG (v2i1 < that.v2i1) ;
 		v2i1 -= that.v2i1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator* (const VAR128 &that) const {
@@ -395,8 +395,8 @@ public:
 	}
 
 	inline VAR128 &operator*= (const VAR128 &that) {
-		*this = *this * that ;
-		return *this ;
+		(*this) = (*this) * that ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator/ (const VAR128 &that) const {
@@ -432,7 +432,7 @@ public:
 				discard ;
 			if (!BOOL (r2x >= 0))
 				discard ;
-			ret = -(-(*this + that) / that + 1) ;
+			ret = -(-((*this) + that) / that + 1) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
@@ -441,12 +441,12 @@ public:
 				discard ;
 			if (!BOOL (r2x < 0))
 				discard ;
-			ret = -(-(*this - that) / that - 1) ;
+			ret = -(-((*this) - that) / that - 1) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (r1x < 0))
 				discard ;
-			ret = -(-*this / that) ;
+			ret = -(-(*this) / that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (r1x >= 0))
@@ -462,17 +462,17 @@ public:
 				discard ;
 			if (!BOOL (r2x < 0))
 				discard ;
-			ret = *this / -that ;
+			ret = (*this) / -that ;
 		}
 		if SWITCH_CASE (ifa) {
-			ret = Detail::slow_divide (*this ,that) ;
+			ret = Detail::slow_divide ((*this) ,that) ;
 		}
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator/= (const VAR128 &that) {
-		*this = *this / that ;
-		return *this ;
+		(*this) = (*this) / that ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator% (const VAR128 &that) const {
@@ -508,7 +508,7 @@ public:
 				discard ;
 			if (!BOOL (r2x >= 0))
 				discard ;
-			ret = -(-(*this + that) % that) ;
+			ret = -(-((*this) + that) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
@@ -517,12 +517,12 @@ public:
 				discard ;
 			if (!BOOL (r2x < 0))
 				discard ;
-			ret = -(-(*this - that) % that) ;
+			ret = -(-((*this) - that) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (r1x < 0))
 				discard ;
-			ret = -(-*this % that) ;
+			ret = -(-(*this) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (r1x >= 0))
@@ -531,28 +531,28 @@ public:
 				discard ;
 			if (!BOOL (that.v2i1 == 0))
 				discard ;
-			ret = *this ;
+			ret = (*this) ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (r1x >= 0))
 				discard ;
 			if (!BOOL (r2x < 0))
 				discard ;
-			ret = *this % -that ;
+			ret = (*this) % -that ;
 		}
 		if SWITCH_CASE (ifa) {
-			ret = that - Detail::slow_divide (*this ,that) * that ;
+			ret = that - Detail::slow_divide ((*this) ,that) * that ;
 		}
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator%= (const VAR128 &that) {
-		*this = *this % that ;
-		return *this ;
+		(*this) = (*this) % that ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator+ () const {
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator- () const {
@@ -565,24 +565,24 @@ public:
 	inline VAR128 &operator++ () {
 		v2i1++ ;
 		v2i0 += EFLAG (v2i1 == DATA (0)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator++ (int) popping {
-		VAR128 ret = *this ;
-		++*this ;
+		VAR128 ret = (*this) ;
+		++(*this) ;
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator-- () {
 		v2i1-- ;
 		v2i0 -= EFLAG (v2i1 == DATA (-1)) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAR128 operator-- (int) popping {
-		VAR128 ret = *this ;
-		--*this ;
+		VAR128 ret = (*this) ;
+		--(*this) ;
 		return std::move (ret) ;
 	}
 
@@ -743,7 +743,7 @@ public:
 	inline BOOL operator>= (const VAL128 &) const = delete ;
 
 	inline BOOL operator> (const VAL128 &that) const {
-		return that.operator< (*this) ;
+		return that.operator< ((*this)) ;
 	}
 
 	inline BOOL operator<= (const VAL128 &) const = delete ;
@@ -756,7 +756,7 @@ public:
 
 	inline VAL128 &operator+= (const VAL128 &that) {
 		v2f1 += that.v2f1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAL128 operator- (const VAL128 &that) const {
@@ -767,7 +767,7 @@ public:
 
 	inline VAL128 &operator-= (const VAL128 &that) {
 		v2f1 -= that.v2f1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAL128 operator* (const VAL128 &that) const {
@@ -778,7 +778,7 @@ public:
 
 	inline VAL128 &operator*= (const VAL128 &that) {
 		v2f1 *= that.v2f1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAL128 operator/ (const VAL128 &that) const {
@@ -789,11 +789,11 @@ public:
 
 	inline VAL128 &operator/= (const VAL128 &that) {
 		v2f1 *= that.v2f1 ;
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAL128 operator+ () const {
-		return *this ;
+		return (*this) ;
 	}
 
 	inline VAL128 operator- () const {
@@ -1013,10 +1013,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Variant () ;
+			(*this).~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Variant (Variant &&that) noexcept {
@@ -1030,10 +1030,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~Variant () ;
+			(*this).~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1212,6 +1212,7 @@ private:
 
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
+			_STATIC_WARNING_ ("dead") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	} ;
@@ -1294,23 +1295,23 @@ public:
 	inline UNIT1 &one () && = delete ;
 
 	inline Tuple<UNITS...> &rest () & {
-		return *this ;
+		return (*this) ;
 	}
 
 	inline constexpr const Tuple<UNITS...> &rest () const & {
-		return *this ;
+		return (*this) ;
 	}
 
 	inline Tuple<UNITS...> &rest () && = delete ;
 
 	template <class _ARG1>
 	inline VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &visit () & {
-		return Detail::template_visit (*this ,_NULL_<ARGV<_ARG1>> ()) ;
+		return Detail::template_visit ((*this) ,_NULL_<ARGV<_ARG1>> ()) ;
 	}
 
 	template <class _ARG1>
 	inline constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &visit () const & {
-		return Detail::template_visit (*this ,_NULL_<ARGV<_ARG1>> ()) ;
+		return Detail::template_visit ((*this) ,_NULL_<ARGV<_ARG1>> ()) ;
 	}
 
 	template <class _ARG1>
@@ -1422,7 +1423,7 @@ template <class UNIT1 ,class... UNITS>
 template <class... _ARGS>
 inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &function ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
 	auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
-	ScopedHolder<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,function ,args...) ;
+	ScopedBuild<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,function ,args...) ;
 	const auto r1x = &_LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
 	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (r1x)) ;
 	rax = NULL ;
@@ -1446,12 +1447,12 @@ public:
 	inline AllOfTuple () = delete ;
 
 	inline implicit operator BOOL () && {
-		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator== (const _ARG1 &that) && {
-		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1461,7 +1462,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator!= (const _ARG1 &that) && {
-		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1471,7 +1472,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator< (const _ARG1 &that) && {
-		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1481,7 +1482,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator>= (const _ARG1 &that) && {
-		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1491,7 +1492,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator> (const _ARG1 &that) && {
-		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
@@ -1501,7 +1502,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator<= (const _ARG1 &that) && {
-		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
@@ -1655,12 +1656,12 @@ public:
 	inline AnyOfTuple () = delete ;
 
 	inline implicit operator BOOL () && {
-		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
 	inline BOOL operator== (const _ARG1 &that) && {
-		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1670,7 +1671,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator!= (const _ARG1 &that) && {
-		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1680,7 +1681,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator< (const _ARG1 &that) && {
-		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1690,7 +1691,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator>= (const _ARG1 &that) && {
-		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> (*this) ,that) ;
+		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
 	template <class _ARG1>
@@ -1700,7 +1701,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator> (const _ARG1 &that) && {
-		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
@@ -1710,7 +1711,7 @@ public:
 
 	template <class _ARG1>
 	inline BOOL operator<= (const _ARG1 &that) && {
-		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> (*this)) ;
+		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
 	template <class _ARG1>
@@ -1916,10 +1917,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~LinkedRef () ;
+			(*this).~LinkedRef () ;
 			new (this) LinkedRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1944,7 +1945,7 @@ public:
 	inline void fetch (LinkedRef &that) popping {
 		if (that.mRoot == NULL)
 			return ;
-		_CALL_EH_ ([&] () {
+		_CATCH_ ([&] () {
 			const auto r1x = that.mRoot->mPrev ;
 			const auto r2x = that.mRoot->mNext ;
 			r1x->mNext = r2x ;
@@ -1961,7 +1962,7 @@ public:
 
 	inline void push () {
 		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
-		ScopedHolder<Node> ANONYMOUS (rax) ;
+		ScopedBuild<Node> ANONYMOUS (rax) ;
 		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
@@ -2083,10 +2084,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~StrongRef () ;
+			(*this).~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline StrongRef (StrongRef &&that) noexcept {
@@ -2098,10 +2099,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~StrongRef () ;
+			(*this).~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2314,7 +2315,7 @@ inline StrongRef<UNIT>::StrongRef (const WeakRef<UNIT> &that) :StrongRef (that.w
 
 template <class UNIT>
 inline BOOL StrongRef<UNIT>::equal (const WeakRef<UNIT> &that) const {
-	return that.equal (*this) ;
+	return that.equal ((*this)) ;
 }
 
 template <class UNIT>
@@ -2363,10 +2364,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~SoftRef () ;
+			(*this).~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline SoftRef (SoftRef &&that) noexcept {
@@ -2379,10 +2380,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~SoftRef () ;
+			(*this).~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	LENGTH capacity () const {
@@ -2538,7 +2539,7 @@ inline StrongRef<UNIT>::StrongRef (const SoftRef<UNIT> &that) :StrongRef (that.w
 
 template <class UNIT>
 inline BOOL StrongRef<UNIT>::equal (const SoftRef<UNIT> &that) const {
-	return that.equal (*this) ;
+	return that.equal ((*this)) ;
 }
 
 template <class UNIT>
@@ -2557,7 +2558,7 @@ private:
 		inline ~WatchProxy () noexcept {
 			if (mPointer == NULL)
 				return ;
-			_CALL_EH_ ([&] () {
+			_CATCH_ ([&] () {
 				Detail::release (mPointer) ;
 			}) ;
 			mPointer = NULL ;
@@ -2625,7 +2626,7 @@ public:
 
 	inline ~IntrusiveRef () noexcept {
 		const auto r1x = safe_exchange (NULL) ;
-		_CALL_EH_ ([&] () {
+		_CATCH_ ([&] () {
 			Detail::release (r1x) ;
 		}) ;
 	}
@@ -2644,10 +2645,10 @@ public:
 		for (FOR_ONCE_DO_WHILE) {
 			if (this == &that)
 				discard ;
-			this->~IntrusiveRef () ;
+			(*this).~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (that)) ;
 		}
-		return *this ;
+		return (*this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2704,7 +2705,7 @@ public:
 	inline static IntrusiveRef make (_ARGS &&...args) {
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
-		ScopedHolder<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
 		const auto r1x = &_LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
 		Detail::acquire (r1x ,TRUE) ;
 		const auto r2x = ret.safe_exchange (r1x) ;
@@ -2864,7 +2865,7 @@ public:
 	inline void finish () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = mThis.watch () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const Lazy>::make (*this) ,&Lazy::compute_evaluation) ;
+		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const Lazy>::make ((*this)) ,&Lazy::compute_evaluation) ;
 		r1x->mData.apply (r2x) ;
 		r1x->mData.finish () ;
 	}
@@ -2873,7 +2874,7 @@ public:
 		if (!exist ())
 			return that ;
 		if (!that.exist ())
-			return *this ;
+			return (*this) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Lazy () ;
@@ -2884,17 +2885,17 @@ public:
 	}
 
 	inline Lazy &operator+= (const Lazy &that) {
-		*this = concat (that) ;
-		return *this ;
+		(*this) = concat (that) ;
+		return (*this) ;
 	}
 
 	inline Lazy operator- (const Lazy &that) const {
-		return that.concat (*this) ;
+		return that.concat ((*this)) ;
 	}
 
 	inline Lazy &operator-= (const Lazy &that) {
-		*this = that.concat (*this) ;
-		return *this ;
+		(*this) = that.concat ((*this)) ;
+		return (*this) ;
 	}
 
 private:
@@ -3268,7 +3269,7 @@ private:
 		friend Object ;
 		LENGTH mObjectSize ;
 		LENGTH mObjectAlign ;
-		FLAG mTypeID ;
+		FLAG mObjectTypeId ;
 		Function<void (PTR<NONE>)> mConstrutor ;
 		Function<void (PTR<NONE>)> mDestructor ;
 
@@ -3280,7 +3281,7 @@ private:
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
-			mTypeID = _TYPEID_<_ARG1> () ;
+			mObjectTypeId = _TYPEUID_<_ARG1> () ;
 			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address)) ;
 			}) ;
@@ -3364,7 +3365,7 @@ public:
 
 	inline Member operator() (UNIT2 &context) const popping {
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
-		return Member (*this ,context) ;
+		return Member ((*this) ,context) ;
 	}
 
 private:
@@ -3376,7 +3377,7 @@ private:
 
 		template <class... _ARGS>
 		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<DEF<_ARGS UNIT2::*>...> &members) {
-			visitor.visit (context.*members.one ()) ;
+			visitor.visit ((context.*members.one ())) ;
 			template_visit (visitor ,context ,members.rest ()) ;
 		}
 	} ;
@@ -3386,6 +3387,7 @@ private:
 template <class UNIT1 ,class UNIT2>
 inline void Serializer<UNIT1 ,UNIT2>::Binder::friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
+	_STATIC_WARNING_ ("dead") ;
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif

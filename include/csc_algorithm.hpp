@@ -221,7 +221,7 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,adjacency ,root)) ;
+	_CALL_ (Lambda ((*this) ,adjacency ,root)) ;
 }
 
 template <class REAL>
@@ -396,7 +396,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 			mContext.mClusterSet.appand (mClusterSet) ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,dataset ,distance ,center)) ;
+	_CALL_ (Lambda ((*this) ,dataset ,distance ,center)) ;
 }
 
 template <class REAL>
@@ -497,90 +497,152 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			while (TRUE) {
 				if (mTempState == VAR_NONE)
 					break ;
-				if (mTempState == 0) {
+				auto ifa = FALSE ;
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 0))
+						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 7 ;
-				} else if (mTempState == 2) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 2))
+						discard ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
-				} else if (mTempState == 3) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 3))
+						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
-				} else if (mTempState == 4) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 4))
+						discard ;
 					const auto r1x = _SWITCH_ (
 						(mTempStack[ix][0] < mAdjacency.cx ()) ? 5 :
 						16) ;
 					mTempState = r1x ;
-				} else if (mTempState == 5) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 5))
+						discard ;
 					const auto r2x = _SWITCH_ (
 						(mXVisit[mTempStack[ix][0]]) ? 15 :
 						6) ;
 					mTempState = r2x ;
-				} else if (mTempState == 6) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 6))
+						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					const auto r3x = _SWITCH_ (
 						(mLackWeight[0] < mTolerance) ? 8 :
 						12) ;
 					mTempState = r3x ;
-				} else if (mTempState == 7) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 7))
+						discard ;
 					ix = mTempStack.tail () ;
 					const auto r4x = _SWITCH_ (
 						(mTempStack[ix][1] == VAR_NONE) ? 2 :
 						3) ;
 					mTempState = r4x ;
-				} else if (mTempState == 8) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 8))
+						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
-				} else if (mTempState == 9) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 9))
+						discard ;
 					ix = mTempStack.tail () ;
 					mTempState = 10 ;
-				} else if (mTempState == 10) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 10))
+						discard ;
 					const auto r5x = _SWITCH_ (
 						mTempRet ? 11 :
 						15) ;
 					mTempState = r5x ;
-				} else if (mTempState == 11) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 11))
+						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
-				} else if (mTempState == 12) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 12))
+						discard ;
 					const auto r6x = _SWITCH_ (
 						(mLackWeight[1] < mTolerance) ? 13 :
 						14) ;
 					mTempState = r6x ;
-				} else if (mTempState == 13) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 13))
+						discard ;
 					mLackWeight[1] = mLackWeight[0] ;
 					mTempState = 15 ;
-				} else if (mTempState == 14) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 14))
+						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = 15 ;
-				} else if (mTempState == 15) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 15))
+						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = 4 ;
-				} else if (mTempState == 16) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 16))
+						discard ;
 					mTempRet = FALSE ;
 					mTempState = 17 ;
-				} else if (mTempState == 17) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 17))
+						discard ;
 					mTempStack.pop () ;
 					const auto r7x = _SWITCH_ (
 						(mTempStack.length () > 0) ? 9 :
 						18) ;
 					mTempState = r7x ;
-				} else if (mTempState == 18) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 18))
+						discard ;
 					const auto r8x = _SWITCH_ (
 						mTempRet ? 19 :
 						20) ;
 					mTempState = r8x ;
-				} else if (mTempState == 19) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 19))
+						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 20 ;
-				} else if (mTempState == 20) {
+				}
+				if SWITCH_CASE (ifa) {
+					if (!BOOL (mTempState == 20))
+						discard ;
 					mTempState = VAR_NONE ;
-				} else {
+				}
+				if SWITCH_CASE (ifa) {
+					_STATIC_WARNING_ ("dead") ;
 					_DYNAMIC_ASSERT_ (FALSE) ;
 				}
 			}
@@ -617,7 +679,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			return std::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,adjacency)) ;
+	_CALL_ (Lambda ((*this) ,adjacency)) ;
 }
 
 template <class REAL>
@@ -790,7 +852,7 @@ inline void TriangulateAlgorithm<REAL>::initialize (const Array<ARRAY2<REAL>> &v
 			mContext.mTriangle = std::move (mTriangle) ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,vertex)) ;
+	_CALL_ (Lambda ((*this) ,vertex)) ;
 }
 
 template <class REAL>
@@ -1019,7 +1081,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			mContext.mDXLoss = mDXLoss[0] ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,loss ,fdx)) ;
+	_CALL_ (Lambda ((*this) ,loss ,fdx)) ;
 }
 
 template <class REAL>
@@ -1284,7 +1346,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,vertex)) ;
+	_CALL_ (Lambda ((*this) ,vertex)) ;
 }
 
 template <class REAL>
@@ -1422,6 +1484,6 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 			return std::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,adjacency ,source ,sink)) ;
+	_CALL_ (Lambda ((*this) ,adjacency ,source ,sink)) ;
 }
 } ;

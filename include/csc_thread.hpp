@@ -182,7 +182,7 @@ private:
 			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
-				_CALL_EH_ ([&] () {
+				_CATCH_ ([&] () {
 					rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
@@ -479,7 +479,7 @@ private:
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
 				static_poll (_self ,rax) ;
-				_CALL_EH_ ([&] () {
+				_CATCH_ ([&] () {
 					_self.mThreadProc (rax.self) ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
@@ -683,7 +683,7 @@ private:
 				}
 			} ;
 			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
-			_CALL_EH_ ([&] () {
+			_CATCH_ ([&] () {
 				static_push (_self ,_self.mThreadProc ()) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {

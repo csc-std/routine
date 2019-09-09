@@ -53,7 +53,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mSelf = ret.mSelf.segment (r5x ,r9x) ;
 #else
-		ret.mSelf = _BUILDVAR64S_<STR> (_TYPEID_<_RET> ()) ;
+		ret.mSelf = _BUILDVAR64S_<STR> (_TYPEUID_<_RET> ()) ;
 #endif
 		return std::move (ret) ;
 	}
@@ -225,7 +225,7 @@ struct OPERATOR_TYPENAME {
 	template <class _ARG1>
 	inline static void static_write_typename_ids (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
 		writer << _PCSTR_ ("typename '") ;
-		writer << _TYPEID_<_ARG1> () ;
+		writer << _TYPEUID_<_ARG1> () ;
 		writer << _PCSTR_ ("'") ;
 	}
 

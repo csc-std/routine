@@ -104,7 +104,7 @@ public:
 
 	inline Vector &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector div (const REAL &scale) const {
@@ -121,7 +121,7 @@ public:
 
 	inline Vector &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector add (const Vector &that) const {
@@ -142,7 +142,7 @@ public:
 
 	inline Vector &operator+= (const Vector &that) {
 		addto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector sub (const Vector &that) const {
@@ -163,7 +163,7 @@ public:
 
 	inline Vector &operator-= (const Vector &that) {
 		subto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector plus () const {
@@ -205,12 +205,12 @@ public:
 	}
 
 	void multo (const Matrix<REAL> &that) {
-		*this = mul (that) ;
+		(*this) = mul (that) ;
 	}
 
 	inline Vector &operator*= (const Matrix<REAL> &that) {
 		multo (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector cross (const Vector &that) const {
@@ -229,12 +229,12 @@ public:
 	}
 
 	void crossto (const Vector &that) {
-		*this = cross (that) ;
+		(*this) = cross (that) ;
 	}
 
 	inline Vector &operator^= (const Vector &that) {
 		crossto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	REAL magnitude () const {
@@ -375,7 +375,7 @@ public:
 	REAL &get (INDEX ,INDEX) && = delete ;
 
 	Row<Matrix> get (INDEX y) & {
-		return Row<Matrix> (*this ,y) ;
+		return Row<Matrix> ((*this) ,y) ;
 	}
 
 	inline Row<Matrix> operator[] (INDEX y) & {
@@ -383,7 +383,7 @@ public:
 	}
 
 	Row<const Matrix> get (INDEX y) const & {
-		return Row<const Matrix> (*this ,y) ;
+		return Row<const Matrix> ((*this) ,y) ;
 	}
 
 	inline Row<const Matrix> operator[] (INDEX y) const & {
@@ -444,7 +444,7 @@ public:
 
 	inline Matrix &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Matrix div (const REAL &scale) const {
@@ -461,7 +461,7 @@ public:
 
 	inline Matrix &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Matrix add (const Matrix &that) const {
@@ -482,7 +482,7 @@ public:
 
 	inline Matrix &operator+= (const Matrix &that) {
 		addto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Matrix sub (const Matrix &that) const {
@@ -503,7 +503,7 @@ public:
 
 	inline Matrix &operator-= (const Matrix &that) {
 		subto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Matrix plus () const {
@@ -545,12 +545,12 @@ public:
 	}
 
 	void multo (const Matrix &that) {
-		*this = mul (that) ;
+		(*this) = mul (that) ;
 	}
 
 	inline Matrix &operator*= (const Matrix &that) {
 		multo (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Vector<REAL> mul (const Vector<REAL> &that) const ;
@@ -567,7 +567,7 @@ public:
 	}
 
 	Matrix triangular () const {
-		Matrix ret = *this ;
+		Matrix ret = (*this) ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
 			for (FOR_ONCE_DO_WHILE) {
 				INDEX ix = ret.max_row_one (i) ;

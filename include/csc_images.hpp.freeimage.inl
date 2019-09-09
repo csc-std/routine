@@ -64,8 +64,8 @@ public:
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
-		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> &layout) const override {
@@ -179,8 +179,8 @@ public:
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
-		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype (*this)>) == _ALIGNOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> &layout) const override {

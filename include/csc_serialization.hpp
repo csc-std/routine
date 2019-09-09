@@ -645,7 +645,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,data)) ;
+	_CALL_ (Lambda ((*this) ,data)) ;
 }
 
 inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
@@ -689,10 +689,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	private:
 		inline void prepare () {
 			mNodeStack = Deque<PACK<Deque<XmlParser> ,INDEX ,ARRAY2<INDEX>>> () ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_table_node) ;
-			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_object_node) ;
-			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_array_node) ;
-			mFoundNodeProc[3] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (*this) ,&Lambda::update_found_table_node) ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
+			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
+			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
+			mFoundNodeProc[3] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
@@ -994,7 +994,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,sequence)) ;
+	_CALL_ (Lambda ((*this) ,sequence)) ;
 }
 
 class JsonParser {
@@ -1509,7 +1509,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mLatestString = _PCSTRU8_ ("FALSE") ;
 			}
 			if SWITCH_CASE (ifa) {
-				_DEBUG_ASSERT_ (FALSE) ;
+				_STATIC_WARNING_ ("dead") ;
+				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 		}
 
@@ -1589,6 +1590,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mLatestIndex ;
 			}
 			if SWITCH_CASE (ifa) {
+				_STATIC_WARNING_ ("dead") ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 			mLatestIndex = ix ;
@@ -1732,7 +1734,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,data)) ;
+	_CALL_ (Lambda ((*this) ,data)) ;
 }
 
 class CommandParser {
@@ -2013,6 +2015,6 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mContext.mCommand = std::move (mCommand) ;
 		}
 	} ;
-	_CALL_ (Lambda (*this ,data)) ;
+	_CALL_ (Lambda ((*this) ,data)) ;
 }
 } ;

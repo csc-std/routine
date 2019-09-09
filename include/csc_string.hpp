@@ -227,47 +227,104 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU8 (0X7F)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0X7F)))
+				discard ;
 			ret[iw++] = STRU16 (i) ;
-		} else if (rax == 0 && i <= STRU8 (0XDF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XDF)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
-		} else if (rax == 0 && i <= STRU8 (0XEF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XEF)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
-		} else if (rax == 0 && i <= STRU8 (0XF7)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XF7)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
-		} else if (rax == 0 && i <= STRU8 (0XFB)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XFB)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
-		} else if (rax == 0 && i <= STRU8 (0XFD)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XFD)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
-		} else if (rax == 1 && i <= STRU8 (0XBF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XBF)))
+				discard ;
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax = 10 ;
-		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax >= 2 && rax <= 5))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XBF)))
+				discard ;
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
-		if (rax == 10 && rbx <= STRU32 (0X0000FFFF)) {
+		auto ifb = FALSE ;
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 10))
+				discard ;
+			if (!BOOL (rbx <= STRU32 (0X0000FFFF)))
+				discard ;
 			ret[iw++] = STRU16 (rbx) ;
 			rax = 0 ;
-		} else if (rax == 10 && rbx <= STRU32 (0X0010FFFF)) {
+		}
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 10))
+				discard ;
+			if (!BOOL (rbx <= STRU32 (0X0010FFFF)))
+				discard ;
 			rbx = STRU32 (rbx - STRU32 (0X00010000)) ;
 			ret[iw++] = (STRU16 (rbx >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 			rax = 0 ;
-		} else if (rax == 10 && rbx <= STRU32 (0X7FFFFFFF)) {
+		}
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 10))
+				discard ;
+			if (!BOOL (rbx <= STRU32 (0X7FFFFFFF)))
+				discard ;
 			ret[iw++] = STRU16 ('?') ;
 			rax = 0 ;
-		} else {
+		}
+		if SWITCH_CASE (ifb) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -287,26 +344,50 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU16 (0X007F)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU16 (0X007F)))
+				discard ;
 			ret[iw++] = STRU8 (i) ;
-		} else if (rax == 0 && i <= STRU16 (0X07FF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU16 (0X07FF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 0 && i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
+				discard ;
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
-		} else if (rax == 0) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 1 && i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			if (!BOOL (i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
+				discard ;
 			rbx = STRU32 (((rbx << 10) | (i & STRU16 (0X03FF))) + STRU32 (0X00010000)) ;
 			ret[iw++] = (STRU8 (rbx >> 18) & STRU8 (0X07)) | STRU8 (0XF0) ;
 			ret[iw++] = (STRU8 (rbx >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (rbx >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (rbx) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			rax = 0 ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -335,31 +416,72 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU8 (0X7F)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0X7F)))
+				discard ;
 			ret[iw++] = STRU32 (i) ;
-		} else if (rax == 0 && i <= STRU8 (0XDF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XDF)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
-		} else if (rax == 0 && i <= STRU8 (0XEF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XEF)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
-		} else if (rax == 0 && i <= STRU8 (0XF7)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XF7)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
-		} else if (rax == 0 && i <= STRU8 (0XFB)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XFB)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
-		} else if (rax == 0 && i <= STRU8 (0XFD)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XFD)))
+				discard ;
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
-		} else if (rax == 1 && i <= STRU8 (0XBF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XBF)))
+				discard ;
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			ret[iw++] = rbx ;
 			rax = 0 ;
-		} else if (rax >= 2 && rax <= 5 && i <= STRU8 (0XBF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax >= 2 && rax <= 5))
+				discard ;
+			if (!BOOL (i <= STRU8 (0XBF)))
+				discard ;
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -387,34 +509,65 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU32 (0X0000007F)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X0000007F)))
+				discard ;
 			ret[iw++] = STRU8 (i) ;
-		} else if (rax == 0 && i <= STRU32 (0X000007FF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X000007FF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 0 && i <= STRU32 (0X0000FFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X0000FFFF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 0 && i <= STRU32 (0X001FFFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X001FFFFF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X07)) | STRU8 (0XF0) ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 0 && i <= STRU32 (0X03FFFFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X03FFFFFF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 24) & STRU8 (0X03)) | STRU8 (0XF8) ;
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else if (rax == 0 && i <= STRU32 (0X7FFFFFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X7FFFFFFF)))
+				discard ;
 			ret[iw++] = (STRU8 (i >> 30) & STRU8 (0X01)) | STRU8 (0XFC) ;
 			ret[iw++] = (STRU8 (i >> 24) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 18) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -437,18 +590,37 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU16 (0X07FF)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU16 (0X07FF)))
+				discard ;
 			ret[iw++] = STRU32 (i) ;
-		} else if (rax == 0 && i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
+				discard ;
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
-		} else if (rax == 0) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
 			ret[iw++] = STRU32 (i) ;
-		} else if (rax == 1 && i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			if (!BOOL (i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
+				discard ;
 			rbx = STRU32 (((rbx << 10) | (i & STRU16 (0X03FF))) + STRU32 (0X00010000)) ;
 			ret[iw++] = rbx ;
 			rax = 0 ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -472,14 +644,30 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0 && i <= STRU32 (0X0000FFFF)) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X0000FFFF)))
+				discard ;
 			ret[iw++] = STRU16 (i) ;
-		} else if (rax == 0 && i <= STRU32 (0X0010FFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X0010FFFF)))
+				discard ;
 			ret[iw++] = (STRU16 ((i - STRU32 (0X00010000)) >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (i - STRU32 (0X00010000)) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
-		} else if (rax == 0 && i <= STRU32 (0X7FFFFFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (i <= STRU32 (0X7FFFFFFF)))
+				discard ;
 			ret[iw++] = STRU16 ('?') ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -605,31 +793,59 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 	for (auto &&i : r2) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
 			rbx = STRUW (i) ;
 			rax = 10 ;
-		} else if (rax == 1) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
 			rbx = STRUW ((rbx << 8) | STRUW (i)) ;
 			rax = 11 ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
 		INDEX ix = r1.find (rbx) ;
-		if (rax == 10 && ix != VAR_NONE) {
+		auto ifb = FALSE ;
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 10))
+				discard ;
+			if (!BOOL (ix != VAR_NONE))
+				discard ;
 			ret[iw++] = STRW (r1[ix].item) ;
 			rax = 0 ;
-		} else if (rax == 10 && ix == VAR_NONE) {
+		}
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 10))
+				discard ;
+			if (!BOOL (ix == VAR_NONE))
+				discard ;
 			rax = 1 ;
-		} else if (rax == 11 && ix != VAR_NONE) {
+		}
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 11))
+				discard ;
+			if (!BOOL (ix != VAR_NONE))
+				discard ;
 			ret[iw++] = STRW (r1[ix].item) ;
 			rax = 0 ;
-		} else if (rax == 11 && ix == VAR_NONE) {
+		}
+		if SWITCH_CASE (ifb) {
+			if (!BOOL (rax == 11))
+				discard ;
+			if (!BOOL (ix == VAR_NONE))
+				discard ;
 			ret[iw++] = STRW ('?') ;
 			rax = 0 ;
-		} else {
+		}
+		if SWITCH_CASE (ifb) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -656,14 +872,30 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 		if (rax == VAR_NONE)
 			discard ;
 		INDEX ix = r1.find (STRUW (i)) ;
-		if (rax == 0 && ix == VAR_NONE) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (ix == VAR_NONE))
+				discard ;
 			ret[iw++] = STRUA ('?') ;
-		} else if (rax == 0 && r1[ix].item <= STRUW (0X00FF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (r1[ix].item <= STRUW (0X00FF)))
+				discard ;
 			ret[iw++] = STRUA (r1[ix].item) ;
-		} else if (rax == 0 && r1[ix].item <= STRUW (0XFFFF)) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (r1[ix].item <= STRUW (0XFFFF)))
+				discard ;
 			ret[iw++] = STRUA (r1[ix].item >> 8) ;
 			ret[iw++] = STRUA (r1[ix].item) ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -924,38 +1156,57 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 	for (auto &&i : src) {
 		if (rax == VAR_NONE)
 			discard ;
-		if (rax == 0) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
 			rbx = CHAR (i) ;
 			rax = 1 ;
-		} else if (rax == 1) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 2 ;
-		} else if (rax == 2) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 2))
+				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 0 ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (rbx & CHAR (0X3F))]) ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
-	if (rax == 1) {
-		rbx = CHAR (rbx << 16) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
-	} else if (rax == 2) {
-		rbx = CHAR (rbx << 8) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
-	} else {
-		_DEBUG_ASSERT_ (rax == 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			rbx = CHAR (rbx << 16) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[64]) ;
+			ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 2))
+				discard ;
+			rbx = CHAR (rbx << 8) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
+			ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		}
+		if SWITCH_CASE (ifa) {
+			_DEBUG_ASSERT_ (rax == 0) ;
+		}
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -982,40 +1233,73 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 		const auto r2x = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) :
 			VAR_NONE) ;
-		if (rax == 0 && r2x >= 0) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 0))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
-		} else if (rax == 1 && r2x >= 0) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 2 ;
-		} else if (rax == 2 && r2x >= 0) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 2))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 3 ;
-		} else if (rax == 3 && r2x >= 0) {
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 3))
+				discard ;
+			if (!BOOL (r2x >= 0))
+				discard ;
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 0 ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
-		} else {
+		}
+		if SWITCH_CASE (ifa) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
-	if (rax == 1) {
-		rbx = CHAR (rbx << 18) ;
-		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-	} else if (rax == 2) {
-		rbx = CHAR (rbx << 12) ;
-		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
-	} else if (rax == 3) {
-		rbx = CHAR (rbx << 6) ;
-		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
-		ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
-	} else {
-		_DEBUG_ASSERT_ (rax == 0) ;
+	for (FOR_ONCE_DO_WHILE) {
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 1))
+				discard ;
+			rbx = CHAR (rbx << 18) ;
+			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 2))
+				discard ;
+			rbx = CHAR (rbx << 12) ;
+			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!BOOL (rax == 3))
+				discard ;
+			rbx = CHAR (rbx << 6) ;
+			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
+			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
+		}
+		if SWITCH_CASE (ifa) {
+			_DEBUG_ASSERT_ (rax == 0) ;
+		}
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;

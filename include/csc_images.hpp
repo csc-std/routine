@@ -54,11 +54,11 @@ public:
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
 
 	inline Iterator begin () const {
-		return Iterator (*this ,Detail::first_item (mRange) ,0) ;
+		return Iterator ((*this) ,Detail::first_item (mRange) ,0) ;
 	}
 
 	inline Iterator end () const {
-		return Iterator (*this ,Detail::first_item (mRange) ,Detail::total_length (mRange)) ;
+		return Iterator ((*this) ,Detail::first_item (mRange) ,Detail::total_length (mRange)) ;
 	}
 
 private:
@@ -287,7 +287,7 @@ public:
 	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
 	Row<Bitmap> get (INDEX y) & {
-		return Row<Bitmap> (*this ,y) ;
+		return Row<Bitmap> ((*this) ,y) ;
 	}
 
 	inline Row<Bitmap> operator[] (INDEX y) & {
@@ -295,7 +295,7 @@ public:
 	}
 
 	Row<const Bitmap> get (INDEX y) const & {
-		return Row<const Bitmap> (*this ,y) ;
+		return Row<const Bitmap> ((*this) ,y) ;
 	}
 
 	inline Row<const Bitmap> operator[] (INDEX y) const & {
@@ -347,7 +347,7 @@ public:
 
 	inline Bitmap &operator+= (const Bitmap &that) {
 		addto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap sub (const Bitmap &that) const {
@@ -372,7 +372,7 @@ public:
 
 	inline Bitmap &operator-= (const Bitmap &that) {
 		subto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap mul (const Bitmap &that) const {
@@ -397,7 +397,7 @@ public:
 
 	inline Bitmap &operator*= (const Bitmap &that) {
 		multo (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap div (const Bitmap &that) const {
@@ -422,7 +422,7 @@ public:
 
 	inline Bitmap &operator/= (const Bitmap &that) {
 		divto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap mod (const Bitmap &that) const {
@@ -447,7 +447,7 @@ public:
 
 	inline Bitmap &operator%= (const Bitmap &that) {
 		modto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap plus () const {
@@ -494,7 +494,7 @@ public:
 
 	inline Bitmap &operator&= (const Bitmap &that) {
 		bandto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap bor (const Bitmap &that) const {
@@ -519,7 +519,7 @@ public:
 
 	inline Bitmap &operator|= (const Bitmap &that) {
 		borto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap bxor (const Bitmap &that) const {
@@ -544,7 +544,7 @@ public:
 
 	inline Bitmap &operator^= (const Bitmap &that) {
 		bxorto (that) ;
-		return *this ;
+		return (*this) ;
 	}
 
 	Bitmap bnot () const {
@@ -662,7 +662,7 @@ private:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
-			_CALL_EH_ ([&] () {
+			_CATCH_ ([&] () {
 				Detail::static_update_layout (mAbstract ,mThis) ;
 			}) ;
 		}
@@ -786,7 +786,7 @@ public:
 	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
 	Row<AbstractImage> get (INDEX y) & {
-		return Row<AbstractImage> (*this ,y) ;
+		return Row<AbstractImage> ((*this) ,y) ;
 	}
 
 	inline Row<AbstractImage> operator[] (INDEX y) & {
@@ -794,7 +794,7 @@ public:
 	}
 
 	Row<const AbstractImage> get (INDEX y) const & {
-		return Row<const AbstractImage> (*this ,y) ;
+		return Row<const AbstractImage> ((*this) ,y) ;
 	}
 
 	inline Row<const AbstractImage> operator[] (INDEX y) const & {
