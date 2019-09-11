@@ -117,7 +117,9 @@ private:
 
 class ByteReader {
 private:
-	struct HEAP {} ;
+	struct HEAP {
+		BYTE mNull ;
+	} ;
 
 	class Attribute :private Wrapped<HEAP> {
 	public:
@@ -920,7 +922,7 @@ public:
 			data = FALSE ;
 		}
 		if SWITCH_CASE (ifa) {
-			_STATIC_WARNING_ ("dead") ;
+			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	}
@@ -1030,7 +1032,7 @@ public:
 			compute_read_number (data ,(*this) ,rax) ;
 		}
 		if SWITCH_CASE (ifa) {
-			_STATIC_WARNING_ ("dead") ;
+			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 		if (r1x)
@@ -1044,7 +1046,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Array<_ARG1 ,_ARG2> &data) popping {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
@@ -1545,7 +1547,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const Array<_ARG1 ,_ARG2> &data) {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 

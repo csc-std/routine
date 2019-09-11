@@ -112,7 +112,7 @@ private:
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
-				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,guid.P1))
+				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
 					ret = &_self.mClassNode.self ;
 				if (&_self.mClassNode.self == r1x)
 					break ;

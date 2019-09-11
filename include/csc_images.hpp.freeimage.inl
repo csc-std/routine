@@ -68,14 +68,14 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGR>> ,LENGTH[4]> &layout) const override {
+	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = FreeImage_GetBits (r1) ;
-		layout.P1 = &_LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1x)) ;
-		layout.P2[0] = LENGTH (FreeImage_GetWidth (r1)) ;
-		layout.P2[1] = LENGTH (FreeImage_GetHeight (r1)) ;
-		layout.P2[2] = layout.P2[0] ;
-		layout.P2[3] = 0 ;
+		layout.mImage = &_LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1x)) ;
+		layout.mCX = LENGTH (FreeImage_GetWidth (r1)) ;
+		layout.mCY = LENGTH (FreeImage_GetHeight (r1)) ;
+		layout.mCW = layout.mCX ;
+		layout.mCK = 0 ;
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
@@ -140,7 +140,7 @@ public:
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}
 
-	void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
+	void compute_load_data_file (AnyRef<void> &_this ,const String<STR> &file) const override {
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
@@ -163,7 +163,7 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		_DEBUG_ASSERT_ (!param.exist ()) ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
@@ -183,14 +183,14 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (REMOVE_CVR_TYPE<decltype ((*this))>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<COLOR_BGRA>> ,LENGTH[4]> &layout) const override {
+	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = FreeImage_GetBits (r1) ;
-		layout.P1 = &_LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1x)) ;
-		layout.P2[0] = LENGTH (FreeImage_GetWidth (r1)) ;
-		layout.P2[1] = LENGTH (FreeImage_GetHeight (r1)) ;
-		layout.P2[2] = layout.P2[0] ;
-		layout.P2[3] = 0 ;
+		layout.mImage = &_LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1x)) ;
+		layout.mCX = LENGTH (FreeImage_GetWidth (r1)) ;
+		layout.mCY = LENGTH (FreeImage_GetHeight (r1)) ;
+		layout.mCW = layout.mCX ;
+		layout.mCK = 0 ;
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
@@ -255,7 +255,7 @@ public:
 		_MEMCOPY_ (data.self ,PTRTOARR[rax.P1] ,data.size ()) ;
 	}
 
-	void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const override {
+	void compute_load_data_file (AnyRef<void> &_this ,const String<STR> &file) const override {
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
@@ -278,7 +278,7 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
 		_DEBUG_ASSERT_ (!param.exist ()) ;
 		auto &r1 = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;

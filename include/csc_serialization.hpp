@@ -1509,7 +1509,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mLatestString = _PCSTRU8_ ("FALSE") ;
 			}
 			if SWITCH_CASE (ifa) {
-				_STATIC_WARNING_ ("dead") ;
+				_STATIC_WARNING_ ("unexpected") ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 		}
@@ -1533,7 +1533,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			if SWITCH_CASE (ifa) {
 				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
 				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
-				if (!BOOL (BOOL (r1x || r2x)))
+				if (!BOOL (r1x || r2x))
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
@@ -1546,7 +1546,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			if SWITCH_CASE (ifa) {
 				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')) ;
 				const auto r4x = BOOL (mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
-				if (!BOOL (BOOL (r3x || r4x)))
+				if (!BOOL (r3x || r4x))
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
@@ -1590,7 +1590,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mLatestIndex ;
 			}
 			if SWITCH_CASE (ifa) {
-				_STATIC_WARNING_ ("dead") ;
+				_STATIC_WARNING_ ("unexpected") ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 			mLatestIndex = ix ;

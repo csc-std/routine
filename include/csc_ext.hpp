@@ -108,7 +108,7 @@ using std::abort ;
 template <class UNIT1 ,class UNIT2>
 struct Component {
 	UNIT1 mValue ;
-	UNIT2 mCompt ;
+	UNIT2 mClazz ;
 } ;
 
 namespace stl {
@@ -969,7 +969,7 @@ private:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<_ARG2 ,_ARGS...> &) {
+	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<_ARG2 ,_ARGS...> &) {
 		return _SWITCH_ (
 			(std::is_default_constructible<_ARG2>::value) ? (_ARG1::value) :
 			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGVS<_ARGS...>> ()))) ;
@@ -1212,7 +1212,7 @@ private:
 
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
-			_STATIC_WARNING_ ("dead") ;
+			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	} ;
@@ -2441,7 +2441,7 @@ public:
 
 	inline void assign (const StrongRef<UNIT> &that) {
 		mIndex = has_linked_one (that) ;
-		mWeakRef <<= that ;
+		mWeakRef.assign (that) ;
 		acquire () ;
 	}
 
@@ -2804,7 +2804,7 @@ public:
 		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r2x) ;
 		r1x->mData.finish () ;
-		mThis <<= r1x ;
+		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
 
@@ -2814,7 +2814,7 @@ public:
 		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r2x) ;
 		r1x->mData.finish () ;
-		mThis <<= r1x ;
+		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
 
@@ -2824,7 +2824,7 @@ public:
 		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mEvaluator = std::move (that) ;
-		mThis <<= r1x ;
+		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
 
@@ -2837,7 +2837,7 @@ public:
 		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
 		auto &r1 = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
 		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r1) ,&Function<UNIT ()>::invoke) ;
-		mThis <<= r1x ;
+		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
 #endif
@@ -2918,7 +2918,7 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
 	auto &r1 = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
-	_MEMCOPY_ (PTRTOARR[ret.unused] ,r1) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1] ,_COUNTOF_ (decltype (r1))) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;
@@ -3387,7 +3387,7 @@ private:
 template <class UNIT1 ,class UNIT2>
 inline void Serializer<UNIT1 ,UNIT2>::Binder::friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping {
 	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
-	_STATIC_WARNING_ ("dead") ;
+	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif

@@ -642,7 +642,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = VAR_NONE ;
 				}
 				if SWITCH_CASE (ifa) {
-					_STATIC_WARNING_ ("dead") ;
+					_STATIC_WARNING_ ("unexpected") ;
 					_DYNAMIC_ASSERT_ (FALSE) ;
 				}
 			}

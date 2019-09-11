@@ -154,6 +154,7 @@ public:
 		mHeap->mWidth[1] = _cy ;
 		mHeap->mWidth[2] = _cw ;
 		mHeap->mWidth[3] = _ck ;
+		mHeap->mWidth[4] = r1x ;
 		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
@@ -162,8 +163,9 @@ public:
 		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
-		mHeap->mWidth[2] = mImage.size () ;
+		mHeap->mWidth[2] = mHeap->mWidth[0] ;
 		mHeap->mWidth[3] = 0 ;
+		mHeap->mWidth[4] = mImage.size () ;
 		mImage = PhanBuffer<UNIT>::make (image) ;
 		reset () ;
 	}
@@ -173,8 +175,9 @@ public:
 		mHeap->mBuffer = std::move (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
-		mHeap->mWidth[2] = mImage.size () ;
+		mHeap->mWidth[2] = mHeap->mWidth[0] ;
 		mHeap->mWidth[3] = 0 ;
+		mHeap->mWidth[4] = mImage.size () ;
 		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
@@ -232,9 +235,7 @@ public:
 		_DEBUG_ASSERT_ (_cx <= _cw) ;
 		_DEBUG_ASSERT_ (_ck >= 0) ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		const auto r1x = mHeap->mWidth[1] * mHeap->mWidth[2] + mHeap->mWidth[3] ;
-		_DEBUG_ASSERT_ (_cy * _cw + _ck <= r1x) ;
-		(void) r1x ;
+		_DEBUG_ASSERT_ (_cy * _cw + _ck <= mHeap->mWidth[4]) ;
 		mCX = _cx ;
 		mCY = _cy ;
 		mCW = _cw ;
@@ -608,13 +609,21 @@ using COLOR_XYZ64 = ARRAY3<VAL64> ;
 template <class UNIT>
 class AbstractImage {
 public:
+	struct LAYOUT {
+		PTR<ARR<UNIT>> mImage ;
+		LENGTH mCX ;
+		LENGTH mCY ;
+		LENGTH mCW ;
+		LENGTH mCK ;
+	} ;
+
 	exports struct Abstract :public Interface {
-		virtual void compute_layout (AnyRef<void> &_this ,PACK<PTR<ARR<UNIT>> ,LENGTH[4]> &layout) const = 0 ;
+		virtual void compute_layout (AnyRef<void> &_this ,LAYOUT &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
-		virtual void compute_load_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const = 0 ;
+		virtual void compute_load_data_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
+		virtual void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const = 0 ;
 	} ;
 
 private:
@@ -844,16 +853,16 @@ public:
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
-	void load_file (const String<STR> &file) {
+	void load_data_file (const String<STR> &file) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		mAbstract->compute_load_file (mThis->mHolder ,file) ;
+		mAbstract->compute_load_data_file (mThis->mHolder ,file) ;
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
-	void save_file (const String<STR> &file ,const AnyRef<void> &param) {
+	void save_data_file (const String<STR> &file ,const AnyRef<void> &param) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_save_file (mThis->mHolder ,file ,param) ;
+		mAbstract->compute_save_data_file (mThis->mHolder ,file ,param) ;
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
@@ -867,14 +876,15 @@ private:
 			_DEBUG_ASSERT_ (_abstract.exist ()) ;
 			_DEBUG_ASSERT_ (_this.exist ()) ;
 			_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
-			auto rax = PACK<PTR<ARR<UNIT>> ,LENGTH[4]> () ;
+			auto rax = LAYOUT () ;
 			_ZERO_ (rax) ;
 			_abstract->compute_layout (_this->mHolder ,rax) ;
-			_this->mImage = PhanBuffer<UNIT>::make (*rax.P1 ,(rax.P2[1] * rax.P2[2] + rax.P2[3])) ;
-			_this->mCX = rax.P2[0] ;
-			_this->mCY = rax.P2[1] ;
-			_this->mCW = rax.P2[2] ;
-			_this->mCK = rax.P2[3] ;
+			const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
+			_this->mImage = PhanBuffer<UNIT>::make (*rax.mImage ,r1x) ;
+			_this->mCX = rax.mCX ;
+			_this->mCY = rax.mCY ;
+			_this->mCW = rax.mCW ;
+			_this->mCK = rax.mCK ;
 		}
 	} ;
 } ;

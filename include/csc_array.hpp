@@ -158,7 +158,7 @@ struct OPERATOR_HASH {
 	template <class _ARG1>
 	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		auto &r1 = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self) ;
-		return _MEMHASH_ (r1) ;
+		return _MEMHASH_ (PTRTOARR[r1] ,_COUNTOF_ (decltype (r1))) ;
 	}
 
 	template <class _ARG1>

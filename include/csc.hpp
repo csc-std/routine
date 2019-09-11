@@ -319,7 +319,7 @@ using std::remove_extent ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define FOR_ONCE_DO_WHILE auto ANONYMOUS = TRUE ; ANONYMOUS ; ANONYMOUS = FALSE
+#define FOR_ONCE_DO_WHILE auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
 
 #define SWITCH_CASE(arg1) (TRUE) for ( ; !arg1 ; arg1 = TRUE)
 
@@ -663,6 +663,23 @@ inline constexpr LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
 	return LENGTH (address) ;
 }
 
+template <class _ARG1>
+inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
+	return std::forward<_ARG1> (expr) ;
+}
+
+template <class _RET>
+inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return arg1 ;
+}
+
+template <class _RET>
+inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return arg1 ;
+}
+
 //@warn: not type-safe ,be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
@@ -690,7 +707,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 template <class _RET>
 inline _RET &_LOAD_ (const DEF<decltype (NULL)> & ,LENGTH address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	const auto r1x = PTR<VOID> (address) ;
+	const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + address) ;
 	return _LOAD_<_RET> (r1x) ;
 }
 
@@ -700,23 +717,6 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &arg1
 	_DEBUG_ASSERT_ (arg1 != NULL) ;
 	const auto r1x = _ADDRESS_ (&arg2) - _ADDRESS_ (&(_NULL_<_ARG2> ().*arg1)) ;
 	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (NULL ,r1x) ;
-}
-
-template <class _ARG1>
-inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
-	return std::forward<_ARG1> (expr) ;
-}
-
-template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return arg1 ;
-}
-
-template <class _RET>
-inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &arg1) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return arg1 ;
 }
 
 template <class _ARG1>
@@ -753,13 +753,6 @@ inline void _SWAP_ (_ARG1 &arg1 ,_ARG1 &arg2) noexcept {
 	auto rax = std::move (arg1) ;
 	arg1 = std::move (arg2) ;
 	arg2 = std::move (rax) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _SWAP_ (DEF<_ARG1[_VAL1]> &arg1 ,DEF<_ARG1[_VAL1]> &arg2) noexcept {
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-	_SWAP_ (_CAST_<PACK<_ARG1[_VAL1]>> (arg1) ,_CAST_<PACK<_ARG1[_VAL1]>> (arg2)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
@@ -880,16 +873,6 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
-	return _MEMEQUAL_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline BOOL _MEMEQUAL_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
-	return _MEMEQUAL_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -932,16 +915,6 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const DEF<_ARG1[_VAL1]> &src2) {
-	return _MEMCOMPR_ (src1 ,PTRTOARR[src2] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline FLAG _MEMCOMPR_ (const DEF<_ARG1[_VAL1]> &src1 ,const ARR<_ARG1> &src2) {
-	return _MEMCOMPR_ (PTRTOARR[src1] ,src2 ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -972,11 +945,6 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline FLAG _MEMHASH_ (const DEF<_ARG1[_VAL1]> &src) {
-	return _MEMHASH_ (PTRTOARR[src] ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
@@ -994,11 +962,6 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 			return i ;
 	return VAR_NONE ;
 #pragma GCC diagnostic pop
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline INDEX _MEMCHR_ (const DEF<_ARG1[_VAL1]> &src ,const _ARG1 &val) {
-	return _MEMCHR_ (PTRTOARR[src] ,_VAL1 ,val) ;
 }
 
 template <class _ARG1>
@@ -1020,11 +983,6 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline INDEX _MEMRCHR_ (const DEF<_ARG1[_VAL1]> &src ,const _ARG1 &val) {
-	return _MEMRCHR_ (PTRTOARR[src] ,_VAL1 ,val) ;
-}
-
 template <class _ARG1>
 inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -1044,16 +1002,6 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 	for (INDEX i = 0 ; i < len ; i++)
 		dst[i] = src[i] ;
 #pragma GCC diagnostic pop
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const DEF<_ARG1[_VAL1]> &src) {
-	_MEMCOPY_ (dst ,PTRTOARR[src] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMCOPY_ (DEF<_ARG1[_VAL1]> &dst ,const ARR<_ARG1> &src) {
-	_MEMCOPY_ (PTRTOARR[dst] ,src ,_VAL1) ;
 }
 
 template <class _ARG1>
@@ -1093,16 +1041,6 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const DEF<_ARG1[_VAL1]> &src) {
-	_MEMRCOPY_ (dst ,PTRTOARR[src] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMRCOPY_ (DEF<_ARG1[_VAL1]> &dst ,const ARR<_ARG1> &src) {
-	_MEMRCOPY_ (PTRTOARR[dst] ,src ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -1134,16 +1072,6 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #pragma GCC diagnostic pop
 }
 
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,DEF<_ARG1[_VAL1]> &dst2) {
-	_MEMMOVE_ (dst1 ,PTRTOARR[dst2] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMMOVE_ (DEF<_ARG1[_VAL1]> &dst1 ,ARR<_ARG1> &dst2) {
-	_MEMMOVE_ (PTRTOARR[dst1] ,dst2 ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -1164,17 +1092,6 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 		_SWAP_ (dst1[i] ,dst2[i]) ;
 #pragma GCC diagnostic pop
 }
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,DEF<_ARG1[_VAL1]> &dst2) {
-	_MEMSWAP_ (dst1 ,PTRTOARR[dst2] ,_VAL1) ;
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMSWAP_ (DEF<_ARG1[_VAL1]> &dst1 ,ARR<_ARG1> &dst2) {
-	_MEMSWAP_ (PTRTOARR[dst1] ,dst2 ,_VAL1) ;
-}
-
 template <class _ARG1>
 inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
@@ -1190,11 +1107,6 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 	for (INDEX i = 0 ; i < len ; i++)
 		dst[i] = val ;
 #pragma GCC diagnostic pop
-}
-
-template <class _ARG1 ,LENGTH _VAL1>
-inline void _MEMFILL_ (DEF<_ARG1[_VAL1]> &dst ,const _ARG1 &val) {
-	_MEMFILL_ (PTRTOARR[dst] ,_VAL1 ,val) ;
 }
 } ;
 
@@ -1212,7 +1124,8 @@ template <class _ARG1>
 inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	//@warn: RTTI might be different across DLL
-	class Storage final :private Interface {} ret ;
+	class Storage final :private Interface {} ;
+	Storage ret ;
 	return std::move (_CAST_<FLAG> (ret)) ;
 }
 
@@ -2781,7 +2694,7 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &that) const {
-		return _MEMEQUAL_ (mBuffer ,PTRTOARR[that.mBuffer]) ;
+		return _MEMEQUAL_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
 	}
 
 	inline BOOL operator== (const Buffer &that) const {
@@ -2793,7 +2706,7 @@ public:
 	}
 
 	inline FLAG compr (const Buffer &that) const {
-		return _MEMCOMPR_ (mBuffer ,PTRTOARR[that.mBuffer]) ;
+		return _MEMCOMPR_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2817,13 +2730,13 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
 
 	inline void swap (Buffer &that) popping {
-		_SWAP_ (mBuffer ,that.mBuffer) ;
+		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
 	}
 
 public:
@@ -2975,14 +2888,19 @@ public:
 	}
 
 	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
 	}
 
 	inline void swap (Buffer<UNIT ,SAUTO> &that) popping {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+
+	inline void swap (Buffer &that) popping {
+		_DYNAMIC_ASSERT_ (mSize == that.mSize) ;
+		_MEMSWAP_ (*mBuffer ,*that.mBuffer ,mSize) ;
 	}
 } ;
 
@@ -3379,7 +3297,7 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -3548,7 +3466,7 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("dead") ;
+		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -3961,10 +3879,8 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE) {
-			if (ret != VAR_NONE)
-				discard ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
 			if (mFree != VAR_NONE)
 				discard ;
 			auto rax = mAllocator.expand () ;
@@ -3975,16 +3891,13 @@ public:
 			}
 			mAllocator.swap (rax) ;
 			update_reset (mLength ,mFree) ;
-			ret = mFree ;
 		}
-		for (FOR_ONCE_DO_WHILE) {
-			if (ret != VAR_NONE)
-				discard ;
+		if SWITCH_CASE (ifa) {
 			if (mFree == VAR_NONE)
 				discard ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
-			ret = mFree ;
 		}
+		INDEX ret = mFree ;
 		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
 		mLength++ ;
