@@ -330,11 +330,16 @@ public:
 
 	template <class _ARG1>
 	void read (const Plain<_ARG1> &data) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		auto rax = _ARG1 () ;
 		for (INDEX i = 0 ; i < data.size () ; i++) {
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
+#pragma GCC diagnostic pop
 	}
 
 	template <class _ARG1>
@@ -597,8 +602,13 @@ public:
 
 	template <class _ARG1>
 	void write (const Plain<_ARG1> &data) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		for (INDEX i = 0 ; i < data.size () ; i++)
 			write (data.self[i]) ;
+#pragma GCC diagnostic pop
 	}
 
 	template <class _ARG1>
@@ -847,7 +857,7 @@ public:
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (mRead < mWrite))
 				discard ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				data = attr ().convert_endian (mStream[mRead]) ;
 				const auto r2x = attr ().varify_escape_r (data) ;
 				mRead++ ;
@@ -947,7 +957,7 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!BOOL (rax == REAL ('+') || rax == REAL ('-')))
 				discard ;
 			read (rax) ;
@@ -964,7 +974,7 @@ public:
 
 	void read (VAL32 &data) popping {
 		const auto r1x = read<VAL64> () ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (_ISINF_ (r1x))
 				discard ;
 			if (_ISNAN_ (r1x))
@@ -983,7 +993,7 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!BOOL (rax == REAL ('+') || rax == REAL ('-')))
 				discard ;
 			read (rax) ;
@@ -1057,11 +1067,16 @@ public:
 	}
 
 	void read (const Plain<REAL> &data) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		auto rax = REAL () ;
 		for (INDEX i = 0 ; i < data.size () ; i++) {
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
+#pragma GCC diagnostic pop
 	}
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
@@ -1162,7 +1177,7 @@ private:
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!attr ().varify_number_item (top))
 				discard ;
 			rax[0] = attr ().convert_number_r (top) ;
@@ -1185,7 +1200,7 @@ private:
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (top != REAL ('.'))
 				discard ;
 			reader = ris.copy () ;
@@ -1194,7 +1209,7 @@ private:
 			while (TRUE) {
 				if (!attr ().varify_number_item (top))
 					break ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					const auto r2x = rax[0] * attr ().varify_radix () + attr ().convert_number_r (top) ;
 					if (rax[0] > r2x)
 						discard ;
@@ -1205,14 +1220,14 @@ private:
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!BOOL (top == REAL ('e') || top == REAL ('E')))
 				discard ;
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
 			reader = ris.copy () ;
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (rax[0] >= 0)
 				discard ;
 			rax[0] = -rax[0] ;
@@ -1558,8 +1573,13 @@ public:
 	}
 
 	void write (const Plain<REAL> &data) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		for (INDEX i = 0 ; i < data.size () ; i++)
 			write (data.self[i]) ;
+#pragma GCC diagnostic pop
 	}
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
@@ -1654,7 +1674,7 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r3x = log_of_number (rax[0]) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			const auto r4x = r3x - precision ;
 			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
 				rax[0] /= attr ().varify_radix () ;
@@ -1679,7 +1699,7 @@ private:
 			if (!BOOL (_ABS_ (r11x) >= precision))
 				discard ;
 			compute_write_number (r11x ,out ,iw) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (r11x <= 0)
 					discard ;
 				out[--iw] = REAL ('+') ;
@@ -1755,7 +1775,7 @@ private:
 			iw += EFLAG (out[ix] == REAL ('.')) ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (rax[2] == 0)
 				discard ;
 			out[--iw] = REAL ('-') ;
@@ -2115,10 +2135,15 @@ public:
 	}
 
 	void read (const Plain<STRU8> &data) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		for (INDEX i = 0 ; i < data.size () ; i++) {
 			_DYNAMIC_ASSERT_ (get (0) == data.self[i]) ;
 			read () ;
 		}
+#pragma GCC diagnostic pop
 	}
 
 	inline LLTextReader &operator>> (const Plain<STRU8> &data) {
@@ -2196,7 +2221,7 @@ public:
 			data = String<STRU8> (r3x) ;
 		data.clear () ;
 		auto rax = STRU8 () ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!r2x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2220,7 +2245,7 @@ public:
 				data[i] = rax ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!r2x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2241,7 +2266,7 @@ private:
 			const auto r2x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
 			const auto r3x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
 			const auto r4x = BOOL (ris[0] == STRU8 ('_')) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (ret > 0)
 					discard ;
 				_DYNAMIC_ASSERT_ (BOOL (r2x || r3x || r4x)) ;
@@ -2259,7 +2284,7 @@ private:
 	LENGTH next_value_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!BOOL (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 				discard ;
 			ris++ ;
@@ -2277,7 +2302,7 @@ private:
 			ris++ ;
 			ret++ ;
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ris[0] != STRU8 ('.'))
 				discard ;
 			ris++ ;
@@ -2289,12 +2314,12 @@ private:
 				ret++ ;
 			}
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!BOOL (ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')))
 				discard ;
 			ris++ ;
 			ret++ ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (!BOOL (ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 					discard ;
 				ris++ ;

@@ -203,7 +203,7 @@ public:
 
 	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
 		Deque<ARRAY2<INDEX>> ret = Deque<ARRAY2<INDEX>> (expr.length ()) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (expr.empty ())
 				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;

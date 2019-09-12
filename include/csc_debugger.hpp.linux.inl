@@ -52,6 +52,7 @@ private:
 public:
 	Implement () {
 		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
+		using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
@@ -175,7 +176,7 @@ public:
 
 	void attach_log (const String<STR> &path) override {
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mLogPath == r1x)
 				discard ;
 			if (!mLogFileStream.exist ())
@@ -317,6 +318,7 @@ public:
 	}
 
 	Array<DATA> captrue_stack_trace () popping override {
+		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<DATA> ret = Array<DATA> (r1x) ;

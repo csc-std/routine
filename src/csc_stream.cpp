@@ -46,7 +46,7 @@ public:
 		rbx[7] = STRU8 (' ') ;
 		rbx[8] = STRU8 ('0') ;
 		rbx[9] = ris.attr ().varify_ending_item () ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			auto &r1 = _CAST_<Buffer<wrapped_int ,ARGC<4>>> (rax) ;
 			ris >> r1 ;
 			//@info: see also std::launder

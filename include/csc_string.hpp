@@ -1184,7 +1184,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &src) {
 			rax = VAR_NONE ;
 		}
 	}
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (rax == 1))
@@ -1274,7 +1274,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &src) {
 			rax = VAR_NONE ;
 		}
 	}
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!BOOL (rax == 1))
@@ -1334,7 +1334,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (rax != _ARG1 (':'))
 			discard ;
 		ris >> rax ;
@@ -1359,7 +1359,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (r1[2]) ;
 	wos << _RET ('.') ;
 	wos << VAR (r1[3]) ;
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (stru.P1 == 0)
 			discard ;
 		wos << _RET (':') ;

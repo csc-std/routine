@@ -76,7 +76,7 @@ public:
 
 	XmlParser child (const String<STRU8> &name) const {
 		INDEX ix = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			INDEX jx = mHeap.self[mIndex].mObjectSet.find (name) ;
@@ -89,7 +89,7 @@ public:
 
 	Array<XmlParser> child_array () const {
 		Array<XmlParser> ret ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			ret = Array<XmlParser> (mHeap.self[mIndex].mMemberSet.length ()) ;
@@ -104,7 +104,7 @@ public:
 	Array<XmlParser> child_array (LENGTH fixed_len) const {
 		Array<XmlParser> ret = Array<XmlParser> (fixed_len) ;
 		INDEX iw = 0 ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			for (auto &&i : mHeap.self[mIndex].mMemberSet) {
@@ -609,7 +609,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> LLTextReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("\"1.0\"") ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 ('?'))
 					discard ;
 				mRis >> _PCSTRU8_ ("encoding") ;
@@ -697,7 +697,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
 			mNodeHeap = Allocator<Node ,SAUTO> () ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				mRootName.clear () ;
 				mRootType = VAR_NONE ;
 				INDEX ix = normal_node_one () ;
@@ -755,7 +755,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					break ;
 				mTempNode = std::move (mNodeStack[mNodeStack.tail ()]) ;
 				mNodeStack.pop () ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mTempNode.P2 == VAR_NONE)
 						discard ;
 					for (auto &&i : mTempNode.P1)
@@ -774,7 +774,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mNodeStack[ix].P1.add (i.child ()) ;
 			mNodeStack[ix].P2 = mRootType ;
 			INDEX iy = mRoot ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (mRootName.empty ())
 					discard ;
 				iy = mNodeHeap.alloc () ;
@@ -802,7 +802,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
 				INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mFoundNodeNameSet.length () == r1x)
 						discard ;
 					mFoundNodeNameSet[jx].item = iy ;
@@ -815,13 +815,13 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mFoundNodeList[iy][1] = jy ;
 				mFoundNodeList[iy][2] = kx ;
 				mFoundNodeList[iy][3] = jz ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
 				}
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
@@ -840,13 +840,13 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (XmlParser i = it ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = ix ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (iy != VAR_NONE)
 						discard ;
 					iy = mFoundNodeList.insert () ;
 					const auto r1x = mFoundNodeNameSet.length () ;
 					INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
-					for (FOR_ONCE_DO_WHILE) {
+					for (FOR_ONCE_DO) {
 						if (mFoundNodeNameSet.length () == r1x)
 							discard ;
 						mFoundNodeNameSet[jx].item = iy ;
@@ -865,14 +865,14 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					mFoundNodeBaseList[1].take (mFoundNodeBaseList[0][jz]) ;
 					mFoundNodeBaseList[0][jz].clear () ;
 				}
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] == mFoundNodeTypeList[mFoundNodeList[iy][2]]) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
 				}
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
@@ -890,7 +890,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
 				INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mFoundNodeNameSet.length () == r1x)
 						discard ;
 					mFoundNodeNameSet[jx].item = iy ;
@@ -903,14 +903,14 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mFoundNodeList[iy][1] = jy ;
 				mFoundNodeList[iy][2] = kx ;
 				mFoundNodeList[iy][3] = jz ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNodeList[ix][0] == mFoundNodeList[iy][0]) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
 				}
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
@@ -941,13 +941,13 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mNodeHeap[ix].mName = std::move (mFoundNodeNameSet[i[0]]) ;
 				mNodeHeap[ix].mAttributeSet = std::move (mFoundNodeAttributeSetList[i[1]]) ;
 				mNodeHeap[ix].mParent = it ;
-				for (FOR_ONCE_DO_WHILE) {
+				for (FOR_ONCE_DO) {
 					INDEX jx = mNodeHeap[ix].mParent ;
 					if (jx == VAR_NONE)
 						discard ;
 					if (mNodeHeap[jx].mChild == VAR_NONE)
 						mNodeHeap[jx].mChild = ix ;
-					for (FOR_ONCE_DO_WHILE) {
+					for (FOR_ONCE_DO) {
 						if (mNodeHeap[jx].mMemberSet.size () > 0)
 							discard ;
 						mNodeHeap[jx].mMemberSet = mMemberSoftSet.share () ;
@@ -1078,7 +1078,7 @@ public:
 
 	JsonParser child (const String<STRU8> &key) const {
 		INDEX ix = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			if (!object_type ())
@@ -1094,7 +1094,7 @@ public:
 
 	Array<JsonParser> child_array () const {
 		Array<JsonParser> ret ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			if (!array_type ())
@@ -1112,7 +1112,7 @@ public:
 	Array<JsonParser> child_array (LENGTH fixed_len) const {
 		Array<JsonParser> ret = Array<JsonParser> (fixed_len) ;
 		INDEX iw = 0 ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!exist ())
 				discard ;
 			if (!array_type ())
@@ -1629,7 +1629,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 (']'))
 					discard ;
 				update_shift_e5 (ix) ;
@@ -1683,7 +1683,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
 			mRis >> LLTextReader<>::SKIP_GAP ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 ('}'))
 					discard ;
 				update_shift_e8 (ix) ;
@@ -1697,7 +1697,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $10->ε|$4
 		inline void update_shift_e10 () {
 			INDEX ix = VAR_NONE ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 ('\0'))
 					discard ;
 				update_shift_e4 (VAR_NONE) ;

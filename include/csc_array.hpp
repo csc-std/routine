@@ -924,7 +924,7 @@ private:
 		_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mDeque.size () ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mRead == 0)
 				discard ;
 			ix = mRead + rax.size () - mDeque.size () ;
@@ -1431,7 +1431,7 @@ private:
 			auto &r1 = _SWITCH_ (
 				(jx != ix) ? (mPriority[jx].mKey) :
 				(rax.mKey)) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (iy >= mWrite)
 					discard ;
 				if (r1 <= mPriority[iy].mKey)
@@ -1461,7 +1461,7 @@ private:
 			auto &r1 = _SWITCH_ (
 				(jx != ix) ? (mPriority[out[jx]].mKey) :
 				(mPriority[r1x].mKey)) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (iy >= len)
 					discard ;
 				if (r1 <= mPriority[out[iy]].mKey)
@@ -2839,7 +2839,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2860,7 +2860,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2978,7 +2978,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2995,7 +2995,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3151,7 +3151,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3165,7 +3165,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3178,7 +3178,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mSet[index].mLeft == VAR_NONE)
 				discard ;
 			if (mSet[index].mRight == VAR_NONE)
@@ -3393,7 +3393,7 @@ private:
 
 	void update_remove_left (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mRight ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				discard ;
 			mSet[r1].mRed = FALSE ;
@@ -3441,7 +3441,7 @@ private:
 
 	void update_remove_right (INDEX it ,INDEX jt) {
 		auto &r1 = mSet[jt].mLeft ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				discard ;
 			mSet[r1].mRed = FALSE ;
@@ -3649,7 +3649,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3670,7 +3670,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3786,7 +3786,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3803,7 +3803,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3959,7 +3959,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3973,7 +3973,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3992,7 +3992,7 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (size () == 0)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4157,7 +4157,7 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4184,7 +4184,7 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4319,7 +4319,7 @@ public:
 	void add (const KEY &key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4342,7 +4342,7 @@ public:
 	void add (KEY &&key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4516,7 +4516,7 @@ public:
 	INDEX insert (const KEY &key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4536,7 +4536,7 @@ public:
 	INDEX insert (KEY &&key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4647,7 +4647,7 @@ private:
 		mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
 			auto &r1 = mSet.self[ix].mLeft ;
@@ -4680,7 +4680,7 @@ private:
 		mTop = ix ;
 		if (r1x >= r2x && r1x >= r3x)
 			return ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
 			auto &r1 = mSet.self[ix].mRight ;

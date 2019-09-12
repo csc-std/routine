@@ -319,7 +319,7 @@ using std::remove_extent ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define FOR_ONCE_DO_WHILE auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
+#define FOR_ONCE_DO auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
 
 #define SWITCH_CASE(arg1) (TRUE) for ( ; !arg1 ; arg1 = TRUE)
 
@@ -412,7 +412,6 @@ static constexpr auto MATH_PI = VALX (3.14159265358979323846) ;
 static constexpr auto MATH_SQRT2 = VALX (1.41421356237309504880) ;
 static constexpr auto MATH_LN2 = VALX (0.693147180559945309417) ;
 static constexpr auto MATH_LN10 = VALX (2.30258509299404568402) ;
-static constexpr auto MATH_GR = VALX (1.61803398874989484820) ;
 
 #ifdef VOID
 #undef VOID
@@ -857,7 +856,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
@@ -879,7 +878,7 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
@@ -893,14 +892,14 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	while (TRUE) {
 		if (ix >= len)
 			break ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != 0)
 				discard ;
 			if (!BOOL (src1[ix] < src2[ix]))
 				discard ;
 			ret = -1 ;
 		}
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret != 0)
 				discard ;
 			if (!BOOL (src2[ix] < src1[ix]))
@@ -922,7 +921,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -951,7 +950,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -970,7 +969,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -989,7 +988,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -1010,7 +1009,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -1047,7 +1046,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
@@ -1078,7 +1077,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
@@ -1098,7 +1097,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst != NULL) ;
@@ -1579,7 +1578,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -1634,7 +1633,7 @@ public:
 	}
 
 	inline AutoRef &operator= (const AutoRef &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -1648,7 +1647,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -1746,7 +1745,7 @@ public:
 	inline ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			const auto r1x = --mPointer->mCounter ;
 			if (r1x != 0)
 				discard ;
@@ -1759,7 +1758,7 @@ public:
 	inline SharedRef (const SharedRef &that) :SharedRef (that.mPointer) {}
 
 	inline SharedRef &operator= (const SharedRef &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~SharedRef () ;
@@ -1773,7 +1772,7 @@ public:
 	}
 
 	inline SharedRef &operator= (SharedRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~SharedRef () ;
@@ -1872,7 +1871,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~AnyRef () ;
@@ -1983,7 +1982,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~AnyRef () ;
@@ -2085,7 +2084,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~UniqueRef () ;
@@ -2194,7 +2193,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~UniqueRef () ;
@@ -2232,7 +2231,7 @@ public:
 	}
 
 	inline PhanRef &operator= (PhanRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~PhanRef () ;
@@ -2330,7 +2329,7 @@ public:
 	inline ~Function () noexcept {
 		if (mFunction_a == NULL && mFunction_b == NULL)
 			return ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mFunction_a == NULL)
 				discard ;
 			mFunction_a->~Holder () ;
@@ -2349,7 +2348,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Function () ;
@@ -2475,7 +2474,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Function () ;
@@ -2956,7 +2955,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -3016,7 +3015,7 @@ public:
 	}
 
 	inline Buffer &operator= (const Buffer &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -3031,7 +3030,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -3204,7 +3203,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -3373,7 +3372,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -3643,7 +3642,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -3743,7 +3742,7 @@ public:
 	}
 
 	inline Allocator &operator= (const Allocator &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -3769,7 +3768,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -3879,8 +3878,10 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		INDEX ret = VAR_NONE ;
+		for (FOR_ONCE_DO) {
+			if (ret != VAR_NONE)
+				discard ;
 			if (mFree != VAR_NONE)
 				discard ;
 			auto rax = mAllocator.expand () ;
@@ -3891,13 +3892,16 @@ public:
 			}
 			mAllocator.swap (rax) ;
 			update_reset (mLength ,mFree) ;
+			ret = mFree ;
 		}
-		if SWITCH_CASE (ifa) {
+		for (FOR_ONCE_DO) {
+			if (ret != VAR_NONE)
+				discard ;
 			if (mFree == VAR_NONE)
 				discard ;
 			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
+			ret = mFree ;
 		}
-		INDEX ret = mFree ;
 		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
 		mLength++ ;

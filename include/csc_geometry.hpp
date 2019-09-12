@@ -569,7 +569,7 @@ public:
 	Matrix triangular () const {
 		Matrix ret = (*this) ;
 		for (INDEX i = 0 ; i < 4 ; i++) {
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				INDEX ix = ret.max_row_one (i) ;
 				if (ix == i)
 					discard ;
@@ -638,7 +638,7 @@ public:
 			}
 		}
 		ret *= _PINV_ (r1x) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (get (3 ,3) != REAL (1))
 				discard ;
 			if (!affine_matrix_like ())

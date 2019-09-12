@@ -849,9 +849,14 @@ struct OPERATOR_CRC32 {
 	}
 
 	inline static constexpr CHAR constexpr_crc32_hash (const Plain<STR> &stri ,CHAR val ,INDEX it) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 		return _SWITCH_ (
 			(!constexpr_check (it ,stri.size ())) ? val :
-			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)))) ;
+			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri.self[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)))) ;
+#pragma GCC diagnostic pop
 	}
 
 	inline static constexpr FLAG invoke (const Plain<STR> &stri) {
@@ -1010,7 +1015,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -1027,7 +1032,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -1104,7 +1109,7 @@ public:
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mIndex == VAR_NONE)
 				discard ;
 			Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
@@ -1139,7 +1144,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
 				const auto r2x = &_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ;
@@ -1158,7 +1163,7 @@ private:
 		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
 				_DESTROY_ (&_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address))) ;
@@ -1175,7 +1180,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> val ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
 				const auto r2x = &_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ;
@@ -1195,7 +1200,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
 				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ,std::move (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (val)))) ;
@@ -1891,7 +1896,7 @@ public:
 	}
 
 	inline ~LinkedRef () noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (mRoot == NULL)
 				discard ;
 			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
@@ -1914,7 +1919,7 @@ public:
 	}
 
 	inline LinkedRef &operator= (LinkedRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~LinkedRef () ;
@@ -1940,24 +1945,6 @@ public:
 
 	inline PTR<UNIT> operator-> () const {
 		return &to () ;
-	}
-
-	inline void fetch (LinkedRef &that) popping {
-		if (that.mRoot == NULL)
-			return ;
-		_CATCH_ ([&] () {
-			const auto r1x = that.mRoot->mPrev ;
-			const auto r2x = that.mRoot->mNext ;
-			r1x->mNext = r2x ;
-			r2x->mPrev = r1x ;
-			that.mRoot->mPrev = that.mRoot ;
-			that.mRoot->mNext = that.mRoot ;
-			mRoot = that.mRoot ;
-			const auto r3x = _SWITCH_ (
-				(that.mRoot != r2x) ? r2x :
-				NULL) ;
-			that.mRoot = r3x ;
-		}) ;
 	}
 
 	inline void push () {
@@ -2081,7 +2068,7 @@ public:
 	inline StrongRef (const StrongRef &that) :StrongRef (that.mHolder ,that.mPointer) {}
 
 	inline StrongRef &operator= (const StrongRef &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -2096,7 +2083,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -2361,7 +2348,7 @@ public:
 	}
 
 	inline SoftRef &operator= (const SoftRef &that) {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2377,7 +2364,7 @@ public:
 	}
 
 	inline SoftRef &operator= (SoftRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2428,7 +2415,7 @@ public:
 	}
 
 	inline StrongRef<UNIT> watch () const {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!linked ())
 				discard ;
 			auto &r1 = mHeap.self[mIndex].mWeight ;
@@ -2503,7 +2490,7 @@ private:
 			return ;
 		if (!mWeakRef.exist ())
 			return ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			mIndex = min_weight_one () ;
 			if (mIndex == VAR_NONE)
 				discard ;
@@ -2642,7 +2629,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (this == &that)
 				discard ;
 			(*this).~IntrusiveRef () ;
@@ -2681,9 +2668,13 @@ private:
 	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mLatch (0) {}
 
 	inline PTR<UNIT> safe_exchange (PTR<UNIT> address) noexcept popping {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
+#endif
 		using DEFAULT_RETRYTIMES_SIZE = ARGC<64> ;
 		PTR<UNIT> ret = mPointer.exchange (address) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (ret == NULL)
 				discard ;
 			INDEX ir = 0 ;
@@ -2698,6 +2689,7 @@ private:
 			}
 		}
 		return std::move (ret) ;
+#pragma GCC diagnostic pop
 	}
 
 public:

@@ -163,7 +163,7 @@ inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (x >= 0)
 			discard ;
 		if (x >= ret)
@@ -183,7 +183,7 @@ inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	VALX ret = y * VALX (r1x) ;
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		if (x <= 0)
 			discard ;
 		if (x <= ret)
@@ -254,7 +254,7 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
-	for (FOR_ONCE_DO_WHILE) {
+	for (FOR_ONCE_DO) {
 		const auto r2x = VAR64 (DATA (-1074) - ret[1]) ;
 		if (r2x <= 0)
 			discard ;

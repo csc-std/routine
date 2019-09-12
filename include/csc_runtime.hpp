@@ -56,7 +56,7 @@ private:
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -86,7 +86,7 @@ private:
 
 	static PTR<VALUE_NODE> static_find_node (Holder &_self ,FLAG guid) {
 		PTR<VALUE_NODE> ret = NULL ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!_self.mValueNode.exist ())
 				discard ;
 			const auto r1x = &_self.mValueNode.self ;
@@ -105,7 +105,7 @@ private:
 
 	static PTR<CLASS_NODE> static_find_node (Holder &_self ,const GUID_TYPE &guid) {
 		PTR<CLASS_NODE> ret = NULL ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (!_self.mClassNode.exist ())
 				discard ;
 			const auto r1x = &_self.mClassNode.self ;
@@ -194,7 +194,7 @@ public:
 		auto &r1 = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
-		for (FOR_ONCE_DO_WHILE) {
+		for (FOR_ONCE_DO) {
 			if (rax != NULL)
 				discard ;
 			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
@@ -235,7 +235,7 @@ public:
 			const auto r2x = Detail::guid_from_typeid_name () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			for (FOR_ONCE_DO_WHILE) {
+			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
