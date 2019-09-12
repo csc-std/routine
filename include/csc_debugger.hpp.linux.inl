@@ -234,7 +234,7 @@ private:
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
 		mLogWriter << _CLS_ ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << _BUILDHOURS_<STR> (std::chrono::system_clock ().now ()) ;
+		mLogWriter << _BUILDHOURS_ (std::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -339,7 +339,7 @@ public:
 					return ;
 				free (me) ;
 			}) ;
-			const auto r3x = _BUILDHEX16S_<STR> (i) ;
+			const auto r3x = _BUILDHEX16S_ (i) ;
 			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x.self[0]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 		}

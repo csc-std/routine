@@ -1711,11 +1711,15 @@ private:
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
-				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				_STATIC_WARNING_ ("mark") ;
+				const auto r100x = _CAST_<volatile REAL> (out[ix]) ;
+				iw += EFLAG (r100x == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			_STATIC_WARNING_ ("mark") ;
+			const auto r101x = _CAST_<volatile REAL> (out[ix]) ;
+			iw += EFLAG (r101x == REAL ('.')) ;
 			out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 			rax[0] /= attr ().varify_radix () ;
 		}
@@ -1742,11 +1746,15 @@ private:
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r7x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
-				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				_STATIC_WARNING_ ("mark") ;
+				const auto r103x = _CAST_<volatile REAL> (out[ix]) ;
+				iw += EFLAG (r103x == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			_STATIC_WARNING_ ("mark") ;
+			const auto r104x = _CAST_<volatile REAL> (out[ix]) ;
+			iw += EFLAG (r104x == REAL ('.')) ;
 			for (INDEX i = 0 ,ie = LENGTH (r8x + rax[1]) ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				rax[0] /= attr ().varify_radix () ;
@@ -1764,15 +1772,21 @@ private:
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r6x ; i < r8x ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
-				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				_STATIC_WARNING_ ("mark") ;
+				const auto r105x = _CAST_<volatile REAL> (out[ix]) ;
+				iw += EFLAG (r105x == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
 			for (INDEX i = _MAX_ (r6x ,r8x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (0) ;
-				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
+				_STATIC_WARNING_ ("mark") ;
+				const auto r106x = _CAST_<volatile REAL> (out[ix]) ;
+				iw += EFLAG (r106x == attr ().convert_number_w (0)) ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			_STATIC_WARNING_ ("mark") ;
+			const auto r107x = _CAST_<volatile REAL> (out[ix]) ;
+			iw += EFLAG (r107x == REAL ('.')) ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
 		for (FOR_ONCE_DO) {

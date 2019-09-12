@@ -286,7 +286,7 @@ private:
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
 		mLogWriter << _CLS_ ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << _BUILDHOURS_<STR> (std::chrono::system_clock ().now ()) ;
+		mLogWriter << _BUILDHOURS_ (std::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -410,14 +410,14 @@ public:
 			r4x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : address) {
 				SymFromAddr (mSymbolFromAddress ,i ,NULL ,r4x) ;
-				const auto r2x = _BUILDHEX16S_<STR> (DATA (r4x->Address)) ;
+				const auto r2x = _BUILDHEX16S_ (DATA (r4x->Address)) ;
 				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x->Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
 		}
 		if SWITCH_CASE (ifa) {
 			for (auto &&i : address)
-				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_<STR> (i) ,_PCSTR_ ("] : null")) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_ (i) ,_PCSTR_ ("] : null")) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

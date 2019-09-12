@@ -53,7 +53,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mSelf = ret.mSelf.segment (r5x ,r9x) ;
 #else
-		ret.mSelf = _BUILDVAR64S_<STR> (_TYPEUID_<_RET> ()) ;
+		ret.mSelf = _BUILDVAR64S_ (_TYPEUID_<_RET> ()) ;
 #endif
 		return std::move (ret) ;
 	}
