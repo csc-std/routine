@@ -162,7 +162,7 @@ public:
 			compute_check_shaderiv (r1x) ;
 			glAttachShader (me ,r1x) ;
 			const auto r4x = glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r5x = _LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&vs.self)) ;
+			const auto r5x = _LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&fs.self)) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			glShaderSource (r4x ,1 ,&r5x ,&r6x) ;
 			glCompileShader (r4x) ;

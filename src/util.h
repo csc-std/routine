@@ -82,6 +82,7 @@ inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> ex
 	return std::move (ret) ;
 }
 } ;
+#endif
 
 namespace CSC {
 template <>
@@ -104,7 +105,6 @@ inline exports DebuggerService &Singleton<DebuggerService>::instance () {
 	return GlobalStatic<Singleton<DebuggerService>>::unique () ;
 }
 } ;
-#endif
 #endif
 
 namespace UNITTEST {

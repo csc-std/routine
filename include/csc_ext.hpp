@@ -893,28 +893,18 @@ public:
 		return to () ;
 	}
 
-	inline void apply (const Function<void (UNIT &)> &proc) const {
+	template <class _ARG1>
+	inline void apply (const Function<void (_ARG1 &)> &proc) const {
+		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mStatus != STATUS_SIGNALED)
 			return ;
 		proc (mData) ;
 		mStatus = STATUS_CACHED ;
 	}
 
-	inline void apply (const Function<void (const UNIT &)> &proc) const {
-		if (mStatus != STATUS_SIGNALED)
-			return ;
-		proc (mData) ;
-		mStatus = STATUS_CACHED ;
-	}
-
-	inline void apply (const Function<DEF<void (UNIT &)> NONE::*> &proc) const {
-		if (mStatus != STATUS_SIGNALED)
-			return ;
-		proc (mData) ;
-		mStatus = STATUS_CACHED ;
-	}
-
-	inline void apply (const Function<DEF<void (const UNIT &)> NONE::*> &proc) const {
+	template <class _ARG1>
+	inline void apply (const Function<DEF<void (_ARG1 &)> NONE::*> &proc) const {
+		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mStatus != STATUS_SIGNALED)
 			return ;
 		proc (mData) ;
@@ -1084,21 +1074,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline void apply (const Function<void (const _ARG1 &)> &proc) const {
-		if (!available<_ARG1> ())
-			return ;
-		proc (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (&mVariant))) ;
-	}
-
-	template <class _ARG1>
 	inline void apply (const Function<DEF<void (_ARG1 &)> NONE::*> &proc) {
-		if (!available<_ARG1> ())
-			return ;
-		proc (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (&mVariant))) ;
-	}
-
-	template <class _ARG1>
-	inline void apply (const Function<DEF<void (const _ARG1 &)> NONE::*> &proc) const {
 		if (!available<_ARG1> ())
 			return ;
 		proc (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (&mVariant))) ;
@@ -1934,16 +1910,29 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return mRoot->mData ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () {
+		return &to () ;
+	}
+
+	inline const UNIT &to () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return mRoot->mData ;
+	}
+
+	inline implicit operator const UNIT & () const {
+		return to () ;
+	}
+
+	inline PTR<const UNIT> operator-> () const {
 		return &to () ;
 	}
 
@@ -2110,16 +2099,17 @@ public:
 		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mHolder ,r1x) ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return *mPointer ;
+		const auto r1x = &_LOAD_<UNIT> (mPointer) ;
+		return *r1x ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const popping {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () const popping {
 		return &to () ;
 	}
 
@@ -2557,17 +2547,19 @@ private:
 		inline WatchProxy (WatchProxy &&) noexcept = default ;
 		inline WatchProxy &operator= (WatchProxy &&) = delete ;
 
-		inline implicit operator UNIT & () const & noexcept {
+		inline implicit operator UNIT & () const popping & noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return *mPointer ;
+			const auto r1x = &_LOAD_<UNIT> (mPointer) ;
+			return *r1x ;
 		}
 
 		inline implicit operator UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const & {
+		inline implicit operator _RET () const popping & {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return _RET (_XVALUE_<UNIT> (*mPointer)) ;
+			const auto r1x = &_LOAD_<UNIT> (mPointer) ;
+			return _RET (_XVALUE_<UNIT> (*r1x)) ;
 		}
 
 		template <class _RET>
@@ -2667,6 +2659,7 @@ public:
 private:
 	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mLatch (0) {}
 
+private:
 	inline PTR<UNIT> safe_exchange (PTR<UNIT> address) noexcept popping {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
@@ -2749,11 +2742,11 @@ public:
 	inline Monostate (Monostate &&) = delete ;
 	inline Monostate &operator= (Monostate &&) = delete ;
 
-	inline UNIT &to () const {
+	inline UNIT &to () const popping {
 		return mThis.self ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const popping {
 		return to () ;
 	}
 

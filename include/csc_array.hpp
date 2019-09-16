@@ -136,7 +136,7 @@ struct OPERATOR_SORT {
 	class ForwardArray :private Wrapped<decltype (ARGVPY)> {
 	public:
 		template <class _ARG1>
-		inline _ARG1 &operator[] (_ARG1 &arg1) const {
+		inline constexpr _ARG1 &operator[] (_ARG1 &arg1) const {
 			return arg1 ;
 		}
 	} ;

@@ -699,7 +699,9 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
 	(void) r1x ;
-	return *reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
+	//@warn: simulate 'std::launder' to disable compiler's escape analysis
+	const auto r2x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address)) ;
+	return *r2x ;
 }
 
 //@warn: not type-safe ,be careful about strict-aliasing
@@ -1379,87 +1381,103 @@ public:
 template <class UNIT>
 class ScopedGuard final {
 private:
-	UNIT &mLock ;
+	UNIT &mAddress ;
+	FLAG mScoped ;
 
 public:
 	inline ScopedGuard () = delete ;
 
-	inline explicit ScopedGuard (UNIT &lock) popping :mLock (lock) {
-		mLock.lock () ;
+	inline explicit ScopedGuard (UNIT &address) popping :ScopedGuard (ARGVP0 ,address) {
+		mAddress.lock () ;
+		mScoped++ ;
 	}
 
 	inline explicit ScopedGuard (UNIT &&) = delete ;
 
 	inline ~ScopedGuard () noexcept {
+		if (mScoped == 0)
+			return ;
 		_CATCH_ ([&] () {
-			mLock.unlock () ;
+			mAddress.unlock () ;
 		}) ;
+		mScoped = 0 ;
 	}
 
 	inline ScopedGuard (const ScopedGuard &) = delete ;
 	inline ScopedGuard &operator= (const ScopedGuard &) = delete ;
 	inline ScopedGuard (ScopedGuard &&) = delete ;
 	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
+
+private:
+	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> & ,UNIT &address) :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
 class ScopedBuild final {
 private:
 	const volatile PTR<TEMP<UNIT>> &mAddress ;
+	FLAG mScoped ;
 
 public:
 	inline ScopedBuild () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :mAddress (address) {
+	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :ScopedBuild (ARGVP0 ,address) {
 		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
+		mScoped++ ;
 	}
 
 	inline ~ScopedBuild () noexcept {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
+		if (mScoped == 0)
+			return ;
 		_DESTROY_ (r1x) ;
+		mScoped = 0 ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = delete ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
 	inline ScopedBuild (ScopedBuild &&) = delete ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
+
+private:
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<TEMP<UNIT>> &address) :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final {
 private:
 	const volatile PTR<ARR<TEMP<UNIT>>> &mAddress ;
-	INDEX mWrite ;
+	FLAG mScoped ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0 ,address) {
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mWrite >= len)
+			if (mScoped >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mWrite]) ;
-			mWrite++ ;
+			_CREATE_ (&(*r1x)[mScoped]) ;
+			mScoped++ ;
 		}
 	}
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :mAddress (address) ,mWrite (0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0 ,address) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mWrite >= len)
+			if (mScoped >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mWrite] ,src[mWrite]) ;
-			mWrite++ ;
+			_CREATE_ (&(*r1x)[mScoped] ,src[mScoped]) ;
+			mScoped++ ;
 		}
 	}
 
@@ -1468,17 +1486,21 @@ public:
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mWrite <= 0)
+			if (mScoped <= 0)
 				break ;
-			_DESTROY_ (&(*r1x)[mWrite]) ;
-			mWrite-- ;
+			_DESTROY_ (&(*r1x)[mScoped - 1]) ;
+			mScoped-- ;
 		}
+		mScoped = 0 ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = delete ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
 	inline ScopedBuild (ScopedBuild &&) = delete ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
+
+private:
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<ARR<TEMP<UNIT>>> &address) :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
@@ -1519,12 +1541,12 @@ private:
 	inline Singleton (Singleton &&) = delete ;
 	inline Singleton &operator= (Singleton &&) = delete ;
 
-	inline UNIT &to () const {
+	inline UNIT &to () {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
 		return mPointer->mData ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () {
 		return to () ;
 	}
 
@@ -1787,27 +1809,28 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mData ;
+		const auto r1x = &_LOAD_<Holder> (mPointer) ;
+		return r1x->mData ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const popping {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () const popping {
 		return &to () ;
 	}
 
 private:
 	inline explicit SharedRef (PTR<Holder> pointer) {
 		mPointer = _COPY_ (pointer) ;
-		if (mPointer == NULL)
+		if (!exist ())
 			return ;
-		const auto r1x = ++mPointer->mCounter ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		(void) r1x ;
+		const auto r2x = ++mPointer->mCounter ;
+		_DEBUG_ASSERT_ (r2x > 0) ;
+		(void) r2x ;
 	}
 
 public:
@@ -2246,16 +2269,17 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return *mPointer ;
+		const auto r1x = &_LOAD_<UNIT> (mPointer) ;
+		return *r1x ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const popping {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () const popping {
 		return &to () ;
 	}
 
@@ -3212,11 +3236,14 @@ public:
 		return (*this) ;
 	}
 
-	inline const ARR<UNIT> &to () const {
-		return *mBuffer ;
+	inline const ARR<UNIT> &to () const popping {
+		if (mBuffer == NULL)
+			return _NULL_<ARR<UNIT>> () ;
+		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
+		return *r1x ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const {
+	inline implicit operator const ARR<UNIT> & () const popping {
 		return to () ;
 	}
 
@@ -3226,17 +3253,18 @@ public:
 		return mSize ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const popping & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
-		return (*mBuffer)[index] ;
+		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
+		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const popping & {
 		return get (index) ;
 	}
 
@@ -3381,11 +3409,14 @@ public:
 		return (*this) ;
 	}
 
-	inline ARR<UNIT> &to () const {
-		return *mBuffer ;
+	inline ARR<UNIT> &to () const popping {
+		if (mBuffer == NULL)
+			return _NULL_<ARR<UNIT>> () ;
+		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
+		return *r1x ;
 	}
 
-	inline implicit operator ARR<UNIT> & () const {
+	inline implicit operator ARR<UNIT> & () const popping {
 		return to () ;
 	}
 
@@ -3395,17 +3426,18 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) const & {
+	inline UNIT &get (INDEX index) const popping & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
-		return (*mBuffer)[index] ;
+		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
+		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
 	}
 
-	inline UNIT &operator[] (INDEX index) const & {
+	inline UNIT &operator[] (INDEX index) const popping & {
 		return get (index) ;
 	}
 
@@ -3714,15 +3746,16 @@ public:
 			}
 
 			inline void unlock () {
-				if (Finally::mSelf.mLength > 0)
-					return ;
 				const auto r1x = _SWITCH_ (
 					(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
 					0) ;
-				for (INDEX i = r1x ; i < Finally::mSelf.mAllocator.size () ; i++) {
+				for (INDEX i = r1x ; i < mAllocator.size () ; i++) {
+					if (Finally::mSelf.mLength <= 0)
+						discard ;
 					if (Finally::mSelf.mAllocator[i].mNext != VAR_USED)
 						continue ;
 					_DESTROY_ (&Finally::mSelf.mAllocator[i].mData) ;
+					Finally::mSelf.mLength-- ;
 				}
 				Finally::mSelf.mLength = 0 ;
 				Finally::mSelf.mFree = VAR_NONE ;
@@ -3736,7 +3769,9 @@ public:
 			if (mAllocator[i].mNext != VAR_USED)
 				continue ;
 			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (that.mAllocator[i].mData))) ;
+			mLength++ ;
 		}
+		_DEBUG_ASSERT_ (mLength == that.mLength) ;
 		mLength = that.mLength ;
 		mFree = that.mFree ;
 	}
