@@ -25,10 +25,10 @@ public:
 		_UNITTEST_ASSERT_ (r15x == _PCSTR_ ("0")) ;
 		const auto r16x = DATA (0X4027FFFFFFFFFFE1) ;
 		const auto r17x = _BUILDVAL64S_ (_CAST_<VAL64> (r16x)) ;
-		_UNITTEST_ASSERT_ (r17x.length () >= 2 && r17x.segment (0 ,2) == _PCSTR_ ("12")) ;
+		_UNITTEST_ASSERT_ (CSC::BOOL (r17x.length () >= 2 && r17x.segment (0 ,2) == _PCSTR_ ("12"))) ;
 		const auto r18x = DATA (0X3F9986338B47C730) ;
 		const auto r19x = _BUILDVAL64S_ (_CAST_<VAL64> (r18x)) ;
-		_UNITTEST_ASSERT_ (r19x.length () >= 6 && r19x.segment (0 ,6) == _PCSTR_ ("0.0249")) ;
+		_UNITTEST_ASSERT_ (CSC::BOOL (r19x.length () >= 6 && r19x.segment (0 ,6) == _PCSTR_ ("0.0249"))) ;
 		const auto r5x = _PARSEVALS_ (String<STR> (_PCSTR_ ("-0.0122"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r5x - VAL (-0.0122)) < VAL (1E-4)) ;
 		const auto r6x = _PARSEVALS_ (String<STR> (_PCSTR_ ("1.42E38"))) ;

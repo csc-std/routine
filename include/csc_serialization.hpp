@@ -13,10 +13,10 @@
 namespace CSC {
 class XmlParser {
 private:
-	static constexpr auto NODE_TYPE_TABLE = FLAG (0) ;
-	static constexpr auto NODE_TYPE_OBJECT = FLAG (1) ;
-	static constexpr auto NODE_TYPE_ARRAY = FLAG (2) ;
-	static constexpr auto NODE_TYPE_FINAL = FLAG (3) ;
+	static constexpr auto NODE_CLAZZ_TABLE = FLAG (0) ;
+	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (1) ;
+	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (2) ;
+	static constexpr auto NODE_CLAZZ_FINAL = FLAG (3) ;
 
 	class Node {
 	private:
@@ -462,7 +462,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$8 $7 $9
 		inline void update_shift_e0 () {
 			update_shift_e8 () ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
 			mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
@@ -470,19 +470,19 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e7 (ix) ;
 			mNodeHeap[ix].mChild = mLatestIndex ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e9 () ;
 			mLatestIndex = ix ;
 		}
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_IDENTIFIER_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->$1 = $2
@@ -490,9 +490,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e1 () ;
 			INDEX ix = mNodeHeap[it].mAttributeSet.insert (std::move (mLatestString)) ;
 			_DYNAMIC_ASSERT_ (mNodeHeap[it].mAttributeSet[ix].item.empty ()) ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e2 () ;
 			mNodeHeap[it].mAttributeSet[ix].item = std::move (mLatestString) ;
 		}
@@ -506,7 +506,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 				if (!r1x && !r2x && !r3x)
 					break ;
 				update_shift_e3 (it) ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 		}
 
@@ -521,24 +521,24 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mParent = it ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e4 (ix) ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
 				if (!BOOL (mRis[0] == STRU8 ('>')))
 					discard ;
 				mRis++ ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
 				mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
 				update_shift_e7 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("</") ;
 				update_shift_e1 () ;
 				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				mRis >> _PCSTRU8_ (">") ;
 			}
 			if SWITCH_CASE (ifa) {
@@ -588,7 +588,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					r1 = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -602,22 +602,22 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis++ ;
 			mRis++ ;
 			mRis >> _PCSTRU8_ ("xml") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("version") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("\"1.0\"") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 ('?'))
 					discard ;
 				mRis >> _PCSTRU8_ ("encoding") ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("=") ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("\"utf-8\"") ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("?>") ;
 		}
@@ -653,11 +653,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	private:
 		XmlParser &mContext ;
 		const Array<XmlParser> &mSequence ;
-		const String<STRU8> mTypeString = String<STRU8> (_PCSTRU8_ ("type")) ;
-		const String<STRU8> mTableTypeString = String<STRU8> (_PCSTRU8_ ("table")) ;
-		const String<STRU8> mObjectTypeString = String<STRU8> (_PCSTRU8_ ("object")) ;
-		const String<STRU8> mArrayTypeString = String<STRU8> (_PCSTRU8_ ("array")) ;
-		const String<STRU8> mFinalTypeString = String<STRU8> (_PCSTRU8_ ("final")) ;
+		const String<STRU8> mClazzString = String<STRU8> (_PCSTRU8_ ("type")) ;
+		const String<STRU8> mTableClazzString = String<STRU8> (_PCSTRU8_ ("table")) ;
+		const String<STRU8> mObjectClazzString = String<STRU8> (_PCSTRU8_ ("object")) ;
+		const String<STRU8> mArrayClazzString = String<STRU8> (_PCSTRU8_ ("array")) ;
+		const String<STRU8> mFinalClazzString = String<STRU8> (_PCSTRU8_ ("final")) ;
 
 		Deque<PACK<Deque<XmlParser> ,INDEX ,ARRAY2<INDEX>>> mNodeStack ;
 		ARRAY4<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
@@ -735,17 +735,17 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline INDEX node_type (const XmlParser &node) const {
-			auto &r1 = node.attribute (mTypeString) ;
-			if (r1 == mTableTypeString)
-				return NODE_TYPE_TABLE ;
-			if (r1 == mObjectTypeString)
-				return NODE_TYPE_OBJECT ;
-			if (r1 == mArrayTypeString)
-				return NODE_TYPE_ARRAY ;
-			if (r1 == mFinalTypeString)
-				return NODE_TYPE_FINAL ;
+			auto &r1 = node.attribute (mClazzString) ;
+			if (r1 == mTableClazzString)
+				return NODE_CLAZZ_TABLE ;
+			if (r1 == mObjectClazzString)
+				return NODE_CLAZZ_OBJECT ;
+			if (r1 == mArrayClazzString)
+				return NODE_CLAZZ_ARRAY ;
+			if (r1 == mFinalClazzString)
+				return NODE_CLAZZ_FINAL ;
 			_DYNAMIC_ASSERT_ (r1.empty ()) ;
-			return NODE_TYPE_TABLE ;
+			return NODE_CLAZZ_TABLE ;
 		}
 
 		inline void generate () {
@@ -818,11 +818,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				for (FOR_ONCE_DO) {
 					if (ix == VAR_NONE)
 						discard ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
+					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				}
@@ -869,11 +869,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] == mFoundNodeTypeList[mFoundNodeList[iy][2]]) ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
+					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				}
@@ -907,11 +907,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNodeList[ix][0] == mFoundNodeList[iy][0]) ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_TYPE_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_TYPE_FINAL)
+					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
 						discard ;
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				}
@@ -999,16 +999,16 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 class JsonParser {
 private:
-	static constexpr auto TYPE_ID_NULL = FLAG (1) ;
-	static constexpr auto TYPE_ID_STRING = FLAG (2) ;
-	static constexpr auto TYPE_ID_ARRAY = FLAG (3) ;
-	static constexpr auto TYPE_ID_OBJECT = FLAG (4) ;
+	static constexpr auto NODE_CLAZZ_NULL = FLAG (1) ;
+	static constexpr auto NODE_CLAZZ_STRING = FLAG (2) ;
+	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (3) ;
+	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (4) ;
 
 	class Node {
 	private:
 		friend JsonParser ;
 		AnyRef<void> mValue ;
-		FLAG mTypeID ;
+		FLAG mClazz ;
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
@@ -1035,19 +1035,19 @@ public:
 	}
 
 	BOOL string_type () const {
-		if (mHeap.self[mIndex].mTypeID != TYPE_ID_STRING)
+		if (mHeap.self[mIndex].mClazz != NODE_CLAZZ_STRING)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL array_type () const {
-		if (mHeap.self[mIndex].mTypeID != TYPE_ID_ARRAY)
+		if (mHeap.self[mIndex].mClazz != NODE_CLAZZ_ARRAY)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL object_type () const {
-		if (mHeap.self[mIndex].mTypeID != TYPE_ID_OBJECT)
+		if (mHeap.self[mIndex].mClazz != NODE_CLAZZ_OBJECT)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1222,7 +1222,7 @@ private:
 	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
 		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
 		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
-			if (mHeap.self[i].mTypeID != TYPE_ID_OBJECT)
+			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
 			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			for (auto &&j : r1)
@@ -1254,7 +1254,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			//@info: case 'null'
 			if (!BOOL (r2x[0] != VAR_NONE))
 				discard ;
-			if (!BOOL (mHeap.self[r2x[0]].mTypeID == TYPE_ID_NULL))
+			if (!BOOL (mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_NULL))
 				discard ;
 			if (!BOOL (r2x[1] == 0))
 				discard ;
@@ -1264,7 +1264,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			//@info: case '"xxx"'
 			if (!BOOL (r2x[0] != VAR_NONE))
 				discard ;
-			if (!BOOL (mHeap.self[r2x[0]].mTypeID == TYPE_ID_STRING))
+			if (!BOOL (mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_STRING))
 				discard ;
 			if (!BOOL (r2x[1] == 0))
 				discard ;
@@ -1277,7 +1277,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			//@info: case '[(yyy(,yyy)*)?]'
 			if (!BOOL (r2x[0] != VAR_NONE))
 				discard ;
-			if (!BOOL (mHeap.self[r2x[0]].mTypeID == TYPE_ID_ARRAY))
+			if (!BOOL (mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_ARRAY))
 				discard ;
 			if (!BOOL (r2x[1] == 0))
 				discard ;
@@ -1303,7 +1303,7 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
 			if (!BOOL (r2x[0] != VAR_NONE))
 				discard ;
-			if (!BOOL (mHeap.self[r2x[0]].mTypeID == TYPE_ID_OBJECT))
+			if (!BOOL (mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_OBJECT))
 				discard ;
 			if (!BOOL (r2x[1] == 0))
 				discard ;
@@ -1468,17 +1468,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$11 $10 $12
 		inline void update_shift_e0 () {
 			update_shift_e11 () ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e10 () ;
 			INDEX ix = mLatestIndex ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e12 () ;
 			mLatestIndex = ix ;
 		}
 
 		//@info: $1->${value}
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_VALUE_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_VALUE_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->true|TRUE|false|FALSE
@@ -1522,7 +1522,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $3->"${string}"
 		inline void update_shift_e3 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
@@ -1538,7 +1538,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1551,7 +1551,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1561,7 +1561,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2x () ;
-				mNodeHeap[ix].mTypeID = TYPE_ID_NULL ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_NULL ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1572,7 +1572,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e3 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
-				mNodeHeap[ix].mTypeID = TYPE_ID_STRING ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = it ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
@@ -1609,11 +1609,11 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 					(mNodeHeap[iy].mBrother)) ;
 				r2 = mLatestIndex ;
 				iy = mLatestIndex ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -1624,17 +1624,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("[") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX ,INDEX>>::make (mArraySoftSet.share ()) ;
-			mNodeHeap[ix].mTypeID = TYPE_ID_ARRAY ;
+			mNodeHeap[ix].mClazz = NODE_CLAZZ_ARRAY ;
 			mNodeHeap[ix].mParent = it ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 (']'))
 					discard ;
 				update_shift_e5 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("]") ;
 			mLatestIndex = ix ;
@@ -1645,9 +1645,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e3 () ;
 			auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			INDEX ix = r1.insert (std::move (mLatestString)) ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			update_shift_e4 (it) ;
 			r1[ix].item = mLatestIndex ;
 		}
@@ -1663,11 +1663,11 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 					(mNodeHeap[iy].mBrother)) ;
 				r1 = mLatestIndex ;
 				iy = mLatestIndex ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -1678,17 +1678,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("{") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8> ,INDEX>>::make (mObjectSoftSet.share ()) ;
-			mNodeHeap[ix].mTypeID = TYPE_ID_OBJECT ;
+			mNodeHeap[ix].mClazz = NODE_CLAZZ_OBJECT ;
 			mNodeHeap[ix].mParent = it ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> LLTextReader<>::SKIP_GAP ;
+			mRis >> GCCBULLSHIT::SKIP_GAP ;
 			for (FOR_ONCE_DO) {
 				if (mRis[0] == STRU8 ('}'))
 					discard ;
 				update_shift_e8 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> LLTextReader<>::SKIP_GAP ;
+				mRis >> GCCBULLSHIT::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("}") ;
 			mLatestIndex = ix ;
@@ -1899,25 +1899,25 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$8 $7 $9
 		inline void update_shift_e0 () {
 			update_shift_e8 () ;
-			mRis >> LLTextReader<>::SKIP_GAP_SPACE_ONLY ;
+			mRis >> GCCBULLSHIT::SKIP_GAP_SPACE_ONLY ;
 			update_shift_e7 () ;
-			mRis >> LLTextReader<>::SKIP_GAP_SPACE_ONLY ;
+			mRis >> GCCBULLSHIT::SKIP_GAP_SPACE_ONLY ;
 			update_shift_e9 () ;
 		}
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> LLTextReader<>::HINT_IDENTIFY_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_IDENTIFIER_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> LLTextReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->${newgap}
 		inline void update_shift_e3 () {
-			mRis >> LLTextReader<>::HINT_NEWGAP_TEXT >> mLatestString ;
+			mRis >> GCCBULLSHIT::HINT_NEWGAP_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->/$1
@@ -1989,7 +1989,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 				if SWITCH_CASE (ifa) {
 					update_shift_e6 () ;
 				}
-				mRis >> LLTextReader<>::SKIP_GAP_SPACE_ONLY ;
+				mRis >> GCCBULLSHIT::SKIP_GAP_SPACE_ONLY ;
 			}
 		}
 

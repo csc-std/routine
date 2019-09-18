@@ -527,14 +527,18 @@ public:
 		mService = UniqueRef<void> () ;
 	}
 
-	String<STRU8> host_name () const override {
+	String<STRU8> localhost_name () const override {
 		auto rax = String<STRA> (127) ;
 		::gethostname (rax.raw ().self ,VAR32 (rax.size ())) ;
 		return _ASTOU8S_ (rax) ;
 	}
 
-	String<STRU8> host_addr () const override {
+	String<STRU8> localhost_addr () const override {
 		return String<STRU8> (_PCSTRU8_ ("127.0.0.1")) ;
+	}
+
+	String<STRU8> broadcast_addr () const override {
+		return String<STRU8> (_PCSTRU8_ ("255.255.255.255")) ;
 	}
 
 	LENGTH get_timeout () const override {

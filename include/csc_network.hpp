@@ -134,18 +134,13 @@ public:
 } ;
 
 class NetworkService final :private Interface {
-public:
-	static constexpr auto ADDR_NULL = CHAR (0X00000000) ;
-	static constexpr auto ADDR_NONE = CHAR (0XFFFFFFFF) ;
-	static constexpr auto ADDR_LOCALHOST = CHAR (0X7F000001) ;
-	static constexpr auto ADDR_BROADCAST = CHAR (0XFFFFFFFF) ;
-
 private:
 	exports struct Abstract :public Interface {
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
-		virtual String<STRU8> host_name () const = 0 ;
-		virtual String<STRU8> host_addr () const = 0 ;
+		virtual String<STRU8> localhost_name () const = 0 ;
+		virtual String<STRU8> localhost_addr () const = 0 ;
+		virtual String<STRU8> broadcast_addr () const = 0 ;
 		virtual LENGTH get_timeout () const = 0 ;
 		virtual void set_timeout (LENGTH timeout) = 0 ;
 	} ;
@@ -167,14 +162,19 @@ public:
 		mThis->shutdown () ;
 	}
 
-	String<STRU8> host_name () const {
+	String<STRU8> localhost_name () const {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		return mThis->host_name () ;
+		return mThis->localhost_name () ;
 	}
 
-	String<STRU8> host_addr () const {
+	String<STRU8> localhost_addr () const {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		return mThis->host_addr () ;
+		return mThis->localhost_addr () ;
+	}
+
+	String<STRU8> broadcast_addr () const {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		return mThis->broadcast_addr () ;
 	}
 
 	LENGTH get_timeout () const {

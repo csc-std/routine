@@ -21,14 +21,10 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
-		auto rax = Optional<AutoBuffer<int>> () ;
-		rax.recreate<AutoBuffer<int>> (LENGTH (8)) ;
+		auto rax = Optional<FixedBuffer<int>> () ;
+		rax.recreate<FixedBuffer<int>> (LENGTH (8)) ;
 		const auto r1x = rax.self.size () ;
 		_UNITTEST_ASSERT_ (r1x == 8) ;
-		auto rbx = Optional<AutoBuffer<int>> () ;
-		rbx.recreate<AutoBuffer<int>> (LENGTH (4)) ;
-		const auto r2x = rbx.self.size () ;
-		_UNITTEST_ASSERT_ (r2x == 4) ;
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_FUNCTION) {

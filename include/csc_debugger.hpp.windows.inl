@@ -240,6 +240,10 @@ public:
 		}) ;
 	}
 
+	void hide () override {
+		attach_console () ;
+	}
+
 	void flash () override {
 		if (!mConsole.exist ())
 			return ;
@@ -260,10 +264,6 @@ public:
 	void clear () override {
 		const auto r1x = std::system (_PCSTRA_ ("cls")) ;
 		(void) r1x ;
-	}
-
-	void hide () override {
-		attach_console () ;
 	}
 
 private:

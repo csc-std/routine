@@ -203,6 +203,10 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
+	void hide () override {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
 	void flash () override {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -218,10 +222,6 @@ public:
 	void clear () override {
 		const auto r1x = std::system (_PCSTRA_ ("clear")) ;
 		(void) r1x ;
-	}
-
-	void hide () override {
-		_STATIC_WARNING_ ("noop") ;
 	}
 
 private:

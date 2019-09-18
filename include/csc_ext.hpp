@@ -215,14 +215,14 @@ private:
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
 		LENGTH mAddress ;
-		FLAG mTypeId ;
+		FLAG mTypeUID ;
 		PTR<void (LENGTH)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
 			mAddress = 0 ;
-			mTypeId = 0 ;
+			mTypeUID = 0 ;
 			mWatch = NULL ;
 		} ;
 	} ;
@@ -233,7 +233,7 @@ public:
 		static volatile Storage<_ARG1> mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = _ADDRESS_ (&data) ;
-		mInstance.mTypeId = _TYPEUID_<_ARG2> () ;
+		mInstance.mTypeUID = _TYPEUID_<_ARG2> () ;
 		const auto r1x = _COPY_ (mInstance.mWatch) ;
 		if (r1x == NULL)
 			return ;
@@ -979,15 +979,15 @@ private:
 
 public:
 	inline Variant () {
-		mIndex = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGVS<UNITS...>> ()) ;
 		Detail::template_construct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		mIndex = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGVS<UNITS...>> ()) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&that) {
-		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value ;
 		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (NULL ,_ADDRESS_ (&mVariant)) ;
 		Detail::template_create (_NULL_<ARGV<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ,r1x ,std::forward<_ARG1> (that)) ;
+		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value ;
 	}
 
 	inline ~Variant () noexcept {
@@ -997,11 +997,11 @@ public:
 		mIndex = VAR_NONE ;
 	}
 
-	inline Variant (const Variant &that) {
-		mIndex = that.mIndex ;
+	inline Variant (const Variant &that) :Variant (ARGVP0 ,_NULL_<ARGV<NULLOPT>> ()) {
 		if (mIndex == VAR_NONE)
 			return ;
 		Detail::template_copy_construct (&mVariant ,&that.mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		mIndex = that.mIndex ;
 	}
 
 	inline Variant &operator= (const Variant &that) {
@@ -1091,9 +1091,13 @@ public:
 			Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
 			mIndex = VAR_NONE ;
 		}
-		const auto r1x = &_LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (&mVariant)) ;
-		Detail::template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,r1x ,std::forward<_ARGS> (args)...) ;
-		mIndex = INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value ;
+		for (FOR_ONCE_DO) {
+			if (mIndex != VAR_NONE)
+				discard ;
+			const auto r1x = &_LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (&mVariant)) ;
+			Detail::template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,r1x ,std::forward<_ARGS> (args)...) ;
+			mIndex = INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value ;
+		}
 	}
 
 	//@warn: none class shall be base on its address
@@ -1867,7 +1871,7 @@ private:
 	PTR<Node> mRoot ;
 
 public:
-	inline LinkedRef () {
+	inline LinkedRef () noexcept {
 		mRoot = NULL ;
 	}
 
@@ -2048,13 +2052,18 @@ public:
 			return ;
 		if (!mHolder->mData.exist ())
 			return ;
-		const auto r1x = --mHolder->mCounter ;
-		if (r1x == 0)
+		for (FOR_ONCE_DO) {
+			const auto r1x = --mHolder->mCounter ;
+			if (r1x != 0)
+				discard ;
 			mHolder->mData = AnyRef<void> () ;
+		}
 		mPointer = NULL ;
 	}
 
-	inline StrongRef (const StrongRef &that) :StrongRef (that.mHolder ,that.mPointer) {}
+	inline StrongRef (const StrongRef &that) :StrongRef (that.mHolder ,that.mPointer) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline StrongRef &operator= (const StrongRef &that) {
 		for (FOR_ONCE_DO) {
@@ -2101,8 +2110,7 @@ public:
 
 	inline UNIT &to () const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = &_LOAD_<UNIT> (mPointer) ;
-		return *r1x ;
+		return _LOAD_<UNIT> (mPointer) ;
 	}
 
 	inline implicit operator UNIT & () const popping {
@@ -2549,8 +2557,7 @@ private:
 
 		inline implicit operator UNIT & () const popping & noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			const auto r1x = &_LOAD_<UNIT> (mPointer) ;
-			return *r1x ;
+			return _LOAD_<UNIT> (mPointer) ;
 		}
 
 		inline implicit operator UNIT & () && = delete ;
@@ -2592,7 +2599,10 @@ private:
 	std::atomic<LENGTH> mLatch ;
 
 public:
-	inline IntrusiveRef () :IntrusiveRef (ARGVP0) {}
+	inline IntrusiveRef () noexcept {
+		mPointer = NULL ;
+		mLatch = 0 ;
+	}
 
 	//@warn: address must be from 'IntrusiveRef::make'
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<UNIT>>::value>>
@@ -2683,7 +2693,7 @@ private:
 		}
 		return std::move (ret) ;
 #pragma GCC diagnostic pop
-	}
+}
 
 public:
 	template <class... _ARGS>
@@ -3031,7 +3041,7 @@ private:
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,*address) ;
+			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r1x->mNext) == VAR_USED) ;
 			r1x->mNext = mFree ;
 			mFree = r1x ;
@@ -3134,7 +3144,7 @@ private:
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,*address) ;
+			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
 			auto &r1 = _SWITCH_ (
 				(r1x->mPrev != NULL) ? (r1x->mPrev->mNext) :
 				mRoot) ;
@@ -3254,7 +3264,7 @@ private:
 		friend Object ;
 		LENGTH mObjectSize ;
 		LENGTH mObjectAlign ;
-		FLAG mObjectTypeId ;
+		FLAG mObjectTypeUID ;
 		Function<void (PTR<NONE>)> mConstrutor ;
 		Function<void (PTR<NONE>)> mDestructor ;
 
@@ -3266,7 +3276,7 @@ private:
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
-			mObjectTypeId = _TYPEUID_<_ARG1> () ;
+			mObjectTypeUID = _TYPEUID_<_ARG1> () ;
 			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				_CREATE_ (&_LOAD_<TEMP<_ARG1>> (address)) ;
 			}) ;
@@ -3374,6 +3384,6 @@ inline void Serializer<UNIT1 ,UNIT2>::Binder::friend_visit (UNIT1 &visitor ,UNIT
 	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
-}
+	}
 #endif
 } ;

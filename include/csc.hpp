@@ -446,12 +446,12 @@ namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
 	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return *PTR<ARR<_ARG1>> (that) ;
+		return (*PTR<ARR<_ARG1>> (that)) ;
 	}
 
 	template <class _ARG1 ,LENGTH _VAL1>
 	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &that) const {
-		return *PTR<ARR<_ARG1>> (&that) ;
+		return (*PTR<ARR<_ARG1>> (&that)) ;
 	}
 } ;
 } ;
@@ -654,7 +654,7 @@ struct TEMP {
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
-	return *PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL) ;
+	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
 }
 
 template <class _ARG1>
@@ -684,10 +684,11 @@ template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value || std::is_same<_RET ,TEMP<_ARG1>>::value) ;
+	_STATIC_ASSERT_ (!(std::is_pointer<_ARG1>::value && !std::is_same<_RET ,TEMP<_ARG1>>::value)) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
-	return *reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (&arg1)) ;
+	const auto r1x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (&arg1)) ;
+	return (*r1x) ;
 }
 
 //@warn: not type-safe ,be careful about strict-aliasing
@@ -699,9 +700,10 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
 	(void) r1x ;
+	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
 	//@warn: simulate 'std::launder' to disable compiler's escape analysis
-	const auto r2x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address)) ;
-	return *r2x ;
+	const auto r3x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
+	return (*r3x) ;
 }
 
 //@warn: not type-safe ,be careful about strict-aliasing
@@ -1409,7 +1411,7 @@ public:
 	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
 
 private:
-	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> & ,UNIT &address) :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> & ,UNIT &address) noexcept :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
@@ -1429,10 +1431,10 @@ public:
 	}
 
 	inline ~ScopedBuild () noexcept {
+		if (mScoped == 0)
+			return ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
-			return ;
-		if (mScoped == 0)
 			return ;
 		_DESTROY_ (r1x) ;
 		mScoped = 0 ;
@@ -1444,7 +1446,7 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<TEMP<UNIT>> &address) :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<TEMP<UNIT>> &address) noexcept :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
@@ -1482,6 +1484,8 @@ public:
 	}
 
 	inline ~ScopedBuild () noexcept {
+		if (mScoped == 0)
+			return ;
 		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
@@ -1500,7 +1504,7 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<ARR<TEMP<UNIT>>> &address) :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<ARR<TEMP<UNIT>>> &address) noexcept :mAddress (address) ,mScoped (0) {}
 } ;
 
 template <class UNIT>
@@ -1522,7 +1526,7 @@ private:
 	PTR<Holder> mPointer ;
 
 private:
-	inline Singleton () {
+	inline Singleton () :Singleton (ARGVP0) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax) ;
 		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
@@ -1530,7 +1534,8 @@ private:
 	}
 
 	inline ~Singleton () noexcept {
-		_DEBUG_ASSERT_ (mPointer != NULL) ;
+		if (mPointer == NULL)
+			return ;
 		mPointer->~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
@@ -1549,6 +1554,9 @@ private:
 	inline implicit operator UNIT & () {
 		return to () ;
 	}
+
+private:
+	inline explicit Singleton (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) {}
 
 public:
 	//@warn: static instance across DLL ruins Singleton
@@ -1647,7 +1655,9 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AutoRef (const AutoRef &that) {
+	inline AutoRef (const AutoRef &that) :AutoRef () {
+		if (that.mPointer == NULL)
+			return ;
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
 		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
@@ -1777,7 +1787,9 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline SharedRef (const SharedRef &that) :SharedRef (that.mPointer) {}
+	inline SharedRef (const SharedRef &that) :SharedRef (that.mPointer) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline SharedRef &operator= (const SharedRef &that) {
 		for (FOR_ONCE_DO) {
@@ -2271,8 +2283,7 @@ public:
 
 	inline UNIT &to () const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = &_LOAD_<UNIT> (mPointer) ;
-		return *r1x ;
+		return _LOAD_<UNIT> (mPointer) ;
 	}
 
 	inline implicit operator UNIT & () const popping {
@@ -2336,7 +2347,7 @@ public:
 		mFunction_b = NULL ;
 	}
 
-	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) {
+	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept {
 		mFunction_a = NULL ;
 		mFunction_b = that ;
 	}
@@ -2785,10 +2796,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (LENGTH len) :Buffer () {
 		_DEBUG_ASSERT_ (len >= 0) ;
-		mBuffer = NULL ;
-		mSize = 0 ;
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
@@ -2814,7 +2823,7 @@ public:
 	inline Buffer &operator= (Buffer &&) = delete ;
 
 	inline ARR<UNIT> &to () {
-		return *mBuffer ;
+		return (*mBuffer) ;
 	}
 
 	inline implicit operator ARR<UNIT> & () {
@@ -2824,7 +2833,7 @@ public:
 	inline implicit operator PTR<UNIT> () = delete ;
 
 	inline const ARR<UNIT> &to () const {
-		return *mBuffer ;
+		return (*mBuffer) ;
 	}
 
 	inline implicit operator const ARR<UNIT> & () const {
@@ -2860,7 +2869,7 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		INDEX ret = &item - *mBuffer ;
+		INDEX ret = &item - (*mBuffer) ;
 		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -2869,7 +2878,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ (*mBuffer ,*that.mBuffer ,that.mSize))
+		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2884,7 +2893,7 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return _COPY_ (r2x) ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
@@ -2923,7 +2932,7 @@ public:
 
 	inline void swap (Buffer &that) popping {
 		_DYNAMIC_ASSERT_ (mSize == that.mSize) ;
-		_MEMSWAP_ (*mBuffer ,*that.mBuffer ,mSize) ;
+		_MEMSWAP_ ((*mBuffer) ,(*that.mBuffer) ,mSize) ;
 	}
 } ;
 
@@ -2947,10 +2956,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (LENGTH len) :Buffer () {
 		_DEBUG_ASSERT_ (len >= 0) ;
-		mBuffer = NULL ;
-		mSize = 0 ;
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
@@ -3003,10 +3010,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (LENGTH len) :Buffer () {
 		_DEBUG_ASSERT_ (len >= 0) ;
-		mBuffer = NULL ;
-		mSize = 0 ;
 		if (len == 0)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
@@ -3026,13 +3031,11 @@ public:
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &that) {
-		mBuffer = NULL ;
-		mSize = 0 ;
-		if (that.mSize == 0)
+	inline Buffer (const Buffer &that) :Buffer () {
+		if (that.mBuffer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
-		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,*that.mBuffer ,that.mSize) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,(*that.mBuffer) ,that.mSize) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mSize = that.mSize ;
 		rax = NULL ;
@@ -3080,7 +3083,7 @@ public:
 	inline explicit Buffer (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
 	inline ARR<UNIT> &to () {
-		return *mBuffer ;
+		return (*mBuffer) ;
 	}
 
 	inline implicit operator ARR<UNIT> & () {
@@ -3090,7 +3093,7 @@ public:
 	inline implicit operator PTR<UNIT> () = delete ;
 
 	inline const ARR<UNIT> &to () const {
-		return *mBuffer ;
+		return (*mBuffer) ;
 	}
 
 	inline implicit operator const ARR<UNIT> & () const {
@@ -3126,7 +3129,7 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		INDEX ret = &item - *mBuffer ;
+		INDEX ret = &item - (*mBuffer) ;
 		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -3135,7 +3138,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ (*mBuffer ,*that.mBuffer ,that.mSize))
+		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -3150,7 +3153,7 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return _COPY_ (r2x) ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
@@ -3205,10 +3208,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (LENGTH len) :Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
-		mBuffer = NULL ;
-		mSize = 0 ;
 	}
 
 	inline ~Buffer () noexcept {
@@ -3239,8 +3240,7 @@ public:
 	inline const ARR<UNIT> &to () const popping {
 		if (mBuffer == NULL)
 			return _NULL_<ARR<UNIT>> () ;
-		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
-		return *r1x ;
+		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
 	inline implicit operator const ARR<UNIT> & () const popping {
@@ -3273,7 +3273,7 @@ public:
 	inline const UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		INDEX ret = &item - *mBuffer ;
+		INDEX ret = &item - (*mBuffer) ;
 		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -3282,7 +3282,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ (*mBuffer ,*that.mBuffer ,that.mSize))
+		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -3297,7 +3297,7 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return _COPY_ (r2x) ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
@@ -3378,10 +3378,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (LENGTH len) :Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
-		mBuffer = NULL ;
-		mSize = 0 ;
 	}
 
 	inline ~Buffer () noexcept {
@@ -3412,8 +3410,7 @@ public:
 	inline ARR<UNIT> &to () const popping {
 		if (mBuffer == NULL)
 			return _NULL_<ARR<UNIT>> () ;
-		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
-		return *r1x ;
+		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
 	inline implicit operator ARR<UNIT> & () const popping {
@@ -3446,7 +3443,7 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		INDEX ret = &item - *mBuffer ;
+		INDEX ret = &item - (*mBuffer) ;
 		if (!BOOL (ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -3455,7 +3452,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ (*mBuffer ,*that.mBuffer ,that.mSize))
+		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -3470,7 +3467,7 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ (*mBuffer ,*that.mBuffer ,r1x) ;
+		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return _COPY_ (r2x) ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
@@ -3602,11 +3599,11 @@ public:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3685,11 +3682,11 @@ public:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3814,11 +3811,11 @@ public:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
