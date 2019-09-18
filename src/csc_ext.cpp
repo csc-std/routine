@@ -21,8 +21,8 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
-		auto rax = Optional<FixedBuffer<int>> () ;
-		rax.recreate<FixedBuffer<int>> (LENGTH (8)) ;
+		auto rax = Optional<AutoBuffer<int>> () ;
+		rax = AutoBuffer<int> (8) ;
 		const auto r1x = rax.self.size () ;
 		_UNITTEST_ASSERT_ (r1x == 8) ;
 	}

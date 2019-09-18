@@ -682,7 +682,7 @@ private:
 		inline NativeProxy (NativeProxy &&) noexcept = default ;
 		inline NativeProxy &operator= (NativeProxy &&) = delete ;
 
-		inline implicit operator _UNIT & () const popping & {
+		inline implicit operator _UNIT & () const & popping {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
@@ -692,7 +692,7 @@ private:
 		inline implicit operator _UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const popping & {
+		inline implicit operator _RET () const & popping {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
@@ -880,7 +880,7 @@ private:
 			_ZERO_ (rax) ;
 			_abstract->compute_layout (_this->mHolder ,rax) ;
 			const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-			_this->mImage = PhanBuffer<UNIT>::make (*rax.mImage ,r1x) ;
+			_this->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
 			_this->mCX = rax.mCX ;
 			_this->mCY = rax.mCY ;
 			_this->mCW = rax.mCW ;

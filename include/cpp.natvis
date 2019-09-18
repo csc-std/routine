@@ -152,7 +152,7 @@
 
   <Type Name="CSC::Allocator&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
-      <Item Name="[size]">sizeof (mAllocator.mBuffer) / sizeof (mAllocator.mBuffer[0])</Item>
+      <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
         <Size>sizeof (mAllocator.mBuffer) / sizeof (mAllocator.mBuffer[0])</Size>
@@ -164,7 +164,7 @@
 
   <Type Name="CSC::Allocator&lt;*,CSC::ARGC&lt;-1&gt; &gt;">
     <Expand>
-      <Item Name="[size]">mAllocator.mSize</Item>
+      <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
         <Size>mAllocator.mSize</Size>
@@ -176,7 +176,7 @@
 
   <Type Name="CSC::Allocator&lt;*,CSC::ARGC&lt;-2&gt; &gt;">
     <Expand>
-      <Item Name="[size]">mAllocator.mSize</Item>
+      <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
         <Size>mAllocator.mSize</Size>

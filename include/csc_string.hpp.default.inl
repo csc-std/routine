@@ -53,15 +53,21 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 		}) ;
 	}) ;
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
-	const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (r1x != 0)
+	for (FOR_ONCE_DO) {
+		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
+		if (r1x == 0)
+			discard ;
 		ret = String<STRW> () ;
+	}
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRW> ret = String<STRW> (src.length () + 1) ;
-	const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
-	if (r3x != 0)
+	for (FOR_ONCE_DO) {
+		const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
+		if (r3x == 0)
+			discard ;
 		ret = String<STRW> () ;
+	}
 	return std::move (ret) ;
 #endif
 }
@@ -78,15 +84,21 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 		}) ;
 	}) ;
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
-	const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
-	if (r1x != 0)
+	for (FOR_ONCE_DO) {
+		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
+		if (r1x == 0)
+			discard ;
 		ret = String<STRA> () ;
+	}
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
-	const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
-	if (r3x != 0)
+	for (FOR_ONCE_DO) {
+		const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
+		if (r3x == 0)
+			discard ;
 		ret = String<STRA> () ;
+	}
 	return std::move (ret) ;
 #endif
 }
@@ -135,7 +147,8 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	localtime_s (&rax ,&r1x) ;
 #elif defined _GLIBCXX_CTIME
 	//@warn: not thread-safe due to internel storage
-	auto rax = *std::localtime (&r1x) ;
+	const auto r2x = std::localtime (&r1x) ;
+	auto rax = (*r2x) ;
 #endif
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
@@ -216,8 +229,10 @@ public:
 				if (!r3x)
 					break ;
 				INDEX ix = ret.insert () ;
-				ret[ix][0] = INDEX (&(*rax.self[0].first) - &r1x[0]) ;
-				ret[ix][1] = INDEX (&(*rax.self[0].second) - &r1x[0]) ;
+				auto &r1 = rax.self[0].first ;
+				auto &r2 = rax.self[0].second ;
+				ret[ix][0] = INDEX (&(*r1) - &r1x[0]) ;
+				ret[ix][1] = INDEX (&(*r2) - &r1x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}

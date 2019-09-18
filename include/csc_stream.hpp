@@ -149,7 +149,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const popping & {
+	Attribute &attr () const & popping {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -441,7 +441,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const popping & {
+	Attribute &attr () const & popping {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -798,7 +798,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const popping & {
+	Attribute &attr () const & popping {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -1366,7 +1366,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const popping & {
+	Attribute &attr () const & popping {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -2006,13 +2006,13 @@ inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &arg1 ,const _ARGS 
 } ;
 
 template <class SIZE = VOID>
-class LLTextReader ;
+class RegularReader ;
 
 template <>
-class LLTextReader<void> :private Wrapped<void> {
-public:
+class RegularReader<void> :private Wrapped<void> {
+private:
 	template <class>
-	friend class LLTextReader ;
+	friend class RegularReader ;
 
 	class HINT_IDENTIFIER_TEXT_TYPE ;
 	class HINT_VALUE_TEXT_TYPE ;
@@ -2023,22 +2023,21 @@ public:
 	class SKIP_GAP_SPACE_ONLY_TYPE ;
 	class SKIP_GAP_ENDLINE_ONLY_TYPE ;
 	class SKIP_LINE_TYPE ;
-} ;
 
-namespace GCCBULLSHIT {
-static constexpr auto HINT_IDENTIFIER_TEXT = ARGV<LLTextReader<void>::HINT_IDENTIFIER_TEXT_TYPE> {} ;
-static constexpr auto HINT_VALUE_TEXT = ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE> {} ;
-static constexpr auto HINT_STRING_TEXT = ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE> {} ;
-static constexpr auto HINT_NEWGAP_TEXT = ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE> {} ;
-static constexpr auto HINT_NEWLINE_TEXT = ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE> {} ;
-static constexpr auto SKIP_GAP = ARGV<LLTextReader<void>::SKIP_GAP_TYPE> {} ;
-static constexpr auto SKIP_GAP_SPACE_ONLY = ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE> {} ;
-static constexpr auto SKIP_GAP_ENDLINE_ONLY = ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_ONLY_TYPE> {} ;
-static constexpr auto SKIP_LINE = ARGV<LLTextReader<void>::SKIP_LINE_TYPE> {} ;
+public:
+	static void HINT_IDENTIFIER_TEXT (const ARGV<HINT_IDENTIFIER_TEXT_TYPE> &) {}
+	static void HINT_VALUE_TEXT (const ARGV<HINT_VALUE_TEXT_TYPE> &) {}
+	static void HINT_STRING_TEXT (const ARGV<HINT_STRING_TEXT_TYPE> &) {}
+	static void HINT_NEWGAP_TEXT (const ARGV<HINT_NEWGAP_TEXT_TYPE> &) {}
+	static void HINT_NEWLINE_TEXT (const ARGV<HINT_NEWLINE_TEXT_TYPE> &) {}
+	static void SKIP_GAP (const ARGV<SKIP_GAP_TYPE> &) {}
+	static void SKIP_GAP_SPACE_ONLY (const ARGV<SKIP_GAP_SPACE_ONLY_TYPE> &) {}
+	static void SKIP_GAP_ENDLINE_ONLY (const ARGV<SKIP_GAP_ENDLINE_ONLY_TYPE> &) {}
+	static void SKIP_LINE (const ARGV<SKIP_LINE_TYPE> &) {}
 } ;
 
 template <class SIZE>
-class LLTextReader {
+class RegularReader {
 private:
 	class Shadow {
 	private:
@@ -2072,14 +2071,14 @@ private:
 	LENGTH mHintNextTextSize ;
 
 public:
-	LLTextReader () {
+	RegularReader () {
 		mCache.fill (0) ;
 		mPeek = 0 ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 	}
 
-	explicit LLTextReader (const PhanRef<TextReader<STRU8>> &reader) {
+	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader) {
 		_DEBUG_ASSERT_ (reader.exist ()) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (reader) ;
 		auto &r1 = mReader->attr () ;
@@ -2147,92 +2146,92 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline LLTextReader &operator>> (const Plain<STRU8> &data) {
+	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_IDENTIFIER_TEXT_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::HINT_IDENTIFIER_TEXT)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_identifier_size () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::HINT_IDENTIFIER_TEXT_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::HINT_IDENTIFIER_TEXT_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::HINT_IDENTIFIER_TEXT)> &) {
+		read (RegularReader<void>::HINT_IDENTIFIER_TEXT) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::HINT_VALUE_TEXT)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_value_size () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::HINT_VALUE_TEXT_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::HINT_VALUE_TEXT)> &) {
+		read (RegularReader<void>::HINT_VALUE_TEXT) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::HINT_STRING_TEXT)> &) {
 		mHintStringTextFlag = TRUE ;
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::HINT_STRING_TEXT_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::HINT_STRING_TEXT)> &) {
+		read (RegularReader<void>::HINT_STRING_TEXT) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::HINT_NEWGAP_TEXT)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newgap_text_size () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::HINT_NEWGAP_TEXT_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::HINT_NEWGAP_TEXT)> &) {
+		read (RegularReader<void>::HINT_NEWGAP_TEXT) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::HINT_NEWLINE_TEXT)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newline_text_size () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::HINT_NEWLINE_TEXT_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::HINT_NEWLINE_TEXT)> &) {
+		read (RegularReader<void>::HINT_NEWLINE_TEXT) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP)> &) {
 		while (mReader->attr ().varify_space (get (0)))
 			read () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::SKIP_GAP_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::SKIP_GAP_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP)> &) {
+		read (RegularReader<void>::SKIP_GAP) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP_SPACE_ONLY)> &) {
 		while (mReader->attr ().varify_space (get (0) ,1))
 			read () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::SKIP_GAP_SPACE_ONLY_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP_SPACE_ONLY)> &) {
+		read (RegularReader<void>::SKIP_GAP_SPACE_ONLY) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_ONLY_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP_ENDLINE_ONLY)> &) {
 		while (mReader->attr ().varify_space (get (0) ,2))
 			read () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_ONLY_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::SKIP_GAP_ENDLINE_ONLY_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP_ENDLINE_ONLY)> &) {
+		read (RegularReader<void>::SKIP_GAP_ENDLINE_ONLY) ;
 		return (*this) ;
 	}
 
-	void read (ARGV<LLTextReader<void>::SKIP_LINE_TYPE>) {
+	void read (const PTR<decltype (RegularReader<void>::SKIP_LINE)> &) {
 		auto rax = STRU8 () ;
 		while (TRUE) {
 			rax = get (0) ;
@@ -2249,8 +2248,8 @@ public:
 		read () ;
 	}
 
-	inline LLTextReader &operator>> (ARGV<LLTextReader<void>::SKIP_LINE_TYPE>) {
-		read (_NULL_<ARGV<LLTextReader<void>::SKIP_LINE_TYPE>> ()) ;
+	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_LINE)> &) {
+		read (RegularReader<void>::SKIP_LINE) ;
 		return (*this) ;
 	}
 
@@ -2293,7 +2292,7 @@ public:
 		}
 	}
 
-	inline LLTextReader &operator>> (String<STRU8> &data) popping {
+	inline RegularReader &operator>> (String<STRU8> &data) popping {
 		read (data) ;
 		return (*this) ;
 	}

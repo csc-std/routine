@@ -98,7 +98,7 @@ inline void _inline_SOCKET_BIND_ (const SOCKET &_socket ,const String<STRU8> &ad
 inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &_socket ,LENGTH timeout) {
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
-#pragma warning (disable :4548) //@info: warning C4548: 逗号前的表达式不起任何作用；应输入带副作用的表达式
+#pragma warning (disable :4548)
 #endif
 	ARRAY2<fd_set> ret ;
 	FD_ZERO (&ret[0]) ;

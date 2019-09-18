@@ -234,9 +234,12 @@ inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 inline exports String<STR> _WORKINGPATH_ () {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	const auto r1x = getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
-	if (r1x == NULL)
+	for (FOR_ONCE_DO) {
+		const auto r1x = getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
+		if (r1x != NULL)
+			discard ;
 		rax.clear () ;
+	}
 	for (FOR_ONCE_DO) {
 		const auto r2x = rax.length () ;
 		if (r2x < 1)
@@ -317,9 +320,12 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
-		const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-		if (!BOOL (r1x >= 0 && r1x < rax.size ()))
+		for (FOR_ONCE_DO) {
+			const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
+			if (BOOL (r1x >= 0 && r1x < rax.size ()))
+				discard ;
 			rax.clear () ;
+		}
 		String<STR> ret = _PARSESTRS_ (rax) ;
 		ret = _PARSEFILEPATH_ (ret) ;
 		ret += _PCSTR_ ("/") ;
@@ -331,9 +337,12 @@ inline exports const String<STR> &_MODULEFILENAME_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
-		const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
-		if (!BOOL (r1x >= 0 && r1x < rax.size ()))
+		for (FOR_ONCE_DO) {
+			const auto r1x = readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
+			if (BOOL (r1x >= 0 && r1x < rax.size ()))
+				discard ;
 			rax.clear () ;
+		}
 		const auto r2x = _PARSESTRS_ (rax) ;
 		return _PARSEFILENAME_ (r2x) ;
 	}) ;

@@ -975,7 +975,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -1108,7 +1107,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -1744,7 +1742,7 @@ public:
 		mList.free (ix) ;
 	}
 
-	void swap (INDEX index1 ,INDEX index2) {
+	void eswap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
 		auto &r1 = prev_next (index1) ;
@@ -2066,7 +2064,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void swap (INDEX index1 ,INDEX index2) {
+	void eswap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
 		sequence_rewrite (mList[index1].mSequ ,index2) ;
@@ -2804,7 +2802,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -2947,7 +2944,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -3183,7 +3179,7 @@ public:
 				discard ;
 			if (mSet[index].mRight == VAR_NONE)
 				discard ;
-			swap (index ,successor_one (index)) ;
+			eswap (index ,successor_one (index)) ;
 		}
 		INDEX ix = mSet[index].mLeft ;
 		if (ix == VAR_NONE)
@@ -3526,7 +3522,7 @@ private:
 		return VAR_NONE ;
 	}
 
-	void swap (INDEX index1 ,INDEX index2) {
+	void eswap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
 		auto &r1 = prev_next (index2) ;
@@ -3614,7 +3610,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -3755,7 +3750,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -4109,7 +4103,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
@@ -4275,7 +4268,6 @@ private:
 
 		inline Pair (const Pair &) = delete ;
 
-		//@info: be careful about key's lifetime
 		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {

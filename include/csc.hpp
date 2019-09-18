@@ -72,29 +72,29 @@
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-#pragma warning (disable :4068) //@info: warning C4068: 未知的杂注
-#pragma warning (disable :4619) //@info: warning C4619: #pragma warning : 无警告编号“xxx”
-#pragma warning (disable :4100) //@info: warning C4100: “xxx”: 未引用的形参
-#pragma warning (disable :4365) //@info: warning C4365: “xxx”: 从“xxx”转换到“xxx”，有符号/无符号不匹配
-#pragma warning (disable :4371) //@info: warning C4371: “xxx”: 由于成员“xxx”更好的封装，类的布局可能与早期版本的编译器有所不同
-#pragma warning (disable :4464) //@info: warning C4464: 相对包含路径包括 ".."
-#pragma warning (disable :4505) //@info: warning C4505: “xxx”: 未引用的本地函数已移除
-#pragma warning (disable :4514) //@info: warning C4514: “xxx”: 未引用的内联函数已移除
-#pragma warning (disable :4571) //@info: warning C4571: 信息: 自 Visual C++ 7.1 之后，catch(...) 语义发生了变化；不再捕获结构化的异常(SEH)
-#pragma warning (disable :4574) //@info: warning C4574: “xxx”被定义为“0”: 您是否希望使用“#if xxx”?
-#pragma warning (disable :4668) //@info: warning C4668: 没有将“xxx”定义为预处理器宏，用“0”替换“#if/#elif”
-#pragma warning (disable :4710) //@info: warning C4710: “xxx”: 函数未内联
-#pragma warning (disable :4711) //@info: warning C4711: 为自动内联扩展选定了函数“xxx”
-#pragma warning (disable :4774) //@info: warning C4774: “xxx”: 参数 ? 中应存在的格式字符串不为字符串字面量
-#pragma warning (disable :4324) //@info: warning C4324: “xxx”: 由于对齐说明符，结构被填充
-#pragma warning (disable :4820) //@info: warning C4820: “xxx”:“xxx”字节填充添加在 数据成员“xxx”后
-#pragma warning (disable :4623) //@info: warning C4623: “xxx”: 已将默认构造函数隐式定义为“已删除”
-#pragma warning (disable :4624) //@info: warning C4624: “xxx”: 已将析构函数隐式定义为“已删除”
-#pragma warning (disable :4625) //@info: warning C4625: “xxx”: 已将复制构造函数隐式定义为“已删除”
-#pragma warning (disable :4626) //@info: warning C4626: “xxx”: 已将对齐运算符隐式定义为“已删除”
-#pragma warning (disable :5026) //@info: warning C5026: “xxx”: 已将移动构造函数隐式定义为“已删除”
-#pragma warning (disable :5027) //@info: warning C5027: “xxx”: 已将移动赋值运算符隐式定义为“已删除”
-#pragma warning (disable :5045) //@info: warning C5045: 如果指定了 /Qspectre 开关，编译器会插入内存负载的 Spectre 缓解
+#pragma warning (disable :4068) //@info: warning C4068: unknown pragma
+#pragma warning (disable :4619) //@info: warning C4619: #pragma warning: there is no warning number 'xxx'
+#pragma warning (disable :4100) //@info: warning C4100: 'xxx': unreferenced formal parameter
+#pragma warning (disable :4180) //@info: warning C4180: qualifier applied to function type has no meaning; ignored
+#pragma warning (disable :4365) //@info: warning C4365: 'xxx': conversion from 'xxx' to 'xxx', signed/unsigned mismatch
+#pragma warning (disable :4371) //@info: warning C4371: 'xxx': layout of class may have changed from a previous version of the compiler due to better packing of member 'xxx'
+#pragma warning (disable :4464) //@info: warning C4464: relative include path contains '..'
+#pragma warning (disable :4505) //@info: warning C4505: 'xxx': unreferenced local function has been removed
+#pragma warning (disable :4514) //@info: warning C4514: 'xxx': unreferenced inline function has been removed
+#pragma warning (disable :4571) //@info: warning C4571: Informational: catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught
+#pragma warning (disable :4574) //@info: warning C4574: 'xxx' is defined to be '0': did you mean to use '#if xxx'?
+#pragma warning (disable :4668) //@info: warning C4668: 'xxx' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
+#pragma warning (disable :4710) //@info: warning C4710: 'xxx': function not inlined
+#pragma warning (disable :4774) //@info: warning C4774: 'xxx' : format string expected in argument ? is not a string literal
+#pragma warning (disable :4324) //@info: warning C4324: 'xxx': structure was padded due to alignment specifier
+#pragma warning (disable :4820) //@info: warning C4820: 'xxx': 'xxx' bytes padding added after data member 'xxx'
+#pragma warning (disable :4623) //@info: warning C4623: 'xxx': default constructor was implicitly defined as deleted
+#pragma warning (disable :4624) //@info: warning C4624: 'xxx': destructor was implicitly defined as deleted
+#pragma warning (disable :4625) //@info: warning C4625: 'xxx': copy constructor was implicitly defined as deleted
+#pragma warning (disable :4626) //@info:  warning C4626: 'xxx': assignment operator was implicitly defined as deleted
+#pragma warning (disable :5026) //@info: warning C5026: 'xxx': move constructor was implicitly defined as deleted
+#pragma warning (disable :5027) //@info: warning C5027: 'xxx': move assignment operator was implicitly defined as deleted
+#pragma warning (disable :5045) //@info: warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -446,12 +446,12 @@ namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
 	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return (*PTR<ARR<_ARG1>> (that)) ;
+		return *PTR<ARR<_ARG1>> (that) ;
 	}
 
 	template <class _ARG1 ,LENGTH _VAL1>
 	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &that) const {
-		return (*PTR<ARR<_ARG1>> (&that)) ;
+		return *PTR<ARR<_ARG1>> (&that) ;
 	}
 } ;
 } ;
@@ -654,7 +654,7 @@ struct TEMP {
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
-	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
+	return *PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL) ;
 }
 
 template <class _ARG1>
@@ -1274,6 +1274,12 @@ public:
 
 	inline explicit Exception (const Plain<STR> &_what) noexcept :mWhat (_what.self) {}
 
+	inline Exception (const Exception &) = default ;
+	inline Exception &operator= (const Exception &) = delete ;
+
+	inline Exception (Exception &&) noexcept = default ;
+	inline Exception &operator= (Exception &&) = delete ;
+
 	inline const ARR<STR> &what () const noexcept {
 		return mWhat ;
 	}
@@ -1383,26 +1389,25 @@ public:
 template <class UNIT>
 class ScopedGuard final {
 private:
-	UNIT &mAddress ;
-	FLAG mScoped ;
+	PTR<UNIT> mAddress ;
 
 public:
 	inline ScopedGuard () = delete ;
 
-	inline explicit ScopedGuard (UNIT &address) popping :ScopedGuard (ARGVP0 ,address) {
-		mAddress.lock () ;
-		mScoped++ ;
+	inline explicit ScopedGuard (UNIT &address) popping :ScopedGuard (ARGVP0) {
+		address.lock () ;
+		mAddress = &address ;
 	}
 
 	inline explicit ScopedGuard (UNIT &&) = delete ;
 
 	inline ~ScopedGuard () noexcept {
-		if (mScoped == 0)
+		if (mAddress == NULL)
 			return ;
 		_CATCH_ ([&] () {
-			mAddress.unlock () ;
+			mAddress->unlock () ;
 		}) ;
-		mScoped = 0 ;
+		mAddress = NULL ;
 	}
 
 	inline ScopedGuard (const ScopedGuard &) = delete ;
@@ -1411,33 +1416,39 @@ public:
 	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
 
 private:
-	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> & ,UNIT &address) noexcept :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) {}
 } ;
 
 template <class UNIT>
 class ScopedBuild final {
 private:
-	const volatile PTR<TEMP<UNIT>> &mAddress ;
-	FLAG mScoped ;
+	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
+	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :ScopedBuild (ARGVP0 ,address) {
-		const auto r1x = _COPY_ (mAddress) ;
+	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :ScopedBuild (ARGVP0) {
+		mAddress = &address ;
+		const auto r1x = (*mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
-		mScoped++ ;
+		mSize++ ;
 	}
 
 	inline ~ScopedBuild () noexcept {
-		if (mScoped == 0)
+		if (mAddress == NULL)
 			return ;
-		const auto r1x = _COPY_ (mAddress) ;
+		const auto r1x = (*mAddress) ;
 		if (r1x == NULL)
 			return ;
-		_DESTROY_ (r1x) ;
-		mScoped = 0 ;
+		for (FOR_ONCE_DO) {
+			if (mSize <= 0)
+				discard ;
+			_DESTROY_ (r1x) ;
+			mSize-- ;
+		}
+		mAddress = NULL ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = delete ;
@@ -1446,56 +1457,58 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<TEMP<UNIT>> &address) noexcept :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) ,mSize (0) {}
 } ;
 
 template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final {
 private:
-	const volatile PTR<ARR<TEMP<UNIT>>> &mAddress ;
-	FLAG mScoped ;
+	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
+	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0 ,address) {
-		const auto r1x = _COPY_ (mAddress) ;
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
+		mAddress = &address ;
+		const auto r1x = (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mScoped >= len)
+			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mScoped]) ;
-			mScoped++ ;
+			_CREATE_ (&(*r1x)[mSize]) ;
+			mSize++ ;
 		}
 	}
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0 ,address) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		const auto r1x = _COPY_ (mAddress) ;
+		mAddress = &address ;
+		const auto r1x = (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mScoped >= len)
+			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mScoped] ,src[mScoped]) ;
-			mScoped++ ;
+			_CREATE_ (&(*r1x)[mSize] ,src[mSize]) ;
+			mSize++ ;
 		}
 	}
 
 	inline ~ScopedBuild () noexcept {
-		if (mScoped == 0)
+		if (mAddress == NULL)
 			return ;
-		const auto r1x = _COPY_ (mAddress) ;
+		const auto r1x = (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
-			if (mScoped <= 0)
+			if (mSize <= 0)
 				break ;
-			_DESTROY_ (&(*r1x)[mScoped - 1]) ;
-			mScoped-- ;
+			_DESTROY_ (&(*r1x)[mSize - 1]) ;
+			mSize-- ;
 		}
-		mScoped = 0 ;
+		mAddress = NULL ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = delete ;
@@ -1504,7 +1517,7 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const volatile PTR<ARR<TEMP<UNIT>>> &address) noexcept :mAddress (address) ,mScoped (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) ,mSize (0) {}
 } ;
 
 template <class UNIT>
@@ -1618,7 +1631,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) :mPointer (pointer) {}
+	inline explicit AutoRef (PTR<Holder> pointer) noexcept :mPointer (pointer) {}
 } ;
 
 template <class UNIT>
@@ -1689,7 +1702,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) :mPointer (pointer) {}
+	inline explicit AutoRef (PTR<Holder> pointer) noexcept :mPointer (pointer) {}
 } ;
 
 template <class UNIT>
@@ -1738,14 +1751,15 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) :SPECIALIZATION_BASE (pointer) {}
+	inline explicit AutoRef (PTR<Holder> pointer) noexcept :SPECIALIZATION_BASE (pointer) {}
 
 public:
 	template <class... _ARGS>
 	inline static AutoRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		AutoRef ret = AutoRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax))) ;
+		const auto r1x = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		AutoRef ret = AutoRef (r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1836,13 +1850,13 @@ public:
 	}
 
 private:
-	inline explicit SharedRef (PTR<Holder> pointer) {
-		mPointer = _COPY_ (pointer) ;
-		if (!exist ())
+	inline explicit SharedRef (PTR<Holder> pointer) :SharedRef () {
+		if (pointer == NULL)
 			return ;
-		const auto r2x = ++mPointer->mCounter ;
-		_DEBUG_ASSERT_ (r2x > 0) ;
-		(void) r2x ;
+		const auto r1x = ++pointer->mCounter ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
+		(void) r1x ;
+		mPointer = pointer ;
 	}
 
 public:
@@ -1850,7 +1864,8 @@ public:
 	inline static SharedRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		SharedRef ret = SharedRef (&_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax))) ;
+		const auto r1x = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		SharedRef ret = SharedRef (r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1970,14 +1985,15 @@ public:
 	}
 
 private:
-	inline explicit AnyRef (PTR<Holder> pointer) :mPointer (pointer) {}
+	inline explicit AnyRef (PTR<Holder> pointer) noexcept :mPointer (pointer) {}
 
 public:
 	template <class... _ARGS>
 	inline static AnyRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
 		ScopedBuild<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		AnyRef ret = AnyRef (&_LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax))) ;
+		const auto r1x = &_LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
+		AnyRef ret = AnyRef (r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -2087,7 +2103,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
@@ -2149,7 +2165,7 @@ public:
 	}
 
 private:
-	inline explicit UniqueRef (PTR<Holder> pointer) :mPointer (pointer) {}
+	inline explicit UniqueRef (PTR<Holder> pointer) noexcept :mPointer (pointer) {}
 
 public:
 	template <class... _ARGS>
@@ -2196,7 +2212,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping {
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
@@ -2353,7 +2369,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
-	inline implicit Function (_ARG1 &&that) {
+	inline implicit Function (_ARG1 &&that) :Function () {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
 		mFunction_a = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
@@ -2501,8 +2517,7 @@ public:
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
-	inline Function (Function &&that) noexcept {
-		_ZERO_ (mVariant) ;
+	inline Function (Function &&that) noexcept :Function () {
 		if (!that.exist ())
 			return ;
 		that.fake.friend_copy (&mVariant) ;
@@ -2519,11 +2534,10 @@ public:
 	}
 
 	inline BOOL exist () const {
-		auto &r1 = _CAST_<BYTE[_SIZEOF_ (TEMP<FakeHolder>)]> (mVariant) ;
-		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (r1)) ; i++)
-			if (r1[i] != 0)
-				return TRUE ;
-		return FALSE ;
+		const auto r1x = _CAST_<VAR> (_XVALUE_<Interface> (fake)) ;
+		if (r1x == VAR_ZERO)
+			return FALSE ;
+		return TRUE ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping {
@@ -2571,6 +2585,7 @@ private:
 		inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...args) noexcept {
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
+			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
 			_DEBUG_ASSERT_ (address != NULL) ;
 			auto &r1 = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
 			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1)) ;
@@ -3239,7 +3254,7 @@ public:
 
 	inline const ARR<UNIT> &to () const popping {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return (*mBuffer) ;
 		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
@@ -3253,7 +3268,7 @@ public:
 		return mSize ;
 	}
 
-	inline const UNIT &get (INDEX index) const popping & {
+	inline const UNIT &get (INDEX index) const & popping {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3264,7 +3279,7 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline const UNIT &operator[] (INDEX index) const popping & {
+	inline const UNIT &operator[] (INDEX index) const & popping {
 		return get (index) ;
 	}
 
@@ -3335,7 +3350,7 @@ public:
 	}
 
 private:
-	inline explicit Buffer (PTR<const ARR<UNIT>> src ,LENGTH len) :mBuffer (src) ,mSize (len) {}
+	inline explicit Buffer (PTR<const ARR<UNIT>> src ,LENGTH len) noexcept :mBuffer (src) ,mSize (len) {}
 
 public:
 	//@warn: phantom means deliver pointer without holder
@@ -3409,7 +3424,7 @@ public:
 
 	inline ARR<UNIT> &to () const popping {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return (*mBuffer) ;
 		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
@@ -3423,7 +3438,7 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) const popping & {
+	inline UNIT &get (INDEX index) const & popping {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3434,7 +3449,7 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline UNIT &operator[] (INDEX index) const popping & {
+	inline UNIT &operator[] (INDEX index) const & popping {
 		return get (index) ;
 	}
 
@@ -3505,7 +3520,7 @@ public:
 	}
 
 private:
-	inline explicit Buffer (PTR<ARR<UNIT>> src ,LENGTH len) :mBuffer (src) ,mSize (len) {}
+	inline explicit Buffer (PTR<ARR<UNIT>> src ,LENGTH len) noexcept :mBuffer (src) ,mSize (len) {}
 
 public:
 	//@warn: phantom means deliver pointer without holder
@@ -3576,20 +3591,26 @@ private:
 private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
+	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
-	inline Allocator () {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline Allocator () :Allocator (ARGVP0 ,0) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline explicit Allocator (LENGTH len) :Allocator (ARGVP0 ,len) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
 	inline ~Allocator () noexcept {
+		if (mSize == 0)
+			return ;
 		spec.clear () ;
+		mSize = 0 ;
+		mLength = 0 ;
+		mFree = VAR_NONE ;
 	}
 
 	inline Allocator (const Allocator &) = delete ;
@@ -3598,12 +3619,15 @@ public:
 	inline Allocator &operator= (Allocator &&) = delete ;
 
 private:
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3635,36 +3659,50 @@ private:
 private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
+	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
-	inline Allocator () {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline Allocator () :Allocator (ARGVP0 ,0) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline explicit Allocator (LENGTH len) :Allocator (ARGVP0 ,len) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
 	inline ~Allocator () noexcept {
+		if (mSize == 0)
+			return ;
 		spec.clear () ;
+		mSize = 0 ;
+		mLength = 0 ;
+		mFree = VAR_NONE ;
 	}
 
 	inline Allocator (const Allocator &) = delete ;
 	inline Allocator &operator= (const Allocator &) = delete ;
 
-	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
+	inline Allocator (Allocator &&that) noexcept :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = _SWITCH_ (
 			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
 			0) ;
-		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext != VAR_USED)
-				continue ;
-			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (that.mAllocator[i].mData))) ;
+		mSize += r1x ;
+		while (TRUE) {
+			if (mSize >= that.mAllocator.size ())
+				break ;
+			for (FOR_ONCE_DO) {
+				INDEX ix = mSize ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				mSize++ ;
+			}
 		}
+		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
 		mFree = that.mFree ;
 		that.spec.clear () ;
@@ -3681,12 +3719,17 @@ public:
 	}
 
 private:
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3718,57 +3761,67 @@ private:
 private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
+	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
 public:
-	inline Allocator () {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline Allocator () :Allocator (ARGVP0 ,0) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len) :mAllocator (len) {
-		spec.update_reset (0 ,VAR_NONE) ;
+	inline explicit Allocator (LENGTH len) :Allocator (ARGVP0 ,len) {
+		spec.update_reserve (mSize ,mFree) ;
 	}
 
 	inline ~Allocator () noexcept {
+		if (mSize == 0)
+			return ;
 		spec.clear () ;
+		mSize = 0 ;
+		mLength = 0 ;
+		mFree = VAR_NONE ;
 	}
 
-	inline Allocator (const Allocator &that) :mAllocator (std::move (that.mAllocator)) {
+	inline Allocator (const Allocator &that) :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		class Finally :private Wrapped<Allocator> {
 		public:
 			inline void lock () {
-				Finally::mSelf.mLength = 0 ;
-				Finally::mSelf.mFree = VAR_NONE ;
-			}
-
-			inline void unlock () {
 				const auto r1x = _SWITCH_ (
 					(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
 					0) ;
-				for (INDEX i = r1x ; i < mAllocator.size () ; i++) {
-					if (Finally::mSelf.mLength <= 0)
-						discard ;
-					if (Finally::mSelf.mAllocator[i].mNext != VAR_USED)
-						continue ;
-					_DESTROY_ (&Finally::mSelf.mAllocator[i].mData) ;
-					Finally::mSelf.mLength-- ;
+				Finally::mSelf.mSize += r1x ;
+			}
+
+			inline void unlock () {
+				if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
+					return ;
+				while (TRUE) {
+					if (Finally::mSelf.mSize <= 0)
+						break ;
+					for (FOR_ONCE_DO) {
+						INDEX ix = Finally::mSelf.mSize - 1 ;
+						if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
+							discard ;
+						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
+						Finally::mSelf.mSize-- ;
+					}
 				}
-				Finally::mSelf.mLength = 0 ;
-				Finally::mSelf.mFree = VAR_NONE ;
 			}
 		} ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> ((*this))) ;
-		const auto r2x = _SWITCH_ (
-			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
-			0) ;
-		for (INDEX i = r2x ; i < mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext != VAR_USED)
-				continue ;
-			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (that.mAllocator[i].mData))) ;
-			mLength++ ;
+		while (TRUE) {
+			if (mSize >= that.mAllocator.size ())
+				break ;
+			for (FOR_ONCE_DO) {
+				INDEX ix = mSize ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				mSize++ ;
+			}
 		}
-		_DEBUG_ASSERT_ (mLength == that.mLength) ;
+		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
 		mFree = that.mFree ;
 	}
@@ -3783,17 +3836,25 @@ public:
 		return (*this) ;
 	}
 
-	inline Allocator (Allocator &&that) noexcept :mAllocator (std::move (that.mAllocator)) {
+	inline Allocator (Allocator &&that) noexcept :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = _SWITCH_ (
 			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
 			0) ;
-		for (INDEX i = r1x ; i < that.mAllocator.size () ; i++) {
-			if (mAllocator[i].mNext != VAR_USED)
-				continue ;
-			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (that.mAllocator[i].mData))) ;
+		mSize += r1x ;
+		while (TRUE) {
+			if (mSize >= that.mAllocator.size ())
+				break ;
+			for (FOR_ONCE_DO) {
+				INDEX ix = mSize ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				mSize++ ;
+			}
 		}
+		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
 		mFree = that.mFree ;
 		that.spec.clear () ;
@@ -3810,12 +3871,19 @@ public:
 	}
 
 private:
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<Node ,SIZE> &_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+
+private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3832,6 +3900,7 @@ private:
 private:
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mAllocator ;
+	using SPECIALIZATION_BASE::mSize ;
 	using SPECIALIZATION_BASE::mLength ;
 	using SPECIALIZATION_BASE::mFree ;
 
@@ -3841,7 +3910,7 @@ public:
 	inline explicit Allocator (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
 	inline LENGTH size () const {
-		return mAllocator.size () ;
+		return mSize ;
 	}
 
 	inline LENGTH length () const {
@@ -3860,6 +3929,7 @@ public:
 				_DESTROY_ (&mAllocator[ix].mData) ;
 			mAllocator[ix].mNext = iy ;
 		}
+		mSize = mAllocator.size () ;
 		mLength = 0 ;
 		mFree = ix ;
 	}
@@ -3910,6 +3980,7 @@ public:
 	inline INDEX alloc (_ARGS &&...args) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
+		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		INDEX ret = VAR_NONE ;
 		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
@@ -3917,22 +3988,22 @@ public:
 			if (mFree != VAR_NONE)
 				discard ;
 			auto rax = mAllocator.expand () ;
-			_CREATE_ (&rax[mLength].mData ,std::forward<_ARGS> (args)...) ;
-			for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
+			ret = mSize ;
+			_CREATE_ (&rax[ret].mData ,std::forward<_ARGS> (args)...) ;
+			for (INDEX i = 0 ; i < mSize ; i++) {
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
-			update_reset (mLength ,mFree) ;
-			ret = mFree ;
+			update_reserve (mSize ,mFree) ;
 		}
 		for (FOR_ONCE_DO) {
 			if (ret != VAR_NONE)
 				discard ;
 			if (mFree == VAR_NONE)
 				discard ;
-			_CREATE_ (&mAllocator[mFree].mData ,std::forward<_ARGS> (args)...) ;
 			ret = mFree ;
+			_CREATE_ (&mAllocator[ret].mData ,std::forward<_ARGS> (args)...) ;
 		}
 		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
@@ -3941,6 +4012,7 @@ public:
 	}
 
 	inline void free (INDEX index) noexcept {
+		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (used (index)) ;
 		_DESTROY_ (&mAllocator[index].mData) ;
 		mAllocator[index].mNext = mFree ;
@@ -3951,27 +4023,28 @@ public:
 	inline void reserve (LENGTH len) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = mAllocator.size () ;
+		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		const auto r2x = _MAX_ (len - (r1x - mLength) ,VAR_ZERO) ;
+		const auto r2x = _MAX_ (len - (mSize - mLength) ,VAR_ZERO) ;
 		if (r2x == 0)
 			return ;
-		_DEBUG_ASSERT_ (r1x + r2x > r1x) ;
-		auto rax = mAllocator.expand (r1x + r2x) ;
-		for (INDEX i = 0 ; i < r1x ; i++) {
+		_DEBUG_ASSERT_ (mSize + r2x > mSize) ;
+		auto rax = mAllocator.expand (mSize + r2x) ;
+		for (INDEX i = 0 ; i < mSize ; i++) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 			rax[i].mNext = mAllocator[i].mNext ;
 		}
 		mAllocator.swap (rax) ;
-		update_reset (r1x ,mFree) ;
+		update_reserve (mSize ,mFree) ;
 	}
 
 	inline void clean () {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
+		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		const auto r1x = shrink_size () ;
-		if (r1x == mAllocator.size ())
+		if (r1x == mSize)
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
 		auto rax = mAllocator.expand (r1x) ;
@@ -3981,24 +4054,24 @@ public:
 			rax[i].mNext = VAR_USED ;
 		}
 		mAllocator.swap (rax) ;
-		update_reset (mLength ,VAR_NONE) ;
+		update_reserve (r1x ,VAR_NONE) ;
 	}
 
 private:
-	inline void update_reset (INDEX _length ,INDEX _free) {
+	inline void update_reserve (INDEX _size ,INDEX _free) {
 		INDEX ix = _free ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = 0 ,ie = mAllocator.size () - _length ; i < ie ; i++) {
+		for (INDEX i = _size ; i < mAllocator.size () ; i++) {
 			iy = ix ;
-			ix = mAllocator.size () + ~i ;
+			ix = mAllocator.size () + ~(i - _size) ;
 			mAllocator[ix].mNext = iy ;
 		}
-		mLength = _length ;
+		mSize = mAllocator.size () ;
 		mFree = ix ;
 	}
 
 	inline LENGTH shrink_size () const {
-		LENGTH ret = mAllocator.size () ;
+		LENGTH ret = mSize ;
 		while (ret - 1 >= 0 && mAllocator[ret - 1].mNext != VAR_USED)
 			ret-- ;
 		return std::move (ret) ;

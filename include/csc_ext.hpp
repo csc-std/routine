@@ -956,8 +956,6 @@ private:
 	//@error: 'std::aligned_union' is not avaliable in g++4.8
 	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<ARGVS<UNITS...>> ()) ,constexpr_max_sizeof (_NULL_<ARGVS<UNITS...>> ())> ;
 
-	struct NULLOPT ;
-
 	template <class _ARG1>
 	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<> &) {
 		return VAR_NONE ;
@@ -978,13 +976,15 @@ private:
 	INDEX mIndex ;
 
 public:
-	inline Variant () {
-		Detail::template_construct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
-		mIndex = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGVS<UNITS...>> ()) ;
+	inline Variant () :Variant (ARGVP0) {
+		const auto r1x = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_construct (&mVariant ,r1x ,_NULL_<ARGVS<UNITS...>> ()) ;
+		mIndex = r1x ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value != VAR_NONE>>
-	inline implicit Variant (_ARG1 &&that) {
+	inline implicit Variant (_ARG1 &&that) :Variant (ARGVP0) {
+		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		const auto r1x = &_LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (NULL ,_ADDRESS_ (&mVariant)) ;
 		Detail::template_create (_NULL_<ARGV<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ,r1x ,std::forward<_ARG1> (that)) ;
 		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value ;
@@ -997,10 +997,10 @@ public:
 		mIndex = VAR_NONE ;
 	}
 
-	inline Variant (const Variant &that) :Variant (ARGVP0 ,_NULL_<ARGV<NULLOPT>> ()) {
-		if (mIndex == VAR_NONE)
+	inline Variant (const Variant &that) :Variant (ARGVP0) {
+		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_copy_construct (&mVariant ,&that.mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -1014,11 +1014,11 @@ public:
 		return (*this) ;
 	}
 
-	inline Variant (Variant &&that) noexcept {
-		mIndex = that.mIndex ;
-		if (mIndex == VAR_NONE)
+	inline Variant (Variant &&that) noexcept :Variant (ARGVP0) {
+		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_move_construct (&mVariant ,&that.mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		mIndex = that.mIndex ;
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
@@ -1080,26 +1080,6 @@ public:
 		proc (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (&mVariant))) ;
 	}
 
-	template <class _RET ,class... _ARGS>
-	inline void recreate (_ARGS &&...args) {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value != VAR_NONE) ;
-		_STATIC_ASSERT_ (std::is_constructible<_RET ,_ARGS &&...>::value) ;
-		for (FOR_ONCE_DO) {
-			if (mIndex == VAR_NONE)
-				discard ;
-			Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
-			mIndex = VAR_NONE ;
-		}
-		for (FOR_ONCE_DO) {
-			if (mIndex != VAR_NONE)
-				discard ;
-			const auto r1x = &_LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (&mVariant)) ;
-			Detail::template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,r1x ,std::forward<_ARGS> (args)...) ;
-			mIndex = INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value ;
-		}
-	}
-
 	//@warn: none class shall be base on its address
 	inline void address_swap (Variant &that) noexcept popping {
 		_SWAP_ (mVariant ,that.mVariant) ;
@@ -1107,11 +1087,11 @@ public:
 	}
 
 private:
-	inline explicit Variant (const DEF<decltype (ARGVP0)> & ,const ARGV<NULLOPT> &) noexcept :mIndex (VAR_NONE) {}
+	inline explicit Variant (const DEF<decltype (ARGVP0)> &) noexcept :mIndex (VAR_NONE) {}
 
 public:
 	inline static Variant nullopt () noexcept {
-		return Variant (ARGVP0 ,_NULL_<ARGV<NULLOPT>> ()) ;
+		return Variant (ARGVP0) ;
 	}
 
 private:
@@ -1123,6 +1103,8 @@ private:
 
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
+			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
 			for (FOR_ONCE_DO) {
 				if (!r1x)
@@ -1142,6 +1124,8 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
+			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
 			for (FOR_ONCE_DO) {
 				if (!r1x)
@@ -1876,13 +1860,11 @@ public:
 	}
 
 	inline ~LinkedRef () noexcept {
-		for (FOR_ONCE_DO) {
-			if (mRoot == NULL)
-				discard ;
-			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
-			mRoot->mPrev->mNext = NULL ;
-			mRoot->mPrev = NULL ;
-		}
+		if (mRoot == NULL)
+			return ;
+		_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
+		mRoot->mPrev->mNext = NULL ;
+		mRoot->mPrev = NULL ;
 		for (PTR<Node> i = mRoot ,ir ; i != NULL ; i = ir) {
 			ir = i->mNext ;
 			i->~Node () ;
@@ -2028,7 +2010,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<UNIT>>::value>>
-	inline explicit StrongRef (const _ARG1 &that) {
+	inline explicit StrongRef (const _ARG1 &that) :StrongRef () {
 		_STATIC_ASSERT_ (stl::is_always_base_of<WeakRef<void>::Virtual ,UNIT>::value) ;
 		_DEBUG_ASSERT_ (that != NULL) ;
 		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,UNIT>>> (that) ;
@@ -2162,14 +2144,18 @@ public:
 	}
 
 private:
-	inline explicit StrongRef (const SharedRef<Holder> &holder ,PTR<UNIT> pointer) {
-		mHolder = _COPY_ (holder) ;
-		mPointer = _COPY_ (pointer) ;
-		if (!exist ())
+	inline explicit StrongRef (const SharedRef<Holder> &holder ,PTR<UNIT> pointer) :StrongRef () {
+		if (pointer == NULL)
 			return ;
-		const auto r1x = ++mHolder->mCounter ;
+		if (!holder.exist ())
+			return ;
+		if (!holder->mData.exist ())
+			return ;
+		const auto r1x = ++holder->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		(void) r1x ;
+		mHolder = holder ;
+		mPointer = pointer ;
 	}
 
 public:
@@ -2555,7 +2541,7 @@ private:
 		inline WatchProxy (WatchProxy &&) noexcept = default ;
 		inline WatchProxy &operator= (WatchProxy &&) = delete ;
 
-		inline implicit operator UNIT & () const popping & noexcept {
+		inline implicit operator UNIT & () const & popping noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
 			return _LOAD_<UNIT> (mPointer) ;
 		}
@@ -2563,10 +2549,9 @@ private:
 		inline implicit operator UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const popping & {
+		inline implicit operator _RET () const & popping {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			const auto r1x = &_LOAD_<UNIT> (mPointer) ;
-			return _RET (_XVALUE_<UNIT> (*r1x)) ;
+			return _RET (_LOAD_<UNIT> (mPointer)) ;
 		}
 
 		template <class _RET>
@@ -2693,7 +2678,7 @@ private:
 		}
 		return std::move (ret) ;
 #pragma GCC diagnostic pop
-}
+	}
 
 public:
 	template <class... _ARGS>
@@ -2970,7 +2955,7 @@ private:
 		LENGTH mLength ;
 
 	public:
-		inline ImplPool () {
+		inline ImplPool () noexcept {
 			mRoot = NULL ;
 			mFree = NULL ;
 			mSize = 0 ;
@@ -2978,7 +2963,13 @@ private:
 		}
 
 		inline ~ImplPool () noexcept override {
-			clear () ;
+			if (mRoot == NULL)
+				return ;
+			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
+				GlobalHeap::free (i->mOrigin) ;
+			}
+			mRoot = NULL ;
 		}
 
 		inline LENGTH size () const override {
@@ -2987,17 +2978,6 @@ private:
 
 		inline LENGTH length () const override {
 			return mLength ;
-		}
-
-		inline void clear () noexcept {
-			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
-				GlobalHeap::free (i->mOrigin) ;
-			}
-			mRoot = NULL ;
-			mFree = NULL ;
-			mSize = 0 ;
-			mLength = 0 ;
 		}
 
 		inline void reserve () {
@@ -3097,15 +3077,23 @@ private:
 	private:
 		PTR<BLOCK> mRoot ;
 		LENGTH mSize ;
+		LENGTH mLength ;
 
 	public:
-		inline HugePool () {
+		inline HugePool () noexcept {
 			mRoot = NULL ;
+			mLength = 0 ;
 			mSize = 0 ;
 		}
 
 		inline ~HugePool () noexcept override {
-			clear () ;
+			if (mRoot == NULL)
+				return ;
+			for (PTR<BLOCK> i = mRoot ,ir ; i != NULL ; i = ir) {
+				ir = i->mNext ;
+				GlobalHeap::free (i->mOrigin) ;
+			}
+			mRoot = NULL ;
 		}
 
 		inline LENGTH size () const override {
@@ -3113,16 +3101,7 @@ private:
 		}
 
 		inline LENGTH length () const override {
-			return mSize ;
-		}
-
-		inline void clear () noexcept {
-			for (PTR<BLOCK> i = mRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
-				GlobalHeap::free (i->mOrigin) ;
-			}
-			mRoot = NULL ;
-			mSize = 0 ;
+			return mLength ;
 		}
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
@@ -3138,6 +3117,7 @@ private:
 				mRoot->mPrev = r3x ;
 			mRoot = r3x ;
 			mSize += len ;
+			mLength += len ;
 			rax = NULL ;
 			return &r3x->mFlexData ;
 		}
@@ -3152,6 +3132,7 @@ private:
 			if (r1x->mNext != NULL)
 				r1x->mNext->mPrev = r1x->mPrev ;
 			mSize -= r1x->mCount ;
+			mLength -= r1x->mCount ;
 			GlobalHeap::free (r1x->mOrigin) ;
 		}
 
@@ -3338,7 +3319,7 @@ private:
 
 		inline Member (Member &&) noexcept = default ;
 
-		inline void friend_visit (UNIT1 &visitor) const & = delete ;
+		inline void friend_visit (UNIT1 &) const & = delete ;
 
 		inline void friend_visit (UNIT1 &visitor) && popping {
 			mBase.mBinder->friend_visit (visitor ,mContext) ;
@@ -3384,6 +3365,6 @@ inline void Serializer<UNIT1 ,UNIT2>::Binder::friend_visit (UNIT1 &visitor ,UNIT
 	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
-	}
+}
 #endif
 } ;
