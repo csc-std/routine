@@ -841,14 +841,14 @@ inline constexpr _ARG1 _SQE_ (const _ARG1 &arg1) {
 template <class _ARG1>
 inline constexpr const _ARG1 &_MIN_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 	return _SWITCH_ (
-		(!BOOL (arg2 < arg1)) ? arg1 :
+		!(arg2 < arg1) ? arg1 :
 		arg2) ;
 }
 
 template <class _ARG1>
 inline constexpr const _ARG1 &_MAX_ (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 	return _SWITCH_ (
-		(!BOOL (arg1 < arg2)) ? arg1 :
+		!(arg1 < arg2) ? arg1 :
 		arg2) ;
 }
 } ;
@@ -870,7 +870,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	if (src1 == src2)
 		return TRUE ;
 	for (INDEX i = 0 ; i < len ; i++)
-		if (!BOOL (src1[i] == src2[i]))
+		if (!(src1[i] == src2[i]))
 			return FALSE ;
 	return TRUE ;
 #pragma GCC diagnostic pop
@@ -899,14 +899,14 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 		for (FOR_ONCE_DO) {
 			if (ret != 0)
 				discard ;
-			if (!BOOL (src1[ix] < src2[ix]))
+			if (!(src1[ix] < src2[ix]))
 				discard ;
 			ret = -1 ;
 		}
 		for (FOR_ONCE_DO) {
 			if (ret != 0)
 				discard ;
-			if (!BOOL (src2[ix] < src1[ix]))
+			if (!(src2[ix] < src1[ix]))
 				discard ;
 			ret = +1 ;
 		}
@@ -1026,14 +1026,14 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	auto ifa = FALSE ;
 	if SWITCH_CASE (ifa) {
-		if (!BOOL (dst != src))
+		if (!(dst != src))
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst[i] = src[len + ~i] ;
 	}
 	if SWITCH_CASE (ifa) {
-		if (!BOOL (dst == src))
+		if (!(dst == src))
 			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
@@ -1061,13 +1061,13 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 		return ;
 	auto ifa = FALSE ;
 	if SWITCH_CASE (ifa) {
-		if (!BOOL (dst1 < dst2))
+		if (!(dst1 < dst2))
 			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[i] = std::move (dst2[i]) ;
 	}
 	if SWITCH_CASE (ifa) {
-		if (!BOOL (dst1 > dst2))
+		if (!(dst1 > dst2))
 			discard ;
 		for (INDEX i = 0 ; i < len ; i++)
 			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
@@ -1245,8 +1245,8 @@ private:
 		template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> & ,const _ARG3 &arg1 ,const _ARGS &...args) noexcept {
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
-			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1))) ;
-			_STATIC_ASSERT_ (BOOL (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value)) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
+			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
 			for (INDEX i = 0 ; i < _COUNTOF_ (_ARG3) - 1 ; i++)
 				array[i + _ARG2::value] = raw_to_plain_str (arg1[i]) ;
 			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,args...) ;
@@ -1256,9 +1256,9 @@ private:
 		inline static REAL raw_to_plain_str (const _ARG1 &arg1) noexcept {
 			if (arg1 >= _ARG1 (32) && arg1 <= _ARG1 (126))
 				return REAL (arg1) ;
-			if (BOOL (arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v')))
+			if (arg1 == _ARG1 ('\t') || arg1 == _ARG1 ('\v'))
 				return REAL (arg1) ;
-			if (BOOL (arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f')))
+			if (arg1 == _ARG1 ('\r') || arg1 == _ARG1 ('\n') || arg1 == _ARG1 ('\f'))
 				return REAL (arg1) ;
 			return REAL ('?') ;
 		}
@@ -2682,7 +2682,7 @@ public:
 	inline Buffer () = default ;
 
 	inline explicit Buffer (LENGTH len) {
-		_DEBUG_ASSERT_ (BOOL (len >= 0 && len <= SIZE)) ;
+		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE) ;
 	}
 
 	inline implicit Buffer (const DEF<UNIT[SIZE]> &that) :Buffer (std::move (Buffer::from (that))) {}
@@ -2714,7 +2714,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
@@ -2723,7 +2723,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
@@ -2737,7 +2737,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - mBuffer ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -2862,7 +2862,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2871,7 +2871,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -2885,7 +2885,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3122,7 +3122,7 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3131,7 +3131,7 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
@@ -3145,7 +3145,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3273,7 +3273,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
 		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
@@ -3289,7 +3289,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -3443,7 +3443,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
 		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
@@ -3459,7 +3459,7 @@ public:
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}

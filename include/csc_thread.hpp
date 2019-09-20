@@ -107,7 +107,7 @@ public:
 	void start (const Array<INDEX> &pid ,Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (pid.length () > 0) ;
 		for (auto &&i : pid)
-			_DEBUG_ASSERT_ (BOOL (i >= 0 && i < proc.size ())) ;
+			_DEBUG_ASSERT_ (i >= 0 && i < proc.size ()) ;
 		for (auto &&i : proc)
 			_DEBUG_ASSERT_ (i.exist ()) ;
 		const auto r1x = mThis.watch () ;

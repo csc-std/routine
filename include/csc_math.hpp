@@ -49,7 +49,7 @@ inline imports DEF<VALX (const VALX &x)> _SQRT_ ;
 
 template <class _ARG1>
 inline _ARG1 _SQRT_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (BOOL (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value)) ;
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_SQRT_ (VALX (x))) ;
 }
 
@@ -57,7 +57,7 @@ inline imports DEF<VALX (const VALX &x ,const VALX &y)> _POW_ ;
 
 template <class _ARG1>
 inline _ARG1 _POW_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (BOOL (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value)) ;
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_POW_ (VALX (x) ,VALX (y))) ;
 }
 
@@ -175,7 +175,7 @@ inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 
 template <class _ARG1>
 inline _ARG1 _FLOOR_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (BOOL (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value)) ;
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_FLOOR_ (VALX (x) ,VALX (y))) ;
 }
 
@@ -195,13 +195,13 @@ inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 
 template <class _ARG1>
 inline _ARG1 _CEIL_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (BOOL (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value)) ;
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_CEIL_ (VALX (x) ,VALX (y))) ;
 }
 
 template <class _ARG1>
 inline _ARG1 _ROUND_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (BOOL (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value)) ;
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	return _ARG1 (_FLOOR_ (VALX (x) + VALX (y) / 2 ,VALX (y))) ;
 }

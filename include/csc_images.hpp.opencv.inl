@@ -167,7 +167,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
@@ -237,7 +237,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
@@ -307,7 +307,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
@@ -377,7 +377,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
@@ -447,7 +447,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;

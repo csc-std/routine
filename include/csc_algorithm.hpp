@@ -60,7 +60,7 @@ public:
 	}
 
 	INDEX query (const PhanBuffer<const REAL> &target ,INDEX seg) const {
-		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg < target.size ())) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg < target.size ()) ;
 		INDEX ix = seg ;
 		INDEX iy = 0 ;
 		if (target.size () - seg < mNext.length ())
@@ -499,27 +499,27 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					break ;
 				auto ifa = FALSE ;
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 0))
+					if (!(mTempState == 0))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 7 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 2))
+					if (!(mTempState == 2))
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 3))
+					if (!(mTempState == 3))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 4))
+					if (!(mTempState == 4))
 						discard ;
 					const auto r1x = _SWITCH_ (
 						(mTempStack[ix][0] < mAdjacency.cx ()) ? 5 :
@@ -527,7 +527,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r1x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 5))
+					if (!(mTempState == 5))
 						discard ;
 					const auto r2x = _SWITCH_ (
 						(mXVisit[mTempStack[ix][0]]) ? 15 :
@@ -535,7 +535,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r2x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 6))
+					if (!(mTempState == 6))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					const auto r3x = _SWITCH_ (
@@ -544,7 +544,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r3x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 7))
+					if (!(mTempState == 7))
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r4x = _SWITCH_ (
@@ -553,20 +553,20 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r4x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 8))
+					if (!(mTempState == 8))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 9))
+					if (!(mTempState == 9))
 						discard ;
 					ix = mTempStack.tail () ;
 					mTempState = 10 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 10))
+					if (!(mTempState == 10))
 						discard ;
 					const auto r5x = _SWITCH_ (
 						mTempRet ? 11 :
@@ -574,14 +574,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r5x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 11))
+					if (!(mTempState == 11))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 12))
+					if (!(mTempState == 12))
 						discard ;
 					const auto r6x = _SWITCH_ (
 						(mLackWeight[1] < mTolerance) ? 13 :
@@ -589,31 +589,31 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r6x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 13))
+					if (!(mTempState == 13))
 						discard ;
 					mLackWeight[1] = mLackWeight[0] ;
 					mTempState = 15 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 14))
+					if (!(mTempState == 14))
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = 15 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 15))
+					if (!(mTempState == 15))
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = 4 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 16))
+					if (!(mTempState == 16))
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = 17 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 17))
+					if (!(mTempState == 17))
 						discard ;
 					mTempStack.pop () ;
 					const auto r7x = _SWITCH_ (
@@ -622,7 +622,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r7x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 18))
+					if (!(mTempState == 18))
 						discard ;
 					const auto r8x = _SWITCH_ (
 						mTempRet ? 19 :
@@ -630,14 +630,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r8x ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 19))
+					if (!(mTempState == 19))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 20 ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!BOOL (mTempState == 20))
+					if (!(mTempState == 20))
 						discard ;
 					mTempState = VAR_NONE ;
 				}
@@ -829,7 +829,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			}
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mDXLoss[0] >= mDXLoss[2]))
+				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
 				const auto r2x = _SWITCH_ (
 					(mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) :
@@ -958,7 +958,7 @@ public:
 	}
 
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (BOOL (count >= 1 && count <= mVertex.length ())) ;
+		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		const auto r1x = first_count_vertex (point ,count) ;
 		const auto r2x = r1x.esort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
@@ -976,7 +976,7 @@ private:
 	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mKDTree[it].mLeaf != VAR_NONE))
+			if (!(mKDTree[it].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
 				INDEX ix = mKDTree[it].mLeaf ;
@@ -987,7 +987,7 @@ private:
 			}
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mKDTree[it].mLeaf == VAR_NONE))
+			if (!(mKDTree[it].mLeaf == VAR_NONE))
 				discard ;
 			const auto r3x = mKDTree[it].mKey ;
 			for (FOR_ONCE_DO) {
@@ -1010,7 +1010,7 @@ private:
 	}
 
 	Deque<REAL> first_count_vertex (const ARRAY3<REAL> &point ,LENGTH count) const {
-		_DEBUG_ASSERT_ (BOOL (count >= 1 && count <= mVertex.length ())) ;
+		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		Deque<REAL> ret = Deque<REAL> (count) ;
 		for (INDEX i = 0 ; i < count ; i++) {
 			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
@@ -1022,7 +1022,7 @@ private:
 	void compute_search_range (const ARRAY3<REAL> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mKDTree[it].mLeaf != VAR_NONE))
+			if (!(mKDTree[it].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
 				INDEX ix = mKDTree[it].mLeaf ;
@@ -1046,7 +1046,7 @@ private:
 			}
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mKDTree[it].mLeaf == VAR_NONE))
+			if (!(mKDTree[it].mLeaf == VAR_NONE))
 				discard ;
 			const auto r4x = mKDTree[it].mKey ;
 			if (r4x >= point[rot] - out[out.length () - 1].P2)
@@ -1126,16 +1126,16 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 
 		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
-			_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= mVertex.size () - seg_len)) ;
+			_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (seg_len == 1))
+				if (!(seg_len == 1))
 					discard ;
 				INDEX jx = mKDTree.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (seg_len > 1))
+				if (!(seg_len > 1))
 					discard ;
 				INDEX ix = seg + seg_len / 2 ;
 				for (INDEX i = seg ,ie = seg + seg_len - 1 ; i < ie ; i++)

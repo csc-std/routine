@@ -405,13 +405,13 @@ public:
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (that.v4i0 == 0))
+			if (!(that.v4i0 == 0))
 				discard ;
-			if (!BOOL (that.v4i1 == 0))
+			if (!(that.v4i1 == 0))
 				discard ;
-			if (!BOOL (that.v4i2 == 0))
+			if (!(that.v4i2 == 0))
 				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (that.v4i3) ;
@@ -426,41 +426,41 @@ public:
 			ret.v4i3 = CHAR (rax / r3x) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (v2i1 == 0))
+			if (!(v2i1 == 0))
 				discard ;
-			if (!BOOL (r2x >= 0))
+			if (!(r2x >= 0))
 				discard ;
 			ret = -(-((*this) + that) / that + 1) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (v2i1 == 0))
+			if (!(v2i1 == 0))
 				discard ;
-			if (!BOOL (r2x < 0))
+			if (!(r2x < 0))
 				discard ;
 			ret = -(-((*this) - that) / that - 1) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x < 0))
+			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) / that) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (that.v2i0 == DATA (VAR64_MIN)))
+			if (!(that.v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (that.v2i1 == 0))
+			if (!(that.v2i1 == 0))
 				discard ;
 			ret = VAR128 (0) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (r2x < 0))
+			if (!(r2x < 0))
 				discard ;
 			ret = (*this) / -that ;
 		}
@@ -481,13 +481,13 @@ public:
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (that.v4i0 == 0))
+			if (!(that.v4i0 == 0))
 				discard ;
-			if (!BOOL (that.v4i1 == 0))
+			if (!(that.v4i1 == 0))
 				discard ;
-			if (!BOOL (that.v4i2 == 0))
+			if (!(that.v4i2 == 0))
 				discard ;
 			auto rax = DATA () ;
 			const auto r3x = DATA (that.v4i3) ;
@@ -502,41 +502,41 @@ public:
 			ret.v4i3 = CHAR (rax % r3x) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (v2i1 == 0))
+			if (!(v2i1 == 0))
 				discard ;
-			if (!BOOL (r2x >= 0))
+			if (!(r2x >= 0))
 				discard ;
 			ret = -(-((*this) + that) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (v2i0 == DATA (VAR64_MIN)))
+			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (v2i1 == 0))
+			if (!(v2i1 == 0))
 				discard ;
-			if (!BOOL (r2x < 0))
+			if (!(r2x < 0))
 				discard ;
 			ret = -(-((*this) - that) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x < 0))
+			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) % that) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (that.v2i0 == DATA (VAR64_MIN)))
+			if (!(that.v2i0 == DATA (VAR64_MIN)))
 				discard ;
-			if (!BOOL (that.v2i1 == 0))
+			if (!(that.v2i1 == 0))
 				discard ;
 			ret = (*this) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (r1x >= 0))
+			if (!(r1x >= 0))
 				discard ;
-			if (!BOOL (r2x < 0))
+			if (!(r2x < 0))
 				discard ;
 			ret = (*this) % -that ;
 		}
@@ -1334,7 +1334,7 @@ private:
 
 		template <class _ARG1>
 		inline static VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (Tuple &_self ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS))) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
 			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 
@@ -1344,7 +1344,7 @@ private:
 
 		template <class _ARG1>
 		inline static constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (const Tuple &_self ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS))) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
 			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
@@ -1521,7 +1521,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (!BOOL (arg1.one ()))
+			if (!(arg1.one ()))
 				return FALSE ;
 			if (!template_boolean (arg1.rest ()))
 				return FALSE ;
@@ -1730,7 +1730,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (BOOL (arg1.one ()))
+			if (arg1.one ())
 				return TRUE ;
 			if (!template_boolean (arg1.rest ()))
 				return FALSE ;
@@ -1928,13 +1928,13 @@ public:
 		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mRoot == NULL))
+			if (!(mRoot == NULL))
 				discard ;
 			r1x->mPrev = r1x ;
 			r1x->mNext = r1x ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mRoot != NULL))
+			if (!(mRoot != NULL))
 				discard ;
 			r1x->mPrev = mRoot->mPrev ;
 			r1x->mNext = mRoot ;
@@ -2453,7 +2453,7 @@ private:
 			return FALSE ;
 		if (!mWeakRef.exist ())
 			return FALSE ;
-		if (!BOOL (mIndex >= 0 && mIndex < mHeap->size ()))
+		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
 			return FALSE ;
 		if (mWeakRef != mHeap.self[mIndex].mData)
 			return FALSE ;

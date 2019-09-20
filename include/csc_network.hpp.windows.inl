@@ -180,14 +180,14 @@ public:
 			const auto r2x = errno ;
 			if (r2x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (BOOL (r2x == EINPROGRESS || r2x == EWOULDBLOCK)) ;
+			_DYNAMIC_ASSERT_ (r2x == EINPROGRESS || r2x == EWOULDBLOCK) ;
 		}
 		link_confirm () ;
 	}
 
 	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
-		_DEBUG_ASSERT_ (BOOL (rcv_len >= 0 && rcv_len < VAR32_MAX)) ;
-		_DEBUG_ASSERT_ (BOOL (snd_len >= 0 && snd_len < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (rcv_len >= 0 && rcv_len < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (snd_len >= 0 && snd_len < VAR32_MAX) ;
 		const auto r1x = VAR32 (rcv_len) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVBUF ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 		const auto r2x = VAR32 (snd_len) ;
@@ -208,7 +208,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
+			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
@@ -227,7 +227,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
+			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
 		}
 		it = r2x ;
 	}
@@ -246,7 +246,7 @@ public:
 			const auto r4x = errno ;
 			if (r4x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (BOOL (r4x == EINPROGRESS || r4x == EWOULDBLOCK)) ;
+			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
@@ -475,7 +475,7 @@ inline String<STRU8> _HTTP_GET_ (const String<STRU8> &addr ,const String<STRU8> 
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("GET ") ,site ,_PCSTRU8_ ("?") ,msg ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,r1x) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
-	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
+	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;
@@ -491,7 +491,7 @@ inline String<STRU8> _HTTP_POST_ (const String<STRU8> &addr ,const String<STRU8>
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("POST ") ,site ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,addr ,r1x ,_PCSTRU8_ ("Content-Length: ") ,msg.length () ,r1x ,r1x ,msg) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,DEFAULT_TIMEOUT_SIZE::value) ;
-	_DYNAMIC_ASSERT_ (BOOL (iw >= 0 && iw < ret.size ())) ;
+	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
 	return std::move (ret) ;

@@ -401,7 +401,7 @@ public:
 		INDEX iw = 0 ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mSymbolFromAddress.exist ()))
+			if (!(mSymbolFromAddress.exist ()))
 				discard ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;

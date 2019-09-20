@@ -129,7 +129,7 @@ struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= out.size () - seg_len)) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
 		static_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 
@@ -402,7 +402,7 @@ public:
 	}
 
 	ITEM &get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mString[index] ;
 	}
 
@@ -411,7 +411,7 @@ public:
 	}
 
 	const ITEM &get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < size ())) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mString[index] ;
 	}
 
@@ -425,7 +425,7 @@ public:
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mString.at (item) ;
-		if (!BOOL (ret >= 0 && ret < size ()))
+		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -548,11 +548,11 @@ public:
 	void concatto (const Plain<ITEM> &that) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mString.size () > 0))
+			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
 			const auto r2x = that.size () ;
-			if (!BOOL (r1x + r2x <= size ()))
+			if (!(r1x + r2x <= size ()))
 				discard ;
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
@@ -569,7 +569,7 @@ public:
 
 	String segment (INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= size () - seg_len)) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg <= size () - seg_len) ;
 		String ret = String (seg_len) ;
 		for (INDEX i = 0 ; i < ret.size () ; i++)
 			ret.get (i) = get (seg + i) ;
@@ -590,7 +590,7 @@ private:
 		inline static LENGTH plain_string_length (const ARR<ITEM> &arg1) {
 			using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
 			LENGTH ret = _MEMCHR_ (arg1 ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
-			_DYNAMIC_ASSERT_ (BOOL (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value)) ;
+			_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
 			return std::move (ret) ;
 		}
 	} ;
@@ -687,7 +687,7 @@ public:
 	}
 
 	INDEX access (INDEX pos) const {
-		_DEBUG_ASSERT_ (BOOL (pos >= 0 && pos < length ())) ;
+		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		return (mRead + pos) % mDeque.size () ;
 	}
 
@@ -897,14 +897,14 @@ private:
 			return ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mRead <= mWrite))
+			if (!(mRead <= mWrite))
 				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
 			mDeque.swap (rax) ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mRead > mWrite))
+			if (!(mRead > mWrite))
 				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
@@ -916,7 +916,7 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (BOOL (mWrite >= 0 && mWrite < mDeque.size ())) ;
+		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mDeque.size ()) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		if (mRead != mWrite)
 			return ;
@@ -1239,7 +1239,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<Priority> get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair<Priority> ((*this) ,index) ;
 	}
 
@@ -1249,7 +1249,7 @@ public:
 
 	//@warn: index would be no longer valid every time revised
 	Pair<const Priority> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair<const Priority> ((*this) ,index) ;
 	}
 
@@ -1263,7 +1263,7 @@ public:
 
 	INDEX at (const Pair<Priority> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (!BOOL (ret >= 0 && ret < mWrite))
+		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -1271,7 +1271,7 @@ public:
 	//@error: vs2015 is too useless to compile without hint
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
-		if (!BOOL (ret >= 0 && ret < mWrite))
+		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
@@ -1360,7 +1360,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWrite)) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		mPriority[index] = std::move (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (index) ;
@@ -1396,7 +1396,7 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (BOOL (mWrite >= 0 && mWrite < mPriority.size ())) ;
+		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mPriority.size ()) ;
 		mWrite++ ;
 		if (mWrite < mPriority.size ())
 			return ;
@@ -1930,7 +1930,7 @@ public:
 	}
 
 	INDEX access (INDEX pos) const {
-		_DEBUG_ASSERT_ (BOOL (pos >= 0 && pos < length ())) ;
+		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		if (mWrite - mRead + 1 == mList.length ())
 			return mHead[mRead + pos][0] ;
 		if (mWrite - mRead == mList.length () && mHead[mWrite][0] == VAR_NONE)
@@ -2149,7 +2149,7 @@ private:
 private:
 	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (BOOL (seg >= 0 && seg <= mHead.size () - seg_len)) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg <= mHead.size () - seg_len) ;
 		INDEX ret = VAR_NONE ;
 		INDEX ix = seg ;
 		INDEX iy = seg + seg_len - 1 ;
@@ -2205,16 +2205,16 @@ private:
 	void update_compress_left (INDEX it ,INDEX jt) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mHead[it][0] == VAR_NONE))
+			if (!(mHead[it][0] == VAR_NONE))
 				discard ;
 			sequence_rewrite (it ,jt) ;
 			mWrite = _MIN_ ((it + 1) ,(mHead.size () - 1)) ;
 		}
 		if SWITCH_CASE (ifa) {
 			INDEX ix = it + 1 ;
-			if (!BOOL (ix < mHead.size ()))
+			if (!(ix < mHead.size ()))
 				discard ;
-			if (!BOOL (mHead[ix][0] == VAR_NONE))
+			if (!(mHead[ix][0] == VAR_NONE))
 				discard ;
 			sequence_rewrite (ix ,jt) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
@@ -2233,25 +2233,25 @@ private:
 			const auto r1x = mHead[i][0] ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mRead == ix))
+				if (!(mRead == ix))
 					discard ;
-				if (!BOOL (r1x == VAR_NONE))
+				if (!(r1x == VAR_NONE))
 					discard ;
 				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mRead == ix))
+				if (!(mRead == ix))
 					discard ;
-				if (!BOOL (r1x != VAR_NONE))
+				if (!(r1x != VAR_NONE))
 					discard ;
 				sequence_rewrite (i ,iy) ;
 				iy = r1x ;
 				ix++ ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mRead != i))
+				if (!(mRead != i))
 					discard ;
 				sequence_rewrite (i ,mHead[mRead][0]) ;
 				sequence_remove (mRead) ;
@@ -2265,16 +2265,16 @@ private:
 	void update_compress_right (INDEX it ,INDEX jt) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mHead[it][0] == VAR_NONE))
+			if (!(mHead[it][0] == VAR_NONE))
 				discard ;
 			sequence_rewrite (it ,jt) ;
 			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
 		}
 		if SWITCH_CASE (ifa) {
 			INDEX ix = it - 1 ;
-			if (!BOOL (ix >= 0))
+			if (!(ix >= 0))
 				discard ;
-			if (!BOOL (mHead[ix][0] == VAR_NONE))
+			if (!(mHead[ix][0] == VAR_NONE))
 				discard ;
 			sequence_rewrite (ix ,jt) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
@@ -2294,25 +2294,25 @@ private:
 			const auto r1x = mHead[jx][0] ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mWrite == ix))
+				if (!(mWrite == ix))
 					discard ;
-				if (!BOOL (r1x == VAR_NONE))
+				if (!(r1x == VAR_NONE))
 					discard ;
 				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix = VAR_NONE ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mWrite == ix))
+				if (!(mWrite == ix))
 					discard ;
-				if (!BOOL (r1x != VAR_NONE))
+				if (!(r1x != VAR_NONE))
 					discard ;
 				sequence_rewrite (jx ,iy) ;
 				iy = r1x ;
 				ix-- ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (mWrite != jx))
+				if (!(mWrite != jx))
 					discard ;
 				sequence_rewrite (jx ,mHead[mWrite][0]) ;
 				sequence_remove (mWrite) ;
@@ -2492,7 +2492,7 @@ public:
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<BitSet> get (INDEX index) & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit<BitSet> ((*this) ,index) ;
 	}
 
@@ -2502,7 +2502,7 @@ public:
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	Bit<const BitSet> get (INDEX index) const & {
-		_DEBUG_ASSERT_ (BOOL (index >= 0 && index < mWidth)) ;
+		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit<const BitSet> ((*this) ,index) ;
 	}
 
@@ -2606,7 +2606,7 @@ public:
 	}
 
 	void add (INDEX item) {
-		_DYNAMIC_ASSERT_ (BOOL (item >= 0 && item < mWidth)) ;
+		_DYNAMIC_ASSERT_ (item >= 0 && item < mWidth) ;
 		get (item) = TRUE ;
 	}
 
@@ -2616,7 +2616,7 @@ public:
 	}
 
 	void erase (INDEX item) {
-		_DYNAMIC_ASSERT_ (BOOL (item >= 0 && item < mWidth)) ;
+		_DYNAMIC_ASSERT_ (item >= 0 && item < mWidth) ;
 		get (item) = FALSE ;
 	}
 
@@ -2746,7 +2746,7 @@ private:
 		}
 
 		inline static LENGTH runtime_width (LENGTH width) {
-			_DEBUG_ASSERT_ (BOOL (width >= 0 && width < VAR32_MAX)) ;
+			_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 			return width ;
 		}
 	} ;
@@ -3241,12 +3241,12 @@ private:
 	void update_emplace (INDEX it ,INDEX jt) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it == VAR_NONE))
+			if (!(it == VAR_NONE))
 				discard ;
 			mTop = jt ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it != VAR_NONE))
+			if (!(it != VAR_NONE))
 				discard ;
 			mSet[jt].mUp = it ;
 			auto &r1 = _SWITCH_ (
@@ -3268,12 +3268,12 @@ private:
 				break ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (jx == mSet[mSet[jx].mUp].mLeft))
+				if (!(jx == mSet[mSet[jx].mUp].mLeft))
 					discard ;
 				update_insert_left (ix) ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (jx == mSet[mSet[jx].mUp].mRight))
+				if (!(jx == mSet[mSet[jx].mUp].mRight))
 					discard ;
 				update_insert_right (ix) ;
 			}
@@ -3287,9 +3287,9 @@ private:
 		INDEX iy = mSet[ix].mUp ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mSet[iy].mRight != VAR_NONE))
+			if (!(mSet[iy].mRight != VAR_NONE))
 				discard ;
-			if (!BOOL (mSet[mSet[iy].mRight].mRed))
+			if (!(mSet[mSet[iy].mRight].mRed))
 				discard ;
 			mSet[mSet[iy].mRight].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
@@ -3297,7 +3297,7 @@ private:
 			mTop = iy ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it == mSet[ix].mRight))
+			if (!(it == mSet[ix].mRight))
 				discard ;
 			auto &r1 = mSet[iy].mLeft ;
 			rotate_left (r1) ;
@@ -3310,7 +3310,7 @@ private:
 			mTop = ix ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it == mSet[ix].mLeft))
+			if (!(it == mSet[ix].mLeft))
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
@@ -3326,9 +3326,9 @@ private:
 		INDEX iy = mSet[ix].mUp ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (mSet[iy].mLeft != VAR_NONE))
+			if (!(mSet[iy].mLeft != VAR_NONE))
 				discard ;
-			if (!BOOL (mSet[mSet[iy].mLeft].mRed))
+			if (!(mSet[mSet[iy].mLeft].mRed))
 				discard ;
 			mSet[mSet[iy].mLeft].mRed = FALSE ;
 			mSet[ix].mRed = FALSE ;
@@ -3336,7 +3336,7 @@ private:
 			mTop = iy ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it == mSet[ix].mLeft))
+			if (!(it == mSet[ix].mLeft))
 				discard ;
 			auto &r1 = mSet[iy].mRight ;
 			rotate_right (r1) ;
@@ -3349,7 +3349,7 @@ private:
 			mTop = ix ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (it == mSet[ix].mRight))
+			if (!(it == mSet[ix].mRight))
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
@@ -3370,12 +3370,12 @@ private:
 				break ;
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (ix == mSet[iy].mLeft))
+				if (!(ix == mSet[iy].mLeft))
 					discard ;
 				update_remove_left (ix ,iy) ;
 			}
 			if SWITCH_CASE (ifa) {
-				if (!BOOL (ix == mSet[iy].mRight))
+				if (!(ix == mSet[iy].mRight))
 					discard ;
 				update_remove_right (ix ,iy) ;
 			}
@@ -3402,15 +3402,15 @@ private:
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (!r1x))
+			if (!(!r1x))
 				discard ;
-			if (!BOOL (!r2x))
+			if (!(!r2x))
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (!r2x))
+			if (!(!r2x))
 				discard ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
@@ -3450,15 +3450,15 @@ private:
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (!r1x))
+			if (!(!r1x))
 				discard ;
-			if (!BOOL (!r2x))
+			if (!(!r2x))
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (!r2x))
+			if (!(!r2x))
 				discard ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
@@ -4600,7 +4600,7 @@ private:
 		INDEX ix = it ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (ix == VAR_NONE))
+			if (!(ix == VAR_NONE))
 				discard ;
 			mTop = mLast ;
 		}

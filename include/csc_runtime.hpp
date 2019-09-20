@@ -281,7 +281,7 @@ private:
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
 			auto &r1 = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
-			_DEBUG_ASSERT_ (BOOL (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE))) ;
+			_DEBUG_ASSERT_ (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE)) ;
 			const auto r2x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
 			_MEMCOPY_ (PTRTOARR[ret] ,r1 ,r2x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
@@ -523,7 +523,7 @@ public:
 
 	VAR random_value (VAR _min ,VAR _max) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (BOOL (_min >= 0 && _min <= _max)) ;
+		_DEBUG_ASSERT_ (_min >= 0 && _min <= _max) ;
 		const auto r1x = mThis->random_value () ;
 		return r1x % (_max - _min + 1) + _min ;
 	}
@@ -544,7 +544,7 @@ public:
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range ,BitSet<> &&res) popping {
-		_DEBUG_ASSERT_ (BOOL (count >= 0 && count < range)) ;
+		_DEBUG_ASSERT_ (count >= 0 && count < range) ;
 		_DEBUG_ASSERT_ (res.size () == range) ;
 		BitSet<> ret = std::move (res) ;
 		ret.clear () ;
@@ -564,7 +564,7 @@ public:
 	}
 
 	void compute_random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &chosen) popping {
-		_DEBUG_ASSERT_ (BOOL (count >= 0 && count < range.size ())) ;
+		_DEBUG_ASSERT_ (count >= 0 && count < range.size ()) ;
 		_DEBUG_ASSERT_ (chosen.size () == range.size ()) ;
 		chosen.clear () ;
 		while (TRUE) {

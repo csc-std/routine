@@ -87,7 +87,7 @@ private:
 
 		template <class _ARG1>
 		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (BOOL (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value))) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)) ;
 			index[_ARG1::value]++ ;
 			if (index[_ARG1::value] < range[_ARG1::value])
 				return ;
@@ -254,14 +254,14 @@ public:
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mCX)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mCY)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mCX)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mCY)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
@@ -758,16 +758,16 @@ public:
 
 	UNIT &get (INDEX y ,INDEX x) & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mThis->mCX)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mThis->mCY)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
 	const UNIT &get (INDEX y ,INDEX x) const & {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < mThis->mCX)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < mThis->mCY)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
 		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
@@ -832,8 +832,8 @@ public:
 	}
 
 	void load_data (LENGTH _cx ,LENGTH _cy) {
-		_DEBUG_ASSERT_ (BOOL (_cx >= 0 && _cx < VAR32_MAX)) ;
-		_DEBUG_ASSERT_ (BOOL (_cy >= 0 && _cy < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (_cx >= 0 && _cx < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;

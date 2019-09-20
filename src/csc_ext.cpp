@@ -7,8 +7,8 @@ public:
 	TEST_METHOD (TEST_CSC_EXT) {
 		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) == 1) ;
 		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) != 1) ;
-		_UNITTEST_ASSERT_ (!CSC::BOOL (_ALLOF_ (1 ,2 ,3) == 1)) ;
-		_UNITTEST_ASSERT_ (!CSC::BOOL (_ALLOF_ (1 ,2 ,3) != 1)) ;
+		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) == 1)) ;
+		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) != 1)) ;
 	}
 
 	TEST_METHOD (TEST_CSC_EXT_VAR128) {

@@ -45,7 +45,7 @@ inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 		CloseHandle (me) ;
 	}) ;
 	const auto r2x = LENGTH (GetFileSize (r1x ,NULL)) ;
-	_DYNAMIC_ASSERT_ (BOOL (r2x >= 0 && r2x < VAR32_MAX)) ;
+	_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r2x) ;
 	auto rax = VARY () ;
 	rax = VARY (0) ;
@@ -65,7 +65,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 		CloseHandle (me) ;
 	}) ;
 	const auto r2x = LENGTH (GetFileSize (r1x ,NULL)) ;
-	_DYNAMIC_ASSERT_ (BOOL (r2x > 0 && r2x <= data.size ())) ;
+	_DYNAMIC_ASSERT_ (r2x > 0 && r2x <= data.size ()) ;
 	auto rax = VARY () ;
 	rax = VARY (0) ;
 	const auto r3x = ReadFile (r1x ,data ,VARY (r2x) ,&rax ,NULL) ;
@@ -73,7 +73,7 @@ inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> 
 }
 
 inline exports void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
-	_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+	_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		me = CreateFile (file.raw ().self ,GENERIC_WRITE ,0 ,NULL ,CREATE_ALWAYS ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
@@ -241,11 +241,11 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 			continue ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (!ret.empty ()))
+			if (!(!ret.empty ()))
 				discard ;
-			if (!BOOL (path_name[ix] == _PCSTR_ ("..")))
+			if (!(path_name[ix] == _PCSTR_ ("..")))
 				discard ;
-			if (!BOOL (path_name[ret[ret.tail ()]] != _PCSTR_ ("..")))
+			if (!(path_name[ret[ret.tail ()]] != _PCSTR_ ("..")))
 				discard ;
 			ret.pop () ;
 		}
@@ -265,14 +265,14 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	if SWITCH_CASE (ifa) {
 		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		if (!BOOL (r4x || r5x))
+		if (!(r4x || r5x))
 			discard ;
 		ret += _PCSTR_ ("\\") ;
 	}
 	if SWITCH_CASE (ifa) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		if (!BOOL (r6x || r7x))
+		if (!(r6x || r7x))
 			discard ;
 		//@debug: not absolute path really
 		ret += _WORKINGPATH_ () ;
@@ -423,7 +423,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!BOOL (rax[ix].P2))
+			if (!(rax[ix].P2))
 				discard ;
 			rax.pop () ;
 		}
@@ -455,7 +455,7 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data) popping {
-		_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = ReadFile (mFile ,data ,VARY (data.size ()) ,&rax ,NULL) ;
@@ -463,14 +463,14 @@ public:
 			(r1x != 0) ? (LENGTH (rax)) :
 			0) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (BOOL (r2x >= 0 && r2x < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
 		if (data.size () - r2x == 0)
 			return ;
 		_MEMFILL_ (PTRTOARR[&data[r2x]] ,(data.size () - r2x) ,BYTE (0X00)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
-		_DEBUG_ASSERT_ (BOOL (data.size () >= 0 && data.size () < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = WriteFile (mFile ,data ,VARY (data.size ()) ,&rax ,NULL) ;
@@ -533,7 +533,7 @@ public:
 			CloseHandle (me) ;
 		}) ;
 		const auto r1x = LENGTH (GetFileSize (r1 ,NULL)) ;
-		_DYNAMIC_ASSERT_ (BOOL (r1x >= 0 && r1x < VAR32_MAX)) ;
+		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		r2 = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = CreateFileMapping (r1 ,NULL ,PAGE_READONLY ,0 ,VARY (r1x) ,NULL) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -552,7 +552,7 @@ public:
 	}
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len) {
-		_DEBUG_ASSERT_ (BOOL (file_len >= 0 && file_len < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		update_reset () ;
 		auto &r1 = mThis->mFile.self ;
 		auto &r2 = mThis->mMapping.self ;
@@ -619,7 +619,7 @@ public:
 	}
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
-		_DEBUG_ASSERT_ (BOOL (file_len >= 0 && file_len < VAR32_MAX)) ;
+		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
 		update_reset () ;
 		auto &r2 = mThis->mMapping.self ;

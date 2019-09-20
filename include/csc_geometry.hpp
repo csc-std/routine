@@ -361,14 +361,14 @@ public:
 	}
 
 	REAL &get (INDEX y ,INDEX x) & {
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < 4)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < 4)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
 	const REAL &get (INDEX y ,INDEX x) const & {
-		_DEBUG_ASSERT_ (BOOL (x >= 0 && x < 4)) ;
-		_DEBUG_ASSERT_ (BOOL (y >= 0 && y < 4)) ;
+		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
