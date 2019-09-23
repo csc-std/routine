@@ -592,12 +592,12 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					break ;
 				auto ifa = FALSE ;
 				if SWITCH_CASE (ifa) {
-					if (!(r1x))
+					if (!r1x)
 						discard ;
 					update_shift_e6 () ;
 				}
 				if SWITCH_CASE (ifa) {
-					if (!(r2x))
+					if (!r2x)
 						discard ;
 					update_shift_e5 (it) ;
 					mNodeHeap[it].mMemberSet.add (mNodeHeap[it].mMemberSet.length () ,mLatestIndex) ;

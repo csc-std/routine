@@ -844,7 +844,7 @@ struct OPERATOR_CRC32 {
 
 	inline static constexpr CHAR constexpr_crc32_table (CHAR val ,INDEX it) {
 		return _SWITCH_ (
-			(!constexpr_check (it ,8)) ? val :
+			!(constexpr_check (it ,8)) ? val :
 			(constexpr_crc32_table (constexpr_crc32_next (val) ,(it + 1)))) ;
 	}
 
@@ -854,7 +854,7 @@ struct OPERATOR_CRC32 {
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		return _SWITCH_ (
-			(!constexpr_check (it ,stri.size ())) ? val :
+			!(constexpr_check (it ,stri.size ())) ? val :
 			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri.self[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)))) ;
 #pragma GCC diagnostic pop
 	}

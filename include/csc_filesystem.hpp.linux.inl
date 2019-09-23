@@ -261,7 +261,7 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 			continue ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(!ret.empty ()))
+			if (ret.empty ())
 				discard ;
 			if (!(path_name[ix] == _PCSTR_ ("..")))
 				discard ;

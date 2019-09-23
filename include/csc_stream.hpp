@@ -1037,7 +1037,7 @@ public:
 		}
 		if SWITCH_CASE (ifa) {
 			const auto r2x = attr ().varify_number_item (rax) ;
-			if (!(r2x))
+			if (!r2x)
 				discard ;
 			compute_read_number (data ,(*this) ,rax) ;
 		}
@@ -2272,7 +2272,7 @@ public:
 				rax = get (0) ;
 				read () ;
 				const auto r4x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!(r4x))
+				if (!r4x)
 					discard ;
 				rax = get (0) ;
 				read () ;
@@ -2393,7 +2393,7 @@ private:
 				rax = ris[0] ;
 				ris++ ;
 				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!(r1x))
+				if (!r1x)
 					discard ;
 				rax = ris[0] ;
 				ris++ ;

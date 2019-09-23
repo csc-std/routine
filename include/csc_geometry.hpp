@@ -266,10 +266,8 @@ public:
 
 	Vector homogenize () const {
 		Vector ret ;
-		ret.mVector[0] = mVector[0] ;
-		ret.mVector[1] = mVector[1] ;
-		ret.mVector[2] = mVector[2] ;
-		ret.mVector[3] = REAL (1) - mVector[3] ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DEBUG_ASSERT_ (FALSE) ;
 		return std::move (ret) ;
 	}
 
@@ -673,8 +671,8 @@ public:
 		ret[1] = Matrix::make_shear (r4x ,r5x ,r6x) ;
 		const auto r7x = Matrix {r4x ,r5x ,r6x ,Vector<REAL>::axis_w ()} ;
 		ret[2] = r7x * ret[1].inverse () ;
-		const auto r8x = mul (Vector<REAL>::axis_w ()) ;
-		ret[3] = Matrix::make_translation (r8x.homogenize ()) ;
+		const auto r8x = mul (Vector<REAL>::axis_w ()) - Vector<REAL>::axis_w () ;
+		ret[3] = Matrix::make_translation (r8x) ;
 		ret[4] = Matrix::make_diag (REAL (1) ,REAL (1) ,REAL (1) ,r8x[3]) ;
 		return std::move (ret) ;
 	}
@@ -863,7 +861,7 @@ public:
 		const auto r2x = _SWITCH_ (
 			(light[3] != REAL (0)) ? r8x :
 			(light.normalize ())) ;
-		const auto r3x = center.homogenize () * r1x ;
+		const auto r3x = (center - Vector<REAL>::axis_w ()) * r1x ;
 		const auto r9x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
 		const auto r4x = r9x * r1x ;
 		const auto r7x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;

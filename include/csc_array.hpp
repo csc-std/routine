@@ -3402,15 +3402,15 @@ private:
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(!r1x))
+			if (r1x)
 				discard ;
-			if (!(!r2x))
+			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(!r2x))
+			if (r2x)
 				discard ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
@@ -3450,15 +3450,15 @@ private:
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(!r1x))
+			if (r1x)
 				discard ;
-			if (!(!r2x))
+			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
 			mTop = jt ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(!r2x))
+			if (r2x)
 				discard ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
 			mSet[r1].mRed = TRUE ;
