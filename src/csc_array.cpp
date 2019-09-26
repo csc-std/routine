@@ -84,7 +84,7 @@ public:
 				_UNITTEST_ASSERT_ (ix == rax.at (i)) ;
 			}
 		}
-		for (INDEX i = 0 ; i < rax.size () ; i++) {
+		for (INDEX i = 0 ,ie = rax.size () ; i < ie ; i++) {
 			const auto r2x = rbx.self () ;
 			INDEX ix = rax.find (r2x) ;
 			if (ix == VAR_NONE)

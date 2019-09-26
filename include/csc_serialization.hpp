@@ -506,39 +506,39 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $3->$1 = $2
-		inline void update_shift_e3 (INDEX it) {
+		inline void update_shift_e3 (INDEX curr) {
 			update_shift_e1 () ;
-			INDEX ix = mNodeHeap[it].mAttributeSet.insert (std::move (mLatestString)) ;
-			_DYNAMIC_ASSERT_ (mNodeHeap[it].mAttributeSet[ix].item.empty ()) ;
+			INDEX ix = mNodeHeap[curr].mAttributeSet.insert (std::move (mLatestString)) ;
+			_DYNAMIC_ASSERT_ (mNodeHeap[curr].mAttributeSet[ix].item.empty ()) ;
 			mRis >> RegularReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
 			mRis >> RegularReader<>::SKIP_GAP ;
 			update_shift_e2 () ;
-			mNodeHeap[it].mAttributeSet[ix].item = std::move (mLatestString) ;
+			mNodeHeap[curr].mAttributeSet[ix].item = std::move (mLatestString) ;
 		}
 
 		//@info: $4->${eps}|$3 $4
-		inline void update_shift_e4 (INDEX it) {
+		inline void update_shift_e4 (INDEX curr) {
 			while (TRUE) {
 				const auto r1x = BOOL (mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')) ;
 				const auto r2x = BOOL (mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')) ;
 				const auto r3x = BOOL (mRis[0] == STRU8 ('_')) ;
 				if (!r1x && !r2x && !r3x)
 					break ;
-				update_shift_e3 (it) ;
+				update_shift_e3 (curr) ;
 				mRis >> RegularReader<>::SKIP_GAP ;
 			}
 		}
 
 		//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
-		inline void update_shift_e5 (INDEX it) {
+		inline void update_shift_e5 (INDEX curr) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("<") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			update_shift_e1 () ;
 			mNodeHeap[ix].mName = std::move (mLatestString) ;
 			mNodeHeap[ix].mAttributeSet = mAttributeSoftSet.share () ;
-			mNodeHeap[ix].mParent = it ;
+			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
 			mRis >> RegularReader<>::SKIP_GAP ;
@@ -581,7 +581,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $7->${eps}|$5 $7|$6 $7
-		inline void update_shift_e7 (INDEX it) {
+		inline void update_shift_e7 (INDEX curr) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
@@ -599,9 +599,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 				if SWITCH_CASE (ifa) {
 					if (!r2x)
 						discard ;
-					update_shift_e5 (it) ;
-					mNodeHeap[it].mMemberSet.add (mNodeHeap[it].mMemberSet.length () ,mLatestIndex) ;
-					mNodeHeap[it].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
+					update_shift_e5 (curr) ;
+					mNodeHeap[curr].mMemberSet.add (mNodeHeap[curr].mMemberSet.length () ,mLatestIndex) ;
+					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
 					auto &r1 = _SWITCH_ (
 						(ix == VAR_NONE) ? ix :
 						(mNodeHeap[iy].mBrother)) ;
@@ -816,8 +816,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeStack[ix].P3[1] = VAR_NONE ;
 		}
 
-		inline void update_found_table_node (const XmlParser &it) {
-			for (XmlParser i = it ; i.exist () ; i = i.brother ()) {
+		inline void update_found_table_node (const XmlParser &node) {
+			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
@@ -856,8 +856,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			}
 		}
 
-		inline void update_found_object_node (const XmlParser &it) {
-			for (XmlParser i = it ; i.exist () ; i = i.brother ()) {
+		inline void update_found_object_node (const XmlParser &node) {
+			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = ix ;
 				for (FOR_ONCE_DO) {
@@ -902,10 +902,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			}
 		}
 
-		inline void update_found_array_node (const XmlParser &it) {
+		inline void update_found_array_node (const XmlParser &node) {
 			if (!mFoundNodeList.empty ())
 				return ;
-			for (XmlParser i = it ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = mFoundNodeNameSet.min_one () ;
 				INDEX iy = mFoundNodeList.insert () ;
 				const auto r1x = mFoundNodeNameSet.length () ;
@@ -952,7 +952,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			return std::move (ret) ;
 		}
 
-		inline void update_merge_found_node (INDEX it) {
+		inline void update_merge_found_node (INDEX curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			for (auto &&i : mFoundNodeList) {
@@ -960,7 +960,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				ix = mNodeHeap.alloc () ;
 				mNodeHeap[ix].mName = std::move (mFoundNodeNameSet[i[0]]) ;
 				mNodeHeap[ix].mAttributeSet = std::move (mFoundNodeAttributeSetList[i[1]]) ;
-				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mParent = curr ;
 				for (FOR_ONCE_DO) {
 					INDEX jx = mNodeHeap[ix].mParent ;
 					if (jx == VAR_NONE)
@@ -1557,7 +1557,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
-		inline void update_shift_e4 (INDEX it) {
+		inline void update_shift_e4 (INDEX curr) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			auto ifa = FALSE ;
@@ -1570,7 +1570,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e1 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			}
@@ -1583,7 +1583,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			}
@@ -1593,7 +1593,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2x () ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_NULL ;
-				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			}
@@ -1604,20 +1604,20 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e3 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = it ;
+				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			}
 			if SWITCH_CASE (ifa) {
 				if (!(mRis[0] == STRU8 ('[')))
 					discard ;
-				update_shift_e6 (it) ;
+				update_shift_e6 (curr) ;
 				ix = mLatestIndex ;
 			}
 			if SWITCH_CASE (ifa) {
 				if (!(mRis[0] == STRU8 ('{')))
 					discard ;
-				update_shift_e9 (it) ;
+				update_shift_e9 (curr) ;
 				ix = mLatestIndex ;
 			}
 			if SWITCH_CASE (ifa) {
@@ -1628,12 +1628,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $5->$4|$4 , $5
-		inline void update_shift_e5 (INDEX it) {
+		inline void update_shift_e5 (INDEX curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
-				update_shift_e4 (it) ;
-				auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+				update_shift_e4 (curr) ;
+				auto &r1 = mNodeHeap[curr].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 				r1.add (r1.length () ,mLatestIndex) ;
 				auto &r2 = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
@@ -1650,13 +1650,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $6->[ ]|[ $5 ]
-		inline void update_shift_e6 (INDEX it) {
+		inline void update_shift_e6 (INDEX curr) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("[") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX ,INDEX>>::make (mArraySoftSet.share ()) ;
 			mNodeHeap[ix].mClazz = NODE_CLAZZ_ARRAY ;
-			mNodeHeap[ix].mParent = it ;
+			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
 			mRis >> RegularReader<>::SKIP_GAP ;
@@ -1672,23 +1672,23 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $7->$2 : $4
-		inline void update_shift_e7 (INDEX it) {
+		inline void update_shift_e7 (INDEX curr) {
 			update_shift_e3 () ;
-			auto &r1 = mNodeHeap[it].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r1 = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			INDEX ix = r1.insert (std::move (mLatestString)) ;
 			mRis >> RegularReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
 			mRis >> RegularReader<>::SKIP_GAP ;
-			update_shift_e4 (it) ;
+			update_shift_e4 (curr) ;
 			r1[ix].item = mLatestIndex ;
 		}
 
 		//@info: $8->$7|$7 , $8
-		inline void update_shift_e8 (INDEX it) {
+		inline void update_shift_e8 (INDEX curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
-				update_shift_e7 (it) ;
+				update_shift_e7 (curr) ;
 				auto &r1 = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
 					(mNodeHeap[iy].mBrother)) ;
@@ -1704,13 +1704,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		//@info: $9->{ }|{ $8 }
-		inline void update_shift_e9 (INDEX it) {
+		inline void update_shift_e9 (INDEX curr) {
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("{") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8> ,INDEX>>::make (mObjectSoftSet.share ()) ;
 			mNodeHeap[ix].mClazz = NODE_CLAZZ_OBJECT ;
-			mNodeHeap[ix].mParent = it ;
+			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
 			mRis >> RegularReader<>::SKIP_GAP ;

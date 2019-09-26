@@ -322,6 +322,7 @@ using std::remove_extent ;
 #define FOR_ONCE_DO auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
 
 #define SWITCH_CASE(arg1) (TRUE) for ( ; !arg1 ; arg1 = TRUE)
+#define SWITCH_ONCE(arg1) (arg1) for (FOR_ONCE_DO)
 
 using BOOL = bool ;
 
@@ -1306,7 +1307,7 @@ inline void _CALL_TRY_ (_ARG1 &&arg1 ,_ARGS &&...args) {
 class GlobalHeap final :private Wrapped<void> {
 private:
 	template <class UNIT>
-	class OwnerProxy {
+	class OwnerProxy final {
 	private:
 		friend GlobalHeap ;
 		PTR<UNIT> mPointer ;

@@ -1635,8 +1635,8 @@ public:
 	}
 
 private:
-	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &it) const {
-		INDEX iw = it ;
+	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
+		INDEX iw = out_i ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!(data > 0))
@@ -1666,11 +1666,11 @@ private:
 				discard ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
-		it = iw ;
+		out_i = iw ;
 	}
 
-	void compute_write_number (const VAL64 &data ,LENGTH precision ,const PhanBuffer<REAL> &out ,INDEX &it) const {
-		INDEX iw = it ;
+	void compute_write_number (const VAL64 &data ,LENGTH precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
+		INDEX iw = out_i ;
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r3x = log_of_number (rax[0]) ;
@@ -1780,7 +1780,7 @@ private:
 				discard ;
 			out[--iw] = REAL ('-') ;
 		}
-		it = iw ;
+		out_i = iw ;
 	}
 
 	LENGTH log_of_number (VAR64 arg1) const {

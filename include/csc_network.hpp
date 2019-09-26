@@ -50,7 +50,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping ;
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 
@@ -117,7 +117,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping ;
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 

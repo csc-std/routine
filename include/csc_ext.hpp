@@ -842,20 +842,20 @@ struct OPERATOR_CRC32 {
 			(CHAR (0XEDB88320) ^ (val >> 1))) ;
 	}
 
-	inline static constexpr CHAR constexpr_crc32_table (CHAR val ,INDEX it) {
+	inline static constexpr CHAR constexpr_crc32_table (CHAR val ,INDEX curr) {
 		return _SWITCH_ (
-			!(constexpr_check (it ,8)) ? val :
-			(constexpr_crc32_table (constexpr_crc32_next (val) ,(it + 1)))) ;
+			!(constexpr_check (curr ,8)) ? val :
+			(constexpr_crc32_table (constexpr_crc32_next (val) ,(curr + 1)))) ;
 	}
 
-	inline static constexpr CHAR constexpr_crc32_hash (const Plain<STR> &stri ,CHAR val ,INDEX it) {
+	inline static constexpr CHAR constexpr_crc32_hash (const Plain<STR> &stri ,CHAR val ,INDEX curr) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		return _SWITCH_ (
-			!(constexpr_check (it ,stri.size ())) ? val :
-			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri.self[it])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(it + 1)))) ;
+			!(constexpr_check (curr ,stri.size ())) ? val :
+			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri.self[curr])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(curr + 1)))) ;
 #pragma GCC diagnostic pop
 	}
 
@@ -1406,7 +1406,7 @@ template <class...>
 class AnyOfTuple ;
 
 template <class... UNITS>
-class AllOfTuple :private TupleBinder<const UNITS...> {
+class AllOfTuple final :private TupleBinder<const UNITS...> {
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
@@ -1414,6 +1414,12 @@ private:
 
 public:
 	inline AllOfTuple () = delete ;
+
+	inline AllOfTuple (const AllOfTuple &) = delete ;
+	inline AllOfTuple &operator= (const AllOfTuple &) = delete ;
+
+	inline AllOfTuple (AllOfTuple &&) noexcept = default ;
+	inline AllOfTuple &operator= (AllOfTuple &&) = delete ;
 
 	inline implicit operator BOOL () && {
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
@@ -1615,7 +1621,7 @@ private:
 } ;
 
 template <class... UNITS>
-class AnyOfTuple :private TupleBinder<const UNITS...> {
+class AnyOfTuple final :private TupleBinder<const UNITS...> {
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
@@ -1623,6 +1629,12 @@ private:
 
 public:
 	inline AnyOfTuple () = delete ;
+
+	inline AnyOfTuple (const AnyOfTuple &) = delete ;
+	inline AnyOfTuple &operator= (const AnyOfTuple &) = delete ;
+
+	inline AnyOfTuple (AnyOfTuple &&) noexcept = default ;
+	inline AnyOfTuple &operator= (AnyOfTuple &&) = delete ;
 
 	inline implicit operator BOOL () && {
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
@@ -1826,14 +1838,14 @@ private:
 namespace S {
 template <class _ARG1 ,class... _ARGS>
 inline static AllOfTuple<_ARG1 ,_ARGS...> _ALLOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	const auto r1x = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
-	return _CAST_<AllOfTuple<_ARG1 ,_ARGS...>> (r1x) ;
+	TupleBinder<const _ARG1 ,const _ARGS...> ret = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
+	return std::move (_CAST_<AllOfTuple<_ARG1 ,_ARGS...>> (ret)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
 inline static AnyOfTuple<_ARG1 ,_ARGS...> _ANYOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	const auto r1x = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
-	return _CAST_<AnyOfTuple<_ARG1 ,_ARGS...>> (r1x) ;
+	TupleBinder<const _ARG1 ,const _ARGS...> ret = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
+	return std::move (_CAST_<AnyOfTuple<_ARG1 ,_ARGS...>> (ret)) ;
 }
 } ;
 
@@ -1865,8 +1877,8 @@ public:
 		_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
 		mRoot->mPrev->mNext = NULL ;
 		mRoot->mPrev = NULL ;
-		for (PTR<Node> i = mRoot ,ir ; i != NULL ; i = ir) {
-			ir = i->mNext ;
+		for (PTR<Node> i = mRoot ,it ; i != NULL ; i = it) {
+			it = i->mNext ;
 			i->~Node () ;
 			GlobalHeap::free (i) ;
 		}
@@ -2518,7 +2530,7 @@ class IntrusiveRef {
 private:
 	using INTRUSIVE_TYPE = typename UNIT::INTRUSIVE_TYPE ;
 
-	class WatchProxy {
+	class WatchProxy final {
 	private:
 		friend IntrusiveRef ;
 		PTR<UNIT> mPointer ;
@@ -2965,8 +2977,8 @@ private:
 		inline ~ImplPool () noexcept override {
 			if (mRoot == NULL)
 				return ;
-			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
+			for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
+				it = i->mNext ;
 				GlobalHeap::free (i->mOrigin) ;
 			}
 			mRoot = NULL ;
@@ -3031,8 +3043,8 @@ private:
 		inline void clean () override {
 			if (mSize == mLength)
 				return ;
-			for (PTR<CHUNK> i = mRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
+			for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
+				it = i->mNext ;
 				if (!empty_node (i))
 					continue ;
 				auto &r1 = _SWITCH_ (
@@ -3055,8 +3067,8 @@ private:
 			return TRUE ;
 		}
 
-		inline BOOL empty_node_each (LENGTH block_a ,INDEX block_i) const {
-			const auto r1x = block_a + block_i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
+		inline BOOL empty_node_each (LENGTH seg_a ,INDEX seg_i) const {
+			const auto r1x = seg_a + seg_i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
 			auto &r1 = _LOAD_<BLOCK> (NULL ,r1x) ;
 			if (_ADDRESS_ (r1.mNext) == VAR_USED)
 				return FALSE ;
@@ -3089,8 +3101,8 @@ private:
 		inline ~HugePool () noexcept override {
 			if (mRoot == NULL)
 				return ;
-			for (PTR<BLOCK> i = mRoot ,ir ; i != NULL ; i = ir) {
-				ir = i->mNext ;
+			for (PTR<BLOCK> i = mRoot ,it ; i != NULL ; i = it) {
+				it = i->mNext ;
 				GlobalHeap::free (i->mOrigin) ;
 			}
 			mRoot = NULL ;

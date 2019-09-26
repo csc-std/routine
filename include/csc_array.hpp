@@ -8,7 +8,7 @@
 
 namespace CSC {
 template <class BASE>
-class ForwardIterator final {
+class ArrayIterator final {
 private:
 	using ITERATOR = DEF<decltype (_NULL_<const BASE> ().ibegin ())> ;
 	using ITEM_TYPE = DEF<decltype (_NULL_<BASE> ().get (_NULL_<const ITERATOR> ()))> ;
@@ -18,19 +18,19 @@ private:
 	ITERATOR mIndex ;
 
 public:
-	inline ForwardIterator () = delete ;
+	inline ArrayIterator () = delete ;
 
-	inline ForwardIterator (const ForwardIterator &) = delete ;
-	inline ForwardIterator &operator= (const ForwardIterator &) = delete ;
+	inline ArrayIterator (const ArrayIterator &) = delete ;
+	inline ArrayIterator &operator= (const ArrayIterator &) = delete ;
 
-	inline ForwardIterator (ForwardIterator &&) noexcept = default ;
-	inline ForwardIterator &operator= (ForwardIterator &&) = delete ;
+	inline ArrayIterator (ArrayIterator &&) noexcept = default ;
+	inline ArrayIterator &operator= (ArrayIterator &&) = delete ;
 
-	inline BOOL operator== (const ForwardIterator &that) const {
+	inline BOOL operator== (const ArrayIterator &that) const {
 		return BOOL (mIndex == that.mIndex) ;
 	}
 
-	inline BOOL operator!= (const ForwardIterator &that) const {
+	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
@@ -43,27 +43,27 @@ public:
 	}
 
 private:
-	inline explicit ForwardIterator (BASE &base ,ITERATOR &&index) popping : mBase (base) ,mIndex (std::move (index)) {}
+	inline explicit ArrayIterator (BASE &base ,ITERATOR &&index) popping : mBase (base) ,mIndex (std::move (index)) {}
 
 public:
-	inline static ForwardIterator friend_begin (BASE &base) popping {
-		return ForwardIterator (base ,_XVALUE_<const BASE> (base).ibegin ()) ;
+	inline static ArrayIterator friend_begin (BASE &base) popping {
+		return ArrayIterator (base ,_XVALUE_<const BASE> (base).ibegin ()) ;
 	}
 
-	inline static ForwardIterator friend_end (BASE &base) popping {
-		return ForwardIterator (base ,_XVALUE_<const BASE> (base).iend ()) ;
+	inline static ArrayIterator friend_end (BASE &base) popping {
+		return ArrayIterator (base ,_XVALUE_<const BASE> (base).iend ()) ;
 	}
 } ;
 
 inline namespace S {
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().ibegin ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> begin (_ARG1 &&arg1) popping {
-	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_begin (arg1) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<_ARG1>> begin (_ARG1 &&arg1) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_begin (arg1) ;
 }
 
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const _ARG1> ().iend ())>::value>>
-inline ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping {
-	return ForwardIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_end (arg1) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<_ARG1>> end (_ARG1 &&arg1) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<_ARG1>>::friend_end (arg1) ;
 }
 } ;
 
@@ -87,7 +87,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void static_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &it) {
+	inline static void static_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
 		auto rax = std::move (out[ix]) ;
@@ -104,7 +104,7 @@ struct OPERATOR_SORT {
 			out[iy--] = std::move (out[ix]) ;
 		}
 		out[ix] = std::move (rax) ;
-		it = ix ;
+		mid_one = ix ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -963,7 +963,7 @@ private:
 	using PAIR_TYPE = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_TYPE ;
@@ -1096,7 +1096,7 @@ private:
 	using PAIR_TYPE = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_TYPE ;
@@ -1405,8 +1405,8 @@ private:
 		mPriority.swap (rax) ;
 	}
 
-	void update_insert (INDEX it) {
-		INDEX ix = it ;
+	void update_insert (INDEX curr) {
+		INDEX ix = curr ;
 		auto rax = std::move (mPriority[ix]) ;
 		while (TRUE) {
 			//@info: '-1 >> 1' is not the same as '-1 / 2'
@@ -1791,15 +1791,6 @@ public:
 		return VAR_NONE ;
 	}
 
-	void erase (const ITEM &item) {
-		for (INDEX i = ibegin () ,ir ,ie = iend () ; i != ie ; i = ir) {
-			ir = inext (i) ;
-			if (get (i) != item)
-				continue ;
-			remove (i) ;
-		}
-	}
-
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
@@ -1831,18 +1822,18 @@ private:
 	explicit QList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) {}
 
 private:
-	INDEX &prev_next (INDEX it) & {
-		if (mList[it].mLeft == VAR_NONE)
+	INDEX &prev_next (INDEX curr) & {
+		if (mList[curr].mLeft == VAR_NONE)
 			return mFirst ;
-		return mList[mList[it].mLeft].mRight ;
+		return mList[mList[curr].mLeft].mRight ;
 	}
 
 	INDEX &prev_next (INDEX) && = delete ;
 
-	INDEX &next_prev (INDEX it) & {
-		if (mList[it].mRight == VAR_NONE)
+	INDEX &next_prev (INDEX curr) & {
+		if (mList[curr].mRight == VAR_NONE)
 			return mLast ;
-		return mList[mList[it].mRight].mLeft ;
+		return mList[mList[curr].mRight].mLeft ;
 	}
 
 	INDEX &next_prev (INDEX) && = delete ;
@@ -2095,15 +2086,6 @@ public:
 		return VAR_NONE ;
 	}
 
-	void erase (const ITEM &item) {
-		for (INDEX i = ibegin () ,ir ,ie = iend () ; i != ie ; i = ir) {
-			ir = inext (i) ;
-			if (get (i) != item)
-				continue ;
-			remove (i) ;
-		}
-	}
-
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
@@ -2156,7 +2138,7 @@ private:
 		while (TRUE) {
 			if (ix > iy)
 				break ;
-			ret = ix + (iy - ix + 1) / 2 ;
+			ret = ix + (iy - ix) / 2 ;
 			INDEX jx = position_before (ret) ;
 			if (jx == pos && mHead[ret][0] != VAR_NONE)
 				break ;
@@ -2173,9 +2155,9 @@ private:
 		return std::move (ret) ;
 	}
 
-	INDEX position_before (INDEX it) const {
+	INDEX position_before (INDEX curr) const {
 		INDEX ret = 0 ;
-		INDEX ix = it ;
+		INDEX ix = curr ;
 		while (TRUE) {
 			if (ix < 0)
 				break ;
@@ -2186,14 +2168,14 @@ private:
 		return std::move (ret) ;
 	}
 
-	void update_resize (INDEX it) {
+	void update_resize (INDEX curr) {
 		if (mHead.size () == mList.size ())
 			return ;
 		auto rax = mHead.expand (mList.size ()) ;
 		const auto r1x = Buffer<INDEX ,ARGC<2>> ({VAR_NONE ,VAR_ZERO}) ;
 		_MEMFILL_ (rax.self ,rax.size () ,r1x) ;
 		for (INDEX i = 0 ; i < mList.size () ; i++) {
-			if (i == it)
+			if (i == curr)
 				continue ;
 			if (!mList.used (i))
 				continue ;
@@ -2202,31 +2184,31 @@ private:
 		mHead.swap (rax) ;
 	}
 
-	void update_compress_left (INDEX it ,INDEX jt) {
+	void update_compress_left (INDEX curr ,INDEX spec) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(mHead[it][0] == VAR_NONE))
+			if (!(mHead[curr][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (it ,jt) ;
-			mWrite = _MIN_ ((it + 1) ,(mHead.size () - 1)) ;
+			sequence_rewrite (curr ,spec) ;
+			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
 		}
 		if SWITCH_CASE (ifa) {
-			INDEX ix = it + 1 ;
+			INDEX ix = curr + 1 ;
 			if (!(ix < mHead.size ()))
 				discard ;
 			if (!(mHead[ix][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (ix ,jt) ;
+			sequence_rewrite (ix ,spec) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
 		}
 		if SWITCH_CASE (ifa) {
-			update_compress_left_force (it ,jt) ;
+			update_compress_left_force (curr ,spec) ;
 		}
 	}
 
-	void update_compress_left_force (INDEX it ,INDEX jt) {
-		INDEX ix = it ;
-		INDEX iy = jt ;
+	void update_compress_left_force (INDEX curr ,INDEX spec) {
+		INDEX ix = curr ;
+		INDEX iy = spec ;
 		for (INDEX i = 0 ; i < mList.length () ; i++) {
 			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
 				mRead++ ;
@@ -2262,31 +2244,31 @@ private:
 		mWrite = _MIN_ (mList.length () ,(mHead.size () - 1)) ;
 	}
 
-	void update_compress_right (INDEX it ,INDEX jt) {
+	void update_compress_right (INDEX curr ,INDEX spec) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(mHead[it][0] == VAR_NONE))
+			if (!(mHead[curr][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (it ,jt) ;
-			mRead = _MAX_ ((it - 1) ,VAR_ZERO) ;
+			sequence_rewrite (curr ,spec) ;
+			mRead = _MAX_ ((curr - 1) ,VAR_ZERO) ;
 		}
 		if SWITCH_CASE (ifa) {
-			INDEX ix = it - 1 ;
+			INDEX ix = curr - 1 ;
 			if (!(ix >= 0))
 				discard ;
 			if (!(mHead[ix][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (ix ,jt) ;
+			sequence_rewrite (ix ,spec) ;
 			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
 		}
 		if SWITCH_CASE (ifa) {
-			update_compress_right_force (it ,jt) ;
+			update_compress_right_force (curr ,spec) ;
 		}
 	}
 
-	void update_compress_right_force (INDEX it ,INDEX jt) {
-		INDEX ix = it ;
-		INDEX iy = jt ;
+	void update_compress_right_force (INDEX curr ,INDEX spec) {
+		INDEX ix = curr ;
+		INDEX iy = spec ;
 		for (INDEX i = 0 ; i < mList.length () ; i++) {
 			INDEX jx = mHead.size () + ~i ;
 			while (mWrite != ix && mHead[mWrite][0] == VAR_NONE)
@@ -2323,12 +2305,12 @@ private:
 		mWrite = mHead.size () - 1 ;
 	}
 
-	void sequence_rewrite (INDEX it ,INDEX jt) {
-		_DEBUG_ASSERT_ (jt != VAR_NONE) ;
-		INDEX ix = it ;
-		const auto r1x = mHead[it][0] ;
-		mHead[ix][0] = jt ;
-		mList[jt].mSequ = ix ;
+	void sequence_rewrite (INDEX curr ,INDEX index) {
+		_DEBUG_ASSERT_ (index != VAR_NONE) ;
+		INDEX ix = curr ;
+		const auto r1x = mHead[curr][0] ;
+		mHead[ix][0] = index ;
+		mList[index].mSequ = ix ;
 		if (r1x != VAR_NONE)
 			return ;
 		while (TRUE) {
@@ -2339,8 +2321,8 @@ private:
 		}
 	}
 
-	void sequence_remove (INDEX it) {
-		INDEX ix = it ;
+	void sequence_remove (INDEX curr) {
+		INDEX ix = curr ;
 		mHead[ix][0] = VAR_NONE ;
 		while (TRUE) {
 			if (ix >= mHead.size ())
@@ -2364,7 +2346,7 @@ private:
 	}
 
 	template <class BASE>
-	class Bit {
+	class Bit final {
 	private:
 		friend BitSet ;
 		BASE &mBase ;
@@ -2790,7 +2772,7 @@ private:
 	using PAIR_TYPE = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_TYPE ;
@@ -2933,7 +2915,7 @@ private:
 	using PAIR_TYPE = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_TYPE ;
@@ -3238,28 +3220,28 @@ public:
 	}
 
 private:
-	void update_emplace (INDEX it ,INDEX jt) {
+	void update_emplace (INDEX curr ,INDEX spec) {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(it == VAR_NONE))
+			if (!(curr == VAR_NONE))
 				discard ;
-			mTop = jt ;
+			mTop = spec ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(it != VAR_NONE))
+			if (!(curr != VAR_NONE))
 				discard ;
-			mSet[jt].mUp = it ;
+			mSet[spec].mUp = curr ;
 			auto &r1 = _SWITCH_ (
-				(mSet[jt].mKey < mSet[it].mKey) ? (mSet[it].mLeft) :
-				(mSet[it].mRight)) ;
-			update_emplace (r1 ,jt) ;
+				(mSet[spec].mKey < mSet[curr].mKey) ? (mSet[curr].mLeft) :
+				(mSet[curr].mRight)) ;
+			update_emplace (r1 ,spec) ;
 			r1 = mTop ;
-			mTop = it ;
+			mTop = curr ;
 		}
 	}
 
-	void update_insert (INDEX it) {
-		INDEX ix = it ;
+	void update_insert (INDEX curr) {
+		INDEX ix = curr ;
 		while (TRUE) {
 			INDEX jx = mSet[ix].mUp ;
 			if (jx == VAR_NONE)
@@ -3282,8 +3264,8 @@ private:
 		mSet[mRoot].mRed = FALSE ;
 	}
 
-	void update_insert_left (INDEX it) {
-		INDEX ix = mSet[it].mUp ;
+	void update_insert_left (INDEX curr) {
+		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
@@ -3297,12 +3279,12 @@ private:
 			mTop = iy ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(it == mSet[ix].mRight))
+			if (!(curr == mSet[ix].mRight))
 				discard ;
 			auto &r1 = mSet[iy].mLeft ;
 			rotate_left (r1) ;
 			r1 = mTop ;
-			mSet[it].mRed = FALSE ;
+			mSet[curr].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r2 = prev_next (iy) ;
 			rotate_right (r2) ;
@@ -3310,19 +3292,19 @@ private:
 			mTop = ix ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(it == mSet[ix].mLeft))
+			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
 			rotate_right (r3) ;
 			r3 = mTop ;
-			mTop = it ;
+			mTop = curr ;
 		}
 	}
 
-	void update_insert_right (INDEX it) {
-		INDEX ix = mSet[it].mUp ;
+	void update_insert_right (INDEX curr) {
+		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
@@ -3336,12 +3318,12 @@ private:
 			mTop = iy ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(it == mSet[ix].mLeft))
+			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			auto &r1 = mSet[iy].mRight ;
 			rotate_right (r1) ;
 			r1 = mTop ;
-			mSet[it].mRed = FALSE ;
+			mSet[curr].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r2 = prev_next (iy) ;
 			rotate_left (r2) ;
@@ -3349,20 +3331,20 @@ private:
 			mTop = ix ;
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(it == mSet[ix].mRight))
+			if (!(curr == mSet[ix].mRight))
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
 			auto &r3 = prev_next (iy) ;
 			rotate_left (r3) ;
 			r3 = mTop ;
-			mTop = it ;
+			mTop = curr ;
 		}
 	}
 
-	void update_remove (INDEX it ,INDEX jt) {
-		INDEX ix = it ;
-		INDEX iy = jt ;
+	void update_remove (INDEX curr ,INDEX spec) {
+		INDEX ix = curr ;
+		INDEX iy = spec ;
 		while (TRUE) {
 			if (iy == VAR_NONE)
 				break ;
@@ -3387,14 +3369,14 @@ private:
 		mSet[ix].mRed = FALSE ;
 	}
 
-	void update_remove_left (INDEX it ,INDEX jt) {
-		auto &r1 = mSet[jt].mRight ;
+	void update_remove_left (INDEX curr ,INDEX spec) {
+		auto &r1 = mSet[spec].mRight ;
 		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				discard ;
 			mSet[r1].mRed = FALSE ;
-			mSet[jt].mRed = TRUE ;
-			auto &r2 = prev_next (jt) ;
+			mSet[spec].mRed = TRUE ;
+			auto &r2 = prev_next (spec) ;
 			rotate_left (r2) ;
 			r2 = mTop ;
 		}
@@ -3407,7 +3389,7 @@ private:
 			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
-			mTop = jt ;
+			mTop = spec ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (r2x)
@@ -3416,33 +3398,33 @@ private:
 			mSet[r1].mRed = TRUE ;
 			rotate_right (r1) ;
 			r1 = mTop ;
-			mSet[r1].mRed = mSet[jt].mRed ;
-			mSet[jt].mRed = FALSE ;
+			mSet[r1].mRed = mSet[spec].mRed ;
+			mSet[spec].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
-			auto &r3 = prev_next (jt) ;
+			auto &r3 = prev_next (spec) ;
 			rotate_left (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (ifa) {
-			mSet[r1].mRed = mSet[jt].mRed ;
-			mSet[jt].mRed = FALSE ;
+			mSet[r1].mRed = mSet[spec].mRed ;
+			mSet[spec].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
-			auto &r4 = prev_next (jt) ;
+			auto &r4 = prev_next (spec) ;
 			rotate_left (r4) ;
 			r4 = mTop ;
 			mTop = mRoot ;
 		}
 	}
 
-	void update_remove_right (INDEX it ,INDEX jt) {
-		auto &r1 = mSet[jt].mLeft ;
+	void update_remove_right (INDEX curr ,INDEX spec) {
+		auto &r1 = mSet[spec].mLeft ;
 		for (FOR_ONCE_DO) {
 			if (!mSet[r1].mRed)
 				discard ;
 			mSet[r1].mRed = FALSE ;
-			mSet[jt].mRed = TRUE ;
-			auto &r2 = prev_next (jt) ;
+			mSet[spec].mRed = TRUE ;
+			auto &r2 = prev_next (spec) ;
 			rotate_right (r2) ;
 			r2 = mTop ;
 		}
@@ -3455,7 +3437,7 @@ private:
 			if (r2x)
 				discard ;
 			mSet[r1].mRed = TRUE ;
-			mTop = jt ;
+			mTop = spec ;
 		}
 		if SWITCH_CASE (ifa) {
 			if (r2x)
@@ -3464,53 +3446,53 @@ private:
 			mSet[r1].mRed = TRUE ;
 			rotate_left (r1) ;
 			r1 = mTop ;
-			mSet[r1].mRed = mSet[jt].mRed ;
-			mSet[jt].mRed = FALSE ;
+			mSet[r1].mRed = mSet[spec].mRed ;
+			mSet[spec].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
-			auto &r3 = prev_next (jt) ;
+			auto &r3 = prev_next (spec) ;
 			rotate_right (r3) ;
 			r3 = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (ifa) {
-			mSet[r1].mRed = mSet[jt].mRed ;
-			mSet[jt].mRed = FALSE ;
+			mSet[r1].mRed = mSet[spec].mRed ;
+			mSet[spec].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
-			auto &r4 = prev_next (jt) ;
+			auto &r4 = prev_next (spec) ;
 			rotate_right (r4) ;
 			r4 = mTop ;
 			mTop = mRoot ;
 		}
 	}
 
-	void rotate_left (INDEX it) {
-		INDEX ix = mSet[it].mRight ;
-		mSet[it].mRight = mSet[ix].mLeft ;
+	void rotate_left (INDEX curr) {
+		INDEX ix = mSet[curr].mRight ;
+		mSet[curr].mRight = mSet[ix].mLeft ;
 		if (mSet[ix].mLeft != VAR_NONE)
-			mSet[mSet[ix].mLeft].mUp = it ;
-		mSet[ix].mLeft = it ;
-		mSet[ix].mUp = mSet[it].mUp ;
-		mSet[it].mUp = ix ;
+			mSet[mSet[ix].mLeft].mUp = curr ;
+		mSet[ix].mLeft = curr ;
+		mSet[ix].mUp = mSet[curr].mUp ;
+		mSet[curr].mUp = ix ;
 		mTop = ix ;
 	}
 
-	void rotate_right (INDEX it) {
-		INDEX ix = mSet[it].mLeft ;
-		mSet[it].mLeft = mSet[ix].mRight ;
+	void rotate_right (INDEX curr) {
+		INDEX ix = mSet[curr].mLeft ;
+		mSet[curr].mLeft = mSet[ix].mRight ;
 		if (mSet[ix].mRight != VAR_NONE)
-			mSet[mSet[ix].mRight].mUp = it ;
-		mSet[ix].mRight = it ;
-		mSet[ix].mUp = mSet[it].mUp ;
-		mSet[it].mUp = ix ;
+			mSet[mSet[ix].mRight].mUp = curr ;
+		mSet[ix].mRight = curr ;
+		mSet[ix].mUp = mSet[curr].mUp ;
+		mSet[curr].mUp = ix ;
 		mTop = ix ;
 	}
 
-	INDEX &prev_next (INDEX it) & {
-		if (mSet[it].mUp == VAR_NONE)
+	INDEX &prev_next (INDEX curr) & {
+		if (mSet[curr].mUp == VAR_NONE)
 			return mRoot ;
-		if (mSet[mSet[it].mUp].mLeft == it)
-			return mSet[mSet[it].mUp].mLeft ;
-		return mSet[mSet[it].mUp].mRight ;
+		if (mSet[mSet[curr].mUp].mLeft == curr)
+			return mSet[mSet[curr].mUp].mLeft ;
+		return mSet[mSet[curr].mUp].mRight ;
 	}
 
 	INDEX &prev_next (INDEX) && = delete ;
@@ -3551,14 +3533,14 @@ private:
 		_SWAP_ (mSet[index1].mRight ,mSet[index2].mRight) ;
 	}
 
-	void compute_esort (INDEX it ,Array<INDEX> &out ,INDEX &jt) const {
-		if (it == VAR_NONE)
+	void compute_esort (INDEX curr ,Array<INDEX> &out ,INDEX &out_i) const {
+		if (curr == VAR_NONE)
 			return ;
-		INDEX iw = jt ;
-		compute_esort (mSet[it].mLeft ,out ,iw) ;
-		out[iw++] = it ;
-		compute_esort (mSet[it].mRight ,out ,iw) ;
-		jt = iw ;
+		INDEX iw = out_i ;
+		compute_esort (mSet[curr].mLeft ,out ,iw) ;
+		out[iw++] = curr ;
+		compute_esort (mSet[curr].mRight ,out ,iw) ;
+		out_i = iw ;
 	}
 } ;
 
@@ -3598,7 +3580,7 @@ private:
 	using PAIR_TYPE = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -3739,7 +3721,7 @@ private:
 	using PAIR_TYPE = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4011,13 +3993,13 @@ public:
 	}
 
 private:
-	void update_resize (INDEX it) {
+	void update_resize (INDEX curr) {
 		if (mHead.size () == mSet.size ())
 			return ;
 		auto rax = mHead.expand (mSet.size ()) ;
 		_MEMFILL_ (rax.self ,rax.size () ,VAR_NONE) ;
 		for (INDEX i = 0 ; i < mSet.size () ; i++) {
-			if (i == it)
+			if (i == curr)
 				continue ;
 			if (!mSet.used (i))
 				continue ;
@@ -4028,25 +4010,25 @@ private:
 		mHead.swap (rax) ;
 	}
 
-	void update_insert (INDEX it) {
-		INDEX ix = mSet[it].mHash % mHead.size () ;
-		mSet[it].mNext = mHead[ix] ;
-		mHead[ix] = it ;
+	void update_insert (INDEX curr) {
+		INDEX ix = mSet[curr].mHash % mHead.size () ;
+		mSet[curr].mNext = mHead[ix] ;
+		mHead[ix] = curr ;
 	}
 
-	INDEX &prev_next (INDEX it) & {
-		INDEX ix = mSet[it].mHash % mHead.size () ;
-		if (mHead[ix] == it)
+	INDEX &prev_next (INDEX curr) & {
+		INDEX ix = mSet[curr].mHash % mHead.size () ;
+		if (mHead[ix] == curr)
 			return mHead[ix] ;
 		ix = mHead[ix] ;
 		while (TRUE) {
 			if (mSet[ix].mNext == VAR_NONE)
 				break ;
-			if (mSet[ix].mNext == it)
+			if (mSet[ix].mNext == curr)
 				break ;
 			ix = mSet[ix].mNext ;
 		}
-		_DEBUG_ASSERT_ (mSet[ix].mNext == it) ;
+		_DEBUG_ASSERT_ (mSet[ix].mNext == curr) ;
 		return mSet[ix].mNext ;
 	}
 
@@ -4091,7 +4073,7 @@ private:
 	using PAIR_TYPE = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4257,7 +4239,7 @@ private:
 	using PAIR_TYPE = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair {
+	class Pair final {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4596,8 +4578,8 @@ public:
 	}
 
 private:
-	void update_insert (INDEX it) {
-		INDEX ix = it ;
+	void update_insert (INDEX curr) {
+		INDEX ix = curr ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!(ix == VAR_NONE))
@@ -4628,8 +4610,8 @@ private:
 		}
 	}
 
-	void update_insert_left (INDEX it) {
-		INDEX ix = it ;
+	void update_insert_left (INDEX curr) {
+		INDEX ix = curr ;
 		mTop = ix ;
 		if (mSet.self[ix].mLeft == VAR_NONE)
 			return ;
@@ -4661,8 +4643,8 @@ private:
 		mTop = ix ;
 	}
 
-	void update_insert_right (INDEX it) {
-		INDEX ix = it ;
+	void update_insert_right (INDEX curr) {
+		INDEX ix = curr ;
 		mTop = ix ;
 		if (mSet.self[ix].mRight == VAR_NONE)
 			return ;
@@ -4694,42 +4676,42 @@ private:
 		mTop = ix ;
 	}
 
-	void rotate_left (INDEX it) {
-		INDEX ix = mSet.self[it].mRight ;
-		mSet.self[it].mRight = mSet.self[ix].mLeft ;
-		mSet.self[ix].mLeft = it ;
-		mSet.self[ix].mWeight = mSet.self[it].mWeight ;
-		const auto r1x = node_weight (mSet.self[it].mLeft) ;
-		const auto r2x = node_weight (mSet.self[it].mRight) ;
-		mSet.self[it].mWeight = r1x + r2x + 1 ;
+	void rotate_left (INDEX curr) {
+		INDEX ix = mSet.self[curr].mRight ;
+		mSet.self[curr].mRight = mSet.self[ix].mLeft ;
+		mSet.self[ix].mLeft = curr ;
+		mSet.self[ix].mWeight = mSet.self[curr].mWeight ;
+		const auto r1x = node_weight (mSet.self[curr].mLeft) ;
+		const auto r2x = node_weight (mSet.self[curr].mRight) ;
+		mSet.self[curr].mWeight = r1x + r2x + 1 ;
 		mTop = ix ;
 	}
 
-	void rotate_right (INDEX it) {
-		INDEX ix = mSet.self[it].mLeft ;
-		mSet.self[it].mLeft = mSet.self[ix].mRight ;
-		mSet.self[ix].mRight = it ;
-		mSet.self[ix].mWeight = mSet.self[it].mWeight ;
-		const auto r1x = node_weight (mSet.self[it].mLeft) ;
-		const auto r2x = node_weight (mSet.self[it].mRight) ;
-		mSet.self[it].mWeight = r1x + r2x + 1 ;
+	void rotate_right (INDEX curr) {
+		INDEX ix = mSet.self[curr].mLeft ;
+		mSet.self[curr].mLeft = mSet.self[ix].mRight ;
+		mSet.self[ix].mRight = curr ;
+		mSet.self[ix].mWeight = mSet.self[curr].mWeight ;
+		const auto r1x = node_weight (mSet.self[curr].mLeft) ;
+		const auto r2x = node_weight (mSet.self[curr].mRight) ;
+		mSet.self[curr].mWeight = r1x + r2x + 1 ;
 		mTop = ix ;
 	}
 
-	LENGTH node_weight (INDEX it) const {
-		if (it == VAR_NONE)
+	LENGTH node_weight (INDEX curr) const {
+		if (curr == VAR_NONE)
 			return 0 ;
-		return mSet.self[it].mWeight ;
+		return mSet.self[curr].mWeight ;
 	}
 
-	void compute_esort (INDEX it ,Array<INDEX> &out ,INDEX &jt) const {
-		if (it == VAR_NONE)
+	void compute_esort (INDEX curr ,Array<INDEX> &out ,INDEX &out_i) const {
+		if (curr == VAR_NONE)
 			return ;
-		INDEX iw = jt ;
-		compute_esort (mSet[it].mLeft ,out ,iw) ;
-		out[iw++] = it ;
-		compute_esort (mSet[it].mRight ,out ,iw) ;
-		jt = iw ;
+		INDEX iw = out_i ;
+		compute_esort (mSet[curr].mLeft ,out ,iw) ;
+		out[iw++] = curr ;
+		compute_esort (mSet[curr].mRight ,out ,iw) ;
+		out_i = iw ;
 	}
 } ;
 

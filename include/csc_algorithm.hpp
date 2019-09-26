@@ -973,13 +973,13 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
-	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX it ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
+	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX curr ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(mKDTree[it].mLeaf != VAR_NONE))
+			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
-				INDEX ix = mKDTree[it].mLeaf ;
+				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 				if (r2x > sqe_range)
 					discard ;
@@ -987,15 +987,15 @@ private:
 			}
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(mKDTree[it].mLeaf == VAR_NONE))
+			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
-			const auto r3x = mKDTree[it].mKey ;
+			const auto r3x = mKDTree[curr].mKey ;
 			for (FOR_ONCE_DO) {
 				if (r3x < bound[rot][0])
 					discard ;
 				const auto r4x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
-				compute_search_range (point ,sqe_range ,mKDTree[it].mLeft ,mNextRot[rot] ,bound ,out) ;
+				compute_search_range (point ,sqe_range ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r4x ;
 			}
 			for (FOR_ONCE_DO) {
@@ -1003,7 +1003,7 @@ private:
 					discard ;
 				const auto r5x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
-				compute_search_range (point ,sqe_range ,mKDTree[it].mRight ,mNextRot[rot] ,bound ,out) ;
+				compute_search_range (point ,sqe_range ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][0] = r5x ;
 			}
 		}
@@ -1019,13 +1019,13 @@ private:
 		return std::move (ret) ;
 	}
 
-	void compute_search_range (const ARRAY3<REAL> &point ,INDEX it ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
+	void compute_search_range (const ARRAY3<REAL> &point ,INDEX curr ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
-			if (!(mKDTree[it].mLeaf != VAR_NONE))
+			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
-				INDEX ix = mKDTree[it].mLeaf ;
+				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = Vector<REAL> {mVertex[ix] ,REAL (0)} ;
 				const auto r2x = Vector<REAL> {point ,REAL (0)} ;
 				const auto r3x = (r1x - r2x).magnitude () ;
@@ -1046,13 +1046,13 @@ private:
 			}
 		}
 		if SWITCH_CASE (ifa) {
-			if (!(mKDTree[it].mLeaf == VAR_NONE))
+			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
-			const auto r4x = mKDTree[it].mKey ;
+			const auto r4x = mKDTree[curr].mKey ;
 			if (r4x >= point[rot] - out[out.length () - 1].P2)
-				compute_search_range (point ,mKDTree[it].mLeft ,mNextRot[rot] ,out) ;
+				compute_search_range (point ,mKDTree[curr].mLeft ,mNextRot[rot] ,out) ;
 			if (r4x <= point[rot] + out[out.length () - 1].P2)
-				compute_search_range (point ,mKDTree[it].mRight ,mNextRot[rot] ,out) ;
+				compute_search_range (point ,mKDTree[curr].mRight ,mNextRot[rot] ,out) ;
 		}
 	}
 } ;
@@ -1124,7 +1124,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 			}
 		}
 
-		void update_build_tree (INDEX it ,INDEX rot ,INDEX seg ,INDEX seg_len) {
+		void update_build_tree (INDEX curr ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
 			auto ifa = FALSE ;
@@ -1147,7 +1147,7 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 				mKDTree[jx].mLeft = mLatestIndex ;
 				update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;
 				mKDTree[jx].mRight = mLatestIndex ;
-				mLatestIndex = it ;
+				mLatestIndex = curr ;
 			}
 		}
 

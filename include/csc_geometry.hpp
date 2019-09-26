@@ -306,7 +306,7 @@ template <class REAL>
 class Matrix {
 private:
 	template <class BASE>
-	class Row {
+	class Row final {
 	private:
 		friend Matrix ;
 		BASE &mBase ;
@@ -891,9 +891,8 @@ public:
 
 	static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < 4 ; i++)
-			for (INDEX j = 0 ; j < 4 ; j++)
-				ret[i][j] = first[i] * second[j] ;
+		for (auto &&i : ArrayRange<ARGC<2>> ({4 ,4}))
+			ret[i[0]][i[1]] = first[i[0]] * second[i[1]] ;
 		return std::move (ret) ;
 	}
 } ;

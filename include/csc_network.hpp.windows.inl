@@ -213,8 +213,8 @@ public:
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
-		it = VAR_NONE ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+		out_i = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (timeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -229,7 +229,7 @@ public:
 				discard ;
 			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
 		}
-		it = r2x ;
+		out_i = r2x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
@@ -291,8 +291,8 @@ inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) popping {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
-	mThis.rebind<Implement> ()->read (data ,it ,timeout) ;
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
 }
 
 inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
@@ -410,8 +410,8 @@ public:
 		mPeer = rax.P1 ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
-		it = VAR_NONE ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+		out_i = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;
@@ -422,7 +422,7 @@ public:
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		mPeer = rax.P1 ;
-		it = r2x ;
+		out_i = r2x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
@@ -456,8 +456,8 @@ inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) popping {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &it ,LENGTH timeout) popping {
-	mThis.rebind<Implement> ()->read (data ,it ,timeout) ;
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
 }
 
 inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {

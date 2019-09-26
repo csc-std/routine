@@ -101,7 +101,7 @@ template <class UNIT>
 class Bitmap {
 private:
 	template <class BASE>
-	class Row {
+	class Row final {
 	private:
 		friend Bitmap ;
 		BASE &mBase ;
@@ -628,7 +628,7 @@ public:
 
 private:
 	template <class BASE>
-	class Row {
+	class Row final {
 	private:
 		friend AbstractImage ;
 		BASE &mBase ;
@@ -661,7 +661,7 @@ private:
 	} ;
 
 	template <class _UNIT>
-	class NativeProxy {
+	class NativeProxy final {
 	private:
 		friend AbstractImage ;
 		PhanRef<const Abstract> mAbstract ;
