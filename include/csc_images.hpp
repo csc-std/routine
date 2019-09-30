@@ -25,19 +25,19 @@ private:
 
 		inline Iterator (Iterator &&) noexcept = default ;
 
-		inline BOOL operator== (const Iterator &that) {
+		inline BOOL operator== (const Iterator &that) const {
 			return BOOL (mIndex == that.mIndex) ;
 		}
 
-		inline BOOL operator!= (const Iterator &that) {
+		inline BOOL operator!= (const Iterator &that) const {
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline void operator= (const Iterator &) = delete ;
-
-		inline void operator= (Iterator &&) noexcept {
+		inline void operator= (const Iterator &) const noexcept {
 			_STATIC_WARNING_ ("noop") ;
 		}
+
+		inline void operator= (Iterator &&) const = delete ;
 
 	private:
 		inline explicit Iterator (LENGTH index ,const Array<LENGTH ,SIZE> &item) :mIndex (index) ,mItem (item) {}
@@ -53,17 +53,17 @@ public:
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &_range) :mRange (_range) {}
 
 	inline Iterator ibegin () const {
-		return Iterator (0 ,Detail::first_item ()) ;
+		return Iterator (0 ,Detail::first_item (mRange)) ;
 	}
 
 	inline Iterator iend () const {
-		const auto r1x = Detail::total_length () ;
-		return Iterator (r1x ,Detail::first_item ()) ;
+		const auto r1x = Detail::total_length (mRange) ;
+		return Iterator (r1x ,Detail::first_item (mRange)) ;
 	}
 
 	inline Iterator &inext (Iterator &iter) const popping {
 		iter.mIndex++ ;
-		Detail::template_incrase (iter.mItem) ;
+		Detail::template_incrase (mRange ,iter.mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
 		return iter ;
 	}
 
@@ -72,7 +72,7 @@ public:
 	}
 
 private:
-	class Detail {
+	class Detail :private Wrapped<void> {
 	public:
 		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range) {
 			LENGTH ret = 1 ;

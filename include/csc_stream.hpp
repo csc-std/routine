@@ -1911,7 +1911,9 @@ inline void _BOM_ (TextWriter<STRW> &writer) {
 
 inline void _GAP_ (ByteReader &reader) {
 	auto ris = reader.copy () ;
-	auto rax = DATA () ;
+	auto rax = BYTE () ;
+	ris >> rax ;
+	_DYNAMIC_ASSERT_ (rax == ris.attr ().varify_space_item ()) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == ris.attr ().varify_space_item ()) ;
 	reader = std::move (ris) ;
@@ -1919,6 +1921,7 @@ inline void _GAP_ (ByteReader &reader) {
 
 inline void _GAP_ (ByteWriter &writer) {
 	auto wos = writer.copy () ;
+	wos << wos.attr ().varify_space_item () ;
 	wos << wos.attr ().varify_space_item () ;
 	writer = std::move (wos) ;
 }

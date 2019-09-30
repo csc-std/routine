@@ -2633,17 +2633,17 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	void add (INDEX item) {
+	void add (const INDEX &item) {
 		_DYNAMIC_ASSERT_ (item >= 0 && item < mWidth) ;
 		get (item) = TRUE ;
 	}
 
-	inline BitSet &operator<< (INDEX item) {
+	inline BitSet &operator<< (const INDEX &item) {
 		add (item) ;
 		return (*this) ;
 	}
 
-	void erase (INDEX item) {
+	void erase (const INDEX &item) {
 		_DYNAMIC_ASSERT_ (item >= 0 && item < mWidth) ;
 		get (item) = FALSE ;
 	}
