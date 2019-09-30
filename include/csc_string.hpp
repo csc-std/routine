@@ -781,7 +781,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 	auto &r1 = _CACHE_ ([] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (INDEX i = 0 ; i < r1x.size () ; i++)
+		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
 			ret.add (r1x[i][1] ,r1x[i][0]) ;
 		return std::move (ret) ;
 	}) ;
@@ -861,7 +861,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &src) {
 	auto &r1 = _CACHE_ ([] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (INDEX i = 0 ; i < r1x.size () ; i++)
+		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
 			ret.add (r1x[i][0] ,r1x[i][1]) ;
 		return std::move (ret) ;
 	}) ;
@@ -1063,7 +1063,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('&')) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('H')) ;
-	for (INDEX i = 0 ; i < 8 ; i++) {
+	for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
 		ris >> rax ;
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
@@ -1084,7 +1084,7 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
 	wos << _RET ('&') ;
 	wos << _RET ('H') ;
-	for (INDEX i = 0 ; i < 8 ; i++) {
+	for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
 		const auto r1x = CHAR (stru >> (28 - i * 4)) & CHAR (0X0F) ;
 		const auto r2x = _SWITCH_ (
 			(r1x < DATA (10)) ? (_RET ('0')) :
@@ -1104,7 +1104,7 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('&')) ;
 	ris >> rax ;
 	_DYNAMIC_ASSERT_ (rax == _ARG1 ('H')) ;
-	for (INDEX i = 0 ; i < 16 ; i++) {
+	for (INDEX i = 0 ,ie = 16 ; i < ie ; i++) {
 		ris >> rax ;
 		const auto r1x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r2x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
@@ -1125,7 +1125,7 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
 	wos << _RET ('&') ;
 	wos << _RET ('H') ;
-	for (INDEX i = 0 ; i < 16 ; i++) {
+	for (INDEX i = 0 ,ie = 16 ; i < ie ; i++) {
 		const auto r1x = DATA (stru >> (60 - i * 4)) & DATA (0X0F) ;
 		const auto r2x = _SWITCH_ (
 			(r1x < DATA (10)) ? (_RET ('0')) :

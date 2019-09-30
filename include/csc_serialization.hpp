@@ -652,7 +652,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
+			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
@@ -1001,7 +1001,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
+			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
@@ -1251,7 +1251,7 @@ private:
 
 	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
 		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
-		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
+		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
 			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
 			auto &r1 = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
@@ -1752,7 +1752,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ; i < mNodeHeap.size () ; i++) {
+			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;

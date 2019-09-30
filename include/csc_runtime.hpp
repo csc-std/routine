@@ -338,7 +338,7 @@ public:
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
 		mSubQueue = Deque<INDEX> (mSubProc.length ()) ;
-		for (INDEX i = 0 ; i < mSubProc.length () ; i++)
+		for (INDEX i = 0 ,ie = mSubProc.length () ; i < ie ; i++)
 			mSubQueue.add (i) ;
 		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProc.length ()) ;
 		mSubQueue.take (mSubCurr) ;
@@ -450,7 +450,7 @@ public:
 	}
 
 	void sub_resume (LENGTH count) {
-		for (INDEX i = 0 ; i < count ; i++) {
+		for (INDEX i = 0 ,ie = count ; i < ie ; i++) {
 			if (mSelf.mSubAwaitQueue.empty ())
 				continue ;
 			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.head ()].item ;
@@ -532,7 +532,7 @@ public:
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		Array<VAR> ret = Array<VAR> (len) ;
 		const auto r1x = _max - _min + 1 ;
-		for (INDEX i = 0 ; i < ret.length () ; i++) {
+		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
 			const auto r2x = mThis->random_value () ;
 			ret[i] = r2x % r1x + _min ;
 		}
@@ -580,22 +580,22 @@ public:
 		String<STR> ret = String<STR> (M_UUID.size ()) ;
 		INDEX iw = 0 ;
 		const auto r5x = random_value (0 ,36 ,28) ;
-		for (INDEX i = 0 ; i < 8 ; i++) {
+		for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
 			INDEX ix = 0 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 8 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 12 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ; i < 12 ; i++) {
+		for (INDEX i = 0 ,ie = 12 ; i < ie ; i++) {
 			INDEX ix = 16 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
 		}

@@ -109,7 +109,7 @@ private:
 	inline UNIT endian_bitwise_cast () const {
 		TEMP<UNIT> ret ;
 		_ZERO_ (ret) ;
-		for (INDEX i = 0 ; i < size () ; i++)
+		for (INDEX i = 0 ,ie = size () ; i < ie ; i++)
 			ret.unused[i] = ((*this))[i] ;
 		return std::move (_CAST_<UNIT> (ret)) ;
 	}
@@ -223,7 +223,7 @@ public:
 
 	void read (WORD &data) popping {
 		auto &r1 = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
-		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (r1)) ; i++)
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
 			read (r1[i]) ;
 		data = _CAST_<EndianBytes<WORD>> (r1) ;
 	}
@@ -235,7 +235,7 @@ public:
 
 	void read (CHAR &data) popping {
 		auto &r1 = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
-		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (r1)) ; i++)
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
 			read (r1[i]) ;
 		data = _CAST_<EndianBytes<CHAR>> (r1) ;
 	}
@@ -247,7 +247,7 @@ public:
 
 	void read (DATA &data) popping {
 		auto &r1 = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
-		for (INDEX i = 0 ; i < _COUNTOF_ (decltype (r1)) ; i++)
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
 			read (r1[i]) ;
 		data = _CAST_<EndianBytes<DATA>> (r1) ;
 	}
@@ -318,7 +318,7 @@ public:
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = Array<_ARG1 ,_ARG2> (r1x) ;
-		for (INDEX i = 0 ; i < r1x ; i++)
+		for (INDEX i = 0 ,ie = r1x ; i < ie ; i++)
 			read (data[i]) ;
 	}
 
@@ -335,7 +335,7 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		auto rax = _ARG1 () ;
-		for (INDEX i = 0 ; i < data.size () ; i++) {
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++) {
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
@@ -356,7 +356,7 @@ public:
 		if (data.size () < r1x)
 			data = String<_ARG1 ,_ARG2> (r1x) ;
 		data.clear () ;
-		for (INDEX i = 0 ; i < r1x ; i++)
+		for (INDEX i = 0 ,ie = r1x ; i < ie ; i++)
 			read (data[i]) ;
 	}
 
@@ -368,7 +368,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Buffer<_ARG1 ,_ARG2> &data) popping {
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			read (data[i]) ;
 	}
 
@@ -500,7 +500,7 @@ public:
 
 	void write (const WORD &data) {
 		auto &r1 = _CAST_<EndianBytes<WORD>> (data) ;
-		for (INDEX i = 0 ; i < r1.size () ; i++)
+		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
 			write (r1[i]) ;
 	}
 
@@ -511,7 +511,7 @@ public:
 
 	void write (const CHAR &data) {
 		auto &r1 = _CAST_<EndianBytes<CHAR>> (data) ;
-		for (INDEX i = 0 ; i < r1.size () ; i++)
+		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
 			write (r1[i]) ;
 	}
 
@@ -522,7 +522,7 @@ public:
 
 	void write (const DATA &data) {
 		auto &r1 = _CAST_<EndianBytes<DATA>> (data) ;
-		for (INDEX i = 0 ; i < r1.size () ; i++)
+		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
 			write (r1[i]) ;
 	}
 
@@ -606,7 +606,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data.self[i]) ;
 #pragma GCC diagnostic pop
 	}
@@ -635,7 +635,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const Buffer<_ARG1 ,_ARG2> &data) {
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data[i]) ;
 	}
 
@@ -645,12 +645,12 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
 		data.friend_write ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
 	inline ByteWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return (*this) ;
@@ -1072,7 +1072,7 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		auto rax = REAL () ;
-		for (INDEX i = 0 ; i < data.size () ; i++) {
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++) {
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
@@ -1091,7 +1091,7 @@ public:
 		if (data.size () < r1x)
 			data = String<REAL ,_ARG1> (r1x) ;
 		data.clear () ;
-		for (INDEX i = 0 ; i < r1x ; i++)
+		for (INDEX i = 0 ,ie = r1x ; i < ie ; i++)
 			read (data[i]) ;
 	}
 
@@ -1103,7 +1103,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Buffer<_ARG1 ,_ARG2> &data) popping {
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			read (data[i]) ;
 	}
 
@@ -1577,7 +1577,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data.self[i]) ;
 #pragma GCC diagnostic pop
 	}
@@ -1603,7 +1603,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const Buffer<_ARG1 ,_ARG2> &data) {
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data[i]) ;
 	}
 
@@ -1613,12 +1613,12 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	void write (const _ARG1 &data) {
 		data.friend_write ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const _ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
 	inline TextWriter &operator<< (const _ARG1 &data) {
 		write (data) ;
 		return (*this) ;
@@ -1706,7 +1706,7 @@ private:
 			}
 			out[--iw] = REAL ('e') ;
 			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r5x ; i++)
+			for (INDEX i = 0 ,ie = r5x ; i < ie ; i++)
 				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
@@ -1725,7 +1725,7 @@ private:
 				discard ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = attr ().convert_number_w (0) ;
-			for (INDEX i = 0 ; i < r8x ; i++) {
+			for (INDEX i = 0 ,ie = r8x ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
@@ -1737,7 +1737,7 @@ private:
 			if (!(rax[1] < 0))
 				discard ;
 			const auto r7x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r7x ; i++)
+			for (INDEX i = 0 ,ie = r7x ; i < ie ; i++)
 				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
 			for (INDEX i = r7x ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
@@ -1759,10 +1759,10 @@ private:
 			if (!(rax[1] < 0))
 				discard ;
 			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
-			for (INDEX i = 0 ; i < r6x ; i++)
+			for (INDEX i = 0 ,ie = r6x ; i < ie ; i++)
 				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r6x ; i < r8x ; i++) {
+			for (INDEX i = r6x ,ie = r8x ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
@@ -2100,7 +2100,7 @@ public:
 		//@info: disable default escape-str convertion 
 		r1.enable_escape (FALSE) ;
 		mReader.self >> _BOM_ ;
-		for (INDEX i = 0 ; i < mCache.length () ; i++)
+		for (INDEX i = 0 ,ie = mCache.length () ; i < ie ; i++)
 			mReader.self >> mCache[i] ;
 		mPeek = 0 ;
 		mHintStringTextFlag = FALSE ;
@@ -2139,7 +2139,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		for (INDEX i = 0 ; i < data.size () ; i++) {
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++) {
 			_DYNAMIC_ASSERT_ (get (0) == data.self[i]) ;
 			read () ;
 		}
@@ -2266,7 +2266,7 @@ public:
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
-		for (INDEX i = 0 ; i < r3x ; i++) {
+		for (INDEX i = 0 ,ie = r3x ; i < ie ; i++) {
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
 				rax = get (0) ;

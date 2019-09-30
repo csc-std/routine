@@ -322,7 +322,7 @@ public:
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<DATA> ret = Array<DATA> (r1x) ;
-		for (INDEX i = 0 ; i < ret.length () ; i++)
+		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
 			ret[i] = DATA (_ADDRESS_ (rax[i])) ;
 		return std::move (ret) ;
 	}

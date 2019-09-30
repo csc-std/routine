@@ -15,61 +15,71 @@ private:
 	class Iterator {
 	private:
 		friend ArrayRange ;
-		const ArrayRange &mBase ;
-		Array<LENGTH ,SIZE> mItem ;
 		INDEX mIndex ;
+		Array<LENGTH ,SIZE> mItem ;
 
 	public:
 		inline Iterator () = delete ;
 
-		inline BOOL operator== (const Iterator &that) const {
+		inline Iterator (const Iterator &) = delete ;
+
+		inline Iterator (Iterator &&) noexcept = default ;
+
+		inline BOOL operator== (const Iterator &that) {
 			return BOOL (mIndex == that.mIndex) ;
 		}
 
-		inline BOOL operator!= (const Iterator &that) const {
+		inline BOOL operator!= (const Iterator &that) {
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline const Array<LENGTH ,SIZE> &operator* () const {
-			return mItem ;
-		}
+		inline void operator= (const Iterator &) = delete ;
 
-		inline void operator++ () {
-			mIndex++ ;
-			Detail::template_incrase (mBase.mRange ,mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
+		inline void operator= (Iterator &&) noexcept {
+			_STATIC_WARNING_ ("noop") ;
 		}
 
 	private:
-		inline explicit Iterator (const ArrayRange &base ,Array<LENGTH ,SIZE> &&item ,INDEX index) :mBase (base) ,mItem (std::move (item)) ,mIndex (index) {}
+		inline explicit Iterator (LENGTH index ,const Array<LENGTH ,SIZE> &item) :mIndex (index) ,mItem (item) {}
 	} ;
 
 private:
-	_STATIC_ASSERT_ (SIZE::value > 0) ;
 	class Detail ;
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range) :mRange (range) {}
+	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &_range) :mRange (_range) {}
 
-	inline Iterator begin () const {
-		return Iterator ((*this) ,Detail::first_item (mRange) ,0) ;
+	inline Iterator ibegin () const {
+		return Iterator (0 ,Detail::first_item ()) ;
 	}
 
-	inline Iterator end () const {
-		return Iterator ((*this) ,Detail::first_item (mRange) ,Detail::total_length (mRange)) ;
+	inline Iterator iend () const {
+		const auto r1x = Detail::total_length () ;
+		return Iterator (r1x ,Detail::first_item ()) ;
+	}
+
+	inline Iterator &inext (Iterator &iter) const popping {
+		iter.mIndex++ ;
+		Detail::template_incrase (iter.mItem) ;
+		return iter ;
+	}
+
+	inline const Array<LENGTH ,SIZE> &get (const Iterator &index) const {
+		return index.mItem ;
 	}
 
 private:
-	class Detail :private Wrapped<void> {
+	class Detail {
 	public:
 		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range) {
 			LENGTH ret = 1 ;
 			for (auto &&i : range) {
 				_DEBUG_ASSERT_ (i >= 0) ;
-				_DEBUG_ASSERT_ (ret * i >= 0) ;
 				ret *= i ;
+				_DEBUG_ASSERT_ (ret >= 0) ;
 			}
 			return std::move (ret) ;
 		}
@@ -80,19 +90,19 @@ private:
 			return std::move (ret) ;
 		}
 
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<ARGC<0>> &) {
-			_DEBUG_ASSERT_ (index[0] < range[0]) ;
-			index[0]++ ;
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &item ,const ARGV<ARGC<0>> &) {
+			_DEBUG_ASSERT_ (item[0] < range[0]) ;
+			item[0]++ ;
 		}
 
 		template <class _ARG1>
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &index ,const ARGV<_ARG1> &) {
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &item ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)) ;
-			index[_ARG1::value]++ ;
-			if (index[_ARG1::value] < range[_ARG1::value])
+			item[_ARG1::value]++ ;
+			if (item[_ARG1::value] < range[_ARG1::value])
 				return ;
-			index[_ARG1::value] = 0 ;
-			template_incrase (range ,index ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			item[_ARG1::value] = 0 ;
+			template_incrase (range ,item ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
 } ;
@@ -202,10 +212,6 @@ public:
 		return mCK ;
 	}
 
-	ArrayRange<ARGC<2>> range () const {
-		return ArrayRange<ARGC<2>> ({mCY ,mCX}) ;
-	}
-
 	PhanBuffer<UNIT> raw () & {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
 		return PhanBuffer<UNIT>::make (mImage) ;
@@ -251,6 +257,10 @@ public:
 		ret.mCW = mCW ;
 		ret.mCK = mCK ;
 		return std::move (ret) ;
+	}
+
+	ArrayRange<ARGC<2>> range () const {
+		return ArrayRange<ARGC<2>> ({mCY ,mCX}) ;
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {
@@ -562,9 +572,10 @@ public:
 	Bitmap matrix_product (const Bitmap &that) const {
 		_DEBUG_ASSERT_ (mCX == that.mCY) ;
 		Bitmap ret = Bitmap (that.mCX ,mCY) ;
-		for (auto &&i : ArrayRange<ARGC<2>> ({mCY ,that.mCX})) {
+		const auto r1x = ARRAY2<LENGTH> {mCY ,that.mCX} ;
+		for (auto &&i : ArrayRange<ARGC<2>> (r1x)) {
 			ret.get (i) = UNIT (0) ;
-			for (INDEX j = 0 ; j < mCX ; j++)
+			for (INDEX j = 0 ,je = mCX ; j < je ; j++)
 				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
 		}
 		return std::move (ret) ;

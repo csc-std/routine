@@ -184,7 +184,7 @@ public:
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			data[i] = BYTE (rax.self[i]) ;
 	}
 
@@ -254,7 +254,7 @@ public:
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			data[i] = BYTE (rax.self[i]) ;
 	}
 
@@ -324,7 +324,7 @@ public:
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			data[i] = BYTE (rax.self[i]) ;
 	}
 
@@ -394,7 +394,7 @@ public:
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			data[i] = BYTE (rax.self[i]) ;
 	}
 
@@ -464,7 +464,7 @@ public:
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1 ,rax.self ,r2) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
-		for (INDEX i = 0 ; i < data.size () ; i++)
+		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			data[i] = BYTE (rax.self[i]) ;
 	}
 

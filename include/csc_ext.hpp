@@ -2451,7 +2451,7 @@ public:
 	inline void clean () const {
 		if (!mHeap.exist ())
 			return ;
-		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
+		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
 			if (mHeap.self[i].mWeight < 0)
 				continue ;
 			mHeap.self[i].mData = StrongRef<UNIT> () ;
@@ -2473,7 +2473,7 @@ private:
 	}
 
 	inline INDEX has_linked_one (const StrongRef<UNIT> &that) const {
-		for (INDEX i = 0 ; i < mHeap->size () ; i++)
+		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
 			if (mHeap.self[i].mData == that)
 				return i ;
 		return VAR_NONE ;
@@ -2493,7 +2493,7 @@ private:
 			const auto r2x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
 			if (r2x <= 0)
 				discard ;
-			for (INDEX i = 0 ; i < mHeap->size () ; i++)
+			for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r2x ;
 		}
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
@@ -2504,7 +2504,7 @@ private:
 	inline INDEX min_weight_one () const {
 		INDEX ret = VAR_NONE ;
 		auto rax = LENGTH () ;
-		for (INDEX i = 0 ; i < mHeap->size () ; i++) {
+		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
 			const auto r1x = mHeap.self[i].mWeight ;
 			if (r1x < 0)
 				continue ;
@@ -3183,14 +3183,14 @@ public:
 
 	inline LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
 			ret += mPool.self[i]->size () ;
 		return std::move (ret) ;
 	}
 
 	inline LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
 			ret += mPool.self[i]->length () ;
 		return std::move (ret) ;
 	}
@@ -3239,7 +3239,7 @@ public:
 	}
 
 	inline void clean () {
-		for (INDEX i = 0 ; i < mPool.self.size () ; i++)
+		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
 			mPool.self[i]->clean () ;
 	}
 } ;

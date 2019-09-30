@@ -88,7 +88,7 @@ public:
 
 	Vector mul (const REAL &scale) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			ret.mVector[i] = mVector[i] * scale ;
 		return std::move (ret) ;
 	}
@@ -98,7 +98,7 @@ public:
 	}
 
 	void multo (const REAL &scale) {
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			mVector[i] *= scale ;
 	}
 
@@ -126,7 +126,7 @@ public:
 
 	Vector add (const Vector &that) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			ret.mVector[i] = mVector[i] + that.mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -136,7 +136,7 @@ public:
 	}
 
 	void addto (const Vector &that) {
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			mVector[i] += that.mVector[i] ;
 	}
 
@@ -147,7 +147,7 @@ public:
 
 	Vector sub (const Vector &that) const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			ret.mVector[i] = mVector[i] - that.mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -157,7 +157,7 @@ public:
 	}
 
 	void subto (const Vector &that) {
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			mVector[i] -= that.mVector[i] ;
 	}
 
@@ -168,7 +168,7 @@ public:
 
 	Vector plus () const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			ret.mVector[i] = +mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -179,7 +179,7 @@ public:
 
 	Vector minus () const {
 		Vector ret ;
-		for (INDEX i = 0 ; i < mVector.size () ; i++)
+		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			ret.mVector[i] = -mVector[i] ;
 		return std::move (ret) ;
 	}
@@ -324,7 +324,7 @@ private:
 		}
 
 		inline void operator= (const ARRAY4<REAL> &row) && {
-			for (INDEX i = 0 ; i < 4 ; i++)
+			for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 				mBase.get (mY ,i) = row[i] ;
 		}
 
@@ -340,7 +340,7 @@ public:
 	Matrix () = default ;
 
 	implicit Matrix (const ARRAY4<REAL> &hx ,const ARRAY4<REAL> &hy ,const ARRAY4<REAL> &hz ,const ARRAY4<REAL> &hw) {
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			get (0 ,i) = hx[i] ;
 			get (1 ,i) = hy[i] ;
 			get (2 ,i) = hz[i] ;
@@ -350,7 +350,7 @@ public:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,REAL>::value>>
 	implicit Matrix (const Vector<_ARG1> &hx ,const Vector<_ARG1> &hy ,const Vector<_ARG1> &hz ,const Vector<_ARG1> &hw) {
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			get (i ,0) = hx[i] ;
 			get (i ,1) = hy[i] ;
 			get (i ,2) = hz[i] ;
@@ -426,7 +426,7 @@ public:
 
 	Matrix mul (const REAL &scale) const {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			ret.mMatrix[i] = mMatrix[i] * scale ;
 		return std::move (ret) ;
 	}
@@ -436,7 +436,7 @@ public:
 	}
 
 	void multo (const REAL &scale) {
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			mMatrix[i] *= scale ;
 	}
 
@@ -464,7 +464,7 @@ public:
 
 	Matrix add (const Matrix &that) const {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			ret.mMatrix[i] = mMatrix[i] + that.mMatrix[i] ;
 		return std::move (ret) ;
 	}
@@ -474,7 +474,7 @@ public:
 	}
 
 	void addto (const Matrix &that) {
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			mMatrix[i] += that.mMatrix[i] ;
 	}
 
@@ -485,7 +485,7 @@ public:
 
 	Matrix sub (const Matrix &that) const {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			ret.mMatrix[i] = mMatrix[i] - that.mMatrix[i] ;
 		return std::move (ret) ;
 	}
@@ -495,7 +495,7 @@ public:
 	}
 
 	void subto (const Matrix &that) {
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			mMatrix[i] -= that.mMatrix[i] ;
 	}
 
@@ -506,7 +506,7 @@ public:
 
 	Matrix plus () const {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			ret.mMatrix[i] = +mMatrix[i] ;
 		return std::move (ret) ;
 	}
@@ -517,7 +517,7 @@ public:
 
 	Matrix minus () const {
 		Matrix ret ;
-		for (INDEX i = 0 ; i < mMatrix.size () ; i++)
+		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			ret.mMatrix[i] = -mMatrix[i] ;
 		return std::move (ret) ;
 	}
@@ -528,7 +528,8 @@ public:
 
 	Matrix mul (const Matrix &that) const {
 		Matrix ret ;
-		for (auto &&i : ArrayRange<ARGC<2>> ({4 ,4})) {
+		const auto r5x = ARRAY2<LENGTH> {4 ,4} ;
+		for (auto &&i : ArrayRange<ARGC<2>> (r5x)) {
 			const auto r1x = get (i[0] ,0) * that.get (0 ,i[1]) ;
 			const auto r2x = get (i[0] ,1) * that.get (1 ,i[1]) ;
 			const auto r3x = get (i[0] ,2) * that.get (2 ,i[1]) ;
@@ -559,19 +560,20 @@ public:
 
 	Matrix transpose () const {
 		Matrix ret ;
-		for (auto &&i : ArrayRange<ARGC<2>> ({4 ,4}))
+		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
+		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
 			ret.get (i[1] ,i[0]) = get (i[0] ,i[1]) ;
 		return std::move (ret) ;
 	}
 
 	Matrix triangular () const {
 		Matrix ret = (*this) ;
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			for (FOR_ONCE_DO) {
 				INDEX ix = ret.max_row_one (i) ;
 				if (ix == i)
 					discard ;
-				for (INDEX j = i ; j < 4 ; j++) {
+				for (INDEX j = i ,je = 4 ; j < je ; j++) {
 					const auto r1x = -ret.get (i ,j) ;
 					ret.get (i ,j) = ret.get (ix ,j) ;
 					ret.get (ix ,j) = r1x ;
@@ -580,9 +582,9 @@ public:
 			const auto r2x = _PINV_ (ret.get (i ,i)) ;
 			if (r2x == REAL (0))
 				continue ;
-			for (INDEX j = i + 1 ; j < 4 ; j++) {
+			for (INDEX j = i + 1 ,je = 4 ; j < je ; j++) {
 				const auto r3x = ret.get (j ,i) * r2x ;
-				for (INDEX k = i + 1 ; k < 4 ; k++)
+				for (INDEX k = i + 1 ,ke = 4 ; k < ke ; k++)
 					ret.get (j ,k) -= r3x * ret.get (i ,k) ;
 				ret.get (j ,i) = REAL (0) ;
 			}
@@ -593,7 +595,7 @@ public:
 	LENGTH rank () const {
 		LENGTH ret = 0 ;
 		const auto r1x = triangular () ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 			ret += EFLAG (r1x[i][i] == REAL (0)) ;
 		ret = 4 - ret ;
 		return std::move (ret) ;
@@ -602,7 +604,7 @@ public:
 	REAL det () const {
 		const auto r1x = triangular () ;
 		REAL ret = REAL (1) ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 			ret *= r1x.get (i ,i) ;
 		return std::move (ret) ;
 	}
@@ -611,14 +613,14 @@ public:
 		Matrix ret ;
 		const auto r1x = det () ;
 		_DYNAMIC_ASSERT_ (r1x != REAL (0)) ;
-		for (INDEX i = 0 ; i < 4 ; i++) {
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 0 ;
 			ix += EFLAG (ix == i) ;
 			INDEX iy = ix + 1 ;
 			iy += EFLAG (iy == i) ;
 			INDEX iz = iy + 1 ;
 			iz += EFLAG (iz == i) ;
-			for (INDEX j = 0 ; j < 4 ; j++) {
+			for (INDEX j = 0 ,je = 4 ; j < je ; j++) {
 				INDEX jx = 0 ;
 				jx += EFLAG (jx == j) ;
 				INDEX jy = jx + 1 ;
@@ -652,7 +654,7 @@ public:
 
 	REAL trace () const {
 		REAL ret = REAL (0) ;
-		for (INDEX i = 0 ; i < 4 ; i++)
+		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 			ret += get (i ,i) ;
 		return std::move (ret) ;
 	}
@@ -693,7 +695,7 @@ private:
 	INDEX max_row_one (INDEX yx) const {
 		INDEX ret = VAR_NONE ;
 		auto rax = REAL () ;
-		for (INDEX i = yx ; i < 4 ; i++) {
+		for (INDEX i = yx ,ie = 4 ; i < ie ; i++) {
 			const auto r1x = _ABS_ (get (i ,yx)) ;
 			if (ret != VAR_NONE && rax >= r1x)
 				continue ;
@@ -891,7 +893,8 @@ public:
 
 	static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
 		Matrix ret ;
-		for (auto &&i : ArrayRange<ARGC<2>> ({4 ,4}))
+		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
+		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
 			ret[i[0]][i[1]] = first[i[0]] * second[i[1]] ;
 		return std::move (ret) ;
 	}
@@ -900,7 +903,7 @@ public:
 template <class REAL>
 inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
 	Vector<REAL> ret ;
-	for (INDEX i = 0 ; i < 4 ; i++)
+	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 		ret.get (i) = get (0) * that.get (0 ,i) + get (1) * that.get (1 ,i) + get (2) * that.get (2 ,i) + get (3) * that.get (3 ,i) ;
 	return std::move (ret) ;
 }
@@ -908,7 +911,7 @@ inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
 template <class REAL>
 inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &that) const {
 	Vector<REAL> ret ;
-	for (INDEX i = 0 ; i < 4 ; i++)
+	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
 		ret.get (i) = get (i ,0) * that.get (0) + get (i ,1) * that.get (1) + get (i ,2) * that.get (2) + get (i ,3) * that.get (3) ;
 	return std::move (ret) ;
 }

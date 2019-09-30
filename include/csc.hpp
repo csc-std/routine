@@ -870,7 +870,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	}
 	if (src1 == src2)
 		return TRUE ;
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		if (!(src1[i] == src2[i]))
 			return FALSE ;
 	return TRUE ;
@@ -940,7 +940,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 	static constexpr auto M_MAGIC_N2 = VAR (1099511628211) ;
 #endif
 	FLAG ret = M_MAGIC_N1 ;
-	for (INDEX i = 0 ; i < len ; i++) {
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++) {
 		ret ^= FLAG (src[i]) ;
 		ret *= M_MAGIC_N2 ;
 	}
@@ -961,7 +961,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 	}
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		if (src[i] == val)
 			return i ;
 	return VAR_NONE ;
@@ -980,7 +980,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 	}
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		if (src[len + ~i] == val)
 			return (len + ~i) ;
 	return VAR_NONE ;
@@ -1003,7 +1003,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 	if (dst == src)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		dst[i] = src[i] ;
 #pragma GCC diagnostic pop
 }
@@ -1030,7 +1030,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		if (!(dst != src))
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
-		for (INDEX i = 0 ; i < len ; i++)
+		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst[i] = src[len + ~i] ;
 	}
 	if SWITCH_CASE (ifa) {
@@ -1064,13 +1064,13 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	if SWITCH_CASE (ifa) {
 		if (!(dst1 < dst2))
 			discard ;
-		for (INDEX i = 0 ; i < len ; i++)
+		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst1[i] = std::move (dst2[i]) ;
 	}
 	if SWITCH_CASE (ifa) {
 		if (!(dst1 > dst2))
 			discard ;
-		for (INDEX i = 0 ; i < len ; i++)
+		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
 	}
 #pragma GCC diagnostic pop
@@ -1092,7 +1092,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	if (dst1 == dst2)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst1 - dst2) >= len) ;
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		_SWAP_ (dst1[i] ,dst2[i]) ;
 #pragma GCC diagnostic pop
 }
@@ -1108,7 +1108,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (dst != NULL) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 	}
-	for (INDEX i = 0 ; i < len ; i++)
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		dst[i] = val ;
 #pragma GCC diagnostic pop
 }
@@ -1248,7 +1248,7 @@ private:
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
 			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
-			for (INDEX i = 0 ; i < _COUNTOF_ (_ARG3) - 1 ; i++)
+			for (INDEX i = 0 ,ie = _COUNTOF_ (_ARG3) - 1 ; i < ie ; i++)
 				array[i + _ARG2::value] = raw_to_plain_str (arg1[i]) ;
 			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,args...) ;
 		}
@@ -2797,6 +2797,8 @@ public:
 	inline static const Buffer &from (const DEF<UNIT[SIZE]> &_self) {
 		return _CAST_<Buffer> (_self) ;
 	}
+
+	inline static Buffer &from (DEF<UNIT[SIZE]> &&) = delete ;
 } ;
 
 template <class UNIT>
@@ -2826,7 +2828,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ; i < mSize ; i++)
+		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2986,7 +2988,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ; i < mSize ; i++)
+		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -3040,7 +3042,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ; i < mSize ; i++)
+		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -3923,7 +3925,7 @@ public:
 	inline void clear () noexcept {
 		INDEX ix = VAR_NONE ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = 0 ; i < mAllocator.size () ; i++) {
+		for (INDEX i = 0 ,ie = mAllocator.size () ; i < ie ; i++) {
 			iy = ix ;
 			ix = mAllocator.size () + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
@@ -3991,7 +3993,7 @@ public:
 			auto rax = mAllocator.expand () ;
 			ret = mSize ;
 			_CREATE_ (&rax[ret].mData ,std::forward<_ARGS> (args)...) ;
-			for (INDEX i = 0 ; i < mSize ; i++) {
+			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				rax[i].mNext = VAR_USED ;
 			}
@@ -4031,7 +4033,7 @@ public:
 			return ;
 		_DEBUG_ASSERT_ (mSize + r2x > mSize) ;
 		auto rax = mAllocator.expand (mSize + r2x) ;
-		for (INDEX i = 0 ; i < mSize ; i++) {
+		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 			rax[i].mNext = mAllocator[i].mNext ;
@@ -4049,7 +4051,7 @@ public:
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
 		auto rax = mAllocator.expand (r1x) ;
-		for (INDEX i = 0 ; i < rax.size () ; i++) {
+		for (INDEX i = 0 ,ie = rax.size () ; i < ie ; i++) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
 			_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 			rax[i].mNext = VAR_USED ;
@@ -4062,7 +4064,7 @@ private:
 	inline void update_reserve (INDEX _size ,INDEX _free) {
 		INDEX ix = _free ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = _size ; i < mAllocator.size () ; i++) {
+		for (INDEX i = _size ,ie = mAllocator.size () ; i < ie ; i++) {
 			iy = ix ;
 			ix = mAllocator.size () + ~(i - _size) ;
 			mAllocator[ix].mNext = iy ;
