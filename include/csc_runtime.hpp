@@ -84,7 +84,7 @@ private:
 		return &_self.mClassNode.self ;
 	}
 
-	static PTR<VALUE_NODE> static_find_node (Holder &_self ,FLAG guid) {
+	static PTR<VALUE_NODE> static_find_node (Holder &_self ,FLAG guid) popping {
 		PTR<VALUE_NODE> ret = NULL ;
 		for (FOR_ONCE_DO) {
 			if (!_self.mValueNode.exist ())
@@ -103,7 +103,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Holder &_self ,const GUID_TYPE &guid) {
+	static PTR<CLASS_NODE> static_find_node (Holder &_self ,const GUID_TYPE &guid) popping {
 		PTR<CLASS_NODE> ret = NULL ;
 		for (FOR_ONCE_DO) {
 			if (!_self.mClassNode.exist ())
@@ -383,11 +383,11 @@ public:
 	}
 
 private:
-	void init_break_point (AnyRef<void> &bp) ;
+	void init_break_point (AnyRef<void> &bp) popping ;
 
-	void store_break_point (AnyRef<void> &bp) noexcept ;
+	void store_break_point (AnyRef<void> &bp) noexcept popping ;
 
-	void goto_break_point (AnyRef<void> &bp) noexcept ;
+	void goto_break_point (AnyRef<void> &bp) noexcept popping ;
 
 public:
 	static void csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) ;

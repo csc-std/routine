@@ -822,17 +822,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	void take () {
@@ -1090,17 +1090,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		spec.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (const _ARG1 &val) {
+		spec.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		spec.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (_ARG1 &&val) {
+		spec.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 private:
@@ -1212,17 +1212,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		spec.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		spec.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		spec.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		spec.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 private:
@@ -1695,17 +1695,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mList.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		mList.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mList.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		mList.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	void take () {
@@ -2061,17 +2061,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mList.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		mList.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mList.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		mList.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	INDEX insert () popping {
@@ -2901,17 +2901,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 private:
@@ -3035,17 +3035,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 private:
@@ -3709,17 +3709,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 private:
@@ -3841,17 +3841,17 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
-		mSet.reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 private:
@@ -4226,19 +4226,19 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
+	void appand (const _ARG1 &val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
+	void appand (_ARG1 &&val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (src[i].key ,std::move (src[i].item)) ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (val[i].key ,std::move (val[i].item)) ;
 	}
 
 private:
@@ -4383,19 +4383,19 @@ public:
 	}
 
 	template <class _ARG1>
-	void appand (const _ARG1 &src) {
+	void appand (const _ARG1 &val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 	template <class _ARG1>
-	void appand (_ARG1 &&src) {
+	void appand (_ARG1 &&val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (src.length ()) ;
-		for (INDEX i = src.ibegin () ,ie = src.iend () ; i != ie ; i = src.inext (i))
-			add (std::move (src[i])) ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,ie = val.iend () ; i != ie ; i = val.inext (i))
+			add (std::move (val[i])) ;
 	}
 
 private:

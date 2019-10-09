@@ -425,7 +425,7 @@ public:
 			//@warn: move object having captured context
 			r1.mThreadPool[i] = AutoRef<std::thread>::make ([r2x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					Detail::static_execute (*r2x) ;
+					Detail::static_execute ((*r2x)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -643,7 +643,7 @@ public:
 		//@warn: move object having captured context
 		r1.mThreadPool = AutoRef<std::thread>::make ([r2x] () noexcept {
 			_CALL_TRY_ ([&] () {
-				Detail::static_execute (*r2x) ;
+				Detail::static_execute ((*r2x)) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;

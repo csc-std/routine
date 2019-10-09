@@ -151,7 +151,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const & popping {
+	Attribute &attr () const & {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -443,7 +443,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const & popping {
+	Attribute &attr () const & {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -800,7 +800,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const & popping {
+	Attribute &attr () const & {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 
@@ -1368,7 +1368,7 @@ public:
 		reset () ;
 	}
 
-	Attribute &attr () const & popping {
+	Attribute &attr () const & {
 		return _CAST_<Attribute> (mHeap.self) ;
 	}
 

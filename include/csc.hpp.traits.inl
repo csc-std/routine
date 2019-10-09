@@ -580,21 +580,21 @@ using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,REMOVE_CVR_TYPE<_ARG1> ,_ARG2>:
 
 namespace U {
 template <class ,class>
-struct VISIT_OF ;
+struct INDEX_TO ;
 
 template <class _ARG1 ,class... _ARGS>
-struct VISIT_OF<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
+struct INDEX_TO<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct VISIT_OF<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
+struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
 	_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0) ;
-	using TYPE = typename VISIT_OF<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = typename INDEX_TO<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using VISIT_OF_TYPE = typename VISIT_OF<_ARG1 ,_ARG2>::TYPE ;
+using INDEX_TO_TYPE = typename INDEX_TO<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {

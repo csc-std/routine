@@ -333,7 +333,7 @@ private:
 	public:
 		inline explicit ImplBinder (const UNITS &...args) :mBinder (args...) {}
 
-		inline void friend_write (TextWriter<STR> &writer) const popping override {
+		inline void friend_write (TextWriter<STR> &writer) const override {
 			template_write (writer ,mBinder) ;
 		}
 

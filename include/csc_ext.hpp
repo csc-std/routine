@@ -136,7 +136,7 @@ template <class _ARG1 ,class _ARG2>
 using INDEX_OF_TYPE = U::INDEX_OF_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
-using VISIT_OF_TYPE = U::VISIT_OF_TYPE<_ARG1 ,_ARG2> ;
+using INDEX_TO_TYPE = U::INDEX_TO_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1>
 using REMOVE_TEMPLATE_TYPE = U::REMOVE_TEMPLATE_TYPE<_ARG1> ;
@@ -908,7 +908,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline void apply (const Function<DEF<void (_ARG1 &)> NONE::*> &proc) const {
+	inline void apply (const Function<FIX_MSVC_DEDUCTION_2<void ,_ARG1 &>> &proc) const {
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mStatus != STATUS_SIGNALED)
 			return ;
@@ -1051,23 +1051,23 @@ public:
 		return TRUE ;
 	}
 
-	inline VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () {
+	inline INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		return _LOAD_<VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (NULL ,_ADDRESS_ (&mVariant)) ;
+		return _LOAD_<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (NULL ,_ADDRESS_ (&mVariant)) ;
 	}
 
-	inline implicit operator VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () {
+	inline implicit operator INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () {
 		return to () ;
 	}
 
-	inline const VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () const {
+	inline const INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		return _LOAD_<VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (NULL ,_ADDRESS_ (&mVariant)) ;
+		return _LOAD_<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (NULL ,_ADDRESS_ (&mVariant)) ;
 	}
 
-	inline implicit operator const VISIT_OF_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () const {
+	inline implicit operator const INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () const {
 		return to () ;
 	}
 
@@ -1079,7 +1079,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline void apply (const Function<DEF<void (_ARG1 &)> NONE::*> &proc) {
+	inline void apply (const Function<FIX_MSVC_DEDUCTION_2<void ,_ARG1 &>> &proc) {
 		if (!available<_ARG1> ())
 			return ;
 		proc (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (&mVariant))) ;
@@ -1278,18 +1278,18 @@ public:
 
 	inline Tuple<UNITS...> &rest () && = delete ;
 
-	template <class _ARG1>
-	inline VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &visit () & {
-		return Detail::template_visit ((*this) ,_NULL_<ARGV<_ARG1>> ()) ;
+	template <class _RET>
+	inline INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () & {
+		return Detail::template_pick ((*this) ,_NULL_<ARGV<_RET>> ()) ;
 	}
 
-	template <class _ARG1>
-	inline constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &visit () const & {
-		return Detail::template_visit ((*this) ,_NULL_<ARGV<_ARG1>> ()) ;
+	template <class _RET>
+	inline constexpr const INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () const & {
+		return Detail::template_pick ((*this) ,_NULL_<ARGV<_RET>> ()) ;
 	}
 
-	template <class _ARG1>
-	inline VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &visit () && = delete ;
+	template <class _RET>
+	inline INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () && = delete ;
 
 	inline BOOL equal (const Tuple &that) const {
 		if (one () != that.one ())
@@ -1333,24 +1333,24 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static UNIT1 &template_visit (Tuple &_self ,const ARGV<ARGC<0>> &) {
+		inline static UNIT1 &template_pick (Tuple &_self ,const ARGV<ARGC<0>> &) {
 			return _self.one () ;
 		}
 
 		template <class _ARG1>
-		inline static VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (Tuple &_self ,const ARGV<_ARG1> &) {
+		inline static INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (Tuple &_self ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			return Tuple<UNITS...>::template_pick (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 
-		inline static constexpr const UNIT1 &template_visit (const Tuple &_self ,const ARGV<ARGC<0>> &) {
+		inline static constexpr const UNIT1 &template_pick (const Tuple &_self ,const ARGV<ARGC<0>> &) {
 			return _self.one () ;
 		}
 
 		template <class _ARG1>
-		inline static constexpr const VISIT_OF_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_visit (const Tuple &_self ,const ARGV<_ARG1> &) {
+		inline static constexpr const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const Tuple &_self ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_visit (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			return Tuple<UNITS...>::template_pick (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
 } ;
@@ -2107,16 +2107,16 @@ public:
 		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mHolder ,r1x) ;
 	}
 
-	inline UNIT &to () const popping {
+	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return _LOAD_<UNIT> (mPointer) ;
 	}
 
-	inline implicit operator UNIT & () const popping {
+	inline implicit operator UNIT & () const {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const popping {
+	inline PTR<UNIT> operator-> () const {
 		return &to () ;
 	}
 
@@ -2558,16 +2558,14 @@ private:
 		inline WatchProxy (WatchProxy &&) noexcept = default ;
 		inline WatchProxy &operator= (WatchProxy &&) = delete ;
 
-		inline implicit operator UNIT & () const & popping noexcept {
-			_DEBUG_ASSERT_ (mPointer != NULL) ;
+		inline implicit operator UNIT & () const & noexcept {
 			return _LOAD_<UNIT> (mPointer) ;
 		}
 
 		inline implicit operator UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const & popping {
-			_DEBUG_ASSERT_ (mPointer != NULL) ;
+		inline implicit operator _RET () const & {
 			return _RET (_LOAD_<UNIT> (mPointer)) ;
 		}
 
@@ -2754,11 +2752,11 @@ public:
 	inline Monostate (Monostate &&) = delete ;
 	inline Monostate &operator= (Monostate &&) = delete ;
 
-	inline UNIT &to () const popping {
+	inline UNIT &to () const {
 		return mThis.self ;
 	}
 
-	inline implicit operator UNIT & () const popping {
+	inline implicit operator UNIT & () const {
 		return to () ;
 	}
 
@@ -2772,11 +2770,11 @@ class Lazy {
 private:
 	class ApplyTo :private Wrapped<UNIT> {
 	public:
-		inline void friend_move (UNIT &data) {
+		inline void friend_move (UNIT &data) popping {
 			data = std::move (ApplyTo::mSelf) ;
 		}
 
-		inline void friend_move (UNIT &data) const {
+		inline void friend_move (UNIT &data) const popping {
 			data = std::move (ApplyTo::mSelf) ;
 		}
 	} ;
@@ -3305,7 +3303,7 @@ template <class UNIT1 ,class UNIT2>
 class Serializer {
 private:
 	struct Binder :public Interface {
-		virtual void friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping = 0 ;
+		virtual void compute_visit (UNIT1 &visitor ,UNIT2 &context) const = 0 ;
 	} ;
 
 	template <class... _UNITS>
@@ -3318,7 +3316,7 @@ private:
 
 		inline explicit ImplBinder (const DEF<_UNITS UNIT2::*> &...args) :mMember (args...) {}
 
-		inline void friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping override {
+		inline void compute_visit (UNIT1 &visitor ,UNIT2 &context) const override {
 			Detail::template_visit (visitor ,context ,mMember) ;
 		}
 	} ;
@@ -3339,7 +3337,7 @@ private:
 		inline void friend_visit (UNIT1 &) const & = delete ;
 
 		inline void friend_visit (UNIT1 &visitor) && popping {
-			mBase.mBinder->friend_visit (visitor ,mContext) ;
+			mBase.mBinder->compute_visit (visitor ,mContext) ;
 		}
 
 	private:
@@ -3378,7 +3376,7 @@ private:
 
 #ifdef __CSC_COMPILER_GNUC__
 template <class UNIT1 ,class UNIT2>
-inline void Serializer<UNIT1 ,UNIT2>::Binder::friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping {
+inline void Serializer<UNIT1 ,UNIT2>::Binder::compute_visit (UNIT1 &visitor ,UNIT2 &context) const {
 	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;

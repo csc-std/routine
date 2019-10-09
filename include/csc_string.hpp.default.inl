@@ -41,7 +41,7 @@ namespace CSC {
 #if defined (_CLOCALE_) || defined (_GLIBCXX_CLOCALE)
 #if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
 inline namespace S {
-inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
+inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef _CLOCALE_
 	auto &r1 = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
@@ -52,18 +52,18 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 			_free_locale (me) ;
 		}) ;
 	}) ;
-	String<STRW> ret = String<STRW> (src.length () + 1) ;
+	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
+		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRW> () ;
 	}
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	String<STRW> ret = String<STRW> (src.length () + 1) ;
+	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	for (FOR_ONCE_DO) {
-		const auto r3x = std::mbstowcs (ret.raw ().self ,src.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
+		const auto r3x = std::mbstowcs (ret.raw ().self ,val.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -72,7 +72,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &src) {
 #endif
 }
 
-inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
+inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef _CLOCALE_
 	auto &r1 = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
@@ -83,18 +83,18 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 			_free_locale (me) ;
 		}) ;
 	}) ;
-	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
+	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,src.raw ().self ,_TRUNCATE ,r1) ;
+		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRA> () ;
 	}
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
-	String<STRA> ret = String<STRA> ((src.length () + 1) * _SIZEOF_ (STRW)) ;
+	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	for (FOR_ONCE_DO) {
-		const auto r3x = std::wcstombs (ret.raw ().self ,src.raw ().self ,ret.size ()) ;
+		const auto r3x = std::wcstombs (ret.raw ().self ,val.raw ().self ,ret.size ()) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -103,32 +103,32 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &src) {
 #endif
 }
 
-inline exports String<STRW> _ASTOWS_ (const String<STRA> &src) {
+inline exports String<STRW> _ASTOWS_ (const String<STRA> &val) {
 	//@warn: not thread-safe due to internel storage
 	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-		return _U8STOWS_ (_UASTOU8S_ (src)) ;
+		return _U8STOWS_ (_UASTOU8S_ (val)) ;
 	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-		return _GBKSTOWS_ (src) ;
+		return _GBKSTOWS_ (val) ;
 	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-		return _GBKSTOWS_ (src) ;
-	return _inline_LOCALE_LASTOWS_ (src) ;
+		return _GBKSTOWS_ (val) ;
+	return _inline_LOCALE_LASTOWS_ (val) ;
 }
 
-inline exports String<STRA> _WSTOAS_ (const String<STRW> &src) {
+inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
 	//@warn: not thread-safe due to internel storage
 	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-		return _U8STOUAS_ (_WSTOU8S_ (src)) ;
+		return _U8STOUAS_ (_WSTOU8S_ (val)) ;
 	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-		return _WSTOGBKS_ (src) ;
+		return _WSTOGBKS_ (val) ;
 	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-		return _WSTOGBKS_ (src) ;
-	return _inline_LOCALE_WSTOLAS_ (src) ;
+		return _WSTOGBKS_ (val) ;
+	return _inline_LOCALE_WSTOLAS_ (val) ;
 }
 } ;
 #endif

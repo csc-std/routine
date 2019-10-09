@@ -92,7 +92,7 @@
 #pragma warning (disable :4623) //@info: warning C4623: 'xxx': default constructor was implicitly defined as deleted
 #pragma warning (disable :4624) //@info: warning C4624: 'xxx': destructor was implicitly defined as deleted
 #pragma warning (disable :4625) //@info: warning C4625: 'xxx': copy constructor was implicitly defined as deleted
-#pragma warning (disable :4626) //@info:  warning C4626: 'xxx': assignment operator was implicitly defined as deleted
+#pragma warning (disable :4626) //@info: warning C4626: 'xxx': assignment operator was implicitly defined as deleted
 #pragma warning (disable :5026) //@info: warning C5026: 'xxx': move constructor was implicitly defined as deleted
 #pragma warning (disable :5027) //@info: warning C5027: 'xxx': move assignment operator was implicitly defined as deleted
 #pragma warning (disable :5045) //@info: warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
@@ -766,7 +766,6 @@ template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = &_LOAD_<_ARG1> (address) ;
 	r1x->~_ARG1 () ;
 	(void) r1x ;
@@ -883,32 +882,16 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 		_DEBUG_ASSERT_ (src2 != NULL) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 	}
-	FLAG ret = 0 ;
-	INDEX ix = 0 ;
-	if (src1 == src2)
-		ix = len ;
-	while (TRUE) {
-		if (ix >= len)
-			break ;
-		for (FOR_ONCE_DO) {
-			if (ret != 0)
-				discard ;
-			if (!(src1[ix] < src2[ix]))
-				discard ;
-			ret = -1 ;
-		}
-		for (FOR_ONCE_DO) {
-			if (ret != 0)
-				discard ;
-			if (!(src2[ix] < src1[ix]))
-				discard ;
-			ret = +1 ;
-		}
-		if (ret != 0)
-			break ;
-		ix++ ;
+	const auto r1x = _SWITCH_ (
+		(src1 == src2) ? len :
+		0) ;
+	for (INDEX i = r1x ,ie = len ; i < ie ; i++) {
+		if (src1[i] < src2[i])
+			return FLAG (-1) ;
+		if (src2[i] < src1[i])
+			return FLAG (+1) ;
 	}
-	return std::move (ret) ;
+	return FLAG (0) ;
 #pragma GCC diagnostic pop
 }
 
@@ -1374,7 +1357,6 @@ public:
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
-		_DEBUG_ASSERT_ (address != NULL) ;
 		const auto r1x = &_LOAD_<ARR<BYTE>> (NULL ,_ADDRESS_ (address)) ;
 		operator delete (r1x ,std::nothrow) ;
 	}
@@ -1829,17 +1811,17 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const popping {
+	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = &_LOAD_<Holder> (mPointer) ;
 		return r1x->mData ;
 	}
 
-	inline implicit operator UNIT & () const popping {
+	inline implicit operator UNIT & () const {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const popping {
+	inline PTR<UNIT> operator-> () const {
 		return &to () ;
 	}
 
@@ -2291,16 +2273,16 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const popping {
+	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return _LOAD_<UNIT> (mPointer) ;
 	}
 
-	inline implicit operator UNIT & () const popping {
+	inline implicit operator UNIT & () const {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const popping {
+	inline PTR<UNIT> operator-> () const {
 		return &to () ;
 	}
 
@@ -2309,11 +2291,13 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static PhanRef make (UNIT &val) {
+	inline static PhanRef make (UNIT &val) popping {
 		return PhanRef (&val) ;
 	}
 
-	inline static PhanRef make (const PhanRef<UNIT> &val) {
+	template <class _ARG1>
+	inline static PhanRef make (const PhanRef<_ARG1> &val) {
+		_STATIC_ASSERT_ (std::is_convertible<_ARG1 & ,UNIT &>::value) ;
 		if (!val.exist ())
 			return PhanRef () ;
 		return make (val.self) ;
@@ -2580,7 +2564,6 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			_DEBUG_ASSERT_ (address != NULL) ;
 			auto &r1 = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
 			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
@@ -2783,12 +2766,12 @@ public:
 	}
 
 public:
-	inline static Buffer &from (DEF<UNIT[SIZE]> &_self) {
-		return _CAST_<Buffer> (_self) ;
+	inline static Buffer &from (DEF<UNIT[SIZE]> &val) {
+		return _CAST_<Buffer> (val) ;
 	}
 
-	inline static const Buffer &from (const DEF<UNIT[SIZE]> &_self) {
-		return _CAST_<Buffer> (_self) ;
+	inline static const Buffer &from (const DEF<UNIT[SIZE]> &val) {
+		return _CAST_<Buffer> (val) ;
 	}
 
 	inline static Buffer &from (DEF<UNIT[SIZE]> &&) = delete ;
@@ -3248,13 +3231,13 @@ public:
 		return (*this) ;
 	}
 
-	inline const ARR<UNIT> &to () const popping {
+	inline const ARR<UNIT> &to () const {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
 		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const popping {
+	inline implicit operator const ARR<UNIT> & () const {
 		return to () ;
 	}
 
@@ -3264,7 +3247,7 @@ public:
 		return mSize ;
 	}
 
-	inline const UNIT &get (INDEX index) const & popping {
+	inline const UNIT &get (INDEX index) const & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3275,7 +3258,7 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & popping {
+	inline const UNIT &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
@@ -3350,7 +3333,7 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static Buffer make (const ARR<UNIT> &src ,LENGTH len) {
+	inline static Buffer make (const ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
 			return Buffer (NULL ,0) ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -3359,20 +3342,20 @@ public:
 	}
 
 	template <LENGTH _VAL1>
-	inline static Buffer make (const DEF<UNIT[_VAL1]> &src) {
-		return make (PTRTOARR[src] ,_VAL1) ;
+	inline static Buffer make (const DEF<UNIT[_VAL1]> &val) popping {
+		return make (PTRTOARR[val] ,_VAL1) ;
 	}
 
 	template <class _ARG1>
-	inline static Buffer make (const Buffer<UNIT ,_ARG1> &src) {
-		return make (src ,src.size ()) ;
+	inline static Buffer make (const Buffer<UNIT ,_ARG1> &val) {
+		return make (val ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &src) {
-		if (src.size () == 0)
+	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
+		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3418,13 +3401,13 @@ public:
 		return (*this) ;
 	}
 
-	inline ARR<UNIT> &to () const popping {
+	inline ARR<UNIT> &to () const {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
 		return _LOAD_<ARR<UNIT>> (mBuffer) ;
 	}
 
-	inline implicit operator ARR<UNIT> & () const popping {
+	inline implicit operator ARR<UNIT> & () const {
 		return to () ;
 	}
 
@@ -3434,7 +3417,7 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) const & popping {
+	inline UNIT &get (INDEX index) const & {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -3445,7 +3428,7 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline UNIT &operator[] (INDEX index) const & popping {
+	inline UNIT &operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
@@ -3520,7 +3503,7 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static Buffer make (ARR<UNIT> &src ,LENGTH len) {
+	inline static Buffer make (ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
 			return Buffer (NULL ,0) ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -3529,31 +3512,31 @@ public:
 	}
 
 	template <LENGTH _VAL1>
-	inline static Buffer make (DEF<UNIT[_VAL1]> &src) {
-		return make (PTRTOARR[src] ,_VAL1) ;
+	inline static Buffer make (DEF<UNIT[_VAL1]> &val) popping {
+		return make (PTRTOARR[val] ,_VAL1) ;
 	}
 
 	template <class _ARG1>
-	inline static Buffer make (Buffer<UNIT ,_ARG1> &src) {
-		return make (src.self ,src.size ()) ;
+	inline static Buffer make (Buffer<UNIT ,_ARG1> &val) popping {
+		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &src) {
-		if (src.size () == 0)
+	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
+		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
-	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &src) {
-		return make (src.self ,src.size ()) ;
+	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
+		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && LOAD_CHECK_TYPE<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &src) {
-		if (src.size () == 0)
+	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
+		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&src.self) ,(src.size () * _SIZEOF_ (_ARG1))) ;
+		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3977,34 +3960,32 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
-		INDEX ret = VAR_NONE ;
-		for (FOR_ONCE_DO) {
-			if (ret != VAR_NONE)
-				discard ;
-			if (mFree != VAR_NONE)
-				discard ;
+		if SWITCH_ONCE (mFree == VAR_NONE) {
 			auto rax = mAllocator.expand () ;
-			ret = mSize ;
-			_CREATE_ (&rax[ret].mData ,std::forward<_ARGS> (args)...) ;
+			const auto r1x = mSize ;
+			_CREATE_ (&rax[r1x].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
 			update_reserve (mSize ,mFree) ;
+			mFree = mAllocator[r1x].mNext ;
+			mAllocator[r1x].mNext = VAR_USED ;
+			mLength++ ;
+			return _COPY_ (r1x) ;
 		}
-		for (FOR_ONCE_DO) {
-			if (ret != VAR_NONE)
-				discard ;
-			if (mFree == VAR_NONE)
-				discard ;
-			ret = mFree ;
-			_CREATE_ (&mAllocator[ret].mData ,std::forward<_ARGS> (args)...) ;
+		if SWITCH_ONCE (mFree != VAR_NONE) {
+			const auto r2x = mFree ;
+			_CREATE_ (&mAllocator[r2x].mData ,std::forward<_ARGS> (args)...) ;
+			mFree = mAllocator[r2x].mNext ;
+			mAllocator[r2x].mNext = VAR_USED ;
+			mLength++ ;
+			return _COPY_ (r2x) ;
 		}
-		mFree = mAllocator[ret].mNext ;
-		mAllocator[ret].mNext = VAR_USED ;
-		mLength++ ;
-		return std::move (ret) ;
+		_STATIC_WARNING_ ("unexpected") ;
+		_DEBUG_ASSERT_ (FALSE) ;
+		return VAR_NONE ;
 	}
 
 	inline void free (INDEX index) noexcept {

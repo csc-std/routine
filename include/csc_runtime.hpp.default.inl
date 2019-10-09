@@ -104,17 +104,17 @@ public:
 } ;
 
 template <class UNIT>
-inline exports void Coroutine<UNIT>::init_break_point (AnyRef<void> &bp) {
+inline exports void Coroutine<UNIT>::init_break_point (AnyRef<void> &bp) popping {
 	Implement::init_break_point (&bp) ;
 }
 
 template <class UNIT>
-inline exports void Coroutine<UNIT>::store_break_point (AnyRef<void> &bp) noexcept {
+inline exports void Coroutine<UNIT>::store_break_point (AnyRef<void> &bp) noexcept popping {
 	Implement::store_break_point (&bp) ;
 }
 
 template <class UNIT>
-inline exports void Coroutine<UNIT>::goto_break_point (AnyRef<void> &bp) noexcept {
+inline exports void Coroutine<UNIT>::goto_break_point (AnyRef<void> &bp) noexcept popping {
 	Implement::goto_break_point (&bp) ;
 }
 #endif

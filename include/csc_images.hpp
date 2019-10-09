@@ -33,11 +33,9 @@ private:
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline void operator= (const Iterator &) const noexcept {
+		inline void operator= (const ARGV<Iterator> &) const noexcept {
 			_STATIC_WARNING_ ("noop") ;
 		}
-
-		inline void operator= (Iterator &&) const = delete ;
 
 	private:
 		inline explicit Iterator (LENGTH index ,const Array<LENGTH ,SIZE> &item) :mIndex (index) ,mItem (item) {}
@@ -61,10 +59,10 @@ public:
 		return Iterator (r1x ,Detail::first_item (mRange)) ;
 	}
 
-	inline Iterator &inext (Iterator &iter) const popping {
+	inline const ARGV<Iterator> &inext (Iterator &iter) const popping {
 		iter.mIndex++ ;
 		Detail::template_incrase (mRange ,iter.mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
-		return iter ;
+		return _NULL_<ARGV<Iterator>> () ;
 	}
 
 	inline const Array<LENGTH ,SIZE> &get (const Iterator &index) const {
@@ -693,7 +691,7 @@ private:
 		inline NativeProxy (NativeProxy &&) noexcept = default ;
 		inline NativeProxy &operator= (NativeProxy &&) = delete ;
 
-		inline implicit operator _UNIT & () const & popping {
+		inline implicit operator _UNIT & () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
@@ -703,7 +701,7 @@ private:
 		inline implicit operator _UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const & popping {
+		inline implicit operator _RET () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;

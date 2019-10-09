@@ -296,7 +296,7 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	void serialize (TextWriter<STRU8> &writer) const ;
+	void friend_write (TextWriter<STRU8> &writer) const ;
 
 private:
 	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
@@ -320,7 +320,7 @@ public:
 	}
 } ;
 
-inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
+inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 	auto rax = Deque<ARRAY2<INDEX>> () ;
 	auto rbx = Deque<ARRAY2<INDEX>> () ;
 	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
@@ -404,7 +404,6 @@ inline void XmlParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("</") << mHeap.self[r1x[0]].mName << _PCSTRU8_ (">") ;
 		}
 	}
-	writer << _EOS_ ;
 }
 
 inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
@@ -1241,7 +1240,7 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	void serialize (TextWriter<STRU8> &writer) const ;
+	void friend_write (TextWriter<STRU8> &writer) const ;
 
 private:
 	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
@@ -1269,7 +1268,7 @@ public:
 	}
 } ;
 
-inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
+inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 	auto rax = Deque<ARRAY2<INDEX>> () ;
 	auto rbx = Deque<ARRAY2<INDEX>> () ;
 	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
@@ -1419,7 +1418,6 @@ inline void JsonParser::serialize (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("}") ;
 		}
 	}
-	writer << _EOS_ ;
 }
 
 inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {

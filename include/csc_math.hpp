@@ -162,15 +162,12 @@ inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
 inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
-	VALX ret = y * VALX (r1x) ;
-	for (FOR_ONCE_DO) {
-		if (x >= 0)
-			discard ;
-		if (x >= ret)
-			discard ;
-		ret = y * VALX (r1x - 1) ;
-	}
-	return std::move (ret) ;
+	const auto r2x = y * VALX (r1x) ;
+	if (x >= 0)
+		return _COPY_ (r2x) ;
+	if (x >= r2x)
+		return _COPY_ (r2x) ;
+	return y * VALX (r1x - 1) ;
 }
 
 template <class _ARG1>
@@ -182,15 +179,12 @@ inline _ARG1 _FLOOR_ (const _ARG1 &x ,const _ARG1 &y) {
 inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 	_DEBUG_ASSERT_ (y > VALX (0)) ;
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
-	VALX ret = y * VALX (r1x) ;
-	for (FOR_ONCE_DO) {
-		if (x <= 0)
-			discard ;
-		if (x <= ret)
-			discard ;
-		ret = y * VALX (r1x + 1) ;
-	}
-	return std::move (ret) ;
+	const auto r2x = y * VALX (r1x) ;
+	if (x <= 0)
+		return _COPY_ (r2x) ;
+	if (x <= r2x)
+		return _COPY_ (r2x) ;
+	return y * VALX (r1x + 1) ;
 }
 
 template <class _ARG1>
