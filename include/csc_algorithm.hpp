@@ -785,16 +785,6 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		}
 
 		inline void update_is_and_ig () {
-			_STATIC_WARNING_ ("note") ;
-			/*
-			Strong Wolfe-Powell Conditions
-			find _lambda match E1 and E2
-			(0 < _lambda)
-			E1 := mLossFunc (mDX + _lambda * mIS) - mLossFunc (mDX) <= _lambda * c1 * (mDG * mIS)
-			(0 < c1 < 0.5)
-			E2 := _ABS_ (gradient_of_loss (mDX + _lambda * mIS) * mIS) <= -c2 * (mDG * mIS)
-			(c1 < c2 < 1)
-			*/
 			for (INDEX i = 0 ,ie = mDG.length () ; i < ie ; i++)
 				mIS[i] = -math_matrix_mul (mDM ,i ,mDG) ;
 			const auto r1x = math_vector_dot (mDG ,mIS) ;

@@ -92,10 +92,12 @@ public:
 		return _SIZEOF_ (UNIT) ;
 	}
 
-	inline const BYTE &operator[] (INDEX index) const {
+	inline const BYTE &operator[] (INDEX index) const & {
 		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
 		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)[index]] ;
 	}
+
+	inline BYTE &operator[] (INDEX) && = delete ;
 
 	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const UNIT & ,_RET>::value>>
 	inline implicit operator _RET () const & {
@@ -222,10 +224,10 @@ public:
 	}
 
 	void read (WORD &data) popping {
-		auto &r1 = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
-			read (r1[i]) ;
-		data = _CAST_<EndianBytes<WORD>> (r1) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			read (rax.P1[i]) ;
+		data = _CAST_<EndianBytes<WORD>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) popping {
@@ -234,10 +236,10 @@ public:
 	}
 
 	void read (CHAR &data) popping {
-		auto &r1 = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
-			read (r1[i]) ;
-		data = _CAST_<EndianBytes<CHAR>> (r1) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			read (rax.P1[i]) ;
+		data = _CAST_<EndianBytes<CHAR>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) popping {
@@ -246,10 +248,10 @@ public:
 	}
 
 	void read (DATA &data) popping {
-		auto &r1 = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r1)) ; i < ie ; i++)
-			read (r1[i]) ;
-		data = _CAST_<EndianBytes<DATA>> (r1) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			read (rax.P1[i]) ;
+		data = _CAST_<EndianBytes<DATA>> (rax) ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) popping {
@@ -260,7 +262,7 @@ public:
 	void read (BOOL &data) popping {
 		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<BOOL>> (data) ;
 		read (r1) ;
-		data = _CAST_<BOOL> (r1) ;
+		data = std::move (_CAST_<BOOL> (r1)) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) popping {
@@ -271,7 +273,7 @@ public:
 	void read (VAR32 &data) popping {
 		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAR32>> (data) ;
 		read (r1) ;
-		data = _CAST_<VAR32> (r1) ;
+		data = std::move (_CAST_<VAR32> (r1)) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) popping {
@@ -282,7 +284,7 @@ public:
 	void read (VAR64 &data) popping {
 		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAR64>> (data) ;
 		read (r1) ;
-		data = _CAST_<VAR64> (r1) ;
+		data = std::move (_CAST_<VAR64> (r1)) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) popping {
@@ -293,7 +295,7 @@ public:
 	void read (VAL32 &data) popping {
 		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAL32>> (data) ;
 		read (r1) ;
-		data = _CAST_<VAL32> (r1) ;
+		data = std::move (_CAST_<VAL32> (r1)) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) popping {
@@ -304,7 +306,7 @@ public:
 	void read (VAL64 &data) popping {
 		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAL64>> (data) ;
 		read (r1) ;
-		data = _CAST_<VAL64> (r1) ;
+		data = std::move (_CAST_<VAL64> (r1)) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) popping {

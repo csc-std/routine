@@ -67,6 +67,7 @@ using std::chrono::seconds ;
 using std::chrono::minutes ;
 using std::chrono::hours ;
 using std::chrono::system_clock ;
+using std::chrono::steady_clock ;
 } ;
 
 namespace this_thread {
@@ -147,6 +148,10 @@ class GlobalRuntime final :private Wrapped<void> {
 public:
 	inline static std::chrono::system_clock::time_point clock_now () {
 		return std::chrono::system_clock::now () ;
+	}
+
+	inline static std::chrono::steady_clock::time_point clock_ios () {
+		return std::chrono::steady_clock::now () ;
 	}
 
 	inline static std::thread::id thread_tid () {
@@ -2838,14 +2843,14 @@ public:
 		return mThis.exist () ;
 	}
 
-	inline const UNIT &to () const popping {
+	inline const UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		finish () ;
 		const auto r1x = mThis.watch () ;
 		return r1x->mData.self ;
 	}
 
-	inline implicit operator const UNIT & () const popping {
+	inline implicit operator const UNIT & () const {
 		return to () ;
 	}
 
@@ -3300,7 +3305,7 @@ template <class UNIT1 ,class UNIT2>
 class Serializer {
 private:
 	struct Binder :public Interface {
-		virtual void friend_visit (UNIT1 &visitor ,UNIT2 &context) const = 0 ;
+		virtual void friend_visit (UNIT1 &visitor ,UNIT2 &context) const popping = 0 ;
 	} ;
 
 	template <class... _UNITS>

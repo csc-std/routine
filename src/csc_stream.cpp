@@ -27,9 +27,9 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_STREAM_TEXTREADER) {
-		struct wrapped_int :private Wrapped<int> {
+		struct WRAPPED_int :private Wrapped<int> {
 			inline void friend_read (TextReader<STRU8> &reader) popping {
-				reader >> wrapped_int::mSelf >> _GAP_ ;
+				reader >> WRAPPED_int::mSelf >> _GAP_ ;
 			}
 		} ;
 		auto rax = Buffer<int ,ARGC<4>> () ;
@@ -47,9 +47,8 @@ public:
 		rbx[8] = STRU8 ('0') ;
 		rbx[9] = ris.attr ().varify_ending_item () ;
 		for (FOR_ONCE_DO) {
-			auto &r1 = _CAST_<Buffer<wrapped_int ,ARGC<4>>> (rax) ;
+			auto &r1 = _CAST_<Buffer<WRAPPED_int ,ARGC<4>>> (rax) ;
 			ris >> r1 ;
-			//@info: see also std::launder
 			rax = std::move (_CAST_<Buffer<int ,ARGC<4>>> (r1)) ;
 		}
 	}

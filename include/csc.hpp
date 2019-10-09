@@ -258,14 +258,6 @@ using std::is_copy_assignable ;
 using std::is_nothrow_move_constructible ;
 using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
-
-using std::enable_if ;
-using std::conditional ;
-using std::remove_reference ;
-using std::remove_const ;
-using std::remove_volatile ;
-using std::remove_pointer ;
-using std::remove_extent ;
 } ;
 
 #define _UNWIND_X_(...) __VA_ARGS__
@@ -575,9 +567,9 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 } ;
 
 #pragma region
-#define __CSC_USE_TRAITS__
+#define __CSC_TRAITS_IPP__
 #include "csc.hpp.traits.inl"
-#undef __CSC_USE_TRAITS__
+#undef __CSC_TRAITS_IPP__
 #pragma endregion
 
 template <BOOL _VAL1>
@@ -681,7 +673,7 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 	return arg1 ;
 }
 
-//@warn: not type-safe ,be careful about strict-aliasing
+//@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -693,7 +685,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 	return (*r1x) ;
 }
 
-//@warn: not type-safe ,be careful about strict-aliasing
+//@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -708,7 +700,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	return (*r3x) ;
 }
 
-//@warn: not type-safe ,be careful about strict-aliasing
+//@warn: not type-safe; be careful about strict-aliasing
 template <class _RET>
 inline _RET &_LOAD_ (const DEF<decltype (NULL)> & ,LENGTH address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;

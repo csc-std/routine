@@ -323,11 +323,6 @@ private:
 			return mBase.get (mY ,x) ;
 		}
 
-		inline void operator= (const ARRAY4<REAL> &row) && {
-			for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
-				mBase.get (mY ,i) = row[i] ;
-		}
-
 	private:
 		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
 	} ;

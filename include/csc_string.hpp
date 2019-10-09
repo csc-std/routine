@@ -785,9 +785,9 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &src) {
 			ret.add (r1x[i][1] ,r1x[i][0]) ;
 		return std::move (ret) ;
 	}) ;
-	String<STRW> ret = String<STRW> (src.length ()) ;
-	INDEX iw = 0 ;
 	auto &r2 = _CAST_<String<STRUA>> (src) ;
+	String<STRW> ret = String<STRW> (r2.length ()) ;
+	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
 	for (auto &&i : r2) {

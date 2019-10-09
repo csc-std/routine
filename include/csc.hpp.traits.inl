@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef __CSC_USE_TRAITS__
+#ifndef __CSC_TRAITS_IPP__
 #error "б╞(д├бузебу ;)д├ : this file is only for 'csc.hpp'"
 #endif
 
@@ -14,7 +14,7 @@ struct ENABLE<ARGC<TRUE>> {
 } ;
 
 template <BOOL _VAL1>
-using ENABLE_TYPE = typename stl::enable_if<_VAL1 ,VOID>::type ;
+using ENABLE_TYPE = typename ENABLE<ARGC<_VAL1>>::TYPE ;
 } ;
 
 namespace U {
@@ -32,7 +32,7 @@ struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 } ;
 
 template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = typename stl::conditional<_VAL1 ,_ARG1 ,_ARG2>::type ;
+using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_VAL1> ,_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -52,7 +52,7 @@ struct REMOVE_REFERENCE<_ARG1 &&> {
 } ;
 
 template <class _ARG1>
-using REMOVE_REFERENCE_TYPE = typename stl::remove_reference<_ARG1>::type ;
+using REMOVE_REFERENCE_TYPE = typename REMOVE_REFERENCE<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -67,7 +67,7 @@ struct REMOVE_CONST<const _ARG1> {
 } ;
 
 template <class _ARG1>
-using REMOVE_CONST_TYPE = typename stl::remove_const<_ARG1>::type ;
+using REMOVE_CONST_TYPE = typename REMOVE_CONST<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -82,7 +82,7 @@ struct REMOVE_VOLATILE<volatile _ARG1> {
 } ;
 
 template <class _ARG1>
-using REMOVE_VOLATILE_TYPE = typename stl::remove_volatile<_ARG1>::type ;
+using REMOVE_VOLATILE_TYPE = typename REMOVE_VOLATILE<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -102,7 +102,7 @@ struct REMOVE_POINTER<PTR<_ARG1>> {
 } ;
 
 template <class _ARG1>
-using REMOVE_POINTER_TYPE = typename stl::remove_pointer<_ARG1>::type ;
+using REMOVE_POINTER_TYPE = typename REMOVE_POINTER<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -122,7 +122,7 @@ struct REMOVE_ARRAY<_ARG1[_VAL1]> {
 } ;
 
 template <class _ARG1>
-using REMOVE_ARRAY_TYPE = typename stl::remove_extent<_ARG1>::type ;
+using REMOVE_ARRAY_TYPE = typename REMOVE_ARRAY<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -164,6 +164,7 @@ struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) const volatile> {
 	using TYPE = DEF<_ARG1 (_ARGS...)> ;
 } ;
 
+//@warn: behaviors of 'noexcept' changed in C++17
 #if _HAS_CXX17
 template <class _ARG1 ,class... _ARGS>
 struct REMOVE_MEMFUNC<_ARG1 (_ARGS...) noexcept> {
