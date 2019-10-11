@@ -488,63 +488,129 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			}
 		}
 
+		inline void update_lack_weight_e0 (INDEX y) {
+			//@info: $0
+			mLackWeight[0] = 0 ;
+			mLackWeight[1] = 0 ;
+			//@info: $1
+			BOOL stack_ret = FALSE ;
+			update_lack_weight_e7 (0 ,y ,stack_ret) ;
+			//@info: $18
+			if (stack_ret) {
+				//@info: $19
+				mLackWeight[0] = 0 ;
+				mLackWeight[1] = 0 ;
+			}
+			//@info: $20
+		}
+
+		inline void update_lack_weight_e7 (INDEX stack_x ,INDEX stack_y ,BOOL &stack_ret) popping {
+			//@info: $7
+			if (stack_y == VAR_NONE) {
+				//@info: $2
+				stack_ret = TRUE ;
+				//@info: $17
+				return ;
+			}
+			//@info: $3
+			mYVisit[stack_y] = TRUE ;
+			stack_x = 0 ;
+			//@info: $4
+			while (stack_x < mAdjacency.cx ()) {
+				//@info: $5
+				if (!mXVisit[stack_x]) {
+					//@info: $6
+					mLackWeight[0] = mYWeight[stack_y] + mXWeight[stack_x] - mAdjacency[stack_y][stack_x] ;
+					//@info: $9
+					if (mLackWeight[0] < mTolerance) {
+						//@info: $8
+						mXVisit[stack_x] = TRUE ;
+						update_lack_weight_re (0 ,mXYLink[stack_x] ,stack_ret) ;
+						//@info: $10
+						if (stack_ret) {
+							//@info: $11
+							mXYLink[stack_x] = stack_y ;
+							stack_ret = TRUE ;
+							//@info: $17
+							return ;
+						}
+					} else {
+						//@info: $12
+						if (mLackWeight[1] < mTolerance) {
+							//@info: $13
+							mLackWeight[1] = mLackWeight[0] ;
+						}
+						//@info: $14
+						mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
+					}
+				}
+				//@info: $15
+				stack_x++ ;
+			}
+			//@info: $16
+			stack_ret = FALSE ;
+			//@info: $17
+			return ;
+		}
+
 		inline void update_lack_weight (INDEX y) {
 			mTempStack.clear () ;
-			mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 			mTempState = VAR_ZERO ;
-			mTempRet = FALSE ;
 			INDEX ix = VAR_NONE ;
 			while (TRUE) {
 				if (mTempState == VAR_NONE)
 					break ;
-				auto ifa = FALSE ;
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 0))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 0)
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
+					mTempState = 1 ;
+				}
+				for (FOR_ONCE_DO) {
+					if (mTempState != 1)
+						discard ;
+					mTempRet = FALSE ;
+					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 					mTempState = 7 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 2))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 2)
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 3))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 3)
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 4))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 4)
 						discard ;
 					const auto r1x = _SWITCH_ (
 						(mTempStack[ix][0] < mAdjacency.cx ()) ? 5 :
 						16) ;
 					mTempState = r1x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 5))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 5)
 						discard ;
 					const auto r2x = _SWITCH_ (
 						(mXVisit[mTempStack[ix][0]]) ? 15 :
 						6) ;
 					mTempState = r2x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 6))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 6)
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					const auto r3x = _SWITCH_ (
-						(mLackWeight[0] < mTolerance) ? 8 :
-						12) ;
-					mTempState = r3x ;
+					mTempState = 9 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 7))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 7)
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r4x = _SWITCH_ (
@@ -552,98 +618,97 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						3) ;
 					mTempState = r4x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 8))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 8)
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 9))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 9)
+						discard ;
+					const auto r3x = _SWITCH_ (
+						(mLackWeight[0] < mTolerance) ? 8 :
+						12) ;
+					mTempState = r3x ;
+				}
+				for (FOR_ONCE_DO) {
+					if (mTempState != 10)
 						discard ;
 					ix = mTempStack.tail () ;
-					mTempState = 10 ;
-				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 10))
-						discard ;
 					const auto r5x = _SWITCH_ (
 						mTempRet ? 11 :
 						15) ;
 					mTempState = r5x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 11))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 11)
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 12))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 12)
 						discard ;
 					const auto r6x = _SWITCH_ (
 						(mLackWeight[1] < mTolerance) ? 13 :
 						14) ;
 					mTempState = r6x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 13))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 13)
 						discard ;
 					mLackWeight[1] = mLackWeight[0] ;
-					mTempState = 15 ;
+					mTempState = 14 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 14))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 14)
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = 15 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 15))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 15)
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = 4 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 16))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 16)
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = 17 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 17))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 17)
 						discard ;
 					mTempStack.pop () ;
 					const auto r7x = _SWITCH_ (
-						(mTempStack.length () > 0) ? 9 :
+						(mTempStack.length () > 0) ? 10 :
 						18) ;
 					mTempState = r7x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 18))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 18)
 						discard ;
 					const auto r8x = _SWITCH_ (
 						mTempRet ? 19 :
 						20) ;
 					mTempState = r8x ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 19))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 19)
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = 0 ;
 					mTempState = 20 ;
 				}
-				if SWITCH_CASE (ifa) {
-					if (!(mTempState == 20))
+				for (FOR_ONCE_DO) {
+					if (mTempState != 20)
 						discard ;
 					mTempState = VAR_NONE ;
-				}
-				if SWITCH_CASE (ifa) {
-					_STATIC_WARNING_ ("unexpected") ;
-					_DYNAMIC_ASSERT_ (FALSE) ;
 				}
 			}
 		}

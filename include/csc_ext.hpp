@@ -467,7 +467,7 @@ public:
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = (*this) / -that ;
+			ret = (*this) / (-that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			ret = Detail::slow_divide ((*this) ,that) ;
@@ -543,7 +543,7 @@ public:
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = (*this) % -that ;
+			ret = (*this) % (-that) ;
 		}
 		if SWITCH_CASE (ifa) {
 			ret = that - Detail::slow_divide ((*this) ,that) * that ;
@@ -1310,7 +1310,7 @@ public:
 	inline FLAG compr (const Tuple &that) const {
 		const auto r1x = _MEMCOMPR_ (PTRTOARR[&one ()] ,PTRTOARR[&that.one ()] ,1) ;
 		if (r1x != 0)
-			return _COPY_ (r1x) ;
+			return r1x ;
 		return rest ().compr (that.rest ()) ;
 	}
 
@@ -2676,22 +2676,20 @@ private:
 #pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #endif
 		using DEFAULT_RETRYTIMES_SIZE = ARGC<64> ;
-		PTR<UNIT> ret = mPointer.exchange (address) ;
-		for (FOR_ONCE_DO) {
-			if (ret == NULL)
-				discard ;
-			INDEX ir = 0 ;
-			while (TRUE) {
-				const auto r1x = ir++ ;
-				_DEBUG_ASSERT_ (r1x < DEFAULT_RETRYTIMES_SIZE::value) ;
-				(void) r1x ;
-				const auto r2x = mLatch.load () ;
-				if (r2x == 0)
-					break ;
-				INTRUSIVE_TYPE::friend_latch (*ret) ;
-			}
+		const auto r1x = mPointer.exchange (address) ;
+		if (r1x == NULL)
+			return r1x ;
+		INDEX ir = 0 ;
+		while (TRUE) {
+			const auto r2x = ir++ ;
+			_DEBUG_ASSERT_ (r2x < DEFAULT_RETRYTIMES_SIZE::value) ;
+			(void) r2x ;
+			const auto r3x = mLatch.load () ;
+			if (r3x == 0)
+				break ;
+			INTRUSIVE_TYPE::friend_latch ((*r1x)) ;
 		}
-		return std::move (ret) ;
+		return r1x ;
 #pragma GCC diagnostic pop
 	}
 
@@ -2717,8 +2715,8 @@ private:
 			if (address == NULL)
 				return ;
 			if (init)
-				INTRUSIVE_TYPE::friend_create (*address) ;
-			const auto r1x = INTRUSIVE_TYPE::friend_attach (*address) ;
+				INTRUSIVE_TYPE::friend_create ((*address)) ;
+			const auto r1x = INTRUSIVE_TYPE::friend_attach ((*address)) ;
 			_DEBUG_ASSERT_ (r1x >= 1 + EFLAG (!init)) ;
 			(void) r1x ;
 		}
@@ -2726,11 +2724,11 @@ private:
 		inline static void release (PTR<UNIT> address) {
 			if (address == NULL)
 				return ;
-			const auto r1x = INTRUSIVE_TYPE::friend_detach (*address) ;
+			const auto r1x = INTRUSIVE_TYPE::friend_detach ((*address)) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			if (r1x > 0)
 				return ;
-			INTRUSIVE_TYPE::friend_destroy (*address) ;
+			INTRUSIVE_TYPE::friend_destroy ((*address)) ;
 			address->~UNIT () ;
 			GlobalHeap::free (address) ;
 		}
@@ -3377,7 +3375,7 @@ private:
 #ifdef __CSC_COMPILER_GNUC__
 template <class UNIT1 ,class UNIT2>
 inline void Serializer<UNIT1 ,UNIT2>::Binder::compute_visit (UNIT1 &visitor ,UNIT2 &context) const {
-	//@error: g++4.8 is too useless to compile without hint when 'UNIT1' becomes a function-local-type
+	//@error: g++4.8 is too useless to compile with a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
 }

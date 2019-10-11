@@ -429,6 +429,7 @@ template <class TYPE>
 using PTR = DEF<TYPE *> ;
 
 #ifdef __CSC_COMPILER_GNUC__
+//@error: g++4.8 is too useless to use references to array of unknown bound as parameters
 template <class TYPE>
 using ARR = DEF<TYPE[0]> ;
 #else
@@ -495,15 +496,6 @@ struct ARGC {
 		value = _VAL1
 	} ;
 } ;
-
-template <VAR...>
-struct ARGCS ;
-
-template <>
-struct ARGCS<> :public ARGC<0> {} ;
-
-template <VAR _VAL1 ,VAR..._VALS>
-struct ARGCS<_VAL1 ,_VALS...> :public ARGC<_VAL1 + ARGCS<_VALS...>::value> {} ;
 
 template <class>
 struct ARGV {} ;
@@ -695,7 +687,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
 	(void) r1x ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
-	//@warn: simulate 'std::launder' to disable compiler's escape analysis
+	//@warn: disable compiler's escape analysis like 'std::launder'
 	const auto r3x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return (*r3x) ;
 }
@@ -756,10 +748,11 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = new (address) _ARG1 (std::forward<_ARGS> (args)...) ;
-	_DEBUG_ASSERT_ (r1x == &_LOAD_<_ARG1> (address)) ;
+	const auto r1x = &_LOAD_<_ARG1> (address) ;
+	const auto r2x = new (r1x) _ARG1 (std::forward<_ARGS> (args)...) ;
+	_DEBUG_ASSERT_ (r2x == r1x) ;
 	(void) r1x ;
+	(void) r2x ;
 }
 
 template <class _ARG1>
@@ -768,7 +761,6 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
 	const auto r1x = &_LOAD_<_ARG1> (address) ;
 	r1x->~_ARG1 () ;
-	(void) r1x ;
 }
 
 template <class _ARG1>
@@ -858,7 +850,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
 		_DEBUG_ASSERT_ (src2 != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	if (src1 == src2)
 		return TRUE ;
@@ -880,12 +872,11 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
 		_DEBUG_ASSERT_ (src2 != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
-	const auto r1x = _SWITCH_ (
-		(src1 == src2) ? len :
-		0) ;
-	for (INDEX i = r1x ,ie = len ; i < ie ; i++) {
+	if (src1 == src2)
+		return FLAG (0) ;
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++) {
 		if (src1[i] < src2[i])
 			return FLAG (-1) ;
 		if (src2[i] < src1[i])
@@ -906,7 +897,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 #ifdef __CSC_CONFIG_VAR32__
 	static constexpr auto M_MAGIC_N1 = VAR (-2128831035) ;
@@ -935,7 +926,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		if (src[i] == val)
@@ -954,7 +945,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		if (src[len + ~i] == val)
@@ -974,7 +965,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (dst != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	if (dst == src)
 		return ;
@@ -995,7 +986,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (dst != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	if (dst == NULL)
 		return ;
@@ -1032,7 +1023,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
 		_DEBUG_ASSERT_ (dst2 != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	if (dst1 == dst2)
 		return ;
@@ -1063,7 +1054,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
 		_DEBUG_ASSERT_ (dst2 != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	if (dst1 == dst2)
 		return ;
@@ -1082,7 +1073,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 		dst[i] = val ;
@@ -1207,7 +1198,7 @@ private:
 		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
 			auto &r1 = _CACHE_ ([r1x] () noexcept {
-				return _COPY_ (r1x) ;
+				return r1x ;
 			}) ;
 			return r1.mString ;
 		}
@@ -2791,9 +2782,9 @@ public:
 	}
 
 	inline explicit Buffer (LENGTH len) :Buffer () {
-		_DEBUG_ASSERT_ (len >= 0) ;
 		if (len == 0)
 			return ;
+		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
@@ -2889,7 +2880,7 @@ public:
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
 		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
-			return _COPY_ (r2x) ;
+			return r2x ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
@@ -2951,9 +2942,9 @@ public:
 	}
 
 	inline explicit Buffer (LENGTH len) :Buffer () {
-		_DEBUG_ASSERT_ (len >= 0) ;
 		if (len == 0)
 			return ;
+		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
@@ -3005,9 +2996,9 @@ public:
 	}
 
 	inline explicit Buffer (LENGTH len) :Buffer () {
-		_DEBUG_ASSERT_ (len >= 0) ;
 		if (len == 0)
 			return ;
+		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
 		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
@@ -3149,7 +3140,7 @@ public:
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
 		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
-			return _COPY_ (r2x) ;
+			return r2x ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
@@ -3176,7 +3167,6 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_DEBUG_ASSERT_ (len >= 0) ;
 		return Buffer (len) ;
 	}
 
@@ -3293,7 +3283,7 @@ public:
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
 		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
-			return _COPY_ (r2x) ;
+			return r2x ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
@@ -3335,9 +3325,9 @@ public:
 	//@warn: phantom means deliver pointer without holder
 	inline static Buffer make (const ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
-			return Buffer (NULL ,0) ;
+			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 		return Buffer (&src ,len) ;
 	}
 
@@ -3463,7 +3453,7 @@ public:
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
 		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
-			return _COPY_ (r2x) ;
+			return r2x ;
 		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
@@ -3505,9 +3495,9 @@ public:
 	//@warn: phantom means deliver pointer without holder
 	inline static Buffer make (ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
-			return Buffer (NULL ,0) ;
+			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len >= 0) ;
+		_DEBUG_ASSERT_ (len > 0) ;
 		return Buffer (&src ,len) ;
 	}
 
@@ -3960,32 +3950,34 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
-		if SWITCH_ONCE (mFree == VAR_NONE) {
+		INDEX ret = VAR_NONE ;
+		for (FOR_ONCE_DO) {
+			if (ret != VAR_NONE)
+				discard ;
+			if (mFree != VAR_NONE)
+				discard ;
 			auto rax = mAllocator.expand () ;
-			const auto r1x = mSize ;
-			_CREATE_ (&rax[r1x].mData ,std::forward<_ARGS> (args)...) ;
+			ret = mSize ;
+			_CREATE_ (&rax[ret].mData ,std::forward<_ARGS> (args)...) ;
 			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
 			update_reserve (mSize ,mFree) ;
-			mFree = mAllocator[r1x].mNext ;
-			mAllocator[r1x].mNext = VAR_USED ;
-			mLength++ ;
-			return _COPY_ (r1x) ;
 		}
-		if SWITCH_ONCE (mFree != VAR_NONE) {
-			const auto r2x = mFree ;
-			_CREATE_ (&mAllocator[r2x].mData ,std::forward<_ARGS> (args)...) ;
-			mFree = mAllocator[r2x].mNext ;
-			mAllocator[r2x].mNext = VAR_USED ;
-			mLength++ ;
-			return _COPY_ (r2x) ;
+		for (FOR_ONCE_DO) {
+			if (ret != VAR_NONE)
+				discard ;
+			if (mFree == VAR_NONE)
+				discard ;
+			ret = mFree ;
+			_CREATE_ (&mAllocator[ret].mData ,std::forward<_ARGS> (args)...) ;
 		}
-		_STATIC_WARNING_ ("unexpected") ;
-		_DEBUG_ASSERT_ (FALSE) ;
-		return VAR_NONE ;
+		mFree = mAllocator[ret].mNext ;
+		mAllocator[ret].mNext = VAR_USED ;
+		mLength++ ;
+		return std::move (ret) ;
 	}
 
 	inline void free (INDEX index) noexcept {

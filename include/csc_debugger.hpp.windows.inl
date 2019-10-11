@@ -228,7 +228,7 @@ public:
 	}
 
 	void show () override {
-		if (mConsole.exist () && mConsole != NULL)
+		if (mConsole.exist () && mConsole.self != NULL)
 			return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			AllocConsole () ;
@@ -247,7 +247,7 @@ public:
 	void flash () override {
 		if (!mConsole.exist ())
 			return ;
-		if (mConsole == NULL)
+		if (mConsole.self == NULL)
 			return ;
 		const auto r1x = GetConsoleWindow () ;
 		if (r1x == NULL)

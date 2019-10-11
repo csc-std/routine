@@ -253,10 +253,6 @@ public:
 		return index + 1 ;
 	}
 
-	ArrayRange<ARGC<0>> range () const {
-		return ArrayRange<ARGC<0>> (0 ,length ()) ;
-	}
-
 	ITEM &get (INDEX index) & {
 		return mArray[index] ;
 	}
@@ -2001,8 +1997,6 @@ public:
 			return mHead[mRead + pos][0] ;
 		if (mWrite - mRead == mList.length () && mHead[mWrite][0] == VAR_NONE)
 			return mHead[mRead + pos][0] ;
-		if (mWrite - mRead == mList.length () && mHead[mRead][0] == VAR_NONE)
-			return mHead[mRead + pos + 1][0] ;
 		return access (pos ,mRead ,(mWrite - mRead + 1)) ;
 	}
 
@@ -2290,67 +2284,6 @@ private:
 		mWrite = _MIN_ (mList.length () ,(mHead.size () - 1)) ;
 	}
 
-	void update_compress_right (INDEX curr ,INDEX accm) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
-			if (!(mHead[curr][0] == VAR_NONE))
-				discard ;
-			sequence_rewrite (curr ,accm) ;
-			mRead = _MAX_ ((curr - 1) ,VAR_ZERO) ;
-		}
-		if SWITCH_CASE (ifa) {
-			INDEX ix = curr - 1 ;
-			if (!(ix >= 0))
-				discard ;
-			if (!(mHead[ix][0] == VAR_NONE))
-				discard ;
-			sequence_rewrite (ix ,accm) ;
-			mRead = _MAX_ ((ix - 1) ,VAR_ZERO) ;
-		}
-		if SWITCH_CASE (ifa) {
-			update_compress_right_force (curr ,accm) ;
-		}
-	}
-
-	void update_compress_right_force (INDEX curr ,INDEX accm) {
-		INDEX ix = curr ;
-		INDEX iy = accm ;
-		for (INDEX i = 0 ,ie = mList.length () ; i < ie ; i++) {
-			INDEX jx = mHead.size () + ~i ;
-			while (mWrite != ix && mHead[mWrite][0] == VAR_NONE)
-				mWrite-- ;
-			const auto r1x = mHead[jx][0] ;
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
-				if (!(mWrite == ix))
-					discard ;
-				if (!(r1x == VAR_NONE))
-					discard ;
-				sequence_rewrite (jx ,iy) ;
-				iy = r1x ;
-				ix = VAR_NONE ;
-			}
-			if SWITCH_CASE (ifa) {
-				if (!(mWrite == ix))
-					discard ;
-				if (!(r1x != VAR_NONE))
-					discard ;
-				sequence_rewrite (jx ,iy) ;
-				iy = r1x ;
-				ix-- ;
-			}
-			if SWITCH_CASE (ifa) {
-				if (!(mWrite != jx))
-					discard ;
-				sequence_rewrite (jx ,mHead[mWrite][0]) ;
-				sequence_remove (mWrite) ;
-			}
-			mWrite-- ;
-		}
-		mRead = _MAX_ (mHead.size () - 1 - mList.length () ,VAR_ZERO) ;
-		mWrite = mHead.size () - 1 ;
-	}
-
 	void sequence_rewrite (INDEX curr ,INDEX index) {
 		_DEBUG_ASSERT_ (index != VAR_NONE) ;
 		INDEX ix = curr ;
@@ -2611,7 +2544,7 @@ public:
 			return 0 ;
 		const auto r1x = _MEMCOMPR_ (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
-			return _COPY_ (r1x) ;
+			return r1x ;
 		const auto r2x = mSet[ix] & (mWidth % 8 - 1) ;
 		const auto r3x = that.mSet[ix] & (mWidth % 8 - 1) ;
 		return _MEMCOMPR_ (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;

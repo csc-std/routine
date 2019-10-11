@@ -164,9 +164,9 @@ inline VALX _FLOOR_ (const VALX &x ,const VALX &y) {
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	const auto r2x = y * VALX (r1x) ;
 	if (x >= 0)
-		return _COPY_ (r2x) ;
+		return r2x ;
 	if (x >= r2x)
-		return _COPY_ (r2x) ;
+		return r2x ;
 	return y * VALX (r1x - 1) ;
 }
 
@@ -181,9 +181,9 @@ inline VALX _CEIL_ (const VALX &x ,const VALX &y) {
 	const auto r1x = VAR64 (x * _PINV_ (y)) ;
 	const auto r2x = y * VALX (r1x) ;
 	if (x <= 0)
-		return _COPY_ (r2x) ;
+		return r2x ;
 	if (x <= r2x)
-		return _COPY_ (r2x) ;
+		return r2x ;
 	return y * VALX (r1x + 1) ;
 }
 
