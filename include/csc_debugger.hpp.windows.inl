@@ -302,17 +302,18 @@ private:
 	void write_log_file () {
 		if (mLogPath.empty ())
 			return ;
-		if (!mLogFileStream.exist ())
-			attach_log_file () ;
 		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
 		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)
 				return ;
+			if (!mLogFileStream.exist ())
+				return ;
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
+			mLogFileStream = AutoRef<StreamLoader> () ;
 			mTempState = FALSE ;
 		}) ;
 		_CALL_TRY_ ([&] () {
@@ -322,15 +323,17 @@ private:
 			mLogFileStream->write (r2x) ;
 			mTempState = TRUE ;
 		} ,[&] () {
+			mLogFileStream = AutoRef<StreamLoader> () ;
 			mTempState = FALSE ;
 		}) ;
 		if ((mOptionFlag & OPTION_ALWAYS_FLUSH) == 0)
+			return ;
+		if (!mLogFileStream.exist ())
 			return ;
 		mLogFileStream->flush () ;
 	}
 
 	void attach_log_file () {
-		mLogFileStream = AutoRef<StreamLoader> () ;
 		const auto r1x = mLogPath + _PCSTR_ ("console.log") ;
 		const auto r2x = mLogPath + _PCSTR_ ("console.old.log") ;
 		_ERASEFILE_ (r2x) ;

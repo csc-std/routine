@@ -654,23 +654,23 @@ public:
 		return std::move (ret) ;
 	}
 
-	//@info: 4-projection * 3-translation * 2-rotation * 1-shear * 0-scale
-	ARRAY5<Matrix> decompose () const {
+	//@info: 3-translation * 2-rotation * 1-scale * 0-shear
+	ARRAY4<Matrix> decompose () const {
 		_DEBUG_ASSERT_ (affine_matrix_like ()) ;
-		ARRAY5<Matrix> ret ;
+		ARRAY4<Matrix> ret ;
 		const auto r1x = mul (Vector<REAL>::axis_x ()) ;
 		const auto r2x = mul (Vector<REAL>::axis_y ()) ;
 		const auto r3x = mul (Vector<REAL>::axis_z ()) ;
-		ret[0] = Matrix::make_diag (r1x.magnitude () ,r2x.magnitude () ,r3x.magnitude () ,REAL (1)) ;
-		const auto r4x = r1x.normalize () ;
-		const auto r5x = r2x.normalize () ;
-		const auto r6x = r3x.normalize () ;
-		ret[1] = Matrix::make_shear (r4x ,r5x ,r6x) ;
-		const auto r7x = Matrix {r4x ,r5x ,r6x ,Vector<REAL>::axis_w ()} ;
-		ret[2] = r7x * ret[1].inverse () ;
-		const auto r8x = mul (Vector<REAL>::axis_w ()) - Vector<REAL>::axis_w () ;
-		ret[3] = Matrix::make_translation (r8x) ;
-		ret[4] = Matrix::make_diag (REAL (1) ,REAL (1) ,REAL (1) ,r8x[3]) ;
+		ret[0] = Matrix::make_shear (r1x ,r2x ,r3x) ;
+		const auto r4x = mul (ret[0].inverse ()) ;
+		const auto r5x = r4x.mul (Vector<REAL>::axis_x ()) ;
+		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
+		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
+		ret[1] = Matrix::make_diag (r5x.magnitude () ,r6x.magnitude () ,r7x.magnitude () ,r4x[3][3]) ;
+		ret[2] = Matrix {r5x.normalize () ,r6x.normalize () ,r7x.normalize () ,Vector<REAL>::axis_w ()} ;
+		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) * _PINV_ (r4x[3][3]) ;
+		const auto r9x = Vector<REAL> {r8x.xyz () ,0} ;
+		ret[3] = Matrix::make_translation (r9x) ;
 		return std::move (ret) ;
 	}
 
@@ -737,8 +737,9 @@ public:
 		const auto r3x = z.normalize () ;
 		const auto r4x = r1x * r2x ;
 		const auto r5x = r1x * r3x ;
+		const auto r9x = r2x * r3x ;
 		const auto r6x = _SQRT_ (1 - _SQE_ (r4x)) ;
-		const auto r7x = (r2x * r3x - r4x * r5x) * _PINV_ (r6x) ;
+		const auto r7x = (r9x - r4x * r5x) * _PINV_ (r6x) ;
 		const auto r8x = _SQRT_ (1 - _SQE_ (r5x) - _SQE_ (r7x)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,r4x ,r5x ,REAL (0)} ,
@@ -777,24 +778,66 @@ public:
 		return std::move (ret) ;
 	}
 
-	static ARRAY4<REAL> make_rotation_quat (const Matrix &rotation) {
+	static ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
 		ARRAY4<REAL> ret ;
-		const auto r1x = rotation.decompose () ;
+		const auto r1x = rot_mat.decompose () ;
 		const auto r2x = r1x[2] ;
-		const auto r5x = REAL (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] ;
-		_DEBUG_ASSERT_ (r5x >= REAL (0)) ;
-		const auto r3x = REAL (2) * _SQRT_ (r5x) ;
-		const auto r4x = _PINV_ (r3x) ;
-		ret[0] = (r2x[2][1] - r2x[1][2]) * r4x ;
-		ret[1] = (r2x[0][2] - r2x[2][0]) * r4x ;
-		ret[2] = (r2x[1][0] - r2x[0][1]) * r4x ;
-		ret[3] = r3x / REAL (4) ;
+		const auto r4x = ARRAY4<REAL> ({
+			REAL (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] ,
+			REAL (1) + r2x[0][0] - r2x[1][1] - r2x[2][2] ,
+			REAL (1) - r2x[0][0] + r2x[1][1] - r2x[2][2] ,
+			REAL (1) - r2x[0][0] - r2x[1][1] + r2x[2][2]}) ;
+		const auto r5x = _CALL_ ([&] () {
+			INDEX ret = VAR_NONE ;
+			auto rax = REAL () ;
+			for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
+				if (ret != VAR_NONE && rax >= r4x[i])
+					continue ;
+				ret = i ;
+				rax = r4x[i] ;
+			}
+			return std::move (ret) ;
+		}) ;
+		const auto r6x = _PINV_ ((REAL (2) * _SQRT_ (r4x[r5x]))) ;
+		auto ifa = FALSE ;
+		if SWITCH_CASE (ifa) {
+			if (!(r5x == 0))
+				discard ;
+			ret[0] = (r2x[2][1] - r2x[1][2]) * r6x ;
+			ret[1] = (r2x[0][2] - r2x[2][0]) * r6x ;
+			ret[2] = (r2x[1][0] - r2x[0][1]) * r6x ;
+			ret[3] = r4x[0] * r6x ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!(r5x == 1))
+				discard ;
+			ret[0] = r4x[1] * r6x ;
+			ret[1] = (r2x[1][0] + r2x[0][1]) * r6x ;
+			ret[2] = (r2x[0][2] + r2x[2][0]) * r6x ;
+			ret[3] = (r2x[2][1] - r2x[1][2]) * r6x ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!(r5x == 2))
+				discard ;
+			ret[0] = (r2x[1][0] + r2x[0][1]) * r6x ;
+			ret[1] = r4x[2] * r6x ;
+			ret[2] = (r2x[2][1] + r2x[1][2]) * r6x ;
+			ret[3] = (r2x[0][2] - r2x[2][0]) * r6x ;
+		}
+		if SWITCH_CASE (ifa) {
+			if (!(r5x == 3))
+				discard ;
+			ret[0] = (r2x[0][2] + r2x[2][0]) * r6x ;
+			ret[1] = (r2x[2][1] + r2x[1][2]) * r6x ;
+			ret[2] = r4x[3] * r6x ;
+			ret[3] = (r2x[1][0] - r2x[0][1]) * r6x ;
+		}
 		return std::move (ret) ;
 	}
 
-	static ARRAY3<REAL> make_rotation_axis (const Matrix &rotation) {
+	static ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
 		ARRAY3<REAL> ret ;
-		const auto r1x = make_rotation_quat (rotation) ;
+		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
 		const auto r3x = _SWITCH_ (
 			(r2x != REAL (0)) ? (REAL (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) :

@@ -258,7 +258,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		const Set<REAL> &mDataSet ;
 		const Function<REAL (const REAL & ,const REAL &)> &mDistanceFunc ;
 		const Array<REAL> &mCenter ;
-		const REAL mTolerance = REAL (1E-6) ;
+		const REAL mTolerance ;
 
 		Deque<REAL> mCurrCenterList ;
 		Deque<REAL> mNextCenterList ;
@@ -267,7 +267,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) {}
+		inline explicit Lambda (KMeansAlgorithm &context ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -434,7 +434,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 	private:
 		KMHungarianAlgorithm &mContext ;
 		const Bitmap<REAL> &mAdjacency ;
-		const REAL mTolerance = REAL (1E-6) ;
+		const REAL mTolerance ;
 
 		Array<INDEX> mXYLink ;
 		BitSet<> mXVisit ;
@@ -448,7 +448,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<REAL> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<REAL> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) ,mTolerance (1E-6) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -493,10 +493,10 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			mLackWeight[0] = 0 ;
 			mLackWeight[1] = 0 ;
 			//@info: $1
-			BOOL stack_ret = FALSE ;
-			update_lack_weight_e7 (0 ,y ,stack_ret) ;
+			auto rax = FALSE ;
+			update_lack_weight_e7 (0 ,y ,rax) ;
 			//@info: $18
-			if (stack_ret) {
+			if (rax) {
 				//@info: $19
 				mLackWeight[0] = 0 ;
 				mLackWeight[1] = 0 ;
@@ -525,7 +525,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (mLackWeight[0] < mTolerance) {
 						//@info: $8
 						mXVisit[stack_x] = TRUE ;
-						update_lack_weight_re (0 ,mXYLink[stack_x] ,stack_ret) ;
+						update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
 						//@info: $10
 						if (stack_ret) {
 							//@info: $11
@@ -731,7 +731,9 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			for (INDEX i = 0 ,ie = mXYLink.length () ; i < ie ; i++) {
 				if (mXYLink[i] == VAR_NONE)
 					continue ;
-				ret[iw++] = ARRAY2<INDEX> {mXYLink[i] ,i} ;
+				INDEX ix = iw++ ;
+				ret[ix][0] = mXYLink[i] ;
+				ret[ix][1] = i ;
 			}
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 			return std::move (ret) ;
@@ -783,10 +785,11 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		BFGSAlgorithm &mContext ;
 		const Function<REAL (const Array<REAL> &)> &mLossFunc ;
 		const Array<REAL> &mFDX ;
-		const REAL mTolerance = REAL (1E-6) ;
-		const REAL mDXLambdaFirst = REAL (1000) ;
-		const REAL mDXLambdaPower = REAL (0.618) ;
-		const ARRAY2<REAL> mDXC1C2 = ARRAY2<REAL> {REAL (1E-4) ,REAL (0.9)} ;
+		const REAL mTolerance ;
+		const REAL mDXLambdaFirst ;
+		const REAL mDXLambdaPower ;
+		const REAL mDXLambdaC1 ;
+		const REAL mDXLambdaC2 ;
 
 		Array<REAL> mDX ;
 		Bitmap<REAL> mDM ;
@@ -801,7 +804,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context ,const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) {}
+		inline explicit Lambda (BFGSAlgorithm &context ,const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -844,7 +847,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			for (INDEX i = 0 ,ie = dg.length () ; i < ie ; i++) {
 				const auto r3x = sx[i] ;
 				sx[i] = r3x + mTolerance ;
-				dg[i] = (mLossFunc (sx) - mLossFunc (dx)) * r1x ;
+				dg[i] = (_ABS_ (mLossFunc (sx)) - _ABS_ (mLossFunc (dx))) * r1x ;
 				sx[i] = r3x ;
 			}
 		}
@@ -853,7 +856,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			for (INDEX i = 0 ,ie = mDG.length () ; i < ie ; i++)
 				mIS[i] = -math_matrix_mul (mDM ,i ,mDG) ;
 			const auto r1x = math_vector_dot (mDG ,mIS) ;
-			mDXLoss[0] = mLossFunc (mDX) ;
+			mDXLoss[0] = _ABS_ (mLossFunc (mDX)) ;
 			mDXLoss[2] = mDXLoss[0] ;
 			mDXLambda[0] = REAL (0) ;
 			mDXLambda[1] = mDXLambdaFirst ;
@@ -861,16 +864,16 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			while (TRUE) {
 				if (mDXLambda[1] < mTolerance)
 					break ;
-				if (mDXLoss[2] <= REAL (0))
+				if (mDXLoss[2] < mTolerance)
 					break ;
 				for (INDEX i = 0 ,ie = mIX.length () ; i < ie ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
-				mDXLoss[1] = mLossFunc (mIX) ;
+				mDXLoss[1] = _ABS_ (mLossFunc (mIX)) ;
 				for (FOR_ONCE_DO) {
-					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXC1C2[0] * r1x)
+					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXLambdaC1 * r1x)
 						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
-					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXC1C2[1] * r1x)
+					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXLambdaC2 * r1x)
 						discard ;
 					mDXLoss[2] = REAL (0) ;
 				}

@@ -258,7 +258,8 @@ public:
 	}
 
 	ArrayRange<ARGC<2>> range () const {
-		return ArrayRange<ARGC<2>> ({mCY ,mCX}) ;
+		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
+		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {
@@ -762,7 +763,8 @@ public:
 
 	ArrayRange<ARGC<2>> range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return ArrayRange<ARGC<2>> ({mThis->mCY ,mThis->mCX}) ;
+		const auto r1x = ARRAY2<LENGTH> {mThis->mCY ,mThis->mCX} ;
+		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
 	UNIT &get (INDEX y ,INDEX x) & {

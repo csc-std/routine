@@ -393,10 +393,10 @@ template <>
 struct is_var_xyz_help<VAR64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
+struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
+struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
 using is_var_xyz = is_var_xyz_help<_ARG1 ,VOID> ;
@@ -413,7 +413,7 @@ template <>
 struct is_val_xyz_help<VAL64 ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_val_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
+struct is_val_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
 using is_val_xyz = is_val_xyz_help<_ARG1 ,VOID> ;
@@ -462,7 +462,7 @@ template <>
 struct is_str_xyz_help<STRW ,VOID> :public stl::true_type {} ;
 
 template <class _ARG1>
-struct is_str_xyz_help<_ARG1 ,ENABLE_TYPE<std::is_same<_ARG1 ,STRX>::value && !std::is_same<_ARG1 ,STRA>::value && !std::is_same<_ARG1 ,STRW>::value>> :public stl::true_type {} ;
+struct is_str_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,STRX>::value && !stl::is_same<_ARG1 ,STRA>::value && !stl::is_same<_ARG1 ,STRW>::value>> :public stl::true_type {} ;
 
 template <class _ARG1>
 using is_str_xyz = is_str_xyz_help<_ARG1 ,VOID> ;
@@ -550,7 +550,7 @@ struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_str_xyz<_ARG1>::value &
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,VOID ,VOID ,ARGC<4>> {
+struct LOAD_CHECK<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 

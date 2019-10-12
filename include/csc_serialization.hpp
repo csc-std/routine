@@ -672,11 +672,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	private:
 		XmlParser &mContext ;
 		const Array<XmlParser> &mSequence ;
-		const String<STRU8> mClazzString = String<STRU8> (_PCSTRU8_ ("type")) ;
-		const String<STRU8> mTableClazzString = String<STRU8> (_PCSTRU8_ ("table")) ;
-		const String<STRU8> mObjectClazzString = String<STRU8> (_PCSTRU8_ ("object")) ;
-		const String<STRU8> mArrayClazzString = String<STRU8> (_PCSTRU8_ ("array")) ;
-		const String<STRU8> mFinalClazzString = String<STRU8> (_PCSTRU8_ ("final")) ;
+		const String<STRU8> mClazzString ;
+		const String<STRU8> mTableClazzString ;
+		const String<STRU8> mObjectClazzString ;
+		const String<STRU8> mArrayClazzString ;
+		const String<STRU8> mFinalClazzString ;
 
 		Deque<PACK<Deque<XmlParser> ,INDEX ,ARRAY2<INDEX>>> mNodeStack ;
 		ARRAY4<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
@@ -697,7 +697,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		PACK<Deque<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
 
 	public:
-		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) popping : mContext (context) ,mSequence (sequence) {}
+		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) popping : mContext (context) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1562,7 +1562,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			if SWITCH_CASE (ifa) {
 				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
 				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
-				if (!(r1x || r2x))
+				if (!r1x && !r2x)
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
@@ -1575,7 +1575,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			if SWITCH_CASE (ifa) {
 				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')) ;
 				const auto r4x = BOOL (mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
-				if (!(r3x || r4x))
+				if (!r3x && !r4x)
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;

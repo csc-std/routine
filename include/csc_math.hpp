@@ -305,11 +305,11 @@ inline VAL64 _inline_TAYLOR_EXP_ (VAL64 lnx ,VAL64 y) {
 	auto rax = VAL64 (1) ;
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
-		rax *= r1x * _PINV_ (rbx) ;
+		rax *= r1x * _PINV_ (rbx ,VAL64_EPS) ;
 		if (_ABS_ (rax) < VAL64_EPS)
 			break ;
 		ret += rax ;
-		rbx++ ;
+		rbx += VAL64 (1) ;
 	}
 	return std::move (ret) ;
 }

@@ -265,14 +265,14 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	if SWITCH_CASE (ifa) {
 		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
 		const auto r5x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		if (!(r4x || r5x))
+		if (!r4x && !r5x)
 			discard ;
 		ret += _PCSTR_ ("\\") ;
 	}
 	if SWITCH_CASE (ifa) {
 		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
 		const auto r7x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		if (!(r6x || r7x))
+		if (!r6x && !r7x)
 			discard ;
 		//@debug: not absolute path really
 		ret += _WORKINGPATH_ () ;

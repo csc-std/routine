@@ -3062,17 +3062,12 @@ private:
 	private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
 			const auto r1x = constexpr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++)
-				if (!empty_node_each (r1x ,i))
+			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
+				const auto r2x = r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
+				auto &r1 = _LOAD_<BLOCK> (NULL ,r2x) ;
+				if (_ADDRESS_ (r1.mNext) == VAR_USED)
 					return FALSE ;
-			return TRUE ;
-		}
-
-		inline BOOL empty_node_each (LENGTH seg_a ,INDEX seg_i) const {
-			const auto r1x = seg_a + seg_i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
-			auto &r1 = _LOAD_<BLOCK> (NULL ,r1x) ;
-			if (_ADDRESS_ (r1.mNext) == VAR_USED)
-				return FALSE ;
+			}
 			return TRUE ;
 		}
 	} ;
@@ -3378,6 +3373,6 @@ inline void Serializer<UNIT1 ,UNIT2>::Binder::compute_visit (UNIT1 &visitor ,UNI
 	//@error: g++4.8 is too useless to compile with a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
-}
+	}
 #endif
 } ;
