@@ -259,6 +259,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		const Function<REAL (const REAL & ,const REAL &)> &mDistanceFunc ;
 		const Array<REAL> &mCenter ;
 		const REAL mTolerance ;
+		const REAL mInfinity ;
 
 		Deque<REAL> mCurrCenterList ;
 		Deque<REAL> mNextCenterList ;
@@ -267,7 +268,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) {}
+		inline explicit Lambda (KMeansAlgorithm &context ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -286,7 +287,7 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 				mCenterIndex[iw++][0] = mCurrCenterList.at (i) ;
 			_DEBUG_ASSERT_ (iw == mCenterIndex.length ()) ;
 			mClusterSet = Set<INDEX ,BitSet<>> () ;
-			mConvergence.fill (REAL (-1)) ;
+			mConvergence.fill (mInfinity) ;
 		}
 
 		inline void generate () {
@@ -352,31 +353,26 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		}
 
 		inline void update_convergence () {
-			mConvergence[0] = mConvergence[1] ;
-			mConvergence[1] = mConvergence[2] ;
-			mConvergence[2] = REAL (-1) ;
+			INDEX ix = mConvergence.length () - 1 ;
+			for (INDEX i = 0 ,ie = ix ; i < ie ; i++)
+				mConvergence[i] = mConvergence[i + 1] ;
+			mConvergence[ix] = +mInfinity ;
 			if (mCurrCenterList.length () != mNextCenterList.length ())
 				return ;
-			mConvergence[2] = REAL (0) ;
+			mConvergence[ix] = REAL (0) ;
 			_DEBUG_ASSERT_ (mCurrCenterList.length () == mNextCenterList.length ()) ;
 			for (auto &&i : mCenterIndex) {
 				const auto r1x = mDistanceFunc (mCurrCenterList[i[0]] ,mNextCenterList[i[1]]) ;
-				mConvergence[2] = _MAX_ (mConvergence[2] ,r1x) ;
+				mConvergence[ix] = _MAX_ (mConvergence[ix] ,r1x) ;
 			}
 		}
 
 		inline BOOL reach_convergence () const {
-			if (mConvergence[0] < REAL (0))
-				return FALSE ;
-			if (mConvergence[1] < REAL (0))
-				return FALSE ;
-			if (mConvergence[2] < REAL (0))
-				return FALSE ;
-			if (mConvergence[0] > mConvergence[1])
-				return FALSE ;
-			if (mConvergence[1] > mConvergence[2])
-				return FALSE ;
-			if (mConvergence[1] - mConvergence[2] >= mTolerance)
+			INDEX ix = mConvergence.length () - 1 ;
+			for (INDEX i = 0 ,ie = ix ; i < ie ; i++)
+				if (mConvergence[i] > mConvergence[i + 1])
+					return FALSE ;
+			if (_ABS_ (mConvergence[0] - mConvergence[ix]) >= mTolerance)
 				return FALSE ;
 			return TRUE ;
 		}
@@ -435,6 +431,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		KMHungarianAlgorithm &mContext ;
 		const Bitmap<REAL> &mAdjacency ;
 		const REAL mTolerance ;
+		const REAL mInfinity ;
 
 		Array<INDEX> mXYLink ;
 		BitSet<> mXVisit ;
@@ -448,7 +445,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<REAL> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) ,mTolerance (1E-6) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context ,const Bitmap<REAL> &adjacency) popping : mContext (context) ,mAdjacency (adjacency) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -478,7 +475,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mXVisit.clear () ;
 					mYVisit.clear () ;
 					update_lack_weight (i) ;
-					if (mLackWeight[1] < mTolerance)
+					if (mLackWeight[1] >= +mInfinity)
 						break ;
 					for (auto &&j : mXVisit)
 						mXWeight[j] += mLackWeight[1] ;
@@ -491,7 +488,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		inline void update_lack_weight_e0 (INDEX y) {
 			//@info: $0
 			mLackWeight[0] = 0 ;
-			mLackWeight[1] = 0 ;
+			mLackWeight[1] = +mInfinity ;
 			//@info: $1
 			auto rax = FALSE ;
 			update_lack_weight_e7 (0 ,y ,rax) ;
@@ -499,7 +496,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			if (rax) {
 				//@info: $19
 				mLackWeight[0] = 0 ;
-				mLackWeight[1] = 0 ;
+				mLackWeight[1] = +mInfinity ;
 			}
 			//@info: $20
 		}
@@ -535,11 +532,6 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 							return ;
 						}
 					} else {
-						//@info: $12
-						if (mLackWeight[1] < mTolerance) {
-							//@info: $13
-							mLackWeight[1] = mLackWeight[0] ;
-						}
 						//@info: $14
 						mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					}
@@ -564,7 +556,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (mTempState != 0)
 						discard ;
 					mLackWeight[0] = 0 ;
-					mLackWeight[1] = 0 ;
+					mLackWeight[1] = +mInfinity ;
 					mTempState = 1 ;
 				}
 				for (FOR_ONCE_DO) {
@@ -630,7 +622,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						discard ;
 					const auto r3x = _SWITCH_ (
 						(mLackWeight[0] < mTolerance) ? 8 :
-						12) ;
+						14) ;
 					mTempState = r3x ;
 				}
 				for (FOR_ONCE_DO) {
@@ -648,20 +640,6 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
-				}
-				for (FOR_ONCE_DO) {
-					if (mTempState != 12)
-						discard ;
-					const auto r6x = _SWITCH_ (
-						(mLackWeight[1] < mTolerance) ? 13 :
-						14) ;
-					mTempState = r6x ;
-				}
-				for (FOR_ONCE_DO) {
-					if (mTempState != 13)
-						discard ;
-					mLackWeight[1] = mLackWeight[0] ;
-					mTempState = 14 ;
 				}
 				for (FOR_ONCE_DO) {
 					if (mTempState != 14)
@@ -702,7 +680,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (mTempState != 19)
 						discard ;
 					mLackWeight[0] = 0 ;
-					mLackWeight[1] = 0 ;
+					mLackWeight[1] = +mInfinity ;
 					mTempState = 20 ;
 				}
 				for (FOR_ONCE_DO) {
@@ -758,8 +736,8 @@ private:
 public:
 	BFGSAlgorithm () = delete ;
 
-	explicit BFGSAlgorithm (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
-		initialize (loss ,fdx) ;
+	explicit BFGSAlgorithm (const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) {
+		initialize (loss ,gradient ,fdx) ;
 	}
 
 	const Array<REAL> &query () const & {
@@ -784,6 +762,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 	private:
 		BFGSAlgorithm &mContext ;
 		const Function<REAL (const Array<REAL> &)> &mLossFunc ;
+		const Function<void (const Array<REAL> & ,Array<REAL> &)> &mGradientProc ;
 		const Array<REAL> &mFDX ;
 		const REAL mTolerance ;
 		const REAL mDXLambdaFirst ;
@@ -804,7 +783,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context ,const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
+		inline explicit Lambda (BFGSAlgorithm &context ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) popping : mContext (context) ,mLossFunc (loss) ,mGradientProc (gradient) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -842,14 +821,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		inline void compute_gradient_of_loss (const Array<REAL> &dx ,Array<REAL> &dg ,Array<REAL> &sx) const {
 			for (INDEX i = 0 ,ie = dx.length () ; i < ie ; i++)
 				sx[i] = dx[i] ;
-			_STATIC_WARNING_ ("mark") ;
-			const auto r1x = _PINV_ (mTolerance) ;
-			for (INDEX i = 0 ,ie = dg.length () ; i < ie ; i++) {
-				const auto r3x = sx[i] ;
-				sx[i] = r3x + mTolerance ;
-				dg[i] = (_ABS_ (mLossFunc (sx)) - _ABS_ (mLossFunc (dx))) * r1x ;
-				sx[i] = r3x ;
-			}
+			mGradientProc (sx ,dg) ;
 		}
 
 		inline void update_is_and_ig () {
@@ -1163,8 +1135,8 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 		}
 
 		inline void update_bound () {
-			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
 			for (FOR_ONCE_DO) {
+				_DEBUG_ASSERT_ (mVertex.length () > 0) ;
 				mBound[0][0] = mVertex[0][0] ;
 				mBound[0][1] = mVertex[0][0] ;
 				mBound[1][0] = mVertex[0][1] ;

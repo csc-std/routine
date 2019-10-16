@@ -130,8 +130,8 @@ public:
 		mRandomDevice = AutoRef<std::mt19937>::make (CHAR (mRandomSeed.self ())) ;
 	}
 
-	VAL entropy () const override {
-		return VAL (mRandomSeed->entropy ()) ;
+	VAR entropy () const override {
+		return VAR (mRandomSeed->entropy ()) ;
 	}
 
 	void reset_seed (VAR _seed) override {

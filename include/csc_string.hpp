@@ -1139,15 +1139,15 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 template <class _RET = STR>
 inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 	static constexpr auto M_BASE64 = PACK<STRU8[66]> ({
-		STRU8 ('-') ,STRU8 ('A') ,STRU8 ('B') ,STRU8 ('C') ,STRU8 ('D') ,STRU8 ('E') ,STRU8 ('F') ,STRU8 ('G') ,
-		STRU8 ('H') ,STRU8 ('I') ,STRU8 ('J') ,STRU8 ('K') ,STRU8 ('L') ,STRU8 ('M') ,STRU8 ('N') ,STRU8 ('O') ,
-		STRU8 ('P') ,STRU8 ('Q') ,STRU8 ('R') ,STRU8 ('S') ,STRU8 ('T') ,STRU8 ('U') ,STRU8 ('V') ,STRU8 ('W') ,
-		STRU8 ('X') ,STRU8 ('Y') ,STRU8 ('Z') ,STRU8 ('a') ,STRU8 ('b') ,STRU8 ('c') ,STRU8 ('d') ,STRU8 ('e') ,
-		STRU8 ('f') ,STRU8 ('g') ,STRU8 ('h') ,STRU8 ('i') ,STRU8 ('j') ,STRU8 ('k') ,STRU8 ('l') ,STRU8 ('m') ,
-		STRU8 ('n') ,STRU8 ('o') ,STRU8 ('p') ,STRU8 ('q') ,STRU8 ('r') ,STRU8 ('s') ,STRU8 ('t') ,STRU8 ('u') ,
-		STRU8 ('v') ,STRU8 ('w') ,STRU8 ('x') ,STRU8 ('y') ,STRU8 ('z') ,STRU8 ('_') ,STRU8 ('0') ,STRU8 ('1') ,
-		STRU8 ('2') ,STRU8 ('3') ,STRU8 ('4') ,STRU8 ('5') ,STRU8 ('6') ,STRU8 ('7') ,STRU8 ('8') ,STRU8 ('9') ,
-		STRU8 ('.') ,STRU8 (':')}) ;
+		'-' ,'A' ,'B' ,'C' ,'D' ,'E' ,'F' ,'G' ,
+		'H' ,'I' ,'J' ,'K' ,'L' ,'M' ,'N' ,'O' ,
+		'P' ,'Q' ,'R' ,'S' ,'T' ,'U' ,'V' ,'W' ,
+		'X' ,'Y' ,'Z' ,'a' ,'b' ,'c' ,'d' ,'e' ,
+		'f' ,'g' ,'h' ,'i' ,'j' ,'k' ,'l' ,'m' ,
+		'n' ,'o' ,'p' ,'q' ,'r' ,'s' ,'t' ,'u' ,
+		'v' ,'w' ,'x' ,'y' ,'z' ,'_' ,'0' ,'1' ,
+		'2' ,'3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,
+		'.' ,':'}) ;
 	const auto r1x = (stru.length () + 2) / 3 * 4 ;
 	String<_RET> ret = String<_RET> (r1x) ;
 	INDEX iw = 0 ;

@@ -573,7 +573,7 @@ public:
 		return (*this) ;
 	}
 
-	inline VAR128 operator++ (int) popping {
+	inline VAR128 operator++ (VAR32) popping {
 		VAR128 ret = (*this) ;
 		++(*this) ;
 		return std::move (ret) ;
@@ -585,7 +585,7 @@ public:
 		return (*this) ;
 	}
 
-	inline VAR128 operator-- (int) popping {
+	inline VAR128 operator-- (VAR32) popping {
 		VAR128 ret = (*this) ;
 		--(*this) ;
 		return std::move (ret) ;
@@ -3361,7 +3361,8 @@ private:
 
 		template <class... _ARGS>
 		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<DEF<_ARGS UNIT2::*>...> &members) {
-			visitor.visit ((context.*members.one ())) ;
+			const auto r1x = &(context.*members.one ()) ;
+			visitor.visit ((*r1x)) ;
 			template_visit (visitor ,context ,members.rest ()) ;
 		}
 	} ;

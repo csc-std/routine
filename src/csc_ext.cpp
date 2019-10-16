@@ -97,7 +97,7 @@ public:
 	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
 		const auto r2x = rax->alloc<int> () ;
-		const auto r10x = _XVALUE_<PTR<VAR (const VAR & ,const VAR &)>> ([] (const VAR &arg1 ,const VAR &arg2) {
+		const auto r10x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
 			const auto r4x = _CALL_ ([&] () {
 				if (arg2 < VAR_ZERO)
@@ -105,7 +105,7 @@ public:
 				return arg1 ;
 			}) ;
 			const auto r5x = _ABS_ (arg2) ;
-			VAR ret = VAR (r5x * VAR (r4x / r5x)) ;
+			int ret = int (r5x * int (r4x / r5x)) ;
 			for (FOR_ONCE_DO) {
 				if (r4x >= 0)
 					discard ;

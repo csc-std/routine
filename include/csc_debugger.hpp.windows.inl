@@ -382,9 +382,11 @@ public:
 	void output_memory_leaks_report (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
 		const auto r1x = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG) ;
-		const auto r2x = _CrtSetDbgFlag ((r1x | _CRTDBG_LEAK_CHECK_DF)) ;
+		const auto r2x = r1x | _CRTDBG_LEAK_CHECK_DF ;
+		const auto r3x = _CrtSetDbgFlag (r2x) ;
 		(void) r1x ;
 		(void) r2x ;
+		(void) r3x ;
 	}
 
 	Array<DATA> captrue_stack_trace () popping override {

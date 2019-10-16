@@ -486,18 +486,18 @@ public:
 		goto_break_point (mSelf.mCoBreakPoint) ;
 	}
 } ;
-#endif
 
 template <class UNIT>
 inline void Coroutine<UNIT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 	auto rax = Coroutine<UNIT> (std::move (proc)) ;
 	rax.execute () ;
 }
+#endif
 
 class RandomService final :private Interface {
 private:
 	exports struct Abstract :public Interface {
-		virtual VAL entropy () const = 0 ;
+		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (VAR _seed) = 0 ;
 		virtual VAR random_value () popping = 0 ;
 		virtual void random_skip (LENGTH len) = 0 ;
@@ -511,7 +511,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	VAL entropy () const {
+	VAR entropy () const {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->entropy () ;
 	}

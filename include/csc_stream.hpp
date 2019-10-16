@@ -2061,7 +2061,7 @@ private:
 			return mCache[(mPeek + index) % mCache.length ()] ;
 		}
 
-		inline void operator++ (int) {
+		inline void operator++ (VAR32) {
 			mReader.read (mCache[mPeek]) ;
 			mPeek = (mPeek + 1) % mCache.length () ;
 		}
@@ -2135,7 +2135,7 @@ public:
 		mPeek = (mPeek + 1) % mCache.length () ;
 	}
 
-	inline void operator++ (int) {
+	inline void operator++ (VAR32) {
 		read () ;
 	}
 

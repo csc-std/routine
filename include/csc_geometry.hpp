@@ -254,7 +254,6 @@ public:
 	}
 
 	Vector projection () const {
-		_DEBUG_ASSERT_ (mVector[3] != REAL (0)) ;
 		Vector ret ;
 		const auto r1x = _PINV_ (mVector[3]) ;
 		ret.mVector[0] = mVector[0] * r1x ;
@@ -591,7 +590,7 @@ public:
 		LENGTH ret = 0 ;
 		const auto r1x = triangular () ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
-			ret += EFLAG (r1x[i][i] == REAL (0)) ;
+			ret += EFLAG (_PINV_ (r1x[i][i]) == REAL (0)) ;
 		ret = 4 - ret ;
 		return std::move (ret) ;
 	}
@@ -606,7 +605,7 @@ public:
 
 	Matrix inverse () const {
 		Matrix ret ;
-		const auto r1x = det () ;
+		const auto r1x = _PINV_ (det ()) ;
 		_DYNAMIC_ASSERT_ (r1x != REAL (0)) ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 0 ;
@@ -632,11 +631,11 @@ public:
 				ret.get (j ,i) = r6x ;
 			}
 		}
-		ret *= _PINV_ (r1x) ;
+		ret *= r1x ;
 		for (FOR_ONCE_DO) {
-			if (get (3 ,3) != REAL (1))
-				discard ;
 			if (!affine_matrix_like ())
+				discard ;
+			if (get (3 ,3) != REAL (1))
 				discard ;
 			if (!ret.affine_matrix_like ())
 				discard ;
@@ -682,7 +681,7 @@ private:
 			return FALSE ;
 		if (get (3 ,2) != REAL (0))
 			return FALSE ;
-		if (get (3 ,3) == REAL (0))
+		if (_PINV_ (get (3 ,3)) == REAL (0))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -798,7 +797,7 @@ public:
 			}
 			return std::move (ret) ;
 		}) ;
-		const auto r6x = _PINV_ ((REAL (2) * _SQRT_ (r4x[r5x]))) ;
+		const auto r6x = _PINV_ (REAL (2) * _SQRT_ (r4x[r5x])) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!(r5x == 0))
@@ -839,19 +838,20 @@ public:
 		ARRAY3<REAL> ret ;
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
-		const auto r3x = _SWITCH_ (
-			(r2x != REAL (0)) ? (REAL (2) * _ATAN_ (r2x * _SIGN_ (r1x[3]) ,_ABS_ (r1x[3])) / r2x) :
+		const auto r3x = REAL (2) * _ATAN_ ((r2x * _SIGN_ (r1x[3])) ,_ABS_ (r1x[3])) ;
+		const auto r4x = _SWITCH_ (
+			(_PINV_ (r2x) != REAL (0)) ? (r3x * _PINV_ (r2x)) :
 			(REAL (2))) ;
-		ret[0] = r1x[0] * r3x ;
-		ret[1] = r1x[1] * r3x ;
-		ret[2] = r1x[2] * r3x ;
+		ret[0] = r1x[0] * r4x ;
+		ret[1] = r1x[1] * r4x ;
+		ret[2] = r1x[2] * r4x ;
 		return std::move (ret) ;
 	}
 
 	static Matrix make_translation (const Vector<REAL> &position) {
-		const auto r1x = -position * _PINV_ (position[3]) ;
+		const auto r1x = _PINV_ (position[3]) ;
 		const auto r2x = _SWITCH_ (
-			(position[3] != REAL (0)) ? r1x :
+			(r1x != REAL (0)) ? (-position * r1x) :
 			position) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,REAL (0) ,REAL (0) ,r2x[0]} ,
@@ -895,11 +895,12 @@ public:
 	static Matrix make_projection (const Vector<REAL> &normal ,const Vector<REAL> &center ,const Vector<REAL> &light) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (light[3] == REAL (0) || light[3] == REAL (1)) ;
+		Matrix ret ;
 		const auto r1x = normal.normalize () ;
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
-		const auto r8x = light * _PINV_ (light) ;
 		const auto r2x = _SWITCH_ (
-			(light[3] != REAL (0)) ? r8x :
+			(light[3] != REAL (0)) ? light :
 			(light.normalize ())) ;
 		const auto r3x = (center - Vector<REAL>::axis_w ()) * r1x ;
 		const auto r9x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
@@ -911,11 +912,22 @@ public:
 		const auto r6x = _SWITCH_ (
 			(r2x[3] != REAL (0)) ? r1x :
 			r7x) ;
-		Matrix ret = Matrix ({
-			{(r1x[0] * r2x[0] - r4x + r5x) ,(r1x[1] * r2x[0]) ,(r1x[2] * r2x[0]) ,(-r3x * r2x[0])} ,
-			{(r1x[0] * r2x[1]) ,(r1x[1] * r2x[1] - r4x + r5x) ,(r1x[2] * r2x[1]) ,(-r3x * r2x[1])} ,
-			{(r1x[0] * r2x[2]) ,(r1x[1] * r2x[2]) ,(r1x[2] * r2x[2] - r4x + r5x) ,(-r3x * r2x[2])} ,
-			{r6x[0] ,r6x[1] ,r6x[2] ,-r4x}}) ;
+		ret[0][0] = r1x[0] * r2x[0] - r4x + r5x ;
+		ret[0][1] = r1x[1] * r2x[0] ;
+		ret[0][2] = r1x[2] * r2x[0] ;
+		ret[0][3] = -r3x * r2x[0] ;
+		ret[1][0] = r1x[0] * r2x[1] ;
+		ret[1][1] = r1x[1] * r2x[1] - r4x + r5x ;
+		ret[1][2] = r1x[2] * r2x[1] ;
+		ret[1][3] = -r3x * r2x[1] ;
+		ret[2][0] = r1x[0] * r2x[2] ;
+		ret[2][1] = r1x[1] * r2x[2] ;
+		ret[2][2] = r1x[2] * r2x[2] - r4x + r5x ;
+		ret[2][3] = -r3x * r2x[2] ;
+		ret[3][0] = r6x[0] ;
+		ret[3][1] = r6x[1] ;
+		ret[3][2] = r6x[2] ;
+		ret[3][3] = -r4x ;
 		return std::move (ret) ;
 	}
 
