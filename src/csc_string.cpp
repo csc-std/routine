@@ -14,7 +14,7 @@ public:
 		const auto r4x = _PARSEVARS_ (String<STR> (_PCSTR_ ("-01"))) ;
 		_UNITTEST_ASSERT_ (r4x == -1) ;
 		const auto r11x = _PARSEVAL64S_ (String<STR> (_PCSTR_ ("0.0"))) ;
-		_UNITTEST_ASSERT_ (_ABS_ (r11x - VAL64 (0.0)) < VAL64_EPS) ;
+		_UNITTEST_ASSERT_ (_ABS_ (r11x) < VAL64_EPS) ;
 		const auto r12x = _PARSEVAL64S_ (String<STR> (_PCSTR_ ("1.0"))) ;
 		_UNITTEST_ASSERT_ (_ABS_ (r12x - VAL64 (1.0)) < VAL64_EPS) ;
 		const auto r13x = _BUILDVAL64S_ (VAL64 (15.234999999999975)) ;

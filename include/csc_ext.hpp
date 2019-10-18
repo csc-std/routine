@@ -671,7 +671,9 @@ private:
 			_DEBUG_ASSERT_ (y >= 0) ;
 			_DEBUG_ASSERT_ (x > 0) ;
 			VAR128 ret = 0 ;
-			auto rax = Buffer<VAR128 ,ARGC<2>> ({0 ,y}) ;
+			auto rax = Buffer<VAR128 ,ARGC<2>> () ;
+			rax[0] = 0 ;
+			rax[1] = y ;
 			while (TRUE) {
 				if (rax[0] > rax[1])
 					break ;

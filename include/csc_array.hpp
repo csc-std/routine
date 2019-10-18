@@ -1932,7 +1932,9 @@ public:
 	}
 
 	void clear () {
-		const auto r1x = Buffer<INDEX ,ARGC<2>> ({VAR_NONE ,VAR_ZERO}) ;
+		const auto r1x = Buffer<INDEX ,ARGC<2>> ({
+			VAR_NONE ,
+			VAR_ZERO}) ;
 		_MEMFILL_ (mHead.self ,mHead.size () ,r1x) ;
 		mRead = 0 ;
 		mWrite = 0 ;
@@ -2212,7 +2214,9 @@ private:
 		if (mHead.size () == mList.size ())
 			return ;
 		auto rax = mHead.expand (mList.size ()) ;
-		const auto r1x = Buffer<INDEX ,ARGC<2>> ({VAR_NONE ,VAR_ZERO}) ;
+		const auto r1x = Buffer<INDEX ,ARGC<2>> ({
+			VAR_NONE ,
+			VAR_ZERO}) ;
 		_MEMFILL_ (rax.self ,rax.size () ,r1x) ;
 		for (INDEX i = 0 ,ie = mList.size () ; i < ie ; i++) {
 			if (i == curr)

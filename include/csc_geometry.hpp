@@ -657,19 +657,23 @@ public:
 	ARRAY4<Matrix> decompose () const {
 		_DEBUG_ASSERT_ (affine_matrix_like ()) ;
 		ARRAY4<Matrix> ret ;
-		const auto r1x = mul (Vector<REAL>::axis_x ()) ;
-		const auto r2x = mul (Vector<REAL>::axis_y ()) ;
-		const auto r3x = mul (Vector<REAL>::axis_z ()) ;
-		ret[0] = Matrix::make_shear (r1x ,r2x ,r3x) ;
-		const auto r4x = mul (ret[0].inverse ()) ;
-		const auto r5x = r4x.mul (Vector<REAL>::axis_x ()) ;
-		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
-		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
-		ret[1] = Matrix::make_diag (r5x.magnitude () ,r6x.magnitude () ,r7x.magnitude () ,r4x[3][3]) ;
-		ret[2] = Matrix {r5x.normalize () ,r6x.normalize () ,r7x.normalize () ,Vector<REAL>::axis_w ()} ;
-		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) * _PINV_ (r4x[3][3]) ;
-		const auto r9x = Vector<REAL> {r8x.xyz () ,0} ;
-		ret[3] = Matrix::make_translation (r9x) ;
+		const auto r1x = ARRAY3<Vector<REAL>> ({
+			mul (Vector<REAL>::axis_x ()) ,
+			mul (Vector<REAL>::axis_y ()) ,
+			mul (Vector<REAL>::axis_z ())}) ;
+		ret[0] = Matrix::make_shear (r1x[0] ,r1x[1] ,r1x[2]) ;
+		const auto r2x = mul (ret[0].inverse ()) ;
+		const auto r3x = ARRAY4<Vector<REAL>> ({
+			r2x.mul (Vector<REAL>::axis_x ()) ,
+			r2x.mul (Vector<REAL>::axis_y ()) ,
+			r2x.mul (Vector<REAL>::axis_z ()) ,
+			r2x.mul (Vector<REAL>::axis_w ())}) ;
+		const auto r4x = _SIGN_ ((r3x[0] ^ r3x[1]) * r3x[2]) ;
+		const auto r5x = _PINV_ (r2x[3][3]) ;
+		ret[1] = Matrix::make_diag ((r3x[0].magnitude () * r5x * r4x) ,(r3x[1].magnitude () * r5x * r4x) ,(r3x[2].magnitude () * r5x * r4x) ,REAL (1)) ;
+		ret[2] = Matrix {r3x[0].normalize () ,r3x[1].normalize () ,(r3x[2].normalize () * r4x) ,Vector<REAL>::axis_w ()} ;
+		const auto r6x = Vector<REAL> {(r3x[4] * r5x).xyz () ,0} ;
+		ret[3] = Matrix::make_translation (r6x) ;
 		return std::move (ret) ;
 	}
 
@@ -737,9 +741,9 @@ public:
 		const auto r4x = r1x * r2x ;
 		const auto r5x = r1x * r3x ;
 		const auto r9x = r2x * r3x ;
-		const auto r6x = _SQRT_ (1 - _SQE_ (r4x)) ;
+		const auto r6x = _SQRT_ (REAL (1) - _SQE_ (r4x)) ;
 		const auto r7x = (r9x - r4x * r5x) * _PINV_ (r6x) ;
-		const auto r8x = _SQRT_ (1 - _SQE_ (r5x) - _SQE_ (r7x)) ;
+		const auto r8x = _SQRT_ (REAL (1) - _SQE_ (r5x) - _SQE_ (r7x)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,r4x ,r5x ,REAL (0)} ,
 			{REAL (0) ,r6x ,r7x ,REAL (0)} ,
@@ -953,16 +957,20 @@ public:
 template <class REAL>
 inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
 	Vector<REAL> ret ;
-	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
-		ret.get (i) = get (0) * that.get (0 ,i) + get (1) * that.get (1 ,i) + get (2) * that.get (2 ,i) + get (3) * that.get (3 ,i) ;
+	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
+		const auto r1x = get (0) * that.get (0 ,i) + get (1) * that.get (1 ,i) + get (2) * that.get (2 ,i) + get (3) * that.get (3 ,i) ;
+		ret.get (i) = r1x ;
+	}
 	return std::move (ret) ;
 }
 
 template <class REAL>
 inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &that) const {
 	Vector<REAL> ret ;
-	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++)
-		ret.get (i) = get (i ,0) * that.get (0) + get (i ,1) * that.get (1) + get (i ,2) * that.get (2) + get (i ,3) * that.get (3) ;
+	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
+		const auto r1x = get (i ,0) * that.get (0) + get (i ,1) * that.get (1) + get (i ,2) * that.get (2) + get (i ,3) * that.get (3) ;
+		ret.get (i) = r1x ;
+	}
 	return std::move (ret) ;
 }
 } ;

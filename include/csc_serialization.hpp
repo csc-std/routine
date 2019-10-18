@@ -147,14 +147,11 @@ public:
 	const String<STRU8> &name () && = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1 = _CACHE_ ([] () {
-			return String<STRU8> () ;
-		}) ;
 		if (!exist ())
-			return r1 ;
+			return null_string () ;
 		INDEX ix = mHeap.self[mIndex].mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return r1 ;
+			return null_string () ;
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
@@ -302,6 +299,12 @@ private:
 	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
 
 private:
+	const String<STRU8> &null_string () const {
+		return _CACHE_ ([] () {
+			return String<STRU8> () ;
+		}) ;
+	}
+
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 
 	void initialize (const Array<XmlParser> &sequence) ;
@@ -1803,12 +1806,9 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1 = _CACHE_ ([] () {
-			return String<STRU8> () ;
-		}) ;
 		INDEX ix = mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return r1 ;
+			return null_string () ;
 		return mAttributeSet[ix].item ;
 	}
 
@@ -1884,6 +1884,12 @@ public:
 	const Array<String<STRU8>> &command () && = delete ;
 
 private:
+	const String<STRU8> &null_string () const {
+		return _CACHE_ ([] () {
+			return String<STRU8> () ;
+		}) ;
+	}
+
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 
