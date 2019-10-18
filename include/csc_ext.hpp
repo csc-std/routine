@@ -408,8 +408,8 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -430,7 +430,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -439,7 +439,7 @@ public:
 				discard ;
 			ret = -(-((*this) + that) / that + 1) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -448,12 +448,12 @@ public:
 				discard ;
 			ret = -(-((*this) - that) / that - 1) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) / that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -462,14 +462,14 @@ public:
 				discard ;
 			ret = VAR128 (0) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = (*this) / (-that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret = Detail::slow_divide ((*this) ,that) ;
 		}
 		return std::move (ret) ;
@@ -484,8 +484,8 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -506,7 +506,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -515,7 +515,7 @@ public:
 				discard ;
 			ret = -(-((*this) + that) % that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -524,12 +524,12 @@ public:
 				discard ;
 			ret = -(-((*this) - that) % that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) % that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -538,14 +538,14 @@ public:
 				discard ;
 			ret = (*this) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = (*this) % (-that) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret = that - Detail::slow_divide ((*this) ,that) * that ;
 		}
 		return std::move (ret) ;
@@ -1945,16 +1945,17 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
 		ScopedBuild<Node> ANONYMOUS (rax) ;
 		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mRoot == NULL))
 				discard ;
 			r1x->mPrev = r1x ;
 			r1x->mNext = r1x ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(mRoot != NULL))
 				discard ;
+			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
 			r1x->mPrev = mRoot->mPrev ;
 			r1x->mNext = mRoot ;
 			mRoot->mPrev->mNext = r1x ;

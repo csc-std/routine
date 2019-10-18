@@ -549,6 +549,12 @@ struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_str_xyz<_ARG1>::value &
 	using TYPE = ARGC<TRUE> ;
 } ;
 
+//@info: for old c api
+template <>
+struct LOAD_CHECK<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
 template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;

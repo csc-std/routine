@@ -227,15 +227,15 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0X7F)))
 				discard ;
 			ret[iw++] = STRU16 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XDF)))
@@ -243,7 +243,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XEF)))
@@ -251,7 +251,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XF7)))
@@ -259,7 +259,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFB)))
@@ -267,7 +267,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFD)))
@@ -275,7 +275,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -283,7 +283,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax = 10 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax >= 2 && rax <= 5))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -291,14 +291,14 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
-		auto ifb = FALSE ;
-		if SWITCH_CASE (ifb) {
+		auto if2 = FALSE ;
+		if SWITCH_CASE (if2) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X0000FFFF)))
@@ -306,7 +306,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			ret[iw++] = STRU16 (rbx) ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X0010FFFF)))
@@ -316,7 +316,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X7FFFFFFF)))
@@ -324,7 +324,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 			ret[iw++] = STRU16 ('?') ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -344,15 +344,15 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X007F)))
 				discard ;
 			ret[iw++] = STRU8 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X07FF)))
@@ -360,7 +360,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
@@ -368,14 +368,14 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
@@ -387,7 +387,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 			ret[iw++] = (STRU8 (rbx) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -416,15 +416,15 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0X7F)))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XDF)))
@@ -432,7 +432,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XEF)))
@@ -440,7 +440,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XF7)))
@@ -448,7 +448,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFB)))
@@ -456,7 +456,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFD)))
@@ -464,7 +464,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -473,7 +473,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			ret[iw++] = rbx ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax >= 2 && rax <= 5))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -481,7 +481,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -509,15 +509,15 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000007F)))
 				discard ;
 			ret[iw++] = STRU8 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X000007FF)))
@@ -525,7 +525,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000FFFF)))
@@ -534,7 +534,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X001FFFFF)))
@@ -544,7 +544,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X03FFFFFF)))
@@ -555,7 +555,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X7FFFFFFF)))
@@ -567,7 +567,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -590,15 +590,15 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X07FF)))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
@@ -606,12 +606,12 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
@@ -620,7 +620,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 			ret[iw++] = rbx ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -644,15 +644,15 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000FFFF)))
 				discard ;
 			ret[iw++] = STRU16 (i) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0010FFFF)))
@@ -660,14 +660,14 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 			ret[iw++] = (STRU16 ((i - STRU32 (0X00010000)) >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (i - STRU32 (0X00010000)) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X7FFFFFFF)))
 				discard ;
 			ret[iw++] = STRU16 ('?') ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -793,28 +793,28 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	for (auto &&i : r2) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			rbx = STRUW (i) ;
 			rax = 10 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			rbx = STRUW ((rbx << 8) | STRUW (i)) ;
 			rax = 11 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
 		INDEX ix = r1.find (rbx) ;
-		auto ifb = FALSE ;
-		if SWITCH_CASE (ifb) {
+		auto if2 = FALSE ;
+		if SWITCH_CASE (if2) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
@@ -822,14 +822,14 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 			ret[iw++] = STRW (r1[ix].item) ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix == VAR_NONE))
 				discard ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			if (!(rax == 11))
 				discard ;
 			if (!(ix != VAR_NONE))
@@ -837,7 +837,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 			ret[iw++] = STRW (r1[ix].item) ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			if (!(rax == 11))
 				discard ;
 			if (!(ix == VAR_NONE))
@@ -845,7 +845,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 			ret[iw++] = STRW ('?') ;
 			rax = 0 ;
 		}
-		if SWITCH_CASE (ifb) {
+		if SWITCH_CASE (if2) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -872,22 +872,22 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		if (rax == VAR_NONE)
 			discard ;
 		INDEX ix = r1.find (STRUW (i)) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(ix == VAR_NONE))
 				discard ;
 			ret[iw++] = STRUA ('?') ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r1[ix].item <= STRUW (0X00FF)))
 				discard ;
 			ret[iw++] = STRUA (r1[ix].item) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r1[ix].item <= STRUW (0XFFFF)))
@@ -895,7 +895,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 			ret[iw++] = STRUA (r1[ix].item >> 8) ;
 			ret[iw++] = STRUA (r1[ix].item) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -1156,20 +1156,20 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 	for (auto &&i : stru) {
 		if (rax == VAR_NONE)
 			discard ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			rbx = CHAR (i) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 2 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
@@ -1179,14 +1179,14 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (rbx & CHAR (0X3F))]) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
 	for (FOR_ONCE_DO) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR (rbx << 16) ;
@@ -1195,7 +1195,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR (rbx << 8) ;
@@ -1204,7 +1204,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			_DEBUG_ASSERT_ (rax == 0) ;
 		}
 	}
@@ -1233,8 +1233,8 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 		const auto r2x = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) :
 			VAR_NONE) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r2x >= 0))
@@ -1242,7 +1242,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			if (!(r2x >= 0))
@@ -1250,7 +1250,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 2 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 2))
 				discard ;
 			if (!(r2x >= 0))
@@ -1258,7 +1258,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 3 ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 3))
 				discard ;
 			if (!(r2x >= 0))
@@ -1269,27 +1269,27 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
 	for (FOR_ONCE_DO) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR (rbx << 18) ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR (rbx << 12) ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(rax == 3))
 				discard ;
 			rbx = CHAR (rbx << 6) ;
@@ -1297,7 +1297,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			_DEBUG_ASSERT_ (rax == 0) ;
 		}
 	}

@@ -151,6 +151,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
+		_DEBUG_ASSERT_ (vs.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (fs.size () < VAR32_MAX) ;
 		auto rax = UniqueRef<CHAR> ([&] (CHAR &me) {
 			me = glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
@@ -190,32 +192,39 @@ public:
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR32 &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1i (VAR32 (index) ,data) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR64 &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1i64NV (VAR32 (index) ,data) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL32 &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1f (VAR32 (index) ,data) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL64 &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1d (VAR32 (index) ,data) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL32> &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL32> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		glUniform4fv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL64> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		glUniform4dv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY16<VAL32> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
 			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,
@@ -225,6 +234,7 @@ public:
 	}
 
 	void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const override {
+		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY16<VAL64> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
 			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,

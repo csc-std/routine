@@ -802,8 +802,8 @@ public:
 			return std::move (ret) ;
 		}) ;
 		const auto r6x = _PINV_ (REAL (2) * _SQRT_ (r4x[r5x])) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(r5x == 0))
 				discard ;
 			ret[0] = (r2x[2][1] - r2x[1][2]) * r6x ;
@@ -811,7 +811,7 @@ public:
 			ret[2] = (r2x[1][0] - r2x[0][1]) * r6x ;
 			ret[3] = r4x[0] * r6x ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r5x == 1))
 				discard ;
 			ret[0] = r4x[1] * r6x ;
@@ -819,7 +819,7 @@ public:
 			ret[2] = (r2x[0][2] + r2x[2][0]) * r6x ;
 			ret[3] = (r2x[2][1] - r2x[1][2]) * r6x ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r5x == 2))
 				discard ;
 			ret[0] = (r2x[1][0] + r2x[0][1]) * r6x ;
@@ -827,7 +827,7 @@ public:
 			ret[2] = (r2x[2][1] + r2x[1][2]) * r6x ;
 			ret[3] = (r2x[0][2] - r2x[2][0]) * r6x ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(r5x == 3))
 				discard ;
 			ret[0] = (r2x[0][2] + r2x[2][0]) * r6x ;

@@ -992,15 +992,15 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	auto ifa = FALSE ;
-	if SWITCH_CASE (ifa) {
+	auto if1 = FALSE ;
+	if SWITCH_CASE (if1) {
 		if (!(dst != src))
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst[i] = src[len + ~i] ;
 	}
-	if SWITCH_CASE (ifa) {
+	if SWITCH_CASE (if1) {
 		if (!(dst == src))
 			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
@@ -1027,14 +1027,14 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	}
 	if (dst1 == dst2)
 		return ;
-	auto ifa = FALSE ;
-	if SWITCH_CASE (ifa) {
+	auto if1 = FALSE ;
+	if SWITCH_CASE (if1) {
 		if (!(dst1 < dst2))
 			discard ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst1[i] = std::move (dst2[i]) ;
 	}
-	if SWITCH_CASE (ifa) {
+	if SWITCH_CASE (if1) {
 		if (!(dst1 > dst2))
 			discard ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)

@@ -95,9 +95,10 @@ private:
 					break ;
 				if (_self.mValueNode->mGUID == guid)
 					ret = &_self.mValueNode.self ;
+				_self.mValueNode.cycle () ;
 				if (&_self.mValueNode.self == r1x)
 					break ;
-				_self.mValueNode.cycle () ;
+				_STATIC_WARNING_ ("noop") ;
 			}
 		}
 		return std::move (ret) ;
@@ -114,9 +115,10 @@ private:
 					break ;
 				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
 					ret = &_self.mClassNode.self ;
+				_self.mClassNode.cycle () ;
 				if (&_self.mClassNode.self == r1x)
 					break ;
-				_self.mClassNode.cycle () ;
+				_STATIC_WARNING_ ("noop") ;
 			}
 		}
 		return std::move (ret) ;

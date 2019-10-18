@@ -196,6 +196,7 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) popping {
 		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -215,6 +216,7 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
 		out_i = VAR_NONE ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (timeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -234,6 +236,7 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (DEFAULT_TIMEOUT_SIZE::value) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = ::send (mThis->mSocket ,_LOAD_<ARR<STRA>> (NULL ,_ADDRESS_ (&data.self)) ,VAR32 (data.size ()) ,0) ;
@@ -397,6 +400,7 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) popping {
 		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[0]) != 0) ;
@@ -411,6 +415,7 @@ public:
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		out_i = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
@@ -427,6 +432,7 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mSocket ,DEFAULT_TIMEOUT_SIZE::value) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mSocket ,&r1x[1]) != 0) ;

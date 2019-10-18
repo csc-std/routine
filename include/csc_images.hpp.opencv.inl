@@ -160,6 +160,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * _SIZEOF_ (COLOR_BGR) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC3)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
@@ -167,7 +169,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC3) ;
@@ -230,6 +232,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * _SIZEOF_ (COLOR_BGRA) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC4)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
@@ -237,7 +241,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC4) ;
@@ -300,6 +304,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * _SIZEOF_ (COLOR_GRAY) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_8UC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
@@ -307,7 +313,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_8UC1) ;
@@ -370,6 +376,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * _SIZEOF_ (COLOR_GRAY32) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_32FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
@@ -377,7 +385,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_32FC1) ;
@@ -440,6 +448,8 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * _SIZEOF_ (COLOR_GRAY64) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		auto rax = cv::Mat (cv::Mat::zeros (VAR32 (_cy) ,VAR32 (_cx) ,CV_64FC1)) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;
@@ -447,7 +457,7 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const override {
-		_DYNAMIC_ASSERT_ (data.size () >= 0 && data.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = cv::imdecode (cv::_InputArray (data.self ,VAR32 (data.size ())) ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!rax.empty ()) ;
 		_DYNAMIC_ASSERT_ (rax.type () == CV_64FC1) ;

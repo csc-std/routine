@@ -79,6 +79,9 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * 3 ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
+		(void) r1x ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (_cx) ,VAR32 (_cy) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -86,8 +89,8 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = COLOR_BGR {0 ,0 ,0} ;
-		FreeImage_FillBackground (rax ,&r1x ,0) ;
+		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
+		FreeImage_FillBackground (rax ,&r2x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
@@ -194,6 +197,9 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const override {
+		const auto r1x = _cx * _cy * 4 ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
+		(void) r1x ;
 		auto rax = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (_cx) ,VAR32 (_cy) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -201,8 +207,8 @@ public:
 			_DEBUG_ASSERT_ (me != NULL) ;
 			FreeImage_Unload (me) ;
 		}) ;
-		const auto r1x = COLOR_BGRA {0 ,0 ,0 ,0} ;
-		FreeImage_FillBackground (rax ,&r1x ,0) ;
+		const auto r2x = COLOR_BGRA {0 ,0 ,0 ,0} ;
+		FreeImage_FillBackground (rax ,&r2x ,0) ;
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 

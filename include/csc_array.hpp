@@ -566,8 +566,8 @@ public:
 	}
 
 	void concatto (const String &that) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
@@ -577,7 +577,7 @@ public:
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			(*this) = concat (that) ;
 		}
 	}
@@ -588,8 +588,8 @@ public:
 	}
 
 	void concatto (const Plain<ITEM> &that) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
@@ -599,7 +599,7 @@ public:
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			(*this) = concat (that) ;
 		}
 	}
@@ -937,15 +937,15 @@ private:
 		const auto r1x = _MAX_ (len - (mDeque.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mRead <= mWrite))
 				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
 			mDeque.swap (rax) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(mRead > mWrite))
 				discard ;
 			auto rax = mDeque.expand (mDeque.size () + r1x) ;
@@ -2229,14 +2229,14 @@ private:
 	}
 
 	void update_compress_left (INDEX curr ,INDEX accm) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mHead[curr][0] == VAR_NONE))
 				discard ;
 			sequence_rewrite (curr ,accm) ;
 			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			INDEX ix = curr + 1 ;
 			if (!(ix < mHead.size ()))
 				discard ;
@@ -2245,7 +2245,7 @@ private:
 			sequence_rewrite (ix ,accm) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			update_compress_left_force (curr ,accm) ;
 		}
 	}
@@ -2257,8 +2257,8 @@ private:
 			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
 				mRead++ ;
 			const auto r1x = mHead[i][0] ;
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
+			auto if1 = FALSE ;
+			if SWITCH_CASE (if1) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x == VAR_NONE))
@@ -2267,7 +2267,7 @@ private:
 				iy = r1x ;
 				ix = VAR_NONE ;
 			}
-			if SWITCH_CASE (ifa) {
+			if SWITCH_CASE (if1) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x != VAR_NONE))
@@ -2276,7 +2276,7 @@ private:
 				iy = r1x ;
 				ix++ ;
 			}
-			if SWITCH_CASE (ifa) {
+			if SWITCH_CASE (if1) {
 				if (!(mRead != i))
 					discard ;
 				sequence_rewrite (i ,mHead[mRead][0]) ;
@@ -3204,13 +3204,13 @@ public:
 
 private:
 	void update_emplace (INDEX curr ,INDEX accm) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(curr == VAR_NONE))
 				discard ;
 			mTop = accm ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(curr != VAR_NONE))
 				discard ;
 			mSet[accm].mUp = curr ;
@@ -3231,13 +3231,13 @@ private:
 				break ;
 			if (!mSet[jx].mRed)
 				break ;
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
+			auto if1 = FALSE ;
+			if SWITCH_CASE (if1) {
 				if (!(jx == mSet[mSet[jx].mUp].mLeft))
 					discard ;
 				update_insert_left (ix) ;
 			}
-			if SWITCH_CASE (ifa) {
+			if SWITCH_CASE (if1) {
 				if (!(jx == mSet[mSet[jx].mUp].mRight))
 					discard ;
 				update_insert_right (ix) ;
@@ -3250,8 +3250,8 @@ private:
 	void update_insert_left (INDEX curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mSet[iy].mRight != VAR_NONE))
 				discard ;
 			if (!(mSet[mSet[iy].mRight].mRed))
@@ -3261,7 +3261,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			auto &r1 = mSet[iy].mLeft ;
@@ -3274,7 +3274,7 @@ private:
 			r2 = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3289,8 +3289,8 @@ private:
 	void update_insert_right (INDEX curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(mSet[iy].mLeft != VAR_NONE))
 				discard ;
 			if (!(mSet[mSet[iy].mLeft].mRed))
@@ -3300,7 +3300,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			auto &r1 = mSet[iy].mRight ;
@@ -3313,7 +3313,7 @@ private:
 			r2 = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3333,13 +3333,13 @@ private:
 				break ;
 			if (ix != VAR_NONE && mSet[ix].mRed)
 				break ;
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
+			auto if1 = FALSE ;
+			if SWITCH_CASE (if1) {
 				if (!(ix == mSet[iy].mLeft))
 					discard ;
 				update_remove_left (ix ,iy) ;
 			}
-			if SWITCH_CASE (ifa) {
+			if SWITCH_CASE (if1) {
 				if (!(ix == mSet[iy].mRight))
 					discard ;
 				update_remove_right (ix ,iy) ;
@@ -3365,8 +3365,8 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (r1x)
 				discard ;
 			if (r2x)
@@ -3374,7 +3374,7 @@ private:
 			mSet[r1].mRed = TRUE ;
 			mTop = accm ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (r2x)
 				discard ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -3389,7 +3389,7 @@ private:
 			r3 = mTop ;
 			mTop = mRoot ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			mSet[r1].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3413,8 +3413,8 @@ private:
 		}
 		const auto r1x = BOOL (mSet[r1].mRight != VAR_NONE && mSet[mSet[r1].mRight].mRed) ;
 		const auto r2x = BOOL (mSet[r1].mLeft != VAR_NONE && mSet[mSet[r1].mLeft].mRed) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (r1x)
 				discard ;
 			if (r2x)
@@ -3422,7 +3422,7 @@ private:
 			mSet[r1].mRed = TRUE ;
 			mTop = accm ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			if (r2x)
 				discard ;
 			mSet[mSet[r1].mRight].mRed = FALSE ;
@@ -3437,7 +3437,7 @@ private:
 			r3 = mTop ;
 			mTop = mRoot ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			mSet[r1].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1].mLeft].mRed = FALSE ;
@@ -4563,32 +4563,31 @@ public:
 private:
 	void update_insert (INDEX curr) {
 		INDEX ix = curr ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto if1 = FALSE ;
+		if SWITCH_CASE (if1) {
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
-			auto &r2 = _SWITCH_ (
-				r1x ? (mSet.self[ix].mLeft) :
-				(mSet.self[ix].mRight)) ;
-			update_insert (r2) ;
-			r2 = mTop ;
-			auto ifb = FALSE ;
-			if SWITCH_CASE (ifb) {
+			auto if2 = FALSE ;
+			if SWITCH_CASE (if2) {
 				if (!r1x)
 					discard ;
+				update_insert (mSet.self[ix].mLeft) ;
+				mSet.self[ix].mLeft = mTop ;
 				update_insert_left (ix) ;
 			}
-			if SWITCH_CASE (ifb) {
+			if SWITCH_CASE (if2) {
 				if (r1x)
 					discard ;
+				update_insert (mSet.self[ix].mRight) ;
+				mSet.self[ix].mRight = mTop ;
 				update_insert_right (ix) ;
 			}
 			ix = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (if1) {
 			mTop = mLast ;
 		}
 	}
