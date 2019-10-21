@@ -172,9 +172,9 @@ public:
 		const auto r2x = Serializer<WRAPPED_String_STRU8 ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
 		for (FOR_ONCE_DO) {
-			auto &r1 = _CAST_<WRAPPED_String_STRU8> (rax) ;
-			r2x (r1x).friend_visit (r1) ;
-			rax = std::move (_CAST_<String<STRU8>> (r1)) ;
+			auto &e1x = _CAST_<WRAPPED_String_STRU8> (rax) ;
+			r2x (r1x).friend_visit (e1x) ;
+			rax = std::move (_CAST_<String<STRU8>> (e1x)) ;
 		}
 		_UNITTEST_ASSERT_ (rax == String<STRU8> (_PCSTRU8_ ("12.1"))) ;
 	}

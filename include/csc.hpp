@@ -992,15 +992,15 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	auto if1 = FALSE ;
-	if SWITCH_CASE (if1) {
+	auto fax = FALSE ;
+	if SWITCH_CASE (fax) {
 		if (!(dst != src))
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst[i] = src[len + ~i] ;
 	}
-	if SWITCH_CASE (if1) {
+	if SWITCH_CASE (fax) {
 		if (!(dst == src))
 			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
@@ -1027,14 +1027,14 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	}
 	if (dst1 == dst2)
 		return ;
-	auto if1 = FALSE ;
-	if SWITCH_CASE (if1) {
+	auto fax = FALSE ;
+	if SWITCH_CASE (fax) {
 		if (!(dst1 < dst2))
 			discard ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
 			dst1[i] = std::move (dst2[i]) ;
 	}
-	if SWITCH_CASE (if1) {
+	if SWITCH_CASE (fax) {
 		if (!(dst1 > dst2))
 			discard ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
@@ -1197,10 +1197,10 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
-			auto &r1 = _CACHE_ ([r1x] () noexcept {
+			auto &e1x = _CACHE_ ([r1x] () noexcept {
 				return r1x ;
 			}) ;
-			return r1.mString ;
+			return e1x.mString ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
@@ -2555,12 +2555,12 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			auto &r1 = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
-			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1)) ;
+			auto &e1x = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
+			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (e1x)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<_RET>> (r2x))) ;
 			(void) r2x ;
-			_CREATE_ (&r1 ,std::forward<_ARGS> (args)...) ;
+			_CREATE_ (&e1x ,std::forward<_ARGS> (args)...) ;
 		}
 	} ;
 
@@ -3932,8 +3932,8 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		auto &r1 = _CAST_<TEMP<UNIT>> (item) ;
-		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,r1)) ;
+		auto &e1x = _CAST_<TEMP<UNIT>> (item) ;
+		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,e1x)) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;

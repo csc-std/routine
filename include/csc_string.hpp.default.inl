@@ -43,7 +43,7 @@ namespace CSC {
 inline namespace S {
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef _CLOCALE_
-	auto &r1 = _CACHE_ ([] () {
+	auto &e1x = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -54,7 +54,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 	}) ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1) ;
+		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,e1x) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -74,7 +74,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef _CLOCALE_
-	auto &r1 = _CACHE_ ([] () {
+	auto &e1x = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -85,7 +85,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	}) ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1) ;
+		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,e1x) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -229,10 +229,10 @@ public:
 				if (!r3x)
 					break ;
 				INDEX ix = ret.insert () ;
-				auto &r1 = rax.self[0].first ;
-				auto &r2 = rax.self[0].second ;
-				ret[ix][0] = INDEX (&(*r1) - &r1x[0]) ;
-				ret[ix][1] = INDEX (&(*r2) - &r1x[0]) ;
+				auto &e1x = rax.self[0].first ;
+				auto &e2x = rax.self[0].second ;
+				ret[ix][0] = INDEX (&(*e1x) - &r1x[0]) ;
+				ret[ix][1] = INDEX (&(*e2x) - &r1x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}

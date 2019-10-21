@@ -162,29 +162,29 @@ template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
 	static void init (VAR data ,BOOL read_only) {
-		auto &r1 = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
+		auto &e1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
 		if (r1x != NULL)
 			return ;
-		const auto r2x = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_new_node (e1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		r2x->mReadOnly = read_only ;
 		r2x->mData = data ;
 	}
 
 	static VAR load () popping {
-		auto &r1 = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
+		auto &e1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		return r1x->mData ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &r1 = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
+		auto &e1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r1x->mReadOnly) ;
 		if (r1x->mData == expect)
@@ -193,13 +193,13 @@ public:
 	}
 
 	static void save (VAR data) {
-		auto &r1 = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::static_find_node (r1 ,GUID) ;
+		auto &e1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
+		auto rax = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
 		for (FOR_ONCE_DO) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::static_new_node (r1 ,GUID) ;
+			rax = GlobalStatic<void>::static_new_node (e1x ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -231,16 +231,16 @@ private:
 
 public:
 	static Singleton<UNIT> &unique () popping {
-		auto &r1 = _CACHE_ ([] () {
-			auto &r2 = GlobalStatic<void>::static_unique () ;
-			ScopedGuard<std::mutex> ANONYMOUS (r2.mNodeMutex) ;
+		auto &e1x = _CACHE_ ([] () {
+			auto &e2x = GlobalStatic<void>::static_unique () ;
+			ScopedGuard<std::mutex> ANONYMOUS (e2x.mNodeMutex) ;
 			const auto r2x = Detail::guid_from_typeid_name () ;
-			auto rax = GlobalStatic<void>::static_find_node (r2 ,r2x) ;
+			auto rax = GlobalStatic<void>::static_find_node (e2x ,r2x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::static_new_node (r2 ,r2x) ;
+				rax = GlobalStatic<void>::static_new_node (e2x ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
@@ -251,7 +251,7 @@ public:
 			const auto r5x = &_LOAD_<Holder> (rax->mData) ;
 			return IntrusiveRef<Holder> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Holder> (r1).mData ;
+		return _XVALUE_<Holder> (e1x).mData ;
 	}
 
 private:
@@ -282,10 +282,10 @@ private:
 			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
-			auto &r1 = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
+			auto &e1x = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
 			_DEBUG_ASSERT_ (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE)) ;
 			const auto r2x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
-			_MEMCOPY_ (PTRTOARR[ret] ,r1 ,r2x) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,e1x ,r2x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;

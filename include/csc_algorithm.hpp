@@ -857,8 +857,8 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				}
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
-			auto if1 = FALSE ;
-			if SWITCH_CASE (if1) {
+			auto fax = FALSE ;
+			if SWITCH_CASE (fax) {
 				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
 				const auto r2x = _SWITCH_ (
@@ -868,7 +868,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			}
-			if SWITCH_CASE (if1) {
+			if SWITCH_CASE (fax) {
 				mIG.fill (REAL (0)) ;
 			}
 		}
@@ -1004,8 +1004,8 @@ private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
 	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX curr ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
@@ -1016,7 +1016,7 @@ private:
 				out.add (ix) ;
 			}
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r3x = mKDTree[curr].mKey ;
@@ -1050,8 +1050,8 @@ private:
 	}
 
 	void compute_search_range (const ARRAY3<REAL> &point ,INDEX curr ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
 			for (FOR_ONCE_DO) {
@@ -1075,7 +1075,7 @@ private:
 				out[jx].P2 = r3x ;
 			}
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r4x = mKDTree[curr].mKey ;
@@ -1157,14 +1157,14 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 		void update_build_tree (INDEX curr ,INDEX rot ,INDEX seg ,INDEX seg_len) {
 			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
-			auto if1 = FALSE ;
-			if SWITCH_CASE (if1) {
+			auto fax = FALSE ;
+			if SWITCH_CASE (fax) {
 				if (!(seg_len == 1))
 					discard ;
 				INDEX jx = mKDTree.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
 			}
-			if SWITCH_CASE (if1) {
+			if SWITCH_CASE (fax) {
 				if (!(seg_len > 1))
 					discard ;
 				INDEX ix = seg + seg_len / 2 ;

@@ -6,11 +6,11 @@ TEST_CLASS (UNITTEST_CSC_STREAM) {
 public:
 	TEST_METHOD (TEST_CSC_STREAM) {
 		const auto r1x = CSC::CHAR (0X11223344) ;
-		auto &r1 = _CAST_<EndianBytes<CSC::CHAR>> (r1x) ;
-		_UNITTEST_ASSERT_ (r1[0] == CSC::BYTE (0X11)) ;
-		_UNITTEST_ASSERT_ (r1[1] == CSC::BYTE (0X22)) ;
-		_UNITTEST_ASSERT_ (r1[2] == CSC::BYTE (0X33)) ;
-		_UNITTEST_ASSERT_ (r1[3] == CSC::BYTE (0X44)) ;
+		auto &e1x = _CAST_<EndianBytes<CSC::CHAR>> (r1x) ;
+		_UNITTEST_ASSERT_ (e1x[0] == CSC::BYTE (0X11)) ;
+		_UNITTEST_ASSERT_ (e1x[1] == CSC::BYTE (0X22)) ;
+		_UNITTEST_ASSERT_ (e1x[2] == CSC::BYTE (0X33)) ;
+		_UNITTEST_ASSERT_ (e1x[3] == CSC::BYTE (0X44)) ;
 	}
 
 	TEST_METHOD (TEST_CSC_STREAM_BYTEREADER) {
@@ -47,9 +47,9 @@ public:
 		rbx[8] = STRU8 ('0') ;
 		rbx[9] = ris.attr ().varify_ending_item () ;
 		for (FOR_ONCE_DO) {
-			auto &r1 = _CAST_<Buffer<WRAPPED_int ,ARGC<4>>> (rax) ;
-			ris >> r1 ;
-			rax = std::move (_CAST_<Buffer<int ,ARGC<4>>> (r1)) ;
+			auto &e1x = _CAST_<Buffer<WRAPPED_int ,ARGC<4>>> (rax) ;
+			ris >> e1x ;
+			rax = std::move (_CAST_<Buffer<int ,ARGC<4>>> (e1x)) ;
 		}
 	}
 

@@ -408,8 +408,8 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -430,7 +430,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -439,7 +439,7 @@ public:
 				discard ;
 			ret = -(-((*this) + that) / that + 1) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -448,12 +448,12 @@ public:
 				discard ;
 			ret = -(-((*this) - that) / that - 1) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) / that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -462,14 +462,14 @@ public:
 				discard ;
 			ret = VAR128 (0) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = (*this) / (-that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			ret = Detail::slow_divide ((*this) ,that) ;
 		}
 		return std::move (ret) ;
@@ -484,8 +484,8 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -506,7 +506,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -515,7 +515,7 @@ public:
 				discard ;
 			ret = -(-((*this) + that) % that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -524,12 +524,12 @@ public:
 				discard ;
 			ret = -(-((*this) - that) % that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-(*this) % that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -538,14 +538,14 @@ public:
 				discard ;
 			ret = (*this) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = (*this) % (-that) ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			ret = that - Detail::slow_divide ((*this) ,that) * that ;
 		}
 		return std::move (ret) ;
@@ -681,13 +681,13 @@ private:
 				const auto r2x = x * ret ;
 				if (r2x == y)
 					break ;
-				auto &r1 = _SWITCH_ (
+				auto &e1x = _SWITCH_ (
 					(r2x < y) ? (rax[0]) :
 					(rax[1])) ;
 				const auto r3x = _SWITCH_ (
 					(r2x < y) ? (ret + 1) :
 					(ret - 1)) ;
-				r1 = r3x ;
+				e1x = r3x ;
 			}
 			ret -= EFLAG (ret * x > y) ;
 			return std::move (ret) ;
@@ -1945,14 +1945,14 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
 		ScopedBuild<Node> ANONYMOUS (rax) ;
 		auto r1x = &_LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mRoot == NULL))
 				discard ;
 			r1x->mPrev = r1x ;
 			r1x->mNext = r1x ;
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			if (!(mRoot != NULL))
 				discard ;
 			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
@@ -2422,10 +2422,10 @@ public:
 		for (FOR_ONCE_DO) {
 			if (!linked ())
 				discard ;
-			auto &r1 = mHeap.self[mIndex].mWeight ;
-			const auto r1x = EFLAG (r1 >= 0 && r1 < VAR32_MAX) ;
-			const auto r2x = EFLAG (r1 < 0 && r1 >= -VAR32_MAX) ;
-			r1 += r1x - r2x ;
+			auto &e1x = mHeap.self[mIndex].mWeight ;
+			const auto r1x = EFLAG (e1x >= 0 && e1x < VAR32_MAX) ;
+			const auto r2x = EFLAG (e1x < 0 && e1x >= -VAR32_MAX) ;
+			e1x += r1x - r2x ;
 		}
 		return mWeakRef.watch () ;
 	}
@@ -2831,8 +2831,8 @@ public:
 		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
-		auto &r1 = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
-		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r1) ,&Function<UNIT ()>::invoke) ;
+		auto &e1x = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
+		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (e1x) ,&Function<UNIT ()>::invoke) ;
 		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
@@ -2913,8 +2913,8 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
-	auto &r1 = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
-	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1] ,_COUNTOF_ (decltype (r1))) ;
+	auto &e1x = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[e1x] ,_COUNTOF_ (decltype (e1x))) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;
@@ -3051,10 +3051,10 @@ private:
 				it = i->mNext ;
 				if (!empty_node (i))
 					continue ;
-				auto &r1 = _SWITCH_ (
+				auto &e1x = _SWITCH_ (
 					(i->mPrev != NULL) ? (i->mPrev->mNext) :
 					mRoot) ;
-				r1 = i->mNext ;
+				e1x = i->mNext ;
 				if (i->mNext != NULL)
 					i->mNext->mPrev = i->mPrev ;
 				mSize -= i->mCount * SIZE::value ;
@@ -3067,8 +3067,8 @@ private:
 			const auto r1x = constexpr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
 				const auto r2x = r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
-				auto &r1 = _LOAD_<BLOCK> (NULL ,r2x) ;
-				if (_ADDRESS_ (r1.mNext) == VAR_USED)
+				auto &e1x = _LOAD_<BLOCK> (NULL ,r2x) ;
+				if (_ADDRESS_ (e1x.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -3136,10 +3136,10 @@ private:
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
 			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			auto &r1 = _SWITCH_ (
+			auto &e1x = _SWITCH_ (
 				(r1x->mPrev != NULL) ? (r1x->mPrev->mNext) :
 				mRoot) ;
-			r1 = r1x->mNext ;
+			e1x = r1x->mNext ;
 			if (r1x->mNext != NULL)
 				r1x->mNext->mPrev = r1x->mPrev ;
 			mSize -= r1x->mCount ;

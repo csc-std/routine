@@ -404,8 +404,8 @@ public:
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		auto if1 = FALSE ;
-		if SWITCH_CASE (if1) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mSymbolFromAddress.exist ()))
 				discard ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
@@ -420,7 +420,7 @@ public:
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
 			}
 		}
-		if SWITCH_CASE (if1) {
+		if SWITCH_CASE (fax) {
 			for (auto &&i : address)
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_ (i) ,_PCSTR_ ("] : null")) ;
 		}
