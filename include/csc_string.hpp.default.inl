@@ -43,7 +43,7 @@ namespace CSC {
 inline namespace S {
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef _CLOCALE_
-	auto &e1x = _CACHE_ ([] () {
+	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -54,7 +54,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 	}) ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,e1x) ;
+		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -74,7 +74,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef _CLOCALE_
-	auto &e1x = _CACHE_ ([] () {
+	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -85,7 +85,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	}) ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,e1x) ;
+		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r1x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -141,14 +141,14 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
 	const auto r1x = time_t (std::chrono::system_clock::to_time_t (val)) ;
-#ifdef _CTIME_
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
+#ifdef _CTIME_
 	localtime_s (&rax ,&r1x) ;
 #elif defined _GLIBCXX_CTIME
 	//@warn: not thread-safe due to internel storage
 	const auto r2x = std::localtime (&r1x) ;
-	auto rax = (*r2x) ;
+	rax = (*r2x) ;
 #endif
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
@@ -229,10 +229,10 @@ public:
 				if (!r3x)
 					break ;
 				INDEX ix = ret.insert () ;
-				auto &e1x = rax.self[0].first ;
-				auto &e2x = rax.self[0].second ;
-				ret[ix][0] = INDEX (&(*e1x) - &r1x[0]) ;
-				ret[ix][1] = INDEX (&(*e2x) - &r1x[0]) ;
+				auto &r1y = rax.self[0].first ;
+				auto &r2y = rax.self[0].second ;
+				ret[ix][0] = INDEX (&(*r1y) - &r1x[0]) ;
+				ret[ix][1] = INDEX (&(*r2y) - &r1x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}

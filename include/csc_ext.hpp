@@ -214,19 +214,19 @@ inline void _CATCH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
 #ifdef __CSC_UNITTEST__
 class GlobalWatch final :private Wrapped<void> {
 private:
-	template <class UNIT>
+	template <class UNIT1 ,class UNIT2>
 	class Storage final :private Interface {
 	private:
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
-		LENGTH mAddress ;
+		PTR<UNIT2> mAddress ;
 		FLAG mTypeUID ;
-		PTR<void (LENGTH)> mWatch ;
+		PTR<void (UNIT2 &)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
-			mAddress = 0 ;
+			mAddress = NULL ;
 			mTypeUID = 0 ;
 			mWatch = NULL ;
 		} ;
@@ -235,14 +235,14 @@ private:
 public:
 	template <class _ARG1 ,class _ARG2>
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
-		static volatile Storage<_ARG1> mInstance ;
+		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
 		mInstance.mName = name.self ;
-		mInstance.mAddress = _ADDRESS_ (&data) ;
+		mInstance.mAddress = &data ;
 		mInstance.mTypeUID = _TYPEUID_<_ARG2> () ;
 		const auto r1x = _COPY_ (mInstance.mWatch) ;
 		if (r1x == NULL)
 			return ;
-		r1x (_ADDRESS_ (&data)) ;
+		r1x (data) ;
 	}
 } ;
 #endif
@@ -681,13 +681,13 @@ private:
 				const auto r2x = x * ret ;
 				if (r2x == y)
 					break ;
-				auto &e1x = _SWITCH_ (
+				auto &r1y = _SWITCH_ (
 					(r2x < y) ? (rax[0]) :
 					(rax[1])) ;
 				const auto r3x = _SWITCH_ (
 					(r2x < y) ? (ret + 1) :
 					(ret - 1)) ;
-				e1x = r3x ;
+				r1y = r3x ;
 			}
 			ret -= EFLAG (ret * x > y) ;
 			return std::move (ret) ;
@@ -2422,10 +2422,10 @@ public:
 		for (FOR_ONCE_DO) {
 			if (!linked ())
 				discard ;
-			auto &e1x = mHeap.self[mIndex].mWeight ;
-			const auto r1x = EFLAG (e1x >= 0 && e1x < VAR32_MAX) ;
-			const auto r2x = EFLAG (e1x < 0 && e1x >= -VAR32_MAX) ;
-			e1x += r1x - r2x ;
+			auto &r1y = mHeap.self[mIndex].mWeight ;
+			const auto r1x = EFLAG (r1y >= 0 && r1y < VAR32_MAX) ;
+			const auto r2x = EFLAG (r1y < 0 && r1y >= -VAR32_MAX) ;
+			r1y += r1x - r2x ;
 		}
 		return mWeakRef.watch () ;
 	}
@@ -2831,8 +2831,8 @@ public:
 		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
-		auto &e1x = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
-		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (e1x) ,&Function<UNIT ()>::invoke) ;
+		auto &r1y = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
+		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r1y) ,&Function<UNIT ()>::invoke) ;
 		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
@@ -2913,8 +2913,8 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
-	auto &e1x = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
-	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[e1x] ,_COUNTOF_ (decltype (e1x))) ;
+	auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1y] ,_COUNTOF_ (decltype (r1y))) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;
@@ -3051,10 +3051,10 @@ private:
 				it = i->mNext ;
 				if (!empty_node (i))
 					continue ;
-				auto &e1x = _SWITCH_ (
+				auto &r1y = _SWITCH_ (
 					(i->mPrev != NULL) ? (i->mPrev->mNext) :
 					mRoot) ;
-				e1x = i->mNext ;
+				r1y = i->mNext ;
 				if (i->mNext != NULL)
 					i->mNext->mPrev = i->mPrev ;
 				mSize -= i->mCount * SIZE::value ;
@@ -3067,8 +3067,8 @@ private:
 			const auto r1x = constexpr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
 				const auto r2x = r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
-				auto &e1x = _LOAD_<BLOCK> (NULL ,r2x) ;
-				if (_ADDRESS_ (e1x.mNext) == VAR_USED)
+				auto &r1y = _LOAD_<BLOCK> (NULL ,r2x) ;
+				if (_ADDRESS_ (r1y.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -3136,10 +3136,10 @@ private:
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
 			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(r1x->mPrev != NULL) ? (r1x->mPrev->mNext) :
 				mRoot) ;
-			e1x = r1x->mNext ;
+			r1y = r1x->mNext ;
 			if (r1x->mNext != NULL)
 				r1x->mNext->mPrev = r1x->mPrev ;
 			mSize -= r1x->mCount ;

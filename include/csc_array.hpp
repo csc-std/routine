@@ -187,8 +187,8 @@ struct OPERATOR_HASH {
 
 	template <class _ARG1>
 	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		auto &e1x = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self) ;
-		return _MEMHASH_ (PTRTOARR[e1x] ,_COUNTOF_ (decltype (e1x))) ;
+		auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self) ;
+		return _MEMHASH_ (PTRTOARR[r1y] ,_COUNTOF_ (decltype (r1y))) ;
 	}
 
 	template <class _ARG1>
@@ -937,24 +937,22 @@ private:
 		const auto r1x = _MAX_ (len - (mDeque.size () - length ()) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
+		auto rax = mDeque.expand (mDeque.size () + r1x) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
-			mDeque.swap (rax) ;
 		}
 		if SWITCH_CASE (fax) {
 			if (!(mRead > mWrite))
 				discard ;
-			auto rax = mDeque.expand (mDeque.size () + r1x) ;
 			_MEMMOVE_ (rax.self ,mDeque.self ,mWrite) ;
 			INDEX ix = mRead + rax.size () - mDeque.size () ;
 			_MEMMOVE_ (PTRTOARR[&rax.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
-			mDeque.swap (rax) ;
 			mRead = ix ;
 		}
+		mDeque.swap (rax) ;
 	}
 
 	void update_resize () {
@@ -1468,13 +1466,13 @@ private:
 			if (rax.mKey > mPriority[iy].mKey)
 				jx = iy ;
 			iy++ ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(jx != ix) ? (mPriority[jx].mKey) :
 				(rax.mKey)) ;
 			for (FOR_ONCE_DO) {
 				if (iy >= mWrite)
 					discard ;
-				if (e1x <= mPriority[iy].mKey)
+				if (r1y <= mPriority[iy].mKey)
 					discard ;
 				jx = iy ;
 			}
@@ -1498,13 +1496,13 @@ private:
 			if (mPriority[r1x].mKey > mPriority[out[iy]].mKey)
 				jx = iy ;
 			iy++ ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(jx != ix) ? (mPriority[out[jx]].mKey) :
 				(mPriority[r1x].mKey)) ;
 			for (FOR_ONCE_DO) {
 				if (iy >= len)
 					discard ;
-				if (e1x <= mPriority[out[iy]].mKey)
+				if (r1y <= mPriority[out[iy]].mKey)
 					discard ;
 				jx = iy ;
 			}
@@ -1664,10 +1662,10 @@ public:
 
 	void add (const ITEM &item) {
 		INDEX ix = mList.alloc (std::move (item) ,mLast ,VAR_NONE) ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
 			mFirst) ;
-		e1x = ix ;
+		r1y = ix ;
 		mLast = ix ;
 	}
 
@@ -1678,10 +1676,10 @@ public:
 
 	void add (ITEM &&item) {
 		INDEX ix = mList.alloc (std::move (item) ,mLast ,VAR_NONE) ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
 			mFirst) ;
-		e1x = ix ;
+		r1y = ix ;
 		mLast = ix ;
 	}
 
@@ -1708,10 +1706,10 @@ public:
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mFirst ;
 		mFirst = mList[ix].mRight ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
 			mLast) ;
-		e1x = VAR_NONE ;
+		r1y = VAR_NONE ;
 		mList.free (ix) ;
 	}
 
@@ -1720,10 +1718,10 @@ public:
 		INDEX ix = mFirst ;
 		item = std::move (mList[ix].mItem) ;
 		mFirst = mList[ix].mRight ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
 			mLast) ;
-		e1x = VAR_NONE ;
+		r1y = VAR_NONE ;
 		mList.free (ix) ;
 	}
 
@@ -1744,25 +1742,25 @@ public:
 
 	INDEX insert () popping {
 		INDEX ret = mList.alloc (mLast ,VAR_NONE) ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
 			mFirst) ;
-		e1x = ret ;
+		r1y = ret ;
 		mLast = ret ;
 		return std::move (ret) ;
 	}
 
 	INDEX insert_before (INDEX index) popping {
 		INDEX ret = mList.alloc (VAR_NONE ,index) ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mLeft) :
 			mLast) ;
-		mList[ret].mLeft = e1x ;
-		auto &e2x = _SWITCH_ (
-			(e1x != VAR_NONE) ? (mList[e1x].mRight) :
+		mList[ret].mLeft = r1y ;
+		auto &r2y = _SWITCH_ (
+			(r1y != VAR_NONE) ? (mList[r1y].mRight) :
 			mFirst) ;
-		e2x = ret ;
-		e1x = ret ;
+		r2y = ret ;
+		r1y = ret ;
 		return std::move (ret) ;
 	}
 
@@ -1777,24 +1775,24 @@ public:
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mLast ;
 		mLast = mList[ix].mLeft ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mLast != VAR_NONE) ? (mList[mLast].mRight) :
 			mFirst) ;
-		e1x = VAR_NONE ;
+		r1y = VAR_NONE ;
 		mList.free (ix) ;
 	}
 
 	void eswap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
-		auto &e1x = prev_next (index1) ;
-		auto &e2x = prev_next (index2) ;
-		auto &e3x = next_prev (index1) ;
-		auto &e4x = next_prev (index2) ;
-		e1x = index2 ;
-		e2x = index1 ;
-		e3x = index2 ;
-		e4x = index1 ;
+		auto &r1y = prev_next (index1) ;
+		auto &r2y = prev_next (index2) ;
+		auto &r3y = next_prev (index1) ;
+		auto &r4y = next_prev (index2) ;
+		r1y = index2 ;
+		r2y = index1 ;
+		r3y = index2 ;
+		r4y = index1 ;
 		_SWAP_ (mList[index1].mLeft ,mList[index2].mLeft) ;
 		_SWAP_ (mList[index1].mRight ,mList[index2].mRight) ;
 	}
@@ -1802,15 +1800,15 @@ public:
 	void splice_before (INDEX index ,INDEX seg) {
 		prev_next (seg) = mList[seg].mRight ;
 		next_prev (seg) = mList[seg].mLeft ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mLeft) :
 			mLast) ;
-		mList[seg].mLeft = e1x ;
-		auto &e2x = _SWITCH_ (
-			(e1x != VAR_NONE) ? (mList[e1x].mRight) :
+		mList[seg].mLeft = r1y ;
+		auto &r2y = _SWITCH_ (
+			(r1y != VAR_NONE) ? (mList[r1y].mRight) :
 			mFirst) ;
-		e2x = seg ;
-		e1x = seg ;
+		r2y = seg ;
+		r1y = seg ;
 	}
 
 	void splice_after (INDEX index ,INDEX seg) {
@@ -2184,13 +2182,13 @@ private:
 			INDEX jx = position_before (ret) ;
 			if (jx == pos && mHead[ret][0] != VAR_NONE)
 				break ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(jx < pos) ? ix :
 				iy) ;
 			const auto r1x = _SWITCH_ (
 				(jx < pos) ? (ret + 1) :
 				(ret - 1)) ;
-			e1x = r1x ;
+			r1y = r1x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
 		ret = mHead[ret][0] ;
@@ -3214,11 +3212,11 @@ private:
 			if (!(curr != VAR_NONE))
 				discard ;
 			mSet[accm].mUp = curr ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mSet[accm].mKey < mSet[curr].mKey) ? (mSet[curr].mLeft) :
 				(mSet[curr].mRight)) ;
-			update_emplace (e1x ,accm) ;
-			e1x = mTop ;
+			update_emplace (r1y ,accm) ;
+			r1y = mTop ;
 			mTop = curr ;
 		}
 	}
@@ -3264,14 +3262,14 @@ private:
 		if SWITCH_CASE (fax) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
-			auto &e1x = mSet[iy].mLeft ;
-			rotate_left (e1x) ;
-			e1x = mTop ;
+			auto &r1y = mSet[iy].mLeft ;
+			rotate_left (r1y) ;
+			r1y = mTop ;
 			mSet[curr].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &e2x = prev_next (iy) ;
-			rotate_right (e2x) ;
-			e2x = mTop ;
+			auto &r2y = prev_next (iy) ;
+			rotate_right (r2y) ;
+			r2y = mTop ;
 			mTop = ix ;
 		}
 		if SWITCH_CASE (fax) {
@@ -3279,9 +3277,9 @@ private:
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &e3x = prev_next (iy) ;
-			rotate_right (e3x) ;
-			e3x = mTop ;
+			auto &r3y = prev_next (iy) ;
+			rotate_right (r3y) ;
+			r3y = mTop ;
 			mTop = curr ;
 		}
 	}
@@ -3303,14 +3301,14 @@ private:
 		if SWITCH_CASE (fax) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
-			auto &e1x = mSet[iy].mRight ;
-			rotate_right (e1x) ;
-			e1x = mTop ;
+			auto &r1y = mSet[iy].mRight ;
+			rotate_right (r1y) ;
+			r1y = mTop ;
 			mSet[curr].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &e2x = prev_next (iy) ;
-			rotate_left (e2x) ;
-			e2x = mTop ;
+			auto &r2y = prev_next (iy) ;
+			rotate_left (r2y) ;
+			r2y = mTop ;
 			mTop = ix ;
 		}
 		if SWITCH_CASE (fax) {
@@ -3318,9 +3316,9 @@ private:
 				discard ;
 			mSet[ix].mRed = FALSE ;
 			mSet[iy].mRed = TRUE ;
-			auto &e3x = prev_next (iy) ;
-			rotate_left (e3x) ;
-			e3x = mTop ;
+			auto &r3y = prev_next (iy) ;
+			rotate_left (r3y) ;
+			r3y = mTop ;
 			mTop = curr ;
 		}
 	}
@@ -3353,97 +3351,97 @@ private:
 	}
 
 	void update_remove_left (INDEX curr ,INDEX accm) {
-		auto &e1x = mSet[accm].mRight ;
+		auto &r1y = mSet[accm].mRight ;
 		for (FOR_ONCE_DO) {
-			if (!mSet[e1x].mRed)
+			if (!mSet[r1y].mRed)
 				discard ;
-			mSet[e1x].mRed = FALSE ;
+			mSet[r1y].mRed = FALSE ;
 			mSet[accm].mRed = TRUE ;
-			auto &e2x = prev_next (accm) ;
-			rotate_left (e2x) ;
-			e2x = mTop ;
+			auto &r2y = prev_next (accm) ;
+			rotate_left (r2y) ;
+			r2y = mTop ;
 		}
-		const auto r1x = BOOL (mSet[e1x].mLeft != VAR_NONE && mSet[mSet[e1x].mLeft].mRed) ;
-		const auto r2x = BOOL (mSet[e1x].mRight != VAR_NONE && mSet[mSet[e1x].mRight].mRed) ;
+		const auto r1x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
+		const auto r2x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (r1x)
 				discard ;
 			if (r2x)
 				discard ;
-			mSet[e1x].mRed = TRUE ;
+			mSet[r1y].mRed = TRUE ;
 			mTop = accm ;
 		}
 		if SWITCH_CASE (fax) {
 			if (r2x)
 				discard ;
-			mSet[mSet[e1x].mLeft].mRed = FALSE ;
-			mSet[e1x].mRed = TRUE ;
-			rotate_right (e1x) ;
-			e1x = mTop ;
-			mSet[e1x].mRed = mSet[accm].mRed ;
+			mSet[mSet[r1y].mLeft].mRed = FALSE ;
+			mSet[r1y].mRed = TRUE ;
+			rotate_right (r1y) ;
+			r1y = mTop ;
+			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
-			mSet[mSet[e1x].mRight].mRed = FALSE ;
-			auto &e3x = prev_next (accm) ;
-			rotate_left (e3x) ;
-			e3x = mTop ;
+			mSet[mSet[r1y].mRight].mRed = FALSE ;
+			auto &r3y = prev_next (accm) ;
+			rotate_left (r3y) ;
+			r3y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
-			mSet[e1x].mRed = mSet[accm].mRed ;
+			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
-			mSet[mSet[e1x].mRight].mRed = FALSE ;
-			auto &e4x = prev_next (accm) ;
-			rotate_left (e4x) ;
-			e4x = mTop ;
+			mSet[mSet[r1y].mRight].mRed = FALSE ;
+			auto &r4y = prev_next (accm) ;
+			rotate_left (r4y) ;
+			r4y = mTop ;
 			mTop = mRoot ;
 		}
 	}
 
 	void update_remove_right (INDEX curr ,INDEX accm) {
-		auto &e1x = mSet[accm].mLeft ;
+		auto &r1y = mSet[accm].mLeft ;
 		for (FOR_ONCE_DO) {
-			if (!mSet[e1x].mRed)
+			if (!mSet[r1y].mRed)
 				discard ;
-			mSet[e1x].mRed = FALSE ;
+			mSet[r1y].mRed = FALSE ;
 			mSet[accm].mRed = TRUE ;
-			auto &e2x = prev_next (accm) ;
-			rotate_right (e2x) ;
-			e2x = mTop ;
+			auto &r2y = prev_next (accm) ;
+			rotate_right (r2y) ;
+			r2y = mTop ;
 		}
-		const auto r1x = BOOL (mSet[e1x].mRight != VAR_NONE && mSet[mSet[e1x].mRight].mRed) ;
-		const auto r2x = BOOL (mSet[e1x].mLeft != VAR_NONE && mSet[mSet[e1x].mLeft].mRed) ;
+		const auto r1x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
+		const auto r2x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (r1x)
 				discard ;
 			if (r2x)
 				discard ;
-			mSet[e1x].mRed = TRUE ;
+			mSet[r1y].mRed = TRUE ;
 			mTop = accm ;
 		}
 		if SWITCH_CASE (fax) {
 			if (r2x)
 				discard ;
-			mSet[mSet[e1x].mRight].mRed = FALSE ;
-			mSet[e1x].mRed = TRUE ;
-			rotate_left (e1x) ;
-			e1x = mTop ;
-			mSet[e1x].mRed = mSet[accm].mRed ;
+			mSet[mSet[r1y].mRight].mRed = FALSE ;
+			mSet[r1y].mRed = TRUE ;
+			rotate_left (r1y) ;
+			r1y = mTop ;
+			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
-			mSet[mSet[e1x].mLeft].mRed = FALSE ;
-			auto &e3x = prev_next (accm) ;
-			rotate_right (e3x) ;
-			e3x = mTop ;
+			mSet[mSet[r1y].mLeft].mRed = FALSE ;
+			auto &r3y = prev_next (accm) ;
+			rotate_right (r3y) ;
+			r3y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
-			mSet[e1x].mRed = mSet[accm].mRed ;
+			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
-			mSet[mSet[e1x].mLeft].mRed = FALSE ;
-			auto &e4x = prev_next (accm) ;
-			rotate_right (e4x) ;
-			e4x = mTop ;
+			mSet[mSet[r1y].mLeft].mRed = FALSE ;
+			auto &r4y = prev_next (accm) ;
+			rotate_right (r4y) ;
+			r4y = mTop ;
 			mTop = mRoot ;
 		}
 	}
@@ -3490,26 +3488,26 @@ private:
 	void eswap (INDEX index1 ,INDEX index2) {
 		if (index1 == index2)
 			return ;
-		auto &e1x = prev_next (index2) ;
-		auto &e2x = _SWITCH_ (
+		auto &r1y = prev_next (index2) ;
+		auto &r2y = _SWITCH_ (
 			(mSet[index2].mLeft != VAR_NONE) ? (mSet[mSet[index2].mLeft].mUp) :
 			index1) ;
-		auto &e3x = _SWITCH_ (
+		auto &r3y = _SWITCH_ (
 			(mSet[index2].mRight != VAR_NONE) ? (mSet[mSet[index2].mRight].mUp) :
 			index1) ;
-		auto &e4x = prev_next (index1) ;
-		auto &e5x = _SWITCH_ (
+		auto &r4y = prev_next (index1) ;
+		auto &r5y = _SWITCH_ (
 			(mSet[index1].mLeft != VAR_NONE) ? (mSet[mSet[index1].mLeft].mUp) :
 			index2) ;
-		auto &e6x = _SWITCH_ (
+		auto &r6y = _SWITCH_ (
 			(mSet[index1].mRight != VAR_NONE) ? (mSet[mSet[index1].mRight].mUp) :
 			index2) ;
-		e1x = index1 ;
-		e2x = index1 ;
-		e3x = index1 ;
-		e4x = index2 ;
-		e5x = index2 ;
-		e6x = index2 ;
+		r1y = index1 ;
+		r2y = index1 ;
+		r3y = index1 ;
+		r4y = index2 ;
+		r5y = index2 ;
+		r6y = index2 ;
 		_SWAP_ (mSet[index1].mRed ,mSet[index2].mRed) ;
 		_SWAP_ (mSet[index1].mUp ,mSet[index2].mUp) ;
 		_SWAP_ (mSet[index1].mLeft ,mSet[index2].mLeft) ;
@@ -4119,10 +4117,10 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ix ;
+			r1y = ix ;
 			mLast = ix ;
 			mLength++ ;
 			spec.update_insert (mRoot) ;
@@ -4146,10 +4144,10 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ix ;
+			r1y = ix ;
 			mLast = ix ;
 			mLength++ ;
 			spec.update_insert (mRoot) ;
@@ -4280,10 +4278,10 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ix ;
+			r1y = ix ;
 			mLast = ix ;
 			mLength++ ;
 			spec.update_insert (mRoot) ;
@@ -4303,10 +4301,10 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ix ;
+			r1y = ix ;
 			mLast = ix ;
 			mLength++ ;
 			spec.update_insert (mRoot) ;
@@ -4477,10 +4475,10 @@ public:
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ret ;
+			r1y = ret ;
 			mLast = ret ;
 			mLength++ ;
 			update_insert (mRoot) ;
@@ -4497,10 +4495,10 @@ public:
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(mLast != VAR_NONE) ? (mSet.self[mLast].mNext) :
 				(mFirst)) ;
-			e1x = ret ;
+			r1y = ret ;
 			mLast = ret ;
 			mLength++ ;
 			update_insert (mRoot) ;
@@ -4606,18 +4604,18 @@ private:
 		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
-			auto &e1x = mSet.self[ix].mLeft ;
-			rotate_left (e1x) ;
-			e1x = mTop ;
+			auto &r1y = mSet.self[ix].mLeft ;
+			rotate_left (r1y) ;
+			r1y = mTop ;
 		}
 		rotate_right (ix) ;
 		ix = mTop ;
-		auto &e2x = mSet.self[ix].mLeft ;
-		update_insert_left (e2x) ;
-		e2x = mTop ;
-		auto &e3x = mSet.self[ix].mRight ;
-		update_insert_right (e3x) ;
-		e3x = mTop ;
+		auto &r2y = mSet.self[ix].mLeft ;
+		update_insert_left (r2y) ;
+		r2y = mTop ;
+		auto &r3y = mSet.self[ix].mRight ;
+		update_insert_right (r3y) ;
+		r3y = mTop ;
 		update_insert_left (ix) ;
 		ix = mTop ;
 		update_insert_right (ix) ;
@@ -4639,18 +4637,18 @@ private:
 		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
-			auto &e1x = mSet.self[ix].mRight ;
-			rotate_right (e1x) ;
-			e1x = mTop ;
+			auto &r1y = mSet.self[ix].mRight ;
+			rotate_right (r1y) ;
+			r1y = mTop ;
 		}
 		rotate_left (ix) ;
 		ix = mTop ;
-		auto &e2x = mSet.self[ix].mLeft ;
-		update_insert_left (e2x) ;
-		e2x = mTop ;
-		auto &e3x = mSet.self[ix].mRight ;
-		update_insert_right (e3x) ;
-		e3x = mTop ;
+		auto &r2y = mSet.self[ix].mLeft ;
+		update_insert_left (r2y) ;
+		r2y = mTop ;
+		auto &r3y = mSet.self[ix].mRight ;
+		update_insert_right (r3y) ;
+		r3y = mTop ;
 		update_insert_left (ix) ;
 		ix = mTop ;
 		update_insert_right (ix) ;

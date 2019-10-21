@@ -1638,12 +1638,12 @@ public:
 
 private:
 	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
+		auto rax = data ;
 		INDEX iw = out_i ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			if (!(data > 0))
 				discard ;
-			auto rax = data ;
 			while (TRUE) {
 				if (rax == 0)
 					break ;
@@ -1654,7 +1654,6 @@ private:
 		if SWITCH_CASE (ifa) {
 			if (!(data < 0))
 				discard ;
-			auto rax = data ;
 			while (TRUE) {
 				if (rax == 0)
 					break ;

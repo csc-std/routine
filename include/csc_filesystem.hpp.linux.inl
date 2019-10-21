@@ -428,12 +428,12 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,const Function<voi
 			if (r4x == _PCSTR_ (".."))
 				discard ;
 			rax += r4x ;
-			auto &e1x = _SWITCH_ (
+			auto &r1y = _SWITCH_ (
 				(_FINDDIRECTORY_ (rax)) ? dire_proc :
 				file_proc) ;
-			if (!e1x.exist ())
+			if (!r1y.exist ())
 				discard ;
-			e1x (rax) ;
+			r1y (rax) ;
 		}
 		rax[r1x] = 0 ;
 	}

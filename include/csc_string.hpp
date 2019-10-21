@@ -678,8 +678,8 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 }
 
 inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) {
-	auto &e1x = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (e1x) ;
+	auto &r1y = _CAST_<String<STRUW>> (val) ;
+	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (r1y) ;
 }
 
 inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
@@ -688,8 +688,8 @@ inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
 }
 
 inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) {
-	auto &e1x = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (e1x) ;
+	auto &r1y = _CAST_<String<STRUW>> (val) ;
+	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (r1y) ;
 }
 
 inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
@@ -698,8 +698,8 @@ inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
 }
 
 inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) {
-	auto &e1x = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (e1x) ;
+	auto &r1y = _CAST_<String<STRUW>> (val) ;
+	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (r1y) ;
 }
 
 inline String<STRW> _U32STOWS_ (const String<STRU32> &val) {
@@ -778,19 +778,19 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
 inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
-	auto &e1x = _CACHE_ ([] () {
+	auto &r1y = _CACHE_ ([] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
 		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
 			ret.add (r1x[i][1] ,r1x[i][0]) ;
 		return std::move (ret) ;
 	}) ;
-	auto &e2x = _CAST_<String<STRUA>> (val) ;
-	String<STRW> ret = String<STRW> (e2x.length ()) ;
+	auto &r2y = _CAST_<String<STRUA>> (val) ;
+	String<STRW> ret = String<STRW> (r2y.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
-	for (auto &&i : e2x) {
+	for (auto &&i : r2y) {
 		if (rax == VAR_NONE)
 			discard ;
 		auto fax = FALSE ;
@@ -812,14 +812,14 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		INDEX ix = e1x.find (rbx) ;
+		INDEX ix = r1y.find (rbx) ;
 		auto fbx = FALSE ;
 		if SWITCH_CASE (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (e1x[ix].item) ;
+			ret[iw++] = STRW (r1y[ix].item) ;
 			rax = 0 ;
 		}
 		if SWITCH_CASE (fbx) {
@@ -834,7 +834,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (e1x[ix].item) ;
+			ret[iw++] = STRW (r1y[ix].item) ;
 			rax = 0 ;
 		}
 		if SWITCH_CASE (fbx) {
@@ -858,7 +858,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 }
 
 inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
-	auto &e1x = _CACHE_ ([] () {
+	auto &r1y = _CACHE_ ([] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
 		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
@@ -871,7 +871,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			discard ;
-		INDEX ix = e1x.find (STRUW (i)) ;
+		INDEX ix = r1y.find (STRUW (i)) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -883,17 +883,17 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(e1x[ix].item <= STRUW (0X00FF)))
+			if (!(r1y[ix].item <= STRUW (0X00FF)))
 				discard ;
-			ret[iw++] = STRUA (e1x[ix].item) ;
+			ret[iw++] = STRUA (r1y[ix].item) ;
 		}
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(e1x[ix].item <= STRUW (0XFFFF)))
+			if (!(r1y[ix].item <= STRUW (0XFFFF)))
 				discard ;
-			ret[iw++] = STRUA (e1x[ix].item >> 8) ;
-			ret[iw++] = STRUA (e1x[ix].item) ;
+			ret[iw++] = STRUA (r1y[ix].item >> 8) ;
+			ret[iw++] = STRUA (r1y[ix].item) ;
 		}
 		if SWITCH_CASE (fax) {
 			ret.clear () ;
@@ -1350,15 +1350,15 @@ template <class _RET = STR>
 inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
-	auto &e1x = _CAST_<EndianBytes<CHAR>> (stru.P2) ;
+	auto &r1y = _CAST_<EndianBytes<CHAR>> (stru.P2) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << VAR (e1x[0]) ;
+	wos << VAR (r1y[0]) ;
 	wos << _RET ('.') ;
-	wos << VAR (e1x[1]) ;
+	wos << VAR (r1y[1]) ;
 	wos << _RET ('.') ;
-	wos << VAR (e1x[2]) ;
+	wos << VAR (r1y[2]) ;
 	wos << _RET ('.') ;
-	wos << VAR (e1x[3]) ;
+	wos << VAR (r1y[3]) ;
 	for (FOR_ONCE_DO) {
 		if (stru.P1 == 0)
 			discard ;

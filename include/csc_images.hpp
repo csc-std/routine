@@ -224,13 +224,13 @@ public:
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
-		auto &e1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(mHeap.exist ()) ? (mHeap->mWidth) :
 			r1x) ;
-		mCX = e1x[0] ;
-		mCY = e1x[1] ;
-		mCW = e1x[2] ;
-		mCK = e1x[3] ;
+		mCX = r1y[0] ;
+		mCY = r1y[1] ;
+		mCW = r1y[2] ;
+		mCK = r1y[3] ;
 	}
 
 	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {

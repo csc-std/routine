@@ -1197,10 +1197,10 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
-			auto &e1x = _CACHE_ ([r1x] () noexcept {
+			auto &r1y = _CACHE_ ([r1x] () noexcept {
 				return r1x ;
 			}) ;
-			return e1x.mString ;
+			return r1y.mString ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
@@ -2555,12 +2555,12 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			auto &e1x = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
-			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (e1x)) ;
+			auto &r1y = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
+			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1y)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<_RET>> (r2x))) ;
 			(void) r2x ;
-			_CREATE_ (&e1x ,std::forward<_ARGS> (args)...) ;
+			_CREATE_ (&r1y ,std::forward<_ARGS> (args)...) ;
 		}
 	} ;
 
@@ -3932,8 +3932,8 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		auto &e1x = _CAST_<TEMP<UNIT>> (item) ;
-		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,e1x)) ;
+		auto &r1y = _CAST_<TEMP<UNIT>> (item) ;
+		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,r1y)) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;

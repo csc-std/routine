@@ -162,29 +162,29 @@ template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
 	static void init (VAR data ,BOOL read_only) {
-		auto &e1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
+		auto &r1y = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
 		if (r1x != NULL)
 			return ;
-		const auto r2x = GlobalStatic<void>::static_new_node (e1x ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		r2x->mReadOnly = read_only ;
 		r2x->mData = data ;
 	}
 
 	static VAR load () popping {
-		auto &e1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
+		auto &r1y = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		return r1x->mData ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &e1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
+		auto &r1y = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
+		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r1x->mReadOnly) ;
 		if (r1x->mData == expect)
@@ -193,13 +193,13 @@ public:
 	}
 
 	static void save (VAR data) {
-		auto &e1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (e1x.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::static_find_node (e1x ,GUID) ;
+		auto &r1y = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
+		auto rax = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
 		for (FOR_ONCE_DO) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::static_new_node (e1x ,GUID) ;
+			rax = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -231,16 +231,16 @@ private:
 
 public:
 	static Singleton<UNIT> &unique () popping {
-		auto &e1x = _CACHE_ ([] () {
-			auto &e2x = GlobalStatic<void>::static_unique () ;
-			ScopedGuard<std::mutex> ANONYMOUS (e2x.mNodeMutex) ;
+		auto &r1y = _CACHE_ ([] () {
+			auto &r2y = GlobalStatic<void>::static_unique () ;
+			ScopedGuard<std::mutex> ANONYMOUS (r2y.mNodeMutex) ;
 			const auto r2x = Detail::guid_from_typeid_name () ;
-			auto rax = GlobalStatic<void>::static_find_node (e2x ,r2x) ;
+			auto rax = GlobalStatic<void>::static_find_node (r2y ,r2x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::static_new_node (e2x ,r2x) ;
+				rax = GlobalStatic<void>::static_new_node (r2y ,r2x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
@@ -251,7 +251,7 @@ public:
 			const auto r5x = &_LOAD_<Holder> (rax->mData) ;
 			return IntrusiveRef<Holder> (r5x).watch () ;
 		}) ;
-		return _XVALUE_<Holder> (e1x).mData ;
+		return _XVALUE_<Holder> (r1y).mData ;
 	}
 
 private:
@@ -282,10 +282,10 @@ private:
 			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
-			auto &e1x = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
+			auto &r1y = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
 			_DEBUG_ASSERT_ (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE)) ;
 			const auto r2x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
-			_MEMCOPY_ (PTRTOARR[ret] ,e1x ,r2x) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,r1y ,r2x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;
@@ -305,9 +305,9 @@ private:
 
 private:
 	class Implement ;
-	Monostate<FLAG> mCoStatus ;
-	AutoRef<UNIT> mCoContext ;
-	AnyRef<void> mCoBreakPoint ;
+	Monostate<FLAG> mStatus ;
+	AutoRef<UNIT> mContext ;
+	AnyRef<void> mBreakPoint ;
 	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 	Array<AnyRef<void>> mSubBreakPoint ;
 	Deque<INDEX> mSubQueue ;
@@ -316,27 +316,27 @@ private:
 
 public:
 	Coroutine () {
-		mCoStatus.self = STATUS_CREATED ;
+		mStatus.self = STATUS_CREATED ;
 		mSubCurr = VAR_NONE ;
 	}
 
 	BOOL ready () const {
-		if (mCoStatus.self != STATUS_STOPPED)
+		if (mStatus.self != STATUS_STOPPED)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	UNIT &context () & {
-		_DEBUG_ASSERT_ (mCoContext.exist ()) ;
-		return mCoContext ;
+		_DEBUG_ASSERT_ (mContext.exist ()) ;
+		return mContext ;
 	}
 
 	UNIT &context () && = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
-		mCoContext = AutoRef<UNIT>::make () ;
-		mCoBreakPoint = AnyRef<void> () ;
+		mContext = AutoRef<UNIT>::make () ;
+		mBreakPoint = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
 		mSubQueue = Deque<INDEX> (mSubProc.length ()) ;
@@ -347,41 +347,41 @@ public:
 	}
 
 	void execute () {
-		_DEBUG_ASSERT_ (!mCoBreakPoint.exist ()) ;
-		init_break_point (mCoBreakPoint) ;
+		_DEBUG_ASSERT_ (!mBreakPoint.exist ()) ;
+		init_break_point (mBreakPoint) ;
 		for (auto &&i : mSubBreakPoint) {
 			_DEBUG_ASSERT_ (!i.exist ()) ;
 			init_break_point (i) ;
 		}
-		mCoStatus.self = STATUS_CREATED ;
-		store_break_point (mCoBreakPoint) ;
+		mStatus.self = STATUS_CREATED ;
+		store_break_point (mBreakPoint) ;
 		for (auto &&i : mSubBreakPoint) {
-			if (mCoStatus.self != STATUS_STOPPED)
+			if (mStatus.self != STATUS_STOPPED)
 				continue ;
 			if (!i.exist ())
 				continue ;
 			goto_break_point (i) ;
 		}
-		if (mCoStatus.self != STATUS_CREATED)
+		if (mStatus.self != STATUS_CREATED)
 			return ;
 		for (auto &&i : mSubBreakPoint) {
-			if (mCoStatus.self != STATUS_CREATED)
+			if (mStatus.self != STATUS_CREATED)
 				continue ;
 			store_break_point (i) ;
 		}
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
 		const auto r1x = mSubCurr ;
 		_CALL_TRY_ ([&] () {
-			if (mCoStatus.self == STATUS_STOPPED)
+			if (mStatus.self == STATUS_STOPPED)
 				return ;
-			mCoStatus.self = STATUS_RUNNING ;
+			mStatus.self = STATUS_RUNNING ;
 			mSubProc[r1x] (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
 		mSubBreakPoint[r1x] = AnyRef<void> () ;
-		mCoStatus.self = STATUS_STOPPED ;
-		goto_break_point (mCoBreakPoint) ;
+		mStatus.self = STATUS_STOPPED ;
+		goto_break_point (mBreakPoint) ;
 	}
 
 private:
@@ -402,8 +402,8 @@ private:
 
 public:
 	UNIT &to () {
-		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
-		return mSelf.mCoContext ;
+		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
+		return mSelf.mContext ;
 	}
 
 	inline implicit operator UNIT & () {
@@ -415,8 +415,8 @@ public:
 	}
 
 	const UNIT &to () const {
-		_DEBUG_ASSERT_ (mSelf.mCoContext.exist ()) ;
-		return mSelf.mCoContext ;
+		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
+		return mSelf.mContext ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -434,16 +434,16 @@ public:
 	void sub_await (VAR priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
 		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
-		mSelf.mCoStatus.self = STATUS_SUSPEND ;
+		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
+		mSelf.mStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
-		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
+		_DYNAMIC_ASSERT_ (mSelf.mStatus.self != STATUS_STOPPED) ;
+		if (mSelf.mStatus.self != STATUS_SUSPEND)
 			return ;
 		mSelf.mSubAwaitQueue.add (priority ,mSelf.mSubCurr) ;
 		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
 		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
-		mSelf.mCoStatus.self = STATUS_RUNNING ;
+		mSelf.mStatus.self = STATUS_RUNNING ;
 		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
 	}
 
@@ -465,27 +465,27 @@ public:
 		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
 		if (mSelf.mSubQueue.empty ())
 			return ;
-		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
-		mSelf.mCoStatus.self = STATUS_SUSPEND ;
+		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
+		mSelf.mStatus.self = STATUS_SUSPEND ;
 		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self != STATUS_STOPPED) ;
-		if (mSelf.mCoStatus.self != STATUS_SUSPEND)
+		_DYNAMIC_ASSERT_ (mSelf.mStatus.self != STATUS_STOPPED) ;
+		if (mSelf.mStatus.self != STATUS_SUSPEND)
 			return ;
 		mSelf.mSubQueue.add (mSelf.mSubCurr) ;
 		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
 		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
-		mSelf.mCoStatus.self = STATUS_RUNNING ;
+		mSelf.mStatus.self = STATUS_RUNNING ;
 		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
 	}
 
 	void sub_return () {
 		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mCoStatus.self == STATUS_RUNNING) ;
+		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
 		mSelf.mSubQueue.clear () ;
 		mSelf.mSubAwaitQueue.clear () ;
 		mSelf.mSubCurr = VAR_NONE ;
-		mSelf.mCoStatus.self = STATUS_STOPPED ;
-		goto_break_point (mSelf.mCoBreakPoint) ;
+		mSelf.mStatus.self = STATUS_STOPPED ;
+		goto_break_point (mSelf.mBreakPoint) ;
 	}
 } ;
 

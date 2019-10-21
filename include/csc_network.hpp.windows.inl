@@ -312,8 +312,8 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const AnyRef<void> &_socket) {
-		auto &e1x = _socket.rebind<TCPSocket::Implement> ().self ;
-		mThis = e1x.mThis ;
+		auto &r1y = _socket.rebind<TCPSocket::Implement> ().self ;
+		mThis = r1y.mThis ;
 		mListener = std::move (mThis->mSocket) ;
 		const auto r1x = ::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;

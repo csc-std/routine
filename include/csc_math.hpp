@@ -276,16 +276,16 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
-		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) == DATA (0X0010000000000000))
+		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) != 0)
 			break ;
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
 	for (FOR_ONCE_DO) {
-		const auto r2x = VAR64 (DATA (-1074) - ret[1]) ;
-		if (r2x <= 0)
+		const auto r3x = VAR64 (DATA (-1074) - ret[1]) ;
+		if (r3x <= 0)
 			discard ;
-		ret[0] = ret[0] >> r2x ;
+		ret[0] = ret[0] >> r3x ;
 		ret[1] = DATA (-1075) ;
 	}
 	ret[1] += 1075 ;
@@ -335,6 +335,7 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 inline VAL64 _inline_TAYLOR_EXP_ (VAL64 lnx ,VAL64 y) {
 	VAL64 ret = 1 ;
 	const auto r1x = lnx * y ;
+	_DEBUG_ASSERT_ (r1x >= 0) ;
 	auto rax = VAL64 (1) ;
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
@@ -353,19 +354,28 @@ inline ARRAY3<VAR64> _inline_IEEE754_E2TOE10_PART_ (const ARRAY3<VAR64> &sne2) {
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
-		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) == DATA (0X0010000000000000))
+		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) == 0)
 			break ;
-		ret[0] = ret[0] << 1 ;
+		ret[0] = ret[0] >> 1 ;
+		ret[1]++ ;
+	}
+	while (TRUE) {
+		if (ret[0] == 0)
+			break ;
+		const auto r2x = ret[0] << 1 ;
+		if ((r2x & ~DATA (0X000FFFFFFFFFFFFF)) != 0)
+			break ;
+		ret[0] = r2x ;
 		ret[1]-- ;
 	}
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
 inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _inline_IEEE754_E2TOE10_PART_ (sne2) ;
 	ARRAY3<DATA> ret ;
-	const auto r2x = VAL64 (MATH_LN2 / MATH_LN10) * VAL64 (r1x[1]) ;
+	const auto r1x = _inline_IEEE754_E2TOE10_PART_ (sne2) ;
 	_STATIC_WARNING_ ("mark") ;
+	const auto r2x = VAL64 (MATH_LN2 / MATH_LN10) * VAL64 (r1x[1]) ;
 	const auto r4x = _FLOOR_ (r2x ,VAL64 (1)) ;
 	const auto r3x = VAL64 (r1x[0]) * _inline_TAYLOR_EXP_ (VAL64 (MATH_LN10) ,(r2x - r4x)) ;
 	ret[0] = DATA (VAR64 (r3x)) ;
@@ -388,19 +398,28 @@ inline ARRAY3<VAR64> _inline_IEEE754_E10TOE2_PART_ (const ARRAY3<VAR64> &sne10) 
 	while (TRUE) {
 		if (ret[0] == 0)
 			break ;
-		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) != 0)
+		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) == 0)
 			break ;
-		ret[0] = (ret[0] << 3) + (ret[0] << 1) ;
+		ret[0] /= 10 ;
+		ret[1]++ ;
+	}
+	while (TRUE) {
+		if (ret[0] == 0)
+			break ;
+		const auto r2x = (ret[0] << 3) + (ret[0] << 1) ;
+		if ((r2x & ~DATA (0X000FFFFFFFFFFFFF)) != 0)
+			break ;
+		ret[0] = r2x ;
 		ret[1]-- ;
 	}
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
 inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
-	const auto r1x = _inline_IEEE754_E10TOE2_PART_ (sne10) ;
 	ARRAY3<DATA> ret ;
-	const auto r2x = VAL64 (MATH_LN10 / MATH_LN2) * VAL64 (r1x[1]) ;
+	const auto r1x = _inline_IEEE754_E10TOE2_PART_ (sne10) ;
 	_STATIC_WARNING_ ("mark") ;
+	const auto r2x = VAL64 (MATH_LN10 / MATH_LN2) * VAL64 (r1x[1]) ;
 	const auto r4x = _FLOOR_ (r2x ,VAL64 (1)) ;
 	const auto r3x = VAL64 (r1x[0]) * _inline_TAYLOR_EXP_ (VAL64 (MATH_LN2) ,(r2x - r4x)) ;
 	ret[0] = DATA (VAR64 (r3x)) ;
