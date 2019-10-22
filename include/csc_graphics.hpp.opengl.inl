@@ -186,8 +186,8 @@ public:
 
 	void compute_uniform_find (AnyRef<void> &_this ,const String<STR> &name ,INDEX &index) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		const auto r1x = identity_name (name) ;
-		index = INDEX (glGetUniformLocation (r1y ,r1x.raw ().self)) ;
+		const auto r2x = identity_name (name) ;
+		index = INDEX (glGetUniformLocation (r1y ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 	}
 
@@ -508,11 +508,11 @@ private:
 	inline String<STRA> identity_name (const String<STR> &name) const {
 		String<STRA> ret = String<STRA> (name.length ()) ;
 		for (INDEX i = 0 ,ie = ret.size () ; i < ie ; i++) {
-			const auto r2x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
-			const auto r3x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
-			const auto r4x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;
-			const auto r5x = BOOL (name[i] == STR ('_')) ;
-			_DEBUG_ASSERT_ (r2x || r3x || r4x || r5x) ;
+			const auto r1x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
+			const auto r2x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
+			const auto r3x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;
+			const auto r4x = BOOL (name[i] == STR ('_')) ;
+			_DEBUG_ASSERT_ (r1x || r2x || r3x || r4x) ;
 			ret[i] = STRA (name[i]) ;
 		}
 		return std::move (ret) ;

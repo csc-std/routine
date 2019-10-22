@@ -1496,13 +1496,13 @@ private:
 			if (mPriority[r1x].mKey > mPriority[out[iy]].mKey)
 				jx = iy ;
 			iy++ ;
-			auto &r1y = _SWITCH_ (
+			auto &r2y = _SWITCH_ (
 				(jx != ix) ? (mPriority[out[jx]].mKey) :
 				(mPriority[r1x].mKey)) ;
 			for (FOR_ONCE_DO) {
 				if (iy >= len)
 					discard ;
-				if (r1y <= mPriority[out[iy]].mKey)
+				if (r2y <= mPriority[out[iy]].mKey)
 					discard ;
 				jx = iy ;
 			}
@@ -2185,10 +2185,10 @@ private:
 			auto &r1y = _SWITCH_ (
 				(jx < pos) ? ix :
 				iy) ;
-			const auto r1x = _SWITCH_ (
+			const auto r2x = _SWITCH_ (
 				(jx < pos) ? (ret + 1) :
 				(ret - 1)) ;
-			r1y = r1x ;
+			r1y = r2x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
 		ret = mHead[ret][0] ;
@@ -3361,19 +3361,19 @@ private:
 			rotate_left (r2y) ;
 			r2y = mTop ;
 		}
-		const auto r1x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
-		const auto r2x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
+		const auto r3x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
+		const auto r4x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (r1x)
+			if (r3x)
 				discard ;
-			if (r2x)
+			if (r4x)
 				discard ;
 			mSet[r1y].mRed = TRUE ;
 			mTop = accm ;
 		}
 		if SWITCH_CASE (fax) {
-			if (r2x)
+			if (r4x)
 				discard ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
 			mSet[r1y].mRed = TRUE ;
@@ -3382,18 +3382,18 @@ private:
 			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
-			auto &r3y = prev_next (accm) ;
-			rotate_left (r3y) ;
-			r3y = mTop ;
+			auto &r5y = prev_next (accm) ;
+			rotate_left (r5y) ;
+			r5y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
 			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
-			auto &r4y = prev_next (accm) ;
-			rotate_left (r4y) ;
-			r4y = mTop ;
+			auto &r6y = prev_next (accm) ;
+			rotate_left (r6y) ;
+			r6y = mTop ;
 			mTop = mRoot ;
 		}
 	}
@@ -3409,19 +3409,19 @@ private:
 			rotate_right (r2y) ;
 			r2y = mTop ;
 		}
-		const auto r1x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
-		const auto r2x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
+		const auto r3x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
+		const auto r4x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (r1x)
+			if (r3x)
 				discard ;
-			if (r2x)
+			if (r4x)
 				discard ;
 			mSet[r1y].mRed = TRUE ;
 			mTop = accm ;
 		}
 		if SWITCH_CASE (fax) {
-			if (r2x)
+			if (r4x)
 				discard ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
 			mSet[r1y].mRed = TRUE ;
@@ -3430,18 +3430,18 @@ private:
 			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
-			auto &r3y = prev_next (accm) ;
-			rotate_right (r3y) ;
-			r3y = mTop ;
+			auto &r5y = prev_next (accm) ;
+			rotate_right (r5y) ;
+			r5y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
 			mSet[r1y].mRed = mSet[accm].mRed ;
 			mSet[accm].mRed = FALSE ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
-			auto &r4y = prev_next (accm) ;
-			rotate_right (r4y) ;
-			r4y = mTop ;
+			auto &r6y = prev_next (accm) ;
+			rotate_right (r6y) ;
+			r6y = mTop ;
 			mTop = mRoot ;
 		}
 	}
@@ -4604,18 +4604,18 @@ private:
 		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
-			auto &r1y = mSet.self[ix].mLeft ;
-			rotate_left (r1y) ;
-			r1y = mTop ;
+			auto &r4y = mSet.self[ix].mLeft ;
+			rotate_left (r4y) ;
+			r4y = mTop ;
 		}
 		rotate_right (ix) ;
 		ix = mTop ;
-		auto &r2y = mSet.self[ix].mLeft ;
-		update_insert_left (r2y) ;
-		r2y = mTop ;
-		auto &r3y = mSet.self[ix].mRight ;
-		update_insert_right (r3y) ;
-		r3y = mTop ;
+		auto &r5y = mSet.self[ix].mLeft ;
+		update_insert_left (r5y) ;
+		r5y = mTop ;
+		auto &r6y = mSet.self[ix].mRight ;
+		update_insert_right (r6y) ;
+		r6y = mTop ;
 		update_insert_left (ix) ;
 		ix = mTop ;
 		update_insert_right (ix) ;
@@ -4637,18 +4637,18 @@ private:
 		for (FOR_ONCE_DO) {
 			if (r1x < r2x)
 				discard ;
-			auto &r1y = mSet.self[ix].mRight ;
-			rotate_right (r1y) ;
-			r1y = mTop ;
+			auto &r4y = mSet.self[ix].mRight ;
+			rotate_right (r4y) ;
+			r4y = mTop ;
 		}
 		rotate_left (ix) ;
 		ix = mTop ;
-		auto &r2y = mSet.self[ix].mLeft ;
-		update_insert_left (r2y) ;
-		r2y = mTop ;
-		auto &r3y = mSet.self[ix].mRight ;
-		update_insert_right (r3y) ;
-		r3y = mTop ;
+		auto &r5y = mSet.self[ix].mLeft ;
+		update_insert_left (r5y) ;
+		r5y = mTop ;
+		auto &r6y = mSet.self[ix].mRight ;
+		update_insert_right (r6y) ;
+		r6y = mTop ;
 		update_insert_left (ix) ;
 		ix = mTop ;
 		update_insert_right (ix) ;

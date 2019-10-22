@@ -1197,10 +1197,10 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...args) noexcept {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (args...) ;
-			auto &r1y = _CACHE_ ([r1x] () noexcept {
+			auto &r2y = _CACHE_ ([r1x] () noexcept {
 				return r1x ;
 			}) ;
-			return r1y.mString ;
+			return r2y.mString ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
@@ -3994,11 +3994,11 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		const auto r2x = _MAX_ (len - (mSize - mLength) ,VAR_ZERO) ;
-		if (r2x == 0)
+		const auto r1x = _MAX_ (len - (mSize - mLength) ,VAR_ZERO) ;
+		if (r1x == 0)
 			return ;
-		_DEBUG_ASSERT_ (mSize + r2x > mSize) ;
-		auto rax = mAllocator.expand (mSize + r2x) ;
+		_DEBUG_ASSERT_ (mSize + r1x > mSize) ;
+		auto rax = mAllocator.expand (mSize + r1x) ;
 		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;

@@ -410,14 +410,14 @@ public:
 				discard ;
 			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
-			const auto r4x = &_LOAD_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
-			r4x->SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
-			r4x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
+			const auto r2x = &_LOAD_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
+			r2x->SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
+			r2x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : address) {
-				SymFromAddr (mSymbolFromAddress ,i ,NULL ,r4x) ;
-				const auto r2x = _BUILDHEX16S_ (DATA (r4x->Address)) ;
-				const auto r3x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x->Name])) ;
-				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r2x ,_PCSTR_ ("] : ") ,r3x) ;
+				SymFromAddr (mSymbolFromAddress ,i ,NULL ,r2x) ;
+				const auto r3x = _BUILDHEX16S_ (DATA (r2x->Address)) ;
+				const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x->Name])) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 			}
 		}
 		if SWITCH_CASE (fax) {

@@ -264,9 +264,9 @@ private:
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (VAR32)) ;
 		::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.P1] ,&rax.P2) ;
-		const auto r3x = _BITWISE_CAST_<VAR32> (rax.P1) ;
+		const auto r2x = _BITWISE_CAST_<VAR32> (rax.P1) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r3x == 0) ;
+		_DYNAMIC_ASSERT_ (r2x == 0) ;
 	}
 } ;
 
@@ -315,8 +315,8 @@ public:
 		auto &r1y = _socket.rebind<TCPSocket::Implement> ().self ;
 		mThis = r1y.mThis ;
 		mListener = std::move (mThis->mSocket) ;
-		const auto r1x = ::listen (mListener ,5) ;
-		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;
+		const auto r2x = ::listen (mListener ,5) ;
+		_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 	}
 
 	void wait_linker () {

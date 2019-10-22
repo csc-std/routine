@@ -861,9 +861,9 @@ public:
 				discard ;
 			for (FOR_ONCE_DO) {
 				data = attr ().convert_endian (mStream[mRead]) ;
-				const auto r2x = attr ().varify_escape_r (data) ;
+				const auto r1x = attr ().varify_escape_r (data) ;
 				mRead++ ;
-				if (!r2x)
+				if (!r1x)
 					discard ;
 				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
 				data = attr ().convert_endian (mStream[mRead]) ;
@@ -1674,19 +1674,19 @@ private:
 		INDEX iw = out_i ;
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
-		const auto r3x = log_of_number (rax[0]) ;
+		const auto r2x = log_of_number (rax[0]) ;
 		for (FOR_ONCE_DO) {
-			const auto r4x = r3x - precision ;
-			for (INDEX i = 0 ,ie = r4x - 1 ; i < ie ; i++) {
+			const auto r3x = r2x - precision ;
+			for (INDEX i = 0 ,ie = r3x - 1 ; i < ie ; i++) {
 				rax[0] /= attr ().varify_radix () ;
 				rax[1]++ ;
 			}
-			if (r4x <= 0)
+			if (r3x <= 0)
 				discard ;
 			rax[0] = _ROUND_ (rax[0] ,attr ().varify_radix ()) / attr ().varify_radix () ;
 			rax[1]++ ;
 		}
-		const auto r8x = log_of_number (rax[0]) ;
+		const auto r4x = log_of_number (rax[0]) ;
 		auto ifa = FALSE ;
 		if SWITCH_CASE (ifa) {
 			//@info: case '0'
@@ -1696,21 +1696,21 @@ private:
 		}
 		if SWITCH_CASE (ifa) {
 			//@info: case 'x.xxxExxx'
-			const auto r11x = r8x - 1 + rax[1] ;
-			if (!(_ABS_ (r11x) >= precision))
+			const auto r5x = r4x - 1 + rax[1] ;
+			if (!(_ABS_ (r5x) >= precision))
 				discard ;
-			compute_write_number (r11x ,out ,iw) ;
+			compute_write_number (r5x ,out ,iw) ;
 			for (FOR_ONCE_DO) {
-				if (r11x <= 0)
+				if (r5x <= 0)
 					discard ;
 				out[--iw] = REAL ('+') ;
 			}
 			out[--iw] = REAL ('e') ;
-			const auto r5x = _MAX_ ((r8x - 1 - precision) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r5x ; i < ie ; i++)
+			const auto r6x = _MAX_ ((r4x - 1 - precision) ,VAR_ZERO) ;
+			for (INDEX i = 0 ,ie = r6x ; i < ie ; i++)
 				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r5x ,ie = r8x - 1 ; i < ie ; i++) {
+			for (INDEX i = r6x ,ie = r4x - 1 ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
@@ -1726,14 +1726,14 @@ private:
 				discard ;
 			for (INDEX i = 0 ,ie = LENGTH (rax[1]) ; i < ie ; i++)
 				out[--iw] = attr ().convert_number_w (0) ;
-			for (INDEX i = 0 ,ie = r8x ; i < ie ; i++) {
+			for (INDEX i = 0 ,ie = r4x ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
 		}
 		if SWITCH_CASE (ifa) {
 			//@info: case 'xxx.xxx'
-			if (!(rax[1] >= 1 - r8x))
+			if (!(rax[1] >= 1 - r4x))
 				discard ;
 			if (!(rax[1] < 0))
 				discard ;
@@ -1748,27 +1748,27 @@ private:
 			}
 			out[--iw] = REAL ('.') ;
 			iw += EFLAG (out[ix] == REAL ('.')) ;
-			for (INDEX i = 0 ,ie = LENGTH (r8x + rax[1]) ; i < ie ; i++) {
+			for (INDEX i = 0 ,ie = LENGTH (r4x + rax[1]) ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
 		}
 		if SWITCH_CASE (ifa) {
 			//@info: case '0.000xxx'
-			if (!(rax[1] < 1 - r8x))
+			if (!(rax[1] < 1 - r4x))
 				discard ;
 			if (!(rax[1] < 0))
 				discard ;
-			const auto r6x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
-			for (INDEX i = 0 ,ie = r6x ; i < ie ; i++)
+			const auto r8x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
+			for (INDEX i = 0 ,ie = r8x ; i < ie ; i++)
 				rax[0] /= attr ().varify_radix () ;
 			INDEX ix = iw - 1 ;
-			for (INDEX i = r6x ,ie = r8x ; i < ie ; i++) {
+			for (INDEX i = r8x ,ie = r4x ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
 				rax[0] /= attr ().varify_radix () ;
 			}
-			for (INDEX i = _MAX_ (r6x ,r8x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
+			for (INDEX i = _MAX_ (r8x ,r4x) ,ie = LENGTH (-rax[1]) ; i < ie ; i++) {
 				out[--iw] = attr ().convert_number_w (0) ;
 				iw += EFLAG (out[ix] == attr ().convert_number_w (0)) ;
 			}
@@ -2239,15 +2239,15 @@ public:
 		auto rax = STRU8 () ;
 		while (TRUE) {
 			rax = get (0) ;
-			const auto r2x = BOOL (rax == STRU8 ('\r') || rax == STRU8 ('\n') || rax == STRU8 ('\f')) ;
-			if (r2x)
+			const auto r1x = BOOL (rax == STRU8 ('\r') || rax == STRU8 ('\n') || rax == STRU8 ('\f')) ;
+			if (r1x)
 				break ;
 			read () ;
 		}
 		if (rax != STRU8 ('\r'))
 			return ;
-		const auto r3x = get (0) ;
-		if (r3x != STRU8 ('\n'))
+		const auto r2x = get (0) ;
+		if (r2x != STRU8 ('\n'))
 			return ;
 		read () ;
 	}
@@ -2258,25 +2258,25 @@ public:
 	}
 
 	void read (String<STRU8> &data) popping {
-		const auto r2x = _EXCHANGE_ (mHintStringTextFlag ,FALSE) ;
-		const auto r3x = _EXCHANGE_ (mHintNextTextSize ,VAR_ZERO) ;
-		if (data.size () < r3x)
-			data = String<STRU8> (r3x) ;
+		const auto r1x = _EXCHANGE_ (mHintStringTextFlag ,FALSE) ;
+		const auto r2x = _EXCHANGE_ (mHintNextTextSize ,VAR_ZERO) ;
+		if (data.size () < r2x)
+			data = String<STRU8> (r2x) ;
 		data.clear () ;
 		auto rax = STRU8 () ;
 		for (FOR_ONCE_DO) {
-			if (!r2x)
+			if (!r1x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
-		for (INDEX i = 0 ,ie = r3x ; i < ie ; i++) {
+		for (INDEX i = 0 ,ie = r2x ; i < ie ; i++) {
 			auto ifa = FALSE ;
 			if SWITCH_CASE (ifa) {
 				rax = get (0) ;
 				read () ;
-				const auto r4x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!r4x)
+				const auto r3x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
+				if (!r3x)
 					discard ;
 				rax = get (0) ;
 				read () ;
@@ -2289,7 +2289,7 @@ public:
 			}
 		}
 		for (FOR_ONCE_DO) {
-			if (!r2x)
+			if (!r1x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
@@ -2306,17 +2306,17 @@ private:
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
 		while (TRUE) {
-			const auto r2x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
-			const auto r3x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
-			const auto r4x = BOOL (ris[0] == STRU8 ('_')) ;
+			const auto r1x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
+			const auto r2x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
+			const auto r3x = BOOL (ris[0] == STRU8 ('_')) ;
 			for (FOR_ONCE_DO) {
 				if (ret > 0)
 					discard ;
-				_DYNAMIC_ASSERT_ (r2x || r3x || r4x) ;
+				_DYNAMIC_ASSERT_ (r1x || r2x || r3x) ;
 			}
-			const auto r5x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
-			const auto r6x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
-			if (!r2x && !r3x && !r4x && !r5x && !r6x)
+			const auto r4x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
+			const auto r5x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
+			if (!r1x && !r2x && !r3x && !r4x && !r5x)
 				break ;
 			ris++ ;
 			ret++ ;

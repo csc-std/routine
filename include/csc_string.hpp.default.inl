@@ -54,8 +54,8 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 	}) ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
-		if (r1x == 0)
+		const auto r2x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		if (r2x == 0)
 			discard ;
 		ret = String<STRW> () ;
 	}
@@ -85,8 +85,8 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	}) ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	for (FOR_ONCE_DO) {
-		const auto r1x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
-		if (r1x == 0)
+		const auto r2x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		if (r2x == 0)
 			discard ;
 		ret = String<STRA> () ;
 	}
@@ -220,19 +220,19 @@ public:
 			if (expr.empty ())
 				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;
-			const auto r5x = _U8STOUAS_ (expr) ;
-			const auto r1x = std::string (r5x.raw ().self) ;
-			auto rbx = r1x.begin () ;
-			const auto r2x = r1x.end () ;
+			const auto r1x = _U8STOUAS_ (expr) ;
+			const auto r2x = std::string (r1x.raw ().self) ;
+			auto rbx = r2x.begin () ;
+			const auto r3x = r2x.end () ;
 			while (TRUE) {
-				const auto r3x = std::regex_search (rbx ,r2x ,rax.self ,mRegex.self) ;
-				if (!r3x)
+				const auto r4x = std::regex_search (rbx ,r3x ,rax.self ,mRegex.self) ;
+				if (!r4x)
 					break ;
 				INDEX ix = ret.insert () ;
-				auto &r1y = rax.self[0].first ;
-				auto &r2y = rax.self[0].second ;
-				ret[ix][0] = INDEX (&(*r1y) - &r1x[0]) ;
-				ret[ix][1] = INDEX (&(*r2y) - &r1x[0]) ;
+				auto &r5y = rax.self[0].first ;
+				auto &r6y = rax.self[0].second ;
+				ret[ix][0] = INDEX (&(*r5y) - &r2x[0]) ;
+				ret[ix][1] = INDEX (&(*r6y) - &r2x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}
@@ -242,14 +242,14 @@ public:
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
 		if (expr.empty ())
 			return String<STRU8> () ;
-		const auto r5x = _U8STOUAS_ (expr) ;
-		const auto r6x = _U8STOUAS_ (rep) ;
-		const auto r1x = std::string (r5x.raw ().self) ;
-		const auto r2x = std::string (r6x.raw ().self) ;
-		const auto r3x = std::regex_replace (r1x ,mRegex.self ,r2x) ;
-		if (r3x.empty ())
+		const auto r1x = _U8STOUAS_ (expr) ;
+		const auto r2x = _U8STOUAS_ (rep) ;
+		const auto r3x = std::string (r1x.raw ().self) ;
+		const auto r4x = std::string (r2x.raw ().self) ;
+		const auto r5x = std::regex_replace (r3x ,mRegex.self ,r4x) ;
+		if (r5x.empty ())
 			return String<STRU8> () ;
-		return _UASTOU8S_ (PTRTOARR[r3x.c_str ()]) ;
+		return _UASTOU8S_ (PTRTOARR[r5x.c_str ()]) ;
 	}
 } ;
 

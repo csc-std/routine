@@ -341,11 +341,11 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r1y = mHeap.self[r1x[0]] ;
+			auto &r2y = mHeap.self[r1x[0]] ;
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
 			writer << _GAP_ ;
 			rbx.clear () ;
-			for (INDEX i = r1y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
+			for (INDEX i = r2y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			while (TRUE) {
 				if (rbx.empty ())
@@ -362,9 +362,9 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r2y = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r2y.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r2y.mAttributeSet) {
+			auto &r3y = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r3y.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r3y.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
@@ -379,16 +379,16 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r3y = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r3y.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r3y.mAttributeSet) {
+			auto &r4y = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r4y.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r4y.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
-			for (INDEX i = r3y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
+			for (INDEX i = r4y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			rbx.add (ARRAY2<INDEX> {r1x[0] ,FLAG (1)}) ;
 			while (TRUE) {
@@ -604,10 +604,10 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					update_shift_e5 (curr) ;
 					mNodeHeap[curr].mMemberSet.add (mNodeHeap[curr].mMemberSet.length () ,mLatestIndex) ;
 					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
-					auto &r1y = _SWITCH_ (
+					auto &r3y = _SWITCH_ (
 						(ix == VAR_NONE) ? ix :
 						(mNodeHeap[iy].mBrother)) ;
-					r1y = mLatestIndex ;
+					r3y = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
 				mRis >> RegularReader<>::SKIP_GAP ;
@@ -1300,9 +1300,9 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r2y = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
+			auto &r3y = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
-			writer << r2y ;
+			writer << r3y ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if SWITCH_CASE (fax) {
@@ -1313,11 +1313,11 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r3y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			auto &r4y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rbx.clear () ;
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (2)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r3y) {
+			for (auto &&i : r4y) {
 				if (ir > 0)
 					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (3)}) ;
 				ir++ ;
@@ -1339,11 +1339,11 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r4y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r5y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rbx.clear () ;
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (5)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r4y) {
+			for (auto &&i : r5y) {
 				if (ir > 0)
 					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (6)}) ;
 				ir++ ;
@@ -1367,8 +1367,8 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			if (!(r2x[1] == 1))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			const auto r3x = r1x[r2x[0]].key ;
-			writer << (*r3x) ;
+			const auto r6x = r1x[r2x[0]].key ;
+			writer << (*r6x) ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if SWITCH_CASE (fax) {

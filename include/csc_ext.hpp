@@ -678,16 +678,16 @@ private:
 				if (rax[0] > rax[1])
 					break ;
 				ret = rax[0] + (rax[1] - rax[0]) / 2 ;
-				const auto r2x = x * ret ;
-				if (r2x == y)
+				const auto r1x = x * ret ;
+				if (r1x == y)
 					break ;
-				auto &r1y = _SWITCH_ (
-					(r2x < y) ? (rax[0]) :
+				auto &r2y = _SWITCH_ (
+					(r1x < y) ? (rax[0]) :
 					(rax[1])) ;
 				const auto r3x = _SWITCH_ (
-					(r2x < y) ? (ret + 1) :
+					(r1x < y) ? (ret + 1) :
 					(ret - 1)) ;
-				r1y = r3x ;
+				r2y = r3x ;
 			}
 			ret -= EFLAG (ret * x > y) ;
 			return std::move (ret) ;
@@ -2423,9 +2423,9 @@ public:
 			if (!linked ())
 				discard ;
 			auto &r1y = mHeap.self[mIndex].mWeight ;
-			const auto r1x = EFLAG (r1y >= 0 && r1y < VAR32_MAX) ;
-			const auto r2x = EFLAG (r1y < 0 && r1y >= -VAR32_MAX) ;
-			r1y += r1x - r2x ;
+			const auto r2x = EFLAG (r1y >= 0 && r1y < VAR32_MAX) ;
+			const auto r3x = EFLAG (r1y < 0 && r1y >= -VAR32_MAX) ;
+			r1y += r2x - r3x ;
 		}
 		return mWeakRef.watch () ;
 	}
@@ -2498,11 +2498,11 @@ private:
 			mIndex = min_weight_one () ;
 			if (mIndex == VAR_NONE)
 				discard ;
-			const auto r2x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
-			if (r2x <= 0)
+			const auto r1x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
+			if (r1x <= 0)
 				discard ;
 			for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
-				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r2x ;
+				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 		mHeap.self[mIndex].mData = mWeakRef ;
@@ -2831,8 +2831,8 @@ public:
 		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
-		auto &r1y = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
-		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r1y) ,&Function<UNIT ()>::invoke) ;
+		auto &r2y = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
+		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r2y) ,&Function<UNIT ()>::invoke) ;
 		mThis.assign (r1x) ;
 		mThis.as_strong () ;
 	}
@@ -3067,8 +3067,8 @@ private:
 			const auto r1x = constexpr_ceil (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
 				const auto r2x = r1x + i * (_SIZEOF_ (BLOCK) + SIZE::value) ;
-				auto &r1y = _LOAD_<BLOCK> (NULL ,r2x) ;
-				if (_ADDRESS_ (r1y.mNext) == VAR_USED)
+				auto &r3y = _LOAD_<BLOCK> (NULL ,r2x) ;
+				if (_ADDRESS_ (r3y.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -3136,10 +3136,10 @@ private:
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
 			const auto r1x = &_OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			auto &r1y = _SWITCH_ (
+			auto &r2y = _SWITCH_ (
 				(r1x->mPrev != NULL) ? (r1x->mPrev->mNext) :
 				mRoot) ;
-			r1y = r1x->mNext ;
+			r2y = r1x->mNext ;
 			if (r1x->mNext != NULL)
 				r1x->mNext->mPrev = r1x->mPrev ;
 			mSize -= r1x->mCount ;

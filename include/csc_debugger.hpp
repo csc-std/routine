@@ -33,25 +33,25 @@ struct OPERATOR_TYPENAME {
 		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
 		const auto r1x = M_PREFIX.size () ;
 		const auto r2x = M_SUFFIX.size () ;
-		const auto r7x = ret.mSelf.length () - r1x - r2x ;
-		_DYNAMIC_ASSERT_ (r7x > 0) ;
-		ret.mSelf = ret.mSelf.segment (r1x ,r7x) ;
+		const auto r3x = ret.mSelf.length () - r1x - r2x ;
+		_DYNAMIC_ASSERT_ (r3x > 0) ;
+		ret.mSelf = ret.mSelf.segment (r1x ,r3x) ;
 #elif defined __CSC_COMPILER_GNUC__
 		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::type_name_from_func() [with _RET = ") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
-		const auto r3x = M_PREFIX.size () ;
-		const auto r4x = M_SUFFIX.size () ;
-		const auto r8x = ret.mSelf.length () - r3x - r4x ;
-		_DYNAMIC_ASSERT_ (r8x > 0) ;
-		ret.mSelf = ret.mSelf.segment (r3x ,r8x) ;
+		const auto r4x = M_PREFIX.size () ;
+		const auto r5x = M_SUFFIX.size () ;
+		const auto r6x = ret.mSelf.length () - r4x - r5x ;
+		_DYNAMIC_ASSERT_ (r6x > 0) ;
+		ret.mSelf = ret.mSelf.segment (r4x ,r6x) ;
 #elif defined __CSC_COMPILER_CLANG__
 		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::type_name_from_func() [_RET = ") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
-		const auto r5x = M_PREFIX.size () ;
-		const auto r6x = M_SUFFIX.size () ;
-		const auto r9x = ret.mSelf.length () - r5x - r6x ;
+		const auto r7x = M_PREFIX.size () ;
+		const auto r8x = M_SUFFIX.size () ;
+		const auto r9x = ret.mSelf.length () - r7x - r8x ;
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
-		ret.mSelf = ret.mSelf.segment (r5x ,r9x) ;
+		ret.mSelf = ret.mSelf.segment (r7x ,r9x) ;
 #else
 		ret.mSelf = _BUILDVAR64S_ (_TYPEUID_<_RET> ()) ;
 #endif

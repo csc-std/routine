@@ -779,18 +779,18 @@ inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
 inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	auto &r1y = _CACHE_ ([] () {
-		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
-			ret.add (r1x[i][1] ,r1x[i][0]) ;
+		const auto r2x = _LOADUWSTOUGBKSTABLE_ () ;
+		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r2x.size ()) ;
+		for (INDEX i = 0 ,ie = r2x.size () ; i < ie ; i++)
+			ret.add (r2x[i][1] ,r2x[i][0]) ;
 		return std::move (ret) ;
 	}) ;
-	auto &r2y = _CAST_<String<STRUA>> (val) ;
-	String<STRW> ret = String<STRW> (r2y.length ()) ;
+	auto &r3y = _CAST_<String<STRUA>> (val) ;
+	String<STRW> ret = String<STRW> (r3y.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
-	for (auto &&i : r2y) {
+	for (auto &&i : r3y) {
 		if (rax == VAR_NONE)
 			discard ;
 		auto fax = FALSE ;
@@ -859,10 +859,10 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 
 inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 	auto &r1y = _CACHE_ ([] () {
-		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
-			ret.add (r1x[i][0] ,r1x[i][1]) ;
+		const auto r2x = _LOADUWSTOUGBKSTABLE_ () ;
+		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r2x.size ()) ;
+		for (INDEX i = 0 ,ie = r2x.size () ; i < ie ; i++)
+			ret.add (r2x[i][0] ,r2x[i][1]) ;
 		return std::move (ret) ;
 	}) ;
 	String<STRUA> ret = String<STRUA> (val.length () * 2) ;

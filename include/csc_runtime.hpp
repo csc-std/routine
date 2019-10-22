@@ -61,14 +61,14 @@ private:
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
-				const auto r2x = rbx.watch () ;
-				const auto r3x = &_XVALUE_<Holder> (r2x) ;
-				const auto r4x = &_LOAD_<NONE> (r3x) ;
-				rax = unique_atomic_address (NULL ,r4x) ;
+				const auto r1x = rbx.watch () ;
+				const auto r2x = &_XVALUE_<Holder> (r1x) ;
+				const auto r3x = &_LOAD_<NONE> (r2x) ;
+				rax = unique_atomic_address (NULL ,r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r5x = &_LOAD_<Holder> (rax) ;
-			return IntrusiveRef<Holder> (r5x).watch () ;
+			const auto r4x = &_LOAD_<Holder> (rax) ;
+			return IntrusiveRef<Holder> (r4x).watch () ;
 		}) ;
 	}
 
@@ -164,32 +164,32 @@ public:
 	static void init (VAR data ,BOOL read_only) {
 		auto &r1y = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
-		if (r1x != NULL)
+		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		if (r2x != NULL)
 			return ;
-		const auto r2x = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
-		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		r2x->mReadOnly = read_only ;
-		r2x->mData = data ;
+		const auto r3x = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
+		_DYNAMIC_ASSERT_ (r3x != NULL) ;
+		r3x->mReadOnly = read_only ;
+		r3x->mData = data ;
 	}
 
 	static VAR load () popping {
 		auto &r1y = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
-		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		return r1x->mData ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		return r2x->mData ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
 		auto &r1y = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r1x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
-		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		_DYNAMIC_ASSERT_ (!r1x->mReadOnly) ;
-		if (r1x->mData == expect)
-			r1x->mData = data ;
-		return r1x->mData ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
+		if (r2x->mData == expect)
+			r2x->mData = data ;
+		return r2x->mData ;
 	}
 
 	static void save (VAR data) {
@@ -234,22 +234,22 @@ public:
 		auto &r1y = _CACHE_ ([] () {
 			auto &r2y = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2y.mNodeMutex) ;
-			const auto r2x = Detail::guid_from_typeid_name () ;
-			auto rax = GlobalStatic<void>::static_find_node (r2y ,r2x) ;
+			const auto r3x = Detail::guid_from_typeid_name () ;
+			auto rax = GlobalStatic<void>::static_find_node (r2y ,r3x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			for (FOR_ONCE_DO) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::static_new_node (r2y ,r2x) ;
+				rax = GlobalStatic<void>::static_new_node (r2y ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
-				const auto r3x = rbx.watch () ;
-				const auto r4x = &_XVALUE_<Holder> (r3x) ;
-				rax->mData = &_LOAD_<NONE> (r4x) ;
+				const auto r4x = rbx.watch () ;
+				const auto r5x = &_XVALUE_<Holder> (r4x) ;
+				rax->mData = &_LOAD_<NONE> (r5x) ;
 			}
-			const auto r5x = &_LOAD_<Holder> (rax->mData) ;
-			return IntrusiveRef<Holder> (r5x).watch () ;
+			const auto r6x = &_LOAD_<Holder> (rax->mData) ;
+			return IntrusiveRef<Holder> (r6x).watch () ;
 		}) ;
 		return _XVALUE_<Holder> (r1y).mData ;
 	}
@@ -282,10 +282,10 @@ private:
 			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
-			auto &r1y = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
+			auto &r2y = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
 			_DEBUG_ASSERT_ (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE)) ;
-			const auto r2x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
-			_MEMCOPY_ (PTRTOARR[ret] ,r1y ,r2x) ;
+			const auto r3x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,r2y ,r3x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;
@@ -581,25 +581,25 @@ public:
 		static constexpr auto M_UUID = _PCSTR_ ("00000000-0000-0000-000000000000") ;
 		String<STR> ret = String<STR> (M_UUID.size ()) ;
 		INDEX iw = 0 ;
-		const auto r5x = random_value (0 ,36 ,28) ;
+		const auto r1x = random_value (0 ,36 ,28) ;
 		for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
 			INDEX ix = 0 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 8 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			INDEX ix = 12 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (INDEX i = 0 ,ie = 12 ; i < ie ; i++) {
 			INDEX ix = 16 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r5x[ix]) ;
+			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;

@@ -522,13 +522,13 @@ public:
 
 	Matrix mul (const Matrix &that) const {
 		Matrix ret ;
-		const auto r5x = ARRAY2<LENGTH> {4 ,4} ;
-		for (auto &&i : ArrayRange<ARGC<2>> (r5x)) {
-			const auto r1x = get (i[0] ,0) * that.get (0 ,i[1]) ;
-			const auto r2x = get (i[0] ,1) * that.get (1 ,i[1]) ;
-			const auto r3x = get (i[0] ,2) * that.get (2 ,i[1]) ;
-			const auto r4x = get (i[0] ,3) * that.get (3 ,i[1]) ;
-			ret.get (i[0] ,i[1]) = r1x + r2x + r3x + r4x ;
+		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
+		for (auto &&i : ArrayRange<ARGC<2>> (r1x)) {
+			const auto r2x = get (i[0] ,0) * that.get (0 ,i[1]) ;
+			const auto r3x = get (i[0] ,1) * that.get (1 ,i[1]) ;
+			const auto r4x = get (i[0] ,2) * that.get (2 ,i[1]) ;
+			const auto r5x = get (i[0] ,3) * that.get (3 ,i[1]) ;
+			ret.get (i[0] ,i[1]) = r2x + r3x + r4x + r5x ;
 		}
 		return std::move (ret) ;
 	}
@@ -740,14 +740,14 @@ public:
 		const auto r3x = z.normalize () ;
 		const auto r4x = r1x * r2x ;
 		const auto r5x = r1x * r3x ;
-		const auto r9x = r2x * r3x ;
-		const auto r6x = _SQRT_ (REAL (1) - _SQE_ (r4x)) ;
-		const auto r7x = (r9x - r4x * r5x) * _PINV_ (r6x) ;
-		const auto r8x = _SQRT_ (REAL (1) - _SQE_ (r5x) - _SQE_ (r7x)) ;
+		const auto r6x = r2x * r3x ;
+		const auto r7x = _SQRT_ (REAL (1) - _SQE_ (r4x)) ;
+		const auto r8x = (r6x - r4x * r5x) * _PINV_ (r7x) ;
+		const auto r9x = _SQRT_ (REAL (1) - _SQE_ (r5x) - _SQE_ (r8x)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,r4x ,r5x ,REAL (0)} ,
-			{REAL (0) ,r6x ,r7x ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,r8x ,REAL (0)} ,
+			{REAL (0) ,r7x ,r8x ,REAL (0)} ,
+			{REAL (0) ,REAL (0) ,r9x ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
 		return std::move (ret) ;
 	}
@@ -785,55 +785,55 @@ public:
 		ARRAY4<REAL> ret ;
 		const auto r1x = rot_mat.decompose () ;
 		const auto r2x = r1x[2] ;
-		const auto r4x = ARRAY4<REAL> ({
+		const auto r3x = ARRAY4<REAL> ({
 			REAL (1) + r2x[0][0] + r2x[1][1] + r2x[2][2] ,
 			REAL (1) + r2x[0][0] - r2x[1][1] - r2x[2][2] ,
 			REAL (1) - r2x[0][0] + r2x[1][1] - r2x[2][2] ,
 			REAL (1) - r2x[0][0] - r2x[1][1] + r2x[2][2]}) ;
-		const auto r5x = _CALL_ ([&] () {
+		const auto r4x = _CALL_ ([&] () {
 			INDEX ret = VAR_NONE ;
 			auto rax = REAL () ;
 			for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-				if (ret != VAR_NONE && rax >= r4x[i])
+				if (ret != VAR_NONE && rax >= r3x[i])
 					continue ;
 				ret = i ;
-				rax = r4x[i] ;
+				rax = r3x[i] ;
 			}
 			return std::move (ret) ;
 		}) ;
-		const auto r6x = _PINV_ (REAL (2) * _SQRT_ (r4x[r5x])) ;
+		const auto r5x = _PINV_ (REAL (2) * _SQRT_ (r3x[r4x])) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(r5x == 0))
+			if (!(r4x == 0))
 				discard ;
-			ret[0] = (r2x[2][1] - r2x[1][2]) * r6x ;
-			ret[1] = (r2x[0][2] - r2x[2][0]) * r6x ;
-			ret[2] = (r2x[1][0] - r2x[0][1]) * r6x ;
-			ret[3] = r4x[0] * r6x ;
+			ret[0] = (r2x[2][1] - r2x[1][2]) * r5x ;
+			ret[1] = (r2x[0][2] - r2x[2][0]) * r5x ;
+			ret[2] = (r2x[1][0] - r2x[0][1]) * r5x ;
+			ret[3] = r3x[0] * r5x ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(r5x == 1))
+			if (!(r4x == 1))
 				discard ;
-			ret[0] = r4x[1] * r6x ;
-			ret[1] = (r2x[1][0] + r2x[0][1]) * r6x ;
-			ret[2] = (r2x[0][2] + r2x[2][0]) * r6x ;
-			ret[3] = (r2x[2][1] - r2x[1][2]) * r6x ;
+			ret[0] = r3x[1] * r5x ;
+			ret[1] = (r2x[1][0] + r2x[0][1]) * r5x ;
+			ret[2] = (r2x[0][2] + r2x[2][0]) * r5x ;
+			ret[3] = (r2x[2][1] - r2x[1][2]) * r5x ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(r5x == 2))
+			if (!(r4x == 2))
 				discard ;
-			ret[0] = (r2x[1][0] + r2x[0][1]) * r6x ;
-			ret[1] = r4x[2] * r6x ;
-			ret[2] = (r2x[2][1] + r2x[1][2]) * r6x ;
-			ret[3] = (r2x[0][2] - r2x[2][0]) * r6x ;
+			ret[0] = (r2x[1][0] + r2x[0][1]) * r5x ;
+			ret[1] = r3x[2] * r5x ;
+			ret[2] = (r2x[2][1] + r2x[1][2]) * r5x ;
+			ret[3] = (r2x[0][2] - r2x[2][0]) * r5x ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(r5x == 3))
+			if (!(r4x == 3))
 				discard ;
-			ret[0] = (r2x[0][2] + r2x[2][0]) * r6x ;
-			ret[1] = (r2x[2][1] + r2x[1][2]) * r6x ;
-			ret[2] = r4x[3] * r6x ;
-			ret[3] = (r2x[1][0] - r2x[0][1]) * r6x ;
+			ret[0] = (r2x[0][2] + r2x[2][0]) * r5x ;
+			ret[1] = (r2x[2][1] + r2x[1][2]) * r5x ;
+			ret[2] = r3x[3] * r5x ;
+			ret[3] = (r2x[1][0] - r2x[0][1]) * r5x ;
 		}
 		return std::move (ret) ;
 	}
@@ -907,31 +907,31 @@ public:
 			(light[3] != REAL (0)) ? light :
 			(light.normalize ())) ;
 		const auto r3x = (center - Vector<REAL>::axis_w ()) * r1x ;
-		const auto r9x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
-		const auto r4x = r9x * r1x ;
-		const auto r7x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
-		const auto r5x = _SWITCH_ (
+		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
+		const auto r5x = r4x * r1x ;
+		const auto r6x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
+		const auto r7x = _SWITCH_ (
 			(r2x[3] != REAL (0)) ? r3x :
-			r7x) ;
-		const auto r6x = _SWITCH_ (
+			r6x) ;
+		const auto r8x = _SWITCH_ (
 			(r2x[3] != REAL (0)) ? r1x :
-			r7x) ;
-		ret[0][0] = r1x[0] * r2x[0] - r4x + r5x ;
+			r6x) ;
+		ret[0][0] = r1x[0] * r2x[0] - r5x + r7x ;
 		ret[0][1] = r1x[1] * r2x[0] ;
 		ret[0][2] = r1x[2] * r2x[0] ;
 		ret[0][3] = -r3x * r2x[0] ;
 		ret[1][0] = r1x[0] * r2x[1] ;
-		ret[1][1] = r1x[1] * r2x[1] - r4x + r5x ;
+		ret[1][1] = r1x[1] * r2x[1] - r5x + r7x ;
 		ret[1][2] = r1x[2] * r2x[1] ;
 		ret[1][3] = -r3x * r2x[1] ;
 		ret[2][0] = r1x[0] * r2x[2] ;
 		ret[2][1] = r1x[1] * r2x[2] ;
-		ret[2][2] = r1x[2] * r2x[2] - r4x + r5x ;
+		ret[2][2] = r1x[2] * r2x[2] - r5x + r7x ;
 		ret[2][3] = -r3x * r2x[2] ;
-		ret[3][0] = r6x[0] ;
-		ret[3][1] = r6x[1] ;
-		ret[3][2] = r6x[2] ;
-		ret[3][3] = -r4x ;
+		ret[3][0] = r8x[0] ;
+		ret[3][1] = r8x[1] ;
+		ret[3][2] = r8x[2] ;
+		ret[3][3] = -r5x ;
 		return std::move (ret) ;
 	}
 

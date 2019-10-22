@@ -605,10 +605,10 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (mTempState != 7)
 						discard ;
 					ix = mTempStack.tail () ;
-					const auto r4x = _SWITCH_ (
+					const auto r3x = _SWITCH_ (
 						(mTempStack[ix][1] == VAR_NONE) ? 2 :
 						3) ;
-					mTempState = r4x ;
+					mTempState = r3x ;
 				}
 				for (FOR_ONCE_DO) {
 					if (mTempState != 8)
@@ -620,10 +620,10 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 				for (FOR_ONCE_DO) {
 					if (mTempState != 9)
 						discard ;
-					const auto r3x = _SWITCH_ (
+					const auto r4x = _SWITCH_ (
 						(mLackWeight[0] < mTolerance) ? 8 :
 						14) ;
-					mTempState = r3x ;
+					mTempState = r4x ;
 				}
 				for (FOR_ONCE_DO) {
 					if (mTempState != 10)
@@ -663,18 +663,18 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (mTempState != 17)
 						discard ;
 					mTempStack.pop () ;
-					const auto r7x = _SWITCH_ (
+					const auto r6x = _SWITCH_ (
 						(mTempStack.length () > 0) ? 10 :
 						18) ;
-					mTempState = r7x ;
+					mTempState = r6x ;
 				}
 				for (FOR_ONCE_DO) {
 					if (mTempState != 18)
 						discard ;
-					const auto r8x = _SWITCH_ (
+					const auto r7x = _SWITCH_ (
 						mTempRet ? 19 :
 						20) ;
-					mTempState = r8x ;
+					mTempState = r7x ;
 				}
 				for (FOR_ONCE_DO) {
 					if (mTempState != 19)
@@ -1010,8 +1010,8 @@ private:
 				discard ;
 			for (FOR_ONCE_DO) {
 				INDEX ix = mKDTree[curr].mLeaf ;
-				const auto r2x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
-				if (r2x > sqe_range)
+				const auto r1x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
+				if (r1x > sqe_range)
 					discard ;
 				out.add (ix) ;
 			}
@@ -1019,22 +1019,22 @@ private:
 		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
-			const auto r3x = mKDTree[curr].mKey ;
+			const auto r2x = mKDTree[curr].mKey ;
 			for (FOR_ONCE_DO) {
-				if (r3x < bound[rot][0])
+				if (r2x < bound[rot][0])
 					discard ;
-				const auto r4x = bound[rot][1] ;
-				bound[rot][1] = _MIN_ (bound[rot][1] ,r3x) ;
+				const auto r3x = bound[rot][1] ;
+				bound[rot][1] = _MIN_ (bound[rot][1] ,r2x) ;
 				compute_search_range (point ,sqe_range ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][1] = r4x ;
+				bound[rot][1] = r3x ;
 			}
 			for (FOR_ONCE_DO) {
-				if (r3x > bound[rot][1])
+				if (r2x > bound[rot][1])
 					discard ;
-				const auto r5x = bound[rot][0] ;
-				bound[rot][0] = _MAX_ (bound[rot][0] ,r3x) ;
+				const auto r4x = bound[rot][0] ;
+				bound[rot][0] = _MAX_ (bound[rot][0] ,r2x) ;
 				compute_search_range (point ,sqe_range ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][0] = r5x ;
+				bound[rot][0] = r4x ;
 			}
 		}
 	}
