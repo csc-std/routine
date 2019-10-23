@@ -37,6 +37,8 @@ public:
 
 	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) ;
 
+	void modify_timeout (LENGTH timeout) ;
+
 	void read (const PhanBuffer<BYTE> &data) popping ;
 
 	template <class _ARG1>
@@ -64,6 +66,11 @@ public:
 		write (data) ;
 		return (*this) ;
 	}
+
+public:
+	static String<STRU8> http_get (const String<STRU8> &addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
+
+	static String<STRU8> http_post (const String<STRU8> &addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
 } ;
 
 class TCPSocket::Listener {
@@ -104,6 +111,8 @@ public:
 
 	void link (const String<STRU8> &addr) ;
 
+	void modify_timeout (LENGTH timeout) ;
+
 	void read (const PhanBuffer<BYTE> &data) popping ;
 
 	template <class _ARG1>
@@ -141,8 +150,7 @@ private:
 		virtual String<STRU8> localhost_name () const = 0 ;
 		virtual String<STRU8> localhost_addr () const = 0 ;
 		virtual String<STRU8> broadcast_addr () const = 0 ;
-		virtual LENGTH get_timeout () const = 0 ;
-		virtual void set_timeout (LENGTH timeout) = 0 ;
+		virtual LENGTH pref_timeout () const = 0 ;
 	} ;
 
 private:
@@ -177,14 +185,9 @@ public:
 		return mThis->broadcast_addr () ;
 	}
 
-	LENGTH get_timeout () const {
+	LENGTH pref_timeout () const {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		return mThis->get_timeout () ;
-	}
-
-	void set_timeout (LENGTH timeout) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		return mThis->set_timeout (timeout) ;
+		return mThis->pref_timeout () ;
 	}
 
 private:

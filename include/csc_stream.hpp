@@ -959,11 +959,8 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		for (FOR_ONCE_DO) {
-			if (!(rax == REAL ('+') || rax == REAL ('-')))
-				discard ;
+		if (rax == REAL ('+') || rax == REAL ('-'))
 			read (rax) ;
-		}
 		compute_read_number (data ,(*this) ,rax) ;
 		if (r1x)
 			data = -data ;

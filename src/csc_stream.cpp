@@ -6,11 +6,11 @@ TEST_CLASS (UNITTEST_CSC_STREAM) {
 public:
 	TEST_METHOD (TEST_CSC_STREAM) {
 		const auto r1x = CSC::CHAR (0X11223344) ;
-		auto &r1y = _CAST_<EndianBytes<CSC::CHAR>> (r1x) ;
-		_UNITTEST_ASSERT_ (r1y[0] == CSC::BYTE (0X11)) ;
-		_UNITTEST_ASSERT_ (r1y[1] == CSC::BYTE (0X22)) ;
-		_UNITTEST_ASSERT_ (r1y[2] == CSC::BYTE (0X33)) ;
-		_UNITTEST_ASSERT_ (r1y[3] == CSC::BYTE (0X44)) ;
+		auto &r2y = _CAST_<EndianBytes<CSC::CHAR>> (r1x) ;
+		_UNITTEST_ASSERT_ (r2y[0] == CSC::BYTE (0X11)) ;
+		_UNITTEST_ASSERT_ (r2y[1] == CSC::BYTE (0X22)) ;
+		_UNITTEST_ASSERT_ (r2y[2] == CSC::BYTE (0X33)) ;
+		_UNITTEST_ASSERT_ (r2y[3] == CSC::BYTE (0X44)) ;
 	}
 
 	TEST_METHOD (TEST_CSC_STREAM_BYTEREADER) {

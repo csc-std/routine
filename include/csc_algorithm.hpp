@@ -553,34 +553,34 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 				if (mTempState == VAR_NONE)
 					break ;
 				for (FOR_ONCE_DO) {
-					if (mTempState != 0)
+					if (!(mTempState == 0))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = 1 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 1)
+					if (!(mTempState == 1))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 					mTempState = 7 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 2)
+					if (!(mTempState == 2))
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 3)
+					if (!(mTempState == 3))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 4)
+					if (!(mTempState == 4))
 						discard ;
 					const auto r1x = _SWITCH_ (
 						(mTempStack[ix][0] < mAdjacency.cx ()) ? 5 :
@@ -588,7 +588,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r1x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 5)
+					if (!(mTempState == 5))
 						discard ;
 					const auto r2x = _SWITCH_ (
 						(mXVisit[mTempStack[ix][0]]) ? 15 :
@@ -596,13 +596,13 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r2x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 6)
+					if (!(mTempState == 6))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					mTempState = 9 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 7)
+					if (!(mTempState == 7))
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r3x = _SWITCH_ (
@@ -611,14 +611,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r3x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 8)
+					if (!(mTempState == 8))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 9)
+					if (!(mTempState == 9))
 						discard ;
 					const auto r4x = _SWITCH_ (
 						(mLackWeight[0] < mTolerance) ? 8 :
@@ -626,7 +626,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r4x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 10)
+					if (!(mTempState == 10))
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r5x = _SWITCH_ (
@@ -635,32 +635,32 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r5x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 11)
+					if (!(mTempState == 11))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 14)
+					if (!(mTempState == 14))
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = 15 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 15)
+					if (!(mTempState == 15))
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = 4 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 16)
+					if (!(mTempState == 16))
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = 17 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 17)
+					if (!(mTempState == 17))
 						discard ;
 					mTempStack.pop () ;
 					const auto r6x = _SWITCH_ (
@@ -669,7 +669,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r6x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 18)
+					if (!(mTempState == 18))
 						discard ;
 					const auto r7x = _SWITCH_ (
 						mTempRet ? 19 :
@@ -677,14 +677,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					mTempState = r7x ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 19)
+					if (!(mTempState == 19))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = 20 ;
 				}
 				for (FOR_ONCE_DO) {
-					if (mTempState != 20)
+					if (!(mTempState == 20))
 						discard ;
 					mTempState = VAR_NONE ;
 				}

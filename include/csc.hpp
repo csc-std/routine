@@ -1252,7 +1252,7 @@ public:
 		return mWhat ;
 	}
 
-	inline void rethrow () const {
+	inline void raise () const {
 		throw (*this) ;
 	}
 } ;

@@ -106,10 +106,14 @@ public:
 
 	void start (const Array<INDEX> &pid ,Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (pid.length () > 0) ;
-		for (auto &&i : pid)
+		for (auto &&i : pid) {
 			_DEBUG_ASSERT_ (i >= 0 && i < proc.size ()) ;
-		for (auto &&i : proc)
+			(void) i ;
+		}
+		for (auto &&i : proc) {
 			_DEBUG_ASSERT_ (i.exist ()) ;
+			(void) i ;
+		}
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -155,7 +159,7 @@ public:
 		const auto r4x = std::move (r2y.mException) ;
 		if (!r4x.exist ())
 			return ;
-		r4x->rethrow () ;
+		r4x->raise () ;
 	}
 
 	void stop () {
@@ -451,7 +455,7 @@ public:
 		const auto r4x = std::move (r2y.mException) ;
 		if (!r4x.exist ())
 			return ;
-		r4x->rethrow () ;
+		r4x->raise () ;
 	}
 
 	void stop () {
@@ -606,7 +610,7 @@ public:
 		Detail::static_push (r1x) ;
 	}
 
-	void rethrow (const Exception &e) {
+	void raise (const Exception &e) {
 		const auto r1x = mThis.watch () ;
 		Detail::static_rethrow (r1x) ;
 	}
@@ -809,7 +813,7 @@ public:
 		for (FOR_ONCE_DO) {
 			if (!r2y.mException.exist ())
 				discard ;
-			r2y.mException->rethrow () ;
+			r2y.mException->raise () ;
 		}
 		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
 		ITEM ret = std::move (r2y.mItem.self) ;

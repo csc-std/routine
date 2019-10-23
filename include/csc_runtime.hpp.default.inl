@@ -70,7 +70,7 @@ public:
 		_DEBUG_ASSERT_ (r1y.mStackPoint[0] != NULL) ;
 		r1y.mStackPoint[1] = &bp ;
 		const auto r2x = _ADDRESS_ (r1y.mStackPoint[1]) - _ADDRESS_ (r1y.mStackPoint[0]) ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _COUNTOF_ (decltype (r1y.mStackFrame))) ;
+		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
 		_MEMCOPY_ (PTRTOARR[r1y.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1y.mStackPoint[r3x]) ,_ABS_ (r2x)) ;
 		auto &r4y = load_context_ebp (&r1y.mContextEbp) ;
@@ -86,7 +86,7 @@ public:
 		_STATIC_WARNING_ ("mark") ;
 		_DEBUG_ASSERT_ (r1y.mStackPoint[2] == r1y.mStackPoint[1]) ;
 		const auto r2x = _ADDRESS_ (r1y.mStackPoint[1]) - _ADDRESS_ (r1y.mStackPoint[0]) ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _COUNTOF_ (decltype (r1y.mStackFrame))) ;
+		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
 		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1y.mStackPoint[r3x]) ,PTRTOARR[r1y.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r4y = load_context_ebp (&r1y.mContextEbp) ;

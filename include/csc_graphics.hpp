@@ -284,11 +284,11 @@ public:
 
 	void uniform (const String<STR> &name ,const VAR32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -296,11 +296,11 @@ public:
 
 	void uniform (const String<STR> &name ,const VAR64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -308,11 +308,11 @@ public:
 
 	void uniform (const String<STR> &name ,const VAL32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -320,11 +320,11 @@ public:
 
 	void uniform (const String<STR> &name ,const VAL64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -332,11 +332,11 @@ public:
 
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -344,11 +344,11 @@ public:
 
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -356,11 +356,11 @@ public:
 
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
@@ -368,11 +368,11 @@ public:
 
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mUniformSet.length () ;
-		INDEX ix = mUniformSet.insert (name) ;
+		INDEX ix = mUniformSet.find (name) ;
 		for (FOR_ONCE_DO) {
-			if (mUniformSet.length () == r1x)
+			if (ix != VAR_NONE)
 				discard ;
+			ix = mUniformSet.find (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;

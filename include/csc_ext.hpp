@@ -1144,41 +1144,41 @@ private:
 			template_destruct (address ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
 		}
 
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> val ,INDEX index ,const ARGVS<> &) {
+		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGVS<> &) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> val ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
+		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
 			const auto r1x = BOOL (index == 0) ;
 			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
 				const auto r2x = &_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ;
-				template_create (_NULL_<ARGV<ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>>> () ,r2x ,_LOAD_<_ARG1> (NULL ,_ADDRESS_ (val))) ;
+				template_create (_NULL_<ARGV<ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>>> () ,r2x ,_LOAD_<_ARG1> (NULL ,_ADDRESS_ (that))) ;
 			}
 			if (r1x)
 				return ;
-			template_copy_construct (address ,val ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
 		}
 
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> val ,INDEX index ,const ARGVS<> &) noexcept {
+		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGVS<> &) noexcept {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> val ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
+		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
 			for (FOR_ONCE_DO) {
 				if (!r1x)
 					discard ;
-				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ,std::move (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (val)))) ;
+				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&_LOAD_<TEMP<_ARG1>> (NULL ,_ADDRESS_ (address)) ,std::move (_LOAD_<_ARG1> (NULL ,_ADDRESS_ (that)))) ;
 			}
 			if (r1x)
 				return ;
-			template_move_construct (address ,val ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
@@ -2424,7 +2424,7 @@ public:
 				discard ;
 			auto &r1y = mHeap.self[mIndex].mWeight ;
 			const auto r2x = EFLAG (r1y >= 0 && r1y < VAR32_MAX) ;
-			const auto r3x = EFLAG (r1y < 0 && r1y >= -VAR32_MAX) ;
+			const auto r3x = EFLAG (r1y < 0 && r1y > VAR32_MIN) ;
 			r1y += r2x - r3x ;
 		}
 		return mWeakRef.watch () ;

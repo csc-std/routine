@@ -735,9 +735,8 @@ inline String<STRU8> _UASTOU8S_ (const String<STRA> &val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
-		const auto r1x = i ;
-		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
-		(void) r1x ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
+		(void) i ;
 	}
 	return std::move (ret) ;
 }
@@ -746,9 +745,8 @@ inline String<STRU8> _UASTOU8S_ (String<STRA> &&val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
-		const auto r1x = i ;
-		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
-		(void) r1x ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
+		(void) i ;
 	}
 	return std::move (ret) ;
 }
@@ -757,9 +755,8 @@ inline String<STRA> _U8STOUAS_ (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
-		const auto r1x = i ;
-		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
-		(void) r1x ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
+		(void) i ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
@@ -768,9 +765,8 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
-		const auto r1x = i ;
-		_DEBUG_ASSERT_ (r1x <= STRUA (0X7F)) ;
-		(void) r1x ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
+		(void) i ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }

@@ -75,16 +75,13 @@ public:
 	}
 
 	XmlParser child (const String<STRU8> &name) const {
-		INDEX ix = VAR_NONE ;
-		for (FOR_ONCE_DO) {
-			if (!exist ())
-				discard ;
-			INDEX jx = mHeap.self[mIndex].mObjectSet.find (name) ;
-			if (jx == VAR_NONE)
-				discard ;
-			ix = mHeap.self[mIndex].mObjectSet[jx].item ;
-		}
-		return XmlParser (mHeap ,ix) ;
+		if (!exist ())
+			return XmlParser (mHeap ,VAR_NONE) ;
+		INDEX ix = mHeap.self[mIndex].mObjectSet.find (name) ;
+		if (ix == VAR_NONE)
+			return XmlParser (mHeap ,VAR_NONE) ;
+		INDEX jx = mHeap.self[mIndex].mObjectSet[ix].item ;
+		return XmlParser (mHeap ,jx) ;
 	}
 
 	Array<XmlParser> child_array () const {
@@ -822,11 +819,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = mFoundNodeList.insert () ;
-				const auto r1x = mFoundNodeNameSet.length () ;
-				INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
+				INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
 				for (FOR_ONCE_DO) {
-					if (mFoundNodeNameSet.length () == r1x)
+					if (jx != VAR_NONE)
 						discard ;
+					jx = mFoundNodeNameSet.insert (i.name ()) ;
 					mFoundNodeNameSet[jx].item = iy ;
 				}
 				INDEX jy = mFoundNodeAttributeSetList.insert () ;
@@ -866,11 +863,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					if (iy != VAR_NONE)
 						discard ;
 					iy = mFoundNodeList.insert () ;
-					const auto r1x = mFoundNodeNameSet.length () ;
-					INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
+					INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
 					for (FOR_ONCE_DO) {
-						if (mFoundNodeNameSet.length () == r1x)
+						if (jx != VAR_NONE)
 							discard ;
+						jx = mFoundNodeNameSet.insert (i.name ()) ;
 						mFoundNodeNameSet[jx].item = iy ;
 					}
 					INDEX jy = mFoundNodeAttributeSetList.insert () ;
@@ -910,11 +907,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = mFoundNodeNameSet.min_one () ;
 				INDEX iy = mFoundNodeList.insert () ;
-				const auto r1x = mFoundNodeNameSet.length () ;
-				INDEX jx = mFoundNodeNameSet.insert (i.name ()) ;
+				INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
 				for (FOR_ONCE_DO) {
-					if (mFoundNodeNameSet.length () == r1x)
+					if (jx != VAR_NONE)
 						discard ;
+					jx = mFoundNodeNameSet.insert (i.name ()) ;
 					mFoundNodeNameSet[jx].item = iy ;
 				}
 				INDEX jy = mFoundNodeAttributeSetList.insert () ;
@@ -1099,19 +1096,15 @@ public:
 	}
 
 	JsonParser child (const String<STRU8> &key) const {
-		INDEX ix = VAR_NONE ;
-		for (FOR_ONCE_DO) {
-			if (!exist ())
-				discard ;
-			if (!object_type ())
-				discard ;
-			auto &r1y = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			INDEX jx = r1y.find (key) ;
-			if (jx == VAR_NONE)
-				discard ;
-			ix = r1y[jx].item ;
-		}
-		return JsonParser (mHeap ,ix) ;
+		if (!exist ())
+			return JsonParser (mHeap ,VAR_NONE) ;
+		if (!object_type ())
+			return JsonParser (mHeap ,VAR_NONE) ;
+		auto &r1y = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+		INDEX ix = r1y.find (key) ;
+		if (ix == VAR_NONE)
+			return JsonParser (mHeap ,VAR_NONE) ;
+		return JsonParser (mHeap ,r1y[ix].item) ;
 	}
 
 	Array<JsonParser> child_array () const {

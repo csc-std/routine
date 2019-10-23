@@ -96,42 +96,42 @@ public:
 
 	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
-		const auto r2x = rax->alloc<int> () ;
-		const auto r10x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
+		const auto r1x = rax->alloc<int> () ;
+		const auto r2x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
 			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
-			const auto r4x = _CALL_ ([&] () {
+			const auto r3x = _CALL_ ([&] () {
 				if (arg2 < VAR_ZERO)
 					return -arg1 ;
 				return arg1 ;
 			}) ;
-			const auto r5x = _ABS_ (arg2) ;
-			int ret = int (r5x * int (r4x / r5x)) ;
+			const auto r4x = _ABS_ (arg2) ;
+			int ret = int (r4x * int (r3x / r4x)) ;
 			for (FOR_ONCE_DO) {
-				if (r4x >= 0)
+				if (r3x >= 0)
 					discard ;
-				if (r4x >= ret)
+				if (r3x >= ret)
 					discard ;
-				ret -= r5x ;
+				ret -= r4x ;
 			}
 			if (arg2 < 0)
 				ret = -ret ;
 			return std::move (ret) ;
 		}) ;
-		const auto r11x = r10x (_SIZEOF_ (int) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (int) - 8 ,VAR_ZERO) ;
-		const auto r12x = r10x (_SIZEOF_ (TEMP<UniqueRef<void>>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (TEMP<UniqueRef<void>>) - 8 ,VAR_ZERO) ;
-		const auto r13x = r10x (_SIZEOF_ (DEF<double[44]>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (DEF<double[44]>) - 8 ,VAR_ZERO) ;
-		_UNITTEST_ASSERT_ (rax->length () == r11x) ;
+		const auto r5x = r2x (_SIZEOF_ (int) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (int) - 8 ,VAR_ZERO) ;
+		const auto r6x = r2x (_SIZEOF_ (TEMP<UniqueRef<void>>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (TEMP<UniqueRef<void>>) - 8 ,VAR_ZERO) ;
+		const auto r7x = r2x (_SIZEOF_ (DEF<double[44]>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (DEF<double[44]>) - 8 ,VAR_ZERO) ;
+		_UNITTEST_ASSERT_ (rax->length () == r5x) ;
 		rax->alloc<TEMP<UniqueRef<void>>> () ;
-		_UNITTEST_ASSERT_ (rax->length () == r11x + r12x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x) ;
 		rax->alloc<double> (44) ;
-		_UNITTEST_ASSERT_ (rax->length () == r11x + r12x + r13x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x + r7x) ;
 		rax->clean () ;
-		_UNITTEST_ASSERT_ (rax->length () == r11x + r12x + r13x) ;
-		rax->free (r2x) ;
-		_UNITTEST_ASSERT_ (rax->length () == r12x + r13x) ;
-		const auto r3x = rax->alloc<PACK<VAR128[3]>> (1) ;
-		_UNITTEST_ASSERT_ (_ADDRESS_ (r3x) % _ALIGNOF_ (PACK<VAR128[3]>) == 0) ;
-		rax->free (r3x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x + r7x) ;
+		rax->free (r1x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r6x + r7x) ;
+		const auto r8x = rax->alloc<PACK<VAR128[3]>> (1) ;
+		_UNITTEST_ASSERT_ (_ADDRESS_ (r8x) % _ALIGNOF_ (PACK<VAR128[3]>) == 0) ;
+		rax->free (r8x) ;
 	}
 
 #ifdef __CSC_TARGET_EXE__
@@ -172,9 +172,9 @@ public:
 		const auto r2x = Serializer<WRAPPED_String_STRU8 ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;
 		for (FOR_ONCE_DO) {
-			auto &r1y = _CAST_<WRAPPED_String_STRU8> (rax) ;
-			r2x (r1x).friend_visit (r1y) ;
-			rax = std::move (_CAST_<String<STRU8>> (r1y)) ;
+			auto &r3y = _CAST_<WRAPPED_String_STRU8> (rax) ;
+			r2x (r1x).friend_visit (r3y) ;
+			rax = std::move (_CAST_<String<STRU8>> (r3y)) ;
 		}
 		_UNITTEST_ASSERT_ (rax == String<STRU8> (_PCSTRU8_ ("12.1"))) ;
 	}

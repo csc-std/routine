@@ -81,10 +81,12 @@ public:
 	inline explicit ArrayRange (INDEX _ibegin ,INDEX _iend) :mIBegin (_ibegin) ,mIEnd (_iend) {}
 
 	inline INDEX ibegin () const {
+		_DEBUG_ASSERT_ (mIBegin >= 0 && mIBegin <= mIEnd) ;
 		return mIBegin ;
 	}
 
 	inline INDEX iend () const {
+		_DEBUG_ASSERT_ (mIBegin >= 0 && mIBegin <= mIEnd) ;
 		return mIEnd ;
 	}
 
@@ -2226,12 +2228,12 @@ private:
 		mHead.swap (rax) ;
 	}
 
-	void update_compress_left (INDEX curr ,INDEX accm) {
+	void update_compress_left (INDEX curr ,INDEX last) {
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(mHead[curr][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (curr ,accm) ;
+			sequence_rewrite (curr ,last) ;
 			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
 		}
 		if SWITCH_CASE (fax) {
@@ -2240,17 +2242,17 @@ private:
 				discard ;
 			if (!(mHead[ix][0] == VAR_NONE))
 				discard ;
-			sequence_rewrite (ix ,accm) ;
+			sequence_rewrite (ix ,last) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
 		}
 		if SWITCH_CASE (fax) {
-			update_compress_left_force (curr ,accm) ;
+			update_compress_left_force (curr ,last) ;
 		}
 	}
 
-	void update_compress_left_force (INDEX curr ,INDEX accm) {
+	void update_compress_left_force (INDEX curr ,INDEX last) {
 		INDEX ix = curr ;
-		INDEX iy = accm ;
+		INDEX iy = last ;
 		for (INDEX i = 0 ,ie = mList.length () ; i < ie ; i++) {
 			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
 				mRead++ ;
@@ -3201,21 +3203,21 @@ public:
 	}
 
 private:
-	void update_emplace (INDEX curr ,INDEX accm) {
+	void update_emplace (INDEX curr ,INDEX last) {
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(curr == VAR_NONE))
 				discard ;
-			mTop = accm ;
+			mTop = last ;
 		}
 		if SWITCH_CASE (fax) {
 			if (!(curr != VAR_NONE))
 				discard ;
-			mSet[accm].mUp = curr ;
+			mSet[last].mUp = curr ;
 			auto &r1y = _SWITCH_ (
-				(mSet[accm].mKey < mSet[curr].mKey) ? (mSet[curr].mLeft) :
+				(mSet[last].mKey < mSet[curr].mKey) ? (mSet[curr].mLeft) :
 				(mSet[curr].mRight)) ;
-			update_emplace (r1y ,accm) ;
+			update_emplace (r1y ,last) ;
 			r1y = mTop ;
 			mTop = curr ;
 		}
@@ -3323,9 +3325,9 @@ private:
 		}
 	}
 
-	void update_remove (INDEX curr ,INDEX accm) {
+	void update_remove (INDEX curr ,INDEX last) {
 		INDEX ix = curr ;
-		INDEX iy = accm ;
+		INDEX iy = last ;
 		while (TRUE) {
 			if (iy == VAR_NONE)
 				break ;
@@ -3350,14 +3352,14 @@ private:
 		mSet[ix].mRed = FALSE ;
 	}
 
-	void update_remove_left (INDEX curr ,INDEX accm) {
-		auto &r1y = mSet[accm].mRight ;
+	void update_remove_left (INDEX curr ,INDEX last) {
+		auto &r1y = mSet[last].mRight ;
 		for (FOR_ONCE_DO) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
-			mSet[accm].mRed = TRUE ;
-			auto &r2y = prev_next (accm) ;
+			mSet[last].mRed = TRUE ;
+			auto &r2y = prev_next (last) ;
 			rotate_left (r2y) ;
 			r2y = mTop ;
 		}
@@ -3370,7 +3372,7 @@ private:
 			if (r4x)
 				discard ;
 			mSet[r1y].mRed = TRUE ;
-			mTop = accm ;
+			mTop = last ;
 		}
 		if SWITCH_CASE (fax) {
 			if (r4x)
@@ -3379,33 +3381,33 @@ private:
 			mSet[r1y].mRed = TRUE ;
 			rotate_right (r1y) ;
 			r1y = mTop ;
-			mSet[r1y].mRed = mSet[accm].mRed ;
-			mSet[accm].mRed = FALSE ;
+			mSet[r1y].mRed = mSet[last].mRed ;
+			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
-			auto &r5y = prev_next (accm) ;
+			auto &r5y = prev_next (last) ;
 			rotate_left (r5y) ;
 			r5y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
-			mSet[r1y].mRed = mSet[accm].mRed ;
-			mSet[accm].mRed = FALSE ;
+			mSet[r1y].mRed = mSet[last].mRed ;
+			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
-			auto &r6y = prev_next (accm) ;
+			auto &r6y = prev_next (last) ;
 			rotate_left (r6y) ;
 			r6y = mTop ;
 			mTop = mRoot ;
 		}
 	}
 
-	void update_remove_right (INDEX curr ,INDEX accm) {
-		auto &r1y = mSet[accm].mLeft ;
+	void update_remove_right (INDEX curr ,INDEX last) {
+		auto &r1y = mSet[last].mLeft ;
 		for (FOR_ONCE_DO) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
-			mSet[accm].mRed = TRUE ;
-			auto &r2y = prev_next (accm) ;
+			mSet[last].mRed = TRUE ;
+			auto &r2y = prev_next (last) ;
 			rotate_right (r2y) ;
 			r2y = mTop ;
 		}
@@ -3418,7 +3420,7 @@ private:
 			if (r4x)
 				discard ;
 			mSet[r1y].mRed = TRUE ;
-			mTop = accm ;
+			mTop = last ;
 		}
 		if SWITCH_CASE (fax) {
 			if (r4x)
@@ -3427,19 +3429,19 @@ private:
 			mSet[r1y].mRed = TRUE ;
 			rotate_left (r1y) ;
 			r1y = mTop ;
-			mSet[r1y].mRed = mSet[accm].mRed ;
-			mSet[accm].mRed = FALSE ;
+			mSet[r1y].mRed = mSet[last].mRed ;
+			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
-			auto &r5y = prev_next (accm) ;
+			auto &r5y = prev_next (last) ;
 			rotate_right (r5y) ;
 			r5y = mTop ;
 			mTop = mRoot ;
 		}
 		if SWITCH_CASE (fax) {
-			mSet[r1y].mRed = mSet[accm].mRed ;
-			mSet[accm].mRed = FALSE ;
+			mSet[r1y].mRed = mSet[last].mRed ;
+			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
-			auto &r6y = prev_next (accm) ;
+			auto &r6y = prev_next (last) ;
 			rotate_right (r6y) ;
 			r6y = mTop ;
 			mTop = mRoot ;
