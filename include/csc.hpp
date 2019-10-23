@@ -644,11 +644,6 @@ inline constexpr _RET &_NULL_ () {
 }
 
 template <class _ARG1>
-inline constexpr LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
-	return LENGTH (address) ;
-}
-
-template <class _ARG1>
 inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
 	return std::forward<_ARG1> (expr) ;
 }
@@ -665,6 +660,11 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 	return arg1 ;
 }
 
+template <class _ARG1>
+inline constexpr LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
+	return LENGTH (address) ;
+}
+
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
@@ -674,7 +674,9 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &arg1) noexcept {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
 	const auto r1x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (&arg1)) ;
-	return (*r1x) ;
+	//@warn: disable compiler's escape analysis like 'std::launder'
+	const auto r2x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
+	return (*r2x) ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
@@ -686,7 +688,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
 	(void) r1x ;
-	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
+	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (address)) ;
 	//@warn: disable compiler's escape analysis like 'std::launder'
 	const auto r3x = _XVALUE_<volatile PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return (*r3x) ;
@@ -748,10 +750,9 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	const auto r1x = &_LOAD_<_ARG1> (address) ;
-	const auto r2x = new (r1x) _ARG1 (std::forward<_ARGS> (args)...) ;
-	_DEBUG_ASSERT_ (r2x == r1x) ;
-	(void) r1x ;
+	auto &r1y = _LOAD_<_ARG1> (address) ;
+	const auto r2x = new (&r1y) _ARG1 (std::forward<_ARGS> (args)...) ;
+	_DEBUG_ASSERT_ (r2x == &r1y) ;
 	(void) r2x ;
 }
 
@@ -759,8 +760,9 @@ template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	const auto r1x = &_LOAD_<_ARG1> (address) ;
-	r1x->~_ARG1 () ;
+	auto &r1y = _LOAD_<_ARG1> (address) ;
+	r1y.~_ARG1 () ;
+	(void) r1y ;
 }
 
 template <class _ARG1>
@@ -798,7 +800,7 @@ inline void _CATCH_ (_ARG1 &&arg1) noexcept {
 	arg1 () ;
 }
 
-//@info: the function is incompleted without 'csc_ext.hpp'
+//@info: this function is incompleted without 'csc_ext.hpp'
 template <class _ARG1 ,class _ARG2>
 inline void _CATCH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept ;
 
@@ -1329,8 +1331,8 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_LOAD_<_RET> (r1x) ;
-		return OwnerProxy<_RET> (r2x) ;
+		auto &r2y = _LOAD_<_RET> (r1x) ;
+		return OwnerProxy<_RET> (&r2y) ;
 	}
 
 	template <class _RET>
@@ -1342,13 +1344,13 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (len * _SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = &_LOAD_<ARR<_RET>> (r1x) ;
-		return OwnerProxy<ARR<_RET>> (r2x) ;
+		auto &r2y = _LOAD_<ARR<_RET>> (r1x) ;
+		return OwnerProxy<ARR<_RET>> (&r2y) ;
 	}
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
-		const auto r1x = &_LOAD_<ARR<BYTE>> (NULL ,_ADDRESS_ (address)) ;
+		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
 		operator delete (r1x ,std::nothrow) ;
 	}
 } ;
@@ -1389,30 +1391,30 @@ private:
 template <class UNIT>
 class ScopedBuild final {
 private:
-	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
+	PTR<const PTR<TEMP<UNIT>>> mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const PTR<TEMP<UNIT>> &address ,_ARGS &&...args) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
-		_CREATE_ (r1x ,std::forward<_ARGS> (args)...) ;
+		auto &r1y = _LOAD_<PTR<TEMP<UNIT>>> (mAddress) ;
+		_CREATE_ (r1y ,std::forward<_ARGS> (args)...) ;
 		mSize++ ;
 	}
 
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		const auto r1x = (*mAddress) ;
-		if (r1x == NULL)
+		auto &r1y = _LOAD_<PTR<TEMP<UNIT>>> (mAddress) ;
+		if (r1y == NULL)
 			return ;
 		for (FOR_ONCE_DO) {
 			if (mSize <= 0)
 				discard ;
-			_DESTROY_ (r1x) ;
+			_DESTROY_ (r1y) ;
 			mSize-- ;
 		}
 		mAddress = NULL ;
@@ -1430,35 +1432,35 @@ private:
 template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final {
 private:
-	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
+	PTR<const PTR<ARR<TEMP<UNIT>>>> mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
-		if (r1x == NULL)
+		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
+		if (r1y == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mSize]) ;
+			_CREATE_ (&(*r1y)[mSize]) ;
 			mSize++ ;
 		}
 	}
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
-		if (r1x == NULL)
+		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
+		if (r1y == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1x)[mSize] ,src[mSize]) ;
+			_CREATE_ (&(*r1y)[mSize] ,src[mSize]) ;
 			mSize++ ;
 		}
 	}
@@ -1466,13 +1468,13 @@ public:
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		const auto r1x = (*mAddress) ;
-		if (r1x == NULL)
+		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
+		if (r1y == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize <= 0)
 				break ;
-			_DESTROY_ (&(*r1x)[mSize - 1]) ;
+			_DESTROY_ (&(*r1y)[mSize - 1]) ;
 			mSize-- ;
 		}
 		mAddress = NULL ;
@@ -1509,7 +1511,8 @@ private:
 	inline Singleton () :Singleton (ARGVP0) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax) ;
-		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		mPointer = &r1y ;
 		rax = NULL ;
 	}
 
@@ -1640,7 +1643,8 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
-		mPointer = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		mPointer = &r1y ;
 		rax = NULL ;
 	}
 
@@ -1725,8 +1729,8 @@ public:
 	inline static AutoRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		const auto r1x = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		AutoRef ret = AutoRef (r1x) ;
+		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		AutoRef ret = AutoRef (&r1y) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1804,8 +1808,8 @@ public:
 
 	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = &_LOAD_<Holder> (mPointer) ;
-		return r1x->mData ;
+		auto &r1y = _LOAD_<Holder> (mPointer) ;
+		return r1y.mData ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -1831,8 +1835,8 @@ public:
 	inline static SharedRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		const auto r1x = &_LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		SharedRef ret = SharedRef (r1x) ;
+		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		SharedRef ret = SharedRef (&r1y) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1959,8 +1963,8 @@ public:
 	inline static AnyRef make (_ARGS &&...args) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
 		ScopedBuild<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
-		const auto r1x = &_LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
-		AnyRef ret = AnyRef (r1x) ;
+		auto &r1y = _LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
+		AnyRef ret = AnyRef (&r1y) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -2077,9 +2081,9 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
-		constructor (r1x->mData) ;
-		mPointer = r1x ;
+		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		constructor (r1y.mData) ;
+		mPointer = &r1y ;
 		rax = NULL ;
 	}
 
@@ -2140,9 +2144,9 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (UNIT &)>>>> () ;
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (rax ,r1x) ;
-		const auto r2x = &_LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
-		r2x->mData = UNIT (std::forward<_ARGS> (args)...) ;
-		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (r2x)) ;
+		auto &r2y = _LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
+		r2y.mData = UNIT (std::forward<_ARGS> (args)...) ;
+		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2y)) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -2186,9 +2190,9 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		const auto r1x = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
 		constructor () ;
-		mPointer = r1x ;
+		mPointer = &r1y ;
 		rax = NULL ;
 	}
 
@@ -2341,7 +2345,8 @@ public:
 	inline implicit Function (_ARG1 &&that) :Function () {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
-		mFunction_a = &_LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
+		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
+		mFunction_a = &r1y ;
 		mFunction_b = NULL ;
 		rax = NULL ;
 	}
@@ -2400,9 +2405,9 @@ private:
 	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> pointer) :mFunction_a (pointer) ,mFunction_b (NULL) {}
 
 public:
-	//@info: the function is incompleted without 'csc_ext.hpp'
+	//@info: this function is incompleted without 'csc_ext.hpp'
 	template <class... _ARGS>
-	inline static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &function ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
+	inline static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...args) ;
 } ;
 
 //@error: vs2017 is too useless to compile without hint
@@ -2453,27 +2458,27 @@ public:
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &function) noexcept {
-		_DEBUG_ASSERT_ (function != NULL) ;
-		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,function) ;
+	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept {
+		_DEBUG_ASSERT_ (func != NULL) ;
+		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &function) noexcept {
-		_DEBUG_ASSERT_ (function != NULL) ;
-		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,function) ;
+	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept {
+		_DEBUG_ASSERT_ (func != NULL) ;
+		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &function) noexcept {
-		_DEBUG_ASSERT_ (function != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,function) ;
+	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept {
+		_DEBUG_ASSERT_ (func != NULL) ;
+		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &function) noexcept {
-		_DEBUG_ASSERT_ (function != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,function) ;
+	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept {
+		_DEBUG_ASSERT_ (func != NULL) ;
+		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,func) ;
 	}
 
 	inline ~Function () noexcept {
@@ -2539,7 +2544,7 @@ private:
 		public:
 			inline PureHolder () = delete ;
 
-			inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &function) noexcept :mFunction (function) {}
+			inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &func) noexcept :mFunction (func) {}
 
 			inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 				static_create<PureHolder> (address ,mFunction) ;
@@ -2555,11 +2560,11 @@ private:
 			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			auto &r1y = _LOAD_<TEMP<_RET>> (NULL ,_ADDRESS_ (address)) ;
-			const auto r2x = &_XVALUE_<Holder> (_CAST_<_RET> (r1y)) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (r2x))) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (r2x) == _ADDRESS_ (static_cast<PTR<_RET>> (r2x))) ;
-			(void) r2x ;
+			auto &r1y = _LOAD_<TEMP<_RET>> (address) ;
+			auto &r2y = _XVALUE_<Holder> (_CAST_<_RET> (r1y)) ;
+			_DEBUG_ASSERT_ (_ADDRESS_ (&r2y) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (&r2y))) ;
+			_DEBUG_ASSERT_ (_ADDRESS_ (&r2y) == _ADDRESS_ (static_cast<PTR<_RET>> (&r2y))) ;
+			(void) r2y ;
 			_CREATE_ (&r1y ,std::forward<_ARGS> (args)...) ;
 		}
 	} ;
@@ -2577,7 +2582,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_UNIT> context ,const DEF<DEF<UNIT1 (UNITS...)> _UNIT::*> &function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<_UNIT> context ,const DEF<DEF<UNIT1 (UNITS...)> _UNIT::*> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -2598,7 +2603,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<const _UNIT> context ,const DEF<DEF<UNIT1 (UNITS...) const> _UNIT::*> &function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<const _UNIT> context ,const DEF<DEF<UNIT1 (UNITS...) const> _UNIT::*> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -2619,7 +2624,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_UNIT> context ,const PTR<UNIT1 (PTR<_UNIT> ,UNITS...)> &function) noexcept :mContext (context) ,mFunction (function) {}
+	inline explicit ImplHolder (PTR<_UNIT> context ,const PTR<UNIT1 (PTR<_UNIT> ,UNITS...)> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -2787,7 +2792,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1y ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -2947,7 +2953,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1y ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -3001,7 +3008,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1y ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -3021,7 +3029,8 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,(*that.mBuffer) ,that.mSize) ;
-		mBuffer = &_LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1y ;
 		mSize = that.mSize ;
 		rax = NULL ;
 	}
@@ -3243,8 +3252,8 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
-		return (*r1x)[index] ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (mBuffer) ;
+		return r1y[index] ;
 #pragma GCC diagnostic pop
 	}
 
@@ -3413,8 +3422,8 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		const auto r1x = &_LOAD_<ARR<UNIT>> (mBuffer) ;
-		return (*r1x)[index] ;
+		auto &r1y = _LOAD_<ARR<UNIT>> (mBuffer) ;
+		return r1y[index] ;
 #pragma GCC diagnostic pop
 	}
 

@@ -392,8 +392,8 @@ public:
 	}
 
 	void read (const PTR<void (ByteReader &)> &proc) {
-		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc ((*this)) ;
+		const auto r1x = Function<void (ByteReader &)> (proc) ;
+		r1x ((*this)) ;
 	}
 
 	inline ByteReader &operator>> (const PTR<void (ByteReader &)> &proc) {
@@ -659,8 +659,8 @@ public:
 	}
 
 	void write (const PTR<void (ByteWriter &)> &proc) {
-		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc ((*this)) ;
+		const auto r1x = Function<void (ByteWriter &)> (proc) ;
+		r1x ((*this)) ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<void (ByteWriter &)> &proc) {
@@ -1124,8 +1124,8 @@ public:
 	}
 
 	void read (const PTR<void (TextReader &)> &proc) {
-		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc ((*this)) ;
+		const auto r1x = Function<void (TextReader &)> (proc) ;
+		r1x ((*this)) ;
 	}
 
 	inline TextReader &operator>> (const PTR<void (TextReader &)> &proc) {
@@ -1624,8 +1624,8 @@ public:
 	}
 
 	void write (const PTR<void (TextWriter &)> &proc) {
-		_DEBUG_ASSERT_ (proc != NULL) ;
-		proc ((*this)) ;
+		const auto r1x = Function<void (TextWriter &)> (proc) ;
+		r1x ((*this)) ;
 	}
 
 	inline TextWriter &operator<< (const PTR<void (TextWriter &)> &proc) {
@@ -2006,7 +2006,7 @@ inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &arg1 ,const _ARGS 
 }
 } ;
 
-template <class SIZE = VOID>
+template <class SIZE = void>
 class RegularReader ;
 
 template <>

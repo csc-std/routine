@@ -1360,8 +1360,8 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			if (!(r2x[1] == 1))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			const auto r6x = r1x[r2x[0]].key ;
-			writer << (*r6x) ;
+			auto &r6y = (*r1x[r2x[0]].key) ;
+			writer << r6y ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if SWITCH_CASE (fax) {

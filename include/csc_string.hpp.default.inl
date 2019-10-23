@@ -148,6 +148,7 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 #elif defined _GLIBCXX_CTIME
 	//@warn: not thread-safe due to internel storage
 	const auto r2x = std::localtime (&r1x) ;
+	_DEBUG_ASSERT_ (r2x != NULL) ;
 	rax = (*r2x) ;
 #endif
 	ret[0] = rax.tm_year + 1900 ;

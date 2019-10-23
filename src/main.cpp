@@ -23,12 +23,14 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-
+		Singleton<ConsoleService>::instance ().fatal (_PCSTR_ ("default_align =") ,_ALIGNOF_ (stl::max_align_t)) ;
+		Singleton<ConsoleService>::instance ().print () ;
 	}
 } ;
 
 #ifdef __CSC_TARGET_EXE__
 exports int main () noexcept popping {
+	using namespace UNITTEST ;
 	UNITTEST_MAIN ().TEST_MAIN () ;
 	return 0 ;
 }

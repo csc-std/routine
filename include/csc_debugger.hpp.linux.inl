@@ -331,20 +331,29 @@ public:
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping override {
+		_DEBUG_ASSERT_ (address.length () < VAR32_MAX) ;
+		const auto r1x = _CALL_ ([&] () {
+			Array<PTR<VOID>> ret = Array<PTR<VOID>> (address.length ()) ;
+			for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
+				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + LENGTH (i)) ;
+				ret[i] = r2x ;
+			}
+			return std::move (ret) ;
+		}) ;
+		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
+			me = backtrace_symbols (&r4x ,VAR32 (r1x.length ())) ;
+		} ,[&] (PTR<PTR<STRA>> &me) {
+			if (me == NULL)
+				return ;
+			free (me) ;
+		}) ;
+		auto &r5y = PTRTOARR[r3x.self] ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
-		for (auto &&i : address) {
-			const auto r1x = _XVALUE_<PTR<VOID>> (&_LOAD_<ARR<BYTE>> (NULL ,LENGTH (i))) ;
-			const auto r2x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
-				me = backtrace_symbols (&r1x ,1) ;
-			} ,[&] (PTR<PTR<STRA>> &me) {
-				if (me == NULL)
-					return ;
-				free (me) ;
-			}) ;
-			const auto r3x = _BUILDHEX16S_ (i) ;
-			const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x.self[0]])) ;
-			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
+		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
+			const auto r6x = _BUILDHEX16S_ (address[i]) ;
+			const auto r7x = _PARSESTRS_ (String<STRA> (PTRTOARR[r5y[i]])) ;
+			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : ") ,r7x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

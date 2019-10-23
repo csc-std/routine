@@ -475,11 +475,11 @@ public:
 	}
 
 	BOOL equal (const String &that) const {
-		if (size () == 0 && that.size () == 0)
+		if (empty () && that.empty ())
 			return TRUE ;
-		if (size () == 0)
+		if (empty ())
 			return FALSE ;
-		if (that.size () == 0)
+		if (that.empty ())
 			return FALSE ;
 		INDEX ix = 0 ;
 		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
@@ -624,7 +624,7 @@ private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mString (len) {}
 
 public:
-	//@info: the function is incompleted without 'csc_string.hpp'
+	//@info: this function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
 	inline static String make (const _ARGS &...args) ;
 
@@ -979,7 +979,7 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
 class Priority ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -2717,7 +2717,7 @@ private:
 	} ;
 } ;
 
-template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
 class Set ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -3527,7 +3527,7 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
 class HashSet ;
 
 template <class KEY ,class ITEM ,class SIZE>
@@ -4018,7 +4018,7 @@ private:
 	INDEX &prev_next (INDEX) && = delete ;
 } ;
 
-template <class KEY ,class ITEM = VOID ,class SIZE = SAUTO>
+template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
 class SoftSet ;
 
 template <class KEY ,class ITEM ,class SIZE>

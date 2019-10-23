@@ -400,6 +400,7 @@ public:
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping override {
+		_DEBUG_ASSERT_ (address.length () < VAR32_MAX) ;
 		using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
@@ -408,16 +409,17 @@ public:
 		if SWITCH_CASE (fax) {
 			if (!(mSymbolFromAddress.exist ()))
 				discard ;
-			const auto r1x = _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
+			const auto r1x = _ALIGNOF_ (SYMBOL_INFO) + _SIZEOF_ (SYMBOL_INFO) + address.length () * (DEFAULT_SHORTSTRING_SIZE::value) ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
-			const auto r2x = &_LOAD_<SYMBOL_INFO> (NULL ,_ADDRESS_ (&rax.self)) ;
-			r2x->SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
-			r2x->MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
+			const auto r2x = _ALIGNAS_ (_ADDRESS_ (&rax.self) ,_ALIGNOF_ (SYMBOL_INFO)) ;
+			auto &r3y = _LOAD_<SYMBOL_INFO> (NULL ,r2x) ;
+			r3y.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
+			r3y.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : address) {
-				SymFromAddr (mSymbolFromAddress ,i ,NULL ,r2x) ;
-				const auto r3x = _BUILDHEX16S_ (DATA (r2x->Address)) ;
-				const auto r4x = _PARSESTRS_ (String<STRA> (PTRTOARR[r2x->Name])) ;
-				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
+				SymFromAddr (mSymbolFromAddress ,i ,NULL ,&r3y) ;
+				const auto r4x = _BUILDHEX16S_ (DATA (r3y.Address)) ;
+				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3y.Name])) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}
 		if SWITCH_CASE (fax) {

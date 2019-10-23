@@ -489,6 +489,11 @@ struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
 } ;
 
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
+} ;
+
 template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,_ARG1 ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
@@ -549,14 +554,19 @@ struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_str_xyz<_ARG1>::value &
 	using TYPE = ARGC<TRUE> ;
 } ;
 
-//@info: for old c api
+//@info: compatible for old c api
 template <>
 struct LOAD_CHECK<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
+template <class _ARG1 ,class _ARG2>
+struct LOAD_CHECK<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0)> ,ARGC<4>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
 template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<4>> {
+struct LOAD_CHECK<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 

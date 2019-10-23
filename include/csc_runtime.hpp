@@ -62,13 +62,13 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r1x = rbx.watch () ;
-				const auto r2x = &_XVALUE_<Holder> (r1x) ;
-				const auto r3x = &_LOAD_<NONE> (r2x) ;
-				rax = unique_atomic_address (NULL ,r3x) ;
+				auto &r2y = _XVALUE_<Holder> (r1x) ;
+				auto &r3y = _LOAD_<NONE> (&r2y) ;
+				rax = unique_atomic_address (NULL ,&r3y) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r4x = &_LOAD_<Holder> (rax) ;
-			return IntrusiveRef<Holder> (r4x).watch () ;
+			auto &r4y = _LOAD_<Holder> (rax) ;
+			return IntrusiveRef<Holder> (&r4y).watch () ;
 		}) ;
 	}
 
@@ -89,14 +89,14 @@ private:
 		for (FOR_ONCE_DO) {
 			if (!_self.mValueNode.exist ())
 				discard ;
-			const auto r1x = &_self.mValueNode.self ;
+			auto &r1y = _self.mValueNode.self ;
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
 				if (_self.mValueNode->mGUID == guid)
 					ret = &_self.mValueNode.self ;
 				_self.mValueNode.cycle () ;
-				if (&_self.mValueNode.self == r1x)
+				if (&_self.mValueNode.self == &r1y)
 					break ;
 				_STATIC_WARNING_ ("noop") ;
 			}
@@ -109,14 +109,14 @@ private:
 		for (FOR_ONCE_DO) {
 			if (!_self.mClassNode.exist ())
 				discard ;
-			const auto r1x = &_self.mClassNode.self ;
+			auto &r1y = _self.mClassNode.self ;
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
 				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
 					ret = &_self.mClassNode.self ;
 				_self.mClassNode.cycle () ;
-				if (&_self.mClassNode.self == r1x)
+				if (&_self.mClassNode.self == &r1y)
 					break ;
 				_STATIC_WARNING_ ("noop") ;
 			}
@@ -245,11 +245,12 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r4x = rbx.watch () ;
-				const auto r5x = &_XVALUE_<Holder> (r4x) ;
-				rax->mData = &_LOAD_<NONE> (r5x) ;
+				auto &r5y = _XVALUE_<Holder> (r4x) ;
+				auto &r6y = _LOAD_<NONE> (&r5y) ;
+				rax->mData = &r6y ;
 			}
-			const auto r6x = &_LOAD_<Holder> (rax->mData) ;
-			return IntrusiveRef<Holder> (r6x).watch () ;
+			auto &r7y = _LOAD_<Holder> (rax->mData) ;
+			return IntrusiveRef<Holder> (&r7y).watch () ;
 		}) ;
 		return _XVALUE_<Holder> (r1y).mData ;
 	}

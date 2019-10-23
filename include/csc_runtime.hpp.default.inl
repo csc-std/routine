@@ -43,7 +43,7 @@ private:
 		jmp_buf mEbp ;
 	} ;
 
-	using CONTEXT_EBP_SIZE = ARGC<_SIZEOF_ (CONTEXT_EBP) + _ALIGNOF_ (CONTEXT_EBP)> ;
+	using CONTEXT_EBP_SIZE = ARGC<_ALIGNOF_ (CONTEXT_EBP) + _SIZEOF_ (CONTEXT_EBP)> ;
 	using STACK_FRAME_SIZE = ARGC<65536> ;
 
 	struct BREAKPOINT {
@@ -73,7 +73,7 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
 		_MEMCOPY_ (PTRTOARR[r1y.mStackFrame] ,_LOAD_<ARR<BYTE>> (r1y.mStackPoint[r3x]) ,_ABS_ (r2x)) ;
-		auto &r4y = load_context_ebp (&r1y.mContextEbp) ;
+		auto &r4y = load_context_ebp (r1y.mContextEbp) ;
 		const auto r5x = setjmp (r4y.mEbp) ;
 		(void) r5x ;
 	}
@@ -89,17 +89,13 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
 		_MEMCOPY_ (_LOAD_<ARR<BYTE>> (r1y.mStackPoint[r3x]) ,PTRTOARR[r1y.mStackFrame] ,_ABS_ (r2x)) ;
-		auto &r4y = load_context_ebp (&r1y.mContextEbp) ;
+		auto &r4y = load_context_ebp (r1y.mContextEbp) ;
 		longjmp (r4y.mEbp ,1) ;
 	}
 
-	static CONTEXT_EBP &load_context_ebp (PTR<BYTE[CONTEXT_EBP_SIZE::value]> ebp) noexcept {
-		const auto r1x = _ADDRESS_ (ebp) % _ALIGNOF_ (CONTEXT_EBP) ;
-		const auto r2x = _SWITCH_ (
-			(r1x != 0) ? (_ALIGNOF_ (CONTEXT_EBP) - r1x) :
-			0) ;
-		const auto r3x = _ADDRESS_ (ebp) + r1x ;
-		return _LOAD_<CONTEXT_EBP> (NULL ,r3x) ;
+	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE::value]> &ebp) noexcept {
+		const auto r1x = _ALIGNAS_ (_ADDRESS_ (&ebp) ,_ALIGNOF_ (CONTEXT_EBP)) ;
+		return _LOAD_<CONTEXT_EBP> (NULL ,r1x) ;
 	}
 } ;
 

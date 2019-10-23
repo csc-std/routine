@@ -151,7 +151,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.mImage = &_LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -223,7 +224,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.mImage = &_LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -295,7 +297,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.mImage = &_LOAD_<ARR<COLOR_GRAY>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -367,7 +370,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.mImage = &_LOAD_<ARR<COLOR_GRAY32>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY32>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -439,7 +443,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		layout.mImage = &_LOAD_<ARR<COLOR_GRAY64>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY64>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;

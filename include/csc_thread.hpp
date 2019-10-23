@@ -425,11 +425,11 @@ public:
 		r2y.mException = AutoRef<Exception> () ;
 		r2y.mThreadPool = Array<AutoRef<std::thread>> (count) ;
 		for (INDEX i = 0 ,ie = r2y.mThreadPool.length () ; i < ie ; i++) {
-			const auto r3x = &r2y ;
+			const auto r3x = PACK<PTR<Holder>> {&r2y} ;
 			//@warn: move object having captured context
 			r2y.mThreadPool[i] = AutoRef<std::thread>::make ([r3x] () noexcept {
 				_CALL_TRY_ ([&] () {
-					Detail::static_execute ((*r3x)) ;
+					Detail::static_execute ((*r3x.P1)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -643,11 +643,11 @@ public:
 		r2y.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r2y.mItem = AutoRef<ITEM> () ;
 		r2y.mException = AutoRef<Exception> () ;
-		const auto r3x = &r2y ;
+		const auto r3x = PACK<PTR<Holder>> {&r2y} ;
 		//@warn: move object having captured context
 		r2y.mThreadPool = AutoRef<std::thread>::make ([r3x] () noexcept {
 			_CALL_TRY_ ([&] () {
-				Detail::static_execute ((*r3x)) ;
+				Detail::static_execute ((*r3x.P1)) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
