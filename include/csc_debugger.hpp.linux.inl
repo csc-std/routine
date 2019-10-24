@@ -250,8 +250,8 @@ private:
 	void write_log_file () {
 		if (mLogPath.empty ())
 			return ;
-		const auto r1x = _MAX_ ((mLogWriter.length () - 1) ,VAR_ZERO) * _SIZEOF_ (STR) ;
-		const auto r2x = PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (&mLogWriter.raw ().self) ,r1x) ;
+		const auto r1x = PhanBuffer<const STR>::make (mLogWriter.raw ().self ,(mLogWriter.length () - 1)) ;
+		const auto r2x = PhanBuffer<const BYTE>::make (r1x) ;
 		mTempState = FALSE ;
 		_CALL_TRY_ ([&] () {
 			if (mTempState)

@@ -205,19 +205,20 @@ public:
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (mThis->mTimeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
-		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::recv (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0) ;
+		const auto r4x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
+		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		for (FOR_ONCE_DO) {
-			if (r2x >= 0)
+			if (r3x >= 0)
 				discard ;
-			const auto r4x = errno ;
-			if (r4x == 0)
+			const auto r5x = errno ;
+			if (r5x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
 		}
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
@@ -225,38 +226,40 @@ public:
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (timeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = ::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
-		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::recv (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0) ;
+		const auto r4x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
+		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		for (FOR_ONCE_DO) {
-			if (r2x >= 0)
+			if (r3x >= 0)
 				discard ;
-			const auto r4x = errno ;
-			if (r4x == 0)
+			const auto r5x = errno ;
+			if (r5x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
 		}
-		out_i = r2x ;
+		out_i = r3x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (mThis->mTimeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = ::send (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
-		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::send (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0) ;
+		const auto r4x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
+		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		for (FOR_ONCE_DO) {
-			if (r2x >= 0)
+			if (r3x >= 0)
 				discard ;
-			const auto r4x = errno ;
-			if (r4x == 0)
+			const auto r5x = errno ;
+			if (r5x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
 		}
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 	}
 
 private:
@@ -457,10 +460,11 @@ public:
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r2x = ::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::recvfrom (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 		mThis->mPeer = rax.P1 ;
 	}
 
@@ -473,11 +477,12 @@ public:
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r2x = ::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::recvfrom (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0 ,&rax.P1 ,&rax.P2) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		mThis->mPeer = rax.P1 ;
-		out_i = r2x ;
+		out_i = r3x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
@@ -485,9 +490,10 @@ public:
 		const auto r1x = _inline_SOCKET_SELECT_ (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,&r1x[1]) != 0) ;
-		const auto r2x = ::sendto (mThis->mSocket ,_LOAD_<ARR<STRA>> (&data.self) ,VAR32 (data.size ()) ,0 ,&mThis->mPeer ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
+		const auto r2x = _LOAD_<ARR<STRA>> (&data.self) ;
+		const auto r3x = ::sendto (mThis->mSocket ,r2x ,VAR32 (data.size ()) ,0 ,&mThis->mPeer ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 	}
 } ;
 

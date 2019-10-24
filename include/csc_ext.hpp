@@ -3034,8 +3034,8 @@ private:
 			const auto r1x = mFree ;
 			mFree = r1x->mNext ;
 			mLength += SIZE::value ;
-			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (VAR_USED) ;
-			r1x->mNext = _LOAD_<PTR<BLOCK>> (&r2x) ;
+			auto &r2y = _CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) ;
+			r2y = _CAST_<TEMP<PTR<BLOCK>>> (VAR_USED) ;
 			return &r1x->mFlexData ;
 		}
 

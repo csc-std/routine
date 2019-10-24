@@ -1373,30 +1373,30 @@ private:
 template <class UNIT>
 class ScopedBuild final {
 private:
-	PTR<const PTR<TEMP<UNIT>>> mAddress ;
+	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
 	template <class... _ARGS>
-	inline explicit ScopedBuild (const PTR<TEMP<UNIT>> &address ,_ARGS &&...initval) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...initval) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		auto &r1y = _LOAD_<PTR<TEMP<UNIT>>> (mAddress) ;
-		_CREATE_ (r1y ,std::forward<_ARGS> (initval)...) ;
+		const auto r1x = (*mAddress) ;
+		_CREATE_ (r1x ,std::forward<_ARGS> (initval)...) ;
 		mSize++ ;
 	}
 
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		auto &r1y = _LOAD_<PTR<TEMP<UNIT>>> (mAddress) ;
-		if (r1y == NULL)
+		const auto r1x = (*mAddress) ;
+		if (r1x == NULL)
 			return ;
 		for (FOR_ONCE_DO) {
 			if (mSize <= 0)
 				discard ;
-			_DESTROY_ (r1y) ;
+			_DESTROY_ (r1x) ;
 			mSize-- ;
 		}
 		mAddress = NULL ;
@@ -1414,35 +1414,35 @@ private:
 template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final {
 private:
-	PTR<const PTR<ARR<TEMP<UNIT>>>> mAddress ;
+	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedBuild (const PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
-		if (r1y == NULL)
+		const auto r1x = (*mAddress) ;
+		if (r1x == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1y)[mSize]) ;
+			_CREATE_ (&(*r1x)[mSize]) ;
 			mSize++ ;
 		}
 	}
 
-	inline explicit ScopedBuild (const PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
+	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		mAddress = &address ;
-		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
-		if (r1y == NULL)
+		const auto r1x = (*mAddress) ;
+		if (r1x == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;
-			_CREATE_ (&(*r1y)[mSize] ,src[mSize]) ;
+			_CREATE_ (&(*r1x)[mSize] ,src[mSize]) ;
 			mSize++ ;
 		}
 	}
@@ -1450,13 +1450,13 @@ public:
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		auto &r1y = _LOAD_<PTR<ARR<TEMP<UNIT>>>> (mAddress) ;
-		if (r1y == NULL)
+		const auto r1x = (*mAddress) ;
+		if (r1x == NULL)
 			return ;
 		while (TRUE) {
 			if (mSize <= 0)
 				break ;
-			_DESTROY_ (&(*r1y)[mSize - 1]) ;
+			_DESTROY_ (&(*r1x)[mSize - 1]) ;
 			mSize-- ;
 		}
 		mAddress = NULL ;

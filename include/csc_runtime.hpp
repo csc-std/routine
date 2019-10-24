@@ -283,10 +283,10 @@ private:
 			_ZERO_ (ret) ;
 			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
-			auto &r2y = _LOAD_<ARR<BYTE>> (&PTRTOARR[&r1x[0]]) ;
-			_DEBUG_ASSERT_ (r1x.size () > 0 && r1x.size () <= _SIZEOF_ (GUID_TYPE)) ;
-			const auto r3x = _MIN_ (r1x.size () ,_SIZEOF_ (GUID_TYPE)) * _SIZEOF_ (STRA) ;
-			_MEMCOPY_ (PTRTOARR[ret] ,r2y ,r3x) ;
+			const auto r2x = PhanBuffer<const BYTE>::make (r1x.raw ()) ;
+			_DEBUG_ASSERT_ (r2x.size () <= _SIZEOF_ (GUID_TYPE)) ;
+			const auto r3x = _MIN_ (r2x.size () ,_SIZEOF_ (GUID_TYPE)) ;
+			_MEMCOPY_ (PTRTOARR[ret] ,r2x.self ,r3x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;
