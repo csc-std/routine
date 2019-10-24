@@ -234,32 +234,32 @@ inline _ARG1 _ROUND_ (const _ARG1 &x ,const _ARG1 &y) {
 }
 
 template <class _ARG1 ,class _ARG2>
-inline _ARG2 _CLAMP_ (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARG2 &arg3) {
-	if (arg1 < _ARG1 (arg2))
-		return arg2 ;
-	if (arg1 > _ARG1 (arg3))
-		return arg3 ;
-	return _ARG2 (arg1) ;
+inline _ARG2 _CLAMP_ (const _ARG1 &val ,const _ARG2 &_min ,const _ARG2 &_max) {
+	if (val < _ARG1 (_min))
+		return _min ;
+	if (val > _ARG1 (_max))
+		return _max ;
+	return _ARG2 (val) ;
 }
 
 template <class _ARG1>
-inline const _ARG1 &_MINOF_ (const _ARG1 &arg1) {
-	return arg1 ;
+inline const _ARG1 &_MINOF_ (const _ARG1 &list_one) {
+	return list_one ;
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline const _ARG1 &_MINOF_ (const _ARG1 &arg1 ,const _ARG1 &arg2 ,const _ARGS &...args) {
-	return _MIN_ (arg1 ,_MINOF_ (arg2 ,args...)) ;
+inline const _ARG1 &_MINOF_ (const _ARG1 &list_one ,const _ARG1 &list_two ,const _ARGS &...list_rest) {
+	return _MIN_ (list_one ,_MINOF_ (list_two ,list_rest...)) ;
 }
 
 template <class _ARG1>
-inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1) {
-	return arg1 ;
+inline const _ARG1 &_MAXOF_ (const _ARG1 &list_one) {
+	return list_one ;
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline const _ARG1 &_MAXOF_ (const _ARG1 &arg1 ,const _ARG1 &arg2 ,const _ARGS &...args) {
-	return _MAX_ (arg1 ,_MAXOF_ (arg2 ,args...)) ;
+inline const _ARG1 &_MAXOF_ (const _ARG1 &list_one ,const _ARG1 &list_two ,const _ARGS &...list_rest) {
+	return _MAX_ (list_one ,_MAXOF_ (list_two ,list_rest...)) ;
 }
 
 inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {

@@ -43,7 +43,7 @@ private:
 		jmp_buf mEbp ;
 	} ;
 
-	using CONTEXT_EBP_SIZE = ARGC<_ALIGNOF_ (CONTEXT_EBP) + _SIZEOF_ (CONTEXT_EBP)> ;
+	using CONTEXT_EBP_SIZE = ARGC<_ALIGNOF_ (CONTEXT_EBP) - 1 + _SIZEOF_ (CONTEXT_EBP)> ;
 	using STACK_FRAME_SIZE = ARGC<65536> ;
 
 	struct BREAKPOINT {
@@ -95,7 +95,8 @@ public:
 
 	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE::value]> &ebp) noexcept {
 		const auto r1x = _ALIGNAS_ (_ADDRESS_ (&ebp) ,_ALIGNOF_ (CONTEXT_EBP)) ;
-		return _LOAD_<CONTEXT_EBP> (NULL ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x) ;
+		return _LOAD_<CONTEXT_EBP> (r2x) ;
 	}
 } ;
 

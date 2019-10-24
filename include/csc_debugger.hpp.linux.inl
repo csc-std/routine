@@ -341,19 +341,19 @@ public:
 			return std::move (ret) ;
 		}) ;
 		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
-			me = backtrace_symbols (&r4x ,VAR32 (r1x.length ())) ;
+			me = backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
 		} ,[&] (PTR<PTR<STRA>> &me) {
 			if (me == NULL)
 				return ;
 			free (me) ;
 		}) ;
-		auto &r5y = PTRTOARR[r3x.self] ;
+		auto &r4y = PTRTOARR[r3x.self] ;
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
-			const auto r6x = _BUILDHEX16S_ (address[i]) ;
-			const auto r7x = _PARSESTRS_ (String<STRA> (PTRTOARR[r5y[i]])) ;
-			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : ") ,r7x) ;
+			const auto r5x = _BUILDHEX16S_ (address[i]) ;
+			const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4y[i]])) ;
+			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

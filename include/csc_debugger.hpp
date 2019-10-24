@@ -331,7 +331,7 @@ private:
 		TupleBinder<const UNITS...> mBinder ;
 
 	public:
-		inline explicit ImplBinder (const UNITS &...args) :mBinder (args...) {}
+		inline explicit ImplBinder (const UNITS &...initval) :mBinder (initval...) {}
 
 		inline void friend_write (TextWriter<STR> &writer) const override {
 			template_write (writer ,mBinder) ;
@@ -386,45 +386,45 @@ public:
 	}
 
 	template <class... _ARGS>
-	void print (const _ARGS &...args) {
+	void print (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->print (ImplBinder<_ARGS...> (args...)) ;
+		mThis->print (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void fatal (const _ARGS &...args) {
+	void fatal (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->fatal (ImplBinder<_ARGS...> (args...)) ;
+		mThis->fatal (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void error (const _ARGS &...args) {
+	void error (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->error (ImplBinder<_ARGS...> (args...)) ;
+		mThis->error (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void warn (const _ARGS &...args) {
+	void warn (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->warn (ImplBinder<_ARGS...> (args...)) ;
+		mThis->warn (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void info (const _ARGS &...args) {
+	void info (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->info (ImplBinder<_ARGS...> (args...)) ;
+		mThis->info (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void debug (const _ARGS &...args) {
+	void debug (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->debug (ImplBinder<_ARGS...> (args...)) ;
+		mThis->debug (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	template <class... _ARGS>
-	void verbose (const _ARGS &...args) {
+	void verbose (const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->verbose (ImplBinder<_ARGS...> (args...)) ;
+		mThis->verbose (ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	void attach_log (const String<STR> &path) {
@@ -433,9 +433,9 @@ public:
 	}
 
 	template <class... _ARGS>
-	void log (const String<STR> &tag ,const _ARGS &...args) {
+	void log (const String<STR> &tag ,const _ARGS &...msg) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->log (tag.raw () ,ImplBinder<_ARGS...> (args...)) ;
+		mThis->log (tag.raw () ,ImplBinder<_ARGS...> (msg...)) ;
 	}
 
 	void show () {

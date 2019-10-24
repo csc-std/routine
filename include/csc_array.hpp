@@ -56,13 +56,13 @@ public:
 
 inline namespace S {
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().ibegin ())>::value>>
-inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> begin (_ARG1 &&arg1) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_begin (arg1) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> begin (_ARG1 &&_array) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_begin (_array) ;
 }
 
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().iend ())>::value>>
-inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> end (_ARG1 &&arg1) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_end (arg1) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> end (_ARG1 &&_array) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_end (_array) ;
 }
 } ;
 
@@ -168,8 +168,8 @@ struct OPERATOR_SORT {
 	class ForwardArray :private Wrapped<decltype (ARGVPY)> {
 	public:
 		template <class _ARG1>
-		inline constexpr _ARG1 &operator[] (_ARG1 &arg1) const {
-			return arg1 ;
+		inline constexpr _ARG1 &operator[] (_ARG1 &val) const {
+			return val ;
 		}
 	} ;
 
@@ -626,14 +626,14 @@ private:
 public:
 	//@info: this function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
-	inline static String make (const _ARGS &...args) ;
+	inline static String make (const _ARGS &...initval) ;
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static LENGTH plain_string_length (const ARR<ITEM> &arg1) {
+		inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
 			using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
-			LENGTH ret = _MEMCHR_ (arg1 ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
+			LENGTH ret = _MEMCHR_ (val ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
 			_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
 			return std::move (ret) ;
 		}

@@ -71,8 +71,9 @@ public:
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = FreeImage_GetBits (r1y) ;
-		auto &r3y = _LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r2x)) ;
-		layout.mImage = &r3y ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
+		auto &r4y = _LOAD_<ARR<COLOR_BGR>> (r3x) ;
+		layout.mImage = &r4y ;
 		layout.mCX = LENGTH (FreeImage_GetWidth (r1y)) ;
 		layout.mCY = LENGTH (FreeImage_GetHeight (r1y)) ;
 		layout.mCW = layout.mCX ;
@@ -117,8 +118,8 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
-		_DEBUG_ASSERT_ (!param.exist ()) ;
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+		_DEBUG_ASSERT_ (!option.exist ()) ;
 		const auto r1x = UniqueRef<PTR<FIMEMORY>> ([&] (PTR<FIMEMORY> &me) {
 			me = FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -167,8 +168,8 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
-		_DEBUG_ASSERT_ (!param.exist ()) ;
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
+		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1y ,r2x.raw ().self) ;
@@ -190,8 +191,9 @@ public:
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = FreeImage_GetBits (r1y) ;
-		auto &r3y = _LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r2x)) ;
-		layout.mImage = &r3y ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
+		auto &r4y = _LOAD_<ARR<COLOR_BGRA>> (r3x) ;
+		layout.mImage = &r4y ;
 		layout.mCX = LENGTH (FreeImage_GetWidth (r1y)) ;
 		layout.mCY = LENGTH (FreeImage_GetHeight (r1y)) ;
 		layout.mCW = layout.mCX ;
@@ -236,8 +238,8 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
-		_DEBUG_ASSERT_ (!param.exist ()) ;
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+		_DEBUG_ASSERT_ (!option.exist ()) ;
 		const auto r1x = UniqueRef<PTR<FIMEMORY>> ([&] (PTR<FIMEMORY> &me) {
 			me = FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -286,8 +288,8 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
-		_DEBUG_ASSERT_ (!param.exist ()) ;
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
+		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1y ,r2x.raw ().self) ;

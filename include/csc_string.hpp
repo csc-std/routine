@@ -1022,12 +1022,12 @@ inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 
 template <class ITEM ,class SIZE>
 template <class... _ARGS>
-inline String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...args) {
+inline String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...initval) {
 	using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
 	String<ITEM> ret = String<ITEM> (DEFAULT_LONGSTRING_SIZE::value) ;
 	auto wos = TextWriter<ITEM> (ret.raw ()) ;
-	_PRINTS_ (wos ,args...) ;
+	_PRINTS_ (wos ,initval...) ;
 	wos << _EOS_ ;
 	return std::move (ret) ;
 }

@@ -61,11 +61,11 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 #endif
 
 #ifndef TEST_CLASS
-#define TEST_CLASS(arg1) class arg1
+#define TEST_CLASS(name) class name
 #endif
 
 #ifndef TEST_METHOD
-#define TEST_METHOD(arg1) void arg1 () const
+#define TEST_METHOD(name) void name () const
 #endif
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)

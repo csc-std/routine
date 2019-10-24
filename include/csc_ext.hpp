@@ -194,20 +194,20 @@ public:
 } ;
 
 template <class _ARG1 ,class _ARG2>
-inline void _CATCH_ (_ARG1 &&arg1 ,_ARG2 &&arg2) noexcept {
+inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
 	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
 	try {
-		arg1 () ;
+		try_proc () ;
 		return ;
 	} catch (const Exception &e) {
-		arg2 (e) ;
+		catch_proc (e) ;
 	} catch (const std::exception &) {
-		arg2 (Exception (_PCSTR_ ("std::exception : null"))) ;
+		catch_proc (Exception (_PCSTR_ ("std::exception : null"))) ;
 	} catch (...) {
-		arg2 (Exception (_PCSTR_ ("unknown C++ exception"))) ;
+		catch_proc (Exception (_PCSTR_ ("unknown C++ exception"))) ;
 	}
 }
 
@@ -930,7 +930,7 @@ public:
 
 private:
 	template <class... _ARGS>
-	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...args) :mData (std::forward<_ARGS> (args)...) ,mStatus (STATUS_CACHED) {}
+	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
 template <class... UNITS>
@@ -1190,12 +1190,12 @@ private:
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
-			_CREATE_ (address ,std::forward<_ARGS> (args)...) ;
+		inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
+			_CREATE_ (address ,std::forward<_ARGS> (initval)...) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...args) {
+		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
 			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
@@ -1262,7 +1262,7 @@ private:
 public:
 	inline constexpr Tuple () = default ;
 
-	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&arg1 ,FORWARD_TRAITS_TYPE<UNITS> &&...args) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (arg1)) {}
+	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&_one ,FORWARD_TRAITS_TYPE<UNITS> &&..._rest) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (_rest)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (_one)) {}
 
 	inline constexpr LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
@@ -1374,15 +1374,15 @@ class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,_UNITS...)>> :
 private:
 	class Detail ;
 	PTR<UNIT1 (UNITS... ,_UNITS...)> mFunction ;
-	Tuple<REMOVE_CVR_TYPE<_UNITS>...> mParameters ;
+	Tuple<REMOVE_CVR_TYPE<_UNITS>...> mParameter ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const REMOVE_CVR_TYPE<_UNITS> &...args) :mFunction (func) ,mParameters (args...) {}
+	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const REMOVE_CVR_TYPE<_UNITS> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
 
-	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...args) const popping override {
-		return Detail::template_apply (mFunction ,mParameters ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args)...) ;
+	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
+		return Detail::template_apply (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 } ;
 
@@ -1391,23 +1391,23 @@ template <class... _UNITS>
 class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,_UNITS...)>>::Detail :private Wrapped<void> {
 public:
 	//@error: vs2015 is too useless to compile without hint
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const Tuple<> &parameters ,FORWARD_TRAITS_TYPE<UNITS> &&...args1 ,const REMOVE_CVR_TYPE<_UNITS> &...args2) popping {
+	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<_UNITS> &..._fill) popping {
 		const auto r1x = Function<UNIT1 (UNITS... ,_UNITS...)> (func) ;
-		return r1x (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (args1)... ,args2...) ;
+		return r1x (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)... ,_fill...) ;
 	}
 
 	//@error: vs2015 is too useless to compile without hint
 	template <class _ARG1 ,class... _ARGS>
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const _ARG1 &parameters ,_ARGS &&...args) popping {
-		return template_apply (func ,parameters.rest () ,std::forward<_ARGS> (args)... ,parameters.one ()) ;
+	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
+		return template_apply (func ,parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
 
 template <class UNIT1 ,class... UNITS>
 template <class... _ARGS>
-inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...args) {
+inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 	auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
-	ScopedBuild<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,func ,args...) ;
+	ScopedBuild<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,func ,parameter...) ;
 	auto &r1y = _LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
 	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (&r1y)) ;
 	rax = NULL ;
@@ -1446,8 +1446,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) == arg1 ;
+	inline friend BOOL operator== (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) == lhs ;
 	}
 
 	template <class _ARG1>
@@ -1456,8 +1456,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) != arg1 ;
+	inline friend BOOL operator!= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) != lhs ;
 	}
 
 	template <class _ARG1>
@@ -1466,8 +1466,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) > arg1 ;
+	inline friend BOOL operator< (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) > lhs ;
 	}
 
 	template <class _ARG1>
@@ -1476,8 +1476,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) <= arg1 ;
+	inline friend BOOL operator>= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) <= lhs ;
 	}
 
 	template <class _ARG1>
@@ -1486,8 +1486,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) < arg1 ;
+	inline friend BOOL operator> (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) < lhs ;
 	}
 
 	template <class _ARG1>
@@ -1496,139 +1496,139 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &arg1 ,AllOfTuple &&arg2) {
-		return std::move (arg2) >= arg1 ;
+	inline friend BOOL operator<= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+		return std::move (rhs) >= lhs ;
 	}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			return BOOL (arg1 == arg2) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const _ARG2 &rhs) {
+			return BOOL (lhs == rhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 == arg1) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs == lhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 == arg1) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs == lhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			return BOOL (arg1 < arg2) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const _ARG2 &rhs) {
+			return BOOL (lhs < rhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 > arg1) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs > lhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 > arg1) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs > lhs) ;
 		}
 
 		template <class _ARG1>
-		inline static BOOL template_boolean (const Tuple<_ARG1> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1> &lhs) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			return BOOL (arg1.one ()) ;
+			return BOOL (lhs.one ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &lhs) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (!(arg1.one ()))
+			if (!(lhs.one ()))
 				return FALSE ;
-			if (!template_boolean (arg1.rest ()))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_equal (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return operator_equal (arg1.one () ,arg2) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (!operator_equal (arg1.one () ,arg2))
-				return FALSE ;
-			if (!template_equal (arg1.rest () ,arg2))
+			if (!template_boolean (lhs.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_equal (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return !operator_equal (arg1.one () ,arg2) ;
+		inline static BOOL template_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return operator_equal (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (operator_equal (arg1.one () ,arg2))
+		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (!operator_equal (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_not_equal (arg1.rest () ,arg2))
+			if (!template_equal (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return operator_less (arg1.one () ,arg2) ;
+		inline static BOOL template_not_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return !operator_equal (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (!operator_less (arg1.one () ,arg2))
+		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (operator_equal (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_less (arg1.rest () ,arg2))
+			if (!template_not_equal (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return !operator_less (arg1.one () ,arg2) ;
+		inline static BOOL template_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return operator_less (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (operator_less (arg1.one () ,arg2))
+		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (!operator_less (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_not_less (arg1.rest () ,arg2))
+			if (!template_less (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const _ARG2 &arg1 ,const Tuple<_ARG1> &arg2) {
-			return operator_less (arg1 ,arg2.one ()) ;
+		inline static BOOL template_not_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return !operator_less (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const _ARG2 &arg1 ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg2) {
-			if (!operator_less (arg1 ,arg2.one ()))
+		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (operator_less (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_less (arg1 ,arg2.rest ()))
+			if (!template_not_less (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const _ARG2 &arg1 ,const Tuple<_ARG1> &arg2) {
-			return !operator_less (arg1 ,arg2.one ()) ;
+		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
+			return operator_less (lhs ,rhs.one ()) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const _ARG2 &arg1 ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg2) {
-			if (operator_less (arg1 ,arg2.one ()))
+		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
+			if (!operator_less (lhs ,rhs.one ()))
 				return FALSE ;
-			if (!template_not_less (arg1 ,arg2.rest ()))
+			if (!template_less (lhs ,rhs.rest ()))
+				return FALSE ;
+			return TRUE ;
+		}
+
+		template <class _ARG1 ,class _ARG2>
+		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
+			return !operator_less (lhs ,rhs.one ()) ;
+		}
+
+		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
+			if (operator_less (lhs ,rhs.one ()))
+				return FALSE ;
+			if (!template_not_less (lhs ,rhs.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1661,8 +1661,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) == arg1 ;
+	inline friend BOOL operator== (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) == lhs ;
 	}
 
 	template <class _ARG1>
@@ -1671,8 +1671,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) != arg1 ;
+	inline friend BOOL operator!= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) != lhs ;
 	}
 
 	template <class _ARG1>
@@ -1681,8 +1681,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) > arg1 ;
+	inline friend BOOL operator< (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) > lhs ;
 	}
 
 	template <class _ARG1>
@@ -1691,8 +1691,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) <= arg1 ;
+	inline friend BOOL operator>= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) <= lhs ;
 	}
 
 	template <class _ARG1>
@@ -1701,8 +1701,8 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) < arg1 ;
+	inline friend BOOL operator> (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) < lhs ;
 	}
 
 	template <class _ARG1>
@@ -1711,139 +1711,139 @@ public:
 	}
 
 	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &arg1 ,AnyOfTuple &&arg2) {
-		return std::move (arg2) >= arg1 ;
+	inline friend BOOL operator<= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+		return std::move (rhs) >= lhs ;
 	}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			return BOOL (arg1 == arg2) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const _ARG2 &rhs) {
+			return BOOL (lhs == rhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 == arg1) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs == lhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 == arg1) ;
+		inline static BOOL operator_equal (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs == lhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			return BOOL (arg1 < arg2) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const _ARG2 &rhs) {
+			return BOOL (lhs < rhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const AllOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 > arg1) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs > lhs) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &arg1 ,const AnyOfTuple<_ARGS...> &arg2) {
-			return BOOL (arg2 > arg1) ;
+		inline static BOOL operator_less (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
+			return BOOL (rhs > lhs) ;
 		}
 
 		template <class _ARG1>
-		inline static BOOL template_boolean (const Tuple<_ARG1> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1> &lhs) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			return BOOL (arg1.one ()) ;
+			return BOOL (lhs.one ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &arg1) {
+		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &lhs) {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (arg1.one ())
+			if (lhs.one ())
 				return TRUE ;
-			if (!template_boolean (arg1.rest ()))
+			if (!template_boolean (lhs.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_equal (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return operator_equal (arg1.one () ,arg2) ;
+		inline static BOOL template_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return operator_equal (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (operator_equal (arg1.one () ,arg2))
+		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (operator_equal (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_equal (arg1.rest () ,arg2))
+			if (!template_equal (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_equal (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return !operator_equal (arg1.one () ,arg2) ;
+		inline static BOOL template_not_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return !operator_equal (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (!operator_equal (arg1.one () ,arg2))
+		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (!operator_equal (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_not_equal (arg1.rest () ,arg2))
+			if (!template_not_equal (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return operator_less (arg1.one () ,arg2) ;
+		inline static BOOL template_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return operator_less (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (operator_less (arg1.one () ,arg2))
+		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (operator_less (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_less (arg1.rest () ,arg2))
+			if (!template_less (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const Tuple<_ARG1> &arg1 ,const _ARG2 &arg2) {
-			return !operator_less (arg1.one () ,arg2) ;
+		inline static BOOL template_not_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
+			return !operator_less (lhs.one () ,rhs) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg1 ,const _ARG2 &arg2) {
-			if (!operator_less (arg1.one () ,arg2))
+		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+			if (!operator_less (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_not_less (arg1.rest () ,arg2))
+			if (!template_not_less (lhs.rest () ,rhs))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const _ARG2 &arg1 ,const Tuple<_ARG1> &arg2) {
-			return operator_less (arg1 ,arg2.one ()) ;
+		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
+			return operator_less (lhs ,rhs.one ()) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const _ARG2 &arg1 ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg2) {
-			if (operator_less (arg1 ,arg2.one ()))
+		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
+			if (operator_less (lhs ,rhs.one ()))
 				return TRUE ;
-			if (!template_less (arg1 ,arg2.rest ()))
+			if (!template_less (lhs ,rhs.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const _ARG2 &arg1 ,const Tuple<_ARG1> &arg2) {
-			return !operator_less (arg1 ,arg2.one ()) ;
+		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
+			return !operator_less (lhs ,rhs.one ()) ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const _ARG2 &arg1 ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &arg2) {
-			if (!operator_less (arg1 ,arg2.one ()))
+		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
+			if (!operator_less (lhs ,rhs.one ()))
 				return TRUE ;
-			if (!template_not_less (arg1 ,arg2.rest ()))
+			if (!template_not_less (lhs ,rhs.rest ()))
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1851,16 +1851,18 @@ private:
 } ;
 
 namespace S {
-template <class _ARG1 ,class... _ARGS>
-inline static AllOfTuple<_ARG1 ,_ARGS...> _ALLOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	TupleBinder<const _ARG1 ,const _ARGS...> ret = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
-	return std::move (_CAST_<AllOfTuple<_ARG1 ,_ARGS...>> (ret)) ;
+template <class... _ARGS>
+inline static AllOfTuple<_ARGS...> _ALLOF_ (const _ARGS &...list) {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
+	return std::move (_CAST_<AllOfTuple<_ARGS...>> (ret)) ;
 }
 
-template <class _ARG1 ,class... _ARGS>
-inline static AnyOfTuple<_ARG1 ,_ARGS...> _ANYOF_ (const _ARG1 &arg1 ,const _ARGS &...args) {
-	TupleBinder<const _ARG1 ,const _ARGS...> ret = TupleBinder<const _ARG1 ,const _ARGS...> (arg1 ,args...) ;
-	return std::move (_CAST_<AnyOfTuple<_ARG1 ,_ARGS...>> (ret)) ;
+template <class... _ARGS>
+inline static AnyOfTuple<_ARGS...> _ANYOF_ (const _ARGS &...list) {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
+	return std::move (_CAST_<AnyOfTuple<_ARGS...>> (ret)) ;
 }
 } ;
 
@@ -2188,9 +2190,9 @@ private:
 
 public:
 	template <class... _ARGS>
-	inline static StrongRef make (_ARGS &&...args) {
+	inline static StrongRef make (_ARGS &&...initval) {
 		auto rax = SharedRef<Holder>::make () ;
-		rax->mData = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (args)...) ;
+		rax->mData = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
 		auto &r1y = rax->mData.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
 		Detail::template_shared (rax ,&r1y ,ARGVPX ,ARGVP9) ;
@@ -2330,11 +2332,11 @@ private:
 		inline Node () :mWeight (0) {}
 	} ;
 
-	inline static constexpr VAR constexpr_log2x (VAR arg1) {
+	inline static constexpr VAR constexpr_log2x (VAR val) {
 		return _SWITCH_ (
-			(arg1 <= 0) ? VAR_NONE :
-			(arg1 == 1) ? 0 :
-			(1 + constexpr_log2x (arg1 / 2))) ;
+			(val <= 0) ? VAR_NONE :
+			(val == 1) ? 0 :
+			(1 + constexpr_log2x (val / 2))) ;
 	}
 
 private:
@@ -2706,10 +2708,10 @@ private:
 
 public:
 	template <class... _ARGS>
-	inline static IntrusiveRef make (_ARGS &&...args) {
+	inline static IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
-		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (args)...) ;
+		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
 		auto &r1y = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
 		Detail::acquire (&r1y ,TRUE) ;
 		const auto r2x = ret.safe_exchange (&r1y) ;
@@ -2912,13 +2914,13 @@ private:
 
 inline namespace S {
 inline constexpr VAR _ALIGNAS_ (VAR base ,VAR align) {
-	return base + (align - base % align) ;
+	return base + (align - base % align) % align ;
 }
 } ;
 
 inline namespace S {
 template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
+inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
@@ -2927,7 +2929,7 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &arg1) {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
-	auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (arg1) ;
+	auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (object) ;
 	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1y] ,_COUNTOF_ (decltype (r1y))) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
@@ -3000,26 +3002,28 @@ private:
 		inline void reserve () {
 			if (mFree != NULL)
 				return ;
-			const auto r1x = _ALIGNOF_ (BLOCK) + _SIZEOF_ (BLOCK) + SIZE::value ;
-			const auto r2x = _ALIGNOF_ (CHUNK) + _SIZEOF_ (CHUNK) + RESE::value * r1x ;
+			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
+			const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			auto &r5y = _LOAD_<CHUNK> (NULL ,r4x) ;
-			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r5y.mPrev = NULL ;
-			r5y.mNext = mRoot ;
-			r5y.mCount = RESE::value ;
+			const auto r5x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x) ;
+			auto &r6y = _LOAD_<CHUNK> (r5x) ;
+			r6y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r6y.mPrev = NULL ;
+			r6y.mNext = mRoot ;
+			r6y.mCount = RESE::value ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r5y ;
-			mRoot = &r5y ;
+				mRoot->mPrev = &r6y ;
+			mRoot = &r6y ;
 			mSize += RESE::value * SIZE::value ;
+			const auto r7x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = mRoot->mCount ; i < ie ; i++) {
-				const auto r6x = r4x + _SIZEOF_ (CHUNK) + i * r1x ;
-				const auto r7x = _ALIGNAS_ (r6x ,_ALIGNOF_ (BLOCK)) ;
-				auto &r8y = _LOAD_<BLOCK> (NULL ,r7x) ;
-				r8y.mNext = mFree ;
-				mFree = &r8y ;
+				const auto r8x = r7x + i * r1x ;
+				const auto r9x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r8x) ;
+				auto &r10y = _LOAD_<BLOCK> (r9x) ;
+				r10y.mNext = mFree ;
+				mFree = &r10y ;
 			}
 			rax = NULL ;
 		}
@@ -3064,12 +3068,13 @@ private:
 
 	private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
-			const auto r1x = _ALIGNOF_ (BLOCK) + _SIZEOF_ (BLOCK) + SIZE::value ;
+			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
+			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
-				const auto r2x = _ADDRESS_ (node) + _SIZEOF_ (CHUNK) + i * r1x ;
-				const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (BLOCK)) ;
-				auto &r4y = _LOAD_<BLOCK> (NULL ,r3x) ;
-				if (_ADDRESS_ (r4y.mNext) == VAR_USED)
+				const auto r3x = r2x + i * r1x ;
+				const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
+				auto &r5y = _LOAD_<BLOCK> (r4x) ;
+				if (_ADDRESS_ (r5y.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -3117,22 +3122,24 @@ private:
 		}
 
 		inline PTR<HEADER> alloc (LENGTH len) popping override {
-			const auto r1x = _ALIGNOF_ (BLOCK) + _SIZEOF_ (BLOCK) + len ;
-			auto rax = GlobalHeap::alloc<BYTE> (r1x) ;
-			const auto r2x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
-			const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (BLOCK)) ;
-			auto &r4y = _LOAD_<BLOCK> (NULL ,r3x) ;
-			r4y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r4y.mPrev = NULL ;
-			r4y.mNext = mRoot ;
-			r4y.mCount = len ;
+			const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (BLOCK)) ;
+			const auto r2x = _ALIGNOF_ (BLOCK) - 1 + _SIZEOF_ (BLOCK) + r1x ;
+			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
+			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (BLOCK)) ;
+			const auto r5x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x) ;
+			auto &r6y = _LOAD_<BLOCK> (r5x) ;
+			r6y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r6y.mPrev = NULL ;
+			r6y.mNext = mRoot ;
+			r6y.mCount = r1x ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r4y ;
-			mRoot = &r4y ;
-			mSize += len ;
-			mLength += len ;
+				mRoot->mPrev = &r6y ;
+			mRoot = &r6y ;
+			mSize += r6y.mCount ;
+			mLength += r6y.mCount ;
 			rax = NULL ;
-			return &r4y.mFlexData ;
+			return &r6y.mFlexData ;
 		}
 
 		inline void free (PTR<HEADER> address) noexcept override {
@@ -3201,16 +3208,17 @@ public:
 	inline PTR<_RET> alloc () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		const auto r1x = _SIZEOF_ (_RET) + _MAX_ ((_ALIGNOF_ (_RET) - 8) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + _SIZEOF_ (_RET) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
-		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) - _SIZEOF_ (HEADER) ;
-		auto &r4y = _LOAD_<HEADER> (NULL ,r3x) ;
-		r4y.mPool = mPool.self[ix] ;
-		r4y.mCurr = r2x ;
-		const auto r5x = r3x + _SIZEOF_ (HEADER) ;
-		auto &r6y = _LOAD_<_RET> (NULL ,r5x) ;
-		return &r6y ;
+		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
+		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x - _SIZEOF_ (HEADER)) ;
+		auto &r5y = _LOAD_<HEADER> (r4x) ;
+		r5y.mPool = mPool.self[ix] ;
+		r5y.mCurr = r2x ;
+		const auto r6x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
+		auto &r7y = _LOAD_<_RET> (r6x) ;
+		return &r7y ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -3218,27 +3226,29 @@ public:
 	inline PTR<ARR<_RET>> alloc (LENGTH len) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		const auto r1x = len * _SIZEOF_ (_RET) + _MAX_ ((_ALIGNOF_ (_RET) - 8) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + len * _SIZEOF_ (_RET) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
-		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) - _SIZEOF_ (HEADER) ;
-		auto &r4y = _LOAD_<HEADER> (NULL ,r3x) ;
-		r4y.mPool = mPool.self[ix] ;
-		r4y.mCurr = r2x ;
-		const auto r5x = r3x + _SIZEOF_ (HEADER) ;
-		auto &r6y = _LOAD_<ARR<_RET>> (NULL ,r5x) ;
-		return &r6y ;
+		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
+		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x - _SIZEOF_ (HEADER)) ;
+		auto &r5y = _LOAD_<HEADER> (r4x) ;
+		r5y.mPool = mPool.self[ix] ;
+		r5y.mCurr = r2x ;
+		const auto r6x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
+		auto &r7y = _LOAD_<ARR<_RET>> (r6x) ;
+		return &r7y ;
 	}
 
 	template <class _ARG1>
 	inline void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		auto &r2y = _LOAD_<HEADER> (NULL ,r1x) ;
-		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2y.mPool) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x) ;
+		auto &r3y = _LOAD_<HEADER> (r2x) ;
+		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r3y.mPool) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-		mPool.self[ix]->free (r2y.mCurr) ;
+		mPool.self[ix]->free (r3y.mCurr) ;
 	}
 
 	inline void clean () {
@@ -3311,15 +3321,15 @@ private:
 	template <class... _UNITS>
 	class ImplBinder :public Binder {
 	private:
-		Tuple<DEF<_UNITS UNIT2::*>...> mMember ;
+		Tuple<DEF<_UNITS UNIT2::*>...> mMemPtr ;
 
 	public:
 		inline ImplBinder () = delete ;
 
-		inline explicit ImplBinder (const DEF<_UNITS UNIT2::*> &...args) :mMember (args...) {}
+		inline explicit ImplBinder (const DEF<_UNITS UNIT2::*> &...memptr) :mMemPtr (memptr...) {}
 
 		inline void compute_visit (UNIT1 &visitor ,UNIT2 &context) const override {
-			Detail::template_visit (visitor ,context ,mMember) ;
+			Detail::template_visit (visitor ,context ,mMemPtr) ;
 		}
 	} ;
 
@@ -3354,7 +3364,11 @@ public:
 	inline Serializer () = delete ;
 
 	template <class... _ARGS>
-	inline explicit Serializer (const DEF<_ARGS UNIT2::*> &...args) :mBinder (StrongRef<const ImplBinder<_ARGS...>>::make (args...)) {}
+	inline explicit Serializer (const DEF<_ARGS UNIT2::*> &...memptr) {
+		_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+		_DEBUG_ASSERT_ (Detail::template_available (memptr...)) ;
+		mBinder = StrongRef<const ImplBinder<_ARGS...>>::make (memptr...) ;
+	}
 
 	inline Member operator() (UNIT2 &context) const popping {
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
@@ -3364,15 +3378,26 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<> &members) {
+		inline static BOOL template_available () {
+			return TRUE ;
+		}
+
+		template <class _ARG1 ,class... _ARGS>
+		inline static BOOL template_available (const DEF<_ARG1 UNIT2::*> &memptr_one ,const DEF<_ARGS UNIT2::*> &...memptr_rest) {
+			if (memptr_one == NULL)
+				return FALSE ;
+			return template_available (memptr_rest...) ;
+		}
+
+		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<> &memptr) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class... _ARGS>
-		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<DEF<_ARGS UNIT2::*>...> &members) {
-			auto &r1y = (context.*members.one ()) ;
+		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<DEF<_ARGS UNIT2::*>...> &memptr) {
+			auto &r1y = (context.*memptr.one ()) ;
 			visitor.visit (r1y) ;
-			template_visit (visitor ,context ,members.rest ()) ;
+			template_visit (visitor ,context ,memptr.rest ()) ;
 		}
 	} ;
 } ;

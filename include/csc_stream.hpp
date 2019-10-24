@@ -260,9 +260,9 @@ public:
 	}
 
 	void read (BOOL &data) popping {
-		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<BOOL>> (data) ;
-		read (r1) ;
-		data = std::move (_CAST_<BOOL> (r1)) ;
+		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<BOOL>> (data) ;
+		read (r1y) ;
+		data = std::move (_CAST_<BOOL> (r1y)) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) popping {
@@ -271,9 +271,9 @@ public:
 	}
 
 	void read (VAR32 &data) popping {
-		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAR32>> (data) ;
-		read (r1) ;
-		data = std::move (_CAST_<VAR32> (r1)) ;
+		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAR32>> (data) ;
+		read (r1y) ;
+		data = std::move (_CAST_<VAR32> (r1y)) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) popping {
@@ -282,9 +282,9 @@ public:
 	}
 
 	void read (VAR64 &data) popping {
-		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAR64>> (data) ;
-		read (r1) ;
-		data = std::move (_CAST_<VAR64> (r1)) ;
+		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAR64>> (data) ;
+		read (r1y) ;
+		data = std::move (_CAST_<VAR64> (r1y)) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) popping {
@@ -293,9 +293,9 @@ public:
 	}
 
 	void read (VAL32 &data) popping {
-		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAL32>> (data) ;
-		read (r1) ;
-		data = std::move (_CAST_<VAL32> (r1)) ;
+		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAL32>> (data) ;
+		read (r1y) ;
+		data = std::move (_CAST_<VAL32> (r1y)) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) popping {
@@ -304,9 +304,9 @@ public:
 	}
 
 	void read (VAL64 &data) popping {
-		auto &r1 = _CAST_<BYTE_TRAITS_TYPE<VAL64>> (data) ;
-		read (r1) ;
-		data = std::move (_CAST_<VAL64> (r1)) ;
+		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAL64>> (data) ;
+		read (r1y) ;
+		data = std::move (_CAST_<VAL64> (r1y)) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) popping {
@@ -501,9 +501,9 @@ public:
 	}
 
 	void write (const WORD &data) {
-		auto &r1 = _CAST_<EndianBytes<WORD>> (data) ;
-		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
-			write (r1[i]) ;
+		auto &r1y = _CAST_<EndianBytes<WORD>> (data) ;
+		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
+			write (r1y[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const WORD &data) {
@@ -512,9 +512,9 @@ public:
 	}
 
 	void write (const CHAR &data) {
-		auto &r1 = _CAST_<EndianBytes<CHAR>> (data) ;
-		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
-			write (r1[i]) ;
+		auto &r1y = _CAST_<EndianBytes<CHAR>> (data) ;
+		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
+			write (r1y[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const CHAR &data) {
@@ -523,9 +523,9 @@ public:
 	}
 
 	void write (const DATA &data) {
-		auto &r1 = _CAST_<EndianBytes<DATA>> (data) ;
-		for (INDEX i = 0 ,ie = r1.size () ; i < ie ; i++)
-			write (r1[i]) ;
+		auto &r1y = _CAST_<EndianBytes<DATA>> (data) ;
+		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
+			write (r1y[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const DATA &data) {
@@ -692,8 +692,8 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			auto &r1 = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
-			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1)) ;
+			auto &r1y = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
+			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1y)) ;
 		}
 
 		VAR64 varify_radix () const {
@@ -1264,8 +1264,8 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			auto &r1 = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
-			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1)) ;
+			auto &r1y = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
+			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1y)) ;
 		}
 
 		VAR64 varify_radix () const {
@@ -1781,11 +1781,11 @@ private:
 		out_i = iw ;
 	}
 
-	LENGTH log_of_number (VAR64 arg1) const {
+	LENGTH log_of_number (VAR64 val) const {
 		LENGTH ret = 0 ;
 		auto rax = VAR64 (1) ;
 		while (TRUE) {
-			if (rax > arg1)
+			if (rax > val)
 				break ;
 			ret++ ;
 			rax *= attr ().varify_radix () ;
@@ -1863,9 +1863,9 @@ inline void _BOM_ (TextReader<STRU32> &reader) {
 }
 
 inline void _BOM_ (TextReader<STRW> &reader) {
-	auto &r1 = _CAST_<TextReader<STRUW>> (reader) ;
-	_BOM_ (r1) ;
-	reader = std::move (_CAST_<TextReader<STRW>> (r1)) ;
+	auto &r1y = _CAST_<TextReader<STRUW>> (reader) ;
+	_BOM_ (r1y) ;
+	reader = std::move (_CAST_<TextReader<STRW>> (r1y)) ;
 }
 
 template <class _ARG1>
@@ -1902,9 +1902,9 @@ inline void _BOM_ (TextWriter<STRA> &writer) {
 }
 
 inline void _BOM_ (TextWriter<STRW> &writer) {
-	auto &r1 = _CAST_<TextWriter<STRUW>> (writer) ;
-	_BOM_ (r1) ;
-	writer = std::move (_CAST_<TextWriter<STRW>> (r1)) ;
+	auto &r1y = _CAST_<TextWriter<STRUW>> (writer) ;
+	_BOM_ (r1y) ;
+	writer = std::move (_CAST_<TextWriter<STRW>> (r1y)) ;
 }
 
 inline void _GAP_ (ByteReader &reader) {
@@ -1989,9 +1989,9 @@ inline void _PRINTS_ (ByteWriter &writer) {
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline void _PRINTS_ (ByteWriter &writer ,const _ARG1 &arg1 ,const _ARGS &...args) {
-	writer << arg1 ;
-	_PRINTS_ (writer ,args...) ;
+inline void _PRINTS_ (ByteWriter &writer ,const _ARG1 &list_one ,const _ARGS &...list_rest) {
+	writer << list_one ;
+	_PRINTS_ (writer ,list_rest...) ;
 }
 
 template <class _ARG1>
@@ -2000,9 +2000,9 @@ inline void _PRINTS_ (TextWriter<_ARG1> &writer) {
 }
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &arg1 ,const _ARGS &...args) {
-	writer << arg1 ;
-	_PRINTS_ (writer ,args...) ;
+inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
+	writer << list_one ;
+	_PRINTS_ (writer ,list_rest...) ;
 }
 } ;
 
@@ -2082,24 +2082,24 @@ public:
 	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader) {
 		_DEBUG_ASSERT_ (reader.exist ()) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (reader) ;
-		auto &r1 = mReader->attr () ;
-		r1.modify_space (STRU8 (' ') ,1) ;
-		r1.modify_space (STRU8 ('\t') ,1) ;
-		r1.modify_space (STRU8 ('\v') ,1) ;
-		r1.modify_space (STRU8 ('\r') ,2) ;
-		r1.modify_space (STRU8 ('\n') ,2) ;
-		r1.modify_space (STRU8 ('\f') ,2) ;
-		r1.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
-		r1.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
-		r1.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
-		r1.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
-		r1.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;
-		r1.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
-		r1.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
-		r1.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
+		auto &r1y = mReader->attr () ;
+		r1y.modify_space (STRU8 (' ') ,1) ;
+		r1y.modify_space (STRU8 ('\t') ,1) ;
+		r1y.modify_space (STRU8 ('\v') ,1) ;
+		r1y.modify_space (STRU8 ('\r') ,2) ;
+		r1y.modify_space (STRU8 ('\n') ,2) ;
+		r1y.modify_space (STRU8 ('\f') ,2) ;
+		r1y.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
+		r1y.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
+		r1y.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
+		r1y.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
+		r1y.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;
+		r1y.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
+		r1y.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
+		r1y.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
 		_STATIC_WARNING_ ("mark") ;
 		//@info: disable default escape-str convertion 
-		r1.enable_escape (FALSE) ;
+		r1y.enable_escape (FALSE) ;
 		mReader.self >> _BOM_ ;
 		for (INDEX i = 0 ,ie = mCache.length () ; i < ie ; i++)
 			mReader.self >> mCache[i] ;
@@ -2414,13 +2414,13 @@ private:
 	LENGTH next_newgap_text_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		auto &r1 = mReader->attr () ;
+		auto &r1y = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1.varify_ending_item ())
+			if (ris[0] == r1y.varify_ending_item ())
 				break ;
-			if (r1.varify_space (ris[0]))
+			if (r1y.varify_space (ris[0]))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1.varify_control (ris[0])) ;
+			_DYNAMIC_ASSERT_ (!r1y.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2430,13 +2430,13 @@ private:
 	LENGTH next_newline_text_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		auto &r1 = mReader->attr () ;
+		auto &r1y = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1.varify_ending_item ())
+			if (ris[0] == r1y.varify_ending_item ())
 				break ;
-			if (r1.varify_space (ris[0] ,2))
+			if (r1y.varify_space (ris[0] ,2))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1.varify_control (ris[0])) ;
+			_DYNAMIC_ASSERT_ (!r1y.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;
 		}

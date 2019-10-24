@@ -39,11 +39,11 @@ public:
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<const A>::make (rax) ,&A::test2)) ;
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<const A>::make (rax) ,&A::test3)) ;
 		_CALL_ (Function<void ()> (&A::test4)) ;
-		const auto r1x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
-			if (arg2 == 1)
-				return arg1 ;
-			if (arg2 == 2)
-				return _SQE_ (arg1) ;
+		const auto r1x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &x ,const int &y) {
+			if (y == 1)
+				return x ;
+			if (y == 2)
+				return _SQE_ (x) ;
 			return 0 ;
 		}) ;
 		const auto r2x = Function<int (const int &)>::make (r1x ,_XVALUE_<int> (2)) ;
@@ -97,41 +97,22 @@ public:
 	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
 		const auto r1x = rax->alloc<int> () ;
-		const auto r2x = _XVALUE_<PTR<int (const int & ,const int &)>> ([] (const int &arg1 ,const int &arg2) {
-			_DEBUG_ASSERT_ (arg2 != VAR_ZERO) ;
-			const auto r3x = _CALL_ ([&] () {
-				if (arg2 < VAR_ZERO)
-					return -arg1 ;
-				return arg1 ;
-			}) ;
-			const auto r4x = _ABS_ (arg2) ;
-			int ret = int (r4x * int (r3x / r4x)) ;
-			for (FOR_ONCE_DO) {
-				if (r3x >= 0)
-					discard ;
-				if (r3x >= ret)
-					discard ;
-				ret -= r4x ;
-			}
-			if (arg2 < 0)
-				ret = -ret ;
-			return std::move (ret) ;
-		}) ;
-		const auto r5x = r2x (_SIZEOF_ (int) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (int) - 8 ,VAR_ZERO) ;
-		const auto r6x = r2x (_SIZEOF_ (TEMP<UniqueRef<void>>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (TEMP<UniqueRef<void>>) - 8 ,VAR_ZERO) ;
-		const auto r7x = r2x (_SIZEOF_ (DEF<double[44]>) ,LENGTH (-8)) + _MAX_ (_ALIGNOF_ (DEF<double[44]>) - 8 ,VAR_ZERO) ;
-		_UNITTEST_ASSERT_ (rax->length () == r5x) ;
+		const auto r2x = LENGTH (8) ;
+		const auto r3x = _ALIGNAS_ ((_MAX_ (_ALIGNOF_ (int) - r2x ,VAR_ZERO) + _SIZEOF_ (int)) ,r2x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r3x) ;
 		rax->alloc<TEMP<UniqueRef<void>>> () ;
-		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x) ;
-		rax->alloc<double> (44) ;
-		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x + r7x) ;
+		const auto r4x = _ALIGNAS_ ((_MAX_ (_ALIGNOF_ (TEMP<UniqueRef<void>>) - r2x ,VAR_ZERO) - 1 + _SIZEOF_ (TEMP<UniqueRef<void>>)) ,r2x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r3x + r4x) ;
+		rax->alloc<double> (43) ;
+		const auto r5x = _ALIGNAS_ ((_MAX_ (_ALIGNOF_ (double) - r2x ,VAR_ZERO) + 43 * _SIZEOF_ (double)) ,r2x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r3x + r4x + r5x) ;
 		rax->clean () ;
-		_UNITTEST_ASSERT_ (rax->length () == r5x + r6x + r7x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r3x + r4x + r5x) ;
 		rax->free (r1x) ;
-		_UNITTEST_ASSERT_ (rax->length () == r6x + r7x) ;
-		const auto r8x = rax->alloc<PACK<VAR128[3]>> (1) ;
-		_UNITTEST_ASSERT_ (_ADDRESS_ (r8x) % _ALIGNOF_ (PACK<VAR128[3]>) == 0) ;
-		rax->free (r8x) ;
+		_UNITTEST_ASSERT_ (rax->length () == r4x + r5x) ;
+		const auto r6x = rax->alloc<PACK<VAR128[3]>> (1) ;
+		_UNITTEST_ASSERT_ (_ADDRESS_ (r6x) % _ALIGNOF_ (PACK<VAR128[3]>) == 0) ;
+		rax->free (r6x) ;
 	}
 
 #ifdef __CSC_TARGET_EXE__

@@ -631,9 +631,9 @@ public:
 		virtual void compute_layout (AnyRef<void> &_this ,LAYOUT &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const = 0 ;
+		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
 		virtual void compute_load_data_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const = 0 ;
+		virtual void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
 	} ;
 
 private:
@@ -858,9 +858,9 @@ public:
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
-	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &param) popping {
+	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_load_data (mThis->mHolder ,data ,param) ;
+		mAbstract->compute_load_data (mThis->mHolder ,data ,option) ;
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
@@ -871,9 +871,9 @@ public:
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
-	void save_data_file (const String<STR> &file ,const AnyRef<void> &param) {
+	void save_data_file (const String<STR> &file ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_save_data_file (mThis->mHolder ,file ,param) ;
+		mAbstract->compute_save_data_file (mThis->mHolder ,file ,option) ;
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 

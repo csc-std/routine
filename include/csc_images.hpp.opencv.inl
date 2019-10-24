@@ -28,7 +28,7 @@
 #ifdef random_shuffle
 #undef random_shuffle
 #endif
-#define random_shuffle(arg1 ,arg2) shuffle((arg1) ,(arg2) ,std::random_device ())
+#define random_shuffle(itr1 ,itr2) shuffle((itr1) ,(itr2) ,std::random_device ())
 #endif
 #endif
 #endif
@@ -151,7 +151,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		auto &r3y = _LOAD_<ARR<COLOR_BGR>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGR>> (r2x) ;
 		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -177,12 +178,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
 		auto &r3y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1y ,rax.self ,r3y) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
@@ -199,12 +200,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r3x) ;
 		const auto r5x = cv::imwrite (r2x.raw ().self ,r1y ,r4y) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
@@ -224,7 +225,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		auto &r3y = _LOAD_<ARR<COLOR_BGRA>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGRA>> (r2x) ;
 		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -250,12 +252,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
 		auto &r3y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1y ,rax.self ,r3y) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
@@ -272,12 +274,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r3x) ;
 		const auto r5x = cv::imwrite (r2x.raw ().self ,r1y ,r4y) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
@@ -297,7 +299,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		auto &r3y = _LOAD_<ARR<COLOR_GRAY>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY>> (r2x) ;
 		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -323,12 +326,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
 		auto &r3y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1y ,rax.self ,r3y) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
@@ -345,12 +348,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r3x) ;
 		const auto r5x = cv::imwrite (r2x.raw ().self ,r1y ,r4y) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
@@ -370,7 +373,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		auto &r3y = _LOAD_<ARR<COLOR_GRAY32>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY32>> (r2x) ;
 		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -396,12 +400,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
 		auto &r3y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1y ,rax.self ,r3y) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
@@ -418,12 +422,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r3x) ;
 		const auto r5x = cv::imwrite (r2x.raw ().self ,r1y ,r4y) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
@@ -443,7 +447,8 @@ public:
 
 	void compute_layout (AnyRef<void> &_this ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
-		auto &r3y = _LOAD_<ARR<COLOR_GRAY64>> (NULL ,_ADDRESS_ (r1y.data)) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY64>> (r2x) ;
 		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -469,12 +474,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &param) const override {
+	void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		auto rax = AutoRef<std::vector<uchar>>::make () ;
 		const auto r2x = std::vector<VAR32> () ;
 		auto &r3y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r2x) ;
 		cv::imencode (_PCSTRA_ ("bmp").self ,r1y ,rax.self ,r3y) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
@@ -491,12 +496,12 @@ public:
 		_this = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &param) const override {
+	void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1y = _this.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4y = _SWITCH_ (
-			(param.exist ()) ? (param.rebind<std::vector<VAR32>> ().self) :
+			(option.exist ()) ? (option.rebind<std::vector<VAR32>> ().self) :
 			r3x) ;
 		const auto r5x = cv::imwrite (r2x.raw ().self ,r1y ,r4y) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
