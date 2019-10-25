@@ -678,8 +678,7 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 }
 
 inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) {
-	auto &r1y = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (r1y) ;
+	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
@@ -688,8 +687,7 @@ inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
 }
 
 inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) {
-	auto &r1y = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (r1y) ;
+	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
@@ -698,8 +696,7 @@ inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
 }
 
 inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) {
-	auto &r1y = _CAST_<String<STRUW>> (val) ;
-	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (r1y) ;
+	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U32STOWS_ (const String<STRU32> &val) {
@@ -1327,7 +1324,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
 	const auto r4x = BYTE (rbx) ;
 	const auto r5x = PACK<BYTE[4]> {r1x ,r2x ,r3x ,r4x} ;
-	ret.P2 = _CAST_<EndianBytes<CHAR>> (r5x) ;
+	_CAST_<EndianBytes<CHAR>> (r5x.P1) >>= ret.P2 ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
 	for (FOR_ONCE_DO) {
@@ -1346,15 +1343,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
-	auto &r1y = _CAST_<EndianBytes<CHAR>> (stru.P2) ;
+	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
+	_CAST_<EndianBytes<CHAR>> (rax.P1) <<= stru.P2 ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << VAR (r1y[0]) ;
+	wos << VAR (rax.P1[0]) ;
 	wos << _RET ('.') ;
-	wos << VAR (r1y[1]) ;
+	wos << VAR (rax.P1[1]) ;
 	wos << _RET ('.') ;
-	wos << VAR (r1y[2]) ;
+	wos << VAR (rax.P1[2]) ;
 	wos << _RET ('.') ;
-	wos << VAR (r1y[3]) ;
+	wos << VAR (rax.P1[3]) ;
 	for (FOR_ONCE_DO) {
 		if (stru.P1 == 0)
 			discard ;

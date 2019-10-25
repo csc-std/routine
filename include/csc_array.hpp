@@ -189,8 +189,7 @@ struct OPERATOR_HASH {
 
 	template <class _ARG1>
 	inline static FLAG template_hash (const _ARG1 &_self ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self) ;
-		return _MEMHASH_ (PTRTOARR[r1y] ,_COUNTOF_ (decltype (r1y))) ;
+		return _MEMHASH_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (_self)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
@@ -1104,11 +1103,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -1226,11 +1225,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -2856,11 +2855,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -2990,11 +2989,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3664,11 +3663,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3796,11 +3795,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -4180,11 +4179,11 @@ public:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -4337,11 +4336,11 @@ public:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;

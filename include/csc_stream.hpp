@@ -88,32 +88,36 @@ private:
 	_STATIC_ASSERT_ (stl::is_byte_xyz<UNIT>::value) ;
 
 public:
-	inline LENGTH size () const {
-		return _SIZEOF_ (UNIT) ;
-	}
-
-	inline const BYTE &operator[] (INDEX index) const & {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,UNIT>::value>>
+	inline void operator>>= (_ARG1 &that) const & {
 		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
-		return EndianBytes::mSelf[_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)[index]] ;
+		that = endian_bitwise_cast (_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)) ;
 	}
 
-	inline BYTE &operator[] (INDEX) && = delete ;
+	template <class _ARG1>
+	inline void operator>>= (_ARG1 &) && = delete ;
 
-	template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const UNIT & ,_RET>::value>>
-	inline implicit operator _RET () const & {
-		return _RET (_XVALUE_<const UNIT> (endian_bitwise_cast ())) ;
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,UNIT>::value>>
+	inline void operator<<= (const _ARG1 &that) & {
+		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
+		endian_bitwise_assign (_CAST_<TEMP<UNIT>> (that) ,_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)) ;
 	}
 
-	template <class _RET>
-	inline implicit operator _RET () && = delete ;
+	template <class _ARG1>
+	inline void operator<<= (const _ARG1 &) && = delete ;
 
 private:
-	inline UNIT endian_bitwise_cast () const {
+	inline UNIT endian_bitwise_cast (const DEF<BYTE[_SIZEOF_ (UNIT)]> &endian) const {
 		TEMP<UNIT> ret ;
 		_ZERO_ (ret) ;
-		for (INDEX i = 0 ,ie = size () ; i < ie ; i++)
-			ret.unused[i] = ((*this))[i] ;
+		for (INDEX i = 0 ,ie = _SIZEOF_ (UNIT) ; i < ie ; i++)
+			ret.unused[i] = EndianBytes::mSelf[endian[i]] ;
 		return std::move (_CAST_<UNIT> (ret)) ;
+	}
+
+	inline void endian_bitwise_assign (const TEMP<UNIT> &that ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &endian) {
+		for (INDEX i = 0 ,ie = _SIZEOF_ (UNIT) ; i < ie ; i++)
+			EndianBytes::mSelf[endian[i]] = that.unused[i] ;
 	}
 } ;
 
@@ -227,7 +231,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
 		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<WORD>> (rax) ;
+		_CAST_<EndianBytes<WORD>> (rax.P1) >>= data ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) popping {
@@ -239,7 +243,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
 		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<CHAR>> (rax) ;
+		_CAST_<EndianBytes<CHAR>> (rax.P1) >>= data ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) popping {
@@ -251,7 +255,7 @@ public:
 		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
 		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
 			read (rax.P1[i]) ;
-		data = _CAST_<EndianBytes<DATA>> (rax) ;
+		_CAST_<EndianBytes<DATA>> (rax.P1) >>= data ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) popping {
@@ -260,9 +264,7 @@ public:
 	}
 
 	void read (BOOL &data) popping {
-		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<BOOL>> (data) ;
-		read (r1y) ;
-		data = std::move (_CAST_<BOOL> (r1y)) ;
+		read (_CAST_<BYTE_TRAITS_TYPE<BOOL>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) popping {
@@ -271,9 +273,7 @@ public:
 	}
 
 	void read (VAR32 &data) popping {
-		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAR32>> (data) ;
-		read (r1y) ;
-		data = std::move (_CAST_<VAR32> (r1y)) ;
+		read (_CAST_<BYTE_TRAITS_TYPE<VAR32>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) popping {
@@ -282,9 +282,7 @@ public:
 	}
 
 	void read (VAR64 &data) popping {
-		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAR64>> (data) ;
-		read (r1y) ;
-		data = std::move (_CAST_<VAR64> (r1y)) ;
+		read (_CAST_<BYTE_TRAITS_TYPE<VAR64>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) popping {
@@ -293,9 +291,7 @@ public:
 	}
 
 	void read (VAL32 &data) popping {
-		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAL32>> (data) ;
-		read (r1y) ;
-		data = std::move (_CAST_<VAL32> (r1y)) ;
+		read (_CAST_<BYTE_TRAITS_TYPE<VAL32>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) popping {
@@ -304,9 +300,7 @@ public:
 	}
 
 	void read (VAL64 &data) popping {
-		auto &r1y = _CAST_<BYTE_TRAITS_TYPE<VAL64>> (data) ;
-		read (r1y) ;
-		data = std::move (_CAST_<VAL64> (r1y)) ;
+		read (_CAST_<BYTE_TRAITS_TYPE<VAL64>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) popping {
@@ -501,9 +495,10 @@ public:
 	}
 
 	void write (const WORD &data) {
-		auto &r1y = _CAST_<EndianBytes<WORD>> (data) ;
-		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
-			write (r1y[i]) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
+		_CAST_<EndianBytes<WORD>> (rax.P1) <<= data ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			write (rax.P1[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const WORD &data) {
@@ -512,9 +507,10 @@ public:
 	}
 
 	void write (const CHAR &data) {
-		auto &r1y = _CAST_<EndianBytes<CHAR>> (data) ;
-		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
-			write (r1y[i]) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
+		_CAST_<EndianBytes<CHAR>> (rax.P1) <<= data ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			write (rax.P1[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const CHAR &data) {
@@ -523,9 +519,10 @@ public:
 	}
 
 	void write (const DATA &data) {
-		auto &r1y = _CAST_<EndianBytes<DATA>> (data) ;
-		for (INDEX i = 0 ,ie = r1y.size () ; i < ie ; i++)
-			write (r1y[i]) ;
+		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
+		_CAST_<EndianBytes<DATA>> (rax.P1) <<= data ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
+			write (rax.P1[i]) ;
 	}
 
 	inline ByteWriter &operator<< (const DATA &data) {
@@ -692,8 +689,9 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			auto &r1y = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
-			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1y)) ;
+			BYTE_TRAITS_TYPE<REAL> ret ;
+			_CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
 		VAR64 varify_radix () const {
@@ -1264,8 +1262,9 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			auto &r1y = _CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) ;
-			return _CAST_<REAL> (_XVALUE_<BYTE_TRAITS_TYPE<REAL>> (r1y)) ;
+			BYTE_TRAITS_TYPE<REAL> ret ;
+			_CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
 		VAR64 varify_radix () const {
@@ -1863,9 +1862,7 @@ inline void _BOM_ (TextReader<STRU32> &reader) {
 }
 
 inline void _BOM_ (TextReader<STRW> &reader) {
-	auto &r1y = _CAST_<TextReader<STRUW>> (reader) ;
-	_BOM_ (r1y) ;
-	reader = std::move (_CAST_<TextReader<STRW>> (r1y)) ;
+	_BOM_ (_CAST_<TextReader<STRUW>> (reader)) ;
 }
 
 template <class _ARG1>
@@ -1902,9 +1899,7 @@ inline void _BOM_ (TextWriter<STRA> &writer) {
 }
 
 inline void _BOM_ (TextWriter<STRW> &writer) {
-	auto &r1y = _CAST_<TextWriter<STRUW>> (writer) ;
-	_BOM_ (r1y) ;
-	writer = std::move (_CAST_<TextWriter<STRW>> (r1y)) ;
+	_BOM_ (_CAST_<TextWriter<STRUW>> (writer)) ;
 }
 
 inline void _GAP_ (ByteReader &reader) {

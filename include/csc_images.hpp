@@ -33,9 +33,11 @@ private:
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline void operator= (const ARGV<Iterator> &) const noexcept {
+		inline void operator= (const ARGV<Iterator> &) const & {
 			_STATIC_WARNING_ ("noop") ;
 		}
+
+		inline void operator= (const ARGV<Iterator> &) && = delete ;
 
 	private:
 		inline explicit Iterator (LENGTH index ,const Array<LENGTH ,SIZE> &item) :mIndex (index) ,mItem (item) {}

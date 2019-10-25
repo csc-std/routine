@@ -441,12 +441,12 @@ namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
 	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return *PTR<ARR<_ARG1>> (that) ;
+		return (*PTR<ARR<_ARG1>> (that)) ;
 	}
 
 	template <class _ARG1 ,LENGTH _VAL1>
 	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &that) const {
-		return *PTR<ARR<_ARG1>> (&that) ;
+		return (*PTR<ARR<_ARG1>> (&that)) ;
 	}
 } ;
 } ;
@@ -640,46 +640,7 @@ struct TEMP {
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
-	return *PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL) ;
-}
-
-template <class _ARG1>
-inline constexpr LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
-	return LENGTH (address) ;
-}
-
-template <class _ARG1>
-inline _ARG1 _COPY_ (const _ARG1 &object) {
-	return object ;
-}
-
-//@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (!(std::is_pointer<_ARG1>::value && !std::is_same<_RET ,TEMP<_ARG1>>::value)) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
-	static volatile PTR<LENGTH (const PTR<_ARG1> &)> mInstance = &_ADDRESS_<_ARG1> ;
-	const auto r1x = _COPY_ (mInstance) ;
-	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x (&object)) ;
-	return (*r2x) ;
-}
-
-//@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
-	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
-	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
-	(void) r1x ;
-	static volatile PTR<LENGTH (const PTR<_ARG1> &)> mInstance = &_ADDRESS_<_ARG1> ;
-	const auto r2x = _COPY_ (mInstance) ;
-	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x (address)) ;
-	return (*r3x) ;
+	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
 }
 
 template <class _RET>
@@ -692,6 +653,45 @@ template <class _RET>
 inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return object ;
+}
+
+template <class _ARG1>
+inline constexpr LENGTH _ADDRESS_ (PTR<_ARG1> address) {
+	return LENGTH (address) ;
+}
+
+template <class _ARG1>
+inline void _BARRIER_ (const PTR<_ARG1> &address) {
+	//@info: as 'asm volatile("" :: "rm" (address) : "memory") ;'
+	static volatile auto mInstance = _XVALUE_<PTR<void (PTR<_ARG1>)>> ([] (PTR<_ARG1>) {}) ;
+	mInstance (address) ;
+}
+
+//@warn: not type-safe; be careful about strict-aliasing
+template <class _RET ,class _ARG1>
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (!(std::is_pointer<_ARG1>::value && !std::is_same<_RET ,TEMP<_ARG1>>::value)) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
+	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
+	const auto r1x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (&object)) ;
+	_BARRIER_ (&object) ;
+	return (*r1x) ;
+}
+
+//@warn: not type-safe; be careful about strict-aliasing
+template <class _RET ,class _ARG1>
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+	_DEBUG_ASSERT_ (address != NULL) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ,BYTE ,REMOVE_ARRAY_TYPE<_RET>>) ;
+	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
+	(void) r1x ;
+	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
+	_BARRIER_ (address) ;
+	return (*r2x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
@@ -707,6 +707,11 @@ template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_CAST_<TEMP<_ARG1>> (object) = {0} ;
+}
+
+template <class _ARG1>
+inline _ARG1 _COPY_ (const _ARG1 &object) {
+	return object ;
 }
 
 template <class _ARG1>
@@ -1295,11 +1300,11 @@ private:
 		template <class _RET>
 		inline implicit operator _RET () && = delete ;
 
-		inline void operator= (DEF<decltype (NULL)>) & noexcept {
+		inline void operator= (const DEF<decltype (NULL)> &) & noexcept {
 			mPointer = NULL ;
 		}
 
-		inline void operator= (DEF<decltype (NULL)>) && = delete ;
+		inline void operator= (const DEF<decltype (NULL)> &) && = delete ;
 
 	private:
 		inline explicit OwnerProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
@@ -1790,8 +1795,8 @@ public:
 
 	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		auto &r1y = _LOAD_<Holder> (mPointer) ;
-		return r1y.mData ;
+		const auto r1x = static_cast<PTR<Holder>> (mPointer) ;
+		return r1x->mData ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -2255,7 +2260,8 @@ public:
 
 	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _LOAD_<UNIT> (mPointer) ;
+		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+		return (*r1x) ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -2491,7 +2497,7 @@ public:
 	}
 
 	inline BOOL exist () const {
-		const auto r1x = _CAST_<VAR> (_XVALUE_<Interface> (fake)) ;
+		const auto r1x = _CAST_<FLAG> (_XVALUE_<Interface> (fake)) ;
 		if (r1x == VAR_ZERO)
 			return FALSE ;
 		return TRUE ;
@@ -2641,9 +2647,9 @@ public:
 		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE) ;
 	}
 
-	inline implicit Buffer (const DEF<UNIT[SIZE]> &that) :Buffer (std::move (Buffer::from (that))) {}
+	inline implicit Buffer (const DEF<UNIT[SIZE]> &that) :Buffer (std::move (_CAST_<Buffer> (that))) {}
 
-	inline implicit Buffer (DEF<UNIT[SIZE]> &&that) : Buffer (std::move (Buffer::from (that))) {}
+	inline implicit Buffer (DEF<UNIT[SIZE]> &&that) : Buffer (std::move (_CAST_<Buffer> (that))) {}
 
 	inline ARR<UNIT> &to () {
 		return PTRTOARR[mBuffer] ;
@@ -2743,17 +2749,6 @@ public:
 	inline void swap (Buffer &that) popping {
 		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
 	}
-
-public:
-	inline static Buffer &from (DEF<UNIT[SIZE]> &val) {
-		return _CAST_<Buffer> (val) ;
-	}
-
-	inline static const Buffer &from (const DEF<UNIT[SIZE]> &val) {
-		return _CAST_<Buffer> (val) ;
-	}
-
-	inline static Buffer &from (DEF<UNIT[SIZE]> &&) = delete ;
 } ;
 
 template <class UNIT>
@@ -3216,7 +3211,8 @@ public:
 	inline const ARR<UNIT> &to () const {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
-		return _LOAD_<ARR<UNIT>> (mBuffer) ;
+		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
+		return (*r1x) ;
 	}
 
 	inline implicit operator const ARR<UNIT> & () const {
@@ -3235,8 +3231,8 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (mBuffer) ;
-		return r1y[index] ;
+		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
+		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
 	}
 
@@ -3337,7 +3333,8 @@ public:
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3386,7 +3383,8 @@ public:
 	inline ARR<UNIT> &to () const {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
-		return _LOAD_<ARR<UNIT>> (mBuffer) ;
+		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
+		return (*r1x) ;
 	}
 
 	inline implicit operator ARR<UNIT> & () const {
@@ -3405,8 +3403,8 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (mBuffer) ;
-		return r1y[index] ;
+		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
+		return (*r1x)[index] ;
 #pragma GCC diagnostic pop
 	}
 
@@ -3507,7 +3505,8 @@ public:
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
 		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
 	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
@@ -3518,7 +3517,8 @@ public:
 	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
-		return make (_LOAD_<ARR<UNIT>> (&val.self) ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3584,11 +3584,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3686,11 +3686,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3840,11 +3840,11 @@ private:
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
-		return *static_cast<PTR<SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return *static_cast<PTR<const SPECIALIZATION_TYPE>> (this) ;
+		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
@@ -3924,8 +3924,8 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		auto &r1y = _CAST_<TEMP<UNIT>> (item) ;
-		INDEX ret = mAllocator.at (_OFFSET_ (&Node::mData ,r1y)) ;
+		auto &r1y = _OFFSET_ (&Node::mData ,_CAST_<TEMP<UNIT>> (item)) ;
+		INDEX ret = mAllocator.at (r1y) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;

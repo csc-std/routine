@@ -98,7 +98,8 @@ inline exports PhanBuffer<const BYTE> _LOADASSETFILE_ (FLAG resource) popping {
 	_DYNAMIC_ASSERT_ (r3x != NULL) ;
 	const auto r4x = LENGTH (SizeofResource (NULL ,r1x)) ;
 	_DYNAMIC_ASSERT_ (r4x >= 0) ;
-	return PhanBuffer<const BYTE>::make (_LOAD_<ARR<BYTE>> (r3x) ,r4x) ;
+	auto &r5y = _LOAD_<ARR<BYTE>> (r3x) ;
+	return PhanBuffer<const BYTE>::make (r5y ,r4x) ;
 }
 
 inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
@@ -544,7 +545,8 @@ public:
 		r3y = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r5x = MapViewOfFile (r2y ,FILE_MAP_READ ,0 ,0 ,r4x) ;
 			_DYNAMIC_ASSERT_ (r5x != NULL) ;
-			me = PhanBuffer<BYTE>::make (_LOAD_<ARR<BYTE>> (r5x) ,r4x) ;
+			auto &r6y = _LOAD_<ARR<BYTE>> (r5x) ;
+			me = PhanBuffer<BYTE>::make (r6y ,r4x) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			_DEBUG_ASSERT_ (me.self != NULL) ;
 			UnmapViewOfFile (me.self) ;
@@ -576,7 +578,8 @@ public:
 		r3y = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r4x = MapViewOfFile (r2y ,(FILE_MAP_READ | FILE_MAP_WRITE) ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r4x != NULL) ;
-			me = PhanBuffer<BYTE>::make (_LOAD_<ARR<BYTE>> (r4x) ,file_len) ;
+			auto &r5y = _LOAD_<ARR<BYTE>> (r4x) ;
+			me = PhanBuffer<BYTE>::make (r5y ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			if (me.self == NULL)
 				return ;
@@ -600,18 +603,20 @@ public:
 			const auto r3x = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 				const auto r4x = MapViewOfFile (r1y ,FILE_MAP_READ ,0 ,0 ,0) ;
 				_DYNAMIC_ASSERT_ (r4x != NULL) ;
-				me = PhanBuffer<BYTE>::make (_LOAD_<ARR<BYTE>> (r4x) ,1) ;
+				auto &r5y = _LOAD_<ARR<BYTE>> (r4x) ;
+				me = PhanBuffer<BYTE>::make (r5y ,1) ;
 			} ,[] (PhanBuffer<BYTE> &me) {
 				_DEBUG_ASSERT_ (me.self != NULL) ;
 				UnmapViewOfFile (me.self) ;
 			}) ;
 			auto rax = MEMORY_BASIC_INFORMATION () ;
 			_ZERO_ (rax) ;
-			const auto r5x = VirtualQuery (r3x->self ,&rax ,_SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
-			_DYNAMIC_ASSERT_ (r5x == _SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
-			const auto r6x = MapViewOfFile (r1y ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
-			_DYNAMIC_ASSERT_ (r6x != NULL) ;
-			me = PhanBuffer<BYTE>::make (_LOAD_<ARR<BYTE>> (r6x) ,LENGTH (rax.RegionSize)) ;
+			const auto r6x = VirtualQuery (r3x->self ,&rax ,_SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
+			_DYNAMIC_ASSERT_ (r6x == _SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
+			const auto r7x = MapViewOfFile (r1y ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
+			_DYNAMIC_ASSERT_ (r7x != NULL) ;
+			auto &r8y = _LOAD_<ARR<BYTE>> (r7x) ;
+			me = PhanBuffer<BYTE>::make (r8y ,LENGTH (rax.RegionSize)) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			_DEBUG_ASSERT_ (me.self != NULL) ;
 			UnmapViewOfFile (me.self) ;
@@ -634,7 +639,8 @@ public:
 		r2y = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r3x = MapViewOfFile (r1y ,(FILE_MAP_READ | FILE_MAP_WRITE) ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r3x != NULL) ;
-			me = PhanBuffer<BYTE>::make (_LOAD_<ARR<BYTE>> (r3x) ,file_len) ;
+			auto &r4y = _LOAD_<ARR<BYTE>> (r3x) ;
+			me = PhanBuffer<BYTE>::make (r4y ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			_DEBUG_ASSERT_ (me.self != NULL) ;
 			UnmapViewOfFile (me.self) ;

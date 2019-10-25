@@ -474,31 +474,6 @@ struct LOAD_CHECK {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
-} ;
-
-template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,_ARG1 ,VOID ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
 template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
@@ -519,6 +494,11 @@ struct LOAD_CHECK<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
+} ;
+
 template <class _ARG1>
 struct LOAD_CHECK<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
@@ -527,6 +507,11 @@ struct LOAD_CHECK<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>
 template <class _ARG1>
 struct LOAD_CHECK<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
 } ;
 
 template <>
@@ -560,9 +545,19 @@ struct LOAD_CHECK<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
+} ;
+
 template <class _ARG1 ,class _ARG2>
 struct LOAD_CHECK<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0)> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
+	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
 } ;
 
 template <class _ARG1>

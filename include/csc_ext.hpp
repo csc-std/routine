@@ -593,6 +593,7 @@ public:
 
 private:
 	inline DATA &m_v2i0 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
@@ -605,6 +606,7 @@ private:
 	inline DATA &m_v2i0 () && = delete ;
 
 	inline DATA &m_v2i1 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
@@ -617,6 +619,7 @@ private:
 	inline DATA &m_v2i1 () && = delete ;
 
 	inline CHAR &m_v4i0 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
@@ -629,6 +632,7 @@ private:
 	inline CHAR &m_v4i0 () && = delete ;
 
 	inline CHAR &m_v4i1 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
@@ -641,6 +645,7 @@ private:
 	inline CHAR &m_v4i1 () && = delete ;
 
 	inline CHAR &m_v4i2 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
@@ -653,6 +658,7 @@ private:
 	inline CHAR &m_v4i2 () && = delete ;
 
 	inline CHAR &m_v4i3 () & {
+		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
@@ -975,6 +981,8 @@ private:
 			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGVS<_ARGS...>> ()))) ;
 	}
 
+	using OPTIONAL_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
@@ -1053,25 +1061,25 @@ public:
 		return TRUE ;
 	}
 
-	inline INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () {
+	inline OPTIONAL_TYPE &to () {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1y = _LOAD_<TEMP<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>>> (&mVariant) ;
-		return _CAST_<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (r1y) ;
+		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
+		return _CAST_<OPTIONAL_TYPE> (r1y) ;
 	}
 
-	inline implicit operator INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () {
+	inline implicit operator OPTIONAL_TYPE & () {
 		return to () ;
 	}
 
-	inline const INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> &to () const {
+	inline const OPTIONAL_TYPE &to () const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1y = _LOAD_<TEMP<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>>> (&mVariant) ;
-		return _CAST_<INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>>> (r1y) ;
+		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
+		return _CAST_<OPTIONAL_TYPE> (r1y) ;
 	}
 
-	inline implicit operator const INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> & () const {
+	inline implicit operator const OPTIONAL_TYPE & () const {
 		return to () ;
 	}
 
@@ -2122,7 +2130,8 @@ public:
 
 	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return _LOAD_<UNIT> (mPointer) ;
+		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+		return (*r1x) ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -2572,14 +2581,16 @@ private:
 		inline WatchProxy &operator= (WatchProxy &&) = delete ;
 
 		inline implicit operator UNIT & () const & noexcept {
-			return _LOAD_<UNIT> (mPointer) ;
+			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+			return (*r1x) ;
 		}
 
 		inline implicit operator UNIT & () && = delete ;
 
 		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
 		inline implicit operator _RET () const & {
-			return _RET (_LOAD_<UNIT> (mPointer)) ;
+			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+			return _RET ((*r1x)) ;
 		}
 
 		template <class _RET>
@@ -2807,8 +2818,9 @@ public:
 	inline implicit Lazy (const UNIT &that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
-		r1x->mData.apply (r2x) ;
+		const auto r2x = PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ;
+		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (r2x ,&ApplyTo::friend_move) ;
+		r1x->mData.apply (r3x) ;
 		r1x->mData.finish () ;
 		mThis.assign (r1x) ;
 		mThis.as_strong () ;
@@ -2817,8 +2829,9 @@ public:
 	inline implicit Lazy (UNIT &&that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ,&ApplyTo::friend_move) ;
-		r1x->mData.apply (r2x) ;
+		const auto r2x = PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ;
+		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (r2x ,&ApplyTo::friend_move) ;
+		r1x->mData.apply (r3x) ;
 		r1x->mData.finish () ;
 		mThis.assign (r1x) ;
 		mThis.as_strong () ;
@@ -2929,8 +2942,7 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
-	auto &r1y = _CAST_<BYTE[_SIZEOF_ (_ARG1)]> (object) ;
-	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[r1y] ,_COUNTOF_ (decltype (r1y))) ;
+	_MEMCOPY_ (PTRTOARR[ret.unused] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (object)] ,_SIZEOF_ (_ARG1)) ;
 	return std::move (_CAST_<_RET> (ret)) ;
 }
 } ;
@@ -3034,8 +3046,8 @@ private:
 			const auto r1x = mFree ;
 			mFree = r1x->mNext ;
 			mLength += SIZE::value ;
-			auto &r2y = _CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) ;
-			r2y = _CAST_<TEMP<PTR<BLOCK>>> (VAR_USED) ;
+			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (_XVALUE_<LENGTH> (VAR_USED)) ;
+			_CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) = r2x ;
 			return &r1x->mFlexData ;
 		}
 
