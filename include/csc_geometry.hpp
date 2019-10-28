@@ -672,7 +672,7 @@ public:
 		const auto r5x = _PINV_ (r2x[3][3]) ;
 		ret[1] = Matrix::make_diag ((r3x[0].magnitude () * r5x * r4x) ,(r3x[1].magnitude () * r5x * r4x) ,(r3x[2].magnitude () * r5x * r4x) ,REAL (1)) ;
 		ret[2] = Matrix {r3x[0].normalize () ,r3x[1].normalize () ,(r3x[2].normalize () * r4x) ,Vector<REAL>::axis_w ()} ;
-		const auto r6x = Vector<REAL> {(r3x[4] * r5x).xyz () ,0} ;
+		const auto r6x = Vector<REAL> {(r3x[3] * r5x).xyz () ,0} ;
 		ret[3] = Matrix::make_translation (r6x) ;
 		return std::move (ret) ;
 	}
