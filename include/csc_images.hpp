@@ -5,6 +5,7 @@
 #endif
 
 #include "csc.hpp"
+#include "csc_basic.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
 
@@ -608,6 +609,17 @@ public:
 			get (i) = val ;
 	}
 } ;
+
+#ifdef __CSC_DEPRECATED__
+template <class ITEM>
+class Graph {
+public:
+	Graph () {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+} ;
+#endif
 
 using COLOR_GRAY = BYTE ;
 using COLOR_GRAY32 = VAL32 ;

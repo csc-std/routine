@@ -5,6 +5,7 @@
 #endif
 
 #include "csc.hpp"
+#include "csc_basic.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
 #include "csc_stream.hpp"
@@ -1363,7 +1364,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	return std::move (ret) ;
 }
 
-#ifdef __CSC_EXT__
+#ifdef __CSC_EXTEND__
 inline imports DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &val)> _LOCALE_MAKE_TIMEMETRIC_ ;
 inline imports DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &val)> _LOCALE_MAKE_TIMEPOINT_ ;
 

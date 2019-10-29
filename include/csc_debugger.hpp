@@ -5,13 +5,17 @@
 #endif
 
 #include "csc.hpp"
-#include "csc_ext.hpp"
+#include "csc_basic.hpp"
+#include "csc_extend.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
+#include "csc_images.hpp"
+#include "csc_geometry.hpp"
 #include "csc_stream.hpp"
 #include "csc_string.hpp"
 #include "csc_runtime.hpp"
 #include "csc_thread.hpp"
+#include "csc_graphics.hpp"
 #include "csc_filesystem.hpp"
 #include "csc_network.hpp"
 #include "csc_database.hpp"
@@ -472,8 +476,8 @@ private:
 	exports struct Abstract :public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
 		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
-		virtual Array<DATA> captrue_stack_trace () popping = 0 ;
-		virtual Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping = 0 ;
+		virtual Array<LENGTH> captrue_stack_trace () popping = 0 ;
+		virtual Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping = 0 ;
 	} ;
 
 private:
@@ -493,14 +497,14 @@ public:
 		mThis->output_memory_leaks_report (flag) ;
 	}
 
-	Array<DATA> captrue_stack_trace () popping {
+	Array<LENGTH> captrue_stack_trace () popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->captrue_stack_trace () ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping {
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		return mThis->symbol_from_address (address) ;
+		return mThis->symbol_from_address (list) ;
 	}
 
 private:

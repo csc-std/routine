@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#ifndef __CSC_EXT__
-#define __CSC_EXT__
+#ifndef __CSC_EXTEND__
+#define __CSC_EXTEND__
 #endif
 
 #include "csc.hpp"
@@ -105,44 +105,6 @@ using std::abort ;
 #define DLLABI_API
 #define DLLABI_NATIVE
 #endif
-
-template <class UNIT1 ,class UNIT2>
-struct Component {
-	UNIT1 mValue ;
-	UNIT2 mClazz ;
-} ;
-
-namespace stl {
-template <class... _ARGS>
-using is_all_same = U::is_all_same<_ARGS...> ;
-
-template <class... _ARGS>
-using is_any_same = U::is_any_same<_ARGS...> ;
-
-template <class _ARG1>
-using is_template_type = U::is_template_type<_ARG1> ;
-
-template <class _ARG1>
-using is_complete_type = U::is_complete_type<_ARG1> ;
-
-template <class _ARG1>
-using is_interface_type = U::is_interface_type<_ARG1 ,Interface> ;
-
-template <class _ARG1 ,class _ARG2>
-using is_always_base_of = U::is_always_base_of<_ARG1 ,_ARG2> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = U::INDEX_OF_TYPE<_ARG1 ,_ARG2> ;
-
-template <class _ARG1 ,class _ARG2>
-using INDEX_TO_TYPE = U::INDEX_TO_TYPE<_ARG1 ,_ARG2> ;
-
-template <class _ARG1>
-using REMOVE_TEMPLATE_TYPE = U::REMOVE_TEMPLATE_TYPE<_ARG1> ;
-
-template <class _ARG1>
-using TEMPLATE_PARAMS_TYPE = U::TEMPLATE_PARAMS_TYPE<_ARG1> ;
 
 class GlobalRuntime final :private Wrapped<void> {
 public:
@@ -942,22 +904,22 @@ private:
 template <class... UNITS>
 class Variant {
 private:
-	inline static constexpr LENGTH constexpr_max_sizeof (const ARGVS<> &) {
+	inline static constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
 		return 1 ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline static constexpr LENGTH constexpr_max_sizeof (const ARGVS<_ARG1 ,_ARGS...> &) {
-		return _MAX_ (_SIZEOF_ (_ARG1) ,constexpr_max_sizeof (_NULL_<ARGVS<_ARGS...>> ())) ;
+	inline static constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+		return _MAX_ (_SIZEOF_ (_ARG1) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
 	}
 
-	inline static constexpr LENGTH constexpr_max_alignof (const ARGVS<> &) {
+	inline static constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
 		return 1 ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline static constexpr LENGTH constexpr_max_alignof (const ARGVS<_ARG1 ,_ARGS...> &) {
-		return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<ARGVS<_ARGS...>> ())) ;
+	inline static constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+		return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
 	}
 
 	//@error: g++4.8 is too useless to use constexpr value in alignas expression
@@ -967,18 +929,18 @@ private:
 	} ;
 
 	//@error: 'std::aligned_union' is not avaliable in g++4.8
-	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<ARGVS<UNITS...>> ()) ,constexpr_max_sizeof (_NULL_<ARGVS<UNITS...>> ())> ;
+	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
 
 	template <class _ARG1>
-	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<> &) {
+	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
 		return VAR_NONE ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGVS<_ARG2 ,_ARGS...> &) {
+	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
 		return _SWITCH_ (
 			(std::is_default_constructible<_ARG2>::value) ? (_ARG1::value) :
-			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGVS<_ARGS...>> ()))) ;
+			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()))) ;
 	}
 
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
@@ -992,8 +954,8 @@ private:
 
 public:
 	inline Variant () :Variant (ARGVP0) {
-		const auto r1x = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGVS<UNITS...>> ()) ;
-		Detail::template_construct (&mVariant ,r1x ,_NULL_<ARGVS<UNITS...>> ()) ;
+		const auto r1x = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		Detail::template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = r1x ;
 	}
 
@@ -1008,14 +970,14 @@ public:
 	inline ~Variant () noexcept {
 		if (mIndex == VAR_NONE)
 			return ;
-		Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = VAR_NONE ;
 	}
 
 	inline Variant (const Variant &that) :Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -1032,7 +994,7 @@ public:
 	inline Variant (Variant &&that) noexcept :Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGVS<UNITS...>> ()) ;
+		Detail::template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -1116,12 +1078,12 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<> &) {
+		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
+		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
@@ -1133,15 +1095,15 @@ private:
 			}
 			if (r1x)
 				return ;
-			template_construct (address ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_construct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 		}
 
-		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<> &) noexcept {
+		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
+		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
@@ -1154,15 +1116,15 @@ private:
 			}
 			if (r1x)
 				return ;
-			template_destruct (address ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_destruct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 		}
 
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGVS<> &) {
+		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) {
+		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
 			const auto r1x = BOOL (index == 0) ;
 			for (FOR_ONCE_DO) {
 				if (!r1x)
@@ -1173,15 +1135,15 @@ private:
 			}
 			if (r1x)
 				return ;
-			template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 		}
 
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGVS<> &) noexcept {
+		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGVS<_ARG1 ,_ARGS...> &) noexcept {
+		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
@@ -1194,7 +1156,7 @@ private:
 			}
 			if (r1x)
 				return ;
-			template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGVS<_ARGS...>> ()) ;
+			template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 		}
 
 		template <class _ARG1 ,class... _ARGS>
@@ -3019,23 +2981,21 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			const auto r5x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x) ;
-			auto &r6y = _LOAD_<CHUNK> (r5x) ;
-			r6y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r6y.mPrev = NULL ;
-			r6y.mNext = mRoot ;
-			r6y.mCount = RESE::value ;
+			auto &r5y = _LOAD_<CHUNK> (this ,r4x) ;
+			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5y.mPrev = NULL ;
+			r5y.mNext = mRoot ;
+			r5y.mCount = RESE::value ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r6y ;
-			mRoot = &r6y ;
+				mRoot->mPrev = &r5y ;
+			mRoot = &r5y ;
 			mSize += RESE::value * SIZE::value ;
-			const auto r7x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
+			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = mRoot->mCount ; i < ie ; i++) {
-				const auto r8x = r7x + i * r1x ;
-				const auto r9x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r8x) ;
-				auto &r10y = _LOAD_<BLOCK> (r9x) ;
-				r10y.mNext = mFree ;
-				mFree = &r10y ;
+				const auto r7x = r6x + i * r1x ;
+				auto &r8y = _LOAD_<BLOCK> (this ,r7x) ;
+				r8y.mNext = mFree ;
+				mFree = &r8y ;
 			}
 			rax = NULL ;
 		}
@@ -3084,9 +3044,8 @@ private:
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
 				const auto r3x = r2x + i * r1x ;
-				const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
-				auto &r5y = _LOAD_<BLOCK> (r4x) ;
-				if (_ADDRESS_ (r5y.mNext) == VAR_USED)
+				auto &r4y = _LOAD_<BLOCK> (this ,r3x) ;
+				if (_ADDRESS_ (r4y.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -3139,19 +3098,18 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (BLOCK)) ;
-			const auto r5x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x) ;
-			auto &r6y = _LOAD_<BLOCK> (r5x) ;
-			r6y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r6y.mPrev = NULL ;
-			r6y.mNext = mRoot ;
-			r6y.mCount = r1x ;
+			auto &r5y = _LOAD_<BLOCK> (this ,r4x) ;
+			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5y.mPrev = NULL ;
+			r5y.mNext = mRoot ;
+			r5y.mCount = r1x ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r6y ;
-			mRoot = &r6y ;
-			mSize += r6y.mCount ;
-			mLength += r6y.mCount ;
+				mRoot->mPrev = &r5y ;
+			mRoot = &r5y ;
+			mSize += r5y.mCount ;
+			mLength += r5y.mCount ;
 			rax = NULL ;
-			return &r6y.mFlexData ;
+			return &r5y.mFlexData ;
 		}
 
 		inline void free (PTR<HEADER> address) noexcept override {
@@ -3224,13 +3182,11 @@ public:
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x - _SIZEOF_ (HEADER)) ;
-		auto &r5y = _LOAD_<HEADER> (r4x) ;
-		r5y.mPool = mPool.self[ix] ;
-		r5y.mCurr = r2x ;
-		const auto r6x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
-		auto &r7y = _LOAD_<_RET> (r6x) ;
-		return &r7y ;
+		auto &r4y = _LOAD_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
+		r4y.mPool = mPool.self[ix] ;
+		r4y.mCurr = r2x ;
+		auto &r5y = _LOAD_<_RET> (this ,r3x) ;
+		return &r5y ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -3243,24 +3199,21 @@ public:
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x - _SIZEOF_ (HEADER)) ;
-		auto &r5y = _LOAD_<HEADER> (r4x) ;
-		r5y.mPool = mPool.self[ix] ;
-		r5y.mCurr = r2x ;
-		const auto r6x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x) ;
-		auto &r7y = _LOAD_<ARR<_RET>> (r6x) ;
-		return &r7y ;
+		auto &r4y = _LOAD_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
+		r4y.mPool = mPool.self[ix] ;
+		r4y.mCurr = r2x ;
+		auto &r5y = _LOAD_<ARR<_RET>> (this ,r3x) ;
+		return &r5y ;
 	}
 
 	template <class _ARG1>
 	inline void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x) ;
-		auto &r3y = _LOAD_<HEADER> (r2x) ;
-		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r3y.mPool) ;
+		auto &r2y = _LOAD_<HEADER> (this ,r1x) ;
+		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2y.mPool) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-		mPool.self[ix]->free (r3y.mCurr) ;
+		mPool.self[ix]->free (r2y.mCurr) ;
 	}
 
 	inline void clean () {
@@ -3420,6 +3373,6 @@ inline void Serializer<UNIT1 ,UNIT2>::Binder::compute_visit (UNIT1 &visitor ,UNI
 	//@error: g++4.8 is too useless to compile with a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
-	}
+}
 #endif
 } ;

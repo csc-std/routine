@@ -5,7 +5,8 @@
 #endif
 
 #include "csc.hpp"
-#include "csc_ext.hpp"
+#include "csc_basic.hpp"
+#include "csc_extend.hpp"
 #include "csc_array.hpp"
 #include "csc_runtime.hpp"
 

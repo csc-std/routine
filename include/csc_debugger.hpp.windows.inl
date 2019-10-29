@@ -363,18 +363,22 @@ public:
 #pragma warning (disable :5039)
 #endif
 		_DEBUG_ASSERT_ (flag) ;
-		std::atexit (_XVALUE_<PTR<void ()>> ([] () noexcept {
+		const auto r1x = _XVALUE_<PTR<void ()>> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGFPE ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r2x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGILL ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r3x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGSEGV ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r4x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
+		}) ;
+		std::atexit (r1x) ;
+		signal (SIGFPE ,r2x) ;
+		signal (SIGILL ,r3x) ;
+		signal (SIGSEGV ,r4x) ;
 #pragma warning (pop)
 #pragma endregion
 	}
@@ -389,43 +393,44 @@ public:
 		(void) r3x ;
 	}
 
-	Array<DATA> captrue_stack_trace () popping override {
+	Array<LENGTH> captrue_stack_trace () popping override {
 		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
-		Array<DATA> ret = Array<DATA> (r1x) ;
+		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
-			ret[i] = DATA (_ADDRESS_ (rax[i])) ;
+			ret[i] = _ADDRESS_ (rax[i]) ;
 		return std::move (ret) ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping override {
-		_DEBUG_ASSERT_ (address.length () < VAR32_MAX) ;
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping override {
+		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 		attach_symbol_info () ;
-		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
+		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
 		INDEX iw = 0 ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(mSymbolFromAddress.exist ()))
 				discard ;
-			const auto r1x = _ALIGNOF_ (SYMBOL_INFO) - 1 + _SIZEOF_ (SYMBOL_INFO) + address.length () * DEFAULT_SHORTSTRING_SIZE::value ;
+			const auto r1x = _ALIGNOF_ (SYMBOL_INFO) - 1 + _SIZEOF_ (SYMBOL_INFO) + list.length () * DEFAULT_SHORTSTRING_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (&rax.self) ,_ALIGNOF_ (SYMBOL_INFO)) ;
-			const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x) ;
-			auto &r4y = _LOAD_<SYMBOL_INFO> (r3x) ;
-			r4y.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
-			r4y.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
-			for (auto &&i : address) {
-				SymFromAddr (mSymbolFromAddress ,i ,NULL ,&r4y) ;
-				const auto r5x = _BUILDHEX16S_ (DATA (r4y.Address)) ;
-				const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4y.Name])) ;
-				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
+			auto &r3y = _LOAD_<SYMBOL_INFO> (&rax.self ,r2x) ;
+			r3y.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
+			r3y.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
+			for (auto &&i : list) {
+				SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3y) ;
+				const auto r4x = _BUILDHEX16S_ (DATA (r3y.Address)) ;
+				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3y.Name])) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}
 		if SWITCH_CASE (fax) {
-			for (auto &&i : address)
-				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,_BUILDHEX16S_ (i) ,_PCSTR_ ("] : null")) ;
+			for (auto &&i : list) {
+				const auto r6x = _BUILDHEX16S_ (DATA (i)) ;
+				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : null")) ;
+			}
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return std::move (ret) ;

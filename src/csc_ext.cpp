@@ -1,6 +1,5 @@
 ﻿#include "util.h"
 
-#ifdef __CSC_EXT__
 namespace UNITTEST {
 TEST_CLASS (UNITTEST_CSC_EXT) {
 public:
@@ -157,4 +156,3 @@ public:
 	}
 } ;
 } ;
-#endif

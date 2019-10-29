@@ -300,18 +300,22 @@ class DebuggerService::Implement :public DebuggerService::Abstract {
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		std::atexit (_XVALUE_<PTR<void ()>> ([] () noexcept {
+		const auto r1x = _XVALUE_<PTR<void ()>> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGFPE ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r2x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGILL ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r3x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
-		signal (SIGSEGV ,_XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		}) ;
+		const auto r4x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
-		})) ;
+		}) ;
+		std::atexit (r1x) ;
+		signal (SIGFPE ,r2x) ;
+		signal (SIGILL ,r3x) ;
+		signal (SIGSEGV ,r4x) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {
@@ -320,22 +324,22 @@ public:
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	Array<DATA> captrue_stack_trace () popping override {
+	Array<LENGTH> captrue_stack_trace () popping override {
 		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = backtrace (rax.self ,VAR32 (rax.size ())) ;
-		Array<DATA> ret = Array<DATA> (r1x) ;
+		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
-			ret[i] = DATA (_ADDRESS_ (rax[i])) ;
+			ret[i] = _ADDRESS_ (rax[i]) ;
 		return std::move (ret) ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<DATA> &address) popping override {
-		_DEBUG_ASSERT_ (address.length () < VAR32_MAX) ;
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping override {
+		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		const auto r1x = _CALL_ ([&] () {
-			Array<PTR<VOID>> ret = Array<PTR<VOID>> (address.length ()) ;
+			Array<PTR<VOID>> ret = Array<PTR<VOID>> (list.length ()) ;
 			for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
-				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + LENGTH (i)) ;
+				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + i) ;
 				ret[i] = r2x ;
 			}
 			return std::move (ret) ;

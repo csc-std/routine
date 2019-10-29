@@ -5,6 +5,7 @@
 #endif
 
 #include "csc.hpp"
+#include "csc_basic.hpp"
 
 namespace CSC {
 template <class BASE>
@@ -4695,7 +4696,4 @@ private:
 		out_i = iw ;
 	}
 } ;
-
-template <class ITEM ,class SIZE = SAUTO>
-class Graph ;
 } ;
