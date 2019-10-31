@@ -75,7 +75,7 @@ public:
 		auto &r4y = _LOAD_<ARR<BYTE>> (&bp ,r1y.mStackPoint[r3x]) ;
 		_MEMCOPY_ (PTRTOARR[r1y.mStackFrame] ,r4y ,_ABS_ (r2x)) ;
 		auto &r5y = load_context_ebp (r1y.mContextEbp) ;
-		const auto r6x = setjmp (r5y.mEbp) ;
+		const auto r6x = ::setjmp (r5y.mEbp) ;
 		(void) r6x ;
 	}
 
@@ -92,7 +92,7 @@ public:
 		auto &r4y = _LOAD_<ARR<BYTE>> (&bp ,r1y.mStackPoint[r3x]) ;
 		_MEMCOPY_ (r4y ,PTRTOARR[r1y.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5y = load_context_ebp (r1y.mContextEbp) ;
-		longjmp (r5y.mEbp ,1) ;
+		::longjmp (r5y.mEbp ,1) ;
 	}
 
 	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE::value]> &ebp) noexcept {

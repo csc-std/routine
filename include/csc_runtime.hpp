@@ -73,31 +73,31 @@ private:
 		}) ;
 	}
 
-	static PTR<VALUE_NODE> static_new_node (Holder &_self ,FLAG guid) popping {
-		_self.mValueNode.push () ;
-		_self.mValueNode->mGUID = guid ;
-		return &_self.mValueNode.self ;
+	static PTR<VALUE_NODE> static_new_node (Holder &self_ ,FLAG guid) popping {
+		self_.mValueNode.push () ;
+		self_.mValueNode->mGUID = guid ;
+		return &self_.mValueNode.self ;
 	}
 
-	static PTR<CLASS_NODE> static_new_node (Holder &_self ,const GUID_TYPE &guid) popping {
-		_self.mClassNode.push () ;
-		_self.mClassNode->mGUID = guid ;
-		return &_self.mClassNode.self ;
+	static PTR<CLASS_NODE> static_new_node (Holder &self_ ,const GUID_TYPE &guid) popping {
+		self_.mClassNode.push () ;
+		self_.mClassNode->mGUID = guid ;
+		return &self_.mClassNode.self ;
 	}
 
-	static PTR<VALUE_NODE> static_find_node (Holder &_self ,FLAG guid) popping {
+	static PTR<VALUE_NODE> static_find_node (Holder &self_ ,FLAG guid) popping {
 		PTR<VALUE_NODE> ret = NULL ;
 		for (FOR_ONCE_DO) {
-			if (!_self.mValueNode.exist ())
+			if (!self_.mValueNode.exist ())
 				discard ;
-			auto &r1y = _self.mValueNode.self ;
+			auto &r1y = self_.mValueNode.self ;
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
-				if (_self.mValueNode->mGUID == guid)
-					ret = &_self.mValueNode.self ;
-				_self.mValueNode.cycle () ;
-				if (&_self.mValueNode.self == &r1y)
+				if (self_.mValueNode->mGUID == guid)
+					ret = &self_.mValueNode.self ;
+				self_.mValueNode.cycle () ;
+				if (&self_.mValueNode.self == &r1y)
 					break ;
 				_STATIC_WARNING_ ("noop") ;
 			}
@@ -105,19 +105,19 @@ private:
 		return std::move (ret) ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Holder &_self ,const GUID_TYPE &guid) popping {
+	static PTR<CLASS_NODE> static_find_node (Holder &self_ ,const GUID_TYPE &guid) popping {
 		PTR<CLASS_NODE> ret = NULL ;
 		for (FOR_ONCE_DO) {
-			if (!_self.mClassNode.exist ())
+			if (!self_.mClassNode.exist ())
 				discard ;
-			auto &r1y = _self.mClassNode.self ;
+			auto &r1y = self_.mClassNode.self ;
 			while (TRUE) {
 				if (ret != NULL)
 					break ;
-				if (_MEMEQUAL_ (PTRTOARR[_self.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
-					ret = &_self.mClassNode.self ;
-				_self.mClassNode.cycle () ;
-				if (&_self.mClassNode.self == &r1y)
+				if (_MEMEQUAL_ (PTRTOARR[self_.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
+					ret = &self_.mClassNode.self ;
+				self_.mClassNode.cycle () ;
+				if (&self_.mClassNode.self == &r1y)
 					break ;
 				_STATIC_WARNING_ ("noop") ;
 			}
@@ -132,28 +132,28 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void friend_create (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-			_self.mCounter.self = 0 ;
-			_self.mValueNode = LinkedRef<VALUE_NODE> () ;
-			_self.mClassNode = LinkedRef<CLASS_NODE> () ;
+		inline static void friend_create (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+			self_.mCounter.self = 0 ;
+			self_.mValueNode = LinkedRef<VALUE_NODE> () ;
+			self_.mClassNode = LinkedRef<CLASS_NODE> () ;
 		}
 
-		inline static void friend_destroy (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mNodeMutex) ;
-			_self.mValueNode = LinkedRef<VALUE_NODE> () ;
-			_self.mClassNode = LinkedRef<CLASS_NODE> () ;
+		inline static void friend_destroy (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+			self_.mValueNode = LinkedRef<VALUE_NODE> () ;
+			self_.mClassNode = LinkedRef<CLASS_NODE> () ;
 		}
 
-		inline static LENGTH friend_attach (Holder &_self) popping {
-			return ++_self.mCounter.self ;
+		inline static LENGTH friend_attach (Holder &self_) popping {
+			return ++self_.mCounter.self ;
 		}
 
-		inline static LENGTH friend_detach (Holder &_self) popping {
-			return --_self.mCounter.self ;
+		inline static LENGTH friend_detach (Holder &self_) popping {
+			return --self_.mCounter.self ;
 		}
 
-		inline static void friend_latch (Holder &_self) {
+		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
 		}
 	} ;
@@ -259,23 +259,23 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void friend_create (Holder &_self) {
-			_self.mCounter.self = 0 ;
+		inline static void friend_create (Holder &self_) {
+			self_.mCounter.self = 0 ;
 		}
 
-		inline static void friend_destroy (Holder &_self) {
+		inline static void friend_destroy (Holder &self_) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
-		inline static LENGTH friend_attach (Holder &_self) popping {
-			return ++_self.mCounter.self ;
+		inline static LENGTH friend_attach (Holder &self_) popping {
+			return ++self_.mCounter.self ;
 		}
 
-		inline static LENGTH friend_detach (Holder &_self) popping {
-			return --_self.mCounter.self ;
+		inline static LENGTH friend_detach (Holder &self_) popping {
+			return --self_.mCounter.self ;
 		}
 
-		inline static void friend_latch (Holder &_self) {
+		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
 		}
 

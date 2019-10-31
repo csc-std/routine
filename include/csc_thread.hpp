@@ -171,7 +171,7 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &_self ,INDEX pid) {
+		inline static void static_execute (Holder &self_ ,INDEX pid) {
 			class Finally :private Wrapped<Holder> {
 			public:
 				inline void lock () {
@@ -184,88 +184,88 @@ private:
 					Finally::mSelf.mThreadCounter-- ;
 				}
 			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
+			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
 				_CATCH_ ([&] () {
-					rax.template recreate<ITEM> (_self.mThreadProc[pid] ()) ;
+					rax.template recreate<ITEM> (self_.mThreadProc[pid] ()) ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
-						static_rethrow (_self ,e) ;
+						static_rethrow (self_ ,e) ;
 					} ,[&] () {
 						_STATIC_WARNING_ ("noop") ;
 					}) ;
 				}) ;
-				static_push (_self ,std::move (rax)) ;
+				static_push (self_ ,std::move (rax)) ;
 				rax = Optional<ITEM>::nullopt () ;
 			}
 		}
 
-		inline static void static_push (Holder &_self ,Optional<ITEM> &&item) {
-			ScopedGuard<std::mutex> sgd (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
+		inline static void static_push (Holder &self_ ,Optional<ITEM> &&item) {
+			ScopedGuard<std::mutex> sgd (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 			if (!item.exist ())
 				return ;
-			_DYNAMIC_ASSERT_ (_self.mItemQueue->size () > 0) ;
+			_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 			for (FOR_ONCE_DO) {
-				if (!_self.mItemQueue->full ())
+				if (!self_.mItemQueue->full ())
 					discard ;
-				_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
-				if (!_self.mItemQueue->full ())
+				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+				if (!self_.mItemQueue->full ())
 					discard ;
-				_self.mItemQueue->take () ;
+				self_.mItemQueue->take () ;
 			}
-			_self.mItemQueue->add (std::move (item.self)) ;
-			_self.mThreadCondition.self.notify_all () ;
+			self_.mItemQueue->add (std::move (item.self)) ;
+			self_.mThreadCondition.self.notify_all () ;
 		}
 
-		inline static void static_rethrow (Holder &_self ,const Exception &e) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			if (_self.mException.exist ())
+		inline static void static_rethrow (Holder &self_ ,const Exception &e) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			if (self_.mException.exist ())
 				return ;
-			_self.mException = AutoRef<Exception>::make (e) ;
+			self_.mException = AutoRef<Exception>::make (e) ;
 		}
 
-		inline static void friend_create (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_self.mCounter.self = 0 ;
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-			_self.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
+		inline static void friend_create (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			self_.mCounter.self = 0 ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadPool = Array<AutoRef<std::thread>> () ;
+			self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 		}
 
-		inline static void friend_destroy (Holder &_self) {
-			std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
-			if (!_self.mThreadFlag.exist ())
+		inline static void friend_destroy (Holder &self_) {
+			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+			if (!self_.mThreadFlag.exist ())
 				return ;
-			_self.mThreadFlag.self = FALSE ;
-			_self.mThreadCondition.self.notify_all () ;
-			while (_self.mThreadFlag.exist () && _self.mThreadCounter > 0)
-				_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			for (auto &&i : _self.mThreadPool) {
+			self_.mThreadFlag.self = FALSE ;
+			self_.mThreadCondition.self.notify_all () ;
+			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			for (auto &&i : self_.mThreadPool) {
 				if (!i.exist ())
 					continue ;
 				i->join () ;
 			}
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-			_self.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadPool = Array<AutoRef<std::thread>> () ;
+			self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 		}
 
-		inline static LENGTH friend_attach (Holder &_self) popping {
-			return ++_self.mCounter.self ;
+		inline static LENGTH friend_attach (Holder &self_) popping {
+			return ++self_.mCounter.self ;
 		}
 
-		inline static LENGTH friend_detach (Holder &_self) popping {
-			return --_self.mCounter.self ;
+		inline static LENGTH friend_detach (Holder &self_) popping {
+			return --self_.mCounter.self ;
 		}
 
-		inline static void friend_latch (Holder &_self) {
+		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
 		}
 	} ;
@@ -467,7 +467,7 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &_self) {
+		inline static void static_execute (Holder &self_) {
 			class Finally :private Wrapped<Holder> {
 			public:
 				inline void lock () {
@@ -480,15 +480,15 @@ private:
 					Finally::mSelf.mThreadCounter-- ;
 				}
 			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
+			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
-				static_poll (_self ,rax) ;
+				static_poll (self_ ,rax) ;
 				_CATCH_ ([&] () {
-					_self.mThreadProc (rax.self) ;
+					self_.mThreadProc (rax.self) ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
-						static_rethrow (_self ,e) ;
+						static_rethrow (self_ ,e) ;
 					} ,[&] () {
 						_STATIC_WARNING_ ("noop") ;
 					}) ;
@@ -497,65 +497,65 @@ private:
 			}
 		}
 
-		inline static void static_poll (Holder &_self ,Optional<ITEM> &item) {
-			std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (_self.mThreadWaitCounter)) ;
-			while (_self.mThreadFlag.self && _self.mItemQueue->empty ())
-				_self.mThreadCondition.self.wait (sgd) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
-			item = std::move (_self.mItemQueue.self[_self.mItemQueue->head ()]) ;
-			_self.mItemQueue->take () ;
+		inline static void static_poll (Holder &self_ ,Optional<ITEM> &item) {
+			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
+			while (self_.mThreadFlag.self && self_.mItemQueue->empty ())
+				self_.mThreadCondition.self.wait (sgd) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
+			item = std::move (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
+			self_.mItemQueue->take () ;
 		}
 
-		inline static void static_rethrow (Holder &_self ,const Exception &e) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			if (_self.mException.exist ())
+		inline static void static_rethrow (Holder &self_ ,const Exception &e) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			if (self_.mException.exist ())
 				return ;
-			_self.mException = AutoRef<Exception>::make (e) ;
+			self_.mException = AutoRef<Exception>::make (e) ;
 		}
 
-		inline static void friend_create (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_self.mCounter.self = 0 ;
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadWaitCounter = 0 ;
-			_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-			_self.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
+		inline static void friend_create (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			self_.mCounter.self = 0 ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadWaitCounter = 0 ;
+			self_.mThreadPool = Array<AutoRef<std::thread>> () ;
+			self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 		}
 
-		inline static void friend_destroy (Holder &_self) {
-			std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
-			if (!_self.mThreadFlag.exist ())
+		inline static void friend_destroy (Holder &self_) {
+			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+			if (!self_.mThreadFlag.exist ())
 				return ;
-			_self.mThreadFlag.self = FALSE ;
-			_self.mThreadCondition.self.notify_all () ;
-			while (_self.mThreadFlag.exist () && _self.mThreadCounter > 0)
-				_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			for (auto &&i : _self.mThreadPool) {
+			self_.mThreadFlag.self = FALSE ;
+			self_.mThreadCondition.self.notify_all () ;
+			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			for (auto &&i : self_.mThreadPool) {
 				if (!i.exist ())
 					continue ;
 				i->join () ;
 			}
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadWaitCounter = 0 ;
-			_self.mThreadPool = Array<AutoRef<std::thread>> () ;
-			_self.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadWaitCounter = 0 ;
+			self_.mThreadPool = Array<AutoRef<std::thread>> () ;
+			self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 		}
 
-		inline static LENGTH friend_attach (Holder &_self) popping {
-			return ++_self.mCounter.self ;
+		inline static LENGTH friend_attach (Holder &self_) popping {
+			return ++self_.mCounter.self ;
 		}
 
-		inline static LENGTH friend_detach (Holder &_self) popping {
-			return --_self.mCounter.self ;
+		inline static LENGTH friend_detach (Holder &self_) popping {
+			return --self_.mCounter.self ;
 		}
 
-		inline static void friend_latch (Holder &_self) {
+		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
 		}
 	} ;
@@ -666,7 +666,7 @@ public:
 	}
 
 private:
-	explicit Promise (IntrusiveRef<Holder> &_this) popping : mThis (_this.copy ()) {}
+	explicit Promise (IntrusiveRef<Holder> &this_) popping : mThis (this_.copy ()) {}
 
 public:
 	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
@@ -674,7 +674,7 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &_self) {
+		inline static void static_execute (Holder &self_) {
 			class Finally :private Wrapped<Holder> {
 			public:
 				inline void lock () {
@@ -687,95 +687,95 @@ private:
 					Finally::mSelf.mThreadCounter-- ;
 				}
 			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (_self)) ;
+			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
 			_CATCH_ ([&] () {
-				static_push (_self ,_self.mThreadProc ()) ;
+				static_push (self_ ,self_.mThreadProc ()) ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
-					static_rethrow (_self ,e) ;
+					static_rethrow (self_ ,e) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
-			static_signal (_self) ;
+			static_signal (self_) ;
 		}
 
-		inline static void static_push (Holder &_self ,const ITEM &item) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
-			_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
-			_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
+		inline static void static_push (Holder &self_ ,const ITEM &item) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
+			_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
+			self_.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 		}
 
-		inline static void static_push (Holder &_self ,ITEM &&item) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.self) ;
-			_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
-			_self.mItem = AutoRef<ITEM>::make (std::move (item)) ;
+		inline static void static_push (Holder &self_ ,ITEM &&item) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
+			_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
+			self_.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 		}
 
-		inline static void static_rethrow (Holder &_self ,const Exception &e) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			_DEBUG_ASSERT_ (!_self.mException.exist ()) ;
-			_self.mItem = AutoRef<ITEM> () ;
-			_self.mException = AutoRef<Exception>::make (e) ;
+		inline static void static_rethrow (Holder &self_ ,const Exception &e) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
+			self_.mItem = AutoRef<ITEM> () ;
+			self_.mException = AutoRef<Exception>::make (e) ;
 		}
 
-		inline static void static_signal (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_DEBUG_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			_self.mThreadFlag.self = FALSE ;
-			_self.mThreadCondition.self.notify_all () ;
+		inline static void static_signal (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			self_.mThreadFlag.self = FALSE ;
+			self_.mThreadCondition.self.notify_all () ;
 			for (FOR_ONCE_DO) {
-				if (!_self.mItem.exist ())
+				if (!self_.mItem.exist ())
 					discard ;
-				if (!_self.mCallbackProc.exist ())
+				if (!self_.mCallbackProc.exist ())
 					discard ;
-				_self.mCallbackProc (_self.mItem) ;
+				self_.mCallbackProc (self_.mItem) ;
 			}
-			_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+			self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		}
 
-		inline static void friend_create (Holder &_self) {
-			ScopedGuard<std::mutex> ANONYMOUS (_self.mThreadMutex) ;
-			_self.mCounter.self = 0 ;
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadPool = AutoRef<std::thread> () ;
-			_self.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
-			_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+		inline static void friend_create (Holder &self_) {
+			ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
+			self_.mCounter.self = 0 ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadPool = AutoRef<std::thread> () ;
+			self_.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
+			self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		}
 
-		inline static void friend_destroy (Holder &_self) {
-			std::unique_lock<std::mutex> sgd (_self.mThreadMutex) ;
-			if (!_self.mThreadFlag.exist ())
+		inline static void friend_destroy (Holder &self_) {
+			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+			if (!self_.mThreadFlag.exist ())
 				return ;
-			_self.mThreadFlag.self = FALSE ;
-			_self.mThreadCondition.self.notify_all () ;
-			while (_self.mThreadFlag.exist () && _self.mThreadCounter > 0)
-				_self.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
-			_DYNAMIC_ASSERT_ (_self.mThreadFlag.exist ()) ;
-			if (_self.mThreadPool.exist ())
-				_self.mThreadPool->join () ;
-			_self.mThreadFlag = AutoRef<BOOL> () ;
-			_self.mThreadCounter = 0 ;
-			_self.mThreadPool = AutoRef<std::thread> () ;
-			_self.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
-			_self.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+			self_.mThreadFlag.self = FALSE ;
+			self_.mThreadCondition.self.notify_all () ;
+			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
+			if (self_.mThreadPool.exist ())
+				self_.mThreadPool->join () ;
+			self_.mThreadFlag = AutoRef<BOOL> () ;
+			self_.mThreadCounter = 0 ;
+			self_.mThreadPool = AutoRef<std::thread> () ;
+			self_.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
+			self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		}
 
-		inline static LENGTH friend_attach (Holder &_self) popping {
-			return ++_self.mCounter.self ;
+		inline static LENGTH friend_attach (Holder &self_) popping {
+			return ++self_.mCounter.self ;
 		}
 
-		inline static LENGTH friend_detach (Holder &_self) popping {
-			return --_self.mCounter.self ;
+		inline static LENGTH friend_detach (Holder &self_) popping {
+			return --self_.mCounter.self ;
 		}
 
-		inline static void friend_latch (Holder &_self) {
+		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
 		}
 	} ;
@@ -881,7 +881,7 @@ public:
 	}
 
 private:
-	explicit Future (IntrusiveRef<Holder> &_this) popping : mThis (_this.copy ()) {}
+	explicit Future (IntrusiveRef<Holder> &this_) popping : mThis (this_.copy ()) {}
 } ;
 
 template <class ITEM>

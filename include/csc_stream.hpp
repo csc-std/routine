@@ -184,13 +184,13 @@ public:
 		mWrite = mStream.size () ;
 	}
 
-	void reset (INDEX _read ,INDEX _write) {
+	void reset (INDEX read_ ,INDEX write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_read <= _write) ;
-		mRead = _read ;
-		mWrite = _write ;
+		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (read_ <= write_) ;
+		mRead = read_ ;
+		mWrite = write_ ;
 	}
 
 	ByteReader copy () popping {
@@ -466,13 +466,13 @@ public:
 		mWrite = 0 ;
 	}
 
-	void reset (INDEX _read ,INDEX _write) {
+	void reset (INDEX read_ ,INDEX write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_read <= _write) ;
-		mRead = _read ;
-		mWrite = _write ;
+		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (read_ <= write_) ;
+		mRead = read_ ;
+		mWrite = write_ ;
 	}
 
 	ByteWriter copy () popping {
@@ -827,13 +827,13 @@ public:
 		mWrite = mStream.size () ;
 	}
 
-	void reset (INDEX _read ,INDEX _write) {
+	void reset (INDEX read_ ,INDEX write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_read <= _write) ;
-		mRead = _read ;
-		mWrite = _write ;
+		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (read_ <= write_) ;
+		mRead = read_ ;
+		mWrite = write_ ;
 	}
 
 	TextReader copy () popping {
@@ -1393,13 +1393,13 @@ public:
 		mWrite = 0 ;
 	}
 
-	void reset (INDEX _read ,INDEX _write) {
+	void reset (INDEX read_ ,INDEX write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (_read >= 0 && _read < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_write >= 0 && _write < mStream.size ()) ;
-		_DEBUG_ASSERT_ (_read <= _write) ;
-		mRead = _read ;
-		mWrite = _write ;
+		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
+		_DEBUG_ASSERT_ (read_ <= write_) ;
+		mRead = read_ ;
+		mWrite = write_ ;
 	}
 
 	TextWriter copy () popping {

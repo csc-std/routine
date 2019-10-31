@@ -151,20 +151,20 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (LENGTH _cx ,LENGTH _cy) :Bitmap (_cx ,_cy ,_cx ,0) {}
+	explicit Bitmap (LENGTH cx_ ,LENGTH cy_) :Bitmap (cx_ ,cy_ ,cx_ ,0) {}
 
-	explicit Bitmap (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0) ;
-		_DEBUG_ASSERT_ (_cy >= 0) ;
-		_DEBUG_ASSERT_ (_cx <= _cw) ;
-		_DEBUG_ASSERT_ (_ck >= 0) ;
+	explicit Bitmap (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {
+		_DEBUG_ASSERT_ (cx_ >= 0) ;
+		_DEBUG_ASSERT_ (cy_ >= 0) ;
+		_DEBUG_ASSERT_ (cx_ <= cw_) ;
+		_DEBUG_ASSERT_ (ck_ >= 0) ;
 		mHeap = SharedRef<HEAP>::make () ;
-		const auto r1x = _cy * _cw + _ck ;
+		const auto r1x = cy_ * cw_ + ck_ ;
 		mHeap->mBuffer = SharedRef<FixedBuffer<UNIT>>::make (r1x) ;
-		mHeap->mWidth[0] = _cx ;
-		mHeap->mWidth[1] = _cy ;
-		mHeap->mWidth[2] = _cw ;
-		mHeap->mWidth[3] = _ck ;
+		mHeap->mWidth[0] = cx_ ;
+		mHeap->mWidth[1] = cy_ ;
+		mHeap->mWidth[2] = cw_ ;
+		mHeap->mWidth[3] = ck_ ;
 		mHeap->mWidth[4] = r1x ;
 		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
@@ -236,17 +236,17 @@ public:
 		mCK = r2y[3] ;
 	}
 
-	void reset (LENGTH _cx ,LENGTH _cy ,LENGTH _cw ,LENGTH _ck) {
-		_DEBUG_ASSERT_ (_cx >= 0) ;
-		_DEBUG_ASSERT_ (_cy >= 0) ;
-		_DEBUG_ASSERT_ (_cx <= _cw) ;
-		_DEBUG_ASSERT_ (_ck >= 0) ;
+	void reset (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {
+		_DEBUG_ASSERT_ (cx_ >= 0) ;
+		_DEBUG_ASSERT_ (cy_ >= 0) ;
+		_DEBUG_ASSERT_ (cx_ <= cw_) ;
+		_DEBUG_ASSERT_ (ck_ >= 0) ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (_cy * _cw + _ck <= mHeap->mWidth[4]) ;
-		mCX = _cx ;
-		mCY = _cy ;
-		mCW = _cw ;
-		mCK = _ck ;
+		_DEBUG_ASSERT_ (cy_ * cw_ + ck_ <= mHeap->mWidth[4]) ;
+		mCX = cx_ ;
+		mCY = cy_ ;
+		mCW = cw_ ;
+		mCK = ck_ ;
 	}
 
 	Bitmap copy () popping {
@@ -642,12 +642,12 @@ public:
 	} ;
 
 	exports struct Abstract :public Interface {
-		virtual void compute_layout (AnyRef<void> &_this ,LAYOUT &layout) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &_this ,LENGTH _cx ,LENGTH _cy) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &_this ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void compute_save_data (const AnyRef<void> &_this ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
-		virtual void compute_load_data_file (AnyRef<void> &_this ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_data_file (const AnyRef<void> &_this ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
+		virtual void compute_layout (AnyRef<void> &this_ ,LAYOUT &layout) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const = 0 ;
+		virtual void compute_save_data (const AnyRef<void> &this_ ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
+		virtual void compute_load_data_file (AnyRef<void> &this_ ,const String<STR> &file) const = 0 ;
+		virtual void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
 	} ;
 
 private:
@@ -727,7 +727,7 @@ private:
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit NativeProxy (const PhanRef<const Abstract> &_abstract ,const SharedRef<Holder> &_this) :mAbstract (PhanRef<const Abstract>::make (_abstract)) ,mThis (_this) {}
+		inline explicit NativeProxy (const PhanRef<const Abstract> &abstract_ ,const SharedRef<Holder> &this_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) ,mThis (this_) {}
 	} ;
 
 private:
@@ -738,7 +738,7 @@ private:
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &_abstract) :AbstractImage (PhanRef<const Abstract>::make (_abstract) ,SharedRef<Holder>::make ()) {}
+	explicit AbstractImage (const PhanRef<const Abstract> &abstract_) :AbstractImage (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Holder>::make ()) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -856,12 +856,12 @@ public:
 		return std::move (ret) ;
 	}
 
-	void load_data (LENGTH _cx ,LENGTH _cy) {
-		_DEBUG_ASSERT_ (_cx >= 0 && _cx < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (_cy >= 0 && _cy < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (_cx * _cy > 0) ;
+	void load_data (LENGTH cx_ ,LENGTH cy_) {
+		_DEBUG_ASSERT_ (cx_ >= 0 && cx_ < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (cy_ >= 0 && cy_ < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (cx_ * cy_ > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->compute_load_data (mThis->mHolder ,_cx ,_cy) ;
+		mAbstract->compute_load_data (mThis->mHolder ,cx_ ,cy_) ;
 		Detail::static_update_layout (mAbstract ,mThis) ;
 	}
 
@@ -892,24 +892,24 @@ public:
 	}
 
 private:
-	explicit AbstractImage (PhanRef<const Abstract> &&_abstract ,SharedRef<Holder> &&_this) :mAbstract (std::move (_abstract)) ,mThis (std::move (_this)) {}
+	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Holder> &&this_) :mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_update_layout (PhanRef<const Abstract> &_abstract ,SharedRef<Holder> &_this) {
-			_DEBUG_ASSERT_ (_abstract.exist ()) ;
-			_DEBUG_ASSERT_ (_this.exist ()) ;
-			_DEBUG_ASSERT_ (_this->mHolder.exist ()) ;
+		inline static void static_update_layout (PhanRef<const Abstract> &abstract_ ,SharedRef<Holder> &this_) {
+			_DEBUG_ASSERT_ (abstract_.exist ()) ;
+			_DEBUG_ASSERT_ (this_.exist ()) ;
+			_DEBUG_ASSERT_ (this_->mHolder.exist ()) ;
 			auto rax = LAYOUT () ;
 			_ZERO_ (rax) ;
-			_abstract->compute_layout (_this->mHolder ,rax) ;
+			abstract_->compute_layout (this_->mHolder ,rax) ;
 			const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-			_this->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
-			_this->mCX = rax.mCX ;
-			_this->mCY = rax.mCY ;
-			_this->mCW = rax.mCW ;
-			_this->mCK = rax.mCK ;
+			this_->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
+			this_->mCX = rax.mCX ;
+			this_->mCY = rax.mCY ;
+			this_->mCW = rax.mCW ;
+			this_->mCK = rax.mCK ;
 		}
 	} ;
 } ;

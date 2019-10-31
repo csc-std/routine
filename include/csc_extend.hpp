@@ -143,7 +143,7 @@ public:
 	}
 
 	inline static void locale_init (const Plain<STRA> &_locale) {
-		setlocale (LC_ALL ,_locale.self) ;
+		::setlocale (LC_ALL ,_locale.self) ;
 	}
 
 	inline static void process_exit () {
@@ -1313,24 +1313,24 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static UNIT1 &template_pick (Tuple &_self ,const ARGV<ARGC<0>> &) {
-			return _self.one () ;
+		inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ARGC<0>> &) {
+			return self_.one () ;
 		}
 
 		template <class _ARG1>
-		inline static INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (Tuple &_self ,const ARGV<_ARG1> &) {
+		inline static INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (Tuple &self_ ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_pick (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 
-		inline static constexpr const UNIT1 &template_pick (const Tuple &_self ,const ARGV<ARGC<0>> &) {
-			return _self.one () ;
+		inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ARGC<0>> &) {
+			return self_.one () ;
 		}
 
 		template <class _ARG1>
-		inline static constexpr const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const Tuple &_self ,const ARGV<_ARG1> &) {
+		inline static constexpr const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const Tuple &self_ ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_pick (_self.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
 } ;
@@ -2174,16 +2174,16 @@ private:
 	class Detail :private Wrapped<void> {
 	public:
 		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> _this ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-			_DEBUG_ASSERT_ (_this != NULL) ;
-			const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (_this) ;
+		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> this_ ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+			_DEBUG_ASSERT_ (this_ != NULL) ;
+			const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (this_) ;
 			const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>>> (r1x) ;
 			r2x->mHolder = holder ;
 		}
 
 		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> _this ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
-			_DEBUG_ASSERT_ (_this != NULL) ;
+		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> this_ ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+			_DEBUG_ASSERT_ (this_ != NULL) ;
 		}
 
 		template <class _ARG1>

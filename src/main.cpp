@@ -12,9 +12,7 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-		Singleton<ConsoleService>::instance ().print () ;
-		Singleton<ConsoleService>::instance ().fatal (_PCSTR_ ("test")) ;
-		Singleton<ConsoleService>::instance ().print () ;
+		
 	}
 } ;
 

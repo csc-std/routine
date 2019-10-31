@@ -45,16 +45,16 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef _CLOCALE_
 	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
-			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
+			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (_locale_t &me) {
-			_DEBUG_ASSERT_ (me != NULL) ;
-			_free_locale (me) ;
+			::_free_locale (me) ;
 		}) ;
 	}) ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
+	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	for (FOR_ONCE_DO) {
-		const auto r2x = _mbstowcs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		const auto r2x = ::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -62,8 +62,9 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
+	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	for (FOR_ONCE_DO) {
-		const auto r3x = std::mbstowcs (ret.raw ().self ,val.raw ().self ,ret.size () * _SIZEOF_ (STRW)) ;
+		const auto r3x = std::mbstowcs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -76,16 +77,16 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef _CLOCALE_
 	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
-			me = _create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
+			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (_locale_t &me) {
-			_DEBUG_ASSERT_ (me != NULL) ;
-			_free_locale (me) ;
+			::_free_locale (me) ;
 		}) ;
 	}) ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
+	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	for (FOR_ONCE_DO) {
-		const auto r2x = _wcstombs_s_l (NULL ,ret.raw ().self ,ret.size () ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		const auto r2x = ::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -93,8 +94,9 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	return std::move (ret) ;
 #elif defined _GLIBCXX_CLOCALE
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
+	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	for (FOR_ONCE_DO) {
-		const auto r3x = std::wcstombs (ret.raw ().self ,val.raw ().self ,ret.size ()) ;
+		const auto r3x = std::wcstombs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -105,7 +107,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 
 inline exports String<STRW> _ASTOWS_ (const String<STRA> &val) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = ::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
@@ -119,7 +121,7 @@ inline exports String<STRW> _ASTOWS_ (const String<STRA> &val) {
 
 inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = ::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
@@ -140,7 +142,7 @@ inline namespace S {
 inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = time_t (std::chrono::system_clock::to_time_t (val)) ;
+	const auto r1x = ::time_t (std::chrono::system_clock::to_time_t (val)) ;
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
 #ifdef _CTIME_

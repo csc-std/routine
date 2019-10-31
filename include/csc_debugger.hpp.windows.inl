@@ -94,12 +94,12 @@ public:
 
 	void print (const Binder &msg) override {
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -110,12 +110,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_FATAL) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -126,12 +126,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_ERROR) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -142,12 +142,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_WARN) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -158,12 +158,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_INFO) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -174,12 +174,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_DEBUG) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -190,12 +190,12 @@ public:
 		if ((mOptionFlag & OPTION_NO_VERBOSE) != 0)
 			return ;
 		write_con_buffer (msg) ;
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,mConWriter.raw ().self ,VARY (mConWriter.length () - 1) ,&rax ,NULL) ;
 		rax = VARY (0) ;
-		WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
+		::WriteConsole (mConsole ,_PCSTR_ ("\n") ,1 ,&rax ,NULL) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw ().self ,(mConWriter.length () - 1)) ;
@@ -231,12 +231,11 @@ public:
 		if (mConsole.exist () && mConsole.self != NULL)
 			return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			AllocConsole () ;
-			me = GetStdHandle (STD_OUTPUT_HANDLE) ;
+			::AllocConsole () ;
+			me = ::GetStdHandle (STD_OUTPUT_HANDLE) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (HANDLE &me) {
-			_DEBUG_ASSERT_ (me != NULL) ;
-			FreeConsole () ;
+			::FreeConsole () ;
 		}) ;
 	}
 
@@ -252,11 +251,11 @@ public:
 		const auto r1x = GetConsoleWindow () ;
 		if (r1x == NULL)
 			return ;
-		FlashWindow (r1x ,TRUE) ;
+		::FlashWindow (r1x ,TRUE) ;
 	}
 
 	void pause () override {
-		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
+		::SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
 		const auto r1x = std::system (_PCSTRA_ ("pause")) ;
 		(void) r1x ;
 	}
@@ -277,7 +276,7 @@ private:
 		if (mConsole.exist ())
 			return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			me = GetStdHandle (STD_OUTPUT_HANDLE) ;
+			me = ::GetStdHandle (STD_OUTPUT_HANDLE) ;
 		} ,[] (HANDLE &me) {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
@@ -296,7 +295,7 @@ private:
 	}
 
 	void write_debugger () {
-		OutputDebugString (mLogWriter.raw ().self) ;
+		::OutputDebugString (mLogWriter.raw ().self) ;
 	}
 
 	void write_log_file () {
@@ -396,7 +395,7 @@ public:
 	Array<LENGTH> captrue_stack_trace () popping override {
 		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
-		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
+		const auto r1x = ::CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
 			ret[i] = _ADDRESS_ (rax[i]) ;
@@ -420,7 +419,7 @@ public:
 			r3y.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
 			r3y.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : list) {
-				SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3y) ;
+				::SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3y) ;
 				const auto r4x = _BUILDHEX16S_ (DATA (r3y.Address)) ;
 				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3y.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
@@ -442,16 +441,16 @@ private:
 			return ;
 		mSymbolFromAddress = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = GetCurrentProcess () ;
-			const auto r1x = SymInitialize (me ,NULL ,TRUE) ;
+			const auto r1x = ::SymInitialize (me ,NULL ,TRUE) ;
 			if (r1x)
 				return ;
 			me = NULL ;
 		} ,[] (HANDLE &me) {
 			if (me == NULL)
 				return ;
-			SymCleanup (me) ;
+			::SymCleanup (me) ;
 		}) ;
-		if (mSymbolFromAddress != NULL)
+		if (mSymbolFromAddress.self != NULL)
 			return ;
 		mSymbolFromAddress = UniqueRef<HANDLE> () ;
 	}

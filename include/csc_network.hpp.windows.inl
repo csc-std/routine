@@ -143,7 +143,6 @@ public:
 			me = ::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
 		} ,[] (SOCKET &me) {
-			_DEBUG_ASSERT_ (me != INVALID_SOCKET) ;
 			::closesocket (me) ;
 		}) ;
 		if (!addr.empty ())
@@ -365,7 +364,6 @@ public:
 			me = ::accept (mListener ,NULL ,NULL) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
 		} ,[] (SOCKET &me) {
-			_DEBUG_ASSERT_ (me != INVALID_SOCKET) ;
 			::closesocket (me) ;
 		}) ;
 	}
@@ -418,7 +416,6 @@ public:
 			::setsockopt (me ,SOL_SOCKET ,SO_REUSEADDR ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 			::setsockopt (me ,SOL_SOCKET ,SO_BROADCAST ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 		} ,[] (SOCKET &me) {
-			_DEBUG_ASSERT_ (me != INVALID_SOCKET) ;
 			::closesocket (me) ;
 		}) ;
 		if (!addr.empty ())
@@ -535,10 +532,10 @@ public:
 			const auto r1x = (WORD (2) << (_SIZEOF_ (BYTE) * 8)) | WORD (2) ;
 			auto rax = WSADATA () ;
 			_ZERO_ (rax) ;
-			const auto r2x = WSAStartup (r1x ,&rax) ;
+			const auto r2x = ::WSAStartup (r1x ,&rax) ;
 			_DYNAMIC_ASSERT_ (r2x == 0) ;
 		} ,[] () {
-			WSACleanup () ;
+			::WSACleanup () ;
 		}) ;
 	}
 

@@ -237,20 +237,20 @@ private:
 class AbstractShader {
 public:
 	exports struct Abstract :public Interface {
-		virtual void compute_load_data (AnyRef<void> &_this ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
-		virtual void compute_active_pipeline (AnyRef<void> &_this) const = 0 ;
-		virtual void compute_uniform_find (AnyRef<void> &_this ,const String<STR> &name ,INDEX &index) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAR64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const VAL64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &_this ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
-		virtual void compute_sprite_load_data (AnyRef<void> &_this ,const Mesh &mesh) const = 0 ;
-		virtual void compute_sprite_active_texture (AnyRef<void> &_this ,INDEX texture) const = 0 ;
-		virtual void compute_sprite_draw (AnyRef<void> &_this) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &this_ ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
+		virtual void compute_active_pipeline (AnyRef<void> &this_) const = 0 ;
+		virtual void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
+		virtual void compute_sprite_load_data (AnyRef<void> &this_ ,const Mesh &mesh) const = 0 ;
+		virtual void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const = 0 ;
+		virtual void compute_sprite_draw (AnyRef<void> &this_) const = 0 ;
 	} ;
 
 	class Sprite ;
@@ -263,7 +263,7 @@ private:
 public:
 	AbstractShader () = default ;
 
-	explicit AbstractShader (const PhanRef<const Abstract> &_abstract) :mAbstract (PhanRef<const Abstract>::make (_abstract)) {}
+	explicit AbstractShader (const PhanRef<const Abstract> &abstract_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -417,7 +417,7 @@ public:
 	}
 
 private:
-	explicit Sprite (const PhanRef<const Abstract> &_abstract) :mAbstract (PhanRef<const Abstract>::make (_abstract)) {}
+	explicit Sprite (const PhanRef<const Abstract> &abstract_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 } ;
 
 inline AbstractShader::Sprite AbstractShader::create_sprite () popping {

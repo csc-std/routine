@@ -466,6 +466,9 @@ private:
 	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) ,mSize (0) {}
 } ;
 
+template <class>
+class GlobalStatic ;
+
 template <class UNIT>
 class Singleton final {
 private:
