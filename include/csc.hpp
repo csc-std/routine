@@ -315,7 +315,7 @@ using std::is_convertible ;
 #define FOR_ONCE_DO auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
 
 #define SWITCH_CASE(var) (TRUE) for ( ; !var ; var = TRUE)
-#define SWITCH_ONCE(var) (var) for (FOR_ONCE_DO)
+#define SWITCH_ONCE(var) (var) for (auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE)
 
 using BOOL = bool ;
 
@@ -1464,10 +1464,10 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle) noexcept popping {
 }
 
 template <class _ARG1>
-inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &_null) noexcept popping {
+inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &nil_) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
-	handle = _null ;
+	handle = nil_ ;
 	return std::move (ret) ;
 }
 
@@ -1741,7 +1741,7 @@ private:
 public:
 	inline Exception () = delete ;
 
-	inline explicit Exception (const Plain<STR> &_what) noexcept :mWhat (_what.self) {}
+	inline explicit Exception (const Plain<STR> &what_) noexcept :mWhat (what_.self) {}
 
 	inline Exception (const Exception &) = default ;
 	inline Exception &operator= (const Exception &) = delete ;

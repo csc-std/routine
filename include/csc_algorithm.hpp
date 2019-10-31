@@ -122,9 +122,9 @@ private:
 public:
 	DijstraAlgorithm () = delete ;
 
-	explicit DijstraAlgorithm (const Bitmap<REAL> &adjacency ,INDEX _root) {
+	explicit DijstraAlgorithm (const Bitmap<REAL> &adjacency ,INDEX root_) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
-		initialize (adjacency ,_root) ;
+		initialize (adjacency ,root_) ;
 	}
 
 	REAL query (INDEX index) const {
@@ -141,7 +141,7 @@ public:
 	}
 
 private:
-	void initialize (const Bitmap<REAL> &adjacency ,INDEX _root) ;
+	void initialize (const Bitmap<REAL> &adjacency ,INDEX root_) ;
 
 	LENGTH query_path_depth (INDEX index) const {
 		LENGTH ret = 0 ;
@@ -152,7 +152,7 @@ private:
 } ;
 
 template <class REAL>
-inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX _root) {
+inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX root_) {
 	class Lambda {
 	private:
 		DijstraAlgorithm &mContext ;
@@ -166,7 +166,7 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context ,const Bitmap<REAL> &adjancency ,INDEX _root) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (_root) {}
+		inline explicit Lambda (DijstraAlgorithm &context ,const Bitmap<REAL> &adjancency ,INDEX root_) popping : mContext (context) ,mAdjacency (adjancency) ,mRoot (root_) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -222,7 +222,7 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,adjacency ,_root)) ;
+	_CALL_ (Lambda ((*this) ,adjacency ,root_)) ;
 }
 
 template <class REAL>

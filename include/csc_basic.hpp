@@ -902,18 +902,18 @@ class AnyRef {
 private:
 	using Holder = typename AnyRef<void>::Holder ;
 
-	template <class _UNIT>
+	template <class UNIT_>
 	class ImplHolder :public Holder {
 	private:
 		friend AnyRef ;
-		_UNIT mData ;
+		UNIT_ mData ;
 
 	public:
 		template <class... _ARGS>
 		inline explicit ImplHolder (_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) {}
 
 		inline FLAG typeuid () const override {
-			return _TYPEUID_<_UNIT> () ;
+			return _TYPEUID_<UNIT_> () ;
 		}
 	} ;
 
@@ -1030,17 +1030,17 @@ private:
 		virtual void release () = 0 ;
 	} ;
 
-	template <class _UNIT>
+	template <class UNIT_>
 	class ImplHolder :public Holder {
 	private:
 		friend UniqueRef ;
 		REMOVE_CVR_TYPE<UNIT> mData ;
-		_UNIT mFunctor ;
+		UNIT_ mFunctor ;
 
 	public:
 		inline ImplHolder () = delete ;
 
-		inline explicit ImplHolder (_UNIT &&functor) :mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
 
 		inline void release () override {
 			mFunctor (mData) ;
@@ -1142,15 +1142,15 @@ private:
 		virtual void release () = 0 ;
 	} ;
 
-	template <class _UNIT>
+	template <class UNIT_>
 	class ImplHolder :public Holder {
 	private:
-		_UNIT mFunctor ;
+		UNIT_ mFunctor ;
 
 	public:
 		inline ImplHolder () = delete ;
 
-		inline explicit ImplHolder (_UNIT &&functor) :mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
 
 		inline void release () override {
 			mFunctor () ;
@@ -1293,17 +1293,17 @@ private:
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;
 
-	template <class _UNIT>
+	template <class UNIT_>
 	class ImplHolder :public Function<UNIT1 (UNITS...)>::Holder {
 	private:
-		_UNIT mFunctor ;
+		UNIT_ mFunctor ;
 
 	public:
 		inline ImplHolder () = delete ;
 
-		inline explicit ImplHolder (const _UNIT &functor) :mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
 
-		inline explicit ImplHolder (_UNIT &&functor) :mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
 
 		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
 			return mFunctor (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
@@ -1555,16 +1555,16 @@ private:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-template <class _UNIT>
+template <class UNIT_>
 class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder :public Holder {
 private:
-	PTR<_UNIT> mContext ;
-	DEF<DEF<UNIT1 (UNITS...)> _UNIT::*> mFunction ;
+	PTR<UNIT_> mContext ;
+	DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> mFunction ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_UNIT> context ,const DEF<DEF<UNIT1 (UNITS...)> _UNIT::*> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<UNIT_> context ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -1576,16 +1576,16 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-template <class _UNIT>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<const _UNIT> :public Holder {
+template <class UNIT_>
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<const UNIT_> :public Holder {
 private:
-	PTR<const _UNIT> mContext ;
-	DEF<DEF<UNIT1 (UNITS...) const> _UNIT::*> mFunction ;
+	PTR<const UNIT_> mContext ;
+	DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> mFunction ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<const _UNIT> context ,const DEF<DEF<UNIT1 (UNITS...) const> _UNIT::*> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<const UNIT_> context ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -1597,16 +1597,16 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-template <class _UNIT>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<PTR<_UNIT>> :public Holder {
+template <class UNIT_>
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<PTR<UNIT_>> :public Holder {
 private:
-	PTR<_UNIT> mContext ;
-	PTR<UNIT1 (PTR<_UNIT> ,UNITS...)> mFunction ;
+	PTR<UNIT_> mContext ;
+	PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> mFunction ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<_UNIT> context ,const PTR<UNIT1 (PTR<_UNIT> ,UNITS...)> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<UNIT_> context ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept :mContext (context) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -2675,7 +2675,7 @@ public:
 private:
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&allocator_) :mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -2827,9 +2827,9 @@ public:
 private:
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<Node ,SIZE> &_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<Node ,SIZE> &allocator_) :mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&_allocator) :mAllocator (std::move (_allocator)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&allocator_) :mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -3012,12 +3012,12 @@ public:
 	}
 
 private:
-	inline void update_reserve (INDEX _size ,INDEX _free) {
-		INDEX ix = _free ;
+	inline void update_reserve (INDEX size_ ,INDEX free_) {
+		INDEX ix = free_ ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = _size ,ie = mAllocator.size () ; i < ie ; i++) {
+		for (INDEX i = size_ ,ie = mAllocator.size () ; i < ie ; i++) {
 			iy = ix ;
-			ix = mAllocator.size () + ~(i - _size) ;
+			ix = mAllocator.size () + ~(i - size_) ;
 			mAllocator[ix].mNext = iy ;
 		}
 		mSize = mAllocator.size () ;

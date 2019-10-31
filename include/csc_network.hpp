@@ -88,7 +88,7 @@ public:
 	void accept () ;
 
 private:
-	explicit Listener (const AnyRef<void> &_socket) ;
+	explicit Listener (const AnyRef<void> &socket_) ;
 } ;
 
 inline TCPSocket::Listener TCPSocket::listener () popping {

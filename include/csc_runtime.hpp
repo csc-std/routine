@@ -502,7 +502,7 @@ class RandomService final :private Interface {
 private:
 	exports struct Abstract :public Interface {
 		virtual VAR entropy () const = 0 ;
-		virtual void reset_seed (VAR _seed) = 0 ;
+		virtual void reset_seed (VAR seed_) = 0 ;
 		virtual VAR random_value () popping = 0 ;
 		virtual void random_skip (LENGTH len) = 0 ;
 	} ;
@@ -520,25 +520,25 @@ public:
 		return mThis->entropy () ;
 	}
 
-	void reset_seed (VAR _seed) {
+	void reset_seed (VAR seed_) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->reset_seed (_seed) ;
+		mThis->reset_seed (seed_) ;
 	}
 
-	VAR random_value (VAR _min ,VAR _max) popping {
+	VAR random_value (VAR min_ ,VAR max_) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (_min >= 0 && _min <= _max) ;
+		_DEBUG_ASSERT_ (min_ >= 0 && min_ <= max_) ;
 		const auto r1x = mThis->random_value () ;
-		return r1x % (_max - _min + 1) + _min ;
+		return r1x % (max_ - min_ + 1) + min_ ;
 	}
 
-	Array<VAR> random_value (VAR _min ,VAR _max ,LENGTH len) popping {
+	Array<VAR> random_value (VAR min_ ,VAR max_ ,LENGTH len) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		Array<VAR> ret = Array<VAR> (len) ;
-		const auto r1x = _max - _min + 1 ;
+		const auto r1x = max_ - min_ + 1 ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
 			const auto r2x = mThis->random_value () ;
-			ret[i] = r2x % r1x + _min ;
+			ret[i] = r2x % r1x + min_ ;
 		}
 		return std::move (ret) ;
 	}

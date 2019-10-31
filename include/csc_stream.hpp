@@ -2045,7 +2045,7 @@ private:
 	public:
 		inline Shadow () = delete ;
 
-		inline explicit Shadow (TextReader<STRU8> &&reader ,const Array<STRU8 ,SIZE> &cache ,INDEX _peek) :mReader (std::move (reader)) ,mCache (cache) ,mPeek (_peek) {}
+		inline explicit Shadow (TextReader<STRU8> &&reader ,const Array<STRU8 ,SIZE> &cache ,INDEX peek_) :mReader (std::move (reader)) ,mCache (cache) ,mPeek (peek_) {}
 
 		inline const STRU8 &operator[] (INDEX index) const {
 			_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;

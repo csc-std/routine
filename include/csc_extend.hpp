@@ -121,13 +121,13 @@ public:
 	}
 
 	template <class... _ARGS>
-	inline static void thread_sleep (const std::chrono::duration<_ARGS...> &_time) {
-		std::this_thread::sleep_for (_time) ;
+	inline static void thread_sleep (const std::chrono::duration<_ARGS...> &time_) {
+		std::this_thread::sleep_for (time_) ;
 	}
 
 	template <class... _ARGS>
-	inline static void thread_sleep (const std::chrono::time_point<_ARGS...> &_time) {
-		std::this_thread::sleep_for (_time) ;
+	inline static void thread_sleep (const std::chrono::time_point<_ARGS...> &time_) {
+		std::this_thread::sleep_for (time_) ;
 	}
 
 	inline static void thread_sleep () {
@@ -138,12 +138,12 @@ public:
 		return LENGTH (std::thread::hardware_concurrency ()) ;
 	}
 
-	inline static void thread_fence (std::memory_order _order) {
-		std::atomic_thread_fence (_order) ;
+	inline static void thread_fence (std::memory_order order_) {
+		std::atomic_thread_fence (order_) ;
 	}
 
-	inline static void locale_init (const Plain<STRA> &_locale) {
-		::setlocale (LC_ALL ,_locale.self) ;
+	inline static void locale_init (const Plain<STRA> &locale_) {
+		::setlocale (LC_ALL ,locale_.self) ;
 	}
 
 	inline static void process_exit () {
@@ -1232,7 +1232,7 @@ private:
 public:
 	inline constexpr Tuple () = default ;
 
-	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&_one ,FORWARD_TRAITS_TYPE<UNITS> &&..._rest) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (_rest)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (_one)) {}
+	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline constexpr LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
@@ -1339,17 +1339,17 @@ template <class... UNITS>
 using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT1 ,class... UNITS>
-template <class... _UNITS>
-class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,_UNITS...)>> :public Function<UNIT1 (UNITS...)>::Holder {
+template <class... UNITS_>
+class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>> :public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	class Detail ;
-	PTR<UNIT1 (UNITS... ,_UNITS...)> mFunction ;
-	Tuple<REMOVE_CVR_TYPE<_UNITS>...> mParameter ;
+	PTR<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
+	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const REMOVE_CVR_TYPE<_UNITS> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
+	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
 		return Detail::template_apply (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
@@ -1357,18 +1357,18 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-template <class... _UNITS>
-class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,_UNITS...)>>::Detail :private Wrapped<void> {
+template <class... UNITS_>
+class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>::Detail :private Wrapped<void> {
 public:
 	//@error: vs2015 is too useless to compile without hint
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<_UNITS> &..._fill) popping {
-		const auto r1x = Function<UNIT1 (UNITS... ,_UNITS...)> (func) ;
-		return r1x (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)... ,_fill...) ;
+	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<UNITS_> &...cap_) popping {
+		const auto r1x = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
+		return r1x (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)... ,cap_...) ;
 	}
 
 	//@error: vs2015 is too useless to compile without hint
 	template <class _ARG1 ,class... _ARGS>
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,_UNITS...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
+	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
 		return template_apply (func ,parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
@@ -3283,15 +3283,15 @@ private:
 		virtual void compute_visit (UNIT1 &visitor ,UNIT2 &context) const = 0 ;
 	} ;
 
-	template <class... _UNITS>
+	template <class... UNITS_>
 	class ImplBinder :public Binder {
 	private:
-		Tuple<DEF<_UNITS UNIT2::*>...> mMemPtr ;
+		Tuple<DEF<UNITS_ UNIT2::*>...> mMemPtr ;
 
 	public:
 		inline ImplBinder () = delete ;
 
-		inline explicit ImplBinder (const DEF<_UNITS UNIT2::*> &...memptr) :mMemPtr (memptr...) {}
+		inline explicit ImplBinder (const DEF<UNITS_ UNIT2::*> &...memptr) :mMemPtr (memptr...) {}
 
 		inline void compute_visit (UNIT1 &visitor ,UNIT2 &context) const override {
 			Detail::template_visit (visitor ,context ,mMemPtr) ;

@@ -235,11 +235,11 @@ inline _ARG1 _ROUND_ (const _ARG1 &x ,const _ARG1 &y) {
 }
 
 template <class _ARG1 ,class _ARG2>
-inline _ARG2 _CLAMP_ (const _ARG1 &val ,const _ARG2 &_min ,const _ARG2 &_max) {
-	if (val < _ARG1 (_min))
-		return _min ;
-	if (val > _ARG1 (_max))
-		return _max ;
+inline _ARG2 _CLAMP_ (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
+	if (val < _ARG1 (min_))
+		return min_ ;
+	if (val > _ARG1 (max_))
+		return max_ ;
 	return _ARG2 (val) ;
 }
 

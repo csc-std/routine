@@ -51,7 +51,7 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &_range) :mRange (_range) {}
+	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) :mRange (range_) {}
 
 	inline Iterator ibegin () const {
 		return Iterator (0 ,Detail::first_item (mRange)) ;
@@ -684,7 +684,7 @@ private:
 		LENGTH mCK ;
 	} ;
 
-	template <class _UNIT>
+	template <class UNIT_>
 	class NativeProxy final {
 	private:
 		friend AbstractImage ;
@@ -706,21 +706,21 @@ private:
 		inline NativeProxy (NativeProxy &&) noexcept = default ;
 		inline NativeProxy &operator= (NativeProxy &&) = delete ;
 
-		inline implicit operator _UNIT & () const & {
+		inline implicit operator UNIT_ & () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return mThis->mHolder.template rebind<_UNIT> ().self ;
+			return mThis->mHolder.template rebind<UNIT_> ().self ;
 		}
 
-		inline implicit operator _UNIT & () && = delete ;
+		inline implicit operator UNIT_ & () && = delete ;
 
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<_UNIT & ,_RET>::value>>
+		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT_ & ,_RET>::value>>
 		inline implicit operator _RET () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 			_DEBUG_ASSERT_ (mThis.exist ()) ;
 			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return _RET (_XVALUE_<_UNIT> (mThis->mHolder.template rebind<_UNIT> ().self)) ;
+			return _RET (_XVALUE_<UNIT_> (mThis->mHolder.template rebind<UNIT_> ().self)) ;
 		}
 
 		template <class _RET>

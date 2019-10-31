@@ -57,13 +57,13 @@ public:
 
 inline namespace S {
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().ibegin ())>::value>>
-inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> begin (_ARG1 &&_array) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_begin (_array) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> begin (_ARG1 &&array_) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_begin (array_) ;
 }
 
 template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().iend ())>::value>>
-inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> end (_ARG1 &&_array) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_end (_array) ;
+inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> end (_ARG1 &&array_) popping {
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_end (array_) ;
 }
 } ;
 
@@ -79,7 +79,7 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (INDEX _ibegin ,INDEX _iend) :mIBegin (_ibegin) ,mIEnd (_iend) {}
+	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_) :mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	inline INDEX ibegin () const {
 		_DEBUG_ASSERT_ (mIBegin >= 0 && mIBegin <= mIEnd) ;

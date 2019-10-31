@@ -3,9 +3,6 @@
 #define _UNITTEST
 #define _DEPRECATED
 
-#pragma warning (disable :4710)
-#include <stdio.h>
-
 #include <csc.hpp>
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>

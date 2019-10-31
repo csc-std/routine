@@ -89,13 +89,13 @@ inline SOCKADDR _inline_SOCKET_MAKE_SOCKETADDR_ (const String<STRU8> &val) {
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
 }
 
-inline void _inline_SOCKET_BIND_ (const SOCKET &_socket ,const String<STRU8> &addr) {
+inline void _inline_SOCKET_BIND_ (const SOCKET &socket_ ,const String<STRU8> &addr) {
 	const auto r1x = _inline_SOCKET_MAKE_SOCKETADDR_ (addr) ;
-	const auto r2x = ::bind (_socket ,&r1x ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
+	const auto r2x = ::bind (socket_ ,&r1x ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 	_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 }
 
-inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &_socket ,LENGTH timeout) {
+inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &socket_ ,LENGTH timeout) {
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4548)
@@ -103,8 +103,8 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &_socket ,LENGTH time
 	ARRAY2<fd_set> ret ;
 	FD_ZERO (&ret[0]) ;
 	FD_ZERO (&ret[1]) ;
-	FD_SET (_socket ,&ret[0]) ;
-	FD_SET (_socket ,&ret[1]) ;
+	FD_SET (socket_ ,&ret[0]) ;
+	FD_SET (socket_ ,&ret[1]) ;
 	auto rax = _inline_SOCKET_MAKE_TIMEVAL_ (timeout) ;
 	while (TRUE) {
 		const auto r1x = ::select (FD_SETSIZE ,&ret[0] ,&ret[1] ,NULL ,&rax) ;
@@ -348,8 +348,8 @@ private:
 public:
 	Implement () = delete ;
 
-	explicit Implement (const AnyRef<void> &_socket) {
-		auto &r1y = _socket.rebind<TCPSocket::Implement> ().self ;
+	explicit Implement (const AnyRef<void> &socket_) {
+		auto &r1y = socket_.rebind<TCPSocket::Implement> ().self ;
 		mThis = r1y.mThis ;
 		mListener = std::move (mThis->mSocket) ;
 		const auto r2x = ::listen (mListener ,5) ;
@@ -387,8 +387,8 @@ inline exports void TCPSocket::Listener::accept () {
 	mThis.rebind<Implement> ()->accept () ;
 }
 
-inline TCPSocket::Listener::Listener (const AnyRef<void> &_socket) {
-	mThis = AnyRef<Implement>::make (_socket) ;
+inline TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
+	mThis = AnyRef<Implement>::make (socket_) ;
 }
 
 class UDPSocket::Implement final :private Interface {
@@ -532,10 +532,10 @@ public:
 			const auto r1x = (WORD (2) << (_SIZEOF_ (BYTE) * 8)) | WORD (2) ;
 			auto rax = WSADATA () ;
 			_ZERO_ (rax) ;
-			const auto r2x = ::WSAStartup (r1x ,&rax) ;
+			const auto r2x = WSAStartup (r1x ,&rax) ;
 			_DYNAMIC_ASSERT_ (r2x == 0) ;
 		} ,[] () {
-			::WSACleanup () ;
+			WSACleanup () ;
 		}) ;
 	}
 

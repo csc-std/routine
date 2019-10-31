@@ -20,9 +20,10 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#include <setjmp.h>
 #include <cmath>
 #include <random>
+
+#include <setjmp.h>
 #endif
 
 #ifdef __CSC__
@@ -132,8 +133,8 @@ public:
 		return VAR (mRandomSeed->entropy ()) ;
 	}
 
-	void reset_seed (VAR _seed) override {
-		mRandomDevice = AutoRef<std::mt19937>::make (CHAR (_seed)) ;
+	void reset_seed (VAR seed_) override {
+		mRandomDevice = AutoRef<std::mt19937>::make (CHAR (seed_)) ;
 	}
 
 	VAR random_value () popping override {

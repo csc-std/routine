@@ -44,17 +44,17 @@ public:
 
 	const Array<Bitmap<COLOR_BGR>> &texture () && = delete ;
 
-	void add_vertex (const Set<ARRAY3<VAL32>> &_vertex) {
-		mVertexSet.appand (_vertex) ;
+	void add_vertex (const Set<ARRAY3<VAL32>> &vertex_) {
+		mVertexSet.appand (vertex_) ;
 	}
 
-	void add_element (const Deque<ARRAY3<INDEX>> &_element) {
-		mElementList.appand (_element) ;
+	void add_element (const Deque<ARRAY3<INDEX>> &element_) {
+		mElementList.appand (element_) ;
 	}
 
-	void add_texture (Bitmap<COLOR_BGR> &&_texture) {
+	void add_texture (Bitmap<COLOR_BGR> &&texture_) {
 		mTexture = Array<Bitmap<COLOR_BGR>> (1) ;
-		mTexture[0] = std::move (_texture) ;
+		mTexture[0] = std::move (texture_) ;
 	}
 } ;
 
@@ -126,10 +126,10 @@ public:
 		mViewMatrix.signal () ;
 	}
 
-	void circle (const REAL &_near ,const REAL &angle_un ,const REAL &angle_nv) {
-		mEyeP += mEyeN * _near ;
+	void circle (const REAL &near_ ,const REAL &angle_un ,const REAL &angle_nv) {
+		mEyeP += mEyeN * near_ ;
 		rotate (angle_nv ,angle_un ,0) ;
-		mEyeP -= mEyeN * _near ;
+		mEyeP -= mEyeN * near_ ;
 	}
 
 	Matrix<REAL> view_matrix () const {
@@ -150,46 +150,46 @@ public:
 		return mScreenD ;
 	}
 
-	void perspective (const REAL &fov ,const REAL &aspect ,const REAL &_near ,const REAL &_far) {
+	void perspective (const REAL &fov ,const REAL &aspect ,const REAL &near_ ,const REAL &far_) {
 		_DEBUG_ASSERT_ (fov > REAL (0) && fov < REAL (180)) ;
 		_DEBUG_ASSERT_ (aspect > REAL (0)) ;
-		const auto r1x = _near * _TAN_ (fov * REAL (MATH_PI / 180) * REAL (0.5)) ;
+		const auto r1x = near_ * _TAN_ (fov * REAL (MATH_PI / 180) * REAL (0.5)) ;
 		const auto r2x = r1x * aspect ;
-		frustum (-r2x ,r2x ,-r1x ,r1x ,_near ,_far) ;
+		frustum (-r2x ,r2x ,-r1x ,r1x ,near_ ,far_) ;
 	}
 
-	void frustum (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
+	void frustum (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &near_ ,const REAL &far_) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_near > REAL (0) && _near < _far) ;
+		_DEBUG_ASSERT_ (near_ > REAL (0) && near_ < far_) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
-		mScreenD = _far - _near ;
-		mProjectionMatrix[0][0] = REAL (2) * _near * _PINV_ (mScreenW) ;
+		mScreenD = far_ - near_ ;
+		mProjectionMatrix[0][0] = REAL (2) * near_ * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][1] = REAL (0) ;
 		mProjectionMatrix[0][2] = (right + left) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][3] = REAL (0) ;
 		mProjectionMatrix[1][0] = REAL (0) ;
-		mProjectionMatrix[1][1] = REAL (2) * _near * _PINV_ (mScreenH) ;
+		mProjectionMatrix[1][1] = REAL (2) * near_ * _PINV_ (mScreenH) ;
 		mProjectionMatrix[1][2] = (top + bottom) * _PINV_ (mScreenH) ;
 		mProjectionMatrix[1][3] = REAL (0) ;
 		mProjectionMatrix[2][0] = REAL (0) ;
 		mProjectionMatrix[2][1] = REAL (0) ;
-		mProjectionMatrix[2][2] = -(_far + _near) * _PINV_ (mScreenD) ;
-		mProjectionMatrix[2][3] = -(REAL (2) * _near * _far) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[2][2] = -(far_ + near_) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[2][3] = -(REAL (2) * near_ * far_) * _PINV_ (mScreenD) ;
 		mProjectionMatrix[3][0] = REAL (0) ;
 		mProjectionMatrix[3][1] = REAL (0) ;
 		mProjectionMatrix[3][2] = REAL (-1) ;
 		mProjectionMatrix[3][3] = REAL (0) ;
 	}
 
-	void ortho (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &_near ,const REAL &_far) {
+	void ortho (const REAL &left ,const REAL &right ,const REAL &bottom ,const REAL &top ,const REAL &near_ ,const REAL &far_) {
 		_DEBUG_ASSERT_ (right > left) ;
 		_DEBUG_ASSERT_ (top > bottom) ;
-		_DEBUG_ASSERT_ (_near > REAL (0) && _near < _far) ;
+		_DEBUG_ASSERT_ (near_ > REAL (0) && near_ < far_) ;
 		mScreenW = right - left ;
 		mScreenH = top - bottom ;
-		mScreenD = _far - _near ;
+		mScreenD = far_ - near_ ;
 		mProjectionMatrix[0][0] = REAL (2) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[0][1] = REAL (0) ;
 		mProjectionMatrix[0][2] = REAL (0) ;
@@ -204,7 +204,7 @@ public:
 		mProjectionMatrix[2][3] = REAL (0) ;
 		mProjectionMatrix[3][0] = -(right + left) * _PINV_ (mScreenW) ;
 		mProjectionMatrix[3][1] = -(top + bottom) * _PINV_ (mScreenH) ;
-		mProjectionMatrix[3][2] = -(_far + _near) * _PINV_ (mScreenD) ;
+		mProjectionMatrix[3][2] = -(far_ + near_) * _PINV_ (mScreenD) ;
 		mProjectionMatrix[3][3] = REAL (1) ;
 	}
 
