@@ -299,7 +299,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += r1x[ix] ;
 	}
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r7x = ret.length () ;
 		if (r7x < 1)
 			discard ;
@@ -349,7 +349,7 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
 	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r2x = BOOL (dire.size () >= 1 && dire[0] == STR ('\\')) ;
 		const auto r3x = BOOL (dire.size () >= 1 && dire[0] == STR ('/')) ;
 		if (!r2x && !r3x)
@@ -397,7 +397,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 	while (TRUE) {
 		if (rbx.cFileName[0] == 0)
 			break ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			const auto r3x = String<STR> (PTRTOARR[rbx.cFileName]) ;
 			if (r3x == _PCSTR_ ("."))
 				discard ;

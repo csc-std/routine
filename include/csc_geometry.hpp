@@ -564,7 +564,7 @@ public:
 	Matrix triangular () const {
 		Matrix ret = (*this) ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				INDEX ix = ret.max_row_one (i) ;
 				if (ix == i)
 					discard ;
@@ -633,7 +633,7 @@ public:
 			}
 		}
 		ret *= r1x ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!affine_matrix_like ())
 				discard ;
 			if (get (3 ,3) != REAL (1))

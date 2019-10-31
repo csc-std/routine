@@ -553,34 +553,34 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			while (TRUE) {
 				if (mTempState == VAR_NONE)
 					break ;
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 0))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = 1 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 1))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 					mTempState = 7 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 2))
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 3))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = 4 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 4))
 						discard ;
 					const auto r1x = _SWITCH_ (
@@ -588,7 +588,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						16) ;
 					mTempState = r1x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 5))
 						discard ;
 					const auto r2x = _SWITCH_ (
@@ -596,13 +596,13 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						6) ;
 					mTempState = r2x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 6))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					mTempState = 9 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 7))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -611,14 +611,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						3) ;
 					mTempState = r3x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 8))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = 7 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 9))
 						discard ;
 					const auto r4x = _SWITCH_ (
@@ -626,7 +626,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						14) ;
 					mTempState = r4x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 10))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -635,32 +635,32 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						15) ;
 					mTempState = r5x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 11))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = 17 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 14))
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = 15 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 15))
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = 4 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 16))
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = 17 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 17))
 						discard ;
 					mTempStack.pop () ;
@@ -669,7 +669,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						18) ;
 					mTempState = r6x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 18))
 						discard ;
 					const auto r7x = _SWITCH_ (
@@ -677,14 +677,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						20) ;
 					mTempState = r7x ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 19))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = 20 ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (!(mTempState == 20))
 						discard ;
 					mTempState = VAR_NONE ;
@@ -842,7 +842,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				for (INDEX i = 0 ,ie = mIX.length () ; i < ie ; i++)
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
 				mDXLoss[1] = _ABS_ (mLossFunc (mIX)) ;
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXLambdaC1 * r1x)
 						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
@@ -850,7 +850,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 						discard ;
 					mDXLoss[2] = REAL (0) ;
 				}
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					if (mDXLoss[1] >= mDXLoss[2])
 						discard ;
 					mDXLoss[2] = mDXLoss[1] ;
@@ -1009,7 +1009,7 @@ private:
 		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
 				if (r1x > sqe_range)
@@ -1021,7 +1021,7 @@ private:
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (r2x < bound[rot][0])
 					discard ;
 				const auto r3x = bound[rot][1] ;
@@ -1029,7 +1029,7 @@ private:
 				compute_search_range (point ,sqe_range ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r3x ;
 			}
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (r2x > bound[rot][1])
 					discard ;
 				const auto r4x = bound[rot][0] ;
@@ -1055,7 +1055,7 @@ private:
 		if SWITCH_CASE (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = Vector<REAL> {mVertex[ix] ,REAL (0)} ;
 				const auto r2x = Vector<REAL> {point ,REAL (0)} ;
@@ -1136,15 +1136,13 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 		}
 
 		inline void update_bound () {
-			for (FOR_ONCE_DO) {
-				_DEBUG_ASSERT_ (mVertex.length () > 0) ;
-				mBound[0][0] = mVertex[0][0] ;
-				mBound[0][1] = mVertex[0][0] ;
-				mBound[1][0] = mVertex[0][1] ;
-				mBound[1][1] = mVertex[0][1] ;
-				mBound[2][0] = mVertex[0][2] ;
-				mBound[2][1] = mVertex[0][2] ;
-			}
+			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
+			mBound[0][0] = mVertex[0][0] ;
+			mBound[0][1] = mVertex[0][0] ;
+			mBound[1][0] = mVertex[0][1] ;
+			mBound[1][1] = mVertex[0][1] ;
+			mBound[2][0] = mVertex[0][2] ;
+			mBound[2][1] = mVertex[0][2] ;
 			for (auto &&i : mVertex) {
 				mBound[0][0] = _MIN_ (mBound[0][0] ,i[0]) ;
 				mBound[0][1] = _MAX_ (mBound[0][1] ,i[0]) ;

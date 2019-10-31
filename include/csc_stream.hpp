@@ -211,14 +211,14 @@ public:
 	}
 
 	void read (BYTE &data) popping {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mRead < mWrite))
 				discard ;
 			data = mStream[mRead] ;
 			mRead++ ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			data = attr ().varify_ending_item () ;
 		}
 	}
@@ -854,11 +854,11 @@ public:
 	}
 
 	void read (REAL &data) popping {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(mRead < mWrite))
 				discard ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				data = attr ().convert_endian (mStream[mRead]) ;
 				const auto r1x = attr ().varify_escape_r (data) ;
 				mRead++ ;
@@ -870,7 +870,7 @@ public:
 				mRead++ ;
 			}
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			data = attr ().varify_ending_item () ;
 		}
 	}
@@ -883,8 +883,8 @@ public:
 	void read (BOOL &data) popping {
 		auto rax = REAL () ;
 		read (rax) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('t')))
 				discard ;
 			read (rax) ;
@@ -895,7 +895,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('e')) ;
 			data = TRUE ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('T')))
 				discard ;
 			read (rax) ;
@@ -906,7 +906,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('E')) ;
 			data = TRUE ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('f')))
 				discard ;
 			read (rax) ;
@@ -919,7 +919,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('e')) ;
 			data = FALSE ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('F')))
 				discard ;
 			read (rax) ;
@@ -932,7 +932,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('E')) ;
 			data = FALSE ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
@@ -972,7 +972,7 @@ public:
 
 	void read (VAL32 &data) popping {
 		const auto r1x = read<VAL64> () ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (_ISINF_ (r1x))
 				discard ;
 			if (_ISNAN_ (r1x))
@@ -991,13 +991,13 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!(rax == REAL ('+') || rax == REAL ('-')))
 				discard ;
 			read (rax) ;
 		}
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('i')))
 				discard ;
 			read (rax) ;
@@ -1006,7 +1006,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('f')) ;
 			data = VAL64_INF ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('I')))
 				discard ;
 			read (rax) ;
@@ -1015,7 +1015,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('F')) ;
 			data = VAL64_INF ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('n')))
 				discard ;
 			read (rax) ;
@@ -1024,7 +1024,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('n')) ;
 			data = VAL64_NAN ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('N')))
 				discard ;
 			read (rax) ;
@@ -1033,15 +1033,10 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('N')) ;
 			data = VAL64_NAN ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			const auto r2x = attr ().varify_number_item (rax) ;
-			if (!r2x)
-				discard ;
+			_DYNAMIC_ASSERT_ (r2x) ;
 			compute_read_number (data ,(*this) ,rax) ;
-		}
-		if SWITCH_CASE (ifa) {
-			_STATIC_WARNING_ ("unexpected") ;
-			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 		if (r1x)
 			data = -data ;
@@ -1175,7 +1170,7 @@ private:
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!attr ().varify_number_item (top))
 				discard ;
 			rax[0] = attr ().convert_number_r (top) ;
@@ -1184,21 +1179,21 @@ private:
 			while (TRUE) {
 				if (!attr ().varify_number_item (top))
 					break ;
-				auto ifa = FALSE ;
-				if SWITCH_CASE (ifa) {
+				auto fax = FALSE ;
+				if SWITCH_CASE (fax) {
 					const auto r1x = rax[0] * attr ().varify_radix () + attr ().convert_number_r (top) ;
 					if (!(rax[0] < r1x))
 						discard ;
 					rax[0] = r1x ;
 				}
-				if SWITCH_CASE (ifa) {
+				if SWITCH_CASE (fax) {
 					rax[1]++ ;
 				}
 				reader = ris.copy () ;
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (top != REAL ('.'))
 				discard ;
 			reader = ris.copy () ;
@@ -1207,7 +1202,7 @@ private:
 			while (TRUE) {
 				if (!attr ().varify_number_item (top))
 					break ;
-				for (FOR_ONCE_DO) {
+				if SWITCH_ONCE (TRUE) {
 					const auto r2x = rax[0] * attr ().varify_radix () + attr ().convert_number_r (top) ;
 					if (rax[0] > r2x)
 						discard ;
@@ -1218,14 +1213,14 @@ private:
 				ris.read (top) ;
 			}
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!(top == REAL ('e') || top == REAL ('E')))
 				discard ;
 			const auto r3x = ris.template read<VAR32> () ;
 			rax[1] += r3x ;
 			reader = ris.copy () ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (rax[0] >= 0)
 				discard ;
 			rax[0] = -rax[0] ;
@@ -1412,8 +1407,8 @@ public:
 	}
 
 	void write (const REAL &data) {
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(attr ().varify_escape_w (data)))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
@@ -1424,7 +1419,7 @@ public:
 			mStream[mWrite] = attr ().convert_endian (r2x) ;
 			mWrite++ ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
 			mStream[mWrite] = attr ().convert_endian (data) ;
 			mWrite++ ;
@@ -1484,27 +1479,27 @@ public:
 			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		static constexpr auto M_SINF = PACK<REAL[4]> ({
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(_ISNAN_ (data)))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(_ISINF_ (data)))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(_ISINF_ (data)))
 				discard ;
 			if (!(data < 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r1x = attr ().varify_val32_precision () ;
@@ -1525,27 +1520,27 @@ public:
 			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		static constexpr auto M_SINF = PACK<REAL[4]> ({
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(_ISNAN_ (data)))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(_ISINF_ (data)))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(_ISINF_ (data)))
 				discard ;
 			if (!(data < 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r1x = attr ().varify_val64_precision () ;
@@ -1637,8 +1632,8 @@ private:
 	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
 		auto rax = data ;
 		INDEX iw = out_i ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			if (!(data > 0))
 				discard ;
 			while (TRUE) {
@@ -1648,7 +1643,7 @@ private:
 				rax /= attr ().varify_radix () ;
 			}
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(data < 0))
 				discard ;
 			while (TRUE) {
@@ -1659,7 +1654,7 @@ private:
 			}
 			out[--iw] = REAL ('-') ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			if (!(data == 0))
 				discard ;
 			out[--iw] = attr ().convert_number_w (0) ;
@@ -1672,7 +1667,7 @@ private:
 		const auto r1x = _IEEE754_DECODE_ (data) ;
 		auto rax = _IEEE754_E2TOE10_ (r1x) ;
 		const auto r2x = log_of_number (rax[0]) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			const auto r3x = r2x - precision ;
 			for (INDEX i = 0 ,ie = r3x - 1 ; i < ie ; i++) {
 				rax[0] /= attr ().varify_radix () ;
@@ -1684,20 +1679,20 @@ private:
 			rax[1]++ ;
 		}
 		const auto r4x = log_of_number (rax[0]) ;
-		auto ifa = FALSE ;
-		if SWITCH_CASE (ifa) {
+		auto fax = FALSE ;
+		if SWITCH_CASE (fax) {
 			//@info: case '0'
 			if (!(rax[0] == 0))
 				discard ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			//@info: case 'x.xxxExxx'
 			const auto r5x = r4x - 1 + rax[1] ;
 			if (!(_ABS_ (r5x) >= precision))
 				discard ;
 			compute_write_number (r5x ,out ,iw) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (r5x <= 0)
 					discard ;
 				out[--iw] = REAL ('+') ;
@@ -1717,7 +1712,7 @@ private:
 			out[--iw] = attr ().convert_number_w (rax[0] % attr ().varify_radix ()) ;
 			rax[0] /= attr ().varify_radix () ;
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			//@info: case 'xxx000'
 			if (!(rax[1] >= 0))
 				discard ;
@@ -1728,7 +1723,7 @@ private:
 				rax[0] /= attr ().varify_radix () ;
 			}
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			//@info: case 'xxx.xxx'
 			if (!(rax[1] >= 1 - r4x))
 				discard ;
@@ -1750,7 +1745,7 @@ private:
 				rax[0] /= attr ().varify_radix () ;
 			}
 		}
-		if SWITCH_CASE (ifa) {
+		if SWITCH_CASE (fax) {
 			//@info: case '0.000xxx'
 			if (!(rax[1] < 1 - r4x))
 				discard ;
@@ -1773,7 +1768,7 @@ private:
 			iw += EFLAG (out[ix] == REAL ('.')) ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (rax[2] == 0)
 				discard ;
 			out[--iw] = REAL ('-') ;
@@ -2257,15 +2252,15 @@ public:
 			data = String<STRU8> (r2x) ;
 		data.clear () ;
 		auto rax = STRU8 () ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!r1x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
 			read () ;
 		}
 		for (INDEX i = 0 ,ie = r2x ; i < ie ; i++) {
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
+			auto fax = FALSE ;
+			if SWITCH_CASE (fax) {
 				rax = get (0) ;
 				read () ;
 				const auto r3x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
@@ -2276,12 +2271,13 @@ public:
 				rax = mReader->attr ().convert_escape_r (rax) ;
 				data[i] = rax ;
 			}
-			if SWITCH_CASE (ifa) {
-				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
+			if SWITCH_CASE (fax) {
+				const auto r4x = mReader->attr ().varify_control (rax) ;
+				_DYNAMIC_ASSERT_ (!r4x) ;
 				data[i] = rax ;
 			}
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!r1x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2302,7 +2298,7 @@ private:
 			const auto r1x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
 			const auto r2x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
 			const auto r3x = BOOL (ris[0] == STRU8 ('_')) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (ret > 0)
 					discard ;
 				_DYNAMIC_ASSERT_ (r1x || r2x || r3x) ;
@@ -2320,7 +2316,7 @@ private:
 	LENGTH next_value_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!(ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 				discard ;
 			ris++ ;
@@ -2338,7 +2334,7 @@ private:
 			ris++ ;
 			ret++ ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ris[0] != STRU8 ('.'))
 				discard ;
 			ris++ ;
@@ -2350,12 +2346,12 @@ private:
 				ret++ ;
 			}
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!(ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')))
 				discard ;
 			ris++ ;
 			ret++ ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!(ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
 					discard ;
 				ris++ ;
@@ -2385,20 +2381,20 @@ private:
 				break ;
 			if (ris[0] == STRU8 ('\"'))
 				break ;
-			auto ifa = FALSE ;
-			if SWITCH_CASE (ifa) {
+			auto fax = FALSE ;
+			if SWITCH_CASE (fax) {
 				rax = ris[0] ;
 				ris++ ;
-				const auto r1x = BOOL (rax == mReader->attr ().varify_escape_item ()) ;
-				if (!r1x)
+				if (!(rax == mReader->attr ().varify_escape_item ()))
 					discard ;
 				rax = ris[0] ;
 				ris++ ;
 				rax = mReader->attr ().convert_escape_r (rax) ;
 				ret++ ;
 			}
-			if SWITCH_CASE (ifa) {
-				_DYNAMIC_ASSERT_ (!mReader->attr ().varify_control (rax)) ;
+			if SWITCH_CASE (fax) {
+				const auto r1x = mReader->attr ().varify_control (rax) ;
+				_DYNAMIC_ASSERT_ (!r1x) ;
 				ret++ ;
 			}
 		}

@@ -282,7 +282,7 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r2x = VAR64 (DATA (-1074) - ret[1]) ;
 		if (r2x <= 0)
 			discard ;

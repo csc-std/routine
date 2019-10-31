@@ -1178,7 +1178,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			rax = VAR_NONE ;
 		}
 	}
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 1))
@@ -1199,7 +1199,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		}
 		if SWITCH_CASE (fax) {
-			_DEBUG_ASSERT_ (rax == 0) ;
+			_DYNAMIC_ASSERT_ (rax == 0) ;
 		}
 	}
 	if (iw < ret.size ())
@@ -1268,7 +1268,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			rax = VAR_NONE ;
 		}
 	}
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 1))
@@ -1292,7 +1292,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 		}
 		if SWITCH_CASE (fax) {
-			_DEBUG_ASSERT_ (rax == 0) ;
+			_DYNAMIC_ASSERT_ (rax == 0) ;
 		}
 	}
 	if (iw < ret.size ())
@@ -1328,7 +1328,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	_CAST_<EndianBytes<CHAR>> (r5x.P1) >>= ret.P2 ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		if (rax != _ARG1 (':'))
 			discard ;
 		ris >> rax ;
@@ -1354,7 +1354,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (rax.P1[2]) ;
 	wos << _RET ('.') ;
 	wos << VAR (rax.P1[3]) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		if (stru.P1 == 0)
 			discard ;
 		wos << _RET (':') ;

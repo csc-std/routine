@@ -312,8 +312,6 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define FOR_ONCE_DO auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE
-
 #define SWITCH_CASE(var) (TRUE) for ( ; !var ; var = TRUE)
 #define SWITCH_ONCE(var) (var) for (auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE)
 
@@ -559,7 +557,7 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 } ;
 
 #pragma region
-#ifndef __CSC_TRAITS_IPP__
+#ifdef __CSC__
 namespace U {
 template <class>
 struct ENABLE ;

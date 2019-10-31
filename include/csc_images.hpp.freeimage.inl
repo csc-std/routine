@@ -130,7 +130,7 @@ public:
 		rax.P2 = VARY (0) ;
 		const auto r4x = FreeImage_AcquireMemory (r1x.self ,&rax.P1 ,&rax.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
@@ -243,7 +243,7 @@ public:
 		rax.P2 = VARY (0) ;
 		const auto r4x = FreeImage_AcquireMemory (r1x.self ,&rax.P1 ,&rax.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;

@@ -99,7 +99,7 @@ public:
 
 	//@info: 'angle_vn-angle_nu-angle_uv' equals to 'pitch-yaw-roll' (heading-pitch-bank)
 	void rotate (const REAL &angle_vn ,const REAL &angle_nu ,const REAL &angle_uv) {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (angle_vn == REAL (0))
 				discard ;
 			const auto r1x = mEyeN * _COS_ (angle_vn) - mEyeV * _SIN_ (angle_vn) ;
@@ -107,7 +107,7 @@ public:
 			mEyeN = r1x.normalize () ;
 			mEyeV = r2x.normalize () ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (angle_nu == REAL (0))
 				discard ;
 			const auto r3x = mEyeU * _COS_ (angle_nu) - mEyeN * _SIN_ (angle_nu) ;
@@ -115,7 +115,7 @@ public:
 			mEyeU = r3x.normalize () ;
 			mEyeN = r4x.normalize () ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (angle_uv == REAL (0))
 				discard ;
 			const auto r5x = mEyeV * _COS_ (angle_uv) - mEyeU * _SIN_ (angle_uv) ;
@@ -286,7 +286,7 @@ public:
 	void uniform (const String<STR> &name ,const VAR32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -298,7 +298,7 @@ public:
 	void uniform (const String<STR> &name ,const VAR64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -310,7 +310,7 @@ public:
 	void uniform (const String<STR> &name ,const VAL32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -322,7 +322,7 @@ public:
 	void uniform (const String<STR> &name ,const VAL64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -334,7 +334,7 @@ public:
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -346,7 +346,7 @@ public:
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -358,7 +358,7 @@ public:
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
@@ -370,7 +370,7 @@ public:
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformSet.find (name) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;

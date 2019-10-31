@@ -176,7 +176,7 @@ public:
 
 	void attach_log (const String<STR> &path) override {
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (mLogPath == r1x)
 				discard ;
 			if (!mLogFileStream.exist ())

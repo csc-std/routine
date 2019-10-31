@@ -53,7 +53,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 	}) ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r2x = ::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r2x == 0)
 			discard ;
@@ -63,7 +63,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #elif defined _GLIBCXX_CLOCALE
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r3x = std::mbstowcs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
@@ -85,7 +85,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	}) ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r2x = ::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
 		if (r2x == 0)
 			discard ;
@@ -95,7 +95,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #elif defined _GLIBCXX_CLOCALE
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
-	for (FOR_ONCE_DO) {
+	if SWITCH_ONCE (TRUE) {
 		const auto r3x = std::wcstombs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
@@ -219,7 +219,7 @@ public:
 
 	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
 		Deque<ARRAY2<INDEX>> ret = Deque<ARRAY2<INDEX>> (expr.length ()) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (expr.empty ())
 				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;

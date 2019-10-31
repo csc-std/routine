@@ -208,7 +208,7 @@ private:
 			if (!item.exist ())
 				return ;
 			_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!self_.mItemQueue->full ())
 					discard ;
 				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
@@ -729,7 +729,7 @@ private:
 			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			self_.mThreadFlag.self = FALSE ;
 			self_.mThreadCondition.self.notify_all () ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!self_.mItem.exist ())
 					discard ;
 				if (!self_.mCallbackProc.exist ())
@@ -811,7 +811,7 @@ public:
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
 		while (r2y.mThreadFlag.exist () && r2y.mThreadFlag.self)
 			r2y.mThreadCondition.self.wait (sgd) ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!r2y.mException.exist ())
 				discard ;
 			r2y.mException->raise () ;
@@ -835,7 +835,7 @@ public:
 			_DYNAMIC_ASSERT_ (r3x) ;
 			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!r2y.mException.exist ())
 				discard ;
 			r2y.mException->raise () ;

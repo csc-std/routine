@@ -677,134 +677,6 @@ private:
 #pragma endregion
 } ;
 
-class VAL128 {
-#pragma region
-#pragma push_macro ("v2f0")
-#pragma push_macro ("v2f1")
-#undef v2f0
-#undef v2f1
-#define v2f0 m_v2f0 ()
-#define v2f1 m_v2f1 ()
-
-private:
-	MEGA mData ;
-
-public:
-	inline VAL128 () = default ;
-
-	inline implicit VAL128 (VAL64 that) {
-		v2f1 = that ;
-		v2f0 = 1 ;
-	}
-
-	inline explicit operator VAL32 () const {
-		return VAL32 (v2f1) ;
-	}
-
-	inline explicit operator VAL64 () const {
-		return VAL64 (v2f1) ;
-	}
-
-	inline BOOL operator== (const VAL128 &) const = delete ;
-
-	inline BOOL operator!= (const VAL128 &) const = delete ;
-
-	inline BOOL operator< (const VAL128 &that) const {
-		if (v2f1 >= that.v2f1)
-			return FALSE ;
-		return TRUE ;
-	}
-
-	inline BOOL operator>= (const VAL128 &) const = delete ;
-
-	inline BOOL operator> (const VAL128 &that) const {
-		return that.operator< ((*this)) ;
-	}
-
-	inline BOOL operator<= (const VAL128 &) const = delete ;
-
-	inline VAL128 operator+ (const VAL128 &that) const {
-		VAL128 ret = 0 ;
-		ret.v2f1 = v2f1 + that.v2f1 ;
-		return std::move (ret) ;
-	}
-
-	inline VAL128 &operator+= (const VAL128 &that) {
-		v2f1 += that.v2f1 ;
-		return (*this) ;
-	}
-
-	inline VAL128 operator- (const VAL128 &that) const {
-		VAL128 ret = 0 ;
-		ret.v2f1 = v2f1 - that.v2f1 ;
-		return std::move (ret) ;
-	}
-
-	inline VAL128 &operator-= (const VAL128 &that) {
-		v2f1 -= that.v2f1 ;
-		return (*this) ;
-	}
-
-	inline VAL128 operator* (const VAL128 &that) const {
-		VAL128 ret = 0 ;
-		ret.v2f1 = v2f1 * that.v2f1 ;
-		return std::move (ret) ;
-	}
-
-	inline VAL128 &operator*= (const VAL128 &that) {
-		v2f1 *= that.v2f1 ;
-		return (*this) ;
-	}
-
-	inline VAL128 operator/ (const VAL128 &that) const {
-		VAL128 ret = 0 ;
-		ret.v2f1 = v2f1 / that.v2f1 ;
-		return std::move (ret) ;
-	}
-
-	inline VAL128 &operator/= (const VAL128 &that) {
-		v2f1 *= that.v2f1 ;
-		return (*this) ;
-	}
-
-	inline VAL128 operator+ () const {
-		return (*this) ;
-	}
-
-	inline VAL128 operator- () const {
-		VAL128 ret = 0 ;
-		ret.v2f1 = -v2f1 ;
-		return std::move (ret) ;
-	}
-
-private:
-	inline VAL64 &m_v2f0 () & {
-		return _CAST_<VAL64[2]> (mData)[0] ;
-	}
-
-	inline const VAL64 &m_v2f0 () const & {
-		return _CAST_<VAL64[2]> (mData)[0] ;
-	}
-
-	inline VAL64 &m_v2f0 () && = delete ;
-
-	inline VAL64 &m_v2f1 () & {
-		return _CAST_<VAL64[2]> (mData)[1] ;
-	}
-
-	inline const VAL64 &m_v2f1 () const & {
-		return _CAST_<VAL64[2]> (mData)[1] ;
-	}
-
-	inline VAL64 &m_v2f1 () && = delete ;
-
-#undef v2f0
-#undef v2f1
-#pragma pop_macro ("v2f0")
-#pragma pop_macro ("v2f1")
-#pragma endregion
-} ;
-
 namespace U {
 struct OPERATOR_CRC32 {
 	inline static constexpr BOOL constexpr_check (INDEX index ,LENGTH range) {
@@ -982,7 +854,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &that) {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -999,7 +871,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -1087,7 +959,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -1108,7 +980,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -1126,7 +998,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -1147,7 +1019,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			for (FOR_ONCE_DO) {
+			if SWITCH_ONCE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -1880,7 +1752,7 @@ public:
 	}
 
 	inline LinkedRef &operator= (LinkedRef &&that) noexcept {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~LinkedRef () ;
@@ -2034,7 +1906,7 @@ public:
 			return ;
 		if (!mHolder->mData.exist ())
 			return ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			const auto r1x = --mHolder->mCounter ;
 			if (r1x != 0)
 				discard ;
@@ -2048,7 +1920,7 @@ public:
 	}
 
 	inline StrongRef &operator= (const StrongRef &that) {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -2063,7 +1935,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -2333,7 +2205,7 @@ public:
 	}
 
 	inline SoftRef &operator= (const SoftRef &that) {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2349,7 +2221,7 @@ public:
 	}
 
 	inline SoftRef &operator= (SoftRef &&that) noexcept {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2400,7 +2272,7 @@ public:
 	}
 
 	inline StrongRef<UNIT> watch () const {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (!linked ())
 				discard ;
 			auto &r1y = mHeap.self[mIndex].mWeight ;
@@ -2475,7 +2347,7 @@ private:
 			return ;
 		if (!mWeakRef.exist ())
 			return ;
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			mIndex = min_weight_one () ;
 			if (mIndex == VAR_NONE)
 				discard ;
@@ -2617,7 +2489,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
-		for (FOR_ONCE_DO) {
+		if SWITCH_ONCE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~IntrusiveRef () ;
