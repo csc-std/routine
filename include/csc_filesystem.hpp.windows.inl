@@ -279,17 +279,15 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	const auto r2x = _inline_RELATIVEPATHNAME_ (r1x) ;
 	auto fax = FALSE ;
 	if SWITCH_CASE (fax) {
-		const auto r3x = BOOL (path.size () >= 1 && path[0] == STR ('\\')) ;
-		const auto r4x = BOOL (path.size () >= 1 && path[0] == STR ('/')) ;
-		if (!r3x && !r4x)
-			discard ;
+		if (!(path.size () >= 1 && path[0] == STR ('\\')))
+			if (!(path.size () >= 1 && path[0] == STR ('/')))
+				discard ;
 		ret += _PCSTR_ ("\\") ;
 	}
 	if SWITCH_CASE (fax) {
-		const auto r5x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")) ;
-		const auto r6x = BOOL (r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")) ;
-		if (!r5x && !r6x)
-			discard ;
+		if (!(r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")))
+			if (!(r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")))
+				discard ;
 		//@debug: not absolute path really
 		ret += _WORKINGPATH_ () ;
 	}
@@ -350,10 +348,9 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
 	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
 	if SWITCH_ONCE (TRUE) {
-		const auto r2x = BOOL (dire.size () >= 1 && dire[0] == STR ('\\')) ;
-		const auto r3x = BOOL (dire.size () >= 1 && dire[0] == STR ('/')) ;
-		if (!r2x && !r3x)
-			discard ;
+		if (!(dire.size () >= 1 && dire[0] == STR ('\\')))
+			if (!(dire.size () >= 1 && dire[0] == STR ('/')))
+				discard ;
 		rax += _PCSTR_ ("\\") ;
 	}
 	for (INDEX i = 0 ,ie = r1x.length () ; i < ie ; i++) {
@@ -362,8 +359,9 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 		INDEX ix = r1x.access (i) ;
 		rax += r1x[ix] ;
 		const auto r4x = r1x[ix].length () ;
-		if (r4x > 1 && r1x[ix][r4x - 1] == STR (':'))
-			continue ;
+		if (r4x > 1)
+			if (r1x[ix][r4x - 1] == STR (':'))
+				continue ;
 		CreateDirectory (rax.raw ().self ,NULL) ;
 	}
 }

@@ -116,8 +116,9 @@ public:
 	}
 
 	BOOL equal (const XmlParser &that) const {
-		if (!exist () && !that.exist ())
-			return TRUE ;
+		if (!exist ())
+			if (!that.exist ())
+				return TRUE ;
 		if (!exist ())
 			return FALSE ;
 		if (!that.exist ())
@@ -520,11 +521,10 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $4->${eps}|$3 $4
 		inline void update_shift_e4 (INDEX curr) {
 			while (TRUE) {
-				const auto r1x = BOOL (mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')) ;
-				const auto r2x = BOOL (mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')) ;
-				const auto r3x = BOOL (mRis[0] == STRU8 ('_')) ;
-				if (!r1x && !r2x && !r3x)
-					break ;
+				if (!(mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')))
+					if (!(mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')))
+						if (!(mRis[0] == STRU8 ('_')))
+							break ;
 				update_shift_e3 (curr) ;
 				mRis >> RegularReader<>::SKIP_GAP ;
 			}
@@ -573,8 +573,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			while (TRUE) {
 				if (mRis[0] == STRU8 ('\0'))
 					break ;
-				if (mRis[0] == STRU8 ('-') && mRis[1] == STRU8 ('-'))
-					break ;
+				if (mRis[0] == STRU8 ('-'))
+					if (mRis[1] == STRU8 ('-'))
+						break ;
 				mRis++ ;
 			}
 			mRis >> _PCSTRU8_ ("-->") ;
@@ -1145,8 +1146,9 @@ public:
 	}
 
 	BOOL equal (const JsonParser &that) const {
-		if (!exist () && !that.exist ())
-			return TRUE ;
+		if (!exist ())
+			if (!that.exist ())
+				return TRUE ;
 		if (!exist ())
 			return FALSE ;
 		if (!that.exist ())
@@ -1557,10 +1559,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX ix = VAR_NONE ;
 			auto fax = FALSE ;
 			if SWITCH_CASE (fax) {
-				const auto r1x = BOOL (mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')) ;
-				const auto r2x = BOOL (mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')) ;
-				if (!r1x && !r2x)
-					discard ;
+				if (!(mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')))
+					if (!(mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')))
+						discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
@@ -1570,10 +1571,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mNodeHeap[ix].mChild = VAR_NONE ;
 			}
 			if SWITCH_CASE (fax) {
-				const auto r3x = BOOL (mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')) ;
-				const auto r4x = BOOL (mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')) ;
-				if (!r3x && !r4x)
-					discard ;
+				if (!(mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')))
+					if (!(mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')))
+						discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
 				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;

@@ -110,12 +110,15 @@ inline exports String<STRW> _ASTOWS_ (const String<STRA> &val) {
 	const auto r1x = ::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-		return _U8STOWS_ (_UASTOU8S_ (val)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-		return _GBKSTOWS_ (val) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-		return _GBKSTOWS_ (val) ;
+	if (r2x == 1)
+		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
+			return _U8STOWS_ (_UASTOU8S_ (val)) ;
+	if (r2x >= 4)
+		if (_MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
+			return _GBKSTOWS_ (val) ;
+	if (r2x >= 5)
+		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
+			return _GBKSTOWS_ (val) ;
 	return _inline_LOCALE_LASTOWS_ (val) ;
 }
 
@@ -124,12 +127,15 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
 	const auto r1x = ::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (r2x == 1 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-		return _U8STOUAS_ (_WSTOU8S_ (val)) ;
-	if (r2x >= 4 && _MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-		return _WSTOGBKS_ (val) ;
-	if (r2x >= 5 && _MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-		return _WSTOGBKS_ (val) ;
+	if (r2x == 1)
+		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
+			return _U8STOUAS_ (_WSTOU8S_ (val)) ;
+	if (r2x >= 4)
+		if (_MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
+			return _WSTOGBKS_ (val) ;
+	if (r2x >= 5)
+		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
+			return _WSTOGBKS_ (val) ;
 	return _inline_LOCALE_WSTOLAS_ (val) ;
 }
 } ;

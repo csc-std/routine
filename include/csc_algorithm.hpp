@@ -207,8 +207,9 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 				if (mAdjacency[y][i] < REAL (0))
 					continue ;
 				const auto r1x = mDistance[y] + mAdjacency[y][i] ;
-				if (mXVisit[i] && mDistance[i] <= r1x)
-					continue ;
+				if (mXVisit[i])
+					if (mDistance[i] <= r1x)
+						continue ;
 				mPrev[i] = y ;
 				mDistance[i] = r1x ;
 				mXVisit[i] = TRUE ;
@@ -320,8 +321,9 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 			auto rax = REAL () ;
 			for (auto &&i : mCurrCenterList) {
 				const auto r1x = mDistanceFunc (point ,i) ;
-				if (ret != VAR_NONE && rax <= r1x)
-					continue ;
+				if (ret != VAR_NONE)
+					if (rax <= r1x)
+						continue ;
 				ret = mCurrCenterList.at (i) ;
 				rax = r1x ;
 			}

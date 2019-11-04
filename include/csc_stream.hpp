@@ -769,10 +769,9 @@ private:
 		}
 
 		BOOL varify_control (const REAL &item) const {
-			const auto r1x = BOOL (item >= REAL (0) && item <= REAL (32)) ;
-			const auto r2x = BOOL (item == REAL (127)) ;
-			if (!r1x && !r2x)
-				return FALSE ;
+			if (!(item >= REAL (0) && item <= REAL (32)))
+				if (item != REAL (127))
+					return FALSE ;
 			if (varify_space (item))
 				return FALSE ;
 			return TRUE ;
@@ -1321,10 +1320,10 @@ private:
 		}
 
 		BOOL varify_control (const REAL &item) const {
-			const auto r1x = BOOL (item >= REAL (0) && item <= REAL (32)) ;
-			const auto r2x = BOOL (item == REAL (127)) ;
-			if (!r1x && !r2x)
-				return FALSE ;
+			if (!(item >= REAL (0) && item <= REAL (32)))
+				if (item != REAL (127))
+					return FALSE ;
+			return FALSE ;
 			if (varify_space (item))
 				return FALSE ;
 			return TRUE ;
@@ -2303,10 +2302,10 @@ private:
 					discard ;
 				_DYNAMIC_ASSERT_ (r1x || r2x || r3x) ;
 			}
-			const auto r4x = BOOL (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
-			const auto r5x = BOOL (ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')) ;
-			if (!r1x && !r2x && !r3x && !r4x && !r5x)
-				break ;
+			if (!r1x && !r2x && !r3x)
+				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+					if (!(ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')))
+						break ;
 			ris++ ;
 			ret++ ;
 		}

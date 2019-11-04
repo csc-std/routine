@@ -229,8 +229,9 @@ public:
 	}
 
 	void show () override {
-		if (mConsole.exist () && mConsole.self != NULL)
-			return ;
+		if (mConsole.exist ())
+			if (mConsole.self != NULL)
+				return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			AllocConsole () ;
 			me = GetStdHandle (STD_OUTPUT_HANDLE) ;

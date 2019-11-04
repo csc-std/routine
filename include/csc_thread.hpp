@@ -67,8 +67,9 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (r2y.mItemQueue.exist () && r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
-			return ;
+		if (r2y.mItemQueue.exist ())
+			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
+				return ;
 		auto rax = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
 		rax->appand (std::move (r2y.mItemQueue.self)) ;
 		r2y.mItemQueue = std::move (rax) ;
@@ -339,8 +340,9 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (r2y.mItemQueue.exist () && r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
-			return ;
+		if (r2y.mItemQueue.exist ())
+			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
+				return ;
 		auto rax = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
 		rax->appand (std::move (r2y.mItemQueue.self)) ;
 		r2y.mItemQueue = std::move (rax) ;
@@ -446,8 +448,9 @@ public:
 			_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
 			if (r2y.mException.exist ())
 				break ;
-			if (r2y.mThreadWaitCounter >= r2y.mThreadPool.length () && r2y.mItemQueue->empty ())
-				break ;
+			if (r2y.mThreadWaitCounter >= r2y.mThreadPool.length ())
+				if (r2y.mItemQueue->empty ())
+					break ;
 			const auto r3x = predicate () ;
 			if (!r3x)
 				break ;

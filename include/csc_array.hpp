@@ -475,8 +475,9 @@ public:
 	}
 
 	BOOL equal (const String &that) const {
-		if (empty () && that.empty ())
-			return TRUE ;
+		if (empty ())
+			if (that.empty ())
+				return TRUE ;
 		if (empty ())
 			return FALSE ;
 		if (that.empty ())
@@ -924,14 +925,13 @@ private:
 
 private:
 	BOOL ensure_index (INDEX index) const {
-		const auto r1x = BOOL (mRead <= mWrite) ;
-		const auto r2x = BOOL (index >= mRead && index < mWrite) ;
-		if (r1x && !r2x)
-			return FALSE ;
-		const auto r3x = BOOL (index >= 0 && index < mWrite) ;
-		const auto r4x = BOOL (index >= mRead && index < mDeque.size ()) ;
-		if (!r1x && !r3x && !r4x)
-			return FALSE ;
+		if (mRead <= mWrite)
+			if (!(index >= mRead && index < mWrite))
+				return FALSE ;
+		if (mRead > mWrite)
+			if (!(index >= 0 && index < mWrite))
+				if (!(index >= mRead && index < mDeque.size ()))
+					return FALSE ;
 		return TRUE ;
 	}
 
@@ -1997,8 +1997,9 @@ public:
 		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		if (mWrite - mRead + 1 == mList.length ())
 			return mHead[mRead + pos][0] ;
-		if (mWrite - mRead == mList.length () && mHead[mWrite][0] == VAR_NONE)
-			return mHead[mRead + pos][0] ;
+		if (mWrite - mRead == mList.length ())
+			if (mHead[mWrite][0] == VAR_NONE)
+				return mHead[mRead + pos][0] ;
 		return access (pos ,mRead ,(mWrite - mRead + 1)) ;
 	}
 
@@ -2182,8 +2183,9 @@ private:
 				break ;
 			ret = ix + (iy - ix) / 2 ;
 			INDEX jx = position_before (ret) ;
-			if (jx == pos && mHead[ret][0] != VAR_NONE)
-				break ;
+			if (jx == pos)
+				if (mHead[ret][0] != VAR_NONE)
+					break ;
 			auto &r1y = _SWITCH_ (
 				(jx < pos) ? ix :
 				iy) ;
@@ -3177,8 +3179,9 @@ public:
 			if (ret == VAR_NONE)
 				break ;
 			const auto r1x = BOOL (key < mSet[ret].mKey) ;
-			if (!r1x && !(key > mSet[ret].mKey))
-				break ;
+			if (!r1x)
+				if (!(key > mSet[ret].mKey))
+					break ;
 			const auto r2x = _SWITCH_ (
 				r1x ? (mSet[ret].mLeft) :
 				(mSet[ret].mRight)) ;
@@ -3331,8 +3334,9 @@ private:
 		while (TRUE) {
 			if (iy == VAR_NONE)
 				break ;
-			if (ix != VAR_NONE && mSet[ix].mRed)
-				break ;
+			if (ix != VAR_NONE)
+				if (mSet[ix].mRed)
+					break ;
 			auto fax = FALSE ;
 			if SWITCH_CASE (fax) {
 				if (!(ix == mSet[iy].mLeft))
@@ -3960,8 +3964,9 @@ public:
 			while (TRUE) {
 				if (ret == VAR_NONE)
 					break ;
-				if (mSet[ret].mHash == r1x && mSet[ret].mKey == key)
-					break ;
+				if (mSet[ret].mHash == r1x)
+					if (mSet[ret].mKey == key)
+						break ;
 				ret = mSet[ret].mNext ;
 			}
 		}
@@ -4536,8 +4541,9 @@ public:
 			if (ret == VAR_NONE)
 				break ;
 			const auto r1x = BOOL (key < mSet.self[ret].mKey) ;
-			if (!r1x && !(key > mSet.self[ret].mKey))
-				break ;
+			if (!r1x)
+				if (!(key > mSet.self[ret].mKey))
+					break ;
 			const auto r2x = _SWITCH_ (
 				r1x ? (mSet.self[ret].mLeft) :
 				(mSet.self[ret].mRight)) ;
@@ -4601,8 +4607,9 @@ private:
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mLeft].mLeft) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mLeft].mRight) ;
 		mTop = ix ;
-		if (r1x >= r2x && r1x >= r3x)
-			return ;
+		if (r1x >= r2x)
+			if (r1x >= r3x)
+				return ;
 		if SWITCH_ONCE (TRUE) {
 			if (r1x < r2x)
 				discard ;
@@ -4634,8 +4641,9 @@ private:
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mRight].mRight) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mRight].mLeft) ;
 		mTop = ix ;
-		if (r1x >= r2x && r1x >= r3x)
-			return ;
+		if (r1x >= r2x)
+			if (r1x >= r3x)
+				return ;
 		if SWITCH_ONCE (TRUE) {
 			if (r1x < r2x)
 				discard ;

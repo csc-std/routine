@@ -1269,6 +1269,8 @@ private:
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	class Detail ;
 
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+
 public:
 	inline AllOfTuple () = delete ;
 
@@ -1282,197 +1284,118 @@ public:
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &that) && {
+	inline BOOL operator== (const WRAPPED_TYPE &that) && {
 		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator== (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) == lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &that) && {
+	inline BOOL operator!= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator!= (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) != lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &that) && {
+	inline BOOL operator< (const WRAPPED_TYPE &that) && {
 		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator< (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) > lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &that) && {
+	inline BOOL operator>= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator>= (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) <= lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &that) && {
+	inline BOOL operator> (const WRAPPED_TYPE &that) && {
 		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator> (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) < lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &that) && {
+	inline BOOL operator<= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &lhs ,AllOfTuple &&rhs) {
+	inline friend BOOL operator<= (const WRAPPED_TYPE &lhs ,AllOfTuple &&rhs) {
 		return std::move (rhs) >= lhs ;
 	}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const _ARG2 &rhs) {
+		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs == rhs) ;
 		}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs == lhs) ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs == lhs) ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const _ARG2 &rhs) {
+		inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs < rhs) ;
 		}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs > lhs) ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs > lhs) ;
-		}
-
-		template <class _ARG1>
-		inline static BOOL template_boolean (const Tuple<_ARG1> &lhs) {
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			return BOOL (lhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &lhs) {
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (!(lhs.one ()))
-				return FALSE ;
-			if (!template_boolean (lhs.rest ()))
-				return FALSE ;
+		inline static BOOL template_boolean (const Tuple<> &lhs) {
 			return TRUE ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return operator_equal (lhs.one () ,rhs) ;
+		template <class... _ARGS>
+		inline static BOOL template_boolean (const Tuple<_ARGS...> &lhs) {
+			if (!BOOL (lhs.one ()))
+				return FALSE ;
+			return template_boolean (lhs.rest ()) ;
 		}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		inline static BOOL template_equal (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
+			return TRUE ;
+		}
+
+		template <class... _ARGS>
+		inline static BOOL template_equal (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (!operator_equal (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_equal (lhs.rest () ,rhs))
-				return FALSE ;
+			return template_equal (lhs.rest () ,rhs) ;
+		}
+
+		inline static BOOL template_not_equal (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
 			return TRUE ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return !operator_equal (lhs.one () ,rhs) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_not_equal (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (operator_equal (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_not_equal (lhs.rest () ,rhs))
-				return FALSE ;
+			return template_not_equal (lhs.rest () ,rhs) ;
+		}
+
+		inline static BOOL template_less (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
 			return TRUE ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return operator_less (lhs.one () ,rhs) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_less (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (!operator_less (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_less (lhs.rest () ,rhs))
-				return FALSE ;
+			return template_less (lhs.rest () ,rhs) ;
+		}
+
+		inline static BOOL template_not_less (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
 			return TRUE ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return !operator_less (lhs.one () ,rhs) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_not_less (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (operator_less (lhs.one () ,rhs))
 				return FALSE ;
-			if (!template_not_less (lhs.rest () ,rhs))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
-			return operator_less (lhs ,rhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
-			if (!operator_less (lhs ,rhs.one ()))
-				return FALSE ;
-			if (!template_less (lhs ,rhs.rest ()))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
-			return !operator_less (lhs ,rhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
-			if (operator_less (lhs ,rhs.one ()))
-				return FALSE ;
-			if (!template_not_less (lhs ,rhs.rest ()))
-				return FALSE ;
-			return TRUE ;
+			return template_not_less (lhs.rest () ,rhs) ;
 		}
 	} ;
 } ;
@@ -1483,6 +1406,8 @@ private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	class Detail ;
+
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
 
 public:
 	inline AnyOfTuple () = delete ;
@@ -1497,197 +1422,118 @@ public:
 		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator== (const _ARG1 &that) && {
+	inline BOOL operator== (const WRAPPED_TYPE &that) && {
 		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator== (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator== (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) == lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator!= (const _ARG1 &that) && {
+	inline BOOL operator!= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator!= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator!= (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) != lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator< (const _ARG1 &that) && {
+	inline BOOL operator< (const WRAPPED_TYPE &that) && {
 		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator< (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator< (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) > lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator>= (const _ARG1 &that) && {
+	inline BOOL operator>= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,that) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator>= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator>= (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) <= lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator> (const _ARG1 &that) && {
+	inline BOOL operator> (const WRAPPED_TYPE &that) && {
 		return Detail::template_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator> (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator> (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) < lhs ;
 	}
 
-	template <class _ARG1>
-	inline BOOL operator<= (const _ARG1 &that) && {
+	inline BOOL operator<= (const WRAPPED_TYPE &that) && {
 		return Detail::template_not_less (that ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
 	}
 
-	template <class _ARG1>
-	inline friend BOOL operator<= (const _ARG1 &lhs ,AnyOfTuple &&rhs) {
+	inline friend BOOL operator<= (const WRAPPED_TYPE &lhs ,AnyOfTuple &&rhs) {
 		return std::move (rhs) >= lhs ;
 	}
 
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const _ARG2 &rhs) {
+		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs == rhs) ;
 		}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs == lhs) ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_equal (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs == lhs) ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const _ARG2 &rhs) {
+		inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs < rhs) ;
 		}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const AllOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs > lhs) ;
+		inline static BOOL template_boolean (const Tuple<> &lhs) {
+			return FALSE ;
 		}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL operator_less (const _ARG1 &lhs ,const AnyOfTuple<_ARGS...> &rhs) {
-			return BOOL (rhs > lhs) ;
-		}
-
-		template <class _ARG1>
-		inline static BOOL template_boolean (const Tuple<_ARG1> &lhs) {
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			return BOOL (lhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARG1 ,_ARGS...> &lhs) {
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value) ;
-			if (lhs.one ())
+		template <class... _ARGS>
+		inline static BOOL template_boolean (const Tuple<_ARGS...> &lhs) {
+			if (BOOL (lhs.one ()))
 				return TRUE ;
-			if (!template_boolean (lhs.rest ()))
-				return FALSE ;
-			return TRUE ;
+			return template_boolean (lhs.rest ()) ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return operator_equal (lhs.one () ,rhs) ;
+		inline static BOOL template_equal (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
+			return FALSE ;
 		}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_equal (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (operator_equal (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_equal (lhs.rest () ,rhs))
-				return FALSE ;
-			return TRUE ;
+			return template_equal (lhs.rest () ,rhs) ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_equal (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return !operator_equal (lhs.one () ,rhs) ;
+		inline static BOOL template_not_equal (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
+			return FALSE ;
 		}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_not_equal (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (!operator_equal (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_not_equal (lhs.rest () ,rhs))
-				return FALSE ;
-			return TRUE ;
+			return template_not_equal (lhs.rest () ,rhs) ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return operator_less (lhs.one () ,rhs) ;
+		inline static BOOL template_less (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
+			return FALSE ;
 		}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_less (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (operator_less (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_less (lhs.rest () ,rhs))
-				return FALSE ;
-			return TRUE ;
+			return template_less (lhs.rest () ,rhs) ;
 		}
 
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const Tuple<_ARG1> &lhs ,const _ARG2 &rhs) {
-			return !operator_less (lhs.one () ,rhs) ;
+		inline static BOOL template_not_less (const Tuple<> &lhs ,const WRAPPED_TYPE &rhs) {
+			return FALSE ;
 		}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &lhs ,const _ARG2 &rhs) {
+		template <class... _ARGS>
+		inline static BOOL template_not_less (const Tuple<_ARGS...> &lhs ,const WRAPPED_TYPE &rhs) {
 			if (!operator_less (lhs.one () ,rhs))
 				return TRUE ;
-			if (!template_not_less (lhs.rest () ,rhs))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
-			return operator_less (lhs ,rhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
-			if (operator_less (lhs ,rhs.one ()))
-				return TRUE ;
-			if (!template_less (lhs ,rhs.rest ()))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1> &rhs) {
-			return !operator_less (lhs ,rhs.one ()) ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline static BOOL template_not_less (const _ARG2 &lhs ,const Tuple<_ARG1 ,_ARG1 ,_ARGS...> &rhs) {
-			if (!operator_less (lhs ,rhs.one ()))
-				return TRUE ;
-			if (!template_not_less (lhs ,rhs.rest ()))
-				return FALSE ;
-			return TRUE ;
+			return template_not_less (lhs.rest () ,rhs) ;
 		}
 	} ;
 } ;
@@ -1977,8 +1823,9 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef &that) const {
-		if (!mHolder.exist () && !that.mHolder.exist ())
-			return TRUE ;
+		if (!mHolder.exist ())
+			if (!that.mHolder.exist ())
+				return TRUE ;
 		if (!mHolder.exist ())
 			return FALSE ;
 		if (!that.mHolder.exist ())
@@ -2101,8 +1948,9 @@ public:
 	}
 
 	inline BOOL equal (const WeakRef &that) const {
-		if (!mHolder.exist () && !that.mHolder.exist ())
-			return TRUE ;
+		if (!mHolder.exist ())
+			if (!that.mHolder.exist ())
+				return TRUE ;
 		if (!mHolder.exist ())
 			return FALSE ;
 		if (!that.mHolder.exist ())
@@ -2121,8 +1969,9 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef<UNIT> &that) const {
-		if (!mHolder.exist () && !that.mHolder.exist ())
-			return TRUE ;
+		if (!mHolder.exist ())
+			if (!that.mHolder.exist ())
+				return TRUE ;
 		if (!mHolder.exist ())
 			return FALSE ;
 		if (!that.mHolder.exist ())
@@ -2369,8 +2218,9 @@ private:
 			const auto r1x = mHeap.self[i].mWeight ;
 			if (r1x < 0)
 				continue ;
-			if (ret != VAR_NONE && rax <= r1x)
-				continue ;
+			if (ret != VAR_NONE)
+				if (rax <= r1x)
+					continue ;
 			ret = i ;
 			rax = r1x ;
 		}

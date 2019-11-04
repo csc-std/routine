@@ -98,6 +98,10 @@ public:
 		return mul (scale) ;
 	}
 
+	inline friend Vector operator* (const REAL &lhs ,const Vector &rhs) {
+		return rhs.mul (lhs) ;
+	}
+
 	void multo (const REAL &scale) {
 		for (INDEX i = 0 ,ie = mVector.size () ; i < ie ; i++)
 			mVector[i] *= scale ;
@@ -114,6 +118,10 @@ public:
 
 	inline Vector operator/ (const REAL &scale) const {
 		return div (scale) ;
+	}
+
+	inline friend Vector operator/ (const REAL &lhs ,const Vector &rhs) {
+		return rhs.div (lhs) ;
 	}
 
 	void divto (const REAL &scale) {
@@ -430,6 +438,10 @@ public:
 		return mul (scale) ;
 	}
 
+	inline friend Matrix operator* (const REAL &lhs ,const Matrix &rhs) {
+		return rhs.mul (lhs) ;
+	}
+
 	void multo (const REAL &scale) {
 		for (INDEX i = 0 ,ie = mMatrix.size () ; i < ie ; i++)
 			mMatrix[i] *= scale ;
@@ -446,6 +458,10 @@ public:
 
 	inline Matrix operator/ (const REAL &scale) const {
 		return div (scale) ;
+	}
+
+	inline friend Matrix operator/ (const REAL &lhs ,const Matrix &rhs) {
+		return rhs.div (lhs) ;
 	}
 
 	void divto (const REAL &scale) {
@@ -696,8 +712,9 @@ private:
 		auto rax = REAL () ;
 		for (INDEX i = yx ,ie = 4 ; i < ie ; i++) {
 			const auto r1x = _ABS_ (get (i ,yx)) ;
-			if (ret != VAR_NONE && rax >= r1x)
-				continue ;
+			if (ret != VAR_NONE)
+				if (rax >= r1x)
+					continue ;
 			ret = i ;
 			rax = r1x ;
 		}
@@ -795,8 +812,9 @@ public:
 			INDEX ret = VAR_NONE ;
 			auto rax = REAL () ;
 			for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-				if (ret != VAR_NONE && rax >= r3x[i])
-					continue ;
+				if (ret != VAR_NONE)
+					if (rax >= r3x[i])
+						continue ;
 				ret = i ;
 				rax = r3x[i] ;
 			}

@@ -1336,8 +1336,9 @@ public:
 	}
 
 	inline ~Function () noexcept {
-		if (mFunction_a == NULL && mFunction_b == NULL)
-			return ;
+		if (mFunction_a == NULL)
+			if (mFunction_b == NULL)
+				return ;
 		if SWITCH_ONCE (TRUE) {
 			if (mFunction_a == NULL)
 				discard ;
