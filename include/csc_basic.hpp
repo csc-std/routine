@@ -1311,18 +1311,18 @@ private:
 	} ;
 
 private:
-	PTR<Holder> mFunction_a ;
-	PTR<UNIT1 (UNITS...)> mFunction_b ;
+	PTR<Holder> mFunction ;
+	PTR<UNIT1 (UNITS...)> mCPPFunction ;
 
 public:
 	inline Function () noexcept {
-		mFunction_a = NULL ;
-		mFunction_b = NULL ;
+		mFunction = NULL ;
+		mCPPFunction = NULL ;
 	}
 
 	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept {
-		mFunction_a = NULL ;
-		mFunction_b = that ;
+		mFunction = NULL ;
+		mCPPFunction = that ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
@@ -1330,31 +1330,31 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
 		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
-		mFunction_a = &r1y ;
-		mFunction_b = NULL ;
+		mFunction = &r1y ;
+		mCPPFunction = NULL ;
 		rax = NULL ;
 	}
 
 	inline ~Function () noexcept {
-		if (mFunction_a == NULL)
-			if (mFunction_b == NULL)
+		if (mFunction == NULL)
+			if (mCPPFunction == NULL)
 				return ;
 		if SWITCH_ONCE (TRUE) {
-			if (mFunction_a == NULL)
+			if (mFunction == NULL)
 				discard ;
-			mFunction_a->~Holder () ;
-			GlobalHeap::free (mFunction_a) ;
+			mFunction->~Holder () ;
+			GlobalHeap::free (mFunction) ;
 		}
-		mFunction_a = NULL ;
-		mFunction_b = NULL ;
+		mFunction = NULL ;
+		mCPPFunction = NULL ;
 	}
 
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
 	inline Function (Function &&that) noexcept {
-		mFunction_a = _EXCHANGE_ (that.mFunction_a) ;
-		mFunction_b = _EXCHANGE_ (that.mFunction_b) ;
+		mFunction = _EXCHANGE_ (that.mFunction) ;
+		mCPPFunction = _EXCHANGE_ (that.mCPPFunction) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -1368,18 +1368,17 @@ public:
 	}
 
 	inline BOOL exist () const {
-		if (mFunction_a != NULL)
-			return TRUE ;
-		if (mFunction_b != NULL)
-			return TRUE ;
-		return FALSE ;
+		if (mFunction == NULL)
+			if (mCPPFunction == NULL)
+				return FALSE ;
+		return TRUE ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping {
 		_DEBUG_ASSERT_ (exist ()) ;
-		if (mFunction_b != NULL)
-			return mFunction_b (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
-		return mFunction_a->invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		if (mCPPFunction != NULL)
+			return mCPPFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return mFunction->invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping {
@@ -1387,7 +1386,7 @@ public:
 	}
 
 private:
-	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> pointer) :mFunction_a (pointer) ,mFunction_b (NULL) {}
+	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> _function) :mFunction (_function) ,mCPPFunction (NULL) {}
 
 public:
 	//@info: this function is incompleted without 'csc_extend.hpp'

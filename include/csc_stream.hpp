@@ -1323,7 +1323,6 @@ private:
 			if (!(item >= REAL (0) && item <= REAL (32)))
 				if (item != REAL (127))
 					return FALSE ;
-			return FALSE ;
 			if (varify_space (item))
 				return FALSE ;
 			return TRUE ;

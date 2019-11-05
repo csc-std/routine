@@ -227,7 +227,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 	auto rbx = STRU32 () ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -344,7 +344,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 	auto rbx = STRU32 () ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -416,7 +416,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 	auto rbx = STRU32 () ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -509,7 +509,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 	auto rax = VAR_ZERO ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -590,7 +590,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 	auto rbx = STRU32 () ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -644,7 +644,7 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 	auto rax = VAR_ZERO ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -786,7 +786,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	auto rbx = STRUW () ;
 	for (auto &&i : r3y) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -864,7 +864,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 	auto rax = VAR_ZERO ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		INDEX ix = r1y.find (STRUW (i)) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
@@ -1149,7 +1149,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 	auto rbx = CHAR () ;
 	for (auto &&i : stru) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
@@ -1223,7 +1223,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 	auto rbx = CHAR () ;
 	for (auto &&i : stri) {
 		if (rax == VAR_NONE)
-			discard ;
+			continue ;
 		const auto r2x = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? (M_BASE64.P1[LENGTH (i) - 32]) :
 			VAR_NONE) ;
