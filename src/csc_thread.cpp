@@ -5,14 +5,9 @@ namespace UNITTEST {
 TEST_CLASS (UNITTEST_CSC_THREAD) {
 public:
 	TEST_METHOD (TEST_CSC_THREAD) {
-		struct A :public Interface {
-			inline int work () const {
-				GlobalRuntime::thread_sleep (std::chrono::milliseconds (100)) ;
-				return 3 ;
-			}
-		} ;
 		const auto r1x = _XVALUE_<PTR<int ()>> ([] () {
-			return A ().work () ;
+			GlobalRuntime::thread_sleep (std::chrono::milliseconds (100)) ;
+			return 3 ;
 		}) ;
 		auto rax = Promise<int>::async (r1x) ;
 		const auto r2x = rax.value (-1) ;

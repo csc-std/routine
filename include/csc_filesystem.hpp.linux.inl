@@ -282,8 +282,7 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	const auto r1x = _DECOUPLEPATHNAME_ (path) ;
-	const auto r2x = _inline_RELATIVEPATHNAME_ (r1x) ;
+	auto rax = _DECOUPLEPATHNAME_ (path) ;
 	auto fax = FALSE ;
 	if SWITCH_CASE (fax) {
 		if (!(path.size () >= 1 && path[0] == STR ('\\')))
@@ -292,17 +291,25 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		ret += _PCSTR_ ("/") ;
 	}
 	if SWITCH_CASE (fax) {
-		if (!(r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ (".")))
-			if (!(r1x.length () >= 1 && r1x[r1x.access (0)] == _PCSTR_ ("..")))
+		if (!(rax.length () >= 1 && rax[rax.access (0)] == _PCSTR_ (".")))
+			if (!(rax.length () >= 1 && rax[rax.access (0)] == _PCSTR_ ("..")))
 				discard ;
-		//@warn: not absolute path really
-		ret += _WORKINGPATH_ () ;
+		const auto r1x = _WORKINGPATH_ () ;
+		auto rbx = _DECOUPLEPATHNAME_ (r1x) ;
+		for (auto &&i : rax)
+			rbx.add (std::move (i)) ;
+		rax = std::move (rbx) ;
+		if (!(r1x.size () >= 1 && r1x[0] == STR ('\\')))
+			if (!(r1x.size () >= 1 && r1x[0] == STR ('/')))
+				discard ;
+		ret += _PCSTR_ ("/") ;
 	}
+	const auto r2x = _inline_RELATIVEPATHNAME_ (rax) ;
 	for (INDEX i = 0 ,ie = r2x.length () ; i < ie ; i++) {
 		if (i > 0)
 			ret += _PCSTR_ ("/") ;
 		INDEX ix = r2x[r2x.access (i)] ;
-		ret += r1x[ix] ;
+		ret += rax[ix] ;
 	}
 	if SWITCH_ONCE (TRUE) {
 		const auto r3x = ret.length () ;
@@ -362,25 +369,26 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	if (_FINDDIRECTORY_ (dire))
 		return ;
 	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	const auto r1x = _DECOUPLEPATHNAME_ (_ABSOLUTEPATH_ (dire)) ;
-	_DEBUG_ASSERT_ (r1x.length () >= 1) ;
+	const auto r1x = _ABSOLUTEPATH_ (dire) ;
+	const auto r2x = _DECOUPLEPATHNAME_ (r1x) ;
+	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
 	if SWITCH_ONCE (TRUE) {
 		if (!(dire.size () >= 1 && dire[0] == STR ('\\')))
 			if (!(dire.size () >= 1 && dire[0] == STR ('/')))
 				discard ;
 		rax += _PCSTR_ ("/") ;
 	}
-	for (INDEX i = 0 ,ie = r1x.length () ; i < ie ; i++) {
+	for (INDEX i = 0 ,ie = r2x.length () ; i < ie ; i++) {
 		if (i > 0)
 			rax += _PCSTR_ ("/") ;
-		INDEX ix = r1x.access (i) ;
-		rax += r1x[ix] ;
-		const auto r2x = r1x[ix].length () ;
-		if (r2x > 1)
-			if (r1x[ix][r2x - 1] == STR (':'))
+		INDEX ix = r2x.access (i) ;
+		rax += r2x[ix] ;
+		const auto r3x = r2x[ix].length () ;
+		if (r3x > 1)
+			if (r2x[ix][r3x - 1] == STR (':'))
 				continue ;
-		const auto r3x = _BUILDSTRS_<STRA> (rax) ;
-		::mkdir (r3x.raw ().self ,(S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) ;
+		const auto r4x = _BUILDSTRS_<STRA> (rax) ;
+		::mkdir (r4x.raw ().self ,(S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) ;
 	}
 }
 

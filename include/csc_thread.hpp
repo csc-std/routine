@@ -172,20 +172,21 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &self_ ,INDEX pid) {
-			class Finally :private Wrapped<Holder> {
-			public:
-				inline void lock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter++ ;
-				}
+		class ThreadCounter :private Wrapped<Holder> {
+		public:
+			inline void lock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter++ ;
+			}
 
-				inline void unlock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter-- ;
-				}
-			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
+			inline void unlock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter-- ;
+			}
+		} ;
+
+		inline static void static_execute (Holder &self_ ,INDEX pid) {
+			ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
 				_CATCH_ ([&] () {
@@ -275,17 +276,6 @@ private:
 template <class ITEM>
 class WorkThread {
 private:
-	class Counter :private Wrapped<LENGTH> {
-	public:
-		inline void lock () {
-			Counter::mSelf++ ;
-		}
-
-		inline void unlock () {
-			Counter::mSelf-- ;
-		}
-	} ;
-
 	class Detail ;
 
 	class Holder {
@@ -470,20 +460,21 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &self_) {
-			class Finally :private Wrapped<Holder> {
-			public:
-				inline void lock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter++ ;
-				}
+		class ThreadCounter :private Wrapped<Holder> {
+		public:
+			inline void lock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter++ ;
+			}
 
-				inline void unlock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter-- ;
-				}
-			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
+			inline void unlock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter-- ;
+			}
+		} ;
+
+		inline static void static_execute (Holder &self_) {
+			ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
 				static_poll (self_ ,rax) ;
@@ -499,6 +490,17 @@ private:
 				rax = Optional<ITEM>::nullopt () ;
 			}
 		}
+
+		class Counter :private Wrapped<LENGTH> {
+		public:
+			inline void lock () {
+				Counter::mSelf++ ;
+			}
+
+			inline void unlock () {
+				Counter::mSelf-- ;
+			}
+		} ;
 
 		inline static void static_poll (Holder &self_ ,Optional<ITEM> &item) {
 			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
@@ -677,20 +679,21 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static void static_execute (Holder &self_) {
-			class Finally :private Wrapped<Holder> {
-			public:
-				inline void lock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter++ ;
-				}
+		class ThreadCounter :private Wrapped<Holder> {
+		public:
+			inline void lock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter++ ;
+			}
 
-				inline void unlock () {
-					ScopedGuard<std::mutex> ANONYMOUS (Finally::mSelf.mThreadMutex) ;
-					Finally::mSelf.mThreadCounter-- ;
-				}
-			} ;
-			ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (self_)) ;
+			inline void unlock () {
+				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+				ThreadCounter::mSelf.mThreadCounter-- ;
+			}
+		} ;
+
+		inline static void static_execute (Holder &self_) {
+			ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 			_CATCH_ ([&] () {
 				static_push (self_ ,self_.mThreadProc ()) ;
 			} ,[&] (const Exception &e) noexcept {

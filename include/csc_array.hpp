@@ -801,6 +801,7 @@ public:
 	void add (const ITEM &item) {
 		reserve (1) ;
 		mDeque[mWrite] = std::move (item) ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 	}
 
@@ -812,6 +813,7 @@ public:
 	void add (ITEM &&item) {
 		reserve (1) ;
 		mDeque[mWrite] = std::move (item) ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 	}
 
@@ -863,6 +865,7 @@ public:
 	INDEX insert () popping {
 		reserve (1) ;
 		INDEX ret = mWrite ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 		return std::move (ret) ;
 	}
@@ -880,6 +883,7 @@ public:
 			ret-- ;
 		}
 		mDeque[ret] = std::move (item) ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 		return std::move (ret) ;
 	}
@@ -897,13 +901,37 @@ public:
 			ret-- ;
 		}
 		mDeque[ret] = std::move (item) ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 		return std::move (ret) ;
+	}
+
+	void push (const ITEM &item) {
+		reserve (1) ;
+		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
+		mDeque[ix] = std::move (item) ;
+		mRead = ix ;
+		update_resize () ;
+	}
+
+	void push (ITEM &&item) {
+		reserve (1) ;
+		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
+		mDeque[ix] = std::move (item) ;
+		mRead = ix ;
+		update_resize () ;
 	}
 
 	void pop () {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		mWrite = (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
+	}
+
+	INDEX find (const ITEM &item) const {
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			if (get (i) == item)
+				return i ;
+		return VAR_NONE ;
 	}
 
 	Array<INDEX> esort () const {
@@ -958,8 +986,6 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mDeque.size ()) ;
-		mWrite = (mWrite + 1) % mDeque.size () ;
 		if (mRead != mWrite)
 			return ;
 		auto rax = mDeque.expand () ;
@@ -1002,7 +1028,7 @@ private:
 		inline Node () = default ;
 	} ;
 
-	using PAIR_TYPE = PACK<KEY ,ITEM> ;
+	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
 	class Pair final {
@@ -1060,11 +1086,12 @@ public:
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
+		mWrite++ ;
 		spec.update_resize () ;
 		spec.update_insert (ix) ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (item.key ,std::move (item)) ;
 	}
 
@@ -1077,11 +1104,12 @@ public:
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
+		mWrite++ ;
 		spec.update_resize () ;
 		spec.update_insert (ix) ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -1135,7 +1163,7 @@ private:
 		inline Node () = default ;
 	} ;
 
-	using PAIR_TYPE = PACK<KEY> ;
+	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
 	class Pair final {
@@ -1187,11 +1215,12 @@ public:
 		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
+		mWrite++ ;
 		spec.update_resize () ;
 		spec.update_insert (ix) ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -1199,11 +1228,12 @@ public:
 		spec.reserve (1) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
+		mWrite++ ;
 		spec.update_resize () ;
 		spec.update_insert (ix) ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -1243,7 +1273,7 @@ class Priority :private Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_TYPE = typename SPECIALIZATION_BASE::PAIR_TYPE ;
+	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
@@ -1258,7 +1288,7 @@ public:
 
 	explicit Priority (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit Priority (const std::initializer_list<PAIR_TYPE> &that) : Priority (that.size ()) {
+	implicit Priority (const std::initializer_list<PAIR_ITEM> &that) : Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1344,12 +1374,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline Priority &operator<< (const PAIR_TYPE &item) {
+	inline Priority &operator<< (const PAIR_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Priority &operator<< (PAIR_TYPE &&item) {
+	inline Priority &operator<< (PAIR_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -1363,7 +1393,7 @@ public:
 		update_insert (0) ;
 	}
 
-	void take (PAIR_TYPE &item) popping {
+	void take (PAIR_ITEM &item) popping {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		item = std::move (mPriority[0]) ;
 		mPriority[0] = std::move (mPriority[mWrite - 1]) ;
@@ -1371,7 +1401,7 @@ public:
 		update_insert (0) ;
 	}
 
-	inline Priority &operator>> (PAIR_TYPE &item) popping {
+	inline Priority &operator>> (PAIR_ITEM &item) popping {
 		take (item) ;
 		return (*this) ;
 	}
@@ -1385,6 +1415,7 @@ public:
 		reserve (1) ;
 		INDEX ret = mWrite ;
 		mPriority[ret].mKey = std::move (key) ;
+		mWrite++ ;
 		update_resize () ;
 		update_insert (ret) ;
 		ret = mTop ;
@@ -1395,6 +1426,7 @@ public:
 		reserve (1) ;
 		INDEX ret = mWrite ;
 		mPriority[ret].mKey = std::move (key) ;
+		mWrite++ ;
 		update_resize () ;
 		update_insert (ret) ;
 		ret = mTop ;
@@ -1438,8 +1470,6 @@ private:
 	}
 
 	void update_resize () {
-		_DEBUG_ASSERT_ (mWrite >= 0 && mWrite < mPriority.size ()) ;
-		mWrite++ ;
 		if (mWrite < mPriority.size ())
 			return ;
 		auto rax = mPriority.expand () ;
@@ -1753,11 +1783,10 @@ public:
 	}
 
 	INDEX insert_before (INDEX index) popping {
-		INDEX ret = mList.alloc (VAR_NONE ,index) ;
 		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mLeft) :
 			mLast) ;
-		mList[ret].mLeft = r1y ;
+		INDEX ret = mList.alloc (r1y ,index) ;
 		auto &r2y = _SWITCH_ (
 			(r1y != VAR_NONE) ? (mList[r1y].mRight) :
 			mFirst) ;
@@ -1767,10 +1796,34 @@ public:
 	}
 
 	INDEX insert_after (INDEX index) popping {
-		const auto r1x = _SWITCH_ (
+		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mRight) :
 			mFirst) ;
-		return insert_before (r1x) ;
+		INDEX ret = mList.alloc (index ,r1y) ;
+		auto &r2y = _SWITCH_ (
+			(r1y != VAR_NONE) ? (mList[r1y].mLeft) :
+			mLast) ;
+		r2y = ret ;
+		r1y = ret ;
+		return std::move (ret) ;
+	}
+
+	void push (const ITEM &item) {
+		INDEX ix = mList.alloc (std::move (item) ,VAR_NONE ,mFirst) ;
+		auto &r1y = _SWITCH_ (
+			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
+			mLast) ;
+		r1y = ix ;
+		mFirst = ix ;
+	}
+
+	void push (ITEM &&item) {
+		INDEX ix = mList.alloc (std::move (item) ,VAR_NONE ,mFirst) ;
+		auto &r1y = _SWITCH_ (
+			(mFirst != VAR_NONE) ? (mList[mFirst].mLeft) :
+			mLast) ;
+		r1y = ix ;
+		mFirst = ix ;
 	}
 
 	void pop () {
@@ -1799,25 +1852,34 @@ public:
 		_SWAP_ (mList[index1].mRight ,mList[index2].mRight) ;
 	}
 
-	void splice_before (INDEX index ,INDEX seg) {
-		prev_next (seg) = mList[seg].mRight ;
-		next_prev (seg) = mList[seg].mLeft ;
+	void splice_before (INDEX index ,INDEX last) {
+		prev_next (last) = mList[last].mRight ;
+		next_prev (last) = mList[last].mLeft ;
 		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mLeft) :
 			mLast) ;
-		mList[seg].mLeft = r1y ;
+		mList[last].mLeft = r1y ;
+		mList[last].mRight = index ;
 		auto &r2y = _SWITCH_ (
 			(r1y != VAR_NONE) ? (mList[r1y].mRight) :
 			mFirst) ;
-		r2y = seg ;
-		r1y = seg ;
+		r2y = last ;
+		r1y = last ;
 	}
 
-	void splice_after (INDEX index ,INDEX seg) {
-		const auto r1x = _SWITCH_ (
+	void splice_after (INDEX index ,INDEX last) {
+		prev_next (last) = mList[last].mRight ;
+		next_prev (last) = mList[last].mLeft ;
+		auto &r1y = _SWITCH_ (
 			(index != VAR_NONE) ? (mList[index].mRight) :
 			mFirst) ;
-		splice_before (r1x ,seg) ;
+		mList[last].mLeft = index ;
+		mList[last].mRight = r1y ;
+		auto &r2y = _SWITCH_ (
+			(r1y != VAR_NONE) ? (mList[r1y].mLeft) :
+			mLast) ;
+		r2y = last ;
+		r1y = last ;
 	}
 
 	void remove (INDEX index) {
@@ -2105,16 +2167,20 @@ public:
 		sequence_rewrite (mList[index2].mSeq ,index1) ;
 	}
 
-	void splice_before (INDEX index ,INDEX seg) {
-		sequence_remove (mList[seg].mSeq) ;
-		const auto r1x = insert_before (index ,seg) ;
-		(void) r1x ;
+	void splice_before (INDEX index ,INDEX last) {
+		sequence_remove (mList[last].mSeq) ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mSeq) :
+			mWrite) ;
+		update_compress_left (r1x ,last) ;
 	}
 
-	void splice_after (INDEX index ,INDEX seg) {
-		sequence_remove (mList[seg].mSeq) ;
-		const auto r1x = insert_after (index ,seg) ;
-		(void) r1x ;
+	void splice_after (INDEX index ,INDEX last) {
+		sequence_remove (mList[last].mSeq) ;
+		const auto r1x = _SWITCH_ (
+			(index != VAR_NONE) ? (mList[index].mSeq + 1) :
+			mRead) ;
+		update_compress_left (r1x ,last) ;
 	}
 
 	void remove (INDEX index) {
@@ -2754,7 +2820,7 @@ private:
 		inline explicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY ,ITEM> ;
+	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
 	class Pair final {
@@ -2814,7 +2880,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -2835,7 +2901,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -2897,7 +2963,7 @@ private:
 		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY> ;
+	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
 	class Pair final {
@@ -2952,7 +3018,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -2969,7 +3035,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -3009,7 +3075,7 @@ class Set :private Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_TYPE = typename SPECIALIZATION_BASE::PAIR_TYPE ;
+	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
@@ -3024,7 +3090,7 @@ public:
 
 	explicit Set (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit Set (const std::initializer_list<PAIR_TYPE> &that) : Set (that.size ()) {
+	implicit Set (const std::initializer_list<PAIR_ITEM> &that) : Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -3100,12 +3166,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline Set &operator<< (const PAIR_TYPE &item) {
+	inline Set &operator<< (const PAIR_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Set &operator<< (PAIR_TYPE &&item) {
+	inline Set &operator<< (PAIR_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -3564,7 +3630,7 @@ private:
 		inline explicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY ,ITEM> ;
+	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
 	class Pair final {
@@ -3624,7 +3690,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3645,7 +3711,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3705,7 +3771,7 @@ private:
 		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY> ;
+	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
 	class Pair final {
@@ -3760,7 +3826,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -3777,7 +3843,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3817,7 +3883,7 @@ class HashSet :private HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_TYPE = typename SPECIALIZATION_BASE::PAIR_TYPE ;
+	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
@@ -3832,7 +3898,7 @@ public:
 
 	explicit HashSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
 
-	implicit HashSet (const std::initializer_list<PAIR_TYPE> &that) : HashSet (that.size ()) {
+	implicit HashSet (const std::initializer_list<PAIR_ITEM> &that) : HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -3908,12 +3974,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline HashSet &operator<< (const PAIR_TYPE &item) {
+	inline HashSet &operator<< (const PAIR_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline HashSet &operator<< (PAIR_TYPE &&item) {
+	inline HashSet &operator<< (PAIR_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -4058,7 +4124,7 @@ private:
 		inline explicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY ,ITEM> ;
+	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
 	class Pair final {
@@ -4136,7 +4202,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -4163,7 +4229,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -4224,7 +4290,7 @@ private:
 		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	using PAIR_TYPE = PACK<KEY> ;
+	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
 	class Pair final {
@@ -4297,7 +4363,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_TYPE &item) {
+	void add (const PAIR_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -4320,7 +4386,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_TYPE &&item) {
+	void add (PAIR_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -4359,7 +4425,7 @@ class SoftSet :private SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_TYPE = typename SPECIALIZATION_BASE::PAIR_TYPE ;
+	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
 	template <class _ARG1>
 	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
@@ -4463,12 +4529,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline SoftSet &operator<< (const PAIR_TYPE &item) {
+	inline SoftSet &operator<< (const PAIR_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline SoftSet &operator<< (PAIR_TYPE &&item) {
+	inline SoftSet &operator<< (PAIR_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}

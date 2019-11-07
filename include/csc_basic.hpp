@@ -377,7 +377,7 @@ public:
 	template <class... _ARGS>
 	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...initval) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
+		const auto r1x = _COPY_ (*mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (initval)...) ;
 		mSize++ ;
 	}
@@ -385,7 +385,7 @@ public:
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		const auto r1x = (*mAddress) ;
+		const auto r1x = _COPY_ (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		if SWITCH_ONCE (TRUE) {
@@ -417,7 +417,7 @@ public:
 
 	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
+		const auto r1x = _COPY_ (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -431,7 +431,7 @@ public:
 	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len) popping :ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		mAddress = &address ;
-		const auto r1x = (*mAddress) ;
+		const auto r1x = _COPY_ (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -445,7 +445,7 @@ public:
 	inline ~ScopedBuild () noexcept {
 		if (mAddress == NULL)
 			return ;
-		const auto r1x = (*mAddress) ;
+		const auto r1x = _COPY_ (*mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -1442,25 +1442,25 @@ public:
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept {
-		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context.self ,func) ;
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept {
+		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<const _ARG1> &context ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept {
-		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context.self ,func) ;
+	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept {
+		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept {
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept {
 		_DEBUG_ASSERT_ (func != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context.self ,func) ;
+		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept {
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept {
 		_DEBUG_ASSERT_ (func != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context.self ,func) ;
+		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context_.self ,func) ;
 	}
 
 	inline ~Function () noexcept {
@@ -1564,7 +1564,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<UNIT_> context ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -1585,7 +1585,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<const UNIT_> context ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<const UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -1606,7 +1606,7 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<UNIT_> context ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept :mContext (context) ,mFunction (func) {}
+	inline explicit ImplHolder (PTR<UNIT_> context_ ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
 		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
@@ -2644,7 +2644,7 @@ public:
 		const auto r1x = _SWITCH_ (
 			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
 			0) ;
-		mSize += r1x ;
+		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
 				break ;
@@ -2712,6 +2712,32 @@ private:
 		inline Node () = default ;
 	} ;
 
+	class Finally :private Wrapped<Allocator> {
+	public:
+		inline void lock () {
+			const auto r1x = _SWITCH_ (
+				(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
+				0) ;
+			Finally::mSelf.mSize = r1x ;
+		}
+
+		inline void unlock () {
+			if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
+				return ;
+			while (TRUE) {
+				if (Finally::mSelf.mSize <= 0)
+					break ;
+				if SWITCH_ONCE (TRUE) {
+					INDEX ix = Finally::mSelf.mSize - 1 ;
+					if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
+						discard ;
+					_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
+					Finally::mSelf.mSize-- ;
+				}
+			}
+		}
+	} ;
+
 private:
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
@@ -2738,31 +2764,8 @@ public:
 	}
 
 	inline Allocator (const Allocator &that) :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
-		class Finally :private Wrapped<Allocator> {
-		public:
-			inline void lock () {
-				const auto r1x = _SWITCH_ (
-					(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
-					0) ;
-				Finally::mSelf.mSize += r1x ;
-			}
-
-			inline void unlock () {
-				if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
-					return ;
-				while (TRUE) {
-					if (Finally::mSelf.mSize <= 0)
-						break ;
-					if SWITCH_ONCE (TRUE) {
-						INDEX ix = Finally::mSelf.mSize - 1 ;
-						if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
-							discard ;
-						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
-						Finally::mSelf.mSize-- ;
-					}
-				}
-			}
-		} ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> ((*this))) ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
@@ -2796,7 +2799,7 @@ public:
 		const auto r1x = _SWITCH_ (
 			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
 			0) ;
-		mSize += r1x ;
+		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
 				break ;

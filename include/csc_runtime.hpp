@@ -294,7 +294,7 @@ private:
 } ;
 
 #ifdef __CSC_DEPRECATED__
-template <class UNIT>
+template <class CONT>
 class Coroutine {
 public:
 	class SubRef ;
@@ -308,7 +308,7 @@ private:
 private:
 	class Implement ;
 	Monostate<FLAG> mStatus ;
-	AutoRef<UNIT> mContext ;
+	AutoRef<CONT> mContext ;
 	AnyRef<void> mBreakPoint ;
 	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 	Array<AnyRef<void>> mSubBreakPoint ;
@@ -328,16 +328,16 @@ public:
 		return TRUE ;
 	}
 
-	UNIT &context () & {
+	CONT &context () & {
 		_DEBUG_ASSERT_ (mContext.exist ()) ;
 		return mContext ;
 	}
 
-	UNIT &context () && = delete ;
+	CONT &context () && = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
-		mContext = AutoRef<UNIT>::make () ;
+		mContext = AutoRef<CONT>::make () ;
 		mBreakPoint = AnyRef<void> () ;
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
@@ -397,35 +397,35 @@ public:
 	static void csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) ;
 } ;
 
-template <class UNIT>
-class Coroutine<UNIT>::SubRef :private Wrapped<Coroutine<UNIT>> {
+template <class CONT>
+class Coroutine<CONT>::SubRef :private Wrapped<Coroutine<CONT>> {
 private:
-	using Wrapped<Coroutine<UNIT>>::mSelf ;
+	using Wrapped<Coroutine<CONT>>::mSelf ;
 
 public:
-	UNIT &to () {
+	CONT &to () {
 		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
 		return mSelf.mContext ;
 	}
 
-	inline implicit operator UNIT & () {
+	inline implicit operator CONT & () {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () {
+	inline PTR<CONT> operator-> () {
 		return &to () ;
 	}
 
-	const UNIT &to () const {
+	const CONT &to () const {
 		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
 		return mSelf.mContext ;
 	}
 
-	inline implicit operator const UNIT & () const {
+	inline implicit operator const CONT & () const {
 		return to () ;
 	}
 
-	inline PTR<const UNIT> operator-> () const {
+	inline PTR<const CONT> operator-> () const {
 		return &to () ;
 	}
 
@@ -491,9 +491,9 @@ public:
 	}
 } ;
 
-template <class UNIT>
-inline void Coroutine<UNIT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-	auto rax = Coroutine<UNIT> (std::move (proc)) ;
+template <class CONT>
+inline void Coroutine<CONT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
+	auto rax = Coroutine<CONT> (std::move (proc)) ;
 	rax.execute () ;
 }
 #endif

@@ -176,35 +176,32 @@ inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
 #ifdef __CSC_UNITTEST__
 class GlobalWatch final :private Wrapped<void> {
 private:
-	template <class UNIT1 ,class UNIT2>
+	template <class UNIT>
 	class Storage final :private Interface {
 	private:
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
-		PTR<UNIT2> mAddress ;
+		PTR<UNIT> mAddress ;
 		FLAG mTypeUID ;
-		PTR<void (UNIT2 &)> mWatch ;
+		PTR<void (UNIT &)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
 			mAddress = NULL ;
 			mTypeUID = 0 ;
-			mWatch = NULL ;
+			mWatch = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		} ;
 	} ;
 
 public:
 	template <class _ARG1 ,class _ARG2>
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
-		static volatile Storage<_ARG1 ,_ARG2> mInstance ;
+		static volatile Storage<_ARG2> mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = &data ;
 		mInstance.mTypeUID = _TYPEUID_<_ARG2> () ;
-		const auto r1x = _COPY_ (mInstance.mWatch) ;
-		if (r1x == NULL)
-			return ;
-		r1x (data) ;
+		mInstance.mWatch (data) ;
 	}
 } ;
 #endif
@@ -2284,16 +2281,16 @@ private:
 		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
 	} ;
 
-	class Counter :private Wrapped<std::atomic<LENGTH>> {
+	class LatchCounter :private Wrapped<std::atomic<LENGTH>> {
 	public:
 		inline void lock () {
-			const auto r1x = ++Counter::mSelf ;
+			const auto r1x = ++LatchCounter::mSelf ;
 			_DEBUG_ASSERT_ (r1x >= 1) ;
 			(void) r1x ;
 		}
 
 		inline void unlock () {
-			const auto r1x = --Counter::mSelf ;
+			const auto r1x = --LatchCounter::mSelf ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			(void) r1x ;
 		}
@@ -2356,7 +2353,7 @@ public:
 	}
 
 	inline IntrusiveRef copy () popping {
-		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mLatch)) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		const auto r1x = mPointer.load () ;
 		Detail::acquire (r1x ,FALSE) ;
@@ -2367,7 +2364,7 @@ public:
 	}
 
 	inline WatchProxy watch () popping {
-		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mLatch)) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		Detail::acquire (r1x ,FALSE) ;
@@ -2998,25 +2995,25 @@ public:
 	}
 } ;
 
-template <class UNIT1 ,class UNIT2>
+template <class UNIT ,class CONT>
 class Serializer {
 private:
 	struct Binder :public Interface {
-		virtual void compute_visit (UNIT1 &visitor ,UNIT2 &context) const = 0 ;
+		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 
 	template <class... UNITS_>
 	class ImplBinder :public Binder {
 	private:
-		Tuple<DEF<UNITS_ UNIT2::*>...> mMemPtr ;
+		Tuple<DEF<UNITS_ CONT::*>...> mMemPtr ;
 
 	public:
 		inline ImplBinder () = delete ;
 
-		inline explicit ImplBinder (const DEF<UNITS_ UNIT2::*> &...memptr) :mMemPtr (memptr...) {}
+		inline explicit ImplBinder (const DEF<UNITS_ CONT::*> &...memptr) :mMemPtr (memptr...) {}
 
-		inline void compute_visit (UNIT1 &visitor ,UNIT2 &context) const override {
-			Detail::template_visit (visitor ,context ,mMemPtr) ;
+		inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
+			Detail::template_visit (visitor ,context_ ,mMemPtr) ;
 		}
 	} ;
 
@@ -3024,7 +3021,7 @@ private:
 	private:
 		friend Serializer ;
 		const Serializer &mBase ;
-		UNIT2 &mContext ;
+		CONT &mContext ;
 
 	public:
 		inline Member () = delete ;
@@ -3033,14 +3030,14 @@ private:
 
 		inline Member (Member &&) noexcept = default ;
 
-		inline void friend_visit (UNIT1 &) const & = delete ;
+		inline void friend_visit (UNIT &) const & = delete ;
 
-		inline void friend_visit (UNIT1 &visitor) && popping {
+		inline void friend_visit (UNIT &visitor) && popping {
 			mBase.mBinder->compute_visit (visitor ,mContext) ;
 		}
 
 	private:
-		inline explicit Member (const Serializer &base ,UNIT2 &context) popping : mBase (base) ,mContext (context) {}
+		inline explicit Member (const Serializer &base ,CONT &context_) popping : mBase (base) ,mContext (context_) {}
 	} ;
 
 private:
@@ -3051,15 +3048,15 @@ public:
 	inline Serializer () = delete ;
 
 	template <class... _ARGS>
-	inline explicit Serializer (const DEF<_ARGS UNIT2::*> &...memptr) {
+	inline explicit Serializer (const DEF<_ARGS CONT::*> &...memptr) {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
 		_DEBUG_ASSERT_ (Detail::template_available (memptr...)) ;
 		mBinder = StrongRef<const ImplBinder<_ARGS...>>::make (memptr...) ;
 	}
 
-	inline Member operator() (UNIT2 &context) const popping {
+	inline Member operator() (CONT &context_) const popping {
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
-		return Member ((*this) ,context) ;
+		return Member ((*this) ,context_) ;
 	}
 
 private:
@@ -3070,28 +3067,28 @@ private:
 		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_available (const DEF<_ARG1 UNIT2::*> &memptr_one ,const DEF<_ARGS UNIT2::*> &...memptr_rest) {
+		inline static BOOL template_available (const DEF<_ARG1 CONT::*> &memptr_one ,const DEF<_ARGS CONT::*> &...memptr_rest) {
 			if (memptr_one == NULL)
 				return FALSE ;
 			return template_available (memptr_rest...) ;
 		}
 
-		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<> &memptr) {
+		inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class... _ARGS>
-		inline static void template_visit (UNIT1 &visitor ,UNIT2 &context ,const Tuple<DEF<_ARGS UNIT2::*>...> &memptr) {
-			auto &r1y = (context.*memptr.one ()) ;
+		inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<DEF<_ARGS CONT::*>...> &memptr) {
+			auto &r1y = (context_.*memptr.one ()) ;
 			visitor.visit (r1y) ;
-			template_visit (visitor ,context ,memptr.rest ()) ;
+			template_visit (visitor ,context_ ,memptr.rest ()) ;
 		}
 	} ;
 } ;
 
 #ifdef __CSC_COMPILER_GNUC__
-template <class UNIT1 ,class UNIT2>
-inline void Serializer<UNIT1 ,UNIT2>::Binder::compute_visit (UNIT1 &visitor ,UNIT2 &context) const {
+template <class UNIT ,class CONT>
+inline void Serializer<UNIT ,CONT>::Binder::compute_visit (UNIT &visitor ,CONT &context_) const {
 	//@error: g++4.8 is too useless to compile with a function-local-type
 	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;

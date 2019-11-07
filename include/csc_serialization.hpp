@@ -411,16 +411,16 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	class Lambda {
 	private:
-		class Counter :private Wrapped<LENGTH> {
+		class RecursiveCounter :private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
 				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (Counter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
-				Counter::mSelf++ ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				RecursiveCounter::mSelf++ ;
 			}
 
 			inline void unlock () {
-				Counter::mSelf-- ;
+				RecursiveCounter::mSelf-- ;
 			}
 		} ;
 
@@ -440,7 +440,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (XmlParser &context ,const PhanBuffer<const STRU8> &data) popping : mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -532,7 +532,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
 		inline void update_shift_e5 (INDEX curr) {
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("<") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			update_shift_e1 () ;
@@ -583,7 +583,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $7->${eps}|$5 $7|$6 $7
 		inline void update_shift_e7 (INDEX curr) {
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
@@ -699,7 +699,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		PACK<Deque<XmlParser> ,INDEX ,ARRAY2<INDEX>> mTempNode ;
 
 	public:
-		inline explicit Lambda (XmlParser &context ,const Array<XmlParser> &sequence) popping : mContext (context) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
+		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) popping : mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1422,16 +1422,16 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	class Lambda {
 	private:
-		class Counter :private Wrapped<LENGTH> {
+		class RecursiveCounter :private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
 				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (Counter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
-				Counter::mSelf++ ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				RecursiveCounter::mSelf++ ;
 			}
 
 			inline void unlock () {
-				Counter::mSelf-- ;
+				RecursiveCounter::mSelf-- ;
 			}
 		} ;
 
@@ -1450,7 +1450,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (JsonParser &context ,const PhanBuffer<const STRU8> &data) popping : mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1555,7 +1555,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
 		inline void update_shift_e4 (INDEX curr) {
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			auto fax = FALSE ;
 			if SWITCH_CASE (fax) {
@@ -1646,7 +1646,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $6->[ ]|[ $5 ]
 		inline void update_shift_e6 (INDEX curr) {
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("[") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX ,INDEX>>::make (mArraySoftSet.share ()) ;
@@ -1700,7 +1700,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $9->{ }|{ $8 }
 		inline void update_shift_e9 (INDEX curr) {
-			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (mRecursiveCounter)) ;
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("{") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8> ,INDEX>>::make (mObjectSoftSet.share ()) ;
@@ -1901,7 +1901,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		String<STRU8> mLatestString ;
 
 	public:
-		inline explicit Lambda (CommandParser &context ,const PhanBuffer<const STRU8> &data) popping : mContext (context) ,mTextReader (data) {}
+		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
