@@ -412,7 +412,7 @@ public:
 		INDEX iw = 0 ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(mSymbolFromAddress.exist ()))
+			if (!mSymbolFromAddress.exist ())
 				discard ;
 			const auto r1x = _ALIGNOF_ (SYMBOL_INFO) - 1 + _SIZEOF_ (SYMBOL_INFO) + list.length () * DEFAULT_SHORTSTRING_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;

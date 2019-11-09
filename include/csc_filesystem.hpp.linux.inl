@@ -41,7 +41,7 @@
 #endif
 
 namespace CSC {
-inline namespace S {
+inline namespace FILESYSTEM {
 inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 	const auto r1x = _BUILDSTRS_<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
@@ -459,7 +459,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(rax[ix].P2))
+			if (!rax[ix].P2)
 				discard ;
 			rax.pop () ;
 		}

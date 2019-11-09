@@ -99,7 +99,6 @@ private:
 				self_.mValueNode.cycle () ;
 				if (&self_.mValueNode.self == &r1y)
 					break ;
-				_STATIC_WARNING_ ("noop") ;
 			}
 		}
 		return std::move (ret) ;
@@ -119,7 +118,6 @@ private:
 				self_.mClassNode.cycle () ;
 				if (&self_.mClassNode.self == &r1y)
 					break ;
-				_STATIC_WARNING_ ("noop") ;
 			}
 		}
 		return std::move (ret) ;
@@ -543,39 +541,39 @@ public:
 		return std::move (ret) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,LENGTH range) popping {
-		return random_shuffle (count ,range ,BitSet<> (range)) ;
+	BitSet<> random_shuffle (LENGTH count ,LENGTH range_) popping {
+		return random_shuffle (count ,range_ ,BitSet<> (range_)) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,LENGTH range ,BitSet<> &&res) popping {
-		_DEBUG_ASSERT_ (count >= 0 && count < range) ;
-		_DEBUG_ASSERT_ (res.size () == range) ;
+	BitSet<> random_shuffle (LENGTH count ,LENGTH range_ ,BitSet<> &&res) popping {
+		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
+		_DEBUG_ASSERT_ (res.size () == range_) ;
 		BitSet<> ret = std::move (res) ;
 		ret.clear () ;
 		while (TRUE) {
 			if (ret.length () >= count)
 				break ;
-			INDEX ix = random_value (0 ,(range - 1)) ;
+			INDEX ix = random_value (0 ,(range_ - 1)) ;
 			ret[ix] = TRUE ;
 		}
 		return std::move (ret) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range) popping {
-		BitSet<> ret = BitSet<> (range.size ()) ;
-		compute_random_shuffle (count ,range ,ret) ;
+	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range_) popping {
+		BitSet<> ret = BitSet<> (range_.size ()) ;
+		compute_random_shuffle (count ,range_ ,ret) ;
 		return std::move (ret) ;
 	}
 
-	void compute_random_shuffle (LENGTH count ,const BitSet<> &range ,BitSet<> &chosen) popping {
-		_DEBUG_ASSERT_ (count >= 0 && count < range.size ()) ;
-		_DEBUG_ASSERT_ (chosen.size () == range.size ()) ;
+	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) popping {
+		_DEBUG_ASSERT_ (count >= 0 && count < range_.size ()) ;
+		_DEBUG_ASSERT_ (chosen.size () == range_.size ()) ;
 		chosen.clear () ;
 		while (TRUE) {
 			if (chosen.length () >= count)
 				break ;
-			INDEX ix = random_value (0 ,(range.size () - 1)) ;
-			chosen[ix] = range[ix] ;
+			INDEX ix = random_value (0 ,(range_.size () - 1)) ;
+			chosen[ix] = range_[ix] ;
 		}
 	}
 

@@ -73,12 +73,14 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	PTR<NONE> ret = NULL ;
-	_CATCH_ ([&] () {
+	_CALL_TRY_ ([&] () {
 		const auto r1x = _CACHE_ ([] () {
 			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 		}) ;
 		r1x->compare_exchange_strong (expect ,data) ;
 		ret = r1x->load () ;
+	} ,[&] () {
+		ret = NULL ;
 	}) ;
 	return std::move (ret) ;
 }

@@ -7,7 +7,35 @@
 #include "csc.hpp"
 
 namespace CSC {
-inline namespace S {
+inline namespace BASIC {
+template <class _ARG1>
+inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
+	return _SWITCH_ (
+		(val < 0) ? (-val) :
+		(+val)) ;
+}
+
+template <class _ARG1>
+inline constexpr _ARG1 _SQE_ (const _ARG1 &val) {
+	return val * val ;
+}
+
+template <class _ARG1>
+inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+	return _SWITCH_ (
+		!(rhs < lhs) ? lhs :
+		rhs) ;
+}
+
+template <class _ARG1>
+inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+	return _SWITCH_ (
+		!(lhs < rhs) ? lhs :
+		rhs) ;
+}
+} ;
+
+inline namespace BASIC {
 template <class _ARG1>
 inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
@@ -124,6 +152,25 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 }
 
 template <class _ARG1>
+inline LENGTH _MEMCOUNT_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
+#pragma GCC diagnostic push
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+	if SWITCH_ONCE (TRUE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len > 0) ;
+	}
+	LENGTH ret = 0 ;
+	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+		ret += EFLAG (src[i] == val) ;
+	return std::move (ret) ; ;
+#pragma GCC diagnostic pop
+}
+
+template <class _ARG1>
 inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
@@ -232,6 +279,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 		_SWAP_ (dst1[i] ,dst2[i]) ;
 #pragma GCC diagnostic pop
 }
+
 template <class _ARG1>
 inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
@@ -248,6 +296,27 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 		dst[i] = val ;
 #pragma GCC diagnostic pop
 }
+} ;
+
+namespace U {
+struct OPERATOR_HASH {
+	template <class _ARG1>
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		return self_.hash () ;
+	}
+
+	template <class _ARG1>
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		return _MEMHASH_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (self_)] ,_SIZEOF_ (_ARG1)) ;
+	}
+
+	template <class _ARG1>
+	inline static FLAG invoke (const _ARG1 &self_) {
+		FLAG ret = template_hash (self_ ,ARGVPX ,ARGVP9) ;
+		ret &= VAR_MAX ;
+		return std::move (ret) ;
+	}
+} ;
 } ;
 
 class GlobalHeap final :private Wrapped<void> {
@@ -350,7 +419,7 @@ public:
 	inline ~ScopedGuard () noexcept {
 		if (mAddress == NULL)
 			return ;
-		_CATCH_ ([&] () {
+		_CALL_TRY_ ([&] () {
 			mAddress->unlock () ;
 		}) ;
 		mAddress = NULL ;
@@ -1073,7 +1142,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CATCH_ ([&] () {
+		_CALL_TRY_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;
@@ -1182,7 +1251,7 @@ public:
 	inline ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		_CATCH_ ([&] () {
+		_CALL_TRY_ ([&] () {
 			mPointer->release () ;
 		}) ;
 		mPointer->~Holder () ;

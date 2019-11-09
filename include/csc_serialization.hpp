@@ -336,7 +336,7 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			//@info: case '<?xml ...>'
 			if (!(r1x[0] != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r1x[0]].mName.empty ()))
+			if (!mHeap.self[r1x[0]].mName.empty ())
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
@@ -721,7 +721,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			if SWITCH_ONCE (TRUE) {
 				mRootName.clear () ;
 				mRootType = VAR_NONE ;
-				INDEX ix = normal_node_one () ;
+				INDEX ix = find_normal_node () ;
 				if (ix == VAR_NONE)
 					discard ;
 				mRootName = mSequence[ix].name () ;
@@ -748,7 +748,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mHeap = SharedRef<FixedBuffer<Node>>::make () ;
 		}
 
-		inline INDEX normal_node_one () const {
+		inline INDEX find_normal_node () const {
 			for (auto &&i : mSequence)
 				if (i.exist ())
 					return mSequence.at (i) ;
@@ -842,11 +842,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
-				if SWITCH_ONCE (TRUE) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
-						discard ;
+				if (mFoundNodeTypeList[mFoundNodeList[iy][2]] == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
-				}
 				mFoundNodeAttributeSetList[jy] = mAttributeSoftSet.share () ;
 				mFoundNodeAttributeSetList[jy].appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
 				if (mFoundNodeBaseList[1].empty ())
@@ -893,11 +890,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
-				if SWITCH_ONCE (TRUE) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
-						discard ;
+				if (mFoundNodeTypeList[mFoundNodeList[iy][2]] == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
-				}
 				mFoundNodeAttributeSetList[mFoundNodeList[iy][1]].appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
 				mFoundNodeBaseList[0][mFoundNodeList[iy][3]].add (i.child ()) ;
 			}
@@ -931,11 +925,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[ix][2]] != NODE_CLAZZ_FINAL) ;
 					_DYNAMIC_ASSERT_ (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL) ;
 				}
-				if SWITCH_ONCE (TRUE) {
-					if (mFoundNodeTypeList[mFoundNodeList[iy][2]] != NODE_CLAZZ_FINAL)
-						discard ;
+				if (mFoundNodeTypeList[mFoundNodeList[iy][2]] == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
-				}
 				mFoundNodeAttributeSetList[jy] = mAttributeSoftSet.share () ;
 				mFoundNodeAttributeSetList[jy].appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
 				if (mFoundNodeBaseList[1].empty ())
@@ -1776,7 +1767,6 @@ public:
 		initialize (data) ;
 	}
 
-#ifdef __CSC_DEPRECATED__
 	explicit CommandParser (VAR32 argc ,PTR<const PTR<STRA>> argv) {
 		const auto r1x = _CALL_ ([&] () {
 			String<STRU8> ret = String<STRU8>::make () ;
@@ -1790,7 +1780,6 @@ public:
 		}) ;
 		initialize (r1x.raw ()) ;
 	}
-#endif
 
 	BOOL option (const String<STRU8> &tag) const {
 		INDEX ix = mOptionSet.find (tag) ;

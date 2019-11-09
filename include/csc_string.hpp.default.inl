@@ -40,7 +40,7 @@
 namespace CSC {
 #if defined (_CLOCALE_) || defined (_GLIBCXX_CLOCALE)
 #if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
-inline namespace S {
+inline namespace STRING {
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef _CLOCALE_
 	auto &r1y = _CACHE_ ([] () {
@@ -144,7 +144,7 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
 
 #if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
 #if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
-inline namespace S {
+inline namespace STRING {
 inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
@@ -280,7 +280,7 @@ inline exports String<STRU8> RegexMatcher::replace (const String<STRU8> &expr ,c
 #endif
 #endif
 
-inline namespace S {
+inline namespace STRING {
 inline exports PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {
 #pragma region
 #ifdef __CSC_COMPILER_MSVC__

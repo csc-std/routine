@@ -98,8 +98,8 @@ public:
 		return mul (scale) ;
 	}
 
-	inline friend Vector operator* (const REAL &lhs ,const Vector &rhs) {
-		return rhs.mul (lhs) ;
+	inline friend Vector operator* (const REAL &scale ,const Vector &self_) {
+		return self_.mul (scale) ;
 	}
 
 	void multo (const REAL &scale) {
@@ -120,8 +120,8 @@ public:
 		return div (scale) ;
 	}
 
-	inline friend Vector operator/ (const REAL &lhs ,const Vector &rhs) {
-		return rhs.div (lhs) ;
+	inline friend Vector operator/ (const REAL &scale ,const Vector &self_) {
+		return self_.div (scale) ;
 	}
 
 	void divto (const REAL &scale) {
@@ -438,8 +438,8 @@ public:
 		return mul (scale) ;
 	}
 
-	inline friend Matrix operator* (const REAL &lhs ,const Matrix &rhs) {
-		return rhs.mul (lhs) ;
+	inline friend Matrix operator* (const REAL &scale ,const Matrix &self_) {
+		return self_.mul (scale) ;
 	}
 
 	void multo (const REAL &scale) {
@@ -460,8 +460,8 @@ public:
 		return div (scale) ;
 	}
 
-	inline friend Matrix operator/ (const REAL &lhs ,const Matrix &rhs) {
-		return rhs.div (lhs) ;
+	inline friend Matrix operator/ (const REAL &scale ,const Matrix &self_) {
+		return self_.div (scale) ;
 	}
 
 	void divto (const REAL &scale) {
@@ -581,7 +581,7 @@ public:
 		Matrix ret = (*this) ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
 			if SWITCH_ONCE (TRUE) {
-				INDEX ix = ret.max_row_one (i) ;
+				INDEX ix = ret.find_max_row (i) ;
 				if (ix == i)
 					discard ;
 				for (INDEX j = i ,je = 4 ; j < je ; j++) {
@@ -707,7 +707,7 @@ private:
 		return TRUE ;
 	}
 
-	INDEX max_row_one (INDEX yx) const {
+	INDEX find_max_row (INDEX yx) const {
 		INDEX ret = VAR_NONE ;
 		auto rax = REAL () ;
 		for (INDEX i = yx ,ie = 4 ; i < ie ; i++) {

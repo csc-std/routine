@@ -9,7 +9,7 @@
 #include "csc_array.hpp"
 
 namespace CSC {
-inline namespace S {
+inline namespace MATH {
 inline BOOL _ISNAN_ (const VAL32 &x) {
 	const auto r1x = _CAST_<CHAR> (x) ;
 	if ((r1x & CHAR (0X7F800000)) != CHAR (0X7F800000))

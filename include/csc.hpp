@@ -264,8 +264,8 @@ using std::is_convertible ;
 #define _UNW_(...) _UNWIND_X_(__VA_ARGS__)
 #define _STRINGIZE_X_(...) #__VA_ARGS__
 #define _STR_(...) _STRINGIZE_X_(__VA_ARGS__)
-#define _CONCAT_X_(lhs ,rhs) lhs ## rhs
-#define _CAT_(lhs ,rhs) _CONCAT_X_(lhs ,rhs)
+#define _CONCAT_X_(var1 ,var2) var1 ## var2
+#define _CAT_(var1 ,var2) _CONCAT_X_(var1 ,var2)
 
 #define M_DATE __DATE__
 #define M_HOUR __TIME__
@@ -1362,6 +1362,10 @@ struct TEMP {
 	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
 
+inline void _NOOP_ () {
+	_STATIC_WARNING_ ("noop") ;
+}
+
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
 	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
@@ -1469,10 +1473,10 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle) noexcept popping {
 }
 
 template <class _ARG1>
-inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &nil_) noexcept popping {
+inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexcept popping {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
-	handle = nil_ ;
+	handle = val ;
 	return std::move (ret) ;
 }
 
@@ -1518,34 +1522,6 @@ inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
 	return std::forward<_ARG1> (expr) ;
 }
 
-inline namespace S {
-template <class _ARG1>
-inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
-	return _SWITCH_ (
-		(val < 0) ? (-val) :
-		(+val)) ;
-}
-
-template <class _ARG1>
-inline constexpr _ARG1 _SQE_ (const _ARG1 &val) {
-	return val * val ;
-}
-
-template <class _ARG1>
-inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
-	return _SWITCH_ (
-		!(rhs < lhs) ? lhs :
-		rhs) ;
-}
-
-template <class _ARG1>
-inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
-	return _SWITCH_ (
-		!(lhs < rhs) ? lhs :
-		rhs) ;
-}
-} ;
-
 template <class _ARG1>
 inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
@@ -1553,7 +1529,7 @@ inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
 	return func () ;
 }
 
-//@warn: assure ruined object when an exception was thrown
+//@warn: check ruined object when an exception was thrown
 template <class _ARG1>
 inline void _CALL_TRY_ (_ARG1 &&proc) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
@@ -1561,16 +1537,9 @@ inline void _CALL_TRY_ (_ARG1 &&proc) {
 	proc () ;
 }
 
-//@warn: assure ruined object when an exception was thrown
+//@warn: check ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) ;
-
-template <class _ARG1>
-inline void _CATCH_ (_ARG1 &&proc) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	proc () ;
-}
 
 //@info: this function is incompleted without 'csc_extend.hpp'
 template <class _ARG1 ,class _ARG2>
@@ -1721,20 +1690,20 @@ private:
 		}
 
 		template <class _ARG1 ,class _ARG2>
-		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> &) noexcept {
+		inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> &) noexcept {
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
-			array[_ARG2::value] = 0 ;
+			array_[_ARG2::value] = 0 ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-		inline static void template_write (_ARG1 &array ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
+		inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
 			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
 			for (INDEX i = 0 ,ie = _COUNTOF_ (_ARG3) - 1 ; i < ie ; i++)
-				array[i + _ARG2::value] = REAL (text_one[i]) ;
-			template_write (array ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,text_rest...) ;
+				array_[i + _ARG2::value] = REAL (text_one[i]) ;
+			template_write (array_ ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,text_rest...) ;
 		}
 	} ;
 } ;
@@ -1763,7 +1732,7 @@ public:
 	}
 } ;
 
-//@warn: assure ruined object when an exception was thrown
+//@warn: check ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;

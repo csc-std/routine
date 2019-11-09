@@ -16,7 +16,7 @@ template <class ,class>
 struct OPERATOR_CVT_STRING ;
 } ;
 
-inline namespace S {
+inline namespace STRING {
 inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) ;
 inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) ;
 inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) ;
@@ -219,7 +219,7 @@ struct OPERATOR_CVT_STRING<String<STRA> ,String<STRU32>> {
 } ;
 } ;
 
-inline namespace S {
+inline namespace STRING {
 inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 	String<STRU16> ret = String<STRU16> (val.length ()) ;
 	INDEX iw = 0 ;
@@ -900,7 +900,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 }
 } ;
 
-inline namespace S {
+inline namespace STRING {
 template <class _ARG1>
 inline BOOL _PARSEBOOLS_ (const String<_ARG1> &stri) {
 	BOOL ret ;
@@ -1047,7 +1047,7 @@ public:
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
 } ;
 
-inline namespace S {
+inline namespace STRING {
 template <class _ARG1>
 inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 	CHAR ret = 0 ;

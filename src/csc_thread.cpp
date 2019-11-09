@@ -19,9 +19,9 @@ public:
 			GlobalRuntime::thread_sleep (std::chrono::milliseconds (10)) ;
 			ix++ ;
 		}
-		_UNITTEST_ASSERT_ (_ABS_ (ix - 10) < 2) ;
 		const auto r3x = rax.value (-1) ;
 		_UNITTEST_ASSERT_ (r3x == 3) ;
+		_UNITTEST_ASSERT_ (_ABS_ (ix - 10) < 2) ;
 		const auto r4x = rax.poll () ;
 		_UNITTEST_ASSERT_ (r4x == 3) ;
 	}

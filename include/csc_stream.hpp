@@ -957,11 +957,12 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		if (rax == REAL ('+') || rax == REAL ('-'))
+		if (rax == REAL ('+') || r1x)
 			read (rax) ;
 		compute_read_number (data ,(*this) ,rax) ;
-		if (r1x)
-			data = -data ;
+		if (!r1x)
+			return ;
+		data = -data ;
 	}
 
 	inline TextReader &operator>> (VAR64 &data) popping {
@@ -990,11 +991,8 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		if SWITCH_ONCE (TRUE) {
-			if (!(rax == REAL ('+') || rax == REAL ('-')))
-				discard ;
+		if (rax == REAL ('+') || r1x)
 			read (rax) ;
-		}
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == REAL ('i')))
@@ -1037,8 +1035,9 @@ public:
 			_DYNAMIC_ASSERT_ (r2x) ;
 			compute_read_number (data ,(*this) ,rax) ;
 		}
-		if (r1x)
-			data = -data ;
+		if (!r1x)
+			return ;
+		data = -data ;
 	}
 
 	inline TextReader &operator>> (VAL64 &data) popping {
@@ -1407,7 +1406,7 @@ public:
 	void write (const REAL &data) {
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(attr ().varify_escape_w (data)))
+			if (!attr ().varify_escape_w (data))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
 			const auto r1x = attr ().varify_escape_item () ;
@@ -1479,19 +1478,19 @@ public:
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(_ISNAN_ (data)))
+			if (!_ISNAN_ (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(_ISINF_ (data)))
+			if (!_ISINF_ (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(_ISINF_ (data)))
+			if (!_ISINF_ (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
@@ -1520,19 +1519,19 @@ public:
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(_ISNAN_ (data)))
+			if (!_ISNAN_ (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(_ISINF_ (data)))
+			if (!_ISINF_ (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
 		if SWITCH_CASE (fax) {
-			if (!(_ISINF_ (data)))
+			if (!_ISINF_ (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
@@ -1690,11 +1689,8 @@ private:
 			if (!(_ABS_ (r5x) >= precision))
 				discard ;
 			compute_write_number (r5x ,out ,iw) ;
-			if SWITCH_ONCE (TRUE) {
-				if (r5x <= 0)
-					discard ;
+			if (r5x > 0)
 				out[--iw] = REAL ('+') ;
-			}
 			out[--iw] = REAL ('e') ;
 			const auto r6x = _MAX_ ((r4x - 1 - precision) ,VAR_ZERO) ;
 			for (INDEX i = 0 ,ie = r6x ; i < ie ; i++)
@@ -1766,11 +1762,8 @@ private:
 			iw += EFLAG (out[ix] == REAL ('.')) ;
 			out[--iw] = attr ().convert_number_w (0) ;
 		}
-		if SWITCH_ONCE (TRUE) {
-			if (rax[2] == 0)
-				discard ;
+		if (rax[2] != 0)
 			out[--iw] = REAL ('-') ;
-		}
 		out_i = iw ;
 	}
 
@@ -1787,7 +1780,7 @@ private:
 	}
 } ;
 
-inline namespace S {
+inline namespace STREAM {
 inline void _CLS_ (ByteReader &reader) {
 	reader.reset () ;
 }
@@ -1972,7 +1965,7 @@ inline void _EOS_ (TextWriter<_ARG1> &writer) {
 }
 } ;
 
-inline namespace S {
+inline namespace STREAM {
 inline void _PRINTS_ (ByteWriter &writer) {
 	_STATIC_WARNING_ ("noop") ;
 }
@@ -2134,7 +2127,7 @@ public:
 			read () ;
 		}
 #pragma GCC diagnostic pop
-	}
+		}
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
@@ -2296,11 +2289,8 @@ private:
 			const auto r1x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
 			const auto r2x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
 			const auto r3x = BOOL (ris[0] == STRU8 ('_')) ;
-			if SWITCH_ONCE (TRUE) {
-				if (ret > 0)
-					discard ;
+			if (ret == 0)
 				_DYNAMIC_ASSERT_ (r1x || r2x || r3x) ;
-			}
 			if (!r1x && !r2x && !r3x)
 				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
 					if (!(ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')))
@@ -2432,5 +2422,5 @@ private:
 		}
 		return std::move (ret) ;
 	}
-} ;
+	} ;
 } ;

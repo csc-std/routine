@@ -75,9 +75,9 @@ public:
 private:
 	class Detail :private Wrapped<void> {
 	public:
-		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range) {
+		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range_) {
 			LENGTH ret = 1 ;
-			for (auto &&i : range) {
+			for (auto &&i : range_) {
 				_DEBUG_ASSERT_ (i >= 0) ;
 				ret *= i ;
 				_DEBUG_ASSERT_ (ret >= 0) ;
@@ -85,25 +85,25 @@ private:
 			return std::move (ret) ;
 		}
 
-		inline static Array<LENGTH ,SIZE> first_item (const Array<LENGTH ,SIZE> &range) {
-			Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (range.size ()) ;
+		inline static Array<LENGTH ,SIZE> first_item (const Array<LENGTH ,SIZE> &range_) {
+			Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (range_.size ()) ;
 			ret.fill (0) ;
 			return std::move (ret) ;
 		}
 
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &item ,const ARGV<ARGC<0>> &) {
-			_DEBUG_ASSERT_ (item[0] < range[0]) ;
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range_ ,Array<LENGTH ,SIZE> &item ,const ARGV<ARGC<0>> &) {
+			_DEBUG_ASSERT_ (item[0] < range_[0]) ;
 			item[0]++ ;
 		}
 
 		template <class _ARG1>
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range ,Array<LENGTH ,SIZE> &item ,const ARGV<_ARG1> &) {
+		inline static void template_incrase (const Array<LENGTH ,SIZE> &range_ ,Array<LENGTH ,SIZE> &item ,const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < LENGTH (SIZE::value)) ;
 			item[_ARG1::value]++ ;
-			if (item[_ARG1::value] < range[_ARG1::value])
+			if (item[_ARG1::value] < range_[_ARG1::value])
 				return ;
 			item[_ARG1::value] = 0 ;
-			template_incrase (range ,item ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+			template_incrase (range_ ,item ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
 		}
 	} ;
 } ;
@@ -695,8 +695,10 @@ private:
 		inline NativeProxy () = delete ;
 
 		inline ~NativeProxy () noexcept {
-			_CATCH_ ([&] () {
+			_CALL_TRY_ ([&] () {
 				Detail::static_update_layout (mAbstract ,mThis) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
 			}) ;
 		}
 

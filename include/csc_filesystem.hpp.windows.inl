@@ -33,7 +33,7 @@
 #endif
 
 namespace CSC {
-inline namespace S {
+inline namespace FILESYSTEM {
 inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		me = CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
@@ -440,7 +440,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
-			if (!(rax[ix].P2))
+			if (!rax[ix].P2)
 				discard ;
 			rax.pop () ;
 		}

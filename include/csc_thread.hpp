@@ -190,7 +190,8 @@ private:
 			auto rax = Optional<ITEM>::nullopt () ;
 			while (TRUE) {
 				_CATCH_ ([&] () {
-					rax.template recreate<ITEM> (self_.mThreadProc[pid] ()) ;
+					//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
+					rax = self_.mThreadProc[pid] () ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
 						static_rethrow (self_ ,e) ;
@@ -198,17 +199,16 @@ private:
 						_STATIC_WARNING_ ("noop") ;
 					}) ;
 				}) ;
-				static_push (self_ ,std::move (rax)) ;
+				if (rax.exist ())
+					static_push (self_ ,std::move (rax.self)) ;
 				rax = Optional<ITEM>::nullopt () ;
 			}
 		}
 
-		inline static void static_push (Holder &self_ ,Optional<ITEM> &&item) {
+		inline static void static_push (Holder &self_ ,ITEM &&item) {
 			ScopedGuard<std::mutex> sgd (self_.mThreadMutex) ;
 			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
-			if (!item.exist ())
-				return ;
 			_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 			if SWITCH_ONCE (TRUE) {
 				if (!self_.mItemQueue->full ())
@@ -218,7 +218,7 @@ private:
 					discard ;
 				self_.mItemQueue->take () ;
 			}
-			self_.mItemQueue->add (std::move (item.self)) ;
+			self_.mItemQueue->add (std::move (item)) ;
 			self_.mThreadCondition.self.notify_all () ;
 		}
 
@@ -479,6 +479,7 @@ private:
 			while (TRUE) {
 				static_poll (self_ ,rax) ;
 				_CATCH_ ([&] () {
+					//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 					self_.mThreadProc (rax.self) ;
 				} ,[&] (const Exception &e) noexcept {
 					_CALL_TRY_ ([&] () {
@@ -694,8 +695,10 @@ private:
 
 		inline static void static_execute (Holder &self_) {
 			ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
+			auto rax = Optional<ITEM>::nullopt () ;
 			_CATCH_ ([&] () {
-				static_push (self_ ,self_.mThreadProc ()) ;
+				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
+				rax = self_.mThreadProc () ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
 					static_rethrow (self_ ,e) ;
@@ -703,6 +706,8 @@ private:
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
 			}) ;
+			if (rax.exist ())
+				static_push (self_ ,std::move (rax.self)) ;
 			static_signal (self_) ;
 		}
 
@@ -817,11 +822,8 @@ public:
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
 		while (r2y.mThreadFlag.exist () && r2y.mThreadFlag.self)
 			r2y.mThreadCondition.self.wait (sgd) ;
-		if SWITCH_ONCE (TRUE) {
-			if (!r2y.mException.exist ())
-				discard ;
+		if (r2y.mException.exist ())
 			r2y.mException->raise () ;
-		}
 		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
 		ITEM ret = std::move (r2y.mItem.self) ;
 		r2y.mItem = AutoRef<ITEM> () ;
@@ -841,11 +843,8 @@ public:
 			_DYNAMIC_ASSERT_ (r3x) ;
 			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		if SWITCH_ONCE (TRUE) {
-			if (!r2y.mException.exist ())
-				discard ;
+		if (r2y.mException.exist ())
 			r2y.mException->raise () ;
-		}
 		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
 		ITEM ret = std::move (r2y.mItem.self) ;
 		r2y.mItem = AutoRef<ITEM> () ;

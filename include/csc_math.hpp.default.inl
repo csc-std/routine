@@ -35,7 +35,7 @@
 
 namespace CSC {
 #if defined (_CMATH_) || defined (_GLIBCXX_CMATH)
-inline namespace S {
+inline namespace MATH {
 inline exports VAL32 _SQRT_ (const VAL32 &x) {
 	return std::sqrt (x) ;
 }

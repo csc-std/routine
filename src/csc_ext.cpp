@@ -125,7 +125,7 @@ public:
 		rax->free (r6x) ;
 	}
 
-#ifdef __CSC_TARGET_EXE__
+#ifdef __CSC_TARGET_DLL__
 	TEST_METHOD (TEST_CSC_EXT_GLOBALSTATIC) {
 		using UUID1 = ARGC<+1> ;
 		using UUID2 = ARGC<+2> ;
