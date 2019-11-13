@@ -3007,34 +3007,36 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
-		INDEX ret = VAR_NONE ;
 		if SWITCH_ONCE (TRUE) {
-			if (ret != VAR_NONE)
-				discard ;
 			if (mFree != VAR_NONE)
 				discard ;
 			auto rax = mAllocator.expand () ;
-			ret = mSize ;
-			_CREATE_ (&rax[ret].mData ,std::forward<_ARGS> (initval)...) ;
+			const auto r1x = mSize ;
+			_CREATE_ (&rax[r1x].mData ,std::forward<_ARGS> (initval)...) ;
 			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
 			update_reserve (mSize ,mFree) ;
+			mFree = mAllocator[r1x].mNext ;
+			mAllocator[r1x].mNext = VAR_USED ;
+			mLength++ ;
+			return r1x ;
 		}
 		if SWITCH_ONCE (TRUE) {
-			if (ret != VAR_NONE)
-				discard ;
 			if (mFree == VAR_NONE)
 				discard ;
-			ret = mFree ;
-			_CREATE_ (&mAllocator[ret].mData ,std::forward<_ARGS> (initval)...) ;
+			const auto r2x = mFree ;
+			_CREATE_ (&mAllocator[r2x].mData ,std::forward<_ARGS> (initval)...) ;
+			mFree = mAllocator[r2x].mNext ;
+			mAllocator[r2x].mNext = VAR_USED ;
+			mLength++ ;
+			return r2x ;
 		}
-		mFree = mAllocator[ret].mNext ;
-		mAllocator[ret].mNext = VAR_USED ;
-		mLength++ ;
-		return std::move (ret) ;
+		_STATIC_WARNING_ ("unexpected") ;
+		_DEBUG_ASSERT_ (FALSE) ;
+		return VAR_NONE ;
 	}
 
 	inline void free (INDEX index) noexcept {

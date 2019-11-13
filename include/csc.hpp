@@ -260,12 +260,12 @@ using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
 } ;
 
-#define _UNWIND_X_(...) __VA_ARGS__
-#define _UNW_(...) _UNWIND_X_(__VA_ARGS__)
-#define _STRINGIZE_X_(...) #__VA_ARGS__
-#define _STR_(...) _STRINGIZE_X_(__VA_ARGS__)
-#define _CONCAT_X_(var1 ,var2) var1 ## var2
-#define _CAT_(var1 ,var2) _CONCAT_X_(var1 ,var2)
+#define _UNWIND_IMPL_(...) __VA_ARGS__
+#define _UNW_(...) _UNWIND_IMPL_(__VA_ARGS__)
+#define _STRINGIZE_IMPL_(...) #__VA_ARGS__
+#define _STR_(...) _STRINGIZE_IMPL_(__VA_ARGS__)
+#define _CONCAT_IMPL_(var1 ,var2) var1##var2
+#define _CAT_(var1 ,var2) _CONCAT_IMPL_(var1 ,var2)
 
 #define M_DATE __DATE__
 #define M_HOUR __TIME__
@@ -312,8 +312,8 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE(var) (TRUE) for ( ; !var ; var = TRUE)
-#define SWITCH_ONCE(var) (var) for (auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE)
+#define SWITCH_CASE(var1) (TRUE) for ( ; !var1 ; var1 = TRUE)
+#define SWITCH_ONCE(var1) (var1) for (auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE)
 
 using BOOL = bool ;
 
@@ -360,10 +360,10 @@ using FLAG = VAR ;
 
 enum EFLAG :VAR ;
 
-#define _SIZEOF_(...) (CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>)))
-#define _ALIGNOF_(...) (CSC::LENGTH (alignof (CSC::U::REMOVE_ARRAY_TYPE<CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>>)))
-#define _CAPACITYOF_(...) (CSC::LENGTH (sizeof... (_UNW_ (__VA_ARGS__))))
-#define _COUNTOF_(...) (CSC::LENGTH (CSC::U::COUNTOF_TRAITS_TYPE<CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>>::value))
+#define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
+#define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
+#define _CAPACITYOF_(...) CSC::LENGTH (sizeof... (_UNW_ (__VA_ARGS__)))
+#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNTOF_TRAITS_TYPE<_UNW_ (__VA_ARGS__)>::value)
 
 using VAL32 = float ;
 using VAL64 = double ;
@@ -466,15 +466,15 @@ using STRU8 = unsigned char ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
-#define _PCSTRU8_(text) CSC::Plain<CSC::STRU8> (_CAT_ (u8 ,text))
-#define _PCSTRU16_(text) CSC::Plain<CSC::STRU16> (_CAT_ (u ,text))
-#define _PCSTRU32_(text) CSC::Plain<CSC::STRU32> (_CAT_ (U ,text))
+#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAT_ (u8 ,var1))
+#define _PCSTRU16_(var1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,var1))
+#define _PCSTRU32_(var1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,var1))
 
 using STRA = char ;
 using STRW = wchar_t ;
 
-#define _PCSTRA_(text) CSC::Plain<CSC::STRA> (_UNW_ (text))
-#define _PCSTRW_(text) CSC::Plain<CSC::STRW> (_CAT_ (L ,text))
+#define _PCSTRA_(var1) CSC::Plain<CSC::STRA> (_UNW_ (var1))
+#define _PCSTRW_(var1) CSC::Plain<CSC::STRW> (_CAT_ (L ,var1))
 
 #ifdef __CSC_CONFIG_STRA__
 using STR = STRA ;
@@ -837,7 +837,7 @@ struct COUNTOF_TRAITS<_ARG1[_VAL1]> {
 } ;
 
 template <class _ARG1>
-using COUNTOF_TRAITS_TYPE = typename COUNTOF_TRAITS<_ARG1>::TYPE ;
+using COUNTOF_TRAITS_TYPE = typename COUNTOF_TRAITS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {

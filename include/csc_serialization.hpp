@@ -329,7 +329,7 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
-		const auto r1x = std::move (rax[rax.tail ()]) ;
+		const auto r1x = rax[rax.tail ()] ;
 		rax.pop () ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
@@ -463,16 +463,16 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void generate () {
 			_STATIC_WARNING_ ("note") ;
 			/*
-			$0->$8 $7 $9
-			$1->${identity}
-			$2->"${string}"
-			$3->$1 = $2
-			$4->${eps}|$3 $4
-			$5-><$1 $4 />|<$1 $4 > $7 </$1 >
-			$6-><!--comment-->
-			$7->${eps}|$5 $7|$6 $7
-			$8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
-			$9->#
+			*	$0->$8 $7 $9
+			*	$1->${identity}
+			*	$2->"${string}"
+			*	$3->$1 = $2
+			*	$4->${eps}|$3 $4
+			*	$5-><$1 $4 />|<$1 $4 > $7 </$1 >
+			*	$6-><!--comment-->
+			*	$7->${eps}|$5 $7|$6 $7
+			*	$8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
+			*	$9->#
 			*/
 			update_shift_e0 () ;
 			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
@@ -818,7 +818,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline void update_found_table_node (const XmlParser &node) {
-			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ,it ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = mFoundNodeList.insert () ;
 				INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
@@ -938,10 +938,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline INDEX find_found_node_name (const String<STRU8> &name) const {
-			INDEX ret = mFoundNodeNameSet.find (name) ;
-			if (ret != VAR_NONE)
-				ret = mFoundNodeNameSet[ret].item ;
-			return std::move (ret) ;
+			INDEX ix = mFoundNodeNameSet.find (name) ;
+			if (ix == VAR_NONE)
+				return VAR_NONE ;
+			return mFoundNodeNameSet[ix].item ;
 		}
 
 		inline void update_merge_found_node (INDEX curr) {
@@ -1266,7 +1266,7 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
-		const auto r2x = std::move (rax[rax.tail ()]) ;
+		const auto r2x = rax[rax.tail ()] ;
 		rax.pop () ;
 		auto fax = FALSE ;
 		if SWITCH_CASE (fax) {
@@ -1463,20 +1463,20 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void generate () {
 			_STATIC_WARNING_ ("note") ;
 			/*
-			$0->$11 $10 $12
-			$1->${value}
-			$2->true|TRUE|false|FALSE
-			$2x->null
-			$3->"${string}"
-			$4->$1|$2|$2x|$3|$6|$9
-			$5->$4|$4 , $5
-			$6->[ ]|[ $5 ]
-			$7->$2 : $4
-			$8->$7|$7 , $8
-			$9->{ }|{ $8 }
-			$10->${eps}|$4
-			$11->#
-			$12->#
+			*	$0->$11 $10 $12
+			*	$1->${value}
+			*	$2->true|TRUE|false|FALSE
+			*	$2x->null
+			*	$3->"${string}"
+			*	$4->$1|$2|$2x|$3|$6|$9
+			*	$5->$4|$4 , $5
+			*	$6->[ ]|[ $5 ]
+			*	$7->$2 : $4
+			*	$8->$7|$7 , $8
+			*	$9->{ }|{ $8 }
+			*	$10->${eps}|$4
+			*	$11->#
+			*	$12->#
 			*/
 			update_shift_e0 () ;
 			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
@@ -1909,16 +1909,16 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		inline void generate () {
 			_STATIC_WARNING_ ("note") ;
 			/*
-			$0->$8 $7 $9
-			$1->${identity}
-			$2->"${string}"
-			$3->${newgap}
-			$4->/$1
-			$5->-$1|-$1=$2|-$1=$3
-			$6->$2|$3
-			$7->${eps}|$4 $7|$5 $7|$6 $7
-			$8->#
-			$9->#
+			*	$0->$8 $7 $9
+			*	$1->${identity}
+			*	$2->"${string}"
+			*	$3->${newgap}
+			*	$4->/$1
+			*	$5->-$1|-$1=$2|-$1=$3
+			*	$6->$2|$3
+			*	$7->${eps}|$4 $7|$5 $7|$6 $7
+			*	$8->#
+			*	$9->#
 			*/
 			update_shift_e0 () ;
 			update_command () ;

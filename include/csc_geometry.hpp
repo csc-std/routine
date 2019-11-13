@@ -32,7 +32,11 @@ public:
 	}
 
 	ARRAY3<REAL> xyz () const {
-		return ARRAY3<REAL> {mVector[0] ,mVector[1] ,mVector[2]} ;
+		ARRAY3<REAL> ret ;
+		ret[0] = mVector[0] ;
+		ret[1] = mVector[1] ;
+		ret[2] = mVector[2] ;
+		return std::move (ret) ;
 	}
 
 	REAL &get (INDEX y) & {
@@ -688,7 +692,11 @@ public:
 		const auto r4x = _SIGN_ ((r3x[0] ^ r3x[1]) * r3x[2]) ;
 		const auto r5x = _PINV_ (r2x[3][3]) ;
 		ret[1] = Matrix::make_diag ((r3x[0].magnitude () * r5x * r4x) ,(r3x[1].magnitude () * r5x * r4x) ,(r3x[2].magnitude () * r5x * r4x) ,REAL (1)) ;
-		ret[2] = Matrix {r3x[0].normalize () ,r3x[1].normalize () ,(r3x[2].normalize () * r4x) ,Vector<REAL>::axis_w ()} ;
+		ret[2] = Matrix ({
+			r3x[0].normalize () ,
+			r3x[1].normalize () ,
+			r3x[2].normalize () * r4x ,
+			Vector<REAL>::axis_w ()}) ;
 		const auto r6x = Vector<REAL> {(r3x[3] * r5x).xyz () ,0} ;
 		ret[3] = Matrix::make_translation (r6x) ;
 		return std::move (ret) ;
@@ -901,7 +909,12 @@ public:
 			r4x) ;
 		const auto r6x = (r1x ^ r5x).normalize () ;
 		const auto r7x = (r1x ^ r6x).normalize () ;
-		return Matrix {r6x ,r7x ,r1x ,center} ;
+		Matrix ret = Matrix ({
+			r6x ,
+			r7x ,
+			r1x ,
+			center}) ;
+		return std::move (ret) ;
 	}
 
 	static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {

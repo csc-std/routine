@@ -60,7 +60,10 @@ namespace CSC {
 inline namespace NETWORK {
 inline TIMEVAL _inline_SOCKET_MAKE_TIMEVAL_ (LENGTH val) {
 	_DEBUG_ASSERT_ (val >= 0) ;
-	return TIMEVAL {VAR32 (val / 1000) ,VAR32 ((val % 1000) * 1000)} ;
+	TIMEVAL ret ;
+	ret.tv_sec = VAR32 (val / 1000) ;
+	ret.tv_usec = VAR32 ((val % 1000) * 1000) ;
+	return std::move (ret) ;
 }
 
 inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &val) {

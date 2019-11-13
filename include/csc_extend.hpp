@@ -80,6 +80,11 @@ using std::this_thread::yield ;
 using std::atomic_thread_fence ;
 using std::atomic_signal_fence ;
 
+#ifndef __CSC_COMPILER_GNUC__
+//@error: 'std::max_align_t' is not avaliable in g++4.8
+using std::quick_exit ;
+#endif
+
 using std::exit ;
 using std::abort ;
 } ;
@@ -147,7 +152,12 @@ public:
 	}
 
 	inline static void process_exit () {
+#ifdef __CSC_COMPILER_GNUC__
+		//@error: g++4.8 is too useless to have 'std::quick_exit'
+		std::exit (EXIT_FAILURE) ;
+#else
 		std::quick_exit (EXIT_FAILURE) ;
+#endif
 	}
 
 	inline static void process_abort () {

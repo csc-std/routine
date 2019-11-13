@@ -194,7 +194,10 @@ public:
 	}
 
 	ARRAY2<LENGTH> width () const {
-		return ARRAY2<LENGTH> {mCX ,mCY} ;
+		ARRAY2<LENGTH> ret ;
+		ret[0] = mCX ;
+		ret[1] = mCY ;
+		return std::move (ret) ;
 	}
 
 	LENGTH cx () const {
@@ -754,7 +757,10 @@ public:
 
 	ARRAY2<LENGTH> width () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return ARRAY2<LENGTH> {mThis->mCX ,mThis->mCY} ;
+		ARRAY2<LENGTH> ret ;
+		ret[0] = mThis->mCX ;
+		ret[1] = mThis->mCY ;
+		return std::move (ret) ;
 	}
 
 	LENGTH cx () const {

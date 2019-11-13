@@ -38,11 +38,9 @@
 #endif
 
 namespace CSC {
-#if defined (_CLOCALE_) || defined (_GLIBCXX_CLOCALE)
-#if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
 inline namespace STRING {
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
-#ifdef _CLOCALE_
+#ifdef __CSC_COMPILER_MSVC__
 	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
@@ -60,7 +58,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 		ret = String<STRW> () ;
 	}
 	return std::move (ret) ;
-#elif defined _GLIBCXX_CLOCALE
+#else
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if SWITCH_ONCE (TRUE) {
@@ -74,7 +72,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 }
 
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
-#ifdef _CLOCALE_
+#ifdef __CSC_COMPILER_MSVC__
 	auto &r1y = _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
@@ -92,7 +90,7 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 		ret = String<STRA> () ;
 	}
 	return std::move (ret) ;
-#elif defined _GLIBCXX_CLOCALE
+#else
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if SWITCH_ONCE (TRUE) {
@@ -139,11 +137,7 @@ inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
 	return _inline_LOCALE_WSTOLAS_ (val) ;
 }
 } ;
-#endif
-#endif
 
-#if defined (_CTIME_) || defined (_GLIBCXX_CTIME)
-#if defined (_CHRONO_) || defined (_GLIBCXX_CHRONO)
 inline namespace STRING {
 inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
@@ -151,9 +145,9 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	const auto r1x = ::time_t (std::chrono::system_clock::to_time_t (val)) ;
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-#ifdef _CTIME_
+#ifdef __CSC_COMPILER_MSVC__
 	localtime_s (&rax ,&r1x) ;
-#elif defined _GLIBCXX_CTIME
+#else
 	//@warn: not thread-safe due to internel storage
 	const auto r2x = std::localtime (&r1x) ;
 	_DEBUG_ASSERT_ (r2x != NULL) ;
@@ -197,11 +191,7 @@ inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (co
 	return std::chrono::system_clock::from_time_t (r5x) ;
 }
 } ;
-#endif
-#endif
 
-#if defined (_STRING_) || defined (_GLIBCXX_STRING)
-#if defined (_REGEX_) || defined (_GLIBCXX_REGEX)
 class RegexMatcher::Implement final :private Interface {
 private:
 	AutoRef<std::regex> mRegex ;
@@ -277,8 +267,6 @@ inline exports Deque<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &e
 inline exports String<STRU8> RegexMatcher::replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
 	return mThis.rebind<Implement> ()->replace (expr ,rep) ;
 }
-#endif
-#endif
 
 inline namespace STRING {
 inline exports PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {

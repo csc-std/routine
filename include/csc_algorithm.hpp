@@ -488,67 +488,69 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 			}
 		}
 
-		inline void update_lack_weight_e0 (INDEX y) {
-			//@info: $0
-			mLackWeight[0] = 0 ;
-			mLackWeight[1] = +mInfinity ;
-			//@info: $1
-			auto rax = FALSE ;
-			update_lack_weight_e7 (0 ,y ,rax) ;
-			//@info: $18
-			if (rax) {
-				//@info: $19
-				mLackWeight[0] = 0 ;
-				mLackWeight[1] = +mInfinity ;
-			}
-			//@info: $20
-		}
-
-		inline void update_lack_weight_e7 (INDEX stack_x ,INDEX stack_y ,BOOL &stack_ret) popping {
-			//@info: $7
-			if (stack_y == VAR_NONE) {
-				//@info: $2
-				stack_ret = TRUE ;
-				//@info: $17
-				return ;
-			}
-			//@info: $3
-			mYVisit[stack_y] = TRUE ;
-			stack_x = 0 ;
-			//@info: $4
-			while (stack_x < mAdjacency.cx ()) {
-				//@info: $5
-				if (!mXVisit[stack_x]) {
-					//@info: $6
-					mLackWeight[0] = mYWeight[stack_y] + mXWeight[stack_x] - mAdjacency[stack_y][stack_x] ;
-					//@info: $9
-					if (mLackWeight[0] < mTolerance) {
-						//@info: $8
-						mXVisit[stack_x] = TRUE ;
-						update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
-						//@info: $10
-						if (stack_ret) {
-							//@info: $11
-							mXYLink[stack_x] = stack_y ;
-							stack_ret = TRUE ;
-							//@info: $17
-							return ;
-						}
-					} else {
-						//@info: $14
-						mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
-					}
-				}
-				//@info: $15
-				stack_x++ ;
-			}
-			//@info: $16
-			stack_ret = FALSE ;
-			//@info: $17
-			return ;
-		}
-
 		inline void update_lack_weight (INDEX y) {
+			_STATIC_WARNING_ ("note") ;
+			/*
+			*	inline void update_lack_weight_e0 (INDEX y) {
+			*		//@info: $0
+			*		mLackWeight[0] = 0 ;
+			*		mLackWeight[1] = +mInfinity ;
+			*		//@info: $1
+			*		auto rax = FALSE ;
+			*		update_lack_weight_e7 (0 ,y ,rax) ;
+			*		//@info: $18
+			*		if (rax) {
+			*			//@info: $19
+			*			mLackWeight[0] = 0 ;
+			*			mLackWeight[1] = +mInfinity ;
+			*		}
+			*		//@info: $20
+			*	}
+			*
+			*	inline void update_lack_weight_e7 (INDEX stack_x ,INDEX stack_y ,BOOL &stack_ret) popping {
+			*		//@info: $7
+			*		if (stack_y == VAR_NONE) {
+			*			//@info: $2
+			*			stack_ret = TRUE ;
+			*			//@info: $17
+			*			return ;
+			*		}
+			*		//@info: $3
+			*		mYVisit[stack_y] = TRUE ;
+			*		stack_x = 0 ;
+			*		//@info: $4
+			*		while (stack_x < mAdjacency.cx ()) {
+			*			//@info: $5
+			*			if (!mXVisit[stack_x]) {
+			*				//@info: $6
+			*				mLackWeight[0] = mYWeight[stack_y] + mXWeight[stack_x] - mAdjacency[stack_y][stack_x] ;
+			*				//@info: $9
+			*				if (mLackWeight[0] < mTolerance) {
+			*					//@info: $8
+			*					mXVisit[stack_x] = TRUE ;
+			*					update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
+			*					//@info: $10
+			*					if (stack_ret) {
+			*						//@info: $11
+			*						mXYLink[stack_x] = stack_y ;
+			*						stack_ret = TRUE ;
+			*						//@info: $17
+			*						return ;
+			*					}
+			*				} else {
+			*					//@info: $14
+			*					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
+			*				}
+			*			}
+			*			//@info: $15
+			*			stack_x++ ;
+			*		}
+			*		//@info: $16
+			*		stack_ret = FALSE ;
+			*		//@info: $17
+			*		return ;
+			*	}
+			*/
 			mTempStack.clear () ;
 			mTempState = VAR_ZERO ;
 			INDEX ix = VAR_NONE ;

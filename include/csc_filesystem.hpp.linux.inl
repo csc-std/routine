@@ -21,7 +21,6 @@
 
 #ifdef __CSC_DEPRECATED__
 #include <cstdio>
-#include <cstdlib>
 
 #include <unistd.h>
 #include <dirent.h>

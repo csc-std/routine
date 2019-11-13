@@ -25,8 +25,6 @@
 
 #ifdef __CSC_DEPRECATED__
 #pragma region
-#include <cstdlib>
-
 #include <crtdbg.h>
 #include <signal.h>
 #pragma warning (push)
@@ -36,6 +34,10 @@
 #include <DbgHelp.h>
 #pragma warning (pop)
 #pragma endregion
+#endif
+
+#ifndef _DBGHELP_
+#error "∑(っ°Д° ;)っ : require 'DbgHelp.h'"
 #endif
 
 #ifdef __CSC_DEPRECATED__
@@ -349,9 +351,6 @@ inline exports ConsoleService::ConsoleService () {
 	mThis = StrongRef<Implement>::make () ;
 }
 
-#if defined (_CSTDLIB_) || defined (_GLIBCXX_CSTDLIB)
-#ifdef _DBGHELP_
-#ifdef _INC_CRTDBG
 class DebuggerService::Implement :public DebuggerService::Abstract {
 private:
 	UniqueRef<HANDLE> mSymbolFromAddress ;
@@ -461,7 +460,4 @@ private:
 inline exports DebuggerService::DebuggerService () {
 	mThis = StrongRef<Implement>::make () ;
 }
-#endif
-#endif
-#endif
 } ;
