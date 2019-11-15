@@ -734,23 +734,23 @@ public:
 	BOOL equal (const Deque &that) const {
 		if (length () != that.length ())
 			return FALSE ;
-		INDEX ib = ibegin () ;
-		INDEX ie = iend () ;
-		INDEX jb = that.ibegin () ;
-		INDEX je = that.iend () ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		INDEX jx = that.ibegin () ;
+		INDEX jy = that.iend () ;
 		while (TRUE) {
-			if (ib == ie)
+			if (ix == iy)
 				break ;
-			if (jb == je)
+			if (jx == jy)
 				break ;
-			if (get (ib) != that.get (jb))
+			if (get (ix) != that.get (jx))
 				break ;
-			ib = inext (ib) ;
-			jb = that.inext (jb) ;
+			ix = inext (ix) ;
+			jx = that.inext (jx) ;
 		}
-		if (ib != ie)
+		if (ix != iy)
 			return FALSE ;
-		if (jb != je)
+		if (jx != jy)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1630,23 +1630,23 @@ public:
 	BOOL equal (const QList &that) const {
 		if (length () != that.length ())
 			return FALSE ;
-		INDEX ib = ibegin () ;
-		INDEX ie = iend () ;
-		INDEX jb = that.ibegin () ;
-		INDEX je = that.iend () ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		INDEX jx = that.ibegin () ;
+		INDEX jy = that.iend () ;
 		while (TRUE) {
-			if (ib == ie)
+			if (ix == iy)
 				break ;
-			if (jb == je)
+			if (jx == jy)
 				break ;
-			if (get (ib) != that.get (jb))
+			if (get (ix) != that.get (jx))
 				break ;
-			ib = inext (ib) ;
-			jb = that.inext (jb) ;
+			ix = inext (ix) ;
+			jx = that.inext (jx) ;
 		}
-		if (ib != ie)
+		if (ix != iy)
 			return FALSE ;
-		if (jb != je)
+		if (jx != jy)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2047,23 +2047,23 @@ public:
 	BOOL equal (const SList &that) const {
 		if (length () != that.length ())
 			return FALSE ;
-		INDEX ib = ibegin () ;
-		INDEX ie = iend () ;
-		INDEX jb = that.ibegin () ;
-		INDEX je = that.iend () ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		INDEX jx = that.ibegin () ;
+		INDEX jy = that.iend () ;
 		while (TRUE) {
-			if (ib == ie)
+			if (ix == iy)
 				break ;
-			if (jb == je)
+			if (jx == jy)
 				break ;
-			if (get (ib) != that.get (jb))
+			if (get (ix) != that.get (jx))
 				break ;
-			ib = inext (ib) ;
-			jb = that.inext (jb) ;
+			ix = inext (ix) ;
+			jx = that.inext (jx) ;
 		}
-		if (ib != ie)
+		if (ix != iy)
 			return FALSE ;
-		if (jb != je)
+		if (jx != jy)
 			return FALSE ;
 		return TRUE ;
 	}

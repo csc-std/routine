@@ -269,7 +269,7 @@ public:
 	}
 
 	inline BOOL operator!= (const VAR128 &that) const {
-		return !operator== (that) ;
+		return !BOOL ((*this) == that) ;
 	}
 
 	inline BOOL operator< (const VAR128 &that) const {
@@ -285,15 +285,15 @@ public:
 	}
 
 	inline BOOL operator>= (const VAR128 &that) const {
-		return !operator< (that) ;
+		return !BOOL ((*this) < that) ;
 	}
 
 	inline BOOL operator> (const VAR128 &that) const {
-		return that.operator< ((*this)) ;
+		return BOOL (that < (*this)) ;
 	}
 
 	inline BOOL operator<= (const VAR128 &that) const {
-		return !operator> (that) ;
+		return !BOOL ((*this) > that) ;
 	}
 
 	inline VAR128 operator& (const VAR128 &) const = delete ;
@@ -1970,8 +1970,9 @@ public:
 		mPointer = that.mPointer ;
 	}
 
-	inline void operator<<= (const StrongRef<UNIT> &that) {
-		assign (that) ;
+	inline void assign (StrongRef<UNIT> &&that) {
+		mHolder = std::move (that.mHolder) ;
+		mPointer = std::move (that.mPointer) ;
 	}
 } ;
 
@@ -2105,13 +2106,15 @@ public:
 	}
 
 	inline void assign (const StrongRef<UNIT> &that) {
-		mIndex = find_has_linked (that) ;
-		mWeakRef.assign (that) ;
+		mWeakRef.assign (std::move (that)) ;
+		mIndex = find_has_linked (mWeakRef) ;
 		acquire () ;
 	}
 
-	inline void operator<<= (const StrongRef<UNIT> &that) {
-		assign (that) ;
+	inline void assign (StrongRef<UNIT> &&that) {
+		mWeakRef.assign (std::move (that)) ;
+		mIndex = find_has_linked (mWeakRef) ;
+		acquire () ;
 	}
 
 	inline void as_strong () const {
@@ -2154,7 +2157,7 @@ private:
 		return TRUE ;
 	}
 
-	inline INDEX find_has_linked (const StrongRef<UNIT> &that) const {
+	inline INDEX find_has_linked (const WeakRef<UNIT> &that) const {
 		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
 			if (mHeap.self[i].mData == that)
 				return i ;
