@@ -146,11 +146,14 @@ public:
 	const String<STRU8> &name () && = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
+		auto &r1y = _CACHE_ ([] () {
+			return String<STRU8> () ;
+		}) ;
 		if (!exist ())
-			return null_string () ;
+			return r1y ;
 		INDEX ix = mHeap.self[mIndex].mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return null_string () ;
+			return r1y ;
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
@@ -223,7 +226,7 @@ public:
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mMemberSet.size () == 0) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mAttributeSet.length () == 1) ;
-		INDEX ix = mHeap.self[mIndex].mAttributeSet.min_one () ;
+		INDEX ix = mHeap.self[mIndex].mAttributeSet.head () ;
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
@@ -298,12 +301,6 @@ private:
 	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
 
 private:
-	const String<STRU8> &null_string () const {
-		return _CACHE_ ([] () {
-			return String<STRU8> () ;
-		}) ;
-	}
-
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 
 	void initialize (const Array<XmlParser> &sequence) ;
@@ -818,7 +815,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline void update_found_table_node (const XmlParser &node) {
-			for (XmlParser i = node ,it ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = mFoundNodeList.insert () ;
 				INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
@@ -901,7 +898,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			if (!mFoundNodeList.empty ())
 				return ;
 			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
-				INDEX ix = mFoundNodeNameSet.min_one () ;
+				INDEX ix = mFoundNodeNameSet.head () ;
 				INDEX iy = mFoundNodeList.insert () ;
 				INDEX jx = mFoundNodeNameSet.find (i.name ()) ;
 				if SWITCH_ONCE (TRUE) {
@@ -1789,9 +1786,12 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
+		auto &r1y = _CACHE_ ([] () {
+			return String<STRU8> () ;
+		}) ;
 		INDEX ix = mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return null_string () ;
+			return r1y ;
 		return mAttributeSet[ix].item ;
 	}
 
@@ -1867,12 +1867,6 @@ public:
 	const Array<String<STRU8>> &command () && = delete ;
 
 private:
-	const String<STRU8> &null_string () const {
-		return _CACHE_ ([] () {
-			return String<STRU8> () ;
-		}) ;
-	}
-
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 

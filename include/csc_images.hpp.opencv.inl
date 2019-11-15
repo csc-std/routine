@@ -26,7 +26,7 @@
 #include <algorithm>
 #pragma push_macro ("random_shuffle")
 #undef random_shuffle
-#define random_shuffle(itr1 ,itr2) shuffle((itr1) ,(itr2) ,std::random_device ())
+#define random_shuffle(...) shuffle(_UNW_ (__VA_ARGS__) ,std::random_device ())
 #endif
 #endif
 #endif

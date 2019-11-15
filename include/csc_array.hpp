@@ -943,7 +943,7 @@ private:
 	}
 
 	void reserve (LENGTH len) {
-		const auto r1x = _MAX_ (len - (mDeque.size () - length ()) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ ((len - (mDeque.size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
 		auto rax = mDeque.expand (mDeque.size () + r1x) ;
@@ -1430,7 +1430,7 @@ public:
 			if (ix - 1 < 1)
 				break ;
 			_SWAP_ (ret[0] ,ret[ix - 1]) ;
-			compute_esort (ret ,ix - 1) ;
+			compute_esort (ret ,(ix - 1)) ;
 			ix-- ;
 		}
 		if (ret.size () > 0)
@@ -1440,7 +1440,7 @@ public:
 
 private:
 	void reserve (LENGTH len) {
-		const auto r1x = _MAX_ (len - (mPriority.size () - length ()) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ ((len - (mPriority.size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
 		auto rax = mPriority.expand (mPriority.size () + r1x) ;
@@ -3204,14 +3204,14 @@ public:
 		mSet.free (index) ;
 	}
 
-	INDEX min_one () const {
+	INDEX head () const {
 		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet[i].mLeft)
 			if (mSet[i].mLeft == VAR_NONE)
 				return i ;
 		return VAR_NONE ;
 	}
 
-	INDEX max_one () const {
+	INDEX tail () const {
 		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet[i].mRight)
 			if (mSet[i].mRight == VAR_NONE)
 				return i ;
@@ -4560,7 +4560,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	INDEX min_one () const {
+	INDEX head () const {
 		if (!mHeap.exist ())
 			return VAR_NONE ;
 		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet.self[i].mLeft)
@@ -4569,7 +4569,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX max_one () const {
+	INDEX tail () const {
 		if (!mHeap.exist ())
 			return VAR_NONE ;
 		for (INDEX i = mRoot ; i != VAR_NONE ; i = mSet.self[i].mRight)

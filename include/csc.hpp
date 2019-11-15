@@ -228,8 +228,6 @@ using std::max_align_t ;
 using std::numeric_limits ;
 using std::initializer_list ;
 
-using std::true_type ;
-using std::false_type ;
 using std::is_reference ;
 using std::is_lvalue_reference ;
 using std::is_rvalue_reference ;
@@ -842,13 +840,22 @@ using COUNTOF_TRAITS_TYPE = typename COUNTOF_TRAITS<REMOVE_CVR_TYPE<_ARG1>>::TYP
 
 namespace U {
 template <class ,class ,class>
-struct is_full_array_of_help :public stl::false_type {} ;
+struct IS_FULL_ARRAY_OF_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_FULL_ARRAY_OF_HELP<_ARG1 ,ARR<_ARG1> ,VOID> {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1 ,LENGTH _VAL1>
-struct is_full_array_of_help<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> :public stl::true_type {} ;
+struct IS_FULL_ARRAY_OF_HELP<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-using is_full_array_of = is_full_array_of_help<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID> ;
+using IS_FULL_ARRAY_OF = typename IS_FULL_ARRAY_OF_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
 } ;
 
 namespace U {
@@ -938,189 +945,233 @@ using CAST_TRAITS_TYPE = typename CAST_TRAITS<_ARG1 ,_ARG2>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct is_var_xyz_help :public stl::false_type {} ;
+struct IS_VAR_XYZ_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <>
-struct is_var_xyz_help<VAR32 ,VOID> :public stl::true_type {} ;
+struct IS_VAR_XYZ_HELP<VAR32 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_var_xyz_help<VAR64 ,VOID> :public stl::true_type {} ;
+struct IS_VAR_XYZ_HELP<VAR64 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value>> :public stl::true_type {} ;
+struct IS_VAR_XYZ_HELP<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-struct is_var_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value>> :public stl::true_type {} ;
+struct IS_VAR_XYZ_HELP<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_var_xyz = is_var_xyz_help<_ARG1 ,VOID> ;
+using IS_VAR_XYZ = typename IS_VAR_XYZ_HELP<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class>
-struct is_val_xyz_help :public stl::false_type {} ;
+struct IS_VAL_XYZ_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <>
-struct is_val_xyz_help<VAL32 ,VOID> :public stl::true_type {} ;
+struct IS_VAL_XYZ_HELP<VAL32 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_val_xyz_help<VAL64 ,VOID> :public stl::true_type {} ;
+struct IS_VAL_XYZ_HELP<VAL64 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-struct is_val_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value>> :public stl::true_type {} ;
+struct IS_VAL_XYZ_HELP<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_val_xyz = is_val_xyz_help<_ARG1 ,VOID> ;
+using IS_VAL_XYZ = typename IS_VAL_XYZ_HELP<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class>
-struct is_byte_xyz_help :public stl::false_type {} ;
+struct IS_BYTE_XYZ_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <>
-struct is_byte_xyz_help<BYTE> :public stl::true_type {} ;
+struct IS_BYTE_XYZ_HELP<BYTE> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_byte_xyz_help<WORD> :public stl::true_type {} ;
+struct IS_BYTE_XYZ_HELP<WORD> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_byte_xyz_help<CHAR> :public stl::true_type {} ;
+struct IS_BYTE_XYZ_HELP<CHAR> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_byte_xyz_help<DATA> :public stl::true_type {} ;
+struct IS_BYTE_XYZ_HELP<DATA> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_byte_xyz_help<MEGA> :public stl::true_type {} ;
+struct IS_BYTE_XYZ_HELP<MEGA> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_byte_xyz = U::is_byte_xyz_help<_ARG1> ;
+using IS_BYTE_XYZ = typename IS_BYTE_XYZ_HELP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class>
-struct is_str_xyz_help :public stl::false_type {} ;
+struct IS_STR_XYZ_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <>
-struct is_str_xyz_help<STRU8 ,VOID> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<STRU8 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_str_xyz_help<STRU16 ,VOID> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<STRU16 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_str_xyz_help<STRU32 ,VOID> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<STRU32 ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_str_xyz_help<STRA ,VOID> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<STRA ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <>
-struct is_str_xyz_help<STRW ,VOID> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<STRW ,VOID> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-struct is_str_xyz_help<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,STRX>::value && !stl::is_same<_ARG1 ,STRA>::value && !stl::is_same<_ARG1 ,STRW>::value>> :public stl::true_type {} ;
+struct IS_STR_XYZ_HELP<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,STRX>::value && !stl::is_same<_ARG1 ,STRA>::value && !stl::is_same<_ARG1 ,STRW>::value>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_str_xyz = is_str_xyz_help<_ARG1 ,VOID> ;
+using IS_STR_XYZ = typename IS_STR_XYZ_HELP<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class ,class ,class>
-struct LOAD_CHECK {
+struct IS_SAFE_ALIASING_HELP {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<TEMP<_ARG1> ,_ARG1 ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING_HELP<TEMP<_ARG1> ,_ARG1 ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING_HELP<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING_HELP<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
+	using TYPE = typename IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+struct IS_SAFE_ALIASING_HELP<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
+	using TYPE = typename IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
 } ;
 
 template <>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<BOOL> ,VOID ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<BOOL> ,VOID ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<is_var_xyz<_ARG1>::value> ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_VAR_XYZ<_ARG1>::value> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<is_val_xyz<_ARG1>::value> ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_VAL_XYZ<_ARG1>::value> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_byte_xyz<_ARG1>::value && !is_str_xyz<_ARG1>::value)> ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_BYTE_XYZ<_ARG1>::value && !IS_STR_XYZ<_ARG1>::value)> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(is_str_xyz<_ARG1>::value && !is_byte_xyz<_ARG1>::value)> ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_STR_XYZ<_ARG1>::value && !IS_BYTE_XYZ<_ARG1>::value)> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 //@info: compatible for old c api
 template <>
-struct LOAD_CHECK<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
+struct IS_SAFE_ALIASING_HELP<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
+	using TYPE = typename IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct LOAD_CHECK<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0)> ,ARGC<4>> {
+struct IS_SAFE_ALIASING_HELP<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0)> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
-	using TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
+	using TYPE = typename IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
 } ;
 
 template <class _ARG1>
-struct LOAD_CHECK<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<5>> {
+struct IS_SAFE_ALIASING_HELP<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using LOAD_CHECK_TYPE = typename LOAD_CHECK<_ARG1 ,_ARG2 ,VOID ,ARGC<1>>::TYPE ;
+using IS_SAFE_ALIASING = typename IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,ARGC<1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1130,7 +1181,7 @@ struct INDEX_OF {
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct INDEX_OF<_ARG1 ,REMOVE_CVR_TYPE<_ARG2> ,ARGVS<_ARG2 ,_ARGS...>> {
+struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>> {
 	using TYPE = _ARG1 ;
 } ;
 
@@ -1140,7 +1191,7 @@ struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,REMOVE_CVR_TYPE<_ARG1> ,_ARG2>::TYPE ;
+using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -1164,80 +1215,112 @@ using INDEX_TO_TYPE = typename INDEX_TO<_ARG1 ,_ARG2>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct is_complete_type_help :public stl::false_type {} ;
+struct IS_COMPLETE_TYPE_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1>
-struct is_complete_type_help<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> :public stl::true_type {} ;
+struct IS_COMPLETE_TYPE_HELP<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_complete_type = is_complete_type_help<_ARG1 ,VOID> ;
+using IS_COMPLETE_TYPE = typename IS_COMPLETE_TYPE_HELP<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class ,class>
-struct is_interface_type_help :public stl::false_type {} ;
+struct IS_INTERFACE_TYPE_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-struct is_interface_type_help<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> :public stl::is_base_of<_ARG2 ,_ARG1> {} ;
+struct IS_INTERFACE_TYPE_HELP<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> {
+	using TYPE = ARGC<stl::is_base_of<_ARG2 ,_ARG1>::value> ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-using is_interface_type = is_interface_type_help<_ARG1 ,_ARG2 ,VOID> ;
+using IS_INTERFACE_TYPE = typename IS_INTERFACE_TYPE_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class ,class>
-struct is_always_base_of_help :public stl::false_type {} ;
+struct IS_ALWAYS_BASE_OF_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-struct is_always_base_of_help<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> :public stl::is_base_of<_ARG1 ,_ARG2> {} ;
+struct IS_ALWAYS_BASE_OF_HELP<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> {
+	using TYPE = ARGC<stl::is_base_of<_ARG1 ,_ARG2>::value> ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-using is_always_base_of = is_always_base_of_help<_ARG1 ,_ARG2 ,VOID> ;
+using IS_ALWAYS_BASE_OF = typename IS_ALWAYS_BASE_OF_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class...>
-struct is_all_same_help :public stl::false_type {} ;
+struct IS_ALL_SAME_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1>
-struct is_all_same_help<_ARG1> :public stl::true_type {} ;
+struct IS_ALL_SAME_HELP<_ARG1> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-struct is_all_same_help<_ARG1 ,_ARG1> :public stl::true_type {} ;
+struct IS_ALL_SAME_HELP<_ARG1 ,_ARG1> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1 ,class... _ARGS>
-struct is_all_same_help<_ARG1 ,_ARG1 ,_ARGS...> :public is_all_same_help<_ARG1 ,_ARGS...> {} ;
+struct IS_ALL_SAME_HELP<_ARG1 ,_ARG1 ,_ARGS...> {
+	using TYPE = typename IS_ALL_SAME_HELP<_ARG1 ,_ARGS...>::TYPE ;
+} ;
 
 template <class... _ARGS>
-using is_all_same = is_all_same_help<_ARGS...> ;
+using IS_ALL_SAME = typename IS_ALL_SAME_HELP<_ARGS...>::TYPE ;
 } ;
 
 namespace U {
 template <class...>
-struct is_any_same_help :public stl::false_type {} ;
+struct IS_ANY_SAME_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1>
-struct is_any_same_help<_ARG1> :public stl::false_type {} ;
+struct IS_ANY_SAME_HELP<_ARG1> {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <class _ARG1 ,class... _ARGS>
-struct is_any_same_help<_ARG1 ,_ARG1 ,_ARGS...> :public stl::true_type {} ;
+struct IS_ANY_SAME_HELP<_ARG1 ,_ARG1 ,_ARGS...> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct is_any_same_help<_ARG1 ,_ARG2 ,_ARGS...> :public CONDITIONAL_TYPE<(is_any_same_help<_ARG1 ,_ARGS...>::value && is_any_same_help<_ARG2 ,_ARGS...>::value) ,stl::true_type ,stl::false_type> {} ;
+struct IS_ANY_SAME_HELP<_ARG1 ,_ARG2 ,_ARGS...> {
+	using TYPE = ARGC<IS_ANY_SAME_HELP<_ARG1 ,_ARGS...>::value && IS_ANY_SAME_HELP<_ARG2 ,_ARGS...>::value> ;
+} ;
 
 template <class... _ARGS>
-using is_any_same = is_any_same_help<_ARGS...> ;
+using IS_ANY_SAME = typename IS_ANY_SAME_HELP<_ARGS...>::TYPE ;
 } ;
 
 namespace U {
 template <class>
-struct is_template_type_help :public stl::false_type {} ;
+struct IS_TEMPLATE_TYPE_HELP {
+	using TYPE = ARGC<FALSE> ;
+} ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct is_template_type_help<_ARGT<_ARGS...>> :public stl::true_type {} ;
+struct IS_TEMPLATE_TYPE_HELP<_ARGT<_ARGS...>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
 
 template <class _ARG1>
-using is_template_type = is_template_type_help<_ARG1> ;
+using IS_TEMPLATE_TYPE = typename IS_TEMPLATE_TYPE_HELP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1250,7 +1333,7 @@ struct REMOVE_TEMPLATE<_ARGT<_ARG1>> {
 } ;
 
 template <class _ARG1>
-using REMOVE_TEMPLATE_TYPE = typename REMOVE_TEMPLATE<_ARG1>::TYPE ;
+using REMOVE_TEMPLATE_TYPE = typename REMOVE_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1263,7 +1346,7 @@ struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<_ARG1>::TYPE ;
+using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 #endif
 #pragma endregion
@@ -1317,7 +1400,7 @@ template <class _ARG1 ,class _ARG2>
 using CAST_TRAITS_TYPE = U::CAST_TRAITS_TYPE<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
-using LOAD_CHECK_TYPE = U::LOAD_CHECK_TYPE<_ARG1 ,_ARG2> ;
+using IS_SAFE_ALIASING = U::IS_SAFE_ALIASING<_ARG1 ,_ARG2> ;
 
 template <class _ARG1 ,class _ARG2>
 using INDEX_OF_TYPE = U::INDEX_OF_TYPE<_ARG1 ,_ARG2> ;
@@ -1333,27 +1416,25 @@ using TEMPLATE_PARAMS_TYPE = U::TEMPLATE_PARAMS_TYPE<_ARG1> ;
 
 namespace stl {
 template <class _ARG1>
-using is_var_xyz = U::is_var_xyz<_ARG1> ;
+using is_var_xyz = U::IS_VAR_XYZ<_ARG1> ;
 
 template <class _ARG1>
-using is_val_xyz = U::is_val_xyz<_ARG1> ;
+using is_val_xyz = U::IS_VAL_XYZ<_ARG1> ;
 
 template <class _ARG1>
-using is_byte_xyz = U::is_byte_xyz<_ARG1> ;
+using is_byte_xyz = U::IS_BYTE_XYZ<_ARG1> ;
 
 template <class _ARG1>
-using is_str_xyz = U::is_str_xyz<_ARG1> ;
+using is_str_xyz = U::IS_STR_XYZ<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
-using is_full_array_of = U::is_full_array_of<_ARG1 ,_ARG2> ;
-} ;
-
-namespace stl {
-template <class... _ARGS>
-using is_all_same = U::is_all_same<_ARGS...> ;
+using is_full_array_of = U::IS_FULL_ARRAY_OF<_ARG1 ,_ARG2> ;
 
 template <class... _ARGS>
-using is_any_same = U::is_any_same<_ARGS...> ;
+using is_all_same = U::IS_ALL_SAME<_ARGS...> ;
+
+template <class... _ARGS>
+using is_any_same = U::IS_ANY_SAME<_ARGS...> ;
 } ;
 
 template <class UNIT>
@@ -1361,10 +1442,6 @@ struct TEMP {
 	_STATIC_ASSERT_ (!std::is_reference<UNIT>::value) ;
 	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
-
-inline void _NOOP_ () {
-	_STATIC_WARNING_ ("noop") ;
-}
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
@@ -1417,7 +1494,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+	_STATIC_ASSERT_ (IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
 	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
@@ -1433,7 +1510,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> owner ,LENGTH address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (LOAD_CHECK_TYPE<REMOVE_CVR_TYPE<_RET> ,VOID>::value) ;
+	_STATIC_ASSERT_ (IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_RET> ,VOID>::value) ;
 	_DEBUG_ASSERT_ (address != 0) ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
 	_DEBUG_ASSERT_ (address % r1x == 0) ;
@@ -1574,16 +1651,16 @@ inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept {
 
 namespace stl {
 template <class _ARG1>
-using is_template_type = U::is_template_type<_ARG1> ;
+using is_template_type = U::IS_TEMPLATE_TYPE<_ARG1> ;
 
 template <class _ARG1>
-using is_complete_type = U::is_complete_type<_ARG1> ;
+using is_complete_type = U::IS_COMPLETE_TYPE<_ARG1> ;
 
 template <class _ARG1>
-using is_interface_type = U::is_interface_type<_ARG1 ,Interface> ;
+using is_interface_type = U::IS_INTERFACE_TYPE<_ARG1 ,Interface> ;
 
 template <class _ARG1 ,class _ARG2>
-using is_always_base_of = U::is_always_base_of<_ARG1 ,_ARG2> ;
+using is_always_base_of = U::IS_ALWAYS_BASE_OF<_ARG1 ,_ARG2> ;
 } ;
 
 template <class UNIT>

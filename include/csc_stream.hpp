@@ -2080,7 +2080,7 @@ public:
 		r1y.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
 		r1y.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
 		_STATIC_WARNING_ ("mark") ;
-		//@info: disable default escape-str convertion 
+		//@info: disable default escape-str convertion
 		r1y.enable_escape (FALSE) ;
 		mReader.self >> _BOM_ ;
 		for (INDEX i = 0 ,ie = mCache.length () ; i < ie ; i++)

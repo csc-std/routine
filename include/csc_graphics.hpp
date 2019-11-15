@@ -73,11 +73,10 @@ private:
 
 public:
 	Camera () {
-		const auto r1x = ARRAY3<Vector<REAL>> ({
-			Vector<REAL> {REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)} ,
-			Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ,
-			Vector<REAL> {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)}}) ;
-		lookat (r1x[0] ,r1x[1] ,r1x[2]) ;
+		const auto r1x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)} ;
+		const auto r2x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
+		const auto r3x = Vector<REAL> {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
+		lookat (r1x ,r2x ,r3x) ;
 		perspective (REAL (90) ,REAL (1) ,REAL (1) ,REAL (1000)) ;
 	}
 

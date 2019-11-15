@@ -69,7 +69,7 @@ public:
 	static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
 		auto &r1y = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1y.mStackPoint[0] != 0) ;
-		r1y.mStackPoint[1] = _ADDRESS_  (&bp) ;
+		r1y.mStackPoint[1] = _ADDRESS_ (&bp) ;
 		const auto r2x = r1y.mStackPoint[1] - r1y.mStackPoint[0] ;
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
@@ -84,7 +84,7 @@ public:
 		auto &r1y = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1y.mStackPoint[0] != 0) ;
 		_DEBUG_ASSERT_ (r1y.mStackPoint[1] != 0) ;
-		r1y.mStackPoint[2] = _ADDRESS_  (&bp) ;
+		r1y.mStackPoint[2] = _ADDRESS_ (&bp) ;
 		_STATIC_WARNING_ ("mark") ;
 		_DEBUG_ASSERT_ (r1y.mStackPoint[2] == r1y.mStackPoint[1]) ;
 		const auto r2x = r1y.mStackPoint[1] - r1y.mStackPoint[0] ;

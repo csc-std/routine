@@ -11,11 +11,6 @@
 #include "csc_stream.hpp"
 
 namespace CSC {
-namespace U {
-template <class ,class>
-struct OPERATOR_CVT_STRING ;
-} ;
-
 inline namespace STRING {
 inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) ;
 inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) ;
@@ -43,6 +38,9 @@ inline imports DEF<String<STRA> (const String<STRW> &val)> _WSTOAS_ ;
 } ;
 
 namespace U {
+template <class ,class>
+struct OPERATOR_CVT_STRING ;
+
 template <>
 struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRU8>> {
 	inline static String<STRU8> invoke (const String<STRU8> &val) {

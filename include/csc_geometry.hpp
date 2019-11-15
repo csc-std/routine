@@ -356,12 +356,12 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,REAL>::value>>
-	implicit Matrix (const Vector<_ARG1> &hx ,const Vector<_ARG1> &hy ,const Vector<_ARG1> &hz ,const Vector<_ARG1> &hw) {
+	implicit Matrix (const Vector<_ARG1> &vx ,const Vector<_ARG1> &vy ,const Vector<_ARG1> &vz ,const Vector<_ARG1> &vw) {
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-			get (i ,0) = hx[i] ;
-			get (i ,1) = hy[i] ;
-			get (i ,2) = hz[i] ;
-			get (i ,3) = hw[i] ;
+			get (i ,0) = vx[i] ;
+			get (i ,1) = vy[i] ;
+			get (i ,2) = vz[i] ;
+			get (i ,3) = vw[i] ;
 		}
 	}
 
@@ -678,27 +678,27 @@ public:
 	ARRAY4<Matrix> decompose () const {
 		_DEBUG_ASSERT_ (affine_matrix_like ()) ;
 		ARRAY4<Matrix> ret ;
-		const auto r1x = ARRAY3<Vector<REAL>> ({
-			mul (Vector<REAL>::axis_x ()) ,
-			mul (Vector<REAL>::axis_y ()) ,
-			mul (Vector<REAL>::axis_z ())}) ;
-		ret[0] = Matrix::make_shear (r1x[0] ,r1x[1] ,r1x[2]) ;
-		const auto r2x = mul (ret[0].inverse ()) ;
-		const auto r3x = ARRAY4<Vector<REAL>> ({
-			r2x.mul (Vector<REAL>::axis_x ()) ,
-			r2x.mul (Vector<REAL>::axis_y ()) ,
-			r2x.mul (Vector<REAL>::axis_z ()) ,
-			r2x.mul (Vector<REAL>::axis_w ())}) ;
-		const auto r4x = _SIGN_ ((r3x[0] ^ r3x[1]) * r3x[2]) ;
-		const auto r5x = _PINV_ (r2x[3][3]) ;
-		ret[1] = Matrix::make_diag ((r3x[0].magnitude () * r5x * r4x) ,(r3x[1].magnitude () * r5x * r4x) ,(r3x[2].magnitude () * r5x * r4x) ,REAL (1)) ;
-		ret[2] = Matrix ({
-			r3x[0].normalize () ,
-			r3x[1].normalize () ,
-			r3x[2].normalize () * r4x ,
-			Vector<REAL>::axis_w ()}) ;
-		const auto r6x = Vector<REAL> {(r3x[3] * r5x).xyz () ,0} ;
-		ret[3] = Matrix::make_translation (r6x) ;
+		const auto r1x = mul (Vector<REAL>::axis_x ()) ;
+		const auto r2x = mul (Vector<REAL>::axis_y ()) ;
+		const auto r3x = mul (Vector<REAL>::axis_z ()) ;
+		ret[0] = Matrix::make_shear (r1x ,r2x ,r3x) ;
+		const auto r4x = mul (ret[0].inverse ()) ;
+		const auto r5x = r4x.mul (Vector<REAL>::axis_x ()) ;
+		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
+		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
+		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
+		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) ;
+		const auto r10x = _PINV_ (r4x[3][3]) ;
+		const auto r11x = r5x.magnitude () * r10x * r9x ;
+		const auto r12x = r6x.magnitude () * r10x * r9x ;
+		const auto r13x = r7x.magnitude () * r10x * r9x ;
+		ret[1] = Matrix::make_diag (r11x ,r12x ,r13x ,REAL (1)) ;
+		const auto r14x = r5x.normalize () ;
+		const auto r15x = r6x.normalize () ;
+		const auto r16x = r7x.normalize () * r9x ;
+		ret[2] = Matrix {r14x ,r15x ,r16x ,Vector<REAL>::axis_w ()} ;
+		const auto r17x = Vector<REAL> {(r8x * r10x).xyz () ,0} ;
+		ret[3] = Matrix::make_translation (r17x) ;
 		return std::move (ret) ;
 	}
 
@@ -780,30 +780,54 @@ public:
 
 	static Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
+		Matrix ret ;
 		const auto r1x = normal.normalize () ;
 		const auto r2x = _COS_ (angle) ;
 		const auto r3x = r1x * _SIN_ (angle) ;
 		const auto r4x = r1x * (REAL (1) - r2x) ;
-		Matrix ret = Matrix ({
-			{(r1x[0] * r4x[0] + r2x) ,(r1x[0] * r4x[1] - r3x[2]) ,(r1x[0] * r4x[2] + r3x[1]) ,REAL (0)} ,
-			{(r1x[1] * r4x[0] + r3x[2]) ,(r1x[1] * r4x[1] + r2x) ,(r1x[1] * r4x[2] - r3x[0]) ,REAL (0)} ,
-			{(r1x[2] * r4x[0] - r3x[1]) ,(r1x[2] * r4x[1] + r3x[0]) ,(r1x[2] * r4x[2] + r2x) ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
+		ret[0][0] = r1x[0] * r4x[0] + r2x ;
+		ret[0][1] = r1x[0] * r4x[1] - r3x[2] ;
+		ret[0][2] = r1x[0] * r4x[2] + r3x[1] ;
+		ret[0][3] = REAL (0) ;
+		ret[1][0] = r1x[1] * r4x[0] + r3x[2] ;
+		ret[1][1] = r1x[1] * r4x[1] + r2x ;
+		ret[1][2] = r1x[1] * r4x[2] - r3x[0] ;
+		ret[1][3] = REAL (0) ;
+		ret[2][0] = r1x[2] * r4x[0] - r3x[1] ;
+		ret[2][1] = r1x[2] * r4x[1] + r3x[0] ;
+		ret[2][2] = r1x[2] * r4x[2] + r2x ;
+		ret[2][3] = REAL (0) ;
+		ret[3][0] = REAL (0) ;
+		ret[3][1] = REAL (0) ;
+		ret[3][2] = REAL (0) ;
+		ret[3][3] = REAL (1) ;
 		return std::move (ret) ;
 	}
 
 	static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
+		Matrix ret ;
 		const auto r1x = _SQE_ (qx) + _SQE_ (qy) + _SQE_ (qz) + _SQE_ (qw) ;
 		const auto r2x = REAL (2) * _PINV_ (r1x) ;
 		const auto r3x = qx * r2x ;
 		const auto r4x = qy * r2x ;
 		const auto r5x = qz * r2x ;
 		const auto r6x = qw * r2x ;
-		Matrix ret = Matrix ({
-			{(REAL (1) - qy * r4x - qz * r5x) ,(qx * r4x - qz * r6x) ,(qx * r5x + qy * r6x) ,REAL (0)} ,
-			{(qx * r4x + qz * r6x) ,(REAL (1) - qx * r3x - qz * r5x) ,(qy * r5x - qx * r6x) ,REAL (0)} ,
-			{(qx * r5x - qy * r6x) ,(qy * r5x + qx * r6x) ,(REAL (1) - qx * r3x - qy * r4x) ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
+		ret[0][0] = REAL (1) - qy * r4x - qz * r5x ;
+		ret[0][1] = qx * r4x - qz * r6x ;
+		ret[0][2] = qx * r5x + qy * r6x ;
+		ret[0][3] = REAL (0) ;
+		ret[1][0] = qx * r4x + qz * r6x ;
+		ret[1][1] = REAL (1) - qx * r3x - qz * r5x ;
+		ret[1][2] = qy * r5x - qx * r6x ;
+		ret[1][3] = REAL (0) ;
+		ret[2][0] = qx * r5x - qy * r6x ;
+		ret[2][1] = qy * r5x + qx * r6x ;
+		ret[2][2] = REAL (1) - qx * r3x - qy * r4x ;
+		ret[2][3] = REAL (0) ;
+		ret[3][0] = REAL (0) ;
+		ret[3][1] = REAL (0) ;
+		ret[3][2] = REAL (0) ;
+		ret[3][3] = REAL (1) ;
 		return std::move (ret) ;
 	}
 
@@ -869,13 +893,14 @@ public:
 		ARRAY3<REAL> ret ;
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
-		const auto r3x = REAL (2) * _ATAN_ ((r2x * _SIGN_ (r1x[3])) ,_ABS_ (r1x[3])) ;
-		const auto r4x = _SWITCH_ (
-			(_PINV_ (r2x) != REAL (0)) ? (r3x * _PINV_ (r2x)) :
+		const auto r3x = r2x * _SIGN_ (r1x[3]) ;
+		const auto r4x = REAL (2) * _ATAN_ (r3x ,_ABS_ (r1x[3])) ;
+		const auto r5x = _SWITCH_ (
+			(_PINV_ (r2x) != REAL (0)) ? (r4x * _PINV_ (r2x)) :
 			(REAL (2))) ;
-		ret[0] = r1x[0] * r4x ;
-		ret[1] = r1x[1] * r4x ;
-		ret[2] = r1x[2] * r4x ;
+		ret[0] = r1x[0] * r5x ;
+		ret[1] = r1x[1] * r5x ;
+		ret[2] = r1x[2] * r5x ;
 		return std::move (ret) ;
 	}
 

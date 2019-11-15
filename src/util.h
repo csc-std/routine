@@ -4,6 +4,7 @@
 #define _DEPRECATED
 
 #include <csc.hpp>
+#pragma warning (disable :4702)
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>
 #include <csc_array.hpp>
@@ -74,11 +75,11 @@ namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
-		const auto r1x = _CACHE_ ([] () {
+		auto &r1y = _CACHE_ ([] () {
 			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
 		}) ;
-		r1x->compare_exchange_strong (expect ,data) ;
-		ret = r1x->load () ;
+		r1y->compare_exchange_strong (expect ,data) ;
+		ret = r1y->load () ;
 	} ,[&] () {
 		ret = NULL ;
 	}) ;

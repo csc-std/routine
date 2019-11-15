@@ -132,20 +132,9 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 }
 
 inline exports BOOL _GUARDFILE_ (const String<STR> &file) popping {
-	if (_FINDFILE_ (file))
-		return FALSE ;
-	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-		me = CreateFile (file.raw ().self ,0 ,0 ,NULL ,CREATE_NEW ,(FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_HIDDEN) ,NULL) ;
-		if (me == INVALID_HANDLE_VALUE)
-			me = NULL ;
-	} ,[] (HANDLE &me) {
-		if (me == NULL)
-			return ;
-		CloseHandle (me) ;
-	}) ;
-	if (r1x.self == NULL)
-		return FALSE ;
-	return TRUE ;
+	_STATIC_WARNING_ ("unimplemented") ;
+	_DEBUG_ASSERT_ (FALSE) ;
+	return FALSE ;
 }
 
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {

@@ -684,41 +684,6 @@ private:
 #pragma endregion
 } ;
 
-namespace U {
-struct OPERATOR_CRC32 {
-	inline static constexpr BOOL constexpr_check (INDEX index ,LENGTH range) {
-		return BOOL (index >= 0 && index < range) ;
-	}
-
-	inline static constexpr CHAR constexpr_crc32_next (CHAR val) {
-		return _SWITCH_ (
-			((val & CHAR (0X00000001)) != 0) ? (CHAR (0)) :
-			(CHAR (0XEDB88320) ^ (val >> 1))) ;
-	}
-
-	inline static constexpr CHAR constexpr_crc32_table (CHAR val ,INDEX curr) {
-		return _SWITCH_ (
-			!(constexpr_check (curr ,8)) ? val :
-			(constexpr_crc32_table (constexpr_crc32_next (val) ,(curr + 1)))) ;
-	}
-
-	inline static constexpr CHAR constexpr_crc32_hash (const Plain<STR> &stri ,CHAR val ,INDEX curr) {
-#pragma GCC diagnostic push
-#ifdef __CSC_COMPILER_GNUC__
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-		return _SWITCH_ (
-			!(constexpr_check (curr ,stri.size ())) ? val :
-			(constexpr_crc32_hash (stri ,(constexpr_crc32_table (INDEX ((CHAR (val) ^ CHAR (stri.self[curr])) & CHAR (0X000000FF)) ,0) ^ (val >> 8)) ,(curr + 1)))) ;
-#pragma GCC diagnostic pop
-	}
-
-	inline static constexpr FLAG invoke (const Plain<STR> &stri) {
-		return FLAG (VAR32 (constexpr_crc32_hash (stri ,CHAR (0XFFFFFFFF) ,0)) & VAR32_MAX) ;
-	}
-} ;
-} ;
-
 template <class UNIT>
 class Mutable {
 private:
@@ -838,12 +803,12 @@ public:
 		mIndex = r1x ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value != VAR_NONE>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&that) :Variant (ARGVP0) {
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1y = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
 		Detail::template_create (_NULL_<ARGV<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ,&r1y ,std::forward<_ARG1> (that)) ;
-		mIndex = INDEX_OF_TYPE<_ARG1 ,ARGVS<UNITS...>>::value ;
+		mIndex = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value ;
 	}
 
 	inline ~Variant () noexcept {
@@ -896,8 +861,8 @@ public:
 	template <class _RET>
 	inline BOOL available () const {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value != VAR_NONE) ;
-		if (mIndex != INDEX_OF_TYPE<_RET ,ARGVS<UNITS...>>::value)
+		_STATIC_ASSERT_ (INDEX_OF_TYPE<REMOVE_CVR_TYPE<_RET> ,ARGVS<UNITS...>>::value != VAR_NONE) ;
+		if (mIndex != INDEX_OF_TYPE<REMOVE_CVR_TYPE<_RET> ,ARGVS<UNITS...>>::value)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2891,15 +2856,28 @@ private:
 	ImplPool<ARGC<112> ,ARGC<4>> mPool14 ;
 	ImplPool<ARGC<120> ,ARGC<4>> mPool15 ;
 	ImplPool<ARGC<128> ,ARGC<4>> mPool16 ;
-	HugePool mPool17 ;
+	HugePool mHugePool ;
 	Monostate<Buffer<PTR<Pool> ,ARGC<17>>> mPool ;
 
 public:
 	inline MemoryPool () {
-		mPool.self = Buffer<PTR<Pool> ,ARGC<17>> ({
-			&mPool1 ,&mPool2 ,&mPool3 ,&mPool4 ,&mPool5 ,&mPool6 ,&mPool7 ,&mPool8 ,
-			&mPool9 ,&mPool10 ,&mPool11 ,&mPool12 ,&mPool13 ,&mPool14 ,&mPool15 ,&mPool16 ,
-			&mPool17}) ;
+		mPool.self[0] = &mPool1 ;
+		mPool.self[1] = &mPool2 ;
+		mPool.self[2] = &mPool3 ;
+		mPool.self[3] = &mPool4 ;
+		mPool.self[4] = &mPool5 ;
+		mPool.self[5] = &mPool6 ;
+		mPool.self[6] = &mPool7 ;
+		mPool.self[7] = &mPool8 ;
+		mPool.self[8] = &mPool9 ;
+		mPool.self[9] = &mPool10 ;
+		mPool.self[10] = &mPool11 ;
+		mPool.self[11] = &mPool12 ;
+		mPool.self[12] = &mPool13 ;
+		mPool.self[13] = &mPool14 ;
+		mPool.self[14] = &mPool15 ;
+		mPool.self[15] = &mPool16 ;
+		mPool.self[16] = &mHugePool ;
 	}
 
 	inline LENGTH size () const {

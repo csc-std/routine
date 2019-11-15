@@ -15,8 +15,8 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_STREAM_BYTEREADER) {
-		auto rax = PACK<CSC::BYTE[12]> () ;
-		auto ris = ByteReader (PhanBuffer<const CSC::BYTE>::make (rax.P1)) ;
+		auto rax = Buffer<CSC::BYTE ,ARGC<12>> () ;
+		auto ris = ByteReader (PhanBuffer<const CSC::BYTE>::make (rax)) ;
 		auto rbx = Buffer<int ,ARGC<4>> () ;
 		ris >> rbx ;
 	}

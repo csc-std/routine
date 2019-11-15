@@ -155,6 +155,8 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 }
 
 inline exports BOOL _GUARDFILE_ (const String<STR> &file) popping {
+	_STATIC_WARNING_ ("unimplemented") ;
+	_DEBUG_ASSERT_ (FALSE) ;
 	return FALSE ;
 }
 

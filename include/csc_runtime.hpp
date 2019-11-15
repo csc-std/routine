@@ -280,10 +280,9 @@ private:
 		inline static GUID_TYPE guid_from_typeid_name () {
 			PACK<BYTE[_SIZEOF_ (GUID_TYPE)]> ret ;
 			_ZERO_ (ret) ;
-			_STATIC_WARNING_ ("mark") ;
 			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
 			const auto r2x = PhanBuffer<const BYTE>::make (r1x.raw ()) ;
-			_DEBUG_ASSERT_ (r2x.size () <= _SIZEOF_ (GUID_TYPE)) ;
+			_DYNAMIC_ASSERT_ (r2x.size () <= _SIZEOF_ (GUID_TYPE)) ;
 			const auto r3x = _MIN_ (r2x.size () ,_SIZEOF_ (GUID_TYPE)) ;
 			_MEMCOPY_ (PTRTOARR[ret.P1] ,r2x.self ,r3x) ;
 			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
