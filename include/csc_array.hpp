@@ -125,13 +125,23 @@ struct OPERATOR_SORT {
 		INDEX iy = seg_b ;
 		auto rax = std::move (out[ix]) ;
 		while (TRUE) {
-			while (ix < iy && array[rax] < array[out[iy]])
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (array[out[iy]] <= array[rax])
+					break ;
 				iy-- ;
+			}
 			if (ix >= iy)
 				break ;
 			out[ix++] = std::move (out[iy]) ;
-			while (ix < iy && array[rax] > array[out[ix]])
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (array[out[ix]] >= array[rax])
+					break ;
 				ix++ ;
+			}
 			if (ix >= iy)
 				break ;
 			out[iy--] = std::move (out[ix]) ;
@@ -462,8 +472,13 @@ public:
 		if (that.empty ())
 			return FALSE ;
 		INDEX ix = 0 ;
-		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
+		while (TRUE) {
+			if (mString[ix] == ITEM (0))
+				break ;
+			if (mString[ix] != that.mString[ix])
+				break ;
 			ix++ ;
+		}
 		if (mString[ix] != that.mString[ix])
 			return FALSE ;
 		return TRUE ;
@@ -501,8 +516,13 @@ public:
 		if (r2x == 0)
 			return _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
 		INDEX ix = 0 ;
-		while (mString[ix] != ITEM (0) && mString[ix] == that.mString[ix])
+		while (TRUE) {
+			if (mString[ix] == ITEM (0))
+				break ;
+			if (mString[ix] != that.mString[ix])
+				break ;
 			ix++ ;
+		}
 		return _MEMCOMPR_ (PTRTOARR[&mString[ix]] ,PTRTOARR[&that.mString[ix]] ,1) ;
 	}
 
@@ -2198,12 +2218,22 @@ public:
 		INDEX ix = mRead ;
 		INDEX iy = mWrite ;
 		while (TRUE) {
-			while (ix < iy && mHead[ix] != VAR_NONE)
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (mHead[ix] == VAR_NONE)
+					break ;
 				ix++ ;
+			}
 			if (ix >= iy)
 				break ;
-			while (ix < iy && mHead[iy] != VAR_NONE)
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (mHead[iy] == VAR_NONE)
+					break ;
 				iy-- ;
+			}
 			if (ix >= iy)
 				break ;
 			const auto r1x = mHead[ix] ;
@@ -2301,8 +2331,13 @@ private:
 		INDEX ix = curr ;
 		INDEX iy = last ;
 		for (INDEX i = 0 ,ie = mList.length () ; i < ie ; i++) {
-			while (mRead != ix && mHead[mRead][0] == VAR_NONE)
+			while (TRUE) {
+				if (mRead == ix)
+					break ;
+				if (mHead[mRead][0] != VAR_NONE)
+					break ;
 				mRead++ ;
+			}
 			const auto r1x = mHead[i][0] ;
 			auto fax = FALSE ;
 			if SWITCH_CASE (fax) {

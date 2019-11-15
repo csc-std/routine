@@ -79,15 +79,21 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		while (r2y.mThreadFlag.exist () && r2y.mItemQueue->empty ())
+		while (TRUE) {
+			if (!r2y.mThreadFlag.exist ())
+				break ;
+			if (!r2y.mItemQueue->empty ())
+				break ;
 			r2y.mThreadCondition.self.wait (sgd) ;
+		}
 		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
 		ITEM ret = std::move (r2y.mItemQueue.self[r2y.mItemQueue->head ()]) ;
 		r2y.mItemQueue->take () ;
 		return std::move (ret) ;
 	}
 
-	ITEM poll (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) popping {
+	template <class _ARG1 ,class _ARG2>
+	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -142,7 +148,8 @@ public:
 		}
 	}
 
-	void join (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
+	template <class _ARG1 ,class _ARG2>
+	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -245,8 +252,13 @@ private:
 				return ;
 			self_.mThreadFlag.self = FALSE ;
 			self_.mThreadCondition.self.notify_all () ;
-			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+			while (TRUE) {
+				if (!self_.mThreadFlag.exist ())
+					break ;
+				if (self_.mThreadCounter == 0)
+					break ;
 				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			}
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			for (auto &&i : self_.mThreadPool) {
 				if (!i.exist ())
@@ -343,8 +355,13 @@ public:
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
-		while (r2y.mThreadFlag.exist () && r2y.mItemQueue->full ())
+		while (TRUE) {
+			if (!r2y.mThreadFlag.exist ())
+				break ;
+			if (!r2y.mItemQueue->full ())
+				break ;
 			r2y.mThreadCondition.self.wait (sgd) ;
+		}
 		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
 		r2y.mItemQueue->add (std::move (item)) ;
 		r2y.mThreadCondition.self.notify_all () ;
@@ -355,14 +372,20 @@ public:
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
-		while (r2y.mThreadFlag.exist () && r2y.mItemQueue->full ())
+		while (TRUE) {
+			if (!r2y.mThreadFlag.exist ())
+				break ;
+			if (!r2y.mItemQueue->full ())
+				break ;
 			r2y.mThreadCondition.self.wait (sgd) ;
+		}
 		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
 		r2y.mItemQueue->add (std::move (item)) ;
 		r2y.mThreadCondition.self.notify_all () ;
 	}
 
-	void post (const ITEM &item ,const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
+	template <class _ARG1 ,class _ARG2>
+	void post (const ITEM &item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -381,7 +404,8 @@ public:
 		r2y.mThreadCondition.self.notify_all () ;
 	}
 
-	void post (ITEM &&item ,const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
+	template <class _ARG1 ,class _ARG2>
+	void post (ITEM &&item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -430,7 +454,8 @@ public:
 		}
 	}
 
-	void join (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) {
+	template <class _ARG1 ,class _ARG2>
+	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
@@ -507,8 +532,13 @@ private:
 			std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
 			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
-			while (self_.mThreadFlag.self && self_.mItemQueue->empty ())
+			while (TRUE) {
+				if (!self_.mThreadFlag.self)
+					break ;
+				if (!self_.mItemQueue->empty ())
+					break ;
 				self_.mThreadCondition.self.wait (sgd) ;
+			}
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 			item = std::move (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
 			self_.mItemQueue->take () ;
@@ -538,8 +568,13 @@ private:
 				return ;
 			self_.mThreadFlag.self = FALSE ;
 			self_.mThreadCondition.self.notify_all () ;
-			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+			while (TRUE) {
+				if (!self_.mThreadFlag.exist ())
+					break ;
+				if (self_.mThreadCounter == 0)
+					break ;
 				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			}
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			for (auto &&i : self_.mThreadPool) {
 				if (!i.exist ())
@@ -766,8 +801,13 @@ private:
 				return ;
 			self_.mThreadFlag.self = FALSE ;
 			self_.mThreadCondition.self.notify_all () ;
-			while (self_.mThreadFlag.exist () && self_.mThreadCounter > 0)
+			while (TRUE) {
+				if (!self_.mThreadFlag.exist ())
+					break ;
+				if (self_.mThreadCounter == 0)
+					break ;
 				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
+			}
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			if (self_.mThreadPool.exist ())
 				self_.mThreadPool->join () ;
@@ -820,8 +860,13 @@ public:
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		while (r2y.mThreadFlag.exist () && r2y.mThreadFlag.self)
+		while (TRUE) {
+			if (!r2y.mThreadFlag.exist ())
+				break ;
+			if (!r2y.mThreadFlag.self)
+				break ;
 			r2y.mThreadCondition.self.wait (sgd) ;
+		}
 		if (r2y.mException.exist ())
 			r2y.mException->raise () ;
 		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
@@ -830,7 +875,8 @@ public:
 		return std::move (ret) ;
 	}
 
-	ITEM poll (const std::chrono::milliseconds &interval ,const Function<BOOL ()> &predicate) popping {
+	template <class _ARG1 ,class _ARG2>
+	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
 		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;

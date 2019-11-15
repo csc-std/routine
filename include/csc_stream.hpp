@@ -1943,7 +1943,7 @@ inline void _EOS_ (ByteReader &reader) {
 inline void _EOS_ (ByteWriter &writer) {
 	auto wos = writer.copy () ;
 	const auto r1x = wos.attr ().varify_ending_item () ;
-	while (wos.length () < wos.size ())
+	for (INDEX i = 0 ,ie = wos.size () - wos.length () ; i < ie ; i++)
 		wos << r1x ;
 	writer = std::move (wos) ;
 }
@@ -2185,8 +2185,11 @@ public:
 	}
 
 	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP)> &) {
-		while (mReader->attr ().varify_space (get (0)))
+		while (TRUE) {
+			if (!mReader->attr ().varify_space (get (0)))
+				break ;
 			read () ;
+		}
 	}
 
 	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP)> &) {
@@ -2195,8 +2198,11 @@ public:
 	}
 
 	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP_SPACE_ONLY)> &) {
-		while (mReader->attr ().varify_space (get (0) ,1))
+		while (TRUE) {
+			if (!mReader->attr ().varify_space (get (0) ,1))
+				break ;
 			read () ;
+		}
 	}
 
 	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP_SPACE_ONLY)> &) {
@@ -2205,8 +2211,11 @@ public:
 	}
 
 	void read (const PTR<decltype (RegularReader<void>::SKIP_GAP_ENDLINE_ONLY)> &) {
-		while (mReader->attr ().varify_space (get (0) ,2))
+		while (TRUE) {
+			if (!mReader->attr ().varify_space (get (0) ,2))
+				break ;
 			read () ;
+		}
 	}
 
 	inline RegularReader &operator>> (const PTR<decltype (RegularReader<void>::SKIP_GAP_ENDLINE_ONLY)> &) {
