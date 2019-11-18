@@ -71,8 +71,13 @@ public:
 				break ;
 			if (iy >= mNext.length ())
 				break ;
-			while (iy != VAR_NONE && target[ix] != mPattern[iy])
+			while (TRUE) {
+				if (iy == VAR_NONE)
+					break ;
+				if (target[ix] == mPattern[iy])
+					break ;
 				iy = mNext[iy] ;
+			}
 			ix++ ;
 			iy++ ;
 		}
@@ -103,8 +108,13 @@ inline void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL> &patter
 	while (TRUE) {
 		if (ix >= pattern.size () - 1)
 			break ;
-		while (iy != VAR_NONE && pattern[ix] != pattern[iy])
+		while (TRUE) {
+			if (iy == VAR_NONE)
+				break ;
+			if (pattern[ix] == pattern[iy])
+				break ;
 			iy = mNext[iy] ;
+		}
 		ix++ ;
 		iy++ ;
 		mNext[ix] = find_next (ix ,iy) ;
@@ -910,8 +920,10 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 
 		inline void update_dm () {
 			const auto r1x = _PINV_ (math_vector_dot (mIY ,mIS)) ;
-			for (auto &&i : mDM.range ())
-				mIM[i] = hessian_matrix_each (i[0] ,i[1] ,r1x) + mIS[i[0]] * mIS[i[1]] * r1x ;
+			for (auto &&i : mDM.range ()) {
+				const auto r2x = hessian_matrix_each (i[0] ,i[1] ,r1x) ;
+				mIM[i] = r2x + mIS[i[0]] * mIS[i[1]] * r1x ;
+			}
 			_SWAP_ (mDM ,mIM) ;
 		}
 

@@ -100,82 +100,88 @@ public:
 	}
 } ;
 
-namespace U {
-struct OPERATOR_SORT {
-	template <class _ARG1 ,class _ARG2>
-	inline static void static_insert_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
-		for (INDEX i = seg_a + 1 ,ie = seg_b + 1 ; i < ie ; i++) {
-			INDEX ix = i ;
-			auto rax = std::move (out[ix]) ;
-			while (TRUE) {
-				if (ix - 1 < seg_a)
-					break ;
-				if (array[rax] >= array[out[ix - 1]])
-					break ;
-				out[ix] = std::move (out[ix - 1]) ;
-				ix-- ;
-			}
-			out[ix] = std::move (rax) ;
-		}
-	}
-
-	template <class _ARG1 ,class _ARG2>
-	inline static void static_quick_sort_partition (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
-		INDEX ix = seg_a ;
-		INDEX iy = seg_b ;
+inline namespace ARRAY {
+template <class _ARG1 ,class _ARG2>
+inline void _inline_SORT_SLOW_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+	for (INDEX i = seg_a + 1 ,ie = seg_b + 1 ; i < ie ; i++) {
+		INDEX ix = i ;
 		auto rax = std::move (out[ix]) ;
 		while (TRUE) {
-			while (TRUE) {
-				if (ix >= iy)
-					break ;
-				if (array[out[iy]] <= array[rax])
-					break ;
-				iy-- ;
-			}
-			if (ix >= iy)
+			if (ix - 1 < seg_a)
 				break ;
-			out[ix++] = std::move (out[iy]) ;
-			while (TRUE) {
-				if (ix >= iy)
-					break ;
-				if (array[out[ix]] >= array[rax])
-					break ;
-				ix++ ;
-			}
-			if (ix >= iy)
+			if (array_[rax] >= array_[out[ix - 1]])
 				break ;
-			out[iy--] = std::move (out[ix]) ;
+			out[ix] = std::move (out[ix - 1]) ;
+			ix-- ;
 		}
 		out[ix] = std::move (rax) ;
-		mid_one = ix ;
 	}
+}
 
-	template <class _ARG1 ,class _ARG2>
-	inline static void static_quick_sort (const _ARG1 &array ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
-		INDEX ix = seg_a ;
+template <class _ARG1 ,class _ARG2>
+inline static void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
+	INDEX ix = seg_a ;
+	INDEX iy = seg_b ;
+	auto rax = std::move (out[ix]) ;
+	while (TRUE) {
 		while (TRUE) {
-			if (ix >= seg_b)
+			if (ix >= iy)
 				break ;
-			if (ideal <= 0)
+			if (array_[out[iy]] <= array_[rax])
 				break ;
-			ideal = ideal / 2 + ideal / 4 ;
-			INDEX jx = VAR_NONE ;
-			static_quick_sort_partition (array ,out ,ix ,seg_b ,jx) ;
-			static_quick_sort (array ,out ,ix ,(jx - 1) ,ideal) ;
-			ix = jx + 1 ;
+			iy-- ;
 		}
+		if (ix >= iy)
+			break ;
+		out[ix++] = std::move (out[iy]) ;
+		while (TRUE) {
+			if (ix >= iy)
+				break ;
+			if (array_[out[ix]] >= array_[rax])
+				break ;
+			ix++ ;
+		}
+		if (ix >= iy)
+			break ;
+		out[iy--] = std::move (out[ix]) ;
+	}
+	out[ix] = std::move (rax) ;
+	mid_one = ix ;
+}
+
+template <class _ARG1 ,class _ARG2>
+inline static void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+	INDEX ix = seg_a ;
+	while (TRUE) {
 		if (ix >= seg_b)
-			return ;
-		static_insert_sort (array ,out ,ix ,seg_b) ;
+			break ;
+		if (ideal <= 0)
+			break ;
+		ideal = ideal / 2 + ideal / 4 ;
+		INDEX jx = VAR_NONE ;
+		_inline_SORT_PARTITION_ (array_ ,out ,ix ,seg_b ,jx) ;
+		_inline_SORT_FAST_ (array_ ,out ,ix ,(jx - 1) ,ideal) ;
+		ix = jx + 1 ;
 	}
+	if (ix >= seg_b)
+		return ;
+	_inline_SORT_SLOW_ (array_ ,out ,ix ,seg_b) ;
+}
 
-	template <class _ARG1 ,class _ARG2>
-	inline static void invoke (const _ARG1 &array ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
-		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
-		static_quick_sort (array ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
-	}
+template <class _ARG1 ,class _ARG2>
+inline static void _SORT_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+	_DEBUG_ASSERT_ (seg_len > 0) ;
+	_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
+	_inline_SORT_FAST_ (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+}
+} ;
 
+template <class ITEM ,class SIZE = SAUTO>
+class Array ;
+
+template <class ITEM ,class SIZE>
+class Array {
+private:
 	class ForwardArray :private Wrapped<decltype (ARGVPY)> {
 	public:
 		template <class _ARG1>
@@ -184,18 +190,6 @@ struct OPERATOR_SORT {
 		}
 	} ;
 
-	template <class _ARG1>
-	inline static void invoke (_ARG1 &out ,INDEX seg ,LENGTH seg_len) {
-		invoke (_CAST_<ForwardArray> (ARGVPY) ,out ,seg ,seg_len) ;
-	}
-} ;
-} ;
-
-template <class ITEM ,class SIZE = SAUTO>
-class Array ;
-
-template <class ITEM ,class SIZE>
-class Array {
 private:
 	Buffer<ITEM ,SIZE> mArray ;
 
@@ -308,7 +302,7 @@ public:
 	}
 
 	void sort () {
-		U::OPERATOR_SORT::invoke (mArray ,0 ,mArray.size ()) ;
+		_SORT_ (_CAST_<ForwardArray> (ARGVPY) ,mArray ,0 ,mArray.size ()) ;
 	}
 
 	void fill (const ITEM &item) {
@@ -939,12 +933,12 @@ public:
 		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
 			ret[iw++] = i ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
 	void sort () {
-		U::OPERATOR_SORT::invoke (_CAST_<AccessArray> ((*this)) ,0 ,length ()) ;
+		_SORT_ (mDeque ,_CAST_<AccessArray> ((*this)) ,0 ,length ()) ;
 	}
 
 private:
@@ -1896,7 +1890,7 @@ public:
 
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2196,7 +2190,7 @@ public:
 
 	Array<INDEX> esort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 

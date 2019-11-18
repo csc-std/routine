@@ -39,182 +39,185 @@ inline imports DEF<String<STRA> (const String<STRW> &val)> _WSTOAS_ ;
 
 namespace U {
 template <class ,class>
-struct OPERATOR_CVT_STRING ;
+struct STRING_TRAITS ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRU8>> {
+struct STRING_TRAITS<STRU8 ,STRU8> {
 	inline static String<STRU8> invoke (const String<STRU8> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU16> ,String<STRU16>> {
+struct STRING_TRAITS<STRU16 ,STRU16> {
 	inline static String<STRU16> invoke (const String<STRU16> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU32> ,String<STRU32>> {
+struct STRING_TRAITS<STRU32 ,STRU32> {
 	inline static String<STRU32> invoke (const String<STRU32> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRA> ,String<STRA>> {
+struct STRING_TRAITS<STRA ,STRA> {
 	inline static String<STRA> invoke (const String<STRA> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRW> ,String<STRW>> {
+struct STRING_TRAITS<STRW ,STRW> {
 	inline static String<STRW> invoke (const String<STRW> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRU16>> {
+struct STRING_TRAITS<STRU8 ,STRU16> {
 	inline static String<STRU8> invoke (const String<STRU16> &val) {
 		return _U16STOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU16> ,String<STRU8>> {
+struct STRING_TRAITS<STRU16 ,STRU8> {
 	inline static String<STRU16> invoke (const String<STRU8> &val) {
 		return _U8STOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRU32>> {
+struct STRING_TRAITS<STRU8 ,STRU32> {
 	inline static String<STRU8> invoke (const String<STRU32> &val) {
 		return _U32STOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU32> ,String<STRU8>> {
+struct STRING_TRAITS<STRU32 ,STRU8> {
 	inline static String<STRU32> invoke (const String<STRU8> &val) {
 		return _U8STOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU16> ,String<STRU32>> {
+struct STRING_TRAITS<STRU16 ,STRU32> {
 	inline static String<STRU16> invoke (const String<STRU32> &val) {
 		return _U32STOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU32> ,String<STRU16>> {
+struct STRING_TRAITS<STRU32 ,STRU16> {
 	inline static String<STRU32> invoke (const String<STRU16> &val) {
 		return _U16STOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRW>> {
+struct STRING_TRAITS<STRU8 ,STRW> {
 	inline static String<STRU8> invoke (const String<STRW> &val) {
 		return _WSTOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRW> ,String<STRU8>> {
+struct STRING_TRAITS<STRW ,STRU8> {
 	inline static String<STRW> invoke (const String<STRU8> &val) {
 		return _U8STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU16> ,String<STRW>> {
+struct STRING_TRAITS<STRU16 ,STRW> {
 	inline static String<STRU16> invoke (const String<STRW> &val) {
 		return _WSTOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRW> ,String<STRU16>> {
+struct STRING_TRAITS<STRW ,STRU16> {
 	inline static String<STRW> invoke (const String<STRU16> &val) {
 		return _U16STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU32> ,String<STRW>> {
+struct STRING_TRAITS<STRU32 ,STRW> {
 	inline static String<STRU32> invoke (const String<STRW> &val) {
 		return _WSTOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRW> ,String<STRU32>> {
+struct STRING_TRAITS<STRW ,STRU32> {
 	inline static String<STRW> invoke (const String<STRU32> &val) {
 		return _U32STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRW> ,String<STRA>> {
+struct STRING_TRAITS<STRW ,STRA> {
 	inline static String<STRW> invoke (const String<STRA> &val) {
 		return _ASTOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRA> ,String<STRW>> {
+struct STRING_TRAITS<STRA ,STRW> {
 	inline static String<STRA> invoke (const String<STRW> &val) {
 		return _WSTOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU8> ,String<STRA>> {
+struct STRING_TRAITS<STRU8 ,STRA> {
 	inline static String<STRU8> invoke (const String<STRA> &val) {
 		return _ASTOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRA> ,String<STRU8>> {
+struct STRING_TRAITS<STRA ,STRU8> {
 	inline static String<STRA> invoke (const String<STRU8> &val) {
 		return _U8STOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU16> ,String<STRA>> {
+struct STRING_TRAITS<STRU16 ,STRA> {
 	inline static String<STRU16> invoke (const String<STRA> &val) {
 		return _ASTOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRA> ,String<STRU16>> {
+struct STRING_TRAITS<STRA ,STRU16> {
 	inline static String<STRA> invoke (const String<STRU16> &val) {
 		return _U16STOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRU32> ,String<STRA>> {
+struct STRING_TRAITS<STRU32 ,STRA> {
 	inline static String<STRU32> invoke (const String<STRA> &val) {
 		return _ASTOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct OPERATOR_CVT_STRING<String<STRA> ,String<STRU32>> {
+struct STRING_TRAITS<STRA ,STRU32> {
 	inline static String<STRA> invoke (const String<STRU32> &val) {
 		return _U32STOAS_ (val) ;
 	}
 } ;
+
+template <class _ARG1 ,class _ARG2>
+using STRING_TRAITS_HELP = STRING_TRAITS<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2>> ;
 } ;
 
 inline namespace STRING {
@@ -677,29 +680,29 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 }
 
 inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) {
-	return U::OPERATOR_CVT_STRING<String<STRU8> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::STRING_TRAITS_HELP<STRU8 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
-	String<STRUW> ret = U::OPERATOR_CVT_STRING<String<STRUW> ,String<STRU8>>::invoke (val) ;
+	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU8>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
 inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) {
-	return U::OPERATOR_CVT_STRING<String<STRU16> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::STRING_TRAITS_HELP<STRU16 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
-	String<STRUW> ret = U::OPERATOR_CVT_STRING<String<STRUW> ,String<STRU16>>::invoke (val) ;
+	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU16>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
 inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) {
-	return U::OPERATOR_CVT_STRING<String<STRU32> ,String<STRUW>>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::STRING_TRAITS_HELP<STRU32 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U32STOWS_ (const String<STRU32> &val) {
-	String<STRUW> ret = U::OPERATOR_CVT_STRING<String<STRUW> ,String<STRU32>>::invoke (val) ;
+	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU32>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
@@ -769,20 +772,24 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 
 inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
-inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
-	auto &r1y = _CACHE_ ([] () {
-		const auto r2x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r2x.size ()) ;
-		for (INDEX i = 0 ,ie = r2x.size () ; i < ie ; i++)
-			ret.add (r2x[i][1] ,r2x[i][0]) ;
+inline const HashSet<STRUW ,STRUW> &_inline_GBKSTOWS_TABLE_ () {
+	return _CACHE_ ([] () {
+		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
+		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
+		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
+			ret.add (r1x[i][1] ,r1x[i][0]) ;
 		return std::move (ret) ;
 	}) ;
-	auto &r3y = _CAST_<String<STRUA>> (val) ;
-	String<STRW> ret = String<STRW> (r3y.length ()) ;
+}
+
+inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
+	auto &r1y = _inline_GBKSTOWS_TABLE_ () ;
+	auto &r2y = _CAST_<String<STRUA>> (val) ;
+	String<STRW> ret = String<STRW> (r2y.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
-	for (auto &&i : r3y) {
+	for (auto &&i : r2y) {
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = FALSE ;
@@ -849,14 +856,18 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
-	auto &r1y = _CACHE_ ([] () {
-		const auto r2x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r2x.size ()) ;
-		for (INDEX i = 0 ,ie = r2x.size () ; i < ie ; i++)
-			ret.add (r2x[i][0] ,r2x[i][1]) ;
+inline const HashSet<STRUW ,STRUW> &_inline_WSTOGBKS_TABLE_ () {
+	return _CACHE_ ([] () {
+		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
+		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
+		for (INDEX i = 0 ,ie = r1x.size () ; i < ie ; i++)
+			ret.add (r1x[i][0] ,r1x[i][1]) ;
 		return std::move (ret) ;
 	}) ;
+}
+
+inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
+	auto &r1y = _inline_WSTOGBKS_TABLE_ () ;
 	String<STRUA> ret = String<STRUA> (val.length () * 2) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -1006,13 +1017,13 @@ inline String<_RET> _BUILDVALS_ (const VAL &stru) {
 
 template <class _ARG1>
 inline String<STR> _PARSESTRS_ (const String<_ARG1> &stri) {
-	return U::OPERATOR_CVT_STRING<String<STR> ,String<_ARG1>>::invoke (stri) ;
+	return U::STRING_TRAITS_HELP<STR ,_ARG1>::invoke (stri) ;
 }
 
 template <class _RET = STR>
 inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return U::OPERATOR_CVT_STRING<String<_RET> ,String<STR>>::invoke (stru) ;
+	return U::STRING_TRAITS_HELP<_RET ,STR>::invoke (stru) ;
 }
 } ;
 

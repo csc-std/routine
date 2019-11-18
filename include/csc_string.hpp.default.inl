@@ -39,9 +39,9 @@
 
 namespace CSC {
 inline namespace STRING {
-inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1y = _CACHE_ ([] () {
+inline const UniqueRef<_locale_t> &_inline_LOCALE_PAGE_ () {
+	return _CACHE_ ([] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -49,6 +49,12 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 			::_free_locale (me) ;
 		}) ;
 	}) ;
+}
+#endif
+
+inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
+#ifdef __CSC_COMPILER_MSVC__
+	auto &r1y = _inline_LOCALE_PAGE_ () ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if SWITCH_ONCE (TRUE) {
@@ -73,14 +79,7 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1y = _CACHE_ ([] () {
-		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
-			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
-			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (_locale_t &me) {
-			::_free_locale (me) ;
-		}) ;
-	}) ;
+	auto &r1y = _inline_LOCALE_PAGE_ () ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if SWITCH_ONCE (TRUE) {
@@ -280,7 +279,7 @@ inline exports PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {
 #ifdef __CSC_COMPILER_MSVC__
 		} ;
 #else
-		}) ;
+}) ;
 #endif
 #pragma endregion
 	return PhanBuffer<const DEF<STRUW[2]>>::make (M_TABLE.P1) ;

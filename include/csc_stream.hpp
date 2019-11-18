@@ -34,6 +34,11 @@ struct BYTE_TRAITS<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
 	using TYPE = DATA ;
 } ;
 
+template <class _ARG1>
+using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+} ;
+
+namespace U {
 template <class ,class>
 struct TEXT_TRAITS ;
 
@@ -51,16 +56,13 @@ template <>
 struct TEXT_TRAITS<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
 	using TYPE = STRU32 ;
 } ;
-} ;
-
-template <class _ARG1>
-using BYTE_TRAITS_TYPE = typename U::BYTE_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 
 template <class _ARG1>
 using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+} ;
 
-using STRUA = TEXT_TRAITS_TYPE<STRA> ;
-using STRUW = TEXT_TRAITS_TYPE<STRW> ;
+using STRUA = U::TEXT_TRAITS_TYPE<STRA> ;
+using STRUW = U::TEXT_TRAITS_TYPE<STRW> ;
 
 template <class UNIT>
 class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (UNIT)]> {
@@ -265,7 +267,7 @@ public:
 	}
 
 	void read (BOOL &data) popping {
-		read (_CAST_<BYTE_TRAITS_TYPE<BOOL>> (data)) ;
+		read (_CAST_<U::BYTE_TRAITS_TYPE<BOOL>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) popping {
@@ -274,7 +276,7 @@ public:
 	}
 
 	void read (VAR32 &data) popping {
-		read (_CAST_<BYTE_TRAITS_TYPE<VAR32>> (data)) ;
+		read (_CAST_<U::BYTE_TRAITS_TYPE<VAR32>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) popping {
@@ -283,7 +285,7 @@ public:
 	}
 
 	void read (VAR64 &data) popping {
-		read (_CAST_<BYTE_TRAITS_TYPE<VAR64>> (data)) ;
+		read (_CAST_<U::BYTE_TRAITS_TYPE<VAR64>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) popping {
@@ -292,7 +294,7 @@ public:
 	}
 
 	void read (VAL32 &data) popping {
-		read (_CAST_<BYTE_TRAITS_TYPE<VAL32>> (data)) ;
+		read (_CAST_<U::BYTE_TRAITS_TYPE<VAL32>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) popping {
@@ -301,7 +303,7 @@ public:
 	}
 
 	void read (VAL64 &data) popping {
-		read (_CAST_<BYTE_TRAITS_TYPE<VAL64>> (data)) ;
+		read (_CAST_<U::BYTE_TRAITS_TYPE<VAL64>> (data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) popping {
@@ -532,7 +534,7 @@ public:
 	}
 
 	void write (const BOOL &data) {
-		const auto r1x = _CAST_<BYTE_TRAITS_TYPE<BOOL>> (data) ;
+		const auto r1x = _CAST_<U::BYTE_TRAITS_TYPE<BOOL>> (data) ;
 		write (r1x) ;
 	}
 
@@ -546,7 +548,7 @@ public:
 	inline ByteWriter &operator<< (const PTR<const VOID> &) = delete ;
 
 	void write (const VAR32 &data) {
-		const auto r1x = _CAST_<BYTE_TRAITS_TYPE<VAR32>> (data) ;
+		const auto r1x = _CAST_<U::BYTE_TRAITS_TYPE<VAR32>> (data) ;
 		write (r1x) ;
 	}
 
@@ -556,7 +558,7 @@ public:
 	}
 
 	void write (const VAR64 &data) {
-		const auto r1x = _CAST_<BYTE_TRAITS_TYPE<VAR64>> (data) ;
+		const auto r1x = _CAST_<U::BYTE_TRAITS_TYPE<VAR64>> (data) ;
 		write (r1x) ;
 	}
 
@@ -566,7 +568,7 @@ public:
 	}
 
 	void write (const VAL32 &data) {
-		const auto r1x = _CAST_<BYTE_TRAITS_TYPE<VAL32>> (data) ;
+		const auto r1x = _CAST_<U::BYTE_TRAITS_TYPE<VAL32>> (data) ;
 		write (r1x) ;
 	}
 
@@ -576,7 +578,7 @@ public:
 	}
 
 	void write (const VAL64 &data) {
-		const auto r1x = _CAST_<BYTE_TRAITS_TYPE<VAL64>> (data) ;
+		const auto r1x = _CAST_<U::BYTE_TRAITS_TYPE<VAL64>> (data) ;
 		write (r1x) ;
 	}
 
@@ -690,8 +692,8 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			BYTE_TRAITS_TYPE<REAL> ret ;
-			_CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			U::BYTE_TRAITS_TYPE<REAL> ret ;
+			_CAST_<EndianBytes<U::BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1256,8 +1258,8 @@ private:
 		REAL convert_endian (const REAL &item) const {
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
-			BYTE_TRAITS_TYPE<REAL> ret ;
-			_CAST_<EndianBytes<BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			U::BYTE_TRAITS_TYPE<REAL> ret ;
+			_CAST_<EndianBytes<U::BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 

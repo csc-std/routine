@@ -113,7 +113,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic pop
 }
 
-inline CHAR _inline_MEMCRC32_TABLE_ (CHAR val) {
+inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 	CHAR ret = val ;
 	for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
 		const auto r1x = ret & CHAR (0X00000001) ;
@@ -129,7 +129,7 @@ inline const PACK<CHAR[256]> &_inline_MEMCRC32_TABLE_ () {
 	return _CACHE_ ([] () {
 		PACK<CHAR[256]> ret ;
 		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (ret.P1)) ; i < ie ; i++)
-			ret.P1[i] = _inline_MEMCRC32_TABLE_ (CHAR (i)) ;
+			ret.P1[i] = _inline_MEMCRC32_TABLE_EACH_ (CHAR (i)) ;
 		return std::move (ret) ;
 	}) ;
 }
@@ -340,12 +340,12 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 namespace U {
 struct OPERATOR_COMPR {
 	template <class _ARG1>
-	inline static FLAG static_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().compr (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().compr (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
 	}
 
 	template <class _ARG1>
-	inline static FLAG static_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().operator< (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().operator< (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		if (lhs < rhs)
 			return FLAG (-1) ;
 		if (rhs < lhs)
@@ -354,13 +354,13 @@ struct OPERATOR_COMPR {
 	}
 
 	template <class _ARG1>
-	inline static FLAG static_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		return _MEMCOMPR_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (lhs)] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (rhs)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
 	inline static FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
-		return static_compr (lhs ,rhs ,ARGVPX ,ARGVP9) ;
+		return template_compr (lhs ,rhs ,ARGVPX ,ARGVP9) ;
 	}
 } ;
 } ;
@@ -368,18 +368,18 @@ struct OPERATOR_COMPR {
 namespace U {
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	inline static FLAG static_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		return self_.hash () ;
 	}
 
 	template <class _ARG1>
-	inline static FLAG static_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		return _MEMHASH_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (self_)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
 	inline static FLAG invoke (const _ARG1 &self_) {
-		FLAG ret = static_hash (self_ ,ARGVPX ,ARGVP9) ;
+		FLAG ret = template_hash (self_ ,ARGVPX ,ARGVP9) ;
 		ret &= VAR_MAX ;
 		return std::move (ret) ;
 	}
@@ -2458,7 +2458,7 @@ public:
 		return make (val ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
@@ -2630,7 +2630,7 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
 		if (val.size () == 0)
 			return Buffer () ;
@@ -2642,7 +2642,7 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
 	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
@@ -3167,8 +3167,13 @@ private:
 
 	inline LENGTH shrink_size () const {
 		LENGTH ret = mSize ;
-		while (ret - 1 >= 0 && mAllocator[ret - 1].mNext != VAR_USED)
+		while (TRUE) {
+			if (ret < 1)
+				break ;
+			if (mAllocator[ret - 1].mNext == VAR_USED)
+				break ;
 			ret-- ;
+		}
 		return std::move (ret) ;
 	}
 } ;

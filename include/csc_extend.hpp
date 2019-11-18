@@ -60,12 +60,7 @@ using std::thread ;
 namespace chrono {
 using std::chrono::duration ;
 using std::chrono::time_point ;
-using std::chrono::nanoseconds ;
-using std::chrono::microseconds ;
 using std::chrono::milliseconds ;
-using std::chrono::seconds ;
-using std::chrono::minutes ;
-using std::chrono::hours ;
 using std::chrono::system_clock ;
 using std::chrono::steady_clock ;
 } ;
@@ -143,8 +138,8 @@ public:
 		return LENGTH (std::thread::hardware_concurrency ()) ;
 	}
 
-	inline static void thread_fence (std::memory_order order_) {
-		std::atomic_thread_fence (order_) ;
+	inline static void thread_fence () {
+		std::atomic_thread_fence (std::memory_order::memory_order_seq_cst) ;
 	}
 
 	inline static void locale_init (const Plain<STRA> &locale_) {
@@ -1680,6 +1675,31 @@ private:
 	friend class StrongRef ;
 } ;
 
+namespace U {
+struct OPERATOR_RECAST {
+	template <class _ARG1 ,class _ARG2>
+	inline static PTR<_ARG2> template_recast (PTR<_ARG1> address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG2 ,_ARG1>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+		return _XVALUE_<PTR<_ARG2>> (address) ;
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	inline static PTR<_ARG2> template_recast (PTR<_ARG1> address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		//@warn: RTTI might be different across DLL
+		return dynamic_cast<PTR<_ARG2>> (address) ;
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	inline static PTR<_ARG2> template_recast (PTR<_ARG1> address ,const ARGV<_ARG2> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		return NULL ;
+	}
+
+	template <class _RET ,class _ARG1>
+	inline static PTR<_RET> invoke (PTR<_ARG1> address) {
+		return template_recast (address ,_NULL_<ARGV<CAST_TRAITS_TYPE<_RET ,_ARG1>>> () ,ARGVPX ,ARGVP9) ;
+	}
+} ;
+} ;
+
 template <class UNIT>
 class StrongRef {
 private:
@@ -1775,7 +1795,7 @@ public:
 	template <class _RET>
 	inline StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> recast () const {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		const auto r1x = Detail::template_recast (mPointer ,_NULL_<ARGV<CAST_TRAITS_TYPE<_RET ,UNIT>>> () ,ARGVPX ,ARGVP9) ;
+		const auto r1x = U::OPERATOR_RECAST::template invoke<_RET> (mPointer) ;
 		_DYNAMIC_ASSERT_ (EFLAG (r1x != NULL) == EFLAG (mPointer != NULL)) ;
 		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mHolder ,r1x) ;
 	}
@@ -1865,32 +1885,16 @@ private:
 	class Detail :private Wrapped<void> {
 	public:
 		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> pointer ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-			_DEBUG_ASSERT_ (pointer != NULL) ;
-			const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (pointer) ;
+		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> address ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+			_DEBUG_ASSERT_ (address != NULL) ;
+			const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (address) ;
 			const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>>> (r1x) ;
 			r2x->mHolder = holder ;
 		}
 
 		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> pointer ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
-			_DEBUG_ASSERT_ (pointer != NULL) ;
-		}
-
-		template <class _ARG1>
-		inline static PTR<_ARG1> template_recast (PTR<UNIT> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG1 ,UNIT>::value>> & ,const DEF<decltype (ARGVP3)> &) {
-			return _XVALUE_<PTR<_ARG1>> (pointer) ;
-		}
-
-		template <class _ARG1>
-		inline static PTR<_ARG1> template_recast (PTR<UNIT> pointer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,UNIT>::value && stl::is_always_base_of<Interface ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-			//@warn: RTTI might be different across DLL
-			return dynamic_cast<PTR<_ARG1>> (pointer) ;
-		}
-
-		template <class _ARG1>
-		inline static PTR<_ARG1> template_recast (PTR<UNIT> pointer ,const ARGV<_ARG1> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
-			return NULL ;
+		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> address ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+			_DEBUG_ASSERT_ (address != NULL) ;
 		}
 	} ;
 } ;

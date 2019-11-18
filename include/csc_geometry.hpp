@@ -688,7 +688,7 @@ public:
 		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
 		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
 		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) ;
-		const auto r10x = _PINV_ (r4x[3][3]) ;
+		const auto r10x = _PINV_ (r8x[3]) ;
 		const auto r11x = r5x.magnitude () * r10x * r9x ;
 		const auto r12x = r6x.magnitude () * r10x * r9x ;
 		const auto r13x = r7x.magnitude () * r10x * r9x ;
@@ -697,7 +697,8 @@ public:
 		const auto r15x = r6x.normalize () ;
 		const auto r16x = r7x.normalize () * r9x ;
 		ret[2] = Matrix {r14x ,r15x ,r16x ,Vector<REAL>::axis_w ()} ;
-		const auto r17x = Vector<REAL> {(r8x * r10x).xyz () ,0} ;
+		const auto r17x = r8x * r10x ;
+		const auto r18x = Vector<REAL> {r17x.xyz () ,0} ;
 		ret[3] = Matrix::make_translation (r17x) ;
 		return std::move (ret) ;
 	}
