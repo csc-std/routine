@@ -647,7 +647,7 @@ public:
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
 				const auto r6x = _SWITCH_ (
-					((i + j) % 2 != 0) ? (-r5x) :
+					((i + j) % 2 != 0) ? -r5x :
 					r5x) ;
 				ret.get (j ,i) = r6x ;
 			}
@@ -897,8 +897,8 @@ public:
 		const auto r3x = r2x * _SIGN_ (r1x[3]) ;
 		const auto r4x = REAL (2) * _ATAN_ (r3x ,_ABS_ (r1x[3])) ;
 		const auto r5x = _SWITCH_ (
-			(_PINV_ (r2x) != REAL (0)) ? (r4x * _PINV_ (r2x)) :
-			(REAL (2))) ;
+			(_PINV_ (r2x) != REAL (0)) ? r4x * _PINV_ (r2x) :
+			REAL (2)) ;
 		ret[0] = r1x[0] * r5x ;
 		ret[1] = r1x[1] * r5x ;
 		ret[2] = r1x[2] * r5x ;
@@ -908,7 +908,7 @@ public:
 	static Matrix make_translation (const Vector<REAL> &position) {
 		const auto r1x = _PINV_ (position[3]) ;
 		const auto r2x = _SWITCH_ (
-			(r1x != REAL (0)) ? (-position * r1x) :
+			(r1x != REAL (0)) ? -position * r1x :
 			position) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,REAL (0) ,REAL (0) ,r2x[0]} ,
@@ -925,11 +925,11 @@ public:
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = Vector<REAL> {_ABS_ (normal[0]) ,_ABS_ (normal[1]) ,_ABS_ (normal[2]) ,REAL (0)} ;
 		const auto r3x = _SWITCH_ (
-			(r2x[0] < r2x[2]) ? (Vector<REAL>::axis_x ()) :
-			(Vector<REAL>::axis_z ())) ;
+			(r2x[0] < r2x[2]) ? Vector<REAL>::axis_x () :
+			Vector<REAL>::axis_z ()) ;
 		const auto r4x = _SWITCH_ (
-			(r2x[1] < r2x[2]) ? (Vector<REAL>::axis_y ()) :
-			(Vector<REAL>::axis_z ())) ;
+			(r2x[1] < r2x[2]) ? Vector<REAL>::axis_y () :
+			Vector<REAL>::axis_z ()) ;
 		const auto r5x = _SWITCH_ (
 			(r2x[0] < r2x[1]) ? r3x :
 			r4x) ;
@@ -963,7 +963,7 @@ public:
 		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = _SWITCH_ (
 			(light[3] != REAL (0)) ? light :
-			(light.normalize ())) ;
+			light.normalize ()) ;
 		const auto r3x = (center - Vector<REAL>::axis_w ()) * r1x ;
 		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
 		const auto r5x = r4x * r1x ;

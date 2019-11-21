@@ -153,7 +153,7 @@ public:
 	void compute_load_data (AnyRef<void> &this_ ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
 		_DEBUG_ASSERT_ (vs.size () < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (fs.size () < VAR32_MAX) ;
-		auto rax = UniqueRef<CHAR> ([&] (CHAR &me) {
+		auto tmp = UniqueRef<CHAR> ([&] (CHAR &me) {
 			me = glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = glCreateShader (GL_VERTEX_SHADER) ;
@@ -175,7 +175,7 @@ public:
 		} ,[] (CHAR &me) {
 			glDeleteProgram (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
+		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
 	}
 
 	void compute_active_pipeline (AnyRef<void> &this_) const override {
@@ -243,29 +243,29 @@ public:
 	}
 
 	void compute_sprite_load_data (AnyRef<void> &this_ ,const Mesh &mesh) const override {
-		auto rax = Holder () ;
-		rax.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
+		auto tmp = Holder () ;
+		tmp.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
 			glGenVertexArrays (1 ,&me) ;
 			_DYNAMIC_ASSERT_ (me != GL_INVALID_VALUE) ;
 		} ,[] (CHAR &me) {
 			glDeleteVertexArrays (1 ,&me) ;
 
 		}) ;
-		rax.mVBO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
+		tmp.mVBO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
 			me = AutoBuffer<CHAR> (1) ;
 			glGenBuffers (VAR32 (me.size ()) ,me.self) ;
 		} ,[] (AutoBuffer<CHAR> &me) {
 			glDeleteBuffers (VAR32 (me.size ()) ,me.self) ;
 		}) ;
-		rax.mVTO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
+		tmp.mVTO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
 			me = AutoBuffer<CHAR> (1) ;
 			glGenTextures (VAR32 (me.size ()) ,me.self) ;
 		} ,[] (AutoBuffer<CHAR> &me) {
 			glDeleteTextures (VAR32 (me.size ()) ,me.self) ;
 		}) ;
-		compute_transfer_data (rax ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
-		compute_transfer_data (rax ,mesh.texture ()[0]) ;
-		this_ = AnyRef<SPRITE_NATIVE_TYPE>::make (std::move (rax)) ;
+		compute_transfer_data (tmp ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
+		compute_transfer_data (tmp ,mesh.texture ()[0]) ;
+		this_ = AnyRef<SPRITE_NATIVE_TYPE>::make (std::move (tmp)) ;
 	}
 
 	void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const override {

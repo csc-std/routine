@@ -167,20 +167,20 @@ inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (co
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
 	const auto r1x = _SWITCH_ (
-		(val[0] > 0) ? (val[0] - 1900) :
+		(val[0] > 0) ? val[0] - 1900 :
 		0) ;
 	rax.tm_year = r1x ;
 	const auto r2x = _SWITCH_ (
-		(val[1] > 0) ? (val[1] - 1) :
+		(val[1] > 0) ? val[1] - 1 :
 		0) ;
 	rax.tm_mon = r2x ;
 	rax.tm_mday = val[2] ;
 	const auto r3x = _SWITCH_ (
-		(val[3] > 0) ? (val[3] - 1) :
+		(val[3] > 0) ? val[3] - 1 :
 		0) ;
 	rax.tm_wday = r3x ;
 	const auto r4x = _SWITCH_ (
-		(val[4] > 0) ? (val[4] - 1) :
+		(val[4] > 0) ? val[4] - 1 :
 		0) ;
 	rax.tm_yday = r4x ;
 	rax.tm_hour = val[5] ;

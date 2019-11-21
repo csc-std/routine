@@ -1521,9 +1521,9 @@ template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-	auto rax = std::move (lhs) ;
+	auto tmp = std::move (lhs) ;
 	lhs = std::move (rhs) ;
-	rhs = std::move (rax) ;
+	rhs = std::move (tmp) ;
 }
 
 template <class _ARG1 ,class... _ARGS>

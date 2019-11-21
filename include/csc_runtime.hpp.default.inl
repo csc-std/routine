@@ -58,12 +58,12 @@ private:
 
 public:
 	static void init_break_point (PTR<AnyRef<void>> bp) {
-		auto rax = BREAKPOINT () ;
-		_ZERO_ (rax) ;
-		rax.mStackPoint[0] = _ADDRESS_ (&bp) ;
-		rax.mStackPoint[1] = 0 ;
-		rax.mStackPoint[2] = 0 ;
-		(*bp) = AnyRef<BREAKPOINT>::make (std::move (rax)) ;
+		auto tmp = BREAKPOINT () ;
+		_ZERO_ (tmp) ;
+		tmp.mStackPoint[0] = _ADDRESS_ (&bp) ;
+		tmp.mStackPoint[1] = 0 ;
+		tmp.mStackPoint[2] = 0 ;
+		(*bp) = AnyRef<BREAKPOINT>::make (std::move (tmp)) ;
 	}
 
 	static void store_break_point (PTR<AnyRef<void>> bp) noexcept {

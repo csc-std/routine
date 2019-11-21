@@ -70,9 +70,9 @@ public:
 		if (r2y.mItemQueue.exist ())
 			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
 				return ;
-		auto rax = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
-		rax->appand (std::move (r2y.mItemQueue.self)) ;
-		r2y.mItemQueue = std::move (rax) ;
+		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
+		tmp->appand (std::move (r2y.mItemQueue.self)) ;
+		r2y.mItemQueue = std::move (tmp) ;
 	}
 
 	ITEM poll () popping {
@@ -345,9 +345,9 @@ public:
 		if (r2y.mItemQueue.exist ())
 			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
 				return ;
-		auto rax = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
-		rax->appand (std::move (r2y.mItemQueue.self)) ;
-		r2y.mItemQueue = std::move (rax) ;
+		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
+		tmp->appand (std::move (r2y.mItemQueue.self)) ;
+		r2y.mItemQueue = std::move (tmp) ;
 	}
 
 	void post (const ITEM &item) {

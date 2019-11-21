@@ -618,8 +618,8 @@ private:
 	public:
 		inline static STRU8 index_to_hex_str (INDEX index) {
 			const auto r1x = _SWITCH_ (
-				(index < 10) ? (STRU8 ('0')) :
-				(STRU8 ('A') - 10)) ;
+				(index < 10) ? STRU8 ('0') :
+				STRU8 ('A') - 10) ;
 			return STRU8 (r1x + index) ;
 		}
 	} ;

@@ -11,8 +11,8 @@ inline namespace BASIC {
 template <class _ARG1>
 inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
 	return _SWITCH_ (
-		(val < 0) ? (-val) :
-		(+val)) ;
+		(val < 0) ? -val :
+		+val) ;
 }
 
 template <class _ARG1>
@@ -2778,7 +2778,7 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = _SWITCH_ (
-			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
+			(std::is_pod<UNIT>::value) ? mAllocator.size () :
 			0) ;
 		mSize = r1x ;
 		while (TRUE) {
@@ -2852,7 +2852,7 @@ private:
 	public:
 		inline void lock () {
 			const auto r1x = _SWITCH_ (
-				(std::is_pod<UNIT>::value) ? (Finally::mSelf.mAllocator.size ()) :
+				(std::is_pod<UNIT>::value) ? Finally::mSelf.mAllocator.size () :
 				0) ;
 			Finally::mSelf.mSize = r1x ;
 		}
@@ -2933,7 +2933,7 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = _SWITCH_ (
-			(std::is_pod<UNIT>::value) ? (mAllocator.size ()) :
+			(std::is_pod<UNIT>::value) ? mAllocator.size () :
 			0) ;
 		mSize = r1x ;
 		while (TRUE) {
@@ -3077,14 +3077,14 @@ public:
 		if SWITCH_ONCE (TRUE) {
 			if (mFree != VAR_NONE)
 				discard ;
-			auto rax = mAllocator.expand () ;
+			auto tmp = mAllocator.expand () ;
 			const auto r1x = mSize ;
-			_CREATE_ (&rax[r1x].mData ,std::forward<_ARGS> (initval)...) ;
+			_CREATE_ (&tmp[r1x].mData ,std::forward<_ARGS> (initval)...) ;
 			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
-				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-				rax[i].mNext = VAR_USED ;
+				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+				tmp[i].mNext = VAR_USED ;
 			}
-			mAllocator.swap (rax) ;
+			mAllocator.swap (tmp) ;
 			update_reserve (mSize ,mFree) ;
 			mFree = mAllocator[r1x].mNext ;
 			mAllocator[r1x].mNext = VAR_USED ;
@@ -3124,13 +3124,13 @@ public:
 		if (r1x == 0)
 			return ;
 		_DEBUG_ASSERT_ (mSize + r1x > mSize) ;
-		auto rax = mAllocator.expand (mSize + r1x) ;
+		auto tmp = mAllocator.expand (mSize + r1x) ;
 		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
 			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-			rax[i].mNext = mAllocator[i].mNext ;
+				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+			tmp[i].mNext = mAllocator[i].mNext ;
 		}
-		mAllocator.swap (rax) ;
+		mAllocator.swap (tmp) ;
 		update_reserve (mSize ,mFree) ;
 	}
 
@@ -3142,13 +3142,13 @@ public:
 		if (r1x == mSize)
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
-		auto rax = mAllocator.expand (r1x) ;
-		for (INDEX i = 0 ,ie = rax.size () ; i < ie ; i++) {
+		auto tmp = mAllocator.expand (r1x) ;
+		for (INDEX i = 0 ,ie = tmp.size () ; i < ie ; i++) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
-			_CREATE_ (&rax[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-			rax[i].mNext = VAR_USED ;
+			_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+			tmp[i].mNext = VAR_USED ;
 		}
-		mAllocator.swap (rax) ;
+		mAllocator.swap (tmp) ;
 		update_reserve (r1x ,VAR_NONE) ;
 	}
 

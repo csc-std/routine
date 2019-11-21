@@ -330,8 +330,8 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 		ret[1]++ ;
 	}
 	const auto r3x = _SWITCH_ (
-		((r1x & DATA (0X8000000000000000)) == 0) ? (DATA (0)) :
-		(DATA (-1))) ;
+		((r1x & DATA (0X8000000000000000)) == 0) ? DATA (0) :
+		DATA (-1)) ;
 	ret[2] = r3x ;
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }

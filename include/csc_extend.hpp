@@ -242,8 +242,8 @@ public:
 	inline implicit VAR128 (VAR64 that) {
 		v2i1 = DATA (that) ;
 		const auto r1x = _SWITCH_ (
-			(that >= 0) ? (DATA (0)) :
-			(DATA (-1))) ;
+			(that >= 0) ? DATA (0) :
+			DATA (-1)) ;
 		v2i0 = r1x ;
 	}
 
@@ -652,11 +652,11 @@ private:
 				if (r1x == y)
 					break ;
 				auto &r2y = _SWITCH_ (
-					(r1x < y) ? (rax[0]) :
-					(rax[1])) ;
+					(r1x < y) ? rax[0] :
+					rax[1]) ;
 				const auto r3x = _SWITCH_ (
-					(r1x < y) ? (ret + 1) :
-					(ret - 1)) ;
+					(r1x < y) ? ret + 1 :
+					ret - 1) ;
 				r2y = r3x ;
 			}
 			ret -= EFLAG (ret * x > y) ;
@@ -778,8 +778,8 @@ private:
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
 		return _SWITCH_ (
-			(std::is_default_constructible<_ARG2>::value) ? (_ARG1::value) :
-			(default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()))) ;
+			(std::is_default_constructible<_ARG2>::value) ? _ARG1::value :
+			default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
 	}
 
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
@@ -2743,7 +2743,7 @@ private:
 				if (!empty_node (i))
 					continue ;
 				auto &r1y = _SWITCH_ (
-					(i->mPrev != NULL) ? (i->mPrev->mNext) :
+					(i->mPrev != NULL) ? i->mPrev->mNext :
 					mRoot) ;
 				r1y = i->mNext ;
 				if (i->mNext != NULL)
@@ -2831,7 +2831,7 @@ private:
 			_DEBUG_ASSERT_ (address != NULL) ;
 			auto &r1y = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
 			auto &r2y = _SWITCH_ (
-				(r1y.mPrev != NULL) ? (r1y.mPrev->mNext) :
+				(r1y.mPrev != NULL) ? r1y.mPrev->mNext :
 				mRoot) ;
 			r2y = r1y.mNext ;
 			if (r1y.mNext != NULL)

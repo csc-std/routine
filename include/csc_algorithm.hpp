@@ -344,8 +344,8 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 			mNextCenterList.clear () ;
 			for (auto &&i : mClusterSet) {
 				const auto r1x = _SWITCH_ (
-					(i.item.length () > 0) ? (average_center (i.item)) :
-					(mCurrCenterList[i.key])) ;
+					(i.item.length () > 0) ? average_center (i.item) :
+					mCurrCenterList[i.key]) ;
 				mNextCenterList.add (r1x) ;
 			}
 			_DEBUG_ASSERT_ (mCenterIndex.size () == mNextCenterList.length ()) ;
@@ -877,8 +877,8 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
 				const auto r2x = _SWITCH_ (
-					(mDXLoss[2] > REAL (0)) ? (mDXLoss[2]) :
-					(mDXLoss[1])) ;
+					(mDXLoss[2] > REAL (0)) ? mDXLoss[2] :
+					mDXLoss[1]) ;
 				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;

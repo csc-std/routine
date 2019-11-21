@@ -602,7 +602,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
 					auto &r3y = _SWITCH_ (
 						(ix == VAR_NONE) ? ix :
-						(mNodeHeap[iy].mBrother)) ;
+						mNodeHeap[iy].mBrother) ;
 					r3y = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
@@ -1620,7 +1620,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				r1y.add (r1y.length () ,mLatestIndex) ;
 				auto &r2y = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
-					(mNodeHeap[iy].mBrother)) ;
+					mNodeHeap[iy].mBrother) ;
 				r2y = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> RegularReader<>::SKIP_GAP ;
@@ -1674,7 +1674,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				update_shift_e7 (curr) ;
 				auto &r1y = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
-					(mNodeHeap[iy].mBrother)) ;
+					mNodeHeap[iy].mBrother) ;
 				r1y = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> RegularReader<>::SKIP_GAP ;

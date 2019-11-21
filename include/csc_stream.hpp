@@ -1382,8 +1382,8 @@ public:
 		static constexpr auto M_FALSE = PACK<REAL[5]> ({
 			REAL ('f') ,REAL ('a') ,REAL ('l') ,REAL ('s') ,REAL ('e')}) ;
 		const auto r1x = _SWITCH_ (
-			data ? (PhanBuffer<const REAL>::make (M_TRUE.P1)) :
-			(PhanBuffer<const REAL>::make (M_FALSE.P1))) ;
+			data ? PhanBuffer<const REAL>::make (M_TRUE.P1) :
+			PhanBuffer<const REAL>::make (M_FALSE.P1)) ;
 		write (r1x) ;
 	}
 

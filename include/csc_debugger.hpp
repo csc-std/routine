@@ -355,7 +355,8 @@ private:
 
 	exports struct Abstract :public Interface {
 		virtual LENGTH buffer_size () const = 0 ;
-		virtual void modify_option (FLAG option) = 0 ;
+		virtual void enable_option (FLAG option) = 0 ;
+		virtual void disable_option (FLAG option) = 0 ;
 		virtual void print (const Binder &msg) = 0 ;
 		virtual void fatal (const Binder &msg) = 0 ;
 		virtual void error (const Binder &msg) = 0 ;
@@ -384,9 +385,14 @@ public:
 		return mThis->buffer_size () ;
 	}
 
-	void modify_option (FLAG option) {
+	void enable_option (FLAG option) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->modify_option (option) ;
+		mThis->enable_option (option) ;
+	}
+
+	void disable_option (FLAG option) {
+		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		mThis->disable_option (option) ;
 	}
 
 	template <class... _ARGS>

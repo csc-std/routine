@@ -62,12 +62,12 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &this_) const override {
-		auto rax = UniqueRef<MYSQL> ([&] (MYSQL &me) {
+		auto tmp = UniqueRef<MYSQL> ([&] (MYSQL &me) {
 			::mysql_init (&me) ;
 		} ,[] (MYSQL &me) {
 			::mysql_close (&me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (rax)) ;
+		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
 	}
 
 private:

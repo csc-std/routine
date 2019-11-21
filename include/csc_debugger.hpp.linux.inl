@@ -56,7 +56,7 @@ public:
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
-		modify_option (OPTION_DEFAULT) ;
+		enable_option (OPTION_DEFAULT) ;
 		mLogPath = String<STR> () ;
 	}
 
@@ -64,10 +64,12 @@ public:
 		return mBufferSize ;
 	}
 
-	void modify_option (FLAG option) override {
-		if (option == OPTION_DEFAULT)
-			mOptionFlag = OPTION_DEFAULT ;
+	void enable_option (FLAG option) override {
 		mOptionFlag |= option ;
+	}
+
+	void disable_option (FLAG option) override {
+		mOptionFlag &= ~option ;
 	}
 
 	void print (const Binder &msg) override {

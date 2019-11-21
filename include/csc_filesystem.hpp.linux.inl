@@ -209,8 +209,8 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 
 inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 	const auto r1x = _SWITCH_ (
-		(file.empty ()) ? (PhanBuffer<const STR> ()) :
-		(file.raw ())) ;
+		(file.empty ()) ? PhanBuffer<const STR> () :
+		file.raw ()) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
@@ -296,10 +296,10 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			if (!(rax.length () >= 1 && rax[rax.access (0)] == _PCSTR_ ("..")))
 				discard ;
 		const auto r1x = _WORKINGPATH_ () ;
-		auto rbx = _DECOUPLEPATHNAME_ (r1x) ;
+		auto tmp = _DECOUPLEPATHNAME_ (r1x) ;
 		for (auto &&i : rax)
-			rbx.add (std::move (i)) ;
-		rax = std::move (rbx) ;
+			tmp.add (std::move (i)) ;
+		rax = std::move (tmp) ;
 		if (!(r1x.size () >= 1 && r1x[0] == STR ('\\')))
 			if (!(r1x.size () >= 1 && r1x[0] == STR ('/')))
 				discard ;
