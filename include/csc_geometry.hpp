@@ -699,7 +699,7 @@ public:
 		ret[2] = Matrix {r14x ,r15x ,r16x ,Vector<REAL>::axis_w ()} ;
 		const auto r17x = r8x * r10x ;
 		const auto r18x = Vector<REAL> {r17x.xyz () ,0} ;
-		ret[3] = Matrix::make_translation (r17x) ;
+		ret[3] = Matrix::make_translation (r18x) ;
 		return std::move (ret) ;
 	}
 

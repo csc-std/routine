@@ -913,7 +913,8 @@ inline namespace STRING {
 template <class _ARG1>
 inline BOOL _PARSEBOOLS_ (const String<_ARG1> &stri) {
 	BOOL ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -921,14 +922,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDBOOLS_ (const BOOL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (7) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAR32 _PARSEVAR32S_ (const String<_ARG1> &stri) {
 	VAR32 ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -936,14 +939,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVAR32S_ (const VAR32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAR64 _PARSEVAR64S_ (const String<_ARG1> &stri) {
 	VAR64 ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -951,14 +956,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVAR64S_ (const VAR64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAR _PARSEVARS_ (const String<_ARG1> &stri) {
 	VAR ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -966,14 +973,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVARS_ (const VAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAL32 _PARSEVAL32S_ (const String<_ARG1> &stri) {
 	VAL32 ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -981,14 +990,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVAL32S_ (const VAL32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAL64 _PARSEVAL64S_ (const String<_ARG1> &stri) {
 	VAL64 ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -996,14 +1007,16 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVAL64S_ (const VAL64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline VAL _PARSEVALS_ (const String<_ARG1> &stri) {
 	VAL ret ;
-	TextReader<_ARG1> (stri.raw ()) >> ret >> _EOS_ ;
+	auto ris = TextReader<_ARG1> (stri.raw ()) ;
+	ris >> ret >> _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -1011,7 +1024,8 @@ template <class _RET = STR>
 inline String<_RET> _BUILDVALS_ (const VAL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	TextWriter<_RET> (ret.raw ()) << stru << _EOS_ ;
+	auto wos = TextWriter<_RET> (ret.raw ()) ;
+	wos << stru << _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -1333,8 +1347,8 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ris >> rbx ;
 	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
 	const auto r4x = BYTE (rbx) ;
-	const auto r5x = PACK<BYTE[4]> {r1x ,r2x ,r3x ,r4x} ;
-	_CAST_<EndianBytes<CHAR>> (r5x.P1) >>= ret.P2 ;
+	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
+	ByteReader (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
 	if SWITCH_ONCE (TRUE) {
@@ -1354,7 +1368,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
 	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
-	_CAST_<EndianBytes<CHAR>> (rax.P1) <<= stru.P2 ;
+	ByteWriter (PhanBuffer<BYTE>::make (rax.P1)) << stru.P2 ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
 	wos << VAR (rax.P1[0]) ;
 	wos << _RET ('.') ;

@@ -2481,8 +2481,8 @@ public:
 	inline implicit Lazy (const UNIT &that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = PhanRef<const ApplyTo>::make (_CAST_<ApplyTo> (that)) ;
-		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (r2x ,&ApplyTo::friend_move) ;
+		auto &r2y = _CAST_<ApplyTo> (that) ;
+		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (r2y) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r3x) ;
 		r1x->mData.finish () ;
 		mThis.assign (r1x) ;
@@ -2492,8 +2492,8 @@ public:
 	inline implicit Lazy (UNIT &&that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		const auto r2x = PhanRef<ApplyTo>::make (_CAST_<ApplyTo> (that)) ;
-		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (r2x ,&ApplyTo::friend_move) ;
+		auto &r2y = _CAST_<ApplyTo> (that) ;
+		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (r2y) ,&ApplyTo::friend_move) ;
 		r1x->mData.apply (r3x) ;
 		r1x->mData.finish () ;
 		mThis.assign (r1x) ;

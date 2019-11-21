@@ -7,7 +7,7 @@ public:
 	TEST_METHOD (TEST_CSC_STREAM) {
 		const auto r1x = CSC::CHAR (0X11223344) ;
 		auto rax = PACK<CSC::BYTE[_SIZEOF_ (CSC::CHAR)]> () ;
-		_CAST_<EndianBytes<CSC::CHAR>> (rax.P1) <<= r1x ;
+		ByteWriter (PhanBuffer<CSC::BYTE>::make (rax.P1)) << r1x ;
 		_UNITTEST_ASSERT_ (rax.P1[0] == CSC::BYTE (0X11)) ;
 		_UNITTEST_ASSERT_ (rax.P1[1] == CSC::BYTE (0X22)) ;
 		_UNITTEST_ASSERT_ (rax.P1[2] == CSC::BYTE (0X33)) ;

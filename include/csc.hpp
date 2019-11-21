@@ -1421,7 +1421,7 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 template <class _ARG1>
 inline LENGTH _ADDRESS_ (PTR<_ARG1> address) popping {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
-	//@info: as 'asm volatile("" :: "rm" (address) : "memory") ;'
+	//@info: as 'asm volatile ("" :: "rm" (address) : "memory") ;'
 	static volatile PTR<void (PTR<_ARG1>)> mInstance = _XVALUE_<PTR<void (PTR<_ARG1>)>> ([] (PTR<_ARG1>) {}) ;
 	mInstance (address) ;
 	return LENGTH (address) ;
@@ -1441,11 +1441,12 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (!(std::is_pointer<_ARG1>::value && !std::is_same<_RET ,TEMP<_ARG1>>::value)) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
-	const auto r1x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (&object)) ;
+	const auto r1x = _ADDRESS_ (&object) ;
+	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
 #ifdef __CSC_COMPILER_GNUC__
 	_ADDRESS_ (&object) ;
 #endif
-	return (*r1x) ;
+	return (*r2x) ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
@@ -1455,13 +1456,14 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
-	_DEBUG_ASSERT_ (_ADDRESS_ (address) % r1x == 0) ;
+	const auto r2x = _ADDRESS_ (address) ;
+	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	(void) r1x ;
-	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (_ADDRESS_ (address)) ;
+	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 #ifdef __CSC_COMPILER_GNUC__
 	_ADDRESS_ (address) ;
 #endif
-	return (*r2x) ;
+	return (*r3x) ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing

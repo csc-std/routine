@@ -64,71 +64,9 @@ using TEXT_TRAITS_TYPE = typename U::TEXT_TRAITS<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_A
 using STRUA = U::TEXT_TRAITS_TYPE<STRA> ;
 using STRUW = U::TEXT_TRAITS_TYPE<STRW> ;
 
-template <class UNIT>
-class EndianBytes :private Wrapped<BYTE[_SIZEOF_ (UNIT)]> {
-private:
-	inline static constexpr BYTE constexpr_big_endian (const ARGV<BYTE> &) {
-		//@info: 'big endian' [0] -> 0X00
-		return BYTE (0X00) ;
-	}
-
-	inline static constexpr WORD constexpr_big_endian (const ARGV<WORD> &) {
-		//@info: 'big endian' [0] -> 0X00
-		return WORD (0X0001) ;
-	}
-
-	inline static constexpr CHAR constexpr_big_endian (const ARGV<CHAR> &) {
-		//@info: 'big endian' [0] -> 0X00
-		return CHAR (0X00010203) ;
-	}
-
-	inline static constexpr DATA constexpr_big_endian (const ARGV<DATA> &) {
-		//@info: 'big endian' [0] -> 0X00
-		return DATA (0X0001020304050607) ;
-	}
-
-private:
-	_STATIC_ASSERT_ (stl::is_byte_xyz<UNIT>::value) ;
-
-public:
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,UNIT>::value>>
-	inline void operator>>= (_ARG1 &that) const & {
-		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
-		that = endian_bitwise_cast (_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)) ;
-	}
-
-	template <class _ARG1>
-	inline void operator>>= (_ARG1 &) && = delete ;
-
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,UNIT>::value>>
-	inline void operator<<= (const _ARG1 &that) & {
-		const auto r1x = constexpr_big_endian (_NULL_<ARGV<UNIT>> ()) ;
-		endian_bitwise_assign (_CAST_<TEMP<UNIT>> (that) ,_CAST_<BYTE[_SIZEOF_ (UNIT)]> (r1x)) ;
-	}
-
-	template <class _ARG1>
-	inline void operator<<= (const _ARG1 &) && = delete ;
-
-private:
-	inline UNIT endian_bitwise_cast (const DEF<BYTE[_SIZEOF_ (UNIT)]> &endian) const {
-		TEMP<UNIT> ret ;
-		_ZERO_ (ret) ;
-		for (INDEX i = 0 ,ie = _SIZEOF_ (UNIT) ; i < ie ; i++)
-			ret.unused[i] = EndianBytes::mSelf[endian[i]] ;
-		return std::move (_CAST_<UNIT> (ret)) ;
-	}
-
-	inline void endian_bitwise_assign (const TEMP<UNIT> &that ,const DEF<BYTE[_SIZEOF_ (UNIT)]> &endian) {
-		for (INDEX i = 0 ,ie = _SIZEOF_ (UNIT) ; i < ie ; i++)
-			EndianBytes::mSelf[endian[i]] = that.unused[i] ;
-	}
-} ;
-
 class ByteReader {
 private:
-	struct HEAP {
-		BYTE mNull ;
-	} ;
+	struct HEAP {} ;
 
 	class Attribute :private Wrapped<HEAP> {
 	public:
@@ -231,10 +169,11 @@ public:
 	}
 
 	void read (WORD &data) popping {
-		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			read (rax.P1[i]) ;
-		_CAST_<EndianBytes<WORD>> (rax.P1) >>= data ;
+		const auto r1x = WORD (0X0001) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			read (r3y[r2y[i]]) ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) popping {
@@ -243,10 +182,11 @@ public:
 	}
 
 	void read (CHAR &data) popping {
-		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			read (rax.P1[i]) ;
-		_CAST_<EndianBytes<CHAR>> (rax.P1) >>= data ;
+		const auto r1x = CHAR (0X00010203) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			read (r3y[r2y[i]]) ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) popping {
@@ -255,10 +195,11 @@ public:
 	}
 
 	void read (DATA &data) popping {
-		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			read (rax.P1[i]) ;
-		_CAST_<EndianBytes<DATA>> (rax.P1) >>= data ;
+		const auto r1x = DATA (0X0001020304050607) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			read (r3y[r2y[i]]) ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) popping {
@@ -498,10 +439,11 @@ public:
 	}
 
 	void write (const WORD &data) {
-		auto rax = PACK<BYTE[_SIZEOF_ (WORD)]> () ;
-		_CAST_<EndianBytes<WORD>> (rax.P1) <<= data ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			write (rax.P1[i]) ;
+		const auto r1x = WORD (0X0001) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			write (r3y[r2y[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const WORD &data) {
@@ -510,10 +452,11 @@ public:
 	}
 
 	void write (const CHAR &data) {
-		auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
-		_CAST_<EndianBytes<CHAR>> (rax.P1) <<= data ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			write (rax.P1[i]) ;
+		const auto r1x = CHAR (0X00010203) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			write (r3y[r2y[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const CHAR &data) {
@@ -522,10 +465,11 @@ public:
 	}
 
 	void write (const DATA &data) {
-		auto rax = PACK<BYTE[_SIZEOF_ (DATA)]> () ;
-		_CAST_<EndianBytes<DATA>> (rax.P1) <<= data ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (rax.P1)) ; i < ie ; i++)
-			write (rax.P1[i]) ;
+		const auto r1x = DATA (0X0001020304050607) ;
+		auto &r2y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
+		auto &r3y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (r3y)) ; i < ie ; i++)
+			write (r3y[r2y[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const DATA &data) {
@@ -611,7 +555,7 @@ public:
 		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data.self[i]) ;
 #pragma GCC diagnostic pop
-	}
+}
 
 	template <class _ARG1>
 	inline ByteWriter &operator<< (const Plain<_ARG1> &data) {
@@ -693,7 +637,8 @@ private:
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
 			U::BYTE_TRAITS_TYPE<REAL> ret ;
-			_CAST_<EndianBytes<U::BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			auto &r1y = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+			ByteReader (PhanBuffer<const BYTE>::make (r1y)) >> ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1070,7 +1015,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
 		read (data) ;
@@ -1259,7 +1204,8 @@ private:
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
 			U::BYTE_TRAITS_TYPE<REAL> ret ;
-			_CAST_<EndianBytes<U::BYTE_TRAITS_TYPE<REAL>>> (item) >>= ret ;
+			auto &r1y = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+			ByteReader (PhanBuffer<const BYTE>::make (r1y)) >> ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1573,7 +1519,7 @@ public:
 		for (INDEX i = 0 ,ie = data.size () ; i < ie ; i++)
 			write (data.self[i]) ;
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
 		write (data) ;
@@ -2129,7 +2075,7 @@ public:
 			read () ;
 		}
 #pragma GCC diagnostic pop
-		}
+}
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;

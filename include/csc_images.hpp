@@ -847,7 +847,6 @@ public:
 
 	inline Row<AbstractImage> operator[] (INDEX) && = delete ;
 
-
 	template <class _RET>
 	inline NativeProxy<_RET> native () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
