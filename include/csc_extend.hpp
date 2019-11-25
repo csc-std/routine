@@ -2628,7 +2628,7 @@ class MemoryPool {
 private:
 	struct HEADER ;
 
-	struct Pool :public Interface {
+	exports struct Pool :public Interface {
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH length () const = 0 ;
 		virtual PTR<HEADER> alloc (LENGTH) popping = 0 ;
@@ -2952,7 +2952,7 @@ public:
 
 class Object ;
 
-struct Objective :public Interface {
+exports struct Objective :public Interface {
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
@@ -3007,7 +3007,7 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	struct Binder :public Interface {
+	exports struct Binder :public Interface {
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 

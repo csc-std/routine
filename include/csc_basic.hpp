@@ -964,7 +964,7 @@ class AnyRef ;
 template <>
 class AnyRef<void> {
 private:
-	struct Holder :public Interface {
+	exports struct Holder :public Interface {
 		virtual FLAG typeuid () const = 0 ;
 	} ;
 
@@ -1159,12 +1159,96 @@ public:
 	}
 } ;
 
+template <class>
+class UniqueRef ;
+
+template <>
+class UniqueRef<void> {
+private:
+	exports struct Holder :public Interface {
+		virtual void release () = 0 ;
+	} ;
+
+	template <class UNIT_>
+	class ImplHolder :public Holder {
+	private:
+		UNIT_ mFunctor ;
+
+	public:
+		inline ImplHolder () = delete ;
+
+		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
+
+		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
+
+		inline void release () override {
+			mFunctor () ;
+		}
+	} ;
+
+private:
+	template <class>
+	friend class UniqueRef ;
+	PTR<Holder> mPointer ;
+
+public:
+	inline UniqueRef () noexcept {
+		mPointer = NULL ;
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
+		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
+		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
+		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		constructor () ;
+		mPointer = &r1y ;
+		rax = NULL ;
+	}
+
+	inline ~UniqueRef () noexcept {
+		if (mPointer == NULL)
+			return ;
+		_CALL_TRY_ ([&] () {
+			mPointer->release () ;
+		}) ;
+		mPointer->~Holder () ;
+		GlobalHeap::free (mPointer) ;
+		mPointer = NULL ;
+	}
+
+	inline UniqueRef (const UniqueRef &) = delete ;
+	inline UniqueRef &operator= (const UniqueRef &) = delete ;
+
+	inline UniqueRef (UniqueRef &&that) noexcept {
+		mPointer = _EXCHANGE_ (that.mPointer) ;
+	}
+
+	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
+		if SWITCH_ONCE (TRUE) {
+			if (this == &that)
+				discard ;
+			(*this).~UniqueRef () ;
+			new (this) UniqueRef (std::move (that)) ;
+		}
+		return (*this) ;
+	}
+
+	inline BOOL exist () const {
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
+	}
+} ;
+
 template <class UNIT>
 class UniqueRef {
 private:
-	struct Holder :public Interface {
-		virtual void release () = 0 ;
-	} ;
+	using Holder = typename UniqueRef<void>::Holder ;
 
 	template <class UNIT_>
 	class ImplHolder :public Holder {
@@ -1175,6 +1259,8 @@ private:
 
 	public:
 		inline ImplHolder () = delete ;
+
+		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
 
 		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
 
@@ -1271,85 +1357,6 @@ public:
 	}
 } ;
 
-template <>
-class UniqueRef<void> {
-private:
-	struct Holder :public Interface {
-		virtual void release () = 0 ;
-	} ;
-
-	template <class UNIT_>
-	class ImplHolder :public Holder {
-	private:
-		UNIT_ mFunctor ;
-
-	public:
-		inline ImplHolder () = delete ;
-
-		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
-
-		inline void release () override {
-			mFunctor () ;
-		}
-	} ;
-
-private:
-	PTR<Holder> mPointer ;
-
-public:
-	inline UniqueRef () noexcept {
-		mPointer = NULL ;
-	}
-
-	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
-		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
-		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
-		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
-		constructor () ;
-		mPointer = &r1y ;
-		rax = NULL ;
-	}
-
-	inline ~UniqueRef () noexcept {
-		if (mPointer == NULL)
-			return ;
-		_CALL_TRY_ ([&] () {
-			mPointer->release () ;
-		}) ;
-		mPointer->~Holder () ;
-		GlobalHeap::free (mPointer) ;
-		mPointer = NULL ;
-	}
-
-	inline UniqueRef (const UniqueRef &) = delete ;
-	inline UniqueRef &operator= (const UniqueRef &) = delete ;
-
-	inline UniqueRef (UniqueRef &&that) noexcept {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
-	}
-
-	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
-			if (this == &that)
-				discard ;
-			(*this).~UniqueRef () ;
-			new (this) UniqueRef (std::move (that)) ;
-		}
-		return (*this) ;
-	}
-
-	inline BOOL exist () const {
-		if (mPointer == NULL)
-			return FALSE ;
-		return TRUE ;
-	}
-} ;
-
 template <class UNIT>
 class PhanRef {
 private:
@@ -1425,7 +1432,7 @@ class Function ;
 template <class UNIT1 ,class... UNITS>
 class Function<UNIT1 (UNITS...)> {
 private:
-	struct Holder :public Interface {
+	exports struct Holder :public Interface {
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;
 
@@ -1543,7 +1550,7 @@ class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>> {
 private:
 	class FakeHolder ;
 
-	struct Holder :public Interface {
+	exports struct Holder :public Interface {
 		virtual void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;

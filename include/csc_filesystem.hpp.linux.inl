@@ -297,8 +297,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 				discard ;
 		const auto r1x = _WORKINGPATH_ () ;
 		auto tmp = _DECOUPLEPATHNAME_ (r1x) ;
-		for (auto &&i : rax)
-			tmp.add (std::move (i)) ;
+		tmp.appand (std::move (rax)) ;
 		rax = std::move (tmp) ;
 		if (!(r1x.size () >= 1 && r1x[0] == STR ('\\')))
 			if (!(r1x.size () >= 1 && r1x[0] == STR ('/')))

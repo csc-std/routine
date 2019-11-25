@@ -54,7 +54,8 @@ public:
 		_UNITTEST_ASSERT_ (r3x (1 ,1) == 1) ;
 	}
 
-	struct CLASS_XA :public Interface {
+	class CLASS_XA :public Interface {
+	public:
 		virtual int func1 () const = 0 ;
 		virtual int func2 () const = 0 ;
 	} ;

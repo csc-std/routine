@@ -43,6 +43,7 @@ private:
 	TextWriter<STR> mLogWriter ;
 	LENGTH mBufferSize ;
 	FLAG mOptionFlag ;
+	UniqueRef<VAR32> mConsole ;
 	String<STR> mLogPath ;
 	AutoRef<StreamLoader> mLogFileStream ;
 
@@ -56,7 +57,7 @@ public:
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
-		enable_option (OPTION_DEFAULT) ;
+		mOptionFlag = OPTION_DEFAULT ;
 		mLogPath = String<STR> () ;
 	}
 
@@ -74,6 +75,7 @@ public:
 
 	void print (const Binder &msg) override {
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("%s\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -89,6 +91,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_FATAL) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;34m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -104,6 +107,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_ERROR) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;31m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -119,6 +123,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_WARN) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;33m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -134,6 +139,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_INFO) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;32m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -149,6 +155,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_DEBUG) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;36m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -164,6 +171,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_VERBOSE) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;37m%s\033[0m\n") ,mConWriter.raw ().self) ;
 #elif defined __CSC_CONFIG_STRW__
@@ -201,18 +209,16 @@ public:
 	}
 
 	void show () override {
-		_STATIC_WARNING_ ("noop") ;
+		mConsole = UniqueRef<VAR32>::make (1) ;
 	}
 
 	void hide () override {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	void flash () override {
-		_STATIC_WARNING_ ("noop") ;
+		mConsole = UniqueRef<VAR32> () ;
 	}
 
 	void pause () override {
+		if (!mConsole.exist ())
+			return ;
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("press any key to continue...\n")) ;
 		const auto r1x = std::getchar () ;
@@ -225,8 +231,13 @@ public:
 	}
 
 	void clear () override {
-		const auto r1x = std::system (_PCSTRA_ ("clear")) ;
-		(void) r1x ;
+		if (!mConsole.exist ())
+			return ;
+#ifdef __CSC_CONFIG_STRA__
+		std::printf (_PCSTR_ ("\f\f")) ;
+#elif defined __CSC_CONFIG_STRW__
+		std::wprintf (_PCSTR_ ("\f\f")) ;
+#endif
 	}
 
 private:
@@ -234,6 +245,12 @@ private:
 		mConWriter << _CLS_ ;
 		mConWriter << msg ;
 		mConWriter << _EOS_ ;
+	}
+
+	void attach_console () {
+		if (mConsole.exist ())
+			return ;
+		mConsole = UniqueRef<VAR32>::make (0) ;
 	}
 
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {

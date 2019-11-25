@@ -249,7 +249,6 @@ public:
 			_DYNAMIC_ASSERT_ (me != GL_INVALID_VALUE) ;
 		} ,[] (CHAR &me) {
 			glDeleteVertexArrays (1 ,&me) ;
-
 		}) ;
 		tmp.mVBO = UniqueRef<AutoBuffer<CHAR>> ([&] (AutoBuffer<CHAR> &me) {
 			me = AutoBuffer<CHAR> (1) ;

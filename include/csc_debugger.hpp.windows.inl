@@ -80,8 +80,7 @@ public:
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
-		attach_console () ;
-		enable_option (OPTION_DEFAULT) ;
+		mOptionFlag = OPTION_DEFAULT ;
 		mLogPath = String<STR> () ;
 	}
 
@@ -99,6 +98,7 @@ public:
 
 	void print (const Binder &msg) override {
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -115,6 +115,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_FATAL) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -131,6 +132,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_ERROR) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -147,6 +149,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_WARN) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -163,6 +166,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_INFO) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -179,6 +183,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_DEBUG) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -195,6 +200,7 @@ public:
 		if ((mOptionFlag & OPTION_NO_VERBOSE) != 0)
 			return ;
 		write_con_buffer (msg) ;
+		attach_console () ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY)) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -222,7 +228,7 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		log (PhanBuffer<const STR>::make (tag.self ,tag.size ()) ,ImplBinder<PhanBuffer<const STR>> (msg)) ;
-	}
+}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
 		write_log_buffer (tag ,msg) ;
@@ -233,9 +239,6 @@ public:
 	}
 
 	void show () override {
-		if (mConsole.exist ())
-			if (mConsole.self != NULL)
-				return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			AllocConsole () ;
 			me = GetStdHandle (STD_OUTPUT_HANDLE) ;
@@ -246,27 +249,24 @@ public:
 	}
 
 	void hide () override {
-		attach_console () ;
+		mConsole = UniqueRef<HANDLE> () ;
 	}
 
-	void flash () override {
+	void pause () override {
 		if (!mConsole.exist ())
-			return ;
-		if (mConsole.self == NULL)
 			return ;
 		const auto r1x = GetConsoleWindow () ;
 		if (r1x == NULL)
 			return ;
 		FlashWindow (r1x ,TRUE) ;
-	}
-
-	void pause () override {
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
-		const auto r1x = std::system (_PCSTRA_ ("pause")) ;
-		(void) r1x ;
+		const auto r2x = std::system (_PCSTRA_ ("pause")) ;
+		(void) r2x ;
 	}
 
 	void clear () override {
+		if (!mConsole.exist ())
+			return ;
 		const auto r1x = std::system (_PCSTRA_ ("cls")) ;
 		(void) r1x ;
 	}

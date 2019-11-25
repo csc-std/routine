@@ -325,7 +325,7 @@ public:
 	static constexpr auto OPTION_TESTING = FLAG (0X00000100) ;
 
 private:
-	struct Binder :public Interface {
+	exports struct Binder :public Interface {
 		virtual void friend_write (TextWriter<STR> &writer) const = 0 ;
 	} ;
 
@@ -368,7 +368,6 @@ private:
 		virtual void log (const PhanBuffer<const STR> &tag ,const Binder &msg) = 0 ;
 		virtual void show () = 0 ;
 		virtual void hide () = 0 ;
-		virtual void flash () = 0 ;
 		virtual void pause () = 0 ;
 		virtual void clear () = 0 ;
 	} ;
@@ -451,11 +450,6 @@ public:
 	void show () {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->show () ;
-	}
-
-	void flash () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		mThis->flash () ;
 	}
 
 	void pause () {
