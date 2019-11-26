@@ -4681,9 +4681,8 @@ private:
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mLeft].mLeft) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mLeft].mRight) ;
 		mTop = ix ;
-		if (r1x >= r2x)
-			if (r1x >= r3x)
-				return ;
+		if (r1x >= _MAX_ (r2x ,r3x))
+			return ;
 		if SWITCH_ONCE (TRUE) {
 			if (r1x < r2x)
 				discard ;
@@ -4715,9 +4714,8 @@ private:
 		const auto r2x = node_weight (mSet.self[mSet.self[ix].mRight].mRight) ;
 		const auto r3x = node_weight (mSet.self[mSet.self[ix].mRight].mLeft) ;
 		mTop = ix ;
-		if (r1x >= r2x)
-			if (r1x >= r3x)
-				return ;
+		if (r1x >= _MAX_ (r2x ,r3x))
+			return ;
 		if SWITCH_ONCE (TRUE) {
 			if (r1x < r2x)
 				discard ;

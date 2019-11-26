@@ -876,10 +876,10 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			if SWITCH_CASE (fax) {
 				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
-				const auto r2x = _SWITCH_ (
+				auto &r2y = _SWITCH_ (
 					(mDXLoss[2] > REAL (0)) ? mDXLoss[2] :
 					mDXLoss[1]) ;
-				mDXLoss[0] = r2x ;
+				mDXLoss[0] = r2y ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			}

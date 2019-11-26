@@ -880,10 +880,9 @@ private:
 	class Detail :private Wrapped<void> {
 	public:
 		inline static STRU8 index_to_hex_str (INDEX index) {
-			const auto r1x = _SWITCH_ (
-				(index < 10) ? STRU8 ('0') :
-				STRU8 ('A') - 10) ;
-			return STRU8 (r1x + index) ;
+			if (index < 10)
+				return STRU8 ('0') + STRU8 (index) ;
+			return STRU8 ('A') + STRU8 (index - 10) ;
 		}
 	} ;
 } ;

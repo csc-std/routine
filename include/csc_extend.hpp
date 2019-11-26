@@ -2503,7 +2503,6 @@ public:
 	inline implicit Lazy (Function<DEF<UNIT ()> NONE::*> &&that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mEvaluator = std::move (that) ;
 		mThis.assign (r1x) ;
@@ -2513,7 +2512,6 @@ public:
 	inline explicit Lazy (Function<UNIT ()> &&that) {
 		mThis = SoftRef<Holder> (9) ;
 		const auto r1x = StrongRef<Holder>::make () ;
-		r1x = StrongRef<Holder>::make () ;
 		r1x->mData.signal () ;
 		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
 		auto &r2y = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;

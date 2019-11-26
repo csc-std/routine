@@ -698,7 +698,7 @@ public:
 		const auto r16x = r7x.normalize () * r9x ;
 		ret[2] = Matrix {r14x ,r15x ,r16x ,Vector<REAL>::axis_w ()} ;
 		const auto r17x = r8x * r10x ;
-		const auto r18x = Vector<REAL> {r17x.xyz () ,0} ;
+		const auto r18x = Vector<REAL> {r17x.xyz () ,1} ;
 		ret[3] = Matrix::make_translation (r18x) ;
 		return std::move (ret) ;
 	}
@@ -783,6 +783,7 @@ public:
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		Matrix ret ;
 		const auto r1x = normal.normalize () ;
+		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = _COS_ (angle) ;
 		const auto r3x = r1x * _SIN_ (angle) ;
 		const auto r4x = r1x * (REAL (1) - r2x) ;
@@ -895,10 +896,8 @@ public:
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,0}.magnitude () ;
 		const auto r3x = r2x * _SIGN_ (r1x[3]) ;
-		const auto r4x = REAL (2) * _ATAN_ (r3x ,_ABS_ (r1x[3])) ;
-		const auto r5x = _SWITCH_ (
-			(_PINV_ (r2x) != REAL (0)) ? r4x * _PINV_ (r2x) :
-			REAL (2)) ;
+		const auto r4x = _ATAN_ (r3x ,_ABS_ (r1x[3])) ;
+		const auto r5x = (1 - (r2x - r4x) * _PINV_ (r2x)) * REAL (2) ;
 		ret[0] = r1x[0] * r5x ;
 		ret[1] = r1x[1] * r5x ;
 		ret[2] = r1x[2] * r5x ;
@@ -906,14 +905,11 @@ public:
 	}
 
 	static Matrix make_translation (const Vector<REAL> &position) {
-		const auto r1x = _PINV_ (position[3]) ;
-		const auto r2x = _SWITCH_ (
-			(r1x != REAL (0)) ? -position * r1x :
-			position) ;
+		_DEBUG_ASSERT_ (position[3] == REAL (1)) ;
 		Matrix ret = Matrix ({
-			{REAL (1) ,REAL (0) ,REAL (0) ,r2x[0]} ,
-			{REAL (0) ,REAL (1) ,REAL (0) ,r2x[1]} ,
-			{REAL (0) ,REAL (0) ,REAL (1) ,r2x[2]} ,
+			{REAL (1) ,REAL (0) ,REAL (0) ,position[0]} ,
+			{REAL (0) ,REAL (1) ,REAL (0) ,position[1]} ,
+			{REAL (0) ,REAL (0) ,REAL (1) ,position[2]} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
 		return std::move (ret) ;
 	}
@@ -921,25 +917,9 @@ public:
 	static Matrix make_view (const Vector<REAL> &normal ,const Vector<REAL> &center) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
-		const auto r1x = normal.normalize () ;
-		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
-		const auto r2x = Vector<REAL> {_ABS_ (normal[0]) ,_ABS_ (normal[1]) ,_ABS_ (normal[2]) ,REAL (0)} ;
-		const auto r3x = _SWITCH_ (
-			(r2x[0] < r2x[2]) ? Vector<REAL>::axis_x () :
-			Vector<REAL>::axis_z ()) ;
-		const auto r4x = _SWITCH_ (
-			(r2x[1] < r2x[2]) ? Vector<REAL>::axis_y () :
-			Vector<REAL>::axis_z ()) ;
-		const auto r5x = _SWITCH_ (
-			(r2x[0] < r2x[1]) ? r3x :
-			r4x) ;
-		const auto r6x = (r1x ^ r5x).normalize () ;
-		const auto r7x = (r1x ^ r6x).normalize () ;
-		Matrix ret = Matrix ({
-			r6x ,
-			r7x ,
-			r1x ,
-			center}) ;
+		Matrix ret ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DEBUG_ASSERT_ (FALSE) ;
 		return std::move (ret) ;
 	}
 
@@ -968,27 +948,27 @@ public:
 		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
 		const auto r5x = r4x * r1x ;
 		const auto r6x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
-		const auto r7x = _SWITCH_ (
+		auto &r7y = _SWITCH_ (
 			(r2x[3] != REAL (0)) ? r3x :
 			r6x) ;
-		const auto r8x = _SWITCH_ (
+		auto &r8y = _SWITCH_ (
 			(r2x[3] != REAL (0)) ? r1x :
 			r6x) ;
-		ret[0][0] = r1x[0] * r2x[0] - r5x + r7x ;
+		ret[0][0] = r1x[0] * r2x[0] - r5x + r7y ;
 		ret[0][1] = r1x[1] * r2x[0] ;
 		ret[0][2] = r1x[2] * r2x[0] ;
 		ret[0][3] = -r3x * r2x[0] ;
 		ret[1][0] = r1x[0] * r2x[1] ;
-		ret[1][1] = r1x[1] * r2x[1] - r5x + r7x ;
+		ret[1][1] = r1x[1] * r2x[1] - r5x + r7y ;
 		ret[1][2] = r1x[2] * r2x[1] ;
 		ret[1][3] = -r3x * r2x[1] ;
 		ret[2][0] = r1x[0] * r2x[2] ;
 		ret[2][1] = r1x[1] * r2x[2] ;
-		ret[2][2] = r1x[2] * r2x[2] - r5x + r7x ;
+		ret[2][2] = r1x[2] * r2x[2] - r5x + r7y ;
 		ret[2][3] = -r3x * r2x[2] ;
-		ret[3][0] = r8x[0] ;
-		ret[3][1] = r8x[1] ;
-		ret[3][2] = r8x[2] ;
+		ret[3][0] = r8y[0] ;
+		ret[3][1] = r8y[1] ;
+		ret[3][2] = r8y[2] ;
 		ret[3][3] = -r5x ;
 		return std::move (ret) ;
 	}

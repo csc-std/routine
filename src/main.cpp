@@ -12,10 +12,9 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-		//const auto r\d+x = _SWITCH_
+		//= _CALL_
 		//const {
-		//\.self( ,|\))
-		//if \(([^\r]+) (<=?|>=?|==|\!=) [^\r]+\)\r\n\t+if \((\1)
+		//const auto r\d+x = _SWITCH_
 	}
 } ;
 
