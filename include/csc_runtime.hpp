@@ -10,6 +10,294 @@
 #include "csc_array.hpp"
 
 namespace CSC {
+namespace U {
+struct OPERATOR_TYPENAME {
+	struct TYPENAME {
+		String<STR> mName ;
+	} ;
+
+	template <class _RET>
+	inline static TYPENAME typeid_name_from_func () {
+		TYPENAME ret ;
+		ret.mName = _PARSESTRS_ (String<STRA> (M_FUNC)) ;
+#ifdef __CSC_COMPILER_MSVC__
+		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
+		const auto r1x = M_PREFIX.size () ;
+		const auto r2x = M_SUFFIX.size () ;
+		const auto r3x = ret.mName.length () - r1x - r2x ;
+		_DYNAMIC_ASSERT_ (r3x > 0) ;
+		ret.mName = ret.mName.segment (r1x ,r3x) ;
+#elif defined __CSC_COMPILER_GNUC__
+		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [with _RET = ") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r4x = M_PREFIX.size () ;
+		const auto r5x = M_SUFFIX.size () ;
+		const auto r6x = ret.mName.length () - r4x - r5x ;
+		_DYNAMIC_ASSERT_ (r6x > 0) ;
+		ret.mName = ret.mName.segment (r4x ,r6x) ;
+#elif defined __CSC_COMPILER_CLANG__
+		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [_RET = ") ;
+		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		const auto r7x = M_PREFIX.size () ;
+		const auto r8x = M_SUFFIX.size () ;
+		const auto r9x = ret.mName.length () - r7x - r8x ;
+		_DYNAMIC_ASSERT_ (r9x > 0) ;
+		ret.mName = ret.mName.segment (r7x ,r9x) ;
+#else
+		ret.mName = _BUILDVAR64S_ (_TYPEUID_<_RET> ()) ;
+#endif
+		return std::move (ret) ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_cv (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_cv (TextWriter<STR> &writer ,const ARGV<const _ARG1> &) {
+		writer << _PCSTR_ ("const ") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_cv (TextWriter<STR> &writer ,const ARGV<volatile _ARG1> &) {
+		writer << _PCSTR_ ("volatile ") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_cv (TextWriter<STR> &writer ,const ARGV<const volatile _ARG1> &) {
+		writer << _PCSTR_ ("const volatile ") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_ref (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_ref (TextWriter<STR> &writer ,const ARGV<_ARG1 &> &) {
+		writer << _PCSTR_ (" &") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_ref (TextWriter<STR> &writer ,const ARGV<_ARG1 &&> &) {
+		writer << _PCSTR_ (" &&") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP8)> &) {
+		writer << _PCSTR_ ("PTR<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_POINTER_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (">") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_member_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP7)> &) {
+		writer << _PCSTR_ ("DEF<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_MEMPTR_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (" ") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<MEMPTR_CLASS_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ ("::*>") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_arr (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,ARR<REMOVE_ARRAY_TYPE<_ARG1>>>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("ARR<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_ARRAY_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (">") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_arr (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_full_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("DEF<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_ARRAY_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ ("[") ;
+		writer << _COUNTOF_ (_ARG1) ;
+		writer << _PCSTR_ ("]>") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_array<_ARG1>::value>> & ,const DEF<decltype (ARGVP5)> &) {
+		template_write_typename_arr (writer ,_NULL_<ARGV<_ARG1>> () ,ARGVPX ,ARGVP9) ;
+	}
+
+	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<>> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<_ARG1>> &) {
+		template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARGS...>> &) {
+		template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
+		writer << _PCSTR_ (" ,") ;
+		template_write_typename_y (writer ,_NULL_<ARGV<ARGVS<_ARG2 ,_ARGS...>>> ()) ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_func (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,REMOVE_MEMFUNC_TYPE<_ARG1>>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("DEF<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<INVOKE_RESULT_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (" (") ;
+		template_write_typename_y (writer ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (")>") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_func (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!std::is_same<_ARG1 ,REMOVE_MEMFUNC_TYPE<_ARG1>>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("DEF<") ;
+		template_write_typename_x (writer ,_NULL_<ARGV<INVOKE_RESULT_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (" (") ;
+		template_write_typename_y (writer ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (") memptr>") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_function<_ARG1>::value>> & ,const DEF<decltype (ARGVP4)> &) {
+		template_write_typename_func (writer ,_NULL_<ARGV<_ARG1>> () ,ARGVPX ,ARGVP9) ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_claz (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!stl::is_template<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		const auto r1x = typeid_name_from_func<_ARG1> () ;
+		writer << _PCSTR_ ("class '") ;
+		writer << r1x.mName ;
+		writer << _PCSTR_ ("'") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_claz (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_template<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+		const auto r1x = typeid_name_from_func<_ARG1> () ;
+		writer << _PCSTR_ ("template '") ;
+		writer << r1x.mName ;
+		writer << _PCSTR_ ("'<") ;
+		template_write_typename_y (writer ,_NULL_<ARGV<TEMPLATE_PARAMS_TYPE<_ARG1>>> ()) ;
+		writer << _PCSTR_ (">") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_class<_ARG1>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+		template_write_typename_claz (writer ,_NULL_<ARGV<_ARG1>> () ,ARGVPX ,ARGVP9) ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU8>::value && !std::is_same<_ARG1 ,BYTE>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("STRU8") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU16>::value && !std::is_same<_ARG1 ,WORD>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("STRU16") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU32>::value && !std::is_same<_ARG1 ,CHAR>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("STRU32") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("VARX") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("VARY") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		writer << _PCSTR_ ("VALX") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("typename '") ;
+		writer << _TYPEUID_<_ARG1> () ;
+		writer << _PCSTR_ ("'") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<BOOL> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("BOOL") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<VAR32> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("VAR32") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<EFLAG> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("EFLAG") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<VAL32> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("VAL32") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<VAL64> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("VAL64") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<VOID> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("VOID") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<NONE> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("NONE") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<decltype (NULL)> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("NULL") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<BYTE> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("BYTE") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<WORD> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("WORD") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<CHAR> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("CHAR") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<DATA> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("DATA") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<MEGA> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("MEGA") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<STRA> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("STRA") ;
+	}
+
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<STRW> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+		writer << _PCSTR_ ("STRW") ;
+	}
+
+	template <class _ARG1>
+	inline static void template_write_typename_x (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
+		template_write_typename_cv (writer ,_NULL_<ARGV<REMOVE_REFERENCE_TYPE<_ARG1>>> ()) ;
+		template_write_typename_id (writer ,_NULL_<ARGV<REMOVE_CVR_TYPE<_ARG1>>> () ,ARGVPX ,ARGVP9) ;
+		template_write_typename_ref (writer ,_NULL_<ARGV<REMOVE_CONST_TYPE<REMOVE_VOLATILE_TYPE<_ARG1>>>> ()) ;
+	}
+
+	template <class _RET>
+	inline static String<STR> invoke () {
+		const auto r1x = _XVALUE_<PTR<void (TextWriter<STR> &)>> ([] (TextWriter<STR> &writer) {
+			template_write_typename_x (writer ,_NULL_<ARGV<_RET>> ()) ;
+		}) ;
+		return String<STR>::make (r1x) ;
+	}
+} ;
+} ;
+
 template <class>
 class GlobalStatic ;
 
@@ -22,10 +310,8 @@ private:
 		VAR mData ;
 	} ;
 
-	using GUID_TYPE = PACK<BYTE[256]> ;
-
 	struct CLASS_NODE {
-		GUID_TYPE mGUID ;
+		String<STR> mGUID ;
 		PTR<NONE> mData ;
 	} ;
 
@@ -41,8 +327,8 @@ private:
 		friend IntrusiveRef<Holder> ;
 		Monostate<std::atomic<LENGTH>> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
-		LinkedRef<VALUE_NODE> mValueNode ;
-		LinkedRef<CLASS_NODE> mClassNode ;
+		HashSet<FLAG ,VALUE_NODE> mValueSet ;
+		HashSet<FLAG ,CLASS_NODE> mClassSet ;
 	} ;
 
 private:
@@ -74,53 +360,43 @@ private:
 	}
 
 	static PTR<VALUE_NODE> static_new_node (Holder &self_ ,FLAG guid) popping {
-		self_.mValueNode.push () ;
-		self_.mValueNode->mGUID = guid ;
-		return &self_.mValueNode.self ;
+		const auto r1x = node_guid_hash (guid) ;
+		INDEX ix = self_.mValueSet.insert (r1x) ;
+		self_.mValueSet[ix].item.mGUID = guid ;
+		return &self_.mValueSet[ix].item ;
 	}
 
-	static PTR<CLASS_NODE> static_new_node (Holder &self_ ,const GUID_TYPE &guid) popping {
-		self_.mClassNode.push () ;
-		self_.mClassNode->mGUID = guid ;
-		return &self_.mClassNode.self ;
+	static FLAG node_guid_hash (FLAG guid) {
+		return guid ;
 	}
 
 	static PTR<VALUE_NODE> static_find_node (Holder &self_ ,FLAG guid) popping {
-		PTR<VALUE_NODE> ret = NULL ;
-		if SWITCH_ONCE (TRUE) {
-			if (!self_.mValueNode.exist ())
-				discard ;
-			auto &r1y = self_.mValueNode.self ;
-			while (TRUE) {
-				if (ret != NULL)
-					break ;
-				if (self_.mValueNode->mGUID == guid)
-					ret = &self_.mValueNode.self ;
-				self_.mValueNode.cycle () ;
-				if (&self_.mValueNode.self == &r1y)
-					break ;
-			}
-		}
-		return std::move (ret) ;
+		const auto r1x = node_guid_hash (guid) ;
+		INDEX ix = self_.mValueSet.find (r1x) ;
+		if (ix == VAR_NONE)
+			return  NULL ;
+		return &self_.mValueSet[ix].item ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Holder &self_ ,const GUID_TYPE &guid) popping {
-		PTR<CLASS_NODE> ret = NULL ;
-		if SWITCH_ONCE (TRUE) {
-			if (!self_.mClassNode.exist ())
-				discard ;
-			auto &r1y = self_.mClassNode.self ;
-			while (TRUE) {
-				if (ret != NULL)
-					break ;
-				if (_MEMEQUAL_ (PTRTOARR[self_.mClassNode->mGUID.P1] ,PTRTOARR[guid.P1] ,_COUNTOF_ (decltype (guid.P1))))
-					ret = &self_.mClassNode.self ;
-				self_.mClassNode.cycle () ;
-				if (&self_.mClassNode.self == &r1y)
-					break ;
-			}
-		}
-		return std::move (ret) ;
+	static PTR<CLASS_NODE> static_new_node (Holder &self_ ,const String<STR> &guid) popping {
+		const auto r1x = node_guid_hash (guid) ;
+		INDEX ix = self_.mClassSet.insert (r1x) ;
+		self_.mClassSet[ix].item.mGUID = guid ;
+		return &self_.mClassSet[ix].item ;
+	}
+
+	static FLAG node_guid_hash (const String<STR> &guid) {
+		const auto r1x = guid.raw () ;
+		const auto r2x = PhanBuffer<const BYTE>::make (r1x) ;
+		return _MEMHASH_ (r2x.self ,r2x.size ()) ;
+	}
+
+	static PTR<CLASS_NODE> static_find_node (Holder &self_ ,const String<STR> &guid) popping {
+		const auto r1x = node_guid_hash (guid) ;
+		INDEX ix = self_.mClassSet.find (r1x) ;
+		if (ix == VAR_NONE)
+			return  NULL ;
+		return &self_.mClassSet[ix].item ;
 	}
 
 public:
@@ -133,14 +409,14 @@ private:
 		inline static void friend_create (Holder &self_) {
 			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
 			self_.mCounter.self = 0 ;
-			self_.mValueNode = LinkedRef<VALUE_NODE> () ;
-			self_.mClassNode = LinkedRef<CLASS_NODE> () ;
+			self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
+			self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
 		}
 
 		inline static void friend_destroy (Holder &self_) {
 			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
-			self_.mValueNode = LinkedRef<VALUE_NODE> () ;
-			self_.mClassNode = LinkedRef<CLASS_NODE> () ;
+			self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
+			self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
 		}
 
 		inline static LENGTH friend_attach (Holder &self_) popping {
@@ -222,8 +498,6 @@ private:
 		Singleton<UNIT> mData ;
 	} ;
 
-	using GUID_TYPE = typename GlobalStatic<void>::GUID_TYPE ;
-
 private:
 	class Detail ;
 	friend IntrusiveRef<Holder> ;
@@ -233,7 +507,7 @@ public:
 		auto &r1y = _CACHE_ ([] () {
 			auto &r2y = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2y.mNodeMutex) ;
-			const auto r3x = Detail::guid_from_typeid_name () ;
+			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2y ,r3x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			if SWITCH_ONCE (TRUE) {
@@ -275,17 +549,6 @@ private:
 
 		inline static void friend_latch (Holder &self_) {
 			GlobalRuntime::thread_sleep () ;
-		}
-
-		inline static GUID_TYPE guid_from_typeid_name () {
-			PACK<BYTE[_SIZEOF_ (GUID_TYPE)]> ret ;
-			_ZERO_ (ret) ;
-			const auto r1x = String<STRA> (PTRTOARR[typeid (UNIT).name ()]) ;
-			const auto r2x = PhanBuffer<const BYTE>::make (r1x.raw ()) ;
-			_DYNAMIC_ASSERT_ (r2x.size () <= _SIZEOF_ (GUID_TYPE)) ;
-			const auto r3x = _MIN_ (r2x.size () ,_SIZEOF_ (GUID_TYPE)) ;
-			_MEMCOPY_ (PTRTOARR[ret.P1] ,r2x.self ,r3x) ;
-			return _BITWISE_CAST_<GUID_TYPE> (ret) ;
 		}
 	} ;
 } ;

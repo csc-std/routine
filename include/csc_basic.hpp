@@ -89,7 +89,6 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 	if SWITCH_ONCE (TRUE) {
 		if (len == 0)
 			discard ;
@@ -368,8 +367,13 @@ struct OPERATOR_COMPR {
 namespace U {
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
+	}
+
+	template <class _ARG1>
+	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_integral<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+		return FLAG (self_) ;
 	}
 
 	template <class _ARG1>
@@ -452,13 +456,14 @@ public:
 	inline static OwnerProxy<ARR<_RET>> alloc (LENGTH len) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		_DEBUG_ASSERT_ (len > 0) ;
-		_DEBUG_ASSERT_ (len * _SIZEOF_ (_RET) > 0) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
-		const auto r1x = operator new (len * _SIZEOF_ (_RET) ,std::nothrow) ;
-		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		auto &r2y = _LOAD_<ARR<_RET>> (r1x) ;
-		return OwnerProxy<ARR<_RET>> (&r2y) ;
+		_DEBUG_ASSERT_ (len > 0) ;
+		const auto r1x = len * _SIZEOF_ (_RET) ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
+		const auto r2x = operator new (r1x ,std::nothrow) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		auto &r3y = _LOAD_<ARR<_RET>> (r2x) ;
+		return OwnerProxy<ARR<_RET>> (&r3y) ;
 	}
 
 	template <class _ARG1>

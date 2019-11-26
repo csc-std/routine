@@ -15,6 +15,7 @@ public:
 		//const auto r\d+x = _SWITCH_
 		//const {
 		//\.self( ,|\))
+		//if \(([^\r]+) (<=?|>=?|==|\!=) [^\r]+\)\r\n\t+if \((\1)
 	}
 } ;
 
