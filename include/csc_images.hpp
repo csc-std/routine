@@ -45,7 +45,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
@@ -73,8 +73,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range_) {
 			LENGTH ret = 1 ;
 			for (auto &&i : range_) {
@@ -736,7 +735,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	PhanRef<const Abstract> mAbstract ;
 	SharedRef<Holder> mThis ;
 
@@ -902,8 +901,7 @@ private:
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Holder> &&this_) :mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static void static_update_layout (PhanRef<const Abstract> &abstract_ ,SharedRef<Holder> &this_) {
 			_DEBUG_ASSERT_ (abstract_.exist ()) ;
 			_DEBUG_ASSERT_ (this_.exist ()) ;

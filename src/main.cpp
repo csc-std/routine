@@ -13,7 +13,6 @@ public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
 		//= _CALL_
-		//const {
 		//const auto r\d+x = _SWITCH_
 	}
 } ;

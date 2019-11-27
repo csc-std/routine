@@ -1,16 +1,16 @@
 ﻿#include "util.h"
 
 namespace UNITTEST {
-TEST_CLASS (UNITTEST_CSC_EXT) {
+TEST_CLASS (UNITTEST_CSC_EXTEND) {
 public:
-	TEST_METHOD (TEST_CSC_EXT) {
+	TEST_METHOD (TEST_CSC_EXTEND) {
 		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) == 1) ;
 		_UNITTEST_ASSERT_ (_ANYOF_ (1 ,2 ,3) != 1) ;
 		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) == 1)) ;
 		_UNITTEST_ASSERT_ (!(_ALLOF_ (1 ,2 ,3) != 1)) ;
 	}
 
-	TEST_METHOD (TEST_CSC_EXT_VAR128) {
+	TEST_METHOD (TEST_CSC_EXTEND_VAR128) {
 		const auto r1x = VAR128 (VAR64_MAX) * 2 - VAR64_MAX ;
 		_UNITTEST_ASSERT_ (r1x == VAR64_MAX) ;
 		const auto r2x = VAR128 (VAR64_MAX) / (VAR64_MAX / 2 - 1) ;
@@ -19,7 +19,7 @@ public:
 		_UNITTEST_ASSERT_ (VAR128 (-22) >= VAR128 (-33)) ;
 	}
 
-	TEST_METHOD (TEST_CSC_EXT_VARIANT) {
+	TEST_METHOD (TEST_CSC_EXTEND_VARIANT) {
 		auto rax = Optional<AutoBuffer<int>> () ;
 		rax = AutoBuffer<int> (8) ;
 		const auto r1x = rax.self.size () ;
@@ -34,7 +34,7 @@ public:
 		static void test4 () {}
 	} ;
 
-	TEST_METHOD (TEST_CSC_EXT_FUNCTION) {
+	TEST_METHOD (TEST_CSC_EXTEND_FUNCTION) {
 		auto rax = AutoRef<CLASS_A>::make () ;
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<CLASS_A>::make (rax) ,&CLASS_A::test1)) ;
 		_CALL_ (Function<DEF<void ()> NONE::*> (PhanRef<const CLASS_A>::make (rax) ,&CLASS_A::test2)) ;
@@ -89,7 +89,7 @@ public:
 		}
 	} ;
 
-	TEST_METHOD (TEST_CSC_EXT_STRONGREF) {
+	TEST_METHOD (TEST_CSC_EXTEND_STRONGREF) {
 		const auto r1x = StrongRef<CLASS_XD>::make () ;
 		const auto r2x = r1x.recast<CLASS_XB> () ;
 		const auto r3x = r1x.recast<CLASS_XC> () ;
@@ -105,7 +105,7 @@ public:
 		_UNITTEST_ASSERT_ (_ADDRESS_ (&r3x.self) == _ADDRESS_ (&r6x.self)) ;
 	}
 
-	TEST_METHOD (TEST_CSC_EXT_MEMORYPOOL) {
+	TEST_METHOD (TEST_CSC_EXTEND_MEMORYPOOL) {
 		auto rax = AutoRef<MemoryPool>::make () ;
 		const auto r1x = rax->alloc<int> () ;
 		const auto r2x = LENGTH (8) ;
@@ -127,7 +127,7 @@ public:
 	}
 
 #ifdef __CSC_TARGET_DLL__
-	TEST_METHOD (TEST_CSC_EXT_GLOBALSTATIC) {
+	TEST_METHOD (TEST_CSC_EXTEND_GLOBALSTATIC) {
 		using UUID1 = ARGC<+1> ;
 		using UUID2 = ARGC<+2> ;
 		using UUID3 = ARGC<+3> ;
@@ -162,7 +162,7 @@ public:
 		}
 	} ;
 
-	TEST_METHOD (TEST_CSC_EXT_SERIALIZER) {
+	TEST_METHOD (TEST_CSC_EXTEND_SERIALIZER) {
 		const auto r1x = PACK<int ,float> {1 ,2.1f} ;
 		const auto r2x = Serializer<CLASS_WRAPPED_String_STRU8 ,const PACK<int ,float>> (&PACK<int ,float>::P1 ,&PACK<int ,float>::P2) ;
 		auto rax = String<STRU8> () ;

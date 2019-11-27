@@ -78,6 +78,7 @@
 #pragma warning (disable :4180) //@info: warning C4180: qualifier applied to function type has no meaning; ignored
 #pragma warning (disable :4365) //@info: warning C4365: 'xxx': conversion from 'xxx' to 'xxx', signed/unsigned mismatch
 #pragma warning (disable :4371) //@info: warning C4371: 'xxx': layout of class may have changed from a previous version of the compiler due to better packing of member 'xxx'
+#pragma warning (disable :4435) //@info: warning C4435: 'xxx': Object layout under /vd2 will change due to virtual base 'xxx'
 #pragma warning (disable :4464) //@info: warning C4464: relative include path contains '..'
 #pragma warning (disable :4505) //@info: warning C4505: 'xxx': unreferenced local function has been removed
 #pragma warning (disable :4514) //@info: warning C4514: 'xxx': unreferenced inline function has been removed
@@ -1660,7 +1661,7 @@ template <class REAL>
 class Plain final {
 private:
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
-	class Detail ;
+	struct Detail ;
 	PTR<const REAL> mPlain ;
 	LENGTH mSize ;
 
@@ -1696,8 +1697,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		template <class SIZE>
 		class PlainString {
 		private:

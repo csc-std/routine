@@ -315,7 +315,7 @@ private:
 		PTR<NONE> mData ;
 	} ;
 
-	class Detail ;
+	struct Detail ;
 
 	class Holder {
 	public:
@@ -332,7 +332,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	template <class>
 	friend class GlobalStatic ;
 	friend IntrusiveRef<Holder> ;
@@ -404,8 +404,7 @@ public:
 	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static void friend_create (Holder &self_) {
 			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
 			self_.mCounter.self = 0 ;
@@ -486,7 +485,7 @@ public:
 template <class UNIT>
 class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
 private:
-	class Detail ;
+	struct Detail ;
 
 	class Holder {
 	public:
@@ -499,7 +498,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	friend IntrusiveRef<Holder> ;
 
 public:
@@ -529,8 +528,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static void friend_create (Holder &self_) {
 			self_.mCounter.self = 0 ;
 		}
@@ -768,7 +766,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	class Implement ;
 	friend Singleton<RandomService> ;
 	Monostate<std::recursive_mutex> mMutex ;
@@ -877,8 +875,7 @@ private:
 	RandomService () ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static STRU8 index_to_hex_str (INDEX index) {
 			if (index < 10)
 				return STRU8 ('0') + STRU8 (index) ;

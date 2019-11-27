@@ -357,7 +357,7 @@ private:
 	}
 
 private:
-	class Detail ;
+	struct Detail ;
 	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mString ;
 
 public:
@@ -623,8 +623,7 @@ public:
 	inline static String make (const _ARGS &...initval) ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
 			using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
 			LENGTH ret = _MEMCHR_ (val ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
@@ -2477,7 +2476,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	Buffer<BYTE ,ARGC<constexpr_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
@@ -2775,8 +2774,7 @@ private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static LENGTH forward_size (const std::initializer_list<INDEX> &that) {
 			LENGTH ret = VAR_NONE ;
 			for (auto &&i : that)

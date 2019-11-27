@@ -1576,7 +1576,7 @@ private:
 	class ImplHolder ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	TEMP<FakeHolder> mVariant ;
 
 public:
@@ -1665,8 +1665,7 @@ private:
 	inline Holder &m_fake () && = delete ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		class PureHolder :public Holder {
 		private:
 			PTR<UNIT1 (UNITS...)> mFunction ;

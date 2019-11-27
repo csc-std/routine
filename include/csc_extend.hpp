@@ -233,7 +233,7 @@ class VAR128 {
 #define v4i3 m_v4i3 ()
 
 private:
-	class Detail ;
+	struct Detail ;
 	MEGA mData ;
 
 public:
@@ -635,8 +635,7 @@ private:
 	inline CHAR &m_v4i3 () && = delete ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
 			_DEBUG_ASSERT_ (y >= 0) ;
 			_DEBUG_ASSERT_ (x > 0) ;
@@ -787,7 +786,7 @@ private:
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
-	class Detail ;
+	struct Detail ;
 	TEMP<VARIANT> mVariant ;
 	INDEX mIndex ;
 
@@ -915,8 +914,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
 			_STATIC_WARNING_ ("noop") ;
 		}
@@ -1063,7 +1061,7 @@ template <class UNIT1 ,class... UNITS>
 class Tuple<UNIT1 ,UNITS...> :private Tuple<UNITS...> {
 private:
 	_STATIC_ASSERT_ (!std::is_rvalue_reference<UNIT1>::value) ;
-	class Detail ;
+	struct Detail ;
 	template <class...>
 	friend class Tuple ;
 	UNIT1 mData ;
@@ -1150,8 +1148,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ARGC<0>> &) {
 			return self_.one () ;
 		}
@@ -1181,7 +1178,7 @@ template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
 class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>> :public Function<UNIT1 (UNITS...)>::Holder {
 private:
-	class Detail ;
+	struct Detail ;
 	PTR<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
@@ -1197,8 +1194,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>::Detail :private Wrapped<void> {
-public:
+struct Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>::Detail {
 	//@error: vs2015 is too useless to compile without hint
 	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<UNITS_> &...cap_) popping {
 		const auto r1x = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
@@ -1232,11 +1228,12 @@ class AnyOfTuple ;
 template <class... UNITS>
 class AllOfTuple final :private TupleBinder<const UNITS...> {
 private:
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+
+private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
-	class Detail ;
-
-	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+	struct Detail ;
 
 public:
 	inline AllOfTuple () = delete ;
@@ -1300,8 +1297,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs == rhs) ;
 		}
@@ -1370,11 +1366,12 @@ private:
 template <class... UNITS>
 class AnyOfTuple final :private TupleBinder<const UNITS...> {
 private:
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+
+private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
-	class Detail ;
-
-	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+	struct Detail ;
 
 public:
 	inline AnyOfTuple () = delete ;
@@ -1438,8 +1435,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
 			return BOOL (lhs == rhs) ;
 		}
@@ -1521,121 +1517,6 @@ inline static AnyOfTuple<_ARGS...> _ANYOF_ (const _ARGS &...list) {
 }
 } ;
 
-template <class UNIT>
-class LinkedRef {
-private:
-	class Node {
-	private:
-		friend LinkedRef ;
-		UNIT mData ;
-		PTR<class Node> mPrev ;
-		PTR<class Node> mNext ;
-
-	public:
-		inline Node () = default ;
-	} ;
-
-private:
-	PTR<Node> mRoot ;
-
-public:
-	inline LinkedRef () noexcept {
-		mRoot = NULL ;
-	}
-
-	inline ~LinkedRef () noexcept {
-		if (mRoot == NULL)
-			return ;
-		_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
-		mRoot->mPrev->mNext = NULL ;
-		mRoot->mPrev = NULL ;
-		for (PTR<Node> i = mRoot ,it ; i != NULL ; i = it) {
-			it = i->mNext ;
-			i->~Node () ;
-			GlobalHeap::free (i) ;
-		}
-		mRoot = NULL ;
-	}
-
-	inline LinkedRef (const LinkedRef &) = delete ;
-	inline LinkedRef &operator= (const LinkedRef &) = delete ;
-
-	inline LinkedRef (LinkedRef &&that) noexcept {
-		mRoot = _EXCHANGE_ (that.mRoot) ;
-	}
-
-	inline LinkedRef &operator= (LinkedRef &&that) noexcept {
-		if SWITCH_CASE (TRUE) {
-			if (this == &that)
-				discard ;
-			(*this).~LinkedRef () ;
-			new (this) LinkedRef (std::move (that)) ;
-		}
-		return (*this) ;
-	}
-
-	inline BOOL exist () const {
-		if (mRoot == NULL)
-			return FALSE ;
-		return TRUE ;
-	}
-
-	inline UNIT &to () {
-		_DEBUG_ASSERT_ (exist ()) ;
-		return mRoot->mData ;
-	}
-
-	inline implicit operator UNIT & () {
-		return to () ;
-	}
-
-	inline PTR<UNIT> operator-> () {
-		return &to () ;
-	}
-
-	inline const UNIT &to () const {
-		_DEBUG_ASSERT_ (exist ()) ;
-		return mRoot->mData ;
-	}
-
-	inline implicit operator const UNIT & () const {
-		return to () ;
-	}
-
-	inline PTR<const UNIT> operator-> () const {
-		return &to () ;
-	}
-
-	inline void push () {
-		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
-		ScopedBuild<Node> ANONYMOUS (rax) ;
-		auto &r1y = _LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
-		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
-			if (!(mRoot == NULL))
-				discard ;
-			r1y.mPrev = &r1y ;
-			r1y.mNext = &r1y ;
-		}
-		if SWITCH_CASE (fax) {
-			if (!(mRoot != NULL))
-				discard ;
-			_DEBUG_ASSERT_ (mRoot->mPrev != NULL) ;
-			r1y.mPrev = mRoot->mPrev ;
-			r1y.mNext = mRoot ;
-			mRoot->mPrev->mNext = &r1y ;
-			mRoot->mPrev = &r1y ;
-		}
-		mRoot = &r1y ;
-		rax = NULL ;
-	}
-
-	inline void cycle () {
-		_DEBUG_ASSERT_ (exist ()) ;
-		mRoot = mRoot->mNext ;
-	}
-} ;
-
 template <class>
 class StrongRef ;
 
@@ -1706,7 +1587,7 @@ private:
 	using Holder = typename WeakRef<void>::Holder ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	template <class>
 	friend class StrongRef ;
 	friend WeakRef<UNIT> ;
@@ -1882,8 +1763,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		template <class _ARG1>
 		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> address ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 			_DEBUG_ASSERT_ (address != NULL) ;
@@ -2263,24 +2143,9 @@ private:
 		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
 	} ;
 
-	class LatchCounter :private Wrapped<std::atomic<LENGTH>> {
-	public:
-		inline void lock () {
-			const auto r1x = ++LatchCounter::mSelf ;
-			_DEBUG_ASSERT_ (r1x >= 1) ;
-			(void) r1x ;
-		}
-
-		inline void unlock () {
-			const auto r1x = --LatchCounter::mSelf ;
-			_DEBUG_ASSERT_ (r1x >= 0) ;
-			(void) r1x ;
-		}
-	} ;
-
 private:
 	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
-	class Detail ;
+	struct Detail ;
 	friend ScopedGuard<IntrusiveRef> ;
 	std::atomic<PTR<UNIT>> mPointer ;
 	std::atomic<LENGTH> mLatch ;
@@ -2335,7 +2200,7 @@ public:
 	}
 
 	inline IntrusiveRef copy () popping {
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
+		ScopedGuard<typename Detail::LatchCounter> ANONYMOUS (_CAST_<typename Detail::LatchCounter> (mLatch)) ;
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		const auto r1x = mPointer.load () ;
 		Detail::acquire (r1x ,FALSE) ;
@@ -2346,7 +2211,7 @@ public:
 	}
 
 	inline WatchProxy watch () popping {
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
+		ScopedGuard<typename Detail::LatchCounter> ANONYMOUS (_CAST_<typename Detail::LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		Detail::acquire (r1x ,FALSE) ;
@@ -2396,8 +2261,22 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
+		class LatchCounter :private Wrapped<std::atomic<LENGTH>> {
+		public:
+			inline void lock () {
+				const auto r1x = ++LatchCounter::mSelf ;
+				_DEBUG_ASSERT_ (r1x >= 1) ;
+				(void) r1x ;
+			}
+
+			inline void unlock () {
+				const auto r1x = --LatchCounter::mSelf ;
+				_DEBUG_ASSERT_ (r1x >= 0) ;
+				(void) r1x ;
+			}
+		} ;
+
 		inline static void acquire (PTR<UNIT> address ,BOOL init) {
 			if (address == NULL)
 				return ;
@@ -2464,7 +2343,7 @@ private:
 		}
 	} ;
 
-	class Holder :public WeakRef<void>::Virtual {
+	class Holder {
 	private:
 		friend Lazy ;
 		Mutable<UNIT> mData ;
@@ -2537,6 +2416,8 @@ public:
 
 	inline LENGTH rank () const {
 		_DEBUG_ASSERT_ (exist ()) ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 		return 0 ;
 	}
 
@@ -2954,7 +2835,10 @@ exports struct Objective :public Interface {
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
-class Object :public Objective ,public WeakRef<void>::Virtual {
+class Object :public Objective {
+public:
+	class Virtual ;
+
 private:
 	class Metadata {
 	private:
@@ -2991,15 +2875,19 @@ public:
 	inline Object () = delete ;
 
 	template <class _ARG1>
-	inline explicit Object (PTR<_ARG1> deriver) {
+	inline explicit Object (const ARGV<_ARG1> &) {
 		_STATIC_ASSERT_ (stl::is_always_base_of<Object ,_ARG1>::value) ;
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Object>::value) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (this) == _ADDRESS_ (deriver)) ;
 	}
 
 	inline StrongRef<Object> clone () const override {
 		return StrongRef<Object> () ;
 	}
+} ;
+
+class Object::Virtual :public virtual Object {
+public:
+	inline Virtual () :Object (_NULL_<ARGV<decltype ((*this))>> ()) {}
 } ;
 
 template <class UNIT ,class CONT>
@@ -3048,7 +2936,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	StrongRef<const Binder> mBinder ;
 
 public:
@@ -3067,8 +2955,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		inline static BOOL template_available () {
 			return TRUE ;
 		}

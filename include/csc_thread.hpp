@@ -14,7 +14,7 @@ namespace CSC {
 template <class ITEM>
 class CalcThread {
 private:
-	class Detail ;
+	struct Detail ;
 
 	class Holder {
 	public:
@@ -35,7 +35,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -177,8 +177,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		class ThreadCounter :private Wrapped<Holder> {
 		public:
 			inline void lock () {
@@ -288,7 +287,7 @@ private:
 template <class ITEM>
 class WorkThread {
 private:
-	class Detail ;
+	struct Detail ;
 
 	class Holder {
 	public:
@@ -310,7 +309,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -483,8 +482,7 @@ public:
 	}
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		class ThreadCounter :private Wrapped<Holder> {
 		public:
 			inline void lock () {
@@ -608,7 +606,7 @@ public:
 	class Future ;
 
 private:
-	class Detail ;
+	struct Detail ;
 
 	class Holder {
 	public:
@@ -631,7 +629,7 @@ private:
 	} ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	friend IntrusiveRef<Holder> ;
 	IntrusiveRef<Holder> mThis ;
 
@@ -713,8 +711,7 @@ public:
 	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
 
 private:
-	class Detail :private Wrapped<void> {
-	public:
+	struct Detail {
 		class ThreadCounter :private Wrapped<Holder> {
 		public:
 			inline void lock () {
