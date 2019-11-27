@@ -42,7 +42,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
@@ -64,7 +64,7 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src1 != NULL) ;
@@ -89,7 +89,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -157,7 +157,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -176,7 +176,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -195,7 +195,7 @@ inline LENGTH _MEMCOUNT_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -214,7 +214,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -235,7 +235,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -246,7 +246,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		return ;
 	if (src == NULL)
 		return ;
-	auto fax = FALSE ;
+	auto fax = TRUE ;
 	if SWITCH_CASE (fax) {
 		if (!(dst != src))
 			discard ;
@@ -272,7 +272,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
@@ -281,7 +281,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	}
 	if (dst1 == dst2)
 		return ;
-	auto fax = FALSE ;
+	auto fax = TRUE ;
 	if SWITCH_CASE (fax) {
 		if (!(dst1 < dst2))
 			discard ;
@@ -303,7 +303,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst1 != NULL) ;
@@ -324,7 +324,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (dst != NULL) ;
@@ -529,7 +529,7 @@ public:
 		const auto r1x = _COPY_ (*mAddress) ;
 		if (r1x == NULL)
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mSize <= 0)
 				discard ;
 			_DESTROY_ (r1x) ;
@@ -712,7 +712,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -770,7 +770,7 @@ public:
 	}
 
 	inline AutoRef &operator= (const AutoRef &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -784,7 +784,7 @@ public:
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~AutoRef () ;
@@ -883,7 +883,7 @@ public:
 	inline ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			const auto r1x = --mPointer->mCounter ;
 			if (r1x != 0)
 				discard ;
@@ -898,7 +898,7 @@ public:
 	}
 
 	inline SharedRef &operator= (const SharedRef &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SharedRef () ;
@@ -912,7 +912,7 @@ public:
 	}
 
 	inline SharedRef &operator= (SharedRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SharedRef () ;
@@ -1002,7 +1002,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~AnyRef () ;
@@ -1086,7 +1086,7 @@ public:
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~AnyRef () ;
@@ -1234,7 +1234,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~UniqueRef () ;
@@ -1316,7 +1316,7 @@ public:
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~UniqueRef () ;
@@ -1384,7 +1384,7 @@ public:
 	}
 
 	inline PhanRef &operator= (PhanRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~PhanRef () ;
@@ -1487,7 +1487,7 @@ public:
 		if (mFunction == NULL)
 			if (mCPPFunction == NULL)
 				return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mFunction == NULL)
 				discard ;
 			mFunction->~Holder () ;
@@ -1506,7 +1506,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Function () ;
@@ -1628,7 +1628,7 @@ public:
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Function () ;
@@ -2097,7 +2097,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -2155,7 +2155,7 @@ public:
 	}
 
 	inline Buffer &operator= (const Buffer &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -2170,7 +2170,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -2340,7 +2340,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -2512,7 +2512,7 @@ public:
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Buffer () ;
@@ -2796,7 +2796,7 @@ public:
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
 				break ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
@@ -2811,7 +2811,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -2875,7 +2875,7 @@ private:
 			while (TRUE) {
 				if (Finally::mSelf.mSize <= 0)
 					break ;
-				if SWITCH_ONCE (TRUE) {
+				if SWITCH_CASE (TRUE) {
 					INDEX ix = Finally::mSelf.mSize - 1 ;
 					if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
 						discard ;
@@ -2918,7 +2918,7 @@ public:
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
 				break ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
@@ -2932,7 +2932,7 @@ public:
 	}
 
 	inline Allocator &operator= (const Allocator &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -2951,7 +2951,7 @@ public:
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
 				break ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
@@ -2966,7 +2966,7 @@ public:
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Allocator () ;
@@ -3086,7 +3086,7 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mFree != VAR_NONE)
 				discard ;
 			auto tmp = mAllocator.expand () ;
@@ -3103,7 +3103,7 @@ public:
 			mLength++ ;
 			return r1x ;
 		}
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mFree == VAR_NONE)
 				discard ;
 			const auto r2x = mFree ;

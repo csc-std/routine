@@ -130,7 +130,7 @@ public:
 		tmp.P2 = VARY (0) ;
 		const auto r4x = FreeImage_AcquireMemory (r1x.self ,&tmp.P1 ,&tmp.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (LENGTH (tmp.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (tmp.P1 != NULL) ;
@@ -243,7 +243,7 @@ public:
 		tmp.P2 = VARY (0) ;
 		const auto r4x = FreeImage_AcquireMemory (r1x.self ,&tmp.P1 ,&tmp.P2) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (LENGTH (tmp.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (tmp.P1 != NULL) ;

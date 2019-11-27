@@ -372,7 +372,7 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
@@ -448,7 +448,7 @@ public:
 		VAR128 ret = 0 ;
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(r1x >= 0))
 				discard ;
@@ -821,7 +821,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -838,7 +838,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~Variant () ;
@@ -926,7 +926,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -947,7 +947,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -965,7 +965,7 @@ private:
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
 			const auto r1x = BOOL (index == 0) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -986,7 +986,7 @@ private:
 			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
 			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
 			const auto r1x = BOOL (index == 0) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
@@ -1565,7 +1565,7 @@ public:
 	}
 
 	inline LinkedRef &operator= (LinkedRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~LinkedRef () ;
@@ -1610,7 +1610,7 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<Node>> () ;
 		ScopedBuild<Node> ANONYMOUS (rax) ;
 		auto &r1y = _LOAD_<Node> (_XVALUE_<PTR<TEMP<Node>>> (rax)) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mRoot == NULL))
 				discard ;
@@ -1744,7 +1744,7 @@ public:
 			return ;
 		if (!mHolder->mData.exist ())
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			const auto r1x = --mHolder->mCounter ;
 			if (r1x != 0)
 				discard ;
@@ -1758,7 +1758,7 @@ public:
 	}
 
 	inline StrongRef &operator= (const StrongRef &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -1773,7 +1773,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~StrongRef () ;
@@ -2031,7 +2031,7 @@ public:
 	}
 
 	inline SoftRef &operator= (const SoftRef &that) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2047,7 +2047,7 @@ public:
 	}
 
 	inline SoftRef &operator= (SoftRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~SoftRef () ;
@@ -2098,7 +2098,7 @@ public:
 	}
 
 	inline StrongRef<UNIT> watch () const {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (!linked ())
 				discard ;
 			auto &r1y = mHeap.self[mIndex].mWeight ;
@@ -2175,7 +2175,7 @@ private:
 			return ;
 		if (!mWeakRef.exist ())
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			mIndex = find_min_weight () ;
 			if (mIndex == VAR_NONE)
 				discard ;
@@ -2318,7 +2318,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (this == &that)
 				discard ;
 			(*this).~IntrusiveRef () ;

@@ -584,7 +584,7 @@ public:
 	Matrix triangular () const {
 		Matrix ret = (*this) ;
 		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				INDEX ix = ret.find_max_row (i) ;
 				if (ix == i)
 					discard ;
@@ -653,7 +653,7 @@ public:
 			}
 		}
 		ret *= r1x ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (!affine_matrix_like ())
 				discard ;
 			if (get (3 ,3) != REAL (1))
@@ -855,7 +855,7 @@ public:
 			return std::move (ret) ;
 		}) ;
 		const auto r5x = _PINV_ (REAL (2) * _SQRT_ (r3x[r4x])) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(r4x == 0))
 				discard ;

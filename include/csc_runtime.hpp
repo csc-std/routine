@@ -343,7 +343,7 @@ private:
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -471,7 +471,7 @@ public:
 		auto &r1y = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (rax != NULL)
 				discard ;
 			rax = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
@@ -510,7 +510,7 @@ public:
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2y ,r3x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2y ,r3x) ;

@@ -276,7 +276,7 @@ public:
 	void compute_sprite_draw (AnyRef<void> &this_) const override {
 		auto &r1y = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
 		glBindVertexArray (r1y.mVAO) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r1y.mTexture == VAR_NONE)
 				discard ;
 			glActiveTexture (GL_TEXTURE_2D) ;

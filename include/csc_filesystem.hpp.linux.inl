@@ -238,13 +238,13 @@ inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 inline exports String<STR> _WORKINGPATH_ () {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		const auto r1x = ::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (r1x != NULL)
 			discard ;
 		rax.clear () ;
 	}
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		const auto r2x = rax.length () ;
 		if (r2x < 1)
 			discard ;
@@ -263,7 +263,7 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (ret.empty ())
 				discard ;
@@ -284,7 +284,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	auto rax = _DECOUPLEPATHNAME_ (path) ;
-	auto fax = FALSE ;
+	auto fax = TRUE ;
 	if SWITCH_CASE (fax) {
 		if (!(path.size () >= 1 && path[0] == STR ('\\')))
 			if (!(path.size () >= 1 && path[0] == STR ('/')))
@@ -311,7 +311,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += rax[ix] ;
 	}
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		const auto r3x = ret.length () ;
 		if (r3x < 1)
 			discard ;
@@ -372,7 +372,7 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	const auto r1x = _ABSOLUTEPATH_ (dire) ;
 	const auto r2x = _DECOUPLEPATHNAME_ (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (!(dire.size () >= 1 && dire[0] == STR ('\\')))
 			if (!(dire.size () >= 1 && dire[0] == STR ('/')))
 				discard ;
@@ -425,7 +425,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 		if (r4x == NULL)
 			break ;
 		const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x->d_name])) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r5x == _PCSTR_ ("."))
 				discard ;
 			if (r5x == _PCSTR_ (".."))
@@ -457,7 +457,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			break ;
 		INDEX ix = rax.tail () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!rax[ix].P2)
 				discard ;

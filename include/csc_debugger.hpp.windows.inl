@@ -215,7 +215,7 @@ public:
 
 	void attach_log (const String<STR> &path) override {
 		const auto r1x = _ABSOLUTEPATH_ (path) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mLogPath == r1x)
 				discard ;
 			if (!mLogFileStream.exist ())
@@ -411,7 +411,7 @@ public:
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
 		INDEX iw = 0 ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!mSymbolFromAddress.exist ())
 				discard ;

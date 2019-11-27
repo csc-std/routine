@@ -217,7 +217,7 @@ private:
 			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 			_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!self_.mItemQueue->full ())
 					discard ;
 				self_.mThreadCondition.self.wait_for (sgd ,std::chrono::milliseconds (0)) ;
@@ -775,7 +775,7 @@ private:
 			_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 			self_.mThreadFlag.self = FALSE ;
 			self_.mThreadCondition.self.notify_all () ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (!self_.mItem.exist ())
 					discard ;
 				if (!self_.mCallbackProc.exist ())

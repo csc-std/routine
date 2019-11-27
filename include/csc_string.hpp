@@ -229,7 +229,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -299,7 +299,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		auto fbx = FALSE ;
+		auto fbx = TRUE ;
 		if SWITCH_CASE (fbx) {
 			if (!(rax == 10))
 				discard ;
@@ -346,7 +346,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -418,7 +418,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -511,7 +511,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -592,7 +592,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -646,7 +646,7 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -792,7 +792,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	for (auto &&i : r2y) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -812,7 +812,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 		if (rax < 10)
 			continue ;
 		INDEX ix = r1y.find (rbx) ;
-		auto fbx = FALSE ;
+		auto fbx = TRUE ;
 		if SWITCH_CASE (fbx) {
 			if (!(rax == 10))
 				discard ;
@@ -875,7 +875,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		if (rax == VAR_NONE)
 			continue ;
 		INDEX ix = r1y.find (STRUW (i)) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -1173,7 +1173,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 	for (auto &&i : stru) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -1201,8 +1201,8 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			rax = VAR_NONE ;
 		}
 	}
-	if SWITCH_ONCE (TRUE) {
-		auto fax = FALSE ;
+	if SWITCH_CASE (TRUE) {
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 1))
 				discard ;
@@ -1250,7 +1250,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 		const auto r2x = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? M_BASE64.P1[LENGTH (i) - 32] :
 			VAR_NONE) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 0))
 				discard ;
@@ -1291,8 +1291,8 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 			rax = VAR_NONE ;
 		}
 	}
-	if SWITCH_ONCE (TRUE) {
-		auto fax = FALSE ;
+	if SWITCH_CASE (TRUE) {
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(rax == 1))
 				discard ;
@@ -1351,7 +1351,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	ByteReader (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (rax != _ARG1 (':'))
 			discard ;
 		ris >> rax ;
@@ -1377,7 +1377,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	wos << VAR (rax.P1[2]) ;
 	wos << _RET ('.') ;
 	wos << VAR (rax.P1[3]) ;
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (stru.P1 == 0)
 			discard ;
 		wos << _RET (':') ;

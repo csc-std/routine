@@ -182,7 +182,7 @@ public:
 		if (r1x == 0)
 			return ;
 		//@info: state of 'this' has been changed
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r1x >= 0)
 				discard ;
 			const auto r2x = errno ;
@@ -214,7 +214,7 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r2x >= 0)
 				discard ;
 			const auto r4x = errno ;
@@ -234,7 +234,7 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r2x >= 0)
 				discard ;
 			const auto r4x = errno ;
@@ -253,7 +253,7 @@ public:
 		const auto r3x = _inline_SOCKET_MAKE_TIMEVAL_ (0) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r2x >= 0)
 				discard ;
 			const auto r4x = errno ;

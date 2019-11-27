@@ -562,7 +562,7 @@ public:
 	}
 
 	void concatto (const String &that) {
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mString.size () > 0))
 				discard ;
@@ -584,7 +584,7 @@ public:
 	}
 
 	void concatto (const Plain<ITEM> &that) {
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mString.size () > 0))
 				discard ;
@@ -961,7 +961,7 @@ private:
 		if (r1x == 0)
 			return ;
 		auto tmp = mDeque.expand (mDeque.size () + r1x) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
@@ -985,7 +985,7 @@ private:
 		_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mDeque.size () ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mRead == 0)
 				discard ;
 			ix = mRead + tmp.size () - mDeque.size () ;
@@ -1494,7 +1494,7 @@ private:
 			auto &r1y = _SWITCH_ (
 				(jx != ix) ? mPriority[jx].mKey :
 				tmp.mKey) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (iy >= mWrite)
 					discard ;
 				if (r1y <= mPriority[iy].mKey)
@@ -1524,7 +1524,7 @@ private:
 			auto &r2y = _SWITCH_ (
 				(jx != ix) ? mPriority[out[jx]].mKey :
 				mPriority[r1x].mKey) ;
-			if SWITCH_ONCE (TRUE) {
+			if SWITCH_CASE (TRUE) {
 				if (iy >= len)
 					discard ;
 				if (r2y <= mPriority[out[iy]].mKey)
@@ -2300,7 +2300,7 @@ private:
 	}
 
 	void update_compress_left (INDEX curr ,INDEX last) {
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mHead[curr][0] == VAR_NONE))
 				discard ;
@@ -2333,7 +2333,7 @@ private:
 				mRead++ ;
 			}
 			const auto r1x = mHead[i][0] ;
-			auto fax = FALSE ;
+			auto fax = TRUE ;
 			if SWITCH_CASE (fax) {
 				if (!(mRead == ix))
 					discard ;
@@ -2877,7 +2877,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2898,7 +2898,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3015,7 +3015,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3032,7 +3032,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3188,7 +3188,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3202,7 +3202,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3215,7 +3215,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (mSet[index].mLeft == VAR_NONE)
 				discard ;
 			if (mSet[index].mRight == VAR_NONE)
@@ -3281,7 +3281,7 @@ public:
 
 private:
 	void update_emplace (INDEX curr ,INDEX last) {
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(curr == VAR_NONE))
 				discard ;
@@ -3308,7 +3308,7 @@ private:
 				break ;
 			if (!mSet[jx].mRed)
 				break ;
-			auto fax = FALSE ;
+			auto fax = TRUE ;
 			if SWITCH_CASE (fax) {
 				if (!(jx == mSet[mSet[jx].mUp].mLeft))
 					discard ;
@@ -3327,7 +3327,7 @@ private:
 	void update_insert_left (INDEX curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mSet[iy].mRight != VAR_NONE))
 				discard ;
@@ -3366,7 +3366,7 @@ private:
 	void update_insert_right (INDEX curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mSet[iy].mLeft != VAR_NONE))
 				discard ;
@@ -3411,7 +3411,7 @@ private:
 			if (ix != VAR_NONE)
 				if (mSet[ix].mRed)
 					break ;
-			auto fax = FALSE ;
+			auto fax = TRUE ;
 			if SWITCH_CASE (fax) {
 				if (!(ix == mSet[iy].mLeft))
 					discard ;
@@ -3432,7 +3432,7 @@ private:
 
 	void update_remove_left (INDEX curr ,INDEX last) {
 		auto &r1y = mSet[last].mRight ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
@@ -3443,7 +3443,7 @@ private:
 		}
 		const auto r3x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
 		const auto r4x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (r3x)
 				discard ;
@@ -3480,7 +3480,7 @@ private:
 
 	void update_remove_right (INDEX curr ,INDEX last) {
 		auto &r1y = mSet[last].mLeft ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
@@ -3491,7 +3491,7 @@ private:
 		}
 		const auto r3x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
 		const auto r4x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (r3x)
 				discard ;
@@ -3687,7 +3687,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3708,7 +3708,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3823,7 +3823,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3840,7 +3840,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3996,7 +3996,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4010,7 +4010,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4029,7 +4029,7 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (size () == 0)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4194,7 +4194,7 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4221,7 +4221,7 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4355,7 +4355,7 @@ public:
 	void add (const KEY &key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4378,7 +4378,7 @@ public:
 	void add (KEY &&key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4552,7 +4552,7 @@ public:
 	INDEX insert (const KEY &key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4572,7 +4572,7 @@ public:
 	INDEX insert (KEY &&key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4643,13 +4643,13 @@ public:
 private:
 	void update_insert (INDEX curr) {
 		INDEX ix = curr ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
-			auto fbx = FALSE ;
+			auto fbx = TRUE ;
 			if SWITCH_CASE (fbx) {
 				if (!r1x)
 					discard ;
@@ -4683,7 +4683,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4y = mSet.self[ix].mLeft ;
@@ -4716,7 +4716,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4y = mSet.self[ix].mRight ;

@@ -244,7 +244,7 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (ret.empty ())
 				discard ;
@@ -265,7 +265,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	auto rax = _DECOUPLEPATHNAME_ (path) ;
-	auto fax = FALSE ;
+	auto fax = TRUE ;
 	if SWITCH_CASE (fax) {
 		if (!(path.size () >= 1 && path[0] == STR ('\\')))
 			if (!(path.size () >= 1 && path[0] == STR ('/')))
@@ -292,7 +292,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += rax[ix] ;
 	}
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		const auto r3x = ret.length () ;
 		if (r3x < 1)
 			discard ;
@@ -343,7 +343,7 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 	const auto r1x = _ABSOLUTEPATH_ (dire) ;
 	const auto r2x = _DECOUPLEPATHNAME_ (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
-	if SWITCH_ONCE (TRUE) {
+	if SWITCH_CASE (TRUE) {
 		if (!(dire.size () >= 1 && dire[0] == STR ('\\')))
 			if (!(dire.size () >= 1 && dire[0] == STR ('/')))
 				discard ;
@@ -391,7 +391,7 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 	while (TRUE) {
 		if (rbx.cFileName[0] == 0)
 			break ;
-		if SWITCH_ONCE (TRUE) {
+		if SWITCH_CASE (TRUE) {
 			const auto r3x = String<STR> (PTRTOARR[rbx.cFileName]) ;
 			if (r3x == _PCSTR_ ("."))
 				discard ;
@@ -426,7 +426,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			break ;
 		INDEX ix = rax.tail () ;
 		_ERASEDIRECTORY_ (rax[ix].P1) ;
-		auto fax = FALSE ;
+		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!rax[ix].P2)
 				discard ;

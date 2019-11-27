@@ -297,9 +297,9 @@ using std::is_convertible ;
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
 #else
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) throw CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)) ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
@@ -310,8 +310,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE(var1) (TRUE) for ( ; !var1 ; var1 = TRUE)
-#define SWITCH_ONCE(var1) (var1) for (auto ANONYMOUS = FALSE ; !ANONYMOUS ; ANONYMOUS = TRUE)
+#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (_FOR_ONCE_ (var1)) ANONYMOUS:
 
 using BOOL = bool ;
 
@@ -1515,6 +1514,15 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexc
 	_ARG1 ret = handle ;
 	handle = val ;
 	return std::move (ret) ;
+}
+
+inline BOOL _FOR_ONCE_ (const BOOL &) {
+	return FALSE ;
+}
+
+inline BOOL _FOR_ONCE_ (BOOL &flag) popping {
+	flag = FALSE ;
+	return FALSE ;
 }
 
 template <class _ARG1>
