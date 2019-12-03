@@ -3254,10 +3254,10 @@ public:
 			if (!r1x)
 				if (!(key > mSet[ret].mKey))
 					break ;
-			const auto r2x = _SWITCH_ (
+			auto &r2y = _SWITCH_ (
 				r1x ? mSet[ret].mLeft :
 				mSet[ret].mRight) ;
-			ret = r2x ;
+			ret = r2y ;
 		}
 		return std::move (ret) ;
 	}
@@ -4616,10 +4616,10 @@ public:
 			if (!r1x)
 				if (!(key > mSet.self[ret].mKey))
 					break ;
-			const auto r2x = _SWITCH_ (
+			auto &r2y = _SWITCH_ (
 				r1x ? mSet.self[ret].mLeft :
 				mSet.self[ret].mRight) ;
-			ret = r2x ;
+			ret = r2y ;
 		}
 		return std::move (ret) ;
 	}

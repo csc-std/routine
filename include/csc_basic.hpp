@@ -2800,8 +2800,8 @@ public:
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
 				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
-				mSize++ ;
 			}
+			mSize++ ;
 		}
 		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
@@ -2922,8 +2922,8 @@ public:
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
 				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
-				mSize++ ;
 			}
+			mSize++ ;
 		}
 		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
@@ -2955,8 +2955,8 @@ public:
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
 				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
-				mSize++ ;
 			}
+			mSize++ ;
 		}
 		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
