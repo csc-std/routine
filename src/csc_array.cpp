@@ -29,23 +29,23 @@ public:
 	}
 
 	TEST_METHOD (TEST_CSC_ARRAY_PRIORITY) {
-		auto rax = Array<int> {1 ,2 ,3 ,1 ,2 ,5 ,7 ,5 ,3 ,2 ,4 ,5 ,6} ;
+		auto rax = Deque<int> {1 ,2 ,3 ,1 ,2 ,5 ,7 ,5 ,3 ,2 ,4 ,5 ,6} ;
 		auto rbx = Priority<int> (rax.length ()) ;
 		for (auto &&i : rax)
 			rbx.add (i) ;
-		const auto r1x = rbx.esort () ;
-		rax.sort () ;
-		for (INDEX i = 0 ,ie = rax.length () ; i < ie ; i++)
-			_UNITTEST_ASSERT_ (rbx[r1x[i]] == rax[i]) ;
+		const auto r1x = rbx.range_sort () ;
+		const auto r2x = rax.range_sort () ;
+		for (INDEX i = 0 ,ie = r2x.length () ; i < ie ; i++)
+			_UNITTEST_ASSERT_ (rbx[r1x[i]] == rax[r2x[i]]) ;
 		INDEX ir = 0 ;
 		while (TRUE) {
 			if (rbx.empty ())
 				break ;
-			const auto r2x = rbx[rbx.head ()].key ;
+			const auto r3x = rbx[rbx.head ()].key ;
 			rbx.take () ;
-			const auto r3x = ir++ ;
-			_UNITTEST_ASSERT_ (r2x == rax[r3x]) ;
-			(void) r3x ;
+			const auto r4x = ir++ ;
+			_UNITTEST_ASSERT_ (r3x == rax[r2x[r4x]]) ;
+			(void) r4x ;
 		}
 	}
 

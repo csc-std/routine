@@ -1007,7 +1007,7 @@ public:
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		const auto r1x = first_count_vertex (point ,count) ;
-		const auto r2x = r1x.esort () ;
+		const auto r2x = r1x.range_sort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
 		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
 			ret[i].P1 = r2x[i] ;
@@ -1132,8 +1132,10 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 	private:
 		inline void prepare () {
 			mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
-			for (INDEX i = 0 ,ie = mOrder.length () ; i < ie ; i++)
-				mOrder[i] = stack_of_order (i).esort () ;
+			for (INDEX i = 0 ,ie = mOrder.length () ; i < ie ; i++) {
+				const auto r1x = stack_of_order (i) ;
+				mOrder[i] = r1x.range_sort () ;
+			}
 			mKDTree = Allocator<Node ,SAUTO> (mVertex.length ()) ;
 			mRoot = VAR_NONE ;
 		}

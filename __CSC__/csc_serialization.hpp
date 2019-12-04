@@ -1468,7 +1468,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			*	$4->$1|$2|$2x|$3|$6|$9
 			*	$5->$4|$4 , $5
 			*	$6->[ ]|[ $5 ]
-			*	$7->$2 : $4
+			*	$7->$3 : $4
 			*	$8->$7|$7 , $8
 			*	$9->{ }|{ $8 }
 			*	$10->${eps}|$4
@@ -1654,7 +1654,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestIndex = ix ;
 		}
 
-		//@info: $7->$2 : $4
+		//@info: $7->$3 : $4
 		inline void update_shift_e7 (INDEX curr) {
 			update_shift_e3 () ;
 			auto &r1y = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
