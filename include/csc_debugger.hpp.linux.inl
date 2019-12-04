@@ -74,6 +74,8 @@ public:
 	}
 
 	void print (const Binder &msg) override {
+		if ((mOptionFlag & OPTION_NO_PRINT) != 0)
+			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
 #ifdef __CSC_CONFIG_STRA__
