@@ -182,15 +182,6 @@ class Array ;
 template <class ITEM ,class SIZE>
 class Array {
 private:
-	class ForwardArray :private Wrapped<decltype (ARGVPY)> {
-	public:
-		template <class _ARG1>
-		inline constexpr _ARG1 &operator[] (_ARG1 &val) const {
-			return val ;
-		}
-	} ;
-
-private:
 	Buffer<ITEM ,SIZE> mArray ;
 
 public:
@@ -299,10 +290,6 @@ public:
 			if (get (i) == item)
 				return i ;
 		return VAR_NONE ;
-	}
-
-	void sort () {
-		_SORT_ (_CAST_<ForwardArray> (ARGVPY) ,mArray ,0 ,mArray.size ()) ;
 	}
 
 	void fill (const ITEM &item) {
@@ -639,17 +626,6 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	class AccessArray :private Wrapped<Deque> {
-	public:
-		inline ITEM &operator[] (INDEX index) {
-			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
-		}
-
-		inline const ITEM &operator[] (INDEX index) const {
-			return AccessArray::mSelf[AccessArray::mSelf.access (index)] ;
-		}
-	} ;
-
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
 		return _SWITCH_ (
 			(len <= 0) ? len :
@@ -706,6 +682,15 @@ public:
 
 	INDEX inext (INDEX index) const {
 		return (index + 1) % mDeque.size () ;
+	}
+
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+		return std::move (ret) ;
 	}
 
 	//@warn: index would be no longer valid once resized
@@ -926,18 +911,10 @@ public:
 		return VAR_NONE ;
 	}
 
-	Array<INDEX> esort () const {
-		Array<INDEX> ret = Array<INDEX> (length ()) ;
-		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			ret[iw++] = i ;
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+	Array<INDEX> range_sort () const {
+		Array<INDEX> ret = range () ;
 		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
-	}
-
-	void sort () {
-		_SORT_ (mDeque ,_CAST_<AccessArray> ((*this)) ,0 ,length ()) ;
 	}
 
 private:
@@ -1313,6 +1290,15 @@ public:
 		return index + 1 ;
 	}
 
+	Array<INDEX> range () const {
+		Array<INDEX> ret = Array<INDEX> (length ()) ;
+		INDEX iw = 0 ;
+		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
+			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+		return std::move (ret) ;
+	}
+
 	//@warn: index would be no longer valid every time revised
 	Pair<Priority> get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
@@ -1432,12 +1418,8 @@ public:
 		update_insert (index) ;
 	}
 
-	Array<INDEX> esort () const {
-		Array<INDEX> ret = Array<INDEX> (length ()) ;
-		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,ie = iend () ; i != ie ; i = inext (i))
-			ret[iw++] = i ;
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
+	Array<INDEX> range_sort () const {
+		Array<INDEX> ret = range () ;
 		INDEX ix = ret.length () ;
 		while (TRUE) {
 			if (ix - 1 < 1)
@@ -1887,30 +1869,29 @@ public:
 		return VAR_NONE ;
 	}
 
-	Array<INDEX> esort () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
-	void sort () {
-		if (length () < 2)
+	void sort (const Array<INDEX> &order) {
+		_DEBUG_ASSERT_ (order.length () == length ()) ;
+		if (order.length () < 2)
 			return ;
-		const auto r1x = esort () ;
-		_DEBUG_ASSERT_ (r1x.length () >= 2) ;
 		for (INDEX i = 0 ,ie = 1 ; i < ie ; i++) {
-			mList[r1x[i]].mLeft = VAR_NONE ;
-			mList[r1x[i]].mRight = r1x[i + 1] ;
-			mFirst = r1x[i] ;
+			mList[order[i]].mLeft = VAR_NONE ;
+			mList[order[i]].mRight = order[i + 1] ;
+			mFirst = order[i] ;
 		}
-		for (INDEX i = 1 ,ie = r1x.length () - 1 ; i < ie ; i++) {
-			mList[r1x[i]].mLeft = r1x[i - 1] ;
-			mList[r1x[i]].mRight = r1x[i + 1] ;
+		for (INDEX i = 1 ,ie = order.length () - 1 ; i < ie ; i++) {
+			mList[order[i]].mLeft = order[i - 1] ;
+			mList[order[i]].mRight = order[i + 1] ;
 		}
-		for (INDEX i = r1x.length () - 1 ,ie = r1x.length () ; i < ie ; i++) {
-			mList[r1x[i]].mLeft = r1x[i - 1] ;
-			mList[r1x[i]].mRight = VAR_NONE ;
-			mLast = r1x[i] ;
+		for (INDEX i = order.length () - 1 ,ie = order.length () ; i < ie ; i++) {
+			mList[order[i]].mLeft = order[i - 1] ;
+			mList[order[i]].mRight = VAR_NONE ;
+			mLast = order[i] ;
 		}
 	}
 
@@ -2187,22 +2168,22 @@ public:
 		return VAR_NONE ;
 	}
 
-	Array<INDEX> esort () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
-	void sort () {
-		if (length () < 2)
+	void sort (const Array<INDEX> &order) {
+		_DEBUG_ASSERT_ (order.length () == length ()) ;
+		if (order.length () < 2)
 			return ;
-		const auto r1x = esort () ;
-		for (INDEX i = 0 ,ie = r1x.length () ; i < ie ; i++)
-			sequence_rewrite (i ,r1x[i]) ;
-		for (INDEX i = r1x.length () ,ie = mHead.size () ; i < ie ; i++)
+		for (INDEX i = 0 ,ie = order.length () ; i < ie ; i++)
+			sequence_rewrite (i ,order[i]) ;
+		for (INDEX i = order.length () ,ie = mHead.size () ; i < ie ; i++)
 			sequence_remove (i) ;
 		mRead = 0 ;
-		mWrite = _MAX_ ((r1x.length () - 1) ,VAR_ZERO) ;
+		mWrite = order.length () - 1 ;
 	}
 
 	void reverse () {
@@ -3269,7 +3250,7 @@ public:
 		remove (ix) ;
 	}
 
-	Array<INDEX> esort () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		compute_esort (mRoot ,ret ,iw) ;
@@ -4624,7 +4605,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Array<INDEX> esort () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		compute_esort (mRoot ,ret ,iw) ;
