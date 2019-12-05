@@ -435,7 +435,7 @@ private:
 template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
-	static void init (VAR data ,BOOL read_only) {
+	static void init (VAR data) {
 		auto &r1y = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
@@ -443,7 +443,7 @@ public:
 			return ;
 		const auto r3x = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
-		r3x->mReadOnly = read_only ;
+		r3x->mReadOnly = TRUE ;
 		r3x->mData = data ;
 	}
 

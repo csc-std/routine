@@ -116,8 +116,10 @@ public:
 		return std::chrono::steady_clock::now () ;
 	}
 
-	inline static std::thread::id thread_tid () {
-		return std::this_thread::get_id () ;
+	inline static FLAG thread_tid () {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+		return 0 ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -144,6 +146,12 @@ public:
 
 	inline static void locale_init (const Plain<STRA> &locale_) {
 		::setlocale (LC_ALL ,locale_.self) ;
+	}
+
+	inline static FLAG process_pid () {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+		return 0 ;
 	}
 
 	inline static void process_exit () {

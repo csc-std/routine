@@ -154,12 +154,6 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 	(void) r4x ;
 }
 
-inline exports BOOL _GUARDFILE_ (const String<STR> &file) popping {
-	_STATIC_WARNING_ ("unimplemented") ;
-	_DEBUG_ASSERT_ (FALSE) ;
-	return FALSE ;
-}
-
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {
 	const auto r1x = _BUILDSTRS_<STRA> (file1) ;
 	const auto r2x = _BUILDSTRS_<STRA> (file2) ;
@@ -361,6 +355,12 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 	}) ;
 	if (r2x.self == NULL)
 		return FALSE ;
+	return TRUE ;
+}
+
+inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
+	_STATIC_WARNING_ ("unimplemented") ;
+	_DYNAMIC_ASSERT_ (FALSE) ;
 	return TRUE ;
 }
 

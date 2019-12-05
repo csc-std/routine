@@ -131,12 +131,6 @@ inline exports void _LINKFILE_ (const String<STR> &dst_file ,const String<STR> &
 	CreateHardLink (dst_file.raw ().self ,src_file.raw ().self ,NULL) ;
 }
 
-inline exports BOOL _GUARDFILE_ (const String<STR> &file) popping {
-	_STATIC_WARNING_ ("unimplemented") ;
-	_DEBUG_ASSERT_ (FALSE) ;
-	return FALSE ;
-}
-
 inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR> &file2) popping {
 	auto rax = ARRAY2<BY_HANDLE_FILE_INFORMATION> () ;
 	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
@@ -332,6 +326,12 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 		return FALSE ;
 	if ((r1x & FILE_ATTRIBUTE_DIRECTORY) == 0)
 		return FALSE ;
+	return TRUE ;
+}
+
+inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
+	_STATIC_WARNING_ ("unimplemented") ;
+	_DYNAMIC_ASSERT_ (FALSE) ;
 	return TRUE ;
 }
 
