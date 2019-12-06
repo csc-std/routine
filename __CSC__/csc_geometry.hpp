@@ -693,13 +693,14 @@ public:
 		const auto r12x = r6x.magnitude () * r10x * r9x ;
 		const auto r13x = r7x.magnitude () * r10x * r9x ;
 		ret[1] = Matrix::make_diag (r11x ,r12x ,r13x ,REAL (1)) ;
-		const auto r14x = r5x.normalize () ;
-		const auto r15x = r6x.normalize () ;
-		const auto r16x = r7x.normalize () * r9x ;
-		ret[2] = Matrix {r14x ,r15x ,r16x ,Vector<REAL>::axis_w ()} ;
-		const auto r17x = r8x * r10x ;
-		const auto r18x = Vector<REAL> {r17x.xyz () ,1} ;
-		ret[3] = Matrix::make_translation (r18x) ;
+		ret[2] = Matrix ({
+			r5x.normalize () ,
+			r6x.normalize () ,
+			r7x.normalize () * r9x ,
+			Vector<REAL>::axis_w ()}) ;
+		const auto r14x = r8x * r10x ;
+		const auto r15x = Vector<REAL> {r14x.xyz () ,1} ;
+		ret[3] = Matrix::make_translation (r15x) ;
 		return std::move (ret) ;
 	}
 
@@ -914,12 +915,18 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &normal ,const Vector<REAL> &center) {
-		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
-		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
-		Matrix ret ;
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DEBUG_ASSERT_ (FALSE) ;
+	static Matrix make_view (const Vector<REAL> &pw ,const Vector<REAL> &px ,const Vector<REAL> &py) {
+		_DEBUG_ASSERT_ (pw[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (px[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (py[3] == REAL (1)) ;
+		const auto r1x = (px - pw).normalize () ;
+		const auto r2x = (py - pw).normalize () ;
+		const auto r3x = (r1x ^ r2x).normalize () ;
+		Matrix ret = Matrix ({
+			r1x ,
+			(r3x ^ r1x).normalize () ,
+			r3x ,
+			pw}) ;
 		return std::move (ret) ;
 	}
 
