@@ -1422,7 +1422,8 @@ template <class _ARG1>
 inline LENGTH _ADDRESS_ (PTR<_ARG1> address) popping {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 	//@info: as 'asm volatile ("" :: "rm" (address) : "memory") ;'
-	static volatile PTR<void (PTR<_ARG1>)> mInstance = _XVALUE_<PTR<void (PTR<_ARG1>)>> ([] (PTR<_ARG1>) {}) ;
+	const auto r1x = _XVALUE_<PTR<void (PTR<_ARG1>)>> ([] (PTR<_ARG1>) {}) ;
+	static volatile PTR<void (PTR<_ARG1>)> mInstance = r1x ;
 	mInstance (address) ;
 	return LENGTH (address) ;
 }

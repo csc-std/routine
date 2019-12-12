@@ -203,7 +203,8 @@ private:
 			mName = NULL ;
 			mAddress = NULL ;
 			mTypeUID = 0 ;
-			mWatch = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
+			const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
+			mWatch = r1x ;
 		} ;
 	} ;
 
@@ -1536,9 +1537,6 @@ class SoftRef ;
 
 template <>
 class WeakRef<void> {
-public:
-	class Virtual ;
-
 private:
 	class Holder {
 	private:
@@ -1556,12 +1554,6 @@ private:
 	template <class>
 	friend class WeakRef ;
 	SharedRef<Holder> mHolder ;
-} ;
-
-class WeakRef<void>::Virtual :public virtual WeakRef<void> {
-private:
-	template <class>
-	friend class StrongRef ;
 } ;
 
 namespace U {
@@ -1606,16 +1598,6 @@ private:
 public:
 	inline StrongRef () noexcept {
 		mPointer = NULL ;
-	}
-
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<UNIT>>::value>>
-	inline explicit StrongRef (const _ARG1 &address) :StrongRef () {
-		_STATIC_ASSERT_ (stl::is_always_base_of<WeakRef<void>::Virtual ,UNIT>::value) ;
-		_DEBUG_ASSERT_ (address != NULL) ;
-		const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,UNIT>>> (address) ;
-		const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,UNIT>>> (r1x) ;
-		mHolder = r2x->mHolder ;
-		mPointer = address ;
 	}
 
 	//@warn: circular reference ruins StrongRef
@@ -1766,25 +1748,8 @@ public:
 		rax->mData = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
 		auto &r1y = rax->mData.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
-		Detail::template_shared (rax ,&r1y ,ARGVPX ,ARGVP9) ;
 		return StrongRef (rax ,&r1y) ;
 	}
-
-private:
-	struct Detail {
-		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> address ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<WeakRef<void>::Virtual ,_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-			_DEBUG_ASSERT_ (address != NULL) ;
-			const auto r1x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void>::Virtual ,_ARG1>>> (address) ;
-			const auto r2x = _XVALUE_<PTR<CAST_TRAITS_TYPE<WeakRef<void> ,_ARG1>>> (r1x) ;
-			r2x->mHolder = holder ;
-		}
-
-		template <class _ARG1>
-		inline static void template_shared (const SharedRef<Holder> &holder ,PTR<_ARG1> address ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
-			_DEBUG_ASSERT_ (address != NULL) ;
-		}
-	} ;
 } ;
 
 template <class UNIT>
@@ -2840,6 +2805,8 @@ public:
 class Object ;
 
 exports struct Objective :public Interface {
+	virtual WeakRef<Object> &weak_of_this () = 0 ;
+	virtual const WeakRef<Object> &weak_of_this () const = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
@@ -2879,6 +2846,9 @@ private:
 		}
 	} ;
 
+private:
+	WeakRef<Object> mWeakOfThis ;
+
 public:
 	inline Object () = delete ;
 
@@ -2886,6 +2856,14 @@ public:
 	inline explicit Object (const ARGV<_ARG1> &) {
 		_STATIC_ASSERT_ (stl::is_always_base_of<Object ,_ARG1>::value) ;
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Object>::value) ;
+	}
+	
+	inline WeakRef<Object> &weak_of_this () override {
+		return mWeakOfThis ;
+	}
+
+	inline const WeakRef<Object> &weak_of_this () const {
+		return mWeakOfThis ;
 	}
 
 	inline StrongRef<Object> clone () const override {
