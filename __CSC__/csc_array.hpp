@@ -11,14 +11,13 @@ namespace CSC {
 template <class BASE>
 class ArrayIterator final {
 private:
-	using ITERATOR = DEF<decltype (_NULL_<const BASE> ().ibegin ())> ;
-
-private:
 	BASE &mBase ;
-	ITERATOR mIndex ;
+	INDEX mIndex ;
 
 public:
 	inline ArrayIterator () = delete ;
+
+	inline explicit ArrayIterator (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
 
 	inline ArrayIterator (const ArrayIterator &) = delete ;
 	inline ArrayIterator &operator= (const ArrayIterator &) = delete ;
@@ -34,36 +33,24 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline DEF<decltype (_NULL_<BASE> ().get (_NULL_<const ITERATOR> ()))> operator* () const {
-		return mBase.get (mIndex) ;
+	inline DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> operator* () const {
+		return mBase.get (_XVALUE_<const INDEX> (mIndex)) ;
 	}
 
 	inline void operator++ () {
-		mIndex = _XVALUE_<const BASE> (mBase).inext (mIndex) ;
-	}
-
-private:
-	inline explicit ArrayIterator (BASE &base ,ITERATOR &&index) popping : mBase (base) ,mIndex (std::move (index)) {}
-
-public:
-	inline static ArrayIterator friend_begin (BASE &base) popping {
-		return ArrayIterator (base ,_XVALUE_<const BASE> (base).ibegin ()) ;
-	}
-
-	inline static ArrayIterator friend_end (BASE &base) popping {
-		return ArrayIterator (base ,_XVALUE_<const BASE> (base).iend ()) ;
+		mIndex = mBase.inext (_XVALUE_<const INDEX> (mIndex)) ;
 	}
 } ;
 
 inline namespace ARRAY {
-template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().ibegin ())>::value>>
+template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<REMOVE_REFERENCE_TYPE<_ARG1>> ().ibegin ())>::value>>
 inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> begin (_ARG1 &&array_) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_begin (array_) ;
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> (array_ ,array_.ibegin ()) ;
 }
 
-template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().iend ())>::value>>
+template <class _ARG1 ,class = ENABLE_TYPE<!std::is_reference<decltype (_NULL_<REMOVE_REFERENCE_TYPE<_ARG1>> ().iend ())>::value>>
 inline ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> end (_ARG1 &&array_) popping {
-	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>>::friend_end (array_) ;
+	return ArrayIterator<REMOVE_REFERENCE_TYPE<FORWARD_TRAITS_TYPE<_ARG1>>> (array_ ,array_.iend ()) ;
 }
 } ;
 
@@ -776,7 +763,8 @@ public:
 	}
 
 	void add (const ITEM &item) {
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		mDeque[mWrite] = std::move (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
@@ -788,7 +776,8 @@ public:
 	}
 
 	void add (ITEM &&item) {
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		mDeque[mWrite] = std::move (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
@@ -840,7 +829,8 @@ public:
 	}
 
 	INDEX insert () popping {
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		INDEX ret = mWrite ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
@@ -849,7 +839,8 @@ public:
 
 	INDEX insert_sort (const ITEM &item) popping {
 		_DEBUG_ASSERT_ (mRead == 0) ;
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		INDEX ret = mWrite ;
 		while (TRUE) {
 			if (ret - 1 < 0)
@@ -867,7 +858,8 @@ public:
 
 	INDEX insert_sort (ITEM &&item) popping {
 		_DEBUG_ASSERT_ (mRead == 0) ;
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		INDEX ret = mWrite ;
 		while (TRUE) {
 			if (ret - 1 < 0)
@@ -884,7 +876,8 @@ public:
 	}
 
 	void push (const ITEM &item) {
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
 		mDeque[ix] = std::move (item) ;
 		mRead = ix ;
@@ -892,7 +885,8 @@ public:
 	}
 
 	void push (ITEM &&item) {
-		reserve (1) ;
+		if (mDeque.size () == 0)
+			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
 		mDeque[ix] = std::move (item) ;
 		mRead = ix ;
@@ -933,7 +927,7 @@ private:
 	}
 
 	void reserve (LENGTH len) {
-		const auto r1x = _MAX_ ((len - (mDeque.size () - length ())) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
 		auto tmp = mDeque.expand (mDeque.size () + r1x) ;
@@ -957,7 +951,7 @@ private:
 	void update_resize () {
 		if (mRead != mWrite)
 			return ;
-		auto tmp = mDeque.expand () ;
+		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
 		_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mDeque.size () ;
@@ -1022,7 +1016,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
@@ -1051,7 +1044,8 @@ public:
 	}
 
 	void add (const KEY &key ,ITEM &&item) {
-		spec.reserve (1) ;
+		if (mPriority.size () == 0)
+			spec.reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
@@ -1069,7 +1063,8 @@ public:
 	}
 
 	void add (KEY &&key ,ITEM &&item) {
-		spec.reserve (1) ;
+		if (mPriority.size () == 0)
+			spec.reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mPriority[ix].mItem = std::move (item) ;
@@ -1156,7 +1151,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 	inline static constexpr LENGTH constexpr_size (LENGTH len) {
@@ -1181,7 +1175,8 @@ public:
 	}
 
 	void add (const KEY &key) {
-		spec.reserve (1) ;
+		if (mPriority.size () == 0)
+			spec.reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mWrite++ ;
@@ -1194,7 +1189,8 @@ public:
 	}
 
 	void add (KEY &&key) {
-		spec.reserve (1) ;
+		if (mPriority.size () == 0)
+			spec.reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mKey = std::move (key) ;
 		mWrite++ ;
@@ -1390,7 +1386,8 @@ public:
 	}
 
 	INDEX insert (const KEY &key) popping {
-		reserve (1) ;
+		if (mPriority.size () == 0)
+			reserve (mPriority.expand_size ()) ;
 		INDEX ret = mWrite ;
 		mPriority[ret].mKey = std::move (key) ;
 		mWrite++ ;
@@ -1401,7 +1398,8 @@ public:
 	}
 
 	INDEX insert (KEY &&key) popping {
-		reserve (1) ;
+		if (mPriority.size () == 0)
+			reserve (mPriority.expand_size ()) ;
 		INDEX ret = mWrite ;
 		mPriority[ret].mKey = std::move (key) ;
 		mWrite++ ;
@@ -1435,7 +1433,7 @@ public:
 
 private:
 	void reserve (LENGTH len) {
-		const auto r1x = _MAX_ ((len - (mPriority.size () - length ())) ,VAR_ZERO) ;
+		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
 		auto tmp = mPriority.expand (mPriority.size () + r1x) ;
@@ -1446,7 +1444,7 @@ private:
 	void update_resize () {
 		if (mWrite < mPriority.size ())
 			return ;
-		auto tmp = mPriority.expand () ;
+		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
 		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
 		mPriority.swap (tmp) ;
 	}
@@ -2832,7 +2830,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:
@@ -2974,7 +2971,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:
@@ -3642,7 +3638,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:
@@ -3782,7 +3777,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:
@@ -4136,7 +4130,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:
@@ -4301,7 +4294,6 @@ private:
 		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) {}
 	} ;
 
-	using Pair_BASE = Pair<SPECIALIZATION_TYPE> ;
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
 private:

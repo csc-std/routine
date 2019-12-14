@@ -13,63 +13,31 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange final {
 private:
-	class Iterator {
-	private:
-		friend ArrayRange ;
-		INDEX mIndex ;
-		Array<LENGTH ,SIZE> mItem ;
-
-	public:
-		inline Iterator () = delete ;
-
-		inline Iterator (const Iterator &) = delete ;
-
-		inline Iterator (Iterator &&) noexcept = default ;
-
-		inline BOOL operator== (const Iterator &that) const {
-			return BOOL (mIndex == that.mIndex) ;
-		}
-
-		inline BOOL operator!= (const Iterator &that) const {
-			return BOOL (mIndex != that.mIndex) ;
-		}
-
-		inline void operator= (const ARGV<Iterator> &) const & {
-			_STATIC_WARNING_ ("noop") ;
-		}
-
-		inline void operator= (const ARGV<Iterator> &) && = delete ;
-
-	private:
-		inline explicit Iterator (LENGTH index ,const Array<LENGTH ,SIZE> &item) :mIndex (index) ,mItem (item) {}
-	} ;
-
-private:
 	struct Detail ;
 	Array<LENGTH ,SIZE> mRange ;
+	Array<LENGTH ,SIZE> mItem ;
 
 public:
 	inline ArrayRange () = delete ;
 
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) :mRange (range_) {}
 
-	inline Iterator ibegin () const {
-		return Iterator (0 ,Detail::first_item (mRange)) ;
+	inline INDEX ibegin () popping {
+		mItem = Detail::first_item (mRange) ;
+		return 0 ;
 	}
 
-	inline Iterator iend () const {
-		const auto r1x = Detail::total_length (mRange) ;
-		return Iterator (r1x ,Detail::first_item (mRange)) ;
+	inline INDEX iend () popping {
+		return Detail::total_length (mRange) ;
 	}
 
-	inline const ARGV<Iterator> &inext (Iterator &iter) const popping {
-		iter.mIndex++ ;
-		Detail::template_incrase (mRange ,iter.mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
-		return _NULL_<ARGV<Iterator>> () ;
+	inline INDEX inext (INDEX index) popping {
+		Detail::template_incrase (mRange ,mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
+		return index + 1 ;
 	}
 
-	inline const Array<LENGTH ,SIZE> &get (const Iterator &index) const {
-		return index.mItem ;
+	inline const Array<LENGTH ,SIZE> &get (const INDEX &index) const {
+		return mItem ;
 	}
 
 private:

@@ -1876,8 +1876,8 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	inline Buffer expand () const {
-		return expand (0) ;
+	inline LENGTH expand_size () const {
+		return 0 ;
 	}
 
 	inline Buffer expand (LENGTH len) const {
@@ -2024,8 +2024,8 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	inline Buffer<UNIT ,SAUTO> expand () const {
-		return expand (0) ;
+	inline LENGTH expand_size () const {
+		return 0 ;
 	}
 
 	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
@@ -2287,10 +2287,11 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	inline Buffer expand () const {
+	inline LENGTH expand_size () const {
 		using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
-		const auto r1x = _MAX_ (LENGTH (mSize * MATH_SQRT2) ,(mSize + DEFAULT_EXPANDFIRST_SIZE::value)) ;
-		return expand (r1x) ;
+		const auto r1x = LENGTH (mSize * MATH_SQRT2) ;
+		const auto r2x = mSize + DEFAULT_EXPANDFIRST_SIZE::value ;
+		return _MAX_ (r1x ,r2x) ;
 	}
 
 	inline Buffer expand (LENGTH len) const {
@@ -2431,8 +2432,8 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	inline Buffer expand () const {
-		return expand (0) ;
+	inline LENGTH expand_size () const {
+		return 0 ;
 	}
 
 	inline Buffer expand (LENGTH len) const {
@@ -2603,8 +2604,8 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	inline Buffer expand () const {
-		return expand (0) ;
+	inline LENGTH expand_size () const {
+		return 0 ;
 	}
 
 	inline Buffer expand (LENGTH len) const {
@@ -3088,7 +3089,7 @@ public:
 		if SWITCH_CASE (TRUE) {
 			if (mFree != VAR_NONE)
 				discard ;
-			auto tmp = mAllocator.expand () ;
+			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
 			const auto r1x = mSize ;
 			_CREATE_ (&tmp[r1x].mData ,std::forward<_ARGS> (initval)...) ;
 			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
