@@ -183,8 +183,8 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (len > 0) ;
 	}
 	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-		if (src[len + ~i] == val)
-			return (len + ~i) ;
+		if (src[ie + ~i] == val)
+			return (ie + ~i) ;
 	return VAR_NONE ;
 #pragma GCC diagnostic pop
 }
@@ -252,15 +252,15 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-			dst[i] = src[len + ~i] ;
+			dst[i] = src[ie + ~i] ;
 	}
 	if SWITCH_CASE (fax) {
 		if (!(dst == src))
 			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
-			dst[i] = dst[len + ~i] ;
-			dst[len + ~i] = r1x ;
+			dst[i] = dst[ie + ~i] ;
+			dst[ie + ~i] = r1x ;
 		}
 	}
 #pragma GCC diagnostic pop
@@ -292,7 +292,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 		if (!(dst1 > dst2))
 			discard ;
 		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
+			dst1[ie + ~i] = std::move (dst2[ie + ~i]) ;
 	}
 #pragma GCC diagnostic pop
 }
@@ -3029,7 +3029,7 @@ public:
 		INDEX iy = VAR_NONE ;
 		for (INDEX i = 0 ,ie = mAllocator.size () ; i < ie ; i++) {
 			iy = ix ;
-			ix = mAllocator.size () + ~i ;
+			ix = ie + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
 				_DESTROY_ (&mAllocator[ix].mData) ;
 			mAllocator[ix].mNext = iy ;
