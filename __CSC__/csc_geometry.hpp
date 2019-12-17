@@ -271,15 +271,17 @@ public:
 		const auto r1x = _PINV_ (mVector[3]) ;
 		ret.mVector[0] = mVector[0] * r1x ;
 		ret.mVector[1] = mVector[1] * r1x ;
-		ret.mVector[2] = REAL (0) ;
+		ret.mVector[2] = mVector[2] * r1x ;
 		ret.mVector[3] = REAL (1) ;
 		return std::move (ret) ;
 	}
 
 	Vector homogenize () const {
 		Vector ret ;
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DEBUG_ASSERT_ (FALSE) ;
+		ret.mVector[0] = mVector[0] ;
+		ret.mVector[1] = mVector[1] ;
+		ret.mVector[2] = mVector[2] ;
+		ret.mVector[3] = 0 ;
 		return std::move (ret) ;
 	}
 
@@ -687,20 +689,15 @@ public:
 		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
 		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
 		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
-		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) ;
 		const auto r10x = _PINV_ (r8x[3]) ;
-		const auto r11x = r5x.magnitude () * r10x * r9x ;
-		const auto r12x = r6x.magnitude () * r10x * r9x ;
-		const auto r13x = r7x.magnitude () * r10x * r9x ;
+		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) * r10x ;
+		const auto r11x = r5x.magnitude () * r9x ;
+		const auto r12x = r6x.magnitude () * r9x ;
+		const auto r13x = r7x.magnitude () * r9x ;
 		ret[1] = Matrix::make_diag (r11x ,r12x ,r13x ,REAL (1)) ;
-		ret[2] = Matrix ({
-			r5x.normalize () ,
-			r6x.normalize () ,
-			r7x.normalize () * r9x ,
-			Vector<REAL>::axis_w ()}) ;
-		const auto r14x = r8x * r10x ;
-		const auto r15x = Vector<REAL> {r14x.xyz () ,1} ;
-		ret[3] = Matrix::make_translation (r15x) ;
+		ret[2] = Matrix::make_view (r5x ,r6x) ;
+		const auto r14x = r8x.homogenize () * r10x + Vector<REAL>::axis_w () ;
+		ret[3] = Matrix::make_translation (r14x) ;
 		return std::move (ret) ;
 	}
 
@@ -750,18 +747,6 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_shear (const REAL &angle_xy ,const REAL &angle_xz ,const REAL &angle_yz) {
-		const auto r1x = _PINV_ (_SIN_ (angle_xy)) ;
-		const auto r2x = (_COS_ (angle_yz) - _COS_ (angle_xy) * _COS_ (angle_xz)) * r1x ;
-		const auto r3x = _SQRT_ (_SQE_ (_SIN_ (angle_xz)) - _SQE_ (r2x)) ;
-		Matrix ret = Matrix ({
-			{REAL (1) ,_COS_ (angle_xy) ,_COS_ (angle_xz) ,REAL (0)} ,
-			{REAL (0) ,_SIN_ (angle_xy) ,r2x ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,r3x ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
-	}
-
 	static Matrix make_shear (const Vector<REAL> &x ,const Vector<REAL> &y ,const Vector<REAL> &z) {
 		const auto r1x = x.normalize () ;
 		const auto r2x = y.normalize () ;
@@ -784,7 +769,6 @@ public:
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		Matrix ret ;
 		const auto r1x = normal.normalize () ;
-		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
 		const auto r2x = _COS_ (angle) ;
 		const auto r3x = r1x * _SIN_ (angle) ;
 		const auto r4x = r1x * (REAL (1) - r2x) ;
@@ -915,18 +899,34 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &pw ,const Vector<REAL> &px ,const Vector<REAL> &py) {
-		_DEBUG_ASSERT_ (pw[3] == REAL (1)) ;
+	static Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py) {
+		_DEBUG_ASSERT_ (px[3] == REAL (0)) ;
+		_DEBUG_ASSERT_ (py[3] == REAL (0)) ;
+		const auto r1x = px.normalize () ;
+		const auto r2x = py.normalize () ;
+		const auto r3x = (r1x ^ r2x).normalize () ;
+		const auto r4x = (r3x ^ r1x).normalize () ;
+		Matrix ret = Matrix ({
+			{r1x[0] ,r4x[0] ,r3x[0] ,REAL (0)} ,
+			{r1x[1] ,r4x[1] ,r3x[1] ,REAL (0)} ,
+			{r1x[2] ,r4x[2] ,r3x[2] ,REAL (0)} ,
+			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
+		return std::move (ret) ;
+	}
+
+	static Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py ,const Vector<REAL> &pw) {
 		_DEBUG_ASSERT_ (px[3] == REAL (1)) ;
 		_DEBUG_ASSERT_ (py[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (pw[3] == REAL (1)) ;
 		const auto r1x = (px - pw).normalize () ;
 		const auto r2x = (py - pw).normalize () ;
 		const auto r3x = (r1x ^ r2x).normalize () ;
+		const auto r4x = (r3x ^ r1x).normalize () ;
 		Matrix ret = Matrix ({
-			r1x ,
-			(r3x ^ r1x).normalize () ,
-			r3x ,
-			pw}) ;
+			{r1x[0] ,r4x[0] ,r3x[0] ,pw[0]} ,
+			{r1x[1] ,r4x[1] ,r3x[1] ,pw[1]} ,
+			{r1x[2] ,r4x[2] ,r3x[2] ,pw[2]} ,
+			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
 		return std::move (ret) ;
 	}
 
@@ -941,42 +941,29 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_projection (const Vector<REAL> &normal ,const Vector<REAL> &center ,const Vector<REAL> &light) {
+	static Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
-		_DEBUG_ASSERT_ (center[3] == REAL (1)) ;
-		_DEBUG_ASSERT_ (light[3] == REAL (0) || light[3] == REAL (1)) ;
+		_DEBUG_ASSERT_ (light[3] == REAL (0)) ;
 		Matrix ret ;
 		const auto r1x = normal.normalize () ;
-		_DEBUG_ASSERT_ (r1x.magnitude () > REAL (0)) ;
-		const auto r2x = _SWITCH_ (
-			(light[3] != REAL (0)) ? light :
-			light.normalize ()) ;
-		const auto r3x = (center - Vector<REAL>::axis_w ()) * r1x ;
-		const auto r4x = Vector<REAL> {r2x[0] ,r2x[1] ,r2x[2] ,REAL (0)} ;
-		const auto r5x = r4x * r1x ;
-		const auto r6x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)} ;
-		auto &r7y = _SWITCH_ (
-			(r2x[3] != REAL (0)) ? r3x :
-			r6x) ;
-		auto &r8y = _SWITCH_ (
-			(r2x[3] != REAL (0)) ? r1x :
-			r6x) ;
-		ret[0][0] = r1x[0] * r2x[0] - r5x + r7y ;
-		ret[0][1] = r1x[1] * r2x[0] ;
-		ret[0][2] = r1x[2] * r2x[0] ;
-		ret[0][3] = -r3x * r2x[0] ;
-		ret[1][0] = r1x[0] * r2x[1] ;
-		ret[1][1] = r1x[1] * r2x[1] - r5x + r7y ;
-		ret[1][2] = r1x[2] * r2x[1] ;
-		ret[1][3] = -r3x * r2x[1] ;
-		ret[2][0] = r1x[0] * r2x[2] ;
-		ret[2][1] = r1x[1] * r2x[2] ;
-		ret[2][2] = r1x[2] * r2x[2] - r5x + r7y ;
-		ret[2][3] = -r3x * r2x[2] ;
-		ret[3][0] = r8y[0] ;
-		ret[3][1] = r8y[1] ;
-		ret[3][2] = r8y[2] ;
-		ret[3][3] = -r5x ;
+		const auto r2x = light.normalize () ;
+		const auto r3x = r1x * r2x ;
+		ret[0][0] = r3x - r1x[0] * r2x[0] ;
+		ret[0][1] = -r1x[1] * r2x[0] ;
+		ret[0][2] = -r1x[2] * r2x[0] ;
+		ret[0][3] = center * r2x[0] ;
+		ret[1][0] = -r1x[0] * r2x[1] ;
+		ret[1][1] = r3x - r1x[1] * r2x[1] ;
+		ret[1][2] = -r1x[2] * r2x[1] ;
+		ret[1][3] = center * r2x[1] ;
+		ret[2][0] = -r1x[0] * r2x[2] ;
+		ret[2][1] = -r1x[1] * r2x[2] ;
+		ret[2][2] = r3x - r1x[2] * r2x[2] ;
+		ret[2][3] = center * r2x[2] ;
+		ret[3][0] = 0 ;
+		ret[3][1] = 0 ;
+		ret[3][2] = 0 ;
+		ret[3][3] = r3x ;
 		return std::move (ret) ;
 	}
 

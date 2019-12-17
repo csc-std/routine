@@ -2302,6 +2302,7 @@ public:
 	}
 } ;
 
+#ifdef __CSC_DEPRECATED__
 template <class UNIT>
 class Lazy {
 private:
@@ -2437,6 +2438,7 @@ private:
 		data = r1x->mEvaluator () ;
 	}
 } ;
+#endif
 
 inline namespace EXTEND {
 inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
