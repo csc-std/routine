@@ -256,7 +256,6 @@ public:
 	}
 
 	Vector normalize () const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
 		Vector ret ;
 		const auto r1x = _PINV_ (magnitude ()) ;
 		ret.mVector[0] = mVector[0] * r1x ;
@@ -281,13 +280,8 @@ public:
 		ret.mVector[0] = mVector[0] ;
 		ret.mVector[1] = mVector[1] ;
 		ret.mVector[2] = mVector[2] ;
-		ret.mVector[3] = 0 ;
+		ret.mVector[3] = REAL (0) ;
 		return std::move (ret) ;
-	}
-
-	Vector reflect (const Vector<REAL> &normal) const {
-		const auto r1x = normal * (2 * mul (normal)) ;
-		return sub (r1x) ;
 	}
 
 public:
@@ -689,14 +683,13 @@ public:
 		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
 		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
 		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
-		const auto r10x = _PINV_ (r8x[3]) ;
-		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) * r10x ;
+		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) * _PINV_ (r8x[3]) ;
 		const auto r11x = r5x.magnitude () * r9x ;
 		const auto r12x = r6x.magnitude () * r9x ;
 		const auto r13x = r7x.magnitude () * r9x ;
 		ret[1] = Matrix::make_diag (r11x ,r12x ,r13x ,REAL (1)) ;
 		ret[2] = Matrix::make_view (r5x ,r6x) ;
-		const auto r14x = r8x.homogenize () * r10x + Vector<REAL>::axis_w () ;
+		const auto r14x = r8x.projection () - Vector<REAL>::axis_w () ;
 		ret[3] = Matrix::make_translation (r14x) ;
 		return std::move (ret) ;
 	}
@@ -889,12 +882,12 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_translation (const Vector<REAL> &position) {
-		_DEBUG_ASSERT_ (position[3] == REAL (1)) ;
+	static Matrix make_translation (const Vector<REAL> &direction) {
+		_DEBUG_ASSERT_ (direction[3] == REAL (0)) ;
 		Matrix ret = Matrix ({
-			{REAL (1) ,REAL (0) ,REAL (0) ,position[0]} ,
-			{REAL (0) ,REAL (1) ,REAL (0) ,position[1]} ,
-			{REAL (0) ,REAL (0) ,REAL (1) ,position[2]} ,
+			{REAL (1) ,REAL (0) ,REAL (0) ,direction[0]} ,
+			{REAL (0) ,REAL (1) ,REAL (0) ,direction[1]} ,
+			{REAL (0) ,REAL (0) ,REAL (1) ,direction[2]} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
 		return std::move (ret) ;
 	}
@@ -984,14 +977,22 @@ public:
 			ret[i[0]][i[1]] = first[i[0]] * second[i[1]] ;
 		return std::move (ret) ;
 	}
+
+	static Matrix make_reflection (const Vector<REAL> &normal) {
+		const auto r1x = normal.normalize () ;
+		return make_identity () - make_symmetry (r1x ,r1x) * REAL (2) ;
+	}
 } ;
 
 template <class REAL>
 inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
 	Vector<REAL> ret ;
 	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-		const auto r1x = get (0) * that.get (0 ,i) + get (1) * that.get (1 ,i) + get (2) * that.get (2 ,i) + get (3) * that.get (3 ,i) ;
-		ret.get (i) = r1x ;
+		const auto r1x = get (0) * that.get (0 ,i) ;
+		const auto r2x = get (1) * that.get (1 ,i) ;
+		const auto r3x = get (2) * that.get (2 ,i) ;
+		const auto r4x = get (3) * that.get (3 ,i) ;
+		ret.get (i) = r1x + r2x + r3x + r4x ;
 	}
 	return std::move (ret) ;
 }
@@ -1000,8 +1001,11 @@ template <class REAL>
 inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &that) const {
 	Vector<REAL> ret ;
 	for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
-		const auto r1x = get (i ,0) * that.get (0) + get (i ,1) * that.get (1) + get (i ,2) * that.get (2) + get (i ,3) * that.get (3) ;
-		ret.get (i) = r1x ;
+		const auto r1x = get (i ,0) * that.get (0) ;
+		const auto r2x = get (i ,1) * that.get (1) ;
+		const auto r3x = get (i ,2) * that.get (2) ;
+		const auto r4x = get (i ,3) * that.get (3) ;
+		ret.get (i) = r1x + r2x + r3x + r4x ;
 	}
 	return std::move (ret) ;
 }
