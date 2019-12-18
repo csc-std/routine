@@ -190,25 +190,6 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 }
 
 template <class _ARG1>
-inline LENGTH _MEMCOUNT_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
-#pragma GCC diagnostic push
-#ifdef __CSC_COMPILER_GNUC__
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-	if SWITCH_CASE (TRUE) {
-		if (len == 0)
-			discard ;
-		_DEBUG_ASSERT_ (src != NULL) ;
-		_DEBUG_ASSERT_ (len > 0) ;
-	}
-	LENGTH ret = 0 ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-		ret += EFLAG (src[i] == val) ;
-	return std::move (ret) ; ;
-#pragma GCC diagnostic pop
-}
-
-template <class _ARG1>
 inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
@@ -259,8 +240,8 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 			discard ;
 		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
 			const auto r1x = dst[i] ;
-			dst[i] = dst[ie + ~i] ;
-			dst[ie + ~i] = r1x ;
+			dst[i] = dst[len + ~i] ;
+			dst[len + ~i] = r1x ;
 		}
 	}
 #pragma GCC diagnostic pop
