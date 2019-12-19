@@ -1773,7 +1773,7 @@ public:
 		return mWhat ;
 	}
 
-	inline void raise () const {
+	inline void raise[[noreturn]] () const {
 		throw (*this) ;
 	}
 } ;

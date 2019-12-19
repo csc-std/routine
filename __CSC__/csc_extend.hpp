@@ -66,14 +66,13 @@ using std::chrono::steady_clock ;
 } ;
 
 namespace this_thread {
-using std::this_thread::get_id ;
 using std::this_thread::sleep_for ;
-using std::this_thread::sleep_until ;
 using std::this_thread::yield ;
 } ;
 
 using std::atomic_thread_fence ;
-using std::atomic_signal_fence ;
+
+using ::setlocale ;
 
 #ifndef __CSC_COMPILER_GNUC__
 //@error: 'std::max_align_t' is not avaliable in g++4.8
@@ -81,7 +80,7 @@ using std::quick_exit ;
 #endif
 
 using std::exit ;
-using std::abort ;
+using std::terminate ;
 } ;
 
 #ifdef __CSC_COMPILER_MSVC__
@@ -145,7 +144,7 @@ public:
 	}
 
 	inline static void locale_init (const Plain<STRA> &locale_) {
-		::setlocale (LC_ALL ,locale_.self) ;
+		stl::setlocale (LC_ALL ,locale_.self) ;
 	}
 
 	inline static FLAG process_pid () {
@@ -154,7 +153,7 @@ public:
 		return 0 ;
 	}
 
-	inline static void process_exit () {
+	inline static void process_exit[[noreturn]] () {
 #ifdef __CSC_COMPILER_GNUC__
 		//@error: g++4.8 is too useless to have 'std::quick_exit'
 		std::exit (EXIT_FAILURE) ;
@@ -163,7 +162,7 @@ public:
 #endif
 	}
 
-	inline static void process_abort () {
+	inline static void process_abort[[noreturn]] () {
 		std::terminate () ;
 	}
 } ;
