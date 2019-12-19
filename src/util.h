@@ -4,7 +4,6 @@
 #define _DEPRECATED
 
 #include <csc.hpp>
-#pragma warning (disable :4702)
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>
 #include <csc_array.hpp>
