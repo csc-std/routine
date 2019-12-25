@@ -130,7 +130,7 @@ public:
 		r2y.mItemQueue->clear () ;
 		r2y.mException = AutoRef<Exception> () ;
 		r2y.mThreadPool = Array<AutoRef<std::thread>> (proc.size ()) ;
-		for (INDEX i = 0 ,ie = r2y.mThreadPool.length () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,r2y.mThreadPool.length ())) {
 			const auto r3x = PACK<PTR<Holder> ,INDEX> {&r2y ,i} ;
 			//@warn: move object having captured context
 			r2y.mThreadPool[i] = AutoRef<std::thread>::make ([r3x] () noexcept {
@@ -435,7 +435,7 @@ public:
 		r2y.mItemQueue->clear () ;
 		r2y.mException = AutoRef<Exception> () ;
 		r2y.mThreadPool = Array<AutoRef<std::thread>> (count) ;
-		for (INDEX i = 0 ,ie = r2y.mThreadPool.length () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,r2y.mThreadPool.length ())) {
 			const auto r3x = PACK<PTR<Holder>> {&r2y} ;
 			//@warn: move object having captured context
 			r2y.mThreadPool[i] = AutoRef<std::thread>::make ([r3x] () noexcept {

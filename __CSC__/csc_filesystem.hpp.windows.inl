@@ -234,7 +234,7 @@ inline exports String<STR> _WORKINGPATH_ () {
 
 inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_name) {
 	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
-	for (INDEX i = 0 ,ie = path_name.length () ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,path_name.length ())) {
 		INDEX ix = path_name.access (i) ;
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
@@ -280,7 +280,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 		ret += _PCSTR_ ("\\") ;
 	}
 	const auto r2x = _inline_RELATIVEPATHNAME_ (rax) ;
-	for (INDEX i = 0 ,ie = r2x.length () ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,r2x.length ())) {
 		if (i > 0)
 			ret += _PCSTR_ ("\\") ;
 		INDEX ix = r2x[r2x.access (i)] ;
@@ -349,7 +349,7 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 				discard ;
 		rax += _PCSTR_ ("\\") ;
 	}
-	for (INDEX i = 0 ,ie = r2x.length () ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,r2x.length ())) {
 		if (i > 0)
 			rax += _PCSTR_ ("\\") ;
 		INDEX ix = r2x.access (i) ;

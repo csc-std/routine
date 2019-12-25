@@ -75,7 +75,7 @@ using std::atomic_thread_fence ;
 using ::setlocale ;
 
 #ifndef __CSC_COMPILER_GNUC__
-//@error: 'std::max_align_t' is not avaliable in g++4.8
+//@error: 'std::quick_exit' is not avaliable in g++4.8
 using std::quick_exit ;
 #endif
 
@@ -1992,7 +1992,7 @@ public:
 	inline void clean () const {
 		if (!mHeap.exist ())
 			return ;
-		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mWeight < 0)
 				continue ;
 			mHeap.self[i].mData = StrongRef<UNIT> () ;
@@ -2014,7 +2014,7 @@ private:
 	}
 
 	inline INDEX find_has_linked (const WeakRef<UNIT> &that) const {
-		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
 			if (mHeap.self[i].mData == that)
 				return i ;
 		return VAR_NONE ;
@@ -2034,7 +2034,7 @@ private:
 			const auto r1x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
 				discard ;
-			for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++)
+			for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
@@ -2045,7 +2045,7 @@ private:
 	inline INDEX find_min_weight () const {
 		INDEX ret = VAR_NONE ;
 		auto rax = LENGTH () ;
-		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			const auto r1x = mHeap.self[i].mWeight ;
 			if (r1x < 0)
 				continue ;
@@ -2305,17 +2305,6 @@ public:
 template <class UNIT>
 class Lazy {
 private:
-	class ApplyTo :private Wrapped<UNIT> {
-	public:
-		inline void friend_move (UNIT &data) popping {
-			data = std::move (ApplyTo::mSelf) ;
-		}
-
-		inline void friend_move (UNIT &data) const popping {
-			data = std::move (ApplyTo::mSelf) ;
-		}
-	} ;
-
 	class Holder {
 	private:
 		friend Lazy ;
@@ -2330,83 +2319,13 @@ private:
 public:
 	inline Lazy () = default ;
 
-	inline implicit Lazy (const UNIT &that) {
-		mThis = SoftRef<Holder> (9) ;
-		const auto r1x = StrongRef<Holder>::make () ;
-		auto &r2y = _CAST_<ApplyTo> (that) ;
-		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const ApplyTo>::make (r2y) ,&ApplyTo::friend_move) ;
-		r1x->mData.apply (r3x) ;
-		r1x->mData.finish () ;
-		mThis.assign (r1x) ;
-		mThis.as_strong () ;
-	}
-
-	inline implicit Lazy (UNIT &&that) {
-		mThis = SoftRef<Holder> (9) ;
-		const auto r1x = StrongRef<Holder>::make () ;
-		auto &r2y = _CAST_<ApplyTo> (that) ;
-		const auto r3x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<ApplyTo>::make (r2y) ,&ApplyTo::friend_move) ;
-		r1x->mData.apply (r3x) ;
-		r1x->mData.finish () ;
-		mThis.assign (r1x) ;
-		mThis.as_strong () ;
-	}
-
-	inline implicit Lazy (Function<DEF<UNIT ()> NONE::*> &&that) {
-		mThis = SoftRef<Holder> (9) ;
-		const auto r1x = StrongRef<Holder>::make () ;
-		r1x->mData.signal () ;
-		r1x->mEvaluator = std::move (that) ;
-		mThis.assign (r1x) ;
-		mThis.as_strong () ;
-	}
-
-	inline explicit Lazy (Function<UNIT ()> &&that) {
-		mThis = SoftRef<Holder> (9) ;
-		const auto r1x = StrongRef<Holder>::make () ;
-		r1x->mData.signal () ;
-		r1x->mFunction = AnyRef<Function<UNIT ()>>::make (std::move (that)) ;
-		auto &r2y = r1x->mFunction.template rebind<Function<UNIT ()>> ().self ;
-		r1x->mEvaluator = Function<DEF<UNIT ()> NONE::*>::make (PhanRef<Function<UNIT ()>> (r2y) ,&Function<UNIT ()>::invoke) ;
-		mThis.assign (r1x) ;
-		mThis.as_strong () ;
-	}
-
-	inline BOOL exist () const {
-		return mThis.exist () ;
-	}
-
-	inline const UNIT &to () const {
-		_DEBUG_ASSERT_ (exist ()) ;
-		finish () ;
-		const auto r1x = mThis.watch () ;
-		return r1x->mData.self ;
-	}
-
-	inline implicit operator const UNIT & () const {
-		return to () ;
-	}
-
 	inline LENGTH rank () const {
-		_DEBUG_ASSERT_ (exist ()) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return 0 ;
 	}
 
-	inline void finish () const {
-		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = mThis.watch () ;
-		const auto r2x = Function<DEF<void (UNIT &)> NONE::*> (PhanRef<const Lazy>::make ((*this)) ,&Lazy::compute_evaluation) ;
-		r1x->mData.apply (r2x) ;
-		r1x->mData.finish () ;
-	}
-
 	inline Lazy concat (const Lazy &that) const {
-		if (!exist ())
-			return that ;
-		if (!that.exist ())
-			return (*this) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Lazy () ;
@@ -2429,13 +2348,6 @@ public:
 		(*this) = that.concat ((*this)) ;
 		return (*this) ;
 	}
-
-private:
-	inline void compute_evaluation (UNIT &data) const {
-		const auto r1x = mThis.watch () ;
-		_DYNAMIC_ASSERT_ (r1x->mEvaluator.exist ()) ;
-		data = r1x->mEvaluator () ;
-	}
 } ;
 #endif
 
@@ -2444,19 +2356,19 @@ inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
 	return base + (align_ - base % align_) % align_ ;
 }
 
-inline constexpr BOOL _RANGE00_ (INDEX base ,INDEX min_ ,INDEX max_) {
+inline constexpr BOOL _RANGE_IN00_ (INDEX base ,INDEX min_ ,INDEX max_) {
 	return BOOL (base > min_ && base < max_) ;
 }
 
-inline constexpr BOOL _RANGE01_ (INDEX base ,INDEX min_ ,INDEX max_) {
+inline constexpr BOOL _RANGE_IN01_ (INDEX base ,INDEX min_ ,INDEX max_) {
 	return BOOL (base > min_ && base <= max_) ;
 }
 
-inline constexpr BOOL _RANGE10_ (INDEX base ,INDEX min_ ,INDEX max_) {
+inline constexpr BOOL _RANGE_IN10_ (INDEX base ,INDEX min_ ,INDEX max_) {
 	return BOOL (base >= min_ && base < max_) ;
 }
 
-inline constexpr BOOL _RANGE11_ (INDEX base ,INDEX min_ ,INDEX max_) {
+inline constexpr BOOL _RANGE_IN11_ (INDEX base ,INDEX min_ ,INDEX max_) {
 	return BOOL (base >= min_ && base <= max_) ;
 }
 } ;
@@ -2559,7 +2471,7 @@ private:
 			mRoot = &r5y ;
 			mSize += RESE::value * SIZE::value ;
 			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ,ie = mRoot->mCount ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 				const auto r7x = r6x + i * r1x ;
 				auto &r8y = _LOAD_<BLOCK> (this ,r7x) ;
 				r8y.mNext = mFree ;
@@ -2610,7 +2522,7 @@ private:
 		inline BOOL empty_node (PTR<const CHUNK> node) const {
 			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (INDEX i = 0 ,ie = node->mCount ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 				const auto r3x = r2x + i * r1x ;
 				auto &r4y = _LOAD_<BLOCK> (this ,r3x) ;
 				if (_ADDRESS_ (r4y.mNext) == VAR_USED)
@@ -2742,14 +2654,14 @@ public:
 
 	inline LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
 			ret += mPool.self[i]->size () ;
 		return std::move (ret) ;
 	}
 
 	inline LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
 			ret += mPool.self[i]->length () ;
 		return std::move (ret) ;
 	}
@@ -2798,7 +2710,7 @@ public:
 	}
 
 	inline void clean () {
-		for (INDEX i = 0 ,ie = mPool.self.size () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
 			mPool.self[i]->clean () ;
 	}
 } ;

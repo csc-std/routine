@@ -650,7 +650,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
@@ -990,7 +990,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
@@ -1237,7 +1237,7 @@ private:
 
 	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
 		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
-		for (INDEX i = 0 ,ie = mHeap->size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
 			auto &r1y = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
@@ -1735,7 +1735,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mObjectSoftSet.clean () ;
 			mHeap = SharedRef<FixedBuffer<Node>>::make (mNodeHeap.length ()) ;
 			INDEX iw = 0 ;
-			for (INDEX i = 0 ,ie = mNodeHeap.size () ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
 				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
@@ -1768,7 +1768,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			String<STRU8> ret = String<STRU8>::make () ;
 			auto wos = TextWriter<STRU8> (ret.raw ()) ;
-			for (INDEX i = 1 ,ie = LENGTH (argc) ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (1 ,LENGTH (argc))) {
 				wos << _ASTOU8S_ (PTRTOARR[argv[i]]) ;
 				wos << _PCSTRU8_ (" ") ;
 			}

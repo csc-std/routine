@@ -13,31 +13,58 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange final {
 private:
+	template <class BASE>
+	class Iterator {
+	private:
+		friend ArrayRange ;
+		BASE &mBase ;
+		INDEX mIndex ;
+		Array<LENGTH ,SIZE> mItem ;
+
+	public:
+		inline Iterator () = delete ;
+
+		inline Iterator (const Iterator &) = delete ;
+
+		inline Iterator (Iterator &&) noexcept = default ;
+
+		inline BOOL operator== (const Iterator &that) const {
+			return BOOL (mIndex == that.mIndex) ;
+		}
+
+		inline BOOL operator!= (const Iterator &that) const {
+			return BOOL (mIndex != that.mIndex) ;
+		}
+
+		inline const Array<LENGTH ,SIZE> &operator* () const {
+			return mItem ;
+		}
+
+		inline void operator++ () {
+			mIndex++ ;
+			Detail::template_incrase (mBase.mRange ,mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
+		}
+
+	public:
+		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item) popping :mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
+	} ;
+
+private:
 	struct Detail ;
 	Array<LENGTH ,SIZE> mRange ;
-	Array<LENGTH ,SIZE> mItem ;
 
 public:
 	inline ArrayRange () = delete ;
 
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) :mRange (range_) {}
 
-	inline INDEX ibegin () popping {
-		mItem = Detail::first_item (mRange) ;
-		return 0 ;
+	inline Iterator<const ArrayRange> begin () const {
+		return Iterator<const ArrayRange> ((*this) ,0 ,Detail::first_item (mRange)) ;
 	}
 
-	inline INDEX iend () popping {
-		return Detail::total_length (mRange) ;
-	}
-
-	inline INDEX inext (INDEX index) popping {
-		Detail::template_incrase (mRange ,mItem ,_NULL_<ARGV<ARGC<SIZE::value - 1>>> ()) ;
-		return index + 1 ;
-	}
-
-	inline const Array<LENGTH ,SIZE> &get (const INDEX &index) const {
-		return mItem ;
+	inline Iterator<const ArrayRange> end () const {
+		const auto r1x = Detail::total_length (mRange) ;
+		return Iterator<const ArrayRange> ((*this) ,r1x ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
@@ -547,7 +574,7 @@ public:
 		const auto r1x = ARRAY2<LENGTH> {mCY ,that.mCX} ;
 		for (auto &&i : ArrayRange<ARGC<2>> (r1x)) {
 			ret.get (i) = UNIT (0) ;
-			for (INDEX j = 0 ,je = mCX ; j < je ; j++)
+			for (auto &&j : _RANGE_ (0 ,mCX))
 				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
 		}
 		return std::move (ret) ;

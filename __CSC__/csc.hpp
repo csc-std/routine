@@ -1570,6 +1570,27 @@ inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
 }
 
 template <class _ARG1>
+inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
+	return _SWITCH_ (
+		(val < 0) ? -val :
+		+val) ;
+}
+
+template <class _ARG1>
+inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+	return _SWITCH_ (
+		!(rhs < lhs) ? lhs :
+		rhs) ;
+}
+
+template <class _ARG1>
+inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+	return _SWITCH_ (
+		!(lhs < rhs) ? lhs :
+		rhs) ;
+}
+
+template <class _ARG1>
 inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
@@ -1657,6 +1678,69 @@ public:
 	inline Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
+
+template <class SIZE>
+class ArrayRange ;
+
+template <>
+class ArrayRange<ARGC<0>> final {
+private:
+	template <class BASE>
+	class Iterator {
+	private:
+		friend ArrayRange ;
+		BASE &mBase ;
+		INDEX mIndex ;
+
+	public:
+		inline Iterator () = delete ;
+
+		inline Iterator (const Iterator &) = delete ;
+
+		inline Iterator (Iterator &&) noexcept = default ;
+
+		inline BOOL operator== (const Iterator &that) const {
+			return BOOL (mIndex == that.mIndex) ;
+		}
+
+		inline BOOL operator!= (const Iterator &that) const {
+			return BOOL (mIndex != that.mIndex) ;
+		}
+
+		inline const INDEX &operator* () const {
+			return mIndex ;
+		}
+
+		inline void operator++ () {
+			mIndex++ ;
+		}
+
+	private:
+		inline explicit Iterator (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
+	} ;
+
+private:
+	INDEX mIBegin ;
+	INDEX mIEnd ;
+
+public:
+	inline ArrayRange () = delete ;
+
+	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_) :mIBegin (ibegin_) ,mIEnd (iend_) {}
+
+	inline Iterator<const ArrayRange> begin () const {
+		return Iterator<const ArrayRange> ((*this) ,mIBegin) ;
+	}
+
+	inline Iterator<const ArrayRange> end () const {
+		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
+		return Iterator<const ArrayRange> ((*this) ,r1x) ;
+	}
+} ;
+
+inline ArrayRange<ARGC<0>> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
+	return ArrayRange<ARGC<0>> (ibegin_ ,iend_) ;
+}
 
 template <class REAL>
 class Plain final {
@@ -1747,7 +1831,7 @@ private:
 			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
 			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
 			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
-			for (INDEX i = 0 ,ie = _COUNTOF_ (_ARG3) - 1 ; i < ie ; i++)
+			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
 				array_[i + _ARG2::value] = REAL (text_one[i]) ;
 			template_write (array_ ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,text_rest...) ;
 		}

@@ -9,34 +9,6 @@
 namespace CSC {
 inline namespace BASIC {
 template <class _ARG1>
-inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
-	return _SWITCH_ (
-		(val < 0) ? -val :
-		+val) ;
-}
-
-template <class _ARG1>
-inline constexpr _ARG1 _SQE_ (const _ARG1 &val) {
-	return val * val ;
-}
-
-template <class _ARG1>
-inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
-	return _SWITCH_ (
-		!(rhs < lhs) ? lhs :
-		rhs) ;
-}
-
-template <class _ARG1>
-inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
-	return _SWITCH_ (
-		!(lhs < rhs) ? lhs :
-		rhs) ;
-}
-} ;
-
-inline namespace BASIC {
-template <class _ARG1>
 inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
@@ -51,7 +23,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	}
 	if (src1 == src2)
 		return TRUE ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+	for (auto &&i : _RANGE_ (0 ,len))
 		if (!(src1[i] == src2[i]))
 			return FALSE ;
 	return TRUE ;
@@ -73,7 +45,7 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 	}
 	if (src1 == src2)
 		return FLAG (0) ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		if (src1[i] < src2[i])
 			return FLAG (-1) ;
 		if (src2[i] < src1[i])
@@ -103,7 +75,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 	static constexpr auto M_MAGIC_N2 = VAR (1099511628211) ;
 #endif
 	FLAG ret = M_MAGIC_N1 ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		ret ^= FLAG (src[i]) ;
 		ret *= M_MAGIC_N2 ;
 	}
@@ -114,12 +86,13 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 
 inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 	CHAR ret = val ;
-	for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,8)) {
 		const auto r1x = ret & CHAR (0X00000001) ;
 		ret >>= 1 ;
 		if (r1x == 0)
 			continue ;
 		ret ^= CHAR (0XEDB88320) ;
+		(void) i ;
 	}
 	return std::move (ret) ;
 }
@@ -127,7 +100,7 @@ inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 inline const PACK<CHAR[256]> &_inline_MEMCRC32_TABLE_ () {
 	return _CACHE_ ([] () {
 		PACK<CHAR[256]> ret ;
-		for (INDEX i = 0 ,ie = _COUNTOF_ (decltype (ret.P1)) ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.P1))))
 			ret.P1[i] = _inline_MEMCRC32_TABLE_EACH_ (CHAR (i)) ;
 		return std::move (ret) ;
 	}) ;
@@ -142,7 +115,7 @@ inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1y = _inline_MEMCRC32_TABLE_ () ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++) {
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		const auto r2x = INDEX ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
 		ret = FLAG (r1y.P1[r2x] ^ (CHAR (ret) >> 8)) ;
 	}
@@ -163,7 +136,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (len > 0) ;
 	}
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+	for (auto &&i : _RANGE_ (0 ,len))
 		if (src[i] == val)
 			return i ;
 	return VAR_NONE ;
@@ -182,9 +155,9 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (len > 0) ;
 	}
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-		if (src[ie + ~i] == val)
-			return (ie + ~i) ;
+	for (auto &&i : _RANGE_ (0 ,len))
+		if (src[len + ~i] == val)
+			return (len + ~i) ;
 	return VAR_NONE ;
 #pragma GCC diagnostic pop
 }
@@ -205,7 +178,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 	if (dst == src)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+	for (auto &&i : _RANGE_ (0 ,len))
 		dst[i] = src[i] ;
 #pragma GCC diagnostic pop
 }
@@ -232,13 +205,13 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 		if (!(dst != src))
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
-		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-			dst[i] = src[ie + ~i] ;
+		for (auto &&i : _RANGE_ (0 ,len))
+			dst[i] = src[len + ~i] ;
 	}
 	if SWITCH_CASE (fax) {
 		if (!(dst == src))
 			discard ;
-		for (INDEX i = 0 ,ie = len / 2 ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,len / 2)) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
 			dst[len + ~i] = r1x ;
@@ -266,14 +239,14 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	if SWITCH_CASE (fax) {
 		if (!(dst1 < dst2))
 			discard ;
-		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,len))
 			dst1[i] = std::move (dst2[i]) ;
 	}
 	if SWITCH_CASE (fax) {
 		if (!(dst1 > dst2))
 			discard ;
-		for (INDEX i = 0 ,ie = len ; i < ie ; i++)
-			dst1[ie + ~i] = std::move (dst2[ie + ~i]) ;
+		for (auto &&i : _RANGE_ (0 ,len))
+			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
 	}
 #pragma GCC diagnostic pop
 }
@@ -294,7 +267,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 	if (dst1 == dst2)
 		return ;
 	_DEBUG_ASSERT_ (_ABS_ (dst1 - dst2) >= len) ;
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+	for (auto &&i : _RANGE_ (0 ,len))
 		_SWAP_ (dst1[i] ,dst2[i]) ;
 #pragma GCC diagnostic pop
 }
@@ -311,7 +284,7 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 		_DEBUG_ASSERT_ (dst != NULL) ;
 		_DEBUG_ASSERT_ (len > 0) ;
 	}
-	for (INDEX i = 0 ,ie = len ; i < ie ; i++)
+	for (auto &&i : _RANGE_ (0 ,len))
 		dst[i] = val ;
 #pragma GCC diagnostic pop
 }
@@ -1900,7 +1873,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2061,7 +2034,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2116,7 +2089,7 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			(*mBuffer)[i].~UNIT () ;
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -3008,9 +2981,9 @@ public:
 	inline void clear () noexcept {
 		INDEX ix = VAR_NONE ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = 0 ,ie = mAllocator.size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,mAllocator.size ())) {
 			iy = ix ;
-			ix = ie + ~i ;
+			ix = mAllocator.size () + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
 				_DESTROY_ (&mAllocator[ix].mData) ;
 			mAllocator[ix].mNext = iy ;
@@ -3073,7 +3046,7 @@ public:
 			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
 			const auto r1x = mSize ;
 			_CREATE_ (&tmp[r1x].mData ,std::forward<_ARGS> (initval)...) ;
-			for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,mSize)) {
 				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 				tmp[i].mNext = VAR_USED ;
 			}
@@ -3118,7 +3091,7 @@ public:
 			return ;
 		_DEBUG_ASSERT_ (mSize + r1x > mSize) ;
 		auto tmp = mAllocator.expand (mSize + r1x) ;
-		for (INDEX i = 0 ,ie = mSize ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 			tmp[i].mNext = mAllocator[i].mNext ;
@@ -3136,7 +3109,7 @@ public:
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
 		auto tmp = mAllocator.expand (r1x) ;
-		for (INDEX i = 0 ,ie = tmp.size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,tmp.size ())) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
 			_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
 			tmp[i].mNext = VAR_USED ;
@@ -3149,7 +3122,7 @@ private:
 	inline void update_reserve (INDEX size_ ,INDEX free_) {
 		INDEX ix = free_ ;
 		INDEX iy = VAR_NONE ;
-		for (INDEX i = size_ ,ie = mAllocator.size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (size_ ,mAllocator.size ())) {
 			iy = ix ;
 			ix = mAllocator.size () + ~(i - size_) ;
 			mAllocator[ix].mNext = iy ;

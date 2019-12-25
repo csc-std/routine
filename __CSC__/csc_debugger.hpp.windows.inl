@@ -402,7 +402,7 @@ public:
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
-		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
 		return std::move (ret) ;
 	}

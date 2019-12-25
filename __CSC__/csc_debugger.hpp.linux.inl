@@ -353,7 +353,7 @@ public:
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = ::backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
-		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
 		return std::move (ret) ;
 	}
@@ -362,7 +362,7 @@ public:
 		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<VOID>> ret = Array<PTR<VOID>> (list.length ()) ;
-			for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
+			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + i) ;
 				ret[i] = r2x ;
 			}
@@ -378,7 +378,7 @@ public:
 		auto &r4y = PTRTOARR[r3x.self] ;
 		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 			const auto r5x = _BUILDHEX16S_ (list[i]) ;
 			const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4y[i]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;

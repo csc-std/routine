@@ -502,7 +502,7 @@ private:
 
 	inline String<STRA> identity_name (const String<STR> &name) const {
 		String<STRA> ret = String<STRA> (name.length ()) ;
-		for (INDEX i = 0 ,ie = ret.size () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,ret.size ())) {
 			const auto r1x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
 			const auto r2x = BOOL (name[i] >= STR ('A') && name[i] <= STR ('Z')) ;
 			const auto r3x = BOOL (name[i] >= STR ('0') && name[i] <= STR ('9')) ;

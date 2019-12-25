@@ -600,7 +600,7 @@ public:
 		mSubProc = std::move (proc) ;
 		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
 		mSubQueue = Deque<INDEX> (mSubProc.length ()) ;
-		for (INDEX i = 0 ,ie = mSubProc.length () ; i < ie ; i++)
+		for (auto &&i : _RANGE_ (0 ,mSubProc.length ()))
 			mSubQueue.add (i) ;
 		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProc.length ()) ;
 		mSubQueue.take (mSubCurr) ;
@@ -712,7 +712,7 @@ public:
 	}
 
 	void sub_resume (LENGTH count) {
-		for (INDEX i = 0 ,ie = count ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,count)) {
 			if (mSelf.mSubAwaitQueue.empty ())
 				continue ;
 			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.head ()].item ;
@@ -785,16 +785,18 @@ public:
 
 	VAR random_value (VAR min_ ,VAR max_) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (min_ >= 0 && min_ <= max_) ;
-		const auto r1x = mThis->random_value () ;
-		return r1x % (max_ - min_ + 1) + min_ ;
+		_DEBUG_ASSERT_ (min_ <= max_) ;
+		const auto r1x = max_ - min_ + 1 ;
+		const auto r2x = mThis->random_value () ;
+		return r2x % r1x + min_ ;
 	}
 
 	Array<VAR> random_value (VAR min_ ,VAR max_ ,LENGTH len) popping {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		_DEBUG_ASSERT_ (min_ <= max_) ;
 		Array<VAR> ret = Array<VAR> (len) ;
 		const auto r1x = max_ - min_ + 1 ;
-		for (INDEX i = 0 ,ie = ret.length () ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 			const auto r2x = mThis->random_value () ;
 			ret[i] = r2x % r1x + min_ ;
 		}
@@ -842,22 +844,22 @@ public:
 		String<STR> ret = String<STR> (M_UUID.size ()) ;
 		INDEX iw = 0 ;
 		const auto r1x = random_value (0 ,36 ,28) ;
-		for (INDEX i = 0 ,ie = 8 ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,8)) {
 			INDEX ix = 0 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 8 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ,ie = 4 ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 12 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
-		for (INDEX i = 0 ,ie = 12 ; i < ie ; i++) {
+		for (auto &&i : _RANGE_ (0 ,12)) {
 			INDEX ix = 16 + i ;
 			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
 		}
