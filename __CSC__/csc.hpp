@@ -1421,10 +1421,9 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 template <class _ARG1>
 inline LENGTH _ADDRESS_ (PTR<_ARG1> address) popping {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
-	//@info: as 'asm volatile ("" :: "rm" (address) : "memory") ;'
-	const auto r1x = _XVALUE_<PTR<void (PTR<_ARG1>)>> ([] (PTR<_ARG1>) {}) ;
-	static volatile PTR<void (PTR<_ARG1>)> mInstance = r1x ;
-	mInstance (address) ;
+#ifdef __CSC_COMPILER_GNUC__
+	asm volatile ("" :: "rm" (address) : "memory") ;
+#endif
 	return LENGTH (address) ;
 }
 
@@ -1444,9 +1443,6 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
 	const auto r1x = _ADDRESS_ (&object) ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
-#ifdef __CSC_COMPILER_GNUC__
-	_ADDRESS_ (&object) ;
-#endif
 	return (*r2x) ;
 }
 
@@ -1461,9 +1457,6 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	(void) r1x ;
 	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
-#ifdef __CSC_COMPILER_GNUC__
-	_ADDRESS_ (address) ;
-#endif
 	return (*r3x) ;
 }
 
@@ -1477,9 +1470,9 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> owner ,LENGTH address) 
 	_DEBUG_ASSERT_ (address % r1x == 0) ;
 	(void) r1x ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
-#ifdef __CSC_COMPILER_GNUC__
-	_ADDRESS_ (owner) ;
-#endif
+	_STATIC_WARNING_ ("mark") ;
+	const auto r3x = _ADDRESS_ (owner) ;
+	(void) r3x ;
 	return (*r2x) ;
 }
 
