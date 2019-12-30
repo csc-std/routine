@@ -2461,7 +2461,7 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			auto &r5y = _LOAD_<CHUNK> (this ,r4x) ;
+			auto &r5y = _LOAD_UNSAFE_<CHUNK> (this ,r4x) ;
 			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r5y.mPrev = NULL ;
 			r5y.mNext = mRoot ;
@@ -2473,7 +2473,7 @@ private:
 			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 				const auto r7x = r6x + i * r1x ;
-				auto &r8y = _LOAD_<BLOCK> (this ,r7x) ;
+				auto &r8y = _LOAD_UNSAFE_<BLOCK> (this ,r7x) ;
 				r8y.mNext = mFree ;
 				mFree = &r8y ;
 			}
@@ -2524,7 +2524,7 @@ private:
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 				const auto r3x = r2x + i * r1x ;
-				auto &r4y = _LOAD_<BLOCK> (this ,r3x) ;
+				auto &r4y = _LOAD_UNSAFE_<BLOCK> (this ,r3x) ;
 				if (_ADDRESS_ (r4y.mNext) == VAR_USED)
 					return FALSE ;
 			}
@@ -2578,7 +2578,7 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (BLOCK)) ;
-			auto &r5y = _LOAD_<BLOCK> (this ,r4x) ;
+			auto &r5y = _LOAD_UNSAFE_<BLOCK> (this ,r4x) ;
 			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r5y.mPrev = NULL ;
 			r5y.mNext = mRoot ;
@@ -2675,10 +2675,10 @@ public:
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		auto &r4y = _LOAD_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
+		auto &r4y = _LOAD_UNSAFE_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
 		r4y.mPool = mPool.self[ix] ;
 		r4y.mCurr = r2x ;
-		auto &r5y = _LOAD_<_RET> (this ,r3x) ;
+		auto &r5y = _LOAD_UNSAFE_<_RET> (this ,r3x) ;
 		return &r5y ;
 	}
 
@@ -2692,10 +2692,10 @@ public:
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		auto &r4y = _LOAD_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
+		auto &r4y = _LOAD_UNSAFE_<HEADER> (this ,(r3x - _SIZEOF_ (HEADER))) ;
 		r4y.mPool = mPool.self[ix] ;
 		r4y.mCurr = r2x ;
-		auto &r5y = _LOAD_<ARR<_RET>> (this ,r3x) ;
+		auto &r5y = _LOAD_UNSAFE_<ARR<_RET>> (this ,r3x) ;
 		return &r5y ;
 	}
 
@@ -2703,7 +2703,7 @@ public:
 	inline void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		auto &r2y = _LOAD_<HEADER> (this ,r1x) ;
+		auto &r2y = _LOAD_UNSAFE_<HEADER> (this ,r1x) ;
 		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2y.mPool) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 		mPool.self[ix]->free (r2y.mCurr) ;

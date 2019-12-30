@@ -422,7 +422,7 @@ public:
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
-		auto &r1y = _LOAD_<ARR<BYTE>> (address ,_ADDRESS_ (address)) ;
+		auto &r1y = _LOAD_UNSAFE_<ARR<BYTE>> (address ,_ADDRESS_ (address)) ;
 		operator delete (r1y ,std::nothrow) ;
 	}
 } ;
@@ -1873,8 +1873,10 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize))
+		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
+			(void) i ;
+		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
 		mSize = 0 ;
@@ -2034,8 +2036,10 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize))
+		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
+			(void) i ;
+		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
 		mSize = 0 ;
@@ -2089,8 +2093,10 @@ public:
 	inline ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize))
+		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
+			(void) i ;
+		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
 		mSize = 0 ;

@@ -149,7 +149,7 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_<ARR<COLOR_BGR>> (&r1y ,_ADDRESS_ (r1y.data)) ;
+		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_BGR>> (&r1y ,_ADDRESS_ (r1y.data)) ;
 		layout.mImage = &r2y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -223,7 +223,7 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_<ARR<COLOR_BGRA>> (&r1y ,_ADDRESS_ (r1y.data)) ;
+		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_BGRA>> (&r1y ,_ADDRESS_ (r1y.data)) ;
 		layout.mImage = &r2y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -297,7 +297,7 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_<ARR<COLOR_GRAY>> (&r1y ,_ADDRESS_ (r1y.data)) ;
+		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY>> (&r1y ,_ADDRESS_ (r1y.data)) ;
 		layout.mImage = &r2y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -371,7 +371,7 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_<ARR<COLOR_GRAY32>> (&r1y ,_ADDRESS_ (r1y.data)) ;
+		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY32>> (&r1y ,_ADDRESS_ (r1y.data)) ;
 		layout.mImage = &r2y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
@@ -445,7 +445,7 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_<ARR<COLOR_GRAY64>> (&r1y ,_ADDRESS_ (r1y.data)) ;
+		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY64>> (&r1y ,_ADDRESS_ (r1y.data)) ;
 		layout.mImage = &r2y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;

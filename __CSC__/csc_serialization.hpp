@@ -469,7 +469,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			*	$6-><!--comment-->
 			*	$7->${eps}|$5 $7|$6 $7
 			*	$8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
-			*	$9->#
+			*	$9->${end}
 			*/
 			update_shift_e0 () ;
 			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
@@ -640,7 +640,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis >> _PCSTRU8_ ("?>") ;
 		}
 
-		//@info: $9->#
+		//@info: $9->${end}
 		inline void update_shift_e9 () {
 			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
 		}
@@ -1472,8 +1472,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			*	$8->$7|$7 , $8
 			*	$9->{ }|{ $8 }
 			*	$10->${eps}|$4
-			*	$11->#
-			*	$12->#
+			*	$11->${eps}
+			*	$12->${end}
 			*/
 			update_shift_e0 () ;
 			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
@@ -1720,12 +1720,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mLatestIndex = ix ;
 		}
 
-		//@info: $11->#
+		//@info: $11->${eps}
 		inline void update_shift_e11 () {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
-		//@info: $12->#
+		//@info: $12->${end}
 		inline void update_shift_e12 () {
 			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
 		}
@@ -1911,8 +1911,8 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			*	$5->-$1|-$1=$2|-$1=$3
 			*	$6->$2|$3
 			*	$7->${eps}|$4 $7|$5 $7|$6 $7
-			*	$8->#
-			*	$9->#
+			*	$8->${eps}
+			*	$9->${end}
 			*/
 			update_shift_e0 () ;
 			update_command () ;
@@ -2015,12 +2015,12 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 			}
 		}
 
-		//@info: $8->#
+		//@info: $8->${eps}
 		inline void update_shift_e8 () {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
-		//@info: $9->#
+		//@info: $9->${end}
 		inline void update_shift_e9 () {
 			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
 		}

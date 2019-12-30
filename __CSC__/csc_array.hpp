@@ -2075,7 +2075,8 @@ public:
 		if (mWrite - mRead == mList.length ())
 			if (mHead[mWrite][0] == VAR_NONE)
 				return mHead[mRead + pos][0] ;
-		return access (pos ,mRead ,(mWrite - mRead + 1)) ;
+		INDEX ix = access (pos ,mRead ,mWrite) ;
+		return mHead[ix][0] ;
 	}
 
 	Array<INDEX> range () const {
@@ -2235,47 +2236,14 @@ public:
 		mWrite = order.length () - 1 ;
 	}
 
-	void reverse () {
-		if (mHead.size () == 0)
-			return ;
-		INDEX ix = mRead ;
-		INDEX iy = mWrite ;
-		while (TRUE) {
-			while (TRUE) {
-				if (ix >= iy)
-					break ;
-				if (mHead[ix] == VAR_NONE)
-					break ;
-				ix++ ;
-			}
-			if (ix >= iy)
-				break ;
-			while (TRUE) {
-				if (ix >= iy)
-					break ;
-				if (mHead[iy] == VAR_NONE)
-					break ;
-				iy-- ;
-			}
-			if (ix >= iy)
-				break ;
-			const auto r1x = mHead[ix] ;
-			const auto r2x = mHead[iy] ;
-			sequence_rewrite (ix ,r2x) ;
-			sequence_rewrite (iy ,r1x) ;
-		}
-	}
-
 private:
 	explicit SList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mHead (len) {}
 
 private:
-	INDEX access (INDEX pos ,INDEX seg ,LENGTH seg_len) const {
-		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (seg >= 0 && seg <= mHead.size () - seg_len) ;
+	INDEX access (INDEX pos ,INDEX seg_a ,LENGTH seg_b) const {
 		INDEX ret = VAR_NONE ;
-		INDEX ix = seg ;
-		INDEX iy = seg + seg_len - 1 ;
+		INDEX ix = seg_a ;
+		INDEX iy = seg_b ;
 		while (TRUE) {
 			if (ix > iy)
 				break ;
@@ -2293,7 +2261,6 @@ private:
 			r1y = r2x ;
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
-		ret = mHead[ret][0] ;
 		return std::move (ret) ;
 	}
 
