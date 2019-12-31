@@ -75,7 +75,7 @@ inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> ex
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
 		auto &r1y = _CACHE_ ([] () {
-			return SharedRef<std::atomic<PTR<NONE>>>::make (&_NULL_<NONE> ()) ;
+			return SharedRef<std::atomic<PTR<NONE>>>::make (_XVALUE_<PTR<NONE>> (NULL)) ;
 		}) ;
 		r1y->compare_exchange_strong (expect ,data) ;
 		ret = r1y->load () ;

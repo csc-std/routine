@@ -149,8 +149,9 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_BGR>> (&r1y ,_ADDRESS_ (r1y.data)) ;
-		layout.mImage = &r2y ;
+		const auto r2x = _UNSAFE_ALIASING_ (_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGR>> (r2x) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -223,8 +224,9 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_BGRA>> (&r1y ,_ADDRESS_ (r1y.data)) ;
-		layout.mImage = &r2y ;
+		const auto r2x = _UNSAFE_ALIASING_ (_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_BGRA>> (r2x) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -297,8 +299,9 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY>> (&r1y ,_ADDRESS_ (r1y.data)) ;
-		layout.mImage = &r2y ;
+		const auto r2x = _UNSAFE_ALIASING_ (_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY>> (r2x) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -371,8 +374,9 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY32>> (&r1y ,_ADDRESS_ (r1y.data)) ;
-		layout.mImage = &r2y ;
+		const auto r2x = _UNSAFE_ALIASING_ (_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY32>> (r2x) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;
@@ -445,8 +449,9 @@ public:
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
 		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		auto &r2y = _LOAD_UNSAFE_<ARR<COLOR_GRAY64>> (&r1y ,_ADDRESS_ (r1y.data)) ;
-		layout.mImage = &r2y ;
+		const auto r2x = _UNSAFE_ALIASING_ (_ADDRESS_ (r1y.data)) ;
+		auto &r3y = _LOAD_<ARR<COLOR_GRAY64>> (r2x) ;
+		layout.mImage = &r3y ;
 		layout.mCX = LENGTH (r1y.cols) ;
 		layout.mCY = LENGTH (r1y.rows) ;
 		_DEBUG_ASSERT_ (r1y.step.p != NULL) ;

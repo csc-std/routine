@@ -422,8 +422,8 @@ public:
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
-		auto &r1y = _LOAD_UNSAFE_<ARR<BYTE>> (address ,_ADDRESS_ (address)) ;
-		operator delete (r1y ,std::nothrow) ;
+		const auto r1x = _UNSAFE_ALIASING_ (_ADDRESS_ (address)) ;
+		operator delete (r1x ,std::nothrow) ;
 	}
 } ;
 

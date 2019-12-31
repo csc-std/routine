@@ -1452,7 +1452,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	(void) r1x ;
@@ -1460,20 +1460,11 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	return (*r3x) ;
 }
 
-//@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_UNSAFE_ (PTR<_ARG1> owner ,LENGTH address) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,VOID>::value) ;
-	_DEBUG_ASSERT_ (address != 0) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,VOID>::value || std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
-	_DEBUG_ASSERT_ (address % r1x == 0) ;
-	(void) r1x ;
-	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (address) ;
-	_STATIC_WARNING_ ("mark") ;
-	const auto r3x = _ADDRESS_ (owner) ;
-	(void) r3x ;
-	return (*r2x) ;
+inline PTR<VOID> _UNSAFE_ALIASING_ (LENGTH address) noexcept {
+#ifdef __CSC_COMPILER_GNUC__
+	asm volatile ("" ::: "memory") ;
+#endif
+	return &_NULL_<BYTE> () + address ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
@@ -1481,7 +1472,7 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG3> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (mptr != NULL) ;
 	const auto r1x = _ADDRESS_ (&mref) - _ADDRESS_ (&(_NULL_<_ARG2> ().*mptr)) ;
-	return _LOAD_UNSAFE_<_ARG2> (&mref ,r1x) ;
+	return _LOAD_<_ARG2> (_UNSAFE_ALIASING_ (r1x)) ;
 }
 
 template <class _ARG1>
