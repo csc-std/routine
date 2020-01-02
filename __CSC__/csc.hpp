@@ -1419,7 +1419,7 @@ inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> 
 }
 
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (PTR<_ARG1> address) popping {
+inline LENGTH _ADDRESS_ (PTR<_ARG1> address) noexcept popping {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" :: "rm" (address) : "memory") ;
@@ -1427,8 +1427,15 @@ inline LENGTH _ADDRESS_ (PTR<_ARG1> address) popping {
 	return LENGTH (address) ;
 }
 
+inline LENGTH _ADDRESS_ (PTR<VOID> address) noexcept popping {
+#ifdef __CSC_COMPILER_GNUC__
+	asm volatile ("" ::: "memory") ;
+#endif
+	return LENGTH (address) ;
+}
+
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) popping {
+inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 	return LENGTH (address) ;
 }
@@ -1460,19 +1467,12 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	return (*r3x) ;
 }
 
-inline PTR<VOID> _UNSAFE_ALIASING_ (LENGTH address) noexcept {
-#ifdef __CSC_COMPILER_GNUC__
-	asm volatile ("" ::: "memory") ;
-#endif
-	return &_NULL_<BYTE> () + address ;
-}
-
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) noexcept {
 	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG3> ,_ARG1>::value) ;
 	_DEBUG_ASSERT_ (mptr != NULL) ;
 	const auto r1x = _ADDRESS_ (&mref) - _ADDRESS_ (&(_NULL_<_ARG2> ().*mptr)) ;
-	return _LOAD_<_ARG2> (_UNSAFE_ALIASING_ (r1x)) ;
+	return _LOAD_<_ARG2> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
 }
 
 template <class _ARG1>

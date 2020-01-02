@@ -422,7 +422,7 @@ public:
 
 	template <class _ARG1>
 	inline static void free (const PTR<_ARG1> &address) noexcept {
-		const auto r1x = _UNSAFE_ALIASING_ (_ADDRESS_ (address)) ;
+		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
 		operator delete (r1x ,std::nothrow) ;
 	}
 } ;
@@ -1539,8 +1539,9 @@ public:
 	}
 
 	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept {
+		using PureHolder = typename Detail::PureHolder ;
 		_DEBUG_ASSERT_ (that != NULL) ;
-		Detail::template static_create<typename Detail::PureHolder> (&mVariant ,that) ;
+		Detail::template static_create<PureHolder> (&mVariant ,that) ;
 	}
 
 	template <class _ARG1>
