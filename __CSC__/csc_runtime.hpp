@@ -139,21 +139,12 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_func (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,REMOVE_MEMFUNC_TYPE<_ARG1>>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static void template_write_typename_func (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<VOID> & ,const DEF<decltype (ARGVP1)> &) {
 		writer << _PCSTR_ ("DEF<") ;
 		template_write_typename_x (writer ,_NULL_<ARGV<INVOKE_RESULT_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (" (") ;
 		template_write_typename_y (writer ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (")>") ;
-	}
-
-	template <class _ARG1>
-	inline static void template_write_typename_func (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<!std::is_same<_ARG1 ,REMOVE_MEMFUNC_TYPE<_ARG1>>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		writer << _PCSTR_ ("DEF<") ;
-		template_write_typename_x (writer ,_NULL_<ARGV<INVOKE_RESULT_TYPE<_ARG1>>> ()) ;
-		writer << _PCSTR_ (" (") ;
-		template_write_typename_y (writer ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<_ARG1>>> ()) ;
-		writer << _PCSTR_ (") memptr>") ;
 	}
 
 	template <class _ARG1>

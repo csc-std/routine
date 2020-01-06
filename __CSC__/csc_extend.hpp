@@ -2779,7 +2779,7 @@ public:
 		return mWeakOfThis ;
 	}
 
-	inline const WeakRef<Object> &weak_of_this () const {
+	inline const WeakRef<Object> &weak_of_this () const override {
 		return mWeakOfThis ;
 	}
 

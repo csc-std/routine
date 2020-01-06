@@ -1641,14 +1641,11 @@ private:
 
 		template <class _RET ,class... _ARGS>
 		inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...funcval) noexcept {
-			_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<_RET>)) ;
-			_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<_RET>)) ;
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
 			auto &r1y = _LOAD_<TEMP<_RET>> (address) ;
 			auto &r2y = _XVALUE_<Holder> (_CAST_<_RET> (r1y)) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (&r2y) == _ADDRESS_ (static_cast<PTR<FakeHolder>> (&r2y))) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (&r2y) == _ADDRESS_ (static_cast<PTR<_RET>> (&r2y))) ;
-			(void) r2y ;
+			auto &r3y = _XVALUE_<Holder> (_CAST_<FakeHolder> ((*address))) ;
+			_DYNAMIC_ASSERT_ (&r2y == &r3y) ;
 			_CREATE_ (&r1y ,std::forward<_ARGS> (funcval)...) ;
 		}
 	} ;
