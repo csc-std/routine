@@ -1020,6 +1020,34 @@ private:
 template <class UNIT>
 using Optional = Variant<UNIT> ;
 
+template <class UNIT>
+class Monostate {
+private:
+	SharedRef<UNIT> mThis ;
+
+public:
+	inline Monostate () {
+		mThis = SharedRef<UNIT>::make () ;
+	}
+
+	inline Monostate (const Monostate &) = delete ;
+	inline Monostate &operator= (const Monostate &) = delete ;
+	inline Monostate (Monostate &&) = delete ;
+	inline Monostate &operator= (Monostate &&) = delete ;
+
+	inline UNIT &to () const {
+		return mThis.self ;
+	}
+
+	inline implicit operator UNIT & () const {
+		return to () ;
+	}
+
+	inline void swap (Monostate &that) popping {
+		_SWAP_ (mThis ,that.mThis) ;
+	}
+} ;
+
 template <class...>
 class Tuple ;
 
@@ -2116,7 +2144,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	struct Detail ;
 	friend ScopedGuard<IntrusiveRef> ;
 	std::atomic<PTR<UNIT>> mPointer ;
@@ -2276,50 +2303,41 @@ private:
 } ;
 
 template <class UNIT>
-class Monostate {
-private:
-	SharedRef<UNIT> mThis ;
-
-public:
-	inline Monostate () {
-		mThis = SharedRef<UNIT>::make () ;
-	}
-
-	inline Monostate (const Monostate &) = delete ;
-	inline Monostate &operator= (const Monostate &) = delete ;
-	inline Monostate (Monostate &&) = delete ;
-	inline Monostate &operator= (Monostate &&) = delete ;
-
-	inline UNIT &to () const {
-		return mThis.self ;
-	}
-
-	inline implicit operator UNIT & () const {
-		return to () ;
-	}
-
-	inline void swap (Monostate &that) popping {
-		_SWAP_ (mThis ,that.mThis) ;
-	}
-} ;
-
-#ifdef __CSC_DEPRECATED__
-template <class UNIT>
-class Lazy {
+class Notation {
 private:
 	class Holder {
 	private:
-		friend Lazy ;
-		Mutable<UNIT> mData ;
+		friend Notation ;
 		Function<DEF<UNIT ()> NONE::*> mEvaluator ;
-		AnyRef<void> mFunction ;
 	} ;
 
 private:
 	SoftRef<Holder> mThis ;
 
 public:
-	inline Lazy () = default ;
+	inline Notation () = default ;
+
+	inline explicit Notation (const UNIT &that) {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+
+	inline explicit Notation (UNIT &&that) {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+
+	template <class... _ARGS>
+	inline explicit Notation (const Function<UNIT (const _ARGS &...)> &that) {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+
+	template <class... _ARGS>
+	inline explicit Notation (const Function<DEF<UNIT (const _ARGS &...)> NONE::*> &that) {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
 
 	inline LENGTH rank () const {
 		_STATIC_WARNING_ ("unimplemented") ;
@@ -2327,51 +2345,34 @@ public:
 		return 0 ;
 	}
 
-	inline Lazy concat (const Lazy &that) const {
+	inline Notation concat (const Notation &that) const {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
-		return Lazy () ;
+		return Notation () ;
 	}
 
-	inline Lazy operator+ (const Lazy &that) const {
+	inline Notation operator+ (const Notation &that) const {
 		return concat (that) ;
 	}
 
-	inline Lazy &operator+= (const Lazy &that) {
+	inline Notation &operator+= (const Notation &that) {
 		(*this) = concat (that) ;
 		return (*this) ;
 	}
 
-	inline Lazy operator- (const Lazy &that) const {
+	inline Notation operator- (const Notation &that) const {
 		return that.concat ((*this)) ;
 	}
 
-	inline Lazy &operator-= (const Lazy &that) {
+	inline Notation &operator-= (const Notation &that) {
 		(*this) = that.concat ((*this)) ;
 		return (*this) ;
 	}
 } ;
-#endif
 
 inline namespace EXTEND {
 inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
 	return base + (align_ - base % align_) % align_ ;
-}
-
-inline constexpr BOOL _RANGE_IN00_ (INDEX base ,INDEX min_ ,INDEX max_) {
-	return BOOL (base > min_ && base < max_) ;
-}
-
-inline constexpr BOOL _RANGE_IN01_ (INDEX base ,INDEX min_ ,INDEX max_) {
-	return BOOL (base > min_ && base <= max_) ;
-}
-
-inline constexpr BOOL _RANGE_IN10_ (INDEX base ,INDEX min_ ,INDEX max_) {
-	return BOOL (base >= min_ && base < max_) ;
-}
-
-inline constexpr BOOL _RANGE_IN11_ (INDEX base ,INDEX min_ ,INDEX max_) {
-	return BOOL (base >= min_ && base <= max_) ;
 }
 } ;
 

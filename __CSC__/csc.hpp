@@ -1554,7 +1554,12 @@ inline FLAG _TYPEUID_ () noexcept {
 }
 
 template <class _ARG1>
-inline constexpr _ARG1 &&_SWITCH_ (_ARG1 &&expr) {
+inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
+	return expr ;
+}
+
+template <class _ARG1>
+inline constexpr _ARG1 _SWITCH_ (_ARG1 &&expr) {
 	return std::forward<_ARG1> (expr) ;
 }
 

@@ -317,7 +317,7 @@ private:
 		template <class>
 		friend class GlobalStatic ;
 		friend IntrusiveRef<Holder> ;
-		Monostate<std::atomic<LENGTH>> mCounter ;
+		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		HashSet<FLAG ,VALUE_NODE> mValueSet ;
 		HashSet<FLAG ,CLASS_NODE> mClassSet ;
@@ -399,7 +399,7 @@ private:
 	struct Detail {
 		inline static void friend_create (Holder &self_) {
 			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
-			self_.mCounter.self = 0 ;
+			self_.mCounter = 0 ;
 			self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
 			self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
 		}
@@ -411,11 +411,11 @@ private:
 		}
 
 		inline static LENGTH friend_attach (Holder &self_) popping {
-			return ++self_.mCounter.self ;
+			return ++self_.mCounter ;
 		}
 
 		inline static LENGTH friend_detach (Holder &self_) popping {
-			return --self_.mCounter.self ;
+			return --self_.mCounter ;
 		}
 
 		inline static void friend_latch (Holder &self_) {
@@ -485,7 +485,7 @@ private:
 
 	public:
 		friend IntrusiveRef<Holder> ;
-		Monostate<std::atomic<LENGTH>> mCounter ;
+		std::atomic<LENGTH> mCounter ;
 		Singleton<UNIT> mData ;
 	} ;
 
@@ -522,7 +522,7 @@ public:
 private:
 	struct Detail {
 		inline static void friend_create (Holder &self_) {
-			self_.mCounter.self = 0 ;
+			self_.mCounter = 0 ;
 		}
 
 		inline static void friend_destroy (Holder &self_) {
@@ -530,11 +530,11 @@ private:
 		}
 
 		inline static LENGTH friend_attach (Holder &self_) popping {
-			return ++self_.mCounter.self ;
+			return ++self_.mCounter ;
 		}
 
 		inline static LENGTH friend_detach (Holder &self_) popping {
-			return --self_.mCounter.self ;
+			return --self_.mCounter ;
 		}
 
 		inline static void friend_latch (Holder &self_) {
@@ -872,8 +872,8 @@ private:
 	struct Detail {
 		inline static STRU8 index_to_hex_str (INDEX index) {
 			if (index < 10)
-				return STRU8 ('0') + STRU8 (index) ;
-			return STRU8 ('A') + STRU8 (index - 10) ;
+				return STRU8 (STRU8 ('0') + index) ;
+			return STRU8 (STRU8 ('A' - 10) + index) ;
 		}
 	} ;
 } ;

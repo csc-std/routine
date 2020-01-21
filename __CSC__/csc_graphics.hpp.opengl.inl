@@ -316,7 +316,7 @@ private:
 		_DYNAMIC_ASSERT_ (rbx.empty ()) ;
 	}
 
-	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY1<INDEX>> &element) const {
+	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY1<INDEX>> &element) const {
 		Array<ARRAY1<ARRAY3<VAL32>>> ret = Array<ARRAY1<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -327,7 +327,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY2<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY2<INDEX>> &element) const {
+	Array<ARRAY2<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY2<INDEX>> &element) const {
 		Array<ARRAY2<ARRAY3<VAL32>>> ret = Array<ARRAY2<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -339,7 +339,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY3<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY3<INDEX>> &element) const {
+	Array<ARRAY3<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY3<INDEX>> &element) const {
 		Array<ARRAY3<ARRAY3<VAL32>>> ret = Array<ARRAY3<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -352,7 +352,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY4<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY4<INDEX>> &element) const {
+	Array<ARRAY4<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY4<INDEX>> &element) const {
 		Array<ARRAY4<ARRAY3<VAL32>>> ret = Array<ARRAY4<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
