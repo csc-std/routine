@@ -1105,7 +1105,7 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	wos << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		const auto r2x = CHAR (stru >> (28 - i * 4)) & CHAR (0X0F) ;
+		const auto r2x = _XVALUE_<CHAR> (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
 		auto &r3y = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
@@ -1148,7 +1148,7 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	wos << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,16)) {
-		const auto r2x = DATA (stru >> (60 - i * 4)) & DATA (0X0F) ;
+		const auto r2x = _XVALUE_<DATA> (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
 		auto &r3y = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;

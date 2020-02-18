@@ -2303,11 +2303,11 @@ private:
 } ;
 
 template <class UNIT>
-class Notation {
+class Monoid {
 private:
 	class Holder {
 	private:
-		friend Notation ;
+		friend Monoid ;
 		Function<DEF<UNIT ()> NONE::*> mEvaluator ;
 	} ;
 
@@ -2315,26 +2315,26 @@ private:
 	SoftRef<Holder> mThis ;
 
 public:
-	inline Notation () = default ;
+	inline Monoid () = default ;
 
-	inline explicit Notation (const UNIT &that) {
+	inline explicit Monoid (const UNIT &that) {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	inline explicit Notation (UNIT &&that) {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
-	}
-
-	template <class... _ARGS>
-	inline explicit Notation (const Function<UNIT (const _ARGS &...)> &that) {
+	inline explicit Monoid (UNIT &&that) {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
 	template <class... _ARGS>
-	inline explicit Notation (const Function<DEF<UNIT (const _ARGS &...)> NONE::*> &that) {
+	inline explicit Monoid (const Function<UNIT (const _ARGS &...)> &that) {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
+
+	template <class... _ARGS>
+	inline explicit Monoid (const Function<DEF<UNIT (const _ARGS &...)> NONE::*> &that) {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
@@ -2345,26 +2345,26 @@ public:
 		return 0 ;
 	}
 
-	inline Notation concat (const Notation &that) const {
+	inline Monoid concat (const Monoid &that) const {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
-		return Notation () ;
+		return Monoid () ;
 	}
 
-	inline Notation operator+ (const Notation &that) const {
+	inline Monoid operator+ (const Monoid &that) const {
 		return concat (that) ;
 	}
 
-	inline Notation &operator+= (const Notation &that) {
+	inline Monoid &operator+= (const Monoid &that) {
 		(*this) = concat (that) ;
 		return (*this) ;
 	}
 
-	inline Notation operator- (const Notation &that) const {
+	inline Monoid operator- (const Monoid &that) const {
 		return that.concat ((*this)) ;
 	}
 
-	inline Notation &operator-= (const Notation &that) {
+	inline Monoid &operator-= (const Monoid &that) {
 		(*this) = that.concat ((*this)) ;
 		return (*this) ;
 	}

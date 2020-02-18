@@ -87,7 +87,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		const auto r1x = ret & CHAR (0X00000001) ;
+		const auto r1x = _XVALUE_<CHAR> (ret & CHAR (0X00000001)) ;
 		ret >>= 1 ;
 		if (r1x == 0)
 			continue ;

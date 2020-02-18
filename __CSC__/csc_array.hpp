@@ -2417,7 +2417,7 @@ private:
 		inline explicit operator BOOL () const & = delete ;
 
 		inline implicit operator BOOL () && {
-			const auto r1x = mBase.mSet[mIndex / 8] & (BYTE (0X01) << (mIndex % 8)) ;
+			const auto r1x = _XVALUE_<BYTE> (mBase.mSet[mIndex / 8] & (BYTE (0X01) << (mIndex % 8))) ;
 			if (r1x == 0)
 				return FALSE ;
 			return TRUE ;
@@ -2454,7 +2454,7 @@ private:
 			const auto r2x = _SWITCH_ (
 				that ? ~r1x :
 				r1x) ;
-			const auto r3x = BYTE (r2x & (BYTE (0X01) << (mIndex % 8))) ;
+			const auto r3x = _XVALUE_<BYTE> (r2x & (BYTE (0X01) << (mIndex % 8))) ;
 			mBase.mSet[mIndex / 8] = BYTE (r1x ^ r3x) ;
 		}
 
@@ -2484,11 +2484,6 @@ public:
 
 	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,constexpr_size (len) ,Detail::forward_width (len)) {
 		clear () ;
-	}
-
-	implicit BitSet (const std::initializer_list<INDEX> &that) : BitSet (Detail::forward_size (that)) {
-		for (auto &&i : that)
-			get (i) = TRUE ;
 	}
 
 	LENGTH size () const {
@@ -2614,8 +2609,8 @@ public:
 		for (auto &&i : _RANGE_ (0 ,ix))
 			if (mSet[i] != that.mSet[i])
 				return FALSE ;
-		const auto r1x = mSet[ix] & (mWidth % 8 - 1) ;
-		const auto r2x = that.mSet[ix] & (mWidth % 8 - 1) ;
+		const auto r1x = _XVALUE_<BYTE> (mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r2x = _XVALUE_<BYTE> (that.mSet[ix] & (mWidth % 8 - 1)) ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -2637,8 +2632,8 @@ public:
 		const auto r1x = _MEMCOMPR_ (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r2x = mSet[ix] & (mWidth % 8 - 1) ;
-		const auto r3x = that.mSet[ix] & (mWidth % 8 - 1) ;
+		const auto r2x = _XVALUE_<BYTE> (mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r3x = _XVALUE_<BYTE> (that.mSet[ix] & (mWidth % 8 - 1)) ;
 		return _MEMCOMPR_ (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;
 	}
 
@@ -2782,21 +2777,14 @@ public:
 	}
 
 private:
-	explicit BitSet (const DEF<decltype (ARGVP0)> &) :mWidth (0) {}
+	explicit BitSet (const DEF<decltype (ARGVP0)> &) {
+		mWidth = _MAX_ (VAR_ZERO ,LENGTH (SIZE::value)) ;
+	}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
 
 private:
 	struct Detail {
-		inline static LENGTH forward_size (const std::initializer_list<INDEX> &that) {
-			LENGTH ret = VAR_NONE ;
-			for (auto &&i : that)
-				ret = _MAX_ (ret ,i) ;
-			_DEBUG_ASSERT_ (ret >= 0) ;
-			ret++ ;
-			return std::move (ret) ;
-		}
-
 		inline static LENGTH forward_width (LENGTH width) {
 			_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 			return width ;

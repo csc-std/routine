@@ -535,7 +535,7 @@ public:
 		if (mService.exist ())
 			return ;
 		mService = UniqueRef<void> ([&] () {
-			const auto r1x = (WORD (2) << (_SIZEOF_ (BYTE) * 8)) | WORD (2) ;
+			const auto r1x = _XVALUE_<WORD> ((WORD (2) << (_SIZEOF_ (BYTE) * 8)) | WORD (2)) ;
 			auto rax = WSADATA () ;
 			_ZERO_ (rax) ;
 			const auto r2x = WSAStartup (r1x ,&rax) ;

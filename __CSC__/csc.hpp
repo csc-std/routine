@@ -1507,11 +1507,11 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexc
 	return std::move (ret) ;
 }
 
-inline BOOL _FOR_ONCE_ (const BOOL &) {
+inline BOOL _FOR_ONCE_ (const BOOL &) noexcept {
 	return FALSE ;
 }
 
-inline BOOL _FOR_ONCE_ (BOOL &flag) popping {
+inline BOOL _FOR_ONCE_ (BOOL &flag) noexcept popping {
 	flag = FALSE ;
 	return FALSE ;
 }
