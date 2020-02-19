@@ -22,7 +22,7 @@ private:
 public:
 	Vector () = default ;
 
-	implicit Vector (const ARRAY3<REAL> &xyz ,const REAL &w) :Vector (xyz[0] ,xyz[1] ,xyz[2] ,w) {}
+	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w) :Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {}
 
 	implicit Vector (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
 		mVector[0] = x ;

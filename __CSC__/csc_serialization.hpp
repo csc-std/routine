@@ -427,14 +427,15 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		TextReader<STRU8> mTextReader ;
 		RegularReader<ARGC<2>> mRis ;
 		LENGTH mRecursiveCounter ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
+
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
 		Allocator<Node ,SAUTO> mNodeHeap ;
 		SharedRef<FixedBuffer<Node>> mHeap ;
 		INDEX mRoot ;
-		INDEX mLatestIndex ;
-		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
@@ -1388,13 +1389,14 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		TextReader<STRU8> mTextReader ;
 		RegularReader<ARGC<2>> mRis ;
 		LENGTH mRecursiveCounter ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
+
 		SoftSet<INDEX ,INDEX> mArraySoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
 		Allocator<Node ,SAUTO> mNodeHeap ;
 		SharedRef<FixedBuffer<Node>> mHeap ;
 		INDEX mRoot ;
-		INDEX mLatestIndex ;
-		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
@@ -1836,11 +1838,12 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		TextReader<STRU8> mTextReader ;
 		RegularReader<ARGC<2>> mRis ;
+		String<STRU8> mLatestString ;
+
 		Set<String<STRU8>> mOptionSet ;
 		Set<String<STRU8> ,String<STRU8>> mAttributeSet ;
 		SList<String<STRU8>> mCommandList ;
 		Array<String<STRU8>> mCommand ;
-		String<STRU8> mLatestString ;
 
 	public:
 		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}

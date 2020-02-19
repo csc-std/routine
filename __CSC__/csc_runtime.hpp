@@ -366,7 +366,7 @@ private:
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueSet.find (r1x) ;
 		if (ix == VAR_NONE)
-			return  NULL ;
+			return NULL ;
 		return &self_.mValueSet[ix].item ;
 	}
 
@@ -387,7 +387,7 @@ private:
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassSet.find (r1x) ;
 		if (ix == VAR_NONE)
-			return  NULL ;
+			return NULL ;
 		return &self_.mClassSet[ix].item ;
 	}
 
