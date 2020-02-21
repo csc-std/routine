@@ -119,7 +119,7 @@ public:
 		}
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
 		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -423,7 +423,7 @@ public:
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
 		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -653,7 +653,7 @@ public:
 	void start () {
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
 		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -669,7 +669,7 @@ public:
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
 		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;

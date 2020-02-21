@@ -96,9 +96,12 @@ private:
 	void initialize (const PhanBuffer<const REAL> &pattern) ;
 
 	INDEX find_next (INDEX slow ,INDEX fast) const {
-		for (INDEX i = fast ; i != VAR_NONE ; i = mNext[i])
-			if (mPattern[i] != mPattern[slow])
-				return i ;
+		for (INDEX i = fast ,it ; i != VAR_NONE ; i = it) {
+			it = mNext[i] ;
+			if (mPattern[i] == mPattern[slow])
+				continue ;
+			return i ;
+		}
 		return VAR_NONE ;
 	}
 } ;
@@ -150,8 +153,10 @@ public:
 	Array<INDEX> query_path (INDEX index) const {
 		Array<INDEX> ret = Array<INDEX> (query_path_depth (index)) ;
 		INDEX iw = ret.length () ;
-		for (INDEX i = index ; i != VAR_NONE ; i = mPrev[i])
+		for (INDEX i = index ,it ; i != VAR_NONE ; i = it) {
+			it = mPrev[i] ;
 			ret[--iw] = i ;
+		}
 		_DEBUG_ASSERT_ (iw == 0) ;
 		return std::move (ret) ;
 	}
@@ -161,8 +166,10 @@ private:
 
 	LENGTH query_path_depth (INDEX index) const {
 		LENGTH ret = 0 ;
-		for (INDEX i = index ; i != VAR_NONE ; i = mPrev[i])
+		for (INDEX i = index ,it ; i != VAR_NONE ; i = it) {
+			it = mPrev[i] ;
 			ret++ ;
+		}
 		return std::move (ret) ;
 	}
 } ;
@@ -1310,11 +1317,11 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 				if (mBFSPath[mSource] == VAR_NONE)
 					break ;
 				const auto r1x = augument_max_flow () ;
-				for (INDEX i = mSource ,ie = mSink ; i != ie ; i = mBFSPath[i]) {
-					INDEX ix = mBFSPath[i] ;
-					const auto r2x = _MIN_ (mCurrentFlow[ix][i] ,r1x) ;
-					mCurrentFlow[ix][i] -= r2x ;
-					mCurrentFlow[i][ix] += r1x - r2x ;
+				for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
+					it = mBFSPath[i] ;
+					const auto r2x = _MIN_ (mCurrentFlow[it][i] ,r1x) ;
+					mCurrentFlow[it][i] -= r2x ;
+					mCurrentFlow[i][it] += r1x - r2x ;
 				}
 			}
 		}
@@ -1345,10 +1352,10 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 
 		inline REAL augument_max_flow () const {
 			REAL ret = mSingleFlow ;
-			for (INDEX i = mSource ,ie = mSink ; i != ie ; i = mBFSPath[i]) {
-				INDEX ix = mBFSPath[i] ;
-				_DEBUG_ASSERT_ (i != ix) ;
-				const auto r1x = mAdjacency[i][ix] + mCurrentFlow[ix][i] - mCurrentFlow[i][ix] ;
+			for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
+				it = mBFSPath[i] ;
+				_DEBUG_ASSERT_ (i != it) ;
+				const auto r1x = mAdjacency[i][it] + mCurrentFlow[it][i] - mCurrentFlow[i][it] ;
 				ret = _MIN_ (ret ,r1x) ;
 			}
 			return std::move (ret) ;

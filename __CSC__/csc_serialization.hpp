@@ -341,8 +341,10 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
 			writer << _GAP_ ;
 			rbx.clear () ;
-			for (INDEX i = r2y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
+			for (INDEX i = r2y.mChild ,it ; i != VAR_NONE ; i = it) {
+				it = mHeap.self[i].mBrother ;
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
+			}
 			while (TRUE) {
 				if (rbx.empty ())
 					break ;
@@ -384,8 +386,10 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
-			for (INDEX i = r4y.mChild ; i != VAR_NONE ; i = mHeap.self[i].mBrother)
+			for (INDEX i = r4y.mChild ,it ; i != VAR_NONE ; i = it) {
+				it = mHeap.self[i].mBrother ;
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
+			}
 			rbx.add (ARRAY2<INDEX> {r1x[0] ,FLAG (1)}) ;
 			while (TRUE) {
 				if (rbx.empty ())
@@ -816,7 +820,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline void update_found_table_node (const XmlParser &node) {
-			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = mFoundNode.insert () ;
 				mFoundNode[iy].mName = i.name () ;
@@ -841,7 +846,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline void update_found_object_node (const XmlParser &node) {
-			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
 				INDEX ix = find_found_node_name (i.name ()) ;
 				INDEX iy = ix ;
 				if SWITCH_CASE (TRUE) {
@@ -872,7 +878,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline void update_found_array_node (const XmlParser &node) {
-			for (XmlParser i = node ; i.exist () ; i = i.brother ()) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
 				INDEX ix = mFoundNodeNameSet.head () ;
 				if (ix != VAR_NONE)
 					ix = mFoundNodeNameSet[ix].item ;

@@ -3006,12 +3006,6 @@ public:
 		return std::move (ret) ;
 	}
 
-	inline void swap (Allocator &that) popping {
-		mAllocator.swap (that.mAllocator) ;
-		_SWAP_ (mLength ,that.mLength) ;
-		_SWAP_ (mFree ,that.mFree) ;
-	}
-
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...initval) popping {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
