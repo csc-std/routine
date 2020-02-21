@@ -271,9 +271,9 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			if (!(rax.length () >= 1 && rax[rax.access (0)] == _PCSTR_ ("..")))
 				discard ;
 		const auto r1x = _WORKINGPATH_ () ;
-		auto tmp = _DECOUPLEPATHNAME_ (r1x) ;
-		tmp.appand (std::move (rax)) ;
-		rax = std::move (tmp) ;
+		auto tmp = std::move (rax) ;
+		rax = _DECOUPLEPATHNAME_ (r1x) ;
+		rax.appand (std::move (tmp)) ;
 		if (!(r1x.size () >= 1 && r1x[0] == STR ('\\')))
 			if (!(r1x.size () >= 1 && r1x[0] == STR ('/')))
 				discard ;

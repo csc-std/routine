@@ -315,7 +315,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (_FOR_ONCE_ (var1)) ANONYMOUS:
+#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (CSC::_FOR_ONCE_ (var1)) ANONYMOUS:
 
 using BOOL = bool ;
 

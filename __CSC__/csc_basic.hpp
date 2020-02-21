@@ -1832,14 +1832,10 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand_swap (LENGTH len) popping {
 		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
-	}
-
-	inline void swap (Buffer &that) popping {
-		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
 	}
 } ;
 
@@ -1982,20 +1978,10 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
+	inline Buffer<UNIT ,SAUTO> expand_swap (LENGTH len) popping {
 		_STATIC_WARNING_ ("unexpected") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
-	}
-
-	inline void swap (Buffer<UNIT ,SAUTO> &that) popping {
-		_STATIC_WARNING_ ("unexpected") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
-	}
-
-	inline void swap (Buffer &that) popping {
-		_DYNAMIC_ASSERT_ (mSize == that.mSize) ;
-		_MEMSWAP_ ((*mBuffer) ,(*that.mBuffer) ,mSize) ;
 	}
 } ;
 
@@ -2252,13 +2238,10 @@ public:
 		return _MAX_ (r1x ,r2x) ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
-		return Buffer (len) ;
-	}
-
-	inline void swap (Buffer &that) popping {
-		_SWAP_ (mBuffer ,that.mBuffer) ;
-		_SWAP_ (mSize ,that.mSize) ;
+	inline Buffer expand_swap (LENGTH len) popping {
+		Buffer ret = Buffer (len) ;
+		_SWAP_ (ret ,(*this)) ;
+		return std::move (ret) ;
 	}
 } ;
 
@@ -2394,15 +2377,10 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand_swap (LENGTH len) popping {
 		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
-	}
-
-	inline void swap (Buffer &that) popping {
-		_SWAP_ (mBuffer ,that.mBuffer) ;
-		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 private:
@@ -2566,15 +2544,10 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand_swap (LENGTH len) popping {
 		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
-	}
-
-	inline void swap (Buffer &that) popping {
-		_SWAP_ (mBuffer ,that.mBuffer) ;
-		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 private:
@@ -3047,14 +3020,13 @@ public:
 		if SWITCH_CASE (TRUE) {
 			if (mFree != VAR_NONE)
 				discard ;
-			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
+			auto tmp = mAllocator.expand_swap (mAllocator.expand_size ()) ;
 			const auto r1x = mSize ;
-			_CREATE_ (&tmp[r1x].mData ,std::forward<_ARGS> (initval)...) ;
+			_CREATE_ (&mAllocator[r1x].mData ,std::forward<_ARGS> (initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
-				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-				tmp[i].mNext = VAR_USED ;
+				_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (tmp[i].mData))) ;
+				mAllocator[i].mNext = VAR_USED ;
 			}
-			mAllocator.swap (tmp) ;
 			update_reserve (mSize ,mFree) ;
 			mFree = mAllocator[r1x].mNext ;
 			mAllocator[r1x].mNext = VAR_USED ;
@@ -3094,13 +3066,12 @@ public:
 		if (r1x == 0)
 			return ;
 		_DEBUG_ASSERT_ (mSize + r1x > mSize) ;
-		auto tmp = mAllocator.expand (mSize + r1x) ;
+		auto tmp = mAllocator.expand_swap (mSize + r1x) ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-			tmp[i].mNext = mAllocator[i].mNext ;
+			if (tmp[i].mNext == VAR_USED)
+				_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (tmp[i].mData))) ;
+			mAllocator[i].mNext = tmp[i].mNext ;
 		}
-		mAllocator.swap (tmp) ;
 		update_reserve (mSize ,mFree) ;
 	}
 
@@ -3112,13 +3083,12 @@ public:
 		if (r1x == mSize)
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
-		auto tmp = mAllocator.expand (r1x) ;
-		for (auto &&i : _RANGE_ (0 ,tmp.size ())) {
-			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
-			_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
-			tmp[i].mNext = VAR_USED ;
+		auto tmp = mAllocator.expand_swap (r1x) ;
+		for (auto &&i : _RANGE_ (0 ,mAllocator.size ())) {
+			_DEBUG_ASSERT_ (tmp[i].mNext == VAR_USED) ;
+			_CREATE_ (&mAllocator[i].mData ,std::move (_CAST_<UNIT> (tmp[i].mData))) ;
+			mAllocator[i].mNext = VAR_USED ;
 		}
-		mAllocator.swap (tmp) ;
 		update_reserve (r1x ,VAR_NONE) ;
 	}
 

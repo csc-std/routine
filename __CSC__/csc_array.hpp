@@ -933,39 +933,37 @@ private:
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		auto tmp = mDeque.expand (mDeque.size () + r1x) ;
+		auto tmp = mDeque.expand_swap (mDeque.size () + r1x) ;
 		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			_MEMMOVE_ (PTRTOARR[&tmp.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
+			_MEMMOVE_ (PTRTOARR[&mDeque.self[mRead]] ,PTRTOARR[&tmp.self[mRead]] ,(mWrite - mRead)) ;
 		}
 		if SWITCH_CASE (fax) {
 			if (!(mRead > mWrite))
 				discard ;
-			_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
-			INDEX ix = mRead + tmp.size () - mDeque.size () ;
-			_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+			_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
+			INDEX ix = mRead + mDeque.size () - tmp.size () ;
+			_MEMMOVE_ (PTRTOARR[&mDeque.self[ix]] ,PTRTOARR[&tmp.self[mRead]] ,(tmp.size () - mRead)) ;
 			mRead = ix ;
 		}
-		mDeque.swap (tmp) ;
 	}
 
 	void update_resize () {
 		if (mRead != mWrite)
 			return ;
-		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
-		_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
+		auto tmp = mDeque.expand_swap (mDeque.expand_size ()) ;
+		_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
 		INDEX ix = 0 ;
-		INDEX iy = mDeque.size () ;
+		INDEX iy = tmp.size () ;
 		if SWITCH_CASE (TRUE) {
 			if (mRead == 0)
 				discard ;
-			ix = mRead + tmp.size () - mDeque.size () ;
+			ix = mRead + mDeque.size () - tmp.size () ;
 			iy = mWrite ;
 		}
-		_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
-		mDeque.swap (tmp) ;
+		_MEMMOVE_ (PTRTOARR[&mDeque.self[ix]] ,PTRTOARR[&tmp.self[mRead]] ,(tmp.size () - mRead)) ;
 		mRead = ix ;
 		mWrite = iy ;
 	}
@@ -1455,17 +1453,15 @@ private:
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		auto tmp = mPriority.expand (mPriority.size () + r1x) ;
-		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (tmp) ;
+		auto tmp = mPriority.expand_swap (mPriority.size () + r1x) ;
+		_MEMMOVE_ (mPriority.self ,tmp.self ,tmp.size ()) ;
 	}
 
 	void update_resize () {
 		if (mWrite < mPriority.size ())
 			return ;
-		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
-		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (tmp) ;
+		auto tmp = mPriority.expand_swap (mPriority.expand_size ()) ;
+		_MEMMOVE_ (mPriority.self ,tmp.self ,tmp.size ()) ;
 	}
 
 	void update_insert (INDEX curr) {
@@ -1971,9 +1967,14 @@ private:
 		inline explicit Node (ITEM &&item ,INDEX seq) : mItem (std::move (item)) ,mSeq (seq) {}
 	} ;
 
+	struct TREE_NODE {
+		INDEX mIndex ;
+		LENGTH mCount ;
+	} ;
+
 private:
 	Allocator<Node ,SIZE> mList ;
-	Buffer<Buffer<INDEX ,ARGC<2>> ,SIZE> mHead ;
+	Buffer<TREE_NODE ,SIZE> mHead ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -2000,9 +2001,7 @@ public:
 	}
 
 	void clear () {
-		const auto r1x = Buffer<INDEX ,ARGC<2>> ({
-			VAR_NONE ,
-			VAR_ZERO}) ;
+		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
 		_MEMFILL_ (mHead.self ,mHead.size () ,r1x) ;
 		mRead = 0 ;
 		mWrite = 0 ;
@@ -2012,8 +2011,8 @@ public:
 		if (mHead.size () == 0)
 			return VAR_NONE ;
 		for (auto &&i : _RANGE_ (mRead ,mWrite + 1))
-			if (mHead[i][0] != VAR_NONE)
-				return mHead[i][0] ;
+			if (mHead[i].mIndex != VAR_NONE)
+				return mHead[i].mIndex ;
 		return VAR_NONE ;
 	}
 
@@ -2023,8 +2022,8 @@ public:
 
 	INDEX inext (INDEX index) const {
 		for (auto &&i : _RANGE_ (mList[index].mSeq + 1 ,mWrite + 1))
-			if (mHead[i][0] != VAR_NONE)
-				return mHead[i][0] ;
+			if (mHead[i].mIndex != VAR_NONE)
+				return mHead[i].mIndex ;
 		return VAR_NONE ;
 	}
 
@@ -2071,12 +2070,12 @@ public:
 	INDEX access (INDEX pos) const {
 		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		if (mWrite - mRead + 1 == mList.length ())
-			return mHead[mRead + pos][0] ;
+			return mHead[mRead + pos].mIndex ;
 		if (mWrite - mRead == mList.length ())
-			if (mHead[mWrite][0] == VAR_NONE)
-				return mHead[mRead + pos][0] ;
+			if (mHead[mWrite].mIndex == VAR_NONE)
+				return mHead[mRead + pos].mIndex ;
 		INDEX ix = access (pos ,mRead ,mWrite) ;
-		return mHead[ix][0] ;
+		return mHead[ix].mIndex ;
 	}
 
 	Array<INDEX> range () const {
@@ -2250,7 +2249,7 @@ private:
 			ret = ix + (iy - ix) / 2 ;
 			INDEX jx = position_before (ret) ;
 			if (jx == pos)
-				if (mHead[ret][0] != VAR_NONE)
+				if (mHead[ret].mIndex != VAR_NONE)
 					break ;
 			auto &r1y = _SWITCH_ (
 				(jx < pos) ? ix :
@@ -2270,7 +2269,7 @@ private:
 		while (TRUE) {
 			if (ix < 0)
 				break ;
-			ret += mHead[ix][1] ;
+			ret += mHead[ix].mCount ;
 			ix -= (ix + 1) & -(ix + 1) ;
 		}
 		ret-- ;
@@ -2280,11 +2279,10 @@ private:
 	void update_resize (INDEX curr) {
 		if (mHead.size () == mList.size ())
 			return ;
-		auto tmp = mHead.expand (mList.size ()) ;
-		const auto r1x = Buffer<INDEX ,ARGC<2>> ({
-			VAR_NONE ,
-			VAR_ZERO}) ;
-		_MEMFILL_ (tmp.self ,tmp.size () ,r1x) ;
+		const auto r1x = mHead.expand_swap (mList.size ()) ;
+		(void) r1x ;
+		const auto r2x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
+		_MEMFILL_ (mHead.self ,mHead.size () ,r2x) ;
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
 				continue ;
@@ -2292,13 +2290,12 @@ private:
 				continue ;
 			sequence_rewrite (mList[i].mSeq ,i) ;
 		}
-		mHead.swap (tmp) ;
 	}
 
 	void update_compress_left (INDEX curr ,INDEX last) {
 		auto fax = TRUE ;
 		if SWITCH_CASE (fax) {
-			if (!(mHead[curr][0] == VAR_NONE))
+			if (!(mHead[curr].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (curr ,last) ;
 			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
@@ -2307,7 +2304,7 @@ private:
 			INDEX ix = curr + 1 ;
 			if (!(ix < mHead.size ()))
 				discard ;
-			if (!(mHead[ix][0] == VAR_NONE))
+			if (!(mHead[ix].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (ix ,last) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
@@ -2324,11 +2321,11 @@ private:
 			while (TRUE) {
 				if (mRead == ix)
 					break ;
-				if (mHead[mRead][0] != VAR_NONE)
+				if (mHead[mRead].mIndex != VAR_NONE)
 					break ;
 				mRead++ ;
 			}
-			const auto r1x = mHead[i][0] ;
+			const auto r1x = mHead[i].mIndex ;
 			auto fax = TRUE ;
 			if SWITCH_CASE (fax) {
 				if (!(mRead == ix))
@@ -2351,7 +2348,7 @@ private:
 			if SWITCH_CASE (fax) {
 				if (!(mRead != i))
 					discard ;
-				sequence_rewrite (i ,mHead[mRead][0]) ;
+				sequence_rewrite (i ,mHead[mRead].mIndex) ;
 				sequence_remove (mRead) ;
 			}
 			mRead++ ;
@@ -2363,26 +2360,26 @@ private:
 	void sequence_rewrite (INDEX curr ,INDEX index) {
 		_DEBUG_ASSERT_ (index != VAR_NONE) ;
 		INDEX ix = curr ;
-		const auto r1x = mHead[curr][0] ;
-		mHead[ix][0] = index ;
+		const auto r1x = mHead[curr].mIndex ;
+		mHead[ix].mIndex = index ;
 		mList[index].mSeq = ix ;
 		if (r1x != VAR_NONE)
 			return ;
 		while (TRUE) {
 			if (ix >= mHead.size ())
 				break ;
-			mHead[ix][1]++ ;
+			mHead[ix].mCount++ ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
 	}
 
 	void sequence_remove (INDEX curr) {
 		INDEX ix = curr ;
-		mHead[ix][0] = VAR_NONE ;
+		mHead[ix].mIndex = VAR_NONE ;
 		while (TRUE) {
 			if (ix >= mHead.size ())
 				break ;
-			mHead[ix][1]-- ;
+			mHead[ix].mCount-- ;
 			ix += (ix + 1) & -(ix + 1) ;
 		}
 	}
@@ -4085,18 +4082,18 @@ private:
 	void update_resize (INDEX curr) {
 		if (mHead.size () == mSet.size ())
 			return ;
-		auto tmp = mHead.expand (mSet.size ()) ;
-		_MEMFILL_ (tmp.self ,tmp.size () ,VAR_NONE) ;
+		const auto r1x = mHead.expand_swap (mSet.size ()) ;
+		(void) r1x ;
+		_MEMFILL_ (mHead.self ,mHead.size () ,VAR_NONE) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)
 				continue ;
 			if (!mSet.used (i))
 				continue ;
-			INDEX ix = mSet[i].mHash % tmp.size () ;
-			mSet[i].mNext = tmp[ix] ;
-			tmp[ix] = i ;
+			INDEX ix = mSet[i].mHash % mHead.size () ;
+			mSet[i].mNext = mHead[ix] ;
+			mHead[ix] = i ;
 		}
-		mHead.swap (tmp) ;
 	}
 
 	void update_insert (INDEX curr) {
