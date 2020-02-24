@@ -166,6 +166,11 @@
 #endif
 #define exports
 
+#ifdef switch_case
+#error "∑(っ°Д° ;)っ : defined 'switch_case'"
+#endif
+#define switch_case SWITCH_CASE_IMPL
+
 #ifdef discard
 #error "∑(っ°Д° ;)っ : defined 'discard'"
 #endif
@@ -178,12 +183,14 @@
 #pragma push_macro ("popping")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
+#pragma push_macro ("switch_case")
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
 #undef popping
 #undef imports
 #undef exports
+#undef switch_case
 #undef discard
 #endif
 
@@ -203,6 +210,7 @@
 #pragma pop_macro ("popping")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
+#pragma pop_macro ("switch_case")
 #pragma pop_macro ("discard")
 #endif
 
@@ -263,13 +271,6 @@ using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
 } ;
 
-#define _UNWIND_IMPL_(...) __VA_ARGS__
-#define _UNW_(...) _UNWIND_IMPL_(__VA_ARGS__)
-#define _STRINGIZE_IMPL_(...) #__VA_ARGS__
-#define _STR_(...) _STRINGIZE_IMPL_(__VA_ARGS__)
-#define _CONCAT_IMPL_(var1 ,var2) var1##var2
-#define _CAT_(var1 ,var2) _CONCAT_IMPL_(var1 ,var2)
-
 #define M_DATE __DATE__
 #define M_HOUR __TIME__
 #define M_FILE __FILE__
@@ -284,6 +285,35 @@ using std::is_convertible ;
 #else
 #define M_FUNC __func__
 #endif
+
+#ifdef __CSC_COMPILER_MSVC__
+#define DLLABI_IMPORT __declspec (dllimport)
+#define DLLABI_EXPORT __declspec (dllexport)
+#define DLLABI_API __stdcall
+#define DLLABI_NATIVE extern "C"
+#elif defined __CSC_COMPILER_GNUC__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#elif defined __CSC_COMPILER_CLANG__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#else
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT
+#define DLLABI_API
+#define DLLABI_NATIVE
+#endif
+
+#define _UNWIND_IMPL_(...) __VA_ARGS__
+#define _UNW_(...) _UNWIND_IMPL_(__VA_ARGS__)
+#define _STRINGIZE_IMPL_(...) #__VA_ARGS__
+#define _STR_(...) _STRINGIZE_IMPL_(__VA_ARGS__)
+#define _CONCAT_IMPL_(var1 ,var2) var1##var2
+#define _CAT_(var1 ,var2) _CONCAT_IMPL_(var1 ,var2)
 
 #define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
 
@@ -315,7 +345,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (CSC::_FOR_ONCE_ (var1)) ANONYMOUS:
+#define SWITCH_CASE_IMPL(var1) (var1) goto ANONYMOUS ; while (CSC::_FOR_ONCE_ (var1)) ANONYMOUS:
 
 using BOOL = bool ;
 

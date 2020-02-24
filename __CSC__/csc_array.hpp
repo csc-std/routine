@@ -517,7 +517,7 @@ public:
 
 	void concatto (const String &that) {
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
@@ -527,7 +527,7 @@ public:
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			(*this) = concat (that) ;
 		}
 	}
@@ -539,7 +539,7 @@ public:
 
 	void concatto (const Plain<ITEM> &that) {
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
@@ -549,7 +549,7 @@ public:
 			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			(*this) = concat (that) ;
 		}
 	}
@@ -927,12 +927,12 @@ private:
 			return ;
 		auto tmp = mDeque.expand_swap (mDeque.size () + r1x) ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
 			_MEMMOVE_ (PTRTOARR[&mDeque.self[mRead]] ,PTRTOARR[&tmp.self[mRead]] ,(mWrite - mRead)) ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mRead > mWrite))
 				discard ;
 			_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
@@ -949,7 +949,7 @@ private:
 		_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = tmp.size () ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (mRead == 0)
 				discard ;
 			ix = mRead + mDeque.size () - tmp.size () ;
@@ -1490,7 +1490,7 @@ private:
 			auto &r1y = _SWITCH_ (
 				(jx != ix) ? mPriority[jx].mKey :
 				tmp.mKey) ;
-			if SWITCH_CASE (TRUE) {
+			if switch_case (TRUE) {
 				if (iy >= mWrite)
 					discard ;
 				if (r1y <= mPriority[iy].mKey)
@@ -1520,7 +1520,7 @@ private:
 			auto &r2y = _SWITCH_ (
 				(jx != ix) ? mPriority[out[jx]].mKey :
 				mPriority[r1x].mKey) ;
-			if SWITCH_CASE (TRUE) {
+			if switch_case (TRUE) {
 				if (iy >= len)
 					discard ;
 				if (r2y <= mPriority[out[iy]].mKey)
@@ -2314,13 +2314,13 @@ private:
 
 	void update_compress_left (INDEX curr ,INDEX last) {
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mHead[curr].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (curr ,last) ;
 			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			INDEX ix = curr + 1 ;
 			if (!(ix < mHead.size ()))
 				discard ;
@@ -2329,7 +2329,7 @@ private:
 			sequence_rewrite (ix ,last) ;
 			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			update_compress_left_force (curr ,last) ;
 		}
 	}
@@ -2347,7 +2347,7 @@ private:
 			}
 			const auto r1x = mHead[i].mIndex ;
 			auto fax = TRUE ;
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x == VAR_NONE))
@@ -2356,7 +2356,7 @@ private:
 				iy = r1x ;
 				ix = VAR_NONE ;
 			}
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x != VAR_NONE))
@@ -2365,7 +2365,7 @@ private:
 				iy = r1x ;
 				ix++ ;
 			}
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(mRead != i))
 					discard ;
 				sequence_rewrite (i ,mHead[mRead].mIndex) ;
@@ -2894,7 +2894,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2915,7 +2915,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3035,7 +3035,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3052,7 +3052,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3238,7 +3238,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3252,7 +3252,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3265,7 +3265,7 @@ public:
 	}
 
 	void remove (INDEX index) {
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (mSet[index].mLeft == VAR_NONE)
 				discard ;
 			if (mSet[index].mRight == VAR_NONE)
@@ -3330,12 +3330,12 @@ public:
 private:
 	void update_emplace (INDEX curr ,INDEX last) {
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr == VAR_NONE))
 				discard ;
 			mTop = last ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr != VAR_NONE))
 				discard ;
 			mSet[last].mUp = curr ;
@@ -3357,12 +3357,12 @@ private:
 			if (!mSet[jx].mRed)
 				break ;
 			auto fax = TRUE ;
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(jx == mSet[mSet[jx].mUp].mLeft))
 					discard ;
 				update_insert_left (ix) ;
 			}
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(jx == mSet[mSet[jx].mUp].mRight))
 					discard ;
 				update_insert_right (ix) ;
@@ -3376,7 +3376,7 @@ private:
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mSet[iy].mRight != VAR_NONE))
 				discard ;
 			if (!mSet[mSet[iy].mRight].mRed)
@@ -3386,7 +3386,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			auto &r1y = mSet[iy].mLeft ;
@@ -3399,7 +3399,7 @@ private:
 			r2y = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3415,7 +3415,7 @@ private:
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(mSet[iy].mLeft != VAR_NONE))
 				discard ;
 			if (!mSet[mSet[iy].mLeft].mRed)
@@ -3425,7 +3425,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			auto &r1y = mSet[iy].mRight ;
@@ -3438,7 +3438,7 @@ private:
 			r2y = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3460,12 +3460,12 @@ private:
 				if (mSet[ix].mRed)
 					break ;
 			auto fax = TRUE ;
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(ix == mSet[iy].mLeft))
 					discard ;
 				update_remove_left (ix ,iy) ;
 			}
-			if SWITCH_CASE (fax) {
+			if switch_case (fax) {
 				if (!(ix == mSet[iy].mRight))
 					discard ;
 				update_remove_right (ix ,iy) ;
@@ -3480,7 +3480,7 @@ private:
 
 	void update_remove_left (INDEX curr ,INDEX last) {
 		auto &r1y = mSet[last].mRight ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
@@ -3492,7 +3492,7 @@ private:
 		const auto r3x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
 		const auto r4x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (r3x)
 				discard ;
 			if (r4x)
@@ -3500,7 +3500,7 @@ private:
 			mSet[r1y].mRed = TRUE ;
 			mTop = last ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (r4x)
 				discard ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
@@ -3515,7 +3515,7 @@ private:
 			r5y = mTop ;
 			mTop = mRoot ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			mSet[r1y].mRed = mSet[last].mRed ;
 			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
@@ -3528,7 +3528,7 @@ private:
 
 	void update_remove_right (INDEX curr ,INDEX last) {
 		auto &r1y = mSet[last].mLeft ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (!mSet[r1y].mRed)
 				discard ;
 			mSet[r1y].mRed = FALSE ;
@@ -3540,7 +3540,7 @@ private:
 		const auto r3x = BOOL (mSet[r1y].mRight != VAR_NONE && mSet[mSet[r1y].mRight].mRed) ;
 		const auto r4x = BOOL (mSet[r1y].mLeft != VAR_NONE && mSet[mSet[r1y].mLeft].mRed) ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (r3x)
 				discard ;
 			if (r4x)
@@ -3548,7 +3548,7 @@ private:
 			mSet[r1y].mRed = TRUE ;
 			mTop = last ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (r4x)
 				discard ;
 			mSet[mSet[r1y].mRight].mRed = FALSE ;
@@ -3563,7 +3563,7 @@ private:
 			r5y = mTop ;
 			mTop = mRoot ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			mSet[r1y].mRed = mSet[last].mRed ;
 			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1y].mLeft].mRed = FALSE ;
@@ -3737,7 +3737,7 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3758,7 +3758,7 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3876,7 +3876,7 @@ public:
 
 	void add (const KEY &key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3893,7 +3893,7 @@ public:
 
 	void add (KEY &&key) {
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4071,7 +4071,7 @@ public:
 
 	INDEX insert (const KEY &key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4085,7 +4085,7 @@ public:
 
 	INDEX insert (KEY &&key) popping {
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4104,7 +4104,7 @@ public:
 
 	INDEX find (const KEY &key) const {
 		INDEX ret = VAR_NONE ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (size () == 0)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -4268,7 +4268,7 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4295,7 +4295,7 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4432,7 +4432,7 @@ public:
 	void add (const KEY &key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4455,7 +4455,7 @@ public:
 	void add (KEY &&key) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4659,7 +4659,7 @@ public:
 	INDEX insert (const KEY &key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4679,7 +4679,7 @@ public:
 	INDEX insert (KEY &&key) popping {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ret = find (key) ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (ret != VAR_NONE)
 				discard ;
 			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4749,20 +4749,20 @@ private:
 	void update_insert (INDEX curr) {
 		INDEX ix = curr ;
 		auto fax = TRUE ;
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
 			auto fbx = TRUE ;
-			if SWITCH_CASE (fbx) {
+			if switch_case (fbx) {
 				if (!r1x)
 					discard ;
 				update_insert (mSet.self[ix].mLeft) ;
 				mSet.self[ix].mLeft = mTop ;
 				update_insert_left (ix) ;
 			}
-			if SWITCH_CASE (fbx) {
+			if switch_case (fbx) {
 				if (r1x)
 					discard ;
 				update_insert (mSet.self[ix].mRight) ;
@@ -4772,7 +4772,7 @@ private:
 			ix = mTop ;
 			mTop = ix ;
 		}
-		if SWITCH_CASE (fax) {
+		if switch_case (fax) {
 			mTop = mLast ;
 		}
 	}
@@ -4788,7 +4788,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4y = mSet.self[ix].mLeft ;
@@ -4821,7 +4821,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if SWITCH_CASE (TRUE) {
+		if switch_case (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4y = mSet.self[ix].mRight ;
