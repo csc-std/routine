@@ -120,6 +120,7 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &socket_ ,LENGTH time
 		const auto r1x = ::select (FD_SETSIZE ,&ret[0] ,&ret[1] ,NULL ,&rax) ;
 		if (r1x >= 0)
 			break ;
+		_STATIC_WARNING_ ("noop") ;
 	}
 	_ZERO_ (rax) ;
 	return std::move (ret) ;

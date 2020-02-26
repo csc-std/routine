@@ -925,39 +925,41 @@ private:
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		auto tmp = mDeque.expand_swap (mDeque.size () + r1x) ;
+		auto tmp = mDeque.expand (mDeque.size () + r1x) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			_MEMMOVE_ (PTRTOARR[&mDeque.self[mRead]] ,PTRTOARR[&tmp.self[mRead]] ,(mWrite - mRead)) ;
+			_MEMMOVE_ (PTRTOARR[&tmp.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
 		}
 		if switch_case (fax) {
 			if (!(mRead > mWrite))
 				discard ;
-			_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
-			INDEX ix = mRead + mDeque.size () - tmp.size () ;
-			_MEMMOVE_ (PTRTOARR[&mDeque.self[ix]] ,PTRTOARR[&tmp.self[mRead]] ,(tmp.size () - mRead)) ;
+			_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
+			INDEX ix = mRead + tmp.size () - mDeque.size () ;
+			_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
+		mDeque.swap (tmp) ;
 	}
 
 	void update_resize () {
 		if (mRead != mWrite)
 			return ;
-		auto tmp = mDeque.expand_swap (mDeque.expand_size ()) ;
-		_MEMMOVE_ (mDeque.self ,tmp.self ,mWrite) ;
+		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
+		_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
-		INDEX iy = tmp.size () ;
+		INDEX iy = mDeque.size () ;
 		if switch_case (TRUE) {
 			if (mRead == 0)
 				discard ;
-			ix = mRead + mDeque.size () - tmp.size () ;
+			ix = mRead + tmp.size () - mDeque.size () ;
 			iy = mWrite ;
 		}
-		_MEMMOVE_ (PTRTOARR[&mDeque.self[ix]] ,PTRTOARR[&tmp.self[mRead]] ,(tmp.size () - mRead)) ;
+		_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
 		mRead = ix ;
 		mWrite = iy ;
+		mDeque.swap (tmp) ;
 	}
 } ;
 
@@ -1455,15 +1457,17 @@ private:
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
-		auto tmp = mPriority.expand_swap (mPriority.size () + r1x) ;
-		_MEMMOVE_ (mPriority.self ,tmp.self ,tmp.size ()) ;
+		auto tmp = mPriority.expand (mPriority.size () + r1x) ;
+		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
+		mPriority.swap (tmp) ;
 	}
 
 	void update_resize () {
 		if (mWrite < mPriority.size ())
 			return ;
-		auto tmp = mPriority.expand_swap (mPriority.expand_size ()) ;
-		_MEMMOVE_ (mPriority.self ,tmp.self ,tmp.size ()) ;
+		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
+		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
+		mPriority.swap (tmp) ;
 	}
 
 	void update_insert (INDEX curr) {
@@ -2012,6 +2016,7 @@ public:
 	}
 
 	void clear () {
+		mList.clear () ;
 		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
 		_MEMFILL_ (mHead.self ,mHead.size () ,r1x) ;
 		mRead = 0 ;
@@ -2299,10 +2304,10 @@ private:
 	void update_resize (INDEX curr) {
 		if (mHead.size () == mList.size ())
 			return ;
-		const auto r1x = mHead.expand_swap (mList.size ()) ;
-		(void) r1x ;
+		auto tmp = mHead.expand (mList.size ()) ;
 		const auto r2x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		_MEMFILL_ (mHead.self ,mHead.size () ,r2x) ;
+		_MEMFILL_ (tmp.self ,tmp.size () ,r2x) ;
+		mHead.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
 				continue ;
@@ -4133,9 +4138,9 @@ private:
 	void update_resize (INDEX curr) {
 		if (mHead.size () == mSet.size ())
 			return ;
-		const auto r1x = mHead.expand_swap (mSet.size ()) ;
-		(void) r1x ;
-		_MEMFILL_ (mHead.self ,mHead.size () ,VAR_NONE) ;
+		auto tmp = mHead.expand (mSet.size ()) ;
+		_MEMFILL_ (tmp.self ,tmp.size () ,VAR_NONE) ;
+		mHead.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)
 				continue ;
