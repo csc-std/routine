@@ -116,8 +116,8 @@ inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1y = _inline_MEMCRC32_TABLE_ () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		const auto r2x = INDEX ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
-		ret = FLAG (r1y.P1[r2x] ^ (CHAR (ret) >> 8)) ;
+		const auto r2x = _XVALUE_<CHAR> ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
+		ret = FLAG (r1y.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
 	}
 	ret &= VAR32_MAX ;
 	return std::move (ret) ;
@@ -2747,9 +2747,7 @@ public:
 	inline Allocator (Allocator &&that) noexcept :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = _SWITCH_ (
-			(std::is_pod<UNIT>::value) ? mAllocator.size () :
-			0) ;
+		const auto r1x = EFLAG (std::is_pod<UNIT>::value) * mAllocator.size () ;
 		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
@@ -2821,9 +2819,7 @@ private:
 	class Finally :private Wrapped<Allocator> {
 	public:
 		inline void lock () {
-			const auto r1x = _SWITCH_ (
-				(std::is_pod<UNIT>::value) ? Finally::mSelf.mAllocator.size () :
-				0) ;
+			const auto r1x = EFLAG (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
 			Finally::mSelf.mSize = r1x ;
 		}
 
@@ -2902,9 +2898,7 @@ public:
 	inline Allocator (Allocator &&that) noexcept :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = _SWITCH_ (
-			(std::is_pod<UNIT>::value) ? mAllocator.size () :
-			0) ;
+		const auto r1x = EFLAG (std::is_pod<UNIT>::value) * mAllocator.size () ;
 		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())

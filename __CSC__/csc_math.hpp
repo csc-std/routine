@@ -160,6 +160,14 @@ inline _ARG1 _SIGN_ (const _ARG1 &x) {
 }
 
 template <class _ARG1>
+inline _ARG1 _NEGATIVE_ (const _ARG1 &x ,VAR y) {
+	_DEBUG_ASSERT_ (y >= 0) ;
+	if (y % 2 == 0)
+		return x ;
+	return -x ;
+}
+
+template <class _ARG1>
 inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
@@ -334,9 +342,7 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	const auto r3x = _SWITCH_ (
-		((r1x & DATA (0X8000000000000000)) == 0) ? DATA (0) :
-		DATA (-1)) ;
+	const auto r3x = EFLAG ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
 	ret[2] = r3x ;
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }

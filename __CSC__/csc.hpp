@@ -1517,7 +1517,7 @@ inline void _ZERO_ (_ARG1 &object) noexcept {
 }
 
 template <class _ARG1>
-inline _ARG1 _COPY_ (const _ARG1 &object) {
+inline REMOVE_CVR_TYPE<_ARG1> _COPY_ (const _ARG1 &object) {
 	return object ;
 }
 

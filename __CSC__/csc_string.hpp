@@ -1196,10 +1196,14 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 0 ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (rbx & CHAR (0X3F))]) ;
+			const auto r2x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r3x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
+			const auto r4x = _XVALUE_<CHAR> ((rbx >> 6) & CHAR (0X3F)) ;
+			const auto r5x = _XVALUE_<CHAR> (rbx & CHAR (0X3F)) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r2x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r3x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r4x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r5x)]) ;
 		}
 		if switch_case (fax) {
 			ret.clear () ;
@@ -1212,8 +1216,10 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR (rbx << 16) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
+			const auto r6x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r7x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r6x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r7x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		}
@@ -1221,9 +1227,12 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR (rbx << 8) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 18) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 12) & CHAR (0X3F))]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX ((rbx >> 6) & CHAR (0X3F))]) ;
+			const auto r8x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r9x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
+			const auto r10x = _XVALUE_<CHAR> ((rbx >> 6) & CHAR (0X3F)) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r8x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r9x)]) ;
+			ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		}
 		if switch_case (fax) {
@@ -1252,40 +1261,40 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 	for (auto &&i : stri) {
 		if (rax == VAR_NONE)
 			continue ;
-		const auto r2x = _SWITCH_ (
+		auto &r2y = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? M_BASE64.P1[LENGTH (i) - 32] :
-			VAR_NONE) ;
+			M_BASE64.P1[0]) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r2x >= 0))
+			if (!(r2y >= 0))
 				discard ;
-			rbx = CHAR (r2x & 63) ;
+			rbx = CHAR (r2y & 63) ;
 			rax = 1 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 1))
 				discard ;
-			if (!(r2x >= 0))
+			if (!(r2y >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
 			rax = 2 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 2))
 				discard ;
-			if (!(r2x >= 0))
+			if (!(r2y >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
 			rax = 3 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 3))
 				discard ;
-			if (!(r2x >= 0))
+			if (!(r2y >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
 			rax = 0 ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;

@@ -81,13 +81,15 @@ inline exports void _SAVEFILE_ (const String<STR> &file ,const PhanBuffer<const 
 	const auto r1x = _BUILDSTRS_<STRA> (file) ;
 	_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
-		me = ::open (r1x.raw ().self ,(O_CREAT | O_WRONLY | O_TRUNC) ,(S_IRWXU | S_IRWXG | S_IRWXO)) ;
+		const auto r3x = VAR32 (O_CREAT | O_WRONLY | O_TRUNC) ;
+		const auto r4x = VAR32 (S_IRWXU | S_IRWXG | S_IRWXO) ;
+		me = ::open (r1x.raw ().self ,r3x ,r4x) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
 	} ,[] (VAR32 &me) {
 		::close (me) ;
 	}) ;
-	const auto r3x = LENGTH (::write (r2x.self ,data.self ,VAR32 (data.size ()))) ;
-	_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
+	const auto r5x = LENGTH (::write (r2x.self ,data.self ,VAR32 (data.size ()))) ;
+	_DYNAMIC_ASSERT_ (r5x == data.size ()) ;
 }
 
 inline exports PhanBuffer<const BYTE> _LOADASSETFILE_ (FLAG resource) popping {
@@ -205,9 +207,11 @@ inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
 }
 
 inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
-	const auto r1x = _SWITCH_ (
-		(file.empty ()) ? PhanBuffer<const STR> () :
-		file.raw ()) ;
+	const auto r1x = _CALL_ ([&] () {
+		if (!file.empty ())
+			return file.raw () ;
+		return PhanBuffer<const STR> () ;
+	}) ;
 	auto ris = TextReader<STR> (r1x) ;
 	ris.attr ().modify_space (STR ('\\') ,0) ;
 	ris.attr ().modify_space (STR ('/') ,0) ;
@@ -297,9 +301,11 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 			if (rax[rax.access (0)] != _PCSTR_ (".."))
 				discard ;
 		const auto r1x = _WORKINGPATH_ () ;
-		auto tmp = std::move (rax) ;
-		rax = _DECOUPLEPATHNAME_ (r1x) ;
-		rax.appand (std::move (tmp)) ;
+		if switch_case (TRUE) {
+			auto tmp = _DECOUPLEPATHNAME_ (r1x) ;
+			tmp.appand (std::move (rax)) ;
+			rax = std::move (tmp) ;
+		}
 		if (r1x.size () < 1)
 			discard ;
 		if (r1x[0] != STR ('\\'))
@@ -399,7 +405,8 @@ inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
 			if (r2x[ix][r3x - 1] == STR (':'))
 				continue ;
 		const auto r4x = _BUILDSTRS_<STRA> (rax) ;
-		::mkdir (r4x.raw ().self ,(S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) ;
+		const auto r5x = VAR32 (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ;
+		::mkdir (r4x.raw ().self ,r5x) ;
 	}
 }
 
@@ -500,7 +507,9 @@ public:
 	explicit Implement (const String<STR> &file) {
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
 		mWriteFile = UniqueRef<VAR32> ([&] (VAR32 &me) {
-			me = ::open (r1x.raw ().self ,(O_CREAT | O_WRONLY | O_APPEND) ,(S_IRWXU | S_IRWXG | S_IRWXO)) ;
+			const auto r2x = VAR32 (O_CREAT | O_WRONLY | O_APPEND) ;
+			const auto r3x = VAR32 (S_IRWXU | S_IRWXG | S_IRWXO) ;
+			me = ::open (r1x.raw ().self ,r2x ,r3x) ;
 			_DYNAMIC_ASSERT_ (me >= 0) ;
 		} ,[] (VAR32 &me) {
 			::close (me) ;

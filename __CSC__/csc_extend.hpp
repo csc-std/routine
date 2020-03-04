@@ -229,10 +229,8 @@ public:
 	inline VAR128 () = default ;
 
 	inline implicit VAR128 (VAR64 that) {
+		const auto r1x = EFLAG (that < 0) * DATA (-1) ;
 		v2i1 = DATA (that) ;
-		const auto r1x = _SWITCH_ (
-			(that >= 0) ? DATA (0) :
-			DATA (-1)) ;
 		v2i0 = r1x ;
 	}
 
@@ -639,13 +637,15 @@ private:
 				const auto r1x = x * ret ;
 				if (r1x == y)
 					break ;
-				auto &r2y = _SWITCH_ (
-					(r1x < y) ? rax[0] :
-					rax[1]) ;
-				const auto r3x = _SWITCH_ (
-					(r1x < y) ? ret + 1 :
-					ret - 1) ;
-				r2y = r3x ;
+				auto fax = TRUE ;
+				if switch_case (fax) {
+					if (!(r1x < y))
+						discard ;
+					rax[0] = ret + 1 ;
+				}
+				if switch_case (fax) {
+					rax[1] = ret - 1 ;
+				}
 			}
 			ret -= EFLAG (ret * x > y) ;
 			return std::move (ret) ;
@@ -759,15 +759,15 @@ private:
 	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
 
 	template <class _ARG1>
-	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
+	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
 		return VAR_NONE ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
-		return _SWITCH_ (
-			(std::is_default_constructible<_ARG2>::value) ? _ARG1::value :
-			default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
+		if (std::is_default_constructible<_ARG2>::value)
+			return _ARG1::value ;
+		return default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
@@ -1862,13 +1862,6 @@ private:
 		inline Node () :mWeight (0) {}
 	} ;
 
-	inline static constexpr VAR constexpr_log2x (VAR val) {
-		return _SWITCH_ (
-			(val <= 0) ? VAR_NONE :
-			(val == 1) ? 0 :
-			(1 + constexpr_log2x (val / 2))) ;
-	}
-
 private:
 	SharedRef<FixedBuffer<Node>> mHeap ;
 	WeakRef<UNIT> mWeakRef ;
@@ -2040,7 +2033,7 @@ private:
 			mIndex = find_min_weight () ;
 			if (mIndex == VAR_NONE)
 				discard ;
-			const auto r1x = constexpr_log2x (mHeap.self[mIndex].mWeight) ;
+			const auto r1x = easy_log2x (mHeap.self[mIndex].mWeight) ;
 			if (r1x <= 0)
 				discard ;
 			for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
@@ -2049,6 +2042,14 @@ private:
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
 		mHeap.self[mIndex].mData = mWeakRef ;
 		mHeap.self[mIndex].mWeight = 3 ;
+	}
+
+	inline VAR easy_log2x (VAR val) const {
+		if (val <= 0)
+			return VAR_NONE ;
+		if (val == 1)
+			return 0 ;
+		return 1 + easy_log2x (val / 2) ;
 	}
 
 	inline INDEX find_min_weight () const {
