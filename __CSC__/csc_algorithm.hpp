@@ -44,6 +44,7 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	for (auto &&i : _RANGE_ (0 ,r1x)) {
 		INDEX ix = i * 2 + 3 ;
 		const auto r2x = ix * 2 ;
+		_DEBUG_ASSERT_ (r2x > 0) ;
 		const auto r3x = _SQE_ (ix) ;
 		const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
 		for (auto &&j : _RANGE_ (0 ,r4x)) {
