@@ -21,6 +21,17 @@
 #undef discard
 #endif
 
+#ifdef __CSC_SYSTEM_WINDOWS__
+#ifndef _INC_WINDOWS
+#error "б╞(д├бузебу ;)д├ : require 'Windows.h'"
+#endif
+#elif defined __CSC_SYSTEM_LINUX__
+#ifdef __CSC_DEPRECATED__
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
+#endif
+
 #ifdef __CSC_DEPRECATED__
 #include <cmath>
 #include <random>
@@ -39,6 +50,59 @@
 #endif
 
 namespace CSC {
+#ifdef __CSC_SYSTEM_WINDOWS__
+inline FLAG GlobalRuntime::thread_tid () {
+	return FLAG (GetCurrentThreadId ()) ;
+}
+
+inline FLAG GlobalRuntime::process_pid () {
+	return FLAG (GetCurrentProcessId ()) ;
+}
+
+inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
+	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
+		me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
+	} ,[] (HANDLE &me) {
+		if (me == NULL)
+			return ;
+		CloseHandle (me) ;
+	}) ;
+	if (r1x == NULL)
+		return FALSE ;
+	return TRUE ;
+}
+#elif defined __CSC_SYSTEM_LINUX__
+inline FLAG GlobalRuntime::thread_tid () {
+	return FLAG (syscall (SYS_gettid)) ;
+}
+
+inline FLAG GlobalRuntime::process_pid () {
+	return FLAG (syscall (SYS_getpid)) ;
+}
+
+inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
+	const auto r1x = getpgid (pid_t (pid)) ;
+	if (r1x < 0)
+		return FALSE ;
+	return TRUE ;
+}
+#else
+inline FLAG GlobalRuntime::thread_tid () {
+	_DYNAMIC_ASSERT_ (FALSE) ;
+	return 0 ;
+}
+
+inline FLAG GlobalRuntime::process_pid () {
+	_DYNAMIC_ASSERT_ (FALSE) ;
+	return 0 ;
+}
+
+inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
+	_DYNAMIC_ASSERT_ (FALSE) ;
+	return FALSE ;
+}
+#endif
+
 #ifdef __CSC_DEPRECATED__
 template <class CONT>
 class Coroutine<CONT>::Implement final :private Interface {

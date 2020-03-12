@@ -96,11 +96,7 @@ public:
 		return std::chrono::steady_clock::now () ;
 	}
 
-	inline static FLAG thread_tid () {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
-		return 0 ;
-	}
+	inline static FLAG thread_tid () ;
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void thread_sleep (const std::chrono::duration<_ARG1 ,_ARG2> &time_) {
@@ -128,11 +124,9 @@ public:
 		stl::setlocale (LC_ALL ,locale_.self) ;
 	}
 
-	inline static FLAG process_pid () {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
-		return 0 ;
-	}
+	inline static FLAG process_pid () ;
+
+	inline static CSC::BOOL process_check (FLAG pid) ;
 
 	inline static void process_exit[[noreturn]] () {
 #ifdef __CSC_COMPILER_GNUC__
