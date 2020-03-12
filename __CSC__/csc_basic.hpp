@@ -924,7 +924,7 @@ template <>
 class AnyRef<void> {
 private:
 	exports struct Holder :public Interface {
-		virtual FLAG typeuid () const = 0 ;
+		virtual FLAG typemid () const = 0 ;
 	} ;
 
 private:
@@ -986,9 +986,9 @@ public:
 		return TRUE ;
 	}
 
-	inline FLAG typeuid () const {
+	inline FLAG typemid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->typeuid () ;
+		return mPointer->typemid () ;
 	}
 } ;
 
@@ -1007,8 +1007,8 @@ private:
 		template <class... _ARGS>
 		inline explicit ImplHolder (_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) {}
 
-		inline FLAG typeuid () const override {
-			return _TYPEUID_<UNIT_> () ;
+		inline FLAG typemid () const override {
+			return _TYPEMID_<UNIT_> () ;
 		}
 	} ;
 
@@ -1070,13 +1070,13 @@ public:
 		return TRUE ;
 	}
 
-	inline FLAG typeuid () const {
+	inline FLAG typemid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->typeuid () ;
+		return mPointer->typemid () ;
 	}
 
 	inline UNIT &to () {
-		_DEBUG_ASSERT_ (typeuid () == _TYPEUID_<UNIT> ()) ;
+		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
 		return r1x->mData ;
 	}
@@ -1090,7 +1090,7 @@ public:
 	}
 
 	inline const UNIT &to () const {
-		_DEBUG_ASSERT_ (typeuid () == _TYPEUID_<UNIT> ()) ;
+		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
 		return r1x->mData ;
 	}

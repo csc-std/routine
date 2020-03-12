@@ -342,57 +342,29 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 	return TRUE ;
 }
 
-inline ARRAY2<FLAG> _inline_PARSEPROCESSID_ (const PhanBuffer<const STRU8> &data) {
-	ARRAY2<FLAG> ret ;
-	ret[0] = 0 ;
-	ret[1] = 0 ;
-	class Lambda {
-	private:
-		ARRAY2<FLAG> &mContext ;
-
-		TextReader<STRU8> mTextReader ;
-		RegularReader<ARGC<2>> mRis ;
-		String<STRU8> mLatestString ;
-
-	public:
-		inline explicit Lambda (ARRAY2<FLAG> &context_ ,const PhanBuffer<const STRU8> &data) :mContext (context_) ,mTextReader (data) {}
-
-		inline void operator() () {
-			mRis = RegularReader<ARGC<2>> (PhanRef<TextReader<STRU8>>::make (mTextReader)) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
-			mRis >> RegularReader<>::HINT_VALUE_TEXT >> mLatestString ;
-			mContext[0] = _PARSEVARS_ (mLatestString) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
-			mRis >> RegularReader<>::HINT_VALUE_TEXT >> mLatestString ;
-			mContext[1] = _PARSEVARS_ (mLatestString) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
-			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
-		}
-	} ;
-	_CALL_ (Lambda (ret ,data)) ;
-	return std::move (ret) ;
-}
-
 inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("\\") ,_PCSTR_ (".lockdirectory")) ;
+	const auto r2x = _SIZEOF_ (RESULT_OF_TYPE<DEF<decltype (&GlobalRuntime::process_info)> ,ARGVS<FLAG>>) ;
 	auto fax = TRUE ;
 	if switch_case (fax) {
-		const auto r2x = _FINDFILE_ (r1x) ;
-		if (!r2x)
+		const auto r3x = _FINDFILE_ (r1x) ;
+		if (!r3x)
 			discard ;
-		const auto r3x = _LOADFILE_ (r1x) ;
-		const auto r4x = _inline_PARSEPROCESSID_ (PhanBuffer<const STRU8>::make (r3x)) ;
-		const auto r5x = GlobalRuntime::process_check (r4x[0]) ;
-		if (!r5x)
+		const auto r4x = _LOADFILE_ (r1x) ;
+		if (r4x.size () != r2x)
+			discard ;
+		const auto r5x = GlobalRuntime::process_info_pid (PhanBuffer<const STRU8>::make (r4x)) ;
+		const auto r6x = GlobalRuntime::process_info (r5x) ;
+		const auto r7x = _MEMCOMPR_ (PTRTOARR[r6x.P1] ,r4x.self ,r2x) ;
+		if (r7x != 0)
 			discard ;
 		ret = FALSE ;
 	}
 	if switch_case (fax) {
-		const auto r6x = GlobalRuntime::process_pid () ;
-		const auto r7x = GlobalRuntime::thread_tid () ;
-		const auto r8x = String<STRU8>::make (r6x ,_PCSTRU8_ (" ") ,r7x) ;
-		_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r8x.raw ())) ;
+		const auto r8x = GlobalRuntime::process_pid () ;
+		const auto r9x = GlobalRuntime::process_info (r8x) ;
+		_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r9x.P1)) ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;

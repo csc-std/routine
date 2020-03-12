@@ -126,7 +126,13 @@ public:
 
 	inline static FLAG process_pid () ;
 
-	inline static CSC::BOOL process_check (FLAG pid) ;
+	inline static PACK<BYTE[128]> process_info (FLAG pid) ;
+
+	inline static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
+
+	inline static FLAG module_mid () {
+		return _TYPEMID_<Interface> () ;
+	}
 
 	inline static void process_exit[[noreturn]] () {
 #ifdef __CSC_COMPILER_GNUC__
@@ -188,7 +194,7 @@ public:
 		static volatile Storage<_ARG2> mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = &data ;
-		mInstance.mTypeUID = _TYPEUID_<_ARG2> () ;
+		mInstance.mTypeUID = _TYPEMID_<_ARG2> () ;
 		mInstance.mWatch (data) ;
 	}
 } ;
@@ -2726,7 +2732,7 @@ private:
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
-			mObjectTypeUID = _TYPEUID_<_ARG1> () ;
+			mObjectTypeUID = _TYPEMID_<_ARG1> () ;
 			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
 				_CREATE_ (&r2y) ;

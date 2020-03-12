@@ -59,17 +59,34 @@ inline FLAG GlobalRuntime::process_pid () {
 	return FLAG (GetCurrentProcessId ()) ;
 }
 
-inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
-	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-		me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
-	} ,[] (HANDLE &me) {
-		if (me == NULL)
-			return ;
-		CloseHandle (me) ;
-	}) ;
-	if (r1x == NULL)
-		return FALSE ;
-	return TRUE ;
+inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
+	PACK<BYTE[128]> ret ;
+	_ZERO_ (ret) ;
+	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret.P1)) ;
+	if switch_case (TRUE) {
+		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
+			me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
+		} ,[] (HANDLE &me) {
+			if (me == NULL)
+				return ;
+			CloseHandle (me) ;
+		}) ;
+		if (r1x == NULL)
+			discard ;
+		wos << VAR64 (pid) ;
+		auto rax = FILETIME () ;
+		_ZERO_ (rax) ;
+		GetProcessTimes (r1x ,&rax ,NULL ,NULL ,NULL) ;
+		wos << VAR64 (rax.dwHighDateTime) ;
+		wos << VAR64 (rax.dwLowDateTime) ;
+	}
+	return std::move (ret) ;
+}
+
+inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+	_DEBUG_ASSERT_ (info.size () == 128) ;
+	auto ris = ByteReader (info) ;
+	return ris.template read<VAR64> () ;
 }
 #elif defined __CSC_SYSTEM_LINUX__
 inline FLAG GlobalRuntime::thread_tid () {
@@ -80,11 +97,23 @@ inline FLAG GlobalRuntime::process_pid () {
 	return FLAG (syscall (SYS_getpid)) ;
 }
 
-inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
-	const auto r1x = getpgid (pid_t (pid)) ;
-	if (r1x < 0)
-		return FALSE ;
-	return TRUE ;
+inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
+	PACK<BYTE[128]> ret ;
+	_ZERO_ (ret) ;
+	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret.P1)) ;
+	if switch_case (TRUE) {
+		const auto r1x = getpgid (pid_t (pid)) ;
+		if (r1x < 0)
+			discard ;
+		wos << VAR64 (pid) ;
+	}
+	return std::move (ret) ;
+}
+
+inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+	_DEBUG_ASSERT_ (info.size () == 128) ;
+	auto ris = ByteReader (info) ;
+	return ris.template read<VAR64> () ;
 }
 #else
 inline FLAG GlobalRuntime::thread_tid () {
@@ -97,9 +126,15 @@ inline FLAG GlobalRuntime::process_pid () {
 	return 0 ;
 }
 
-inline CSC::BOOL GlobalRuntime::process_check (FLAG pid) {
+inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
 	_DYNAMIC_ASSERT_ (FALSE) ;
-	return FALSE ;
+	return PACK<BYTE[128]> () ;
+}
+
+inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+	_DEBUG_ASSERT_ (info.size () == 128) ;
+	_DYNAMIC_ASSERT_ (FALSE) ;
+	return 0 ;
 }
 #endif
 

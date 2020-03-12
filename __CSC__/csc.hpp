@@ -1575,12 +1575,12 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 }
 
 template <class _ARG1>
-inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept ;
+inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept ;
 
 template <class _RET>
-inline FLAG _TYPEUID_ () noexcept {
+inline FLAG _TYPEMID_ () noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return _TYPEUID_ (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
+	return _TYPEMID_ (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 }
 
 template <class _ARG1>
@@ -1656,7 +1656,7 @@ public:
 } ;
 
 template <class _ARG1>
-inline FLAG _TYPEUID_ (const ARGV<_ARG1> &) noexcept {
+inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	//@warn: RTTI might be different across DLL
 	class Storage final :private Interface {} ;
