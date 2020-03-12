@@ -329,7 +329,8 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 				INDEX iy = mClusterSet.insert (ix) ;
 				if (mClusterSet[iy].item.size () == 0)
 					mClusterSet[iy].item = BitSet<> (mDataSet.size ()) ;
-				mClusterSet[iy].item[mDataSet.at (i)] = TRUE ;
+				INDEX jx = mDataSet.at (i) ;
+				mClusterSet[iy].item[jx] = TRUE ;
 			}
 			for (auto &&i : mClusterSet) {
 				if (i.item.length () == 0)

@@ -764,7 +764,7 @@ private:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static constexpr INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
+	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
 		if (std::is_default_constructible<_ARG2>::value)
 			return _ARG1::value ;
 		return default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
