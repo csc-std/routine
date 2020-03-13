@@ -152,6 +152,7 @@ public:
 
 #ifdef __CSC_STRING__
 #include "csc_string.hpp.default.inl"
+#include "csc_string.hpp.gbk.inl"
 #endif
 
 #ifdef __CSC_RUNTIME__

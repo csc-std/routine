@@ -127,6 +127,9 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_math.hpp.fp.inl">
       <Filter>csc</Filter>
     </None>
+    <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.gbk.inl">
+      <Filter>csc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />

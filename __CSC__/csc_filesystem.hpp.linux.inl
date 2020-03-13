@@ -182,7 +182,7 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 	return TRUE ;
 }
 
-inline exports String<STR> _PARSEFILEPATH_ (const String<STR> &file) {
+inline exports String<STR> _PARSEDIRENAME_ (const String<STR> &file) {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 	const auto r1x = file.length () ;
@@ -341,7 +341,7 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 		if (!(r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
 		String<STR> ret = _PARSESTRS_ (rax) ;
-		ret = _PARSEFILEPATH_ (ret) ;
+		ret = _PARSEDIRENAME_ (ret) ;
 		ret += _PCSTR_ ("/") ;
 		return std::move (ret) ;
 	}) ;
@@ -376,26 +376,34 @@ inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
 inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("/") ,_PCSTR_ (".lockdirectory")) ;
-	const auto r2x = _SIZEOF_ (RESULT_OF_TYPE<DEF<decltype (&GlobalRuntime::process_info)> ,ARGVS<FLAG>>) ;
+	const auto r2x = GlobalRuntime::process_pid () ;
+	const auto r3x = GlobalRuntime::process_info (r2x) ;
 	auto fax = TRUE ;
 	if switch_case (fax) {
-		const auto r3x = _FINDFILE_ (r1x) ;
-		if (!r3x)
+		const auto r4x = _FINDFILE_ (r1x) ;
+		if (!r4x)
 			discard ;
-		const auto r4x = _LOADFILE_ (r1x) ;
-		if (r4x.size () != r2x)
+		const auto r5x = _LOADFILE_ (r1x) ;
+		if (r5x.size () != r3x.size ())
 			discard ;
-		const auto r5x = GlobalRuntime::process_info_pid (PhanBuffer<const STRU8>::make (r4x)) ;
-		const auto r6x = GlobalRuntime::process_info (r5x) ;
-		const auto r7x = _MEMCOMPR_ (PTRTOARR[r6x.P1] ,r4x.self ,r2x) ;
-		if (r7x != 0)
+		const auto r6x = GlobalRuntime::process_info_pid (PhanBuffer<const STRU8>::make (r5x)) ;
+		const auto r7x = GlobalRuntime::process_info (r6x) ;
+		_DEBUG_ASSERT_ (r7x.size () == r5x.size ()) ;
+		const auto r8x = _MEMCOMPR_ (r7x.self ,r5x.self ,r5x.size ()) ;
+		if (r8x != 0)
 			discard ;
-		ret = FALSE ;
+		ret = CSC::BOOL (r2x == r6x) ;
 	}
 	if switch_case (fax) {
-		const auto r8x = GlobalRuntime::process_pid () ;
-		const auto r9x = GlobalRuntime::process_info (r8x) ;
-		_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r9x.P1)) ;
+		auto &r9y = _CACHE_ ([&] () {
+			return UniqueRef<String<STR>> ([&] (String<STR> &me) {
+				me = r1x ;
+				_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r3x)) ;
+			} ,[] (String<STR> &me) {
+				_ERASEFILE_ (me) ;
+			}) ;
+		}) ;
+		(void) r9y ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;

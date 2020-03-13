@@ -126,7 +126,7 @@ public:
 
 	inline static FLAG process_pid () ;
 
-	inline static PACK<BYTE[128]> process_info (FLAG pid) ;
+	inline static Buffer<BYTE ,ARGC<128>> process_info (FLAG pid) ;
 
 	inline static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
 

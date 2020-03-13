@@ -1933,6 +1933,27 @@ inline void _EOS_ (TextWriter<_ARG1> &writer) {
 } ;
 
 inline namespace STREAM {
+inline void _SCANS_ (ByteReader &reader) {
+	_STATIC_WARNING_ ("noop") ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline void _SCANS_ (ByteReader &reader ,const _ARG1 &list_one ,const _ARGS &...list_rest) {
+	reader >> list_one ;
+	_SCANS_ (reader ,list_rest...) ;
+}
+
+template <class _ARG1>
+inline void _SCANS_ (TextReader<_ARG1> &reader) {
+	_STATIC_WARNING_ ("noop") ;
+}
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+inline void _SCANS_ (TextReader<_ARG1> &reader ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
+	reader >> list_one ;
+	_SCANS_ (reader ,list_rest...) ;
+}
+
 inline void _PRINTS_ (ByteWriter &writer) {
 	_STATIC_WARNING_ ("noop") ;
 }

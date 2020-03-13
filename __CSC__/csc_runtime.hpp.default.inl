@@ -59,10 +59,9 @@ inline FLAG GlobalRuntime::process_pid () {
 	return FLAG (GetCurrentProcessId ()) ;
 }
 
-inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
-	PACK<BYTE[128]> ret ;
-	_ZERO_ (ret) ;
-	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret.P1)) ;
+inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
+	Buffer<BYTE ,ARGC<128>> ret ;
+	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
@@ -74,12 +73,22 @@ inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
 		if (r1x == NULL)
 			discard ;
 		wos << VAR64 (pid) ;
-		auto rax = FILETIME () ;
-		_ZERO_ (rax) ;
-		GetProcessTimes (r1x ,&rax ,NULL ,NULL ,NULL) ;
-		wos << VAR64 (rax.dwHighDateTime) ;
-		wos << VAR64 (rax.dwLowDateTime) ;
+		wos << _GAP_ ;
+		wos << _PCSTRU8_ ("windows") ;
+		wos << _GAP_ ;
+		wos << VAR64 (r1x.self) ;
+		wos << _GAP_ ;
+		auto rax = ARRAY4<FILETIME> () ;
+		_ZERO_ (rax[0]) ;
+		_ZERO_ (rax[1]) ;
+		_ZERO_ (rax[2]) ;
+		_ZERO_ (rax[3]) ;
+		GetProcessTimes (r1x ,&rax[0] ,&rax[1] ,&rax[2] ,&rax[3]) ;
+		const auto r2x = (VAR64 (rax[0].dwHighDateTime) << 32) | VAR64 (rax[0].dwLowDateTime) ;
+		wos << VAR64 (r2x) ;
+		wos << _GAP_ ;
 	}
+	wos << _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -97,16 +106,26 @@ inline FLAG GlobalRuntime::process_pid () {
 	return FLAG (syscall (SYS_getpid)) ;
 }
 
-inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
-	PACK<BYTE[128]> ret ;
-	_ZERO_ (ret) ;
-	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret.P1)) ;
+inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
+	Buffer<BYTE ,ARGC<128>> ret ;
+	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = getpgid (pid_t (pid)) ;
 		if (r1x < 0)
 			discard ;
 		wos << VAR64 (pid) ;
+		wos << _GAP_ ;
+		wos << _PCSTRU8_ ("linux") ;
+		wos << _GAP_ ;
+		wos << VAR64 (r1x) ;
+		wos << _GAP_ ;
+		const auto r2x = getppid (pid_t (pid)) ;
+		const auto r3x = getsid (pid_t (pid)) ;
+		wos << VAR64 (r2x) ;
+		wos << VAR64 (r3x) ;
+		wos << _GAP_ ;
 	}
+	wos << _EOS_ ;
 	return std::move (ret) ;
 }
 
@@ -126,9 +145,9 @@ inline FLAG GlobalRuntime::process_pid () {
 	return 0 ;
 }
 
-inline PACK<BYTE[128]> GlobalRuntime::process_info (FLAG pid) {
+inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	_DYNAMIC_ASSERT_ (FALSE) ;
-	return PACK<BYTE[128]> () ;
+	return Buffer<BYTE ,ARGC<128>> () ;
 }
 
 inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
