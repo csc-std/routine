@@ -119,10 +119,8 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		wos << _GAP_ ;
 		wos << VAR64 (r1x) ;
 		wos << _GAP_ ;
-		const auto r2x = getppid (pid_t (pid)) ;
-		const auto r3x = getsid (pid_t (pid)) ;
+		const auto r2x = getsid (pid_t (pid)) ;
 		wos << VAR64 (r2x) ;
-		wos << VAR64 (r3x) ;
 		wos << _GAP_ ;
 	}
 	wos << _EOS_ ;
