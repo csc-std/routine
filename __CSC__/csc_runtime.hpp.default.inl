@@ -76,8 +76,6 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		wos << _GAP_ ;
 		wos << _PCSTRU8_ ("windows") ;
 		wos << _GAP_ ;
-		wos << VAR64 (r1x.self) ;
-		wos << _GAP_ ;
 		auto rax = ARRAY4<FILETIME> () ;
 		_ZERO_ (rax[0]) ;
 		_ZERO_ (rax[1]) ;
