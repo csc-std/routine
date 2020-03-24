@@ -243,39 +243,27 @@ public:
 	}
 
 	inline BOOL operator== (const VAR128 &that) const {
-		if (v2i1 != that.v2i1)
-			return FALSE ;
-		if (v2i0 != that.v2i0)
-			return FALSE ;
-		return TRUE ;
+		return equal (that) ;
 	}
 
 	inline BOOL operator!= (const VAR128 &that) const {
-		return !BOOL ((*this) == that) ;
+		return !equal (that) ;
 	}
 
 	inline BOOL operator< (const VAR128 &that) const {
-		const auto r1x = _CAST_<VAR64> (v2i0) ;
-		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		if (r1x < r2x)
-			return TRUE ;
-		if (r1x > r2x)
-			return FALSE ;
-		if (v2i1 >= that.v2i1)
-			return FALSE ;
-		return TRUE ;
+		return BOOL (compr (that) < 0) ;
 	}
 
 	inline BOOL operator>= (const VAR128 &that) const {
-		return !BOOL ((*this) < that) ;
+		return BOOL (compr (that) >= 0) ;
 	}
 
 	inline BOOL operator> (const VAR128 &that) const {
-		return BOOL (that < (*this)) ;
+		return BOOL (compr (that) > 0) ;
 	}
 
 	inline BOOL operator<= (const VAR128 &that) const {
-		return !BOOL ((*this) > that) ;
+		return BOOL (compr (that) <= 0) ;
 	}
 
 	inline VAR128 operator& (const VAR128 &) const = delete ;
@@ -540,6 +528,24 @@ public:
 		VAR128 ret = (*this) ;
 		--(*this) ;
 		return std::move (ret) ;
+	}
+
+private:
+	inline BOOL equal (const VAR128 &that) const {
+		if (v2i1 != that.v2i1)
+			return FALSE ;
+		if (v2i0 != that.v2i0)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	inline FLAG compr (const VAR128 &that) const {
+		const auto r1x = _CAST_<VAR64> (v2i0) ;
+		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
+		const auto r3x = _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+		if (r3x != 0)
+			return r3x ;
+		return _MEMCOMPR_ (PTRTOARR[&v2i1] ,PTRTOARR[&that.v2i1] ,1) ;
 	}
 
 private:
@@ -2689,7 +2695,7 @@ public:
 		_STATIC_ASSERT_ (stl::is_always_base_of<Object ,_ARG1>::value) ;
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Object>::value) ;
 	}
-	
+
 	inline WeakRef<Object> &weak_of_this () override {
 		return mWeakOfThis ;
 	}

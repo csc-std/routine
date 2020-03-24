@@ -87,7 +87,7 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		const auto r1x = _XVALUE_<CHAR> (ret & CHAR (0X00000001)) ;
+		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
 		ret >>= 1 ;
 		if (r1x == 0)
 			continue ;
@@ -116,7 +116,7 @@ inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1y = _inline_MEMCRC32_TABLE_ () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		const auto r2x = _XVALUE_<CHAR> ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
+		const auto r2x = CHAR ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
 		ret = FLAG (r1y.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
 	}
 	ret &= VAR32_MAX ;

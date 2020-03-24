@@ -541,7 +541,7 @@ public:
 		mService = UniqueRef<void> ([&] () {
 			auto rax = WSADATA () ;
 			_ZERO_ (rax) ;
-			const auto r1x = _XVALUE_<WORD> ((WORD (2) << 8) | WORD (2)) ;
+			const auto r1x = WORD ((WORD (2) << 8) | WORD (2)) ;
 			const auto r2x = WSAStartup (r1x ,&rax) ;
 			_DYNAMIC_ASSERT_ (r2x == 0) ;
 		} ,[] () {

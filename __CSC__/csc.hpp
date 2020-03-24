@@ -1723,10 +1723,6 @@ private:
 
 		inline Iterator (Iterator &&) noexcept = default ;
 
-		inline BOOL operator== (const Iterator &that) const {
-			return BOOL (mIndex == that.mIndex) ;
-		}
-
 		inline BOOL operator!= (const Iterator &that) const {
 			return BOOL (mIndex != that.mIndex) ;
 		}

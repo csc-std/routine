@@ -1105,7 +1105,7 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	wos << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		const auto r2x = _XVALUE_<CHAR> (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
+		const auto r2x = CHAR (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
 		auto &r3y = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
@@ -1148,7 +1148,7 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	wos << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,16)) {
-		const auto r2x = _XVALUE_<DATA> (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
+		const auto r2x = DATA (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
 		auto &r3y = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
@@ -1196,10 +1196,10 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 0 ;
-			const auto r2x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
-			const auto r3x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
-			const auto r4x = _XVALUE_<CHAR> ((rbx >> 6) & CHAR (0X3F)) ;
-			const auto r5x = _XVALUE_<CHAR> (rbx & CHAR (0X3F)) ;
+			const auto r2x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r3x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
+			const auto r4x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
+			const auto r5x = CHAR (rbx & CHAR (0X3F)) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r2x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r3x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r4x)]) ;
@@ -1216,8 +1216,8 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR (rbx << 16) ;
-			const auto r6x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
-			const auto r7x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
+			const auto r6x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r7x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r6x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r7x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[64]) ;
@@ -1227,9 +1227,9 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR (rbx << 8) ;
-			const auto r8x = _XVALUE_<CHAR> ((rbx >> 18) & CHAR (0X3F)) ;
-			const auto r9x = _XVALUE_<CHAR> ((rbx >> 12) & CHAR (0X3F)) ;
-			const auto r10x = _XVALUE_<CHAR> ((rbx >> 6) & CHAR (0X3F)) ;
+			const auto r8x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
+			const auto r9x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
+			const auto r10x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r8x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r9x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;

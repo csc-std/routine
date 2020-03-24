@@ -25,10 +25,6 @@ public:
 	inline ArrayIterator (ArrayIterator &&) noexcept = default ;
 	inline ArrayIterator &operator= (ArrayIterator &&) = delete ;
 
-	inline BOOL operator== (const ArrayIterator &that) const {
-		return BOOL (mIndex == that.mIndex) ;
-	}
-
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
 	}
@@ -2441,8 +2437,8 @@ private:
 		inline explicit operator BOOL () const & = delete ;
 
 		inline implicit operator BOOL () && {
-			const auto r1x = _XVALUE_<BYTE> (BYTE (0X01) << (mIndex % 8)) ;
-			const auto r2x = _XVALUE_<BYTE> (mBase.mSet[mIndex / 8] & r1x) ;
+			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+			const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
 			if (r2x == 0)
 				return FALSE ;
 			return TRUE ;
@@ -2475,7 +2471,7 @@ private:
 #endif
 
 		inline void operator= (const BOOL &that) && {
-			const auto r1x = _XVALUE_<BYTE> (BYTE (0X01) << (mIndex % 8)) ;
+			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
 			auto fax = TRUE ;
 			if switch_case (fax) {
 				if (!that)
@@ -2545,8 +2541,8 @@ public:
 		if switch_case (TRUE) {
 			if (mWidth % 8 == 0)
 				discard ;
-			const auto r1x = _XVALUE_<BYTE> (BYTE (0X01) << (mWidth % 8)) ;
-			const auto r2x = _XVALUE_<BYTE> (mSet[mWidth / 8] & ~BYTE (INDEX (r1x) - 1)) ;
+			const auto r1x = BYTE (BYTE (0X01) << (mWidth % 8)) ;
+			const auto r2x = BYTE (mSet[mWidth / 8] & ~BYTE (INDEX (r1x) - 1)) ;
 			ret -= M_LENGTH.P1[INDEX (r2x)] ;
 		}
 		return std::move (ret) ;
@@ -2645,8 +2641,8 @@ public:
 		for (auto &&i : _RANGE_ (0 ,ix))
 			if (mSet[i] != that.mSet[i])
 				return FALSE ;
-		const auto r1x = _XVALUE_<BYTE> (mSet[ix] & (mWidth % 8 - 1)) ;
-		const auto r2x = _XVALUE_<BYTE> (that.mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r1x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r2x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -2668,8 +2664,8 @@ public:
 		const auto r1x = _MEMCOMPR_ (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r2x = _XVALUE_<BYTE> (mSet[ix] & (mWidth % 8 - 1)) ;
-		const auto r3x = _XVALUE_<BYTE> (that.mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r2x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r3x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
 		return _MEMCOMPR_ (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;
 	}
 
