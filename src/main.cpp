@@ -44,6 +44,10 @@ exports int main () noexcept popping {
 #include "csc_math.hpp.default.inl"
 #endif
 
+#ifdef __CSC_FUNCTIONAL__
+#include "csc_functional.hpp.op.inl"
+#endif
+
 #ifdef __CSC_IMAGES__
 #ifdef __CSC_PLATFORM_X64__
 #ifdef __CSC_COMPILER_MSVC__

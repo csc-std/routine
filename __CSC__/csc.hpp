@@ -1787,7 +1787,7 @@ public:
 	inline explicit Plain (_ARG1 &) = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_full_array_of<REAL ,_ARG1>::value>>
-	inline explicit Plain (const _ARG1 &that) noexcept :Plain (_CAST_<REAL[_COUNTOF_ (_ARG1)]> (that)) {}
+	inline explicit Plain (const _ARG1 &text) noexcept :Plain (_CAST_<REAL[_COUNTOF_ (_ARG1)]> (text)) {}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept :Plain (Detail::cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
