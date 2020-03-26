@@ -527,33 +527,41 @@ struct ARGC {
 	} ;
 } ;
 
+using ZERO = ARGC<0> ;
+
+template <class _ARG1>
+using INCREASE = ARGC<_ARG1::value + 1> ;
+
+template <class _ARG1>
+using DECREASE = ARGC<_ARG1::value - 1> ;
+
 template <class>
 struct ARGV {} ;
 
 template <class...>
 struct ARGVS ;
 
-template <VAR>
+template <class>
 struct ARGVP ;
 
 template <>
-struct ARGV<ARGVP<0>> {} ;
+struct ARGV<ARGVP<ZERO>> {} ;
 
-template <VAR _VAL1>
-struct ARGV<ARGVP<_VAL1>> :public ARGV<ARGVP<_VAL1 - 1>> {
-	_STATIC_ASSERT_ (_VAL1 > 0) ;
+template <class _ARG1>
+struct ARGV<ARGVP<_ARG1>> :public ARGV<ARGVP<DECREASE<_ARG1>>> {
+	_STATIC_ASSERT_ (_ARG1::value > 0) ;
 } ;
 
-static constexpr auto ARGVP0 = ARGV<ARGVP<0>> {} ;
-static constexpr auto ARGVP1 = ARGV<ARGVP<1>> {} ;
-static constexpr auto ARGVP2 = ARGV<ARGVP<2>> {} ;
-static constexpr auto ARGVP3 = ARGV<ARGVP<3>> {} ;
-static constexpr auto ARGVP4 = ARGV<ARGVP<4>> {} ;
-static constexpr auto ARGVP5 = ARGV<ARGVP<5>> {} ;
-static constexpr auto ARGVP6 = ARGV<ARGVP<6>> {} ;
-static constexpr auto ARGVP7 = ARGV<ARGVP<7>> {} ;
-static constexpr auto ARGVP8 = ARGV<ARGVP<8>> {} ;
-static constexpr auto ARGVP9 = ARGV<ARGVP<9>> {} ;
+static constexpr auto ARGVP0 = ARGV<ARGVP<ZERO>> {} ;
+static constexpr auto ARGVP1 = ARGV<ARGVP<ARGC<1>>> {} ;
+static constexpr auto ARGVP2 = ARGV<ARGVP<ARGC<2>>> {} ;
+static constexpr auto ARGVP3 = ARGV<ARGVP<ARGC<3>>> {} ;
+static constexpr auto ARGVP4 = ARGV<ARGVP<ARGC<4>>> {} ;
+static constexpr auto ARGVP5 = ARGV<ARGVP<ARGC<5>>> {} ;
+static constexpr auto ARGVP6 = ARGV<ARGVP<ARGC<6>>> {} ;
+static constexpr auto ARGVP7 = ARGV<ARGVP<ARGC<7>>> {} ;
+static constexpr auto ARGVP8 = ARGV<ARGVP<ARGC<8>>> {} ;
+static constexpr auto ARGVP9 = ARGV<ARGVP<ARGC<9>>> {} ;
 
 static constexpr auto ARGVPX = ARGV<VOID> {} ;
 static constexpr auto ARGVPY = ARGV<NONE> {} ;
@@ -861,7 +869,7 @@ struct COUNTOF_TRAITS ;
 
 template <class _ARG1>
 struct COUNTOF_TRAITS<ARR<_ARG1>> {
-	using TYPE = ARGC<0> ;
+	using TYPE = ZERO ;
 } ;
 
 template <class _ARG1 ,LENGTH _VAL1>
@@ -1222,11 +1230,11 @@ struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
-	using TYPE = typename INDEX_OF<ARGC<_ARG1::value + 1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = typename INDEX_OF<INCREASE<_ARG1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = typename INDEX_OF<ARGC<0> ,_ARG1 ,_ARG2>::TYPE ;
+using INDEX_OF_TYPE = typename INDEX_OF<ZERO ,_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -1234,14 +1242,19 @@ template <class ,class>
 struct INDEX_TO ;
 
 template <class _ARG1 ,class... _ARGS>
-struct INDEX_TO<ARGC<0> ,ARGVS<_ARG1 ,_ARGS...>> {
+struct INDEX_TO<ZERO ,ARGVS<_ARG1 ,_ARGS...>> {
+	using TYPE = _ARG1 ;
+} ;
+
+template <class _ARG1>
+struct INDEX_TO<_ARG1 ,ARGVS<>> {
+	//@warn: bad index_to
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
-	_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0) ;
-	using TYPE = typename INDEX_TO<ARGC<_ARG1::value - 1> ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = typename INDEX_TO<DECREASE<_ARG1> ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1588,16 +1601,24 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 	return expr ;
 }
 
-template <class _ARG1>
-inline constexpr _ARG1 _SWITCH_ (_ARG1 &&expr) {
-	return std::forward<_ARG1> (expr) ;
-}
+//@error: fuck gcc
+template <class TYPE>
+struct FIX_GCC_CONSTEXPR_1 {
+	inline static constexpr TYPE case1 (const TYPE &val) {
+		return -val ;
+	}
+
+	inline static constexpr TYPE case2 (const TYPE &val) {
+		return +val ;
+	}
+} ;
 
 template <class _ARG1>
 inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
 	return _SWITCH_ (
-		(val < 0) ? -val :
-		+val) ;
+		(val < 0) ? FIX_GCC_CONSTEXPR_1<_ARG1>::case1 :
+		FIX_GCC_CONSTEXPR_1<_ARG1>::case2)
+		(val) ;
 }
 
 template <class _ARG1>
@@ -1707,7 +1728,7 @@ template <class SIZE>
 class ArrayRange ;
 
 template <>
-class ArrayRange<ARGC<0>> final {
+class ArrayRange<ZERO> final {
 private:
 	template <class BASE>
 	class Iterator {
@@ -1758,9 +1779,20 @@ public:
 	}
 } ;
 
-inline ArrayRange<ARGC<0>> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
-	return ArrayRange<ARGC<0>> (ibegin_ ,iend_) ;
+inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
+	return ArrayRange<ZERO> (ibegin_ ,iend_) ;
 }
+
+namespace U {
+inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
+	return 1 ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+	return _COUNTOF_ (_ARG1) - 1 + constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+}
+} ;
 
 template <class REAL>
 class Plain final {
@@ -1814,24 +1846,16 @@ private:
 
 			template <class... _ARGS>
 			inline explicit PlainString (const _ARGS &...text) noexcept {
-				template_write (mString ,_NULL_<ARGV<ARGC<0>>> () ,text...) ;
+				template_write (mString ,_NULL_<ARGV<ZERO>> () ,text...) ;
 			}
 		} ;
 
-		inline static constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
-			return 1 ;
-		}
-
-		template <class _ARG1 ,class... _ARGS>
-		inline static constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-			return _COUNTOF_ (_ARG1) - 1 + constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
-		}
-
 		template <class... _ARGS>
-		using PLAIN_STRING_SIZE = ARGC<constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
+		using PLAIN_STRING_SIZE = ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
+		inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
+			->DEF<const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &> {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (text...) ;
 			auto &r2y = _CACHE_ ([r1x] () noexcept {
 				return r1x ;
@@ -1853,7 +1877,8 @@ private:
 			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
 			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
 				array_[i + _ARG2::value] = REAL (text_one[i]) ;
-			template_write (array_ ,_NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1>>> () ,text_rest...) ;
+			using REST_SIZE = ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> ;
+			template_write (array_ ,_NULL_<ARGV<REST_SIZE>> () ,text_rest...) ;
 		}
 	} ;
 } ;

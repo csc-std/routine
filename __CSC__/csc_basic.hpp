@@ -1719,7 +1719,7 @@ public:
 template <class ,class>
 class Buffer ;
 
-using SFLEX = ARGC<0> ;
+using SFLEX = ZERO ;
 using SFIXED = ARGC<-1> ;
 using SAUTO = ARGC<-2> ;
 using SCPHAN = ARGC<-4> ;
@@ -2418,9 +2418,9 @@ public:
 		return Buffer (&src ,len) ;
 	}
 
-	template <LENGTH _VAL1>
-	inline static Buffer make (const DEF<UNIT[_VAL1]> &val) popping {
-		return make (PTRTOARR[val] ,_VAL1) ;
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_full_array_of<UNIT ,_ARG1>::value>>
+	inline static Buffer make (const _ARG1 &val) popping {
+		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
@@ -2590,9 +2590,9 @@ public:
 		return Buffer (&src ,len) ;
 	}
 
-	template <LENGTH _VAL1>
-	inline static Buffer make (DEF<UNIT[_VAL1]> &val) popping {
-		return make (PTRTOARR[val] ,_VAL1) ;
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_full_array_of<UNIT ,_ARG1>::value>>
+	inline static Buffer make (_ARG1 &val) popping {
+		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>

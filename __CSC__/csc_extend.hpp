@@ -734,27 +734,29 @@ private:
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
+namespace U {
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
+	return 1 ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+	return _MAX_ (_SIZEOF_ (_ARG1) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
+}
+
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
+	return 1 ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+	return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
+}
+} ;
+
 template <class... UNITS>
 class Variant {
 private:
-	inline static constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
-		return 1 ;
-	}
-
-	template <class _ARG1 ,class... _ARGS>
-	inline static constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-		return _MAX_ (_SIZEOF_ (_ARG1) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
-	}
-
-	inline static constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
-		return 1 ;
-	}
-
-	template <class _ARG1 ,class... _ARGS>
-	inline static constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-		return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
-	}
-
 	//@error: g++4.8 is too useless to use constexpr value in alignas expression
 	template <LENGTH ALIGN ,LENGTH SIZE>
 	struct ALIGNED_UNION {
@@ -762,7 +764,7 @@ private:
 	} ;
 
 	//@error: 'std::aligned_union' is not avaliable in g++4.8
-	using VARIANT = ALIGNED_UNION<constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
+	using VARIANT = ALIGNED_UNION<U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
 
 	template <class _ARG1>
 	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
@@ -773,10 +775,10 @@ private:
 	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
 		if (std::is_default_constructible<_ARG2>::value)
 			return _ARG1::value ;
-		return default_constructible_index (_NULL_<ARGV<ARGC<_ARG1::value + 1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
-	using OPTIONAL_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+	using OPTIONAL_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
@@ -787,7 +789,7 @@ private:
 
 public:
 	inline Variant () :Variant (ARGVP0) {
-		const auto r1x = default_constructible_index (_NULL_<ARGV<ARGC<0>>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		const auto r1x = default_constructible_index (_NULL_<ARGV<ZERO>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		Detail::template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = r1x ;
 	}
@@ -796,7 +798,8 @@ public:
 	inline implicit Variant (_ARG1 &&that) :Variant (ARGVP0) {
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1y = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
-		Detail::template_create (_NULL_<ARGV<ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ,&r1y ,std::forward<_ARG1> (that)) ;
+		using CREATE_FLAG = ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value> ;
+		Detail::template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r1y ,std::forward<_ARG1> (that)) ;
 		mIndex = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value ;
 	}
 
@@ -923,7 +926,8 @@ private:
 				if (!r1x)
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
-				template_create (_NULL_<ARGV<ARGC<std::is_default_constructible<_ARG1>::value>>> () ,&r2y) ;
+				using CREATE_FLAG = ARGC<std::is_default_constructible<_ARG1>::value> ;
+				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2y) ;
 			}
 			if (r1x)
 				return ;
@@ -963,7 +967,8 @@ private:
 					discard ;
 				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
 				auto &r3y = _LOAD_<TEMP<_ARG1>> (that) ;
-				template_create (_NULL_<ARGV<ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value>>> () ,&r2y ,std::move (_CAST_<_ARG1> (r3y))) ;
+				using CREATE_FLAG = ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value> ;
+				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2y ,std::move (_CAST_<_ARG1> (r3y))) ;
 			}
 			if (r1x)
 				return ;
@@ -1118,18 +1123,20 @@ public:
 
 	inline Tuple<UNITS...> &rest () && = delete ;
 
-	template <class _RET>
-	inline INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () & {
-		return Detail::template_pick ((*this) ,_NULL_<ARGV<_RET>> ()) ;
+	template <class _ARG1>
+	inline auto pick (const ARGV<ARGVP<_ARG1>> &) &
+		->DEF<INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
+		return Detail::template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
-	template <class _RET>
-	inline constexpr const INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () const & {
-		return Detail::template_pick ((*this) ,_NULL_<ARGV<_RET>> ()) ;
+	template <class _ARG1>
+	inline constexpr auto pick (const ARGV<ARGVP<_ARG1>> &) const &
+		->DEF<const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
+		return Detail::template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
-	template <class _RET>
-	inline INDEX_TO_TYPE<_RET ,ARGVS<UNIT1 ,UNITS...>> &pick () && = delete ;
+	template <class _ARG1>
+	inline void pick (const ARGV<ARGVP<_ARG1>> &) && = delete ;
 
 	inline BOOL equal (const Tuple &that) const {
 		if (one () != that.one ())
@@ -1172,24 +1179,26 @@ public:
 
 private:
 	struct Detail {
-		inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ARGC<0>> &) {
+		inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ZERO> &) {
 			return self_.one () ;
 		}
 
 		template <class _ARG1>
-		inline static INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (Tuple &self_ ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+		inline static auto template_pick (Tuple &self_ ,const ARGV<_ARG1> &)
+			->INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (UNITS)) ;
+			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 		}
 
-		inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ARGC<0>> &) {
+		inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ZERO> &) {
 			return self_.one () ;
 		}
 
 		template <class _ARG1>
-		inline static constexpr const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const Tuple &self_ ,const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) < 1 + _CAPACITYOF_ (UNITS)) ;
-			return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<ARGC<_ARG1::value - 1>>> ()) ;
+		inline static constexpr auto template_pick (const Tuple &self_ ,const ARGV<_ARG1> &)
+			->const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (UNITS)) ;
+			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 		}
 	} ;
 } ;
@@ -1251,7 +1260,7 @@ class AnyOfTuple ;
 template <class... UNITS>
 class AllOfTuple final :private TupleBinder<const UNITS...> {
 private:
-	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
@@ -1389,7 +1398,7 @@ private:
 template <class... UNITS>
 class AnyOfTuple final :private TupleBinder<const UNITS...> {
 private:
-	using WRAPPED_TYPE = INDEX_TO_TYPE<ARGC<0> ,ARGVS<UNITS...>> ;
+	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;

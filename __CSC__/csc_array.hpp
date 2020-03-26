@@ -278,26 +278,27 @@ using ARRAY15 = Array<ITEM ,ARGC<15>> ;
 template <class ITEM>
 using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
+namespace U {
+inline constexpr LENGTH constexpr_reserve_size (LENGTH len) {
+	return len + EFLAG (len > 0) ;
+}
+} ;
+
 template <class ITEM ,class SIZE = SAUTO>
 class String ;
 
 template <class ITEM ,class SIZE>
 class String {
 private:
-	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return len + EFLAG (len > 0) ;
-	}
-
-private:
 	struct Detail ;
-	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mString ;
+	Buffer<ITEM ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mString ;
 
 public:
 	String () {
 		clear () ;
 	}
 
-	explicit String (LENGTH len) :String (ARGVP0 ,constexpr_size (len)) {
+	explicit String (LENGTH len) :String (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
 
@@ -587,12 +588,7 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return len + EFLAG (len > 0) ;
-	}
-
-private:
-	Buffer<ITEM ,ARGC<constexpr_size (SIZE::value)>> mDeque ;
+	Buffer<ITEM ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -601,7 +597,7 @@ public:
 		clear () ;
 	}
 
-	explicit Deque (LENGTH len) :Deque (ARGVP0 ,constexpr_size (len)) {
+	explicit Deque (LENGTH len) :Deque (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
 
@@ -1005,13 +1001,9 @@ private:
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return len + EFLAG (len > 0) ;
-	}
-
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Node ,ARGC<constexpr_size (SIZE::value)>> mPriority ;
+	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -1020,7 +1012,7 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		spec.clear () ;
 	}
 
@@ -1142,13 +1134,9 @@ private:
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
 
-	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return len + EFLAG (len > 0) ;
-	}
-
 private:
 	friend SPECIALIZATION_TYPE ;
-	Buffer<Node ,ARGC<constexpr_size (SIZE::value)>> mPriority ;
+	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -1157,7 +1145,7 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,constexpr_size (len)) {
+	explicit Priority (LENGTH len) :Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		spec.clear () ;
 	}
 
@@ -2408,18 +2396,33 @@ private:
 	}
 } ;
 
+//@error: fuck gcc again
+template <class _ARG1>
+struct FIX_GCC_FORWARD_CONSTEXPR_2 {
+	inline static constexpr _ARG1 case1 (const _ARG1 &len) {
+		return len ;
+	}
+
+	inline static constexpr _ARG1 case2 (const _ARG1 &len) {
+		return (len + 7) / 8 ;
+	}
+} ;
+
+namespace U {
+inline constexpr LENGTH constexpr_ceil8_size (LENGTH len) {
+	return _SWITCH_ (
+		(len <= 0) ? FIX_GCC_FORWARD_CONSTEXPR_2<LENGTH>::case1 :
+		FIX_GCC_FORWARD_CONSTEXPR_2<LENGTH>::case2)
+		(len) ;
+}
+} ;
+
 template <class SIZE = SAUTO>
 class BitSet ;
 
 template <class SIZE>
 class BitSet {
 private:
-	inline static constexpr LENGTH constexpr_size (LENGTH len) {
-		return _SWITCH_ (
-			(len <= 0) ? len :
-			(len + 7) / 8) ;
-	}
-
 	template <class BASE>
 	class Bit final {
 	private:
@@ -2499,7 +2502,7 @@ private:
 
 private:
 	struct Detail ;
-	Buffer<BYTE ,ARGC<constexpr_size (SIZE::value)>> mSet ;
+	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
 public:
@@ -2507,7 +2510,7 @@ public:
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,constexpr_size (len) ,Detail::forward_width (len)) {
+	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,Detail::forward_width (len)) {
 		clear () ;
 	}
 
