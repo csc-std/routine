@@ -495,7 +495,6 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		}
 
 		inline void update_lack_weight (INDEX y) {
-			_STATIC_WARNING_ ("note") ;
 			/*
 			*	inline void update_lack_weight_e0 (INDEX y) {
 			*		//@info: $0

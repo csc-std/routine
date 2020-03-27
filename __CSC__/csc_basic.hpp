@@ -1833,7 +1833,6 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -1983,13 +1982,11 @@ public:
 	}
 
 	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
 	}
 
 	inline void swap (Buffer<UNIT ,SAUTO> &that) popping {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
@@ -2395,7 +2392,6 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -2567,7 +2563,6 @@ public:
 	}
 
 	inline Buffer expand (LENGTH len) const {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -3059,7 +3054,6 @@ public:
 			mLength++ ;
 			return r2x ;
 		}
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 		return VAR_NONE ;
 	}

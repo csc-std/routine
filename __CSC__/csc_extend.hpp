@@ -1003,7 +1003,6 @@ private:
 
 		template <class _ARG1 ,class... _ARGS>
 		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	} ;
@@ -2817,7 +2816,6 @@ private:
 template <class UNIT ,class CONT>
 inline void Serializer<UNIT ,CONT>::Binder::compute_visit (UNIT &visitor ,CONT &context_) const {
 	//@error: g++4.8 is too useless to compile with a function-local-type
-	_STATIC_WARNING_ ("unexpected") ;
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif

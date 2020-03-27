@@ -402,7 +402,6 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 }
 
 inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
-	_STATIC_WARNING_ ("note") ;
 	/*
 	*	1 bytes [0,0X7F] 0xxxxxxx
 	*	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -496,7 +495,6 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 }
 
 inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
-	_STATIC_WARNING_ ("note") ;
 	/*
 	*	1 bytes [0,0X7F] 0xxxxxxx
 	*	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -580,7 +578,6 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 }
 
 inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
-	_STATIC_WARNING_ ("note") ;
 	/*
 	*	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	*	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx
@@ -635,7 +632,6 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 }
 
 inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
-	_STATIC_WARNING_ ("note") ;
 	/*
 	*	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	*	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx

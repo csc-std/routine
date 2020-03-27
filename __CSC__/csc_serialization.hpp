@@ -463,7 +463,6 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
-			_STATIC_WARNING_ ("note") ;
 			/*
 			*	$0->$8 $7 $9
 			*	$1->${identity}
@@ -1426,7 +1425,6 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
-			_STATIC_WARNING_ ("note") ;
 			/*
 			*	$0->$11 $10 $12
 			*	$1->${value}
@@ -1493,7 +1491,6 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				mLatestString = _PCSTRU8_ ("FALSE") ;
 			}
 			if switch_case (fax) {
-				_STATIC_WARNING_ ("unexpected") ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 		}
@@ -1572,7 +1569,6 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 				ix = mLatestIndex ;
 			}
 			if switch_case (fax) {
-				_STATIC_WARNING_ ("unexpected") ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 			}
 			mLatestIndex = ix ;
@@ -1870,7 +1866,6 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		}
 
 		inline void generate () {
-			_STATIC_WARNING_ ("note") ;
 			/*
 			*	$0->$8 $7 $9
 			*	$1->${identity}

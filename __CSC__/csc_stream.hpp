@@ -879,7 +879,6 @@ public:
 			data = FALSE ;
 		}
 		if switch_case (fax) {
-			_STATIC_WARNING_ ("unexpected") ;
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	}
@@ -994,7 +993,6 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Array<_ARG1 ,_ARG2> &data) popping {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
@@ -1503,7 +1501,6 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const Array<_ARG1 ,_ARG2> &data) {
-		_STATIC_WARNING_ ("unexpected") ;
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
