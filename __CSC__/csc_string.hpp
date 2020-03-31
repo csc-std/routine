@@ -39,185 +39,182 @@ inline imports DEF<String<STRA> (const String<STRW> &val)> _WSTOAS_ ;
 
 namespace U {
 template <class ,class>
-struct STRING_TRAITS ;
+struct OPERATOR_STRING ;
 
 template <>
-struct STRING_TRAITS<STRU8 ,STRU8> {
+struct OPERATOR_STRING<STRU8 ,STRU8> {
 	inline static String<STRU8> invoke (const String<STRU8> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU16 ,STRU16> {
+struct OPERATOR_STRING<STRU16 ,STRU16> {
 	inline static String<STRU16> invoke (const String<STRU16> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU32 ,STRU32> {
+struct OPERATOR_STRING<STRU32 ,STRU32> {
 	inline static String<STRU32> invoke (const String<STRU32> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRA ,STRA> {
+struct OPERATOR_STRING<STRA ,STRA> {
 	inline static String<STRA> invoke (const String<STRA> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRW ,STRW> {
+struct OPERATOR_STRING<STRW ,STRW> {
 	inline static String<STRW> invoke (const String<STRW> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU8 ,STRU16> {
+struct OPERATOR_STRING<STRU8 ,STRU16> {
 	inline static String<STRU8> invoke (const String<STRU16> &val) {
 		return _U16STOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU16 ,STRU8> {
+struct OPERATOR_STRING<STRU16 ,STRU8> {
 	inline static String<STRU16> invoke (const String<STRU8> &val) {
 		return _U8STOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU8 ,STRU32> {
+struct OPERATOR_STRING<STRU8 ,STRU32> {
 	inline static String<STRU8> invoke (const String<STRU32> &val) {
 		return _U32STOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU32 ,STRU8> {
+struct OPERATOR_STRING<STRU32 ,STRU8> {
 	inline static String<STRU32> invoke (const String<STRU8> &val) {
 		return _U8STOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU16 ,STRU32> {
+struct OPERATOR_STRING<STRU16 ,STRU32> {
 	inline static String<STRU16> invoke (const String<STRU32> &val) {
 		return _U32STOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU32 ,STRU16> {
+struct OPERATOR_STRING<STRU32 ,STRU16> {
 	inline static String<STRU32> invoke (const String<STRU16> &val) {
 		return _U16STOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU8 ,STRW> {
+struct OPERATOR_STRING<STRU8 ,STRW> {
 	inline static String<STRU8> invoke (const String<STRW> &val) {
 		return _WSTOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRW ,STRU8> {
+struct OPERATOR_STRING<STRW ,STRU8> {
 	inline static String<STRW> invoke (const String<STRU8> &val) {
 		return _U8STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU16 ,STRW> {
+struct OPERATOR_STRING<STRU16 ,STRW> {
 	inline static String<STRU16> invoke (const String<STRW> &val) {
 		return _WSTOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRW ,STRU16> {
+struct OPERATOR_STRING<STRW ,STRU16> {
 	inline static String<STRW> invoke (const String<STRU16> &val) {
 		return _U16STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU32 ,STRW> {
+struct OPERATOR_STRING<STRU32 ,STRW> {
 	inline static String<STRU32> invoke (const String<STRW> &val) {
 		return _WSTOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRW ,STRU32> {
+struct OPERATOR_STRING<STRW ,STRU32> {
 	inline static String<STRW> invoke (const String<STRU32> &val) {
 		return _U32STOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRW ,STRA> {
+struct OPERATOR_STRING<STRW ,STRA> {
 	inline static String<STRW> invoke (const String<STRA> &val) {
 		return _ASTOWS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRA ,STRW> {
+struct OPERATOR_STRING<STRA ,STRW> {
 	inline static String<STRA> invoke (const String<STRW> &val) {
 		return _WSTOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU8 ,STRA> {
+struct OPERATOR_STRING<STRU8 ,STRA> {
 	inline static String<STRU8> invoke (const String<STRA> &val) {
 		return _ASTOU8S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRA ,STRU8> {
+struct OPERATOR_STRING<STRA ,STRU8> {
 	inline static String<STRA> invoke (const String<STRU8> &val) {
 		return _U8STOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU16 ,STRA> {
+struct OPERATOR_STRING<STRU16 ,STRA> {
 	inline static String<STRU16> invoke (const String<STRA> &val) {
 		return _ASTOU16S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRA ,STRU16> {
+struct OPERATOR_STRING<STRA ,STRU16> {
 	inline static String<STRA> invoke (const String<STRU16> &val) {
 		return _U16STOAS_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRU32 ,STRA> {
+struct OPERATOR_STRING<STRU32 ,STRA> {
 	inline static String<STRU32> invoke (const String<STRA> &val) {
 		return _ASTOU32S_ (val) ;
 	}
 } ;
 
 template <>
-struct STRING_TRAITS<STRA ,STRU32> {
+struct OPERATOR_STRING<STRA ,STRU32> {
 	inline static String<STRA> invoke (const String<STRU32> &val) {
 		return _U32STOAS_ (val) ;
 	}
 } ;
-
-template <class _ARG1 ,class _ARG2>
-using STRING_TRAITS_HELP = STRING_TRAITS<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2>> ;
 } ;
 
 inline namespace STRING {
@@ -676,29 +673,29 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 }
 
 inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) {
-	return U::STRING_TRAITS_HELP<STRU8 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::OPERATOR_STRING<STRU8 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
-	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU8>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU8>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
 inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) {
-	return U::STRING_TRAITS_HELP<STRU16 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::OPERATOR_STRING<STRU16 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
-	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU16>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU16>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
 inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) {
-	return U::STRING_TRAITS_HELP<STRU32 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
+	return U::OPERATOR_STRING<STRU32 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
 inline String<STRW> _U32STOWS_ (const String<STRU32> &val) {
-	String<STRUW> ret = U::STRING_TRAITS_HELP<STRUW ,STRU32>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU32>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
@@ -1027,13 +1024,13 @@ inline String<_RET> _BUILDVALS_ (const VAL &stru) {
 
 template <class _ARG1>
 inline String<STR> _PARSESTRS_ (const String<_ARG1> &stri) {
-	return U::STRING_TRAITS_HELP<STR ,_ARG1>::invoke (stri) ;
+	return U::OPERATOR_STRING<STR ,REMOVE_CVR_TYPE<_ARG1>>::invoke (stri) ;
 }
 
 template <class _RET = STR>
 inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return U::STRING_TRAITS_HELP<_RET ,STR>::invoke (stru) ;
+	return U::OPERATOR_STRING<REMOVE_CVR_TYPE<_RET> ,STR>::invoke (stru) ;
 }
 } ;
 

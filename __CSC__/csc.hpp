@@ -394,8 +394,8 @@ enum EFLAG :VAR ;
 
 #define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
 #define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
-#define _CAPACITYOF_(...) CSC::LENGTH (sizeof... (_UNW_ (__VA_ARGS__)))
-#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNTOF_TRAITS_TYPE<_UNW_ (__VA_ARGS__)>::value)
+#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNT_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
+#define _CAPACITYOF_(...) CSC::LENGTH (CSC::U::CAPACITY_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
 
 using VAL32 = float ;
 using VAL64 = double ;
@@ -864,21 +864,58 @@ using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<REMOVE_POINTER_TYPE<_A
 } ;
 
 namespace U {
+template <class ,class ,class>
+struct REPEAT_OF ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REPEAT_OF<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
+	using TYPE = ARGVS<_ARGS...> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct REPEAT_OF<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
+	_STATIC_ASSERT_ (_ARG1::value > 0) ;
+	using TYPE = typename REPEAT_OF<DECREASE<_ARG1> ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using REPEAT_OF_TYPE = typename REPEAT_OF<_ARG1 ,_ARG2 ,ARGVS<>>::TYPE ;
+} ;
+
+namespace U {
 template <class>
-struct COUNTOF_TRAITS ;
+struct COUNT_OF ;
 
 template <class _ARG1>
-struct COUNTOF_TRAITS<ARR<_ARG1>> {
+struct COUNT_OF<ARR<_ARG1>> {
 	using TYPE = ZERO ;
 } ;
 
 template <class _ARG1 ,LENGTH _VAL1>
-struct COUNTOF_TRAITS<_ARG1[_VAL1]> {
+struct COUNT_OF<_ARG1[_VAL1]> {
 	using TYPE = ARGC<_VAL1> ;
 } ;
 
 template <class _ARG1>
-using COUNTOF_TRAITS_TYPE = typename COUNTOF_TRAITS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using COUNT_OF_TYPE = typename COUNT_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct CAPACITY_OF ;
+
+template <>
+struct CAPACITY_OF<ARGVS<>> {
+	using TYPE = ZERO ;
+} ;
+
+template <class... _ARGS>
+struct CAPACITY_OF<ARGVS<_ARGS...>> {
+	using TYPE = ARGC<sizeof... (_ARGS)> ;
+} ;
+
+template <class _ARG1>
+using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1263,32 +1300,32 @@ using INDEX_TO_TYPE = typename INDEX_TO<_ARG1 ,_ARG2>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct IS_COMPLETE_TYPE {
+struct IS_COMPLETE {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1>
-struct IS_COMPLETE_TYPE<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> {
+struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-using IS_COMPLETE_HELP = typename IS_COMPLETE_TYPE<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class ,class>
-struct IS_INTERFACE_TYPE {
+struct IS_INTERFACE {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_INTERFACE_TYPE<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> {
+struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> {
 	using TYPE = ARGC<stl::is_base_of<_ARG2 ,_ARG1>::value> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_INTERFACE_HELP = typename IS_INTERFACE_TYPE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
 } ;
 
 namespace U {
@@ -1358,17 +1395,17 @@ using IS_ANY_SAME_HELP = typename IS_ANY_SAME<_ARGS...>::TYPE ;
 
 namespace U {
 template <class>
-struct IS_TEMPLATE_TYPE {
+struct IS_TEMPLATE {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <template <class...> class _ARGT ,class... _ARGS>
-struct IS_TEMPLATE_TYPE<_ARGT<_ARGS...>> {
+struct IS_TEMPLATE<_ARGT<_ARGS...>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-using IS_TEMPLATE_HELP = typename IS_TEMPLATE_TYPE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using IS_TEMPLATE_HELP = typename IS_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1413,6 +1450,7 @@ using U::MEMPTR_CLASS_TYPE ;
 using U::INVOKE_RESULT_TYPE ;
 using U::INVOKE_PARAMS_TYPE ;
 using U::RESULT_OF_TYPE ;
+using U::REPEAT_OF_TYPE ;
 using U::FORWARD_TRAITS_TYPE ;
 using U::CAST_TRAITS_TYPE ;
 using U::INDEX_OF_TYPE ;

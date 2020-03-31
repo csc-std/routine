@@ -781,7 +781,7 @@ private:
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 	struct Detail ;
 	TEMP<VARIANT> mVariant ;
@@ -860,7 +860,7 @@ public:
 	}
 
 	inline OPTIONAL_TYPE &to () {
-		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
+		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
 		return _CAST_<OPTIONAL_TYPE> (r1y) ;
@@ -871,7 +871,7 @@ public:
 	}
 
 	inline const OPTIONAL_TYPE &to () const {
-		_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) == 1) ;
+		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
 		return _CAST_<OPTIONAL_TYPE> (r1y) ;
@@ -1185,7 +1185,7 @@ private:
 		template <class _ARG1>
 		inline static auto template_pick (Tuple &self_ ,const ARGV<_ARG1> &)
 			->INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (UNITS)) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 		}
 
@@ -1196,7 +1196,7 @@ private:
 		template <class _ARG1>
 		inline static constexpr auto template_pick (const Tuple &self_ ,const ARGV<_ARG1> &)
 			->const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (UNITS)) ;
+			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 		}
 	} ;
@@ -1262,7 +1262,7 @@ private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	struct Detail ;
 
@@ -1400,7 +1400,7 @@ private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (UNITS) > 0) ;
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	struct Detail ;
 
@@ -1535,14 +1535,14 @@ private:
 inline namespace EXTEND {
 template <class... _ARGS>
 inline static AllOfTuple<_ARGS...> _ALLOF_ (const _ARGS &...list) {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
 	return std::move (_CAST_<AllOfTuple<_ARGS...>> (ret)) ;
 }
 
 template <class... _ARGS>
 inline static AnyOfTuple<_ARGS...> _ANYOF_ (const _ARGS &...list) {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
 	return std::move (_CAST_<AnyOfTuple<_ARGS...>> (ret)) ;
 }
@@ -2776,7 +2776,7 @@ public:
 
 	template <class... _ARGS>
 	inline explicit Serializer (const DEF<_ARGS CONT::*> &...memptr) {
-		_STATIC_ASSERT_ (_CAPACITYOF_ (_ARGS) > 0) ;
+		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 		_DEBUG_ASSERT_ (Detail::template_available (memptr...)) ;
 		mBinder = StrongRef<const ImplBinder<_ARGS...>>::make (memptr...) ;
 	}

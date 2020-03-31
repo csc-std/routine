@@ -297,6 +297,58 @@ struct op_set<_ARG1 ,DEF<_ARG2 _ARG1::*> ,_ARG2> {
 } ;
 
 template <class...>
+struct op_call ;
+
+template <class _ARG1>
+struct op_call<_ARG1> {
+	inline static Expression<RANK0> compile () {
+		return Operator ([] (const _ARG1 &arg1) {
+			return arg1 () ;
+		}) ;
+	}
+} ;
+
+template <class _ARG1 ,class _ARG2>
+struct op_call<_ARG1 ,_ARG2> {
+	inline static Expression<RANK1> compile () {
+		return Operator ([] (const _ARG1 &arg1 ,const _ARG2 &arg2) {
+			return arg1 (arg2) ;
+		}) ;
+	}
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+struct op_call<_ARG1 ,_ARG2 ,_ARG3> {
+	inline static Expression<RANK2> compile () {
+		return Operator ([] (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARG3 &arg3) {
+			return arg1 (arg2 ,arg3) ;
+		}) ;
+	}
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4>
+struct op_call<_ARG1 ,_ARG2 ,_ARG3 ,_ARG4> {
+	inline static Expression<RANK2> compile () {
+		return Operator ([] (const _ARG1 &arg1 ,const _ARG2 &arg2 ,const _ARG3 &arg3 ,const _ARG4 &arg4) {
+			return arg1 (arg2 ,arg3 ,arg4) ;
+		}) ;
+	}
+} ;
+
+template <class...>
+struct op_assert ;
+
+template <>
+struct op_assert<> {
+	inline static Expression<RANK2> compile () {
+		return Operator ([] (const BOOL &arg1 ,const Operand &arg2) {
+			_DYNAMIC_ASSERT_ (arg1) ;
+			return arg2 ;
+		}) ;
+	}
+} ;
+
+template <class...>
 struct op_read ;
 
 template <class _ARG1 ,class _ARG2>
@@ -327,10 +379,24 @@ struct op_write<_ARG1 ,_ARG2> {
 
 inline namespace FUNCTIONAL {
 template <class...>
-struct map ;
+struct op_switch ;
+
+template <>
+struct op_switch<> {
+	inline static Expression<RANK3> compile () {
+		return Operator ([] (const BOOL &flag ,const Operand &case1 ,const Operand &case2) {
+			if (flag)
+				return case1 ;
+			return case2 ;
+		}) ;
+	}
+} ;
+
+template <class...>
+struct op_map ;
 
 template <class _ARG1>
-struct map<Array<_ARG1>> {
+struct op_map<Array<_ARG1>> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const Array<_ARG1> &array_ ,const Expression<RANK1> &each) {
 			Array<_ARG1> ret = Array<_ARG1> (array_.size ()) ;
@@ -344,7 +410,7 @@ struct map<Array<_ARG1>> {
 } ;
 
 template <class _ARG1>
-struct map<Deque<_ARG1>> {
+struct op_map<Deque<_ARG1>> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const Deque<_ARG1> &array_ ,const Expression<RANK1> &each) {
 			Deque<_ARG1> ret = Deque<_ARG1> (array_.size ()) ;
@@ -359,10 +425,10 @@ struct map<Deque<_ARG1>> {
 } ;
 
 template <class...>
-struct filter ;
+struct op_filter ;
 
 template <class _ARG1>
-struct filter<_ARG1> {
+struct op_filter<_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &array_ ,const Expression<RANK1> &cond) {
 			BitSet<> ret = BitSet<> (array_.size ()) ;
@@ -378,10 +444,10 @@ struct filter<_ARG1> {
 } ;
 
 template <class...>
-struct array_length ;
+struct op_array_length ;
 
 template <class _ARG1>
-struct array_length<_ARG1> {
+struct op_array_length<_ARG1> {
 	inline static Expression<RANK1> compile () {
 		return Operator ([] (const _ARG1 &array_) {
 			return array_.length () ;
@@ -390,40 +456,41 @@ struct array_length<_ARG1> {
 } ;
 
 template <class...>
-struct array_empty ;
+struct op_array_empty ;
 
 template <class _ARG1>
-struct array_empty<_ARG1> {
+struct op_array_empty<_ARG1> {
 	inline static Expression<RANK1> compile () {
-		return op_equal<LENGTH>::compile () + Operand (VAR_ZERO) + array_length<_ARG1>::compile () ;
+		return op_equal<LENGTH>::compile () + Operand (VAR_ZERO)
+			+ op_array_length<_ARG1>::compile () ;
 	}
 } ;
 
 template <class...>
-struct some ;
+struct op_some ;
 
 template <class _ARG1>
-struct some<_ARG1> {
+struct op_some<_ARG1> {
 	inline static Expression<RANK2> compile () {
-		return op_not<BOOL>::compile () + array_empty<BitSet<>>::compile () + filter<_ARG1>::compile () ;
+		return op_not<BOOL>::compile () + op_array_empty<BitSet<>>::compile () + op_filter<_ARG1>::compile () ;
 	}
 } ;
 
 template <class...>
-struct every ;
+struct op_every ;
 
 template <class _ARG1>
-struct every<_ARG1> {
+struct op_every<_ARG1> {
 	inline static Expression<RANK2> compile () {
-		return op_not<BOOL>::compile () + some<_ARG1>::compile () ;
+		return op_not<BOOL>::compile () + op_some<_ARG1>::compile () ;
 	}
 } ;
 
 template <class...>
-struct apply ;
+struct op_apply ;
 
 template <class _ARG1 ,class _ARG2>
-struct apply<Array<_ARG1> ,_ARG2 ,BitSet<>> {
+struct op_apply<Array<_ARG1> ,_ARG2 ,BitSet<>> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG2 &array_ ,const BitSet<> &range_) {
 			Array<_ARG1> ret = Array<_ARG1> (range_.length ()) ;
@@ -436,7 +503,7 @@ struct apply<Array<_ARG1> ,_ARG2 ,BitSet<>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct apply<Deque<_ARG1> ,_ARG2 ,BitSet<>> {
+struct op_apply<Deque<_ARG1> ,_ARG2 ,BitSet<>> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG2 &array_ ,const BitSet<> &range_) {
 			Deque<_ARG1> ret = Deque<_ARG1> (range_.length ()) ;
@@ -450,75 +517,16 @@ struct apply<Deque<_ARG1> ,_ARG2 ,BitSet<>> {
 } ;
 
 template <class...>
-struct reduce ;
+struct op_reduce ;
 
 template <>
-struct reduce<BitSet<>> {
+struct op_reduce<BitSet<>> {
 	inline static Expression<RANK3> compile () {
 		return Operator ([] (const Operand &init ,const BitSet<> &range_ ,const Expression<RANK2> &iter) {
 			Operand ret = init ;
 			for (auto &&i : range_)
 				ret = iter (ret ,INDEX (i)) ;
 			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct conditional ;
-
-template <>
-struct conditional<> {
-	inline static Expression<RANK3> compile () {
-		return Operator ([] (const BOOL &flag ,const Operand &case1 ,const Operand &case2) {
-			if (flag)
-				return case1 ;
-			return case2 ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct tuple ;
-
-template <class _ARG1>
-struct tuple<_ARG1> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &item1) {
-			return ARRAY1<_ARG1> {item1} ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1>
-struct tuple<_ARG1 ,_ARG1> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &item1 ,const _ARG1 &item2) {
-			return ARRAY2<_ARG1> {item1 ,item2} ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1>
-struct tuple<_ARG1 ,_ARG1 ,_ARG1> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &item1 ,const _ARG1 &item2 ,const _ARG1 &item3) {
-			return ARRAY2<_ARG1> {item1 ,item2 ,item3} ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct order ;
-
-template <>
-struct order<> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const Operand &case1 ,const Operand &case2) {
-			const auto r1x = tuple<Operand ,Operand>::compile () + case1 + case2 ;
-			const auto r2x = tuple<Operand ,Operand>::compile () + case2 + case1 ;
-			const auto r3x = conditional<>::compile ().flip (ARGVP2 ,ARGVP3 ,ARGVP1) ;
-			return r3x + r1x + r2x ;
 		}) ;
 	}
 } ;
