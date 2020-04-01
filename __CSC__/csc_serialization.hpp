@@ -14,10 +14,10 @@
 namespace CSC {
 class XmlParser {
 private:
-	static constexpr auto NODE_CLAZZ_TABLE = FLAG (0) ;
-	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (1) ;
-	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (2) ;
-	static constexpr auto NODE_CLAZZ_FINAL = FLAG (3) ;
+	static constexpr auto NODE_CLAZZ_TABLE = FLAG (1) ;
+	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (2) ;
+	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (3) ;
+	static constexpr auto NODE_CLAZZ_FINAL = FLAG (4) ;
 
 	class Node {
 	private:
@@ -1005,6 +1005,8 @@ public:
 		if (!mHeap.exist ())
 			return FALSE ;
 		if (mIndex == VAR_NONE)
+			return FALSE ;
+		if (mHeap.self[mIndex].mClazz == NODE_CLAZZ_NULL)
 			return FALSE ;
 		return TRUE ;
 	}

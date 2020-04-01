@@ -550,10 +550,10 @@ public:
 	class SubRef ;
 
 private:
-	static constexpr auto STATUS_CREATED = FLAG (0) ;
-	static constexpr auto STATUS_RUNNING = FLAG (1) ;
-	static constexpr auto STATUS_SUSPEND = FLAG (2) ;
-	static constexpr auto STATUS_STOPPED = FLAG (3) ;
+	static constexpr auto STATUS_CREATED = FLAG (1) ;
+	static constexpr auto STATUS_RUNNING = FLAG (2) ;
+	static constexpr auto STATUS_SUSPEND = FLAG (3) ;
+	static constexpr auto STATUS_STOPPED = FLAG (4) ;
 
 private:
 	class Implement ;

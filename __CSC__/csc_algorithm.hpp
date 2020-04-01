@@ -593,13 +593,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (!(mTempState == 4))
 						discard ;
 					const auto r1x = ARRAY2<INDEX> {5 ,16} ;
-					mTempState = r1x[EFLAG ((mTempStack[ix][0] < mAdjacency.cx ()))] ;
+					mTempState = r1x[EFLAG (mTempStack[ix][0] < mAdjacency.cx ())] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 5))
 						discard ;
 					const auto r2x = ARRAY2<INDEX> {15 ,6} ;
-					mTempState = r2x[EFLAG ((mXVisit[mTempStack[ix][0]]))] ;
+					const auto r3x = BOOL (mXVisit[mTempStack[ix][0]]) ;
+					mTempState = r2x[EFLAG (r3x)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 6))
@@ -611,8 +612,8 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (!(mTempState == 7))
 						discard ;
 					ix = mTempStack.tail () ;
-					const auto r3x = ARRAY2<INDEX> {2 ,3} ;
-					mTempState = r3x[EFLAG (mTempStack[ix][1] == VAR_NONE)] ;
+					const auto r4x = ARRAY2<INDEX> {2 ,3} ;
+					mTempState = r4x[EFLAG (mTempStack[ix][1] == VAR_NONE)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 8))
@@ -624,15 +625,15 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 				if switch_case (TRUE) {
 					if (!(mTempState == 9))
 						discard ;
-					const auto r4x = ARRAY2<INDEX> {8 ,14} ;
-					mTempState = r4x[EFLAG (mLackWeight[0] < mTolerance)] ;
+					const auto r5x = ARRAY2<INDEX> {8 ,14} ;
+					mTempState = r5x[EFLAG (mLackWeight[0] < mTolerance)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 10))
 						discard ;
 					ix = mTempStack.tail () ;
-					const auto r5x = ARRAY2<INDEX> {11 ,15} ;
-					mTempState = r5x[EFLAG (mTempRet)] ;
+					const auto r6x = ARRAY2<INDEX> {11 ,15} ;
+					mTempState = r6x[EFLAG (mTempRet)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 11))
@@ -663,14 +664,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (!(mTempState == 17))
 						discard ;
 					mTempStack.pop () ;
-					const auto r6x = ARRAY2<INDEX> {10 ,18} ;
-					mTempState = r6x[EFLAG (mTempStack.length () > 0)] ;
+					const auto r7x = ARRAY2<INDEX> {10 ,18} ;
+					mTempState = r7x[EFLAG (mTempStack.length () > 0)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 18))
 						discard ;
-					const auto r7x = ARRAY2<INDEX> {19 ,20} ;
-					mTempState = r7x[EFLAG (mTempRet)] ;
+					const auto r8x = ARRAY2<INDEX> {19 ,20} ;
+					mTempState = r8x[EFLAG (mTempRet)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 19))
