@@ -44,7 +44,7 @@ public:
 			if (y == 1)
 				return x ;
 			if (y == 2)
-				return _SQE_ (x) ;
+				return _SQUARE_ (x) ;
 			return 0 ;
 		}) ;
 		const auto r2x = Function<int (const int &)>::make (r1x ,int (2)) ;

@@ -47,7 +47,7 @@ inline BOOL _ISINF_ (const VAL64 &x) {
 }
 
 template <class _ARG1>
-inline _ARG1 _SQE_ (const _ARG1 &val) {
+inline _ARG1 _SQUARE_ (const _ARG1 &val) {
 	return val * val ;
 }
 
@@ -58,6 +58,20 @@ template <class _ARG1>
 inline _ARG1 _SQRT_ (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_SQRT_ (VAL64 (x))) ;
+}
+
+template <class _ARG1>
+inline _ARG1 _CUBE_ (const _ARG1 &val) {
+	return val * val * val ;
+}
+
+inline imports DEF<VAL32 (const VAL32 &x)> _CBRT_ ;
+inline imports DEF<VAL64 (const VAL64 &x)> _CBRT_ ;
+
+template <class _ARG1>
+inline _ARG1 _CBRT_ (const _ARG1 &x) {
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	return _ARG1 (_CBRT_ (VAL64 (x))) ;
 }
 
 inline imports DEF<VAL32 (const VAL32 &x ,const VAL32 &y)> _POW_ ;
@@ -85,6 +99,22 @@ template <class _ARG1>
 inline _ARG1 _LOG_ (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_LOG_ (VAL64 (x))) ;
+}
+
+template <class _ARG1>
+inline _ARG1 _NPDF_ (const _ARG1 &x) {
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	static const auto M_SCALE = _ARG1 (1) / _SQRT_ (_ARG1 (2 * MATH_PI)) ;
+	return _EXP_ (-_SQUARE_ (x) / _ARG1 (2)) * M_SCALE ;
+}
+
+inline imports DEF<VAL32 (const VAL32 &x)> _NCBF_ ;
+inline imports DEF<VAL64 (const VAL64 &x)> _NCBF_ ;
+
+template <class _ARG1>
+inline _ARG1 _NCBF_ (const _ARG1 &x) {
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	return _ARG1 (_NCBF_ (VAL64 (x))) ;
 }
 
 inline imports DEF<VAL32 (const VAL32 &x)> _SIN_ ;
@@ -238,6 +268,12 @@ template <class _ARG1>
 inline _ARG1 _CEIL_ (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	return _ARG1 (_CEIL_ (VAL64 (x) ,VAL64 (y))) ;
+}
+
+template <class _ARG1>
+inline _ARG1 _TRUNC_ (const _ARG1 &x ,const _ARG1 &y) {
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	return _FLOOR_ (_ABS_ (x) ,y) * _SIGN_ (x) ;
 }
 
 template <class _ARG1>

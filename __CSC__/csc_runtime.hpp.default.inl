@@ -93,7 +93,9 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto ris = ByteReader (info) ;
-	return ris.template read<VAR64> () ;
+	const auto r1x = ris.template read<VAR64> () ;
+	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
+	return FLAG (r1x) ;
 }
 #elif defined __CSC_SYSTEM_LINUX__
 inline FLAG GlobalRuntime::thread_tid () {
@@ -128,7 +130,9 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto ris = ByteReader (info) ;
-	return ris.template read<VAR64> () ;
+	const auto r1x = ris.template read<VAR64> () ;
+	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
+	return FLAG (r1x) ;
 }
 #else
 inline FLAG GlobalRuntime::thread_tid () {

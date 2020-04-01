@@ -45,7 +45,7 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 		INDEX ix = i * 2 + 3 ;
 		const auto r2x = ix * 2 ;
 		_DEBUG_ASSERT_ (r2x > 0) ;
-		const auto r3x = _SQE_ (ix) ;
+		const auto r3x = _SQUARE_ (ix) ;
 		const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
 		for (auto &&j : _RANGE_ (0 ,r4x)) {
 			INDEX jx = j * r2x + r3x ;
@@ -887,7 +887,7 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		inline REAL current_convergence () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : mIG)
-				ret += _SQE_ (i) ;
+				ret += _SQUARE_ (i) ;
 			ret = _SQRT_ (ret) ;
 			return std::move (ret) ;
 		}
@@ -981,7 +981,7 @@ public:
 		rax[1][1] = _MIN_ ((point[1] + width) ,mBound[1][1]) ;
 		rax[2][0] = _MAX_ ((point[2] - width) ,mBound[2][0]) ;
 		rax[2][1] = _MIN_ ((point[2] + width) ,mBound[2][1]) ;
-		compute_search_range (point ,_SQE_ (width) ,mRoot ,0 ,rax ,ret) ;
+		compute_search_range (point ,width ,mRoot ,0 ,rax ,ret) ;
 		return std::move (ret) ;
 	}
 
@@ -1001,15 +1001,21 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) ;
 
-	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &sqe_range ,INDEX curr ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
+	REAL distance_of_point (const ARRAY3<REAL> &a ,const ARRAY3<REAL> &b) const {
+		const auto r1x = Vector<REAL> {a ,REAL (0)} ;
+		const auto r2x = Vector<REAL> {b ,REAL (0)} ;
+		return (r1x - r2x).magnitude () ;
+	}
+
+	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &width ,INDEX curr ,INDEX rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
 			if switch_case (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
-				const auto r1x = _SQE_ (mVertex[ix][0] - point[0]) + _SQE_ (mVertex[ix][1] - point[1]) + _SQE_ (mVertex[ix][2] - point[2]) ;
-				if (r1x > sqe_range)
+				const auto r1x = distance_of_point (mVertex[ix] ,point) ;
+				if (r1x > width)
 					discard ;
 				out.add (ix) ;
 			}
@@ -1021,18 +1027,18 @@ private:
 			if switch_case (TRUE) {
 				if (r2x < bound[rot][0])
 					discard ;
-				const auto r3x = bound[rot][1] ;
+				const auto r1x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r2x) ;
-				compute_search_range (point ,sqe_range ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][1] = r3x ;
+				compute_search_range (point ,width ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
+				bound[rot][1] = r1x ;
 			}
 			if switch_case (TRUE) {
 				if (r2x > bound[rot][1])
 					discard ;
-				const auto r4x = bound[rot][0] ;
+				const auto r3x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r2x) ;
-				compute_search_range (point ,sqe_range ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][0] = r4x ;
+				compute_search_range (point ,width ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
+				bound[rot][0] = r3x ;
 			}
 		}
 	}
@@ -1041,7 +1047,7 @@ private:
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		Deque<REAL> ret = Deque<REAL> (count) ;
 		for (auto &&i : _RANGE_ (0 ,count)) {
-			const auto r1x = _SQE_ (mVertex[i][0] - point[0]) + _SQE_ (mVertex[i][1] - point[1]) + _SQE_ (mVertex[i][2] - point[2]) ;
+			const auto r1x = distance_of_point (mVertex[i] ,point) ;
 			ret.add (r1x) ;
 		}
 		return std::move (ret) ;
@@ -1054,14 +1060,12 @@ private:
 				discard ;
 			if switch_case (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
-				const auto r1x = Vector<REAL> {mVertex[ix] ,REAL (0)} ;
-				const auto r2x = Vector<REAL> {point ,REAL (0)} ;
-				const auto r3x = (r1x - r2x).magnitude () ;
+				const auto r1x = distance_of_point (mVertex[ix] ,point) ;
 				INDEX jx = out.length () ;
 				while (TRUE) {
 					if (jx - 1 < 0)
 						break ;
-					if (r3x >= out[jx - 1].P2)
+					if (r1x >= out[jx - 1].P2)
 						break ;
 					if (jx < out.length ())
 						out[jx] = out[jx - 1] ;
@@ -1070,16 +1074,16 @@ private:
 				if (jx >= out.length ())
 					discard ;
 				out[jx].P1 = ix ;
-				out[jx].P2 = r3x ;
+				out[jx].P2 = r1x ;
 			}
 		}
 		if switch_case (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
-			const auto r4x = mKDTree[curr].mKey ;
-			if (r4x >= point[rot] - out[out.length () - 1].P2)
+			const auto r2x = mKDTree[curr].mKey ;
+			if (r2x >= point[rot] - out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[curr].mLeft ,mNextRot[rot] ,out) ;
-			if (r4x <= point[rot] + out[out.length () - 1].P2)
+			if (r2x <= point[rot] + out[out.length () - 1].P2)
 				compute_search_range (point ,mKDTree[curr].mRight ,mNextRot[rot] ,out) ;
 		}
 	}

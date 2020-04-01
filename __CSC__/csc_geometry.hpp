@@ -252,7 +252,7 @@ public:
 
 	REAL magnitude () const {
 		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
-		return _SQRT_ (_SQE_ (mVector[0]) + _SQE_ (mVector[1]) + _SQE_ (mVector[2])) ;
+		return _SQRT_ (_SQUARE_ (mVector[0]) + _SQUARE_ (mVector[1]) + _SQUARE_ (mVector[2])) ;
 	}
 
 	Vector normalize () const {
@@ -748,9 +748,9 @@ public:
 		const auto r4x = r1x * r2x ;
 		const auto r5x = r1x * r3x ;
 		const auto r6x = r2x * r3x ;
-		const auto r7x = _SQRT_ (REAL (1) - _SQE_ (r4x)) ;
+		const auto r7x = _SQRT_ (REAL (1) - _SQUARE_ (r4x)) ;
 		const auto r8x = (r6x - r4x * r5x) * _PINV_ (r7x) ;
-		const auto r9x = _SQRT_ (REAL (1) - _SQE_ (r5x) - _SQE_ (r8x)) ;
+		const auto r9x = _SQRT_ (REAL (1) - _SQUARE_ (r5x) - _SQUARE_ (r8x)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,r4x ,r5x ,REAL (0)} ,
 			{REAL (0) ,r7x ,r8x ,REAL (0)} ,
@@ -787,7 +787,7 @@ public:
 
 	static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
 		Matrix ret ;
-		const auto r1x = _SQE_ (qx) + _SQE_ (qy) + _SQE_ (qz) + _SQE_ (qw) ;
+		const auto r1x = _SQUARE_ (qx) + _SQUARE_ (qy) + _SQUARE_ (qz) + _SQUARE_ (qw) ;
 		const auto r2x = REAL (2) * _PINV_ (r1x) ;
 		const auto r3x = qx * r2x ;
 		const auto r4x = qy * r2x ;
