@@ -146,7 +146,7 @@ public:
 	const String<STRU8> &name () && = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1x = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([&] () {
 			return String<STRU8> () ;
 		}) ;
 		if (!exist ())
@@ -1752,7 +1752,7 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1x = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([&] () {
 			return String<STRU8> () ;
 		}) ;
 		INDEX ix = mAttributeSet.find (tag) ;

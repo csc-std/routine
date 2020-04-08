@@ -286,25 +286,25 @@ public:
 
 public:
 	static const Vector &axis_x () {
-		return _CACHE_ ([] () {
+		return _CACHE_ ([&] () {
 			return Vector {REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
 	static const Vector &axis_y () {
-		return _CACHE_ ([] () {
+		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
 	static const Vector &axis_z () {
-		return _CACHE_ ([] () {
+		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)} ;
 		}) ;
 	}
 
 	static const Vector &axis_w () {
-		return _CACHE_ ([] () {
+		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
 		}) ;
 	}
@@ -682,13 +682,13 @@ public:
 		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
 		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
 		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) * _PINV_ (r8x[3]) ;
-		const auto r11x = r5x.magnitude () * r9x ;
-		const auto r12x = r6x.magnitude () * r9x ;
-		const auto r13x = r7x.magnitude () * r9x ;
-		ret[1] = Matrix::make_diag (r11x ,r12x ,r13x ,REAL (1)) ;
+		const auto r10x = r5x.magnitude () * r9x ;
+		const auto r11x = r6x.magnitude () * r9x ;
+		const auto r12x = r7x.magnitude () * r9x ;
+		ret[1] = Matrix::make_diag (r10x ,r11x ,r12x ,REAL (1)) ;
 		ret[2] = Matrix::make_view (r5x ,r6x) ;
-		const auto r14x = r8x.projection () - Vector<REAL>::axis_w () ;
-		ret[3] = Matrix::make_translation (r14x) ;
+		const auto r13x = r8x.projection () - Vector<REAL>::axis_w () ;
+		ret[3] = Matrix::make_translation (r13x) ;
 		return std::move (ret) ;
 	}
 

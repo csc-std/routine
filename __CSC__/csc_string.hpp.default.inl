@@ -44,7 +44,7 @@ namespace CSC {
 inline namespace STRING {
 #ifdef __CSC_COMPILER_MSVC__
 inline const UniqueRef<_locale_t> &_inline_LOCALE_PAGE_ () {
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;

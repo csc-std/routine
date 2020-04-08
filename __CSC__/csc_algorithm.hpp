@@ -1028,18 +1028,18 @@ private:
 			if switch_case (TRUE) {
 				if (r2x < bound[rot][0])
 					discard ;
-				const auto r13x = bound[rot][1] ;
+				const auto r3x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r2x) ;
 				compute_search_range (point ,width ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][1] = r13x ;
+				bound[rot][1] = r3x ;
 			}
 			if switch_case (TRUE) {
 				if (r2x > bound[rot][1])
 					discard ;
-				const auto r3x = bound[rot][0] ;
+				const auto r4x = bound[rot][0] ;
 				bound[rot][0] = _MAX_ (bound[rot][0] ,r2x) ;
 				compute_search_range (point ,width ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][0] = r3x ;
+				bound[rot][0] = r4x ;
 			}
 		}
 	}

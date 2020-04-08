@@ -2291,8 +2291,8 @@ private:
 		if (mHead.size () == mList.size ())
 			return ;
 		auto tmp = mHead.expand (mList.size ()) ;
-		const auto r2x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		_MEMFILL_ (tmp.self ,tmp.size () ,r2x) ;
+		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
+		_MEMFILL_ (tmp.self ,tmp.size () ,r1x) ;
 		mHead.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)

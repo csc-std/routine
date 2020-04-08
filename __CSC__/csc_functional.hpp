@@ -233,7 +233,7 @@ inline Operator::Operator (const _ARG1 &that) {
 	using RANK = PTR<REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>>> ;
 	_STATIC_ASSERT_ (std::is_convertible<_ARG1 ,RANK>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (ImplHolder<RANK>) > 0) ;
-	auto &r1x = _CACHE_ ([] () {
+	auto &r1x = _CACHE_ ([&] () {
 		return SharedRef<Set<RANK ,AutoRef<ImplHolder<RANK>>>>::make () ;
 	}) ;
 	const auto r2x = _XVALUE_<RANK> (that) ;

@@ -314,7 +314,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 
 inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = _PARSEDIRENAME_ (ret) ;
@@ -325,7 +325,7 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 
 inline exports const String<STR> &_MODULEFILENAME_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = _PARSEFILENAME_ (ret) ;

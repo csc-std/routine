@@ -335,7 +335,7 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 
 inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		const auto r1x = ::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))
@@ -349,7 +349,7 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 
 inline exports const String<STR> &_MODULEFILENAME_ () popping {
 	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_SHORTSTRING_SIZE::value) ;
 		const auto r1x = ::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))

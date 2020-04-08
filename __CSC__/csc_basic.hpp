@@ -98,7 +98,7 @@ inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 }
 
 inline const PACK<CHAR[256]> &_inline_MEMCRC32_TABLE_ () {
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		PACK<CHAR[256]> ret ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.P1))))
 			ret.P1[i] = _inline_MEMCRC32_TABLE_EACH_ (CHAR (i)) ;

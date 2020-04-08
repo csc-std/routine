@@ -331,7 +331,7 @@ private:
 
 private:
 	static Holder &static_unique () popping {
-		return _CACHE_ ([] () {
+		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Holder> () ;
@@ -495,7 +495,7 @@ private:
 
 public:
 	static Singleton<UNIT> &unique () popping {
-		auto &r1x = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<std::mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;

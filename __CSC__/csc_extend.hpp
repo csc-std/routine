@@ -160,7 +160,7 @@ inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
 	} catch (const Exception &e) {
 		catch_proc (e) ;
 	} catch (const std::exception &) {
-		catch_proc (Exception (_PCSTR_ ("std::exception : null"))) ;
+		catch_proc (Exception (_PCSTR_ ("std::exception : unknown"))) ;
 	} catch (...) {
 		catch_proc (Exception (_PCSTR_ ("unknown C++ exception"))) ;
 	}

@@ -766,7 +766,7 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
 inline const HashSet<STRUW ,STRUW> &_inline_GBKSTOWS_TABLE_ () {
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
@@ -850,7 +850,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 }
 
 inline const HashSet<STRUW ,STRUW> &_inline_WSTOGBKS_TABLE_ () {
-	return _CACHE_ ([] () {
+	return _CACHE_ ([&] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
