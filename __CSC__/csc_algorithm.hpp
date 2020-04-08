@@ -858,10 +858,10 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 			if switch_case (fax) {
 				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
-				auto &r2y = _SWITCH_ (
+				auto &r2x = _SWITCH_ (
 					(mDXLoss[2] > REAL (0)) ? mDXLoss[2] :
 					mDXLoss[1]) ;
-				mDXLoss[0] = r2y ;
+				mDXLoss[0] = r2x ;
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			}
@@ -1028,10 +1028,10 @@ private:
 			if switch_case (TRUE) {
 				if (r2x < bound[rot][0])
 					discard ;
-				const auto r1x = bound[rot][1] ;
+				const auto r13x = bound[rot][1] ;
 				bound[rot][1] = _MIN_ (bound[rot][1] ,r2x) ;
 				compute_search_range (point ,width ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
-				bound[rot][1] = r1x ;
+				bound[rot][1] = r13x ;
 			}
 			if switch_case (TRUE) {
 				if (r2x > bound[rot][1])

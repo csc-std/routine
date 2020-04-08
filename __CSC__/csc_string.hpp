@@ -776,13 +776,13 @@ inline const HashSet<STRUW ,STRUW> &_inline_GBKSTOWS_TABLE_ () {
 }
 
 inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
-	auto &r1y = _inline_GBKSTOWS_TABLE_ () ;
-	auto &r2y = _CAST_<String<STRUA>> (val) ;
-	String<STRW> ret = String<STRW> (r2y.length ()) ;
+	auto &r1x = _inline_GBKSTOWS_TABLE_ () ;
+	auto &r2x = _CAST_<String<STRUA>> (val) ;
+	String<STRW> ret = String<STRW> (r2x.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	auto rbx = STRUW () ;
-	for (auto &&i : r2y) {
+	for (auto &&i : r2x) {
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
@@ -804,14 +804,14 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		INDEX ix = r1y.find (rbx) ;
+		INDEX ix = r1x.find (rbx) ;
 		auto fbx = TRUE ;
 		if switch_case (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1y[ix].item) ;
+			ret[iw++] = STRW (r1x[ix].item) ;
 			rax = 0 ;
 		}
 		if switch_case (fbx) {
@@ -826,7 +826,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1y[ix].item) ;
+			ret[iw++] = STRW (r1x[ix].item) ;
 			rax = 0 ;
 		}
 		if switch_case (fbx) {
@@ -860,14 +860,14 @@ inline const HashSet<STRUW ,STRUW> &_inline_WSTOGBKS_TABLE_ () {
 }
 
 inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
-	auto &r1y = _inline_WSTOGBKS_TABLE_ () ;
+	auto &r1x = _inline_WSTOGBKS_TABLE_ () ;
 	String<STRUA> ret = String<STRUA> (val.length () * 2) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		INDEX ix = r1y.find (STRUW (i)) ;
+		INDEX ix = r1x.find (STRUW (i)) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(rax == 0))
@@ -879,17 +879,17 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1y[ix].item <= STRUW (0X00FF)))
+			if (!(r1x[ix].item <= STRUW (0X00FF)))
 				discard ;
-			ret[iw++] = STRUA (r1y[ix].item) ;
+			ret[iw++] = STRUA (r1x[ix].item) ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1y[ix].item <= STRUW (0XFFFF)))
+			if (!(r1x[ix].item <= STRUW (0XFFFF)))
 				discard ;
-			ret[iw++] = STRUA (r1y[ix].item >> 8) ;
-			ret[iw++] = STRUA (r1y[ix].item) ;
+			ret[iw++] = STRUA (r1x[ix].item >> 8) ;
+			ret[iw++] = STRUA (r1x[ix].item) ;
 		}
 		if switch_case (fax) {
 			ret.clear () ;
@@ -1079,10 +1079,10 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 		const auto r2x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r3x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
-		auto &r4y = _SWITCH_ (
+		auto &r4x = _SWITCH_ (
 			r2x ? r1x[0] :
 			r1x[1]) ;
-		ret = (ret << 4) | CHAR (rax - r4y) ;
+		ret = (ret << 4) | CHAR (rax - r4x) ;
 		(void) i ;
 	}
 	ris >> _EOS_ ;
@@ -1099,10 +1099,10 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		const auto r2x = CHAR (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
-		auto &r3y = _SWITCH_ (
+		auto &r3x = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
-		wos << _RET (r3y + r2x) ;
+		wos << _RET (r3x + r2x) ;
 	}
 	wos << _EOS_ ;
 	return std::move (ret) ;
@@ -1123,10 +1123,10 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 		const auto r2x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
 		const auto r3x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
-		auto &r4y = _SWITCH_ (
+		auto &r4x = _SWITCH_ (
 			r2x ? r1x[0] :
 			r1x[1]) ;
-		ret = (ret << 4) | DATA (rax - r4y) ;
+		ret = (ret << 4) | DATA (rax - r4x) ;
 	}
 	ris >> _EOS_ ;
 	return std::move (ret) ;
@@ -1142,10 +1142,10 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,16)) {
 		const auto r2x = DATA (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
-		auto &r3y = _SWITCH_ (
+		auto &r3x = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
-		wos << _RET (r3y + r2x) ;
+		wos << _RET (r3x + r2x) ;
 	}
 	wos << _EOS_ ;
 	return std::move (ret) ;
@@ -1254,40 +1254,40 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 	for (auto &&i : stri) {
 		if (rax == VAR_NONE)
 			continue ;
-		auto &r2y = _SWITCH_ (
+		auto &r2x = _SWITCH_ (
 			((i & STRU8 (0X80)) == 0) ? M_BASE64.P1[LENGTH (i) - 32] :
 			M_BASE64.P1[0]) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r2y >= 0))
+			if (!(r2x >= 0))
 				discard ;
-			rbx = CHAR (r2y & 63) ;
+			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 1))
 				discard ;
-			if (!(r2y >= 0))
+			if (!(r2x >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 2 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 2))
 				discard ;
-			if (!(r2y >= 0))
+			if (!(r2x >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 3 ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 3))
 				discard ;
-			if (!(r2y >= 0))
+			if (!(r2x >= 0))
 				discard ;
-			rbx = CHAR ((rbx << 6) | CHAR (r2y & 63)) ;
+			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 0 ;
 			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;

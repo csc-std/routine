@@ -72,13 +72,13 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		const auto r2x = FreeImage_GetBits (r1y) ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		const auto r2x = FreeImage_GetBits (r1x) ;
 		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
-		auto &r4y = _LOAD_<ARR<COLOR_BGR>> (r3x) ;
-		layout.mImage = &r4y ;
-		layout.mCX = LENGTH (FreeImage_GetWidth (r1y)) ;
-		layout.mCY = LENGTH (FreeImage_GetHeight (r1y)) ;
+		auto &r4x = _LOAD_<ARR<COLOR_BGR>> (r3x) ;
+		layout.mImage = &r4x ;
+		layout.mCX = LENGTH (FreeImage_GetWidth (r1x)) ;
+		layout.mCY = LENGTH (FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;
 		layout.mCK = 0 ;
 	}
@@ -167,9 +167,9 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
-		const auto r3x = FreeImage_Save (FIF_JPEG ,r1y ,r2x.raw ().self) ;
+		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;
@@ -186,13 +186,13 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		const auto r2x = FreeImage_GetBits (r1y) ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		const auto r2x = FreeImage_GetBits (r1x) ;
 		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
-		auto &r4y = _LOAD_<ARR<COLOR_BGRA>> (r3x) ;
-		layout.mImage = &r4y ;
-		layout.mCX = LENGTH (FreeImage_GetWidth (r1y)) ;
-		layout.mCY = LENGTH (FreeImage_GetHeight (r1y)) ;
+		auto &r4x = _LOAD_<ARR<COLOR_BGRA>> (r3x) ;
+		layout.mImage = &r4x ;
+		layout.mCX = LENGTH (FreeImage_GetWidth (r1x)) ;
+		layout.mCY = LENGTH (FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;
 		layout.mCK = 0 ;
 	}
@@ -281,9 +281,9 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
-		const auto r3x = FreeImage_Save (FIF_JPEG ,r1y ,r2x.raw ().self) ;
+		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
 } ;

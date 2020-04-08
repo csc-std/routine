@@ -148,16 +148,16 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma region
 #ifdef __CSC_MATH__
-#include "csc_math.hpp.default.inl"
+#include <csc_math.hpp.default.inl>
 #endif
 
 #ifdef __CSC_FUNCTIONAL__
-#include "csc_functional.hpp.op.inl"
+#include <csc_functional.hpp.op.inl>
 #endif
 
 #ifdef __CSC_STRING__
-#include "csc_string.hpp.default.inl"
-#include "csc_string.hpp.gbk.inl"
+#include <csc_string.hpp.default.inl>
+#include <csc_string.hpp.gbk.inl>
 #endif
 
 #ifdef __CSC_RUNTIME__
@@ -166,23 +166,23 @@ public:
 
 #ifdef __CSC_FILESYSTEM__
 #ifdef __CSC_SYSTEM_WINDOWS__
-#include "csc_filesystem.hpp.windows.inl"
+#include <csc_filesystem.hpp.windows.inl>
 #elif defined __CSC_SYSTEM_LINUX__
-#include "csc_filesystem.hpp.linux.inl"
+#include <csc_filesystem.hpp.linux.inl>
 #endif
 #endif
 
 #ifdef __CSC_NETWORK__
 #ifdef __CSC_SYSTEM_WINDOWS__
-#include "csc_network.hpp.windows.inl"
+#include <csc_network.hpp.windows.inl>
 #endif
 #endif
 
 #ifdef __CSC_DEBUGGER__
 #ifdef __CSC_SYSTEM_WINDOWS__
-#include "csc_debugger.hpp.windows.inl"
+#include <csc_debugger.hpp.windows.inl>
 #elif defined __CSC_SYSTEM_LINUX__
-#include "csc_debugger.hpp.linux.inl"
+#include <csc_debugger.hpp.linux.inl>
 #endif
 #endif
 #pragma endregion

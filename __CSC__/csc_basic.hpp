@@ -114,10 +114,10 @@ inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
 #endif
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
-	auto &r1y = _inline_MEMCRC32_TABLE_ () ;
+	auto &r1x = _inline_MEMCRC32_TABLE_ () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
 		const auto r2x = CHAR ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
-		ret = FLAG (r1y.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
+		ret = FLAG (r1x.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
 	}
 	ret &= VAR32_MAX ;
 	return std::move (ret) ;
@@ -402,8 +402,8 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		auto &r2y = _LOAD_<_RET> (r1x) ;
-		return OwnerProxy<_RET> (&r2y) ;
+		auto &r2x = _LOAD_<_RET> (r1x) ;
+		return OwnerProxy<_RET> (&r2x) ;
 	}
 
 	template <class _RET>
@@ -416,8 +416,8 @@ public:
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		const auto r2x = operator new (r1x ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		auto &r3y = _LOAD_<ARR<_RET>> (r2x) ;
-		return OwnerProxy<ARR<_RET>> (&r3y) ;
+		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
+		return OwnerProxy<ARR<_RET>> (&r3x) ;
 	}
 
 	template <class _ARG1>
@@ -586,8 +586,8 @@ private:
 	inline Singleton () :Singleton (ARGVP0) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax) ;
-		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		mPointer = &r1y ;
+		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		mPointer = &r1x ;
 		rax = NULL ;
 	}
 
@@ -718,8 +718,8 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
-		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		mPointer = &r1y ;
+		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		mPointer = &r1x ;
 		rax = NULL ;
 	}
 
@@ -804,8 +804,8 @@ public:
 	inline static AutoRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		AutoRef ret = AutoRef (&r1y) ;
+		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		AutoRef ret = AutoRef (&r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -910,8 +910,8 @@ public:
 	inline static SharedRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1y = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		SharedRef ret = SharedRef (&r1y) ;
+		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		SharedRef ret = SharedRef (&r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1111,8 +1111,8 @@ public:
 	inline static AnyRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
 		ScopedBuild<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1y = _LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
-		AnyRef ret = AnyRef (&r1y) ;
+		auto &r1x = _LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
+		AnyRef ret = AnyRef (&r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1163,9 +1163,9 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
 		constructor () ;
-		mPointer = &r1y ;
+		mPointer = &r1x ;
 		rax = NULL ;
 	}
 
@@ -1245,9 +1245,9 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
-		constructor (r1y.mData) ;
-		mPointer = &r1y ;
+		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		constructor (r1x.mData) ;
+		mPointer = &r1x ;
 		rax = NULL ;
 	}
 
@@ -1308,9 +1308,9 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (UNIT &)>>>> () ;
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (rax ,r1x) ;
-		auto &r2y = _LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
-		r2y.mData = UNIT (std::forward<_ARGS> (initval)...) ;
-		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2y)) ;
+		auto &r2x = _LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
+		r2x.mData = UNIT (std::forward<_ARGS> (initval)...) ;
+		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2x)) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -1431,8 +1431,8 @@ public:
 	inline implicit Function (_ARG1 &&that) :Function () {
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
 		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
-		auto &r1y = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
-		mFunction = &r1y ;
+		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
+		mFunction = &r1x ;
 		mCPPFunction = NULL ;
 		rax = NULL ;
 	}
@@ -1642,11 +1642,11 @@ private:
 		template <class _RET ,class... _ARGS>
 		inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...funcval) noexcept {
 			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			auto &r1y = _LOAD_<TEMP<_RET>> (address) ;
-			auto &r2y = _XVALUE_<Holder> (_CAST_<_RET> (r1y)) ;
-			auto &r3y = _XVALUE_<Holder> (_CAST_<FakeHolder> ((*address))) ;
-			_DYNAMIC_ASSERT_ (&r2y == &r3y) ;
-			_CREATE_ (&r1y ,std::forward<_ARGS> (funcval)...) ;
+			auto &r1x = _LOAD_<TEMP<_RET>> (address) ;
+			auto &r2x = _XVALUE_<Holder> (_CAST_<_RET> (r1x)) ;
+			auto &r3x = _XVALUE_<Holder> (_CAST_<FakeHolder> ((*address))) ;
+			_DYNAMIC_ASSERT_ (&r2x == &r3x) ;
+			_CREATE_ (&r1x ,std::forward<_ARGS> (funcval)...) ;
 		}
 	} ;
 
@@ -1861,8 +1861,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
-		mBuffer = &r1y ;
+		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1x ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -2022,8 +2022,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
-		mBuffer = &r1y ;
+		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1x ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -2079,8 +2079,8 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
-		mBuffer = &r1y ;
+		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1x ;
 		mSize = len ;
 		rax = NULL ;
 	}
@@ -2102,8 +2102,8 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,(*that.mBuffer) ,that.mSize) ;
-		auto &r1y = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
-		mBuffer = &r1y ;
+		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		mBuffer = &r1x ;
 		mSize = that.mSize ;
 		rax = NULL ;
 	}
@@ -2252,7 +2252,7 @@ public:
 	inline Buffer expand (LENGTH len) const {
 		return Buffer (len) ;
 	}
-	
+
 	inline void swap (Buffer &that) popping {
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
@@ -2428,8 +2428,8 @@ public:
 	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
-		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
-		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -2599,8 +2599,8 @@ public:
 	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
 		if (val.size () == 0)
 			return Buffer () ;
-		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
-		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
 	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
@@ -2611,8 +2611,8 @@ public:
 	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
-		auto &r1y = _LOAD_<ARR<BYTE>> (&val.self) ;
-		return make (r1y ,(val.size () * _SIZEOF_ (_ARG1))) ;
+		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;
+		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 } ;
 
@@ -3015,8 +3015,8 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		auto &r1y = _OFFSET_ (&Node::mData ,_CAST_<TEMP<UNIT>> (item)) ;
-		INDEX ret = mAllocator.at (r1y) ;
+		auto &r1x = _OFFSET_ (&Node::mData ,_CAST_<TEMP<UNIT>> (item)) ;
+		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
 		return std::move (ret) ;

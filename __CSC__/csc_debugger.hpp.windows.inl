@@ -423,13 +423,13 @@ public:
 			const auto r1x = _ALIGNOF_ (SYMBOL_INFO) - 1 + _SIZEOF_ (SYMBOL_INFO) + list.length () * DEFAULT_SHORTSTRING_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (&rax.self) ,_ALIGNOF_ (SYMBOL_INFO)) ;
-			auto &r3y = _LOAD_<SYMBOL_INFO> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x)) ;
-			r3y.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
-			r3y.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
+			auto &r3x = _LOAD_<SYMBOL_INFO> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x)) ;
+			r3x.SizeOfStruct = _SIZEOF_ (SYMBOL_INFO) ;
+			r3x.MaxNameLen = DEFAULT_SHORTSTRING_SIZE::value ;
 			for (auto &&i : list) {
-				SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3y) ;
-				const auto r4x = _BUILDHEX16S_ (DATA (r3y.Address)) ;
-				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3y.Name])) ;
+				SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3x) ;
+				const auto r4x = _BUILDHEX16S_ (DATA (r3x.Address)) ;
+				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3x.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}

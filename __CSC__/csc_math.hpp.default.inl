@@ -78,11 +78,11 @@ inline exports VAL64 _LOG_ (const VAL64 &x) {
 	return std::log (x) ;
 }
 
-inline exports VAL32 _NCBF_ (const VAL32 &x) {
+inline exports VAL32 _NCDF_ (const VAL32 &x) {
 	return std::erf (x * _PINV_ (VAL32 (MATH_SQRT2))) / 2 + VAL32 (0.5) ;
 }
 
-inline exports VAL64 _NCBF_ (const VAL64 &x) {
+inline exports VAL64 _NCDF_ (const VAL64 &x) {
 	return std::erf (x * _PINV_ (VAL64 (MATH_SQRT2))) / 2 + VAL64 (0.5) ;
 }
 

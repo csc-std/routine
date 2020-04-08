@@ -99,8 +99,8 @@ inline exports PhanBuffer<const BYTE> _LOADASSETFILE_ (FLAG resource) popping {
 	_DYNAMIC_ASSERT_ (r3x != NULL) ;
 	const auto r4x = LENGTH (SizeofResource (NULL ,r1x)) ;
 	_DYNAMIC_ASSERT_ (r4x >= 0) ;
-	auto &r5y = _LOAD_<ARR<BYTE>> (r3x) ;
-	return PhanBuffer<const BYTE>::make (r5y ,r4x) ;
+	auto &r5x = _LOAD_<ARR<BYTE>> (r3x) ;
+	return PhanBuffer<const BYTE>::make (r5x ,r4x) ;
 }
 
 inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
@@ -364,7 +364,7 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 		ret = CSC::BOOL (r2x == r6x) ;
 	}
 	if switch_case (fax) {
-		auto &r9y = _CACHE_ ([&] () {
+		auto &r9x = _CACHE_ ([&] () {
 			return UniqueRef<String<STR>> ([&] (String<STR> &me) {
 				me = r1x ;
 				_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r3x)) ;
@@ -372,7 +372,7 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 				_ERASEFILE_ (me) ;
 			}) ;
 		}) ;
-		(void) r9y ;
+		(void) r9x ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;
@@ -442,11 +442,11 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 				discard ;
 			if (r3x == _PCSTR_ (".."))
 				discard ;
-			auto &r4y = _SWITCH_ (
+			auto &r4x = _SWITCH_ (
 				((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) ? dire_list :
 				file_list) ;
 			rax += r3x ;
-			r4y.add (rax) ;
+			r4x.add (rax) ;
 		}
 		rax[r1x] = 0 ;
 		rbx.cFileName[0] = 0 ;
@@ -610,8 +610,8 @@ public:
 		mThis->mOwned->mBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r2x = MapViewOfFile (mThis->mMapping.self ,FILE_MAP_READ ,0 ,0 ,r1x) ;
 			_DYNAMIC_ASSERT_ (r2x != NULL) ;
-			auto &r3y = _LOAD_<ARR<BYTE>> (r2x) ;
-			me = PhanBuffer<BYTE>::make (r3y ,r1x) ;
+			auto &r3x = _LOAD_<ARR<BYTE>> (r2x) ;
+			me = PhanBuffer<BYTE>::make (r3x ,r1x) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			UnmapViewOfFile (me.self) ;
 		}) ;
@@ -645,8 +645,8 @@ public:
 			const auto r2x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
 			const auto r3x = MapViewOfFile (mThis->mMapping.self ,r2x ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r3x != NULL) ;
-			auto &r4y = _LOAD_<ARR<BYTE>> (r3x) ;
-			me = PhanBuffer<BYTE>::make (r4y ,file_len) ;
+			auto &r4x = _LOAD_<ARR<BYTE>> (r3x) ;
+			me = PhanBuffer<BYTE>::make (r4x ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			UnmapViewOfFile (me.self) ;
 		}) ;
@@ -671,8 +671,8 @@ public:
 			const auto r1x = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 				const auto r2x = MapViewOfFile (mThis->mMapping.self ,FILE_MAP_READ ,0 ,0 ,0) ;
 				_DYNAMIC_ASSERT_ (r2x != NULL) ;
-				auto &r3y = _LOAD_<ARR<BYTE>> (r2x) ;
-				me = PhanBuffer<BYTE>::make (r3y ,1) ;
+				auto &r3x = _LOAD_<ARR<BYTE>> (r2x) ;
+				me = PhanBuffer<BYTE>::make (r3x ,1) ;
 			} ,[] (PhanBuffer<BYTE> &me) {
 				UnmapViewOfFile (me.self) ;
 			}) ;
@@ -682,8 +682,8 @@ public:
 			_DYNAMIC_ASSERT_ (r4x == _SIZEOF_ (MEMORY_BASIC_INFORMATION)) ;
 			const auto r5x = MapViewOfFile (mThis->mMapping.self ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
 			_DYNAMIC_ASSERT_ (r5x != NULL) ;
-			auto &r6y = _LOAD_<ARR<BYTE>> (r5x) ;
-			me = PhanBuffer<BYTE>::make (r6y ,LENGTH (rax.RegionSize)) ;
+			auto &r6x = _LOAD_<ARR<BYTE>> (r5x) ;
+			me = PhanBuffer<BYTE>::make (r6x ,LENGTH (rax.RegionSize)) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			UnmapViewOfFile (me.self) ;
 		}) ;
@@ -709,8 +709,8 @@ public:
 			const auto r1x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
 			const auto r2x = MapViewOfFile (mThis->mMapping.self ,r1x ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r2x != NULL) ;
-			auto &r3y = _LOAD_<ARR<BYTE>> (r2x) ;
-			me = PhanBuffer<BYTE>::make (r3y ,file_len) ;
+			auto &r3x = _LOAD_<ARR<BYTE>> (r2x) ;
+			me = PhanBuffer<BYTE>::make (r3x ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			UnmapViewOfFile (me.self) ;
 		}) ;

@@ -220,13 +220,13 @@ public:
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
-		auto &r2y = _SWITCH_ (
+		auto &r2x = _SWITCH_ (
 			(mHeap.exist ()) ? mHeap->mWidth :
 			r1x) ;
-		mCX = r2y[0] ;
-		mCY = r2y[1] ;
-		mCW = r2y[2] ;
-		mCK = r2y[3] ;
+		mCX = r2x[0] ;
+		mCY = r2x[1] ;
+		mCW = r2x[2] ;
+		mCK = r2x[3] ;
 	}
 
 	void reset (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {

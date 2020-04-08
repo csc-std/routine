@@ -170,10 +170,10 @@ public:
 
 	void read (WORD &data) popping {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			read (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			read (r3x[r2x[i]]) ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) popping {
@@ -183,10 +183,10 @@ public:
 
 	void read (CHAR &data) popping {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			read (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			read (r3x[r2x[i]]) ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) popping {
@@ -196,10 +196,10 @@ public:
 
 	void read (DATA &data) popping {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			read (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			read (r3x[r2x[i]]) ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) popping {
@@ -440,10 +440,10 @@ public:
 
 	void write (const WORD &data) {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			write (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			write (r3x[r2x[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const WORD &data) {
@@ -453,10 +453,10 @@ public:
 
 	void write (const CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			write (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			write (r3x[r2x[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const CHAR &data) {
@@ -466,10 +466,10 @@ public:
 
 	void write (const DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
-		auto &r3y = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3y))))
-			write (r3y[r2y[i]]) ;
+		auto &r2x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
+		auto &r3x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+			write (r3x[r2x[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const DATA &data) {
@@ -637,8 +637,8 @@ private:
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
 			U::BYTE_BASE_TYPE<REAL> ret ;
-			auto &r1y = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
-			ByteReader (PhanBuffer<const BYTE>::make (r1y)) >> ret ;
+			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+			ByteReader (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1202,8 +1202,8 @@ private:
 			if (!Attribute::mSelf.mEndianFlag)
 				return item ;
 			U::BYTE_BASE_TYPE<REAL> ret ;
-			auto &r1y = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
-			ByteReader (PhanBuffer<const BYTE>::make (r1y)) >> ret ;
+			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+			ByteReader (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -2049,24 +2049,24 @@ public:
 	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader) {
 		_DEBUG_ASSERT_ (reader.exist ()) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (reader) ;
-		auto &r1y = mReader->attr () ;
-		r1y.modify_space (STRU8 (' ') ,1) ;
-		r1y.modify_space (STRU8 ('\t') ,1) ;
-		r1y.modify_space (STRU8 ('\v') ,1) ;
-		r1y.modify_space (STRU8 ('\r') ,2) ;
-		r1y.modify_space (STRU8 ('\n') ,2) ;
-		r1y.modify_space (STRU8 ('\f') ,2) ;
-		r1y.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
-		r1y.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
-		r1y.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
-		r1y.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
-		r1y.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;
-		r1y.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
-		r1y.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
-		r1y.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
+		auto &r1x = mReader->attr () ;
+		r1x.modify_space (STRU8 (' ') ,1) ;
+		r1x.modify_space (STRU8 ('\t') ,1) ;
+		r1x.modify_space (STRU8 ('\v') ,1) ;
+		r1x.modify_space (STRU8 ('\r') ,2) ;
+		r1x.modify_space (STRU8 ('\n') ,2) ;
+		r1x.modify_space (STRU8 ('\f') ,2) ;
+		r1x.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
+		r1x.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
+		r1x.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
+		r1x.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
+		r1x.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;
+		r1x.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
+		r1x.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
+		r1x.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
 		_STATIC_WARNING_ ("mark") ;
 		//@info: disable default escape-str convertion
-		r1y.enable_escape (FALSE) ;
+		r1x.enable_escape (FALSE) ;
 		mReader.self >> _BOM_ ;
 		for (auto &&i : _RANGE_ (0 ,mCache.length ()))
 			mReader.self >> mCache[i] ;
@@ -2388,13 +2388,13 @@ private:
 	LENGTH next_newgap_text_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		auto &r1y = mReader->attr () ;
+		auto &r1x = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1y.varify_ending_item ())
+			if (ris[0] == r1x.varify_ending_item ())
 				break ;
-			if (r1y.varify_space (ris[0]))
+			if (r1x.varify_space (ris[0]))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1y.varify_control (ris[0])) ;
+			_DYNAMIC_ASSERT_ (!r1x.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;
 		}
@@ -2404,13 +2404,13 @@ private:
 	LENGTH next_newline_text_size () popping {
 		LENGTH ret = 0 ;
 		auto ris = shadow () ;
-		auto &r1y = mReader->attr () ;
+		auto &r1x = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1y.varify_ending_item ())
+			if (ris[0] == r1x.varify_ending_item ())
 				break ;
-			if (r1y.varify_space (ris[0] ,2))
+			if (r1x.varify_space (ris[0] ,2))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1y.varify_control (ris[0])) ;
+			_DYNAMIC_ASSERT_ (!r1x.varify_control (ris[0])) ;
 			ris++ ;
 			ret++ ;
 		}

@@ -34,6 +34,25 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	class LocalProc {
+	private:
+		PTR<Holder> mHolder ;
+		INDEX mIndex ;
+
+	public:
+		inline LocalProc () = delete ;
+
+		inline explicit LocalProc (PTR<Holder> holder ,INDEX index) :mHolder (holder) ,mIndex (index) {}
+
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				Detail::static_execute ((*mHolder) ,mIndex) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
+
 private:
 	struct Detail ;
 	friend IntrusiveRef<Holder> ;
@@ -46,69 +65,69 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mItemQueue.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mItemQueue.exist ())
 			return 0 ;
-		return r2y.mItemQueue->size () ;
+		return r2x.mItemQueue->size () ;
 	}
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mItemQueue.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mItemQueue.exist ())
 			return 0 ;
-		return r2y.mItemQueue->length () ;
+		return r2x.mItemQueue->length () ;
 	}
 
 	void reserve (LENGTH post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (r2y.mItemQueue.exist ())
-			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (r2x.mItemQueue.exist ())
+			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
 		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (std::move (r2y.mItemQueue.self)) ;
-		r2y.mItemQueue = std::move (tmp) ;
+		tmp->appand (std::move (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = std::move (tmp) ;
 	}
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->empty ())
+			if (!r2x.mItemQueue->empty ())
 				break ;
-			r2y.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.self.wait (sgd) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		ITEM ret = std::move (r2y.mItemQueue.self[r2y.mItemQueue->head ()]) ;
-		r2y.mItemQueue->take () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		ITEM ret = std::move (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
+		r2x.mItemQueue->take () ;
 		return std::move (ret) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->empty ())
+			if (!r2x.mItemQueue->empty ())
 				break ;
 			const auto r3x = predicate () ;
 			_DYNAMIC_ASSERT_ (r3x) ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		ITEM ret = std::move (r2y.mItemQueue.self[r2y.mItemQueue->head ()]) ;
-		r2y.mItemQueue->take () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		ITEM ret = std::move (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
+		r2x.mItemQueue->take () ;
 		return std::move (ret) ;
 	}
 
@@ -118,49 +137,43 @@ public:
 			(void) i ;
 		}
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		_DEBUG_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
-		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
-		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
-		r2y.mThreadCounter = 0 ;
-		r2y.mThreadProc = std::move (proc) ;
-		if (!r2y.mItemQueue.exist ())
-			r2y.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (proc.length ()) ;
-		r2y.mItemQueue->clear () ;
-		r2y.mException = AutoRef<Exception> () ;
-		r2y.mThreadPool = Array<AutoRef<std::thread>> (proc.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,r2y.mThreadPool.length ())) {
-			const auto r3x = PACK<PTR<Holder> ,INDEX> {&r2y ,i} ;
-			//@warn: move object having captured context
-			r2y.mThreadPool[i] = AutoRef<std::thread>::make ([r3x] () noexcept {
-				_CALL_TRY_ ([&] () {
-					Detail::static_execute ((*r3x.P1) ,r3x.P2) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
+		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
+		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
+		r2x.mThreadCounter = 0 ;
+		r2x.mThreadProc = std::move (proc) ;
+		if (!r2x.mItemQueue.exist ())
+			r2x.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (proc.length ()) ;
+		r2x.mItemQueue->clear () ;
+		r2x.mException = AutoRef<Exception> () ;
+		r2x.mThreadPool = Array<AutoRef<std::thread>> (proc.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
+			//@warn: forward object having captured context
+			const auto r3x = LocalProc (&r2x ,i) ;
+			r2x.mThreadPool[i] = AutoRef<std::thread>::make (r3x) ;
 		}
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
-			_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-			if (r2y.mException.exist ())
+			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+			if (r2x.mException.exist ())
 				break ;
-			if (r2y.mItemQueue->full ())
+			if (r2x.mItemQueue->full ())
 				break ;
 			const auto r3x = predicate () ;
 			if (!r3x)
 				break ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		const auto r4x = std::move (r2y.mException) ;
+		const auto r4x = std::move (r2x.mException) ;
 		if (!r4x.exist ())
 			return ;
 		r4x->raise () ;
@@ -303,6 +316,24 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	class LocalProc {
+	private:
+		PTR<Holder> mHolder ;
+
+	public:
+		inline LocalProc () = delete ;
+
+		inline explicit LocalProc (PTR<Holder> holder) :mHolder (holder) {}
+
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				Detail::static_execute ((*mHolder)) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
+
 private:
 	struct Detail ;
 	friend IntrusiveRef<Holder> ;
@@ -315,157 +346,151 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mItemQueue.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mItemQueue.exist ())
 			return 0 ;
-		return r2y.mItemQueue->size () ;
+		return r2x.mItemQueue->size () ;
 	}
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mItemQueue.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mItemQueue.exist ())
 			return 0 ;
-		return r2y.mItemQueue->length () ;
+		return r2x.mItemQueue->length () ;
 	}
 
 	void reserve (LENGTH post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (r2y.mItemQueue.exist ())
-			if (r2y.mItemQueue->length () + post_len <= r2y.mItemQueue->size ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (r2x.mItemQueue.exist ())
+			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
 		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (std::move (r2y.mItemQueue.self)) ;
-		r2y.mItemQueue = std::move (tmp) ;
+		tmp->appand (std::move (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = std::move (tmp) ;
 	}
 
 	void post (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->full ())
+			if (!r2x.mItemQueue->full ())
 				break ;
-			r2y.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.self.wait (sgd) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		r2y.mItemQueue->add (std::move (item)) ;
-		r2y.mThreadCondition.self.notify_all () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		r2x.mItemQueue->add (std::move (item)) ;
+		r2x.mThreadCondition.self.notify_all () ;
 	}
 
 	void post (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->full ())
+			if (!r2x.mItemQueue->full ())
 				break ;
-			r2y.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.self.wait (sgd) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		r2y.mItemQueue->add (std::move (item)) ;
-		r2y.mThreadCondition.self.notify_all () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		r2x.mItemQueue->add (std::move (item)) ;
+		r2x.mThreadCondition.self.notify_all () ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void post (const ITEM &item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->full ())
+			if (!r2x.mItemQueue->full ())
 				break ;
 			const auto r3x = predicate () ;
 			_DYNAMIC_ASSERT_ (r3x) ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		r2y.mItemQueue->add (std::move (item)) ;
-		r2y.mThreadCondition.self.notify_all () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		r2x.mItemQueue->add (std::move (item)) ;
+		r2x.mThreadCondition.self.notify_all () ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void post (ITEM &&item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mItemQueue->size () > 0) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mItemQueue->full ())
+			if (!r2x.mItemQueue->full ())
 				break ;
 			const auto r3x = predicate () ;
 			_DYNAMIC_ASSERT_ (r3x) ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		r2y.mItemQueue->add (std::move (item)) ;
-		r2y.mThreadCondition.self.notify_all () ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		r2x.mItemQueue->add (std::move (item)) ;
+		r2x.mThreadCondition.self.notify_all () ;
 	}
 
 	void start (LENGTH count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		_DEBUG_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
-		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
-		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
-		r2y.mThreadCounter = 0 ;
-		r2y.mThreadWaitCounter = 0 ;
-		r2y.mThreadProc = std::move (proc) ;
-		if (!r2y.mItemQueue.exist ())
-			r2y.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (count) ;
-		r2y.mItemQueue->clear () ;
-		r2y.mException = AutoRef<Exception> () ;
-		r2y.mThreadPool = Array<AutoRef<std::thread>> (count) ;
-		for (auto &&i : _RANGE_ (0 ,r2y.mThreadPool.length ())) {
-			const auto r3x = PACK<PTR<Holder>> {&r2y} ;
-			//@warn: move object having captured context
-			r2y.mThreadPool[i] = AutoRef<std::thread>::make ([r3x] () noexcept {
-				_CALL_TRY_ ([&] () {
-					Detail::static_execute ((*r3x.P1)) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
+		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
+		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
+		r2x.mThreadCounter = 0 ;
+		r2x.mThreadWaitCounter = 0 ;
+		r2x.mThreadProc = std::move (proc) ;
+		if (!r2x.mItemQueue.exist ())
+			r2x.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (count) ;
+		r2x.mItemQueue->clear () ;
+		r2x.mException = AutoRef<Exception> () ;
+		r2x.mThreadPool = Array<AutoRef<std::thread>> (count) ;
+		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
+			//@warn: forward object having captured context
+			const auto r3x = LocalProc (&r2x) ;
+			r2x.mThreadPool[i] = AutoRef<std::thread>::make (r3x) ;
 		}
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
 		while (TRUE) {
-			_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-			if (r2y.mException.exist ())
+			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+			if (r2x.mException.exist ())
 				break ;
-			if (r2y.mThreadWaitCounter >= r2y.mThreadPool.length ())
-				if (r2y.mItemQueue->empty ())
+			if (r2x.mThreadWaitCounter >= r2x.mThreadPool.length ())
+				if (r2x.mItemQueue->empty ())
 					break ;
 			const auto r3x = predicate () ;
 			if (!r3x)
 				break ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		const auto r4x = std::move (r2y.mException) ;
+		const auto r4x = std::move (r2x.mException) ;
 		if (!r4x.exist ())
 			return ;
 		r4x->raise () ;
@@ -623,6 +648,24 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	class LocalProc {
+	private:
+		PTR<Holder> mHolder ;
+
+	public:
+		inline LocalProc () = delete ;
+
+		inline explicit LocalProc (PTR<Holder> holder) :mHolder (holder) {}
+
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				Detail::static_execute ((*mHolder)) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
+
 private:
 	struct Detail ;
 	friend IntrusiveRef<Holder> ;
@@ -652,41 +695,35 @@ public:
 
 	void start () {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
-		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
-		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
-		r2y.mThreadCounter = 0 ;
-		r2y.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
-		r2y.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
-		r2y.mItem = AutoRef<ITEM> () ;
-		r2y.mException = AutoRef<Exception> () ;
-		r2y.mThreadPool = AutoRef<std::thread> () ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
+		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
+		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
+		r2x.mThreadCounter = 0 ;
+		r2x.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
+		r2x.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+		r2x.mItem = AutoRef<ITEM> () ;
+		r2x.mException = AutoRef<Exception> () ;
+		r2x.mThreadPool = AutoRef<std::thread> () ;
 	}
 
 	void start (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (!r2y.mThreadFlag.exist ()) ;
-		_DEBUG_ASSERT_ (r2y.mThreadCounter == 0) ;
-		r2y.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
-		r2y.mThreadCounter = 0 ;
-		r2y.mThreadProc = std::move (proc) ;
-		r2y.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
-		r2y.mItem = AutoRef<ITEM> () ;
-		r2y.mException = AutoRef<Exception> () ;
-		const auto r3x = PACK<PTR<Holder>> {&r2y} ;
-		//@warn: move object having captured context
-		r2y.mThreadPool = AutoRef<std::thread>::make ([r3x] () noexcept {
-			_CALL_TRY_ ([&] () {
-				Detail::static_execute ((*r3x.P1)) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
-		}) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
+		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
+		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
+		r2x.mThreadCounter = 0 ;
+		r2x.mThreadProc = std::move (proc) ;
+		r2x.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+		r2x.mItem = AutoRef<ITEM> () ;
+		r2x.mException = AutoRef<Exception> () ;
+		//@warn: forward object having captured context
+		const auto r3x = LocalProc (&r2x) ;
+		r2x.mThreadPool = AutoRef<std::thread>::make (r3x) ;
 	}
 
 	void signal () {
@@ -839,83 +876,83 @@ public:
 
 	BOOL ready () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mThreadFlag.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mThreadFlag.exist ())
 			return TRUE ;
-		if (r2y.mThreadFlag.self)
+		if (r2x.mThreadFlag.self)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mThreadFlag.self)
+			if (!r2x.mThreadFlag.self)
 				break ;
-			r2y.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.self.wait (sgd) ;
 		}
-		if (r2y.mException.exist ())
-			r2y.mException->raise () ;
-		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
-		ITEM ret = std::move (r2y.mItem.self) ;
-		r2y.mItem = AutoRef<ITEM> () ;
+		if (r2x.mException.exist ())
+			r2x.mException->raise () ;
+		_DYNAMIC_ASSERT_ (r2x.mItem.exist ()) ;
+		ITEM ret = std::move (r2x.mItem.self) ;
+		r2x.mItem = AutoRef<ITEM> () ;
 		return std::move (ret) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2y.mThreadMutex) ;
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
 		while (TRUE) {
-			if (!r2y.mThreadFlag.exist ())
+			if (!r2x.mThreadFlag.exist ())
 				break ;
-			if (!r2y.mThreadFlag.self)
+			if (!r2x.mThreadFlag.self)
 				break ;
 			const auto r3x = predicate () ;
 			_DYNAMIC_ASSERT_ (r3x) ;
-			r2y.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		if (r2y.mException.exist ())
-			r2y.mException->raise () ;
-		_DYNAMIC_ASSERT_ (r2y.mItem.exist ()) ;
-		ITEM ret = std::move (r2y.mItem.self) ;
-		r2y.mItem = AutoRef<ITEM> () ;
+		if (r2x.mException.exist ())
+			r2x.mException->raise () ;
+		_DYNAMIC_ASSERT_ (r2x.mItem.exist ()) ;
+		ITEM ret = std::move (r2x.mItem.self) ;
+		r2x.mItem = AutoRef<ITEM> () ;
 		return std::move (ret) ;
 	}
 
 	ITEM value (const ITEM &def) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		if (!r2y.mThreadFlag.exist ())
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		if (!r2x.mThreadFlag.exist ())
 			return def ;
-		if (r2y.mThreadFlag.self)
+		if (r2x.mThreadFlag.self)
 			return def ;
-		if (!r2y.mItem.exist ())
+		if (!r2x.mItem.exist ())
 			return def ;
-		return r2y.mItem.self ;
+		return r2x.mItem.self ;
 	}
 
 	void then (Function<DEF<void (ITEM &)> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2y = _XVALUE_<Holder> (r1x) ;
-		ScopedGuard<std::mutex> ANONYMOUS (r2y.mThreadMutex) ;
-		_DYNAMIC_ASSERT_ (r2y.mThreadFlag.exist ()) ;
-		_DEBUG_ASSERT_ (!r2y.mCallbackProc.exist ()) ;
-		r2y.mCallbackProc = std::move (proc) ;
-		if (r2y.mThreadFlag.self)
+		auto &r2x = _XVALUE_<Holder> (r1x) ;
+		ScopedGuard<std::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
+		_DEBUG_ASSERT_ (!r2x.mCallbackProc.exist ()) ;
+		r2x.mCallbackProc = std::move (proc) ;
+		if (r2x.mThreadFlag.self)
 			return ;
-		if (!r2y.mItem.exist ())
+		if (!r2x.mItem.exist ())
 			return ;
-		r2y.mCallbackProc (r2y.mItem.self) ;
-		r2y.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
+		r2x.mCallbackProc (r2x.mItem.self) ;
+		r2x.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
 	void stop () {

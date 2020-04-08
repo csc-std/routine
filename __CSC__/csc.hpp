@@ -1610,9 +1610,9 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	auto &r1y = _LOAD_<_ARG1> (address) ;
-	const auto r2x = new (&r1y) _ARG1 (std::forward<_ARGS> (initval)...) ;
-	_DEBUG_ASSERT_ (r2x == &r1y) ;
+	auto &r1x = _LOAD_<_ARG1> (address) ;
+	const auto r2x = new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
+	_DEBUG_ASSERT_ (r2x == &r1x) ;
 	(void) r2x ;
 }
 
@@ -1620,9 +1620,9 @@ template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	auto &r1y = _LOAD_<_ARG1> (address) ;
-	r1y.~_ARG1 () ;
-	(void) r1y ;
+	auto &r1x = _LOAD_<_ARG1> (address) ;
+	r1x.~_ARG1 () ;
+	(void) r1x ;
 }
 
 template <class _ARG1>
@@ -1697,7 +1697,7 @@ template <class _ARG1 ,class _ARG2>
 inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept ;
 
 template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) popping {
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &func) {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
@@ -1895,10 +1895,10 @@ private:
 		inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
 			->DEF<const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &> {
 			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (text...) ;
-			auto &r2y = _CACHE_ ([r1x] () noexcept {
+			auto &r2x = _CACHE_ ([&] () noexcept {
 				return r1x ;
 			}) ;
-			return r2y.mString ;
+			return r2x.mString ;
 		}
 
 		template <class _ARG1 ,class _ARG2>

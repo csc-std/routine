@@ -395,7 +395,7 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 		ret = CSC::BOOL (r2x == r6x) ;
 	}
 	if switch_case (fax) {
-		auto &r9y = _CACHE_ ([&] () {
+		auto &r9x = _CACHE_ ([&] () {
 			return UniqueRef<String<STR>> ([&] (String<STR> &me) {
 				me = r1x ;
 				_SAVEFILE_ (r1x ,PhanBuffer<const CSC::BYTE>::make (r3x)) ;
@@ -403,7 +403,7 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 				_ERASEFILE_ (me) ;
 			}) ;
 		}) ;
-		(void) r9y ;
+		(void) r9x ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;
@@ -479,10 +479,10 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 			if (r5x == _PCSTR_ (".."))
 				discard ;
 			rax += r5x ;
-			auto &r6y = _SWITCH_ (
+			auto &r6x = _SWITCH_ (
 				(_FINDDIRECTORY_ (rax)) ? dire_list :
 				file_list) ;
-			r6y.add (rax) ;
+			r6x.add (rax) ;
 		}
 		rax[r1x] = 0 ;
 	}

@@ -146,14 +146,14 @@ public:
 	const String<STRU8> &name () && = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1y = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([] () {
 			return String<STRU8> () ;
 		}) ;
 		if (!exist ())
-			return r1y ;
+			return r1x ;
 		INDEX ix = mHeap.self[mIndex].mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return r1y ;
+			return r1x ;
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
@@ -337,11 +337,11 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r2y = mHeap.self[r1x[0]] ;
+			auto &r2x = mHeap.self[r1x[0]] ;
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
 			writer << _GAP_ ;
 			rbx.clear () ;
-			for (INDEX i = r2y.mChild ,it ; i != VAR_NONE ; i = it) {
+			for (INDEX i = r2x.mChild ,it ; i != VAR_NONE ; i = it) {
 				it = mHeap.self[i].mBrother ;
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			}
@@ -360,9 +360,9 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r3y = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r3y.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r3y.mAttributeSet) {
+			auto &r3x = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r3x.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r3x.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
@@ -377,16 +377,16 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x[1] == 0))
 				discard ;
-			auto &r4y = mHeap.self[r1x[0]] ;
-			writer << _PCSTRU8_ ("<") << r4y.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r4y.mAttributeSet) {
+			auto &r4x = mHeap.self[r1x[0]] ;
+			writer << _PCSTRU8_ ("<") << r4x.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r4x.mAttributeSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
 				writer << i.item << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
-			for (INDEX i = r4y.mChild ,it ; i != VAR_NONE ; i = it) {
+			for (INDEX i = r4x.mChild ,it ; i != VAR_NONE ; i = it) {
 				it = mHeap.self[i].mBrother ;
 				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
 			}
@@ -604,10 +604,10 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					update_shift_e5 (curr) ;
 					mNodeHeap[curr].mMemberSet.add (mNodeHeap[curr].mMemberSet.length () ,mLatestIndex) ;
 					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
-					auto &r3y = _SWITCH_ (
+					auto &r3x = _SWITCH_ (
 						(ix == VAR_NONE) ? ix :
 						mNodeHeap[iy].mBrother) ;
-					r3y = mLatestIndex ;
+					r3x = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
 				mRis >> RegularReader<>::SKIP_GAP ;
@@ -758,16 +758,16 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		}
 
 		inline INDEX node_type (const XmlParser &node) const {
-			auto &r1y = node.attribute (mClazzString) ;
-			if (r1y == mTableClazzString)
+			auto &r1x = node.attribute (mClazzString) ;
+			if (r1x == mTableClazzString)
 				return NODE_CLAZZ_TABLE ;
-			if (r1y == mObjectClazzString)
+			if (r1x == mObjectClazzString)
 				return NODE_CLAZZ_OBJECT ;
-			if (r1y == mArrayClazzString)
+			if (r1x == mArrayClazzString)
 				return NODE_CLAZZ_ARRAY ;
-			if (r1y == mFinalClazzString)
+			if (r1x == mFinalClazzString)
 				return NODE_CLAZZ_FINAL ;
-			_DYNAMIC_ASSERT_ (r1y.empty ()) ;
+			_DYNAMIC_ASSERT_ (r1x.empty ()) ;
 			return NODE_CLAZZ_TABLE ;
 		}
 
@@ -1058,11 +1058,11 @@ public:
 			return JsonParser (mHeap ,VAR_NONE) ;
 		if (!object_type ())
 			return JsonParser (mHeap ,VAR_NONE) ;
-		auto &r1y = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-		INDEX ix = r1y.find (key) ;
+		auto &r1x = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+		INDEX ix = r1x.find (key) ;
 		if (ix == VAR_NONE)
 			return JsonParser (mHeap ,VAR_NONE) ;
-		return JsonParser (mHeap ,r1y[ix].item) ;
+		return JsonParser (mHeap ,r1x[ix].item) ;
 	}
 
 	Array<JsonParser> child_array () const {
@@ -1072,10 +1072,10 @@ public:
 				discard ;
 			if (!array_type ())
 				discard ;
-			auto &r1y = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
-			ret = Array<JsonParser> (r1y.length ()) ;
+			auto &r1x = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			ret = Array<JsonParser> (r1x.length ()) ;
 			INDEX iw = 0 ;
-			for (auto &&i : r1y)
+			for (auto &&i : r1x)
 				ret[iw++] = JsonParser (mHeap ,i.item) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
@@ -1090,8 +1090,8 @@ public:
 				discard ;
 			if (!array_type ())
 				discard ;
-			auto &r1y = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
-			for (auto &&i : r1y) {
+			auto &r1x = mHeap.self[mIndex].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			for (auto &&i : r1x) {
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
 					continue ;
@@ -1208,8 +1208,8 @@ private:
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
-			auto &r1y = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			for (auto &&j : r1y)
+			auto &r1x = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			for (auto &&j : r1x)
 				ret.add (&j.key) ;
 		}
 		return std::move (ret) ;
@@ -1252,9 +1252,9 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r3y = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
+			auto &r3x = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
-			writer << r3y ;
+			writer << r3x ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
@@ -1265,11 +1265,11 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r4y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			auto &r4x = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rbx.clear () ;
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (2)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r4y) {
+			for (auto &&i : r4x) {
 				if (ir > 0)
 					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (3)}) ;
 				ir++ ;
@@ -1291,11 +1291,11 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x[1] == 0))
 				discard ;
-			auto &r5y = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r5x = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rbx.clear () ;
 			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (5)}) ;
 			INDEX ir = 0 ;
-			for (auto &&i : r5y) {
+			for (auto &&i : r5x) {
 				if (ir > 0)
 					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (6)}) ;
 				ir++ ;
@@ -1319,8 +1319,8 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			if (!(r2x[1] == 1))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			auto &r6y = (*r1x[r2x[0]].key) ;
-			writer << r6y ;
+			auto &r6x = (*r1x[r2x[0]].key) ;
+			writer << r6x ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
@@ -1582,12 +1582,12 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
 				update_shift_e4 (curr) ;
-				auto &r1y = mNodeHeap[curr].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
-				r1y.add (r1y.length () ,mLatestIndex) ;
-				auto &r2y = _SWITCH_ (
+				auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+				r1x.add (r1x.length () ,mLatestIndex) ;
+				auto &r2x = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
 					mNodeHeap[iy].mBrother) ;
-				r2y = mLatestIndex ;
+				r2x = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> RegularReader<>::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
@@ -1623,13 +1623,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $7->$3 : $4
 		inline void update_shift_e7 (INDEX curr) {
 			update_shift_e3 () ;
-			auto &r1y = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
-			INDEX ix = r1y.insert (std::move (mLatestString)) ;
+			auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			INDEX ix = r1x.insert (std::move (mLatestString)) ;
 			mRis >> RegularReader<>::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
 			mRis >> RegularReader<>::SKIP_GAP ;
 			update_shift_e4 (curr) ;
-			r1y[ix].item = mLatestIndex ;
+			r1x[ix].item = mLatestIndex ;
 		}
 
 		//@info: $8->$7|$7 , $8
@@ -1638,10 +1638,10 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
 				update_shift_e7 (curr) ;
-				auto &r1y = _SWITCH_ (
+				auto &r1x = _SWITCH_ (
 					(ix == VAR_NONE) ? ix :
 					mNodeHeap[iy].mBrother) ;
-				r1y = mLatestIndex ;
+				r1x = mLatestIndex ;
 				iy = mLatestIndex ;
 				mRis >> RegularReader<>::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
@@ -1752,12 +1752,12 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
-		auto &r1y = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([] () {
 			return String<STRU8> () ;
 		}) ;
 		INDEX ix = mAttributeSet.find (tag) ;
 		if (ix == VAR_NONE)
-			return r1y ;
+			return r1x ;
 		return mAttributeSet[ix].item ;
 	}
 

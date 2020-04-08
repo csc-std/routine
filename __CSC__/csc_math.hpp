@@ -101,22 +101,6 @@ inline _ARG1 _LOG_ (const _ARG1 &x) {
 	return _ARG1 (_LOG_ (VAL64 (x))) ;
 }
 
-template <class _ARG1>
-inline _ARG1 _NPDF_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	static const auto M_SCALE = _ARG1 (1) / _SQRT_ (_ARG1 (2 * MATH_PI)) ;
-	return _EXP_ (-_SQUARE_ (x) / _ARG1 (2)) * M_SCALE ;
-}
-
-inline imports DEF<VAL32 (const VAL32 &x)> _NCBF_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _NCBF_ ;
-
-template <class _ARG1>
-inline _ARG1 _NCBF_ (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_NCBF_ (VAL64 (x))) ;
-}
-
 inline imports DEF<VAL32 (const VAL32 &x)> _SIN_ ;
 inline imports DEF<VAL64 (const VAL64 &x)> _SIN_ ;
 
@@ -212,6 +196,23 @@ inline VAL32 _PINV_ (const VAL32 &x) {
 
 inline VAL64 _PINV_ (const VAL64 &x) {
 	return _PINV_ (x ,VAL64_EPS) ;
+}
+
+template <class _ARG1>
+inline _ARG1 _NPDF_ (const _ARG1 &x) {
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	static const auto M_2PII = _PINV_ (_SQRT_ (VAL64 (2 * MATH_PI))) ;
+	const auto r1x = -_SQUARE_ (VAL64 (x)) / 2 ;
+	return _EXP_ (r1x) * M_2PII ;
+}
+
+inline imports DEF<VAL32 (const VAL32 &x)> _NCDF_ ;
+inline imports DEF<VAL64 (const VAL64 &x)> _NCDF_ ;
+
+template <class _ARG1>
+inline _ARG1 _NCDF_ (const _ARG1 &x) {
+	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	return _ARG1 (_NCDF_ (VAL64 (x))) ;
 }
 
 inline VAL32 _FLOOR_ (const VAL32 &x ,const VAL32 &y) {

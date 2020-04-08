@@ -74,10 +74,10 @@ inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &val) {
 	const auto r1x = _BITWISE_CAST_<SOCKADDR_IN> (val) ;
 	const auto r2x = _CALL_ ([&] () {
 		PACK<WORD ,CHAR> ret ;
-		auto &r3y = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (r1x.sin_port) ;
-		auto &r4y = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (r1x.sin_addr.S_un.S_addr) ;
-		ByteReader (PhanBuffer<const CSC::BYTE>::make (r3y)) >> ret.P1 ;
-		ByteReader (PhanBuffer<const CSC::BYTE>::make (r4y)) >> ret.P2 ;
+		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (r1x.sin_port) ;
+		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (r1x.sin_addr.S_un.S_addr) ;
+		ByteReader (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.P1 ;
+		ByteReader (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.P2 ;
 		return std::move (ret) ;
 	}) ;
 	return _BUILDIPV4S_<STRU8> (r2x) ;
@@ -90,10 +90,10 @@ inline SOCKADDR _inline_SOCKET_MAKE_SOCKETADDR_ (const String<STRU8> &val) {
 		_ZERO_ (ret) ;
 		ret.sin_family = AF_INET ;
 		const auto r2x = _PARSEIPV4S_ (val) ;
-		auto &r3y = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (ret.sin_port) ;
-		auto &r4y = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (ret.sin_addr.S_un.S_addr) ;
-		ByteWriter (PhanBuffer<CSC::BYTE>::make (r3y)) << r2x.P1 ;
-		ByteWriter (PhanBuffer<CSC::BYTE>::make (r4y)) << r2x.P2 ;
+		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (ret.sin_port) ;
+		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (ret.sin_addr.S_un.S_addr) ;
+		ByteWriter (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.P1 ;
+		ByteWriter (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.P2 ;
 		return std::move (ret) ;
 	}) ;
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
@@ -359,8 +359,8 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const AnyRef<void> &socket_) {
-		auto &r1y = socket_.rebind<TCPSocket::Implement> ().self ;
-		mThis = r1y.mThis ;
+		auto &r1x = socket_.rebind<TCPSocket::Implement> ().self ;
+		mThis = r1x.mThis ;
 		mListener = std::move (mThis->mSocket) ;
 		const auto r2x = ::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;

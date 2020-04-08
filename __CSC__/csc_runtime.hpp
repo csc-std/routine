@@ -341,13 +341,13 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2y = _XVALUE_<Holder> (r1x) ;
-				auto &r3y = _LOAD_<NONE> (&r2y) ;
-				rax = unique_atomic_address (NULL ,&r3y) ;
+				auto &r2x = _XVALUE_<Holder> (r1x) ;
+				auto &r3x = _LOAD_<NONE> (&r2x) ;
+				rax = unique_atomic_address (NULL ,&r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			auto &r4y = _LOAD_<Holder> (rax) ;
-			return IntrusiveRef<Holder> (&r4y).watch () ;
+			auto &r4x = _LOAD_<Holder> (rax) ;
+			return IntrusiveRef<Holder> (&r4x).watch () ;
 		}) ;
 	}
 
@@ -428,29 +428,29 @@ template <FLAG GUID>
 class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
 public:
 	static void init (VAR data) {
-		auto &r1y = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		auto &r1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
 		if (r2x != NULL)
 			return ;
-		const auto r3x = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
+		const auto r3x = GlobalStatic<void>::static_new_node (r1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
 		r3x->mReadOnly = TRUE ;
 		r3x->mData = data ;
 	}
 
 	static VAR load () popping {
-		auto &r1y = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		auto &r1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		return r2x->mData ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
-		auto &r1y = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		auto &r1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
 		if (r2x->mData == expect)
@@ -459,13 +459,13 @@ public:
 	}
 
 	static void save (VAR data) {
-		auto &r1y = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1y.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::static_find_node (r1y ,GUID) ;
+		auto &r1x = GlobalStatic<void>::static_unique () ;
+		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
 		if switch_case (TRUE) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::static_new_node (r1y ,GUID) ;
+			rax = GlobalStatic<void>::static_new_node (r1x ,GUID) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -495,28 +495,28 @@ private:
 
 public:
 	static Singleton<UNIT> &unique () popping {
-		auto &r1y = _CACHE_ ([] () {
-			auto &r2y = GlobalStatic<void>::static_unique () ;
-			ScopedGuard<std::mutex> ANONYMOUS (r2y.mNodeMutex) ;
+		auto &r1x = _CACHE_ ([] () {
+			auto &r2x = GlobalStatic<void>::static_unique () ;
+			ScopedGuard<std::mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
-			auto rax = GlobalStatic<void>::static_find_node (r2y ,r3x) ;
+			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<Holder> () ;
 			if switch_case (TRUE) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::static_new_node (r2y ,r3x) ;
+				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Holder>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5y = _XVALUE_<Holder> (r4x) ;
-				auto &r6y = _LOAD_<NONE> (&r5y) ;
-				rax->mData = &r6y ;
+				auto &r5x = _XVALUE_<Holder> (r4x) ;
+				auto &r6x = _LOAD_<NONE> (&r5x) ;
+				rax->mData = &r6x ;
 			}
-			auto &r7y = _LOAD_<Holder> (rax->mData) ;
-			return IntrusiveRef<Holder> (&r7y).watch () ;
+			auto &r7x = _LOAD_<Holder> (rax->mData) ;
+			return IntrusiveRef<Holder> (&r7x).watch () ;
 		}) ;
-		return _XVALUE_<Holder> (r1y).mData ;
+		return _XVALUE_<Holder> (r1x).mData ;
 	}
 
 private:

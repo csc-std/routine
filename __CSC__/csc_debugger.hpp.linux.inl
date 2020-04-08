@@ -378,12 +378,12 @@ public:
 				return ;
 			::free (me) ;
 		}) ;
-		auto &r4y = PTRTOARR[r3x.self] ;
+		auto &r4x = PTRTOARR[r3x.self] ;
 		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 			const auto r5x = _BUILDHEX16S_ (list[i]) ;
-			const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4y[i]])) ;
+			const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x[i]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;

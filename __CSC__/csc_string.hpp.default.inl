@@ -57,11 +57,11 @@ inline const UniqueRef<_locale_t> &_inline_LOCALE_PAGE_ () {
 
 inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1y = _inline_LOCALE_PAGE_ () ;
+	auto &r1x = _inline_LOCALE_PAGE_ () ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r2x = ::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		const auto r2x = ::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRW> () ;
@@ -82,11 +82,11 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 
 inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1y = _inline_LOCALE_PAGE_ () ;
+	auto &r1x = _inline_LOCALE_PAGE_ () ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r2x = ::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1y) ;
+		const auto r2x = ::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRA> () ;
@@ -222,10 +222,10 @@ public:
 				if (!r4x)
 					break ;
 				INDEX ix = ret.insert () ;
-				auto &r5y = rax.self[0].first ;
-				auto &r6y = rax.self[0].second ;
-				ret[ix][0] = INDEX (&(*r5y) - &r2x[0]) ;
-				ret[ix][1] = INDEX (&(*r6y) - &r2x[0]) ;
+				auto &r5x = rax.self[0].first ;
+				auto &r6x = rax.self[0].second ;
+				ret[ix][0] = INDEX (&(*r5x) - &r2x[0]) ;
+				ret[ix][1] = INDEX (&(*r6x) - &r2x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}

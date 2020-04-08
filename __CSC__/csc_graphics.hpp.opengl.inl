@@ -144,14 +144,14 @@ public:
 	}
 
 	void compute_active_pipeline (AnyRef<void> &this_) const override {
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
-		glUseProgram (r1y) ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		glUseProgram (r1x) ;
 	}
 
 	void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1y = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
 		const auto r2x = identity_name (name) ;
-		index = INDEX (glGetUniformLocation (r1y ,r2x.raw ().self)) ;
+		index = INDEX (glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 	}
 
@@ -233,21 +233,21 @@ public:
 	}
 
 	void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const override {
-		auto &r1y = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
-		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1y.mVTO->size ()) ;
-		r1y.mTexture = texture ;
+		auto &r1x = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
+		r1x.mTexture = texture ;
 	}
 
 	void compute_sprite_draw (AnyRef<void> &this_) const override {
-		auto &r1y = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
-		glBindVertexArray (r1y.mVAO) ;
+		auto &r1x = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		glBindVertexArray (r1x.mVAO) ;
 		if switch_case (TRUE) {
-			if (r1y.mTexture == VAR_NONE)
+			if (r1x.mTexture == VAR_NONE)
 				discard ;
 			glActiveTexture (GL_TEXTURE_2D) ;
-			glBindTexture (GL_TEXTURE_2D ,r1y.mVTO.self[r1y.mTexture]) ;
+			glBindTexture (GL_TEXTURE_2D ,r1x.mVTO.self[r1x.mTexture]) ;
 		}
-		glDrawArrays (CHAR (r1y.mMode) ,0 ,VAR32 (r1y.mSize)) ;
+		glDrawArrays (CHAR (r1x.mMode) ,0 ,VAR32 (r1x.mSize)) ;
 	}
 
 private:

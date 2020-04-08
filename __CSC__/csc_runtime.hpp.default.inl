@@ -188,33 +188,33 @@ public:
 	}
 
 	static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
-		auto &r1y = bp->rebind<BREAKPOINT> ().self ;
-		_DEBUG_ASSERT_ (r1y.mStackPoint[0] != 0) ;
-		r1y.mStackPoint[1] = _ADDRESS_ (&bp) ;
-		const auto r2x = r1y.mStackPoint[1] - r1y.mStackPoint[0] ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
+		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
+		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
+		r1x.mStackPoint[1] = _ADDRESS_ (&bp) ;
+		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
+		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
-		auto &r4y = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1y.mStackPoint[r3x])) ;
-		_MEMCOPY_ (PTRTOARR[r1y.mStackFrame] ,r4y ,_ABS_ (r2x)) ;
-		auto &r5y = load_context_ebp (r1y.mContextEbp) ;
-		const auto r6x = ::setjmp (r5y.mEbp) ;
+		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
+		_MEMCOPY_ (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
+		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
+		const auto r6x = ::setjmp (r5x.mEbp) ;
 		(void) r6x ;
 	}
 
 	static void goto_break_point (PTR<AnyRef<void>> bp) noexcept {
-		auto &r1y = bp->rebind<BREAKPOINT> ().self ;
-		_DEBUG_ASSERT_ (r1y.mStackPoint[0] != 0) ;
-		_DEBUG_ASSERT_ (r1y.mStackPoint[1] != 0) ;
-		r1y.mStackPoint[2] = _ADDRESS_ (&bp) ;
+		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
+		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
+		_DEBUG_ASSERT_ (r1x.mStackPoint[1] != 0) ;
+		r1x.mStackPoint[2] = _ADDRESS_ (&bp) ;
 		_STATIC_WARNING_ ("mark") ;
-		_DEBUG_ASSERT_ (r1y.mStackPoint[2] == r1y.mStackPoint[1]) ;
-		const auto r2x = r1y.mStackPoint[1] - r1y.mStackPoint[0] ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1y.mStackFrame))) ;
+		_DEBUG_ASSERT_ (r1x.mStackPoint[2] == r1x.mStackPoint[1]) ;
+		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
+		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = EFLAG (r2x < 0) ;
-		auto &r4y = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1y.mStackPoint[r3x])) ;
-		_MEMCOPY_ (r4y ,PTRTOARR[r1y.mStackFrame] ,_ABS_ (r2x)) ;
-		auto &r5y = load_context_ebp (r1y.mContextEbp) ;
-		::longjmp (r5y.mEbp ,1) ;
+		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
+		_MEMCOPY_ (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
+		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
+		::longjmp (r5x.mEbp ,1) ;
 	}
 
 	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE::value]> &ebp) noexcept {

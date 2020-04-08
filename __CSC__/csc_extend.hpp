@@ -797,9 +797,9 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value != VAR_NONE>>
 	inline implicit Variant (_ARG1 &&that) :Variant (ARGVP0) {
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
-		auto &r1y = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
+		auto &r1x = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
 		using CREATE_FLAG = ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value> ;
-		Detail::template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r1y ,std::forward<_ARG1> (that)) ;
+		Detail::template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r1x ,std::forward<_ARG1> (that)) ;
 		mIndex = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value ;
 	}
 
@@ -862,8 +862,8 @@ public:
 	inline OPTIONAL_TYPE &to () {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
-		return _CAST_<OPTIONAL_TYPE> (r1y) ;
+		auto &r1x = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
+		return _CAST_<OPTIONAL_TYPE> (r1x) ;
 	}
 
 	inline implicit operator OPTIONAL_TYPE & () {
@@ -873,8 +873,8 @@ public:
 	inline const OPTIONAL_TYPE &to () const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1y = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
-		return _CAST_<OPTIONAL_TYPE> (r1y) ;
+		auto &r1x = _LOAD_<TEMP<OPTIONAL_TYPE>> (&mVariant) ;
+		return _CAST_<OPTIONAL_TYPE> (r1x) ;
 	}
 
 	inline implicit operator const OPTIONAL_TYPE & () const {
@@ -885,16 +885,16 @@ public:
 	inline void apply (const Function<void (_ARG1 &)> &proc) {
 		if (!available<_ARG1> ())
 			return ;
-		auto &r1y = _LOAD_<TEMP<_ARG1>> (&mVariant) ;
-		proc (_CAST_<_ARG1> (r1y)) ;
+		auto &r1x = _LOAD_<TEMP<_ARG1>> (&mVariant) ;
+		proc (_CAST_<_ARG1> (r1x)) ;
 	}
 
 	template <class _ARG1>
 	inline void apply (const Function<FIX_MSVC_DEDUCTION_2<void ,_ARG1 &>> &proc) {
 		if (!available<_ARG1> ())
 			return ;
-		auto &r1y = _LOAD_<TEMP<_ARG1>> (&mVariant) ;
-		proc (_CAST_<_ARG1> (r1y)) ;
+		auto &r1x = _LOAD_<TEMP<_ARG1>> (&mVariant) ;
+		proc (_CAST_<_ARG1> (r1x)) ;
 	}
 
 	//@warn: none class shall be base on its address
@@ -925,9 +925,9 @@ private:
 			if switch_case (TRUE) {
 				if (!r1x)
 					discard ;
-				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
+				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
 				using CREATE_FLAG = ARGC<std::is_default_constructible<_ARG1>::value> ;
-				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2y) ;
+				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x) ;
 			}
 			if (r1x)
 				return ;
@@ -947,8 +947,8 @@ private:
 			if switch_case (TRUE) {
 				if (!r1x)
 					discard ;
-				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
-				_DESTROY_ (&r2y) ;
+				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+				_DESTROY_ (&r2x) ;
 			}
 			if (r1x)
 				return ;
@@ -965,10 +965,10 @@ private:
 			if switch_case (TRUE) {
 				if (!r1x)
 					discard ;
-				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
-				auto &r3y = _LOAD_<TEMP<_ARG1>> (that) ;
+				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+				auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
 				using CREATE_FLAG = ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value> ;
-				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2y ,std::move (_CAST_<_ARG1> (r3y))) ;
+				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
 			}
 			if (r1x)
 				return ;
@@ -987,9 +987,9 @@ private:
 			if switch_case (TRUE) {
 				if (!r1x)
 					discard ;
-				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
-				auto &r3y = _LOAD_<TEMP<_ARG1>> (that) ;
-				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2y ,std::move (_CAST_<_ARG1> (r3y))) ;
+				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+				auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
+				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
 			}
 			if (r1x)
 				return ;
@@ -1244,8 +1244,8 @@ template <class... _ARGS>
 inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 	auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
 	ScopedBuild<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,func ,parameter...) ;
-	auto &r1y = _LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
-	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (&r1y)) ;
+	auto &r1x = _LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
+	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (&r1x)) ;
 	rax = NULL ;
 	return std::move (ret) ;
 }
@@ -1769,8 +1769,8 @@ public:
 		auto rax = SharedRef<Holder>::make () ;
 		rax->mData = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
-		auto &r1y = rax->mData.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
-		return StrongRef (rax ,&r1y) ;
+		auto &r1x = rax->mData.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
+		return StrongRef (rax ,&r1x) ;
 	}
 } ;
 
@@ -1969,10 +1969,10 @@ public:
 		if switch_case (TRUE) {
 			if (!linked ())
 				discard ;
-			auto &r1y = mHeap.self[mIndex].mWeight ;
-			const auto r2x = EFLAG (r1y >= 0 && r1y < VAR32_MAX) ;
-			const auto r3x = EFLAG (r1y < 0 && r1y > VAR32_MIN) ;
-			r1y += r2x - r3x ;
+			auto &r1x = mHeap.self[mIndex].mWeight ;
+			const auto r2x = EFLAG (r1x >= 0 && r1x < VAR32_MAX) ;
+			const auto r3x = EFLAG (r1x < 0 && r1x > VAR32_MIN) ;
+			r1x += r2x - r3x ;
 		}
 		return mWeakRef.watch () ;
 	}
@@ -2248,9 +2248,9 @@ public:
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1y = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
-		Detail::acquire (&r1y ,TRUE) ;
-		const auto r2x = ret.safe_exchange (&r1y) ;
+		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
+		Detail::acquire (&r1x ,TRUE) ;
+		const auto r2x = ret.safe_exchange (&r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		rax = NULL ;
@@ -2392,21 +2392,21 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			auto &r5y = _LOAD_<CHUNK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r5y.mPrev = NULL ;
-			r5y.mNext = mRoot ;
-			r5y.mCount = RESE::value ;
+			auto &r5x = _LOAD_<CHUNK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5x.mPrev = NULL ;
+			r5x.mNext = mRoot ;
+			r5x.mCount = RESE::value ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r5y ;
-			mRoot = &r5y ;
+				mRoot->mPrev = &r5x ;
+			mRoot = &r5x ;
 			mSize += RESE::value * SIZE::value ;
 			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 				const auto r7x = r6x + i * r1x ;
-				auto &r8y = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r7x)) ;
-				r8y.mNext = mFree ;
-				mFree = &r8y ;
+				auto &r8x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r7x)) ;
+				r8x.mNext = mFree ;
+				mFree = &r8x ;
 			}
 			rax = NULL ;
 		}
@@ -2424,10 +2424,10 @@ private:
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1y = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (r1y.mNext) == VAR_USED) ;
-			r1y.mNext = mFree ;
-			mFree = &r1y ;
+			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
+			_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
+			r1x.mNext = mFree ;
+			mFree = &r1x ;
 			mLength -= SIZE::value ;
 		}
 
@@ -2438,10 +2438,10 @@ private:
 				it = i->mNext ;
 				if (!empty_node (i))
 					continue ;
-				auto &r1y = _SWITCH_ (
+				auto &r1x = _SWITCH_ (
 					(i->mPrev != NULL) ? i->mPrev->mNext :
 					mRoot) ;
-				r1y = i->mNext ;
+				r1x = i->mNext ;
 				if (i->mNext != NULL)
 					i->mNext->mPrev = i->mPrev ;
 				mSize -= i->mCount * SIZE::value ;
@@ -2455,8 +2455,8 @@ private:
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 				const auto r3x = r2x + i * r1x ;
-				auto &r4y = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
-				if (_ADDRESS_ (r4y.mNext) == VAR_USED)
+				auto &r4x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+				if (_ADDRESS_ (r4x.mNext) == VAR_USED)
 					return FALSE ;
 			}
 			return TRUE ;
@@ -2509,32 +2509,32 @@ private:
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (BLOCK)) ;
-			auto &r5y = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-			r5y.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r5y.mPrev = NULL ;
-			r5y.mNext = mRoot ;
-			r5y.mCount = r1x ;
+			auto &r5x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5x.mPrev = NULL ;
+			r5x.mNext = mRoot ;
+			r5x.mCount = r1x ;
 			if (mRoot != NULL)
-				mRoot->mPrev = &r5y ;
-			mRoot = &r5y ;
-			mSize += r5y.mCount ;
-			mLength += r5y.mCount ;
+				mRoot->mPrev = &r5x ;
+			mRoot = &r5x ;
+			mSize += r5x.mCount ;
+			mLength += r5x.mCount ;
 			rax = NULL ;
-			return &r5y.mFlexData ;
+			return &r5x.mFlexData ;
 		}
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1y = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			auto &r2y = _SWITCH_ (
-				(r1y.mPrev != NULL) ? r1y.mPrev->mNext :
+			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
+			auto &r2x = _SWITCH_ (
+				(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
 				mRoot) ;
-			r2y = r1y.mNext ;
-			if (r1y.mNext != NULL)
-				r1y.mNext->mPrev = r1y.mPrev ;
-			mSize -= r1y.mCount ;
-			mLength -= r1y.mCount ;
-			GlobalHeap::free (r1y.mOrigin) ;
+			r2x = r1x.mNext ;
+			if (r1x.mNext != NULL)
+				r1x.mNext->mPrev = r1x.mPrev ;
+			mSize -= r1x.mCount ;
+			mLength -= r1x.mCount ;
+			GlobalHeap::free (r1x.mOrigin) ;
 		}
 
 		inline void clean () override {
@@ -2607,11 +2607,11 @@ public:
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5y = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5y.mPool = mPool.self[ix] ;
-		r5y.mCurr = r2x ;
-		auto &r6y = _LOAD_<_RET> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
-		return &r6y ;
+		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+		r5x.mPool = mPool.self[ix] ;
+		r5x.mCurr = r2x ;
+		auto &r6x = _LOAD_<_RET> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+		return &r6x ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -2625,21 +2625,21 @@ public:
 		const auto r2x = mPool.self[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5y = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5y.mPool = mPool.self[ix] ;
-		r5y.mCurr = r2x ;
-		auto &r6y = _LOAD_<ARR<_RET>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
-		return &r6y ;
+		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+		r5x.mPool = mPool.self[ix] ;
+		r5x.mCurr = r2x ;
+		auto &r6x = _LOAD_<ARR<_RET>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+		return &r6x ;
 	}
 
 	template <class _ARG1>
 	inline void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		auto &r2y = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
-		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2y.mPool) ;
+		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
+		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2x.mPool) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-		mPool.self[ix]->free (r2y.mCurr) ;
+		mPool.self[ix]->free (r2x.mCurr) ;
 	}
 
 	inline void clean () {
@@ -2680,13 +2680,13 @@ private:
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
 			mObjectTypeUID = _TYPEMID_<_ARG1> () ;
 			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
-				auto &r2y = _LOAD_<TEMP<_ARG1>> (address) ;
-				_CREATE_ (&r2y) ;
+				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+				_CREATE_ (&r2x) ;
 			}) ;
 			mConstrutor = r1x ;
 			const auto r3x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
-				auto &r4y = _LOAD_<TEMP<_ARG1>> (address) ;
-				_DESTROY_ (&r4y) ;
+				auto &r4x = _LOAD_<TEMP<_ARG1>> (address) ;
+				_DESTROY_ (&r4x) ;
 			}) ;
 			mDestructor = r1x ;
 		}
@@ -2805,8 +2805,8 @@ private:
 
 		template <class... _ARGS>
 		inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<DEF<_ARGS CONT::*>...> &memptr) {
-			auto &r1y = (context_.*memptr.one ()) ;
-			visitor.visit (r1y) ;
+			auto &r1x = (context_.*memptr.one ()) ;
+			visitor.visit (r1x) ;
 			template_visit (visitor ,context_ ,memptr.rest ()) ;
 		}
 	} ;
