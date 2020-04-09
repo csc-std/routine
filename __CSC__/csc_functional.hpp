@@ -54,7 +54,7 @@ using CONTEXT_RANK_FUNC_TYPE = typename CONTEXT_RANK_FUNC<_ARG1>::TYPE ;
 
 class Operand {
 private:
-	class Lazy {
+	class Pack {
 	private:
 		friend Operand ;
 		AnyRef<void> mValue ;
@@ -62,14 +62,14 @@ private:
 	} ;
 
 private:
-	SharedRef<Lazy> mLazy ;
+	SharedRef<Pack> mLazy ;
 
 public:
 	inline Operand () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value>>
 	inline implicit Operand (_ARG1 &&that) {
-		mLazy = SharedRef<Lazy>::make () ;
+		mLazy = SharedRef<Pack>::make () ;
 		mLazy->mValue = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (std::forward<_ARG1> (that)) ;
 	}
 

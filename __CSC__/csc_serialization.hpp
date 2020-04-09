@@ -35,6 +35,7 @@ private:
 	} ;
 
 private:
+	struct Detail ;
 	SharedRef<FixedBuffer<Node>> mHeap ;
 	INDEX mIndex ;
 
@@ -317,6 +318,22 @@ public:
 		ret.initialize (sequence) ;
 		return std::move (ret) ;
 	}
+
+private:
+	struct Detail {
+		class RecursiveCounter :private Wrapped<LENGTH> {
+		public:
+			inline void lock () {
+				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				RecursiveCounter::mSelf++ ;
+			}
+
+			inline void unlock () {
+				RecursiveCounter::mSelf-- ;
+			}
+		} ;
+	} ;
 } ;
 
 inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
@@ -410,21 +427,8 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 }
 
 inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
+	using RecursiveCounter = typename Detail::RecursiveCounter ;
 	class Lambda {
-	private:
-		class RecursiveCounter :private Wrapped<LENGTH> {
-		public:
-			inline void lock () {
-				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
-				RecursiveCounter::mSelf++ ;
-			}
-
-			inline void unlock () {
-				RecursiveCounter::mSelf-- ;
-			}
-		} ;
-
 	private:
 		XmlParser &mContext ;
 
@@ -1001,6 +1005,7 @@ private:
 	} ;
 
 private:
+	struct Detail ;
 	SharedRef<FixedBuffer<Node>> mHeap ;
 	INDEX mIndex ;
 
@@ -1229,6 +1234,22 @@ public:
 		ret.initialize (data) ;
 		return std::move (ret) ;
 	}
+
+private:
+	struct Detail {
+		class RecursiveCounter :private Wrapped<LENGTH> {
+		public:
+			inline void lock () {
+				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				RecursiveCounter::mSelf++ ;
+			}
+
+			inline void unlock () {
+				RecursiveCounter::mSelf-- ;
+			}
+		} ;
+	} ;
 } ;
 
 inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
@@ -1384,21 +1405,8 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 }
 
 inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
+	using RecursiveCounter = typename Detail::RecursiveCounter ;
 	class Lambda {
-	private:
-		class RecursiveCounter :private Wrapped<LENGTH> {
-		public:
-			inline void lock () {
-				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
-				RecursiveCounter::mSelf++ ;
-			}
-
-			inline void unlock () {
-				RecursiveCounter::mSelf-- ;
-			}
-		} ;
-
 	private:
 		JsonParser &mContext ;
 

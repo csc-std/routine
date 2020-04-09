@@ -314,7 +314,7 @@ template <class REAL>
 class Matrix {
 private:
 	template <class BASE>
-	class Row final {
+	class Row final :private Proxy {
 	private:
 		friend Matrix ;
 		BASE &mBase ;
@@ -322,10 +322,6 @@ private:
 
 	public:
 		inline Row () = delete ;
-
-		inline Row (const Row &) = delete ;
-
-		inline Row (Row &&) noexcept = default ;
 
 		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) && {
 			return mBase.get (mY ,x) ;

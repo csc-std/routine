@@ -307,16 +307,14 @@ private:
 		PTR<NONE> mData ;
 	} ;
 
-	struct Detail ;
-
-	class Holder {
+	class Pack {
 	public:
-		using INTRUSIVE_TYPE = typename GlobalStatic::Detail ;
+		using INTRUSIVE_TYPE = GlobalStatic ;
 
 	private:
 		template <class>
 		friend class GlobalStatic ;
-		friend IntrusiveRef<Holder> ;
+		friend IntrusiveRef<Pack> ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		HashSet<FLAG ,VALUE_NODE> mValueSet ;
@@ -324,34 +322,33 @@ private:
 	} ;
 
 private:
-	struct Detail ;
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<Holder> ;
+	friend IntrusiveRef<Pack> ;
 
 private:
-	static Holder &static_unique () popping {
+	static Pack &static_unique () popping {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<Holder> () ;
+			auto rbx = IntrusiveRef<Pack> () ;
 			if switch_case (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Holder>::make () ;
+				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _XVALUE_<Holder> (r1x) ;
+				auto &r2x = _XVALUE_<Pack> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (&r2x) ;
 				rax = unique_atomic_address (NULL ,&r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			auto &r4x = _LOAD_<Holder> (rax) ;
-			return IntrusiveRef<Holder> (&r4x).watch () ;
+			auto &r4x = _LOAD_<Pack> (rax) ;
+			return IntrusiveRef<Pack> (&r4x).watch () ;
 		}) ;
 	}
 
-	static PTR<VALUE_NODE> static_new_node (Holder &self_ ,FLAG guid) popping {
+	static PTR<VALUE_NODE> static_new_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueSet.insert (r1x) ;
 		self_.mValueSet[ix].item.mGUID = guid ;
@@ -362,7 +359,7 @@ private:
 		return guid ;
 	}
 
-	static PTR<VALUE_NODE> static_find_node (Holder &self_ ,FLAG guid) popping {
+	static PTR<VALUE_NODE> static_find_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueSet.find (r1x) ;
 		if (ix == VAR_NONE)
@@ -370,7 +367,7 @@ private:
 		return &self_.mValueSet[ix].item ;
 	}
 
-	static PTR<CLASS_NODE> static_new_node (Holder &self_ ,const String<STR> &guid) popping {
+	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassSet.insert (r1x) ;
 		self_.mClassSet[ix].item.mGUID = guid ;
@@ -383,7 +380,7 @@ private:
 		return _MEMHASH_ (r2x.self ,r2x.size ()) ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Holder &self_ ,const String<STR> &guid) popping {
+	static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassSet.find (r1x) ;
 		if (ix == VAR_NONE)
@@ -396,32 +393,30 @@ public:
 	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 private:
-	struct Detail {
-		inline static void friend_create (Holder &self_) {
-			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
-			self_.mCounter = 0 ;
-			self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
-			self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
-		}
+	inline static void friend_create (Pack &self_) {
+		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		self_.mCounter = 0 ;
+		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
+		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
+	}
 
-		inline static void friend_destroy (Holder &self_) {
-			ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
-			self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
-			self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
-		}
+	inline static void friend_destroy (Pack &self_) {
+		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
+		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
+	}
 
-		inline static LENGTH friend_attach (Holder &self_) popping {
-			return ++self_.mCounter ;
-		}
+	inline static LENGTH friend_attach (Pack &self_) popping {
+		return ++self_.mCounter ;
+	}
 
-		inline static LENGTH friend_detach (Holder &self_) popping {
-			return --self_.mCounter ;
-		}
+	inline static LENGTH friend_detach (Pack &self_) popping {
+		return --self_.mCounter ;
+	}
 
-		inline static void friend_latch (Holder &self_) {
-			GlobalRuntime::thread_sleep () ;
-		}
-	} ;
+	inline static void friend_latch (Pack &self_) {
+		GlobalRuntime::thread_sleep () ;
+	}
 } ;
 
 template <FLAG GUID>
@@ -479,19 +474,18 @@ class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
 private:
 	struct Detail ;
 
-	class Holder {
+	class Pack {
 	public:
-		using INTRUSIVE_TYPE = typename GlobalStatic::Detail ;
+		using INTRUSIVE_TYPE = GlobalStatic ;
 
 	public:
-		friend IntrusiveRef<Holder> ;
+		friend IntrusiveRef<Pack> ;
 		std::atomic<LENGTH> mCounter ;
 		Singleton<UNIT> mData ;
 	} ;
 
 private:
-	struct Detail ;
-	friend IntrusiveRef<Holder> ;
+	friend IntrusiveRef<Pack> ;
 
 public:
 	static Singleton<UNIT> &unique () popping {
@@ -500,47 +494,45 @@ public:
 			ScopedGuard<std::mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
-			auto rbx = IntrusiveRef<Holder> () ;
+			auto rbx = IntrusiveRef<Pack> () ;
 			if switch_case (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Holder>::make () ;
+				rbx = IntrusiveRef<Pack>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _XVALUE_<Holder> (r4x) ;
+				auto &r5x = _XVALUE_<Pack> (r4x) ;
 				auto &r6x = _LOAD_<NONE> (&r5x) ;
 				rax->mData = &r6x ;
 			}
-			auto &r7x = _LOAD_<Holder> (rax->mData) ;
-			return IntrusiveRef<Holder> (&r7x).watch () ;
+			auto &r7x = _LOAD_<Pack> (rax->mData) ;
+			return IntrusiveRef<Pack> (&r7x).watch () ;
 		}) ;
-		return _XVALUE_<Holder> (r1x).mData ;
+		return _XVALUE_<Pack> (r1x).mData ;
 	}
 
 private:
-	struct Detail {
-		inline static void friend_create (Holder &self_) {
-			self_.mCounter = 0 ;
-		}
+	inline static void friend_create (Pack &self_) {
+		self_.mCounter = 0 ;
+	}
 
-		inline static void friend_destroy (Holder &self_) {
-			_STATIC_WARNING_ ("noop") ;
-		}
+	inline static void friend_destroy (Pack &self_) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		inline static LENGTH friend_attach (Holder &self_) popping {
-			return ++self_.mCounter ;
-		}
+	inline static LENGTH friend_attach (Pack &self_) popping {
+		return ++self_.mCounter ;
+	}
 
-		inline static LENGTH friend_detach (Holder &self_) popping {
-			return --self_.mCounter ;
-		}
+	inline static LENGTH friend_detach (Pack &self_) popping {
+		return --self_.mCounter ;
+	}
 
-		inline static void friend_latch (Holder &self_) {
-			GlobalRuntime::thread_sleep () ;
-		}
-	} ;
+	inline static void friend_latch (Pack &self_) {
+		GlobalRuntime::thread_sleep () ;
+	}
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -762,7 +754,6 @@ private:
 	} ;
 
 private:
-	struct Detail ;
 	class Implement ;
 	friend Singleton<RandomService> ;
 	Monostate<std::recursive_mutex> mMutex ;
@@ -842,22 +833,22 @@ public:
 		const auto r1x = random_value (0 ,36 ,28) ;
 		for (auto &&i : _RANGE_ (0 ,8)) {
 			INDEX ix = 0 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 8 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 12 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r1x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,12)) {
 			INDEX ix = 16 + i ;
-			ret[iw++] = Detail::index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r1x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
@@ -873,12 +864,10 @@ private:
 	RandomService () ;
 
 private:
-	struct Detail {
-		inline static STRU8 index_to_hex_str (INDEX index) {
-			if (index < 10)
-				return STRU8 (STRU8 ('0') + index) ;
-			return STRU8 (STRU8 ('A' - 10) + index) ;
-		}
-	} ;
+	inline static STRU8 index_to_hex_str (INDEX index) {
+		if (index < 10)
+			return STRU8 (STRU8 ('0') + index) ;
+		return STRU8 (STRU8 ('A' - 10) + index) ;
+	}
 } ;
 } ;

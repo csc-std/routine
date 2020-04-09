@@ -347,7 +347,7 @@ struct OPERATOR_HASH {
 class GlobalHeap final :private Wrapped<void> {
 private:
 	template <class UNIT>
-	class OwnerProxy final {
+	class OwnerProxy final :private Proxy {
 	private:
 		friend GlobalHeap ;
 		PTR<UNIT> mPointer ;
@@ -428,7 +428,7 @@ public:
 } ;
 
 template <class UNIT>
-class ScopedGuard final {
+class ScopedGuard final :private Proxy {
 private:
 	PTR<UNIT> mAddress ;
 
@@ -451,17 +451,12 @@ public:
 		mAddress = NULL ;
 	}
 
-	inline ScopedGuard (const ScopedGuard &) = delete ;
-	inline ScopedGuard &operator= (const ScopedGuard &) = delete ;
-	inline ScopedGuard (ScopedGuard &&) = delete ;
-	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
-
 private:
 	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) {}
 } ;
 
 template <class UNIT>
-class ScopedBuild final {
+class ScopedBuild final :private Proxy {
 private:
 	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
 	LENGTH mSize ;
@@ -491,11 +486,6 @@ public:
 		}
 		mAddress = NULL ;
 	}
-
-	inline ScopedBuild (const ScopedBuild &) = delete ;
-	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
-	inline ScopedBuild (ScopedBuild &&) = delete ;
-	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
 	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) ,mSize (0) {}
@@ -565,12 +555,16 @@ template <class>
 class GlobalStatic ;
 
 template <class UNIT>
-class Singleton final {
+class Singleton final :private Proxy {
 private:
 	class Holder {
 	private:
 		friend Singleton ;
 		UNIT mData ;
+
+	public:
+		template <class... _ARGS>
+		inline explicit Holder (_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) {}
 	} ;
 
 private:
@@ -598,11 +592,6 @@ private:
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
-
-	inline Singleton (const Singleton &) = delete ;
-	inline Singleton &operator= (const Singleton &) = delete ;
-	inline Singleton (Singleton &&) = delete ;
-	inline Singleton &operator= (Singleton &&) = delete ;
 
 	inline UNIT &to () {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -997,23 +986,9 @@ class AnyRef {
 private:
 	using Holder = typename AnyRef<void>::Holder ;
 
-	template <class UNIT_>
-	class ImplHolder :public Holder {
-	private:
-		friend AnyRef ;
-		UNIT_ mData ;
-
-	public:
-		template <class... _ARGS>
-		inline explicit ImplHolder (_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) {}
-
-		inline FLAG typemid () const override {
-			return _TYPEMID_<UNIT_> () ;
-		}
-	} ;
-
 private:
 	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
+	class Detail ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1076,8 +1051,9 @@ public:
 	}
 
 	inline UNIT &to () {
+		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
-		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
+		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mData ;
 	}
 
@@ -1090,8 +1066,9 @@ public:
 	}
 
 	inline const UNIT &to () const {
+		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
-		const auto r1x = static_cast<PTR<ImplHolder<UNIT>>> (mPointer) ;
+		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mData ;
 	}
 
@@ -1109,13 +1086,32 @@ private:
 public:
 	template <class... _ARGS>
 	inline static AnyRef make (_ARGS &&...initval) {
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<UNIT>>> () ;
-		ScopedBuild<ImplHolder<UNIT>> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_<ImplHolder<UNIT>> (_XVALUE_<PTR<TEMP<ImplHolder<UNIT>>>> (rax)) ;
+		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
+		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		AnyRef ret = AnyRef (&r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
+
+private:
+	struct Detail {
+		template <class UNIT_>
+		class ImplHolder :public Holder {
+		private:
+			friend AnyRef ;
+			UNIT_ mData ;
+
+		public:
+			template <class... _ARGS>
+			inline explicit ImplHolder (_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) {}
+
+			inline FLAG typemid () const override {
+				return _TYPEMID_<UNIT_> () ;
+			}
+		} ;
+	} ;
 } ;
 
 template <class>
@@ -1128,24 +1124,8 @@ private:
 		virtual void release () = 0 ;
 	} ;
 
-	template <class UNIT_>
-	class ImplHolder :public Holder {
-	private:
-		UNIT_ mFunctor ;
-
-	public:
-		inline ImplHolder () = delete ;
-
-		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
-
-		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
-
-		inline void release () override {
-			mFunctor () ;
-		}
-	} ;
-
 private:
+	struct Detail ;
 	template <class>
 	friend class UniqueRef ;
 	PTR<Holder> mPointer ;
@@ -1157,13 +1137,14 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
+		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
-		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		constructor () ;
 		mPointer = &r1x ;
 		rax = NULL ;
@@ -1202,6 +1183,26 @@ public:
 			return FALSE ;
 		return TRUE ;
 	}
+
+private:
+	struct Detail {
+		template <class UNIT_>
+		class ImplHolder :public Holder {
+		private:
+			UNIT_ mFunctor ;
+
+		public:
+			inline ImplHolder () = delete ;
+
+			inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
+
+			inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
+
+			inline void release () override {
+				mFunctor () ;
+			}
+		} ;
+	} ;
 } ;
 
 template <class UNIT>
@@ -1209,27 +1210,9 @@ class UniqueRef {
 private:
 	using Holder = typename UniqueRef<void>::Holder ;
 
-	template <class UNIT_>
-	class ImplHolder :public Holder {
-	private:
-		friend UniqueRef ;
-		REMOVE_CVR_TYPE<UNIT> mData ;
-		UNIT_ mFunctor ;
-
-	public:
-		inline ImplHolder () = delete ;
-
-		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
-
-		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
-
-		inline void release () override {
-			mFunctor (mData) ;
-		}
-	} ;
-
 private:
 	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
+	struct Detail ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1239,13 +1222,14 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
+		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>> () ;
-		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
-		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>>>>> (rax)) ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		constructor (r1x.mData) ;
 		mPointer = &r1x ;
 		rax = NULL ;
@@ -1286,8 +1270,9 @@ public:
 	}
 
 	inline const UNIT &to () const {
+		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<ImplHolder<PTR<void (UNIT &)>>>> (mPointer) ;
+		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mData ;
 	}
 
@@ -1305,15 +1290,38 @@ private:
 public:
 	template <class... _ARGS>
 	inline static UniqueRef make (_ARGS &&...initval) {
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<void (UNIT &)>>>> () ;
+		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
-		ScopedBuild<ImplHolder<PTR<void (UNIT &)>>> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_<ImplHolder<PTR<void (UNIT &)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<void (UNIT &)>>>>> (rax)) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
+		auto &r2x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		r2x.mData = UNIT (std::forward<_ARGS> (initval)...) ;
 		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2x)) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
+
+private:
+	struct Detail {
+		template <class UNIT_>
+		class ImplHolder :public Holder {
+		private:
+			friend UniqueRef ;
+			REMOVE_CVR_TYPE<UNIT> mData ;
+			UNIT_ mFunctor ;
+
+		public:
+			inline ImplHolder () = delete ;
+
+			inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
+
+			inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
+
+			inline void release () override {
+				mFunctor (mData) ;
+			}
+		} ;
+	} ;
 } ;
 
 template <class UNIT>
@@ -1395,24 +1403,8 @@ private:
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;
 
-	template <class UNIT_>
-	class ImplHolder :public Function<UNIT1 (UNITS...)>::Holder {
-	private:
-		UNIT_ mFunctor ;
-
-	public:
-		inline ImplHolder () = delete ;
-
-		inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
-
-		inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
-
-		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
-			return mFunctor (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
-		}
-	} ;
-
 private:
+	struct Detail ;
 	PTR<Holder> mFunction ;
 	PTR<UNIT1 (UNITS...)> mCPPFunction ;
 
@@ -1429,9 +1421,10 @@ public:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
 	inline implicit Function (_ARG1 &&that) :Function () {
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>> () ;
-		ScopedBuild<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
-		auto &r1x = _LOAD_<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> (_XVALUE_<PTR<TEMP<ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>>>> (rax)) ;
+		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
+		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
+		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		mFunction = &r1x ;
 		mCPPFunction = NULL ;
 		rax = NULL ;
@@ -1494,6 +1487,30 @@ public:
 	//@info: this function is incompleted without 'csc_extend.hpp'
 	template <class... _ARGS>
 	inline static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) ;
+
+private:
+	struct Detail {
+		template <class>
+		class ImplHolder ;
+	} ;
+} ;
+
+template <class UNIT1 ,class... UNITS>
+template <class UNIT_>
+class Function<UNIT1 (UNITS...)>::Detail::ImplHolder :public Function<UNIT1 (UNITS...)>::Holder {
+private:
+	UNIT_ mFunctor ;
+
+public:
+	inline ImplHolder () = delete ;
+
+	inline explicit ImplHolder (const UNIT_ &functor) :mFunctor (std::move (functor)) {}
+
+	inline explicit ImplHolder (UNIT_ &&functor) :mFunctor (std::move (functor)) {}
+
+	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
+		return mFunctor (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+	}
 } ;
 
 //@error: vs2017 is too useless to compile without hint
@@ -1526,9 +1543,6 @@ private:
 		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override ;
 	} ;
 
-	template <class>
-	class ImplHolder ;
-
 private:
 	struct Detail ;
 	TEMP<FakeHolder> mVariant ;
@@ -1541,29 +1555,33 @@ public:
 	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept {
 		using PureHolder = typename Detail::PureHolder ;
 		_DEBUG_ASSERT_ (that != NULL) ;
-		Detail::template static_create<PureHolder> (&mVariant ,that) ;
+		static_create<PureHolder> (&mVariant ,that) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept {
-		Detail::template static_create<ImplHolder<_ARG1>> (&mVariant ,&context_.self ,func) ;
+		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
+		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept {
-		Detail::template static_create<ImplHolder<const _ARG1>> (&mVariant ,&context_.self ,func) ;
+		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
+		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept {
+		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<_ARG1>>> (&mVariant ,&context_.self ,func) ;
+		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept {
+		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
-		Detail::template static_create<ImplHolder<PTR<const _ARG1>>> (&mVariant ,&context_.self ,func) ;
+		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	inline ~Function () noexcept {
@@ -1620,6 +1638,17 @@ private:
 	inline Holder &m_fake () && = delete ;
 
 private:
+	template <class _RET ,class... _ARGS>
+	inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...funcval) noexcept {
+		_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
+		auto &r1x = _LOAD_<TEMP<_RET>> (address) ;
+		auto &r2x = _XVALUE_<Holder> (_CAST_<_RET> (r1x)) ;
+		auto &r3x = _XVALUE_<Holder> (_CAST_<FakeHolder> ((*address))) ;
+		_DYNAMIC_ASSERT_ (&r2x == &r3x) ;
+		_CREATE_ (&r1x ,std::forward<_ARGS> (funcval)...) ;
+	}
+
+private:
 	struct Detail {
 		class PureHolder :public Holder {
 		private:
@@ -1639,15 +1668,8 @@ private:
 			}
 		} ;
 
-		template <class _RET ,class... _ARGS>
-		inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...funcval) noexcept {
-			_STATIC_ASSERT_ (std::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
-			auto &r1x = _LOAD_<TEMP<_RET>> (address) ;
-			auto &r2x = _XVALUE_<Holder> (_CAST_<_RET> (r1x)) ;
-			auto &r3x = _XVALUE_<Holder> (_CAST_<FakeHolder> ((*address))) ;
-			_DYNAMIC_ASSERT_ (&r2x == &r3x) ;
-			_CREATE_ (&r1x ,std::forward<_ARGS> (funcval)...) ;
-		}
+		template <class>
+		class ImplHolder ;
 	} ;
 
 #pragma pop_macro ("fake")
@@ -1655,7 +1677,7 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder :public Holder {
 private:
 	PTR<UNIT_> mContext ;
 	DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> mFunction ;
@@ -1666,7 +1688,7 @@ public:
 	inline explicit ImplHolder (PTR<UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
+		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
@@ -1676,7 +1698,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<const UNIT_> :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_> :public Holder {
 private:
 	PTR<const UNIT_> mContext ;
 	DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> mFunction ;
@@ -1687,7 +1709,7 @@ public:
 	inline explicit ImplHolder (PTR<const UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
+		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
@@ -1697,7 +1719,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::ImplHolder<PTR<UNIT_>> :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>> :public Holder {
 private:
 	PTR<UNIT_> mContext ;
 	PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> mFunction ;
@@ -1708,7 +1730,7 @@ public:
 	inline explicit ImplHolder (PTR<UNIT_> context_ ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept :mContext (context_) ,mFunction (func) {}
 
 	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-		Detail::template static_create<ImplHolder> (address ,mContext ,mFunction) ;
+		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
@@ -2811,31 +2833,8 @@ private:
 		inline Node () = default ;
 	} ;
 
-	class Finally :private Wrapped<Allocator> {
-	public:
-		inline void lock () {
-			const auto r1x = EFLAG (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
-			Finally::mSelf.mSize = r1x ;
-		}
-
-		inline void unlock () {
-			if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
-				return ;
-			while (TRUE) {
-				if (Finally::mSelf.mSize <= 0)
-					break ;
-				if switch_case (TRUE) {
-					INDEX ix = Finally::mSelf.mSize - 1 ;
-					if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
-						discard ;
-					_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
-					Finally::mSelf.mSize-- ;
-				}
-			}
-		}
-	} ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_TYPE ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mSize ;
@@ -2861,6 +2860,7 @@ public:
 	}
 
 	inline Allocator (const Allocator &that) :Allocator (ARGVP0 ,std::move (that.mAllocator)) {
+		using Finally = typename Detail::Finally ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> ((*this))) ;
@@ -2939,6 +2939,33 @@ private:
 	}
 
 	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+
+private:
+	struct Detail {
+		class Finally :private Wrapped<Allocator> {
+		public:
+			inline void lock () {
+				const auto r1x = EFLAG (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
+				Finally::mSelf.mSize = r1x ;
+			}
+
+			inline void unlock () {
+				if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
+					return ;
+				while (TRUE) {
+					if (Finally::mSelf.mSize <= 0)
+						break ;
+					if switch_case (TRUE) {
+						INDEX ix = Finally::mSelf.mSize - 1 ;
+						if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
+							discard ;
+						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
+						Finally::mSelf.mSize-- ;
+					}
+				}
+			}
+		} ;
+	} ;
 
 #pragma pop_macro ("spec")
 } ;

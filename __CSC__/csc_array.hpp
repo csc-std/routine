@@ -9,7 +9,7 @@
 
 namespace CSC {
 template <class BASE>
-class ArrayIterator final {
+class ArrayIterator final :private Proxy {
 private:
 	BASE &mBase ;
 	INDEX mIndex ;
@@ -18,12 +18,6 @@ public:
 	inline ArrayIterator () = delete ;
 
 	inline explicit ArrayIterator (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
-
-	inline ArrayIterator (const ArrayIterator &) = delete ;
-	inline ArrayIterator &operator= (const ArrayIterator &) = delete ;
-
-	inline ArrayIterator (ArrayIterator &&) noexcept = default ;
-	inline ArrayIterator &operator= (ArrayIterator &&) = delete ;
 
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
@@ -290,7 +284,6 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	struct Detail ;
 	Buffer<ITEM ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mString ;
 
 public:
@@ -311,7 +304,7 @@ public:
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &that) :String (Detail::plain_string_length (that)) {
+	implicit String (const ARR<ITEM> &that) :String (plain_string_length (that)) {
 		_MEMCOPY_ (mString.self ,that ,size ()) ;
 	}
 
@@ -572,14 +565,12 @@ public:
 	inline static String make (const _ARGS &...initval) ;
 
 private:
-	struct Detail {
-		inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
-			using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
-			LENGTH ret = _MEMCHR_ (val ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
-			_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
-			return std::move (ret) ;
-		}
-	} ;
+	inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
+		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
+		LENGTH ret = _MEMCHR_ (val ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
+		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
+		return std::move (ret) ;
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -977,7 +968,7 @@ private:
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_TYPE ;
@@ -986,10 +977,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -1111,7 +1098,7 @@ private:
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_TYPE ;
@@ -1119,10 +1106,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -2424,7 +2407,7 @@ template <class SIZE>
 class BitSet {
 private:
 	template <class BASE>
-	class Bit final {
+	class Bit final :private Proxy {
 	private:
 		friend BitSet ;
 		BASE &mBase ;
@@ -2432,10 +2415,6 @@ private:
 
 	public:
 		inline Bit () = delete ;
-
-		inline Bit (const Bit &) = delete ;
-
-		inline Bit (Bit &&) noexcept = default ;
 
 		inline explicit operator BOOL () const & = delete ;
 
@@ -2501,7 +2480,6 @@ private:
 	} ;
 
 private:
-	struct Detail ;
 	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
@@ -2510,7 +2488,7 @@ public:
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,Detail::forward_width (len)) {
+	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,forward_width (len)) {
 		clear () ;
 	}
 
@@ -2819,12 +2797,10 @@ private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
 
 private:
-	struct Detail {
-		inline static LENGTH forward_width (LENGTH width) {
-			_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
-			return width ;
-		}
-	} ;
+	inline static LENGTH forward_width (LENGTH width) {
+		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
+		return width ;
+	}
 } ;
 
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
@@ -2865,7 +2841,7 @@ private:
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_TYPE ;
@@ -2874,10 +2850,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -3011,7 +2983,7 @@ private:
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_TYPE ;
@@ -3019,10 +2991,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -3708,7 +3676,7 @@ private:
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -3717,10 +3685,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -3852,7 +3816,7 @@ private:
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -3860,10 +3824,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -4226,7 +4186,7 @@ private:
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4235,10 +4195,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;
@@ -4395,7 +4351,7 @@ private:
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final {
+	class Pair final :private Proxy {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_TYPE ;
@@ -4403,10 +4359,6 @@ private:
 
 	public:
 		inline Pair () = delete ;
-
-		inline Pair (const Pair &) = delete ;
-
-		inline Pair (Pair &&) noexcept = default ;
 
 		inline implicit operator const KEY & () && {
 			return key ;

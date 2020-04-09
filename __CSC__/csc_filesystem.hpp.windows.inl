@@ -568,25 +568,25 @@ inline exports void StreamLoader::flush () {
 
 class BufferLoader::Implement final :private Interface {
 private:
-	class Holder {
+	class Pack {
 	private:
 		friend Implement ;
 		UniqueRef<HANDLE> mFile ;
 		UniqueRef<HANDLE> mMapping ;
 		UniqueRef<PhanBuffer<BYTE>> mBuffer ;
-		PTR<Holder> mOwned ;
+		PTR<Pack> mOwned ;
 	} ;
 
 private:
-	UniqueRef<Holder> mThis ;
+	UniqueRef<Pack> mThis ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
-		mThis = UniqueRef<Holder> ([&] (Holder &me) {
+		mThis = UniqueRef<Pack> ([&] (Pack &me) {
 			me.mOwned = &me ;
-		} ,[] (Holder &me) {
+		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<HANDLE> () ;
 			me.mFile = UniqueRef<HANDLE> () ;
@@ -619,9 +619,9 @@ public:
 
 	explicit Implement (const String<STR> &file ,LENGTH file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
-		mThis = UniqueRef<Holder> ([&] (Holder &me) {
+		mThis = UniqueRef<Pack> ([&] (Pack &me) {
 			me.mOwned = &me ;
-		} ,[] (Holder &me) {
+		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<HANDLE> () ;
 			me.mFile = UniqueRef<HANDLE> () ;
@@ -654,9 +654,9 @@ public:
 
 	explicit Implement (const String<STR> &file ,BOOL cache) {
 		_DEBUG_ASSERT_ (cache) ;
-		mThis = UniqueRef<Holder> ([&] (Holder &me) {
+		mThis = UniqueRef<Pack> ([&] (Pack &me) {
 			me.mOwned = &me ;
-		} ,[] (Holder &me) {
+		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<HANDLE> () ;
 			me.mFile = UniqueRef<HANDLE> () ;
@@ -692,9 +692,9 @@ public:
 	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
-		mThis = UniqueRef<Holder> ([&] (Holder &me) {
+		mThis = UniqueRef<Pack> ([&] (Pack &me) {
 			me.mOwned = &me ;
-		} ,[] (Holder &me) {
+		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<HANDLE> () ;
 			me.mFile = UniqueRef<HANDLE> () ;

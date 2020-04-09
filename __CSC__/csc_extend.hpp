@@ -169,34 +169,40 @@ inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
 #ifdef __CSC_UNITTEST__
 class GlobalWatch final :private Wrapped<void> {
 private:
-	template <class UNIT>
-	class Storage final :private Interface {
-	private:
-		friend GlobalWatch ;
-		PTR<const STR> mName ;
-		PTR<UNIT> mAddress ;
-		FLAG mTypeUID ;
-		PTR<void (UNIT &)> mWatch ;
-
-	public:
-		inline Storage () {
-			mName = NULL ;
-			mAddress = NULL ;
-			mTypeUID = 0 ;
-			const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
-			mWatch = r1x ;
-		} ;
-	} ;
+	struct Detail ;
 
 public:
 	template <class _ARG1 ,class _ARG2>
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
-		static volatile Storage<_ARG2> mInstance ;
+		using Storage = typename Detail::template Storage<_ARG2> ;
+		static volatile Storage mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = &data ;
 		mInstance.mTypeUID = _TYPEMID_<_ARG2> () ;
 		mInstance.mWatch (data) ;
 	}
+
+private:
+	struct Detail {
+		template <class UNIT>
+		class Storage final :private Interface {
+		private:
+			friend GlobalWatch ;
+			PTR<const STR> mName ;
+			PTR<UNIT> mAddress ;
+			FLAG mTypeUID ;
+			PTR<void (UNIT &)> mWatch ;
+
+		public:
+			inline Storage () {
+				mName = NULL ;
+				mAddress = NULL ;
+				mTypeUID = 0 ;
+				const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
+				mWatch = r1x ;
+			} ;
+		} ;
+	} ;
 } ;
 #endif
 
@@ -222,7 +228,6 @@ class VAR128 {
 #define v4i3 m_v4i3 ()
 
 private:
-	struct Detail ;
 	MEGA mData ;
 
 public:
@@ -409,7 +414,7 @@ public:
 			ret = (*this) / (-that) ;
 		}
 		if switch_case (fax) {
-			ret = Detail::slow_divide ((*this) ,that) ;
+			ret = slow_divide ((*this) ,that) ;
 		}
 		return std::move (ret) ;
 	}
@@ -485,7 +490,7 @@ public:
 			ret = (*this) % (-that) ;
 		}
 		if switch_case (fax) {
-			ret = that - Detail::slow_divide ((*this) ,that) * that ;
+			ret = that - slow_divide ((*this) ,that) * that ;
 		}
 		return std::move (ret) ;
 	}
@@ -628,35 +633,33 @@ private:
 	inline CHAR &m_v4i3 () && = delete ;
 
 private:
-	struct Detail {
-		inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
-			_DEBUG_ASSERT_ (y >= 0) ;
-			_DEBUG_ASSERT_ (x > 0) ;
-			VAR128 ret = 0 ;
-			auto rax = Buffer<VAR128 ,ARGC<2>> () ;
-			rax[0] = 0 ;
-			rax[1] = y ;
-			while (TRUE) {
-				if (rax[0] > rax[1])
-					break ;
-				ret = rax[0] + (rax[1] - rax[0]) / 2 ;
-				const auto r1x = x * ret ;
-				if (r1x == y)
-					break ;
-				auto fax = TRUE ;
-				if switch_case (fax) {
-					if (!(r1x < y))
-						discard ;
-					rax[0] = ret + 1 ;
-				}
-				if switch_case (fax) {
-					rax[1] = ret - 1 ;
-				}
+	inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
+		_DEBUG_ASSERT_ (y >= 0) ;
+		_DEBUG_ASSERT_ (x > 0) ;
+		VAR128 ret = 0 ;
+		auto rax = Buffer<VAR128 ,ARGC<2>> () ;
+		rax[0] = 0 ;
+		rax[1] = y ;
+		while (TRUE) {
+			if (rax[0] > rax[1])
+				break ;
+			ret = rax[0] + (rax[1] - rax[0]) / 2 ;
+			const auto r1x = x * ret ;
+			if (r1x == y)
+				break ;
+			auto fax = TRUE ;
+			if switch_case (fax) {
+				if (!(r1x < y))
+					discard ;
+				rax[0] = ret + 1 ;
 			}
-			ret -= EFLAG (ret * x > y) ;
-			return std::move (ret) ;
+			if switch_case (fax) {
+				rax[1] = ret - 1 ;
+			}
 		}
-	} ;
+		ret -= EFLAG (ret * x > y) ;
+		return std::move (ret) ;
+	}
 
 #undef v2i0
 #undef v2i1
@@ -766,31 +769,18 @@ private:
 	//@error: 'std::aligned_union' is not avaliable in g++4.8
 	using VARIANT = ALIGNED_UNION<U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
 
-	template <class _ARG1>
-	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
-		return VAR_NONE ;
-	}
-
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
-		if (std::is_default_constructible<_ARG2>::value)
-			return _ARG1::value ;
-		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
-	}
-
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
-	struct Detail ;
 	TEMP<VARIANT> mVariant ;
 	INDEX mIndex ;
 
 public:
 	inline Variant () :Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (_NULL_<ARGV<ZERO>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
-		Detail::template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = r1x ;
 	}
 
@@ -799,21 +789,21 @@ public:
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1x = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
 		using CREATE_FLAG = ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value> ;
-		Detail::template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r1x ,std::forward<_ARG1> (that)) ;
+		template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r1x ,std::forward<_ARG1> (that)) ;
 		mIndex = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value ;
 	}
 
 	inline ~Variant () noexcept {
 		if (mIndex == VAR_NONE)
 			return ;
-		Detail::template_destruct (&mVariant ,mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_destruct (&mVariant ,mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = VAR_NONE ;
 	}
 
 	inline Variant (const Variant &that) :Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -830,7 +820,7 @@ public:
 	inline Variant (Variant &&that) noexcept :Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		Detail::template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -912,100 +902,110 @@ public:
 	}
 
 private:
-	struct Detail {
-		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
-			_STATIC_WARNING_ ("noop") ;
-		}
+	template <class _ARG1>
+	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
+		return VAR_NONE ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-			const auto r1x = BOOL (index == 0) ;
-			if switch_case (TRUE) {
-				if (!r1x)
-					discard ;
-				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-				using CREATE_FLAG = ARGC<std::is_default_constructible<_ARG1>::value> ;
-				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x) ;
-			}
-			if (r1x)
-				return ;
-			template_construct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
-		}
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
+		if (std::is_default_constructible<_ARG2>::value)
+			return _ARG1::value ;
+		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	}
 
-		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
-			_STATIC_WARNING_ ("noop") ;
-		}
+	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
-			_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-			const auto r1x = BOOL (index == 0) ;
-			if switch_case (TRUE) {
-				if (!r1x)
-					discard ;
-				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-				_DESTROY_ (&r2x) ;
-			}
-			if (r1x)
-				return ;
-			template_destruct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+			using CREATE_FLAG = ARGC<std::is_default_constructible<_ARG1>::value> ;
+			template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x) ;
 		}
+		if (r1x)
+			return ;
+		template_construct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	}
 
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
-			_STATIC_WARNING_ ("noop") ;
-		}
+	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-			const auto r1x = BOOL (index == 0) ;
-			if switch_case (TRUE) {
-				if (!r1x)
-					discard ;
-				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-				auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
-				using CREATE_FLAG = ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value> ;
-				template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
-			}
-			if (r1x)
-				return ;
-			template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
+		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+			_DESTROY_ (&r2x) ;
 		}
+		if (r1x)
+			return ;
+		template_destruct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	}
 
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
-			_STATIC_WARNING_ ("noop") ;
-		}
+	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
-			_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-			_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-			const auto r1x = BOOL (index == 0) ;
-			if switch_case (TRUE) {
-				if (!r1x)
-					discard ;
-				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-				auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
-				template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
-			}
-			if (r1x)
-				return ;
-			template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+			auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
+			using CREATE_FLAG = ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value> ;
+			template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
 		}
+		if (r1x)
+			return ;
+		template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-			_CREATE_ (address ,std::forward<_ARGS> (initval)...) ;
-		}
+	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-			_DYNAMIC_ASSERT_ (FALSE) ;
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+			auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
+			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
 		}
-	} ;
+		if (r1x)
+			return ;
+		template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
+		_CREATE_ (address ,std::forward<_ARGS> (initval)...) ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	inline static void template_create (const ARGV<ARGC<FALSE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
+		_DYNAMIC_ASSERT_ (FALSE) ;
+	}
 } ;
 
 template <class UNIT>
@@ -1088,7 +1088,6 @@ template <class UNIT1 ,class... UNITS>
 class Tuple<UNIT1 ,UNITS...> :private Tuple<UNITS...> {
 private:
 	_STATIC_ASSERT_ (!std::is_rvalue_reference<UNIT1>::value) ;
-	struct Detail ;
 	template <class...>
 	friend class Tuple ;
 	UNIT1 mData ;
@@ -1125,13 +1124,13 @@ public:
 	template <class _ARG1>
 	inline auto pick (const ARGV<ARGVP<_ARG1>> &) &
 		->DEF<INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
-		return Detail::template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	template <class _ARG1>
 	inline constexpr auto pick (const ARGV<ARGVP<_ARG1>> &) const &
 		->DEF<const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
-		return Detail::template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	template <class _ARG1>
@@ -1177,29 +1176,27 @@ public:
 	}
 
 private:
-	struct Detail {
-		inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ZERO> &) {
-			return self_.one () ;
-		}
+	inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ZERO> &) {
+		return self_.one () ;
+	}
 
-		template <class _ARG1>
-		inline static auto template_pick (Tuple &self_ ,const ARGV<_ARG1> &)
-			->INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
-		}
+	template <class _ARG1>
+	inline static auto template_pick (Tuple &self_ ,const ARGV<_ARG1> &)
+		->INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
+		_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+	}
 
-		inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ZERO> &) {
-			return self_.one () ;
-		}
+	inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ZERO> &) {
+		return self_.one () ;
+	}
 
-		template <class _ARG1>
-		inline static constexpr auto template_pick (const Tuple &self_ ,const ARGV<_ARG1> &)
-			->const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
-			_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-			return Tuple<UNITS...>::Detail::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
-		}
-	} ;
+	template <class _ARG1>
+	inline static constexpr auto template_pick (const Tuple &self_ ,const ARGV<_ARG1> &)
+		->const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> & {
+		_STATIC_ASSERT_ (LENGTH (_ARG1::value) > 0 && LENGTH (_ARG1::value) <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+	}
 } ;
 
 template <class... UNITS>
@@ -1207,9 +1204,8 @@ using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>> :public Function<UNIT1 (UNITS...)>::Holder {
+class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>> :public Function<UNIT1 (UNITS...)>::Holder {
 private:
-	struct Detail ;
 	PTR<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
@@ -1219,13 +1215,10 @@ public:
 	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
-		return Detail::template_apply (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return template_apply (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
-} ;
 
-template <class UNIT1 ,class... UNITS>
-template <class... UNITS_>
-struct Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>::Detail {
+private:
 	//@error: vs2015 is too useless to compile without hint
 	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<UNITS_> &...cap_) popping {
 		const auto r1x = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
@@ -1242,9 +1235,10 @@ struct Function<UNIT1 (UNITS...)>::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>:
 template <class UNIT1 ,class... UNITS>
 template <class... _ARGS>
 inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
-	auto rax = GlobalHeap::alloc<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>> () ;
-	ScopedBuild<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ANONYMOUS (rax ,func ,parameter...) ;
-	auto &r1x = _LOAD_<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> (_XVALUE_<PTR<TEMP<ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>>>> (rax)) ;
+	using ImplHolder = typename Detail::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>> ;
+	auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+	ScopedBuild<ImplHolder> ANONYMOUS (rax ,func ,parameter...) ;
+	auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (&r1x)) ;
 	rax = NULL ;
 	return std::move (ret) ;
@@ -1257,279 +1251,263 @@ template <class...>
 class AnyOfTuple ;
 
 template <class... UNITS>
-class AllOfTuple final :private TupleBinder<const UNITS...> {
+class AllOfTuple final :private Proxy {
 private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
-	struct Detail ;
+	TupleBinder<const UNITS...> mTuple ;
 
 public:
 	inline AllOfTuple () = delete ;
 
-	inline AllOfTuple (const AllOfTuple &) = delete ;
-	inline AllOfTuple &operator= (const AllOfTuple &) = delete ;
-
-	inline AllOfTuple (AllOfTuple &&) noexcept = default ;
-	inline AllOfTuple &operator= (AllOfTuple &&) = delete ;
-
 	inline implicit operator BOOL () && {
-		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+		return template_boolean (mTuple) ;
 	}
 
-	inline BOOL operator== (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator== (const WRAPPED_TYPE &that) && {
+		return template_equal (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) == wrapped ;
+	inline friend BOOL operator== (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) == that ;
 	}
 
-	inline BOOL operator!= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator!= (const WRAPPED_TYPE &that) && {
+		return template_not_equal (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) != wrapped ;
+	inline friend BOOL operator!= (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) != that ;
 	}
 
-	inline BOOL operator< (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator< (const WRAPPED_TYPE &that) && {
+		return template_less (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) > wrapped ;
+	inline friend BOOL operator< (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) > that ;
 	}
 
-	inline BOOL operator>= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator>= (const WRAPPED_TYPE &that) && {
+		return template_not_less (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) <= wrapped ;
+	inline friend BOOL operator>= (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) <= that ;
 	}
 
-	inline BOOL operator> (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_less (wrapped ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+	inline BOOL operator> (const WRAPPED_TYPE &that) && {
+		return template_less (that ,mTuple) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) < wrapped ;
+	inline friend BOOL operator> (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) < that ;
 	}
 
-	inline BOOL operator<= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_less (wrapped ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+	inline BOOL operator<= (const WRAPPED_TYPE &that) && {
+		return template_not_less (that ,mTuple) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED_TYPE &wrapped ,AllOfTuple &&self_) {
-		return std::move (self_) >= wrapped ;
+	inline friend BOOL operator<= (const WRAPPED_TYPE &that ,AllOfTuple &&self_) {
+		return std::move (self_) >= that ;
 	}
 
 private:
-	struct Detail {
-		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
-			return BOOL (lhs == rhs) ;
-		}
+	inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
+		return BOOL (lhs == rhs) ;
+	}
 
-		inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
-			return BOOL (lhs < rhs) ;
-		}
+	inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
+		return BOOL (lhs < rhs) ;
+	}
 
-		inline static BOOL template_boolean (const Tuple<> &self_) {
-			return TRUE ;
-		}
+	inline static BOOL template_boolean (const Tuple<> &self_) {
+		return TRUE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARGS...> &self_) {
-			if (!BOOL (self_.one ()))
-				return FALSE ;
-			return template_boolean (self_.rest ()) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_boolean (const Tuple<_ARGS...> &self_) {
+		if (!BOOL (self_.one ()))
+			return FALSE ;
+		return template_boolean (self_.rest ()) ;
+	}
 
-		inline static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return TRUE ;
-		}
+	inline static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return TRUE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (!operator_equal (self_.one () ,wrapped))
-				return FALSE ;
-			return template_equal (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (!operator_equal (self_.one () ,that))
+			return FALSE ;
+		return template_equal (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return TRUE ;
-		}
+	inline static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return TRUE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (operator_equal (self_.one () ,wrapped))
-				return FALSE ;
-			return template_not_equal (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_not_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (operator_equal (self_.one () ,that))
+			return FALSE ;
+		return template_not_equal (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_less (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return TRUE ;
-		}
+	inline static BOOL template_less (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return TRUE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (!operator_less (self_.one () ,wrapped))
-				return FALSE ;
-			return template_less (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (!operator_less (self_.one () ,that))
+			return FALSE ;
+		return template_less (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return TRUE ;
-		}
+	inline static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return TRUE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (operator_less (self_.one () ,wrapped))
-				return FALSE ;
-			return template_not_less (self_.rest () ,wrapped) ;
-		}
-	} ;
+	template <class... _ARGS>
+	inline static BOOL template_not_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (operator_less (self_.one () ,that))
+			return FALSE ;
+		return template_not_less (self_.rest () ,that) ;
+	}
 } ;
 
 template <class... UNITS>
-class AnyOfTuple final :private TupleBinder<const UNITS...> {
+class AnyOfTuple final :private Proxy {
 private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
-	struct Detail ;
+	TupleBinder<const UNITS...> mTuple ;
 
 public:
 	inline AnyOfTuple () = delete ;
 
-	inline AnyOfTuple (const AnyOfTuple &) = delete ;
-	inline AnyOfTuple &operator= (const AnyOfTuple &) = delete ;
-
-	inline AnyOfTuple (AnyOfTuple &&) noexcept = default ;
-	inline AnyOfTuple &operator= (AnyOfTuple &&) = delete ;
-
 	inline implicit operator BOOL () && {
-		return Detail::template_boolean (_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+		return template_boolean (mTuple) ;
 	}
 
-	inline BOOL operator== (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator== (const WRAPPED_TYPE &that) && {
+		return template_equal (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) == wrapped ;
+	inline friend BOOL operator== (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) == that ;
 	}
 
-	inline BOOL operator!= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_equal (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator!= (const WRAPPED_TYPE &that) && {
+		return template_not_equal (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) != wrapped ;
+	inline friend BOOL operator!= (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) != that ;
 	}
 
-	inline BOOL operator< (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator< (const WRAPPED_TYPE &that) && {
+		return template_less (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) > wrapped ;
+	inline friend BOOL operator< (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) > that ;
 	}
 
-	inline BOOL operator>= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_less (_XVALUE_<TupleBinder<const UNITS...>> ((*this)) ,wrapped) ;
+	inline BOOL operator>= (const WRAPPED_TYPE &that) && {
+		return template_not_less (mTuple ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) <= wrapped ;
+	inline friend BOOL operator>= (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) <= that ;
 	}
 
-	inline BOOL operator> (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_less (wrapped ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+	inline BOOL operator> (const WRAPPED_TYPE &that) && {
+		return template_less (that ,mTuple) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) < wrapped ;
+	inline friend BOOL operator> (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) < that ;
 	}
 
-	inline BOOL operator<= (const WRAPPED_TYPE &wrapped) && {
-		return Detail::template_not_less (wrapped ,_XVALUE_<TupleBinder<const UNITS...>> ((*this))) ;
+	inline BOOL operator<= (const WRAPPED_TYPE &that) && {
+		return template_not_less (that ,mTuple) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED_TYPE &wrapped ,AnyOfTuple &&self_) {
-		return std::move (self_) >= wrapped ;
+	inline friend BOOL operator<= (const WRAPPED_TYPE &that ,AnyOfTuple &&self_) {
+		return std::move (self_) >= that ;
 	}
 
 private:
-	struct Detail {
-		inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
-			return BOOL (lhs == rhs) ;
-		}
+	inline static BOOL operator_equal (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
+		return BOOL (lhs == rhs) ;
+	}
 
-		inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
-			return BOOL (lhs < rhs) ;
-		}
+	inline static BOOL operator_less (const WRAPPED_TYPE &lhs ,const WRAPPED_TYPE &rhs) {
+		return BOOL (lhs < rhs) ;
+	}
 
-		inline static BOOL template_boolean (const Tuple<> &self_) {
-			return FALSE ;
-		}
+	inline static BOOL template_boolean (const Tuple<> &self_) {
+		return FALSE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_boolean (const Tuple<_ARGS...> &self_) {
-			if (BOOL (self_.one ()))
-				return TRUE ;
-			return template_boolean (self_.rest ()) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_boolean (const Tuple<_ARGS...> &self_) {
+		if (BOOL (self_.one ()))
+			return TRUE ;
+		return template_boolean (self_.rest ()) ;
+	}
 
-		inline static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return FALSE ;
-		}
+	inline static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return FALSE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (operator_equal (self_.one () ,wrapped))
-				return TRUE ;
-			return template_equal (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (operator_equal (self_.one () ,that))
+			return TRUE ;
+		return template_equal (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return FALSE ;
-		}
+	inline static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return FALSE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_not_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (!operator_equal (self_.one () ,wrapped))
-				return TRUE ;
-			return template_not_equal (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_not_equal (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (!operator_equal (self_.one () ,that))
+			return TRUE ;
+		return template_not_equal (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_less (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return FALSE ;
-		}
+	inline static BOOL template_less (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return FALSE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (operator_less (self_.one () ,wrapped))
-				return TRUE ;
-			return template_less (self_.rest () ,wrapped) ;
-		}
+	template <class... _ARGS>
+	inline static BOOL template_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (operator_less (self_.one () ,that))
+			return TRUE ;
+		return template_less (self_.rest () ,that) ;
+	}
 
-		inline static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED_TYPE &wrapped) {
-			return FALSE ;
-		}
+	inline static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED_TYPE &that) {
+		return FALSE ;
+	}
 
-		template <class... _ARGS>
-		inline static BOOL template_not_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &wrapped) {
-			if (!operator_less (self_.one () ,wrapped))
-				return TRUE ;
-			return template_not_less (self_.rest () ,wrapped) ;
-		}
-	} ;
+	template <class... _ARGS>
+	inline static BOOL template_not_less (const Tuple<_ARGS...> &self_ ,const WRAPPED_TYPE &that) {
+		if (!operator_less (self_.one () ,that))
+			return TRUE ;
+		return template_not_less (self_.rest () ,that) ;
+	}
 } ;
 
 inline namespace EXTEND {
@@ -1609,7 +1587,6 @@ private:
 	using Holder = typename WeakRef<void>::Holder ;
 
 private:
-	struct Detail ;
 	template <class>
 	friend class StrongRef ;
 	friend WeakRef<UNIT> ;
@@ -2096,7 +2073,7 @@ class IntrusiveRef {
 private:
 	using INTRUSIVE_TYPE = typename UNIT::INTRUSIVE_TYPE ;
 
-	class WatchProxy final {
+	class WatchProxy final :private Proxy {
 	private:
 		friend IntrusiveRef ;
 		PTR<UNIT> mPointer ;
@@ -2108,7 +2085,7 @@ private:
 			if (mPointer == NULL)
 				return ;
 			_CALL_TRY_ ([&] () {
-				Detail::release (mPointer) ;
+				release (mPointer) ;
 			}) ;
 			mPointer = NULL ;
 		}
@@ -2154,7 +2131,7 @@ public:
 	//@warn: address must be from 'IntrusiveRef::make'
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<UNIT>>::value>>
 	inline explicit IntrusiveRef (const _ARG1 &address) : IntrusiveRef (ARGVP0) {
-		Detail::acquire (address ,FALSE) ;
+		acquire (address ,FALSE) ;
 		const auto r1x = safe_exchange (address) ;
 		_DEBUG_ASSERT_ (r1x == NULL) ;
 		(void) r1x ;
@@ -2163,7 +2140,7 @@ public:
 	inline ~IntrusiveRef () noexcept {
 		const auto r1x = safe_exchange (NULL) ;
 		_CALL_TRY_ ([&] () {
-			Detail::release (r1x) ;
+			release (r1x) ;
 		}) ;
 	}
 
@@ -2199,7 +2176,7 @@ public:
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		const auto r1x = mPointer.load () ;
-		Detail::acquire (r1x ,FALSE) ;
+		acquire (r1x ,FALSE) ;
 		const auto r2x = ret.safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
@@ -2211,7 +2188,7 @@ public:
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		Detail::acquire (r1x ,FALSE) ;
+		acquire (r1x ,FALSE) ;
 		return WatchProxy (r1x) ;
 	}
 
@@ -2249,12 +2226,35 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
-		Detail::acquire (&r1x ,TRUE) ;
+		acquire (&r1x ,TRUE) ;
 		const auto r2x = ret.safe_exchange (&r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		(void) r2x ;
 		rax = NULL ;
 		return std::move (ret) ;
+	}
+
+private:
+	inline static void acquire (PTR<UNIT> address ,BOOL init) {
+		if (address == NULL)
+			return ;
+		if (init)
+			INTRUSIVE_TYPE::friend_create ((*address)) ;
+		const auto r1x = INTRUSIVE_TYPE::friend_attach ((*address)) ;
+		_DEBUG_ASSERT_ (r1x >= 1 + EFLAG (!init)) ;
+		(void) r1x ;
+	}
+
+	inline static void release (PTR<UNIT> address) {
+		if (address == NULL)
+			return ;
+		const auto r1x = INTRUSIVE_TYPE::friend_detach ((*address)) ;
+		_DEBUG_ASSERT_ (r1x >= 0) ;
+		if (r1x > 0)
+			return ;
+		INTRUSIVE_TYPE::friend_destroy ((*address)) ;
+		address->~UNIT () ;
+		GlobalHeap::free (address) ;
 	}
 
 private:
@@ -2273,28 +2273,6 @@ private:
 				(void) r1x ;
 			}
 		} ;
-
-		inline static void acquire (PTR<UNIT> address ,BOOL init) {
-			if (address == NULL)
-				return ;
-			if (init)
-				INTRUSIVE_TYPE::friend_create ((*address)) ;
-			const auto r1x = INTRUSIVE_TYPE::friend_attach ((*address)) ;
-			_DEBUG_ASSERT_ (r1x >= 1 + EFLAG (!init)) ;
-			(void) r1x ;
-		}
-
-		inline static void release (PTR<UNIT> address) {
-			if (address == NULL)
-				return ;
-			const auto r1x = INTRUSIVE_TYPE::friend_detach ((*address)) ;
-			_DEBUG_ASSERT_ (r1x >= 0) ;
-			if (r1x > 0)
-				return ;
-			INTRUSIVE_TYPE::friend_destroy ((*address)) ;
-			address->~UNIT () ;
-			GlobalHeap::free (address) ;
-		}
 	} ;
 } ;
 
@@ -2337,263 +2315,43 @@ private:
 		alignas (8) PTR<struct HEADER> mCurr ;
 	} ;
 
-	template <class SIZE ,class RESE>
-	class ImplPool :public Pool {
-	private:
-		struct BLOCK {
-			PTR<struct BLOCK> mNext ;
-			HEADER mFlexData ;
-		} ;
-
-		struct CHUNK {
-			PTR<ARR<BYTE>> mOrigin ;
-			PTR<struct CHUNK> mPrev ;
-			PTR<struct CHUNK> mNext ;
-			LENGTH mCount ;
-		} ;
-
-	private:
-		PTR<CHUNK> mRoot ;
-		PTR<BLOCK> mFree ;
-		LENGTH mSize ;
-		LENGTH mLength ;
-
-	public:
-		inline ImplPool () noexcept {
-			mRoot = NULL ;
-			mFree = NULL ;
-			mSize = 0 ;
-			mLength = 0 ;
-		}
-
-		inline ~ImplPool () noexcept override {
-			if (mRoot == NULL)
-				return ;
-			for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
-				it = i->mNext ;
-				GlobalHeap::free (i->mOrigin) ;
-			}
-			mRoot = NULL ;
-		}
-
-		inline LENGTH size () const override {
-			return mSize ;
-		}
-
-		inline LENGTH length () const override {
-			return mLength ;
-		}
-
-		inline void reserve () {
-			if (mFree != NULL)
-				return ;
-			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
-			const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
-			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
-			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			auto &r5x = _LOAD_<CHUNK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r5x.mPrev = NULL ;
-			r5x.mNext = mRoot ;
-			r5x.mCount = RESE::value ;
-			if (mRoot != NULL)
-				mRoot->mPrev = &r5x ;
-			mRoot = &r5x ;
-			mSize += RESE::value * SIZE::value ;
-			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
-				const auto r7x = r6x + i * r1x ;
-				auto &r8x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r7x)) ;
-				r8x.mNext = mFree ;
-				mFree = &r8x ;
-			}
-			rax = NULL ;
-		}
-
-		inline PTR<HEADER> alloc (LENGTH len) popping override {
-			_DEBUG_ASSERT_ (len <= SIZE::value) ;
-			reserve () ;
-			const auto r1x = mFree ;
-			mFree = r1x->mNext ;
-			mLength += SIZE::value ;
-			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (_XVALUE_<LENGTH> (VAR_USED)) ;
-			_CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) = r2x ;
-			return &r1x->mFlexData ;
-		}
-
-		inline void free (PTR<HEADER> address) noexcept override {
-			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
-			r1x.mNext = mFree ;
-			mFree = &r1x ;
-			mLength -= SIZE::value ;
-		}
-
-		inline void clean () override {
-			if (mSize == mLength)
-				return ;
-			for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
-				it = i->mNext ;
-				if (!empty_node (i))
-					continue ;
-				auto &r1x = _SWITCH_ (
-					(i->mPrev != NULL) ? i->mPrev->mNext :
-					mRoot) ;
-				r1x = i->mNext ;
-				if (i->mNext != NULL)
-					i->mNext->mPrev = i->mPrev ;
-				mSize -= i->mCount * SIZE::value ;
-				GlobalHeap::free (i->mOrigin) ;
-			}
-		}
-
-	private:
-		inline BOOL empty_node (PTR<const CHUNK> node) const {
-			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
-			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
-			for (auto &&i : _RANGE_ (0 ,node->mCount)) {
-				const auto r3x = r2x + i * r1x ;
-				auto &r4x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
-				if (_ADDRESS_ (r4x.mNext) == VAR_USED)
-					return FALSE ;
-			}
-			return TRUE ;
-		}
-	} ;
-
-	class HugePool :public Pool {
-	private:
-		struct BLOCK {
-			PTR<ARR<BYTE>> mOrigin ;
-			PTR<struct BLOCK> mPrev ;
-			PTR<struct BLOCK> mNext ;
-			LENGTH mCount ;
-			HEADER mFlexData ;
-		} ;
-
-	private:
-		PTR<BLOCK> mRoot ;
-		LENGTH mSize ;
-		LENGTH mLength ;
-
-	public:
-		inline HugePool () noexcept {
-			mRoot = NULL ;
-			mLength = 0 ;
-			mSize = 0 ;
-		}
-
-		inline ~HugePool () noexcept override {
-			if (mRoot == NULL)
-				return ;
-			for (PTR<BLOCK> i = mRoot ,it ; i != NULL ; i = it) {
-				it = i->mNext ;
-				GlobalHeap::free (i->mOrigin) ;
-			}
-			mRoot = NULL ;
-		}
-
-		inline LENGTH size () const override {
-			return mSize ;
-		}
-
-		inline LENGTH length () const override {
-			return mLength ;
-		}
-
-		inline PTR<HEADER> alloc (LENGTH len) popping override {
-			const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (BLOCK)) ;
-			const auto r2x = _ALIGNOF_ (BLOCK) - 1 + _SIZEOF_ (BLOCK) + r1x ;
-			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
-			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (BLOCK)) ;
-			auto &r5x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
-			r5x.mPrev = NULL ;
-			r5x.mNext = mRoot ;
-			r5x.mCount = r1x ;
-			if (mRoot != NULL)
-				mRoot->mPrev = &r5x ;
-			mRoot = &r5x ;
-			mSize += r5x.mCount ;
-			mLength += r5x.mCount ;
-			rax = NULL ;
-			return &r5x.mFlexData ;
-		}
-
-		inline void free (PTR<HEADER> address) noexcept override {
-			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
-			auto &r2x = _SWITCH_ (
-				(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
-				mRoot) ;
-			r2x = r1x.mNext ;
-			if (r1x.mNext != NULL)
-				r1x.mNext->mPrev = r1x.mPrev ;
-			mSize -= r1x.mCount ;
-			mLength -= r1x.mCount ;
-			GlobalHeap::free (r1x.mOrigin) ;
-		}
-
-		inline void clean () override {
-			_STATIC_WARNING_ ("noop") ;
-		}
-	} ;
-
 private:
-	ImplPool<ARGC<8> ,ARGC<32>> mPool1 ;
-	ImplPool<ARGC<16> ,ARGC<32>> mPool2 ;
-	ImplPool<ARGC<24> ,ARGC<32>> mPool3 ;
-	ImplPool<ARGC<32> ,ARGC<32>> mPool4 ;
-	ImplPool<ARGC<40> ,ARGC<16>> mPool5 ;
-	ImplPool<ARGC<48> ,ARGC<16>> mPool6 ;
-	ImplPool<ARGC<56> ,ARGC<16>> mPool7 ;
-	ImplPool<ARGC<64> ,ARGC<16>> mPool8 ;
-	ImplPool<ARGC<72> ,ARGC<8>> mPool9 ;
-	ImplPool<ARGC<80> ,ARGC<8>> mPool10 ;
-	ImplPool<ARGC<88> ,ARGC<8>> mPool11 ;
-	ImplPool<ARGC<96> ,ARGC<8>> mPool12 ;
-	ImplPool<ARGC<104> ,ARGC<4>> mPool13 ;
-	ImplPool<ARGC<112> ,ARGC<4>> mPool14 ;
-	ImplPool<ARGC<120> ,ARGC<4>> mPool15 ;
-	ImplPool<ARGC<128> ,ARGC<4>> mPool16 ;
-	HugePool mHugePool ;
-	Monostate<Buffer<PTR<Pool> ,ARGC<17>>> mPool ;
+	struct Detail ;
+	Buffer<StrongRef<Pool> ,ARGC<17>> mPool ;
 
 public:
 	inline MemoryPool () {
-		mPool.self[0] = &mPool1 ;
-		mPool.self[1] = &mPool2 ;
-		mPool.self[2] = &mPool3 ;
-		mPool.self[3] = &mPool4 ;
-		mPool.self[4] = &mPool5 ;
-		mPool.self[5] = &mPool6 ;
-		mPool.self[6] = &mPool7 ;
-		mPool.self[7] = &mPool8 ;
-		mPool.self[8] = &mPool9 ;
-		mPool.self[9] = &mPool10 ;
-		mPool.self[10] = &mPool11 ;
-		mPool.self[11] = &mPool12 ;
-		mPool.self[12] = &mPool13 ;
-		mPool.self[13] = &mPool14 ;
-		mPool.self[14] = &mPool15 ;
-		mPool.self[15] = &mPool16 ;
-		mPool.self[16] = &mHugePool ;
+		using HugePool = typename Detail::HugePool ;
+		mPool[0] = StrongRef<typename Detail::template ImplPool<ARGC<8> ,ARGC<32>>>::make () ;
+		mPool[1] = StrongRef<typename Detail::template ImplPool<ARGC<16> ,ARGC<32>>>::make () ;
+		mPool[2] = StrongRef<typename Detail::template ImplPool<ARGC<24> ,ARGC<32>>>::make () ;
+		mPool[3] = StrongRef<typename Detail::template ImplPool<ARGC<32> ,ARGC<32>>>::make () ;
+		mPool[4] = StrongRef<typename Detail::template ImplPool<ARGC<40> ,ARGC<16>>>::make () ;
+		mPool[5] = StrongRef<typename Detail::template ImplPool<ARGC<48> ,ARGC<16>>>::make () ;
+		mPool[6] = StrongRef<typename Detail::template ImplPool<ARGC<56> ,ARGC<16>>>::make () ;
+		mPool[7] = StrongRef<typename Detail::template ImplPool<ARGC<64> ,ARGC<16>>>::make () ;
+		mPool[8] = StrongRef<typename Detail::template ImplPool<ARGC<72> ,ARGC<8>>>::make () ;
+		mPool[9] = StrongRef<typename Detail::template ImplPool<ARGC<80> ,ARGC<8>>>::make () ;
+		mPool[10] = StrongRef<typename Detail::template ImplPool<ARGC<88> ,ARGC<8>>>::make () ;
+		mPool[11] = StrongRef<typename Detail::template ImplPool<ARGC<96> ,ARGC<8>>>::make () ;
+		mPool[12] = StrongRef<typename Detail::template ImplPool<ARGC<104> ,ARGC<4>>>::make () ;
+		mPool[13] = StrongRef<typename Detail::template ImplPool<ARGC<112> ,ARGC<4>>>::make () ;
+		mPool[14] = StrongRef<typename Detail::template ImplPool<ARGC<120> ,ARGC<4>>>::make () ;
+		mPool[15] = StrongRef<typename Detail::template ImplPool<ARGC<128> ,ARGC<4>>>::make () ;
+		mPool[16] = StrongRef<HugePool>::make () ;
 	}
 
 	inline LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
-			ret += mPool.self[i]->size () ;
+		for (auto &&i : _RANGE_ (0 ,mPool.size ()))
+			ret += mPool[i]->size () ;
 		return std::move (ret) ;
 	}
 
 	inline LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
-			ret += mPool.self[i]->length () ;
+		for (auto &&i : _RANGE_ (0 ,mPool.size ()))
+			ret += mPool[i]->length () ;
 		return std::move (ret) ;
 	}
 
@@ -2604,11 +2362,11 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + _SIZEOF_ (_RET) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mPool.self[ix]->alloc (r1x) ;
+		const auto r2x = mPool[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
 		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5x.mPool = mPool.self[ix] ;
+		r5x.mPool = mPool[ix] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_<_RET> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
 		return &r6x ;
@@ -2622,11 +2380,11 @@ public:
 		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + len * _SIZEOF_ (_RET) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mPool.self[ix]->alloc (r1x) ;
+		const auto r2x = mPool[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
 		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5x.mPool = mPool.self[ix] ;
+		r5x.mPool = mPool[ix] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_<ARR<_RET>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
 		return &r6x ;
@@ -2637,15 +2395,221 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
-		INDEX ix = _MEMCHR_ (mPool.self.self ,mPool.self.size () ,r2x.mPool) ;
+		INDEX ix = _MEMCHR_ (mPool ,mPool.size () ,r2x.mPool) ;
 		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-		mPool.self[ix]->free (r2x.mCurr) ;
+		mPool[ix]->free (r2x.mCurr) ;
 	}
 
 	inline void clean () {
-		for (auto &&i : _RANGE_ (0 ,mPool.self.size ()))
-			mPool.self[i]->clean () ;
+		for (auto &&i : _RANGE_ (0 ,mPool.size ()))
+			mPool[i]->clean () ;
 	}
+
+private:
+	struct Detail {
+		struct BLOCK {
+			PTR<struct BLOCK> mNext ;
+			HEADER mFlexData ;
+		} ;
+
+		struct CHUNK {
+			PTR<ARR<BYTE>> mOrigin ;
+			PTR<struct CHUNK> mPrev ;
+			PTR<struct CHUNK> mNext ;
+			LENGTH mCount ;
+		} ;
+
+		template <class SIZE ,class RESE>
+		class ImplPool :public Pool {
+		private:
+			PTR<CHUNK> mRoot ;
+			PTR<BLOCK> mFree ;
+			LENGTH mSize ;
+			LENGTH mLength ;
+
+		public:
+			inline ImplPool () noexcept {
+				mRoot = NULL ;
+				mFree = NULL ;
+				mSize = 0 ;
+				mLength = 0 ;
+			}
+
+			inline ~ImplPool () noexcept override {
+				if (mRoot == NULL)
+					return ;
+				for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
+					it = i->mNext ;
+					GlobalHeap::free (i->mOrigin) ;
+				}
+				mRoot = NULL ;
+			}
+
+			inline LENGTH size () const override {
+				return mSize ;
+			}
+
+			inline LENGTH length () const override {
+				return mLength ;
+			}
+
+			inline void reserve () {
+				if (mFree != NULL)
+					return ;
+				const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
+				const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
+				auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
+				const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+				const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
+				auto &r5x = _LOAD_<CHUNK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+				r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+				r5x.mPrev = NULL ;
+				r5x.mNext = mRoot ;
+				r5x.mCount = RESE::value ;
+				if (mRoot != NULL)
+					mRoot->mPrev = &r5x ;
+				mRoot = &r5x ;
+				mSize += RESE::value * SIZE::value ;
+				const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
+				for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
+					const auto r7x = r6x + i * r1x ;
+					auto &r8x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r7x)) ;
+					r8x.mNext = mFree ;
+					mFree = &r8x ;
+				}
+				rax = NULL ;
+			}
+
+			inline PTR<HEADER> alloc (LENGTH len) popping override {
+				_DEBUG_ASSERT_ (len <= SIZE::value) ;
+				reserve () ;
+				const auto r1x = mFree ;
+				mFree = r1x->mNext ;
+				mLength += SIZE::value ;
+				const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (_XVALUE_<LENGTH> (VAR_USED)) ;
+				_CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) = r2x ;
+				return &r1x->mFlexData ;
+			}
+
+			inline void free (PTR<HEADER> address) noexcept override {
+				_DEBUG_ASSERT_ (address != NULL) ;
+				auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
+				_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
+				r1x.mNext = mFree ;
+				mFree = &r1x ;
+				mLength -= SIZE::value ;
+			}
+
+			inline void clean () override {
+				if (mSize == mLength)
+					return ;
+				for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
+					it = i->mNext ;
+					if (!empty_node (i))
+						continue ;
+					auto &r1x = _SWITCH_ (
+						(i->mPrev != NULL) ? i->mPrev->mNext :
+						mRoot) ;
+					r1x = i->mNext ;
+					if (i->mNext != NULL)
+						i->mNext->mPrev = i->mPrev ;
+					mSize -= i->mCount * SIZE::value ;
+					GlobalHeap::free (i->mOrigin) ;
+				}
+			}
+
+		private:
+			inline BOOL empty_node (PTR<const CHUNK> node) const {
+				const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
+				const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
+				for (auto &&i : _RANGE_ (0 ,node->mCount)) {
+					const auto r3x = r2x + i * r1x ;
+					auto &r4x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+					if (_ADDRESS_ (r4x.mNext) == VAR_USED)
+						return FALSE ;
+				}
+				return TRUE ;
+			}
+		} ;
+
+		struct FBLOCK {
+			PTR<ARR<BYTE>> mOrigin ;
+			PTR<struct FBLOCK> mPrev ;
+			PTR<struct FBLOCK> mNext ;
+			LENGTH mCount ;
+			HEADER mFlexData ;
+		} ;
+
+		class HugePool :public Pool {
+		private:
+			PTR<FBLOCK> mRoot ;
+			LENGTH mSize ;
+			LENGTH mLength ;
+
+		public:
+			inline HugePool () noexcept {
+				mRoot = NULL ;
+				mLength = 0 ;
+				mSize = 0 ;
+			}
+
+			inline ~HugePool () noexcept override {
+				if (mRoot == NULL)
+					return ;
+				for (PTR<FBLOCK> i = mRoot ,it ; i != NULL ; i = it) {
+					it = i->mNext ;
+					GlobalHeap::free (i->mOrigin) ;
+				}
+				mRoot = NULL ;
+			}
+
+			inline LENGTH size () const override {
+				return mSize ;
+			}
+
+			inline LENGTH length () const override {
+				return mLength ;
+			}
+
+			inline PTR<HEADER> alloc (LENGTH len) popping override {
+				const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
+				const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
+				auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
+				const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+				const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
+				auto &r5x = _LOAD_<FBLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+				r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+				r5x.mPrev = NULL ;
+				r5x.mNext = mRoot ;
+				r5x.mCount = r1x ;
+				if (mRoot != NULL)
+					mRoot->mPrev = &r5x ;
+				mRoot = &r5x ;
+				mSize += r5x.mCount ;
+				mLength += r5x.mCount ;
+				rax = NULL ;
+				return &r5x.mFlexData ;
+			}
+
+			inline void free (PTR<HEADER> address) noexcept override {
+				_DEBUG_ASSERT_ (address != NULL) ;
+				auto &r1x = _OFFSET_ (&FBLOCK::mFlexData ,(*address)) ;
+				auto &r2x = _SWITCH_ (
+					(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
+					mRoot) ;
+				r2x = r1x.mNext ;
+				if (r1x.mNext != NULL)
+					r1x.mNext->mPrev = r1x.mPrev ;
+				mSize -= r1x.mCount ;
+				mLength -= r1x.mCount ;
+				GlobalHeap::free (r1x.mOrigin) ;
+			}
+
+			inline void clean () override {
+				_STATIC_WARNING_ ("noop") ;
+			}
+		} ;
+	} ;
 } ;
 
 class Object ;
@@ -2661,38 +2625,7 @@ public:
 	class Virtual ;
 
 private:
-	class Metadata {
-	private:
-		friend Object ;
-		LENGTH mObjectSize ;
-		LENGTH mObjectAlign ;
-		FLAG mObjectTypeUID ;
-		Function<void (PTR<NONE>)> mConstrutor ;
-		Function<void (PTR<NONE>)> mDestructor ;
-
-	private:
-		inline Metadata () = delete ;
-
-		template <class _ARG1>
-		inline explicit Metadata (const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
-			mObjectSize = _SIZEOF_ (_ARG1) ;
-			mObjectAlign = _ALIGNOF_ (_ARG1) ;
-			mObjectTypeUID = _TYPEMID_<_ARG1> () ;
-			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
-				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-				_CREATE_ (&r2x) ;
-			}) ;
-			mConstrutor = r1x ;
-			const auto r3x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
-				auto &r4x = _LOAD_<TEMP<_ARG1>> (address) ;
-				_DESTROY_ (&r4x) ;
-			}) ;
-			mDestructor = r1x ;
-		}
-	} ;
-
-private:
+	struct Detail ;
 	WeakRef<Object> mWeakOfThis ;
 
 public:
@@ -2715,6 +2648,40 @@ public:
 	inline StrongRef<Object> clone () const override {
 		return StrongRef<Object> () ;
 	}
+
+private:
+	struct Detail {
+		class Metadata {
+		private:
+			friend Object ;
+			LENGTH mObjectSize ;
+			LENGTH mObjectAlign ;
+			FLAG mObjectTypeUID ;
+			Function<void (PTR<NONE>)> mConstrutor ;
+			Function<void (PTR<NONE>)> mDestructor ;
+
+		private:
+			inline Metadata () = delete ;
+
+			template <class _ARG1>
+			inline explicit Metadata (const ARGV<_ARG1> &) {
+				_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
+				mObjectSize = _SIZEOF_ (_ARG1) ;
+				mObjectAlign = _ALIGNOF_ (_ARG1) ;
+				mObjectTypeUID = _TYPEMID_<_ARG1> () ;
+				const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
+					auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+					_CREATE_ (&r2x) ;
+				}) ;
+				mConstrutor = r1x ;
+				const auto r3x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
+					auto &r4x = _LOAD_<TEMP<_ARG1>> (address) ;
+					_DESTROY_ (&r4x) ;
+				}) ;
+				mDestructor = r1x ;
+			}
+		} ;
+	} ;
 } ;
 
 class Object::Virtual :public virtual Object {
@@ -2729,22 +2696,7 @@ private:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 
-	template <class... UNITS_>
-	class ImplBinder :public Binder {
-	private:
-		Tuple<DEF<UNITS_ CONT::*>...> mMemPtr ;
-
-	public:
-		inline ImplBinder () = delete ;
-
-		inline explicit ImplBinder (const DEF<UNITS_ CONT::*> &...memptr) :mMemPtr (memptr...) {}
-
-		inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
-			Detail::template_visit (visitor ,context_ ,mMemPtr) ;
-		}
-	} ;
-
-	class Member {
+	class Member final :private Proxy {
 	private:
 		friend Serializer ;
 		const Serializer &mBase ;
@@ -2752,10 +2704,6 @@ private:
 
 	public:
 		inline Member () = delete ;
-
-		inline Member (const Member &) = delete ;
-
-		inline Member (Member &&) noexcept = default ;
 
 		inline void friend_visit (UNIT &) const & = delete ;
 
@@ -2776,9 +2724,10 @@ public:
 
 	template <class... _ARGS>
 	inline explicit Serializer (const DEF<_ARGS CONT::*> &...memptr) {
+		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		_DEBUG_ASSERT_ (Detail::template_available (memptr...)) ;
-		mBinder = StrongRef<const ImplBinder<_ARGS...>>::make (memptr...) ;
+		_DEBUG_ASSERT_ (template_available (memptr...)) ;
+		mBinder = StrongRef<const ImplBinder>::make (memptr...) ;
 	}
 
 	inline Member operator() (CONT &context_) const popping {
@@ -2787,28 +2736,44 @@ public:
 	}
 
 private:
+	inline static BOOL template_available () {
+		return TRUE ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	inline static BOOL template_available (const DEF<_ARG1 CONT::*> &memptr_one ,const DEF<_ARGS CONT::*> &...memptr_rest) {
+		if (memptr_one == NULL)
+			return FALSE ;
+		return template_available (memptr_rest...) ;
+	}
+
+	inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class... _ARGS>
+	inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<DEF<_ARGS CONT::*>...> &memptr) {
+		auto &r1x = (context_.*memptr.one ()) ;
+		visitor.visit (r1x) ;
+		template_visit (visitor ,context_ ,memptr.rest ()) ;
+	}
+
+private:
 	struct Detail {
-		inline static BOOL template_available () {
-			return TRUE ;
-		}
+		template <class... UNITS_>
+		class ImplBinder :public Binder {
+		private:
+			Tuple<DEF<UNITS_ CONT::*>...> mMemPtr ;
 
-		template <class _ARG1 ,class... _ARGS>
-		inline static BOOL template_available (const DEF<_ARG1 CONT::*> &memptr_one ,const DEF<_ARGS CONT::*> &...memptr_rest) {
-			if (memptr_one == NULL)
-				return FALSE ;
-			return template_available (memptr_rest...) ;
-		}
+		public:
+			inline ImplBinder () = delete ;
 
-		inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) {
-			_STATIC_WARNING_ ("noop") ;
-		}
+			inline explicit ImplBinder (const DEF<UNITS_ CONT::*> &...memptr) :mMemPtr (memptr...) {}
 
-		template <class... _ARGS>
-		inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<DEF<_ARGS CONT::*>...> &memptr) {
-			auto &r1x = (context_.*memptr.one ()) ;
-			visitor.visit (r1x) ;
-			template_visit (visitor ,context_ ,memptr.rest ()) ;
-		}
+			inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
+				template_visit (visitor ,context_ ,mMemPtr) ;
+			}
+		} ;
 	} ;
 } ;
 

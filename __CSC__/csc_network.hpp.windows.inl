@@ -130,7 +130,7 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &socket_ ,LENGTH time
 
 class TCPSocket::Implement final :private Interface {
 private:
-	class Holder {
+	class Pack {
 	private:
 		friend Implement ;
 		friend Listener::Implement ;
@@ -141,14 +141,14 @@ private:
 
 private:
 	friend Listener::Implement ;
-	SharedRef<Holder> mThis ;
+	SharedRef<Pack> mThis ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
 		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
-		mThis = SharedRef<Holder>::make () ;
+		mThis = SharedRef<Pack>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = ::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -351,7 +351,7 @@ inline String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const S
 
 class TCPSocket::Listener::Implement final :private Interface {
 private:
-	SharedRef<TCPSocket::Implement::Holder> mThis ;
+	SharedRef<TCPSocket::Implement::Pack> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 
@@ -403,7 +403,7 @@ inline TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
 
 class UDPSocket::Implement final :private Interface {
 private:
-	class Holder {
+	class Pack {
 	private:
 		friend Implement ;
 		UniqueRef<SOCKET> mSocket ;
@@ -412,7 +412,7 @@ private:
 	} ;
 
 private:
-	SharedRef<Holder> mThis ;
+	SharedRef<Pack> mThis ;
 
 public:
 	Implement () = delete ;

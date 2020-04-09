@@ -1762,6 +1762,22 @@ public:
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
+class Proxy {
+public:
+	inline Proxy () = default ;
+
+	inline Proxy (const Proxy &) = delete ;
+	inline Proxy &operator= (const Proxy &) = delete ;
+
+#ifdef __CSC_CXX_LATEST__
+	inline Proxy (Proxy &&) = delete ;
+#else
+	inline Proxy (Proxy &&) noexcept = default ;
+#endif
+
+	inline Proxy &operator= (Proxy &&) = delete ;
+} ;
+
 template <class SIZE>
 class ArrayRange ;
 
@@ -1769,7 +1785,7 @@ template <>
 class ArrayRange<ZERO> final {
 private:
 	template <class BASE>
-	class Iterator {
+	class Iterator final :private Proxy {
 	private:
 		friend ArrayRange ;
 		BASE &mBase ;
@@ -1777,10 +1793,6 @@ private:
 
 	public:
 		inline Iterator () = delete ;
-
-		inline Iterator (const Iterator &) = delete ;
-
-		inline Iterator (Iterator &&) noexcept = default ;
 
 		inline BOOL operator!= (const Iterator &that) const {
 			return BOOL (mIndex != that.mIndex) ;
@@ -1821,19 +1833,14 @@ inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
 	return ArrayRange<ZERO> (ibegin_ ,iend_) ;
 }
 
-namespace U {
-inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
-	return 1 ;
-}
-
-template <class _ARG1 ,class... _ARGS>
-inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-	return _COUNTOF_ (_ARG1) - 1 + constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
-}
-} ;
-
 template <class REAL>
-class Plain final {
+class Plain final :private Proxy {
+private:
+	struct Detail ;
+
+	template <class... _ARGS>
+	using PLAIN_STRING_SIZE = ARGC<Detail::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
+
 private:
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 	struct Detail ;
@@ -1856,7 +1863,7 @@ public:
 	inline explicit Plain (const _ARG1 &text) noexcept :Plain (_CAST_<REAL[_COUNTOF_ (_ARG1)]> (text)) {}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept :Plain (Detail::cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
+	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept :Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
 
 	inline constexpr LENGTH size () const {
 		return mSize ;
@@ -1869,6 +1876,36 @@ public:
 
 	inline constexpr implicit operator const ARR<REAL> & () const {
 		return to () ;
+	}
+
+public:
+	template <class _ARG1 ,class... _ARGS>
+	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
+		->DEF<const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &> {
+		using PlainString = typename Detail::template PlainString<PLAIN_STRING_SIZE<_ARGS...>> ;
+		const auto r1x = PlainString (text...) ;
+		auto &r2x = _CACHE_ ([&] () noexcept {
+			return r1x ;
+		}) ;
+		return r2x.mString ;
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> &) noexcept {
+		_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
+		_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
+		array_[_ARG2::value] = 0 ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
+	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
+		_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
+		_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
+		_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
+			array_[i + _ARG2::value] = REAL (text_one[i]) ;
+		using REST_SIZE = ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> ;
+		template_write (array_ ,_NULL_<ARGV<REST_SIZE>> () ,text_rest...) ;
 	}
 
 private:
@@ -1888,35 +1925,13 @@ private:
 			}
 		} ;
 
-		template <class... _ARGS>
-		using PLAIN_STRING_SIZE = ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
+		inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
+			return 1 ;
+		}
 
 		template <class _ARG1 ,class... _ARGS>
-		inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
-			->DEF<const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &> {
-			const auto r1x = PlainString<PLAIN_STRING_SIZE<_ARGS...>> (text...) ;
-			auto &r2x = _CACHE_ ([&] () noexcept {
-				return r1x ;
-			}) ;
-			return r2x.mString ;
-		}
-
-		template <class _ARG1 ,class _ARG2>
-		inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> &) noexcept {
-			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
-			_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
-			array_[_ARG2::value] = 0 ;
-		}
-
-		template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-		inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
-			_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
-			_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
-			_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
-			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
-				array_[i + _ARG2::value] = REAL (text_one[i]) ;
-			using REST_SIZE = ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> ;
-			template_write (array_ ,_NULL_<ARGV<REST_SIZE>> () ,text_rest...) ;
+		inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+			return _COUNTOF_ (_ARG1) - 1 + constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 		}
 	} ;
 } ;
