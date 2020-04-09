@@ -560,7 +560,7 @@ private:
 	Monostate<FLAG> mStatus ;
 	AutoRef<CONT> mContext ;
 	AnyRef<void> mBreakPoint ;
-	Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
+	Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> mSubProcSet ;
 	Array<AnyRef<void>> mSubBreakPoint ;
 	Deque<INDEX> mSubQueue ;
 	Priority<VAR ,INDEX> mSubAwaitQueue ;
@@ -589,12 +589,14 @@ public:
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		mContext = AutoRef<CONT>::make () ;
 		mBreakPoint = AnyRef<void> () ;
-		mSubProc = std::move (proc) ;
-		mSubBreakPoint = Array<AnyRef<void>> (mSubProc.size ()) ;
-		mSubQueue = Deque<INDEX> (mSubProc.length ()) ;
-		for (auto &&i : _RANGE_ (0 ,mSubProc.length ()))
+		mSubProcSet = Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,proc.length ()))
+			mSubProcSet.add (i ,std::move (proc[i])) ;
+		mSubBreakPoint = Array<AnyRef<void>> (mSubProcSet.length ()) ;
+		mSubQueue = Deque<INDEX> (mSubProcSet.length ()) ;
+		for (auto &&i : mSubProcSet.range ())
 			mSubQueue.add (i) ;
-		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProc.length ()) ;
+		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProcSet.length ()) ;
 		mSubQueue.take (mSubCurr) ;
 	}
 
@@ -621,13 +623,15 @@ public:
 				continue ;
 			store_break_point (i) ;
 		}
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
 		const auto r1x = mSubCurr ;
+		_DEBUG_ASSERT_ (r1x != VAR_NONE) ;
 		_CALL_TRY_ ([&] () {
 			if (mStatus.self == STATUS_STOPPED)
 				return ;
 			mStatus.self = STATUS_RUNNING ;
-			mSubProc[r1x] (_CAST_<SubRef> ((*this))) ;
+			INDEX ix = mSubProcSet.find (r1x) ;
+			_DEBUG_ASSERT_ (ix != VAR_NONE) ;
+			mSubProcSet[ix].item (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;

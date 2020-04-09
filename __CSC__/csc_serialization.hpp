@@ -690,7 +690,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		const String<STRU8> mFinalClazzString ;
 
 		Deque<PACK<Deque<XmlParser> ,FLAG ,INDEX>> mNodeStack ;
-		ARRAY4<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
+		Set<FLAG ,Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProcSet ;
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
@@ -717,10 +717,15 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	private:
 		inline void prepare () {
 			mNodeStack = Deque<PACK<Deque<XmlParser> ,FLAG ,INDEX>> () ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
-			mFoundNodeProc[3] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
+			INDEX ix = VAR_NONE ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_TABLE) ;
+			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_OBJECT) ;
+			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_ARRAY) ;
+			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_FINAL) ;
+			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
@@ -728,11 +733,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			if switch_case (TRUE) {
 				mRootName.clear () ;
 				mRootType = VAR_NONE ;
-				INDEX ix = find_normal_node () ;
-				if (ix == VAR_NONE)
+				INDEX iy = find_normal_node () ;
+				if (iy == VAR_NONE)
 					discard ;
-				mRootName = mSequence[ix].name () ;
-				mRootType = node_type (mSequence[ix]) ;
+				mRootName = mSequence[iy].name () ;
+				mRootType = node_type (mSequence[iy]) ;
 			}
 			for (auto &&i : mSequence) {
 				if (!i.exist ())
@@ -781,8 +786,11 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				if switch_case (TRUE) {
 					if (mTempNode.P2 == VAR_NONE)
 						discard ;
-					for (auto &&i : mTempNode.P1)
-						mFoundNodeProc[mTempNode.P2] (i) ;
+					for (auto &&i : mTempNode.P1) {
+						INDEX ix = mFoundNodeProcSet.find (mTempNode.P2) ;
+						_DEBUG_ASSERT_ (ix != VAR_NONE) ;
+						mFoundNodeProcSet[ix].item (i) ;
+					}
 					update_merge_found_node (mTempNode.P3) ;
 					mFoundNodeBaseNodeHeap.add (std::move (mTempNode.P1)) ;
 				}
