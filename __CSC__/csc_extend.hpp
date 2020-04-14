@@ -321,7 +321,7 @@ public:
 
 	inline VAR128 operator* (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		auto rax = DATA () ;
+		auto rax = DATA (0) ;
 		rax = CHAR (rax >> (_SIZEOF_ (CHAR) * 8)) ;
 		rax += DATA (v4i3) * DATA (that.v4i3) ;
 		ret.v4i3 = CHAR (rax) ;
@@ -362,10 +362,10 @@ public:
 				discard ;
 			if (!(that.v4i2 == 0))
 				discard ;
-			auto rax = DATA () ;
+			auto rax = DATA (0) ;
 			const auto r3x = DATA (that.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
-			rax = (DATA (0) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
+			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
 			ret.v4i0 = CHAR (rax / r3x) ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i1) ;
 			ret.v4i1 = CHAR (rax / r3x) ;
@@ -438,10 +438,10 @@ public:
 				discard ;
 			if (!(that.v4i2 == 0))
 				discard ;
-			auto rax = DATA () ;
+			auto rax = DATA (0) ;
 			const auto r3x = DATA (that.v4i3) ;
 			_DEBUG_ASSERT_ (r3x != 0) ;
-			rax = (DATA (0) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
+			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
 			ret.v4i0 = 0 ;
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i1) ;
 			ret.v4i1 = 0 ;
@@ -759,6 +759,9 @@ inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARG1 ,_ARGS...>
 
 template <class... UNITS>
 class Variant {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
+	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
+
 private:
 	//@error: g++4.8 is too useless to use constexpr value in alignas expression
 	template <LENGTH ALIGN ,LENGTH SIZE>
@@ -772,8 +775,6 @@ private:
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 	TEMP<VARIANT> mVariant ;
 	INDEX mIndex ;
 
@@ -1086,8 +1087,9 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 class Tuple<UNIT1 ,UNITS...> :private Tuple<UNITS...> {
-private:
 	_STATIC_ASSERT_ (!std::is_rvalue_reference<UNIT1>::value) ;
+
+private:
 	template <class...>
 	friend class Tuple ;
 	UNIT1 mData ;
@@ -1252,12 +1254,13 @@ class AnyOfTuple ;
 
 template <class... UNITS>
 class AllOfTuple final :private Proxy {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
+	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
+
 private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	TupleBinder<const UNITS...> mTuple ;
 
 public:
@@ -1382,12 +1385,13 @@ private:
 
 template <class... UNITS>
 class AnyOfTuple final :private Proxy {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
+	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
+
 private:
 	using WRAPPED_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 	TupleBinder<const UNITS...> mTuple ;
 
 public:
@@ -2090,11 +2094,11 @@ private:
 			mPointer = NULL ;
 		}
 
-		inline WatchProxy (const WatchProxy &) = delete ;
-		inline WatchProxy &operator= (const WatchProxy &) = delete ;
+		inline WatchProxy (const WatchProxy &) = default ;
+		inline WatchProxy &operator= (const WatchProxy &) = default ;
 
 		inline WatchProxy (WatchProxy &&) noexcept = default ;
-		inline WatchProxy &operator= (WatchProxy &&) = delete ;
+		inline WatchProxy &operator= (WatchProxy &&) noexcept = default ;
 
 		inline implicit operator UNIT & () const & noexcept {
 			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;

@@ -15,8 +15,9 @@ class Matrix ;
 
 template <class REAL>
 class Vector {
-private:
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
+
+private:
 	Buffer<REAL ,ARGC<4>> mVector ;
 
 public:
@@ -312,6 +313,8 @@ public:
 
 template <class REAL>
 class Matrix {
+	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
+
 private:
 	template <class BASE>
 	class Row final :private Proxy {
@@ -332,7 +335,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 	Buffer<REAL ,ARGC<16>> mMatrix ;
 
 public:

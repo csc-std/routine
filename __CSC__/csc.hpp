@@ -379,12 +379,12 @@ static constexpr auto VAR_MAX = VAR64_MAX ;
 static constexpr auto VAR_MIN = VAR64_MIN ;
 #endif
 
-using VARX = long ;
-using VARY = unsigned long ;
-
 static constexpr auto VAR_ZERO = VAR (+0) ;
 static constexpr auto VAR_NONE = VAR (-1) ;
 static constexpr auto VAR_USED = VAR (-2) ;
+
+using VARX = long ;
+using VARY = unsigned long ;
 
 using INDEX = VAR ;
 using LENGTH = VAR ;
@@ -483,15 +483,14 @@ struct OPERATOR_PTRTOARR {
 
 static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
 
-using BYTE = std::uint8_t ;
-using WORD = std::uint16_t ;
-using CHAR = std::uint32_t ;
-using DATA = std::uint64_t ;
-
 struct __uint128_t {
 	alignas (16) DEF<BYTE[16]> unused ;
 } ;
 
+using BYTE = std::uint8_t ;
+using WORD = std::uint16_t ;
+using CHAR = std::uint32_t ;
+using DATA = std::uint64_t ;
 using MEGA = __uint128_t ;
 
 using STRU8 = unsigned char ;
@@ -1285,8 +1284,7 @@ struct INDEX_TO<ZERO ,ARGVS<_ARG1 ,_ARGS...>> {
 
 template <class _ARG1>
 struct INDEX_TO<_ARG1 ,ARGVS<>> {
-	//@warn: bad index_to
-	using TYPE = _ARG1 ;
+	//@info: bad index_to
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -1835,6 +1833,8 @@ inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
 
 template <class REAL>
 class Plain final :private Proxy {
+	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
+
 private:
 	struct Detail ;
 
@@ -1842,7 +1842,6 @@ private:
 	using PLAIN_STRING_SIZE = ARGC<Detail::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 	struct Detail ;
 	PTR<const REAL> mPlain ;
 	LENGTH mSize ;

@@ -822,7 +822,7 @@ public:
 			if (chosen.length () >= count)
 				break ;
 			INDEX ix = random_value (0 ,(range_.size () - 1)) ;
-			chosen[ix] = range_[ix] ;
+			chosen[ix] = BOOL (range_[ix]) ;
 		}
 	}
 

@@ -108,11 +108,11 @@ inline const PACK<CHAR[256]> &_inline_MEMCRC32_TABLE_ () {
 
 template <class _ARG1>
 inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
+	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1x = _inline_MEMCRC32_TABLE_ () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
@@ -362,11 +362,11 @@ private:
 			mPointer = NULL ;
 		}
 
-		inline OwnerProxy (const OwnerProxy &) = delete ;
-		inline OwnerProxy &operator= (const OwnerProxy &) = delete ;
+		inline OwnerProxy (const OwnerProxy &) = default ;
+		inline OwnerProxy &operator= (const OwnerProxy &) = default ;
 
 		inline OwnerProxy (OwnerProxy &&) noexcept = default ;
-		inline OwnerProxy &operator= (OwnerProxy &&) = delete ;
+		inline OwnerProxy &operator= (OwnerProxy &&) noexcept = default ;
 
 		inline implicit operator const PTR<UNIT> & () const & noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -556,6 +556,10 @@ class GlobalStatic ;
 
 template <class UNIT>
 class Singleton final :private Proxy {
+	_STATIC_ASSERT_ (std::is_class<UNIT>::value) ;
+	_STATIC_ASSERT_ (!std::is_default_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (std::is_nothrow_destructible<UNIT>::value) ;
+
 private:
 	class Holder {
 	private:
@@ -568,9 +572,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (std::is_class<UNIT>::value) ;
-	_STATIC_ASSERT_ (!std::is_default_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<UNIT>::value) ;
 	friend UNIT ;
 	template <class>
 	friend class GlobalStatic ;
@@ -615,6 +616,8 @@ class AutoRef ;
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
 	using SPECIALIZATION_TYPE = AutoRef<UNIT> ;
 
@@ -630,7 +633,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	friend SPECIALIZATION_TYPE ;
 	PTR<Holder> mPointer ;
 
@@ -670,6 +672,8 @@ private:
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
 	using SPECIALIZATION_TYPE = AutoRef<UNIT> ;
 
@@ -685,7 +689,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	friend SPECIALIZATION_TYPE ;
 	PTR<Holder> mPointer ;
 
@@ -802,6 +805,8 @@ public:
 
 template <class UNIT>
 class SharedRef {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
 	class Holder {
 	private:
@@ -815,7 +820,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -983,11 +987,12 @@ public:
 
 template <class UNIT>
 class AnyRef {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
 	using Holder = typename AnyRef<void>::Holder ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	class Detail ;
 	PTR<Holder> mPointer ;
 
@@ -1207,11 +1212,12 @@ private:
 
 template <class UNIT>
 class UniqueRef {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
 	using Holder = typename UniqueRef<void>::Holder ;
 
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	struct Detail ;
 	PTR<Holder> mPointer ;
 
@@ -1749,9 +1755,10 @@ using SMPHAN = ARGC<-5> ;
 
 template <class UNIT ,LENGTH SIZE>
 class Buffer<UNIT ,ARGC<SIZE>> {
-private:
 	_STATIC_ASSERT_ (SIZE > 0) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
+private:
 	DEF<UNIT[SIZE]> mBuffer ;
 
 public:
@@ -1866,8 +1873,9 @@ public:
 
 template <class UNIT>
 class Buffer<UNIT ,SFIXED> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2026,8 +2034,9 @@ class Buffer<UNIT ,SAUTO> ;
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,FALSE> ,SAUTO> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	friend Buffer<UNIT ,SAUTO> ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
@@ -2083,8 +2092,9 @@ public:
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,TRUE> ,SAUTO> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	friend Buffer<UNIT ,SAUTO> ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
@@ -2286,8 +2296,9 @@ using AutoBuffer = Buffer<UNIT ,SAUTO> ;
 
 template <class UNIT>
 class Buffer<UNIT ,SCPHAN> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	PTR<const ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2457,8 +2468,9 @@ public:
 
 template <class UNIT>
 class Buffer<UNIT ,SMPHAN> {
+	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+
 private:
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 

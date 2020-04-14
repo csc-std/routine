@@ -615,6 +615,8 @@ public:
 
 template <class REAL>
 class TextReader {
+	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
+
 private:
 	struct HEAP {
 		BOOL mEndianFlag ;
@@ -726,7 +728,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 	SharedRef<HEAP> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
@@ -1180,6 +1181,8 @@ private:
 
 template <class REAL>
 class TextWriter {
+	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
+
 private:
 	struct HEAP {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
@@ -1275,7 +1278,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 	SharedRef<HEAP> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
@@ -2006,6 +2008,8 @@ public:
 
 template <class SIZE>
 class RegularReader {
+	_STATIC_ASSERT_ (SIZE::value > 0) ;
+
 private:
 	class Shadow {
 	private:
@@ -2031,7 +2035,6 @@ private:
 	} ;
 
 private:
-	_STATIC_ASSERT_ (SIZE::value > 0) ;
 	PhanRef<TextReader<STRU8>> mReader ;
 	Array<STRU8 ,SIZE> mCache ;
 	INDEX mPeek ;

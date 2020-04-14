@@ -54,6 +54,91 @@ inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	}
 }
 
+class DisjointTable {
+private:
+	class Node {
+	private:
+		friend DisjointTable ;
+		INDEX mUp ;
+		LENGTH mWidth ;
+
+	public:
+		inline Node () {
+			mUp = VAR_NONE ;
+			mWidth = 0 ;
+		}
+	} ;
+
+private:
+	Array<Node> mTable ;
+
+public:
+	DisjointTable () = delete ;
+
+	explicit DisjointTable (LENGTH len) {
+		mTable = Array<Node> (len) ;
+	}
+
+	INDEX lead (INDEX index) popping {
+		INDEX ret = index ;
+		if switch_case (TRUE) {
+			if (mTable[ret].mUp != VAR_NONE)
+				discard ;
+			mTable[ret].mUp = ret ;
+			mTable[ret].mWidth = 1 ;
+		}
+		while (TRUE) {
+			if (mTable[ret].mUp == ret)
+				break ;
+			ret = mTable[ret].mUp ;
+		}
+		for (INDEX i = index ,it ,ie = ret ; i != ie ; i = it) {
+			it = mTable[i].mUp ;
+			mTable[i].mUp = ret ;
+			if (it == ret)
+				continue ;
+			mTable[it].mWidth -= mTable[i].mWidth ;
+		}
+		return std::move (ret) ;
+	}
+
+	void joint (INDEX index1 ,INDEX index2) {
+		INDEX ix = lead (index1) ;
+		INDEX iy = lead (index2) ;
+		if (ix == iy)
+			return ;
+		mTable[iy].mUp = ix ;
+		mTable[ix].mWidth += mTable[iy].mWidth ;
+	}
+
+	Array<BitSet<>> closure () popping {
+		const auto r1x = map_of_closure () ;
+		Array<BitSet<>> ret = Array<BitSet<>> (r1x.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,ret.length ()))
+			ret[i] = BitSet<> (mTable.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,mTable.length ())) {
+			if (mTable[i].mUp == VAR_NONE)
+				continue ;
+			INDEX ix = lead (i) ;
+			INDEX iy = r1x.find (ix) ;
+			_DEBUG_ASSERT_ (iy != VAR_NONE) ;
+			ret[r1x[iy].item][i] = TRUE ;
+		}
+		return std::move (ret) ;
+	}
+
+private:
+	Set<INDEX ,INDEX> map_of_closure () const {
+		Set<INDEX ,INDEX> ret = Set<INDEX ,INDEX> (mTable.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,mTable.length ())) {
+			if (mTable[i].mUp != i)
+				continue ;
+			ret.add (i ,ret.length ()) ;
+		}
+		return std::move (ret) ;
+	}
+} ;
+
 template <class REAL>
 class KMPAlgorithm {
 private:

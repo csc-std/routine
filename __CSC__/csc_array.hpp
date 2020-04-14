@@ -2465,16 +2465,6 @@ private:
 			}
 		}
 
-		inline void operator= (Bit<BitSet> &&that) && {
-			const auto r1x = BOOL (std::move (that)) ;
-			std::move ((*this)) = r1x ;
-		}
-
-		inline void operator= (Bit<const BitSet> &&that) && {
-			const auto r1x = BOOL (std::move (that)) ;
-			std::move ((*this)) = r1x ;
-		}
-
 	private:
 		inline explicit Bit (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
 	} ;

@@ -6,8 +6,8 @@
   <!--"https://docs.microsoft.com/en-us/visualstudio/debugger/format-specifiers-in-cpp?view=vs-2017#BKMK_Visual_Studio_2012_format_specifiers"-->
   <!--"https://docs.microsoft.com/en-us/visualstudio/debugger/pseudovariables?view=vs-2017"-->
   <!--"https://docs.microsoft.com/en-us/visualstudio/debugger/context-operator-cpp?view=vs-2017"-->
-  
-  
+
+
   <!--csc.hpp-->
 
 
@@ -16,18 +16,18 @@
       <ExpandedItem>*($T1*)&amp;unused</ExpandedItem>
     </Expand>
   </Type>
-  
+
 
   <Type Name="CSC::Interface" Inheritable="false" />
 
-  
+
   <Type Name="CSC::GlobalWatch::Storage&lt;*,*&gt;">
     <Expand>
       <Item Name="[name]">(const char*)mData.P1[0]</Item>
       <Item Name="[data]">*($T2*)mData.P1[1]</Item>
     </Expand>
   </Type>
-  
+
 
   <Type Name="CSC::AutoRef&lt;*&gt;">
     <Expand>
@@ -35,21 +35,21 @@
     </Expand>
   </Type>
 
-  
+
   <Type Name="CSC::SharedRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>mPointer->mData</ExpandedItem>
     </Expand>
   </Type>
 
-  
+
   <Type Name="CSC::AnyRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>((CSC::AnyRef&lt;$T1&gt;::ImplHolder&lt;$T1&gt;*)mPointer)->mData</ExpandedItem>
     </Expand>
   </Type>
 
-  
+
   <Type Name="CSC::UniqueRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>((CSC::UniqueRef&lt;$T1&gt;::ImplHolder&lt;void (*) ($T1 &amp;)&gt;*)mPointer)->mData</ExpandedItem>
@@ -77,7 +77,7 @@
     <Expand>
       <Item Name="[size]">sizeof(mBuffer)/sizeof(mBuffer[0])</Item>
       <ArrayItems>
-        <Size>sizeof(mBuffer)/sizeof(mBuffer[0])%32</Size>
+        <Size>sizeof(mBuffer)/sizeof(mBuffer[0])</Size>
         <ValuePointer>&amp;mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -88,18 +88,18 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>($T1*)(&amp;mSize+1)</ValuePointer>
       </ArrayItems>
     </Expand>
   </Type>
-  
+
 
   <Type Name="CSC::Buffer&lt;*,CSC::ARGC&lt;-1&gt; &gt;">
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>&amp;(*mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -110,7 +110,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>&amp;(*mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -121,7 +121,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>&amp;(*mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -132,7 +132,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>&amp;(*mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -143,7 +143,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize%32</Size>
+        <Size>mSize</Size>
         <ValuePointer>&amp;(*mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -155,7 +155,7 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>sizeof(mAllocator.mBuffer)/sizeof(mAllocator.mBuffer[0])%32</Size>
+        <Size>sizeof(mAllocator.mBuffer)/sizeof(mAllocator.mBuffer[0])</Size>
         <ValuePointer>&amp;mAllocator.mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -167,7 +167,7 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>mAllocator.mSize%32</Size>
+        <Size>mAllocator.mSize</Size>
         <ValuePointer>&amp;(*mAllocator.mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -179,13 +179,13 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>mAllocator.mSize%32</Size>
+        <Size>mAllocator.mSize</Size>
         <ValuePointer>&amp;(*mAllocator.mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
   </Type>
-  
-  
+
+
   <!--csc_extend.hpp-->
 
 
@@ -196,22 +196,22 @@
       <ExpandedItem>*mAddress</ExpandedItem>
     </Expand>
   </Type>
-  
-  
+
+
   <Type Name="CSC::StrongRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
-  
+
   <Type Name="CSC::WeakRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
-  
+
   <Type Name="CSC::SoftRef&lt;*&gt;">
     <Expand>
       <ExpandedItem>*mWeakRef.mPointer</ExpandedItem>
@@ -265,7 +265,7 @@
       <ExpandedItem>mString</ExpandedItem>
     </Expand>
   </Type>
-  
+
   <Type Name="CSC::String&lt;char16_t,CSC::ARGC&lt;*&gt; &gt;">
     <DisplayString>{{ {&amp;(*mString.mBuffer)[0],su} }}</DisplayString>
     <Expand>
@@ -363,7 +363,7 @@
       <Item Name="[data]">($T1(*)[1][4])&amp;mVector.mBuffer</Item>
     </Expand>
   </Type>
-  
+
 
   <Type Name="CSC::Matrix&lt;*&gt;">
     <Expand>
@@ -371,5 +371,5 @@
     </Expand>
   </Type>
 
-  
+
 </AutoVisualizer>
