@@ -8,7 +8,7 @@
 #include <csc_extend.hpp>
 #include <csc_array.hpp>
 #include <csc_math.hpp>
-//#include <csc_functional.hpp>
+#include <csc_functional.hpp>
 #include <csc_images.hpp>
 #include <csc_geometry.hpp>
 #include <csc_algorithm.hpp>

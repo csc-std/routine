@@ -11,7 +11,7 @@
 
 namespace CSC {
 template <class SIZE>
-class ArrayRange {
+class ArrayRange final :private Proxy {
 private:
 	template <class BASE>
 	class Iterator final :private Proxy {

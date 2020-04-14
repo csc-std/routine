@@ -239,10 +239,10 @@ struct op_cross<_ARG1 ,_ARG2> {
 } ;
 
 template <class...>
-struct op_to ;
+struct op_cast ;
 
 template <class _ARG1 ,class _ARG2>
-struct op_to<_ARG1 ,_ARG2> {
+struct op_cast<_ARG1 ,_ARG2> {
 	inline static Expression<RANK1> compile () {
 		return Operator ([] (const _ARG2 &arg1) {
 			return _XVALUE_<_ARG1> (arg1) ;
@@ -258,40 +258,6 @@ struct op_get<_ARG1 ,INDEX> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const INDEX &arg2) {
 			return arg1[arg2] ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_get<_ARG1 ,DEF<_ARG2 _ARG1::*>> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &arg1 ,const DEF<_ARG2 _ARG1::*> &arg2) {
-			return (arg1.*arg2) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct op_set ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_set<_ARG1 ,INDEX ,_ARG2> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &arg1 ,const INDEX &arg2 ,const _ARG2 &arg3) {
-			_ARG1 ret = arg1 ;
-			ret[arg2] = arg3 ;
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_set<_ARG1 ,DEF<_ARG2 _ARG1::*> ,_ARG2> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &arg1 ,const DEF<_ARG2 _ARG1::*> &arg2 ,const _ARG2 &arg3) {
-			_ARG1 ret = arg1 ;
-			(arg1.*arg2) = arg3 ;
-			return std::move (ret) ;
 		}) ;
 	}
 } ;
@@ -327,34 +293,6 @@ struct op_call<_ARG1 ,_ARG2 ,_ARG3> {
 } ;
 
 template <class...>
-struct op_read ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_read<_ARG1 ,_ARG2> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			_ARG1 ret = arg1 ;
-			ret >> arg2 ;
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct op_write ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_write<_ARG1 ,_ARG2> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &arg1 ,const _ARG2 &arg2) {
-			_ARG1 ret = arg1 ;
-			ret << arg2 ;
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
 struct op_switch ;
 
 template <>
@@ -377,104 +315,6 @@ struct op_assert<> {
 		return Operator ([] (const BOOL &arg1 ,const Operand &arg2) {
 			_DYNAMIC_ASSERT_ (arg1) ;
 			return arg2 ;
-		}) ;
-	}
-} ;
-} ;
-
-inline namespace FUNCTIONAL {
-template <class...>
-struct op_map ;
-
-template <class _ARG1>
-struct op_map<Array<_ARG1>> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const Array<_ARG1> &array_ ,const Expression<RANK1> &each) {
-			Array<_ARG1> ret = Array<_ARG1> (array_.size ()) ;
-			for (auto &&i : _RANGE_ (0 ,array_.length ())) {
-				const auto r1x = each (i) ;
-				ret[i] = r1x.template as<_ARG1> () ;
-			}
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1>
-struct op_map<Deque<_ARG1>> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const Deque<_ARG1> &array_ ,const Expression<RANK1> &each) {
-			Deque<_ARG1> ret = Deque<_ARG1> (array_.size ()) ;
-			for (auto &&i : array_) {
-				const auto r1x = each (i) ;
-				INDEX ix = ret.insert () ;
-				ret[ix] = r1x.template as<_ARG1> () ;
-			}
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct op_filter ;
-
-template <class _ARG1>
-struct op_filter<_ARG1> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG1 &array_ ,const Expression<RANK1> &cond) {
-			BitSet<> ret = BitSet<> (array_.size ()) ;
-			for (auto &&i : _RANGE_ (0 ,array_.length ())) {
-				const auto r1x = cond (array_[i]) ;
-				if (!r1x.template as<BOOL> ())
-					continue ;
-				ret[i] = TRUE ;
-			}
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct op_apply ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_apply<Array<_ARG1> ,_ARG2 ,BitSet<>> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG2 &array_ ,const BitSet<> &range_) {
-			Array<_ARG1> ret = Array<_ARG1> (range_.length ()) ;
-			INDEX iw = 0 ;
-			for (auto &&i : range_)
-				ret[iw++] = array_[INDEX (i)] ;
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct op_apply<Deque<_ARG1> ,_ARG2 ,BitSet<>> {
-	inline static Expression<RANK2> compile () {
-		return Operator ([] (const _ARG2 &array_ ,const BitSet<> &range_) {
-			Deque<_ARG1> ret = Deque<_ARG1> (range_.length ()) ;
-			for (auto &&i : range_) {
-				INDEX ix = ret.insert () ;
-				ret[ix] = array_[INDEX (i)] ;
-			}
-			return std::move (ret) ;
-		}) ;
-	}
-} ;
-
-template <class...>
-struct op_reduce ;
-
-template <>
-struct op_reduce<BitSet<>> {
-	inline static Expression<RANK3> compile () {
-		return Operator ([] (const Operand &init ,const BitSet<> &range_ ,const Expression<RANK2> &iter) {
-			Operand ret = init ;
-			for (auto &&i : range_)
-				ret = iter (ret ,INDEX (i)) ;
-			return std::move (ret) ;
 		}) ;
 	}
 } ;

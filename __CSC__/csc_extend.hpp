@@ -742,18 +742,22 @@ inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
 	return 1 ;
 }
 
-template <class _ARG1 ,class... _ARGS>
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-	return _MAX_ (_SIZEOF_ (_ARG1) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
+template <class... _ARGS>
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<_ARGS...>> &) {
+	using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+	using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+	return _MAX_ (_SIZEOF_ (ARGVS_ONE) ,constexpr_max_sizeof (_NULL_<ARGV<ARGVS_REST>> ())) ;
 }
 
 inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
 	return 1 ;
 }
 
-template <class _ARG1 ,class... _ARGS>
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-	return _MAX_ (_ALIGNOF_ (_ARG1) ,constexpr_max_alignof (_NULL_<ARGV<ARGVS<_ARGS...>>> ())) ;
+template <class... _ARGS>
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<_ARGS...>> &) {
+	using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+	using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+	return _MAX_ (_ALIGNOF_ (ARGVS_ONE) ,constexpr_max_alignof (_NULL_<ARGV<ARGVS_REST>> ())) ;
 }
 } ;
 
@@ -908,94 +912,104 @@ private:
 		return VAR_NONE ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARG2 ,_ARGS...>> &) {
-		if (std::is_default_constructible<_ARG2>::value)
+	template <class _ARG1 ,class... _ARGS>
+	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARGS...>> &) {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+		if (std::is_default_constructible<ARGVS_ONE>::value)
 			return _ARG1::value ;
-		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+	template <class... _ARGS>
+	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARGS...>> &) {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ARGVS_ONE>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ARGVS_ONE>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_case (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-			using CREATE_FLAG = ARGC<std::is_default_constructible<_ARG1>::value> ;
+			auto &r2x = _LOAD_<TEMP<ARGVS_ONE>> (address) ;
+			using CREATE_FLAG = ARGC<std::is_default_constructible<ARGVS_ONE>::value> ;
 			template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x) ;
 		}
 		if (r1x)
 			return ;
-		template_construct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		template_construct (address ,(index - 1) ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
-		_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+	template <class... _ARGS>
+	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<_ARGS...>> &) noexcept {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+		_STATIC_ASSERT_ (std::is_nothrow_destructible<ARGVS_ONE>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ARGVS_ONE>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ARGVS_ONE>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_case (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
+			auto &r2x = _LOAD_<TEMP<ARGVS_ONE>> (address) ;
 			_DESTROY_ (&r2x) ;
 		}
 		if (r1x)
 			return ;
-		template_destruct (address ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		template_destruct (address ,(index - 1) ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) {
+	template <class... _ARGS>
+	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARGS...>> &) {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_case (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-			auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
-			using CREATE_FLAG = ARGC<std::is_copy_constructible<_ARG1>::value && std::is_nothrow_move_constructible<_ARG1>::value> ;
-			template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
+			auto &r2x = _LOAD_<TEMP<ARGVS_ONE>> (address) ;
+			auto &r3x = _LOAD_<TEMP<ARGVS_ONE>> (that) ;
+			using CREATE_FLAG = ARGC<std::is_copy_constructible<ARGVS_ONE>::value && std::is_nothrow_move_constructible<ARGVS_ONE>::value> ;
+			template_create (_NULL_<ARGV<CREATE_FLAG>> () ,&r2x ,std::move (_CAST_<ARGVS_ONE> (r3x))) ;
 		}
 		if (r1x)
 			return ;
-		template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARG1 ,_ARGS...>> &) noexcept {
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
+	template <class... _ARGS>
+	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<_ARGS...>> &) noexcept {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ARGVS_ONE>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ARGVS_ONE>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_case (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
-			auto &r3x = _LOAD_<TEMP<_ARG1>> (that) ;
-			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<_ARG1> (r3x))) ;
+			auto &r2x = _LOAD_<TEMP<ARGVS_ONE>> (address) ;
+			auto &r3x = _LOAD_<TEMP<ARGVS_ONE>> (that) ;
+			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<ARGVS_ONE> (r3x))) ;
 		}
 		if (r1x)
 			return ;
-		template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1208,7 +1222,7 @@ template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
 class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>> :public Function<UNIT1 (UNITS...)>::Holder {
 private:
-	PTR<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
+	Function<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
@@ -1217,20 +1231,18 @@ public:
 	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
-		return template_apply (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return template_invoke (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 private:
-	//@error: vs2015 is too useless to compile without hint
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval ,const REMOVE_CVR_TYPE<UNITS_> &...cap_) popping {
-		const auto r1x = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
-		return r1x (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)... ,cap_...) ;
+	inline static UNIT1 template_invoke (const Function<UNIT1 (UNITS... ,UNITS_...)> &func ,const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) popping {
+		return func (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
 	//@error: vs2015 is too useless to compile without hint
 	template <class _ARG1 ,class... _ARGS>
-	inline static UNIT1 template_apply (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
-		return template_apply (func ,parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
+	inline static UNIT1 template_invoke (const Function<UNIT1 (UNITS... ,UNITS_...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
+		return template_invoke (func ,parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
 
@@ -2730,7 +2742,6 @@ public:
 	inline explicit Serializer (const DEF<_ARGS CONT::*> &...memptr) {
 		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		_DEBUG_ASSERT_ (template_available (memptr...)) ;
 		mBinder = StrongRef<const ImplBinder>::make (memptr...) ;
 	}
 
@@ -2740,42 +2751,31 @@ public:
 	}
 
 private:
-	inline static BOOL template_available () {
-		return TRUE ;
-	}
-
-	template <class _ARG1 ,class... _ARGS>
-	inline static BOOL template_available (const DEF<_ARG1 CONT::*> &memptr_one ,const DEF<_ARGS CONT::*> &...memptr_rest) {
-		if (memptr_one == NULL)
-			return FALSE ;
-		return template_available (memptr_rest...) ;
-	}
-
-	inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class... _ARGS>
-	inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<DEF<_ARGS CONT::*>...> &memptr) {
-		auto &r1x = (context_.*memptr.one ()) ;
-		visitor.visit (r1x) ;
-		template_visit (visitor ,context_ ,memptr.rest ()) ;
-	}
-
-private:
 	struct Detail {
 		template <class... UNITS_>
 		class ImplBinder :public Binder {
 		private:
-			Tuple<DEF<UNITS_ CONT::*>...> mMemPtr ;
+			Tuple<UNITS_...> mMemPtr ;
 
 		public:
 			inline ImplBinder () = delete ;
 
-			inline explicit ImplBinder (const DEF<UNITS_ CONT::*> &...memptr) :mMemPtr (memptr...) {}
+			inline explicit ImplBinder (const UNITS_ &...memptr) :mMemPtr (memptr...) {}
 
 			inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
 				template_visit (visitor ,context_ ,mMemPtr) ;
+			}
+
+		private:
+			inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) {
+				_STATIC_WARNING_ ("noop") ;
+			}
+
+			template <class... _ARGS>
+			inline static void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<_ARGS...> &memptr) {
+				auto &r1x = (context_.*memptr.one ()) ;
+				visitor.visit (r1x) ;
+				template_visit (visitor ,context_ ,memptr.rest ()) ;
 			}
 		} ;
 	} ;

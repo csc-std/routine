@@ -273,11 +273,13 @@ struct OPERATOR_TYPENAME {
 		template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARGS...>> &) {
-		template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
+	template <class... _ARGS>
+	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<_ARGS...>> &) {
+		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
+		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
+		template_write_typename_x (writer ,_NULL_<ARGV<ARGVS_ONE>> ()) ;
 		writer << _PCSTR_ (" ,") ;
-		template_write_typename_y (writer ,_NULL_<ARGV<ARGVS<_ARG2 ,_ARGS...>>> ()) ;
+		template_write_typename_y (writer ,_NULL_<ARGV<ARGVS_REST>> ()) ;
 	}
 
 	template <class _RET>
@@ -472,8 +474,6 @@ public:
 template <class UNIT>
 class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
 private:
-	struct Detail ;
-
 	class Pack {
 	public:
 		using INTRUSIVE_TYPE = GlobalStatic ;

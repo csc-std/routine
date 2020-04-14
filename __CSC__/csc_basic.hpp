@@ -492,7 +492,7 @@ private:
 } ;
 
 template <class UNIT>
-class ScopedBuild<ARR<UNIT>> final {
+class ScopedBuild<ARR<UNIT>> final :private Proxy {
 private:
 	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
 	LENGTH mSize ;
@@ -541,11 +541,6 @@ public:
 		}
 		mAddress = NULL ;
 	}
-
-	inline ScopedBuild (const ScopedBuild &) = delete ;
-	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
-	inline ScopedBuild (ScopedBuild &&) = delete ;
-	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
 	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept :mAddress (NULL) ,mSize (0) {}

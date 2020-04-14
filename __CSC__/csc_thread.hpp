@@ -632,11 +632,9 @@ public:
 	class Future ;
 
 private:
-	struct Detail ;
-
 	class Pack {
 	public:
-		using INTRUSIVE_TYPE = typename Promise::Detail ;
+		using INTRUSIVE_TYPE = Promise ;
 
 	private:
 		friend Promise ;
