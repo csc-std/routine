@@ -498,7 +498,8 @@ using STRU8 = unsigned char ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
-#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAT_ (u8 ,var1))
+//@error: before 'char8_t' is available
+#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_UNW_ (var1)))]> (_CAT_ (u8 ,var1)))
 #define _PCSTRU16_(var1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,var1))
 #define _PCSTRU32_(var1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,var1))
 
@@ -1031,22 +1032,22 @@ using ARGVS_REST_TYPE = typename ARGVS_REST<_ARG1>::TYPE ;
 
 namespace U {
 template <class ,class ,class>
-struct IS_FULL_ARRAY_OF {
+struct IS_BOUNDED_ARRAY_OF {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1>
-struct IS_FULL_ARRAY_OF<_ARG1 ,ARR<_ARG1> ,VOID> {
+struct IS_BOUNDED_ARRAY_OF<_ARG1 ,ARR<_ARG1> ,VOID> {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1 ,LENGTH _VAL1>
-struct IS_FULL_ARRAY_OF<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> {
+struct IS_BOUNDED_ARRAY_OF<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_FULL_ARRAY_OF_HELP = typename IS_FULL_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
 } ;
 
 namespace U {
@@ -1485,7 +1486,7 @@ template <class _ARG1>
 using is_str_xyz = U::IS_STR_XYZ_HELP<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
-using is_full_array_of = U::IS_FULL_ARRAY_OF_HELP<_ARG1 ,_ARG2> ;
+using is_bounded_array_of = U::IS_BOUNDED_ARRAY_OF_HELP<_ARG1 ,_ARG2> ;
 
 template <class... _ARGS>
 using is_all_same = U::IS_ALL_SAME_HELP<_ARGS...> ;
@@ -1819,7 +1820,8 @@ private:
 		}
 
 	private:
-		inline explicit Iterator (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
+		inline explicit Iterator (BASE &base ,INDEX index) popping
+			: mBase (base) ,mIndex (index) {}
 	} ;
 
 private:
@@ -1829,7 +1831,8 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_) :mIBegin (ibegin_) ,mIEnd (iend_) {}
+	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_)
+		:mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	inline Iterator<const ArrayRange> begin () const {
 		return Iterator<const ArrayRange> ((*this) ,mIBegin) ;
@@ -1874,20 +1877,16 @@ private:
 public:
 	inline Plain () = delete ;
 
-	template <LENGTH _VAL1>
-	inline constexpr implicit Plain (DEF<REAL[_VAL1]> &) = delete ;
-
-	template <LENGTH _VAL1>
-	inline constexpr implicit Plain (const DEF<REAL[_VAL1]> &that) :mPlain (&that[0]) ,mSize (_VAL1 - 1) {}
-
 	template <class _ARG1>
-	inline explicit Plain (_ARG1 &) = delete ;
+	inline constexpr implicit Plain (_ARG1 &) = delete ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_full_array_of<REAL ,_ARG1>::value>>
-	inline explicit Plain (const _ARG1 &text) noexcept :Plain (_CAST_<REAL[_COUNTOF_ (_ARG1)]> (text)) {}
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REAL ,_ARG1>::value>>
+	inline constexpr implicit Plain (const _ARG1 &that) noexcept
+		:mPlain (&that[0]) ,mSize (_COUNTOF_ (_ARG1)) {}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept :Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
+	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
+		:Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
 
 	inline constexpr LENGTH size () const {
 		return mSize ;
@@ -1902,10 +1901,9 @@ public:
 		return to () ;
 	}
 
-public:
+private:
 	template <class _ARG1 ,class... _ARGS>
-	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
-		->DEF<const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &> {
+	inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
 		using PlainString = typename Detail::template PlainString<PLAIN_STRING_SIZE<_ARGS...>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () noexcept {
@@ -1916,16 +1914,16 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> &) noexcept {
-		_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_bounded_array_of<REAL ,_ARG1>::value) ;
 		_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
 		array_[_ARG2::value] = 0 ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
-		_STATIC_ASSERT_ (stl::is_full_array_of<REAL ,_ARG1>::value) ;
+		_STATIC_ASSERT_ (stl::is_bounded_array_of<REAL ,_ARG1>::value) ;
 		_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
-		_STATIC_ASSERT_ (stl::is_full_array_of<STRX ,_ARG3>::value || stl::is_full_array_of<STRA ,_ARG3>::value || stl::is_full_array_of<STRW ,_ARG3>::value) ;
+		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG3>::value || stl::is_bounded_array_of<STRA ,_ARG3>::value || stl::is_bounded_array_of<STRW ,_ARG3>::value) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
 			array_[i + _ARG2::value] = REAL (text_one[i]) ;
 		using REST_SIZE = ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> ;
@@ -1958,7 +1956,8 @@ private:
 public:
 	inline Exception () = delete ;
 
-	inline explicit Exception (const Plain<STR> &what_) noexcept :mWhat (&what_.self) {}
+	inline explicit Exception (const Plain<STR> &what_) noexcept
+		:mWhat (&what_.self) {}
 
 	inline Exception (const Exception &) = default ;
 	inline Exception &operator= (const Exception &) = default ;

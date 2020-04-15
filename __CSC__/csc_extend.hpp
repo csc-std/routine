@@ -692,9 +692,11 @@ public:
 		mStatus = STATUS_SIGNALED ;
 	}
 
-	inline implicit Mutable (const UNIT &that) :Mutable (ARGVP0 ,std::move (that)) {}
+	inline implicit Mutable (const UNIT &that)
+		:Mutable (ARGVP0 ,std::move (that)) {}
 
-	inline implicit Mutable (UNIT &&that) : Mutable (ARGVP0 ,std::move (that)) {}
+	inline implicit Mutable (UNIT &&that)
+		: Mutable (ARGVP0 ,std::move (that)) {}
 
 	inline const UNIT &to () const {
 		return mData ;
@@ -734,7 +736,8 @@ public:
 
 private:
 	template <class... _ARGS>
-	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :mData (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
+	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
+		:mData (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
 namespace U {
@@ -767,14 +770,16 @@ class Variant {
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 
 private:
+	static constexpr auto VARIANT_ALIGN = U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+	static constexpr auto VARIANT_SIZE = U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+
 	//@error: g++4.8 is too useless to use constexpr value in alignas expression
-	template <LENGTH ALIGN ,LENGTH SIZE>
+	template <LENGTH ALIGN = VARIANT_ALIGN>
 	struct ALIGNED_UNION {
-		alignas (ALIGN) DEF<BYTE[SIZE]> unused ;
+		alignas (ALIGN) DEF<BYTE[VARIANT_SIZE]> unused ;
 	} ;
 
-	//@error: 'std::aligned_union' is not avaliable in g++4.8
-	using VARIANT = ALIGNED_UNION<U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ,U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ())> ;
+	using VARIANT = ALIGNED_UNION<> ;
 
 	using OPTIONAL_TYPE = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
@@ -783,14 +788,16 @@ private:
 	INDEX mIndex ;
 
 public:
-	inline Variant () :Variant (ARGVP0) {
+	inline Variant ()
+		:Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (_NULL_<ARGV<ZERO>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = r1x ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value != VAR_NONE>>
-	inline implicit Variant (_ARG1 &&that) :Variant (ARGVP0) {
+	inline implicit Variant (_ARG1 &&that)
+		:Variant (ARGVP0) {
 		_STATIC_ASSERT_ (!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1x = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (&mVariant) ;
 		using CREATE_FLAG = ARGC<std::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value> ;
@@ -805,7 +812,8 @@ public:
 		mIndex = VAR_NONE ;
 	}
 
-	inline Variant (const Variant &that) :Variant (ARGVP0) {
+	inline Variant (const Variant &that)
+		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
 		template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
@@ -822,7 +830,8 @@ public:
 		return (*this) ;
 	}
 
-	inline Variant (Variant &&that) noexcept :Variant (ARGVP0) {
+	inline Variant (Variant &&that) noexcept
+		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
 		template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
@@ -899,7 +908,8 @@ public:
 	}
 
 private:
-	inline explicit Variant (const DEF<decltype (ARGVP0)> &) noexcept :mIndex (VAR_NONE) {}
+	inline explicit Variant (const DEF<decltype (ARGVP0)> &) noexcept
+		:mIndex (VAR_NONE) {}
 
 public:
 	inline static Variant nullopt () noexcept {
@@ -1138,14 +1148,12 @@ public:
 	inline Tuple<UNITS...> &rest () && = delete ;
 
 	template <class _ARG1>
-	inline auto pick (const ARGV<ARGVP<_ARG1>> &) &
-		->DEF<INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
+	inline INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) & {
 		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	template <class _ARG1>
-	inline constexpr auto pick (const ARGV<ARGVP<_ARG1>> &) const &
-		->DEF<const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &> {
+	inline constexpr const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const & {
 		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
@@ -1228,7 +1236,8 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) :mFunction (func) ,mParameter (parameter...) {}
+	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
+		:mFunction (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
 		return template_invoke (mFunction ,mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
@@ -1617,7 +1626,8 @@ public:
 
 	//@warn: circular reference ruins StrongRef
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_always_base_of<UNIT ,_ARG1>::value>>
-	inline implicit StrongRef (const StrongRef<_ARG1> &that) : StrongRef (that.template recast<UNIT> ()) {}
+	inline implicit StrongRef (const StrongRef<_ARG1> &that)
+		: StrongRef (that.template recast<UNIT> ()) {}
 
 	inline implicit StrongRef (const WeakRef<UNIT> &that) ;
 
@@ -1639,7 +1649,8 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline StrongRef (const StrongRef &that) :StrongRef (that.mHolder ,that.mPointer) {
+	inline StrongRef (const StrongRef &that)
+		:StrongRef (that.mHolder ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1849,7 +1860,8 @@ public:
 } ;
 
 template <class UNIT>
-inline StrongRef<UNIT>::StrongRef (const WeakRef<UNIT> &that) :StrongRef (that.watch ()) {}
+inline StrongRef<UNIT>::StrongRef (const WeakRef<UNIT> &that)
+	:StrongRef (that.watch ()) {}
 
 template <class UNIT>
 inline BOOL StrongRef<UNIT>::equal (const WeakRef<UNIT> &that) const {
@@ -1866,7 +1878,8 @@ private:
 		LENGTH mWeight ;
 
 	public:
-		inline Node () :mWeight (0) {}
+		inline Node ()
+			:mWeight (0) {}
 	} ;
 
 private:
@@ -2077,7 +2090,8 @@ private:
 } ;
 
 template <class UNIT>
-inline StrongRef<UNIT>::StrongRef (const SoftRef<UNIT> &that) :StrongRef (that.watch ()) {}
+inline StrongRef<UNIT>::StrongRef (const SoftRef<UNIT> &that)
+	:StrongRef (that.watch ()) {}
 
 template <class UNIT>
 inline BOOL StrongRef<UNIT>::equal (const SoftRef<UNIT> &that) const {
@@ -2129,7 +2143,8 @@ private:
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept :mPointer (pointer) {}
+		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept
+			:mPointer (pointer) {}
 	} ;
 
 private:
@@ -2146,7 +2161,8 @@ public:
 
 	//@warn: address must be from 'IntrusiveRef::make'
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,PTR<UNIT>>::value>>
-	inline explicit IntrusiveRef (const _ARG1 &address) : IntrusiveRef (ARGVP0) {
+	inline explicit IntrusiveRef (const _ARG1 &address)
+		: IntrusiveRef (ARGVP0) {
 		acquire (address ,FALSE) ;
 		const auto r1x = safe_exchange (address) ;
 		_DEBUG_ASSERT_ (r1x == NULL) ;
@@ -2163,7 +2179,8 @@ public:
 	inline IntrusiveRef (const IntrusiveRef &) = delete ;
 	inline IntrusiveRef &operator= (const IntrusiveRef &) = delete ;
 
-	inline IntrusiveRef (IntrusiveRef &&that) noexcept :IntrusiveRef (ARGVP0) {
+	inline IntrusiveRef (IntrusiveRef &&that) noexcept
+		:IntrusiveRef (ARGVP0) {
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
@@ -2209,7 +2226,8 @@ public:
 	}
 
 private:
-	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept :mPointer (NULL) ,mLatch (0) {}
+	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept
+		:mPointer (NULL) ,mLatch (0) {}
 
 private:
 	inline PTR<UNIT> safe_exchange (PTR<UNIT> address) noexcept popping {
@@ -2702,7 +2720,8 @@ private:
 
 class Object::Virtual :public virtual Object {
 public:
-	inline Virtual () :Object (_NULL_<ARGV<decltype ((*this))>> ()) {}
+	inline Virtual ()
+		:Object (_NULL_<ARGV<decltype ((*this))>> ()) {}
 } ;
 
 template <class UNIT ,class CONT>
@@ -2728,7 +2747,8 @@ private:
 		}
 
 	private:
-		inline explicit Member (const Serializer &base ,CONT &context_) popping : mBase (base) ,mContext (context_) {}
+		inline explicit Member (const Serializer &base ,CONT &context_) popping
+			: mBase (base) ,mContext (context_) {}
 	} ;
 
 private:
@@ -2760,7 +2780,8 @@ private:
 		public:
 			inline ImplBinder () = delete ;
 
-			inline explicit ImplBinder (const UNITS_ &...memptr) :mMemPtr (memptr...) {}
+			inline explicit ImplBinder (const UNITS_ &...memptr)
+				:mMemPtr (memptr...) {}
 
 			inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
 				template_visit (visitor ,context_ ,mMemPtr) ;

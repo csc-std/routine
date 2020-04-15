@@ -173,7 +173,8 @@ private:
 			TupleBinder<const UNITS...> mBinder ;
 
 		public:
-			inline explicit ImplBinder (const UNITS &...initval) :mBinder (initval...) {}
+			inline explicit ImplBinder (const UNITS &...initval)
+				:mBinder (initval...) {}
 
 			inline void friend_write (TextWriter<STR> &writer) const override {
 				template_write (writer ,mBinder) ;

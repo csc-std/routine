@@ -17,7 +17,7 @@
 
 namespace CSC {
 class AbstractDatabase {
-public:
+private:
 	exports struct Abstract :public Interface {
 		virtual void compute_load_data (AnyRef<void> &this_) const = 0 ;
 	} ;
@@ -35,7 +35,8 @@ private:
 public:
 	AbstractDatabase () = default ;
 
-	explicit AbstractDatabase (const PhanRef<const Abstract> &abstract_) :AbstractDatabase (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
+	explicit AbstractDatabase (const PhanRef<const Abstract> &abstract_)
+		:AbstractDatabase (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -48,6 +49,7 @@ public:
 	}
 
 private:
-	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_) :mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
+	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
+		:mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
 } ;
 } ;

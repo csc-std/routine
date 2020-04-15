@@ -55,7 +55,7 @@
 
 namespace CSC {
 class AbstractDatabase_Engine_MYSQL :public AbstractDatabase::Abstract {
-public:
+private:
 	using NATIVE_TYPE = UniqueRef<MYSQL> ;
 
 public:

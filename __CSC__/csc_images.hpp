@@ -38,7 +38,8 @@ private:
 		}
 
 	public:
-		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item) popping :mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
+		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item) popping
+			:mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
 	} ;
 
 private:
@@ -47,7 +48,8 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) :mRange (range_) {}
+	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_)
+		:mRange (range_) {}
 
 	inline Iterator<const ArrayRange> begin () const {
 		return Iterator<const ArrayRange> ((*this) ,0 ,first_item (mRange)) ;
@@ -109,7 +111,8 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping
+			: mBase (base) ,mY (y) {}
 	} ;
 
 	struct HEAP {
@@ -130,7 +133,8 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (LENGTH cx_ ,LENGTH cy_) :Bitmap (cx_ ,cy_ ,cx_ ,0) {}
+	explicit Bitmap (LENGTH cx_ ,LENGTH cy_)
+		:Bitmap (cx_ ,cy_ ,cx_ ,0) {}
 
 	explicit Bitmap (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {
 		_DEBUG_ASSERT_ (cx_ >= 0) ;
@@ -648,7 +652,8 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping
+			: mBase (base) ,mY (y) {}
 	} ;
 
 	class Pack {
@@ -707,7 +712,8 @@ private:
 		inline implicit operator _RET () && = delete ;
 
 	private:
-		inline explicit NativeProxy (const PhanRef<const Abstract> &abstract_ ,const SharedRef<Pack> &this_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) ,mThis (this_) {}
+		inline explicit NativeProxy (const PhanRef<const Abstract> &abstract_ ,const SharedRef<Pack> &this_)
+			:mAbstract (PhanRef<const Abstract>::make (abstract_)) ,mThis (this_) {}
 	} ;
 
 private:
@@ -717,7 +723,8 @@ private:
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &abstract_) :AbstractImage (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
+	explicit AbstractImage (const PhanRef<const Abstract> &abstract_)
+		:AbstractImage (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -873,7 +880,8 @@ public:
 	}
 
 private:
-	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_) :mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
+	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
+		:mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
 
 private:
 	inline static void static_update_layout (PhanRef<const Abstract> &abstract_ ,SharedRef<Pack> &this_) {

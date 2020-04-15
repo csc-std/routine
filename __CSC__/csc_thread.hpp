@@ -270,7 +270,8 @@ private:
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder ,INDEX index) :mHolder (holder) ,mIndex (index) {}
+			inline explicit LocalProc (PTR<Pack> holder ,INDEX index)
+				:mHolder (holder) ,mIndex (index) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
@@ -589,7 +590,8 @@ private:
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder) :mHolder (holder) {}
+			inline explicit LocalProc (PTR<Pack> holder)
+				:mHolder (holder) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
@@ -724,7 +726,8 @@ public:
 	}
 
 private:
-	explicit Promise (IntrusiveRef<Pack> &this_) popping : mThis (this_.copy ()) {}
+	explicit Promise (IntrusiveRef<Pack> &this_) popping
+		: mThis (this_.copy ()) {}
 
 public:
 	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
@@ -842,7 +845,8 @@ private:
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder) :mHolder (holder) {}
+			inline explicit LocalProc (PTR<Pack> holder)
+				:mHolder (holder) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
@@ -967,7 +971,8 @@ public:
 	}
 
 private:
-	explicit Future (IntrusiveRef<Pack> &this_) popping : mThis (this_.copy ()) {}
+	explicit Future (IntrusiveRef<Pack> &this_) popping
+		: mThis (this_.copy ()) {}
 } ;
 
 template <class ITEM>

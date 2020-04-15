@@ -275,7 +275,8 @@ inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,INDEX root_) popping : mContext (context_) ,mAdjacency (adjancency) ,mRoot (root_) {}
+		inline explicit Lambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,INDEX root_) popping
+			: mContext (context_) ,mAdjacency (adjancency) ,mRoot (root_) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -379,7 +380,8 @@ inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const F
 		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping : mContext (context_) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
+		inline explicit Lambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping
+			: mContext (context_) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -539,7 +541,8 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		FLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency) popping : mContext (context_) ,mAdjacency (adjacency) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
+		inline explicit Lambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency) popping
+			: mContext (context_) ,mAdjacency (adjacency) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -865,7 +868,8 @@ inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<RE
 		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) popping : mContext (context_) ,mLossFunc (loss) ,mGradientProc (gradient) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
+		inline explicit Lambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) popping
+			: mContext (context_) ,mLossFunc (loss) ,mGradientProc (gradient) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1039,7 +1043,8 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right)
+			:mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -1192,7 +1197,8 @@ inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex) popping : mContext (context_) ,mVertex (vertex) {}
+		inline explicit Lambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex) popping
+			: mContext (context_) ,mVertex (vertex) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1343,7 +1349,8 @@ inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,I
 		Deque<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) popping : mContext (context_) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
+		inline explicit Lambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) popping
+			: mContext (context_) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
 			prepare () ;

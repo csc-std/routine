@@ -141,7 +141,7 @@ class AbstractImage_Engine_OPENCV ;
 
 template <>
 class AbstractImage_Engine_OPENCV<COLOR_BGR> :public AbstractImage<COLOR_BGR>::Abstract {
-public:
+private:
 	using NATIVE_TYPE = cv::Mat ;
 
 public:
@@ -216,7 +216,7 @@ public:
 
 template <>
 class AbstractImage_Engine_OPENCV<COLOR_BGRA> :public AbstractImage<COLOR_BGRA>::Abstract {
-public:
+private:
 	using NATIVE_TYPE = cv::Mat ;
 
 public:
@@ -291,7 +291,7 @@ public:
 
 template <>
 class AbstractImage_Engine_OPENCV<COLOR_GRAY> :public AbstractImage<COLOR_GRAY>::Abstract {
-public:
+private:
 	using NATIVE_TYPE = cv::Mat ;
 
 public:
@@ -366,7 +366,7 @@ public:
 
 template <>
 class AbstractImage_Engine_OPENCV<COLOR_GRAY32> :public AbstractImage<COLOR_GRAY32>::Abstract {
-public:
+private:
 	using NATIVE_TYPE = cv::Mat ;
 
 public:
@@ -441,7 +441,7 @@ public:
 
 template <>
 class AbstractImage_Engine_OPENCV<COLOR_GRAY64> :public AbstractImage<COLOR_GRAY64>::Abstract {
-public:
+private:
 	using NATIVE_TYPE = cv::Mat ;
 
 public:

@@ -299,7 +299,8 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 private:
-	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
+	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
+		:mHeap (heap) ,mIndex (index) {}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -433,7 +434,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		XmlParser &mContext ;
 
 		TextReader<STRU8> mTextReader ;
-		RegularReader<ARGC<2>> mRis ;
+		RegularReader mRis ;
 		LENGTH mRecursiveCounter ;
 		INDEX mLatestIndex ;
 		String<STRU8> mLatestString ;
@@ -446,7 +447,8 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		INDEX mRoot ;
 
 	public:
-		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
+		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -456,7 +458,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 	private:
 		inline void prepare () {
-			mRis = RegularReader<ARGC<2>> (PhanRef<TextReader<STRU8>>::make (mTextReader)) ;
+			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
 			mRecursiveCounter = 0 ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
@@ -488,7 +490,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$8 $7 $9
 		inline void update_shift_e0 () {
 			update_shift_e8 () ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			INDEX ix = mNodeHeap.alloc () ;
 			mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
 			mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
@@ -496,19 +498,19 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e7 (ix) ;
 			mNodeHeap[ix].mChild = mLatestIndex ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e9 () ;
 			mLatestIndex = ix ;
 		}
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader<>::HINT_IDENTIFIER_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_IDENTIFIER_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> RegularReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->$1 = $2
@@ -516,9 +518,9 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e1 () ;
 			INDEX ix = mNodeHeap[curr].mAttributeSet.insert (std::move (mLatestString)) ;
 			_DYNAMIC_ASSERT_ (mNodeHeap[curr].mAttributeSet[ix].item.empty ()) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e2 () ;
 			mNodeHeap[curr].mAttributeSet[ix].item = std::move (mLatestString) ;
 		}
@@ -531,7 +533,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 						if (!(mRis[0] == STRU8 ('_')))
 							break ;
 				update_shift_e3 (curr) ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 		}
 
@@ -546,24 +548,24 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e4 (ix) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			auto fax = TRUE ;
 			if switch_case (fax) {
 				if (!(mRis[0] == STRU8 ('>')))
 					discard ;
 				mRis++ ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
 				mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
 				update_shift_e7 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("</") ;
 				update_shift_e1 () ;
 				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				mRis >> _PCSTRU8_ (">") ;
 			}
 			if switch_case (fax) {
@@ -614,7 +616,7 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 					r3x = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -628,22 +630,22 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mRis++ ;
 			mRis++ ;
 			mRis >> _PCSTRU8_ ("xml") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("version") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("\"1.0\"") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			if switch_case (TRUE) {
 				if (mRis[0] == STRU8 ('?'))
 					discard ;
 				mRis >> _PCSTRU8_ ("encoding") ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("=") ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				mRis >> _PCSTRU8_ ("\"utf-8\"") ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("?>") ;
 		}
@@ -710,7 +712,8 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		PACK<Deque<XmlParser> ,FLAG ,INDEX> mTempNode ;
 
 	public:
-		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) popping : mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
+		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) popping
+			: mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -722,13 +725,13 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		inline void prepare () {
 			mNodeStack = Deque<PACK<Deque<XmlParser> ,FLAG ,INDEX>> () ;
 			INDEX ix = VAR_NONE ;
-			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_TABLE) ;
+			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_TABLE)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_OBJECT) ;
+			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_OBJECT)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_ARRAY) ;
+			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_ARRAY)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
-			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_FINAL) ;
+			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_FINAL)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
@@ -1211,7 +1214,8 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 private:
-	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index) :mHeap (heap) ,mIndex (index) {}
+	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
+		:mHeap (heap) ,mIndex (index) {}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -1411,7 +1415,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		JsonParser &mContext ;
 
 		TextReader<STRU8> mTextReader ;
-		RegularReader<ARGC<2>> mRis ;
+		RegularReader mRis ;
 		LENGTH mRecursiveCounter ;
 		INDEX mLatestIndex ;
 		String<STRU8> mLatestString ;
@@ -1423,7 +1427,8 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		INDEX mRoot ;
 
 	public:
-		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
+		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1433,7 +1438,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 	private:
 		inline void prepare () {
-			mRis = RegularReader<ARGC<2>> (PhanRef<TextReader<STRU8>>::make (mTextReader)) ;
+			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
 			mRecursiveCounter = 0 ;
 			mArraySoftSet = SoftSet<INDEX ,INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8> ,INDEX> (0) ;
@@ -1468,17 +1473,17 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$11 $10 $12
 		inline void update_shift_e0 () {
 			update_shift_e11 () ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e10 () ;
 			INDEX ix = mLatestIndex ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e12 () ;
 			mLatestIndex = ix ;
 		}
 
 		//@info: $1->${value}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader<>::HINT_VALUE_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_VALUE_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->true|TRUE|false|FALSE
@@ -1521,7 +1526,7 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 		//@info: $3->"${string}"
 		inline void update_shift_e3 () {
-			mRis >> RegularReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
@@ -1605,11 +1610,11 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 					mNodeHeap[iy].mBrother) ;
 				r2x = mLatestIndex ;
 				iy = mLatestIndex ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -1624,13 +1629,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			if switch_case (TRUE) {
 				if (mRis[0] == STRU8 (']'))
 					discard ;
 				update_shift_e5 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("]") ;
 			mLatestIndex = ix ;
@@ -1641,9 +1646,9 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			update_shift_e3 () ;
 			auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			INDEX ix = r1x.insert (std::move (mLatestString)) ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e4 (curr) ;
 			r1x[ix].item = mLatestIndex ;
 		}
@@ -1659,11 +1664,11 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 					mNodeHeap[iy].mBrother) ;
 				r1x = mLatestIndex ;
 				iy = mLatestIndex ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 				if (mRis[0] != STRU8 (','))
 					break ;
 				mRis++ ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mLatestIndex = ix ;
 		}
@@ -1678,13 +1683,13 @@ inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 			mNodeHeap[ix].mParent = curr ;
 			mNodeHeap[ix].mBrother = VAR_NONE ;
 			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader<>::SKIP_GAP ;
+			mRis >> RegularReader::SKIP_GAP ;
 			if switch_case (TRUE) {
 				if (mRis[0] == STRU8 ('}'))
 					discard ;
 				update_shift_e8 (ix) ;
 				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader<>::SKIP_GAP ;
+				mRis >> RegularReader::SKIP_GAP ;
 			}
 			mRis >> _PCSTRU8_ ("}") ;
 			mLatestIndex = ix ;
@@ -1858,7 +1863,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		CommandParser &mContext ;
 
 		TextReader<STRU8> mTextReader ;
-		RegularReader<ARGC<2>> mRis ;
+		RegularReader mRis ;
 		String<STRU8> mLatestString ;
 
 		Set<String<STRU8>> mOptionSet ;
@@ -1867,7 +1872,8 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		Array<String<STRU8>> mCommand ;
 
 	public:
-		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data) popping : mContext (context_) ,mTextReader (data) {}
+		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
 			prepare () ;
@@ -1877,7 +1883,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 
 	private:
 		inline void prepare () {
-			mRis = RegularReader<ARGC<2>> (PhanRef<TextReader<STRU8>>::make (mTextReader)) ;
+			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
 			mOptionSet = Set<String<STRU8>> () ;
 			mAttributeSet = Set<String<STRU8> ,String<STRU8>> () ;
 			mCommandList = SList<String<STRU8>> () ;
@@ -1903,25 +1909,25 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 		//@info: $0->$8 $7 $9
 		inline void update_shift_e0 () {
 			update_shift_e8 () ;
-			mRis >> RegularReader<>::SKIP_GAP_SPACE_ONLY ;
+			mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
 			update_shift_e7 () ;
-			mRis >> RegularReader<>::SKIP_GAP_SPACE_ONLY ;
+			mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
 			update_shift_e9 () ;
 		}
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader<>::HINT_IDENTIFIER_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_IDENTIFIER_TEXT >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> RegularReader<>::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
 		}
 
 		//@info: $3->${newgap}
 		inline void update_shift_e3 () {
-			mRis >> RegularReader<>::HINT_NEWGAP_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_NEWGAP_TEXT >> mLatestString ;
 		}
 
 		//@info: $4->/$1
@@ -1993,7 +1999,7 @@ inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 				if switch_case (fax) {
 					update_shift_e6 () ;
 				}
-				mRis >> RegularReader<>::SKIP_GAP_SPACE_ONLY ;
+				mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
 			}
 		}
 

@@ -23,7 +23,8 @@ private:
 public:
 	Vector () = default ;
 
-	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w) :Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {}
+	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w)
+		:Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {}
 
 	implicit Vector (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
 		mVector[0] = x ;
@@ -331,7 +332,8 @@ private:
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping : mBase (base) ,mY (y) {}
+		inline explicit Row (BASE &base ,INDEX y) popping
+			: mBase (base) ,mY (y) {}
 	} ;
 
 private:

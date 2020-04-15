@@ -105,7 +105,6 @@ private:
 		INDEX mTexture ;
 	} ;
 
-public:
 	using NATIVE_TYPE = UniqueRef<CHAR> ;
 	using SPRITE_NATIVE_TYPE = Pack ;
 

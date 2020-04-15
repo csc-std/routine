@@ -262,7 +262,8 @@ private:
 public:
 	AbstractShader () = default ;
 
-	explicit AbstractShader (const PhanRef<const Abstract> &abstract_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
+	explicit AbstractShader (const PhanRef<const Abstract> &abstract_)
+		:mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -416,7 +417,8 @@ public:
 	}
 
 private:
-	explicit Sprite (const PhanRef<const Abstract> &abstract_) :mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
+	explicit Sprite (const PhanRef<const Abstract> &abstract_)
+		:mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 } ;
 
 inline AbstractShader::Sprite AbstractShader::create_sprite () popping {

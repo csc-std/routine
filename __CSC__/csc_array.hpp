@@ -17,7 +17,8 @@ private:
 public:
 	inline ArrayIterator () = delete ;
 
-	inline explicit ArrayIterator (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
+	inline explicit ArrayIterator (BASE &base ,INDEX index) popping
+		: mBase (base) ,mIndex (index) {}
 
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
@@ -119,9 +120,11 @@ private:
 public:
 	Array () = default ;
 
-	explicit Array (LENGTH len) :mArray (len) {}
+	explicit Array (LENGTH len)
+		:mArray (len) {}
 
-	implicit Array (const std::initializer_list<ITEM> &that) : Array (that.size ()) {
+	implicit Array (const std::initializer_list<ITEM> &that)
+		: Array (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
 		for (auto &&i : that)
@@ -291,11 +294,13 @@ public:
 		clear () ;
 	}
 
-	explicit String (LENGTH len) :String (ARGVP0 ,U::constexpr_reserve_size (len)) {
+	explicit String (LENGTH len)
+		:String (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
 
-	implicit String (const std::initializer_list<ITEM> &that) : String (that.size ()) {
+	implicit String (const std::initializer_list<ITEM> &that)
+		: String (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
 		for (auto &&i : that)
@@ -304,11 +309,13 @@ public:
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &that) :String (plain_string_length (that)) {
+	implicit String (const ARR<ITEM> &that)
+		:String (plain_string_length (that)) {
 		_MEMCOPY_ (mString.self ,that ,size ()) ;
 	}
 
-	implicit String (const Plain<ITEM> &that) : String (that.size ()) {
+	implicit String (const Plain<ITEM> &that)
+		: String (that.size ()) {
 		_MEMCOPY_ (mString.self ,that.self ,size ()) ;
 	}
 
@@ -557,7 +564,8 @@ public:
 	}
 
 private:
-	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mString (len) {}
+	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mString (len) {}
 
 public:
 	//@info: this function is incompleted without 'csc_string.hpp'
@@ -588,11 +596,13 @@ public:
 		clear () ;
 	}
 
-	explicit Deque (LENGTH len) :Deque (ARGVP0 ,U::constexpr_reserve_size (len)) {
+	explicit Deque (LENGTH len)
+		:Deque (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
 
-	implicit Deque (const std::initializer_list<ITEM> &that) : Deque (that.size ()) {
+	implicit Deque (const std::initializer_list<ITEM> &that)
+		: Deque (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -886,7 +896,8 @@ public:
 	}
 
 private:
-	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mDeque (len) {}
+	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mDeque (len) {}
 
 private:
 	BOOL ensure_index (INDEX index) const {
@@ -983,7 +994,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -999,7 +1011,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
+	explicit Priority (LENGTH len)
+		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		spec.clear () ;
 	}
 
@@ -1060,7 +1073,8 @@ public:
 	}
 
 private:
-	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mPriority (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -1112,7 +1126,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mPriority[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mPriority[index].mKey) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -1128,7 +1143,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Priority (LENGTH len) :Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
+	explicit Priority (LENGTH len)
+		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		spec.clear () ;
 	}
 
@@ -1179,7 +1195,8 @@ public:
 	}
 
 private:
-	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mPriority (len) {}
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mPriority (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -1213,9 +1230,11 @@ private:
 public:
 	Priority () = default ;
 
-	explicit Priority (LENGTH len) :SPECIALIZATION_BASE (len) {}
+	explicit Priority (LENGTH len)
+		:SPECIALIZATION_BASE (len) {}
 
-	implicit Priority (const std::initializer_list<PAIR_ITEM> &that) : Priority (that.size ()) {
+	implicit Priority (const std::initializer_list<PAIR_ITEM> &that)
+		: Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1515,11 +1534,14 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (INDEX left ,INDEX right) :mLeft (left) ,mRight (right) {}
+		inline explicit Node (INDEX left ,INDEX right)
+			:mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (const ITEM &item ,INDEX left ,INDEX right) : mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const ITEM &item ,INDEX left ,INDEX right)
+			: mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (ITEM &&item ,INDEX left ,INDEX right) : mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (ITEM &&item ,INDEX left ,INDEX right)
+			: mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -1532,11 +1554,13 @@ public:
 		clear () ;
 	}
 
-	explicit QList (LENGTH len) :QList (ARGVP0 ,len) {
+	explicit QList (LENGTH len)
+		:QList (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit QList (const std::initializer_list<ITEM> &that) : QList (that.size ()) {
+	implicit QList (const std::initializer_list<ITEM> &that)
+		: QList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1899,7 +1923,8 @@ public:
 	}
 
 private:
-	explicit QList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) {}
+	explicit QList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mList (len) {}
 
 private:
 	INDEX &prev_next (INDEX curr) & {
@@ -1934,11 +1959,14 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (INDEX seq) :mSeq (seq) {}
+		inline explicit Node (INDEX seq)
+			:mSeq (seq) {}
 
-		inline explicit Node (const ITEM &item ,INDEX seq) : mItem (std::move (item)) ,mSeq (seq) {}
+		inline explicit Node (const ITEM &item ,INDEX seq)
+			: mItem (std::move (item)) ,mSeq (seq) {}
 
-		inline explicit Node (ITEM &&item ,INDEX seq) : mItem (std::move (item)) ,mSeq (seq) {}
+		inline explicit Node (ITEM &&item ,INDEX seq)
+			: mItem (std::move (item)) ,mSeq (seq) {}
 	} ;
 
 	struct TREE_NODE {
@@ -1957,11 +1985,13 @@ public:
 		clear () ;
 	}
 
-	explicit SList (LENGTH len) :SList (ARGVP0 ,len) {
+	explicit SList (LENGTH len)
+		:SList (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit SList (const std::initializer_list<ITEM> &that) : SList (that.size ()) {
+	implicit SList (const std::initializer_list<ITEM> &that)
+		: SList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -2228,7 +2258,8 @@ public:
 	}
 
 private:
-	explicit SList (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mList (len) ,mHead (len) {}
+	explicit SList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mList (len) ,mHead (len) {}
 
 private:
 	INDEX access (INDEX pos ,INDEX seg_a ,LENGTH seg_b) const {
@@ -2466,7 +2497,8 @@ private:
 		}
 
 	private:
-		inline explicit Bit (BASE &base ,INDEX index) popping : mBase (base) ,mIndex (index) {}
+		inline explicit Bit (BASE &base ,INDEX index) popping
+			: mBase (base) ,mIndex (index) {}
 	} ;
 
 private:
@@ -2474,11 +2506,13 @@ private:
 	LENGTH mWidth ;
 
 public:
-	BitSet () :BitSet (ARGVP0) {
+	BitSet ()
+		:BitSet (ARGVP0) {
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len) :BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,forward_width (len)) {
+	explicit BitSet (LENGTH len)
+		:BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,forward_width (len)) {
 		clear () ;
 	}
 
@@ -2784,7 +2818,8 @@ private:
 		mWidth = _MAX_ (VAR_ZERO ,LENGTH (SIZE::value)) ;
 	}
 
-	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width) :mSet (len) ,mWidth (width) {}
+	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width)
+		:mSet (len) ,mWidth (width) {}
 
 private:
 	inline static LENGTH forward_width (LENGTH width) {
@@ -2819,13 +2854,17 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
@@ -2846,7 +2885,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -2862,7 +2902,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
+	explicit Set (LENGTH len)
+		:Set (ARGVP0 ,len) {
 		spec.clear () ;
 	}
 
@@ -2927,7 +2968,8 @@ public:
 	}
 
 private:
-	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
+	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -2965,9 +3007,11 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) :mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right) : mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
@@ -2987,7 +3031,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -3003,7 +3048,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit Set (LENGTH len) :Set (ARGVP0 ,len) {
+	explicit Set (LENGTH len)
+		:Set (ARGVP0 ,len) {
 		spec.clear () ;
 	}
 
@@ -3060,7 +3106,8 @@ public:
 	}
 
 private:
-	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) {}
+	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -3094,9 +3141,11 @@ private:
 public:
 	Set () = default ;
 
-	explicit Set (LENGTH len) :SPECIALIZATION_BASE (len) {}
+	explicit Set (LENGTH len)
+		:SPECIALIZATION_BASE (len) {}
 
-	implicit Set (const std::initializer_list<PAIR_ITEM> &that) : Set (that.size ()) {
+	implicit Set (const std::initializer_list<PAIR_ITEM> &that)
+		: Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -3654,13 +3703,17 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next) :mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next)
+			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next)
+			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,ITEM &&item ,FLAG hash ,INDEX next)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
@@ -3681,7 +3734,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -3697,7 +3751,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
+	explicit HashSet (LENGTH len)
+		:HashSet (ARGVP0 ,len) {
 		spec.clear () ;
 	}
 
@@ -3762,7 +3817,8 @@ public:
 	}
 
 private:
-	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) ,mHead (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -3798,9 +3854,11 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next) :mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next)
+			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next) : mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next)
+			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
@@ -3820,7 +3878,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -3836,7 +3895,8 @@ public:
 		spec.clear () ;
 	}
 
-	explicit HashSet (LENGTH len) :HashSet (ARGVP0 ,len) {
+	explicit HashSet (LENGTH len)
+		:HashSet (ARGVP0 ,len) {
 		spec.clear () ;
 	}
 
@@ -3893,7 +3953,8 @@ public:
 	}
 
 private:
-	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len) :mSet (len) ,mHead (len) {}
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) ,mHead (len) {}
 
 private:
 	inline SPECIALIZATION_TYPE &m_spec () & {
@@ -3927,9 +3988,11 @@ private:
 public:
 	HashSet () = default ;
 
-	explicit HashSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
+	explicit HashSet (LENGTH len)
+		:SPECIALIZATION_BASE (len) {}
 
-	implicit HashSet (const std::initializer_list<PAIR_ITEM> &that) : HashSet (that.size ()) {
+	implicit HashSet (const std::initializer_list<PAIR_ITEM> &that)
+		: HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -4164,13 +4227,17 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) :mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
@@ -4191,7 +4258,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -4333,9 +4401,11 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) :mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next) : mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
@@ -4355,7 +4425,8 @@ private:
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping : key (base.mSet.self[index].mKey) {}
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet.self[index].mKey) {}
 	} ;
 
 	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
@@ -4489,7 +4560,8 @@ private:
 public:
 	SoftSet () = default ;
 
-	explicit SoftSet (LENGTH len) :SPECIALIZATION_BASE (len) {}
+	explicit SoftSet (LENGTH len)
+		:SPECIALIZATION_BASE (len) {}
 
 	LENGTH capacity () const {
 		if (!mHeap.exist ())
