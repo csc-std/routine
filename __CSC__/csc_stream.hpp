@@ -1699,7 +1699,7 @@ private:
 			const auto r6x = r5x - 1 + rax[1] ;
 			if (!(_ABS_ (r6x) >= precision))
 				discard ;
-			compute_write_number (r6x ,r1x.varify_radix () ,out ,iw) ;
+			compute_write_number (r6x ,writer ,out ,iw) ;
 			if (r6x > 0)
 				out[--iw] = REAL ('+') ;
 			out[--iw] = REAL ('e') ;
