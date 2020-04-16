@@ -1783,25 +1783,25 @@ using SAUTO = ARGC<-2> ;
 using SCPHAN = ARGC<-4> ;
 using SMPHAN = ARGC<-5> ;
 
-template <class UNIT ,LENGTH SIZE>
-class Buffer<UNIT ,ARGC<SIZE>> {
-	_STATIC_ASSERT_ (SIZE > 0) ;
+template <class UNIT ,class SIZE>
+class Buffer {
+	_STATIC_ASSERT_ (SIZE::value > 0) ;
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	DEF<UNIT[SIZE]> mBuffer ;
+	DEF<UNIT[SIZE::value]> mBuffer ;
 
 public:
 	inline Buffer () = default ;
 
 	inline explicit Buffer (LENGTH len) {
-		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE) ;
+		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE::value) ;
 	}
 
-	inline implicit Buffer (const DEF<UNIT[SIZE]> &that)
+	inline implicit Buffer (const DEF<UNIT[SIZE::value]> &that)
 		:Buffer (std::move (_CAST_<Buffer> (that))) {}
 
-	inline implicit Buffer (DEF<UNIT[SIZE]> &&that)
+	inline implicit Buffer (DEF<UNIT[SIZE::value]> &&that)
 		: Buffer (std::move (_CAST_<Buffer> (that))) {}
 
 	inline ARR<UNIT> &to () {
@@ -1825,7 +1825,7 @@ public:
 	inline implicit operator PTR<const UNIT> () = delete ;
 
 	inline LENGTH size () const {
-		return SIZE ;
+		return SIZE::value ;
 	}
 
 	inline UNIT &get (INDEX index) & {
@@ -1858,7 +1858,7 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &that) const {
-		return _MEMEQUAL_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
+		return _MEMEQUAL_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 
 	inline BOOL operator== (const Buffer &that) const {
@@ -1870,7 +1870,7 @@ public:
 	}
 
 	inline FLAG compr (const Buffer &that) const {
-		return _MEMCOMPR_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
+		return _MEMCOMPR_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -1899,7 +1899,7 @@ public:
 	}
 
 	inline void swap (Buffer &that) popping {
-		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE) ;
+		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 } ;
 

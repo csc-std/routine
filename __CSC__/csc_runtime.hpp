@@ -421,16 +421,18 @@ private:
 	}
 } ;
 
-template <FLAG GUID>
-class GlobalStatic<ARGC<GUID>> final :private Wrapped<void> {
+template <class GUID>
+class GlobalStatic final :private Wrapped<void> {
+	_STATIC_ASSERT_ (GUID::value > 0) ;
+
 public:
 	static void init (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if (r2x != NULL)
 			return ;
-		const auto r3x = GlobalStatic<void>::static_new_node (r1x ,GUID) ;
+		const auto r3x = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
 		r3x->mReadOnly = TRUE ;
 		r3x->mData = data ;
@@ -439,7 +441,7 @@ public:
 	static VAR load () popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		return r2x->mData ;
 	}
@@ -447,7 +449,7 @@ public:
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
+		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
 		if (r2x->mData == expect)
@@ -458,11 +460,11 @@ public:
 	static void save (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID) ;
+		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if switch_case (TRUE) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::static_new_node (r1x ,GUID) ;
+			rax = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;

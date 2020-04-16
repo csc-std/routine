@@ -467,22 +467,6 @@ template <class TYPE>
 using ARR = DEF<TYPE[]> ;
 #endif
 
-namespace U {
-struct OPERATOR_PTRTOARR {
-	template <class _ARG1>
-	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return (*PTR<ARR<_ARG1>> (that)) ;
-	}
-
-	template <class _ARG1 ,LENGTH _VAL1>
-	inline constexpr ARR<_ARG1> &operator[] (DEF<_ARG1[_VAL1]> &that) const {
-		return (*PTR<ARR<_ARG1>> (&that)) ;
-	}
-} ;
-} ;
-
-static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
-
 using BYTE = std::uint8_t ;
 using WORD = std::uint16_t ;
 using CHAR = std::uint32_t ;
@@ -1500,6 +1484,22 @@ struct TEMP {
 	_STATIC_ASSERT_ (!std::is_reference<UNIT>::value) ;
 	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
+
+namespace U {
+struct OPERATOR_PTRTOARR {
+	template <class _ARG1>
+	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
+		return (*PTR<ARR<_ARG1>> (that)) ;
+	}
+
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
+	inline constexpr ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const {
+		return (*PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (&that)) ;
+	}
+} ;
+} ;
+
+static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
