@@ -499,7 +499,7 @@ using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
 //@error: before 'char8_t' is available
-#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_UNW_ (var1)))]> (_CAT_ (u8 ,var1)))
+#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,var1)))]> (_CAT_ (u8 ,var1)))
 #define _PCSTRU16_(var1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,var1))
 #define _PCSTRU32_(var1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,var1))
 
@@ -1882,7 +1882,7 @@ public:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REAL ,_ARG1>::value>>
 	inline constexpr implicit Plain (const _ARG1 &that) noexcept
-		:mPlain (&that[0]) ,mSize (_COUNTOF_ (_ARG1)) {}
+		:mPlain (&that[0]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
