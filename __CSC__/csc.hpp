@@ -1926,8 +1926,8 @@ private:
 		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG3>::value || stl::is_bounded_array_of<STRA ,_ARG3>::value || stl::is_bounded_array_of<STRW ,_ARG3>::value) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
 			array_[i + _ARG2::value] = REAL (text_one[i]) ;
-		using REST_SIZE = ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> ;
-		template_write (array_ ,_NULL_<ARGV<REST_SIZE>> () ,text_rest...) ;
+		auto &r1x = _NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> >> () ;
+		template_write (array_ ,r1x ,text_rest...) ;
 	}
 
 private:

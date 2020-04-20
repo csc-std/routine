@@ -115,7 +115,7 @@ public:
 	void flush () ;
 } ;
 
-class FileSystemService final :private Interface {
+class FileSystemService final :private Proxy {
 private:
 	exports struct Abstract :public Interface {
 		virtual void startup () = 0 ;

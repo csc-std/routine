@@ -21,45 +21,37 @@
   <Type Name="CSC::Interface" Inheritable="false" />
 
 
-  <Type Name="CSC::GlobalWatch::Storage&lt;*,*&gt;">
-    <Expand>
-      <Item Name="[name]">(const char*)mData.P1[0]</Item>
-      <Item Name="[data]">*($T2*)mData.P1[1]</Item>
-    </Expand>
-  </Type>
-
-
   <Type Name="CSC::AutoRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->mData</ExpandedItem>
+      <ExpandedItem>mPointer->mValue</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::SharedRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->mData</ExpandedItem>
+      <ExpandedItem>mPointer->mValue</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::AnyRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>((CSC::AnyRef&lt;$T1&gt;::ImplHolder&lt;$T1&gt;*)mPointer)->mData</ExpandedItem>
+      <ExpandedItem>((CSC::AnyRef&lt;$T1&gt;::ImplHolder&lt;$T1&gt;*)mPointer)->mValue</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::UniqueRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>((CSC::UniqueRef&lt;$T1&gt;::ImplHolder&lt;void (*) ($T1 &amp;)&gt;*)mPointer)->mData</ExpandedItem>
+      <ExpandedItem>((CSC::UniqueRef&lt;$T1&gt;::ImplHolder&lt;void (*) ($T1 &amp;)&gt;*)mPointer)->mValue</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::PhanRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->mData</ExpandedItem>
+      <ExpandedItem>mPointer->mValue</ExpandedItem>
     </Expand>
   </Type>
 
@@ -192,7 +184,7 @@
   <Type Name="CSC::GlobalWatch::Storage&lt;*&gt;">
     <Expand>
       <Item Name="[name]">mName</Item>
-      <Item Name="[type]">mTypeUID</Item>
+      <Item Name="[address]">mAddress</Item>
       <ExpandedItem>*mAddress</ExpandedItem>
     </Expand>
   </Type>
@@ -344,12 +336,12 @@
 
   <Type Name="CSC::SoftSet&lt;*,*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
-      <Item Name="[mHeap]">mThis->mData.mHeap</Item>
-      <Item Name="[mLength]">mThis->mData.mLength</Item>
-      <Item Name="[mFirst]">mThis->mData.mFirst</Item>
-      <Item Name="[mLast]">mThis->mData.mLast</Item>
-      <Item Name="[mRoot]">mThis->mData.mRoot</Item>
-      <ExpandedItem>mSet->mData</ExpandedItem>
+      <Item Name="[mHeap]">mThis->mValue.mHeap</Item>
+      <Item Name="[mLength]">mThis->mValue.mLength</Item>
+      <Item Name="[mFirst]">mThis->mValue.mFirst</Item>
+      <Item Name="[mLast]">mThis->mValue.mLast</Item>
+      <Item Name="[mRoot]">mThis->mValue.mRoot</Item>
+      <ExpandedItem>mSet->mValue</ExpandedItem>
     </Expand>
   </Type>
 

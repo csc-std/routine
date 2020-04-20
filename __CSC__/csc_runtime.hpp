@@ -301,22 +301,20 @@ private:
 	struct VALUE_NODE {
 		FLAG mGUID ;
 		BOOL mReadOnly ;
-		VAR mData ;
+		VAR mValue ;
 	} ;
 
 	struct CLASS_NODE {
 		String<STR> mGUID ;
-		PTR<NONE> mData ;
+		PTR<NONE> mValue ;
 	} ;
 
 	class Pack {
-	public:
-		using INTRUSIVE_TYPE = GlobalStatic ;
-
 	private:
 		template <class>
 		friend class GlobalStatic ;
 		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_TYPE = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		HashSet<FLAG ,VALUE_NODE> mValueSet ;
@@ -435,7 +433,7 @@ public:
 		const auto r3x = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
 		r3x->mReadOnly = TRUE ;
-		r3x->mData = data ;
+		r3x->mValue = data ;
 	}
 
 	static VAR load () popping {
@@ -443,7 +441,7 @@ public:
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		return r2x->mData ;
+		return r2x->mValue ;
 	}
 
 	static VAR compare_and_swap (VAR expect ,VAR data) popping {
@@ -452,9 +450,9 @@ public:
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
-		if (r2x->mData == expect)
-			r2x->mData = data ;
-		return r2x->mData ;
+		if (r2x->mValue == expect)
+			r2x->mValue = data ;
+		return r2x->mValue ;
 	}
 
 	static void save (VAR data) {
@@ -469,7 +467,7 @@ public:
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
 		_DYNAMIC_ASSERT_ (!rax->mReadOnly) ;
-		rax->mData = data ;
+		rax->mValue = data ;
 	}
 } ;
 
@@ -477,13 +475,12 @@ template <class UNIT>
 class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
 private:
 	class Pack {
-	public:
-		using INTRUSIVE_TYPE = GlobalStatic ;
-
-	public:
+	private:
+		friend GlobalStatic ;
 		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_TYPE = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
-		Singleton<UNIT> mData ;
+		Singleton<UNIT> mValue ;
 	} ;
 
 private:
@@ -507,12 +504,12 @@ public:
 				const auto r4x = rbx.watch () ;
 				auto &r5x = _XVALUE_<Pack> (r4x) ;
 				auto &r6x = _LOAD_<NONE> (&r5x) ;
-				rax->mData = &r6x ;
+				rax->mValue = &r6x ;
 			}
-			auto &r7x = _LOAD_<Pack> (rax->mData) ;
+			auto &r7x = _LOAD_<Pack> (rax->mValue) ;
 			return IntrusiveRef<Pack> (&r7x).watch () ;
 		}) ;
-		return _XVALUE_<Pack> (r1x).mData ;
+		return _XVALUE_<Pack> (r1x).mValue ;
 	}
 
 private:
@@ -746,7 +743,7 @@ inline void Coroutine<CONT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>
 }
 #endif
 
-class RandomService final :private Interface {
+class RandomService final :private Proxy {
 private:
 	exports struct Abstract :public Interface {
 		virtual VAR entropy () const = 0 ;

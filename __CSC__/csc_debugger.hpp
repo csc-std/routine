@@ -21,7 +21,7 @@
 #include "csc_database.hpp"
 
 namespace CSC {
-class ConsoleService final :private Interface {
+class ConsoleService final :private Proxy {
 public:
 	static constexpr auto OPTION_DEFAULT = FLAG (0) ;
 	static constexpr auto OPTION_NO_PRINT = FLAG (0X00000001) ;
@@ -194,7 +194,7 @@ private:
 	} ;
 } ;
 
-class DebuggerService final :private Interface {
+class DebuggerService final :private Proxy {
 private:
 	exports struct Abstract :public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;

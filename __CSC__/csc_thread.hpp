@@ -15,12 +15,10 @@ template <class ITEM>
 class CalcThread {
 private:
 	class Pack {
-	public:
-		using INTRUSIVE_TYPE = CalcThread ;
-
 	private:
 		friend CalcThread ;
 		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_TYPE = CalcThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -264,18 +262,18 @@ private:
 	struct Detail {
 		class LocalProc {
 		private:
-			PTR<Pack> mHolder ;
+			PTR<Pack> mThis ;
 			INDEX mIndex ;
 
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder ,INDEX index)
-				:mHolder (holder) ,mIndex (index) {}
+			inline explicit LocalProc (PTR<Pack> this_ ,INDEX index)
+				:mThis (this_) ,mIndex (index) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
-					static_execute ((*mHolder) ,mIndex) ;
+					static_execute ((*mThis) ,mIndex) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -301,12 +299,10 @@ template <class ITEM>
 class WorkThread {
 private:
 	class Pack {
-	public:
-		using INTRUSIVE_TYPE = WorkThread ;
-
 	private:
 		friend WorkThread ;
 		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_TYPE = WorkThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -585,17 +581,17 @@ private:
 	struct Detail {
 		class LocalProc {
 		private:
-			PTR<Pack> mHolder ;
+			PTR<Pack> mThis ;
 
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder)
-				:mHolder (holder) {}
+			inline explicit LocalProc (PTR<Pack> this_)
+				:mThis (this_) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
-					static_execute ((*mHolder)) ;
+					static_execute ((*mThis)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;
@@ -635,13 +631,11 @@ public:
 
 private:
 	class Pack {
-	public:
-		using INTRUSIVE_TYPE = Promise ;
-
 	private:
 		friend Promise ;
 		friend Future ;
 		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_TYPE = Promise ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -840,17 +834,17 @@ private:
 	struct Detail {
 		class LocalProc {
 		private:
-			PTR<Pack> mHolder ;
+			PTR<Pack> mThis ;
 
 		public:
 			inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> holder)
-				:mHolder (holder) {}
+			inline explicit LocalProc (PTR<Pack> this_)
+				:mThis (this_) {}
 
 			inline void operator() () {
 				_CALL_TRY_ ([&] () {
-					static_execute ((*mHolder)) ;
+					static_execute ((*mThis)) ;
 				} ,[&] () {
 					_STATIC_WARNING_ ("noop") ;
 				}) ;

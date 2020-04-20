@@ -159,7 +159,7 @@ inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info
 
 #ifdef __CSC_DEPRECATED__
 template <class CONT>
-class Coroutine<CONT>::Implement final :private Interface {
+class Coroutine<CONT>::Implement {
 private:
 	struct CONTEXT_EBP {
 		jmp_buf mEbp ;

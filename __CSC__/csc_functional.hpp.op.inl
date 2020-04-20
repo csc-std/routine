@@ -10,7 +10,7 @@ template <class...>
 struct op_equal ;
 
 template <class _ARG1>
-struct op_equal<_ARG1> {
+struct op_equal<_ARG1 ,_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 			return BOOL (arg1 == arg2) ;
@@ -22,7 +22,7 @@ template <class...>
 struct op_compr ;
 
 template <class _ARG1>
-struct op_compr<_ARG1> {
+struct op_compr<_ARG1 ,_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 			return _MEMCOMPR_ (PTRTOARR[&arg1] ,PTRTOARR[&arg2] ,1) ;
@@ -55,7 +55,7 @@ template <class...>
 struct op_and ;
 
 template <class _ARG1>
-struct op_and<_ARG1> {
+struct op_and<_ARG1 ,_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 			return _XVALUE_<_ARG1> (arg1 & arg2) ;
@@ -64,7 +64,7 @@ struct op_and<_ARG1> {
 } ;
 
 template <>
-struct op_and<BOOL> {
+struct op_and<BOOL ,BOOL> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const BOOL &arg1 ,const BOOL &arg2) {
 			return BOOL (arg1 && arg2) ;
@@ -76,7 +76,7 @@ template <class...>
 struct op_or ;
 
 template <class _ARG1>
-struct op_or<_ARG1> {
+struct op_or<_ARG1 ,_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 			return _XVALUE_<_ARG1> (arg1 | arg2) ;
@@ -85,7 +85,7 @@ struct op_or<_ARG1> {
 } ;
 
 template <>
-struct op_or<BOOL> {
+struct op_or<BOOL ,BOOL> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const BOOL &arg1 ,const BOOL &arg2) {
 			return BOOL (arg1 || arg2) ;
@@ -97,7 +97,7 @@ template <class...>
 struct op_xor ;
 
 template <class _ARG1>
-struct op_xor<_ARG1> {
+struct op_xor<_ARG1 ,_ARG1> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const _ARG1 &arg1 ,const _ARG1 &arg2) {
 			return _XVALUE_<_ARG1> (arg1 ^ arg2) ;
@@ -106,7 +106,7 @@ struct op_xor<_ARG1> {
 } ;
 
 template <>
-struct op_xor<BOOL> {
+struct op_xor<BOOL ,BOOL> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const BOOL &arg1 ,const BOOL &arg2) {
 			return BOOL (arg1 != arg2) ;
@@ -244,8 +244,8 @@ struct op_cast ;
 template <class _ARG1 ,class _ARG2>
 struct op_cast<_ARG1 ,_ARG2> {
 	inline static Expression<RANK1> compile () {
-		return Operator ([] (const _ARG2 &arg1) {
-			return _XVALUE_<_ARG1> (arg1) ;
+		return Operator ([] (const _ARG1 &arg1) {
+			return _XVALUE_<_ARG2> (arg1) ;
 		}) ;
 	}
 } ;
@@ -296,7 +296,7 @@ template <class...>
 struct op_switch ;
 
 template <>
-struct op_switch<> {
+struct op_switch<BOOL ,Operand ,Operand> {
 	inline static Expression<RANK3> compile () {
 		return Operator ([] (const BOOL &flag ,const Operand &case1 ,const Operand &case2) {
 			if (flag)
@@ -310,7 +310,7 @@ template <class...>
 struct op_assert ;
 
 template <>
-struct op_assert<> {
+struct op_assert<BOOL ,Operand> {
 	inline static Expression<RANK2> compile () {
 		return Operator ([] (const BOOL &arg1 ,const Operand &arg2) {
 			_DYNAMIC_ASSERT_ (arg1) ;

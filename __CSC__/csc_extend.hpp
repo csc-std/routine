@@ -228,7 +228,7 @@ class VAR128 {
 #define v4i3 m_v4i3 ()
 
 private:
-	MEGA mData ;
+	MEGA mValue ;
 
 public:
 	inline VAR128 () = default ;
@@ -557,12 +557,12 @@ private:
 	inline DATA &m_v2i0 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[0]] ;
+		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
 	inline const DATA &m_v2i0 () const & {
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[0]] ;
+		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
 	inline DATA &m_v2i0 () && = delete ;
@@ -570,12 +570,12 @@ private:
 	inline DATA &m_v2i1 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[1]] ;
+		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
 	inline const DATA &m_v2i1 () const & {
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_<DATA[2]> (mData)[_CAST_<BYTE[2]> (r1x)[1]] ;
+		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
 	inline DATA &m_v2i1 () && = delete ;
@@ -583,12 +583,12 @@ private:
 	inline CHAR &m_v4i0 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[0]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
 	inline const CHAR &m_v4i0 () const & {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[0]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
 	inline CHAR &m_v4i0 () && = delete ;
@@ -596,12 +596,12 @@ private:
 	inline CHAR &m_v4i1 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[1]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
 	inline const CHAR &m_v4i1 () const & {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[1]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
 	inline CHAR &m_v4i1 () && = delete ;
@@ -609,12 +609,12 @@ private:
 	inline CHAR &m_v4i2 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[2]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
 	inline const CHAR &m_v4i2 () const & {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[2]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
 	inline CHAR &m_v4i2 () && = delete ;
@@ -622,12 +622,12 @@ private:
 	inline CHAR &m_v4i3 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
 
 	inline const CHAR &m_v4i3 () const & {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_<CHAR[4]> (mData)[_CAST_<BYTE[4]> (r1x)[3]] ;
+		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
 
 	inline CHAR &m_v4i3 () && = delete ;
@@ -684,7 +684,7 @@ private:
 	static constexpr auto STATUS_FINISHED = FLAG (3) ;
 
 private:
-	mutable UNIT mData ;
+	mutable UNIT mValue ;
 	mutable FLAG mStatus ;
 
 public:
@@ -699,7 +699,7 @@ public:
 		: Mutable (ARGVP0 ,std::move (that)) {}
 
 	inline const UNIT &to () const {
-		return mData ;
+		return mValue ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -711,7 +711,7 @@ public:
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mStatus != STATUS_SIGNALED)
 			return ;
-		proc (mData) ;
+		proc (mValue) ;
 		mStatus = STATUS_CACHED ;
 	}
 
@@ -720,7 +720,7 @@ public:
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mStatus != STATUS_SIGNALED)
 			return ;
-		proc (mData) ;
+		proc (mValue) ;
 		mStatus = STATUS_CACHED ;
 	}
 
@@ -737,7 +737,7 @@ public:
 private:
 	template <class... _ARGS>
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mData (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
+		:mValue (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
 namespace U {
@@ -1039,11 +1039,11 @@ using Optional = Variant<UNIT> ;
 template <class UNIT>
 class Monostate {
 private:
-	SharedRef<UNIT> mThis ;
+	SharedRef<UNIT> mValue ;
 
 public:
 	inline Monostate () {
-		mThis = SharedRef<UNIT>::make () ;
+		mValue = SharedRef<UNIT>::make () ;
 	}
 
 	inline Monostate (const Monostate &) = delete ;
@@ -1052,7 +1052,7 @@ public:
 	inline Monostate &operator= (Monostate &&) = delete ;
 
 	inline UNIT &to () const {
-		return mThis.self ;
+		return mValue.self ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -1060,7 +1060,7 @@ public:
 	}
 
 	inline void swap (Monostate &that) popping {
-		_SWAP_ (mThis ,that.mThis) ;
+		_SWAP_ (mValue ,that.mValue) ;
 	}
 } ;
 
@@ -1116,23 +1116,23 @@ class Tuple<UNIT1 ,UNITS...> :private Tuple<UNITS...> {
 private:
 	template <class...>
 	friend class Tuple ;
-	UNIT1 mData ;
+	UNIT1 mValue ;
 
 public:
 	inline constexpr Tuple () = default ;
 
-	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mData (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
+	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline constexpr LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
 	}
 
 	inline UNIT1 &one () & {
-		return mData ;
+		return mValue ;
 	}
 
 	inline constexpr const UNIT1 &one () const & {
-		return mData ;
+		return mValue ;
 	}
 
 	inline UNIT1 &one () && = delete ;
@@ -1563,13 +1563,13 @@ class SoftRef ;
 template <>
 class WeakRef<void> {
 private:
-	class Holder {
+	class Pack {
 	private:
 		template <class>
 		friend class StrongRef ;
 		template <class>
 		friend class WeakRef ;
-		AnyRef<void> mData ;
+		AnyRef<void> mHolder ;
 		LENGTH mCounter ;
 	} ;
 
@@ -1578,7 +1578,7 @@ private:
 	friend class StrongRef ;
 	template <class>
 	friend class WeakRef ;
-	SharedRef<Holder> mHolder ;
+	SharedRef<Pack> mThis ;
 } ;
 
 namespace U {
@@ -1609,14 +1609,14 @@ struct OPERATOR_RECAST {
 template <class UNIT>
 class StrongRef {
 private:
-	using Holder = typename WeakRef<void>::Holder ;
+	using Pack = typename WeakRef<void>::Pack ;
 
 private:
 	template <class>
 	friend class StrongRef ;
 	friend WeakRef<UNIT> ;
 	friend SoftRef<UNIT> ;
-	SharedRef<Holder> mHolder ;
+	SharedRef<Pack> mThis ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1636,21 +1636,21 @@ public:
 	inline ~StrongRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return ;
-		if (!mHolder->mData.exist ())
+		if (!mThis->mHolder.exist ())
 			return ;
 		if switch_case (TRUE) {
-			const auto r1x = --mHolder->mCounter ;
+			const auto r1x = --mThis->mCounter ;
 			if (r1x != 0)
 				discard ;
-			mHolder->mData = AnyRef<void> () ;
+			mThis->mHolder = AnyRef<void> () ;
 		}
 		mPointer = NULL ;
 	}
 
 	inline StrongRef (const StrongRef &that)
-		:StrongRef (that.mHolder ,that.mPointer) {
+		:StrongRef (that.mThis ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1665,7 +1665,7 @@ public:
 	}
 
 	inline StrongRef (StrongRef &&that) noexcept {
-		mHolder = std::move (that.mHolder) ;
+		mThis = std::move (that.mThis) ;
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
 
@@ -1682,9 +1682,9 @@ public:
 	inline BOOL exist () const {
 		if (mPointer == NULL)
 			return FALSE ;
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!mHolder->mData.exist ())
+		if (!mThis->mHolder.exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1694,7 +1694,7 @@ public:
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		const auto r1x = U::OPERATOR_RECAST::template invoke<_RET> (mPointer) ;
 		_DYNAMIC_ASSERT_ (EFLAG (r1x != NULL) == EFLAG (mPointer != NULL)) ;
-		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mHolder ,r1x) ;
+		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mThis ,r1x) ;
 	}
 
 	inline UNIT &to () const {
@@ -1712,14 +1712,14 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef &that) const {
-		if (!mHolder.exist ())
-			if (!that.mHolder.exist ())
+		if (!mThis.exist ())
+			if (!that.mThis.exist ())
 				return TRUE ;
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!that.mHolder.exist ())
+		if (!that.mThis.exist ())
 			return FALSE ;
-		if (&mHolder.self != &that.mHolder.self)
+		if (&mThis.self != &that.mThis.self)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1753,27 +1753,27 @@ public:
 	}
 
 private:
-	inline explicit StrongRef (const SharedRef<Holder> &holder ,PTR<UNIT> pointer) :StrongRef () {
+	inline explicit StrongRef (const SharedRef<Pack> &holder ,PTR<UNIT> pointer) :StrongRef () {
 		if (pointer == NULL)
 			return ;
 		if (!holder.exist ())
 			return ;
-		if (!holder->mData.exist ())
+		if (!holder->mHolder.exist ())
 			return ;
 		const auto r1x = ++holder->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		(void) r1x ;
-		mHolder = holder ;
+		mThis = holder ;
 		mPointer = pointer ;
 	}
 
 public:
 	template <class... _ARGS>
 	inline static StrongRef make (_ARGS &&...initval) {
-		auto rax = SharedRef<Holder>::make () ;
-		rax->mData = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
+		auto rax = SharedRef<Pack>::make () ;
+		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
-		auto &r1x = rax->mData.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
+		auto &r1x = rax->mHolder.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
 		return StrongRef (rax ,&r1x) ;
 	}
 } ;
@@ -1781,10 +1781,10 @@ public:
 template <class UNIT>
 class WeakRef {
 private:
-	using Holder = typename WeakRef<void>::Holder ;
+	using Pack = typename WeakRef<void>::Pack ;
 
 private:
-	SharedRef<Holder> mHolder ;
+	SharedRef<Pack> mThis ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1793,9 +1793,9 @@ public:
 	}
 
 	inline BOOL exist () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!mHolder->mData.exist ())
+		if (!mThis->mHolder.exist ())
 			return FALSE ;
 		if (mPointer == NULL)
 			return FALSE ;
@@ -1803,14 +1803,14 @@ public:
 	}
 
 	inline BOOL equal (const WeakRef &that) const {
-		if (!mHolder.exist ())
-			if (!that.mHolder.exist ())
+		if (!mThis.exist ())
+			if (!that.mThis.exist ())
 				return TRUE ;
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!that.mHolder.exist ())
+		if (!that.mThis.exist ())
 			return FALSE ;
-		if (&mHolder.self != &that.mHolder.self)
+		if (&mThis.self != &that.mThis.self)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1824,14 +1824,14 @@ public:
 	}
 
 	inline BOOL equal (const StrongRef<UNIT> &that) const {
-		if (!mHolder.exist ())
-			if (!that.mHolder.exist ())
+		if (!mThis.exist ())
+			if (!that.mThis.exist ())
 				return TRUE ;
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!that.mHolder.exist ())
+		if (!that.mThis.exist ())
 			return FALSE ;
-		if (&mHolder.self != &that.mHolder.self)
+		if (&mThis.self != &that.mThis.self)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1845,16 +1845,16 @@ public:
 	}
 
 	inline StrongRef<UNIT> watch () const {
-		return StrongRef<UNIT> (mHolder ,mPointer) ;
+		return StrongRef<UNIT> (mThis ,mPointer) ;
 	}
 
 	inline void assign (const StrongRef<UNIT> &that) {
-		mHolder = that.mHolder ;
+		mThis = that.mThis ;
 		mPointer = that.mPointer ;
 	}
 
 	inline void assign (StrongRef<UNIT> &&that) {
-		mHolder = std::move (that.mHolder) ;
+		mThis = std::move (that.mThis) ;
 		mPointer = std::move (that.mPointer) ;
 	}
 } ;
@@ -1874,7 +1874,7 @@ private:
 	class Node {
 	private:
 		friend SoftRef ;
-		StrongRef<UNIT> mData ;
+		StrongRef<UNIT> mHolder ;
 		LENGTH mWeight ;
 
 	public:
@@ -2017,7 +2017,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mWeight < 0)
 				continue ;
-			mHeap.self[i].mData = StrongRef<UNIT> () ;
+			mHeap.self[i].mHolder = StrongRef<UNIT> () ;
 			mHeap.self[i].mWeight = 0 ;
 		}
 	}
@@ -2030,14 +2030,14 @@ private:
 			return FALSE ;
 		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
 			return FALSE ;
-		if (mWeakRef != mHeap.self[mIndex].mData)
+		if (mWeakRef != mHeap.self[mIndex].mHolder)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	inline INDEX find_has_linked (const WeakRef<UNIT> &that) const {
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
-			if (mHeap.self[i].mData == that)
+			if (mHeap.self[i].mHolder == that)
 				return i ;
 		return VAR_NONE ;
 	}
@@ -2060,7 +2060,7 @@ private:
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
-		mHeap.self[mIndex].mData = mWeakRef ;
+		mHeap.self[mIndex].mHolder = mWeakRef ;
 		mHeap.self[mIndex].mWeight = 3 ;
 	}
 

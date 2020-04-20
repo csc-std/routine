@@ -186,7 +186,7 @@ inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (co
 }
 } ;
 
-class RegexMatcher::Implement final :private Interface {
+class RegexMatcher::Implement {
 private:
 	AutoRef<std::regex> mRegex ;
 

@@ -963,12 +963,12 @@ class Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Priority<KEY ,ITEM ,SIZE> ;
+	using SPECIALIZATION_THIS = Priority<KEY ,ITEM ,SIZE> ;
 
 	class Node {
 	private:
 		friend Priority ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		ITEM mItem ;
 
@@ -982,7 +982,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend Priority ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
 
@@ -998,10 +998,10 @@ private:
 			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
@@ -1077,15 +1077,15 @@ private:
 		:mPriority (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -1097,12 +1097,12 @@ class Priority<KEY ,SPECIALIZATION<void> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Priority<KEY ,void ,SIZE> ;
+	using SPECIALIZATION_THIS = Priority<KEY ,void ,SIZE> ;
 
 	class Node {
 	private:
 		friend Priority ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 
 	public:
@@ -1115,7 +1115,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend Priority ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 
 	public:
@@ -1130,10 +1130,10 @@ private:
 			: key (base.mPriority[index].mKey) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
@@ -1199,15 +1199,15 @@ private:
 		:mPriority (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2838,12 +2838,12 @@ class Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Set<KEY ,ITEM ,SIZE> ;
+	using SPECIALIZATION_THIS = Set<KEY ,ITEM ,SIZE> ;
 
 	class Node {
 	private:
 		friend Set ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		ITEM mItem ;
 		BOOL mRed ;
@@ -2873,7 +2873,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend Set ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
 
@@ -2889,10 +2889,10 @@ private:
 			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
 	INDEX mTop ;
@@ -2972,15 +2972,15 @@ private:
 		:mSet (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2992,12 +2992,12 @@ class Set<KEY ,SPECIALIZATION<void> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Set<KEY ,void ,SIZE> ;
+	using SPECIALIZATION_THIS = Set<KEY ,void ,SIZE> ;
 
 	class Node {
 	private:
 		friend Set ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		BOOL mRed ;
 		INDEX mUp ;
@@ -3020,7 +3020,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend Set ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 
 	public:
@@ -3035,10 +3035,10 @@ private:
 			: key (base.mSet[index].mKey) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
 	INDEX mTop ;
@@ -3110,15 +3110,15 @@ private:
 		:mSet (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3689,12 +3689,12 @@ class HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = HashSet<KEY ,ITEM ,SIZE> ;
+	using SPECIALIZATION_THIS = HashSet<KEY ,ITEM ,SIZE> ;
 
 	class Node {
 	private:
 		friend HashSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		ITEM mItem ;
 		FLAG mHash ;
@@ -3722,7 +3722,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend HashSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
 
@@ -3738,10 +3738,10 @@ private:
 			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
 	INDEX mTop ;
@@ -3821,15 +3821,15 @@ private:
 		:mSet (len) ,mHead (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3841,12 +3841,12 @@ class HashSet<KEY ,SPECIALIZATION<void> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = HashSet<KEY ,void ,SIZE> ;
+	using SPECIALIZATION_THIS = HashSet<KEY ,void ,SIZE> ;
 
 	class Node {
 	private:
 		friend HashSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		FLAG mHash ;
 		INDEX mNext ;
@@ -3867,7 +3867,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend HashSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 
 	public:
@@ -3882,10 +3882,10 @@ private:
 			: key (base.mSet[index].mKey) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
 	INDEX mTop ;
@@ -3957,15 +3957,15 @@ private:
 		:mSet (len) ,mHead (len) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4211,12 +4211,12 @@ class SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = SoftSet<KEY ,ITEM ,SIZE> ;
+	using SPECIALIZATION_THIS = SoftSet<KEY ,ITEM ,SIZE> ;
 
 	class Node {
 	private:
 		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		ITEM mItem ;
 		LENGTH mWeight ;
@@ -4246,7 +4246,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
 
@@ -4262,10 +4262,10 @@ private:
 			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
@@ -4366,15 +4366,15 @@ public:
 	}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4386,12 +4386,12 @@ class SoftSet<KEY ,SPECIALIZATION<void> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = SoftSet<KEY ,void ,SIZE> ;
+	using SPECIALIZATION_THIS = SoftSet<KEY ,void ,SIZE> ;
 
 	class Node {
 	private:
 		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		KEY mKey ;
 		LENGTH mWeight ;
 		INDEX mLeft ;
@@ -4414,7 +4414,7 @@ private:
 	class Pair final :private Proxy {
 	public:
 		friend SoftSet ;
-		friend SPECIALIZATION_TYPE ;
+		friend SPECIALIZATION_THIS ;
 		const KEY &key ;
 
 	public:
@@ -4429,10 +4429,10 @@ private:
 			: key (base.mSet.self[index].mKey) {}
 	} ;
 
-	using Pair_const_BASE = Pair<const SPECIALIZATION_TYPE> ;
+	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
@@ -4525,15 +4525,15 @@ public:
 	}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;

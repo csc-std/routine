@@ -526,7 +526,7 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 }
 } ;
 
-class StreamLoader::Implement final :private Interface {
+class StreamLoader::Implement {
 private:
 	UniqueRef<VAR32> mReadFile ;
 	UniqueRef<VAR32> mWriteFile ;
@@ -588,7 +588,7 @@ inline exports void StreamLoader::flush () {
 	mThis.rebind<Implement> ()->flush () ;
 }
 
-class BufferLoader::Implement final :private Interface {
+class BufferLoader::Implement {
 public:
 	Implement () = delete ;
 

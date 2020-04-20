@@ -44,25 +44,25 @@ private:
 	class Pack {
 	private:
 		friend Operand ;
-		AnyRef<void> mValue ;
+		AnyRef<void> mHolder ;
 	} ;
 
 private:
-	SharedRef<Pack> mLazy ;
+	SharedRef<Pack> mThis ;
 
 public:
 	Operand () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value>>
-	implicit Operand (_ARG1 &&that) {
-		mLazy = SharedRef<Pack>::make () ;
-		mLazy->mValue = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (std::forward<_ARG1> (that)) ;
+	explicit Operand (_ARG1 &&that) {
+		mThis = SharedRef<Pack>::make () ;
+		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (std::forward<_ARG1> (that)) ;
 	}
 
 	BOOL exist () const {
-		if (!mLazy.exist ())
+		if (!mThis.exist ())
 			return FALSE ;
-		if (!mLazy->mValue.exist ())
+		if (!mThis->mHolder.exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -80,10 +80,10 @@ private:
 	const _ARG1 &template_as (const ARGV<_ARG1> &) const {
 		const auto r1x = exist () ;
 		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = mLazy->mValue.typemid () ;
+		const auto r2x = mThis->mHolder.typemid () ;
 		const auto r3x = _TYPEMID_<_ARG1> () ;
 		_DYNAMIC_ASSERT_ (r2x == r3x) ;
-		return mLazy->mValue.template rebind<_ARG1> ().self ;
+		return mThis->mHolder.template rebind<_ARG1> ().self ;
 	}
 
 	const Operand &template_as (const ARGV<Operand> &) const {
@@ -110,28 +110,35 @@ private:
 	template <class ,class>
 	class ImplHolder ;
 
+	class Pack {
+	private:
+		friend Operator ;
+		AnyRef<void> mHolder ;
+	} ;
+
 private:
-	PTR<Holder> mHolder ;
+	SharedRef<Pack> mThis ;
+	PTR<Holder> mPointer ;
 
 public:
 	Operator () {
-		mHolder = NULL ;
+		mPointer = NULL ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value>>
-	implicit Operator (const _ARG1 &that) ;
+	explicit Operator (const _ARG1 &that) ;
 
 	LENGTH rank () const {
-		if (mHolder == NULL)
+		if (mPointer == NULL)
 			return VAR_NONE ;
-		return mHolder->rank () ;
+		return mPointer->rank () ;
 	}
 
 	template <class... _ARGS>
 	Operand invoke (const LexicalNode &node ,const _ARGS &...args) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) <= 9) ;
-		_DYNAMIC_ASSERT_ (mHolder != NULL) ;
-		return mHolder->invoke (node ,args...) ;
+		_DYNAMIC_ASSERT_ (mPointer != NULL) ;
+		return mPointer->invoke (node ,args...) ;
 	}
 
 	template <class... _ARGS>
@@ -280,19 +287,10 @@ Operator::Operator (const _ARG1 &that) {
 	using HOLDER = ImplHolder<PTR<FUNC> ,REPEAT_OF_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC>)> ,Operand>> ;
 	_STATIC_ASSERT_ (std::is_convertible<_ARG1 ,PTR<FUNC>>::value) ;
 	_STATIC_ASSERT_ (stl::is_complete<HOLDER>::value) ;
-	auto &r1x = _CACHE_ ([&] () {
-		return SharedRef<Set<PTR<FUNC> ,AutoRef<HOLDER>>>::make () ;
-	}) ;
 	const auto r2x = _XVALUE_<PTR<FUNC>> (that) ;
-	_DEBUG_ASSERT_ (r2x != NULL) ;
-	INDEX ix = r1x->find (r2x) ;
-	if switch_case (TRUE) {
-		if (ix != VAR_NONE)
-			discard ;
-		ix = r1x->insert (r2x) ;
-		r1x.self[ix].item = AutoRef<HOLDER>::make (r2x) ;
-	}
-	mHolder = &r1x.self[ix].item.self ;
+	auto tmp = AutoRef<HOLDER>::make (r2x) ;
+	mThis->mHolder = AnyRef<AutoRef<HOLDER>>::make (std::move (tmp)) ;
+	mPointer = &mThis->mHolder.rebind<AutoRef<HOLDER>> ()->self ;
 }
 
 template <class ,class = Operand>
@@ -304,11 +302,12 @@ private:
 	friend class Expression ;
 	Operand mOperand ;
 	Operator mOperator ;
-	ARRAY4<StrongRef<LexicalNode>> mChild ;
+	ARRAY3<StrongRef<LexicalNode>> mChild ;
+	LENGTH mDepth ;
 
 public:
 	LexicalNode ()
-		:Object (_NULL_<ARGV<LexicalNode>> ()) {}
+		:Object (_NULL_<ARGV<LexicalNode>> ()) ,mDepth (0) {}
 } ;
 
 template <class TYPE>
@@ -350,24 +349,31 @@ public:
 	implicit Expression (const Operand &that) {
 		_DYNAMIC_ASSERT_ (that.exist ()) ;
 		mTree->mOperand = that ;
+		mTree->mDepth = 1 ;
 	}
 
 	implicit Expression (const Operator &that) {
 		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK0>>)) ;
 		mTree->mOperator = that ;
+		mTree->mDepth = 1 ;
 	}
 
-	Operand invoke () const {
+	const Operand &invoke () const {
 		_DYNAMIC_ASSERT_ (mTree.exist ()) ;
 		if switch_case (TRUE) {
 			if (mTree->mOperand.exist ())
 				discard ;
 			mTree->mOperand = mTree->mOperator (mTree.self) ;
+			mTree->mOperator = Operator () ;
+			mTree->mChild[0] = StrongRef<LexicalNode> () ;
+			mTree->mChild[1] = StrongRef<LexicalNode> () ;
+			mTree->mChild[2] = StrongRef<LexicalNode> () ;
+
 		}
 		return mTree->mOperand ;
 	}
 
-	inline Operand operator() () const {
+	inline const Operand &operator() () const {
 		return invoke () ;
 	}
 } ;
@@ -388,40 +394,57 @@ constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARGS...>> 
 template <>
 class Expression<RANK1> :private LexicalTree<Expression<RANK1>> {
 private:
+	using RANK = RANK1 ;
+
 	template <class... _ARGS>
-	using FLIP_RANK = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+	using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+
+	template <class _ARG1>
+	using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<0 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 
 private:
 	template <class ,class>
 	friend class Expression ;
-	using LexicalTree<Expression<RANK1>>::mTree ;
+	using LexicalTree<Expression<RANK>>::mTree ;
 
 public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that) {
-		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK1>>)) ;
+		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>)) ;
 		mTree->mOperator = that ;
+		mTree->mDepth = 1 ;
 	}
 
-	Operand invoke (const Operand &in1) const {
+	const Operand &invoke (const Operand &in1) const {
 		_DYNAMIC_ASSERT_ (mTree.exist ()) ;
 		if switch_case (TRUE) {
 			if (mTree->mOperand.exist ())
 				discard ;
 			mTree->mOperand = mTree->mOperator (mTree.self ,in1) ;
+			mTree->mOperator = Operator () ;
+			mTree->mChild[0] = StrongRef<LexicalNode> () ;
+			mTree->mChild[1] = StrongRef<LexicalNode> () ;
+			mTree->mChild[2] = StrongRef<LexicalNode> () ;
 		}
 		return mTree->mOperand ;
 	}
 
-	inline Operand operator() (const Operand &in1) const {
+	inline const Operand &operator() (const Operand &in1) const {
 		return invoke (in1) ;
 	}
 
+	Expression<RANK> flip () const {
+		return (*this) ;
+	}
+
 	template <class _ARG1>
-	Expression<FLIP_RANK<_ARG1>> flip (const ARGV<ARGVP<_ARG1>> &) const {
-		using RANK = FLIP_RANK<_ARG1> ;
-		return template_flip (_NULL_<ARGV<ARGVS<_ARG1>>> () ,_NULL_<ARGV<RANK>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>>> ()) ;
+	Expression<FLIP_RANK_HINT<_ARG1>> flip (const ARGV<ARGVP<_ARG1>> &) const {
+		using FLIP_RANK_T = FLIP_RANK_HINT<_ARG1> ;
+		auto &r1x = _NULL_<ARGV<ARGVS<_ARG1>>> () ;
+		auto &r2x = _NULL_<ARGV<FLIP_RANK_T>> () ;
+		auto &r3x = _NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_T>>>> () ;
+		return template_flip (r1x ,r2x ,r3x) ;
 	}
 
 	Expression<RANK1> curry () const {
@@ -431,36 +454,43 @@ public:
 	Expression<RANK1> fold () const {
 		Expression<RANK1> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			return r1x (r2x (ARGVP1)) ;
+			return r1x (r2x (Operand (1))) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	Expression<RANK0> concat (const Expression<RANK0> &that) const ;
-	inline Expression<RANK0> operator+ (const Expression<RANK0> &that) const ;
-
 	Expression<RANK1> concat (const Expression<RANK1> &that) const ;
-	inline Expression<RANK1> operator+ (const Expression<RANK1> &that) const ;
-
 	Expression<RANK2> concat (const Expression<RANK2> &that) const ;
-	inline Expression<RANK2> operator+ (const Expression<RANK2> &that) const ;
-
 	Expression<RANK3> concat (const Expression<RANK3> &that) const ;
-	inline Expression<RANK3> operator+ (const Expression<RANK3> &that) const ;
+	Expression<RANK4> concat (const Expression<RANK4> &that) const ;
+	Expression<RANK5> concat (const Expression<RANK5> &that) const ;
+	Expression<RANK6> concat (const Expression<RANK6> &that) const ;
+	Expression<RANK7> concat (const Expression<RANK7> &that) const ;
+	Expression<RANK8> concat (const Expression<RANK8> &that) const ;
+	Expression<RANK9> concat (const Expression<RANK9> &that) const ;
+
+	template <class _ARG1>
+	inline Expression<CONCAT_RANK_HINT<_ARG1>> operator+ (const Expression<_ARG1> &that) const {
+		return concat (that) ;
+	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	Expression<_ARG2> template_flip (const ARGV<ARGVS<_ARG1>> & ,const ARGV<_ARG2> & ,const ARGV<ARGVS<_ARGS...>> &) const {
 		Expression<_ARG2> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
-			auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
-			auto &r2x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			const auto r10x = Tuple<const _ARGS &...> (ins...) ;
+			auto &r2x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
 			return r1x (r2x) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 } ;
@@ -468,84 +498,118 @@ private:
 template <>
 class Expression<RANK2> :private LexicalTree<Expression<RANK2>> {
 private:
+	using RANK = RANK2 ;
+
 	template <class... _ARGS>
-	using FLIP_RANK = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+	using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+
+	template <class _ARG1>
+	using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 
 private:
 	template <class ,class>
 	friend class Expression ;
-	using LexicalTree<Expression<RANK2>>::mTree ;
+	using LexicalTree<Expression<RANK>>::mTree ;
 
 public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that) {
-		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK2>>)) ;
+		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>)) ;
 		mTree->mOperator = that ;
+		mTree->mDepth = 1 ;
 	}
 
-	Operand invoke (const Operand &in1 ,const Operand &in2) const {
+	const Operand &invoke (const Operand &in1 ,const Operand &in2) const {
 		_DYNAMIC_ASSERT_ (mTree.exist ()) ;
 		if switch_case (TRUE) {
 			if (mTree->mOperand.exist ())
 				discard ;
 			mTree->mOperand = mTree->mOperator (mTree.self ,in1 ,in2) ;
+			mTree->mOperator = Operator () ;
+			mTree->mChild[0] = StrongRef<LexicalNode> () ;
+			mTree->mChild[1] = StrongRef<LexicalNode> () ;
+			mTree->mChild[2] = StrongRef<LexicalNode> () ;
 		}
 		return mTree->mOperand ;
 	}
 
-	inline Operand operator() (const Operand &in1 ,const Operand &in2) const {
+	inline const Operand &operator() (const Operand &in1 ,const Operand &in2) const {
 		return invoke (in1 ,in2) ;
 	}
 
+	Expression<RANK> flip () const {
+		Expression<RANK> ret ;
+		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2) {
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			return r1x (in2 ,in1) ;
+		}) ;
+		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
+		return std::move (ret) ;
+	}
+
 	template <class _ARG1 ,class _ARG2>
-	Expression<FLIP_RANK<_ARG1 ,_ARG2>> flip (const ARGV<ARGVP<_ARG1>> & ,const ARGV<ARGVP<_ARG2>> &) const {
-		using RANK = FLIP_RANK<_ARG1 ,_ARG2> ;
-		return template_flip (_NULL_<ARGV<ARGVS<_ARG1 ,_ARG2>>> () ,_NULL_<ARGV<RANK>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>>> ()) ;
+	Expression<FLIP_RANK_HINT<_ARG1 ,_ARG2>> flip (const ARGV<ARGVP<_ARG1>> & ,const ARGV<ARGVP<_ARG2>> &) const {
+		using FLIP_RANK_T = FLIP_RANK_HINT<_ARG1 ,_ARG2> ;
+		auto &r1x = _NULL_<ARGV<ARGVS<_ARG1 ,_ARG2>>> () ;
+		auto &r2x = _NULL_<ARGV<FLIP_RANK_T>> () ;
+		auto &r3x = _NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_T>>>> () ;
+		return template_flip (r1x ,r2x ,r3x) ;
 	}
 
 	Expression<RANK1> curry () const {
 		Expression<RANK1> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;
 			return Operand (std::move (tmp)) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	Expression<RANK1> fold () const {
 		Expression<RANK1> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			return r1x (r2x (ARGVP1) ,r2x (ARGVP2)) ;
+			return r1x (r2x (Operand (1)) ,r2x (Operand (2))) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	Expression<RANK1> concat (const Expression<RANK0> &that) const ;
-	inline Expression<RANK1> operator+ (const Expression<RANK0> &that) const ;
-
 	Expression<RANK2> concat (const Expression<RANK1> &that) const ;
-	inline Expression<RANK2> operator+ (const Expression<RANK1> &that) const ;
-
 	Expression<RANK3> concat (const Expression<RANK2> &that) const ;
-	inline Expression<RANK3> operator+ (const Expression<RANK2> &that) const ;
+	Expression<RANK4> concat (const Expression<RANK3> &that) const ;
+	Expression<RANK5> concat (const Expression<RANK4> &that) const ;
+	Expression<RANK6> concat (const Expression<RANK5> &that) const ;
+	Expression<RANK7> concat (const Expression<RANK6> &that) const ;
+	Expression<RANK8> concat (const Expression<RANK7> &that) const ;
+	Expression<RANK9> concat (const Expression<RANK8> &that) const ;
+
+	template <class _ARG1>
+	inline Expression<CONCAT_RANK_HINT<_ARG1>> operator+ (const Expression<_ARG1> &that) const {
+		return concat (that) ;
+	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 	Expression<_ARG3> template_flip (const ARGV<ARGVS<_ARG1 ,_ARG2>> & ,const ARGV<_ARG3> & ,const ARGV<ARGVS<_ARGS...>> &) const {
 		Expression<_ARG3> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
-			auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
-			auto &r2x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
-			auto &r3x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG2>>> ()) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			const auto r10x = Tuple<const _ARGS &...> (ins...) ;
+			auto &r2x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
+			auto &r3x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG2>>> ()) ;
 			return r1x (r2x ,r3x) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 } ;
@@ -553,83 +617,200 @@ private:
 template <>
 class Expression<RANK3> :private LexicalTree<Expression<RANK3>> {
 private:
+	using RANK = RANK3 ;
+
 	template <class... _ARGS>
-	using FLIP_RANK = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+	using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+
+	template <class _ARG1>
+	using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<2 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 
 private:
 	template <class ,class>
 	friend class Expression ;
-	using LexicalTree<Expression<RANK3>>::mTree ;
+	using LexicalTree<Expression<RANK>>::mTree ;
 
 public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that) {
-		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK3>>)) ;
+		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>)) ;
 		mTree->mOperator = that ;
+		mTree->mDepth = 1 ;
 	}
 
-	Operand invoke (const Operand &in1 ,const Operand &in2 ,const Operand &in3) const {
+	const Operand &invoke (const Operand &in1 ,const Operand &in2 ,const Operand &in3) const {
 		_DYNAMIC_ASSERT_ (mTree.exist ()) ;
 		if switch_case (TRUE) {
 			if (mTree->mOperand.exist ())
 				discard ;
 			mTree->mOperand = mTree->mOperator (mTree.self ,in1 ,in2 ,in3) ;
+			mTree->mOperator = Operator () ;
+			mTree->mChild[0] = StrongRef<LexicalNode> () ;
+			mTree->mChild[1] = StrongRef<LexicalNode> () ;
+			mTree->mChild[2] = StrongRef<LexicalNode> () ;
 		}
 		return mTree->mOperand ;
 	}
 
-	inline Operand operator() (const Operand &in1 ,const Operand &in2 ,const Operand &in3) const {
+	inline const Operand &operator() (const Operand &in1 ,const Operand &in2 ,const Operand &in3) const {
 		return invoke (in1 ,in2 ,in3) ;
 	}
 
+	Expression<RANK> flip () const {
+		Expression<RANK> ret ;
+		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3) {
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			return r1x (in3 ,in2 ,in1) ;
+		}) ;
+		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
+		return std::move (ret) ;
+	}
+
 	template <class _ARG1 ,class _ARG2 ,class _ARG3>
-	Expression<FLIP_RANK<_ARG1 ,_ARG2 ,_ARG3>> flip (const ARGV<ARGVP<_ARG1>> & ,const ARGV<ARGVP<_ARG2>> & ,const ARGV<ARGVP<_ARG3>> &) const {
-		using RANK = FLIP_RANK<_ARG1 ,_ARG2 ,_ARG3> ;
-		return template_flip (_NULL_<ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARG3>>> () ,_NULL_<ARGV<RANK>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>>> ()) ;
+	Expression<FLIP_RANK_HINT<_ARG1 ,_ARG2 ,_ARG3>> flip (const ARGV<ARGVP<_ARG1>> & ,const ARGV<ARGVP<_ARG2>> & ,const ARGV<ARGVP<_ARG3>> &) const {
+		using FLIP_RANK_T = FLIP_RANK_HINT<_ARG1 ,_ARG2 ,_ARG3> ;
+		auto &r1x = _NULL_<ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARG3>>> () ;
+		auto &r2x = _NULL_<ARGV<FLIP_RANK_T>> () ;
+		auto &r3x = _NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_T>>>> () ;
+		return template_flip (r1x ,r2x ,r3x) ;
 	}
 
 	Expression<RANK1> curry () const {
 		Expression<RANK1> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;
 			return Operand (std::move (tmp)) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	Expression<RANK1> fold () const {
 		Expression<RANK1> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			return r1x (r2x (ARGVP1) ,r2x (ARGVP2) ,r2x (ARGVP3)) ;
+			return r1x (r2x (Operand (1)) ,r2x (Operand (2)) ,r2x (Operand (3))) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	Expression<RANK2> concat (const Expression<RANK0> &that) const ;
-	inline Expression<RANK2> operator+ (const Expression<RANK0> &that) const ;
-
 	Expression<RANK3> concat (const Expression<RANK1> &that) const ;
-	inline Expression<RANK3> operator+ (const Expression<RANK1> &that) const ;
+	Expression<RANK4> concat (const Expression<RANK2> &that) const ;
+	Expression<RANK5> concat (const Expression<RANK3> &that) const ;
+	Expression<RANK6> concat (const Expression<RANK4> &that) const ;
+	Expression<RANK7> concat (const Expression<RANK5> &that) const ;
+	Expression<RANK8> concat (const Expression<RANK6> &that) const ;
+	Expression<RANK9> concat (const Expression<RANK7> &that) const ;
+
+	template <class _ARG1>
+	inline Expression<CONCAT_RANK_HINT<_ARG1>> operator+ (const Expression<_ARG1> &that) const {
+		return concat (that) ;
+	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4 ,class... _ARGS>
 	Expression<_ARG4> template_flip (const ARGV<ARGVS<_ARG1 ,_ARG2 ,_ARG3>> & ,const ARGV<_ARG4> & ,const ARGV<ARGVS<_ARGS...>> &) const {
 		Expression<_ARG4> ret ;
 		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
-			auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
-			auto &r2x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
-			auto &r3x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG2>>> ()) ;
-			auto &r4x = Tuple<const _ARGS &...> (ins...).pick (_NULL_<ARGV<ARGVP<_ARG3>>> ()) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			const auto r10x = Tuple<const _ARGS &...> (ins...) ;
+			auto &r2x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
+			auto &r3x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG2>>> ()) ;
+			auto &r4x = r10x.pick (_NULL_<ARGV<ARGVP<_ARG3>>> ()) ;
 			return r1x (r2x ,r3x ,r4x) ;
 		}) ;
 		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
 		return std::move (ret) ;
+	}
+} ;
+
+template <>
+class Expression<RANK4> :private LexicalTree<Expression<RANK4>> {
+private:
+	using RANK = RANK4 ;
+
+	template <class... _ARGS>
+	using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+
+	template <class _ARG1>
+	using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<3 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+
+private:
+	template <class ,class>
+	friend class Expression ;
+	using LexicalTree<Expression<RANK>>::mTree ;
+
+public:
+	Expression () = default ;
+
+	implicit Expression (const Operator &that) {
+		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>)) ;
+		mTree->mOperator = that ;
+		mTree->mDepth = 1 ;
+	}
+
+	const Operand &invoke (const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) const {
+		_DYNAMIC_ASSERT_ (mTree.exist ()) ;
+		if switch_case (TRUE) {
+			if (mTree->mOperand.exist ())
+				discard ;
+			mTree->mOperand = mTree->mOperator (mTree.self ,in1 ,in2 ,in3 ,in4) ;
+			mTree->mOperator = Operator () ;
+			mTree->mChild[0] = StrongRef<LexicalNode> () ;
+			mTree->mChild[1] = StrongRef<LexicalNode> () ;
+			mTree->mChild[2] = StrongRef<LexicalNode> () ;
+		}
+		return mTree->mOperand ;
+	}
+
+	inline const Operand &operator() (const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) const {
+		return invoke (in1 ,in2 ,in3 ,in4) ;
+	}
+
+	Expression<RANK1> curry () const {
+		Expression<RANK1> ret ;
+		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			auto tmp = r1x.concat (in1).curry () ;
+			return Operand (std::move (tmp)) ;
+		}) ;
+		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
+		return std::move (ret) ;
+	}
+
+	Expression<RANK1> fold () const {
+		Expression<RANK1> ret ;
+		ret.mTree->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			auto &r2x = in1.template as<Expression<RANK1>> () ;
+			return r1x (r2x (Operand (1)) ,r2x (Operand (2)) ,r2x (Operand (3)) ,r2x (Operand (4))) ;
+		}) ;
+		ret.mTree->mChild[0] = (*this) ;
+		ret.mTree->mDepth = _MAXOF_ (mTree->mDepth) + 1 ;
+		return std::move (ret) ;
+	}
+
+	Expression<RANK3> concat (const Expression<RANK0> &that) const ;
+	Expression<RANK4> concat (const Expression<RANK1> &that) const ;
+	Expression<RANK5> concat (const Expression<RANK2> &that) const ;
+	Expression<RANK6> concat (const Expression<RANK3> &that) const ;
+	Expression<RANK7> concat (const Expression<RANK4> &that) const ;
+	Expression<RANK8> concat (const Expression<RANK5> &that) const ;
+	Expression<RANK9> concat (const Expression<RANK6> &that) const ;
+
+	template <class _ARG1>
+	inline Expression<CONCAT_RANK_HINT<_ARG1>> operator+ (const Expression<_ARG1> &that) const {
+		return concat (that) ;
 	}
 } ;
 
@@ -642,11 +823,8 @@ inline Expression<RANK0> Expression<RANK1>::concat (const Expression<RANK0> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK0> Expression<RANK1>::operator+ (const Expression<RANK0> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK1> Expression<RANK1>::concat (const Expression<RANK1> &that) const {
@@ -658,11 +836,8 @@ inline Expression<RANK1> Expression<RANK1>::concat (const Expression<RANK1> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK1> Expression<RANK1>::operator+ (const Expression<RANK1> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK2> Expression<RANK1>::concat (const Expression<RANK2> &that) const {
@@ -674,11 +849,8 @@ inline Expression<RANK2> Expression<RANK1>::concat (const Expression<RANK2> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK2> Expression<RANK1>::operator+ (const Expression<RANK2> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK3> Expression<RANK1>::concat (const Expression<RANK3> &that) const {
@@ -690,11 +862,8 @@ inline Expression<RANK3> Expression<RANK1>::concat (const Expression<RANK3> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK3> Expression<RANK1>::operator+ (const Expression<RANK3> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK1> Expression<RANK2>::concat (const Expression<RANK0> &that) const {
@@ -706,11 +875,8 @@ inline Expression<RANK1> Expression<RANK2>::concat (const Expression<RANK0> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK1> Expression<RANK2>::operator+ (const Expression<RANK0> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK2> Expression<RANK2>::concat (const Expression<RANK1> &that) const {
@@ -722,11 +888,8 @@ inline Expression<RANK2> Expression<RANK2>::concat (const Expression<RANK1> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK2> Expression<RANK2>::operator+ (const Expression<RANK1> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK3> Expression<RANK2>::concat (const Expression<RANK2> &that) const {
@@ -738,11 +901,8 @@ inline Expression<RANK3> Expression<RANK2>::concat (const Expression<RANK2> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK3> Expression<RANK2>::operator+ (const Expression<RANK2> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK2> Expression<RANK3>::concat (const Expression<RANK0> &that) const {
@@ -754,11 +914,8 @@ inline Expression<RANK2> Expression<RANK3>::concat (const Expression<RANK0> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK2> Expression<RANK3>::operator+ (const Expression<RANK0> &that) const {
-	return concat (that) ;
 }
 
 inline Expression<RANK3> Expression<RANK3>::concat (const Expression<RANK1> &that) const {
@@ -770,10 +927,7 @@ inline Expression<RANK3> Expression<RANK3>::concat (const Expression<RANK1> &tha
 	}) ;
 	ret.mTree->mChild[0] = (*this) ;
 	ret.mTree->mChild[1] = that ;
+	ret.mTree->mDepth = _MAXOF_ (mTree->mDepth ,that.mTree->mDepth) + 1 ;
 	return std::move (ret) ;
-}
-
-inline Expression<RANK3> Expression<RANK3>::operator+ (const Expression<RANK1> &that) const {
-	return concat (that) ;
 }
 } ;

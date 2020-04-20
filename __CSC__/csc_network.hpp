@@ -143,7 +143,7 @@ public:
 	}
 } ;
 
-class NetworkService final :private Interface {
+class NetworkService final :private Proxy {
 private:
 	exports struct Abstract :public Interface {
 		virtual void startup () = 0 ;

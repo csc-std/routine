@@ -567,12 +567,12 @@ private:
 	class Holder {
 	private:
 		friend Singleton ;
-		UNIT mData ;
+		UNIT mValue ;
 
 	public:
 		template <class... _ARGS>
 		inline explicit Holder (_ARGS &&...initval)
-			:mData (std::forward<_ARGS> (initval)...) {}
+			:mValue (std::forward<_ARGS> (initval)...) {}
 	} ;
 
 private:
@@ -601,7 +601,7 @@ private:
 
 	inline UNIT &to () {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
-		return mPointer->mData ;
+		return mPointer->mValue ;
 	}
 
 	inline implicit operator UNIT & () {
@@ -625,22 +625,22 @@ class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using SPECIALIZATION_TYPE = AutoRef<UNIT> ;
+	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
 
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend SPECIALIZATION_TYPE ;
-		UNIT mData ;
+		friend SPECIALIZATION_THIS ;
+		UNIT mValue ;
 
 	public:
 		template <class... _ARGS>
 		inline explicit Holder (_ARGS &&...initval)
-			:mData (std::forward<_ARGS> (initval)...) {}
+			:mValue (std::forward<_ARGS> (initval)...) {}
 	} ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -683,22 +683,22 @@ class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using SPECIALIZATION_TYPE = AutoRef<UNIT> ;
+	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
 
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend SPECIALIZATION_TYPE ;
-		UNIT mData ;
+		friend SPECIALIZATION_THIS ;
+		UNIT mValue ;
 
 	public:
 		template <class... _ARGS>
 		inline explicit Holder (_ARGS &&...initval)
-			:mData (std::forward<_ARGS> (initval)...) {}
+			:mValue (std::forward<_ARGS> (initval)...) {}
 	} ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -718,7 +718,7 @@ public:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mData)) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mValue)) ;
 		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
 		mPointer = &r1x ;
 		rax = NULL ;
@@ -774,7 +774,7 @@ public:
 
 	inline UNIT &to () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mData ;
+		return mPointer->mValue ;
 	}
 
 	inline implicit operator UNIT & () {
@@ -787,7 +787,7 @@ public:
 
 	inline const UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mData ;
+		return mPointer->mValue ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -822,13 +822,13 @@ private:
 	class Holder {
 	private:
 		friend SharedRef ;
-		UNIT mData ;
+		UNIT mValue ;
 		LENGTH mCounter ;
 
 	public:
 		template <class... _ARGS>
 		inline explicit Holder (_ARGS &&...initval)
-			:mData (std::forward<_ARGS> (initval)...) ,mCounter (0) {}
+			:mValue (std::forward<_ARGS> (initval)...) ,mCounter (0) {}
 	} ;
 
 private:
@@ -890,7 +890,7 @@ public:
 	inline UNIT &to () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<Holder>> (mPointer) ;
-		return r1x->mData ;
+		return r1x->mValue ;
 	}
 
 	inline implicit operator UNIT & () const {
@@ -1074,7 +1074,7 @@ public:
 		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
-		return r1x->mData ;
+		return r1x->mValue ;
 	}
 
 	inline implicit operator UNIT & () {
@@ -1089,7 +1089,7 @@ public:
 		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
-		return r1x->mData ;
+		return r1x->mValue ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -1122,12 +1122,12 @@ private:
 		class ImplHolder :public Holder {
 		private:
 			friend AnyRef ;
-			UNIT_ mData ;
+			UNIT_ mValue ;
 
 		public:
 			template <class... _ARGS>
 			inline explicit ImplHolder (_ARGS &&...initval)
-				:mData (std::forward<_ARGS> (initval)...) {}
+				:mValue (std::forward<_ARGS> (initval)...) {}
 
 			inline FLAG typemid () const override {
 				return _TYPEMID_<UNIT_> () ;
@@ -1255,7 +1255,7 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
 		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		constructor (r1x.mData) ;
+		constructor (r1x.mValue) ;
 		mPointer = &r1x ;
 		rax = NULL ;
 	}
@@ -1298,7 +1298,7 @@ public:
 		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
-		return r1x->mData ;
+		return r1x->mValue ;
 	}
 
 	inline implicit operator const UNIT & () const {
@@ -1321,7 +1321,7 @@ public:
 		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		auto &r2x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		r2x.mData = UNIT (std::forward<_ARGS> (initval)...) ;
+		r2x.mValue = UNIT (std::forward<_ARGS> (initval)...) ;
 		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2x)) ;
 		rax = NULL ;
 		return std::move (ret) ;
@@ -1333,7 +1333,7 @@ private:
 		class ImplHolder :public Holder {
 		private:
 			friend UniqueRef ;
-			REMOVE_CVR_TYPE<UNIT> mData ;
+			REMOVE_CVR_TYPE<UNIT> mValue ;
 			UNIT_ mFunctor ;
 
 		public:
@@ -1346,7 +1346,7 @@ private:
 				:mFunctor (std::move (functor)) {}
 
 			inline void release () override {
-				mFunctor (mData) ;
+				mFunctor (mValue) ;
 			}
 		} ;
 	} ;
@@ -2698,14 +2698,14 @@ class Allocator<SPECIALIZATION<UNIT ,FALSE ,FALSE> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
+	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
 	class Node {
 	private:
 		friend Allocator ;
-		friend SPECIALIZATION_TYPE ;
-		TEMP<UNIT> mData ;
+		friend SPECIALIZATION_THIS ;
+		TEMP<UNIT> mValue ;
 		INDEX mNext ;
 
 	public:
@@ -2713,7 +2713,7 @@ private:
 	} ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
@@ -2749,15 +2749,15 @@ private:
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2769,14 +2769,14 @@ class Allocator<SPECIALIZATION<UNIT ,FALSE ,TRUE> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
+	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
 	class Node {
 	private:
 		friend Allocator ;
-		friend SPECIALIZATION_TYPE ;
-		TEMP<UNIT> mData ;
+		friend SPECIALIZATION_THIS ;
+		TEMP<UNIT> mValue ;
 		INDEX mNext ;
 
 	public:
@@ -2784,7 +2784,7 @@ private:
 	} ;
 
 private:
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
@@ -2826,7 +2826,7 @@ public:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				_CREATE_ (&mAllocator[ix].mValue ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -2854,15 +2854,15 @@ private:
 		:mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2874,14 +2874,14 @@ class Allocator<SPECIALIZATION<UNIT ,TRUE ,TRUE> ,SIZE> {
 #define spec m_spec ()
 
 private:
-	using SPECIALIZATION_TYPE = Allocator<UNIT ,SIZE> ;
+	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
 	class Node {
 	private:
 		friend Allocator ;
-		friend SPECIALIZATION_TYPE ;
-		TEMP<UNIT> mData ;
+		friend SPECIALIZATION_THIS ;
+		TEMP<UNIT> mValue ;
 		INDEX mNext ;
 
 	public:
@@ -2890,7 +2890,7 @@ private:
 
 private:
 	struct Detail ;
-	friend SPECIALIZATION_TYPE ;
+	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
@@ -2929,7 +2929,7 @@ public:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				_CREATE_ (&mAllocator[ix].mValue ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -2961,7 +2961,7 @@ public:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (&mAllocator[ix].mData ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mData))) ;
+				_CREATE_ (&mAllocator[ix].mValue ,std::move (_CAST_<UNIT> (that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -2992,15 +2992,15 @@ private:
 		:mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_TYPE &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_TYPE>> (this)) ;
+	inline SPECIALIZATION_THIS &m_spec () & {
+		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_TYPE &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_TYPE>> (this)) ;
+	inline const SPECIALIZATION_THIS &m_spec () const & {
+		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_TYPE &m_spec () && = delete ;
+	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
 private:
 	struct Detail {
@@ -3021,7 +3021,7 @@ private:
 						INDEX ix = Finally::mSelf.mSize - 1 ;
 						if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
 							discard ;
-						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mData) ;
+						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mValue) ;
 						Finally::mSelf.mSize-- ;
 					}
 				}
@@ -3068,7 +3068,7 @@ public:
 			iy = ix ;
 			ix = mAllocator.size () + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
-				_DESTROY_ (&mAllocator[ix].mData) ;
+				_DESTROY_ (&mAllocator[ix].mValue) ;
 			mAllocator[ix].mNext = iy ;
 		}
 		mSize = mAllocator.size () ;
@@ -3084,7 +3084,7 @@ public:
 
 	inline UNIT &get (INDEX index) & {
 		_DEBUG_ASSERT_ (used (index)) ;
-		return _CAST_<UNIT> (mAllocator[index].mData) ;
+		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
 	inline UNIT &operator[] (INDEX index) & {
@@ -3093,7 +3093,7 @@ public:
 
 	inline const UNIT &get (INDEX index) const & {
 		_DEBUG_ASSERT_ (used (index)) ;
-		return _CAST_<UNIT> (mAllocator[index].mData) ;
+		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
 	inline const UNIT &operator[] (INDEX index) const & {
@@ -3105,7 +3105,7 @@ public:
 	inline UNIT &operator[] (INDEX) && = delete ;
 
 	inline INDEX at (const UNIT &item) const {
-		auto &r1x = _OFFSET_ (&Node::mData ,_CAST_<TEMP<UNIT>> (item)) ;
+		auto &r1x = _OFFSET_ (&Node::mValue ,_CAST_<TEMP<UNIT>> (item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
@@ -3122,9 +3122,9 @@ public:
 				discard ;
 			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
 			const auto r1x = mSize ;
-			_CREATE_ (&tmp[r1x].mData ,std::forward<_ARGS> (initval)...) ;
+			_CREATE_ (&tmp[r1x].mValue ,std::forward<_ARGS> (initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
-				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+				_CREATE_ (&tmp[i].mValue ,std::move (_CAST_<UNIT> (mAllocator[i].mValue))) ;
 				tmp[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (tmp) ;
@@ -3138,7 +3138,7 @@ public:
 			if (mFree == VAR_NONE)
 				discard ;
 			const auto r2x = mFree ;
-			_CREATE_ (&mAllocator[r2x].mData ,std::forward<_ARGS> (initval)...) ;
+			_CREATE_ (&mAllocator[r2x].mValue ,std::forward<_ARGS> (initval)...) ;
 			mFree = mAllocator[r2x].mNext ;
 			mAllocator[r2x].mNext = VAR_USED ;
 			mLength++ ;
@@ -3151,7 +3151,7 @@ public:
 	inline void free (INDEX index) noexcept {
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (used (index)) ;
-		_DESTROY_ (&mAllocator[index].mData) ;
+		_DESTROY_ (&mAllocator[index].mValue) ;
 		mAllocator[index].mNext = mFree ;
 		mFree = index ;
 		mLength-- ;
@@ -3169,7 +3169,7 @@ public:
 		auto tmp = mAllocator.expand (mSize + r1x) ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+				_CREATE_ (&tmp[i].mValue ,std::move (_CAST_<UNIT> (mAllocator[i].mValue))) ;
 			tmp[i].mNext = mAllocator[i].mNext ;
 		}
 		mAllocator.swap (tmp) ;
@@ -3187,7 +3187,7 @@ public:
 		auto tmp = mAllocator.expand (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,tmp.size ())) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
-			_CREATE_ (&tmp[i].mData ,std::move (_CAST_<UNIT> (mAllocator[i].mData))) ;
+			_CREATE_ (&tmp[i].mValue ,std::move (_CAST_<UNIT> (mAllocator[i].mValue))) ;
 			tmp[i].mNext = VAR_USED ;
 		}
 		mAllocator.swap (tmp) ;

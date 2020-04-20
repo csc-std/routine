@@ -128,7 +128,7 @@ inline ARRAY2<fd_set> _inline_SOCKET_SELECT_ (const SOCKET &socket_ ,LENGTH time
 }
 } ;
 
-class TCPSocket::Implement final :private Interface {
+class TCPSocket::Implement {
 private:
 	class Pack {
 	private:
@@ -349,7 +349,7 @@ inline String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const S
 	return std::move (ret) ;
 }
 
-class TCPSocket::Listener::Implement final :private Interface {
+class TCPSocket::Listener::Implement {
 private:
 	SharedRef<TCPSocket::Implement::Pack> mThis ;
 	UniqueRef<SOCKET> mListener ;
@@ -401,7 +401,7 @@ inline TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
 	mThis = AnyRef<Implement>::make (socket_) ;
 }
 
-class UDPSocket::Implement final :private Interface {
+class UDPSocket::Implement {
 private:
 	class Pack {
 	private:
