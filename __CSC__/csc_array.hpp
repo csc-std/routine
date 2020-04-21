@@ -1318,7 +1318,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
@@ -2414,9 +2414,10 @@ private:
 	}
 } ;
 
-//@error: fuck gcc again
+namespace U {
+//@error: fuck gcc
 template <class _ARG1>
-struct FIX_GCC_FORWARD_CONSTEXPR_2 {
+struct CONSTEXPR_SWITCH_CEIL8 {
 	inline static constexpr _ARG1 case1 (const _ARG1 &len) {
 		return len ;
 	}
@@ -2426,11 +2427,10 @@ struct FIX_GCC_FORWARD_CONSTEXPR_2 {
 	}
 } ;
 
-namespace U {
 inline constexpr LENGTH constexpr_ceil8_size (LENGTH len) {
 	return _SWITCH_ (
-		(len <= 0) ? FIX_GCC_FORWARD_CONSTEXPR_2<LENGTH>::case1 :
-		FIX_GCC_FORWARD_CONSTEXPR_2<LENGTH>::case2)
+		(len <= 0) ? CONSTEXPR_SWITCH_CEIL8<LENGTH>::case1 :
+		CONSTEXPR_SWITCH_CEIL8<LENGTH>::case2)
 		(len) ;
 }
 } ;
@@ -3229,7 +3229,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4079,7 +4079,7 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4662,7 +4662,7 @@ public:
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}

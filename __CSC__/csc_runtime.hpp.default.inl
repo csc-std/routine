@@ -219,7 +219,7 @@ public:
 
 	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
 		const auto r1x = _ALIGNAS_ (_ADDRESS_ (&ebp) ,_ALIGNOF_ (CONTEXT_EBP)) ;
-		return _LOAD_<CONTEXT_EBP> (_UNSAFE_ALIASING_ (r1x)) ;
+		return _LOAD_<CONTEXT_EBP> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
 	}
 } ;
 

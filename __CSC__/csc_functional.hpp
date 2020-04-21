@@ -257,7 +257,7 @@ private:
 		return func (std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	static UNIT1 template_invoke (const Function<UNIT1 (UNITS1...)> &func ,const _ARG1 &parameter ,const ARGV<_ARG2> & ,_ARGS &&...funcval) popping {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
@@ -295,7 +295,7 @@ private:
 		return func (node ,std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	static UNIT1 template_invoke (const Function<UNIT1 (const LexicalNode & ,UNITS1...)> &func ,const _ARG1 &parameter ,const ARGV<_ARG2> & ,_ARGS &&...funcval) popping {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
@@ -360,6 +360,11 @@ private:
 } ;
 
 namespace U {
+inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) {
+	//@error: fuck clang
+	return 0 ;
+}
+
 template <class _ARG1>
 inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1>> &) {
 	return _ARG1::value ;
@@ -382,7 +387,7 @@ private:
 	using RANK = PTR<Operand (const UNITS &...)> ;
 
 	template <class... _ARGS>
-	using FLIP_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+	using FLIP_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ;
 
 private:
 	template <class>
@@ -425,8 +430,8 @@ public:
 	}
 
 	template <class... _ARGS>
-	auto flip (const ARGV<ARGVP<_ARGS>> &...) const {
-		using FLIP_RANK_HINT = FLIP_RANK_HINT_TYPE<_ARGS...> ;
+	FLIP_RETURN_HINT<_ARGS...> flip (const ARGV<ARGVP<_ARGS>> &...) const {
+		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
 	}
 
@@ -445,7 +450,7 @@ private:
 	Expression<_ARG1> template_flip (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARGS1...>> & ,const ARGV<ARGVS<_ARGS2...>> &) const {
 		Expression<_ARG1> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS2 &...ins) {
-			auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
+			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const _ARGS2...> (ins...) ;
 			return r1x.invoke (r2x.pick (_NULL_<ARGV<ARGVP<_ARGS1>>> ())...) ;
 		}) ;
@@ -493,7 +498,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK1>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK1>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -544,7 +549,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK9> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -556,7 +561,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK2>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK2>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK2>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -615,7 +620,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK8> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -627,7 +632,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK3>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK3>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK3>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -686,7 +691,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK7> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -698,7 +703,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK4>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK4>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK4>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -757,7 +762,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK6> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -769,7 +774,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK5>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK5>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK5>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -828,7 +833,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK5> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -840,7 +845,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK6>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK6>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK6>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -899,7 +904,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK4> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -911,7 +916,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK7>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK7>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK7>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -970,7 +975,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK3> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -982,7 +987,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK8>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK8>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK8>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -1041,7 +1046,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK2> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;
@@ -1053,7 +1058,7 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK9>> ;
 
 	template <class _ARG1>
-	using CONCAT_RANK_HINT_TYPE = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK9>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
+	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK9>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -1112,7 +1117,7 @@ public:
 	Expression<RANK9> concat (const Expression<RANK1> &that) const ;
 
 	template <class _ARG1>
-	inline auto operator+ (const Expression<_ARG1> &that) const {
+	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
 		return concat (that) ;
 	}
 } ;

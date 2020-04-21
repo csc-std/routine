@@ -367,8 +367,8 @@ private:
 		inline OwnerProxy (const OwnerProxy &) = default ;
 		inline OwnerProxy &operator= (const OwnerProxy &) = default ;
 
-		inline OwnerProxy (OwnerProxy &&) noexcept = default ;
-		inline OwnerProxy &operator= (OwnerProxy &&) noexcept = default ;
+		inline OwnerProxy (OwnerProxy &&) = default ;
+		inline OwnerProxy &operator= (OwnerProxy &&) = default ;
 
 		inline implicit operator const PTR<UNIT> & () const & noexcept {
 			_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -1564,12 +1564,14 @@ public:
 	}
 } ;
 
-//@error: vs2017 is too useless to compile without hint
+namespace U {
+//@error: fuck vs2017
 template <class UNIT1 ,class... UNITS>
-using FIX_MSVC_DEDUCTION_2 = DEF<DEF<UNIT1 (UNITS...)> NONE::*> ;
+using MEMBER_FUNCTION_HINT = DEF<DEF<UNIT1 (UNITS...)> NONE::*> ;
+} ;
 
 template <class UNIT1 ,class... UNITS>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>> {
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> {
 #pragma push_macro ("fake")
 #undef fake
 #define fake m_fake ()
@@ -1738,7 +1740,7 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder
 	:public Holder {
 private:
 	PTR<UNIT_> mContext ;
@@ -1761,7 +1763,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_>
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_>
 	:public Holder {
 private:
 	PTR<const UNIT_> mContext ;
@@ -1784,7 +1786,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>>
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>>
 	:public Holder {
 private:
 	PTR<UNIT_> mContext ;
@@ -1820,6 +1822,10 @@ class Buffer {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
+#ifdef __CSC_COMPILER_MSVC__
+	//@error: fuck vs2015
+	friend Buffer<UNIT ,SAUTO> ;
+#endif
 	DEF<UNIT[SIZE::value]> mBuffer ;
 
 public:

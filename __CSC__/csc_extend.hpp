@@ -78,7 +78,7 @@ using std::atomic_thread_fence ;
 using ::setlocale ;
 
 #ifndef __CSC_COMPILER_GNUC__
-//@error: 'std::quick_exit' is not avaliable in g++4.8
+//@error: fuck g++4.8
 using std::quick_exit ;
 #endif
 
@@ -137,7 +137,7 @@ public:
 
 	inline static void process_exit[[noreturn]] () {
 #ifdef __CSC_COMPILER_GNUC__
-		//@error: g++4.8 is too useless to have 'std::quick_exit'
+		//@error: fuck g++4.8
 		std::exit (EXIT_FAILURE) ;
 #else
 		std::quick_exit (EXIT_FAILURE) ;
@@ -692,7 +692,7 @@ private:
 
 public:
 	inline Mutable () {
-		mStatus = STATUS_SIGNALED::value ;
+		mStatus = STATUS_SIGNALED ;
 	}
 
 	inline implicit Mutable (const UNIT &that)
@@ -712,35 +712,35 @@ public:
 	template <class _ARG1>
 	inline void apply (const Function<void (_ARG1 &)> &proc) const {
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mStatus != STATUS_SIGNALED::value)
+		if (mStatus != STATUS_SIGNALED)
 			return ;
 		proc (mValue) ;
-		mStatus = STATUS_CACHED::value ;
+		mStatus = STATUS_CACHED ;
 	}
 
 	template <class _ARG1>
-	inline void apply (const Function<FIX_MSVC_DEDUCTION_2<void ,_ARG1 &>> &proc) const {
+	inline void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) const {
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mStatus != STATUS_SIGNALED::value)
+		if (mStatus != STATUS_SIGNALED)
 			return ;
 		proc (mValue) ;
-		mStatus = STATUS_CACHED::value ;
+		mStatus = STATUS_CACHED ;
 	}
 
 	inline void signal () const {
-		if (mStatus != STATUS_CACHED::value)
+		if (mStatus != STATUS_CACHED)
 			return ;
-		mStatus = STATUS_SIGNALED::value ;
+		mStatus = STATUS_SIGNALED ;
 	}
 
 	inline void finish () const {
-		mStatus = STATUS_FINISHED::value ;
+		mStatus = STATUS_FINISHED ;
 	}
 
 private:
 	template <class... _ARGS>
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mValue (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED::value) {}
+		:mValue (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
 } ;
 
 namespace U {
@@ -776,7 +776,7 @@ private:
 	static constexpr auto VARIANT_ALIGN = U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 	static constexpr auto VARIANT_SIZE = U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 
-	//@error: g++4.8 is too useless to use constexpr value in alignas expression
+	//@error: fuck g++4.8
 	template <LENGTH ALIGN = VARIANT_ALIGN>
 	struct ALIGNED_UNION {
 		alignas (ALIGN) DEF<BYTE[VARIANT_SIZE]> unused ;
@@ -897,7 +897,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline void apply (const Function<FIX_MSVC_DEDUCTION_2<void ,_ARG1 &>> &proc) {
+	inline void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) {
 		if (!available<_ARG1> ())
 			return ;
 		auto &r1x = _LOAD_<TEMP<_ARG1>> (&mVariant) ;
@@ -1251,7 +1251,7 @@ private:
 		return func (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
-	//@error: vs2015 is too useless to compile without hint
+	//@error: fuck vs2015
 	template <class _ARG1 ,class... _ARGS>
 	inline static UNIT1 template_invoke (const Function<UNIT1 (UNITS... ,UNITS_...)> &func ,const _ARG1 &parameter ,_ARGS &&...funcval) popping {
 		return template_invoke (func ,parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
@@ -2129,8 +2129,8 @@ private:
 		inline WatchProxy (const WatchProxy &) = default ;
 		inline WatchProxy &operator= (const WatchProxy &) = default ;
 
-		inline WatchProxy (WatchProxy &&) noexcept = default ;
-		inline WatchProxy &operator= (WatchProxy &&) noexcept = default ;
+		inline WatchProxy (WatchProxy &&) = default ;
+		inline WatchProxy &operator= (WatchProxy &&) = default ;
 
 		inline implicit operator UNIT & () const & noexcept {
 			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
@@ -2836,7 +2836,7 @@ private:
 #ifdef __CSC_COMPILER_GNUC__
 template <class UNIT ,class CONT>
 inline void Serializer<UNIT ,CONT>::Binder::compute_visit (UNIT &visitor ,CONT &context_) const {
-	//@error: g++4.8 is too useless to compile with a function-local-type
+	//@error: fuck g++4.8
 	_DEBUG_ASSERT_ (FALSE) ;
 }
 #endif

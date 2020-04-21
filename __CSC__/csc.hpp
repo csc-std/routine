@@ -87,6 +87,7 @@
 #pragma warning (disable :4668) //@info: warning C4668: 'xxx' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #pragma warning (disable :4710) //@info: warning C4710: 'xxx': function not inlined
 #pragma warning (disable :4711) //@info: warning C4711: function 'xxx' selected for automatic inline expansion
+#pragma warning (disable :4738) //@info: warning C4738: storing 32-bit float result in memory, possible loss of performance
 #pragma warning (disable :4774) //@info: warning C4774: 'xxx' : format string expected in argument ? is not a string literal
 #pragma warning (disable :4324) //@info: warning C4324: 'xxx': structure was padded due to alignment specifier
 #pragma warning (disable :4820) //@info: warning C4820: 'xxx': 'xxx' bytes padding added after data member 'xxx'
@@ -232,7 +233,7 @@ using std::forward ;
 using std::nothrow ;
 
 #ifdef __CSC_COMPILER_GNUC__
-//@error: 'std::max_align_t' is not avaliable in g++4.8
+//@error: fuck g++4.8
 using ::max_align_t ;
 #else
 using std::max_align_t ;
@@ -254,7 +255,7 @@ using std::is_function ;
 using std::is_pod ;
 
 #ifndef __CSC_COMPILER_GNUC__
-//@error: 'std::is_trivial' is not avaliable in g++4.8
+//@error: fuck g++4.8
 using std::is_trivial ;
 #endif
 
@@ -459,7 +460,7 @@ template <class TYPE>
 using PTR = DEF<TYPE *> ;
 
 #ifdef __CSC_COMPILER_GNUC__
-//@error: g++4.8 is too useless to use references to array of unknown bound as parameters
+//@error: fuck g++4.8
 template <class TYPE>
 using ARR = DEF<TYPE[0]> ;
 #else
@@ -482,7 +483,7 @@ using STRU8 = unsigned char ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
-//@error: before 'char8_t' is available
+//@error: fuck std
 #define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,var1)))]> (_CAT_ (u8 ,var1)))
 #define _PCSTRU16_(var1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,var1))
 #define _PCSTRU32_(var1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,var1))
@@ -548,9 +549,7 @@ static constexpr auto ARGVP6 = ARGV<ARGVP<ARGC<6>>> {} ;
 static constexpr auto ARGVP7 = ARGV<ARGVP<ARGC<7>>> {} ;
 static constexpr auto ARGVP8 = ARGV<ARGVP<ARGC<8>>> {} ;
 static constexpr auto ARGVP9 = ARGV<ARGVP<ARGC<9>>> {} ;
-
 static constexpr auto ARGVPX = ARGV<VOID> {} ;
-static constexpr auto ARGVPY = ARGV<NONE> {} ;
 
 using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
@@ -956,6 +955,7 @@ struct RESULT_OF ;
 #ifdef __CSC_COMPILER_CLANG__
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct RESULT_OF {
+	//@error: fuck clang
 	using TYPE = NONE ;
 } ;
 #endif
@@ -1315,6 +1315,7 @@ struct INDEX_TO<ZERO ,ARGVS<_ARG1 ,_ARGS...>> {
 template <class _ARG1>
 struct INDEX_TO<_ARG1 ,ARGVS<>> {
 	//@info: bad index_to
+	using TYPE = NONE ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -1670,9 +1671,10 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 	return expr ;
 }
 
-//@error: fuck gcc
+//@error: fuck g++4.8
+namespace U {
 template <class TYPE>
-struct FIX_GCC_CONSTEXPR_1 {
+struct CONSTEXPR_SWITCH_ABS {
 	inline static constexpr TYPE case1 (const TYPE &val) {
 		return -val ;
 	}
@@ -1681,12 +1683,13 @@ struct FIX_GCC_CONSTEXPR_1 {
 		return +val ;
 	}
 } ;
+} ;
 
 template <class _ARG1>
 inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
 	return _SWITCH_ (
-		(val < 0) ? FIX_GCC_CONSTEXPR_1<_ARG1>::case1 :
-		FIX_GCC_CONSTEXPR_1<_ARG1>::case2)
+		(val < _ARG1 (0)) ? U::CONSTEXPR_SWITCH_ABS<_ARG1>::case1 :
+		U::CONSTEXPR_SWITCH_ABS<_ARG1>::case2)
 		(val) ;
 }
 
@@ -1760,7 +1763,7 @@ template <class _ARG1>
 using is_template = U::IS_TEMPLATE_HELP<_ARG1> ;
 
 template <class _ARG1>
-using is_complete = U::IS_COMPLETE_HELP<_ARG1> ;
+using is_complete = ARGC<TRUE> ;
 
 template <class _ARG1>
 using is_interface = U::IS_INTERFACE_HELP<_ARG1 ,Interface> ;
@@ -1889,7 +1892,7 @@ class Plain final
 
 private:
 	template <class... _ARGS>
-	using PLAIN_STRING_HINT_TYPE = DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> ;
+	using CACHE_STRING_RETURN_HINT = DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ;
 
 private:
 	struct Detail ;
@@ -1925,13 +1928,13 @@ public:
 
 private:
 	template <class _ARG1 ,class... _ARGS>
-	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
-		using PlainString = typename Detail::template PlainString<ARGC<_COUNTOF_ (PLAIN_STRING_HINT_TYPE<_ARGS...>)>> ;
+	inline static CACHE_STRING_RETURN_HINT<_ARGS...> cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
+		using PlainString = typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () noexcept {
 			return r1x ;
 		}) ;
-		return std::ref (r2x.mString) ;
+		return r2x.mString ;
 	}
 
 	template <class _ARG1 ,class _ARG2>

@@ -694,8 +694,8 @@ private:
 		inline NativeProxy (const NativeProxy &) = default ;
 		inline NativeProxy &operator= (const NativeProxy &) = default ;
 
-		inline NativeProxy (NativeProxy &&) noexcept = default ;
-		inline NativeProxy &operator= (NativeProxy &&) noexcept = default ;
+		inline NativeProxy (NativeProxy &&) = default ;
+		inline NativeProxy &operator= (NativeProxy &&) = default ;
 
 		inline implicit operator UNIT_ & () const & {
 			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
