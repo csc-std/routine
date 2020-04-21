@@ -344,10 +344,12 @@ struct OPERATOR_HASH {
 } ;
 } ;
 
-class GlobalHeap final :private Wrapped<void> {
+class GlobalHeap final
+	:private Wrapped<void> {
 private:
 	template <class UNIT>
-	class OwnerProxy final :private Proxy {
+	class OwnerProxy final
+		:private Proxy {
 	private:
 		friend GlobalHeap ;
 		PTR<UNIT> mPointer ;
@@ -429,7 +431,8 @@ public:
 } ;
 
 template <class UNIT>
-class ScopedGuard final :private Proxy {
+class ScopedGuard final
+	:private Proxy {
 private:
 	PTR<UNIT> mAddress ;
 
@@ -459,7 +462,8 @@ private:
 } ;
 
 template <class UNIT>
-class ScopedBuild final :private Proxy {
+class ScopedBuild final
+	:private Proxy {
 private:
 	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
 	LENGTH mSize ;
@@ -497,7 +501,8 @@ private:
 } ;
 
 template <class UNIT>
-class ScopedBuild<ARR<UNIT>> final :private Proxy {
+class ScopedBuild<ARR<UNIT>> final
+	:private Proxy {
 private:
 	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
 	LENGTH mSize ;
@@ -558,7 +563,8 @@ template <class>
 class GlobalStatic ;
 
 template <class UNIT>
-class Singleton final :private Proxy {
+class Singleton final
+	:private Proxy {
 	_STATIC_ASSERT_ (std::is_class<UNIT>::value) ;
 	_STATIC_ASSERT_ (!std::is_default_constructible<UNIT>::value) ;
 	_STATIC_ASSERT_ (std::is_nothrow_destructible<UNIT>::value) ;
@@ -714,7 +720,8 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AutoRef (const AutoRef &that) :AutoRef () {
+	inline AutoRef (const AutoRef &that)
+		:AutoRef () {
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
@@ -754,7 +761,8 @@ private:
 } ;
 
 template <class UNIT>
-class AutoRef :private AutoRef<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)>> {
+class AutoRef
+	:private AutoRef<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)>> {
 private:
 	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)>> ;
 	using Holder = typename SPECIALIZATION_BASE::Holder ;
@@ -902,7 +910,8 @@ public:
 	}
 
 private:
-	inline explicit SharedRef (PTR<Holder> pointer) :SharedRef () {
+	inline explicit SharedRef (PTR<Holder> pointer)
+		:SharedRef () {
 		if (pointer == NULL)
 			return ;
 		const auto r1x = ++pointer->mCounter ;
@@ -929,7 +938,8 @@ class AnyRef ;
 template <>
 class AnyRef<void> {
 private:
-	exports struct Holder :public Interface {
+	exports struct Holder
+		:public Interface {
 		virtual FLAG typemid () const = 0 ;
 	} ;
 
@@ -1119,7 +1129,8 @@ public:
 private:
 	struct Detail {
 		template <class UNIT_>
-		class ImplHolder :public Holder {
+		class ImplHolder
+			:public Holder {
 		private:
 			friend AnyRef ;
 			UNIT_ mValue ;
@@ -1142,7 +1153,8 @@ class UniqueRef ;
 template <>
 class UniqueRef<void> {
 private:
-	exports struct Holder :public Interface {
+	exports struct Holder
+		:public Interface {
 		virtual void release () = 0 ;
 	} ;
 
@@ -1158,7 +1170,8 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
+		:UniqueRef () {
 		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
@@ -1209,7 +1222,8 @@ public:
 private:
 	struct Detail {
 		template <class UNIT_>
-		class ImplHolder :public Holder {
+		class ImplHolder
+			:public Holder {
 		private:
 			UNIT_ mFunctor ;
 
@@ -1246,7 +1260,8 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping :UniqueRef () {
+	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
+		:UniqueRef () {
 		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
@@ -1330,7 +1345,8 @@ public:
 private:
 	struct Detail {
 		template <class UNIT_>
-		class ImplHolder :public Holder {
+		class ImplHolder
+			:public Holder {
 		private:
 			friend UniqueRef ;
 			REMOVE_CVR_TYPE<UNIT> mValue ;
@@ -1428,7 +1444,8 @@ class Function ;
 template <class UNIT1 ,class... UNITS>
 class Function<UNIT1 (UNITS...)> {
 private:
-	exports struct Holder :public Interface {
+	exports struct Holder
+		:public Interface {
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;
 
@@ -1449,7 +1466,8 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
-	inline implicit Function (_ARG1 &&that) :Function () {
+	inline implicit Function (_ARG1 &&that)
+		:Function () {
 		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
@@ -1527,7 +1545,8 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<UNIT1 (UNITS...)>::Detail::ImplHolder :public Function<UNIT1 (UNITS...)>::Holder {
+class Function<UNIT1 (UNITS...)>::Detail::ImplHolder
+	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	UNIT_ mFunctor ;
 
@@ -1558,12 +1577,14 @@ class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>> {
 private:
 	class FakeHolder ;
 
-	exports struct Holder :public Interface {
+	exports struct Holder
+		:public Interface {
 		virtual void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping = 0 ;
 	} ;
 
-	class FakeHolder :public Holder {
+	class FakeHolder
+		:public Holder {
 	private:
 		PTR<NONE> mContext ;
 		DEF<DEF<UNIT1 (UNITS...)> NONE::*> mFunction ;
@@ -1584,33 +1605,38 @@ public:
 		_ZERO_ (mVariant) ;
 	}
 
-	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept :Function () {
+	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept
+		:Function () {
 		using PureHolder = typename Detail::PureHolder ;
 		_DEBUG_ASSERT_ (that != NULL) ;
 		static_create<PureHolder> (&mVariant ,that) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept :Function () {
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func) noexcept
+		:Function () {
 		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept :Function () {
+	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept
+		:Function () {
 		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept :Function () {
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept
+		:Function () {
 		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept :Function () {
+	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept
+		:Function () {
 		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (&mVariant ,&context_.self ,func) ;
@@ -1626,7 +1652,8 @@ public:
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
-	inline Function (Function &&that) noexcept :Function () {
+	inline Function (Function &&that) noexcept
+		:Function () {
 		if (!that.exist ())
 			return ;
 		that.fake.friend_copy (&mVariant) ;
@@ -1682,7 +1709,8 @@ private:
 
 private:
 	struct Detail {
-		class PureHolder :public Holder {
+		class PureHolder
+			:public Holder {
 		private:
 			PTR<UNIT1 (UNITS...)> mFunction ;
 
@@ -1710,7 +1738,8 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder
+	:public Holder {
 private:
 	PTR<UNIT_> mContext ;
 	DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> mFunction ;
@@ -1732,7 +1761,8 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_> :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_>
+	:public Holder {
 private:
 	PTR<const UNIT_> mContext ;
 	DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> mFunction ;
@@ -1754,7 +1784,8 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>> :public Holder {
+class Function<FIX_MSVC_DEDUCTION_2<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>>
+	:public Holder {
 private:
 	PTR<UNIT_> mContext ;
 	PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> mFunction ;
@@ -1917,7 +1948,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) :Buffer () {
+	inline explicit Buffer (LENGTH len)
+		:Buffer () {
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
@@ -2079,7 +2111,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) :Buffer () {
+	inline explicit Buffer (LENGTH len)
+		:Buffer () {
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
@@ -2137,7 +2170,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) :Buffer () {
+	inline explicit Buffer (LENGTH len)
+		:Buffer () {
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
@@ -2161,7 +2195,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &that) :Buffer () {
+	inline Buffer (const Buffer &that)
+		:Buffer () {
 		if (that.mBuffer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
@@ -2199,7 +2234,8 @@ public:
 } ;
 
 template <class UNIT>
-class Buffer<UNIT ,SAUTO> :private Buffer<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> {
+class Buffer<UNIT ,SAUTO>
+	:private Buffer<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> {
 private:
 	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,(std::is_copy_constructible<UNIT>::value && std::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> ;
 
@@ -2308,9 +2344,8 @@ public:
 	}
 
 	inline LENGTH expand_size () const {
-		using DEFAULT_EXPANDFIRST_SIZE = ARGC<256> ;
 		const auto r1x = LENGTH (mSize * MATH_SQRT2) ;
-		const auto r2x = mSize + DEFAULT_EXPANDFIRST_SIZE::value ;
+		const auto r2x = mSize + DEFAULT_RECURSIVE_SIZE::value ;
 		return _MAX_ (r1x ,r2x) ;
 	}
 
@@ -2341,7 +2376,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) :Buffer () {
+	inline explicit Buffer (LENGTH len)
+		:Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
 
@@ -2514,7 +2550,8 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len) :Buffer () {
+	inline explicit Buffer (LENGTH len)
+		:Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
 
@@ -3004,7 +3041,8 @@ private:
 
 private:
 	struct Detail {
-		class Finally :private Wrapped<Allocator> {
+		class Finally
+			:private Wrapped<Allocator> {
 		public:
 			inline void lock () {
 				const auto r1x = EFLAG (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
@@ -3033,7 +3071,8 @@ private:
 } ;
 
 template <class UNIT ,class SIZE>
-class Allocator :private Allocator<SPECIALIZATION<UNIT ,(std::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
+class Allocator
+	:private Allocator<SPECIALIZATION<UNIT ,(std::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(std::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,std::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;

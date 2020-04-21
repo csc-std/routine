@@ -9,7 +9,8 @@
 
 namespace CSC {
 template <class BASE>
-class ArrayIterator final :private Proxy {
+class ArrayIterator final
+	:private Proxy {
 private:
 	BASE &mBase ;
 	INDEX mIndex ;
@@ -574,8 +575,8 @@ public:
 
 private:
 	inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
-		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
-		LENGTH ret = _MEMCHR_ (val ,(DEFAULT_HUGESTRING_SIZE::value + 1) ,ITEM (0)) ;
+		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
+		LENGTH ret = _MEMCHR_ (val ,r1x ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
 		return std::move (ret) ;
 	}
@@ -979,7 +980,8 @@ private:
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_THIS ;
@@ -1112,7 +1114,8 @@ private:
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend Priority ;
 		friend SPECIALIZATION_THIS ;
@@ -1213,7 +1216,8 @@ private:
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
-class Priority :private Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+class Priority
+	:private Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
@@ -1534,13 +1538,13 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (INDEX left ,INDEX right)
+		inline implicit Node (INDEX left ,INDEX right)
 			:mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (const ITEM &item ,INDEX left ,INDEX right)
+		inline implicit Node (const ITEM &item ,INDEX left ,INDEX right)
 			: mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (ITEM &&item ,INDEX left ,INDEX right)
+		inline implicit Node (ITEM &&item ,INDEX left ,INDEX right)
 			: mItem (std::move (item)) ,mLeft (left) ,mRight (right) {}
 	} ;
 
@@ -1959,13 +1963,13 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (INDEX seq)
+		inline implicit Node (INDEX seq)
 			:mSeq (seq) {}
 
-		inline explicit Node (const ITEM &item ,INDEX seq)
+		inline implicit Node (const ITEM &item ,INDEX seq)
 			: mItem (std::move (item)) ,mSeq (seq) {}
 
-		inline explicit Node (ITEM &&item ,INDEX seq)
+		inline implicit Node (ITEM &&item ,INDEX seq)
 			: mItem (std::move (item)) ,mSeq (seq) {}
 	} ;
 
@@ -2438,7 +2442,8 @@ template <class SIZE>
 class BitSet {
 private:
 	template <class BASE>
-	class Bit final :private Proxy {
+	class Bit final
+		:private Proxy {
 	private:
 		friend BitSet ;
 		BASE &mBase ;
@@ -2854,23 +2859,24 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
 			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline implicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_THIS ;
@@ -3007,17 +3013,18 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
 			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline explicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
 			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend Set ;
 		friend SPECIALIZATION_THIS ;
@@ -3124,7 +3131,8 @@ private:
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
-class Set :private Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+class Set
+	:private Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
@@ -3703,23 +3711,24 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next)
+		inline implicit Node (const KEY &key ,FLAG hash ,INDEX next)
 			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next)
+		inline implicit Node (KEY &&key ,FLAG hash ,INDEX next)
 			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,FLAG hash ,INDEX next)
+		inline implicit Node (const KEY &key ,ITEM &&item ,FLAG hash ,INDEX next)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next)
+		inline implicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_THIS ;
@@ -3854,17 +3863,18 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,FLAG hash ,INDEX next)
+		inline implicit Node (const KEY &key ,FLAG hash ,INDEX next)
 			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,FLAG hash ,INDEX next)
+		inline implicit Node (KEY &&key ,FLAG hash ,INDEX next)
 			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend HashSet ;
 		friend SPECIALIZATION_THIS ;
@@ -3971,7 +3981,8 @@ private:
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
-class HashSet :private HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+class HashSet
+	:private HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
@@ -4227,23 +4238,24 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (const KEY &key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (const KEY &key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_THIS ;
@@ -4401,17 +4413,18 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline explicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
 			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
 	using PAIR_ITEM = PACK<KEY> ;
 
 	template <class BASE>
-	class Pair final :private Proxy {
+	class Pair final
+		:private Proxy {
 	public:
 		friend SoftSet ;
 		friend SPECIALIZATION_THIS ;
@@ -4539,7 +4552,8 @@ private:
 } ;
 
 template <class KEY ,class ITEM ,class SIZE>
-class SoftSet :private SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
+class SoftSet
+	:private SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
 private:
 	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;

@@ -273,13 +273,13 @@ struct OPERATOR_TYPENAME {
 		template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
 	}
 
-	template <class... _ARGS>
-	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<ARGVS<_ARGS...>> &) {
-		using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
-		using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
-		template_write_typename_x (writer ,_NULL_<ARGV<ARGVS_ONE>> ()) ;
+	template <class _ARG1>
+	inline static void template_write_typename_y (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		template_write_typename_x (writer ,_NULL_<ARGV<ONE_HINT>> ()) ;
 		writer << _PCSTR_ (" ,") ;
-		template_write_typename_y (writer ,_NULL_<ARGV<ARGVS_REST>> ()) ;
+		template_write_typename_y (writer ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
 	template <class _RET>
@@ -296,7 +296,8 @@ template <class>
 class GlobalStatic ;
 
 template <>
-class GlobalStatic<void> final :private Wrapped<void> {
+class GlobalStatic<void> final
+	:private Wrapped<void> {
 private:
 	struct VALUE_NODE {
 		FLAG mGUID ;
@@ -314,7 +315,7 @@ private:
 		template <class>
 		friend class GlobalStatic ;
 		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_TYPE = GlobalStatic ;
+		using INTRUSIVE_THIS = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		HashSet<FLAG ,VALUE_NODE> mValueSet ;
@@ -420,7 +421,8 @@ private:
 } ;
 
 template <class GUID>
-class GlobalStatic final :private Wrapped<void> {
+class GlobalStatic final
+	:private Wrapped<void> {
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
 public:
@@ -472,13 +474,14 @@ public:
 } ;
 
 template <class UNIT>
-class GlobalStatic<Singleton<UNIT>> final :private Wrapped<void> {
+class GlobalStatic<Singleton<UNIT>> final
+	:private Wrapped<void> {
 private:
 	class Pack {
 	private:
 		friend GlobalStatic ;
 		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_TYPE = GlobalStatic ;
+		using INTRUSIVE_THIS = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
@@ -643,7 +646,8 @@ public:
 } ;
 
 template <class CONT>
-class Coroutine<CONT>::SubRef :private Wrapped<Coroutine<CONT>> {
+class Coroutine<CONT>::SubRef
+	:private Wrapped<Coroutine<CONT>> {
 private:
 	using Wrapped<Coroutine<CONT>>::mSelf ;
 
@@ -743,9 +747,11 @@ inline void Coroutine<CONT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>
 }
 #endif
 
-class RandomService final :private Proxy {
+class RandomService final
+	:private Proxy {
 private:
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (VAR seed_) = 0 ;
 		virtual VAR random_value () popping = 0 ;

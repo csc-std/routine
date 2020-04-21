@@ -18,7 +18,7 @@ private:
 	private:
 		friend CalcThread ;
 		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_TYPE = CalcThread ;
+		using INTRUSIVE_THIS = CalcThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -280,7 +280,8 @@ private:
 			}
 		} ;
 
-		class ThreadCounter :private Wrapped<Pack> {
+		class ThreadCounter
+			:private Wrapped<Pack> {
 		public:
 			inline void lock () {
 				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
@@ -302,7 +303,7 @@ private:
 	private:
 		friend WorkThread ;
 		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_TYPE = WorkThread ;
+		using INTRUSIVE_THIS = WorkThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -598,7 +599,8 @@ private:
 			}
 		} ;
 
-		class ThreadCounter :private Wrapped<Pack> {
+		class ThreadCounter
+			:private Wrapped<Pack> {
 		public:
 			inline void lock () {
 				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
@@ -611,7 +613,8 @@ private:
 			}
 		} ;
 
-		class Counter :private Wrapped<LENGTH> {
+		class Counter
+			:private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
 				Counter::mSelf++ ;
@@ -635,7 +638,7 @@ private:
 		friend Promise ;
 		friend Future ;
 		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_TYPE = Promise ;
+		using INTRUSIVE_THIS = Promise ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -851,7 +854,8 @@ private:
 			}
 		} ;
 
-		class ThreadCounter :private Wrapped<Pack> {
+		class ThreadCounter
+			:private Wrapped<Pack> {
 		public:
 			inline void lock () {
 				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;

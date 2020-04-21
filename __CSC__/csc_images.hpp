@@ -11,10 +11,12 @@
 
 namespace CSC {
 template <class SIZE>
-class ArrayRange final :private Proxy {
+class ArrayRange final
+	:private Proxy {
 private:
 	template <class BASE>
-	class Iterator final :private Proxy {
+	class Iterator final
+		:private Proxy {
 	private:
 		friend ArrayRange ;
 		BASE &mBase ;
@@ -39,7 +41,7 @@ private:
 
 	public:
 		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item) popping
-			:mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
+			: mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
 	} ;
 
 private:
@@ -97,7 +99,8 @@ template <class UNIT>
 class Bitmap {
 private:
 	template <class BASE>
-	class Row final :private Proxy {
+	class Row final
+		:private Proxy {
 	private:
 		friend Bitmap ;
 		BASE &mBase ;
@@ -627,7 +630,8 @@ public:
 		LENGTH mCK ;
 	} ;
 
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual void compute_layout (AnyRef<void> &this_ ,LAYOUT &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const = 0 ;
@@ -638,7 +642,8 @@ public:
 
 private:
 	template <class BASE>
-	class Row final :private Proxy {
+	class Row final
+		:private Proxy {
 	private:
 		friend AbstractImage ;
 		BASE &mBase ;
@@ -668,7 +673,8 @@ private:
 	} ;
 
 	template <class UNIT_>
-	class NativeProxy final :private Proxy {
+	class NativeProxy final
+		:private Proxy {
 	private:
 		friend AbstractImage ;
 		PhanRef<const Abstract> mAbstract ;

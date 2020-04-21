@@ -318,7 +318,8 @@ class Matrix {
 
 private:
 	template <class BASE>
-	class Row final :private Proxy {
+	class Row final
+		:private Proxy {
 	private:
 		friend Matrix ;
 		BASE &mBase ;

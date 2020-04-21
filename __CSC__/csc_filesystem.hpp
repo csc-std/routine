@@ -15,6 +15,9 @@
 #include "csc_thread.hpp"
 
 namespace CSC {
+using DEFAULT_FILEPATH_SIZE = ARGC<1023> ;
+using DEFAULT_DIRECTORY_SIZE = ARGC<65536> ;
+
 inline namespace FILESYSTEM {
 inline imports DEF<AutoBuffer<BYTE> (const String<STR> &file) popping> _LOADFILE_ ;
 
@@ -115,9 +118,11 @@ public:
 	void flush () ;
 } ;
 
-class FileSystemService final :private Proxy {
+class FileSystemService final
+	:private Proxy {
 private:
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
 	} ;

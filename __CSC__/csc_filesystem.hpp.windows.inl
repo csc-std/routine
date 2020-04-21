@@ -176,8 +176,7 @@ inline exports BOOL _IDENTICALFILE_ (const String<STR> &file1 ,const String<STR>
 }
 
 inline exports String<STR> _PARSEDIRENAME_ (const String<STR> &file) {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = _MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ;
@@ -188,8 +187,7 @@ inline exports String<STR> _PARSEDIRENAME_ (const String<STR> &file) {
 }
 
 inline exports String<STR> _PARSEFILENAME_ (const String<STR> &file) {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = _MEMRCHR_ (r2x.self ,r1x ,STR ('\\')) ;
@@ -230,8 +228,7 @@ inline exports Deque<String<STR>> _DECOUPLEPATHNAME_ (const String<STR> &file) {
 }
 
 inline exports String<STR> _WORKINGPATH_ () {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	GetCurrentDirectory (VARY (ret.size ()) ,ret.raw ().self) ;
 	ret += _PCSTR_ ("\\") ;
 	return std::move (ret) ;
@@ -261,8 +258,7 @@ inline Deque<INDEX> _inline_RELATIVEPATHNAME_ (const Deque<String<STR>> &path_na
 }
 
 inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	auto rax = _DECOUPLEPATHNAME_ (path) ;
 	auto fax = TRUE ;
 	if switch_case (fax) {
@@ -313,9 +309,8 @@ inline exports String<STR> _ABSOLUTEPATH_ (const String<STR> &path) {
 }
 
 inline exports const String<STR> &_MODULEFILEPATH_ () popping {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([&] () {
-		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+		String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = _PARSEDIRENAME_ (ret) ;
 		ret += _PCSTR_ ("\\") ;
@@ -324,9 +319,8 @@ inline exports const String<STR> &_MODULEFILEPATH_ () popping {
 }
 
 inline exports const String<STR> &_MODULEFILENAME_ () popping {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	return _CACHE_ ([&] () {
-		String<STR> ret = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+		String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = _PARSEFILENAME_ (ret) ;
 		return std::move (ret) ;
@@ -379,10 +373,9 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 }
 
 inline exports void _BUILDDIRECTORY_ (const String<STR> &dire) {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
 	if (_FINDDIRECTORY_ (dire))
 		return ;
-	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	const auto r1x = _ABSOLUTEPATH_ (dire) ;
 	const auto r2x = _DECOUPLEPATHNAME_ (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
@@ -413,8 +406,7 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) popping {
-	using DEFAULT_SHORTSTRING_SIZE = ARGC<1023> ;
-	auto rax = String<STR> (DEFAULT_SHORTSTRING_SIZE::value) ;
+	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	rax += dire ;
 	rax += _PCSTR_ ("\\") ;
 	const auto r1x = rax.length () ;
@@ -455,7 +447,6 @@ inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>>
 }
 
 inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
-	using DEFAULT_EXPANDLIMIT_SIZE = ARGC<65536> ;
 	auto rax = Deque<PACK<String<STR> ,BOOL>> () ;
 	auto rbx = ARRAY2<Deque<String<STR>>> () ;
 	rbx[0].clear () ;
@@ -463,9 +454,9 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 	_ENUMDIRECTORY_ (dire ,rbx[0] ,rbx[1]) ;
 	for (auto &&i : rbx[0])
 		_ERASEFILE_ (i) ;
-	_DYNAMIC_ASSERT_ (rax.length () + rbx[1].length () < DEFAULT_EXPANDLIMIT_SIZE::value) ;
 	for (auto &&i : rbx[1])
 		rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
+	_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
@@ -483,9 +474,9 @@ inline exports void _CLEARDIRECTORY_ (const String<STR> &dire) {
 			_ENUMDIRECTORY_ (rax[ix].P1 ,rbx[0] ,rbx[1]) ;
 			for (auto &&i : rbx[0])
 				_ERASEFILE_ (i) ;
-			_DYNAMIC_ASSERT_ (rax.length () + rbx[1].length () < DEFAULT_EXPANDLIMIT_SIZE::value) ;
 			for (auto &&i : rbx[1])
 				rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
+			_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
 			rax[ix].P2 = TRUE ;
 		}
 	}
@@ -762,7 +753,8 @@ inline exports void BufferLoader::flush () {
 	mThis.rebind<Implement> ()->flush () ;
 }
 
-class FileSystemService::Implement :public FileSystemService::Abstract {
+class FileSystemService::Implement
+	:public FileSystemService::Abstract {
 public:
 	void startup () override {
 		_STATIC_WARNING_ ("noop") ;

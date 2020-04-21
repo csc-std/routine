@@ -40,7 +40,8 @@
 #endif
 
 namespace CSC {
-class ConsoleService::Implement :public ConsoleService::Abstract {
+class ConsoleService::Implement
+	:public ConsoleService::Abstract {
 private:
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
@@ -54,8 +55,6 @@ private:
 
 public:
 	Implement () {
-		using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
-		using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
@@ -324,7 +323,8 @@ inline exports ConsoleService::ConsoleService () {
 	mThis = StrongRef<Implement>::make () ;
 }
 
-class DebuggerService::Implement :public DebuggerService::Abstract {
+class DebuggerService::Implement
+	:public DebuggerService::Abstract {
 public:
 	void abort_once_invoked_exit (BOOL flag) override {
 		_DEBUG_ASSERT_ (flag) ;
@@ -353,7 +353,6 @@ public:
 	}
 
 	Array<LENGTH> captrue_stack_trace () popping override {
-		using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = ::backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;

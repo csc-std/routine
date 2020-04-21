@@ -147,7 +147,6 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		mThis = SharedRef<Pack>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = ::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
@@ -158,7 +157,7 @@ public:
 		if (!ip_addr.empty ())
 			_inline_SOCKET_BIND_ (mThis->mSocket ,ip_addr) ;
 		_ZERO_ (mThis->mPeer) ;
-		mThis->mTimeout = DEFAULT_TIMEOUT_SIZE::value ;
+		mThis->mTimeout = 30000 ;
 	}
 
 	String<STRU8> sock_name () const {
@@ -418,7 +417,6 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = ::socket (AF_INET ,SOCK_DGRAM ,IPPROTO_UDP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -431,7 +429,7 @@ public:
 		if (!ip_addr.empty ())
 			_inline_SOCKET_BIND_ (mThis->mSocket ,ip_addr) ;
 		_ZERO_ (mThis->mPeer) ;
-		mThis->mTimeout = DEFAULT_TIMEOUT_SIZE::value ;
+		mThis->mTimeout = 30000 ;
 	}
 
 	String<STRU8> sock_name () const {
@@ -530,7 +528,8 @@ inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis.rebind<Implement> ()->write (data) ;
 }
 
-class NetworkService::Implement :public NetworkService::Abstract {
+class NetworkService::Implement
+	:public NetworkService::Abstract {
 private:
 	UniqueRef<void> mService ;
 
@@ -568,8 +567,7 @@ public:
 	}
 
 	LENGTH pref_timeout () const override {
-		using DEFAULT_TIMEOUT_SIZE = ARGC<30000> ;
-		return DEFAULT_TIMEOUT_SIZE::value ;
+		return 30000 ;
 	}
 } ;
 

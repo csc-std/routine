@@ -21,7 +21,8 @@
 #include "csc_database.hpp"
 
 namespace CSC {
-class ConsoleService final :private Proxy {
+class ConsoleService final
+	:private Proxy {
 public:
 	static constexpr auto OPTION_DEFAULT = FLAG (0) ;
 	static constexpr auto OPTION_NO_PRINT = FLAG (0X00000001) ;
@@ -35,11 +36,13 @@ public:
 	static constexpr auto OPTION_TESTING = FLAG (0X00000100) ;
 
 private:
-	exports struct Binder :public Interface {
+	exports struct Binder
+		:public Interface {
 		virtual void friend_write (TextWriter<STR> &writer) const = 0 ;
 	} ;
 
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual LENGTH buffer_size () const = 0 ;
 		virtual void enable_option (FLAG option) = 0 ;
 		virtual void disable_option (FLAG option) = 0 ;
@@ -168,7 +171,8 @@ private:
 private:
 	struct Detail {
 		template <class... UNITS>
-		class ImplBinder :public Binder {
+		class ImplBinder
+			:public Binder {
 		private:
 			TupleBinder<const UNITS...> mBinder ;
 
@@ -194,9 +198,11 @@ private:
 	} ;
 } ;
 
-class DebuggerService final :private Proxy {
+class DebuggerService final
+	:private Proxy {
 private:
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
 		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
 		virtual Array<LENGTH> captrue_stack_trace () popping = 0 ;

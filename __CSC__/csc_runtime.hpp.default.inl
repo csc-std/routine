@@ -165,13 +165,13 @@ private:
 		jmp_buf mEbp ;
 	} ;
 
-	using CONTEXT_EBP_SIZE = ARGC<_ALIGNOF_ (CONTEXT_EBP) - 1 + _SIZEOF_ (CONTEXT_EBP)> ;
-	using STACK_FRAME_SIZE = ARGC<65536> ;
+	static constexpr auto CONTEXT_EBP_SIZE = _ALIGNOF_ (CONTEXT_EBP) - 1 + _SIZEOF_ (CONTEXT_EBP) ;
+	static constexpr auto STACK_FRAME_SIZE = 65536 ;
 
 	struct BREAKPOINT {
-		DEF<BYTE[CONTEXT_EBP_SIZE::value]> mContextEbp ;
+		DEF<BYTE[CONTEXT_EBP_SIZE]> mContextEbp ;
 		ARRAY3<LENGTH> mStackPoint ;
-		DEF<BYTE[STACK_FRAME_SIZE::value]> mStackFrame ;
+		DEF<BYTE[STACK_FRAME_SIZE]> mStackFrame ;
 	} ;
 
 private:
@@ -217,7 +217,7 @@ public:
 		::longjmp (r5x.mEbp ,1) ;
 	}
 
-	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE::value]> &ebp) noexcept {
+	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
 		const auto r1x = _ALIGNAS_ (_ADDRESS_ (&ebp) ,_ALIGNOF_ (CONTEXT_EBP)) ;
 		return _LOAD_<CONTEXT_EBP> (_UNSAFE_ALIASING_ (r1x)) ;
 	}
@@ -239,7 +239,8 @@ inline exports void Coroutine<CONT>::goto_break_point (AnyRef<void> &bp) noexcep
 }
 #endif
 
-class RandomService::Implement :public RandomService::Abstract {
+class RandomService::Implement
+	:public RandomService::Abstract {
 private:
 	SharedRef<std::random_device> mRandomSeed ;
 	AutoRef<std::mt19937> mRandomDevice ;

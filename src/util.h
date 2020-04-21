@@ -117,7 +117,8 @@ using namespace CSC ;
 
 namespace UNITTEST {
 #ifdef __CSC_UNITTEST__
-class GlobalUnittest final :private Wrapped<void> {
+class GlobalUnittest final
+	:private Wrapped<void> {
 public:
 	inline static void fail (const ARR<STR> &what) {
 #ifdef MS_CPP_UNITTESTFRAMEWORK

@@ -18,7 +18,8 @@
 namespace CSC {
 class AbstractDatabase {
 private:
-	exports struct Abstract :public Interface {
+	exports struct Abstract
+		:public Interface {
 		virtual void compute_load_data (AnyRef<void> &this_) const = 0 ;
 	} ;
 

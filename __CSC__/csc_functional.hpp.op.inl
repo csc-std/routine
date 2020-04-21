@@ -318,5 +318,59 @@ struct op_assert<BOOL ,Operand> {
 		}) ;
 	}
 } ;
+
+template <class...>
+struct op_tuple ;
+
+template <>
+struct op_tuple<Operand> {
+	inline static Expression<RANK1> compile () {
+		return Operator ([] (const Operand &arg1) {
+			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_) {
+				if (sw == Operand::argvp (ARGVP1))
+					return arg1_ ;
+				_DYNAMIC_ASSERT_ (FALSE) ;
+				return Operand () ;
+			}) ;
+			return Expression<RANK2> (r1x).flip () + Expression<RANK0> (arg1) ;
+		}) ;
+	}
+} ;
+
+template <>
+struct op_tuple<Operand ,Operand> {
+	inline static Expression<RANK1> compile () {
+		return Operator ([] (const Operand &arg1 ,const Operand &arg2) {
+			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_ ,const Operand &arg2_) {
+				if (sw == Operand::argvp (ARGVP1))
+					return arg1_ ;
+				if (sw == Operand::argvp (ARGVP2))
+					return arg2_ ;
+				_DYNAMIC_ASSERT_ (FALSE) ;
+				return Operand () ;
+			}) ;
+			return Expression<RANK3> (r1x).flip () + Expression<RANK0> (arg1) + Expression<RANK0> (arg2) ;
+		}) ;
+	}
+} ;
+
+template <>
+struct op_tuple<Operand ,Operand ,Operand> {
+	inline static Expression<RANK1> compile () {
+		return Operator ([] (const Operand &arg1 ,const Operand &arg2 ,const Operand &arg3) {
+			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_ ,const Operand &arg2_ ,const Operand &arg3_) {
+				if (sw == Operand::argvp (ARGVP1))
+					return arg1_ ;
+				if (sw == Operand::argvp (ARGVP2))
+					return arg2_ ;
+				if (sw == Operand::argvp (ARGVP3))
+					return arg3_ ;
+				_DYNAMIC_ASSERT_ (FALSE) ;
+				return Operand () ;
+			}) ;
+			return Expression<RANK4> (r1x).flip () + Expression<RANK0> (arg1) + Expression<RANK0> (arg2) + Expression<RANK0> (arg3) ;
+		}) ;
+	}
+} ;
 } ;
 } ;

@@ -533,7 +533,8 @@ template <>
 struct ARGV<ARGVP<ZERO>> {} ;
 
 template <class _ARG1>
-struct ARGV<ARGVP<_ARG1>> :public ARGV<ARGVP<DECREASE<_ARG1>>> {
+struct ARGV<ARGVP<_ARG1>>
+	:public ARGV<ARGVP<DECREASE<_ARG1>>> {
 	_STATIC_ASSERT_ (_ARG1::value > 0) ;
 } ;
 
@@ -550,6 +551,10 @@ static constexpr auto ARGVP9 = ARGV<ARGVP<ARGC<9>>> {} ;
 
 static constexpr auto ARGVPX = ARGV<VOID> {} ;
 static constexpr auto ARGVPY = ARGV<NONE> {} ;
+
+using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
+using DEFAULT_LONGSTRING_SIZE = ARGC<8195> ;
+using DEFAULT_HUGESTRING_SIZE = ARGC<8388607> ;
 
 template <class ,BOOL...>
 struct SPECIALIZATION ;
@@ -1012,6 +1017,19 @@ struct ARGVS_REST<ARGVS<_ARG1 ,_ARGS...>> {
 
 template <class _ARG1>
 using ARGVS_REST_TYPE = typename ARGVS_REST<_ARG1>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct ARGVS_CAT ;
+
+template <class... _ARGS1 ,class... _ARGS2>
+struct ARGVS_CAT<ARGVS<_ARGS1...> ,ARGVS<_ARGS2...>> {
+	using TYPE = ARGVS<_ARGS1... ,_ARGS2...> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -1731,7 +1749,8 @@ template <class _ARG1>
 inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	//@warn: RTTI might be different across DLL
-	class Storage final :private Interface {} ;
+	class Storage final
+		:private Interface {} ;
 	Storage ret ;
 	return std::move (_CAST_<FLAG> (ret)) ;
 }
@@ -1795,10 +1814,12 @@ template <class SIZE>
 class ArrayRange ;
 
 template <>
-class ArrayRange<ZERO> final :private Proxy {
+class ArrayRange<ZERO> final
+	:private Proxy {
 private:
 	template <class BASE>
-	class Iterator final :private Proxy {
+	class Iterator final
+		:private Proxy {
 	private:
 		friend ArrayRange ;
 		BASE &mBase ;
@@ -1853,21 +1874,22 @@ inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
 	return 1 ;
 }
 
-template <class... _ARGS>
-inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<_ARGS...>> &) {
-	using ARGVS_ONE = ARGVS_ONE_TYPE<ARGVS<_ARGS...>> ;
-	using ARGVS_REST = ARGVS_REST_TYPE<ARGVS<_ARGS...>> ;
-	return _COUNTOF_ (ARGVS_ONE) - 1 + constexpr_cache_string_size (_NULL_<ARGV<ARGVS_REST>> ()) ;
+template <class _ARG1>
+inline constexpr LENGTH constexpr_cache_string_size (const ARGV<_ARG1> &) {
+	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+	return _COUNTOF_ (ONE_HINT) - 1 + constexpr_cache_string_size (_NULL_<ARGV<REST_HINT>> ()) ;
 }
 } ;
 
 template <class REAL>
-class Plain final :private Proxy {
+class Plain final
+	:private Proxy {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 private:
 	template <class... _ARGS>
-	using PLAIN_STRING_SIZE = ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())> ;
+	using PLAIN_STRING_HINT_TYPE = DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> ;
 
 private:
 	struct Detail ;
@@ -1903,13 +1925,13 @@ public:
 
 private:
 	template <class _ARG1 ,class... _ARGS>
-	inline static const DEF<REAL[PLAIN_STRING_SIZE<_ARGS...>::value]> &cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
-		using PlainString = typename Detail::template PlainString<PLAIN_STRING_SIZE<_ARGS...>> ;
+	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
+		using PlainString = typename Detail::template PlainString<ARGC<_COUNTOF_ (PLAIN_STRING_HINT_TYPE<_ARGS...>)>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () noexcept {
 			return r1x ;
 		}) ;
-		return r2x.mString ;
+		return std::ref (r2x.mString) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>

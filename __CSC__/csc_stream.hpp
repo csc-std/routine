@@ -69,7 +69,8 @@ private:
 	struct HEAP {} ;
 
 	template <class BASE>
-	class Attribute final :private Proxy {
+	class Attribute final
+		:private Proxy {
 	private:
 		friend ByteReader ;
 		BASE &mBase ;
@@ -359,7 +360,8 @@ private:
 	} ;
 
 	template <class BASE>
-	class Attribute final :private Proxy {
+	class Attribute final
+		:private Proxy {
 	private:
 		friend ByteWriter ;
 		BASE &mBase ;
@@ -649,7 +651,8 @@ private:
 	} ;
 
 	template <class BASE>
-	class Attribute final :private Proxy {
+	class Attribute final
+		:private Proxy {
 	private:
 		friend TextReader ;
 		BASE &mBase ;
@@ -1236,7 +1239,8 @@ private:
 	} ;
 
 	template <class BASE>
-	class Attribute final :private Proxy {
+	class Attribute final
+		:private Proxy {
 	private:
 		friend TextWriter ;
 		BASE &mBase ;
@@ -2149,7 +2153,7 @@ public:
 			read () ;
 		}
 #pragma GCC diagnostic pop
-}
+	}
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;

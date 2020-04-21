@@ -85,14 +85,15 @@
 #endif
 
 namespace CSC {
-class AbstractShader_Engine_OPENGL :public AbstractShader::Abstract {
+class AbstractShader_Engine_OPENGL
+	:public AbstractShader::Abstract {
 private:
 	//@warn: bind to (layout == 1) Vec3 in GLSL
-	static constexpr auto LAYOUT_POSITION = CHAR (1) ;
+	static constexpr auto LAYOUT_POSITION = FLAG (1) ;
 	//@warn: bind to (layout == 2) Vec2 in GLSL
-	static constexpr auto LAYOUT_TEXCOORD = CHAR (2) ;
+	static constexpr auto LAYOUT_TEXCOORD = FLAG (2) ;
 	//@warn: bind to (layout == 3) Vec3 in GLSL
-	static constexpr auto LAYOUT_NORMAL = CHAR (3) ;
+	static constexpr auto LAYOUT_NORMAL = FLAG (3) ;
 
 	class Pack {
 	private:
@@ -105,8 +106,8 @@ private:
 		INDEX mTexture ;
 	} ;
 
-	using NATIVE_TYPE = UniqueRef<CHAR> ;
-	using SPRITE_NATIVE_TYPE = Pack ;
+	using NATIVE_THIS = UniqueRef<CHAR> ;
+	using SPRITE_NATIVE_THIS = Pack ;
 
 public:
 	AbstractShader_Engine_OPENGL () {
@@ -139,16 +140,16 @@ public:
 		} ,[] (CHAR &me) {
 			glDeleteProgram (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_active_pipeline (AnyRef<void> &this_) const override {
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		glUseProgram (r1x) ;
 	}
 
 	void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
@@ -228,17 +229,17 @@ public:
 		}) ;
 		compute_transfer_data (tmp ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
 		compute_transfer_data (tmp ,mesh.texture ()[0]) ;
-		this_ = AnyRef<SPRITE_NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<SPRITE_NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const override {
-		auto &r1x = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<SPRITE_NATIVE_THIS> ().self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
 	void compute_sprite_draw (AnyRef<void> &this_) const override {
-		auto &r1x = this_.rebind<SPRITE_NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<SPRITE_NATIVE_THIS> ().self ;
 		glBindVertexArray (r1x.mVAO) ;
 		if switch_case (TRUE) {
 			if (r1x.mTexture == VAR_NONE)
@@ -331,136 +332,136 @@ private:
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY1<ARRAY3<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY3<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_POINTS ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,NULL) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,NULL) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY2<ARRAY3<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY3<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_LINES ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,NULL) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,NULL) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY2<ARRAY5<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY5<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_LINES ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r2x) ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY3<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY3<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,NULL) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,NULL) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY5<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY5<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r2x) ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY8<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY8<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY8<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r2x) ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		glEnableVertexAttribArray (LAYOUT_NORMAL) ;
-		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 5 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r3x) ;
+		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 5 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY3<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY3<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,NULL) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,NULL) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY5<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY5<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r2x) ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		glBindVertexArray (0) ;
 	}
 
 	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY8<VAL32>>> &vbo) const {
-		using VERTEX = ARRAY8<VAL32> ;
+		const auto r1x = _SIZEOF_ (ARRAY8<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
 		glBindVertexArray (self_.mVAO) ;
 		glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
-		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * _SIZEOF_ (VERTEX)) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
+		glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
-		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r1x) ;
+		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + VAR_ZERO) ;
+		glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r2x) ;
+		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 3 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		glEnableVertexAttribArray (LAYOUT_NORMAL) ;
-		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 5 * _SIZEOF_ (VAL32)) ;
-		glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,_SIZEOF_ (VERTEX) ,r3x) ;
+		const auto r4x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + 5 * _SIZEOF_ (VAL32)) ;
+		glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		glBindVertexArray (0) ;
 	}
 

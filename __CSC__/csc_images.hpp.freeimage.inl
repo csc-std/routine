@@ -61,9 +61,10 @@ template <class>
 class AbstractImage_Engine_FREEIMAGE ;
 
 template <>
-class AbstractImage_Engine_FREEIMAGE<COLOR_BGR> :public AbstractImage<COLOR_BGR>::Abstract {
+class AbstractImage_Engine_FREEIMAGE<COLOR_BGR>
+	:public AbstractImage<COLOR_BGR>::Abstract {
 public:
-	using NATIVE_TYPE = UniqueRef<PTR<FIBITMAP>> ;
+	using NATIVE_THIS = UniqueRef<PTR<FIBITMAP>> ;
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
@@ -72,7 +73,7 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = FreeImage_GetBits (r1x) ;
 		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
 		auto &r4x = _LOAD_<ARR<COLOR_BGR>> (r3x) ;
@@ -95,7 +96,7 @@ public:
 		}) ;
 		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
 		FreeImage_FillBackground (tmp.self ,&r2x ,0) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const override {
@@ -115,7 +116,7 @@ public:
 		} ,[] (PTR<FIBITMAP> &me) {
 			FreeImage_Unload (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &this_ ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -126,7 +127,7 @@ public:
 		} ,[] (PTR<FIMEMORY> &me) {
 			FreeImage_CloseMemory (me) ;
 		}) ;
-		const auto r2x = this_.rebind<NATIVE_TYPE> ()->self ;
+		const auto r2x = this_.rebind<NATIVE_THIS> ()->self ;
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto tmp = PACK<PTR<BYTE> ,VARY> () ;
@@ -162,12 +163,12 @@ public:
 		} ,[] (PTR<FIBITMAP> &me) {
 			FreeImage_Unload (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
@@ -175,9 +176,10 @@ public:
 } ;
 
 template <>
-class AbstractImage_Engine_FREEIMAGE<COLOR_BGRA> :public AbstractImage<COLOR_BGRA>::Abstract {
+class AbstractImage_Engine_FREEIMAGE<COLOR_BGRA>
+	:public AbstractImage<COLOR_BGRA>::Abstract {
 public:
-	using NATIVE_TYPE = UniqueRef<PTR<FIBITMAP>> ;
+	using NATIVE_THIS = UniqueRef<PTR<FIBITMAP>> ;
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
@@ -186,7 +188,7 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &this_ ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = FreeImage_GetBits (r1x) ;
 		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
 		auto &r4x = _LOAD_<ARR<COLOR_BGRA>> (r3x) ;
@@ -209,7 +211,7 @@ public:
 		}) ;
 		const auto r2x = COLOR_BGRA {0 ,0 ,0 ,0} ;
 		FreeImage_FillBackground (tmp.self ,&r2x ,0) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const override {
@@ -229,7 +231,7 @@ public:
 		} ,[] (PTR<FIBITMAP> &me) {
 			FreeImage_Unload (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &this_ ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -240,7 +242,7 @@ public:
 		} ,[] (PTR<FIMEMORY> &me) {
 			FreeImage_CloseMemory (me) ;
 		}) ;
-		const auto r2x = this_.rebind<NATIVE_TYPE> ()->self ;
+		const auto r2x = this_.rebind<NATIVE_THIS> ()->self ;
 		const auto r3x = FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto tmp = PACK<PTR<BYTE> ,VARY> () ;
@@ -276,12 +278,12 @@ public:
 		} ,[] (PTR<FIBITMAP> &me) {
 			FreeImage_Unload (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_TYPE>::make (std::move (tmp)) ;
+		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1x = this_.rebind<NATIVE_TYPE> ().self ;
+		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = _BUILDSTRS_<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;

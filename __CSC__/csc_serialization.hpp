@@ -322,11 +322,11 @@ public:
 
 private:
 	struct Detail {
-		class RecursiveCounter :private Wrapped<LENGTH> {
+		class RecursiveCounter
+			:private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
-				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
 				RecursiveCounter::mSelf++ ;
 			}
 
@@ -686,6 +686,12 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			Deque<XmlParser> mBaseNode ;
 		} ;
 
+		struct STACK_NODE {
+			Deque<XmlParser> mBaseNode ;
+			FLAG mType ;
+			INDEX mParent ;
+		} ;
+
 	private:
 		XmlParser &mContext ;
 		const Array<XmlParser> &mSequence ;
@@ -695,7 +701,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		const String<STRU8> mArrayClazzString ;
 		const String<STRU8> mFinalClazzString ;
 
-		Deque<PACK<Deque<XmlParser> ,FLAG ,INDEX>> mNodeStack ;
+		Deque<STACK_NODE> mNodeStack ;
 		Set<FLAG ,Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProcSet ;
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
@@ -709,7 +715,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		INDEX mRoot ;
 
 		Deque<Deque<XmlParser>> mFoundNodeBaseNodeHeap ;
-		PACK<Deque<XmlParser> ,FLAG ,INDEX> mTempNode ;
+		STACK_NODE mTempNode ;
 
 	public:
 		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) popping
@@ -723,15 +729,15 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 	private:
 		inline void prepare () {
-			mNodeStack = Deque<PACK<Deque<XmlParser> ,FLAG ,INDEX>> () ;
+			mNodeStack = Deque<STACK_NODE> () ;
 			INDEX ix = VAR_NONE ;
-			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_TABLE)) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_TABLE) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_OBJECT)) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_OBJECT) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_ARRAY)) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_ARRAY) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
-			ix = mFoundNodeProcSet.insert (_XVALUE_<FLAG> (NODE_CLAZZ_FINAL)) ;
+			ix = mFoundNodeProcSet.insert (NODE_CLAZZ_FINAL) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
@@ -791,15 +797,15 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mTempNode = std::move (mNodeStack[mNodeStack.tail ()]) ;
 				mNodeStack.pop () ;
 				if switch_case (TRUE) {
-					if (mTempNode.P2 == VAR_NONE)
+					if (mTempNode.mType == VAR_NONE)
 						discard ;
-					for (auto &&i : mTempNode.P1) {
-						INDEX ix = mFoundNodeProcSet.find (mTempNode.P2) ;
+					for (auto &&i : mTempNode.mBaseNode) {
+						INDEX ix = mFoundNodeProcSet.find (mTempNode.mType) ;
 						_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 						mFoundNodeProcSet[ix].item (i) ;
 					}
-					update_merge_found_node (mTempNode.P3) ;
-					mFoundNodeBaseNodeHeap.add (std::move (mTempNode.P1)) ;
+					update_merge_found_node (mTempNode.mParent) ;
+					mFoundNodeBaseNodeHeap.add (std::move (mTempNode.mBaseNode)) ;
 				}
 			}
 			update_heap () ;
@@ -807,10 +813,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 		inline void update_root_node () {
 			INDEX ix = mNodeStack.insert () ;
-			mNodeStack[ix].P1 = Deque<XmlParser> (mSequence.length ()) ;
+			mNodeStack[ix].mBaseNode = Deque<XmlParser> (mSequence.length ()) ;
 			for (auto &&i : mSequence)
-				mNodeStack[ix].P1.add (i.child ()) ;
-			mNodeStack[ix].P2 = mRootType ;
+				mNodeStack[ix].mBaseNode.add (i.child ()) ;
+			mNodeStack[ix].mType = mRootType ;
 			INDEX iy = mRoot ;
 			if switch_case (TRUE) {
 				if (mRootName.empty ())
@@ -830,7 +836,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mNodeHeap[iy].mChild = VAR_NONE ;
 				mNodeHeap[iy].mBrother = VAR_NONE ;
 			}
-			mNodeStack[ix].P3 = iy ;
+			mNodeStack[ix].mParent = iy ;
 		}
 
 		inline void update_found_table_node (const XmlParser &node) {
@@ -958,9 +964,9 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				if (mRoot == VAR_NONE)
 					mRoot = ix ;
 				INDEX jy = mNodeStack.insert () ;
-				mNodeStack[jy].P1 = std::move (i.mBaseNode) ;
-				mNodeStack[jy].P2 = i.mType ;
-				mNodeStack[jy].P3 = ix ;
+				mNodeStack[jy].mBaseNode = std::move (i.mBaseNode) ;
+				mNodeStack[jy].mType = i.mType ;
+				mNodeStack[jy].mParent = ix ;
 			}
 			mFoundNodeNameSet.clear () ;
 			mFoundNode.clear () ;
@@ -1241,11 +1247,11 @@ public:
 
 private:
 	struct Detail {
-		class RecursiveCounter :private Wrapped<LENGTH> {
+		class RecursiveCounter
+			:private Wrapped<LENGTH> {
 		public:
 			inline void lock () {
-				using DEFAULT_RECURSIVE_SIZE = ARGC<256> ;
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf < DEFAULT_RECURSIVE_SIZE::value) ;
+				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
 				RecursiveCounter::mSelf++ ;
 			}
 

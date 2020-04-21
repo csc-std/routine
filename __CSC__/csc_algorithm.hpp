@@ -1043,7 +1043,7 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline explicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right)
+		inline implicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right)
 			:mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
