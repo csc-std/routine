@@ -13,6 +13,8 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange final
 	:private Proxy {
+	_STATIC_ASSERT_ (SIZE::value > 0) ;
+
 private:
 	template <class BASE>
 	class Iterator final

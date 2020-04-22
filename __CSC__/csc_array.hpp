@@ -278,7 +278,7 @@ using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
 inline constexpr LENGTH constexpr_reserve_size (LENGTH len) {
-	return len + EFLAG (len > 0) ;
+	return len + _EBOOL_ (len > 0) ;
 }
 } ;
 

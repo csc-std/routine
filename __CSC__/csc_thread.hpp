@@ -661,7 +661,9 @@ public:
 		mThis = IntrusiveRef<Pack>::make () ;
 	}
 
-	Future future () popping ;
+	DEPENDENT_TYPE<Future ,Promise> future () popping {
+		return DEPENDENT_TYPE<Future ,Promise> (mThis) ;
+	}
 
 	void push (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
@@ -722,12 +724,16 @@ public:
 		friend_destroy (r1x) ;
 	}
 
+public:
+	static DEPENDENT_TYPE<Future ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+		auto rax = Promise<ITEM> () ;
+		rax.start (std::move (proc)) ;
+		return rax.future () ;
+	}
+
 private:
 	explicit Promise (IntrusiveRef<Pack> &this_) popping
 		: mThis (this_.copy ()) {}
-
-public:
-	static Future async (Function<DEF<ITEM ()> NONE::*> &&proc) ;
 
 private:
 	inline static void static_execute (Pack &self_) {
@@ -972,16 +978,4 @@ private:
 	explicit Future (IntrusiveRef<Pack> &this_) popping
 		: mThis (this_.copy ()) {}
 } ;
-
-template <class ITEM>
-inline typename Promise<ITEM>::Future Promise<ITEM>::future () popping {
-	return Future (mThis) ;
-}
-
-template <class ITEM>
-inline typename Promise<ITEM>::Future Promise<ITEM>::async (Function<DEF<ITEM ()> NONE::*> &&proc) {
-	auto rax = Promise<ITEM> () ;
-	rax.start (std::move (proc)) ;
-	return rax.future () ;
-}
 } ;

@@ -213,7 +213,17 @@ public:
 		return mul (that) ;
 	}
 
-	Vector mul (const Matrix<REAL> &that) const ;
+	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Vector> &that) const {
+		Vector<REAL> ret ;
+		for (auto &&i : _RANGE_ (0 ,4)) {
+			const auto r1x = get (0) * that.get (0 ,i) ;
+			const auto r2x = get (1) * that.get (1 ,i) ;
+			const auto r3x = get (2) * that.get (2 ,i) ;
+			const auto r4x = get (3) * that.get (3 ,i) ;
+			ret.get (i) = r1x + r2x + r3x + r4x ;
+		}
+		return std::move (ret) ;
+	}
 
 	inline Vector operator* (const Matrix<REAL> &that) const {
 		return mul (that) ;
@@ -564,7 +574,17 @@ public:
 		return (*this) ;
 	}
 
-	Vector<REAL> mul (const Vector<REAL> &that) const ;
+	Vector<REAL> mul (const Vector<REAL> &that) const {
+		Vector<REAL> ret ;
+		for (auto &&i : _RANGE_ (0 ,4)) {
+			const auto r1x = get (i ,0) * that.get (0) ;
+			const auto r2x = get (i ,1) * that.get (1) ;
+			const auto r3x = get (i ,2) * that.get (2) ;
+			const auto r4x = get (i ,3) * that.get (3) ;
+			ret.get (i) = r1x + r2x + r3x + r4x ;
+		}
+		return std::move (ret) ;
+	}
 
 	inline Vector<REAL> operator* (const Vector<REAL> &that) const {
 		return mul (that) ;
@@ -608,7 +628,7 @@ public:
 		LENGTH ret = 0 ;
 		const auto r1x = triangular () ;
 		for (auto &&i : _RANGE_ (0 ,4))
-			ret += EFLAG (_PINV_ (r1x[i][i]) == REAL (0)) ;
+			ret += _EBOOL_ (_PINV_ (r1x[i][i]) == REAL (0)) ;
 		ret = 4 - ret ;
 		return std::move (ret) ;
 	}
@@ -627,18 +647,18 @@ public:
 		_DYNAMIC_ASSERT_ (r1x != REAL (0)) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 0 ;
-			ix += EFLAG (ix == i) ;
+			ix += _EBOOL_ (ix == i) ;
 			INDEX iy = ix + 1 ;
-			iy += EFLAG (iy == i) ;
+			iy += _EBOOL_ (iy == i) ;
 			INDEX iz = iy + 1 ;
-			iz += EFLAG (iz == i) ;
+			iz += _EBOOL_ (iz == i) ;
 			for (auto &&j : _RANGE_ (0 ,4)) {
 				INDEX jx = 0 ;
-				jx += EFLAG (jx == j) ;
+				jx += _EBOOL_ (jx == j) ;
 				INDEX jy = jx + 1 ;
-				jy += EFLAG (jy == j) ;
+				jy += _EBOOL_ (jy == j) ;
 				INDEX jz = jy + 1 ;
-				jz += EFLAG (jz == j) ;
+				jz += _EBOOL_ (jz == j) ;
 				const auto r2x = get (ix ,jx) * (get (iy ,jy) * get (iz ,jz) - get (iz ,jy) * get (iy ,jz)) ;
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
@@ -690,33 +710,6 @@ public:
 		ret[2] = Matrix::make_view (r5x ,r6x) ;
 		const auto r13x = r8x.projection () - Vector<REAL>::axis_w () ;
 		ret[3] = Matrix::make_translation (r13x) ;
-		return std::move (ret) ;
-	}
-
-private:
-	BOOL affine_matrix_like () const {
-		if (get (3 ,0) != REAL (0))
-			return FALSE ;
-		if (get (3 ,1) != REAL (0))
-			return FALSE ;
-		if (get (3 ,2) != REAL (0))
-			return FALSE ;
-		if (_PINV_ (get (3 ,3)) == REAL (0))
-			return FALSE ;
-		return TRUE ;
-	}
-
-	INDEX find_max_row (INDEX yx) const {
-		INDEX ret = VAR_NONE ;
-		auto rax = REAL () ;
-		for (auto &&i : _RANGE_ (yx ,4)) {
-			const auto r1x = _ABS_ (get (i ,yx)) ;
-			if (ret != VAR_NONE)
-				if (rax >= r1x)
-					continue ;
-			ret = i ;
-			rax = r1x ;
-		}
 		return std::move (ret) ;
 	}
 
@@ -1039,31 +1032,32 @@ public:
 		const auto r1x = normal.normalize () ;
 		return make_identity () - make_symmetry (r1x ,r1x) * REAL (2) ;
 	}
+
+private:
+	BOOL affine_matrix_like () const {
+		if (get (3 ,0) != REAL (0))
+			return FALSE ;
+		if (get (3 ,1) != REAL (0))
+			return FALSE ;
+		if (get (3 ,2) != REAL (0))
+			return FALSE ;
+		if (_PINV_ (get (3 ,3)) == REAL (0))
+			return FALSE ;
+		return TRUE ;
+	}
+
+	INDEX find_max_row (INDEX yx) const {
+		INDEX ret = VAR_NONE ;
+		auto rax = REAL () ;
+		for (auto &&i : _RANGE_ (yx ,4)) {
+			const auto r1x = _ABS_ (get (i ,yx)) ;
+			if (ret != VAR_NONE)
+				if (rax >= r1x)
+					continue ;
+			ret = i ;
+			rax = r1x ;
+		}
+		return std::move (ret) ;
+	}
 } ;
-
-template <class REAL>
-inline Vector<REAL> Vector<REAL>::mul (const Matrix<REAL> &that) const {
-	Vector<REAL> ret ;
-	for (auto &&i : _RANGE_ (0 ,4)) {
-		const auto r1x = get (0) * that.get (0 ,i) ;
-		const auto r2x = get (1) * that.get (1 ,i) ;
-		const auto r3x = get (2) * that.get (2 ,i) ;
-		const auto r4x = get (3) * that.get (3 ,i) ;
-		ret.get (i) = r1x + r2x + r3x + r4x ;
-	}
-	return std::move (ret) ;
-}
-
-template <class REAL>
-inline Vector<REAL> Matrix<REAL>::mul (const Vector<REAL> &that) const {
-	Vector<REAL> ret ;
-	for (auto &&i : _RANGE_ (0 ,4)) {
-		const auto r1x = get (i ,0) * that.get (0) ;
-		const auto r2x = get (i ,1) * that.get (1) ;
-		const auto r3x = get (i ,2) * that.get (2) ;
-		const auto r4x = get (i ,3) * that.get (3) ;
-		ret.get (i) = r1x + r2x + r3x + r4x ;
-	}
-	return std::move (ret) ;
-}
 } ;

@@ -32,7 +32,11 @@ public:
 
 	String<STRU8> peer_sock_name () const ;
 
-	Listener listener () popping ;
+	template <class _RET = NONE>
+	DEPENDENT_TYPE<Listener ,_RET> listener () popping {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		return DEPENDENT_TYPE<Listener ,_RET> (mThis) ;
+	}
 
 	void link (const String<STRU8> &ip_addr) ;
 
@@ -90,11 +94,6 @@ public:
 private:
 	explicit Listener (const AnyRef<void> &socket_) ;
 } ;
-
-inline TCPSocket::Listener TCPSocket::listener () popping {
-	_DEBUG_ASSERT_ (mThis.exist ()) ;
-	return TCPSocket::Listener (mThis) ;
-}
 
 class UDPSocket {
 private:

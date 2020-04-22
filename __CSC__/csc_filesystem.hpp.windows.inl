@@ -518,7 +518,7 @@ public:
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = ReadFile (mReadFile ,data.self ,VARY (data.size ()) ,&rax ,NULL) ;
-		const auto r2x = EFLAG (r1x != 0) * LENGTH (rax) ;
+		const auto r2x = _EBOOL_ (r1x != 0) * LENGTH (rax) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x >= 0 && r2x < VAR32_MAX) ;
 		if (data.size () - r2x == 0)
@@ -531,7 +531,7 @@ public:
 		auto rax = VARY () ;
 		rax = VARY (0) ;
 		const auto r1x = WriteFile (mWriteFile ,data.self ,VARY (data.size ()) ,&rax ,NULL) ;
-		const auto r2x = EFLAG (r1x != 0) * LENGTH (rax) ;
+		const auto r2x = _EBOOL_ (r1x != 0) * LENGTH (rax) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}

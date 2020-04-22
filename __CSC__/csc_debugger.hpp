@@ -24,16 +24,16 @@ namespace CSC {
 class ConsoleService final
 	:private Proxy {
 public:
-	static constexpr auto OPTION_DEFAULT = FLAG (0) ;
-	static constexpr auto OPTION_NO_PRINT = FLAG (0X00000001) ;
-	static constexpr auto OPTION_NO_FATAL = FLAG (0X00000002) ;
-	static constexpr auto OPTION_NO_ERROR = FLAG (0X00000004) ;
-	static constexpr auto OPTION_NO_WARN = FLAG (0X00000008) ;
-	static constexpr auto OPTION_NO_INFO = FLAG (0X00000010) ;
-	static constexpr auto OPTION_NO_DEBUG = FLAG (0X00000020) ;
-	static constexpr auto OPTION_NO_VERBOSE = FLAG (0X00000040) ;
-	static constexpr auto OPTION_ALWAYS_FLUSH = FLAG (0X00000080) ;
-	static constexpr auto OPTION_TESTING = FLAG (0X00000100) ;
+	static constexpr auto OPTION_DEFAULT = EFLAG (0) ;
+	static constexpr auto OPTION_NO_PRINT = EFLAG (1) ;
+	static constexpr auto OPTION_NO_FATAL = EFLAG (2) ;
+	static constexpr auto OPTION_NO_ERROR = EFLAG (3) ;
+	static constexpr auto OPTION_NO_WARN = EFLAG (4) ;
+	static constexpr auto OPTION_NO_INFO = EFLAG (5) ;
+	static constexpr auto OPTION_NO_DEBUG = EFLAG (6) ;
+	static constexpr auto OPTION_NO_VERBOSE = EFLAG (7) ;
+	static constexpr auto OPTION_ALWAYS_FLUSH = EFLAG (8) ;
+	static constexpr auto OPTION_TESTING = EFLAG (9) ;
 
 private:
 	exports struct Binder
@@ -44,8 +44,8 @@ private:
 	exports struct Abstract
 		:public Interface {
 		virtual LENGTH buffer_size () const = 0 ;
-		virtual void enable_option (FLAG option) = 0 ;
-		virtual void disable_option (FLAG option) = 0 ;
+		virtual void enable_option (EFLAG option) = 0 ;
+		virtual void disable_option (EFLAG option) = 0 ;
 		virtual void print (const Binder &msg) = 0 ;
 		virtual void fatal (const Binder &msg) = 0 ;
 		virtual void error (const Binder &msg) = 0 ;
@@ -74,12 +74,12 @@ public:
 		return mThis->buffer_size () ;
 	}
 
-	void enable_option (FLAG option) {
+	void enable_option (EFLAG option) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->enable_option (option) ;
 	}
 
-	void disable_option (FLAG option) {
+	void disable_option (EFLAG option) {
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->disable_option (option) ;
 	}
@@ -184,7 +184,7 @@ private:
 				template_write (writer ,mBinder) ;
 			}
 
-		public:
+		private:
 			inline static void template_write (TextWriter<STR> &writer ,const Tuple<> &binder) {
 				_STATIC_WARNING_ ("noop") ;
 			}

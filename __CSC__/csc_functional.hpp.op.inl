@@ -327,7 +327,7 @@ struct op_tuple<Operand> {
 	inline static Expression<RANK1> compile () {
 		return Operator ([] (const Operand &arg1) {
 			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_) {
-				if (sw == Operand::argvp (ARGVP1))
+				if (sw == Operand::nth (ARGVP1))
 					return arg1_ ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 				return Operand () ;
@@ -342,9 +342,9 @@ struct op_tuple<Operand ,Operand> {
 	inline static Expression<RANK1> compile () {
 		return Operator ([] (const Operand &arg1 ,const Operand &arg2) {
 			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_ ,const Operand &arg2_) {
-				if (sw == Operand::argvp (ARGVP1))
+				if (sw == Operand::nth (ARGVP1))
 					return arg1_ ;
-				if (sw == Operand::argvp (ARGVP2))
+				if (sw == Operand::nth (ARGVP2))
 					return arg2_ ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 				return Operand () ;
@@ -359,11 +359,11 @@ struct op_tuple<Operand ,Operand ,Operand> {
 	inline static Expression<RANK1> compile () {
 		return Operator ([] (const Operand &arg1 ,const Operand &arg2 ,const Operand &arg3) {
 			const auto r1x = Operator ([] (const Operand &sw ,const Operand &arg1_ ,const Operand &arg2_ ,const Operand &arg3_) {
-				if (sw == Operand::argvp (ARGVP1))
+				if (sw == Operand::nth (ARGVP1))
 					return arg1_ ;
-				if (sw == Operand::argvp (ARGVP2))
+				if (sw == Operand::nth (ARGVP2))
 					return arg2_ ;
-				if (sw == Operand::argvp (ARGVP3))
+				if (sw == Operand::nth (ARGVP3))
 					return arg3_ ;
 				_DYNAMIC_ASSERT_ (FALSE) ;
 				return Operand () ;

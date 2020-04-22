@@ -169,14 +169,14 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (const ARRAY8<VAR32> &val) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
-	const auto r1x = EFLAG (val[0] > 0) * (val[0] - 1900) ;
+	const auto r1x = _EBOOL_ (val[0] > 0) * (val[0] - 1900) ;
 	rax.tm_year = VAR32 (r1x) ;
-	const auto r2x = EFLAG (val[1] > 0) * (val[1] - 1) ;
+	const auto r2x = _EBOOL_ (val[1] > 0) * (val[1] - 1) ;
 	rax.tm_mon = VAR32 (r2x) ;
 	rax.tm_mday = val[2] ;
-	const auto r3x = EFLAG (val[3] > 0) * (val[3] - 1) ;
+	const auto r3x = _EBOOL_ (val[3] > 0) * (val[3] - 1) ;
 	rax.tm_wday = VAR32 (r3x) ;
-	const auto r4x = EFLAG (val[4] > 0) * (val[4] - 1) ;
+	const auto r4x = _EBOOL_ (val[4] > 0) * (val[4] - 1) ;
 	rax.tm_yday = VAR32 (r4x) ;
 	rax.tm_hour = val[5] ;
 	rax.tm_min = val[6] ;

@@ -51,15 +51,15 @@
 
 namespace CSC {
 #ifdef __CSC_SYSTEM_WINDOWS__
-inline FLAG GlobalRuntime::thread_tid () {
+inline exports FLAG GlobalRuntime::thread_tid () {
 	return FLAG (GetCurrentThreadId ()) ;
 }
 
-inline FLAG GlobalRuntime::process_pid () {
+inline exports FLAG GlobalRuntime::process_pid () {
 	return FLAG (GetCurrentProcessId ()) ;
 }
 
-inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
+inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
 	if switch_case (TRUE) {
@@ -90,7 +90,7 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	return std::move (ret) ;
 }
 
-inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto ris = ByteReader (info) ;
 	const auto r1x = ris.template read<VAR64> () ;
@@ -98,15 +98,15 @@ inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info
 	return FLAG (r1x) ;
 }
 #elif defined __CSC_SYSTEM_LINUX__
-inline FLAG GlobalRuntime::thread_tid () {
+inline exports FLAG GlobalRuntime::thread_tid () {
 	return FLAG (syscall (SYS_gettid)) ;
 }
 
-inline FLAG GlobalRuntime::process_pid () {
+inline exports FLAG GlobalRuntime::process_pid () {
 	return FLAG (syscall (SYS_getpid)) ;
 }
 
-inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
+inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
 	if switch_case (TRUE) {
@@ -127,7 +127,7 @@ inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	return std::move (ret) ;
 }
 
-inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto ris = ByteReader (info) ;
 	const auto r1x = ris.template read<VAR64> () ;
@@ -135,22 +135,22 @@ inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info
 	return FLAG (r1x) ;
 }
 #else
-inline FLAG GlobalRuntime::thread_tid () {
+inline exports FLAG GlobalRuntime::thread_tid () {
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return 0 ;
 }
 
-inline FLAG GlobalRuntime::process_pid () {
+inline exports FLAG GlobalRuntime::process_pid () {
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return 0 ;
 }
 
-inline Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
+inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return Buffer<BYTE ,ARGC<128>> () ;
 }
 
-inline FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
+inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return 0 ;
@@ -193,7 +193,7 @@ public:
 		r1x.mStackPoint[1] = _ADDRESS_ (&bp) ;
 		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
-		const auto r3x = EFLAG (r2x < 0) ;
+		const auto r3x = _EBOOL_ (r2x < 0) ;
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		_MEMCOPY_ (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
@@ -210,7 +210,7 @@ public:
 		_DEBUG_ASSERT_ (r1x.mStackPoint[2] == r1x.mStackPoint[1]) ;
 		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
-		const auto r3x = EFLAG (r2x < 0) ;
+		const auto r3x = _EBOOL_ (r2x < 0) ;
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		_MEMCOPY_ (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;

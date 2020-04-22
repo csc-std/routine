@@ -368,7 +368,7 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	if (r2x != 0)
 		ret[0] |= DATA (0X0010000000000000) ;
 	ret[1] = r2x >> 52 ;
-	ret[1] -= DATA (1075 - EFLAG (r2x == 0)) ;
+	ret[1] -= DATA (1075 - _EBOOL_ (r2x == 0)) ;
 	if (ret[0] == 0)
 		ret[1] = 0 ;
 	while (TRUE) {
@@ -379,7 +379,7 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	const auto r3x = EFLAG ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
+	const auto r3x = _EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
 	ret[2] = r3x ;
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }

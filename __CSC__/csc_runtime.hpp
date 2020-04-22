@@ -544,94 +544,102 @@ public:
 	class SubRef ;
 
 private:
-	static constexpr auto STATUS_CREATED = FLAG (1) ;
-	static constexpr auto STATUS_RUNNING = FLAG (2) ;
-	static constexpr auto STATUS_SUSPEND = FLAG (3) ;
-	static constexpr auto STATUS_STOPPED = FLAG (4) ;
+	static constexpr auto STATUS_CREATED = EFLAG (1) ;
+	static constexpr auto STATUS_RUNNING = EFLAG (2) ;
+	static constexpr auto STATUS_SUSPEND = EFLAG (3) ;
+	static constexpr auto STATUS_STOPPED = EFLAG (4) ;
+
+	class Pack {
+	private:
+		friend Coroutine ;
+		friend IntrusiveRef<Pack> ;
+		using INTRUSIVE_THIS = Coroutine ;
+		std::atomic<LENGTH> mCounter ;
+		EFLAG mStatus ;
+		AutoRef<CONT> mContext ;
+		AnyRef<void> mBreakPoint ;
+		Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> mSubProcSet ;
+		Array<AnyRef<void>> mSubBreakPoint ;
+		Deque<INDEX> mSubQueue ;
+		Priority<VAR ,INDEX> mSubAwaitQueue ;
+		INDEX mSubCurr ;
+	} ;
 
 private:
 	class Implement ;
-	Monostate<FLAG> mStatus ;
-	AutoRef<CONT> mContext ;
-	AnyRef<void> mBreakPoint ;
-	Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> mSubProcSet ;
-	Array<AnyRef<void>> mSubBreakPoint ;
-	Deque<INDEX> mSubQueue ;
-	Priority<VAR ,INDEX> mSubAwaitQueue ;
-	INDEX mSubCurr ;
+	IntrusiveRef<Pack> mThis ;
 
 public:
 	Coroutine () {
-		mStatus.self = STATUS_CREATED ;
-		mSubCurr = VAR_NONE ;
+		mThis = IntrusiveRef<Pack>::make () ;
 	}
 
 	BOOL ready () const {
-		if (mStatus.self != STATUS_STOPPED)
+		if (mThis->mStatus != STATUS_STOPPED)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	CONT &context () & {
-		_DEBUG_ASSERT_ (mContext.exist ()) ;
-		return mContext ;
+		_DEBUG_ASSERT_ (mThis->mContext.exist ()) ;
+		return mThis->mContext ;
 	}
 
 	CONT &context () && = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
-		mContext = AutoRef<CONT>::make () ;
-		mBreakPoint = AnyRef<void> () ;
-		mSubProcSet = Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
+		mThis->mContext = AutoRef<CONT>::make () ;
+		mThis->mBreakPoint = AnyRef<void> () ;
+		mThis->mSubProcSet = Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ()))
-			mSubProcSet.add (i ,std::move (proc[i])) ;
-		mSubBreakPoint = Array<AnyRef<void>> (mSubProcSet.length ()) ;
-		mSubQueue = Deque<INDEX> (mSubProcSet.length ()) ;
-		for (auto &&i : mSubProcSet.range ())
-			mSubQueue.add (i) ;
-		mSubAwaitQueue = Priority<VAR ,INDEX> (mSubProcSet.length ()) ;
-		mSubQueue.take (mSubCurr) ;
+			mThis->mSubProcSet.add (i ,std::move (proc[i])) ;
+		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProcSet.length ()) ;
+		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProcSet.length ()) ;
+		for (auto &&i : mThis->mSubProcSet.range ())
+			mThis->mSubQueue.add (i) ;
+		mThis->mSubAwaitQueue = Priority<VAR ,INDEX> (mThis->mSubProcSet.length ()) ;
+		mThis->mSubQueue.take (mThis->mSubCurr) ;
 	}
 
 	void execute () {
-		_DEBUG_ASSERT_ (!mBreakPoint.exist ()) ;
-		init_break_point (mBreakPoint) ;
-		for (auto &&i : mSubBreakPoint) {
+		_DEBUG_ASSERT_ (!mThis->mBreakPoint.exist ()) ;
+		init_break_point (mThis->mBreakPoint) ;
+		for (auto &&i : mThis->mSubBreakPoint) {
 			_DEBUG_ASSERT_ (!i.exist ()) ;
 			init_break_point (i) ;
 		}
-		mStatus.self = STATUS_CREATED ;
-		store_break_point (mBreakPoint) ;
-		for (auto &&i : mSubBreakPoint) {
-			if (mStatus.self != STATUS_STOPPED)
+		mThis->mStatus = STATUS_CREATED ;
+		store_break_point (mThis->mBreakPoint) ;
+		for (auto &&i : mThis->mSubBreakPoint) {
+			if (mThis->mStatus != STATUS_STOPPED)
 				continue ;
 			if (!i.exist ())
 				continue ;
 			goto_break_point (i) ;
 		}
-		if (mStatus.self != STATUS_CREATED)
+		if (mThis->mStatus != STATUS_CREATED)
 			return ;
-		for (auto &&i : mSubBreakPoint) {
-			if (mStatus.self != STATUS_CREATED)
+		for (auto &&i : mThis->mSubBreakPoint) {
+			if (mThis->mStatus != STATUS_CREATED)
 				continue ;
 			store_break_point (i) ;
 		}
-		const auto r1x = mSubCurr ;
+		const auto r1x = mThis->mSubCurr ;
 		_DEBUG_ASSERT_ (r1x != VAR_NONE) ;
 		_CALL_TRY_ ([&] () {
-			if (mStatus.self == STATUS_STOPPED)
+			if (mThis->mStatus == STATUS_STOPPED)
 				return ;
-			mStatus.self = STATUS_RUNNING ;
-			INDEX ix = mSubProcSet.find (r1x) ;
+			mThis->mStatus = STATUS_RUNNING ;
+			INDEX ix = mThis->mSubProcSet.find (r1x) ;
 			_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-			mSubProcSet[ix].item (_CAST_<SubRef> ((*this))) ;
+			mThis->mSubProcSet[ix].item (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
-		mSubBreakPoint[r1x] = AnyRef<void> () ;
-		mStatus.self = STATUS_STOPPED ;
-		goto_break_point (mBreakPoint) ;
+		mThis->mSubBreakPoint[r1x] = AnyRef<void> () ;
+		mThis->mStatus = STATUS_STOPPED ;
+		goto_break_point (mThis->mBreakPoint) ;
 	}
 
 private:
@@ -641,8 +649,34 @@ private:
 
 	void goto_break_point (AnyRef<void> &bp) noexcept popping ;
 
+private:
+	inline static void friend_create (Pack &self_) {
+		self_.mStatus = STATUS_CREATED ;
+		self_.mSubCurr = VAR_NONE ;
+	}
+
+	inline static void friend_destroy (Pack &self_) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	inline static LENGTH friend_attach (Pack &self_) popping {
+		return ++self_.mCounter ;
+	}
+
+	inline static LENGTH friend_detach (Pack &self_) popping {
+		return --self_.mCounter ;
+	}
+
+	inline static void friend_latch (Pack &self_) {
+		GlobalRuntime::thread_sleep () ;
+	}
+
 public:
-	static void csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) ;
+	static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
+		auto rax = Coroutine<CONT> (std::move (proc)) ;
+		rax.execute () ;
+		return std::move (rax.context ()) ;
+	}
 } ;
 
 template <class CONT>
@@ -653,8 +687,8 @@ private:
 
 public:
 	CONT &to () {
-		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
-		return mSelf.mContext ;
+		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
+		return mSelf.mThis->mContext ;
 	}
 
 	inline implicit operator CONT & () {
@@ -666,8 +700,8 @@ public:
 	}
 
 	const CONT &to () const {
-		_DEBUG_ASSERT_ (mSelf.mContext.exist ()) ;
-		return mSelf.mContext ;
+		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
+		return mSelf.mThis->mContext ;
 	}
 
 	inline implicit operator const CONT & () const {
@@ -679,72 +713,66 @@ public:
 	}
 
 	void sub_await () {
-		sub_await (mSelf.mSubAwaitQueue.length ()) ;
+		sub_await (mSelf.mThis->mSubAwaitQueue.length ()) ;
 	}
 
 	void sub_await (VAR priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
-		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
-		mSelf.mStatus.self = STATUS_SUSPEND ;
-		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mStatus.self != STATUS_STOPPED) ;
-		if (mSelf.mStatus.self != STATUS_SUSPEND)
+		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
+		mSelf.mThis->mStatus = STATUS_SUSPEND ;
+		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus != STATUS_STOPPED) ;
+		if (mSelf.mThis->mStatus != STATUS_SUSPEND)
 			return ;
-		mSelf.mSubAwaitQueue.add (priority ,mSelf.mSubCurr) ;
-		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
-		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
-		mSelf.mStatus.self = STATUS_RUNNING ;
-		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+		mSelf.mThis->mSubAwaitQueue.add (priority ,mSelf.mThis->mSubCurr) ;
+		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
+		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
+		mSelf.mThis->mStatus = STATUS_RUNNING ;
+		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
 	}
 
 	void sub_resume () {
-		sub_resume (mSelf.mSubAwaitQueue.length ()) ;
+		sub_resume (mSelf.mThis->mSubAwaitQueue.length ()) ;
 	}
 
 	void sub_resume (LENGTH count) {
 		for (auto &&i : _RANGE_ (0 ,count)) {
-			if (mSelf.mSubAwaitQueue.empty ())
+			if (mSelf.mThis->mSubAwaitQueue.empty ())
 				continue ;
-			const auto r1x = mSelf.mSubAwaitQueue[mSelf.mSubAwaitQueue.head ()].item ;
-			mSelf.mSubAwaitQueue.take () ;
-			mSelf.mSubQueue.add (r1x) ;
+			const auto r1x = mSelf.mThis->mSubAwaitQueue[mSelf.mThis->mSubAwaitQueue.head ()].item ;
+			mSelf.mThis->mSubAwaitQueue.take () ;
+			mSelf.mThis->mSubQueue.add (r1x) ;
 		}
 	}
 
 	void sub_yield () {
-		_DEBUG_ASSERT_ (mSelf.mSubCurr != VAR_NONE) ;
-		if (mSelf.mSubQueue.empty ())
+		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
+		if (mSelf.mThis->mSubQueue.empty ())
 			return ;
-		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
-		mSelf.mStatus.self = STATUS_SUSPEND ;
-		store_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mStatus.self != STATUS_STOPPED) ;
-		if (mSelf.mStatus.self != STATUS_SUSPEND)
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
+		mSelf.mThis->mStatus = STATUS_SUSPEND ;
+		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus != STATUS_STOPPED) ;
+		if (mSelf.mThis->mStatus != STATUS_SUSPEND)
 			return ;
-		mSelf.mSubQueue.add (mSelf.mSubCurr) ;
-		_DYNAMIC_ASSERT_ (!mSelf.mSubQueue.empty ()) ;
-		mSelf.mSubQueue.take (mSelf.mSubCurr) ;
-		mSelf.mStatus.self = STATUS_RUNNING ;
-		goto_break_point (mSelf.mSubBreakPoint[mSelf.mSubCurr]) ;
+		mSelf.mThis->mSubQueue.add (mSelf.mThis->mSubCurr) ;
+		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
+		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
+		mSelf.mThis->mStatus = STATUS_RUNNING ;
+		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
 	}
 
 	void sub_return () {
-		_DEBUG_ASSERT_ (mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mStatus.self == STATUS_RUNNING) ;
-		mSelf.mSubQueue.clear () ;
-		mSelf.mSubAwaitQueue.clear () ;
-		mSelf.mSubCurr = VAR_NONE ;
-		mSelf.mStatus.self = STATUS_STOPPED ;
-		goto_break_point (mSelf.mBreakPoint) ;
+		_DEBUG_ASSERT_ (mThis->mSubCurr != VAR_NONE) ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
+		mSelf.mThis->mSubQueue.clear () ;
+		mSelf.mThis->mSubAwaitQueue.clear () ;
+		mSelf.mThis->mSubCurr = VAR_NONE ;
+		mSelf.mThis->mStatus = STATUS_STOPPED ;
+		goto_break_point (mSelf.mThis->mBreakPoint) ;
 	}
 } ;
-
-template <class CONT>
-inline void Coroutine<CONT>::csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-	auto rax = Coroutine<CONT> (std::move (proc)) ;
-	rax.execute () ;
-}
 #endif
 
 class RandomService final

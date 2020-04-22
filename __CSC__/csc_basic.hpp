@@ -299,11 +299,7 @@ struct OPERATOR_COMPR {
 
 	template <class _ARG1>
 	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().operator< (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-		if (lhs < rhs)
-			return FLAG (-1) ;
-		if (rhs < lhs)
-			return FLAG (+1) ;
-		return FLAG (0) ;
+		return _MEMCOMPR_ (PTRTOARR[&lhs] ,PTRTOARR[&rhs] ,1) ;
 	}
 
 	template <class _ARG1>
@@ -456,6 +452,12 @@ public:
 		mAddress = NULL ;
 	}
 
+	inline ScopedGuard (const ScopedGuard &) = default ;
+	inline ScopedGuard &operator= (const ScopedGuard &) = default ;
+
+	inline ScopedGuard (ScopedGuard &&) = default ;
+	inline ScopedGuard &operator= (ScopedGuard &&) = default ;
+
 private:
 	inline explicit ScopedGuard (const DEF<decltype (ARGVP0)> &) noexcept
 		:mAddress (NULL) {}
@@ -494,6 +496,12 @@ public:
 		}
 		mAddress = NULL ;
 	}
+
+	inline ScopedBuild (const ScopedBuild &) = default ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
+
+	inline ScopedBuild (ScopedBuild &&) = default ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
 	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
@@ -554,6 +562,12 @@ public:
 		mAddress = NULL ;
 	}
 
+	inline ScopedBuild (const ScopedBuild &) = default ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
+
+	inline ScopedBuild (ScopedBuild &&) = default ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
+
 private:
 	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
 		:mAddress (NULL) ,mSize (0) {}
@@ -604,6 +618,12 @@ private:
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
+
+	inline Singleton (const Singleton &) = default ;
+	inline Singleton &operator= (const Singleton &) = default ;
+
+	inline Singleton (Singleton &&) = default ;
+	inline Singleton &operator= (Singleton &&) = default ;
 
 	inline UNIT &to () {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -806,10 +826,6 @@ public:
 		return &to () ;
 	}
 
-private:
-	inline explicit AutoRef (PTR<Holder> pointer) noexcept
-		:SPECIALIZATION_BASE (pointer) {}
-
 public:
 	template <class... _ARGS>
 	inline static AutoRef make (_ARGS &&...initval) {
@@ -820,6 +836,10 @@ public:
 		rax = NULL ;
 		return std::move (ret) ;
 	}
+
+private:
+	inline explicit AutoRef (PTR<Holder> pointer) noexcept
+		:SPECIALIZATION_BASE (pointer) {}
 } ;
 
 template <class UNIT>
@@ -909,17 +929,6 @@ public:
 		return &to () ;
 	}
 
-private:
-	inline explicit SharedRef (PTR<Holder> pointer)
-		:SharedRef () {
-		if (pointer == NULL)
-			return ;
-		const auto r1x = ++pointer->mCounter ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		(void) r1x ;
-		mPointer = pointer ;
-	}
-
 public:
 	template <class... _ARGS>
 	inline static SharedRef make (_ARGS &&...initval) {
@@ -929,6 +938,17 @@ public:
 		SharedRef ret = SharedRef (&r1x) ;
 		rax = NULL ;
 		return std::move (ret) ;
+	}
+
+private:
+	inline explicit SharedRef (PTR<Holder> pointer)
+		:SharedRef () {
+		if (pointer == NULL)
+			return ;
+		const auto r1x = ++pointer->mCounter ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
+		(void) r1x ;
+		mPointer = pointer ;
 	}
 } ;
 
@@ -1110,10 +1130,6 @@ public:
 		return &to () ;
 	}
 
-private:
-	inline explicit AnyRef (PTR<Holder> pointer) noexcept
-		:mPointer (pointer) {}
-
 public:
 	template <class... _ARGS>
 	inline static AnyRef make (_ARGS &&...initval) {
@@ -1125,6 +1141,10 @@ public:
 		rax = NULL ;
 		return std::move (ret) ;
 	}
+
+private:
+	inline explicit AnyRef (PTR<Holder> pointer) noexcept
+		:mPointer (pointer) {}
 
 private:
 	struct Detail {
@@ -1324,10 +1344,6 @@ public:
 		return &to () ;
 	}
 
-private:
-	inline explicit UniqueRef (PTR<Holder> pointer) noexcept
-		:mPointer (pointer) {}
-
 public:
 	template <class... _ARGS>
 	inline static UniqueRef make (_ARGS &&...initval) {
@@ -1341,6 +1357,10 @@ public:
 		rax = NULL ;
 		return std::move (ret) ;
 	}
+
+private:
+	inline explicit UniqueRef (PTR<Holder> pointer) noexcept
+		:mPointer (pointer) {}
 
 private:
 	struct Detail {
@@ -1566,8 +1586,8 @@ public:
 
 namespace U {
 //@error: fuck vs2017
-template <class UNIT1 ,class... UNITS>
-using MEMBER_FUNCTION_HINT = DEF<DEF<UNIT1 (UNITS...)> NONE::*> ;
+template <class _ARG1 ,class... _ARGS>
+using MEMBER_FUNCTION_HINT = DEF<DEF<_ARG1 (_ARGS...)> NONE::*> ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -2860,7 +2880,7 @@ public:
 		:Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = EFLAG (std::is_pod<UNIT>::value) * mAllocator.size () ;
+		const auto r1x = _EBOOL_ (std::is_pod<UNIT>::value) * mAllocator.size () ;
 		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
@@ -2995,7 +3015,7 @@ public:
 		:Allocator (ARGVP0 ,std::move (that.mAllocator)) {
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = EFLAG (std::is_pod<UNIT>::value) * mAllocator.size () ;
+		const auto r1x = _EBOOL_ (std::is_pod<UNIT>::value) * mAllocator.size () ;
 		mSize = r1x ;
 		while (TRUE) {
 			if (mSize >= that.mAllocator.size ())
@@ -3051,7 +3071,7 @@ private:
 			:private Wrapped<Allocator> {
 		public:
 			inline void lock () {
-				const auto r1x = EFLAG (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
+				const auto r1x = _EBOOL_ (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
 				Finally::mSelf.mSize = r1x ;
 			}
 

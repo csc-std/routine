@@ -391,7 +391,9 @@ using INDEX = VAR ;
 using LENGTH = VAR ;
 using FLAG = VAR ;
 
-enum EFLAG :VAR ;
+enum class EFLAG :VAR ;
+
+static constexpr auto UNKNOWN = EFLAG (0) ;
 
 #define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
 #define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
@@ -598,6 +600,16 @@ struct ENABLE<ARGC<TRUE>> {
 
 template <BOOL _VAL1>
 using ENABLE_TYPE = typename ENABLE<ARGC<_VAL1>>::TYPE ;
+} ;
+
+namespace U {
+template <class _ARG1 ,class>
+struct DEPENDENT {
+	using TYPE = _ARG1 ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using DEPENDENT_TYPE = typename DEPENDENT<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -976,21 +988,40 @@ using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<REMOVE_POINTER_TYPE<_A
 
 namespace U {
 template <class ,class ,class>
-struct REPEAT_OF ;
+struct REPEAT_PARAMS ;
 
 template <class _ARG1 ,class... _ARGS>
-struct REPEAT_OF<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
+struct REPEAT_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 	using TYPE = ARGVS<_ARGS...> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct REPEAT_OF<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
+struct REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (_ARG1::value > 0) ;
-	using TYPE = typename REPEAT_OF<DECREASE<_ARG1> ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
+	using TYPE = typename REPEAT_PARAMS<DECREASE<_ARG1> ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using REPEAT_OF_TYPE = typename REPEAT_OF<_ARG1 ,_ARG2 ,ARGVS<>>::TYPE ;
+using REPEAT_PARAMS_TYPE = typename REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct SEQUENCE_PARAMS ;
+
+template <class _ARG1 ,class... _ARGS>
+struct SEQUENCE_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
+	using TYPE = ARGVS<_ARGS...> ;
+} ;
+
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+struct SEQUENCE_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
+	_STATIC_ASSERT_ (_ARG1::value > 0) ;
+	using TYPE = typename SEQUENCE_PARAMS<DECREASE<_ARG1> ,INCREASE<_ARG2> ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
+} ;
+
+template <class _ARG1>
+using SEQUENCE_PARAMS_TYPE = typename SEQUENCE_PARAMS<_ARG1 ,ARGC<1> ,ARGVS<>>::TYPE ;
 } ;
 
 namespace U {
@@ -1320,6 +1351,7 @@ struct INDEX_TO<_ARG1 ,ARGVS<>> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
+	_STATIC_ASSERT_ (_ARG1::value > 0) ;
 	using TYPE = typename INDEX_TO<DECREASE<_ARG1> ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
@@ -1453,6 +1485,7 @@ using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::T
 #pragma endregion
 
 using U::ENABLE_TYPE ;
+using U::DEPENDENT_TYPE ;
 using U::CONDITIONAL_TYPE ;
 using U::REMOVE_REFERENCE_TYPE ;
 using U::REMOVE_CONST_TYPE ;
@@ -1468,7 +1501,8 @@ using U::CAST_TRAITS_TYPE ;
 using U::INVOKE_RESULT_TYPE ;
 using U::INVOKE_PARAMS_TYPE ;
 using U::RESULT_OF_TYPE ;
-using U::REPEAT_OF_TYPE ;
+using U::REPEAT_PARAMS_TYPE ;
+using U::SEQUENCE_PARAMS_TYPE ;
 using U::ARGVS_ONE_TYPE ;
 using U::ARGVS_REST_TYPE ;
 using U::INDEX_OF_TYPE ;
@@ -1673,13 +1707,13 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 
 //@error: fuck g++4.8
 namespace U {
-template <class TYPE>
+template <class UNIT>
 struct CONSTEXPR_SWITCH_ABS {
-	inline static constexpr TYPE case1 (const TYPE &val) {
+	inline static constexpr UNIT case1 (const UNIT &val) {
 		return -val ;
 	}
 
-	inline static constexpr TYPE case2 (const TYPE &val) {
+	inline static constexpr UNIT case2 (const UNIT &val) {
 		return +val ;
 	}
 } ;
@@ -1705,6 +1739,27 @@ inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
 	return _SWITCH_ (
 		!(lhs < rhs) ? lhs :
 		rhs) ;
+}
+
+//@error: fuck g++4.8
+namespace U {
+template <class UNIT>
+struct CONSTEXPR_SWITCH_EBOOL {
+	inline static constexpr UNIT case1 () {
+		return UNIT (1) ;
+	}
+
+	inline static constexpr UNIT case2 () {
+		return UNIT (0) ;
+	}
+} ;
+} ;
+
+inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
+	return _SWITCH_ (
+		flag ? U::CONSTEXPR_SWITCH_EBOOL<VAR32>::case1 :
+		U::CONSTEXPR_SWITCH_EBOOL<VAR32>::case2)
+		() ;
 }
 
 template <class _ARG1>
@@ -1741,7 +1796,7 @@ inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) {
 class Interface {
 public:
 	inline Interface () = default ;
-	inline virtual ~Interface () noexcept = default ;
+	inline virtual ~Interface () = default ;
 	inline Interface (const Interface &) = delete ;
 	inline Interface &operator= (const Interface &) = delete ;
 	inline Interface (Interface &&) = delete ;
@@ -1807,7 +1862,7 @@ public:
 #ifdef __CSC_CXX_LATEST__
 	inline Proxy (Proxy &&) = delete ;
 #else
-	inline Proxy (Proxy &&) noexcept = default ;
+	inline Proxy (Proxy &&) = default ;
 #endif
 
 	inline Proxy &operator= (Proxy &&) = delete ;
@@ -1959,6 +2014,8 @@ private:
 	struct Detail {
 		template <class SIZE>
 		class PlainString {
+			_STATIC_ASSERT_ (SIZE::value > 0) ;
+
 		private:
 			friend Plain ;
 			DEF<REAL[SIZE::value]> mString ;
@@ -1987,8 +2044,8 @@ public:
 	inline Exception (const Exception &) = default ;
 	inline Exception &operator= (const Exception &) = default ;
 
-	inline Exception (Exception &&) noexcept = default ;
-	inline Exception &operator= (Exception &&) noexcept = default ;
+	inline Exception (Exception &&) = default ;
+	inline Exception &operator= (Exception &&) = default ;
 
 	inline const ARR<STR> &what () const noexcept {
 		return (*mWhat) ;

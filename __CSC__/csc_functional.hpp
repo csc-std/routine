@@ -23,7 +23,7 @@ struct RANK_FUNC<_ARG1 ,ARGVS<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using RANK_FUNC_TYPE = typename RANK_FUNC<Operand ,REPEAT_OF_TYPE<_ARG1 ,const Operand &>>::TYPE ;
+using RANK_FUNC_TYPE = typename RANK_FUNC<Operand ,REPEAT_PARAMS_TYPE<_ARG1 ,const Operand &>>::TYPE ;
 } ;
 
 using RANK0 = U::RANK_FUNC_TYPE<ZERO> ;
@@ -96,6 +96,14 @@ public:
 	template <class _RET>
 	const _RET &as () && = delete ;
 
+public:
+	template <class _ARG1>
+	inline static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
+		return _CACHE_ ([&] () {
+			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
+		}) ;
+	}
+
 private:
 	template <class _ARG1>
 	const _ARG1 &template_as (const ARGV<_ARG1> &) const {
@@ -109,14 +117,6 @@ private:
 
 	const Operand &template_as (const ARGV<Operand> &) const {
 		return (*this) ;
-	}
-
-public:
-	template <class _ARG1>
-	inline static const Operand &argvp (const ARGV<ARGVP<_ARG1>> &) {
-		return _CACHE_ ([&] () {
-			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
-		}) ;
 	}
 } ;
 
@@ -240,8 +240,8 @@ private:
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &function_)
-		:mFunction (function_) {}
+	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &func)
+		:mFunction (func) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -278,8 +278,8 @@ private:
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &function_)
-		:mFunction (function_) {}
+	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &func)
+		:mFunction (func) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -308,7 +308,7 @@ private:
 template <class _ARG1 ,class>
 inline Operator::Operator (const _ARG1 &that) {
 	using FUNC_HINT = REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>> ;
-	using HOLDER_HINT = ImplFunctor<PTR<FUNC_HINT> ,REPEAT_OF_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
+	using HOLDER_HINT = ImplFunctor<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
 	_STATIC_ASSERT_ (std::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 	_STATIC_ASSERT_ (stl::is_complete<HOLDER_HINT>::value) ;
 	const auto r1x = _XVALUE_<PTR<FUNC_HINT>> (that) ;
@@ -333,7 +333,7 @@ public:
 		:Object (_NULL_<ARGV<LexicalNode>> ()) ,mDepth (0) {}
 } ;
 
-template <class TYPE>
+template <class UNIT>
 class LexicalTree {
 private:
 	template <class>
@@ -354,8 +354,8 @@ public:
 	}
 
 private:
-	inline static const TYPE &from (const StrongRef<LexicalNode> &me) {
-		return _CAST_<TYPE> (me) ;
+	inline static const UNIT &from (const StrongRef<LexicalNode> &me) {
+		return _CAST_<UNIT> (me) ;
 	}
 } ;
 
@@ -384,7 +384,7 @@ template <class... UNITS>
 class Expression<SPECIALIZATION<PTR<Operand (const UNITS &...)>>>
 	:private LexicalTree<Expression<PTR<Operand (const UNITS &...)>>> {
 private:
-	using RANK = PTR<Operand (const UNITS &...)> ;
+	using SPECIALIZATION_THIS = Expression<PTR<Operand (const UNITS &...)>> ;
 
 	template <class... _ARGS>
 	using FLIP_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ;
@@ -392,7 +392,7 @@ private:
 private:
 	template <class>
 	friend class Expression ;
-	using LexicalTree<Expression<RANK>>::mThis ;
+	using LexicalTree<SPECIALIZATION_THIS>::mThis ;
 
 public:
 	Expression () = default ;
@@ -418,10 +418,10 @@ public:
 		return mThis->mOperand ;
 	}
 
-	Expression<RANK> flip () const {
-		Expression<RANK> ret ;
+	SPECIALIZATION_THIS flip () const {
+		SPECIALIZATION_THIS ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...args) {
-			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			auto &r1x = SPECIALIZATION_THIS::from (node.mChild[0]) ;
 			return r1x.template_flip_invoke (_NULL_<ARGV<ARGVS<UNITS...>>> () ,args...) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
@@ -433,6 +433,18 @@ public:
 	FLIP_RETURN_HINT<_ARGS...> flip (const ARGV<ARGVP<_ARGS>> &...) const {
 		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
+	}
+
+	DEPENDENT_TYPE<Expression<RANK1> ,Expression> fold () const {
+		DEPENDENT_TYPE<Expression<RANK1> ,Expression> ret ;
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
+			auto &r1x = SPECIALIZATION_THIS::from (node.mChild[0]) ;
+			auto &r2x = in1.template as<DEPENDENT_TYPE<Expression<RANK1> ,Expression>> () ;
+			return r1x.template_fold_invoke (r2x ,_NULL_<ARGV<SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>>>>) ;
+		}) ;
+		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
+		return std::move (ret) ;
 	}
 
 private:
@@ -450,13 +462,23 @@ private:
 	Expression<_ARG1> template_flip (const ARGV<_ARG1> & ,const ARGV<ARGVS<_ARGS1...>> & ,const ARGV<ARGVS<_ARGS2...>> &) const {
 		Expression<_ARG1> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS2 &...ins) {
-			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
+			auto &r1x = SPECIALIZATION_THIS::from (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const _ARGS2...> (ins...) ;
 			return r1x.invoke (r2x.pick (_NULL_<ARGV<ARGVP<_ARGS1>>> ())...) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
 		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
+	}
+
+	template <class... _ARGS>
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &tuple_ ,const ARGV<ARGVS<>> & ,const _ARGS &...args) const {
+		return invoke (tuple_.invoke (Operand::nth (args))...) ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &tuple_ ,const ARGV<_ARG1> & ,const _ARGS &...args) {
+		return template_flip_invoke (_NULL_<ARGV<ARGVS_REST_TYPE<_ARG1>>> () ,args... ,_NULL_<ARGVP<ARGVS_ONE_TYPE<_ARG1>>>) ;
 	}
 } ;
 
@@ -524,18 +546,7 @@ public:
 		return (*this) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			return r1x.invoke (r3x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK0> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK1> concat (const Expression<RANK1> &that) const ;
@@ -595,19 +606,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			return r1x.invoke (r3x ,r4x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK1> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK2> concat (const Expression<RANK1> &that) const ;
@@ -666,20 +665,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			return r1x.invoke (r3x ,r4x ,r5x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK2> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK3> concat (const Expression<RANK1> &that) const ;
@@ -737,21 +723,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK3> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK4> concat (const Expression<RANK1> &that) const ;
@@ -808,22 +780,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			auto &r7x = r2x.invoke (Operand::argvp (ARGVP5)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x ,r7x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK4> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK5> concat (const Expression<RANK1> &that) const ;
@@ -879,23 +836,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			auto &r7x = r2x.invoke (Operand::argvp (ARGVP5)) ;
-			auto &r8x = r2x.invoke (Operand::argvp (ARGVP6)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x ,r7x ,r8x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK5> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK6> concat (const Expression<RANK1> &that) const ;
@@ -950,24 +891,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK7>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			auto &r7x = r2x.invoke (Operand::argvp (ARGVP5)) ;
-			auto &r8x = r2x.invoke (Operand::argvp (ARGVP6)) ;
-			auto &r9x = r2x.invoke (Operand::argvp (ARGVP7)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x ,r7x ,r8x ,r9x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK6> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK7> concat (const Expression<RANK1> &that) const ;
@@ -1021,25 +945,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK8>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			auto &r7x = r2x.invoke (Operand::argvp (ARGVP5)) ;
-			auto &r8x = r2x.invoke (Operand::argvp (ARGVP6)) ;
-			auto &r9x = r2x.invoke (Operand::argvp (ARGVP7)) ;
-			auto &r10x = r2x.invoke (Operand::argvp (ARGVP8)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x ,r7x ,r8x ,r9x ,r10x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK7> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK8> concat (const Expression<RANK1> &that) const ;
@@ -1092,26 +998,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	Expression<RANK1> fold () const {
-		Expression<RANK1> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = Expression<RANK9>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<Expression<RANK1>> () ;
-			auto &r3x = r2x.invoke (Operand::argvp (ARGVP1)) ;
-			auto &r4x = r2x.invoke (Operand::argvp (ARGVP2)) ;
-			auto &r5x = r2x.invoke (Operand::argvp (ARGVP3)) ;
-			auto &r6x = r2x.invoke (Operand::argvp (ARGVP4)) ;
-			auto &r7x = r2x.invoke (Operand::argvp (ARGVP5)) ;
-			auto &r8x = r2x.invoke (Operand::argvp (ARGVP6)) ;
-			auto &r9x = r2x.invoke (Operand::argvp (ARGVP7)) ;
-			auto &r10x = r2x.invoke (Operand::argvp (ARGVP8)) ;
-			auto &r11x = r2x.invoke (Operand::argvp (ARGVP9)) ;
-			return r1x.invoke (r3x ,r4x ,r5x ,r6x ,r7x ,r8x ,r9x ,r10x ,r11x) ;
-		}) ;
-		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
-		return std::move (ret) ;
-	}
+	using SPECIALIZATION_BASE::fold ;
 
 	Expression<RANK8> concat (const Expression<RANK0> &that) const ;
 	Expression<RANK9> concat (const Expression<RANK1> &that) const ;
@@ -1122,7 +1009,7 @@ public:
 	}
 } ;
 
-inline Expression<RANK0> Expression<RANK1>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK0> Expression<RANK1>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK0> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1135,7 +1022,7 @@ inline Expression<RANK0> Expression<RANK1>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK1> Expression<RANK1>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK1> Expression<RANK1>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK1> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1148,7 +1035,7 @@ inline Expression<RANK1> Expression<RANK1>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK2> Expression<RANK1>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK2> Expression<RANK1>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK2> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1161,7 +1048,7 @@ inline Expression<RANK2> Expression<RANK1>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK3> Expression<RANK1>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK3> Expression<RANK1>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK3> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1174,7 +1061,7 @@ inline Expression<RANK3> Expression<RANK1>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK4> Expression<RANK1>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK4> Expression<RANK1>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK4> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1187,7 +1074,7 @@ inline Expression<RANK4> Expression<RANK1>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK1>::concat (const Expression<RANK5> &that) const {
+inline exports Expression<RANK5> Expression<RANK1>::concat (const Expression<RANK5> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1200,7 +1087,7 @@ inline Expression<RANK5> Expression<RANK1>::concat (const Expression<RANK5> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK1>::concat (const Expression<RANK6> &that) const {
+inline exports Expression<RANK6> Expression<RANK1>::concat (const Expression<RANK6> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1213,7 +1100,7 @@ inline Expression<RANK6> Expression<RANK1>::concat (const Expression<RANK6> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK1>::concat (const Expression<RANK7> &that) const {
+inline exports Expression<RANK7> Expression<RANK1>::concat (const Expression<RANK7> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1226,7 +1113,7 @@ inline Expression<RANK7> Expression<RANK1>::concat (const Expression<RANK7> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK1>::concat (const Expression<RANK8> &that) const {
+inline exports Expression<RANK8> Expression<RANK1>::concat (const Expression<RANK8> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1239,7 +1126,7 @@ inline Expression<RANK8> Expression<RANK1>::concat (const Expression<RANK8> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK1>::concat (const Expression<RANK9> &that) const {
+inline exports Expression<RANK9> Expression<RANK1>::concat (const Expression<RANK9> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK1>::from (node.mChild[0]) ;
@@ -1252,7 +1139,7 @@ inline Expression<RANK9> Expression<RANK1>::concat (const Expression<RANK9> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK1> Expression<RANK2>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK1> Expression<RANK2>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK1> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1265,7 +1152,7 @@ inline Expression<RANK1> Expression<RANK2>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK2> Expression<RANK2>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK2> Expression<RANK2>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK2> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1278,7 +1165,7 @@ inline Expression<RANK2> Expression<RANK2>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK3> Expression<RANK2>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK3> Expression<RANK2>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK3> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1291,7 +1178,7 @@ inline Expression<RANK3> Expression<RANK2>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK4> Expression<RANK2>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK4> Expression<RANK2>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK4> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1304,7 +1191,7 @@ inline Expression<RANK4> Expression<RANK2>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK2>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK5> Expression<RANK2>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1317,7 +1204,7 @@ inline Expression<RANK5> Expression<RANK2>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK2>::concat (const Expression<RANK5> &that) const {
+inline exports Expression<RANK6> Expression<RANK2>::concat (const Expression<RANK5> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1330,7 +1217,7 @@ inline Expression<RANK6> Expression<RANK2>::concat (const Expression<RANK5> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK2>::concat (const Expression<RANK6> &that) const {
+inline exports Expression<RANK7> Expression<RANK2>::concat (const Expression<RANK6> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1343,7 +1230,7 @@ inline Expression<RANK7> Expression<RANK2>::concat (const Expression<RANK6> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK2>::concat (const Expression<RANK7> &that) const {
+inline exports Expression<RANK8> Expression<RANK2>::concat (const Expression<RANK7> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1356,7 +1243,7 @@ inline Expression<RANK8> Expression<RANK2>::concat (const Expression<RANK7> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK2>::concat (const Expression<RANK8> &that) const {
+inline exports Expression<RANK9> Expression<RANK2>::concat (const Expression<RANK8> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK2>::from (node.mChild[0]) ;
@@ -1369,7 +1256,7 @@ inline Expression<RANK9> Expression<RANK2>::concat (const Expression<RANK8> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK2> Expression<RANK3>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK2> Expression<RANK3>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK2> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1382,7 +1269,7 @@ inline Expression<RANK2> Expression<RANK3>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK3> Expression<RANK3>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK3> Expression<RANK3>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK3> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1395,7 +1282,7 @@ inline Expression<RANK3> Expression<RANK3>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK4> Expression<RANK3>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK4> Expression<RANK3>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK4> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1408,7 +1295,7 @@ inline Expression<RANK4> Expression<RANK3>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK3>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK5> Expression<RANK3>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1421,7 +1308,7 @@ inline Expression<RANK5> Expression<RANK3>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK3>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK6> Expression<RANK3>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1434,7 +1321,7 @@ inline Expression<RANK6> Expression<RANK3>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK3>::concat (const Expression<RANK5> &that) const {
+inline exports Expression<RANK7> Expression<RANK3>::concat (const Expression<RANK5> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1447,7 +1334,7 @@ inline Expression<RANK7> Expression<RANK3>::concat (const Expression<RANK5> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK3>::concat (const Expression<RANK6> &that) const {
+inline exports Expression<RANK8> Expression<RANK3>::concat (const Expression<RANK6> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1460,7 +1347,7 @@ inline Expression<RANK8> Expression<RANK3>::concat (const Expression<RANK6> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK3>::concat (const Expression<RANK7> &that) const {
+inline exports Expression<RANK9> Expression<RANK3>::concat (const Expression<RANK7> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK3>::from (node.mChild[0]) ;
@@ -1473,7 +1360,7 @@ inline Expression<RANK9> Expression<RANK3>::concat (const Expression<RANK7> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK3> Expression<RANK4>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK3> Expression<RANK4>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK3> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1486,7 +1373,7 @@ inline Expression<RANK3> Expression<RANK4>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK4> Expression<RANK4>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK4> Expression<RANK4>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK4> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1499,7 +1386,7 @@ inline Expression<RANK4> Expression<RANK4>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK4>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK5> Expression<RANK4>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1512,7 +1399,7 @@ inline Expression<RANK5> Expression<RANK4>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK4>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK6> Expression<RANK4>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1525,7 +1412,7 @@ inline Expression<RANK6> Expression<RANK4>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK4>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK7> Expression<RANK4>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1538,7 +1425,7 @@ inline Expression<RANK7> Expression<RANK4>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK4>::concat (const Expression<RANK5> &that) const {
+inline exports Expression<RANK8> Expression<RANK4>::concat (const Expression<RANK5> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1551,7 +1438,7 @@ inline Expression<RANK8> Expression<RANK4>::concat (const Expression<RANK5> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK4>::concat (const Expression<RANK6> &that) const {
+inline exports Expression<RANK9> Expression<RANK4>::concat (const Expression<RANK6> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK4>::from (node.mChild[0]) ;
@@ -1564,7 +1451,7 @@ inline Expression<RANK9> Expression<RANK4>::concat (const Expression<RANK6> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK4> Expression<RANK5>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK4> Expression<RANK5>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK4> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1577,7 +1464,7 @@ inline Expression<RANK4> Expression<RANK5>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK5>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK5> Expression<RANK5>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1590,7 +1477,7 @@ inline Expression<RANK5> Expression<RANK5>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK5>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK6> Expression<RANK5>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1603,7 +1490,7 @@ inline Expression<RANK6> Expression<RANK5>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK5>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK7> Expression<RANK5>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1616,7 +1503,7 @@ inline Expression<RANK7> Expression<RANK5>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK5>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK8> Expression<RANK5>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1629,7 +1516,7 @@ inline Expression<RANK8> Expression<RANK5>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK5>::concat (const Expression<RANK5> &that) const {
+inline exports Expression<RANK9> Expression<RANK5>::concat (const Expression<RANK5> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK5>::from (node.mChild[0]) ;
@@ -1642,7 +1529,7 @@ inline Expression<RANK9> Expression<RANK5>::concat (const Expression<RANK5> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK5> Expression<RANK6>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK5> Expression<RANK6>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK5> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5) {
 		auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
@@ -1655,7 +1542,7 @@ inline Expression<RANK5> Expression<RANK6>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK6>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK6> Expression<RANK6>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
@@ -1668,7 +1555,7 @@ inline Expression<RANK6> Expression<RANK6>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK6>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK7> Expression<RANK6>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
@@ -1681,7 +1568,7 @@ inline Expression<RANK7> Expression<RANK6>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK6>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK8> Expression<RANK6>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
@@ -1694,7 +1581,7 @@ inline Expression<RANK8> Expression<RANK6>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK6>::concat (const Expression<RANK4> &that) const {
+inline exports Expression<RANK9> Expression<RANK6>::concat (const Expression<RANK4> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK6>::from (node.mChild[0]) ;
@@ -1707,7 +1594,7 @@ inline Expression<RANK9> Expression<RANK6>::concat (const Expression<RANK4> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK6> Expression<RANK7>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK6> Expression<RANK7>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK6> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6) {
 		auto &r1x = Expression<RANK7>::from (node.mChild[0]) ;
@@ -1720,7 +1607,7 @@ inline Expression<RANK6> Expression<RANK7>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK7>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK7> Expression<RANK7>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK7>::from (node.mChild[0]) ;
@@ -1733,7 +1620,7 @@ inline Expression<RANK7> Expression<RANK7>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK7>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK8> Expression<RANK7>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK7>::from (node.mChild[0]) ;
@@ -1746,7 +1633,7 @@ inline Expression<RANK8> Expression<RANK7>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK7>::concat (const Expression<RANK3> &that) const {
+inline exports Expression<RANK9> Expression<RANK7>::concat (const Expression<RANK3> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK7>::from (node.mChild[0]) ;
@@ -1759,7 +1646,7 @@ inline Expression<RANK9> Expression<RANK7>::concat (const Expression<RANK3> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK7> Expression<RANK8>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK7> Expression<RANK8>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK7> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7) {
 		auto &r1x = Expression<RANK8>::from (node.mChild[0]) ;
@@ -1772,7 +1659,7 @@ inline Expression<RANK7> Expression<RANK8>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK8>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK8> Expression<RANK8>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK8>::from (node.mChild[0]) ;
@@ -1785,7 +1672,7 @@ inline Expression<RANK8> Expression<RANK8>::concat (const Expression<RANK1> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK8>::concat (const Expression<RANK2> &that) const {
+inline exports Expression<RANK9> Expression<RANK8>::concat (const Expression<RANK2> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK8>::from (node.mChild[0]) ;
@@ -1798,7 +1685,7 @@ inline Expression<RANK9> Expression<RANK8>::concat (const Expression<RANK2> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK8> Expression<RANK9>::concat (const Expression<RANK0> &that) const {
+inline exports Expression<RANK8> Expression<RANK9>::concat (const Expression<RANK0> &that) const {
 	Expression<RANK8> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8) {
 		auto &r1x = Expression<RANK9>::from (node.mChild[0]) ;
@@ -1811,7 +1698,7 @@ inline Expression<RANK8> Expression<RANK9>::concat (const Expression<RANK0> &tha
 	return std::move (ret) ;
 }
 
-inline Expression<RANK9> Expression<RANK9>::concat (const Expression<RANK1> &that) const {
+inline exports Expression<RANK9> Expression<RANK9>::concat (const Expression<RANK1> &that) const {
 	Expression<RANK9> ret ;
 	ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1 ,const Operand &in2 ,const Operand &in3 ,const Operand &in4 ,const Operand &in5 ,const Operand &in6 ,const Operand &in7 ,const Operand &in8 ,const Operand &in9) {
 		auto &r1x = Expression<RANK9>::from (node.mChild[0]) ;

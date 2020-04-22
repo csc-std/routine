@@ -35,7 +35,7 @@ private:
 	void initialize (LENGTH len) ;
 } ;
 
-inline void PrimeSieveAlgorithm::initialize (LENGTH len) {
+inline exports void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	mPrimeSet = BitSet<> (len) ;
 	mPrimeSet.fill (BYTE (0XAA)) ;
 	mPrimeSet[1] = FALSE ;
@@ -193,7 +193,7 @@ private:
 } ;
 
 template <class REAL>
-inline void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL> &pattern) {
+inline exports void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL> &pattern) {
 	mNext = Array<INDEX> (pattern.size ()) ;
 	mPattern = Array<REAL> (pattern.size ()) ;
 	INDEX ix = 0 ;
@@ -261,7 +261,7 @@ private:
 } ;
 
 template <class REAL>
-inline void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX root_) {
+inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX root_) {
 	class Lambda {
 	private:
 		DijstraAlgorithm &mContext ;
@@ -363,7 +363,7 @@ private:
 } ;
 
 template <class REAL>
-inline void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
+inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 	class Lambda {
 	private:
 		KMeansAlgorithm &mContext ;
@@ -521,7 +521,7 @@ private:
 } ;
 
 template <class REAL>
-inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
+inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
 	class Lambda {
 	private:
 		KMHungarianAlgorithm &mContext ;
@@ -681,14 +681,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (!(mTempState == 4))
 						discard ;
 					const auto r1x = ARRAY2<INDEX> {5 ,16} ;
-					mTempState = r1x[EFLAG (mTempStack[ix][0] < mAdjacency.cx ())] ;
+					mTempState = r1x[_EBOOL_ (mTempStack[ix][0] < mAdjacency.cx ())] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 5))
 						discard ;
 					const auto r2x = ARRAY2<INDEX> {15 ,6} ;
 					const auto r3x = BOOL (mXVisit[mTempStack[ix][0]]) ;
-					mTempState = r2x[EFLAG (r3x)] ;
+					mTempState = r2x[_EBOOL_ (r3x)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 6))
@@ -701,7 +701,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r4x = ARRAY2<INDEX> {2 ,3} ;
-					mTempState = r4x[EFLAG (mTempStack[ix][1] == VAR_NONE)] ;
+					mTempState = r4x[_EBOOL_ (mTempStack[ix][1] == VAR_NONE)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 8))
@@ -714,14 +714,14 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 					if (!(mTempState == 9))
 						discard ;
 					const auto r5x = ARRAY2<INDEX> {8 ,14} ;
-					mTempState = r5x[EFLAG (mLackWeight[0] < mTolerance)] ;
+					mTempState = r5x[_EBOOL_ (mLackWeight[0] < mTolerance)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 10))
 						discard ;
 					ix = mTempStack.tail () ;
 					const auto r6x = ARRAY2<INDEX> {11 ,15} ;
-					mTempState = r6x[EFLAG (mTempRet)] ;
+					mTempState = r6x[_EBOOL_ (mTempRet)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 11))
@@ -753,13 +753,13 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 						discard ;
 					mTempStack.pop () ;
 					const auto r7x = ARRAY2<INDEX> {10 ,18} ;
-					mTempState = r7x[EFLAG (mTempStack.length () > 0)] ;
+					mTempState = r7x[_EBOOL_ (mTempStack.length () > 0)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 18))
 						discard ;
 					const auto r8x = ARRAY2<INDEX> {19 ,20} ;
-					mTempState = r8x[EFLAG (mTempRet)] ;
+					mTempState = r8x[_EBOOL_ (mTempRet)] ;
 				}
 				if switch_case (TRUE) {
 					if (!(mTempState == 19))
@@ -805,7 +805,7 @@ inline void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacenc
 		inline LENGTH best_match_depth () const {
 			LENGTH ret = 0 ;
 			for (auto &&i : mXYLink)
-				ret += EFLAG (i != VAR_NONE) ;
+				ret += _EBOOL_ (i != VAR_NONE) ;
 			return std::move (ret) ;
 		}
 	} ;
@@ -842,7 +842,7 @@ private:
 } ;
 
 template <class REAL>
-inline void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
+inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 	class Lambda {
 	private:
 		BFGSAlgorithm &mContext ;
@@ -1181,7 +1181,7 @@ private:
 } ;
 
 template <class REAL>
-inline void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
+inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
 	class Lambda {
 	private:
 		KDTreeAlgorithm &mContext ;
@@ -1334,7 +1334,7 @@ private:
 } ;
 
 template <class REAL>
-inline void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) {
+inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) {
 	class Lambda {
 	private:
 		MaxFlowAlgorithm &mContext ;

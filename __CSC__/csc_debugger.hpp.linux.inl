@@ -46,7 +46,7 @@ private:
 	TextWriter<STR> mConWriter ;
 	TextWriter<STR> mLogWriter ;
 	LENGTH mBufferSize ;
-	FLAG mOptionFlag ;
+	Set<EFLAG> mOptionSet ;
 	UniqueRef<VAR32> mConsole ;
 	String<STR> mLogPath ;
 	AutoRef<StreamLoader> mLogFileStream ;
@@ -59,7 +59,7 @@ public:
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
-		mOptionFlag = OPTION_DEFAULT ;
+		mOptionSet = Set<EFLAG> (128) ;
 		mLogPath = String<STR> () ;
 	}
 
@@ -67,16 +67,18 @@ public:
 		return mBufferSize ;
 	}
 
-	void enable_option (FLAG option) override {
-		mOptionFlag |= option ;
+	void enable_option (EFLAG option) override {
+		if (option == OPTION_DEFAULT)
+			mOptionSet.clear () ;
+		mOptionSet.add (option) ;
 	}
 
-	void disable_option (FLAG option) override {
-		mOptionFlag &= ~option ;
+	void disable_option (EFLAG option) override {
+		mOptionSet.erase (option) ;
 	}
 
 	void print (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_PRINT) != 0)
+		if (mOptionSet.find (OPTION_NO_PRINT) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -92,7 +94,7 @@ public:
 	}
 
 	void fatal (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_FATAL) != 0)
+		if (mOptionSet.find (OPTION_NO_FATAL) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -108,7 +110,7 @@ public:
 	}
 
 	void error (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_ERROR) != 0)
+		if (mOptionSet.find (OPTION_NO_ERROR) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -124,7 +126,7 @@ public:
 	}
 
 	void warn (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_WARN) != 0)
+		if (mOptionSet.find (OPTION_NO_WARN) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -140,7 +142,7 @@ public:
 	}
 
 	void info (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_INFO) != 0)
+		if (mOptionSet.find (OPTION_NO_INFO) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -156,7 +158,7 @@ public:
 	}
 
 	void debug (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_DEBUG) != 0)
+		if (mOptionSet.find (OPTION_NO_DEBUG) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -172,7 +174,7 @@ public:
 	}
 
 	void verbose (const Binder &msg) override {
-		if ((mOptionFlag & OPTION_NO_VERBOSE) != 0)
+		if (mOptionSet.find (OPTION_NO_VERBOSE) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -301,7 +303,7 @@ private:
 			mLogFileStream = AutoRef<StreamLoader> () ;
 			mTempState = FALSE ;
 		}) ;
-		if ((mOptionFlag & OPTION_ALWAYS_FLUSH) == 0)
+		if (mOptionSet.find (OPTION_ALWAYS_FLUSH) == VAR_NONE)
 			return ;
 		if (!mLogFileStream.exist ())
 			return ;

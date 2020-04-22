@@ -1715,12 +1715,12 @@ private:
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r7x ,r5x - 1)) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
-				iw += EFLAG (out[ix] == r1x.convert_number_w (0)) ;
+				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
 				(void) i ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 			rax[0] /= r1x.varify_radix () ;
 		}
@@ -1752,12 +1752,12 @@ private:
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r8x ,LENGTH (-rax[1]))) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
-				iw += EFLAG (out[ix] == r1x.convert_number_w (0)) ;
+				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
 				(void) i ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (r5x + rax[1]))) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
@@ -1778,17 +1778,17 @@ private:
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r9x ,r5x)) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
-				iw += EFLAG (out[ix] == r1x.convert_number_w (0)) ;
+				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
 				(void) i ;
 			}
 			for (auto &&i : _RANGE_ (_MAX_ (r9x ,r5x) ,LENGTH (-rax[1]))) {
 				out[--iw] = r1x.convert_number_w (0) ;
-				iw += EFLAG (out[ix] == r1x.convert_number_w (0)) ;
+				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				(void) i ;
 			}
 			out[--iw] = REAL ('.') ;
-			iw += EFLAG (out[ix] == REAL ('.')) ;
+			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			out[--iw] = r1x.convert_number_w (0) ;
 		}
 		if (rax[2] != 0)

@@ -237,7 +237,7 @@ public:
 	inline VAR128 () = default ;
 
 	inline implicit VAR128 (VAR64 that) {
-		const auto r1x = EFLAG (that < 0) * DATA (-1) ;
+		const auto r1x = _EBOOL_ (that < 0) * DATA (-1) ;
 		v2i1 = DATA (that) ;
 		v2i0 = r1x ;
 	}
@@ -298,26 +298,26 @@ public:
 
 	inline VAR128 operator+ (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		ret.v2i0 = v2i0 + that.v2i0 + EFLAG (v2i1 > ~that.v2i1) ;
+		ret.v2i0 = v2i0 + that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
 		ret.v2i1 = v2i1 + that.v2i1 ;
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator+= (const VAR128 &that) {
-		v2i0 += that.v2i0 + EFLAG (v2i1 > ~that.v2i1) ;
+		v2i0 += that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
 		v2i1 += that.v2i1 ;
 		return (*this) ;
 	}
 
 	inline VAR128 operator- (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		ret.v2i0 = v2i0 - that.v2i0 - EFLAG (v2i1 < that.v2i1) ;
+		ret.v2i0 = v2i0 - that.v2i0 - _EBOOL_ (v2i1 < that.v2i1) ;
 		ret.v2i1 = v2i1 - that.v2i1 ;
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator-= (const VAR128 &that) {
-		v2i0 -= that.v2i0 + EFLAG (v2i1 < that.v2i1) ;
+		v2i0 -= that.v2i0 + _EBOOL_ (v2i1 < that.v2i1) ;
 		v2i1 -= that.v2i1 ;
 		return (*this) ;
 	}
@@ -510,13 +510,13 @@ public:
 	inline VAR128 operator- () const {
 		VAR128 ret = 0 ;
 		ret.v2i1 = ~v2i1 + 1 ;
-		ret.v2i0 = ~v2i0 + EFLAG (ret.v2i1 == DATA (0)) ;
+		ret.v2i0 = ~v2i0 + _EBOOL_ (ret.v2i1 == DATA (0)) ;
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator++ () {
 		v2i1++ ;
-		v2i0 += EFLAG (v2i1 == DATA (0)) ;
+		v2i0 += _EBOOL_ (v2i1 == DATA (0)) ;
 		return (*this) ;
 	}
 
@@ -528,7 +528,7 @@ public:
 
 	inline VAR128 &operator-- () {
 		v2i1-- ;
-		v2i0 -= EFLAG (v2i1 == DATA (-1)) ;
+		v2i0 -= _EBOOL_ (v2i1 == DATA (-1)) ;
 		return (*this) ;
 	}
 
@@ -660,7 +660,7 @@ private:
 				rax[1] = ret - 1 ;
 			}
 		}
-		ret -= EFLAG (ret * x > y) ;
+		ret -= _EBOOL_ (x * ret > y) ;
 		return std::move (ret) ;
 	}
 
@@ -682,13 +682,13 @@ private:
 template <class UNIT>
 class Mutable {
 private:
-	static constexpr auto STATUS_CACHED = FLAG (1) ;
-	static constexpr auto STATUS_SIGNALED = FLAG (2) ;
-	static constexpr auto STATUS_FINISHED = FLAG (3) ;
+	static constexpr auto STATUS_CACHED = EFLAG (1) ;
+	static constexpr auto STATUS_SIGNALED = EFLAG (2) ;
+	static constexpr auto STATUS_FINISHED = EFLAG (3) ;
 
 private:
 	mutable UNIT mValue ;
-	mutable FLAG mStatus ;
+	mutable EFLAG mStatus ;
 
 public:
 	inline Mutable () {
@@ -910,14 +910,14 @@ public:
 		_SWAP_ (mIndex ,that.mIndex) ;
 	}
 
-private:
-	inline explicit Variant (const DEF<decltype (ARGVP0)> &) noexcept
-		:mIndex (VAR_NONE) {}
-
 public:
 	inline static Variant nullopt () noexcept {
 		return Variant (ARGVP0) ;
 	}
+
+private:
+	inline explicit Variant (const DEF<decltype (ARGVP0)> &) noexcept
+		:mIndex (VAR_NONE) {}
 
 private:
 	template <class _ARG1>
@@ -1260,7 +1260,7 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class... _ARGS>
-inline Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
+inline exports Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 	using ImplHolder = typename Detail::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>> ;
 	auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 	ScopedBuild<ImplHolder> ANONYMOUS (rax ,func ,parameter...) ;
@@ -1634,9 +1634,11 @@ public:
 	inline implicit StrongRef (const StrongRef<_ARG1> &that)
 		: StrongRef (that.template recast<UNIT> ()) {}
 
-	inline implicit StrongRef (const WeakRef<UNIT> &that) ;
+	inline implicit StrongRef (const DEPENDENT_TYPE<WeakRef<UNIT> ,StrongRef> &that)
+		: StrongRef (that.watch ()) {}
 
-	inline implicit StrongRef (const SoftRef<UNIT> &that) ;
+	inline implicit StrongRef (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that)
+		: StrongRef (that.watch ()) {}
 
 	inline ~StrongRef () noexcept {
 		if (mPointer == NULL)
@@ -1698,7 +1700,7 @@ public:
 	inline StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> recast () const {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		const auto r1x = U::OPERATOR_RECAST::template invoke<_RET> (mPointer) ;
-		_DYNAMIC_ASSERT_ (EFLAG (r1x != NULL) == EFLAG (mPointer != NULL)) ;
+		_DYNAMIC_ASSERT_ (_EBOOL_ (r1x != NULL) == _EBOOL_ (mPointer != NULL)) ;
 		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mThis ,r1x) ;
 	}
 
@@ -1737,7 +1739,9 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL equal (const WeakRef<UNIT> &that) const ;
+	inline BOOL equal (const DEPENDENT_TYPE<WeakRef<UNIT> ,StrongRef> &that) const {
+		return that.equal ((*this)) ;
+	}
 
 	inline BOOL operator== (const WeakRef<UNIT> &that) const {
 		return equal (that) ;
@@ -1747,7 +1751,9 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL equal (const SoftRef<UNIT> &that) const ;
+	inline BOOL equal (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that) const {
+		return that.equal ((*this)) ;
+	}
 
 	inline BOOL operator== (const SoftRef<UNIT> &that) const {
 		return equal (that) ;
@@ -1755,6 +1761,16 @@ public:
 
 	inline BOOL operator!= (const SoftRef<UNIT> &that) const {
 		return !equal (that) ;
+	}
+
+public:
+	template <class... _ARGS>
+	inline static StrongRef make (_ARGS &&...initval) {
+		auto rax = SharedRef<Pack>::make () ;
+		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
+		rax->mCounter = 0 ;
+		auto &r1x = rax->mHolder.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
+		return StrongRef (rax ,&r1x) ;
 	}
 
 private:
@@ -1770,16 +1786,6 @@ private:
 		(void) r1x ;
 		mThis = holder ;
 		mPointer = pointer ;
-	}
-
-public:
-	template <class... _ARGS>
-	inline static StrongRef make (_ARGS &&...initval) {
-		auto rax = SharedRef<Pack>::make () ;
-		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
-		rax->mCounter = 0 ;
-		auto &r1x = rax->mHolder.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
-		return StrongRef (rax ,&r1x) ;
 	}
 } ;
 
@@ -1863,15 +1869,6 @@ public:
 		mPointer = std::move (that.mPointer) ;
 	}
 } ;
-
-template <class UNIT>
-inline StrongRef<UNIT>::StrongRef (const WeakRef<UNIT> &that)
-	:StrongRef (that.watch ()) {}
-
-template <class UNIT>
-inline BOOL StrongRef<UNIT>::equal (const WeakRef<UNIT> &that) const {
-	return that.equal ((*this)) ;
-}
 
 template <class UNIT>
 class SoftRef {
@@ -1981,8 +1978,8 @@ public:
 			if (!linked ())
 				discard ;
 			auto &r1x = mHeap.self[mIndex].mWeight ;
-			const auto r2x = EFLAG (r1x >= 0 && r1x < VAR32_MAX) ;
-			const auto r3x = EFLAG (r1x < 0 && r1x > VAR32_MIN) ;
+			const auto r2x = _EBOOL_ (r1x >= 0 && r1x < VAR32_MAX) ;
+			const auto r3x = _EBOOL_ (r1x < 0 && r1x > VAR32_MIN) ;
 			r1x += r2x - r3x ;
 		}
 		return mWeakRef.watch () ;
@@ -2093,15 +2090,6 @@ private:
 		return std::move (ret) ;
 	}
 } ;
-
-template <class UNIT>
-inline StrongRef<UNIT>::StrongRef (const SoftRef<UNIT> &that)
-	:StrongRef (that.watch ()) {}
-
-template <class UNIT>
-inline BOOL StrongRef<UNIT>::equal (const SoftRef<UNIT> &that) const {
-	return that.equal ((*this)) ;
-}
 
 template <class UNIT>
 class IntrusiveRef {
@@ -2231,6 +2219,21 @@ public:
 		return WatchProxy (r1x) ;
 	}
 
+public:
+	template <class... _ARGS>
+	inline static IntrusiveRef make (_ARGS &&...initval) {
+		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
+		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
+		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
+		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
+		acquire (&r1x ,TRUE) ;
+		const auto r2x = ret.safe_exchange (&r1x) ;
+		_DEBUG_ASSERT_ (r2x == NULL) ;
+		(void) r2x ;
+		rax = NULL ;
+		return std::move (ret) ;
+	}
+
 private:
 	inline explicit IntrusiveRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) ,mLatch (0) {}
@@ -2258,21 +2261,6 @@ private:
 #pragma GCC diagnostic pop
 	}
 
-public:
-	template <class... _ARGS>
-	inline static IntrusiveRef make (_ARGS &&...initval) {
-		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
-		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
-		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
-		acquire (&r1x ,TRUE) ;
-		const auto r2x = ret.safe_exchange (&r1x) ;
-		_DEBUG_ASSERT_ (r2x == NULL) ;
-		(void) r2x ;
-		rax = NULL ;
-		return std::move (ret) ;
-	}
-
 private:
 	inline static void acquire (PTR<UNIT> address ,BOOL init) {
 		if (address == NULL)
@@ -2280,7 +2268,7 @@ private:
 		if (init)
 			INTRUSIVE_THIS::friend_create ((*address)) ;
 		const auto r1x = INTRUSIVE_THIS::friend_attach ((*address)) ;
-		_DEBUG_ASSERT_ (r1x >= 1 + EFLAG (!init)) ;
+		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 		(void) r1x ;
 	}
 
@@ -2479,6 +2467,9 @@ private:
 		template <class SIZE ,class RESE>
 		class ImplPool
 			:public Pool {
+			_STATIC_ASSERT_ (SIZE::value > 0) ;
+			_STATIC_ASSERT_ (RESE::value > 0) ;
+
 		private:
 			PTR<CHUNK> mRoot ;
 			PTR<BLOCK> mFree ;

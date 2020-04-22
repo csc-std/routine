@@ -14,10 +14,10 @@
 namespace CSC {
 class XmlParser {
 private:
-	static constexpr auto NODE_CLAZZ_TABLE = FLAG (1) ;
-	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (2) ;
-	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (3) ;
-	static constexpr auto NODE_CLAZZ_FINAL = FLAG (4) ;
+	static constexpr auto NODE_CLAZZ_TABLE = EFLAG (1) ;
+	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (2) ;
+	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
+	static constexpr auto NODE_CLAZZ_FINAL = EFLAG (4) ;
 
 	class Node {
 	private:
@@ -298,15 +298,6 @@ public:
 
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
-private:
-	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
-		:mHeap (heap) ,mIndex (index) {}
-
-private:
-	void initialize (const PhanBuffer<const STRU8> &data) ;
-
-	void initialize (const Array<XmlParser> &sequence) ;
-
 public:
 	inline static XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
@@ -319,6 +310,15 @@ public:
 		ret.initialize (sequence) ;
 		return std::move (ret) ;
 	}
+
+private:
+	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
+		:mHeap (heap) ,mIndex (index) {}
+
+private:
+	void initialize (const PhanBuffer<const STRU8> &data) ;
+
+	void initialize (const Array<XmlParser> &sequence) ;
 
 private:
 	struct Detail {
@@ -337,10 +337,12 @@ private:
 	} ;
 } ;
 
-inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
-	auto rax = Deque<ARRAY2<INDEX>> () ;
-	auto rbx = Deque<ARRAY2<INDEX>> () ;
-	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
+inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
+	static constexpr auto M_NODE_X1 = EFLAG (1) ;
+	static constexpr auto M_NODE_X2 = EFLAG (2) ;
+	auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
+	auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
+	rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
@@ -349,19 +351,19 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			//@info: case '<?xml ...>'
-			if (!(r1x[0] != VAR_NONE))
+			if (!(r1x.P1 != VAR_NONE))
 				discard ;
-			if (!mHeap.self[r1x[0]].mName.empty ())
+			if (!mHeap.self[r1x.P1].mName.empty ())
 				discard ;
-			if (!(r1x[1] == 0))
+			if (!(r1x.P2 == M_NODE_X1))
 				discard ;
-			auto &r2x = mHeap.self[r1x[0]] ;
+			auto &r2x = mHeap.self[r1x.P1] ;
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
 			writer << _GAP_ ;
 			rbx.clear () ;
 			for (INDEX i = r2x.mChild ,it ; i != VAR_NONE ; i = it) {
 				it = mHeap.self[i].mBrother ;
-				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i ,M_NODE_X1}) ;
 			}
 			while (TRUE) {
 				if (rbx.empty ())
@@ -372,13 +374,13 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 		}
 		if switch_case (fax) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
-			if (!(r1x[0] != VAR_NONE))
+			if (!(r1x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r1x[0]].mChild == VAR_NONE))
+			if (!(mHeap.self[r1x.P1].mChild == VAR_NONE))
 				discard ;
-			if (!(r1x[1] == 0))
+			if (!(r1x.P2 == M_NODE_X1))
 				discard ;
-			auto &r3x = mHeap.self[r1x[0]] ;
+			auto &r3x = mHeap.self[r1x.P1] ;
 			writer << _PCSTRU8_ ("<") << r3x.mName << _PCSTRU8_ (" ") ;
 			for (auto &&i : r3x.mAttributeSet) {
 				writer << i.key ;
@@ -389,13 +391,13 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 		}
 		if switch_case (fax) {
 			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?>'
-			if (!(r1x[0] != VAR_NONE))
+			if (!(r1x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r1x[0]].mChild != VAR_NONE))
+			if (!(mHeap.self[r1x.P1].mChild != VAR_NONE))
 				discard ;
-			if (!(r1x[1] == 0))
+			if (!(r1x.P2 == M_NODE_X1))
 				discard ;
-			auto &r4x = mHeap.self[r1x[0]] ;
+			auto &r4x = mHeap.self[r1x.P1] ;
 			writer << _PCSTRU8_ ("<") << r4x.mName << _PCSTRU8_ (" ") ;
 			for (auto &&i : r4x.mAttributeSet) {
 				writer << i.key ;
@@ -406,9 +408,9 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			rbx.clear () ;
 			for (INDEX i = r4x.mChild ,it ; i != VAR_NONE ; i = it) {
 				it = mHeap.self[i].mBrother ;
-				rbx.add (ARRAY2<INDEX> {i ,FLAG (0)}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i ,M_NODE_X1}) ;
 			}
-			rbx.add (ARRAY2<INDEX> {r1x[0] ,FLAG (1)}) ;
+			rbx.add (PACK<INDEX ,EFLAG> {r1x.P1 ,M_NODE_X2}) ;
 			while (TRUE) {
 				if (rbx.empty ())
 					break ;
@@ -418,16 +420,16 @@ inline void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 		}
 		if switch_case (fax) {
 			//@info: case '</xxx>'
-			if (!(r1x[0] != VAR_NONE))
+			if (!(r1x.P1 != VAR_NONE))
 				discard ;
-			if (!(r1x[1] == 1))
+			if (!(r1x.P2 == M_NODE_X2))
 				discard ;
-			writer << _PCSTRU8_ ("</") << mHeap.self[r1x[0]].mName << _PCSTRU8_ (">") ;
+			writer << _PCSTRU8_ ("</") << mHeap.self[r1x.P1].mName << _PCSTRU8_ (">") ;
 		}
 	}
 }
 
-inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	using RecursiveCounter = typename Detail::RecursiveCounter ;
 	class Lambda {
 	private:
@@ -676,19 +678,19 @@ inline void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	_CALL_ (Lambda ((*this) ,data)) ;
 }
 
-inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
+inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	class Lambda {
 	private:
 		struct FOUND_NODE {
 			String<STRU8> mName ;
 			SoftSet<String<STRU8> ,String<STRU8>> mAttributeSet ;
-			FLAG mType ;
+			EFLAG mClazz ;
 			Deque<XmlParser> mBaseNode ;
 		} ;
 
 		struct STACK_NODE {
 			Deque<XmlParser> mBaseNode ;
-			FLAG mType ;
+			EFLAG mClazz ;
 			INDEX mParent ;
 		} ;
 
@@ -702,13 +704,13 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		const String<STRU8> mFinalClazzString ;
 
 		Deque<STACK_NODE> mNodeStack ;
-		Set<FLAG ,Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProcSet ;
+		Set<EFLAG ,Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProcSet ;
 		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSoftSet ;
 		SoftSet<INDEX ,INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8> ,INDEX> mObjectSoftSet ;
 		Allocator<Node ,SAUTO> mNodeHeap ;
 		String<STRU8> mRootName ;
-		INDEX mRootType ;
+		EFLAG mRootType ;
 		Deque<FOUND_NODE> mFoundNode ;
 		Set<String<STRU8> ,INDEX> mFoundNodeNameSet ;
 		SharedRef<FixedBuffer<Node>> mHeap ;
@@ -732,16 +734,18 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeStack = Deque<STACK_NODE> () ;
 			INDEX ix = VAR_NONE ;
 			//@error: fuck g++4.8
-			ix = mFoundNodeProcSet.insert (FLAG (NODE_CLAZZ_TABLE)) ;
+			const auto r1x = ARRAY4<EFLAG> ({
+				NODE_CLAZZ_TABLE ,
+				NODE_CLAZZ_OBJECT ,
+				NODE_CLAZZ_ARRAY ,
+				NODE_CLAZZ_FINAL}) ;
+			ix = mFoundNodeProcSet.insert (r1x[0]) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			//@error: fuck g++4.8
-			ix = mFoundNodeProcSet.insert (FLAG (NODE_CLAZZ_OBJECT)) ;
+			ix = mFoundNodeProcSet.insert (r1x[1]) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			//@error: fuck g++4.8
-			ix = mFoundNodeProcSet.insert (FLAG (NODE_CLAZZ_ARRAY)) ;
+			ix = mFoundNodeProcSet.insert (r1x[2]) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
-			//@error: fuck g++4.8
-			ix = mFoundNodeProcSet.insert (FLAG (NODE_CLAZZ_FINAL)) ;
+			ix = mFoundNodeProcSet.insert (r1x[3]) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;
@@ -749,7 +753,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeHeap = Allocator<Node ,SAUTO> () ;
 			if switch_case (TRUE) {
 				mRootName.clear () ;
-				mRootType = VAR_NONE ;
+				mRootType = UNKNOWN ;
 				INDEX iy = find_normal_node () ;
 				if (iy == VAR_NONE)
 					discard ;
@@ -779,7 +783,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			return VAR_NONE ;
 		}
 
-		inline INDEX node_type (const XmlParser &node) const {
+		inline EFLAG node_type (const XmlParser &node) const {
 			auto &r1x = node.attribute (mClazzString) ;
 			if (r1x == mTableClazzString)
 				return NODE_CLAZZ_TABLE ;
@@ -801,10 +805,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				mTempNode = std::move (mNodeStack[mNodeStack.tail ()]) ;
 				mNodeStack.pop () ;
 				if switch_case (TRUE) {
-					if (mTempNode.mType == VAR_NONE)
+					if (mTempNode.mClazz == UNKNOWN)
 						discard ;
 					for (auto &&i : mTempNode.mBaseNode) {
-						INDEX ix = mFoundNodeProcSet.find (mTempNode.mType) ;
+						INDEX ix = mFoundNodeProcSet.find (mTempNode.mClazz) ;
 						_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 						mFoundNodeProcSet[ix].item (i) ;
 					}
@@ -820,7 +824,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeStack[ix].mBaseNode = Deque<XmlParser> (mSequence.length ()) ;
 			for (auto &&i : mSequence)
 				mNodeStack[ix].mBaseNode.add (i.child ()) ;
-			mNodeStack[ix].mType = mRootType ;
+			mNodeStack[ix].mClazz = mRootType ;
 			INDEX iy = mRoot ;
 			if switch_case (TRUE) {
 				if (mRootName.empty ())
@@ -850,14 +854,14 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX iy = mFoundNode.insert () ;
 				mFoundNode[iy].mName = i.name () ;
 				mFoundNodeNameSet.add (mFoundNode[iy].mName ,iy) ;
-				mFoundNode[iy].mType = node_type (i) ;
+				mFoundNode[iy].mClazz = node_type (i) ;
 				if switch_case (TRUE) {
 					if (ix == VAR_NONE)
 						discard ;
-					_DYNAMIC_ASSERT_ (mFoundNode[ix].mType != NODE_CLAZZ_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNode[iy].mType != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[ix].mClazz != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[iy].mClazz != NODE_CLAZZ_FINAL) ;
 				}
-				if (mFoundNode[iy].mType == NODE_CLAZZ_FINAL)
+				if (mFoundNode[iy].mClazz == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				mFoundNode[iy].mAttributeSet = mAttributeSoftSet.share () ;
 				mFoundNode[iy].mAttributeSet.appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
@@ -880,7 +884,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					iy = mFoundNode.insert () ;
 					mFoundNode[iy].mName = i.name () ;
 					mFoundNodeNameSet.add (mFoundNode[iy].mName ,iy) ;
-					mFoundNode[iy].mType = node_type (i) ;
+					mFoundNode[iy].mClazz = node_type (i) ;
 					mFoundNode[iy].mAttributeSet = mAttributeSoftSet.share () ;
 					if (mFoundNodeBaseNodeHeap.empty ())
 						mFoundNodeBaseNodeHeap.add (Deque<XmlParser> ()) ;
@@ -891,10 +895,10 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (ix == iy) ;
-					_DYNAMIC_ASSERT_ (mFoundNode[ix].mType != NODE_CLAZZ_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNode[iy].mType != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[ix].mClazz != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[iy].mClazz != NODE_CLAZZ_FINAL) ;
 				}
-				if (mFoundNode[iy].mType == NODE_CLAZZ_FINAL)
+				if (mFoundNode[iy].mClazz == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				mFoundNode[iy].mAttributeSet.appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
 				mFoundNode[iy].mBaseNode.add (i.child ()) ;
@@ -910,15 +914,15 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				INDEX jx = mFoundNode.insert () ;
 				mFoundNode[jx].mName = i.name () ;
 				mFoundNodeNameSet.add (mFoundNode[jx].mName ,jx) ;
-				mFoundNode[jx].mType = node_type (i) ;
+				mFoundNode[jx].mClazz = node_type (i) ;
 				if switch_case (TRUE) {
 					if (ix == VAR_NONE)
 						discard ;
 					_DYNAMIC_ASSERT_ (mFoundNode[ix].mName == mFoundNode[jx].mName) ;
-					_DYNAMIC_ASSERT_ (mFoundNode[ix].mType != NODE_CLAZZ_FINAL) ;
-					_DYNAMIC_ASSERT_ (mFoundNode[jx].mType != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[ix].mClazz != NODE_CLAZZ_FINAL) ;
+					_DYNAMIC_ASSERT_ (mFoundNode[jx].mClazz != NODE_CLAZZ_FINAL) ;
 				}
-				if (mFoundNode[jx].mType == NODE_CLAZZ_FINAL)
+				if (mFoundNode[jx].mClazz == NODE_CLAZZ_FINAL)
 					_DYNAMIC_ASSERT_ (i.mHeap.self[i.mIndex].mAttributeSet.length () == 1) ;
 				mFoundNode[jx].mAttributeSet = mAttributeSoftSet.share () ;
 				mFoundNode[jx].mAttributeSet.appand (i.mHeap.self[i.mIndex].mAttributeSet) ;
@@ -969,7 +973,7 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					mRoot = ix ;
 				INDEX jy = mNodeStack.insert () ;
 				mNodeStack[jy].mBaseNode = std::move (i.mBaseNode) ;
-				mNodeStack[jy].mType = i.mType ;
+				mNodeStack[jy].mClazz = i.mClazz ;
 				mNodeStack[jy].mParent = ix ;
 			}
 			mFoundNodeNameSet.clear () ;
@@ -999,16 +1003,16 @@ inline void XmlParser::initialize (const Array<XmlParser> &sequence) {
 
 class JsonParser {
 private:
-	static constexpr auto NODE_CLAZZ_NULL = FLAG (1) ;
-	static constexpr auto NODE_CLAZZ_STRING = FLAG (2) ;
-	static constexpr auto NODE_CLAZZ_ARRAY = FLAG (3) ;
-	static constexpr auto NODE_CLAZZ_OBJECT = FLAG (4) ;
+	static constexpr auto NODE_CLAZZ_NULL = EFLAG (1) ;
+	static constexpr auto NODE_CLAZZ_STRING = EFLAG (2) ;
+	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
+	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (4) ;
 
 	class Node {
 	private:
 		friend JsonParser ;
 		AnyRef<void> mValue ;
-		FLAG mClazz ;
+		EFLAG mClazz ;
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
@@ -1223,6 +1227,13 @@ public:
 
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
+public:
+	inline static JsonParser make (const PhanBuffer<const STRU8> &data) {
+		JsonParser ret ;
+		ret.initialize (data) ;
+		return std::move (ret) ;
+	}
+
 private:
 	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
 		:mHeap (heap) ,mIndex (index) {}
@@ -1239,13 +1250,6 @@ private:
 			for (auto &&j : r1x)
 				ret.add (&j.key) ;
 		}
-		return std::move (ret) ;
-	}
-
-public:
-	inline static JsonParser make (const PhanBuffer<const STRU8> &data) {
-		JsonParser ret ;
-		ret.initialize (data) ;
 		return std::move (ret) ;
 	}
 
@@ -1266,10 +1270,19 @@ private:
 	} ;
 } ;
 
-inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
-	auto rax = Deque<ARRAY2<INDEX>> () ;
-	auto rbx = Deque<ARRAY2<INDEX>> () ;
-	rax.add (ARRAY2<INDEX> {mIndex ,FLAG (0)}) ;
+inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
+	static constexpr auto M_NODE_X1 = EFLAG (1) ;
+	static constexpr auto M_NODE_X2 = EFLAG (2) ;
+	static constexpr auto M_NODE_X3 = EFLAG (3) ;
+	static constexpr auto M_NODE_X4 = EFLAG (4) ;
+	static constexpr auto M_NODE_X5 = EFLAG (5) ;
+	static constexpr auto M_NODE_X6 = EFLAG (6) ;
+	static constexpr auto M_NODE_X7 = EFLAG (7) ;
+	static constexpr auto M_NODE_X8 = EFLAG (8) ;
+	static constexpr auto M_NODE_X9 = EFLAG (9) ;
+	auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
+	auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
+	rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
 	const auto r1x = object_key_adress_set () ;
 	while (TRUE) {
 		if (rax.empty ())
@@ -1279,46 +1292,46 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			//@info: case 'null'
-			if (!(r2x[0] != VAR_NONE))
+			if (!(r2x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_NULL))
+			if (!(mHeap.self[r2x.P1].mClazz == NODE_CLAZZ_NULL))
 				discard ;
-			if (!(r2x[1] == 0))
+			if (!(r2x.P2 == M_NODE_X1))
 				discard ;
 			writer << _PCSTRU8_ ("null") ;
 		}
 		if switch_case (fax) {
 			//@info: case '"xxx"'
-			if (!(r2x[0] != VAR_NONE))
+			if (!(r2x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_STRING))
+			if (!(mHeap.self[r2x.P1].mClazz == NODE_CLAZZ_STRING))
 				discard ;
-			if (!(r2x[1] == 0))
+			if (!(r2x.P2 == M_NODE_X1))
 				discard ;
-			auto &r3x = mHeap.self[r2x[0]].mValue.rebind<String<STRU8>> ().self ;
+			auto &r3x = mHeap.self[r2x.P1].mValue.rebind<String<STRU8>> ().self ;
 			writer << _PCSTRU8_ ("\"") ;
 			writer << r3x ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
 			//@info: case '[(yyy(,yyy)*)?]'
-			if (!(r2x[0] != VAR_NONE))
+			if (!(r2x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_ARRAY))
+			if (!(mHeap.self[r2x.P1].mClazz == NODE_CLAZZ_ARRAY))
 				discard ;
-			if (!(r2x[1] == 0))
+			if (!(r2x.P2 == M_NODE_X1))
 				discard ;
-			auto &r4x = mHeap.self[r2x[0]].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
+			auto &r4x = mHeap.self[r2x.P1].mValue.rebind<SoftSet<INDEX ,INDEX>> ().self ;
 			rbx.clear () ;
-			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (2)}) ;
+			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
 			INDEX ir = 0 ;
 			for (auto &&i : r4x) {
 				if (ir > 0)
-					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (3)}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
 				ir++ ;
-				rbx.add (ARRAY2<INDEX> {i.item ,FLAG (0)}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i.item ,M_NODE_X1}) ;
 			}
-			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (4)}) ;
+			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
 			while (TRUE) {
 				if (rbx.empty ())
 					break ;
@@ -1328,27 +1341,27 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 		}
 		if switch_case (fax) {
 			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
-			if (!(r2x[0] != VAR_NONE))
+			if (!(r2x.P1 != VAR_NONE))
 				discard ;
-			if (!(mHeap.self[r2x[0]].mClazz == NODE_CLAZZ_OBJECT))
+			if (!(mHeap.self[r2x.P1].mClazz == NODE_CLAZZ_OBJECT))
 				discard ;
-			if (!(r2x[1] == 0))
+			if (!(r2x.P2 == M_NODE_X1))
 				discard ;
-			auto &r5x = mHeap.self[r2x[0]].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
+			auto &r5x = mHeap.self[r2x.P1].mValue.rebind<SoftSet<String<STRU8> ,INDEX>> ().self ;
 			rbx.clear () ;
-			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (5)}) ;
+			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
 			INDEX ir = 0 ;
 			for (auto &&i : r5x) {
 				if (ir > 0)
-					rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (6)}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
 				ir++ ;
 				INDEX ix = r1x.find (&i.key) ;
 				_DEBUG_ASSERT_ (ix != VAR_NONE) ;
-				rbx.add (ARRAY2<INDEX> {ix ,FLAG (1)}) ;
-				rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (7)}) ;
-				rbx.add (ARRAY2<INDEX> {i.item ,FLAG (0)}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i.item ,M_NODE_X1}) ;
 			}
-			rbx.add (ARRAY2<INDEX> {VAR_NONE ,FLAG (8)}) ;
+			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
 			while (TRUE) {
 				if (rbx.empty ())
 					break ;
@@ -1357,68 +1370,68 @@ inline void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			}
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] != VAR_NONE))
+			if (!(r2x.P1 != VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 1))
+			if (!(r2x.P2 == M_NODE_X2))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			auto &r6x = (*r1x[r2x[0]].key) ;
+			auto &r6x = (*r1x[r2x.P1].key) ;
 			writer << r6x ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 2))
+			if (!(r2x.P2 == M_NODE_X3))
 				discard ;
 			writer << _PCSTRU8_ ("[") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 3))
+			if (!(r2x.P2 == M_NODE_X4))
 				discard ;
 			writer << _PCSTRU8_ (",") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 4))
+			if (!(r2x.P2 == M_NODE_X5))
 				discard ;
 			writer << _PCSTRU8_ ("]") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 5))
+			if (!(r2x.P2 == M_NODE_X6))
 				discard ;
 			writer << _PCSTRU8_ ("{") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 6))
+			if (!(r2x.P2 == M_NODE_X7))
 				discard ;
 			writer << _PCSTRU8_ (",") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 7))
+			if (!(r2x.P2 == M_NODE_X8))
 				discard ;
 			writer << _PCSTRU8_ (":") ;
 		}
 		if switch_case (fax) {
-			if (!(r2x[0] == VAR_NONE))
+			if (!(r2x.P1 == VAR_NONE))
 				discard ;
-			if (!(r2x[1] == 8))
+			if (!(r2x.P2 == M_NODE_X9))
 				discard ;
 			writer << _PCSTRU8_ ("}") ;
 		}
 	}
 }
 
-inline void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	using RecursiveCounter = typename Detail::RecursiveCounter ;
 	class Lambda {
 	private:
@@ -1867,7 +1880,7 @@ private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 
-inline void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 	class Lambda {
 	private:
 		CommandParser &mContext ;

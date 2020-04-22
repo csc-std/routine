@@ -89,11 +89,11 @@ class AbstractShader_Engine_OPENGL
 	:public AbstractShader::Abstract {
 private:
 	//@warn: bind to (layout == 1) Vec3 in GLSL
-	static constexpr auto LAYOUT_POSITION = FLAG (1) ;
+	static constexpr auto LAYOUT_POSITION = CHAR (1) ;
 	//@warn: bind to (layout == 2) Vec2 in GLSL
-	static constexpr auto LAYOUT_TEXCOORD = FLAG (2) ;
+	static constexpr auto LAYOUT_TEXCOORD = CHAR (2) ;
 	//@warn: bind to (layout == 3) Vec3 in GLSL
-	static constexpr auto LAYOUT_NORMAL = FLAG (3) ;
+	static constexpr auto LAYOUT_NORMAL = CHAR (3) ;
 
 	class Pack {
 	private:

@@ -380,7 +380,10 @@ public:
 		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
 	}
 
-	Sprite create_sprite () popping ;
+	template <class _RET = NONE>
+	DEPENDENT_TYPE<Sprite ,_RET> create_sprite () popping {
+		return DEPENDENT_TYPE<Sprite ,_RET> (mAbstract) ;
+	}
 } ;
 
 class AbstractShader::Sprite {
@@ -421,8 +424,4 @@ private:
 	explicit Sprite (const PhanRef<const Abstract> &abstract_)
 		:mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 } ;
-
-inline AbstractShader::Sprite AbstractShader::create_sprite () popping {
-	return Sprite (mAbstract) ;
-}
 } ;
