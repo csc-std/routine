@@ -64,36 +64,19 @@ using TEXT_BASE_TYPE = typename U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGN
 using STRUA = U::TEXT_BASE_TYPE<STRA> ;
 using STRUW = U::TEXT_BASE_TYPE<STRW> ;
 
+template <class REAL>
 class ByteReader {
+	_STATIC_ASSERT_ (std::is_same<REAL ,BYTE>::value) ;
+
 private:
-	struct HEAP {} ;
-
-	template <class BASE>
-	class Attribute final
-		:private Proxy {
-	private:
-		friend ByteReader ;
-		BASE &mBase ;
-
-	public:
-		inline Attribute () = delete ;
-
-		inline BYTE varify_ending_item () const {
-			return BYTE (0X00) ;
-		}
-
-		inline BYTE varify_space_item () const {
-			return BYTE (0X00) ;
-		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
+	struct HEAP {
+		BOOL mEndianFlag ;
 	} ;
 
 private:
+	struct Detail ;
 	SharedRef<HEAP> mHeap ;
-	PhanBuffer<const BYTE> mStream ;
+	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -102,17 +85,17 @@ public:
 		reset () ;
 	}
 
-	explicit ByteReader (const PhanBuffer<const BYTE> &stream) {
+	explicit ByteReader (const PhanBuffer<const REAL> &stream) {
 		mHeap = SharedRef<HEAP>::make () ;
-		mStream = PhanBuffer<const BYTE>::make (stream) ;
+		mStream = PhanBuffer<const REAL>::make (stream) ;
 		reset () ;
 	}
 
-	Attribute<ByteReader> attr () & {
-		return Attribute<ByteReader> ((*this)) ;
+	DEF<typename Detail::template Attribute<ByteReader>> attr () & {
+		return DEF<typename Detail::template Attribute<ByteReader>> ((*this)) ;
 	}
 
-	Attribute<ByteReader> attr () && = delete ;
+	DEF<typename Detail::template Attribute<ByteReader>> attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -124,12 +107,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const BYTE> raw () const & {
+	PhanBuffer<const REAL> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
-		return PhanBuffer<const BYTE>::make (mStream ,length ()) ;
+		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const BYTE> raw () && = delete ;
+	PhanBuffer<const REAL> raw () && = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -148,7 +131,7 @@ public:
 	ByteReader copy () popping {
 		ByteReader ret ;
 		ret.mHeap = mHeap ;
-		ret.mStream = PhanBuffer<const BYTE>::make (mStream) ;
+		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
 		return std::move (ret) ;
@@ -168,7 +151,7 @@ public:
 		if switch_case (fax) {
 			if (!(mRead < mWrite))
 				discard ;
-			data = mStream[mRead] ;
+			data = BYTE (mStream[mRead]) ;
 			mRead++ ;
 		}
 		if switch_case (fax) {
@@ -353,17 +336,13 @@ public:
 	}
 } ;
 
-class ByteWriter {
-private:
-	struct HEAP {
-		SharedRef<FixedBuffer<BYTE>> mBuffer ;
-	} ;
-
+template <class REAL>
+struct ByteReader<REAL>::Detail {
 	template <class BASE>
 	class Attribute final
 		:private Proxy {
 	private:
-		friend ByteWriter ;
+		friend ByteReader ;
 		BASE &mBase ;
 
 	public:
@@ -381,10 +360,21 @@ private:
 		inline explicit Attribute (BASE &base)
 			:mBase (base) {}
 	} ;
+} ;
+
+template <class REAL>
+class ByteWriter {
+	_STATIC_ASSERT_ (std::is_same<REAL ,BYTE>::value) ;
 
 private:
+	struct HEAP {
+		SharedRef<FixedBuffer<REAL>> mBuffer ;
+	} ;
+
+private:
+	struct Detail ;
 	SharedRef<HEAP> mHeap ;
-	PhanBuffer<BYTE> mStream ;
+	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -393,24 +383,24 @@ public:
 		reset () ;
 	}
 
-	explicit ByteWriter (const PhanBuffer<BYTE> &stream) {
+	explicit ByteWriter (const PhanBuffer<REAL> &stream) {
 		mHeap = SharedRef<HEAP>::make () ;
-		mStream = PhanBuffer<BYTE>::make (stream) ;
+		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
 	}
 
-	explicit ByteWriter (SharedRef<FixedBuffer<BYTE>> &&stream) {
+	explicit ByteWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
 		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
-		mStream = PhanBuffer<BYTE>::make (mHeap->mBuffer.self) ;
+		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
-	Attribute<ByteWriter> attr () & {
-		return Attribute<ByteWriter> ((*this)) ;
+	DEF<typename Detail::template Attribute<ByteWriter>> attr () & {
+		return DEF<typename Detail::template Attribute<ByteWriter>> ((*this)) ;
 	}
 
-	Attribute<ByteWriter> attr () && = delete ;
+	DEF<typename Detail::template Attribute<ByteWriter>> attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -422,12 +412,12 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const BYTE> raw () const & {
+	PhanBuffer<const REAL> raw () const & {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
-		return PhanBuffer<const BYTE>::make (mStream ,length ()) ;
+		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const BYTE> raw () && = delete ;
+	PhanBuffer<const REAL> raw () && = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -446,7 +436,7 @@ public:
 	ByteWriter copy () popping {
 		ByteWriter ret ;
 		ret.mHeap = mHeap ;
-		ret.mStream = PhanBuffer<BYTE>::make (mStream) ;
+		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
 		return std::move (ret) ;
@@ -454,7 +444,7 @@ public:
 
 	void write (const BYTE &data) {
 		_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
-		mStream[mWrite] = data ;
+		mStream[mWrite] = REAL (data) ;
 		mWrite++ ;
 	}
 
@@ -639,6 +629,32 @@ public:
 } ;
 
 template <class REAL>
+struct ByteWriter<REAL>::Detail {
+	template <class BASE>
+	class Attribute final
+		:private Proxy {
+	private:
+		friend ByteWriter ;
+		BASE &mBase ;
+
+	public:
+		inline Attribute () = delete ;
+
+		inline BYTE varify_ending_item () const {
+			return BYTE (0X00) ;
+		}
+
+		inline BYTE varify_space_item () const {
+			return BYTE (0X00) ;
+		}
+
+	private:
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
+	} ;
+} ;
+
+template <class REAL>
 class TextReader {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
@@ -650,125 +666,8 @@ private:
 		HashSet<REAL ,FLAG> mSpaceSet ;
 	} ;
 
-	template <class BASE>
-	class Attribute final
-		:private Proxy {
-	private:
-		friend TextReader ;
-		BASE &mBase ;
-
-	public:
-		inline Attribute () = delete ;
-
-		inline REAL varify_ending_item () const {
-			return REAL ('\0') ;
-		}
-
-		inline void enable_endian (BOOL flag) const {
-			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
-			mBase.mHeap->mEndianFlag = flag ;
-		}
-
-		inline REAL convert_endian (const REAL &item) const {
-			if (!mBase.mHeap->mEndianFlag)
-				return item ;
-			U::BYTE_BASE_TYPE<REAL> ret ;
-			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
-			ByteReader (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
-			return std::move (_CAST_<REAL> (ret)) ;
-		}
-
-		inline VAR64 varify_radix () const {
-			return 10 ;
-		}
-
-		inline LENGTH varify_val32_precision () const {
-			return 6 ;
-		}
-
-		inline LENGTH varify_val64_precision () const {
-			_STATIC_WARNING_ ("mark") ;
-			return 13 ;
-		}
-
-		inline BOOL varify_number_item (const REAL &item) const {
-			if (!(item >= REAL ('0') && item <= REAL ('9')))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		inline VAR64 convert_number_r (const REAL &item) const {
-			return VAR64 (item) - VAR64 ('0') ;
-		}
-
-		inline void enable_escape (BOOL flag) const {
-			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
-			mBase.mHeap->mEscapeFlag = flag ;
-		}
-
-		inline REAL varify_escape_item () const {
-			return REAL ('\\') ;
-		}
-
-		inline BOOL varify_escape_r (const REAL &item) const {
-			if (!mBase.mHeap->mEscapeFlag)
-				return FALSE ;
-			if (item != varify_escape_item ())
-				return FALSE ;
-			return TRUE ;
-		}
-
-		inline void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
-			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
-			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_a) == VAR_NONE) ;
-			mBase.mHeap->mEscapeSet.add (str_a ,str_e) ;
-		}
-
-		inline REAL convert_escape_r (const REAL &str_a) const {
-			INDEX ix = mBase.mHeap->mEscapeSet.find (str_a) ;
-			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mBase.mHeap->mEscapeSet[ix].item ;
-		}
-
-		inline BOOL varify_space (const REAL &item) const {
-			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
-			if (ix == VAR_NONE)
-				return FALSE ;
-			return TRUE ;
-		}
-
-		inline BOOL varify_space (const REAL &item ,VAR32 group) const {
-			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
-			if (ix == VAR_NONE)
-				return FALSE ;
-			if (mBase.mHeap->mSpaceSet[ix].item != group)
-				return FALSE ;
-			return TRUE ;
-		}
-
-		inline void modify_space (const REAL &item ,VAR32 group) const {
-			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
-			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mSpaceSet.find (item) == VAR_NONE) ;
-			mBase.mHeap->mSpaceSet.add (item ,group) ;
-		}
-
-		inline BOOL varify_control (const REAL &item) const {
-			if (!(item >= REAL (0) && item <= REAL (32)))
-				if (item != REAL (127))
-					return FALSE ;
-			if (varify_space (item))
-				return FALSE ;
-			return TRUE ;
-		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
-	} ;
-
 private:
+	struct Detail ;
 	SharedRef<HEAP> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
@@ -788,11 +687,11 @@ public:
 		reset () ;
 	}
 
-	Attribute<TextReader> attr () & {
-		return Attribute<TextReader> ((*this)) ;
+	DEF<typename Detail::template Attribute<TextReader>> attr () & {
+		return DEF<typename Detail::template Attribute<TextReader>> ((*this)) ;
 	}
 
-	Attribute<TextReader> attr () && = delete ;
+	DEF<typename Detail::template Attribute<TextReader>> attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1227,22 +1126,12 @@ private:
 } ;
 
 template <class REAL>
-class TextWriter {
-	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
-
-private:
-	struct HEAP {
-		SharedRef<FixedBuffer<REAL>> mBuffer ;
-		BOOL mEndianFlag ;
-		BOOL mEscapeFlag ;
-		HashSet<REAL ,REAL> mEscapeSet ;
-	} ;
-
+struct TextReader<REAL>::Detail {
 	template <class BASE>
 	class Attribute final
 		:private Proxy {
 	private:
-		friend TextWriter ;
+		friend TextReader ;
 		BASE &mBase ;
 
 	public:
@@ -1253,6 +1142,7 @@ private:
 		}
 
 		inline void enable_endian (BOOL flag) const {
+			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			mBase.mHeap->mEndianFlag = flag ;
 		}
 
@@ -1261,7 +1151,7 @@ private:
 				return item ;
 			U::BYTE_BASE_TYPE<REAL> ret ;
 			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
-			ByteReader (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
+			ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
 			return std::move (_CAST_<REAL> (ret)) ;
 		}
 
@@ -1284,11 +1174,12 @@ private:
 			return TRUE ;
 		}
 
-		inline REAL convert_number_w (VAR64 number) const {
-			return REAL (VAR64 ('0') + number) ;
+		inline VAR64 convert_number_r (const REAL &item) const {
+			return VAR64 (item) - VAR64 ('0') ;
 		}
 
 		inline void enable_escape (BOOL flag) const {
+			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			mBase.mHeap->mEscapeFlag = flag ;
 		}
 
@@ -1296,30 +1187,48 @@ private:
 			return REAL ('\\') ;
 		}
 
-		inline BOOL varify_escape_w (const REAL &key) const {
+		inline BOOL varify_escape_r (const REAL &item) const {
 			if (!mBase.mHeap->mEscapeFlag)
 				return FALSE ;
-			if (mBase.mHeap->mEscapeSet.find (key) == VAR_NONE)
+			if (item != varify_escape_item ())
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
-			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_e) == VAR_NONE) ;
-			mBase.mHeap->mEscapeSet.add (str_e ,str_a) ;
+		inline void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
+			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
+			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_a) == VAR_NONE) ;
+			mBase.mHeap->mEscapeSet.add (str_a ,str_e) ;
 		}
 
-		inline REAL convert_escape_w (const REAL &str_e) const {
-			INDEX ix = mBase.mHeap->mEscapeSet.find (str_e) ;
+		inline REAL convert_escape_r (const REAL &str_a) const {
+			INDEX ix = mBase.mHeap->mEscapeSet.find (str_a) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
 			return mBase.mHeap->mEscapeSet[ix].item ;
 		}
 
 		inline BOOL varify_space (const REAL &item) const {
-			if (!(item == REAL ('\r') || item == REAL ('\n')))
+			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
+			if (ix == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
+		}
+
+		inline BOOL varify_space (const REAL &item ,VAR32 group) const {
+			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
+			if (ix == VAR_NONE)
+				return FALSE ;
+			if (mBase.mHeap->mSpaceSet[ix].item != group)
+				return FALSE ;
+			return TRUE ;
+		}
+
+		inline void modify_space (const REAL &item ,VAR32 group) const {
+			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
+			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mSpaceSet.find (item) == VAR_NONE) ;
+			mBase.mHeap->mSpaceSet.add (item ,group) ;
 		}
 
 		inline BOOL varify_control (const REAL &item) const {
@@ -1335,8 +1244,21 @@ private:
 		inline explicit Attribute (BASE &base)
 			:mBase (base) {}
 	} ;
+} ;
+
+template <class REAL>
+class TextWriter {
+	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 private:
+	struct HEAP {
+		SharedRef<FixedBuffer<REAL>> mBuffer ;
+		BOOL mEscapeFlag ;
+		HashSet<REAL ,REAL> mEscapeSet ;
+	} ;
+
+private:
+	struct Detail ;
 	SharedRef<HEAP> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
@@ -1350,7 +1272,6 @@ public:
 	explicit TextWriter (const PhanBuffer<REAL> &stream) {
 		const auto r1x = attr () ;
 		mHeap = SharedRef<HEAP>::make () ;
-		r1x.enable_endian (FALSE) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
@@ -1360,17 +1281,16 @@ public:
 		const auto r1x = attr () ;
 		mHeap = SharedRef<HEAP>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
-		r1x.enable_endian (FALSE) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
 
-	Attribute<TextWriter> attr () & {
-		return Attribute<TextWriter> ((*this)) ;
+	DEF<typename Detail::template Attribute<TextWriter>> attr () & {
+		return DEF<typename Detail::template Attribute<TextWriter>> ((*this)) ;
 	}
 
-	Attribute<TextWriter> attr () && = delete ;
+	DEF<typename Detail::template Attribute<TextWriter>> attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1419,15 +1339,15 @@ public:
 			if (!r1x.varify_escape_w (data))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
-			mStream[mWrite] = r1x.convert_endian (r1x.varify_escape_item ()) ;
+			mStream[mWrite] = r1x.varify_escape_item () ;
 			mWrite++ ;
 			const auto r2x = r1x.convert_escape_w (data) ;
-			mStream[mWrite] = r1x.convert_endian (r2x) ;
+			mStream[mWrite] = r2x ;
 			mWrite++ ;
 		}
 		if switch_case (fax) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
-			mStream[mWrite] = r1x.convert_endian (data) ;
+			mStream[mWrite] = data ;
 			mWrite++ ;
 		}
 	}
@@ -1809,12 +1729,102 @@ private:
 	}
 } ;
 
+template <class REAL>
+struct TextWriter<REAL>::Detail {
+	template <class BASE>
+	class Attribute final
+		:private Proxy {
+	private:
+		friend TextWriter ;
+		BASE &mBase ;
+
+	public:
+		inline Attribute () = delete ;
+
+		inline REAL varify_ending_item () const {
+			return REAL ('\0') ;
+		}
+
+		inline VAR64 varify_radix () const {
+			return 10 ;
+		}
+
+		inline LENGTH varify_val32_precision () const {
+			return 6 ;
+		}
+
+		inline LENGTH varify_val64_precision () const {
+			_STATIC_WARNING_ ("mark") ;
+			return 13 ;
+		}
+
+		inline BOOL varify_number_item (const REAL &item) const {
+			if (!(item >= REAL ('0') && item <= REAL ('9')))
+				return FALSE ;
+			return TRUE ;
+		}
+
+		inline REAL convert_number_w (VAR64 number) const {
+			return REAL (VAR64 ('0') + number) ;
+		}
+
+		inline void enable_escape (BOOL flag) const {
+			mBase.mHeap->mEscapeFlag = flag ;
+		}
+
+		inline REAL varify_escape_item () const {
+			return REAL ('\\') ;
+		}
+
+		inline BOOL varify_escape_w (const REAL &key) const {
+			if (!mBase.mHeap->mEscapeFlag)
+				return FALSE ;
+			if (mBase.mHeap->mEscapeSet.find (key) == VAR_NONE)
+				return FALSE ;
+			return TRUE ;
+		}
+
+		inline void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
+			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_e) == VAR_NONE) ;
+			mBase.mHeap->mEscapeSet.add (str_e ,str_a) ;
+		}
+
+		inline REAL convert_escape_w (const REAL &str_e) const {
+			INDEX ix = mBase.mHeap->mEscapeSet.find (str_e) ;
+			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
+			return mBase.mHeap->mEscapeSet[ix].item ;
+		}
+
+		inline BOOL varify_space (const REAL &item) const {
+			if (!(item == REAL ('\r') || item == REAL ('\n')))
+				return FALSE ;
+			return TRUE ;
+		}
+
+		inline BOOL varify_control (const REAL &item) const {
+			if (!(item >= REAL (0) && item <= REAL (32)))
+				if (item != REAL (127))
+					return FALSE ;
+			if (varify_space (item))
+				return FALSE ;
+			return TRUE ;
+		}
+
+	private:
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
+	} ;
+} ;
+
 inline namespace STREAM {
-inline void _CLS_ (ByteReader &reader) {
+template <class _ARG1>
+inline void _CLS_ (ByteReader<_ARG1> &reader) {
 	reader.reset () ;
 }
 
-inline void _CLS_ (ByteWriter &writer) {
+template <class _ARG1>
+inline void _CLS_ (ByteWriter<_ARG1> &writer) {
 	writer.reset () ;
 }
 
@@ -1921,7 +1931,8 @@ inline void _BOM_ (TextWriter<STRW> &writer) {
 	_BOM_ (_CAST_<TextWriter<STRUW>> (writer)) ;
 }
 
-inline void _GAP_ (ByteReader &reader) {
+template <class _ARG1>
+inline void _GAP_ (ByteReader<_ARG1> &reader) {
 	const auto r1x = reader.attr () ;
 	auto ris = reader.copy () ;
 	auto rax = BYTE () ;
@@ -1932,7 +1943,8 @@ inline void _GAP_ (ByteReader &reader) {
 	reader = std::move (ris) ;
 }
 
-inline void _GAP_ (ByteWriter &writer) {
+template <class _ARG1>
+inline void _GAP_ (ByteWriter<_ARG1> &writer) {
 	const auto r1x = writer.attr () ;
 	auto wos = writer.copy () ;
 	wos << r1x.varify_space_item () ;
@@ -1962,7 +1974,8 @@ inline void _GAP_ (TextWriter<_ARG1> &writer) {
 	writer = std::move (wos) ;
 }
 
-inline void _EOS_ (ByteReader &reader) {
+template <class _ARG1>
+inline void _EOS_ (ByteReader<_ARG1> &reader) {
 	const auto r1x = reader.attr () ;
 	auto ris = reader.copy () ;
 	auto rax = BYTE () ;
@@ -1975,7 +1988,8 @@ inline void _EOS_ (ByteReader &reader) {
 	reader = std::move (ris) ;
 }
 
-inline void _EOS_ (ByteWriter &writer) {
+template <class _ARG1>
+inline void _EOS_ (ByteWriter<_ARG1> &writer) {
 	const auto r1x = writer.attr () ;
 	auto wos = writer.copy () ;
 	for (auto &&i : _RANGE_ (0 ,wos.size () - wos.length ())) {
@@ -2005,12 +2019,13 @@ inline void _EOS_ (TextWriter<_ARG1> &writer) {
 } ;
 
 inline namespace STREAM {
-inline void _SCANS_ (ByteReader &reader) {
+template <class _ARG1>
+inline void _SCANS_ (ByteReader<_ARG1> &reader) {
 	_STATIC_WARNING_ ("noop") ;
 }
 
-template <class _ARG1 ,class... _ARGS>
-inline void _SCANS_ (ByteReader &reader ,const _ARG1 &list_one ,const _ARGS &...list_rest) {
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+inline void _SCANS_ (ByteReader<_ARG1> &reader ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
 	reader >> list_one ;
 	_SCANS_ (reader ,list_rest...) ;
 }
@@ -2026,12 +2041,13 @@ inline void _SCANS_ (TextReader<_ARG1> &reader ,const _ARG2 &list_one ,const _AR
 	_SCANS_ (reader ,list_rest...) ;
 }
 
-inline void _PRINTS_ (ByteWriter &writer) {
+template <class _ARG1>
+inline void _PRINTS_ (ByteWriter<_ARG1> &writer) {
 	_STATIC_WARNING_ ("noop") ;
 }
 
-template <class _ARG1 ,class... _ARGS>
-inline void _PRINTS_ (ByteWriter &writer ,const _ARG1 &list_one ,const _ARGS &...list_rest) {
+template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+inline void _PRINTS_ (ByteWriter<_ARG1> &writer ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
 	writer << list_one ;
 	_PRINTS_ (writer ,list_rest...) ;
 }

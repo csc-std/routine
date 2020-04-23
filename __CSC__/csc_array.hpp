@@ -979,30 +979,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
@@ -1092,6 +1070,30 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class ITEM ,class SIZE>
+struct Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Priority ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
+	} ;
+} ;
+
 template <class KEY ,class SIZE>
 class Priority<KEY ,SPECIALIZATION<void> ,SIZE> {
 #pragma push_macro ("spec")
@@ -1113,29 +1115,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mPriority[index].mKey) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
@@ -1215,6 +1196,29 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class SIZE>
+struct Priority<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Priority ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mPriority[index].mKey) {}
+	} ;
+} ;
+
 template <class KEY ,class ITEM ,class SIZE>
 class Priority
 	:private Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
@@ -1222,10 +1226,9 @@ private:
 	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
-	template <class _ARG1>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
+	struct Detail ;
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mPriority ;
 	using SPECIALIZATION_BASE::mWrite ;
@@ -1288,38 +1291,37 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	Pair<Priority> get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair<Priority> ((*this) ,index) ;
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> ((*this) ,index) ;
 	}
 
-	inline Pair<Priority> operator[] (INDEX index) & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	Pair<const Priority> get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair<const Priority> ((*this) ,index) ;
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> ((*this) ,index) ;
 	}
 
-	inline Pair<const Priority> operator[] (INDEX index) const & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	Pair<Priority> get (INDEX) && = delete ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX) && = delete ;
 
-	inline Pair<Priority> operator[] (INDEX) && = delete ;
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> operator[] (INDEX) && = delete ;
 
-	INDEX at (const Pair<Priority> &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
-	//@error: fuck vs2015
-	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
@@ -2441,72 +2443,7 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
-	template <class BASE>
-	class Bit final
-		:private Proxy {
-	private:
-		friend BitSet ;
-		BASE &mBase ;
-		INDEX mIndex ;
-
-	public:
-		inline Bit () = delete ;
-
-		inline explicit operator BOOL () const & = delete ;
-
-		inline implicit operator BOOL () && {
-			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
-			const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
-			if (r2x == 0)
-				return FALSE ;
-			return TRUE ;
-		}
-
-#ifdef __CSC_CONFIG_VAR32__
-		inline implicit operator VAR32 () const & {
-			return VAR32 (mIndex) ;
-		}
-
-		inline explicit operator VAR32 () && = delete ;
-
-		inline explicit operator VAR64 () const & {
-			return VAR64 (mIndex) ;
-		}
-
-		inline explicit operator VAR64 () && = delete ;
-#elif defined __CSC_CONFIG_VAR64__
-		inline explicit operator VAR32 () const & {
-			return VAR32 (mIndex) ;
-		}
-
-		inline explicit operator VAR32 () && = delete ;
-
-		inline implicit operator VAR64 () const & {
-			return VAR64 (mIndex) ;
-		}
-
-		inline explicit operator VAR64 () && = delete ;
-#endif
-
-		inline void operator= (const BOOL &that) && {
-			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
-			auto fax = TRUE ;
-			if switch_case (fax) {
-				if (!that)
-					discard ;
-				mBase.mSet[mIndex / 8] |= r1x ;
-			}
-			if switch_case (fax) {
-				mBase.mSet[mIndex / 8] &= ~r1x ;
-			}
-		}
-
-	private:
-		inline explicit Bit (BASE &base ,INDEX index) popping
-			: mBase (base) ,mIndex (index) {}
-	} ;
-
-private:
+	struct Detail ;
 	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
@@ -2597,40 +2534,51 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	Bit<BitSet> get (INDEX index) & {
+	DEF<typename Detail::template Bit<BitSet>> get (INDEX index) & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit<BitSet> ((*this) ,index) ;
+		return DEF<typename Detail::template Bit<BitSet>> ((*this) ,index) ;
 	}
 
-	inline Bit<BitSet> operator[] (INDEX index) & {
+	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	Bit<const BitSet> get (INDEX index) const & {
+	DEF<typename Detail::template Bit<const BitSet>> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit<const BitSet> ((*this) ,index) ;
+		return DEF<typename Detail::template Bit<const BitSet>> ((*this) ,index) ;
 	}
 
-	inline Bit<const BitSet> operator[] (INDEX index) const & {
+	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	Bit<BitSet> get (INDEX) && = delete ;
+	DEF<typename Detail::template Bit<BitSet>> get (INDEX) && = delete ;
 
-	inline Bit<BitSet> operator[] (INDEX) && = delete ;
+	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX) && = delete ;
 
-	INDEX at (const Bit<BitSet> &item) const {
-		if (this != &item.mBase)
-			return VAR_NONE ;
-		return INDEX (item) ;
-	}
-
-	INDEX at (const Bit<const BitSet> &item) const {
+#ifdef __CSC_COMPILER_MSVC__
+	//@error: fuck vs2015
+	template <class _ARG1>
+	INDEX at (const _ARG1 &item) const {
+		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<typename Detail::template Bit<BitSet>>>::value || std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<typename Detail::template Bit<const BitSet>>>::value) ;
 		if (this == &item.mBase)
 			return VAR_NONE ;
 		return INDEX (item) ;
 	}
+#else
+	INDEX at (const DEF<typename Detail::template Bit<BitSet>> &item) const {
+		if (this == &item.mBase)
+			return VAR_NONE ;
+		return INDEX (item) ;
+	}
+
+	INDEX at (const DEF<typename Detail::template Bit<const BitSet>> &item) const {
+		if (this == &item.mBase)
+			return VAR_NONE ;
+		return INDEX (item) ;
+	}
+#endif
 
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
@@ -2833,6 +2781,74 @@ private:
 	}
 } ;
 
+template <class SIZE>
+struct BitSet<SIZE>::Detail {
+	template <class BASE>
+	class Bit final
+		:private Proxy {
+	private:
+		friend BitSet ;
+		BASE &mBase ;
+		INDEX mIndex ;
+
+	public:
+		inline Bit () = delete ;
+
+		inline explicit operator BOOL () const & = delete ;
+
+		inline implicit operator BOOL () && {
+			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+			const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
+			if (r2x == 0)
+				return FALSE ;
+			return TRUE ;
+		}
+
+#ifdef __CSC_CONFIG_VAR32__
+		inline implicit operator VAR32 () const & {
+			return VAR32 (mIndex) ;
+		}
+
+		inline explicit operator VAR32 () && = delete ;
+
+		inline explicit operator VAR64 () const & {
+			return VAR64 (mIndex) ;
+		}
+
+		inline explicit operator VAR64 () && = delete ;
+#elif defined __CSC_CONFIG_VAR64__
+		inline explicit operator VAR32 () const & {
+			return VAR32 (mIndex) ;
+		}
+
+		inline explicit operator VAR32 () && = delete ;
+
+		inline implicit operator VAR64 () const & {
+			return VAR64 (mIndex) ;
+		}
+
+		inline explicit operator VAR64 () && = delete ;
+#endif
+
+		inline void operator= (const BOOL &that) && {
+			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+			auto fax = TRUE ;
+			if switch_case (fax) {
+				if (!that)
+					discard ;
+				mBase.mSet[mIndex / 8] |= r1x ;
+			}
+			if switch_case (fax) {
+				mBase.mSet[mIndex / 8] &= ~r1x ;
+			}
+		}
+
+	private:
+		inline explicit Bit (BASE &base ,INDEX index) popping
+			: mBase (base) ,mIndex (index) {}
+	} ;
+} ;
+
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
 class Set ;
 
@@ -2874,30 +2890,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
@@ -2991,6 +2985,30 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class ITEM ,class SIZE>
+struct Set<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Set ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+	} ;
+} ;
+
 template <class KEY ,class SIZE>
 class Set<KEY ,SPECIALIZATION<void> ,SIZE> {
 #pragma push_macro ("spec")
@@ -3022,29 +3040,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet[index].mKey) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
@@ -3130,6 +3127,29 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class SIZE>
+struct Set<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Set ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) {}
+	} ;
+} ;
+
 template <class KEY ,class ITEM ,class SIZE>
 class Set
 	:private Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
@@ -3137,8 +3157,6 @@ private:
 	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
-	template <class _ARG1>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3205,32 +3223,31 @@ public:
 		return ArrayIterator<const Set> ((*this) ,iend ()) ;
 	}
 
-	Pair<Set> get (INDEX index) & {
-		return Pair<Set> ((*this) ,index) ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX index) & {
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> ((*this) ,index) ;
 	}
 
-	inline Pair<Set> operator[] (INDEX index) & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	Pair<const Set> get (INDEX index) const & {
-		return Pair<const Set> ((*this) ,index) ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> get (INDEX index) const & {
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> ((*this) ,index) ;
 	}
 
-	inline Pair<const Set> operator[] (INDEX index) const & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	Pair<Set> get (INDEX) && = delete ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX) && = delete ;
 
-	inline Pair<Set> operator[] (INDEX) && = delete ;
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> operator[] (INDEX) && = delete ;
 
-	INDEX at (const Pair<Set> &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@error: fuck vs2015
-	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
@@ -3726,30 +3743,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
@@ -3843,6 +3838,30 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class ITEM ,class SIZE>
+struct HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend HashSet ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
+	} ;
+} ;
+
 template <class KEY ,class SIZE>
 class HashSet<KEY ,SPECIALIZATION<void> ,SIZE> {
 #pragma push_macro ("spec")
@@ -3872,29 +3891,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet[index].mKey) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
@@ -3980,6 +3978,29 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class SIZE>
+struct HashSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend HashSet ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet[index].mKey) {}
+	} ;
+} ;
+
 template <class KEY ,class ITEM ,class SIZE>
 class HashSet
 	:private HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
@@ -3987,8 +4008,6 @@ private:
 	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
-	template <class _ARG1>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -4055,32 +4074,31 @@ public:
 		return ArrayIterator<const HashSet> ((*this) ,iend ()) ;
 	}
 
-	Pair<HashSet> get (INDEX index) & {
-		return Pair<HashSet> ((*this) ,index) ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX index) & {
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> ((*this) ,index) ;
 	}
 
-	inline Pair<HashSet> operator[] (INDEX index) & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	Pair<const HashSet> get (INDEX index) const & {
-		return Pair<const HashSet> ((*this) ,index) ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> get (INDEX index) const & {
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> ((*this) ,index) ;
 	}
 
-	inline Pair<const HashSet> operator[] (INDEX index) const & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	Pair<HashSet> get (INDEX) && = delete ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX) && = delete ;
 
-	inline Pair<HashSet> operator[] (INDEX) && = delete ;
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> operator[] (INDEX) && = delete ;
 
-	INDEX at (const Pair<HashSet> &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
-
-	//@error: fuck vs2015
-	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
+	
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
@@ -4253,30 +4271,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY ,ITEM> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
@@ -4391,6 +4387,30 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class ITEM ,class SIZE>
+struct SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend SoftSet ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
+	} ;
+} ;
+
 template <class KEY ,class SIZE>
 class SoftSet<KEY ,SPECIALIZATION<void> ,SIZE> {
 #pragma push_macro ("spec")
@@ -4422,29 +4442,8 @@ private:
 
 	using PAIR_ITEM = PACK<KEY> ;
 
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
-			: key (base.mSet.self[index].mKey) {}
-	} ;
-
-	using Pair_const_BASE = Pair<const SPECIALIZATION_THIS> ;
-
 private:
+	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
@@ -4551,6 +4550,29 @@ private:
 #pragma pop_macro ("spec")
 } ;
 
+template <class KEY ,class SIZE>
+struct SoftSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend SoftSet ;
+		friend SPECIALIZATION_THIS ;
+		const KEY &key ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const KEY & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index) popping
+			: key (base.mSet.self[index].mKey) {}
+	} ;
+} ;
+
 template <class KEY ,class ITEM ,class SIZE>
 class SoftSet
 	:private SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
@@ -4558,8 +4580,6 @@ private:
 	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
 	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
-	template <class _ARG1>
-	using Pair = typename SPECIALIZATION_BASE::template Pair<_ARG1> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -4636,34 +4656,33 @@ public:
 		return ArrayIterator<const SoftSet> ((*this) ,iend ()) ;
 	}
 
-	Pair<SoftSet> get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX index) & {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair<SoftSet> ((*this) ,index) ;
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> ((*this) ,index) ;
 	}
 
-	inline Pair<SoftSet> operator[] (INDEX index) & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	Pair<const SoftSet> get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> get (INDEX index) const & {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair<const SoftSet> ((*this) ,index) ;
+		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> ((*this) ,index) ;
 	}
 
-	inline Pair<const SoftSet> operator[] (INDEX index) const & {
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	Pair<SoftSet> get (INDEX) && = delete ;
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX) && = delete ;
 
-	inline Pair<SoftSet> operator[] (INDEX) && = delete ;
+	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> operator[] (INDEX) && = delete ;
 
-	INDEX at (const Pair<SoftSet> &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 
-	//@error: fuck vs2015
-	INDEX at (const typename SPECIALIZATION_BASE::Pair_const_BASE &item) const {
+	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
 

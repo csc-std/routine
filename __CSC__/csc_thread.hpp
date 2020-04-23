@@ -257,42 +257,42 @@ private:
 	inline static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
+} ;
 
-private:
-	struct Detail {
-		class LocalProc {
-		private:
-			PTR<Pack> mThis ;
-			INDEX mIndex ;
+template <class ITEM>
+struct CalcThread<ITEM>::Detail {
+	class LocalProc {
+	private:
+		PTR<Pack> mThis ;
+		INDEX mIndex ;
 
-		public:
-			inline LocalProc () = delete ;
+	public:
+		inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> this_ ,INDEX index)
-				:mThis (this_) ,mIndex (index) {}
+		inline explicit LocalProc (PTR<Pack> this_ ,INDEX index)
+			:mThis (this_) ,mIndex (index) {}
 
-			inline void operator() () {
-				_CALL_TRY_ ([&] () {
-					static_execute ((*mThis) ,mIndex) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}
-		} ;
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				static_execute ((*mThis) ,mIndex) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
 
-		class ThreadCounter
-			:private Wrapped<Pack> {
-		public:
-			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter++ ;
-			}
+	class ThreadCounter
+		:private Wrapped<Pack> {
+	public:
+		inline void lock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter++ ;
+		}
 
-			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter-- ;
-			}
-		} ;
+		inline void unlock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter-- ;
+		}
 	} ;
 } ;
 
@@ -577,53 +577,53 @@ private:
 	inline static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
+} ;
 
-private:
-	struct Detail {
-		class LocalProc {
-		private:
-			PTR<Pack> mThis ;
+template <class ITEM>
+struct WorkThread<ITEM>::Detail {
+	class LocalProc {
+	private:
+		PTR<Pack> mThis ;
 
-		public:
-			inline LocalProc () = delete ;
+	public:
+		inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> this_)
-				:mThis (this_) {}
+		inline explicit LocalProc (PTR<Pack> this_)
+			:mThis (this_) {}
 
-			inline void operator() () {
-				_CALL_TRY_ ([&] () {
-					static_execute ((*mThis)) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}
-		} ;
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				static_execute ((*mThis)) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
 
-		class ThreadCounter
-			:private Wrapped<Pack> {
-		public:
-			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter++ ;
-			}
+	class ThreadCounter
+		:private Wrapped<Pack> {
+	public:
+		inline void lock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter++ ;
+		}
 
-			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter-- ;
-			}
-		} ;
+		inline void unlock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter-- ;
+		}
+	} ;
 
-		class Counter
-			:private Wrapped<LENGTH> {
-		public:
-			inline void lock () {
-				Counter::mSelf++ ;
-			}
+	class Counter
+		:private Wrapped<LENGTH> {
+	public:
+		inline void lock () {
+			Counter::mSelf++ ;
+		}
 
-			inline void unlock () {
-				Counter::mSelf-- ;
-			}
-		} ;
+		inline void unlock () {
+			Counter::mSelf-- ;
+		}
 	} ;
 } ;
 
@@ -651,6 +651,8 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	using Dependent = Promise ;
+
 private:
 	struct Detail ;
 	friend IntrusiveRef<Pack> ;
@@ -661,8 +663,8 @@ public:
 		mThis = IntrusiveRef<Pack>::make () ;
 	}
 
-	DEPENDENT_TYPE<Future ,Promise> future () popping {
-		return DEPENDENT_TYPE<Future ,Promise> (mThis) ;
+	DEPENDENT_TYPE<Future ,Dependent> future () popping {
+		return DEPENDENT_TYPE<Future ,Dependent> (mThis) ;
 	}
 
 	void push (const ITEM &item) {
@@ -725,7 +727,7 @@ public:
 	}
 
 public:
-	static DEPENDENT_TYPE<Future ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	static DEPENDENT_TYPE<Future ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (std::move (proc)) ;
 		return rax.future () ;
@@ -838,41 +840,41 @@ private:
 	inline static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
+} ;
 
-private:
-	struct Detail {
-		class LocalProc {
-		private:
-			PTR<Pack> mThis ;
+template <class ITEM>
+struct Promise<ITEM>::Detail {
+	class LocalProc {
+	private:
+		PTR<Pack> mThis ;
 
-		public:
-			inline LocalProc () = delete ;
+	public:
+		inline LocalProc () = delete ;
 
-			inline explicit LocalProc (PTR<Pack> this_)
-				:mThis (this_) {}
+		inline explicit LocalProc (PTR<Pack> this_)
+			:mThis (this_) {}
 
-			inline void operator() () {
-				_CALL_TRY_ ([&] () {
-					static_execute ((*mThis)) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}
-		} ;
+		inline void operator() () {
+			_CALL_TRY_ ([&] () {
+				static_execute ((*mThis)) ;
+			} ,[&] () {
+				_STATIC_WARNING_ ("noop") ;
+			}) ;
+		}
+	} ;
 
-		class ThreadCounter
-			:private Wrapped<Pack> {
-		public:
-			inline void lock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter++ ;
-			}
+	class ThreadCounter
+		:private Wrapped<Pack> {
+	public:
+		inline void lock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter++ ;
+		}
 
-			inline void unlock () {
-				ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-				ThreadCounter::mSelf.mThreadCounter-- ;
-			}
-		} ;
+		inline void unlock () {
+			ScopedGuard<std::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ThreadCounter::mSelf.mThreadCounter-- ;
+		}
 	} ;
 } ;
 

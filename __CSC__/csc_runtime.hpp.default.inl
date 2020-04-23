@@ -61,7 +61,7 @@ inline exports FLAG GlobalRuntime::process_pid () {
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
-	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
+	auto wos = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
@@ -92,7 +92,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto ris = ByteReader (info) ;
+	auto ris = ByteReader<BYTE> (info) ;
 	const auto r1x = ris.template read<VAR64> () ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
@@ -108,7 +108,7 @@ inline exports FLAG GlobalRuntime::process_pid () {
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
-	auto wos = ByteWriter (PhanBuffer<STRU8>::make (ret)) ;
+	auto wos = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = getpgid (pid_t (pid)) ;
 		if (r1x < 0)
@@ -129,7 +129,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto ris = ByteReader (info) ;
+	auto ris = ByteReader<BYTE> (info) ;
 	const auto r1x = ris.template read<VAR64> () ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;

@@ -18,6 +18,9 @@ class Vector {
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 
 private:
+	using Dependent = Vector ;
+
+private:
 	Buffer<REAL ,ARGC<4>> mVector ;
 
 public:
@@ -213,7 +216,7 @@ public:
 		return mul (that) ;
 	}
 
-	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Vector> &that) const {
+	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Dependent> &that) const {
 		Vector<REAL> ret ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			const auto r1x = get (0) * that.get (0 ,i) ;
@@ -327,27 +330,7 @@ class Matrix {
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 
 private:
-	template <class BASE>
-	class Row final
-		:private Proxy {
-	private:
-		friend Matrix ;
-		BASE &mBase ;
-		INDEX mY ;
-
-	public:
-		inline Row () = delete ;
-
-		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) && {
-			return mBase.get (mY ,x) ;
-		}
-
-	private:
-		inline explicit Row (BASE &base ,INDEX y) popping
-			: mBase (base) ,mY (y) {}
-	} ;
-
-private:
+	struct Detail ;
 	Buffer<REAL ,ARGC<16>> mMatrix ;
 
 public:
@@ -386,25 +369,25 @@ public:
 
 	REAL &get (INDEX ,INDEX) && = delete ;
 
-	Row<Matrix> get (INDEX y) & {
-		return Row<Matrix> ((*this) ,y) ;
+	DEF<typename Detail::template Row<Matrix>> get (INDEX y) & {
+		return DEF<typename Detail::template Row<Matrix>> ((*this) ,y) ;
 	}
 
-	inline Row<Matrix> operator[] (INDEX y) & {
+	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	Row<const Matrix> get (INDEX y) const & {
-		return Row<const Matrix> ((*this) ,y) ;
+	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const & {
+		return DEF<typename Detail::template Row<const Matrix>> ((*this) ,y) ;
 	}
 
-	inline Row<const Matrix> operator[] (INDEX y) const & {
+	inline DEF<typename Detail::template Row<const Matrix>> operator[] (INDEX y) const & {
 		return get (y) ;
 	}
 
-	Row<Matrix> get (INDEX) && = delete ;
+	DEF<typename Detail::template Row<Matrix>> get (INDEX) && = delete ;
 
-	inline Row<Matrix> operator[] (INDEX) && = delete ;
+	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Matrix &that) const {
 		return BOOL (mMatrix == that.mMatrix) ;
@@ -1059,5 +1042,28 @@ private:
 		}
 		return std::move (ret) ;
 	}
+} ;
+
+template <class REAL>
+struct Matrix<REAL>::Detail {
+	template <class BASE>
+	class Row final
+		:private Proxy {
+	private:
+		friend Matrix ;
+		BASE &mBase ;
+		INDEX mY ;
+
+	public:
+		inline Row () = delete ;
+
+		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) && {
+			return mBase.get (mY ,x) ;
+		}
+
+	private:
+		inline explicit Row (BASE &base ,INDEX y) popping
+			: mBase (base) ,mY (y) {}
+	} ;
 } ;
 } ;

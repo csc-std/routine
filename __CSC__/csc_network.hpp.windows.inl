@@ -76,8 +76,8 @@ inline String<STRU8> _inline_SOCKET_MAKE_IPV4S_ (const SOCKADDR &val) {
 		PACK<WORD ,CHAR> ret ;
 		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (r1x.sin_port) ;
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (r1x.sin_addr.S_un.S_addr) ;
-		ByteReader (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.P1 ;
-		ByteReader (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.P2 ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.P1 ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.P2 ;
 		return std::move (ret) ;
 	}) ;
 	return _BUILDIPV4S_<STRU8> (r2x) ;
@@ -92,8 +92,8 @@ inline SOCKADDR _inline_SOCKET_MAKE_SOCKETADDR_ (const String<STRU8> &val) {
 		const auto r2x = _PARSEIPV4S_ (val) ;
 		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (ret.sin_port) ;
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (ret.sin_addr.S_un.S_addr) ;
-		ByteWriter (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.P1 ;
-		ByteWriter (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.P2 ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.P1 ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.P2 ;
 		return std::move (ret) ;
 	}) ;
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
@@ -396,7 +396,7 @@ inline exports void TCPSocket::Listener::accept () {
 	mThis.rebind<Implement> ()->accept () ;
 }
 
-inline TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
+inline exports TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
 	mThis = AnyRef<Implement>::make (socket_) ;
 }
 

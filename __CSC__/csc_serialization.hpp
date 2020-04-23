@@ -319,21 +319,33 @@ private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 
 	void initialize (const Array<XmlParser> &sequence) ;
+} ;
 
-private:
-	struct Detail {
-		class RecursiveCounter
-			:private Wrapped<LENGTH> {
-		public:
-			inline void lock () {
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
-				RecursiveCounter::mSelf++ ;
-			}
+struct XmlParser::Detail {
+	class RecursiveCounter
+		:private Wrapped<LENGTH> {
+	public:
+		inline void lock () {
+			_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+			RecursiveCounter::mSelf++ ;
+		}
 
-			inline void unlock () {
-				RecursiveCounter::mSelf-- ;
-			}
-		} ;
+		inline void unlock () {
+			RecursiveCounter::mSelf-- ;
+		}
+	} ;
+
+	struct FOUND_NODE {
+		String<STRU8> mName ;
+		SoftSet<String<STRU8> ,String<STRU8>> mAttributeSet ;
+		EFLAG mClazz ;
+		Deque<XmlParser> mBaseNode ;
+	} ;
+
+	struct STACK_NODE {
+		Deque<XmlParser> mBaseNode ;
+		EFLAG mClazz ;
+		INDEX mParent ;
 	} ;
 } ;
 
@@ -679,21 +691,9 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
+	using FOUND_NODE = typename Detail::FOUND_NODE ;
+	using STACK_NODE = typename Detail::STACK_NODE ;
 	class Lambda {
-	private:
-		struct FOUND_NODE {
-			String<STRU8> mName ;
-			SoftSet<String<STRU8> ,String<STRU8>> mAttributeSet ;
-			EFLAG mClazz ;
-			Deque<XmlParser> mBaseNode ;
-		} ;
-
-		struct STACK_NODE {
-			Deque<XmlParser> mBaseNode ;
-			EFLAG mClazz ;
-			INDEX mParent ;
-		} ;
-
 	private:
 		XmlParser &mContext ;
 		const Array<XmlParser> &mSequence ;
@@ -1252,21 +1252,20 @@ private:
 		}
 		return std::move (ret) ;
 	}
+} ;
 
-private:
-	struct Detail {
-		class RecursiveCounter
-			:private Wrapped<LENGTH> {
-		public:
-			inline void lock () {
-				_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
-				RecursiveCounter::mSelf++ ;
-			}
+struct JsonParser::Detail {
+	class RecursiveCounter
+		:private Wrapped<LENGTH> {
+	public:
+		inline void lock () {
+			_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+			RecursiveCounter::mSelf++ ;
+		}
 
-			inline void unlock () {
-				RecursiveCounter::mSelf-- ;
-			}
-		} ;
+		inline void unlock () {
+			RecursiveCounter::mSelf-- ;
+		}
 	} ;
 } ;
 

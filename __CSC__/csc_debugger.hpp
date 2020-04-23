@@ -86,49 +86,56 @@ public:
 
 	template <class... _ARGS>
 	void print (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->print (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void fatal (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->fatal (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void error (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->error (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void warn (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->warn (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void info (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->info (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void debug (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->debug (ImplBinder (msg...)) ;
 	}
 
 	template <class... _ARGS>
 	void verbose (const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->verbose (ImplBinder (msg...)) ;
 	}
@@ -140,7 +147,8 @@ public:
 
 	template <class... _ARGS>
 	void log (const String<STR> &tag ,const _ARGS &...msg) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->log (tag.raw () ,ImplBinder (msg...)) ;
 	}
@@ -167,34 +175,33 @@ public:
 
 private:
 	ConsoleService () ;
+} ;
 
-private:
-	struct Detail {
-		template <class... UNITS>
-		class ImplBinder
-			:public Binder {
-		private:
-			TupleBinder<const UNITS...> mBinder ;
+struct ConsoleService::Detail {
+	template <class... UNITS>
+	class ImplBinder
+		:public Binder {
+	private:
+		TupleBinder<const UNITS...> mBinder ;
 
-		public:
-			inline explicit ImplBinder (const UNITS &...initval)
-				:mBinder (initval...) {}
+	public:
+		inline explicit ImplBinder (const UNITS &...initval)
+			:mBinder (initval...) {}
 
-			inline void friend_write (TextWriter<STR> &writer) const override {
-				template_write (writer ,mBinder) ;
-			}
+		inline void friend_write (TextWriter<STR> &writer) const override {
+			template_write (writer ,mBinder) ;
+		}
 
-		private:
-			inline static void template_write (TextWriter<STR> &writer ,const Tuple<> &binder) {
-				_STATIC_WARNING_ ("noop") ;
-			}
+	private:
+		inline void template_write (TextWriter<STR> &writer ,const Tuple<> &binder) const {
+			_STATIC_WARNING_ ("noop") ;
+		}
 
-			template <class... _ARGS>
-			inline static void template_write (TextWriter<STR> &writer ,const Tuple<_ARGS...> &binder) {
-				writer << binder.one () ;
-				template_write (writer ,binder.rest ()) ;
-			}
-		} ;
+		template <class... _ARGS>
+		inline void template_write (TextWriter<STR> &writer ,const Tuple<_ARGS...> &binder) const {
+			writer << binder.one () ;
+			template_write (writer ,binder.rest ()) ;
+		}
 	} ;
 } ;
 

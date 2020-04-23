@@ -320,6 +320,12 @@ using std::is_convertible ;
 
 #define _STATIC_WARNING_(...)
 
+#ifdef __CSC_COMPILER_MSVC__
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
+#else
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#endif
+
 #ifdef __CSC_DEBUG__
 #ifdef __CSC_SYSTEM_WINDOWS__
 #define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __debugbreak () ; } while (FALSE)
@@ -328,14 +334,10 @@ using std::is_convertible ;
 #else
 #define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) assert (FALSE) ; } while (FALSE)
 #endif
+#elif defined __CSC_UNITTEST__
+#define _DEBUG_ASSERT_ _DYNAMIC_ASSERT_
 #else
 #define _DEBUG_ASSERT_(...) do {} while (FALSE)
-#endif
-
-#ifdef __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
-#else
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
@@ -1875,6 +1877,29 @@ template <>
 class ArrayRange<ZERO> final
 	:private Proxy {
 private:
+	struct Detail ;
+	INDEX mIBegin ;
+	INDEX mIEnd ;
+
+public:
+	inline ArrayRange () = delete ;
+
+	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_)
+		:mIBegin (ibegin_) ,mIEnd (iend_) {}
+
+	template <class _RET = NONE>
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> begin () const {
+		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> ((*this) ,mIBegin) ;
+	}
+
+	template <class _RET = NONE>
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> end () const {
+		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
+		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> ((*this) ,r1x) ;
+	}
+} ;
+
+struct ArrayRange<ZERO>::Detail {
 	template <class BASE>
 	class Iterator final
 		:private Proxy {
@@ -1902,25 +1927,6 @@ private:
 		inline explicit Iterator (BASE &base ,INDEX index) popping
 			: mBase (base) ,mIndex (index) {}
 	} ;
-
-private:
-	INDEX mIBegin ;
-	INDEX mIEnd ;
-
-public:
-	inline ArrayRange () = delete ;
-
-	inline explicit ArrayRange (INDEX ibegin_ ,INDEX iend_)
-		:mIBegin (ibegin_) ,mIEnd (iend_) {}
-
-	inline Iterator<const ArrayRange> begin () const {
-		return Iterator<const ArrayRange> ((*this) ,mIBegin) ;
-	}
-
-	inline Iterator<const ArrayRange> end () const {
-		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return Iterator<const ArrayRange> ((*this) ,r1x) ;
-	}
 } ;
 
 inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
@@ -1991,43 +1997,42 @@ private:
 		}) ;
 		return r2x.mString ;
 	}
+} ;
 
-	template <class _ARG1 ,class _ARG2>
-	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> &) noexcept {
-		_STATIC_ASSERT_ (stl::is_bounded_array_of<REAL ,_ARG1>::value) ;
-		_STATIC_ASSERT_ (LENGTH (_ARG2::value) == _COUNTOF_ (_ARG1) - 1) ;
-		array_[_ARG2::value] = 0 ;
-	}
+template <class REAL>
+struct Plain<REAL>::Detail {
+	template <class SIZE>
+	class PlainString {
+		_STATIC_ASSERT_ (SIZE::value > 0) ;
 
-	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	inline static void template_write (_ARG1 &array_ ,const ARGV<_ARG2> & ,const _ARG3 &text_one ,const _ARGS &...text_rest) noexcept {
-		_STATIC_ASSERT_ (stl::is_bounded_array_of<REAL ,_ARG1>::value) ;
-		_STATIC_ASSERT_ (LENGTH (_ARG2::value) >= 0 && LENGTH (_ARG2::value) < _COUNTOF_ (_ARG1)) ;
-		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG3>::value || stl::is_bounded_array_of<STRA ,_ARG3>::value || stl::is_bounded_array_of<STRW ,_ARG3>::value) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG3) - 1))
-			array_[i + _ARG2::value] = REAL (text_one[i]) ;
-		auto &r1x = _NULL_<ARGV<ARGC<_ARG2::value + _COUNTOF_ (_ARG3) - 1> >> () ;
-		template_write (array_ ,r1x ,text_rest...) ;
-	}
+	private:
+		friend Plain ;
+		DEF<REAL[SIZE::value]> mString ;
 
-private:
-	struct Detail {
-		template <class SIZE>
-		class PlainString {
-			_STATIC_ASSERT_ (SIZE::value > 0) ;
+	public:
+		inline PlainString () = delete ;
 
-		private:
-			friend Plain ;
-			DEF<REAL[SIZE::value]> mString ;
+		template <class... _ARGS>
+		inline explicit PlainString (const _ARGS &...text) noexcept {
+			template_write (_NULL_<ARGV<ZERO>> () ,text...) ;
+		}
 
-		public:
-			inline PlainString () = delete ;
+	private:
+		template <class _ARG1>
+		inline void template_write (const ARGV<_ARG1> &) noexcept {
+			_STATIC_ASSERT_ (_ARG1::value == SIZE::value - 1) ;
+			mString[_ARG1::value] = 0 ;
+		}
 
-			template <class... _ARGS>
-			inline explicit PlainString (const _ARGS &...text) noexcept {
-				template_write (mString ,_NULL_<ARGV<ZERO>> () ,text...) ;
-			}
-		} ;
+		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+		inline void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) noexcept {
+			_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
+			_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
+			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
+				mString[i + _ARG1::value] = REAL (text_one[i]) ;
+			auto &r1x = _NULL_<ARGV<ARGC<_ARG1::value + _COUNTOF_ (_ARG2) - 1> >> () ;
+			template_write (r1x ,text_rest...) ;
+		}
 	} ;
 } ;
 

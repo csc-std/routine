@@ -1354,7 +1354,7 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
 	const auto r4x = BYTE (rbx) ;
 	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
-	ByteReader (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
+	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
 	ris.copy () >> rax ;
 	if switch_case (TRUE) {
@@ -1374,7 +1374,7 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
 	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
-	ByteWriter (PhanBuffer<BYTE>::make (rax.P1)) << stru.P2 ;
+	ByteWriter<BYTE> (PhanBuffer<BYTE>::make (rax.P1)) << stru.P2 ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
 	wos << VAR (rax.P1[0]) ;
 	wos << _RET ('.') ;

@@ -343,6 +343,42 @@ struct OPERATOR_HASH {
 class GlobalHeap final
 	:private Wrapped<void> {
 private:
+	struct Detail ;
+
+public:
+	template <class _RET>
+	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> alloc () popping {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
+		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
+		_DYNAMIC_ASSERT_ (r1x != NULL) ;
+		auto &r2x = _LOAD_<_RET> (r1x) ;
+		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> (&r2x) ;
+	}
+
+	template <class _RET>
+	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> alloc (LENGTH len) popping {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
+		_DEBUG_ASSERT_ (len > 0) ;
+		const auto r1x = len * _SIZEOF_ (_RET) ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
+		const auto r2x = operator new (r1x ,std::nothrow) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
+		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> (&r3x) ;
+	}
+
+	template <class _ARG1>
+	inline static void free (const PTR<_ARG1> &address) noexcept {
+		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
+		operator delete (r1x ,std::nothrow) ;
+	}
+} ;
+
+struct GlobalHeap::Detail {
 	template <class UNIT>
 	class OwnerProxy final
 		:private Proxy {
@@ -392,38 +428,6 @@ private:
 		inline explicit OwnerProxy (PTR<UNIT> pointer) noexcept
 			:mPointer (pointer) {}
 	} ;
-
-public:
-	template <class _RET>
-	inline static OwnerProxy<_RET> alloc () popping {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
-		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
-		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		auto &r2x = _LOAD_<_RET> (r1x) ;
-		return OwnerProxy<_RET> (&r2x) ;
-	}
-
-	template <class _RET>
-	inline static OwnerProxy<ARR<_RET>> alloc (LENGTH len) popping {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
-		_DEBUG_ASSERT_ (len > 0) ;
-		const auto r1x = len * _SIZEOF_ (_RET) ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		const auto r2x = operator new (r1x ,std::nothrow) ;
-		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
-		return OwnerProxy<ARR<_RET>> (&r3x) ;
-	}
-
-	template <class _ARG1>
-	inline static void free (const PTR<_ARG1> &address) noexcept {
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
-		operator delete (r1x ,std::nothrow) ;
-	}
 } ;
 
 template <class UNIT>
@@ -651,12 +655,10 @@ class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
-
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend SPECIALIZATION_THIS ;
+		friend AutoRef<UNIT> ;
 		UNIT mValue ;
 
 	public:
@@ -666,7 +668,7 @@ private:
 	} ;
 
 private:
-	friend SPECIALIZATION_THIS ;
+	friend AutoRef<UNIT> ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -709,12 +711,10 @@ class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
-
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend SPECIALIZATION_THIS ;
+		friend AutoRef<UNIT> ;
 		UNIT mValue ;
 
 	public:
@@ -724,7 +724,7 @@ private:
 	} ;
 
 private:
-	friend SPECIALIZATION_THIS ;
+	friend AutoRef<UNIT> ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1037,7 +1037,7 @@ private:
 	using Holder = typename AnyRef<void>::Holder ;
 
 private:
-	class Detail ;
+	struct Detail ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1145,25 +1145,25 @@ public:
 private:
 	inline explicit AnyRef (PTR<Holder> pointer) noexcept
 		:mPointer (pointer) {}
+} ;
 
-private:
-	struct Detail {
-		template <class UNIT_>
-		class ImplHolder
-			:public Holder {
-		private:
-			friend AnyRef ;
-			UNIT_ mValue ;
+template <class UNIT>
+struct AnyRef<UNIT>::Detail {
+	template <class UNIT_>
+	class ImplHolder
+		:public Holder {
+	private:
+		friend AnyRef ;
+		UNIT_ mValue ;
 
-		public:
-			template <class... _ARGS>
-			inline explicit ImplHolder (_ARGS &&...initval)
-				:mValue (std::forward<_ARGS> (initval)...) {}
+	public:
+		template <class... _ARGS>
+		inline explicit ImplHolder (_ARGS &&...initval)
+			:mValue (std::forward<_ARGS> (initval)...) {}
 
-			inline FLAG typemid () const override {
-				return _TYPEMID_<UNIT_> () ;
-			}
-		} ;
+		inline FLAG typemid () const override {
+			return _TYPEMID_<UNIT_> () ;
+		}
 	} ;
 } ;
 
@@ -1192,7 +1192,8 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
 		:UniqueRef () {
-		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
+		struct Dependent ;
+		using ImplHolder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
@@ -1238,28 +1239,27 @@ public:
 			return FALSE ;
 		return TRUE ;
 	}
+} ;
 
-private:
-	struct Detail {
-		template <class UNIT_>
-		class ImplHolder
-			:public Holder {
-		private:
-			UNIT_ mFunctor ;
+struct UniqueRef<void>::Detail {
+	template <class UNIT_>
+	class ImplHolder
+		:public Holder {
+	private:
+		UNIT_ mFunctor ;
 
-		public:
-			inline ImplHolder () = delete ;
+	public:
+		inline ImplHolder () = delete ;
 
-			inline explicit ImplHolder (const UNIT_ &functor)
-				:mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (const UNIT_ &functor)
+			:mFunctor (std::move (functor)) {}
 
-			inline explicit ImplHolder (UNIT_ &&functor)
-				:mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (UNIT_ &&functor)
+			:mFunctor (std::move (functor)) {}
 
-			inline void release () override {
-				mFunctor () ;
-			}
-		} ;
+		inline void release () override {
+			mFunctor () ;
+		}
 	} ;
 } ;
 
@@ -1361,30 +1361,30 @@ public:
 private:
 	inline explicit UniqueRef (PTR<Holder> pointer) noexcept
 		:mPointer (pointer) {}
+} ;
 
-private:
-	struct Detail {
-		template <class UNIT_>
-		class ImplHolder
-			:public Holder {
-		private:
-			friend UniqueRef ;
-			REMOVE_CVR_TYPE<UNIT> mValue ;
-			UNIT_ mFunctor ;
+template <class UNIT>
+struct UniqueRef<UNIT>::Detail {
+	template <class UNIT_>
+	class ImplHolder
+		:public Holder {
+	private:
+		friend UniqueRef ;
+		REMOVE_CVR_TYPE<UNIT> mValue ;
+		UNIT_ mFunctor ;
 
-		public:
-			inline ImplHolder () = delete ;
+	public:
+		inline ImplHolder () = delete ;
 
-			inline explicit ImplHolder (const UNIT_ &functor)
-				:mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (const UNIT_ &functor)
+			:mFunctor (std::move (functor)) {}
 
-			inline explicit ImplHolder (UNIT_ &&functor)
-				:mFunctor (std::move (functor)) {}
+		inline explicit ImplHolder (UNIT_ &&functor)
+			:mFunctor (std::move (functor)) {}
 
-			inline void release () override {
-				mFunctor (mValue) ;
-			}
-		} ;
+		inline void release () override {
+			mFunctor (mValue) ;
+		}
 	} ;
 } ;
 
@@ -1555,18 +1555,18 @@ public:
 	//@info: this function is incompleted without 'csc_extend.hpp'
 	template <class... _ARGS>
 	inline static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) ;
+} ;
 
-private:
-	struct Detail {
-		template <class>
-		class ImplHolder ;
-	} ;
+template <class UNIT1 ,class... UNITS>
+struct Function<UNIT1 (UNITS...)>::Detail {
+	template <class>
+	class ImplHolder ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
 class Function<UNIT1 (UNITS...)>::Detail::ImplHolder
-	:public Function<UNIT1 (UNITS...)>::Holder {
+	:public Holder {
 private:
 	UNIT_ mFunctor ;
 
@@ -1729,33 +1729,33 @@ private:
 		_CREATE_ (&r1x ,std::forward<_ARGS> (funcval)...) ;
 	}
 
-private:
-	struct Detail {
-		class PureHolder
-			:public Holder {
-		private:
-			PTR<UNIT1 (UNITS...)> mFunction ;
+#pragma pop_macro ("fake")
+} ;
 
-		public:
-			inline PureHolder () = delete ;
+template <class UNIT1 ,class... UNITS>
+struct Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail {
+	class PureHolder
+		:public Holder {
+	private:
+		PTR<UNIT1 (UNITS...)> mFunction ;
 
-			inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &func) noexcept
-				:mFunction (func) {}
+	public:
+		inline PureHolder () = delete ;
 
-			inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
-				static_create<PureHolder> (address ,mFunction) ;
-			}
+		inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &func) noexcept
+			:mFunction (func) {}
 
-			inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
-				return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
-			}
-		} ;
+		inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+			static_create<PureHolder> (address ,mFunction) ;
+		}
 
-		template <class>
-		class ImplHolder ;
+		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
+			return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		}
 	} ;
 
-#pragma pop_macro ("fake")
+	template <class>
+	class ImplHolder ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -3065,35 +3065,35 @@ private:
 
 	inline SPECIALIZATION_THIS &m_spec () && = delete ;
 
-private:
-	struct Detail {
-		class Finally
-			:private Wrapped<Allocator> {
-		public:
-			inline void lock () {
-				const auto r1x = _EBOOL_ (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
-				Finally::mSelf.mSize = r1x ;
-			}
+#pragma pop_macro ("spec")
+} ;
 
-			inline void unlock () {
-				if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
-					return ;
-				while (TRUE) {
-					if (Finally::mSelf.mSize <= 0)
-						break ;
-					if switch_case (TRUE) {
-						INDEX ix = Finally::mSelf.mSize - 1 ;
-						if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
-							discard ;
-						_DESTROY_ (&Finally::mSelf.mAllocator[ix].mValue) ;
-						Finally::mSelf.mSize-- ;
-					}
+template <class UNIT ,class SIZE>
+struct Allocator<SPECIALIZATION<UNIT ,TRUE ,TRUE> ,SIZE>::Detail {
+	class Finally
+		:private Wrapped<Allocator> {
+	public:
+		inline void lock () {
+			const auto r1x = _EBOOL_ (std::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
+			Finally::mSelf.mSize = r1x ;
+		}
+
+		inline void unlock () {
+			if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
+				return ;
+			while (TRUE) {
+				if (Finally::mSelf.mSize <= 0)
+					break ;
+				if switch_case (TRUE) {
+					INDEX ix = Finally::mSelf.mSize - 1 ;
+					if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
+						discard ;
+					_DESTROY_ (&Finally::mSelf.mAllocator[ix].mValue) ;
+					Finally::mSelf.mSize-- ;
 				}
 			}
-		} ;
+		}
 	} ;
-
-#pragma pop_macro ("spec")
 } ;
 
 template <class UNIT ,class SIZE>
