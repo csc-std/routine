@@ -209,7 +209,7 @@ public:
 		mThis->mTimeout = timeout ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) popping {
+	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (mThis->mTimeout) ;
 		::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
@@ -228,7 +228,7 @@ public:
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
 		out_i = VAR_NONE ;
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_MAKE_TIMEVAL_ (timeout) ;
@@ -454,7 +454,7 @@ public:
 		mThis->mTimeout = timeout ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) popping {
+	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
@@ -469,7 +469,7 @@ public:
 		mThis->mPeer = rax.P1 ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		out_i = VAR_NONE ;
 		const auto r1x = _inline_SOCKET_SELECT_ (mThis->mSocket ,timeout) ;

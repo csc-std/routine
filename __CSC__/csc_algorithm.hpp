@@ -121,7 +121,6 @@ public:
 				continue ;
 			INDEX ix = lead (i) ;
 			INDEX iy = r1x.find (ix) ;
-			_DEBUG_ASSERT_ (iy != VAR_NONE) ;
 			ret[r1x[iy].item][i] = TRUE ;
 		}
 		return std::move (ret) ;
@@ -133,7 +132,8 @@ private:
 		for (auto &&i : _RANGE_ (0 ,mTable.length ())) {
 			if (mTable[i].mUp != i)
 				continue ;
-			ret.add (i ,ret.length ()) ;
+			const auto r1x = ret.length () ;
+			ret.add (i ,r1x) ;
 		}
 		return std::move (ret) ;
 	}
@@ -275,7 +275,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,INDEX root_) popping
+		inline explicit Lambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,INDEX root_)
 			: mContext (context_) ,mAdjacency (adjancency) ,mRoot (root_) {}
 
 		inline void operator() () {
@@ -380,7 +380,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) popping
+		inline explicit Lambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center)
 			: mContext (context_) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
@@ -538,10 +538,10 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 
 		Deque<ARRAY2<INDEX>> mTempStack ;
 		BOOL mTempRet ;
-		FLAG mTempState ;
+		EFLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency) popping
+		inline explicit Lambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency)
 			: mContext (context_) ,mAdjacency (adjacency) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
@@ -644,134 +644,153 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			*		return ;
 			*	}
 			*/
+			static const auto M_STATE = PACK<EFLAG[21]> ({
+				EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
+				EFLAG (5) ,EFLAG (6) ,EFLAG (7) ,EFLAG (8) ,EFLAG (9) ,
+				EFLAG (10) ,EFLAG (11) ,EFLAG (12) ,EFLAG (13) ,EFLAG (14) ,
+				EFLAG (15) ,EFLAG (16) ,EFLAG (17) ,EFLAG (18) ,EFLAG (19) ,
+				EFLAG (20) ,EFLAG (21)}) ;
 			mTempStack.clear () ;
-			mTempState = VAR_ZERO ;
+			mTempState = M_STATE.P1[0] ;
 			INDEX ix = VAR_NONE ;
 			while (TRUE) {
-				if (mTempState == VAR_NONE)
+				if (mTempState == UNKNOWN)
 					break ;
 				if switch_case (TRUE) {
-					if (!(mTempState == 0))
+					if (!(mTempState == M_STATE.P1[0]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
-					mTempState = 1 ;
+					mTempState = M_STATE.P1[1] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 1))
+					if (!(mTempState == M_STATE.P1[1]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
-					mTempState = 7 ;
+					mTempState = M_STATE.P1[7] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 2))
+					if (!(mTempState == M_STATE.P1[2]))
 						discard ;
 					mTempRet = TRUE ;
-					mTempState = 17 ;
+					mTempState = M_STATE.P1[17] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 3))
+					if (!(mTempState == M_STATE.P1[3]))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
-					mTempState = 4 ;
+					mTempState = M_STATE.P1[4] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 4))
+					if (!(mTempState == M_STATE.P1[4]))
 						discard ;
-					const auto r1x = ARRAY2<INDEX> {5 ,16} ;
-					mTempState = r1x[_EBOOL_ (mTempStack[ix][0] < mAdjacency.cx ())] ;
+					auto &r1x = _SWITCH_ (
+						(mTempStack[ix][0] < mAdjacency.cx ()) ? M_STATE.P1[5] :
+						M_STATE.P1[16]) ;
+					mTempState = r1x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 5))
+					if (!(mTempState == M_STATE.P1[5]))
 						discard ;
-					const auto r2x = ARRAY2<INDEX> {15 ,6} ;
-					const auto r3x = BOOL (mXVisit[mTempStack[ix][0]]) ;
-					mTempState = r2x[_EBOOL_ (r3x)] ;
+					auto &r2x = _SWITCH_ (
+						(mXVisit[mTempStack[ix][0]]) ? M_STATE.P1[15] :
+						M_STATE.P1[6]) ;
+					mTempState = r2x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 6))
+					if (!(mTempState == M_STATE.P1[6]))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					mTempState = 9 ;
+					mTempState = M_STATE.P1[9] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 7))
+					if (!(mTempState == M_STATE.P1[7]))
 						discard ;
 					ix = mTempStack.tail () ;
-					const auto r4x = ARRAY2<INDEX> {2 ,3} ;
-					mTempState = r4x[_EBOOL_ (mTempStack[ix][1] == VAR_NONE)] ;
+					auto &r3x = _SWITCH_ (
+						(mTempStack[ix][1] == VAR_NONE) ? M_STATE.P1[2] :
+						M_STATE.P1[3]) ;
+					mTempState = r3x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 8))
+					if (!(mTempState == M_STATE.P1[8]))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
-					mTempState = 7 ;
+					mTempState = M_STATE.P1[7] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 9))
+					if (!(mTempState == M_STATE.P1[9]))
 						discard ;
-					const auto r5x = ARRAY2<INDEX> {8 ,14} ;
-					mTempState = r5x[_EBOOL_ (mLackWeight[0] < mTolerance)] ;
+					auto &r4x = _SWITCH_ (
+						(mLackWeight[0] < mTolerance) ? M_STATE.P1[8] :
+						M_STATE.P1[14]) ;
+					mTempState = r4x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 10))
+					if (!(mTempState == M_STATE.P1[10]))
 						discard ;
 					ix = mTempStack.tail () ;
-					const auto r6x = ARRAY2<INDEX> {11 ,15} ;
-					mTempState = r6x[_EBOOL_ (mTempRet)] ;
+					auto &r5x = _SWITCH_ (
+						mTempRet ? M_STATE.P1[11] :
+						M_STATE.P1[15]) ;
+					mTempState = r5x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 11))
+					if (!(mTempState == M_STATE.P1[11]))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
-					mTempState = 17 ;
+					mTempState = M_STATE.P1[17] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 14))
+					if (!(mTempState == M_STATE.P1[14]))
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
-					mTempState = 15 ;
+					mTempState = M_STATE.P1[15] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 15))
+					if (!(mTempState == M_STATE.P1[15]))
 						discard ;
 					mTempStack[ix][0]++ ;
-					mTempState = 4 ;
+					mTempState = M_STATE.P1[4] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 16))
+					if (!(mTempState == M_STATE.P1[16]))
 						discard ;
 					mTempRet = FALSE ;
-					mTempState = 17 ;
+					mTempState = M_STATE.P1[17] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 17))
+					if (!(mTempState == M_STATE.P1[17]))
 						discard ;
 					mTempStack.pop () ;
-					const auto r7x = ARRAY2<INDEX> {10 ,18} ;
-					mTempState = r7x[_EBOOL_ (mTempStack.length () > 0)] ;
+					auto &r6x = _SWITCH_ (
+						(mTempStack.length () > 0) ? M_STATE.P1[10] :
+						M_STATE.P1[18]) ;
+					mTempState = r6x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 18))
+					if (!(mTempState == M_STATE.P1[18]))
 						discard ;
-					const auto r8x = ARRAY2<INDEX> {19 ,20} ;
-					mTempState = r8x[_EBOOL_ (mTempRet)] ;
+					auto &r7x = _SWITCH_ (
+						mTempRet ? M_STATE.P1[19] :
+						M_STATE.P1[20]) ;
+					mTempState = r7x ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 19))
+					if (!(mTempState == M_STATE.P1[19]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
-					mTempState = 20 ;
+					mTempState = M_STATE.P1[20] ;
 				}
 				if switch_case (TRUE) {
-					if (!(mTempState == 20))
+					if (!(mTempState == M_STATE.P1[20]))
 						discard ;
-					mTempState = VAR_NONE ;
+					mTempState = UNKNOWN ;
 				}
 			}
 		}
@@ -868,7 +887,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) popping
+		inline explicit Lambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx)
 			: mContext (context_) ,mLossFunc (loss) ,mGradientProc (gradient) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
 
 		inline void operator() () {
@@ -1197,7 +1216,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex) popping
+		inline explicit Lambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex)
 			: mContext (context_) ,mVertex (vertex) {}
 
 		inline void operator() () {
@@ -1349,7 +1368,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		Deque<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) popping
+		inline explicit Lambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink)
 			: mContext (context_) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {

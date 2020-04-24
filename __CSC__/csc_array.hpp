@@ -18,7 +18,7 @@ private:
 public:
 	inline ArrayIterator () = delete ;
 
-	inline explicit ArrayIterator (BASE &base ,INDEX index) popping
+	inline explicit ArrayIterator (BASE &base ,INDEX index)
 		: mBase (base) ,mIndex (index) {}
 
 	inline BOOL operator!= (const ArrayIterator &that) const {
@@ -53,7 +53,7 @@ inline void _inline_SORT_SLOW_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,IN
 }
 
 template <class _ARG1 ,class _ARG2>
-inline static void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
+inline void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
 	INDEX ix = seg_a ;
 	INDEX iy = seg_b ;
 	auto tmp = std::move (out[ix]) ;
@@ -84,7 +84,7 @@ inline static void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,IND
 }
 
 template <class _ARG1 ,class _ARG2>
-inline static void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+inline void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
 	INDEX ix = seg_a ;
 	while (TRUE) {
 		if (ix >= seg_b)
@@ -103,7 +103,7 @@ inline static void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX se
 }
 
 template <class _ARG1 ,class _ARG2>
-inline static void _SORT_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+inline void _SORT_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 	_DEBUG_ASSERT_ (seg_len > 0) ;
 	_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
 	_inline_SORT_FAST_ (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
@@ -564,14 +564,14 @@ public:
 		return std::move (ret) ;
 	}
 
-private:
-	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mString (len) {}
-
 public:
 	//@info: this function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
 	inline static String make (const _ARGS &...initval) ;
+
+private:
+	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mString (len) {}
 
 private:
 	inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
@@ -805,13 +805,13 @@ public:
 		mRead = (mRead + 1) % mDeque.size () ;
 	}
 
-	void take (ITEM &item) popping {
+	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		item = std::move (mDeque[mRead]) ;
 		mRead = (mRead + 1) % mDeque.size () ;
 	}
 
-	inline Deque &operator>> (ITEM &item) popping {
+	inline Deque &operator>> (ITEM &item) {
 		take (item) ;
 		return (*this) ;
 	}
@@ -977,7 +977,7 @@ private:
 		inline Node () = default ;
 	} ;
 
-	using PAIR_ITEM = PACK<KEY ,ITEM> ;
+	using KEY_ITEM = PACK<KEY ,ITEM> ;
 
 private:
 	struct Detail ;
@@ -1011,8 +1011,8 @@ public:
 		spec.update_insert (ix) ;
 	}
 
-	void add (const PAIR_ITEM &item) {
-		add (item.key ,std::move (item)) ;
+	void add (const KEY_ITEM &item) {
+		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
 	void add (KEY &&key ,const ITEM &item) {
@@ -1030,7 +1030,7 @@ public:
 		spec.update_insert (ix) ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -1089,7 +1089,7 @@ struct Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
 	} ;
 } ;
@@ -1113,7 +1113,7 @@ private:
 		inline Node () = default ;
 	} ;
 
-	using PAIR_ITEM = PACK<KEY> ;
+	using KEY_ITEM = PACK<KEY> ;
 
 private:
 	struct Detail ;
@@ -1142,7 +1142,7 @@ public:
 		spec.update_insert (ix) ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -1156,7 +1156,7 @@ public:
 		spec.update_insert (ix) ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -1214,7 +1214,7 @@ struct Priority<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mPriority[index].mKey) {}
 	} ;
 } ;
@@ -1225,7 +1225,7 @@ class Priority
 private:
 	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
+	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
 
 private:
 	struct Detail ;
@@ -1240,7 +1240,7 @@ public:
 	explicit Priority (LENGTH len)
 		:SPECIALIZATION_BASE (len) {}
 
-	implicit Priority (const std::initializer_list<PAIR_ITEM> &that)
+	implicit Priority (const std::initializer_list<KEY_ITEM> &that)
 		: Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1368,12 +1368,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline Priority &operator<< (const PAIR_ITEM &item) {
+	inline Priority &operator<< (const KEY_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Priority &operator<< (PAIR_ITEM &&item) {
+	inline Priority &operator<< (KEY_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -1387,7 +1387,7 @@ public:
 		update_insert (0) ;
 	}
 
-	void take (PAIR_ITEM &item) popping {
+	void take (KEY_ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		item = std::move (mPriority[0]) ;
 		mPriority[0] = std::move (mPriority[mWrite - 1]) ;
@@ -1395,7 +1395,7 @@ public:
 		update_insert (0) ;
 	}
 
-	inline Priority &operator>> (PAIR_ITEM &item) popping {
+	inline Priority &operator>> (KEY_ITEM &item) {
 		take (item) ;
 		return (*this) ;
 	}
@@ -1755,7 +1755,7 @@ public:
 		mList.free (ix) ;
 	}
 
-	void take (ITEM &item) popping {
+	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mFirst ;
 		item = std::move (mList[ix].mItem) ;
@@ -2802,7 +2802,7 @@ struct BitSet<SIZE>::Detail {
 			if (r2x == 0)
 				return FALSE ;
 			return TRUE ;
-		}
+	}
 
 #ifdef __CSC_CONFIG_VAR32__
 		inline implicit operator VAR32 () const & {
@@ -2844,9 +2844,9 @@ struct BitSet<SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Bit (BASE &base ,INDEX index) popping
+		inline explicit Bit (BASE &base ,INDEX index)
 			: mBase (base) ,mIndex (index) {}
-	} ;
+} ;
 } ;
 
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
@@ -2888,7 +2888,7 @@ private:
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY ,ITEM> ;
+	using KEY_ITEM = PACK<KEY ,ITEM> ;
 
 private:
 	struct Detail ;
@@ -2913,7 +2913,8 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2921,10 +2922,13 @@ public:
 			mRoot = mTop ;
 			spec.update_insert (ix) ;
 		}
+		if switch_case (fax) {
+			mSet[ix].mItem = std::move (item) ;
+		}
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -2934,7 +2938,8 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2942,10 +2947,13 @@ public:
 			mRoot = mTop ;
 			spec.update_insert (ix) ;
 		}
+		if switch_case (fax) {
+			mSet[ix].mItem = std::move (item) ;
+		}
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3004,7 +3012,7 @@ struct Set<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 } ;
@@ -3038,7 +3046,7 @@ private:
 			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY> ;
+	using KEY_ITEM = PACK<KEY> ;
 
 private:
 	struct Detail ;
@@ -3070,7 +3078,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -3087,7 +3095,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -3145,7 +3153,7 @@ struct Set<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet[index].mKey) {}
 	} ;
 } ;
@@ -3156,7 +3164,7 @@ class Set
 private:
 	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
+	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3170,7 +3178,7 @@ public:
 	explicit Set (LENGTH len)
 		:SPECIALIZATION_BASE (len) {}
 
-	implicit Set (const std::initializer_list<PAIR_ITEM> &that)
+	implicit Set (const std::initializer_list<KEY_ITEM> &that)
 		: Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -3272,12 +3280,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline Set &operator<< (const PAIR_ITEM &item) {
+	inline Set &operator<< (const KEY_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Set &operator<< (PAIR_ITEM &&item) {
+	inline Set &operator<< (KEY_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -3741,7 +3749,7 @@ private:
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY ,ITEM> ;
+	using KEY_ITEM = PACK<KEY ,ITEM> ;
 
 private:
 	struct Detail ;
@@ -3766,7 +3774,8 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3774,10 +3783,13 @@ public:
 			spec.update_resize (ix) ;
 			spec.update_insert (ix) ;
 		}
+		if switch_case (fax) {
+			mSet[ix].mItem = std::move (item) ;
+		}
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3787,7 +3799,8 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
@@ -3795,10 +3808,13 @@ public:
 			spec.update_resize (ix) ;
 			spec.update_insert (ix) ;
 		}
+		if switch_case (fax) {
+			mSet[ix].mItem = std::move (item) ;
+		}
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3857,7 +3873,7 @@ struct HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
 	} ;
 } ;
@@ -3889,7 +3905,7 @@ private:
 			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY> ;
+	using KEY_ITEM = PACK<KEY> ;
 
 private:
 	struct Detail ;
@@ -3921,7 +3937,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -3938,7 +3954,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -3996,7 +4012,7 @@ struct HashSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet[index].mKey) {}
 	} ;
 } ;
@@ -4007,7 +4023,7 @@ class HashSet
 private:
 	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
+	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -4021,7 +4037,7 @@ public:
 	explicit HashSet (LENGTH len)
 		:SPECIALIZATION_BASE (len) {}
 
-	implicit HashSet (const std::initializer_list<PAIR_ITEM> &that)
+	implicit HashSet (const std::initializer_list<KEY_ITEM> &that)
 		: HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -4097,7 +4113,7 @@ public:
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
-	
+
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
 	}
@@ -4115,12 +4131,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline HashSet &operator<< (const PAIR_ITEM &item) {
+	inline HashSet &operator<< (const KEY_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline HashSet &operator<< (PAIR_ITEM &&item) {
+	inline HashSet &operator<< (KEY_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -4269,7 +4285,7 @@ private:
 			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY ,ITEM> ;
+	using KEY_ITEM = PACK<KEY ,ITEM> ;
 
 private:
 	struct Detail ;
@@ -4306,7 +4322,8 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4322,7 +4339,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -4333,7 +4350,8 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4349,7 +4367,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1) ,std::move (item.P2)) ;
 	}
 
@@ -4406,7 +4424,7 @@ struct SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
 	} ;
 } ;
@@ -4440,7 +4458,7 @@ private:
 			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	using PAIR_ITEM = PACK<KEY> ;
+	using KEY_ITEM = PACK<KEY> ;
 
 private:
 	struct Detail ;
@@ -4489,7 +4507,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (const PAIR_ITEM &item) {
+	void add (const KEY_ITEM &item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -4512,7 +4530,7 @@ public:
 		mTop = ix ;
 	}
 
-	void add (PAIR_ITEM &&item) {
+	void add (KEY_ITEM &&item) {
 		add (std::move (item.P1)) ;
 	}
 
@@ -4568,7 +4586,7 @@ struct SoftSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index) popping
+		inline explicit Pair (BASE &base ,INDEX index)
 			: key (base.mSet.self[index].mKey) {}
 	} ;
 } ;
@@ -4579,7 +4597,7 @@ class SoftSet
 private:
 	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
-	using PAIR_ITEM = typename SPECIALIZATION_BASE::PAIR_ITEM ;
+	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -4707,12 +4725,12 @@ public:
 
 	using SPECIALIZATION_BASE::add ;
 
-	inline SoftSet &operator<< (const PAIR_ITEM &item) {
+	inline SoftSet &operator<< (const KEY_ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline SoftSet &operator<< (PAIR_ITEM &&item) {
+	inline SoftSet &operator<< (KEY_ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}

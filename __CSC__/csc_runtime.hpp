@@ -394,28 +394,28 @@ public:
 	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 private:
-	inline static void friend_create (Pack &self_) {
+	static void friend_create (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
 		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
 		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
 		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -516,23 +516,23 @@ public:
 	}
 
 private:
-	inline static void friend_create (Pack &self_) {
+	static void friend_create (Pack &self_) {
 		self_.mCounter = 0 ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -544,10 +544,10 @@ public:
 	class SubRef ;
 
 private:
-	static constexpr auto STATUS_CREATED = EFLAG (1) ;
-	static constexpr auto STATUS_RUNNING = EFLAG (2) ;
-	static constexpr auto STATUS_SUSPEND = EFLAG (3) ;
-	static constexpr auto STATUS_STOPPED = EFLAG (4) ;
+	static constexpr auto STATE_CREATED = EFLAG (1) ;
+	static constexpr auto STATE_RUNNING = EFLAG (2) ;
+	static constexpr auto STATE_SUSPEND = EFLAG (3) ;
+	static constexpr auto STATE_STOPPED = EFLAG (4) ;
 
 	class Pack {
 	private:
@@ -555,7 +555,7 @@ private:
 		friend IntrusiveRef<Pack> ;
 		using INTRUSIVE_THIS = Coroutine ;
 		std::atomic<LENGTH> mCounter ;
-		EFLAG mStatus ;
+		EFLAG mState ;
 		AutoRef<CONT> mContext ;
 		AnyRef<void> mBreakPoint ;
 		Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> mSubProcSet ;
@@ -575,7 +575,7 @@ public:
 	}
 
 	BOOL ready () const {
-		if (mThis->mStatus != STATUS_STOPPED)
+		if (mThis->mState != STATE_STOPPED)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -609,65 +609,64 @@ public:
 			_DEBUG_ASSERT_ (!i.exist ()) ;
 			init_break_point (i) ;
 		}
-		mThis->mStatus = STATUS_CREATED ;
+		mThis->mState = STATE_CREATED ;
 		store_break_point (mThis->mBreakPoint) ;
 		for (auto &&i : mThis->mSubBreakPoint) {
-			if (mThis->mStatus != STATUS_STOPPED)
+			if (mThis->mState != STATE_STOPPED)
 				continue ;
 			if (!i.exist ())
 				continue ;
 			goto_break_point (i) ;
 		}
-		if (mThis->mStatus != STATUS_CREATED)
+		if (mThis->mState != STATE_CREATED)
 			return ;
 		for (auto &&i : mThis->mSubBreakPoint) {
-			if (mThis->mStatus != STATUS_CREATED)
+			if (mThis->mState != STATE_CREATED)
 				continue ;
 			store_break_point (i) ;
 		}
 		const auto r1x = mThis->mSubCurr ;
 		_DEBUG_ASSERT_ (r1x != VAR_NONE) ;
 		_CALL_TRY_ ([&] () {
-			if (mThis->mStatus == STATUS_STOPPED)
+			if (mThis->mState == STATE_STOPPED)
 				return ;
-			mThis->mStatus = STATUS_RUNNING ;
+			mThis->mState = STATE_RUNNING ;
 			INDEX ix = mThis->mSubProcSet.find (r1x) ;
-			_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 			mThis->mSubProcSet[ix].item (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
 		mThis->mSubBreakPoint[r1x] = AnyRef<void> () ;
-		mThis->mStatus = STATUS_STOPPED ;
+		mThis->mState = STATE_STOPPED ;
 		goto_break_point (mThis->mBreakPoint) ;
 	}
 
 private:
-	void init_break_point (AnyRef<void> &bp) popping ;
+	void init_break_point (AnyRef<void> &bp) ;
 
-	void store_break_point (AnyRef<void> &bp) noexcept popping ;
+	void store_break_point (AnyRef<void> &bp) noexcept ;
 
-	void goto_break_point (AnyRef<void> &bp) noexcept popping ;
+	void goto_break_point (AnyRef<void> &bp) noexcept ;
 
 private:
-	inline static void friend_create (Pack &self_) {
-		self_.mStatus = STATUS_CREATED ;
+	static void friend_create (Pack &self_) {
+		self_.mState = STATE_CREATED ;
 		self_.mSubCurr = VAR_NONE ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 
@@ -719,16 +718,16 @@ public:
 	void sub_await (VAR priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
 		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
-		mSelf.mThis->mStatus = STATUS_SUSPEND ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
+		mSelf.mThis->mState = STATE_SUSPEND ;
 		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus != STATUS_STOPPED) ;
-		if (mSelf.mThis->mStatus != STATUS_SUSPEND)
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mState != STATE_STOPPED) ;
+		if (mSelf.mThis->mState != STATE_SUSPEND)
 			return ;
 		mSelf.mThis->mSubAwaitQueue.add (priority ,mSelf.mThis->mSubCurr) ;
 		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
 		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
-		mSelf.mThis->mStatus = STATUS_RUNNING ;
+		mSelf.mThis->mState = STATE_RUNNING ;
 		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
 	}
 
@@ -750,26 +749,26 @@ public:
 		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
 		if (mSelf.mThis->mSubQueue.empty ())
 			return ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
-		mSelf.mThis->mStatus = STATUS_SUSPEND ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
+		mSelf.mThis->mState = STATE_SUSPEND ;
 		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus != STATUS_STOPPED) ;
-		if (mSelf.mThis->mStatus != STATUS_SUSPEND)
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mState != STATE_STOPPED) ;
+		if (mSelf.mThis->mState != STATE_SUSPEND)
 			return ;
 		mSelf.mThis->mSubQueue.add (mSelf.mThis->mSubCurr) ;
 		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
 		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
-		mSelf.mThis->mStatus = STATUS_RUNNING ;
+		mSelf.mThis->mState = STATE_RUNNING ;
 		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
 	}
 
 	void sub_return () {
 		_DEBUG_ASSERT_ (mThis->mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mStatus == STATUS_RUNNING) ;
+		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
 		mSelf.mThis->mSubQueue.clear () ;
 		mSelf.mThis->mSubAwaitQueue.clear () ;
 		mSelf.mThis->mSubCurr = VAR_NONE ;
-		mSelf.mThis->mStatus = STATUS_STOPPED ;
+		mSelf.mThis->mState = STATE_STOPPED ;
 		goto_break_point (mSelf.mThis->mBreakPoint) ;
 	}
 } ;
@@ -847,7 +846,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) popping {
+	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_.size ()) ;
 		_DEBUG_ASSERT_ (chosen.size () == range_.size ()) ;
 		chosen.clear () ;

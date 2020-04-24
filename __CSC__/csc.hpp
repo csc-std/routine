@@ -1924,7 +1924,7 @@ struct ArrayRange<ZERO>::Detail {
 		}
 
 	private:
-		inline explicit Iterator (BASE &base ,INDEX index) popping
+		inline explicit Iterator (BASE &base ,INDEX index)
 			: mBase (base) ,mIndex (index) {}
 	} ;
 } ;

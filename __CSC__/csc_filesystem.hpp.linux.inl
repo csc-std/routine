@@ -543,7 +543,7 @@ public:
 		}) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) popping {
+	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = LENGTH (::read (mReadFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed

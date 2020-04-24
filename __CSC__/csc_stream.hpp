@@ -145,7 +145,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void read (BYTE &data) popping {
+	void read (BYTE &data) {
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
@@ -164,7 +164,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (WORD &data) popping {
+	void read (WORD &data) {
 		const auto r1x = WORD (0X0001) ;
 		auto &r2x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
 		auto &r3x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
@@ -177,7 +177,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (CHAR &data) popping {
+	void read (CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
 		auto &r2x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
 		auto &r3x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
@@ -190,7 +190,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (DATA &data) popping {
+	void read (DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
 		auto &r2x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
 		auto &r3x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
@@ -203,7 +203,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (BOOL &data) popping {
+	void read (BOOL &data) {
 		read (_CAST_<U::BYTE_BASE_TYPE<BOOL>> (data)) ;
 	}
 
@@ -212,7 +212,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAR32 &data) popping {
+	void read (VAR32 &data) {
 		read (_CAST_<U::BYTE_BASE_TYPE<VAR32>> (data)) ;
 	}
 
@@ -221,7 +221,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAR64 &data) popping {
+	void read (VAR64 &data) {
 		read (_CAST_<U::BYTE_BASE_TYPE<VAR64>> (data)) ;
 	}
 
@@ -230,7 +230,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAL32 &data) popping {
+	void read (VAL32 &data) {
 		read (_CAST_<U::BYTE_BASE_TYPE<VAL32>> (data)) ;
 	}
 
@@ -239,7 +239,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAL64 &data) popping {
+	void read (VAL64 &data) {
 		read (_CAST_<U::BYTE_BASE_TYPE<VAL64>> (data)) ;
 	}
 
@@ -249,7 +249,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	void read (Array<_ARG1 ,_ARG2> &data) popping {
+	void read (Array<_ARG1 ,_ARG2> &data) {
 		const auto r1x = LENGTH (read<VAR32> ()) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
@@ -285,7 +285,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	void read (String<_ARG1 ,_ARG2> &data) popping {
+	void read (String<_ARG1 ,_ARG2> &data) {
 		_STATIC_ASSERT_ (stl::is_str_xyz<_ARG1>::value) ;
 		const auto r1x = LENGTH (read<VAR32> ()) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
@@ -303,7 +303,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	void read (Buffer<_ARG1 ,_ARG2> &data) popping {
+	void read (Buffer<_ARG1 ,_ARG2> &data) {
 		for (auto &&i : _RANGE_ (0 ,data.size ()))
 			read (data[i]) ;
 	}
@@ -315,7 +315,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
-	void read (_ARG1 &data) popping {
+	void read (_ARG1 &data) {
 		data.friend_read ((*this)) ;
 	}
 
@@ -741,7 +741,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	void read (REAL &data) popping {
+	void read (REAL &data) {
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
@@ -769,7 +769,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (BOOL &data) popping {
+	void read (BOOL &data) {
 		auto rax = REAL () ;
 		read (rax) ;
 		auto fax = TRUE ;
@@ -831,7 +831,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAR32 &data) popping {
+	void read (VAR32 &data) {
 		const auto r1x = read<VAR64> () ;
 		_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 		data = VAR32 (r1x) ;
@@ -842,7 +842,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAR64 &data) popping {
+	void read (VAR64 &data) {
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
@@ -859,7 +859,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAL32 &data) popping {
+	void read (VAL32 &data) {
 		const auto r1x = read<VAL64> () ;
 		if switch_case (TRUE) {
 			if (_ISINF_ (r1x))
@@ -876,7 +876,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (VAL64 &data) popping {
+	void read (VAL64 &data) {
 		const auto r1x = attr () ;
 		auto rax = REAL () ;
 		read (rax) ;
@@ -936,7 +936,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	void read (Array<_ARG1 ,_ARG2> &data) popping {
+	void read (Array<_ARG1 ,_ARG2> &data) {
 		_DEBUG_ASSERT_ (FALSE) ;
 	}
 
@@ -965,7 +965,7 @@ public:
 	}
 
 	template <class _ARG1>
-	void read (String<REAL ,_ARG1> &data) popping {
+	void read (String<REAL ,_ARG1> &data) {
 		const auto r1x = next_string_size () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
@@ -982,7 +982,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	void read (Buffer<_ARG1 ,_ARG2> &data) popping {
+	void read (Buffer<_ARG1 ,_ARG2> &data) {
 		for (auto &&i : _RANGE_ (0 ,data.size ()))
 			read (data[i]) ;
 	}
@@ -994,7 +994,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
-	void read (_ARG1 &data) popping {
+	void read (_ARG1 &data) {
 		data.friend_read ((*this)) ;
 	}
 
@@ -2290,7 +2290,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (String<STRU8> &data) popping {
+	void read (String<STRU8> &data) {
 		const auto r1x = mReader->attr () ;
 		const auto r2x = _EXCHANGE_ (mHintStringTextFlag ,FALSE) ;
 		const auto r3x = _EXCHANGE_ (mHintNextTextSize ,VAR_ZERO) ;

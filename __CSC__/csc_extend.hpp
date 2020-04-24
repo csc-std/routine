@@ -181,7 +181,7 @@ public:
 		static volatile Storage mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = &data ;
-		mInstance.mTypeUID = _TYPEMID_<_ARG2> () ;
+		mInstance.mTypeMID = _TYPEMID_<_ARG2> () ;
 		mInstance.mWatch (data) ;
 	}
 } ;
@@ -194,14 +194,14 @@ struct GlobalWatch::Detail {
 		friend GlobalWatch ;
 		PTR<const STR> mName ;
 		PTR<UNIT> mAddress ;
-		FLAG mTypeUID ;
+		FLAG mTypeMID ;
 		PTR<void (UNIT &)> mWatch ;
 
 	public:
 		inline Storage () {
 			mName = NULL ;
 			mAddress = NULL ;
-			mTypeUID = 0 ;
+			mTypeMID = 0 ;
 			const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 			mWatch = r1x ;
 		} ;
@@ -556,7 +556,6 @@ private:
 		return _MEMCOMPR_ (PTRTOARR[&v2i1] ,PTRTOARR[&that.v2i1] ,1) ;
 	}
 
-private:
 	inline DATA &m_v2i0 () & {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
@@ -682,17 +681,17 @@ private:
 template <class UNIT>
 class Mutable {
 private:
-	static constexpr auto STATUS_CACHED = EFLAG (1) ;
-	static constexpr auto STATUS_SIGNALED = EFLAG (2) ;
-	static constexpr auto STATUS_FINISHED = EFLAG (3) ;
+	static constexpr auto STATE_CACHED = EFLAG (1) ;
+	static constexpr auto STATE_SIGNALED = EFLAG (2) ;
+	static constexpr auto STATE_FINISHED = EFLAG (3) ;
 
 private:
 	mutable UNIT mValue ;
-	mutable EFLAG mStatus ;
+	mutable EFLAG mState ;
 
 public:
 	inline Mutable () {
-		mStatus = STATUS_SIGNALED ;
+		mState = STATE_SIGNALED ;
 	}
 
 	inline implicit Mutable (const UNIT &that)
@@ -712,35 +711,35 @@ public:
 	template <class _ARG1>
 	inline void apply (const Function<void (_ARG1 &)> &proc) const {
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mStatus != STATUS_SIGNALED)
+		if (mState != STATE_SIGNALED)
 			return ;
 		proc (mValue) ;
-		mStatus = STATUS_CACHED ;
+		mState = STATE_CACHED ;
 	}
 
 	template <class _ARG1>
 	inline void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) const {
 		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mStatus != STATUS_SIGNALED)
+		if (mState != STATE_SIGNALED)
 			return ;
 		proc (mValue) ;
-		mStatus = STATUS_CACHED ;
+		mState = STATE_CACHED ;
 	}
 
 	inline void signal () const {
-		if (mStatus != STATUS_CACHED)
+		if (mState != STATE_CACHED)
 			return ;
-		mStatus = STATUS_SIGNALED ;
+		mState = STATE_SIGNALED ;
 	}
 
 	inline void finish () const {
-		mStatus = STATUS_FINISHED ;
+		mState = STATE_FINISHED ;
 	}
 
 private:
 	template <class... _ARGS>
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mValue (std::forward<_ARGS> (initval)...) ,mStatus (STATUS_CACHED) {}
+		:mValue (std::forward<_ARGS> (initval)...) ,mState (STATE_CACHED) {}
 } ;
 
 namespace U {
@@ -794,7 +793,7 @@ public:
 	inline Variant ()
 		:Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (_NULL_<ARGV<ZERO>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
-		template_construct (&mVariant ,r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_construct (r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = r1x ;
 	}
 
@@ -811,7 +810,7 @@ public:
 	inline ~Variant () noexcept {
 		if (mIndex == VAR_NONE)
 			return ;
-		template_destruct (&mVariant ,mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_destruct (mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = VAR_NONE ;
 	}
 
@@ -819,7 +818,7 @@ public:
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		template_copy_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_copy_construct (that ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -837,7 +836,7 @@ public:
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		template_move_construct (&mVariant ,&that.mVariant ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_move_construct (that ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -905,7 +904,7 @@ public:
 	}
 
 	//@warn: none class shall be base on its address
-	inline void address_swap (Variant &that) noexcept popping {
+	inline void address_swap (Variant &that) noexcept {
 		_SWAP_ (mVariant ,that.mVariant) ;
 		_SWAP_ (mIndex ,that.mIndex) ;
 	}
@@ -920,6 +919,98 @@ private:
 		:mIndex (VAR_NONE) {}
 
 private:
+	inline void template_construct (INDEX index ,const ARGV<ARGVS<>> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline void template_construct (INDEX index ,const ARGV<_ARG1> &) {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _NULL_<ARGV<ARGC<std::is_default_constructible<ONE_HINT>::value>>> () ;
+			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (&mVariant) ;
+			template_create (r2x ,&r3x) ;
+		}
+		if (r1x)
+			return ;
+		template_construct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+	}
+
+	inline void template_destruct (INDEX index ,const ARGV<ARGVS<>> &) noexcept {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline void template_destruct (INDEX index ,const ARGV<_ARG1> &) noexcept {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		_STATIC_ASSERT_ (std::is_nothrow_destructible<ONE_HINT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (&mVariant) ;
+			_DESTROY_ (&r2x) ;
+		}
+		if (r1x)
+			return ;
+		template_destruct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+	}
+
+	inline void template_copy_construct (PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline void template_copy_construct (PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<_ARG1> &) {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _NULL_<ARGV<ARGC<std::is_copy_constructible<ONE_HINT>::value && std::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
+			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (&mVariant) ;
+			auto &r4x = _LOAD_<TEMP<ONE_HINT>> (that) ;
+			template_create (r2x ,&r3x ,std::move (_CAST_<ONE_HINT> (r4x))) ;
+		}
+		if (r1x)
+			return ;
+		template_copy_construct (that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+	}
+
+	inline void template_move_construct (Variant &that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1>
+	inline void template_move_construct (Variant &that ,INDEX index ,const ARGV<_ARG1> &) noexcept {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
+		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		const auto r1x = BOOL (index == 0) ;
+		if switch_case (TRUE) {
+			if (!r1x)
+				discard ;
+			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (&mVariant) ;
+			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (&that.mVariant) ;
+			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<ONE_HINT> (r3x))) ;
+		}
+		if (r1x)
+			return ;
+		template_move_construct (that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+	}
+
+private:
 	template <class _ARG1>
 	inline static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
 		return VAR_NONE ;
@@ -932,97 +1023,6 @@ private:
 		if (std::is_default_constructible<ONE_HINT>::value)
 			return _ARG1::value ;
 		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<REST_HINT>> ()) ;
-	}
-
-	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline static void template_construct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
-		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
-			if (!r1x)
-				discard ;
-			auto &r2x = _NULL_<ARGV<ARGC<std::is_default_constructible<ONE_HINT>::value>>> () ;
-			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (address) ;
-			template_create (r2x ,&r3x) ;
-		}
-		if (r1x)
-			return ;
-		template_construct (address ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
-	}
-
-	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline static void template_destruct (PTR<TEMP<VARIANT>> address ,INDEX index ,const ARGV<_ARG1> &) noexcept {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (std::is_nothrow_destructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
-		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
-			if (!r1x)
-				discard ;
-			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (address) ;
-			_DESTROY_ (&r2x) ;
-		}
-		if (r1x)
-			return ;
-		template_destruct (address ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
-	}
-
-	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline static void template_copy_construct (PTR<TEMP<VARIANT>> address ,PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
-			if (!r1x)
-				discard ;
-			auto &r2x = _NULL_<ARGV<ARGC<std::is_copy_constructible<ONE_HINT>::value && std::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
-			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (address) ;
-			auto &r4x = _LOAD_<TEMP<ONE_HINT>> (that) ;
-			template_create (r2x ,&r3x ,std::move (_CAST_<ONE_HINT> (r4x))) ;
-		}
-		if (r1x)
-			return ;
-		template_copy_construct (address ,that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
-	}
-
-	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) noexcept {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	inline static void template_move_construct (PTR<TEMP<VARIANT>> address ,PTR<TEMP<VARIANT>> that ,INDEX index ,const ARGV<_ARG1> &) noexcept {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<ONE_HINT>::value) ;
-		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
-			if (!r1x)
-				discard ;
-			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (address) ;
-			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (that) ;
-			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,&r2x ,std::move (_CAST_<ONE_HINT> (r3x))) ;
-		}
-		if (r1x)
-			return ;
-		template_move_construct (address ,that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1062,7 +1062,7 @@ public:
 		return to () ;
 	}
 
-	inline void swap (Monostate &that) popping {
+	inline void swap (Monostate &that) {
 		_SWAP_ (mValue ,that.mValue) ;
 	}
 } ;
@@ -1242,17 +1242,17 @@ public:
 	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
 		:mFunction (func) ,mParameter (parameter...) {}
 
-	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const popping override {
+	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return template_invoke (mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 private:
-	inline UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const popping {
+	inline UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
 		return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const popping {
+	inline UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const {
 		return template_invoke (parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
@@ -1775,7 +1775,8 @@ public:
 	}
 
 private:
-	inline explicit StrongRef (const SharedRef<Pack> &holder ,PTR<UNIT> pointer) :StrongRef () {
+	inline explicit StrongRef (const SharedRef<Pack> &holder ,PTR<UNIT> pointer)
+		:StrongRef () {
 		if (pointer == NULL)
 			return ;
 		if (!holder.exist ())
@@ -2407,7 +2408,6 @@ public:
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
 		INDEX ix = _MEMCHR_ (mPool ,mPool.size () ,r2x.mPool) ;
-		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 		mPool[ix]->free (r2x.mCurr) ;
 	}
 
@@ -2710,7 +2710,7 @@ struct Object::Detail {
 		friend Object ;
 		LENGTH mObjectSize ;
 		LENGTH mObjectAlign ;
-		FLAG mObjectTypeUID ;
+		FLAG mObjectTypeMID ;
 		Function<void (PTR<NONE>)> mConstrutor ;
 		Function<void (PTR<NONE>)> mDestructor ;
 
@@ -2722,7 +2722,7 @@ struct Object::Detail {
 			_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
-			mObjectTypeUID = _TYPEMID_<_ARG1> () ;
+			mObjectTypeMID = _TYPEMID_<_ARG1> () ;
 			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (PTR<NONE> address) {
 				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
 				_CREATE_ (&r2x) ;
@@ -2786,12 +2786,12 @@ struct Serializer<UNIT ,CONT>::Detail {
 
 		inline void friend_visit (UNIT &) const & = delete ;
 
-		inline void friend_visit (UNIT &visitor) && popping {
+		inline void friend_visit (UNIT &visitor) && {
 			mBase.mBinder->compute_visit (visitor ,mContext) ;
 		}
 
 	private:
-		inline explicit Member (const Serializer &base ,CONT &context_) popping
+		inline explicit Member (const Serializer &base ,CONT &context_)
 			: mBase (base) ,mContext (context_) {}
 	} ;
 

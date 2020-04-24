@@ -76,10 +76,10 @@ public:
 
 	explicit StreamLoader (const String<STR> &file) ;
 
-	void read (const PhanBuffer<BYTE> &data) popping ;
+	void read (const PhanBuffer<BYTE> &data) ;
 
 	template <class _ARG1>
-	void read (Buffer<BYTE ,_ARG1> &data) popping {
+	void read (Buffer<BYTE ,_ARG1> &data) {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 

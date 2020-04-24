@@ -513,7 +513,7 @@ public:
 		}) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) popping {
+	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;

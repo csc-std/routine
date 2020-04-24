@@ -164,11 +164,10 @@ public:
 	}
 
 private:
-	inline static void static_execute (Pack &self_ ,INDEX tid) {
+	static void static_execute (Pack &self_ ,INDEX tid) {
 		using ThreadCounter = typename Detail::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		INDEX ix = self_.mThreadProcSet.find (tid) ;
-		_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			_CATCH_ ([&] () {
@@ -187,7 +186,7 @@ private:
 		}
 	}
 
-	inline static void static_push (Pack &self_ ,ITEM &&item) {
+	static void static_push (Pack &self_ ,ITEM &&item) {
 		ScopedGuard<std::mutex> sgd (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -204,7 +203,7 @@ private:
 		self_.mThreadCondition.self.notify_all () ;
 	}
 
-	inline static void static_rethrow (Pack &self_ ,const Exception &e) {
+	static void static_rethrow (Pack &self_ ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -212,7 +211,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	inline static void friend_create (Pack &self_) {
+	static void friend_create (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -221,7 +220,7 @@ private:
 		self_.mThreadProcSet = Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -246,15 +245,15 @@ private:
 		self_.mThreadProcSet = Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -485,7 +484,7 @@ public:
 	}
 
 private:
-	inline static void static_execute (Pack &self_) {
+	static void static_execute (Pack &self_) {
 		using ThreadCounter = typename Detail::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
@@ -505,7 +504,7 @@ private:
 		}
 	}
 
-	inline static void static_poll (Pack &self_ ,Optional<ITEM> &item) {
+	static void static_poll (Pack &self_ ,Optional<ITEM> &item) {
 		using Counter = typename Detail::Counter ;
 		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
@@ -522,7 +521,7 @@ private:
 		self_.mItemQueue->take () ;
 	}
 
-	inline static void static_rethrow (Pack &self_ ,const Exception &e) {
+	static void static_rethrow (Pack &self_ ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -530,7 +529,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	inline static void friend_create (Pack &self_) {
+	static void friend_create (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -540,7 +539,7 @@ private:
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -566,15 +565,15 @@ private:
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -627,16 +626,16 @@ struct WorkThread<ITEM>::Detail {
 	} ;
 } ;
 
+template <class>
+class Future ;
+
 template <class ITEM>
 class Promise {
-public:
-	class Future ;
-
 private:
 	class Pack {
 	private:
 		friend Promise ;
-		friend Future ;
+		friend Future<ITEM> ;
 		friend IntrusiveRef<Pack> ;
 		using INTRUSIVE_THIS = Promise ;
 		std::atomic<LENGTH> mCounter ;
@@ -655,6 +654,7 @@ private:
 
 private:
 	struct Detail ;
+	friend Future<ITEM> ;
 	friend IntrusiveRef<Pack> ;
 	IntrusiveRef<Pack> mThis ;
 
@@ -663,8 +663,8 @@ public:
 		mThis = IntrusiveRef<Pack>::make () ;
 	}
 
-	DEPENDENT_TYPE<Future ,Dependent> future () popping {
-		return DEPENDENT_TYPE<Future ,Dependent> (mThis) ;
+	DEPENDENT_TYPE<Future<ITEM> ,Dependent> future () popping {
+		return DEPENDENT_TYPE<Future<ITEM> ,Dependent> (mThis) ;
 	}
 
 	void push (const ITEM &item) {
@@ -727,18 +727,18 @@ public:
 	}
 
 public:
-	static DEPENDENT_TYPE<Future ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	static DEPENDENT_TYPE<Future<ITEM> ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (std::move (proc)) ;
 		return rax.future () ;
 	}
 
 private:
-	explicit Promise (IntrusiveRef<Pack> &this_) popping
+	explicit Promise (IntrusiveRef<Pack> &this_)
 		: mThis (this_.copy ()) {}
 
 private:
-	inline static void static_execute (Pack &self_) {
+	static void static_execute (Pack &self_) {
 		using ThreadCounter = typename Detail::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
@@ -757,7 +757,7 @@ private:
 		static_signal (self_) ;
 	}
 
-	inline static void static_push (Pack &self_ ,const ITEM &item) {
+	static void static_push (Pack &self_ ,const ITEM &item) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -765,7 +765,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	inline static void static_push (Pack &self_ ,ITEM &&item) {
+	static void static_push (Pack &self_ ,ITEM &&item) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -773,7 +773,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (std::move (item)) ;
 	}
 
-	inline static void static_rethrow (Pack &self_ ,const Exception &e) {
+	static void static_rethrow (Pack &self_ ,const Exception &e) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
@@ -781,7 +781,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	inline static void static_signal (Pack &self_) {
+	static void static_signal (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
@@ -796,7 +796,7 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	inline static void friend_create (Pack &self_) {
+	static void friend_create (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -806,7 +806,7 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	inline static void friend_destroy (Pack &self_) {
+	static void friend_destroy (Pack &self_) {
 		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -829,15 +829,15 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	inline static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) popping {
 		return ++self_.mCounter ;
 	}
 
-	inline static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) popping {
 		return --self_.mCounter ;
 	}
 
-	inline static void friend_latch (Pack &self_) {
+	static void friend_latch (Pack &self_) {
 		GlobalRuntime::thread_sleep () ;
 	}
 } ;
@@ -879,7 +879,7 @@ struct Promise<ITEM>::Detail {
 } ;
 
 template <class ITEM>
-class Promise<ITEM>::Future {
+class Future {
 private:
 	using Pack = typename Promise<ITEM>::Pack ;
 
@@ -977,7 +977,7 @@ public:
 	}
 
 private:
-	explicit Future (IntrusiveRef<Pack> &this_) popping
+	explicit Future (IntrusiveRef<Pack> &this_)
 		: mThis (this_.copy ()) {}
 } ;
 } ;

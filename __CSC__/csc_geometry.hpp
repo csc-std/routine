@@ -1062,7 +1062,7 @@ struct Matrix<REAL>::Detail {
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping
+		inline explicit Row (BASE &base ,INDEX y)
 			: mBase (base) ,mY (y) {}
 	} ;
 } ;

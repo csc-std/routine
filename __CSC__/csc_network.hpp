@@ -44,10 +44,10 @@ public:
 
 	void modify_timeout (LENGTH timeout) ;
 
-	void read (const PhanBuffer<BYTE> &data) popping ;
+	void read (const PhanBuffer<BYTE> &data) ;
 
 	template <class _ARG1>
-	void read (Buffer<BYTE ,_ARG1> &data) popping {
+	void read (Buffer<BYTE ,_ARG1> &data) {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
@@ -57,7 +57,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 
@@ -113,10 +113,10 @@ public:
 
 	void modify_timeout (LENGTH timeout) ;
 
-	void read (const PhanBuffer<BYTE> &data) popping ;
+	void read (const PhanBuffer<BYTE> &data) ;
 
 	template <class _ARG1>
-	void read (Buffer<BYTE ,_ARG1> &data) popping {
+	void read (Buffer<BYTE ,_ARG1> &data) {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
@@ -126,7 +126,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
 
 	void write (const PhanBuffer<const BYTE> &data) ;
 

@@ -461,7 +461,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 		INDEX mRoot ;
 
 	public:
-		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data)
 			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
@@ -622,12 +622,13 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 					if (!r2x)
 						discard ;
 					update_shift_e5 (curr) ;
-					mNodeHeap[curr].mMemberSet.add (mNodeHeap[curr].mMemberSet.length () ,mLatestIndex) ;
+					const auto r3x = mNodeHeap[curr].mMemberSet.length () ;
+					mNodeHeap[curr].mMemberSet.add (r3x ,mLatestIndex) ;
 					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
-					auto &r3x = _SWITCH_ (
+					auto &r4x = _SWITCH_ (
 						(ix == VAR_NONE) ? ix :
 						mNodeHeap[iy].mBrother) ;
-					r3x = mLatestIndex ;
+					r4x = mLatestIndex ;
 					iy = mLatestIndex ;
 				}
 				mRis >> RegularReader::SKIP_GAP ;
@@ -720,7 +721,7 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		STACK_NODE mTempNode ;
 
 	public:
-		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) popping
+		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence)
 			: mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
 
 		inline void operator() () {
@@ -809,7 +810,6 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 						discard ;
 					for (auto &&i : mTempNode.mBaseNode) {
 						INDEX ix = mFoundNodeProcSet.find (mTempNode.mClazz) ;
-						_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 						mFoundNodeProcSet[ix].item (i) ;
 					}
 					update_merge_found_node (mTempNode.mParent) ;
@@ -839,7 +839,8 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				}
 				mNodeHeap[iy].mParent = mRoot ;
 				mNodeHeap[mRoot].mChild = iy ;
-				mNodeHeap[mRoot].mMemberSet.add (mNodeHeap[mRoot].mMemberSet.length () ,mNodeHeap[mRoot].mChild) ;
+				const auto r1x = mNodeHeap[mRoot].mMemberSet.length () ;
+				mNodeHeap[mRoot].mMemberSet.add (r1x ,mNodeHeap[mRoot].mChild) ;
 				mNodeHeap[mRoot].mObjectSet.add (mNodeHeap[iy].mName ,mNodeHeap[mRoot].mChild) ;
 				mNodeHeap[iy].mChild = VAR_NONE ;
 				mNodeHeap[iy].mBrother = VAR_NONE ;
@@ -962,7 +963,8 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 						mNodeHeap[jx].mMemberSet = mMemberSoftSet.share () ;
 						mNodeHeap[jx].mObjectSet = mObjectSoftSet.share () ;
 					}
-					mNodeHeap[jx].mMemberSet.add (mNodeHeap[jx].mMemberSet.length () ,ix) ;
+					const auto r1x = mNodeHeap[jx].mMemberSet.length () ;
+					mNodeHeap[jx].mMemberSet.add (r1x ,ix) ;
 					mNodeHeap[jx].mObjectSet.add (mNodeHeap[ix].mName ,ix) ;
 				}
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1355,7 +1357,6 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
 				ir++ ;
 				INDEX ix = r1x.find (&i.key) ;
-				_DEBUG_ASSERT_ (ix != VAR_NONE) ;
 				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {i.item ,M_NODE_X1}) ;
@@ -1449,7 +1450,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		INDEX mRoot ;
 
 	public:
-		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data)
 			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
@@ -1894,7 +1895,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		Array<String<STRU8>> mCommand ;
 
 	public:
-		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data) popping
+		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data)
 			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {

@@ -26,18 +26,17 @@ public:
 		:mRange (range_) {}
 
 	inline DEF<typename Detail::template Iterator<const ArrayRange>> begin () const {
-		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,0 ,first_item (mRange)) ;
+		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,0 ,first_item ()) ;
 	}
 	
 	inline DEF<typename Detail::template Iterator<const ArrayRange>> end () const {
-		const auto r1x = total_length (mRange) ;
-		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,r1x ,Array<LENGTH ,SIZE> ()) ;
+		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
-	inline static LENGTH total_length (const Array<LENGTH ,SIZE> &range_) {
+	inline LENGTH total_length () const {
 		LENGTH ret = 1 ;
-		for (auto &&i : range_) {
+		for (auto &&i : mRange) {
 			_DEBUG_ASSERT_ (i >= 0) ;
 			ret *= i ;
 			_DEBUG_ASSERT_ (ret >= 0) ;
@@ -45,8 +44,8 @@ private:
 		return std::move (ret) ;
 	}
 
-	inline static Array<LENGTH ,SIZE> first_item (const Array<LENGTH ,SIZE> &range_) {
-		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (range_.size ()) ;
+	inline Array<LENGTH ,SIZE> first_item () const {
+		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
 		ret.fill (0) ;
 		return std::move (ret) ;
 	}
@@ -76,27 +75,27 @@ struct ArrayRange<SIZE>::Detail {
 
 		inline void operator++ () {
 			mIndex++ ;
-			template_incrase (mBase.mRange ,mItem ,_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
+			template_incrase (_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
 		}
 
 	private:
-		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item) popping
+		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
 			: mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
 
 	private:
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range_ ,Array<LENGTH ,SIZE> &item ,const ARGV<ZERO> &) {
-			_DEBUG_ASSERT_ (item[0] < range_[0]) ;
-			item[0]++ ;
+		inline void template_incrase (const ARGV<ZERO> &) {
+			_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
+			mItem[0]++ ;
 		}
 
 		template <class _ARG1>
-		inline static void template_incrase (const Array<LENGTH ,SIZE> &range_ ,Array<LENGTH ,SIZE> &item ,const ARGV<_ARG1> &) {
+		inline void template_incrase (const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
-			item[_ARG1::value]++ ;
-			if (item[_ARG1::value] < range_[_ARG1::value])
+			mItem[_ARG1::value]++ ;
+			if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
 				return ;
-			item[_ARG1::value] = 0 ;
-			template_incrase (range_ ,item ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+			mItem[_ARG1::value] = 0 ;
+			template_incrase (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 		}
 	} ;
 } ;
@@ -604,7 +603,7 @@ struct Bitmap<UNIT>::Detail {
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping
+		inline explicit Row (BASE &base ,INDEX y)
 			: mBase (base) ,mY (y) {}
 } ;
 } ;
@@ -807,7 +806,7 @@ public:
 		static_update_layout (mAbstract ,mThis) ;
 	}
 
-	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) popping {
+	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,data ,option) ;
 		static_update_layout (mAbstract ,mThis) ;
@@ -865,7 +864,7 @@ struct AbstractImage<UNIT>::Detail {
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y) popping
+		inline explicit Row (BASE &base ,INDEX y)
 			: mBase (base) ,mY (y) {}
 	} ;
 

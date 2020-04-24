@@ -233,6 +233,8 @@ private:
 	}
 } ;
 
+class AbstractSprite ;
+
 class AbstractShader {
 public:
 	exports struct Abstract
@@ -253,9 +255,8 @@ public:
 		virtual void compute_sprite_draw (AnyRef<void> &this_) const = 0 ;
 	} ;
 
-	class Sprite ;
-
 private:
+	friend AbstractSprite ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
 	Set<String<STR> ,INDEX> mUniformSet ;
@@ -381,19 +382,22 @@ public:
 	}
 
 	template <class _RET = NONE>
-	DEPENDENT_TYPE<Sprite ,_RET> create_sprite () popping {
-		return DEPENDENT_TYPE<Sprite ,_RET> (mAbstract) ;
+	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () popping {
+		return DEPENDENT_TYPE<AbstractSprite ,_RET> (mAbstract) ;
 	}
 } ;
 
-class AbstractShader::Sprite {
+class AbstractSprite {
+public:
+	using Abstract = typename AbstractShader::Abstract ;
+
 private:
 	friend AbstractShader ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
 
 public:
-	Sprite () = delete ;
+	AbstractSprite () = delete ;
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -421,7 +425,7 @@ public:
 	}
 
 private:
-	explicit Sprite (const PhanRef<const Abstract> &abstract_)
+	explicit AbstractSprite (const PhanRef<const Abstract> &abstract_)
 		:mAbstract (PhanRef<const Abstract>::make (abstract_)) {}
 } ;
 } ;
