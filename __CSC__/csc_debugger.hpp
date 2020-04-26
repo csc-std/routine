@@ -36,13 +36,11 @@ public:
 	static constexpr auto OPTION_TESTING = EFLAG (9) ;
 
 private:
-	exports struct Binder
-		:public Interface {
-		virtual void friend_write (TextWriter<STR> &writer) const = 0 ;
-	} ;
+	using Binder = typename TextWriter<STR>::Binder ;
 
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual LENGTH buffer_size () const = 0 ;
 		virtual void enable_option (EFLAG option) = 0 ;
 		virtual void disable_option (EFLAG option) = 0 ;
@@ -208,8 +206,9 @@ struct ConsoleService::Detail {
 class DebuggerService final
 	:private Proxy {
 private:
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual void abort_once_invoked_exit (BOOL flag) = 0 ;
 		virtual void output_memory_leaks_report (BOOL flag) = 0 ;
 		virtual Array<LENGTH> captrue_stack_trace () popping = 0 ;

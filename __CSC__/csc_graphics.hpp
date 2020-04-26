@@ -237,8 +237,9 @@ class AbstractSprite ;
 
 class AbstractShader {
 public:
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual void compute_load_data (AnyRef<void> &this_ ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
 		virtual void compute_active_pipeline (AnyRef<void> &this_) const = 0 ;
 		virtual void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const = 0 ;

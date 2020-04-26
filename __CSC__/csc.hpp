@@ -348,7 +348,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE_IMPL(var1) (var1) goto ANONYMOUS ; while (CSC::_FOR_ONCE_ (var1)) ANONYMOUS:
+#define SWITCH_CASE_IMPL(var1) (var1) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (var1)) ANONYMOUS:
 
 using BOOL = bool ;
 
@@ -1534,12 +1534,6 @@ template <class... _ARGS>
 using is_any_same = U::IS_ANY_SAME_HELP<_ARGS...> ;
 } ;
 
-template <class UNIT>
-struct TEMP {
-	_STATIC_ASSERT_ (!std::is_reference<UNIT>::value) ;
-	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
-} ;
-
 namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
@@ -1559,18 +1553,6 @@ static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
 template <class _RET>
 inline constexpr _RET &_NULL_ () {
 	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
-}
-
-template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return object ;
-}
-
-template <class _RET>
-inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return object ;
 }
 
 template <class _ARG1>
@@ -1595,6 +1577,18 @@ inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
 	return LENGTH (address) ;
 }
 
+template <class _RET>
+inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return object ;
+}
+
+template <class _RET>
+inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return object ;
+}
+
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
@@ -1610,17 +1604,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
-	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
-	const auto r2x = _ADDRESS_ (address) ;
-	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
-	(void) r1x ;
-	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
-	return (*r3x) ;
-}
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) noexcept {
@@ -1656,15 +1640,6 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexc
 	return std::move (ret) ;
 }
 
-inline BOOL _FOR_ONCE_ (const BOOL &) noexcept {
-	return FALSE ;
-}
-
-inline BOOL _FOR_ONCE_ (BOOL &flag) noexcept popping {
-	flag = FALSE ;
-	return FALSE ;
-}
-
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
 	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
@@ -1675,14 +1650,7 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	auto &r1x = _LOAD_<_ARG1> (address) ;
-	const auto r2x = new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
-	_DEBUG_ASSERT_ (r2x == &r1x) ;
-	(void) r2x ;
-}
+inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) ;
 
 template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
@@ -1691,15 +1659,6 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	auto &r1x = _LOAD_<_ARG1> (address) ;
 	r1x.~_ARG1 () ;
 	(void) r1x ;
-}
-
-template <class _ARG1>
-inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept ;
-
-template <class _RET>
-inline FLAG _TYPEMID_ () noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	return _TYPEMID_ (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 }
 
 template <class _ARG1>
@@ -1764,36 +1723,18 @@ inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
 		() ;
 }
 
-template <class _ARG1>
-inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
-	return func () ;
-}
+namespace U {
+struct OPERATOR_ONCE {
+	inline static BOOL invoke (const BOOL &) noexcept {
+		return FALSE ;
+	}
 
-//@warn: check ruined object when an exception was thrown
-template <class _ARG1>
-inline void _CALL_TRY_ (_ARG1 &&proc) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	proc () ;
-}
-
-//@warn: check ruined object when an exception was thrown
-template <class _ARG1 ,class... _ARGS>
-inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) ;
-
-//@info: this function is incompleted without 'csc_extend.hpp'
-template <class _ARG1 ,class _ARG2>
-inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept ;
-
-template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
-	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
-	return mInstance ;
-}
+	inline static BOOL invoke (BOOL &flag) noexcept popping {
+		flag = FALSE ;
+		return FALSE ;
+	}
+} ;
+} ;
 
 class Interface {
 public:
@@ -1805,13 +1746,19 @@ public:
 	inline Interface &operator= (Interface &&) = delete ;
 } ;
 
+template <class UNIT>
+class MemoryInterface final
+	:private Interface {
+	_STATIC_ASSERT_ (std::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
+} ;
+
 template <class _ARG1>
-inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept {
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
-	//@warn: RTTI might be different across DLL
-	class Storage final
-		:private Interface {} ;
-	Storage ret ;
+inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept ;
+
+template <class _RET>
+inline FLAG _TYPEMID_ () noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	MemoryInterface<REMOVE_CVR_TYPE<_RET>> ret ;
 	return std::move (_CAST_<FLAG> (ret)) ;
 }
 
@@ -1820,13 +1767,19 @@ template <class _ARG1>
 using is_template = U::IS_TEMPLATE_HELP<_ARG1> ;
 
 template <class _ARG1>
-using is_complete = ARGC<TRUE> ;
+using is_complete = U::IS_COMPLETE_HELP<_ARG1> ;
 
 template <class _ARG1>
 using is_interface = U::IS_INTERFACE_HELP<_ARG1 ,Interface> ;
 
 template <class _ARG1 ,class _ARG2>
 using is_always_base_of = U::IS_ALWAYS_BASE_OF_HELP<_ARG1 ,_ARG2> ;
+} ;
+
+template <class UNIT>
+struct TEMP {
+	_STATIC_ASSERT_ (!std::is_reference<UNIT>::value) ;
+	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
 
 template <class UNIT>
@@ -1888,24 +1841,27 @@ public:
 		:mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> begin () const {
-		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> ((*this) ,mIBegin) ;
+	inline auto begin () const {
+		struct Dependent ;
+		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
+		return Iterator ((*this) ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> end () const {
+	inline auto end () const {
+		struct Dependent ;
+		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Iterator<const ArrayRange>> ((*this) ,r1x) ;
+		return Iterator ((*this) ,r1x) ;
 	}
 } ;
 
 struct ArrayRange<ZERO>::Detail {
-	template <class BASE>
 	class Iterator final
 		:private Proxy {
 	private:
 		friend ArrayRange ;
-		BASE &mBase ;
+		const ArrayRange &mBase ;
 		INDEX mIndex ;
 
 	public:
@@ -1924,7 +1880,7 @@ struct ArrayRange<ZERO>::Detail {
 		}
 
 	private:
-		inline explicit Iterator (BASE &base ,INDEX index)
+		inline explicit Iterator (const ArrayRange &base ,INDEX index)
 			: mBase (base) ,mIndex (index) {}
 	} ;
 } ;
@@ -2061,6 +2017,45 @@ public:
 	}
 } ;
 
+//@warn: not type-safe; be careful about strict-aliasing
+template <class _RET ,class _ARG1>
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+	_DEBUG_ASSERT_ (address != NULL) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
+	const auto r2x = _ADDRESS_ (address) ;
+	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
+	(void) r1x ;
+	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
+	return (*r3x) ;
+}
+
+template <class _ARG1 ,class... _ARGS>
+inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
+	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
+	auto &r1x = _LOAD_<_ARG1> (address) ;
+	const auto r2x = new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
+	_DEBUG_ASSERT_ (r2x == &r1x) ;
+	(void) r2x ;
+}
+
+template <class _ARG1>
+inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	return func () ;
+}
+
+//@warn: check ruined object when an exception was thrown
+template <class _ARG1>
+inline void _CALL_TRY_ (_ARG1 &&proc) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+	proc () ;
+}
+
 //@warn: check ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
@@ -2073,5 +2068,17 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 	_CALL_TRY_ (std::forward<_ARGS> (proc_rest)...) ;
+}
+
+//@info: this function is incompleted without 'csc_extend.hpp'
+template <class _ARG1 ,class _ARG2>
+inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept ;
+
+template <class _ARG1>
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
+	return mInstance ;
 }
 } ;

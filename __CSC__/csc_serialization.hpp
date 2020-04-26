@@ -735,18 +735,13 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeStack = Deque<STACK_NODE> () ;
 			INDEX ix = VAR_NONE ;
 			//@error: fuck g++4.8
-			const auto r1x = ARRAY4<EFLAG> ({
-				NODE_CLAZZ_TABLE ,
-				NODE_CLAZZ_OBJECT ,
-				NODE_CLAZZ_ARRAY ,
-				NODE_CLAZZ_FINAL}) ;
-			ix = mFoundNodeProcSet.insert (r1x[0]) ;
+			ix = mFoundNodeProcSet.insert (EFLAG (NODE_CLAZZ_TABLE)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			ix = mFoundNodeProcSet.insert (r1x[1]) ;
+			ix = mFoundNodeProcSet.insert (EFLAG (NODE_CLAZZ_OBJECT)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			ix = mFoundNodeProcSet.insert (r1x[2]) ;
+			ix = mFoundNodeProcSet.insert (EFLAG (NODE_CLAZZ_ARRAY)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
-			ix = mFoundNodeProcSet.insert (r1x[3]) ;
+			ix = mFoundNodeProcSet.insert (EFLAG (NODE_CLAZZ_FINAL)) ;
 			mFoundNodeProcSet[ix].item = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mAttributeSoftSet = SoftSet<String<STRU8> ,String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX ,INDEX> (0) ;

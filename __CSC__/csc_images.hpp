@@ -25,12 +25,14 @@ public:
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_)
 		:mRange (range_) {}
 
-	inline DEF<typename Detail::template Iterator<const ArrayRange>> begin () const {
-		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,0 ,first_item ()) ;
+	inline auto begin () const {
+		using Iterator = typename Detail::Iterator ;
+		return Iterator ((*this) ,0 ,first_item ()) ;
 	}
 	
-	inline DEF<typename Detail::template Iterator<const ArrayRange>> end () const {
-		return DEF<typename Detail::template Iterator<const ArrayRange>> ((*this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
+	inline auto end () const {
+		using Iterator = typename Detail::Iterator ;
+		return Iterator ((*this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
@@ -53,12 +55,11 @@ private:
 
 template <class SIZE>
 struct ArrayRange<SIZE>::Detail {
-	template <class BASE>
 	class Iterator final
 		:private Proxy {
 	private:
 		friend ArrayRange ;
-		BASE &mBase ;
+		const ArrayRange &mBase ;
 		INDEX mIndex ;
 		Array<LENGTH ,SIZE> mItem ;
 
@@ -79,7 +80,7 @@ struct ArrayRange<SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Iterator (BASE &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
+		inline explicit Iterator (const ArrayRange &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
 			: mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
 
 	private:
@@ -274,25 +275,27 @@ public:
 
 	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
-	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) & {
-		return DEF<typename Detail::template Row<Bitmap>> ((*this) ,y) ;
+	auto get (INDEX y) & {
+		using Row = typename Detail::template Row<Bitmap> ;
+		return Row ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Bitmap>> operator[] (INDEX y) & {
+	inline auto operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const & {
-		return DEF<typename Detail::template Row<const Bitmap>> ((*this) ,y) ;
+	auto get (INDEX y) const & {
+		using Row = typename Detail::template Row<const Bitmap> ;
+		return Row ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (INDEX y) const & {
+	inline auto operator[] (INDEX y) const & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<Bitmap>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename Detail::template Row<Bitmap>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Bitmap &that) const {
 		if (mCX != that.mCX)
@@ -639,8 +642,9 @@ public:
 		LENGTH mCK ;
 	} ;
 
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual void compute_layout (AnyRef<void> &this_ ,LAYOUT &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const = 0 ;
@@ -754,32 +758,35 @@ public:
 
 	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
 
-	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) & {
-		return DEF<typename Detail::template Row<AbstractImage>> ((*this) ,y) ;
+	auto get (INDEX y) & {
+		using AbstractImage = typename Detail::template Row<AbstractImage> ;
+		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (INDEX y) & {
+	inline auto operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const & {
-		return DEF<typename Detail::template Row<const AbstractImage>> ((*this) ,y) ;
+	auto get (INDEX y) const & {
+		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
+		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (INDEX y) const & {
+	inline auto operator[] (INDEX y) const & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<AbstractImage>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	template <class _RET>
-	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {
+	inline auto native () popping {
+		using NativeProxy = typename Detail::template NativeProxy<_RET> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
-		return DEF<typename Detail::template NativeProxy<_RET>> (mAbstract ,mThis) ;
+		return NativeProxy (mAbstract ,mThis) ;
 	}
 
 	Bitmap<UNIT> standardize () const {

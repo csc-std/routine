@@ -78,7 +78,7 @@ public:
 	}
 
 	void print (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_PRINT) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_PRINT)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -94,7 +94,7 @@ public:
 	}
 
 	void fatal (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_FATAL) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_FATAL)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -110,7 +110,7 @@ public:
 	}
 
 	void error (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_ERROR) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_ERROR)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -126,7 +126,7 @@ public:
 	}
 
 	void warn (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_WARN) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_WARN)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -142,7 +142,7 @@ public:
 	}
 
 	void info (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_INFO) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_INFO)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -158,7 +158,7 @@ public:
 	}
 
 	void debug (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_DEBUG) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_DEBUG)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -174,7 +174,7 @@ public:
 	}
 
 	void verbose (const Binder &msg) override {
-		if (mOptionSet.find (OPTION_NO_VERBOSE) != VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_NO_VERBOSE)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -303,7 +303,7 @@ private:
 			mLogFileStream = AutoRef<StreamLoader> () ;
 			mTempState = FALSE ;
 		}) ;
-		if (mOptionSet.find (OPTION_ALWAYS_FLUSH) == VAR_NONE)
+		if (mOptionSet.find (EFLAG (OPTION_ALWAYS_FLUSH)) == VAR_NONE)
 			return ;
 		if (!mLogFileStream.exist ())
 			return ;

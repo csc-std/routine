@@ -2167,13 +2167,14 @@ public:
 		return std::move (ret) ;
 	}
 
-	inline DEF<typename Detail::WatchProxy> watch () popping {
+	inline auto watch () popping {
+		using WatchProxy = typename Detail::WatchProxy ;
 		using LatchCounter = typename Detail::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		acquire (r1x ,FALSE) ;
-		return DEF<typename Detail::WatchProxy> (r1x) ;
+		return WatchProxy (r1x) ;
 	}
 
 public:
@@ -2332,8 +2333,9 @@ class MemoryPool {
 private:
 	struct HEADER ;
 
-	exports struct Pool
+	exports class Pool
 		:public Interface {
+	public:
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH length () const = 0 ;
 		virtual PTR<HEADER> alloc (LENGTH) popping = 0 ;
@@ -2666,8 +2668,9 @@ inline MemoryPool::MemoryPool () {
 
 class Object ;
 
-exports struct Objective
+exports class Objective
 	:public Interface {
+public:
 	virtual WeakRef<Object> &weak_of_this () = 0 ;
 	virtual const WeakRef<Object> &weak_of_this () const = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
@@ -2747,8 +2750,9 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	exports struct Binder
+	exports class Binder
 		:public Interface {
+	public:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 
@@ -2766,9 +2770,10 @@ public:
 		mBinder = StrongRef<const ImplBinder>::make (memptr...) ;
 	}
 
-	inline DEF<typename Detail::Member> operator() (CONT &context_) const popping {
+	inline auto operator() (CONT &context_) const popping {
+		using Member = typename Detail::Member ;
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
-		return DEF<typename Detail::Member> ((*this) ,context_) ;
+		return Member ((*this) ,context_) ;
 	}
 } ;
 
@@ -2824,12 +2829,4 @@ struct Serializer<UNIT ,CONT>::Detail {
 		}
 	} ;
 } ;
-
-#ifdef __CSC_COMPILER_GNUC__
-template <class UNIT ,class CONT>
-inline void Serializer<UNIT ,CONT>::Binder::compute_visit (UNIT &visitor ,CONT &context_) const {
-	//@error: fuck g++4.8
-	_DEBUG_ASSERT_ (FALSE) ;
-}
-#endif
 } ;

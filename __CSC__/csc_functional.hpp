@@ -122,8 +122,9 @@ private:
 
 class Operator {
 private:
-	exports struct Functor
+	exports class Functor
 		:public Interface {
+	public:
 		virtual LENGTH rank () const = 0 ;
 		virtual Operand invoke (const LexicalNode &node) const = 0 ;
 		virtual Operand invoke (const LexicalNode &node ,const Operand &) const = 0 ;

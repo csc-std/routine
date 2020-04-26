@@ -777,8 +777,9 @@ public:
 class RandomService final
 	:private Proxy {
 private:
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (VAR seed_) = 0 ;
 		virtual VAR random_value () popping = 0 ;

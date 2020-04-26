@@ -369,25 +369,27 @@ public:
 
 	REAL &get (INDEX ,INDEX) && = delete ;
 
-	DEF<typename Detail::template Row<Matrix>> get (INDEX y) & {
-		return DEF<typename Detail::template Row<Matrix>> ((*this) ,y) ;
+	auto get (INDEX y) & {
+		using Row = typename Detail::template Row<Matrix> ;
+		return Row ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX y) & {
+	inline auto operator[] (INDEX y) & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const & {
-		return DEF<typename Detail::template Row<const Matrix>> ((*this) ,y) ;
+	auto get (INDEX y) const & {
+		using Row = typename Detail::template Row<const Matrix> ;
+		return Row ((*this) ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Matrix>> operator[] (INDEX y) const & {
+	inline auto operator[] (INDEX y) const & {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<Matrix>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	BOOL equal (const Matrix &that) const {
 		return BOOL (mMatrix == that.mMatrix) ;

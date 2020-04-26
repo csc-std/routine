@@ -68,6 +68,13 @@ template <class REAL>
 class ByteReader {
 	_STATIC_ASSERT_ (std::is_same<REAL ,BYTE>::value) ;
 
+public:
+	exports class Binder
+		:public Interface {
+	public:
+		virtual void friend_read (ByteReader &reader) = 0 ;
+	} ;
+
 private:
 	struct HEAP {
 		BOOL mEndianFlag ;
@@ -91,11 +98,12 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteReader>> attr () & {
-		return DEF<typename Detail::template Attribute<ByteReader>> ((*this)) ;
+	auto attr () & {
+		using Attribute = typename Detail::template Attribute<ByteReader> ;
+		return Attribute ((*this)) ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteReader>> attr () && = delete ;
+	auto attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -314,13 +322,11 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
-	void read (_ARG1 &data) {
+	void read (Binder &data) {
 		data.friend_read ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<ByteReader> ()))> ,void>::value>>
-	inline ByteReader &operator>> (_ARG1 &data) popping {
+	inline ByteReader &operator>> (Binder &data) popping {
 		read (data) ;
 		return (*this) ;
 	}
@@ -366,6 +372,13 @@ template <class REAL>
 class ByteWriter {
 	_STATIC_ASSERT_ (std::is_same<REAL ,BYTE>::value) ;
 
+public:
+	exports class Binder
+		:public Interface {
+	public:
+		virtual void friend_write (ByteWriter &writer) const = 0 ;
+	} ;
+
 private:
 	struct HEAP {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
@@ -396,11 +409,12 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteWriter>> attr () & {
-		return DEF<typename Detail::template Attribute<ByteWriter>> ((*this)) ;
+	auto attr () & {
+		using Attribute = typename Detail::template Attribute<ByteWriter> ;
+		return Attribute ((*this)) ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteWriter>> attr () && = delete ;
+	auto attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -606,13 +620,11 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
-	void write (const _ARG1 &data) {
+	void write (const Binder &data) {
 		data.friend_write ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<ByteWriter> ()))> ,void>::value>>
-	inline ByteWriter &operator<< (const _ARG1 &data) {
+	inline ByteWriter &operator<< (const Binder &data) {
 		write (data) ;
 		return (*this) ;
 	}
@@ -658,6 +670,13 @@ template <class REAL>
 class TextReader {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
+public:
+	exports class Binder
+		:public Interface {
+	public:
+		virtual void friend_read (TextReader &reader) = 0 ;
+	} ;
+
 private:
 	struct HEAP {
 		BOOL mEndianFlag ;
@@ -687,11 +706,12 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextReader>> attr () & {
-		return DEF<typename Detail::template Attribute<TextReader>> ((*this)) ;
+	auto attr () & {
+		using Attribute = typename Detail::template Attribute<TextReader> ;
+		return Attribute ((*this)) ;
 	}
 
-	DEF<typename Detail::template Attribute<TextReader>> attr () && = delete ;
+	auto attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -993,13 +1013,11 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
-	void read (_ARG1 &data) {
+	void read (Binder &data) {
 		data.friend_read ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_read (_NULL_<TextReader> ()))> ,void>::value>>
-	inline TextReader &operator>> (_ARG1 &data) popping {
+	inline TextReader &operator>> (Binder &data) popping {
 		read (data) ;
 		return (*this) ;
 	}
@@ -1250,6 +1268,13 @@ template <class REAL>
 class TextWriter {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
+public:
+	exports class Binder
+		:public Interface {
+	public:
+		virtual void friend_write (TextWriter &writer) const = 0 ;
+	} ;
+
 private:
 	struct HEAP {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
@@ -1286,11 +1311,12 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextWriter>> attr () & {
-		return DEF<typename Detail::template Attribute<TextWriter>> ((*this)) ;
+	auto attr () & {
+		using Attribute = typename Detail::template Attribute<TextWriter> ;
+		return Attribute ((*this)) ;
 	}
 
-	DEF<typename Detail::template Attribute<TextWriter>> attr () && = delete ;
+	auto attr () && = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1536,13 +1562,11 @@ public:
 		return (*this) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
-	void write (const _ARG1 &data) {
+	void write (const Binder &data) {
 		data.friend_write ((*this)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<_ARG1> ().friend_write (_NULL_<TextWriter> ()))> ,void>::value>>
-	inline TextWriter &operator<< (const _ARG1 &data) {
+	inline TextWriter &operator<< (const Binder &data) {
 		write (data) ;
 		return (*this) ;
 	}

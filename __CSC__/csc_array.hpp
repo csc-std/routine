@@ -1291,28 +1291,30 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX index) & {
+	auto get (INDEX index) & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> ((*this) ,index) ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> get (INDEX index) const & {
+	auto get (INDEX index) const & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> ((*this) ,index) ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -2443,6 +2445,9 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
+	struct Dependent ;
+
+private:
 	struct Detail ;
 	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
@@ -2534,51 +2539,42 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<BitSet>> get (INDEX index) & {
+	auto get (INDEX index) & {
+		using Bit = typename Detail::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return DEF<typename Detail::template Bit<BitSet>> ((*this) ,index) ;
+		return Bit ((*this) ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<const BitSet>> get (INDEX index) const & {
+	auto get (INDEX index) const & {
+		using Bit = typename Detail::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return DEF<typename Detail::template Bit<const BitSet>> ((*this) ,index) ;
+		return Bit ((*this) ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Bit<BitSet>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
-#ifdef __CSC_COMPILER_MSVC__
-	//@error: fuck vs2015
-	template <class _ARG1>
-	INDEX at (const _ARG1 &item) const {
-		_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<typename Detail::template Bit<BitSet>>>::value || std::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<typename Detail::template Bit<const BitSet>>>::value) ;
-		if (this == &item.mBase)
-			return VAR_NONE ;
-		return INDEX (item) ;
-	}
-#else
-	INDEX at (const DEF<typename Detail::template Bit<BitSet>> &item) const {
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<BitSet>> &item) const {
 		if (this == &item.mBase)
 			return VAR_NONE ;
 		return INDEX (item) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Bit<const BitSet>> &item) const {
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<const BitSet>> &item) const {
 		if (this == &item.mBase)
 			return VAR_NONE ;
 		return INDEX (item) ;
 	}
-#endif
 
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
@@ -3231,25 +3227,27 @@ public:
 		return ArrayIterator<const Set> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX index) & {
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> ((*this) ,index) ;
+	auto get (INDEX index) & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Set> ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> get (INDEX index) const & {
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> ((*this) ,index) ;
+	auto get (INDEX index) const & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Set> ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -4090,25 +4088,27 @@ public:
 		return ArrayIterator<const HashSet> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX index) & {
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> ((*this) ,index) ;
+	auto get (INDEX index) & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<HashSet> ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> get (INDEX index) const & {
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> ((*this) ,index) ;
+	auto get (INDEX index) const & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet> ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -4674,27 +4674,29 @@ public:
 		return ArrayIterator<const SoftSet> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX index) & {
+	auto get (INDEX index) & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> ((*this) ,index) ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> get (INDEX index) const & {
+	auto get (INDEX index) const & {
+		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> ((*this) ,index) ;
+		return Pair ((*this) ,index) ;
 	}
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const & {
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX) && = delete ;
+	auto get (INDEX) && = delete ;
 
-	inline DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) && = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;

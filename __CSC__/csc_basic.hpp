@@ -347,18 +347,20 @@ private:
 
 public:
 	template <class _RET>
-	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> alloc () popping {
+	inline static auto alloc () popping {
+		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		auto &r2x = _LOAD_<_RET> (r1x) ;
-		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> (&r2x) ;
+		return OwnerProxy (&r2x) ;
 	}
 
 	template <class _RET>
-	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> alloc (LENGTH len) popping {
+	inline static auto alloc (LENGTH len) popping {
+		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -368,7 +370,7 @@ public:
 		const auto r2x = operator new (r1x ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
-		return DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> (&r3x) ;
+		return OwnerProxy (&r3x) ;
 	}
 
 	template <class _ARG1>
@@ -958,8 +960,9 @@ class AnyRef ;
 template <>
 class AnyRef<void> {
 private:
-	exports struct Holder
+	exports class Holder
 		:public Interface {
+	public:
 		virtual FLAG typemid () const = 0 ;
 	} ;
 
@@ -1173,8 +1176,9 @@ class UniqueRef ;
 template <>
 class UniqueRef<void> {
 private:
-	exports struct Holder
+	exports class Holder
 		:public Interface {
+	public:
 		virtual void release () = 0 ;
 	} ;
 
@@ -1464,8 +1468,9 @@ class Function ;
 template <class UNIT1 ,class... UNITS>
 class Function<UNIT1 (UNITS...)> {
 private:
-	exports struct Holder
+	exports class Holder
 		:public Interface {
+	public:
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;
 
@@ -1599,8 +1604,9 @@ class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> {
 private:
 	class FakeHolder ;
 
-	exports struct Holder
+	exports class Holder
 		:public Interface {
+	public:
 		virtual void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;

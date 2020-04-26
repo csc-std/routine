@@ -121,8 +121,9 @@ public:
 class FileSystemService final
 	:private Proxy {
 private:
-	exports struct Abstract
+	exports class Abstract
 		:public Interface {
+	public:
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
 	} ;
