@@ -113,7 +113,7 @@ public:
 
 	PhanBuffer<const BYTE> watch () const & ;
 
-	PhanBuffer<BYTE> watch () && = delete ;
+	auto watch () &&->void = delete ;
 
 	void flush () ;
 } ;

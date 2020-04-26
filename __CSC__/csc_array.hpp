@@ -12,26 +12,29 @@ template <class BASE>
 class ArrayIterator final
 	:private Proxy {
 private:
+	friend BASE ;
 	BASE &mBase ;
 	INDEX mIndex ;
 
 public:
 	inline ArrayIterator () = delete ;
 
-	inline explicit ArrayIterator (BASE &base ,INDEX index)
-		: mBase (base) ,mIndex (index) {}
-
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> operator* () const {
+	inline auto operator* () const
+		->DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> {
 		return mBase.get (_XVALUE_<const INDEX> (mIndex)) ;
 	}
 
 	inline void operator++ () {
 		mIndex = mBase.inext (_XVALUE_<const INDEX> (mIndex)) ;
 	}
+
+private:
+	inline explicit ArrayIterator (BASE &base ,INDEX index)
+		: mBase (base) ,mIndex (index) {}
 } ;
 
 inline namespace ARRAY {
@@ -151,7 +154,7 @@ public:
 		return PhanBuffer<const ITEM>::make (mArray ,length ()) ;
 	}
 
-	PhanBuffer<ITEM> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	INDEX ibegin () const {
 		return 0 ;
@@ -197,9 +200,9 @@ public:
 		return get (index) ;
 	}
 
-	ITEM &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline ITEM &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mArray.at (item) ;
@@ -342,7 +345,7 @@ public:
 		return PhanBuffer<const ITEM>::make (mString ,length ()) ;
 	}
 
-	PhanBuffer<ITEM> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void clear () {
 		if (mString.size () == 0)
@@ -396,9 +399,9 @@ public:
 		return get (index) ;
 	}
 
-	ITEM &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline ITEM &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mString.at (item) ;
@@ -677,9 +680,9 @@ public:
 		return get (index) ;
 	}
 
-	ITEM &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline ITEM &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mDeque.at (item) ;
@@ -1065,7 +1068,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -1191,7 +1194,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -1291,30 +1294,32 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	auto get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX index) & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) &
+		->DEF<decltype (_NULL_<Priority> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	auto get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> get (INDEX index) const & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const &
+		->DEF<decltype (_NULL_<const Priority> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -1631,9 +1636,9 @@ public:
 		return get (index) ;
 	}
 
-	ITEM &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline ITEM &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
@@ -1941,7 +1946,7 @@ private:
 		return mList[mList[curr].mLeft].mRight ;
 	}
 
-	INDEX &prev_next (INDEX) && = delete ;
+	auto prev_next (INDEX) &&->void = delete ;
 
 	INDEX &next_prev (INDEX curr) & {
 		if (mList[curr].mRight == VAR_NONE)
@@ -1949,7 +1954,7 @@ private:
 		return mList[mList[curr].mRight].mLeft ;
 	}
 
-	INDEX &next_prev (INDEX) && = delete ;
+	auto next_prev (INDEX) &&->void = delete ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -2072,9 +2077,9 @@ public:
 		return get (index) ;
 	}
 
-	ITEM &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline ITEM &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
@@ -2539,30 +2544,32 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	auto get (INDEX index) & {
+	DEF<typename Detail::template Bit<BitSet>> get (INDEX index) & {
 		using Bit = typename Detail::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) &
+		->DEF<decltype (_NULL_<BitSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	auto get (INDEX index) const & {
+	DEF<typename Detail::template Bit<const BitSet>> get (INDEX index) const & {
 		using Bit = typename Detail::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const &
+		->DEF<decltype (_NULL_<const BitSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<BitSet>> &item) const {
 		if (this == &item.mBase)
@@ -2798,7 +2805,7 @@ struct BitSet<SIZE>::Detail {
 			if (r2x == 0)
 				return FALSE ;
 			return TRUE ;
-	}
+		}
 
 #ifdef __CSC_CONFIG_VAR32__
 		inline implicit operator VAR32 () const & {
@@ -2842,7 +2849,7 @@ struct BitSet<SIZE>::Detail {
 	private:
 		inline explicit Bit (BASE &base ,INDEX index)
 			: mBase (base) ,mIndex (index) {}
-} ;
+	} ;
 } ;
 
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
@@ -2984,7 +2991,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3126,7 +3133,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3227,27 +3234,29 @@ public:
 		return ArrayIterator<const Set> ((*this) ,iend ()) ;
 	}
 
-	auto get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX index) & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Set> ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) &
+		->DEF<decltype (_NULL_<Set> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> get (INDEX index) const & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Set> ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const &
+		->DEF<decltype (_NULL_<const Set> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -3658,7 +3667,7 @@ private:
 		return mSet[mSet[curr].mUp].mRight ;
 	}
 
-	INDEX &prev_next (INDEX) && = delete ;
+	auto prev_next (INDEX) &&->void = delete ;
 
 	INDEX find_successor (INDEX index) const {
 		for (INDEX i = mSet[index].mRight ,it ; i != VAR_NONE ; i = it) {
@@ -3847,7 +3856,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3987,7 +3996,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4088,27 +4097,29 @@ public:
 		return ArrayIterator<const HashSet> ((*this) ,iend ()) ;
 	}
 
-	auto get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX index) & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<HashSet> ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) &
+		->DEF<decltype (_NULL_<HashSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> get (INDEX index) const & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet> ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const &
+		->DEF<decltype (_NULL_<const HashSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -4243,7 +4254,7 @@ private:
 		return mSet[ix].mNext ;
 	}
 
-	INDEX &prev_next (INDEX) && = delete ;
+	auto prev_next (INDEX) &&->void = delete ;
 } ;
 
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
@@ -4400,7 +4411,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4563,7 +4574,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4674,29 +4685,31 @@ public:
 		return ArrayIterator<const SoftSet> ((*this) ,iend ()) ;
 	}
 
-	auto get (INDEX index) & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX index) & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) & {
+	inline auto operator[] (INDEX index) &
+		->DEF<decltype (_NULL_<SoftSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX index) const & {
+	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> get (INDEX index) const & {
 		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair ((*this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const & {
+	inline auto operator[] (INDEX index) const &
+		->DEF<decltype (_NULL_<const SoftSet> ().get (_NULL_<INDEX> ()))> {
 		return get (index) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;

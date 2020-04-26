@@ -98,12 +98,12 @@ public:
 		reset () ;
 	}
 
-	auto attr () & {
+	DEF<typename Detail::template Attribute<ByteReader>> attr () & {
 		using Attribute = typename Detail::template Attribute<ByteReader> ;
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () && = delete ;
+	auto attr () &&->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -120,7 +120,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const REAL> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -409,12 +409,12 @@ public:
 		reset () ;
 	}
 
-	auto attr () & {
+	DEF<typename Detail::template Attribute<ByteWriter>> attr () & {
 		using Attribute = typename Detail::template Attribute<ByteWriter> ;
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () && = delete ;
+	auto attr () &&->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -431,7 +431,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const REAL> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -706,12 +706,12 @@ public:
 		reset () ;
 	}
 
-	auto attr () & {
+	DEF<typename Detail::template Attribute<TextReader>> attr () & {
 		using Attribute = typename Detail::template Attribute<TextReader> ;
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () && = delete ;
+	auto attr () &&->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -728,7 +728,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const REAL> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -1311,12 +1311,12 @@ public:
 		reset () ;
 	}
 
-	auto attr () & {
+	DEF<typename Detail::template Attribute<TextWriter>> attr () & {
 		using Attribute = typename Detail::template Attribute<TextWriter> ;
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () && = delete ;
+	auto attr () &&->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1333,7 +1333,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	PhanBuffer<const REAL> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -2170,9 +2170,9 @@ public:
 		return get (index) ;
 	}
 
-	const STRU8 &get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline const STRU8 &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	void read () {
 		mReader.self >> mCache[mPeek] ;

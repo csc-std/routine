@@ -25,12 +25,12 @@ public:
 	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_)
 		:mRange (range_) {}
 
-	inline auto begin () const {
+	inline DEF<typename Detail::Iterator> begin () const {
 		using Iterator = typename Detail::Iterator ;
 		return Iterator ((*this) ,0 ,first_item ()) ;
 	}
-	
-	inline auto end () const {
+
+	inline DEF<typename Detail::Iterator> end () const {
 		using Iterator = typename Detail::Iterator ;
 		return Iterator ((*this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
@@ -199,7 +199,7 @@ public:
 		return PhanBuffer<const UNIT>::make (mImage) ;
 	}
 
-	PhanBuffer<UNIT> raw () && = delete ;
+	auto raw () &&->void = delete ;
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
@@ -253,7 +253,7 @@ public:
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	UNIT &get (INDEX ,INDEX) && = delete ;
+	auto get (INDEX ,INDEX) &&->void = delete ;
 
 	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
@@ -271,31 +271,33 @@ public:
 		return get (index) ;
 	}
 
-	UNIT &get (const ARRAY2<INDEX> &) && = delete ;
+	auto get (const ARRAY2<INDEX> &) &&->void = delete ;
 
-	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
+	inline auto operator[] (const ARRAY2<INDEX> &) &&->void = delete ;
 
-	auto get (INDEX y) & {
+	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) & {
 		using Row = typename Detail::template Row<Bitmap> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) & {
+	inline auto operator[] (INDEX y) &
+		->DEF<decltype (_NULL_<Bitmap> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	auto get (INDEX y) const & {
+	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const & {
 		using Row = typename Detail::template Row<const Bitmap> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const & {
+	inline auto operator[] (INDEX y) const &
+		->DEF<decltype (_NULL_<const Bitmap> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	BOOL equal (const Bitmap &that) const {
 		if (mCX != that.mCX)
@@ -608,7 +610,7 @@ struct Bitmap<UNIT>::Detail {
 	private:
 		inline explicit Row (BASE &base ,INDEX y)
 			: mBase (base) ,mY (y) {}
-} ;
+	} ;
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -736,7 +738,7 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	UNIT &get (INDEX ,INDEX) && = delete ;
+	auto get (INDEX ,INDEX) &&->void = delete ;
 
 	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
@@ -754,34 +756,36 @@ public:
 		return get (index) ;
 	}
 
-	UNIT &get (const ARRAY2<INDEX> &) && = delete ;
+	auto get (const ARRAY2<INDEX> &) &&->void = delete ;
 
-	inline UNIT &operator[] (const ARRAY2<INDEX> &) && = delete ;
+	inline auto operator[] (const ARRAY2<INDEX> &) &&->void = delete ;
 
-	auto get (INDEX y) & {
+	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) & {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
 		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) & {
+	inline auto operator[] (INDEX y) &
+		->DEF<decltype (_NULL_<AbstractImage> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	auto get (INDEX y) const & {
+	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const & {
 		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
 		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const & {
+	inline auto operator[] (INDEX y) const &
+		->DEF<decltype (_NULL_<const AbstractImage> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	auto get (INDEX) && = delete ;
+	auto get (INDEX) &&->void = delete ;
 
-	inline auto operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	template <class _RET>
-	inline auto native () popping {
+	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {
 		using NativeProxy = typename Detail::template NativeProxy<_RET> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;

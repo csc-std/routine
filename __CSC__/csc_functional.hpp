@@ -94,7 +94,7 @@ public:
 	}
 
 	template <class _RET>
-	const _RET &as () && = delete ;
+	auto as () &&->void = delete ;
 
 public:
 	template <class _ARG1>
@@ -438,6 +438,7 @@ public:
 
 	template <class... _ARGS>
 	FLIP_RETURN_HINT<_ARGS...> flip (const ARGV<ARGVP<_ARGS>> &...) const {
+		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip2 (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
 	}
@@ -616,7 +617,8 @@ public:
 	using SPECIALIZATION_BASE::concat ;
 
 	template <class _ARG1>
-	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
+	inline auto operator+ (const Expression<_ARG1> &that) const
+		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
 		return concat (that) ;
 	}
 } ;
@@ -658,7 +660,8 @@ public:
 	using SPECIALIZATION_BASE::concat ;
 
 	template <class _ARG1>
-	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
+	inline auto operator+ (const Expression<_ARG1> &that) const
+		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
 		return concat (that) ;
 	}
 } ;
@@ -699,7 +702,8 @@ public:
 	using SPECIALIZATION_BASE::concat ;
 
 	template <class _ARG1>
-	inline CONCAT_RETURN_HINT<_ARG1> operator+ (const Expression<_ARG1> &that) const {
+	inline auto operator+ (const Expression<_ARG1> &that) const
+		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
 		return concat (that) ;
 	}
 } ;

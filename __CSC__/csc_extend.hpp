@@ -567,7 +567,7 @@ private:
 		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
-	inline DATA &m_v2i0 () && = delete ;
+	inline auto m_v2i0 () &&->void = delete ;
 
 	inline DATA &m_v2i1 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -580,7 +580,7 @@ private:
 		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
-	inline DATA &m_v2i1 () && = delete ;
+	inline auto m_v2i1 () &&->void = delete ;
 
 	inline CHAR &m_v4i0 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -593,7 +593,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
-	inline CHAR &m_v4i0 () && = delete ;
+	inline auto m_v4i0 () &&->void = delete ;
 
 	inline CHAR &m_v4i1 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -606,7 +606,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
-	inline CHAR &m_v4i1 () && = delete ;
+	inline auto m_v4i1 () &&->void = delete ;
 
 	inline CHAR &m_v4i2 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -619,7 +619,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
-	inline CHAR &m_v4i2 () && = delete ;
+	inline auto m_v4i2 () &&->void = delete ;
 
 	inline CHAR &m_v4i3 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -632,7 +632,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
 
-	inline CHAR &m_v4i3 () && = delete ;
+	inline auto m_v4i3 () &&->void = delete ;
 
 private:
 	inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
@@ -1139,7 +1139,7 @@ public:
 		return mValue ;
 	}
 
-	inline UNIT1 &one () && = delete ;
+	inline auto one () &&->void = delete ;
 
 	inline Tuple<UNITS...> &rest () & {
 		return (*this) ;
@@ -1149,7 +1149,7 @@ public:
 		return (*this) ;
 	}
 
-	inline Tuple<UNITS...> &rest () && = delete ;
+	inline auto rest () &&->void = delete ;
 
 	template <class _ARG1>
 	inline INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) & {
@@ -1162,7 +1162,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline void pick (const ARGV<ARGVP<_ARG1>> &) && = delete ;
+	inline auto pick (const ARGV<ARGVP<_ARG1>> &) &&->void = delete ;
 
 	inline BOOL equal (const Tuple &that) const {
 		if (one () != that.one ())
@@ -2167,7 +2167,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	inline auto watch () popping {
+	inline DEF<typename Detail::WatchProxy> watch () popping {
 		using WatchProxy = typename Detail::WatchProxy ;
 		using LatchCounter = typename Detail::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
@@ -2770,7 +2770,7 @@ public:
 		mBinder = StrongRef<const ImplBinder>::make (memptr...) ;
 	}
 
-	inline auto operator() (CONT &context_) const popping {
+	inline DEF<typename Detail::Member> operator() (CONT &context_) const popping {
 		using Member = typename Detail::Member ;
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
 		return Member ((*this) ,context_) ;

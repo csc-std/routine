@@ -717,7 +717,7 @@ public:
 		return PhanBuffer<const BYTE>::make (mThis->mBuffer.self) ;
 	}
 
-	PhanBuffer<BYTE> watch () && = delete ;
+	auto watch () &&->void = delete ;
 
 	void flush () {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;

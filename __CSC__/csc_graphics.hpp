@@ -30,19 +30,19 @@ public:
 		return mVertexSet ;
 	}
 
-	const Set<ARRAY3<VAL32>> &vertex () && = delete ;
+	auto vertex () &&->void = delete ;
 
 	const SList<ARRAY3<INDEX>> &element () const & {
 		return mElementList ;
 	}
 
-	const SList<ARRAY3<INDEX>> &element () && = delete ;
+	auto element () &&->void = delete ;
 
 	const Array<Bitmap<COLOR_BGR>> &texture () const & {
 		return mTexture ;
 	}
 
-	const Array<Bitmap<COLOR_BGR>> &texture () && = delete ;
+	auto texture () &&->void = delete ;
 
 	void add_vertex (const Set<ARRAY3<VAL32>> &vertex_) {
 		mVertexSet.appand (vertex_) ;
@@ -384,7 +384,8 @@ public:
 
 	template <class _RET = NONE>
 	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () popping {
-		return DEPENDENT_TYPE<AbstractSprite ,_RET> (mAbstract) ;
+		struct Dependent ;
+		return DEPENDENT_TYPE<AbstractSprite ,Dependent> (mAbstract) ;
 	}
 } ;
 

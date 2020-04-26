@@ -34,8 +34,9 @@ public:
 
 	template <class _RET = NONE>
 	DEPENDENT_TYPE<Listener ,_RET> listener () popping {
+		struct Dependent ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return DEPENDENT_TYPE<Listener ,_RET> (mThis) ;
+		return DEPENDENT_TYPE<Listener ,Dependent> (mThis) ;
 	}
 
 	void link (const String<STRU8> &ip_addr) ;

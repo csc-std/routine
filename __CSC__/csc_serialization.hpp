@@ -144,7 +144,7 @@ public:
 		return mHeap.self[mIndex].mName ;
 	}
 
-	const String<STRU8> &name () && = delete ;
+	auto name () &&->void = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
 		auto &r1x = _CACHE_ ([&] () {
@@ -158,7 +158,7 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	const String<STRU8> &attribute (const String<STRU8> &) && = delete ;
+	auto attribute (const String<STRU8> &) &&->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -175,8 +175,6 @@ public:
 		const auto r1x = Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
-
-	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
 		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>) ;
@@ -223,6 +221,8 @@ public:
 		return attribute (tag ,def ,r1x) ;
 	}
 
+	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
+
 	const String<STRU8> &value () const & {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mMemberSet.size () == 0) ;
@@ -231,7 +231,7 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	const String<STRU8> &value () && = delete ;
+	auto value () &&->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1157,7 +1157,7 @@ public:
 		return mHeap.self[mIndex].mValue.rebind<String<STRU8>> () ;
 	}
 
-	const String<STRU8> &value () && = delete ;
+	auto value () &&->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1800,7 +1800,7 @@ public:
 		return mAttributeSet[ix].item ;
 	}
 
-	const String<STRU8> &attribute (const String<STRU8> &) && = delete ;
+	auto attribute (const String<STRU8> &) &&->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1869,7 +1869,7 @@ public:
 		return mCommand ;
 	}
 
-	const Array<String<STRU8>> &command () && = delete ;
+	auto command () &&->void = delete ;
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;

@@ -1841,14 +1841,14 @@ public:
 		:mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	template <class _RET = NONE>
-	inline auto begin () const {
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator ((*this) ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
-	inline auto end () const {
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
@@ -1919,11 +1919,8 @@ private:
 public:
 	inline Plain () = delete ;
 
-	template <class _ARG1>
-	inline constexpr implicit Plain (_ARG1 &) = delete ;
-
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REAL ,_ARG1>::value>>
-	inline constexpr implicit Plain (const _ARG1 &that) noexcept
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
+	inline constexpr implicit Plain (_ARG1 &that) noexcept
 		:mPlain (&that[0]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>

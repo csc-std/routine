@@ -347,8 +347,9 @@ private:
 
 public:
 	template <class _RET>
-	inline static auto alloc () popping {
-		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET> ;
+	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> alloc () popping {
+		struct Dependent ;
+		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<_RET> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -359,8 +360,9 @@ public:
 	}
 
 	template <class _RET>
-	inline static auto alloc (LENGTH len) popping {
-		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>> ;
+	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> alloc (LENGTH len) popping {
+		struct Dependent ;
+		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<ARR<_RET>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -441,13 +443,13 @@ private:
 public:
 	inline ScopedGuard () = delete ;
 
-	inline explicit ScopedGuard (UNIT &address)
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_convertible<_ARG1 & ,UNIT &>::value>>
+	inline explicit ScopedGuard (_ARG1 &address) popping
 		:ScopedGuard (ARGVP0) {
-		address.lock () ;
-		mAddress = &address ;
+		const auto r1x = &_XVALUE_<UNIT> (address) ;
+		r1x->lock () ;
+		mAddress = r1x ;
 	}
-
-	inline explicit ScopedGuard (UNIT &&) = delete ;
 
 	inline ~ScopedGuard () noexcept {
 		if (mAddress == NULL)
@@ -473,25 +475,24 @@ template <class UNIT>
 class ScopedBuild final
 	:private Proxy {
 private:
-	PTR<const volatile PTR<TEMP<UNIT>>> mAddress ;
+	const volatile PTR<TEMP<UNIT>> &mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	template <class... _ARGS>
-	inline explicit ScopedBuild (const volatile PTR<TEMP<UNIT>> &address ,_ARGS &&...initval)
-		:ScopedBuild (ARGVP0) {
-		mAddress = &address ;
-		const auto r1x = _COPY_ (*mAddress) ;
+	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<std::is_convertible<_ARG1 & ,const PTR<TEMP<UNIT>> &>::value>>
+	inline explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval) popping
+		:ScopedBuild (ARGVP0 ,_XVALUE_<PTR<TEMP<UNIT>>> (address)) {
+		const auto r1x = _COPY_ (mAddress) ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (initval)...) ;
 		mSize++ ;
 	}
 
 	inline ~ScopedBuild () noexcept {
-		if (mAddress == NULL)
+		if (mSize == 0)
 			return ;
-		const auto r1x = _COPY_ (*mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		if switch_case (TRUE) {
@@ -500,7 +501,7 @@ public:
 			_DESTROY_ (r1x) ;
 			mSize-- ;
 		}
-		mAddress = NULL ;
+		mSize = 0 ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = default ;
@@ -510,24 +511,24 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
-		:mAddress (NULL) ,mSize (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const PTR<TEMP<UNIT>> &address) noexcept
+		:mAddress (address) ,mSize (0) {}
 } ;
 
 template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final
 	:private Proxy {
 private:
-	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mAddress ;
+	const volatile PTR<ARR<TEMP<UNIT>>> &mAddress ;
 	LENGTH mSize ;
 
 public:
 	inline ScopedBuild () = delete ;
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,LENGTH len)
-		:ScopedBuild (ARGVP0) {
-		mAddress = &address ;
-		const auto r1x = _COPY_ (*mAddress) ;
+	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<std::is_convertible<_ARG1 & ,const PTR<ARR<TEMP<UNIT>>> &>::value>>
+	inline explicit ScopedBuild (_ARG1 &address ,LENGTH len) popping
+		:ScopedBuild (ARGVP0 ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address)) {
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -538,11 +539,11 @@ public:
 		}
 	}
 
-	inline explicit ScopedBuild (const volatile PTR<ARR<TEMP<UNIT>>> &address ,const ARR<UNIT> &src ,LENGTH len)
-		:ScopedBuild (ARGVP0) {
+	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<std::is_convertible<_ARG1 & ,const PTR<ARR<TEMP<UNIT>>> &>::value>>
+	inline explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,LENGTH len) popping
+		:ScopedBuild (ARGVP0 ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address)) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		mAddress = &address ;
-		const auto r1x = _COPY_ (*mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -554,9 +555,9 @@ public:
 	}
 
 	inline ~ScopedBuild () noexcept {
-		if (mAddress == NULL)
+		if (mSize == 0)
 			return ;
-		const auto r1x = _COPY_ (*mAddress) ;
+		const auto r1x = _COPY_ (mAddress) ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -565,7 +566,7 @@ public:
 			_DESTROY_ (&(*r1x)[mSize - 1]) ;
 			mSize-- ;
 		}
-		mAddress = NULL ;
+		mSize = 0 ;
 	}
 
 	inline ScopedBuild (const ScopedBuild &) = default ;
@@ -575,8 +576,8 @@ public:
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
-	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
-		:mAddress (NULL) ,mSize (0) {}
+	inline explicit ScopedBuild (const DEF<decltype (ARGVP0)> & ,const PTR<ARR<TEMP<UNIT>>> &address) noexcept
+		:mAddress (address) ,mSize (0) {}
 } ;
 
 template <class>
@@ -1018,7 +1019,7 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () && = delete ;
+	inline auto rebind () &&->void = delete ;
 
 	inline BOOL exist () const {
 		if (mPointer == NULL)
@@ -1090,7 +1091,7 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () && = delete ;
+	inline auto rebind () &&->void = delete ;
 
 	inline BOOL exist () const {
 		if (mPointer == NULL)
@@ -1449,7 +1450,8 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static PhanRef make (UNIT &val) popping {
+	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value>>
+	inline static PhanRef make (_ARG1 &val) popping {
 		return PhanRef (&val) ;
 	}
 
@@ -1722,7 +1724,7 @@ private:
 		return _CAST_<FakeHolder> (mVariant) ;
 	}
 
-	inline Holder &m_fake () && = delete ;
+	inline auto m_fake () &&->void = delete ;
 
 private:
 	template <class _RET ,class... _ARGS>
@@ -1909,9 +1911,9 @@ public:
 		return get (index) ;
 	}
 
-	inline UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - mBuffer ;
@@ -2052,9 +2054,9 @@ public:
 		return get (index) ;
 	}
 
-	inline UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2324,9 +2326,9 @@ public:
 		return get (index) ;
 	}
 
-	inline UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2470,9 +2472,9 @@ public:
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline const UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2550,7 +2552,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	inline static Buffer make (const _ARG1 &val) popping {
+	inline static Buffer make (_ARG1 &val) popping {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
@@ -2644,9 +2646,9 @@ public:
 		return get (index) ;
 	}
 
-	inline UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2826,7 +2828,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2931,7 +2933,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3069,7 +3071,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline SPECIALIZATION_THIS &m_spec () && = delete ;
+	inline auto m_spec () &&->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3171,9 +3173,9 @@ public:
 		return get (index) ;
 	}
 
-	inline UNIT &get (INDEX) && = delete ;
+	inline auto get (INDEX) &&->void = delete ;
 
-	inline UNIT &operator[] (INDEX) && = delete ;
+	inline auto operator[] (INDEX) &&->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		auto &r1x = _OFFSET_ (&Node::mValue ,_CAST_<TEMP<UNIT>> (item)) ;
