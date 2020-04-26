@@ -199,7 +199,7 @@ public:
 		return PhanBuffer<const UNIT>::make (mImage) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
@@ -253,7 +253,7 @@ public:
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	auto get (INDEX ,INDEX) &&->void = delete ;
+	auto get (INDEX ,INDEX) && ->void = delete ;
 
 	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
@@ -271,9 +271,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (const ARRAY2<INDEX> &) &&->void = delete ;
+	auto get (const ARRAY2<INDEX> &) && ->void = delete ;
 
-	inline auto operator[] (const ARRAY2<INDEX> &) &&->void = delete ;
+	inline auto operator[] (const ARRAY2<INDEX> &) && ->void = delete ;
 
 	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) & {
 		using Row = typename Detail::template Row<Bitmap> ;
@@ -295,9 +295,9 @@ public:
 		return get (y) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Bitmap &that) const {
 		if (mCX != that.mCX)
@@ -738,7 +738,7 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	auto get (INDEX ,INDEX) &&->void = delete ;
+	auto get (INDEX ,INDEX) && ->void = delete ;
 
 	UNIT &get (const ARRAY2<INDEX> &index) & {
 		return get (index[0] ,index[1]) ;
@@ -756,9 +756,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (const ARRAY2<INDEX> &) &&->void = delete ;
+	auto get (const ARRAY2<INDEX> &) && ->void = delete ;
 
-	inline auto operator[] (const ARRAY2<INDEX> &) &&->void = delete ;
+	inline auto operator[] (const ARRAY2<INDEX> &) && ->void = delete ;
 
 	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) & {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
@@ -780,9 +780,9 @@ public:
 		return get (y) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	template <class _RET>
 	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {

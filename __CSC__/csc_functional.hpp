@@ -94,7 +94,7 @@ public:
 	}
 
 	template <class _RET>
-	auto as () &&->void = delete ;
+	auto as () && ->void = delete ;
 
 public:
 	template <class _ARG1>

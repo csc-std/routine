@@ -567,7 +567,7 @@ private:
 		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[0]] ;
 	}
 
-	inline auto m_v2i0 () &&->void = delete ;
+	inline auto m_v2i0 () && ->void = delete ;
 
 	inline DATA &m_v2i1 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -580,7 +580,7 @@ private:
 		return _CAST_<DATA[2]> (mValue)[_CAST_<BYTE[2]> (r1x)[1]] ;
 	}
 
-	inline auto m_v2i1 () &&->void = delete ;
+	inline auto m_v2i1 () && ->void = delete ;
 
 	inline CHAR &m_v4i0 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -593,7 +593,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[0]] ;
 	}
 
-	inline auto m_v4i0 () &&->void = delete ;
+	inline auto m_v4i0 () && ->void = delete ;
 
 	inline CHAR &m_v4i1 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -606,7 +606,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[1]] ;
 	}
 
-	inline auto m_v4i1 () &&->void = delete ;
+	inline auto m_v4i1 () && ->void = delete ;
 
 	inline CHAR &m_v4i2 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -619,7 +619,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[2]] ;
 	}
 
-	inline auto m_v4i2 () &&->void = delete ;
+	inline auto m_v4i2 () && ->void = delete ;
 
 	inline CHAR &m_v4i3 () & {
 		_STATIC_WARNING_ ("mark") ;
@@ -632,7 +632,7 @@ private:
 		return _CAST_<CHAR[4]> (mValue)[_CAST_<BYTE[4]> (r1x)[3]] ;
 	}
 
-	inline auto m_v4i3 () &&->void = delete ;
+	inline auto m_v4i3 () && ->void = delete ;
 
 private:
 	inline static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
@@ -1139,7 +1139,7 @@ public:
 		return mValue ;
 	}
 
-	inline auto one () &&->void = delete ;
+	inline auto one () && ->void = delete ;
 
 	inline Tuple<UNITS...> &rest () & {
 		return (*this) ;
@@ -1149,7 +1149,7 @@ public:
 		return (*this) ;
 	}
 
-	inline auto rest () &&->void = delete ;
+	inline auto rest () && ->void = delete ;
 
 	template <class _ARG1>
 	inline INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) & {
@@ -1162,7 +1162,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline auto pick (const ARGV<ARGVP<_ARG1>> &) &&->void = delete ;
+	inline auto pick (const ARGV<ARGVP<_ARG1>> &) && ->void = delete ;
 
 	inline BOOL equal (const Tuple &that) const {
 		if (one () != that.one ())
@@ -2344,7 +2344,7 @@ private:
 	} ;
 
 	struct HEADER {
-		alignas (8) PTR<Pool> mPool ;
+		alignas (8) PTR<Pool> mFrom ;
 		alignas (8) PTR<struct HEADER> mCurr ;
 	} ;
 
@@ -2380,7 +2380,7 @@ public:
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
 		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5x.mPool = mPool[ix] ;
+		r5x.mFrom = mPool[ix] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_<_RET> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
 		return &r6x ;
@@ -2398,7 +2398,7 @@ public:
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
 		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
-		r5x.mPool = mPool[ix] ;
+		r5x.mFrom = mPool[ix] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_<ARR<_RET>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
 		return &r6x ;
@@ -2409,7 +2409,7 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
-		INDEX ix = _MEMCHR_ (mPool ,mPool.size () ,r2x.mPool) ;
+		INDEX ix = _MEMCHR_ (mPool ,mPool.size () ,r2x.mFrom) ;
 		mPool[ix]->free (r2x.mCurr) ;
 	}
 

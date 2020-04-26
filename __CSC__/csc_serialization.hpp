@@ -144,7 +144,7 @@ public:
 		return mHeap.self[mIndex].mName ;
 	}
 
-	auto name () &&->void = delete ;
+	auto name () && ->void = delete ;
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
 		auto &r1x = _CACHE_ ([&] () {
@@ -158,7 +158,7 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	auto attribute (const String<STRU8> &) &&->void = delete ;
+	auto attribute (const String<STRU8> &) && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -231,7 +231,7 @@ public:
 		return mHeap.self[mIndex].mAttributeSet[ix].item ;
 	}
 
-	auto value () &&->void = delete ;
+	auto value () && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -443,7 +443,8 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	using RecursiveCounter = typename Detail::RecursiveCounter ;
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		XmlParser &mContext ;
 
@@ -694,7 +695,8 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	using FOUND_NODE = typename Detail::FOUND_NODE ;
 	using STACK_NODE = typename Detail::STACK_NODE ;
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		XmlParser &mContext ;
 		const Array<XmlParser> &mSequence ;
@@ -1157,7 +1159,7 @@ public:
 		return mHeap.self[mIndex].mValue.rebind<String<STRU8>> () ;
 	}
 
-	auto value () &&->void = delete ;
+	auto value () && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1428,7 +1430,8 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	using RecursiveCounter = typename Detail::RecursiveCounter ;
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		JsonParser &mContext ;
 
@@ -1800,7 +1803,7 @@ public:
 		return mAttributeSet[ix].item ;
 	}
 
-	auto attribute (const String<STRU8> &) &&->void = delete ;
+	auto attribute (const String<STRU8> &) && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1869,14 +1872,15 @@ public:
 		return mCommand ;
 	}
 
-	auto command () &&->void = delete ;
+	auto command () && ->void = delete ;
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 
 inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		CommandParser &mContext ;
 

@@ -154,7 +154,7 @@ public:
 		return PhanBuffer<const ITEM>::make (mArray ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	INDEX ibegin () const {
 		return 0 ;
@@ -200,9 +200,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mArray.at (item) ;
@@ -345,7 +345,7 @@ public:
 		return PhanBuffer<const ITEM>::make (mString ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void clear () {
 		if (mString.size () == 0)
@@ -399,9 +399,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mString.at (item) ;
@@ -680,9 +680,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		INDEX ret = mDeque.at (item) ;
@@ -1068,7 +1068,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -1194,7 +1194,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -1317,9 +1317,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> &item) const {
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -1636,9 +1636,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
@@ -1946,7 +1946,7 @@ private:
 		return mList[mList[curr].mLeft].mRight ;
 	}
 
-	auto prev_next (INDEX) &&->void = delete ;
+	auto prev_next (INDEX) && ->void = delete ;
 
 	INDEX &next_prev (INDEX curr) & {
 		if (mList[curr].mRight == VAR_NONE)
@@ -1954,7 +1954,7 @@ private:
 		return mList[mList[curr].mRight].mLeft ;
 	}
 
-	auto next_prev (INDEX) &&->void = delete ;
+	auto next_prev (INDEX) && ->void = delete ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -2077,9 +2077,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const ITEM &item) const {
 		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
@@ -2567,9 +2567,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<BitSet>> &item) const {
 		if (this == &item.mBase)
@@ -2991,7 +2991,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3133,7 +3133,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3254,9 +3254,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -3667,7 +3667,7 @@ private:
 		return mSet[mSet[curr].mUp].mRight ;
 	}
 
-	auto prev_next (INDEX) &&->void = delete ;
+	auto prev_next (INDEX) && ->void = delete ;
 
 	INDEX find_successor (INDEX index) const {
 		for (INDEX i = mSet[index].mRight ,it ; i != VAR_NONE ; i = it) {
@@ -3856,7 +3856,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3996,7 +3996,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4117,9 +4117,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
 		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
@@ -4254,7 +4254,7 @@ private:
 		return mSet[ix].mNext ;
 	}
 
-	auto prev_next (INDEX) &&->void = delete ;
+	auto prev_next (INDEX) && ->void = delete ;
 } ;
 
 template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
@@ -4411,7 +4411,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4574,7 +4574,7 @@ private:
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline auto m_spec () &&->void = delete ;
+	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -4707,9 +4707,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> &item) const {
 		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;

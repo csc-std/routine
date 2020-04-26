@@ -103,7 +103,7 @@ public:
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () &&->void = delete ;
+	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -120,7 +120,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -414,7 +414,7 @@ public:
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () &&->void = delete ;
+	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -431,7 +431,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -711,7 +711,7 @@ public:
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () &&->void = delete ;
+	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -728,7 +728,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -1316,7 +1316,7 @@ public:
 		return Attribute ((*this)) ;
 	}
 
-	auto attr () &&->void = delete ;
+	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1333,7 +1333,7 @@ public:
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
 
-	auto raw () &&->void = delete ;
+	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -2090,15 +2090,15 @@ inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &list_one ,const _A
 
 class RegularReader {
 private:
-	class HINT_IDENTIFIER_TEXT_TYPE ;
-	class HINT_VALUE_TEXT_TYPE ;
-	class HINT_STRING_TEXT_TYPE ;
-	class HINT_NEWGAP_TEXT_TYPE ;
-	class HINT_NEWLINE_TEXT_TYPE ;
-	class SKIP_GAP_TYPE ;
-	class SKIP_GAP_SPACE_ONLY_TYPE ;
-	class SKIP_GAP_ENDLINE_ONLY_TYPE ;
-	class SKIP_LINE_TYPE ;
+	struct HINT_IDENTIFIER_TEXT_TYPE ;
+	struct HINT_VALUE_TEXT_TYPE ;
+	struct HINT_STRING_TEXT_TYPE ;
+	struct HINT_NEWGAP_TEXT_TYPE ;
+	struct HINT_NEWLINE_TEXT_TYPE ;
+	struct SKIP_GAP_TYPE ;
+	struct SKIP_GAP_SPACE_ONLY_TYPE ;
+	struct SKIP_GAP_ENDLINE_ONLY_TYPE ;
+	struct SKIP_LINE_TYPE ;
 
 public:
 	static void HINT_IDENTIFIER_TEXT (const ARGV<HINT_IDENTIFIER_TEXT_TYPE> &) {}
@@ -2170,9 +2170,9 @@ public:
 		return get (index) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	void read () {
 		mReader.self >> mCache[mPeek] ;

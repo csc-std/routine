@@ -12,7 +12,7 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-
+		//(?<!(Detail|CSC) ){(\r\n[^\r]+)*(?<!private:)\r\n\t+class (?!Lambda {)
 	}
 } ;
 

@@ -30,19 +30,19 @@ public:
 		return mVertexSet ;
 	}
 
-	auto vertex () &&->void = delete ;
+	auto vertex () && ->void = delete ;
 
 	const SList<ARRAY3<INDEX>> &element () const & {
 		return mElementList ;
 	}
 
-	auto element () &&->void = delete ;
+	auto element () && ->void = delete ;
 
 	const Array<Bitmap<COLOR_BGR>> &texture () const & {
 		return mTexture ;
 	}
 
-	auto texture () &&->void = delete ;
+	auto texture () && ->void = delete ;
 
 	void add_vertex (const Set<ARRAY3<VAL32>> &vertex_) {
 		mVertexSet.appand (vertex_) ;

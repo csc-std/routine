@@ -585,7 +585,7 @@ public:
 		return mThis->mContext ;
 	}
 
-	auto context () &&->void = delete ;
+	auto context () && ->void = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;

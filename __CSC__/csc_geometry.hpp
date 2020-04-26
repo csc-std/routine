@@ -60,9 +60,9 @@ public:
 		return get (y) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Vector &that) const {
 		return BOOL (mVector == that.mVector) ;
@@ -367,7 +367,7 @@ public:
 		return mMatrix[y * 4 + x] ;
 	}
 
-	auto get (INDEX ,INDEX) &&->void = delete ;
+	auto get (INDEX ,INDEX) && ->void = delete ;
 
 	DEF<typename Detail::template Row<Matrix>> get (INDEX y) & {
 		using Row = typename Detail::template Row<Matrix> ;
@@ -389,9 +389,9 @@ public:
 		return get (y) ;
 	}
 
-	auto get (INDEX) &&->void = delete ;
+	auto get (INDEX) && ->void = delete ;
 
-	inline auto operator[] (INDEX) &&->void = delete ;
+	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Matrix &that) const {
 		return BOOL (mMatrix == that.mMatrix) ;

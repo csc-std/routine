@@ -262,18 +262,18 @@ template <class ITEM>
 struct CalcThread<ITEM>::Detail {
 	class LocalProc {
 	private:
-		PTR<Pack> mThis ;
+		PhanRef<Pack> mThis ;
 		INDEX mIndex ;
 
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (PTR<Pack> this_ ,INDEX index)
-			:mThis (this_) ,mIndex (index) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_ ,INDEX index)
+			:mThis (PhanRef<Pack>::make (this_)) ,mIndex (index) {}
 
 		inline void operator() () {
 			_CALL_TRY_ ([&] () {
-				static_execute ((*mThis) ,mIndex) ;
+				static_execute (mThis ,mIndex) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -582,17 +582,17 @@ template <class ITEM>
 struct WorkThread<ITEM>::Detail {
 	class LocalProc {
 	private:
-		PTR<Pack> mThis ;
+		PhanRef<Pack> mThis ;
 
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (PTR<Pack> this_)
-			:mThis (this_) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_)
+			:mThis (PhanRef<Pack>::make (this_)) {}
 
 		inline void operator() () {
 			_CALL_TRY_ ([&] () {
-				static_execute ((*mThis)) ;
+				static_execute (mThis) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -846,17 +846,17 @@ template <class ITEM>
 struct Promise<ITEM>::Detail {
 	class LocalProc {
 	private:
-		PTR<Pack> mThis ;
+		PhanRef<Pack> mThis ;
 
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (PTR<Pack> this_)
-			:mThis (this_) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_)
+			:mThis (PhanRef<Pack>::make (this_)) {}
 
 		inline void operator() () {
 			_CALL_TRY_ ([&] () {
-				static_execute ((*mThis)) ;
+				static_execute (mThis) ;
 			} ,[&] () {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;

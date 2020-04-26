@@ -619,7 +619,7 @@ public:
 		return PhanBuffer<const BYTE> () ;
 	}
 
-	auto watch () &&->void = delete ;
+	auto watch () && ->void = delete ;
 
 	void flush () {
 		_STATIC_WARNING_ ("unimplemented") ;

@@ -27,9 +27,7 @@ public:
 		return mPrimeSet ;
 	}
 
-	BitSet<> query () && {
-		return std::move (mPrimeSet) ;
-	}
+	auto query () && ->void = delete ;
 
 private:
 	void initialize (LENGTH len) ;
@@ -262,7 +260,8 @@ private:
 
 template <class REAL>
 inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX root_) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		DijstraAlgorithm &mContext ;
 		const Bitmap<REAL> &mAdjacency ;
@@ -354,9 +353,7 @@ public:
 		return mClusterSet ;
 	}
 
-	Set<BitSet<>> query () && {
-		return std::move (mClusterSet) ;
-	}
+	auto query () && ->void = delete ;
 
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) ;
@@ -364,7 +361,8 @@ private:
 
 template <class REAL>
 inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		KMeansAlgorithm &mContext ;
 		const Set<REAL> &mDataSet ;
@@ -512,9 +510,7 @@ public:
 		return mMatch ;
 	}
 
-	Array<ARRAY2<INDEX>> query_match () && {
-		return std::move (mMatch) ;
-	}
+	auto query_match () && ->void = delete ;
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency) ;
@@ -522,7 +518,8 @@ private:
 
 template <class REAL>
 inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		KMHungarianAlgorithm &mContext ;
 		const Bitmap<REAL> &mAdjacency ;
@@ -848,9 +845,7 @@ public:
 		return mDX ;
 	}
 
-	Array<REAL> query () && {
-		return std::move (mDX) ;
-	}
+	auto query () && ->void = delete ;
 
 	REAL query_loss () const {
 		return mDXLoss ;
@@ -862,7 +857,8 @@ private:
 
 template <class REAL>
 inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		BFGSAlgorithm &mContext ;
 		const Function<REAL (const Array<REAL> &)> &mLossFunc ;
@@ -1201,7 +1197,8 @@ private:
 
 template <class REAL>
 inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		KDTreeAlgorithm &mContext ;
 		const Array<ARRAY3<REAL>> &mVertex ;
@@ -1344,9 +1341,7 @@ public:
 		return mCurrentFlow ;
 	}
 
-	Bitmap<REAL> query_flow () && {
-		return std::move (mCurrentFlow) ;
-	}
+	auto query_flow () && ->void = delete ;
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) ;
@@ -1354,7 +1349,8 @@ private:
 
 template <class REAL>
 inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) {
-	class Lambda {
+	class Lambda final
+		:private Proxy {
 	private:
 		MaxFlowAlgorithm &mContext ;
 		const Bitmap<REAL> &mAdjacency ;
