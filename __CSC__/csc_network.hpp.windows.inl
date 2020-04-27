@@ -306,11 +306,11 @@ inline exports void TCPSocket::modify_timeout (LENGTH timeout) {
 	mThis.rebind<Implement> ()->modify_timeout (timeout) ;
 }
 
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) popping {
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
 	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
 }
 
@@ -516,11 +516,11 @@ inline exports void UDPSocket::modify_timeout (LENGTH timeout) {
 	mThis.rebind<Implement> ()->modify_timeout (timeout) ;
 }
 
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) popping {
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) popping {
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
 	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
 }
 

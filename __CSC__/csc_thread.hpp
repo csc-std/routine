@@ -130,8 +130,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<std::thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r3x = LocalProc (&r2x ,i) ;
-			r2x.mThreadPool[i] = AutoRef<std::thread>::make (r3x) ;
+			auto tmp = LocalProc (PhanRef<Pack>::make (r2x) ,i) ;
+			r2x.mThreadPool[i] = AutoRef<std::thread>::make (std::move (tmp)) ;
 		}
 	}
 
@@ -450,8 +450,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<std::thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r3x = LocalProc (&r2x) ;
-			r2x.mThreadPool[i] = AutoRef<std::thread>::make (r3x) ;
+			auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
+			r2x.mThreadPool[i] = AutoRef<std::thread>::make (std::move (tmp)) ;
 		}
 	}
 
@@ -712,8 +712,8 @@ public:
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		const auto r3x = LocalProc (&r2x) ;
-		r2x.mThreadPool = AutoRef<std::thread>::make (r3x) ;
+		auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
+		r2x.mThreadPool = AutoRef<std::thread>::make (std::move (tmp)) ;
 	}
 
 	void signal () {

@@ -224,17 +224,17 @@ public:
 } ;
 
 template <class CONT>
-inline exports void Coroutine<CONT>::init_break_point (AnyRef<void> &bp) popping {
+inline exports void Coroutine<CONT>::init_break_point (AnyRef<void> &bp) {
 	Implement::init_break_point (&bp) ;
 }
 
 template <class CONT>
-inline exports void Coroutine<CONT>::store_break_point (AnyRef<void> &bp) noexcept popping {
+inline exports void Coroutine<CONT>::store_break_point (AnyRef<void> &bp) noexcept {
 	Implement::store_break_point (&bp) ;
 }
 
 template <class CONT>
-inline exports void Coroutine<CONT>::goto_break_point (AnyRef<void> &bp) noexcept popping {
+inline exports void Coroutine<CONT>::goto_break_point (AnyRef<void> &bp) noexcept {
 	Implement::goto_break_point (&bp) ;
 }
 #endif

@@ -446,9 +446,9 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_convertible<_ARG1 & ,UNIT &>::value>>
 	inline explicit ScopedGuard (_ARG1 &address) popping
 		:ScopedGuard (ARGVP0) {
-		const auto r1x = &_XVALUE_<UNIT> (address) ;
-		r1x->lock () ;
-		mAddress = r1x ;
+		auto &r1x = _XVALUE_<UNIT> (address) ;
+		r1x.lock () ;
+		mAddress = &r1x ;
 	}
 
 	inline ~ScopedGuard () noexcept {
@@ -487,7 +487,7 @@ public:
 		auto &r1x = _XVALUE_<PTR<TEMP<UNIT>>> (address) ;
 		if (r1x == NULL)
 			return ;
-		mAddress = r1x ;
+		mAddress = &r1x ;
 		_CREATE_ (r1x ,std::forward<_ARGS> (initval)...) ;
 		mSize = 1 ;
 	}
@@ -534,7 +534,7 @@ public:
 		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
 		if (r1x == NULL)
 			return ;
-		mAddress = r1x ;
+		mAddress = &r1x ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;
@@ -547,10 +547,10 @@ public:
 	inline explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,LENGTH len) popping
 		:ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
-		const auto r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
+		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
 		if (r1x == NULL)
 			return ;
-		mAddress = r1x ;
+		mAddress = &r1x ;
 		while (TRUE) {
 			if (mSize >= len)
 				break ;

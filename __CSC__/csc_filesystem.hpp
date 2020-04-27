@@ -21,7 +21,7 @@ using DEFAULT_DIRECTORY_SIZE = ARGC<65536> ;
 inline namespace FILESYSTEM {
 inline imports DEF<AutoBuffer<BYTE> (const String<STR> &file) popping> _LOADFILE_ ;
 
-inline imports DEF<void (const String<STR> &file ,const PhanBuffer<BYTE> &data) popping> _LOADFILE_ ;
+inline imports DEF<void (const String<STR> &file ,const PhanBuffer<BYTE> &data)> _LOADFILE_ ;
 
 inline imports DEF<void (const String<STR> &file ,const PhanBuffer<const BYTE> &data)> _SAVEFILE_ ;
 
@@ -61,7 +61,7 @@ inline imports DEF<void (const String<STR> &dire)> _BUILDDIRECTORY_ ;
 
 inline imports DEF<void (const String<STR> &dire)> _ERASEDIRECTORY_ ;
 
-inline imports DEF<void (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) popping> _ENUMDIRECTORY_ ;
+inline imports DEF<void (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list)> _ENUMDIRECTORY_ ;
 
 inline imports DEF<void (const String<STR> &dire)> _CLEARDIRECTORY_ ;
 } ;

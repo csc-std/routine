@@ -597,7 +597,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			*		//@info: $20
 			*	}
 			*
-			*	inline void update_lack_weight_e7 (INDEX stack_x ,INDEX stack_y ,BOOL &stack_ret) popping {
+			*	inline void update_lack_weight_e7 (INDEX stack_x ,INDEX stack_y ,BOOL &stack_ret) {
 			*		//@info: $7
 			*		if (stack_y == VAR_NONE) {
 			*			//@info: $2

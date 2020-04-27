@@ -1774,7 +1774,7 @@ public:
 		mList.free (ix) ;
 	}
 
-	inline QList &operator>> (ITEM &item) popping {
+	inline QList &operator>> (ITEM &item) {
 		take (item) ;
 		return (*this) ;
 	}

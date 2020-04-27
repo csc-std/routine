@@ -56,7 +56,7 @@ inline exports AutoBuffer<BYTE> _LOADFILE_ (const String<STR> &file) popping {
 	return std::move (ret) ;
 }
 
-inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> &data) popping {
+inline exports void _LOADFILE_ (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
 	const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 		me = CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
@@ -405,7 +405,7 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 }
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop
-inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) popping {
+inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	rax += dire ;
 	rax += _PCSTR_ ("\\") ;
@@ -545,7 +545,7 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 	mThis = AnyRef<Implement>::make (file) ;
 }
 
-inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) popping {
+inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
 	mThis.rebind<Implement> ()->read (data) ;
 }
 

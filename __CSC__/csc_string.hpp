@@ -769,8 +769,12 @@ inline const HashSet<STRUW ,STRUW> &_inline_GBKSTOWS_TABLE_ () {
 	return _CACHE_ ([&] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
+		for (auto &&i : _RANGE_ (0 ,r1x.size ())) {
+			INDEX ix = ret.find (r1x[i][1]) ;
+			if (ix != VAR_NONE)
+				continue ;
 			ret.add (r1x[i][1] ,r1x[i][0]) ;
+		}
 		return std::move (ret) ;
 	}) ;
 }
@@ -853,8 +857,12 @@ inline const HashSet<STRUW ,STRUW> &_inline_WSTOGBKS_TABLE_ () {
 	return _CACHE_ ([&] () {
 		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
 		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
+		for (auto &&i : _RANGE_ (0 ,r1x.size ())) {
+			INDEX ix = ret.find (r1x[i][0]) ;
+			if (ix != VAR_NONE)
+				continue ;
 			ret.add (r1x[i][0] ,r1x[i][1]) ;
+		}
 		return std::move (ret) ;
 	}) ;
 }

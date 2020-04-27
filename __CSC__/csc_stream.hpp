@@ -167,7 +167,7 @@ public:
 		}
 	}
 
-	inline ByteReader &operator>> (BYTE &data) popping {
+	inline ByteReader &operator>> (BYTE &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -180,7 +180,7 @@ public:
 			read (r3x[r2x[i]]) ;
 	}
 
-	inline ByteReader &operator>> (WORD &data) popping {
+	inline ByteReader &operator>> (WORD &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -193,7 +193,7 @@ public:
 			read (r3x[r2x[i]]) ;
 	}
 
-	inline ByteReader &operator>> (CHAR &data) popping {
+	inline ByteReader &operator>> (CHAR &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -206,7 +206,7 @@ public:
 			read (r3x[r2x[i]]) ;
 	}
 
-	inline ByteReader &operator>> (DATA &data) popping {
+	inline ByteReader &operator>> (DATA &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -215,7 +215,7 @@ public:
 		read (_CAST_<U::BYTE_BASE_TYPE<BOOL>> (data)) ;
 	}
 
-	inline ByteReader &operator>> (BOOL &data) popping {
+	inline ByteReader &operator>> (BOOL &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -224,7 +224,7 @@ public:
 		read (_CAST_<U::BYTE_BASE_TYPE<VAR32>> (data)) ;
 	}
 
-	inline ByteReader &operator>> (VAR32 &data) popping {
+	inline ByteReader &operator>> (VAR32 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -233,7 +233,7 @@ public:
 		read (_CAST_<U::BYTE_BASE_TYPE<VAR64>> (data)) ;
 	}
 
-	inline ByteReader &operator>> (VAR64 &data) popping {
+	inline ByteReader &operator>> (VAR64 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -242,7 +242,7 @@ public:
 		read (_CAST_<U::BYTE_BASE_TYPE<VAL32>> (data)) ;
 	}
 
-	inline ByteReader &operator>> (VAL32 &data) popping {
+	inline ByteReader &operator>> (VAL32 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -251,7 +251,7 @@ public:
 		read (_CAST_<U::BYTE_BASE_TYPE<VAL64>> (data)) ;
 	}
 
-	inline ByteReader &operator>> (VAL64 &data) popping {
+	inline ByteReader &operator>> (VAL64 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -267,7 +267,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline ByteReader &operator>> (Array<_ARG1 ,_ARG2> &data) popping {
+	inline ByteReader &operator>> (Array<_ARG1 ,_ARG2> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -305,7 +305,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline ByteReader &operator>> (String<_ARG1 ,_ARG2> &data) popping {
+	inline ByteReader &operator>> (String<_ARG1 ,_ARG2> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -317,7 +317,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline ByteReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) popping {
+	inline ByteReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -326,7 +326,7 @@ public:
 		data.friend_read ((*this)) ;
 	}
 
-	inline ByteReader &operator>> (Binder &data) popping {
+	inline ByteReader &operator>> (Binder &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -784,7 +784,7 @@ public:
 		}
 	}
 
-	inline TextReader &operator>> (REAL &data) popping {
+	inline TextReader &operator>> (REAL &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -846,7 +846,7 @@ public:
 		}
 	}
 
-	inline TextReader &operator>> (BOOL &data) popping {
+	inline TextReader &operator>> (BOOL &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -857,7 +857,7 @@ public:
 		data = VAR32 (r1x) ;
 	}
 
-	inline TextReader &operator>> (VAR32 &data) popping {
+	inline TextReader &operator>> (VAR32 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -874,7 +874,7 @@ public:
 		data = -data ;
 	}
 
-	inline TextReader &operator>> (VAR64 &data) popping {
+	inline TextReader &operator>> (VAR64 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -891,7 +891,7 @@ public:
 		data = VAL32 (r1x) ;
 	}
 
-	inline TextReader &operator>> (VAL32 &data) popping {
+	inline TextReader &operator>> (VAL32 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -950,7 +950,7 @@ public:
 		data = -data ;
 	}
 
-	inline TextReader &operator>> (VAL64 &data) popping {
+	inline TextReader &operator>> (VAL64 &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -961,7 +961,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline TextReader &operator>> (Array<_ARG1 ,_ARG2> &data) popping {
+	inline TextReader &operator>> (Array<_ARG1 ,_ARG2> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -996,7 +996,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline TextReader &operator>> (String<REAL ,_ARG1> &data) popping {
+	inline TextReader &operator>> (String<REAL ,_ARG1> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -1008,7 +1008,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline TextReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) popping {
+	inline TextReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -1017,7 +1017,7 @@ public:
 		data.friend_read ((*this)) ;
 	}
 
-	inline TextReader &operator>> (Binder &data) popping {
+	inline TextReader &operator>> (Binder &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -2355,7 +2355,7 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (String<STRU8> &data) popping {
+	inline RegularReader &operator>> (String<STRU8> &data) {
 		read (data) ;
 		return (*this) ;
 	}

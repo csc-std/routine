@@ -53,7 +53,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) popping {
+	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
 		return (*this) ;
 	}
@@ -122,7 +122,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) popping {
+	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
 		return (*this) ;
 	}
