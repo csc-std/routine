@@ -112,7 +112,7 @@ private:
 		const auto r2x = mThis->mHolder.typemid () ;
 		const auto r3x = _TYPEMID_<_ARG1> () ;
 		_DYNAMIC_ASSERT_ (r2x == r3x) ;
-		return mThis->mHolder.template rebind<_ARG1> ().self ;
+		return mThis->mHolder.template rebind<REMOVE_CVR_TYPE<_ARG1>> ().self ;
 	}
 
 	const Operand &template_as (const ARGV<Operand> &) const {

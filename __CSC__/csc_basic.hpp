@@ -347,7 +347,8 @@ private:
 
 public:
 	template <class _RET>
-	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<_RET>> alloc () popping {
+	inline static auto alloc () popping
+		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::template OwnerProxy<_RET>> {
 		struct Dependent ;
 		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<_RET> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -360,7 +361,8 @@ public:
 	}
 
 	template <class _RET>
-	inline static DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template OwnerProxy<ARR<_RET>>> alloc (LENGTH len) popping {
+	inline static auto alloc (LENGTH len) popping
+		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::template OwnerProxy<ARR<_RET>>> {
 		struct Dependent ;
 		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<ARR<_RET>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;

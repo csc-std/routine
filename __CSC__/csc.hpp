@@ -1752,9 +1752,6 @@ class MemoryInterface final
 	_STATIC_ASSERT_ (std::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
 } ;
 
-template <class _ARG1>
-inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) noexcept ;
-
 template <class _RET>
 inline FLAG _TYPEMID_ () noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -1841,14 +1838,16 @@ public:
 		:mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
+	inline auto begin () const
+		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::Iterator> {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator ((*this) ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> end () const {
+	inline auto end () const
+		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::Iterator> {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
@@ -1887,6 +1886,14 @@ struct ArrayRange<ZERO>::Detail {
 
 inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
 	return ArrayRange<ZERO> (ibegin_ ,iend_) ;
+}
+
+template <class _ARG1>
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) popping {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
+	return mInstance ;
 }
 
 namespace U {
@@ -2070,12 +2077,4 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 //@info: this function is incompleted without 'csc_extend.hpp'
 template <class _ARG1 ,class _ARG2>
 inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept ;
-
-template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
-	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
-	return mInstance ;
-}
 } ;

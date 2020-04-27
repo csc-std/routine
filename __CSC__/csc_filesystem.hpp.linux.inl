@@ -113,9 +113,10 @@ inline exports BOOL _FINDFILE_ (const String<STR> &file) popping {
 }
 
 inline BOOL _inline_FINDJUNTION_ (const String<STRA> &dire) popping {
-	const auto r1x = UniqueRef<PTR<DIR>> ([&] (PTR<DIR> &me) {
+	using HDIR = PTR<DIR> ;
+	const auto r1x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = ::opendir (dire.raw ().self) ;
-	} ,[] (PTR<DIR> &me) {
+	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
 		::closedir (me) ;
@@ -354,10 +355,11 @@ inline exports const String<STR> &_MODULEFILENAME_ () popping {
 }
 
 inline exports BOOL _FINDDIRECTORY_ (const String<STR> &dire) popping {
+	using HDIR = PTR<DIR> ;
 	const auto r1x = _BUILDSTRS_<STRA> (dire) ;
-	const auto r2x = UniqueRef<PTR<DIR>> ([&] (PTR<DIR> &me) {
+	const auto r2x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = ::opendir (r1x.raw ().self) ;
-	} ,[] (PTR<DIR> &me) {
+	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
 		::closedir (me) ;
@@ -446,14 +448,15 @@ inline exports void _ERASEDIRECTORY_ (const String<STR> &dire) {
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void _ENUMDIRECTORY_ (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
+	using HDIR = PTR<DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	rax += dire ;
 	rax += _PCSTR_ ("/") ;
 	const auto r1x = rax.length () ;
 	const auto r2x = _BUILDSTRS_<STRA> (rax) ;
-	const auto r3x = UniqueRef<PTR<DIR>> ([&] (PTR<DIR> &me) {
+	const auto r3x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = ::opendir (r2x.raw ().self) ;
-	} ,[] (PTR<DIR> &me) {
+	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
 		::closedir (me) ;

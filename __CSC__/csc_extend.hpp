@@ -965,12 +965,12 @@ private:
 		template_destruct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
-	inline void template_copy_construct (PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<ARGVS<>> &) {
+	inline void template_copy_construct (const Variant &that ,INDEX index ,const ARGV<ARGVS<>> &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	template <class _ARG1>
-	inline void template_copy_construct (PTR<const TEMP<VARIANT>> that ,INDEX index ,const ARGV<_ARG1> &) {
+	inline void template_copy_construct (const Variant &that ,INDEX index ,const ARGV<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 		const auto r1x = BOOL (index == 0) ;
@@ -979,7 +979,7 @@ private:
 				discard ;
 			auto &r2x = _NULL_<ARGV<ARGC<std::is_copy_constructible<ONE_HINT>::value && std::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
 			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (&mVariant) ;
-			auto &r4x = _LOAD_<TEMP<ONE_HINT>> (that) ;
+			auto &r4x = _LOAD_<TEMP<ONE_HINT>> (&that.mVariant) ;
 			template_create (r2x ,&r3x ,std::move (_CAST_<ONE_HINT> (r4x))) ;
 		}
 		if (r1x)
@@ -1770,7 +1770,7 @@ public:
 		auto rax = SharedRef<Pack>::make () ;
 		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
-		auto &r1x = rax->mHolder.rebind<REMOVE_CVR_TYPE<UNIT>> ().self ;
+		auto &r1x = rax->mHolder.rebind<UNIT> ().self ;
 		return StrongRef (rax ,&r1x) ;
 	}
 

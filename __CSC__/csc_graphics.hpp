@@ -383,7 +383,8 @@ public:
 	}
 
 	template <class _RET = NONE>
-	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () popping {
+	auto create_sprite () popping
+		->DEF<DEPENDENT_TYPE<AbstractSprite ,ARGVS<_RET>>> {
 		struct Dependent ;
 		return DEPENDENT_TYPE<AbstractSprite ,Dependent> (mAbstract) ;
 	}
