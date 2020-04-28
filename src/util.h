@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#define _UNITTEST
-#define _DEPRECATED
-
 #include <csc.hpp>
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>
