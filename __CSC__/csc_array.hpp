@@ -2916,17 +2916,13 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
 			spec.update_insert (ix) ;
-		}
-		if switch_case (fax) {
-			mSet[ix].mItem = std::move (item) ;
 		}
 		mTop = ix ;
 	}
@@ -2941,17 +2937,13 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			spec.update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
 			spec.update_insert (ix) ;
-		}
-		if switch_case (fax) {
-			mSet[ix].mItem = std::move (item) ;
 		}
 		mTop = ix ;
 	}
@@ -3781,17 +3773,13 @@ public:
 
 	void add (const KEY &key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			spec.update_resize (ix) ;
 			spec.update_insert (ix) ;
-		}
-		if switch_case (fax) {
-			mSet[ix].mItem = std::move (item) ;
 		}
 		mTop = ix ;
 	}
@@ -3806,17 +3794,13 @@ public:
 
 	void add (KEY &&key ,ITEM &&item) {
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
 			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
 			spec.update_resize (ix) ;
 			spec.update_insert (ix) ;
-		}
-		if switch_case (fax) {
-			mSet[ix].mItem = std::move (item) ;
 		}
 		mTop = ix ;
 	}
@@ -4333,8 +4317,7 @@ public:
 	void add (const KEY &key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -4361,8 +4344,7 @@ public:
 	void add (KEY &&key ,ITEM &&item) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = spec.find (key) ;
-		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;

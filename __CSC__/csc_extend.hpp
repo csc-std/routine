@@ -1073,41 +1073,41 @@ class Tuple ;
 template <>
 class Tuple<> {
 public:
-	inline constexpr Tuple () = default ;
+	inline Tuple () = default ;
 
-	inline constexpr LENGTH capacity () const {
+	inline LENGTH capacity () const {
 		return 0 ;
 	}
 
-	inline constexpr BOOL equal (const Tuple &that) const {
+	inline BOOL equal (const Tuple &that) const {
 		return TRUE ;
 	}
 
-	inline constexpr BOOL operator== (const Tuple &that) const {
+	inline BOOL operator== (const Tuple &that) const {
 		return equal (that) ;
 	}
 
-	inline constexpr BOOL operator!= (const Tuple &that) const {
+	inline BOOL operator!= (const Tuple &that) const {
 		return !equal (that) ;
 	}
 
-	inline constexpr FLAG compr (const Tuple &that) const {
+	inline FLAG compr (const Tuple &that) const {
 		return 0 ;
 	}
 
-	inline constexpr BOOL operator< (const Tuple &that) const {
+	inline BOOL operator< (const Tuple &that) const {
 		return BOOL (compr (that) < 0) ;
 	}
 
-	inline constexpr BOOL operator>= (const Tuple &that) const {
+	inline BOOL operator>= (const Tuple &that) const {
 		return BOOL (compr (that) >= 0) ;
 	}
 
-	inline constexpr BOOL operator> (const Tuple &that) const {
+	inline BOOL operator> (const Tuple &that) const {
 		return BOOL (compr (that) > 0) ;
 	}
 
-	inline constexpr BOOL operator<= (const Tuple &that) const {
+	inline BOOL operator<= (const Tuple &that) const {
 		return BOOL (compr (that) <= 0) ;
 	}
 } ;
@@ -1123,11 +1123,11 @@ private:
 	UNIT1 mValue ;
 
 public:
-	inline constexpr Tuple () = default ;
+	inline Tuple () = default ;
 
-	inline constexpr implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
+	inline implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
-	inline constexpr LENGTH capacity () const {
+	inline LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
 	}
 
@@ -1135,7 +1135,7 @@ public:
 		return mValue ;
 	}
 
-	inline constexpr const UNIT1 &one () const & {
+	inline const UNIT1 &one () const & {
 		return mValue ;
 	}
 
@@ -1145,7 +1145,7 @@ public:
 		return (*this) ;
 	}
 
-	inline constexpr const Tuple<UNITS...> &rest () const & {
+	inline const Tuple<UNITS...> &rest () const & {
 		return (*this) ;
 	}
 
@@ -1157,7 +1157,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline constexpr const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const & {
+	inline const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const & {
 		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
