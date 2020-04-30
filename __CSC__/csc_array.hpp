@@ -957,293 +957,41 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class ITEM ,class SIZE = SAUTO>
 class Priority ;
 
-template <class KEY ,class ITEM ,class SIZE>
-class Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
+template <class ITEM ,class SIZE>
+class Priority {
 private:
-	using SPECIALIZATION_THIS = Priority<KEY ,ITEM ,SIZE> ;
-
 	class Node {
 	private:
 		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
 		ITEM mItem ;
+		INDEX mMap ;
 
 	public:
 		inline Node () = default ;
 	} ;
 
-	using KEY_ITEM = PACK<KEY ,ITEM> ;
+	struct Dependent ;
 
 private:
 	struct Detail ;
-	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
 public:
 	Priority () {
-		spec.clear () ;
+		clear () ;
 	}
 
 	explicit Priority (LENGTH len)
 		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
-		spec.clear () ;
+		clear () ;
 	}
 
-	void add (const KEY &key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (const KEY &key ,ITEM &&item) {
-		if (mPriority.size () == 0)
-			spec.reserve (mPriority.expand_size ()) ;
-		INDEX ix = mWrite ;
-		mPriority[ix].mKey = std::move (key) ;
-		mPriority[ix].mItem = std::move (item) ;
-		mWrite++ ;
-		spec.update_resize () ;
-		spec.update_insert (ix) ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	void add (KEY &&key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (KEY &&key ,ITEM &&item) {
-		if (mPriority.size () == 0)
-			spec.reserve (mPriority.expand_size ()) ;
-		INDEX ix = mWrite ;
-		mPriority[ix].mKey = std::move (key) ;
-		mPriority[ix].mItem = std::move (item) ;
-		mWrite++ ;
-		spec.update_resize () ;
-		spec.update_insert (ix) ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		spec.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		spec.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-private:
-	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mPriority (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-struct Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mPriority[index].mKey) ,item (base.mPriority[index].mItem) {}
-	} ;
-} ;
-
-template <class KEY ,class SIZE>
-class Priority<KEY ,SPECIALIZATION<void> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
-private:
-	using SPECIALIZATION_THIS = Priority<KEY ,void ,SIZE> ;
-
-	class Node {
-	private:
-		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
-
-	public:
-		inline Node () = default ;
-	} ;
-
-	using KEY_ITEM = PACK<KEY> ;
-
-private:
-	struct Detail ;
-	friend SPECIALIZATION_THIS ;
-	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
-	INDEX mWrite ;
-	INDEX mTop ;
-
-public:
-	Priority () {
-		spec.clear () ;
-	}
-
-	explicit Priority (LENGTH len)
-		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
-		spec.clear () ;
-	}
-
-	void add (const KEY &key) {
-		if (mPriority.size () == 0)
-			spec.reserve (mPriority.expand_size ()) ;
-		INDEX ix = mWrite ;
-		mPriority[ix].mKey = std::move (key) ;
-		mWrite++ ;
-		spec.update_resize () ;
-		spec.update_insert (ix) ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1)) ;
-	}
-
-	void add (KEY &&key) {
-		if (mPriority.size () == 0)
-			spec.reserve (mPriority.expand_size ()) ;
-		INDEX ix = mWrite ;
-		mPriority[ix].mKey = std::move (key) ;
-		mWrite++ ;
-		spec.update_resize () ;
-		spec.update_insert (ix) ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		spec.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		spec.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-private:
-	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mPriority (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class SIZE>
-struct Priority<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Priority ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mPriority[index].mKey) {}
-	} ;
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-class Priority
-	:private Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-private:
-	using SPECIALIZATION_BASE = Priority<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
-	using Node = typename SPECIALIZATION_BASE::Node ;
-	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
-
-private:
-	struct Detail ;
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mPriority ;
-	using SPECIALIZATION_BASE::mWrite ;
-	using SPECIALIZATION_BASE::mTop ;
-
-public:
-	Priority () = default ;
-
-	explicit Priority (LENGTH len)
-		:SPECIALIZATION_BASE (len) {}
-
-	implicit Priority (const std::initializer_list<KEY_ITEM> &that)
+	implicit Priority (const std::initializer_list<ITEM> &that)
 		: Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1294,8 +1042,8 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> get (INDEX index) & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Priority> ;
+	DEF<typename Detail::template Pair<Priority>> get (INDEX index) & {
+		using Pair = typename Detail::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair ((*this) ,index) ;
 	}
@@ -1306,8 +1054,8 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> get (INDEX index) const & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Priority> ;
+	DEF<typename Detail::template Pair<const Priority>> get (INDEX index) const & {
+		using Pair = typename Detail::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair ((*this) ,index) ;
 	}
@@ -1321,15 +1069,15 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Priority>> &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Priority>> &item) const {
+		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Priority>> &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Priority>> &item) const {
+		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
@@ -1373,19 +1121,63 @@ public:
 		return TRUE ;
 	}
 
-	using SPECIALIZATION_BASE::add ;
+	void add (const ITEM &item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
 
-	inline Priority &operator<< (const KEY_ITEM &item) {
+	inline Priority &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Priority &operator<< (KEY_ITEM &&item) {
+	void add (const ITEM &item ,const INDEX &map_) {
+		if (mPriority.size () == 0)
+			reserve (mPriority.expand_size ()) ;
+		INDEX ix = mWrite ;
+		mPriority[ix].mItem = std::move (item) ;
+		mPriority[ix].mMap = map_ ;
+		mWrite++ ;
+		update_resize () ;
+		update_insert (ix) ;
+	}
+
+	void add (ITEM &&item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
+
+	inline Priority &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	using SPECIALIZATION_BASE::appand ;
+	void add (ITEM &&item ,const INDEX &map_) {
+		if (mPriority.size () == 0)
+			reserve (mPriority.expand_size ()) ;
+		INDEX ix = mWrite ;
+		mPriority[ix].mItem = std::move (item) ;
+		mPriority[ix].mMap = map_ ;
+		mWrite++ ;
+		update_resize () ;
+		update_insert (ix) ;
+	}
+
+	template <class _ARG1>
+	void appand (const _ARG1 &val) {
+		reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
+		}
+	}
+
+	template <class _ARG1>
+	void appand (_ARG1 &&val) {
+		reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
+		}
+	}
 
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
@@ -1394,7 +1186,7 @@ public:
 		update_insert (0) ;
 	}
 
-	void take (KEY_ITEM &item) {
+	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		item = std::move (mPriority[0]) ;
 		mPriority[0] = std::move (mPriority[mWrite - 1]) ;
@@ -1402,7 +1194,7 @@ public:
 		update_insert (0) ;
 	}
 
-	inline Priority &operator>> (KEY_ITEM &item) {
+	inline Priority &operator>> (ITEM &item) {
 		take (item) ;
 		return (*this) ;
 	}
@@ -1412,28 +1204,14 @@ public:
 		return 0 ;
 	}
 
-	INDEX insert (const KEY &key) popping {
-		if (mPriority.size () == 0)
-			reserve (mPriority.expand_size ()) ;
-		INDEX ret = mWrite ;
-		mPriority[ret].mKey = std::move (key) ;
-		mWrite++ ;
-		update_resize () ;
-		update_insert (ret) ;
-		ret = mTop ;
-		return std::move (ret) ;
+	INDEX insert (const ITEM &item) popping {
+		add (std::move (item)) ;
+		return mTop ;
 	}
 
-	INDEX insert (KEY &&key) popping {
-		if (mPriority.size () == 0)
-			reserve (mPriority.expand_size ()) ;
-		INDEX ret = mWrite ;
-		mPriority[ret].mKey = std::move (key) ;
-		mWrite++ ;
-		update_resize () ;
-		update_insert (ret) ;
-		ret = mTop ;
-		return std::move (ret) ;
+	INDEX insert (ITEM &&item) popping {
+		add (std::move (item)) ;
+		return mTop ;
 	}
 
 	void remove (INDEX index) {
@@ -1442,6 +1220,10 @@ public:
 		mWrite-- ;
 		update_insert (index) ;
 	}
+
+private:
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mPriority (len) {}
 
 private:
 	void reserve (LENGTH len) {
@@ -1469,7 +1251,7 @@ private:
 			INDEX iy = (ix - 1) >> 1 ;
 			if (iy < 0)
 				break ;
-			if (tmp.mKey >= mPriority[iy].mKey)
+			if (tmp.mItem >= mPriority[iy].mItem)
 				break ;
 			mPriority[ix] = std::move (mPriority[iy]) ;
 			ix = iy ;
@@ -1479,16 +1261,16 @@ private:
 			if (iy >= mWrite)
 				break ;
 			INDEX jx = ix ;
-			if (tmp.mKey > mPriority[iy].mKey)
+			if (tmp.mItem > mPriority[iy].mItem)
 				jx = iy ;
 			iy++ ;
 			auto &r1x = _SWITCH_ (
-				(jx != ix) ? mPriority[jx].mKey :
-				tmp.mKey) ;
+				(jx != ix) ? mPriority[jx].mItem :
+				tmp.mItem) ;
 			if switch_case (TRUE) {
 				if (iy >= mWrite)
 					discard ;
-				if (r1x <= mPriority[iy].mKey)
+				if (r1x <= mPriority[iy].mItem)
 					discard ;
 				jx = iy ;
 			}
@@ -1509,16 +1291,16 @@ private:
 			if (iy >= len)
 				break ;
 			INDEX jx = ix ;
-			if (mPriority[r1x].mKey > mPriority[out[iy]].mKey)
+			if (mPriority[r1x].mItem > mPriority[out[iy]].mItem)
 				jx = iy ;
 			iy++ ;
 			auto &r2x = _SWITCH_ (
-				(jx != ix) ? mPriority[out[jx]].mKey :
-				mPriority[r1x].mKey) ;
+				(jx != ix) ? mPriority[out[jx]].mItem :
+				mPriority[r1x].mItem) ;
 			if switch_case (TRUE) {
 				if (iy >= len)
 					discard ;
-				if (r2x <= mPriority[out[iy]].mKey)
+				if (r2x <= mPriority[out[iy]].mItem)
 					discard ;
 				jx = iy ;
 			}
@@ -1529,6 +1311,29 @@ private:
 		}
 		out[ix] = r1x ;
 	}
+} ;
+
+template <class ITEM ,class SIZE>
+struct Priority<ITEM ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Priority ;
+		const ITEM &key ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const ITEM & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index)
+			: key (base.mPriority[index].mItem) ,mapx (base.mPriority[index].mMap) {}
+	} ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -2852,24 +2657,17 @@ struct BitSet<SIZE>::Detail {
 	} ;
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class ITEM ,class SIZE = SAUTO>
 class Set ;
 
-template <class KEY ,class ITEM ,class SIZE>
-class Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
+template <class ITEM ,class SIZE>
+class Set {
 private:
-	using SPECIALIZATION_THIS = Set<KEY ,ITEM ,SIZE> ;
-
 	class Node {
 	private:
 		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
 		ITEM mItem ;
+		INDEX mMap ;
 		BOOL mRed ;
 		INDEX mUp ;
 		INDEX mLeft ;
@@ -2878,302 +2676,32 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mItem (std::move (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
-
-		inline implicit Node (const KEY &key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
-
-		inline implicit Node (KEY &&key ,ITEM &&item ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+			: mItem (std::move (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	using KEY_ITEM = PACK<KEY ,ITEM> ;
+	struct Dependent ;
 
 private:
 	struct Detail ;
-	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
 	INDEX mTop ;
 
 public:
 	Set () {
-		spec.clear () ;
+		clear () ;
 	}
 
 	explicit Set (LENGTH len)
 		:Set (ARGVP0 ,len) {
-		spec.clear () ;
+		clear () ;
 	}
 
-	void add (const KEY &key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (const KEY &key ,ITEM &&item) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			spec.update_emplace (mRoot ,ix) ;
-			mRoot = mTop ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	void add (KEY &&key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (KEY &&key ,ITEM &&item) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet.alloc (std::move (key) ,std::move (item) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			spec.update_emplace (mRoot ,ix) ;
-			mRoot = mTop ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-private:
-	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mSet (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-struct Set<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
-	} ;
-} ;
-
-template <class KEY ,class SIZE>
-class Set<KEY ,SPECIALIZATION<void> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
-private:
-	using SPECIALIZATION_THIS = Set<KEY ,void ,SIZE> ;
-
-	class Node {
-	private:
-		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
-		BOOL mRed ;
-		INDEX mUp ;
-		INDEX mLeft ;
-		INDEX mRight ;
-
-	public:
-		inline Node () = delete ;
-
-		inline implicit Node (const KEY &key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			:mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
-
-		inline implicit Node (KEY &&key ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mKey (std::move (key)) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
-	} ;
-
-	using KEY_ITEM = PACK<KEY> ;
-
-private:
-	struct Detail ;
-	friend SPECIALIZATION_THIS ;
-	Allocator<Node ,SIZE> mSet ;
-	INDEX mRoot ;
-	INDEX mTop ;
-
-public:
-	Set () {
-		spec.clear () ;
-	}
-
-	explicit Set (LENGTH len)
-		:Set (ARGVP0 ,len) {
-		spec.clear () ;
-	}
-
-	void add (const KEY &key) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			spec.update_emplace (mRoot ,ix) ;
-			mRoot = mTop ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1)) ;
-	}
-
-	void add (KEY &&key) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			spec.update_emplace (mRoot ,ix) ;
-			mRoot = mTop ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-private:
-	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mSet (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class SIZE>
-struct Set<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend Set ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet[index].mKey) {}
-	} ;
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-class Set
-	:private Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-private:
-	using SPECIALIZATION_BASE = Set<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
-	using Node = typename SPECIALIZATION_BASE::Node ;
-	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
-
-private:
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mSet ;
-	using SPECIALIZATION_BASE::mRoot ;
-	using SPECIALIZATION_BASE::mTop ;
-
-public:
-	Set () = default ;
-
-	explicit Set (LENGTH len)
-		:SPECIALIZATION_BASE (len) {}
-
-	implicit Set (const std::initializer_list<KEY_ITEM> &that)
+	implicit Set (const std::initializer_list<ITEM> &that)
 		: Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -3226,8 +2754,8 @@ public:
 		return ArrayIterator<const Set> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> get (INDEX index) & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<Set> ;
+	DEF<typename Detail::template Pair<Set>> get (INDEX index) & {
+		using Pair = typename Detail::template Pair<Set> ;
 		return Pair ((*this) ,index) ;
 	}
 
@@ -3236,8 +2764,8 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> get (INDEX index) const & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const Set> ;
+	DEF<typename Detail::template Pair<const Set>> get (INDEX index) const & {
+		using Pair = typename Detail::template Pair<const Set> ;
 		return Pair ((*this) ,index) ;
 	}
 
@@ -3250,12 +2778,12 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<Set>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Set>> &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const Set>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Set>> &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3277,65 +2805,66 @@ public:
 		return std::move (ret) ;
 	}
 
-	using SPECIALIZATION_BASE::add ;
+	void add (const ITEM &item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
 
-	inline Set &operator<< (const KEY_ITEM &item) {
+	inline Set &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline Set &operator<< (KEY_ITEM &&item) {
+	void add (const ITEM &item ,const INDEX &map_) {
+		INDEX ix = find (item) ;
+		if switch_case (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			ix = mSet.alloc (std::move (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			update_emplace (mRoot ,ix) ;
+			mRoot = mTop ;
+			update_insert (ix) ;
+		}
+		mTop = ix ;
+	}
+
+	void add (ITEM &&item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
+
+	inline Set &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	using SPECIALIZATION_BASE::appand ;
-
-	INDEX insert (const KEY &key) popping {
-		INDEX ret = find (key) ;
+	void add (ITEM &&item ,const INDEX &map_) {
+		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
+			if (ix != VAR_NONE)
 				discard ;
-			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			update_emplace (mRoot ,ret) ;
+			ix = mSet.alloc (std::move (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
-			update_insert (ret) ;
+			update_insert (ix) ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
+		mTop = ix ;
 	}
 
-	INDEX insert (KEY &&key) popping {
-		INDEX ret = find (key) ;
-		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
-				discard ;
-			ret = mSet.alloc (std::move (key) ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			update_emplace (mRoot ,ret) ;
-			mRoot = mTop ;
-			update_insert (ret) ;
+	template <class _ARG1>
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
 	}
 
-	void remove (INDEX index) {
-		if switch_case (TRUE) {
-			if (mSet[index].mLeft == VAR_NONE)
-				discard ;
-			if (mSet[index].mRight == VAR_NONE)
-				discard ;
-			eswap (index ,find_successor (index)) ;
+	template <class _ARG1>
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
 		}
-		INDEX ix = mSet[index].mLeft ;
-		if (ix == VAR_NONE)
-			ix = mSet[index].mRight ;
-		prev_next (index) = ix ;
-		if (ix != VAR_NONE)
-			mSet[ix].mUp = mSet[index].mUp ;
-		if (!mSet[index].mRed)
-			update_remove (ix ,mSet[index].mUp) ;
-		mSet.free (index) ;
 	}
 
 	INDEX head () const {
@@ -3358,14 +2887,43 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX find (const KEY &key) const {
+	INDEX insert (const ITEM &item) popping {
+		add (std::move (item)) ;
+		return mTop ;
+	}
+
+	INDEX insert (ITEM &&item) popping {
+		add (std::move (item)) ;
+		return mTop ;
+	}
+
+	void remove (INDEX index) {
+		if switch_case (TRUE) {
+			if (mSet[index].mLeft == VAR_NONE)
+				discard ;
+			if (mSet[index].mRight == VAR_NONE)
+				discard ;
+			eswap (index ,find_successor (index)) ;
+		}
+		INDEX ix = mSet[index].mLeft ;
+		if (ix == VAR_NONE)
+			ix = mSet[index].mRight ;
+		prev_next (index) = ix ;
+		if (ix != VAR_NONE)
+			mSet[ix].mUp = mSet[index].mUp ;
+		if (!mSet[index].mRed)
+			update_remove (ix ,mSet[index].mUp) ;
+		mSet.free (index) ;
+	}
+
+	INDEX find (const ITEM &item) const {
 		INDEX ret = mRoot ;
 		while (TRUE) {
 			if (ret == VAR_NONE)
 				break ;
-			const auto r1x = BOOL (key < mSet[ret].mKey) ;
+			const auto r1x = BOOL (item < mSet[ret].mItem) ;
 			if (!r1x)
-				if (!(key > mSet[ret].mKey))
+				if (!(item > mSet[ret].mItem))
 					break ;
 			auto &r2x = _SWITCH_ (
 				r1x ? mSet[ret].mLeft :
@@ -3375,12 +2933,23 @@ public:
 		return std::move (ret) ;
 	}
 
-	void erase (const KEY &key) {
-		INDEX ix = find (key) ;
+	INDEX map (const ITEM &item) const {
+		INDEX ix = find (item) ;
+		if (ix == VAR_NONE)
+			return VAR_NONE ;
+		return mSet[ix].mMap ;
+	}
+
+	void erase (const ITEM &item) {
+		INDEX ix = find (item) ;
 		if (ix == VAR_NONE)
 			return ;
 		remove (ix) ;
 	}
+
+private:
+	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) {}
 
 private:
 	void update_emplace (INDEX curr ,INDEX last) {
@@ -3395,7 +2964,7 @@ private:
 				discard ;
 			mSet[last].mUp = curr ;
 			auto &r1x = _SWITCH_ (
-				(mSet[last].mKey < mSet[curr].mKey) ? mSet[curr].mLeft :
+				(mSet[last].mItem < mSet[curr].mItem) ? mSet[curr].mLeft :
 				mSet[curr].mRight) ;
 			update_emplace (r1x ,last) ;
 			r1x = mTop ;
@@ -3711,324 +3280,72 @@ private:
 	}
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class ITEM ,class SIZE>
+struct Set<ITEM ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend Set ;
+		const ITEM &key ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const ITEM & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index)
+			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
+	} ;
+} ;
+
+template <class ITEM ,class SIZE = SAUTO>
 class HashSet ;
 
-template <class KEY ,class ITEM ,class SIZE>
-class HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
+template <class ITEM ,class SIZE>
+class HashSet {
 private:
-	using SPECIALIZATION_THIS = HashSet<KEY ,ITEM ,SIZE> ;
-
 	class Node {
 	private:
 		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
 		ITEM mItem ;
+		INDEX mMap ;
 		FLAG mHash ;
 		INDEX mNext ;
 
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const KEY &key ,FLAG hash ,INDEX next)
-			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,FLAG hash ,INDEX next)
+			: mItem (std::move (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 
-		inline implicit Node (KEY &&key ,FLAG hash ,INDEX next)
-			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
-
-		inline implicit Node (const KEY &key ,ITEM &&item ,FLAG hash ,INDEX next)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
-
-		inline implicit Node (KEY &&key ,ITEM &&item ,FLAG hash ,INDEX next)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mHash (hash) ,mNext (next) {}
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,FLAG hash ,INDEX next)
+			: mItem (std::move (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	using KEY_ITEM = PACK<KEY ,ITEM> ;
+	struct Dependent ;
 
 private:
 	struct Detail ;
-	friend SPECIALIZATION_THIS ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
 	INDEX mTop ;
 
 public:
 	HashSet () {
-		spec.clear () ;
+		clear () ;
 	}
 
 	explicit HashSet (LENGTH len)
 		:HashSet (ARGVP0 ,len) {
-		spec.clear () ;
+		clear () ;
 	}
 
-	void add (const KEY &key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (const KEY &key ,ITEM &&item) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
-			spec.update_resize (ix) ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	void add (KEY &&key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (KEY &&key ,ITEM &&item) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ix = mSet.alloc (std::move (key) ,std::move (item) ,r1x ,VAR_NONE) ;
-			spec.update_resize (ix) ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-private:
-	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mSet (len) ,mHead (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-struct HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet[index].mKey) ,item (base.mSet[index].mItem) {}
-	} ;
-} ;
-
-template <class KEY ,class SIZE>
-class HashSet<KEY ,SPECIALIZATION<void> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
-private:
-	using SPECIALIZATION_THIS = HashSet<KEY ,void ,SIZE> ;
-
-	class Node {
-	private:
-		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
-		FLAG mHash ;
-		INDEX mNext ;
-
-	public:
-		inline Node () = delete ;
-
-		inline implicit Node (const KEY &key ,FLAG hash ,INDEX next)
-			:mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
-
-		inline implicit Node (KEY &&key ,FLAG hash ,INDEX next)
-			: mKey (std::move (key)) ,mHash (hash) ,mNext (next) {}
-	} ;
-
-	using KEY_ITEM = PACK<KEY> ;
-
-private:
-	struct Detail ;
-	friend SPECIALIZATION_THIS ;
-	Allocator<Node ,SIZE> mSet ;
-	Buffer<INDEX ,SIZE> mHead ;
-	INDEX mTop ;
-
-public:
-	HashSet () {
-		spec.clear () ;
-	}
-
-	explicit HashSet (LENGTH len)
-		:HashSet (ARGVP0 ,len) {
-		spec.clear () ;
-	}
-
-	void add (const KEY &key) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			spec.update_resize (ix) ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1)) ;
-	}
-
-	void add (KEY &&key) {
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ix = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			spec.update_resize (ix) ;
-			spec.update_insert (ix) ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-private:
-	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
-		:mSet (len) ,mHead (len) {}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class SIZE>
-struct HashSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend HashSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet[index].mKey) {}
-	} ;
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-class HashSet
-	:private HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-private:
-	using SPECIALIZATION_BASE = HashSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
-	using Node = typename SPECIALIZATION_BASE::Node ;
-	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
-
-private:
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mSet ;
-	using SPECIALIZATION_BASE::mHead ;
-	using SPECIALIZATION_BASE::mTop ;
-
-public:
-	HashSet () = default ;
-
-	explicit HashSet (LENGTH len)
-		:SPECIALIZATION_BASE (len) {}
-
-	implicit HashSet (const std::initializer_list<KEY_ITEM> &that)
+	implicit HashSet (const std::initializer_list<ITEM> &that)
 		: HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -4081,8 +3398,8 @@ public:
 		return ArrayIterator<const HashSet> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> get (INDEX index) & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<HashSet> ;
+	DEF<typename Detail::template Pair<HashSet>> get (INDEX index) & {
+		using Pair = typename Detail::template Pair<HashSet> ;
 		return Pair ((*this) ,index) ;
 	}
 
@@ -4091,8 +3408,8 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> get (INDEX index) const & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet> ;
+	DEF<typename Detail::template Pair<const HashSet>> get (INDEX index) const & {
+		using Pair = typename Detail::template Pair<const HashSet> ;
 		return Pair ((*this) ,index) ;
 	}
 
@@ -4105,12 +3422,12 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<HashSet>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<HashSet>> &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const HashSet>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const HashSet>> &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -4124,46 +3441,76 @@ public:
 		return std::move (ret) ;
 	}
 
-	using SPECIALIZATION_BASE::add ;
+	void add (const ITEM &item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
 
-	inline HashSet &operator<< (const KEY_ITEM &item) {
+	inline HashSet &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline HashSet &operator<< (KEY_ITEM &&item) {
+	void add (const ITEM &item ,const INDEX &map_) {
+		INDEX ix = find (item) ;
+		if switch_case (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
+			ix = mSet.alloc (std::move (item) ,map_ ,r1x ,VAR_NONE) ;
+			update_resize (ix) ;
+			update_insert (ix) ;
+		}
+		mTop = ix ;
+	}
+
+	void add (ITEM &&item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
+
+	inline HashSet &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	using SPECIALIZATION_BASE::appand ;
-
-	INDEX insert (const KEY &key) popping {
-		INDEX ret = find (key) ;
+	void add (ITEM &&item ,const INDEX &map_) {
+		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
+			if (ix != VAR_NONE)
 				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			update_resize (ret) ;
-			update_insert (ret) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
+			ix = mSet.alloc (std::move (item) ,map_ ,r1x ,VAR_NONE) ;
+			update_resize (ix) ;
+			update_insert (ix) ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
+		mTop = ix ;
 	}
 
-	INDEX insert (KEY &&key) popping {
-		INDEX ret = find (key) ;
-		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
-				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
-			ret = mSet.alloc (std::move (key) ,r1x ,VAR_NONE) ;
-			update_resize (ret) ;
-			update_insert (ret) ;
+	template <class _ARG1>
+	void appand (const _ARG1 &val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
+	}
+
+	template <class _ARG1>
+	void appand (_ARG1 &&val) {
+		mSet.reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
+		}
+	}
+
+	INDEX insert (const ITEM &item) popping {
+		add (std::move (item)) ;
+		return mTop ;
+	}
+
+	INDEX insert (ITEM &&item) popping {
+		add (std::move (item)) ;
+		return mTop ;
 	}
 
 	void remove (INDEX index) {
@@ -4171,19 +3518,19 @@ public:
 		mSet.free (index) ;
 	}
 
-	INDEX find (const KEY &key) const {
+	INDEX find (const ITEM &item) const {
 		INDEX ret = VAR_NONE ;
 		if switch_case (TRUE) {
 			if (size () == 0)
 				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (key) ;
+			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mHead[r1x % mHead.size ()] ;
 			while (TRUE) {
 				if (ret == VAR_NONE)
 					break ;
 				if (mSet[ret].mHash == r1x)
-					if (mSet[ret].mKey == key)
+					if (mSet[ret].mItem == item)
 						break ;
 				ret = mSet[ret].mNext ;
 			}
@@ -4191,12 +3538,23 @@ public:
 		return std::move (ret) ;
 	}
 
-	void erase (const KEY &key) {
-		INDEX ix = find (key) ;
+	INDEX map (const ITEM &item) const {
+		INDEX ix = find (item) ;
+		if (ix == VAR_NONE)
+			return VAR_NONE ;
+		return mSet[ix].mMap ;
+	}
+
+	void erase (const ITEM &item) {
+		INDEX ix = find (item) ;
 		if (ix == VAR_NONE)
 			return ;
 		remove (ix) ;
 	}
+
+private:
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+		:mSet (len) ,mHead (len) {}
 
 private:
 	void update_resize (INDEX curr) {
@@ -4241,24 +3599,40 @@ private:
 	auto prev_next (INDEX) && ->void = delete ;
 } ;
 
-template <class KEY ,class ITEM = void ,class SIZE = SAUTO>
+template <class ITEM ,class SIZE>
+struct HashSet<ITEM ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend HashSet ;
+		const ITEM &key ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &mapx ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const ITEM & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index)
+			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
+	} ;
+} ;
+
+template <class ITEM ,class SIZE = SAUTO>
 class SoftSet ;
 
-template <class KEY ,class ITEM ,class SIZE>
-class SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
+template <class ITEM ,class SIZE>
+class SoftSet {
 private:
-	using SPECIALIZATION_THIS = SoftSet<KEY ,ITEM ,SIZE> ;
-
 	class Node {
 	private:
 		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
 		ITEM mItem ;
+		INDEX mMap ;
 		LENGTH mWeight ;
 		INDEX mLeft ;
 		INDEX mRight ;
@@ -4267,24 +3641,17 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mItem (std::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline implicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
-
-		inline implicit Node (const KEY &key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
-
-		inline implicit Node (KEY &&key ,ITEM &&item ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mKey (std::move (key)) ,mItem (std::move (item)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+			: mItem (std::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	using KEY_ITEM = PACK<KEY ,ITEM> ;
+	struct Dependent ;
 
 private:
 	struct Detail ;
-	friend SPECIALIZATION_THIS ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
@@ -4309,304 +3676,6 @@ public:
 		mLast = VAR_NONE ;
 		mRoot = VAR_NONE ;
 	}
-
-	void add (const KEY &key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (const KEY &key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1x = _SWITCH_ (
-				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
-				mFirst) ;
-			r1x = ix ;
-			mLast = ix ;
-			mLength++ ;
-			spec.update_insert (mRoot) ;
-			mRoot = mTop ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	void add (KEY &&key ,const ITEM &item) {
-		add (std::move (key) ,_COPY_ (item)) ;
-	}
-
-	void add (KEY &&key ,ITEM &&item) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet->alloc (std::move (key) ,std::move (item) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1x = _SWITCH_ (
-				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
-				mFirst) ;
-			r1x = ix ;
-			mLast = ix ;
-			mLength++ ;
-			spec.update_insert (mRoot) ;
-			mRoot = mTop ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1) ,std::move (item.P2)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,std::move (val[i].item)) ;
-		}
-	}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-struct SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &item ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet.self[index].mKey) ,item (base.mSet.self[index].mItem) {}
-	} ;
-} ;
-
-template <class KEY ,class SIZE>
-class SoftSet<KEY ,SPECIALIZATION<void> ,SIZE> {
-#pragma push_macro ("spec")
-#undef spec
-#define spec m_spec ()
-
-private:
-	using SPECIALIZATION_THIS = SoftSet<KEY ,void ,SIZE> ;
-
-	class Node {
-	private:
-		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		KEY mKey ;
-		LENGTH mWeight ;
-		INDEX mLeft ;
-		INDEX mRight ;
-		INDEX mNext ;
-
-	public:
-		inline Node () = delete ;
-
-		inline implicit Node (const KEY &key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			:mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
-
-		inline implicit Node (KEY &&key ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mKey (std::move (key)) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
-	} ;
-
-	using KEY_ITEM = PACK<KEY> ;
-
-private:
-	struct Detail ;
-	friend SPECIALIZATION_THIS ;
-	SharedRef<Allocator<Node ,SIZE>> mHeap ;
-	PhanRef<Allocator<Node ,SIZE>> mSet ;
-	LENGTH mLength ;
-	INDEX mFirst ;
-	INDEX mLast ;
-	INDEX mRoot ;
-	INDEX mTop ;
-
-public:
-	SoftSet () {
-		mLength = 0 ;
-		mFirst = VAR_NONE ;
-		mLast = VAR_NONE ;
-		mRoot = VAR_NONE ;
-	}
-
-	explicit SoftSet (LENGTH len) {
-		mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap.self) ;
-		mLength = 0 ;
-		mFirst = VAR_NONE ;
-		mLast = VAR_NONE ;
-		mRoot = VAR_NONE ;
-	}
-
-	void add (const KEY &key) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1x = _SWITCH_ (
-				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
-				mFirst) ;
-			r1x = ix ;
-			mLast = ix ;
-			mLength++ ;
-			spec.update_insert (mRoot) ;
-			mRoot = mTop ;
-		}
-		mTop = ix ;
-	}
-
-	void add (const KEY_ITEM &item) {
-		add (std::move (item.P1)) ;
-	}
-
-	void add (KEY &&key) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ix = spec.find (key) ;
-		if switch_case (TRUE) {
-			if (ix != VAR_NONE)
-				discard ;
-			ix = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1x = _SWITCH_ (
-				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
-				mFirst) ;
-			r1x = ix ;
-			mLast = ix ;
-			mLength++ ;
-			spec.update_insert (mRoot) ;
-			mRoot = mTop ;
-		}
-		mTop = ix ;
-	}
-
-	void add (KEY_ITEM &&item) {
-		add (std::move (item.P1)) ;
-	}
-
-	template <class _ARG1>
-	void appand (const _ARG1 &val) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (std::move (val[i])) ;
-		}
-	}
-
-private:
-	inline SPECIALIZATION_THIS &m_spec () & {
-		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline const SPECIALIZATION_THIS &m_spec () const & {
-		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
-	}
-
-	inline auto m_spec () && ->void = delete ;
-
-#pragma pop_macro ("spec")
-} ;
-
-template <class KEY ,class SIZE>
-struct SoftSet<KEY ,SPECIALIZATION<void> ,SIZE>::Detail {
-	template <class BASE>
-	class Pair final
-		:private Proxy {
-	public:
-		friend SoftSet ;
-		friend SPECIALIZATION_THIS ;
-		const KEY &key ;
-
-	public:
-		inline Pair () = delete ;
-
-		inline implicit operator const KEY & () && {
-			return key ;
-		}
-
-	private:
-		inline explicit Pair (BASE &base ,INDEX index)
-			: key (base.mSet.self[index].mKey) {}
-	} ;
-} ;
-
-template <class KEY ,class ITEM ,class SIZE>
-class SoftSet
-	:private SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> {
-private:
-	using SPECIALIZATION_BASE = SoftSet<KEY ,SPECIALIZATION<ITEM> ,SIZE> ;
-	using Node = typename SPECIALIZATION_BASE::Node ;
-	using KEY_ITEM = typename SPECIALIZATION_BASE::KEY_ITEM ;
-
-private:
-	friend SPECIALIZATION_BASE ;
-	using SPECIALIZATION_BASE::mHeap ;
-	using SPECIALIZATION_BASE::mSet ;
-	using SPECIALIZATION_BASE::mLength ;
-	using SPECIALIZATION_BASE::mFirst ;
-	using SPECIALIZATION_BASE::mLast ;
-	using SPECIALIZATION_BASE::mRoot ;
-	using SPECIALIZATION_BASE::mTop ;
-
-public:
-	SoftSet () = default ;
-
-	explicit SoftSet (LENGTH len)
-		:SPECIALIZATION_BASE (len) {}
 
 	LENGTH capacity () const {
 		if (!mHeap.exist ())
@@ -4667,8 +3736,8 @@ public:
 		return ArrayIterator<const SoftSet> ((*this) ,iend ()) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> get (INDEX index) & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet> ;
+	DEF<typename Detail::template Pair<SoftSet>> get (INDEX index) & {
+		using Pair = typename Detail::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair ((*this) ,index) ;
 	}
@@ -4678,8 +3747,8 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> get (INDEX index) const & {
-		using Pair = typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet> ;
+	DEF<typename Detail::template Pair<const SoftSet>> get (INDEX index) const & {
+		using Pair = typename Detail::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair ((*this) ,index) ;
 	}
@@ -4693,12 +3762,12 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<SoftSet>> &item) const {
-		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<SoftSet>> &item) const {
+		return mSet->at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
-	INDEX at (const DEF<typename SPECIALIZATION_BASE::Detail::template Pair<const SoftSet>> &item) const {
-		return mSet->at (_OFFSET_ (&Node::mKey ,item.key)) ;
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const SoftSet>> &item) const {
+		return mSet->at (_OFFSET_ (&Node::mItem ,item.key)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -4720,58 +3789,80 @@ public:
 		return std::move (ret) ;
 	}
 
-	using SPECIALIZATION_BASE::add ;
+	void add (const ITEM &item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
 
-	inline SoftSet &operator<< (const KEY_ITEM &item) {
+	inline SoftSet &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	inline SoftSet &operator<< (KEY_ITEM &&item) {
+	void add (const ITEM &item ,const INDEX &map_) {
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
+		INDEX ix = find (item) ;
+		if switch_case (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			ix = mSet->alloc (std::move (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			auto &r1x = _SWITCH_ (
+				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
+				mFirst) ;
+			r1x = ix ;
+			mLast = ix ;
+			mLength++ ;
+			update_insert (mRoot) ;
+			mRoot = mTop ;
+		}
+		mTop = ix ;
+	}
+
+	void add (ITEM &&item) {
+		add (std::move (item) ,VAR_NONE) ;
+	}
+
+	inline SoftSet &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
 
-	using SPECIALIZATION_BASE::appand ;
-
-	INDEX insert (const KEY &key) popping {
+	void add (ITEM &&item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ret = find (key) ;
+		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
+			if (ix != VAR_NONE)
 				discard ;
-			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			ix = mSet->alloc (std::move (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1x = _SWITCH_ (
 				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
 				mFirst) ;
-			r1x = ret ;
-			mLast = ret ;
+			r1x = ix ;
+			mLast = ix ;
 			mLength++ ;
 			update_insert (mRoot) ;
 			mRoot = mTop ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
+		mTop = ix ;
 	}
 
-	INDEX insert (KEY &&key) popping {
+	template <class _ARG1>
+	void appand (const _ARG1 &val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		INDEX ret = find (key) ;
-		if switch_case (TRUE) {
-			if (ret != VAR_NONE)
-				discard ;
-			ret = mSet->alloc (std::move (key) ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
-			auto &r1x = _SWITCH_ (
-				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
-				mFirst) ;
-			r1x = ret ;
-			mLast = ret ;
-			mLength++ ;
-			update_insert (mRoot) ;
-			mRoot = mTop ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
 		}
-		mTop = ret ;
-		return std::move (ret) ;
+	}
+
+	template <class _ARG1>
+	void appand (_ARG1 &&val) {
+		_DEBUG_ASSERT_ (mHeap.exist ()) ;
+		mSet->reserve (val.length ()) ;
+		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
+			it = val.inext (i) ;
+			add (val[i].key ,val[i].mapx) ;
+		}
 	}
 
 	INDEX head () const {
@@ -4798,16 +3889,26 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX find (const KEY &key) const {
+	INDEX insert (const ITEM &item) popping {
+		add (std::move (item)) ;
+		return mTop ;
+	}
+
+	INDEX insert (ITEM &&item) popping {
+		add (std::move (item)) ;
+		return mTop ;
+	}
+
+	INDEX find (const ITEM &item) const {
 		INDEX ret = VAR_NONE ;
 		if (mHeap.exist ())
 			ret = mRoot ;
 		while (TRUE) {
 			if (ret == VAR_NONE)
 				break ;
-			const auto r1x = BOOL (key < mSet.self[ret].mKey) ;
+			const auto r1x = BOOL (item < mSet.self[ret].mItem) ;
 			if (!r1x)
-				if (!(key > mSet.self[ret].mKey))
+				if (!(item > mSet.self[ret].mItem))
 					break ;
 			auto &r2x = _SWITCH_ (
 				r1x ? mSet.self[ret].mLeft :
@@ -4815,6 +3916,13 @@ public:
 			ret = r2x ;
 		}
 		return std::move (ret) ;
+	}
+
+	INDEX map (const ITEM &item) const {
+		INDEX ix = find (item) ;
+		if (ix == VAR_NONE)
+			return VAR_NONE ;
+		return mSet.self[ix].mMap ;
 	}
 
 	void clean () {
@@ -4831,7 +3939,7 @@ private:
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
-			const auto r1x = BOOL (mSet.self[mLast].mKey < mSet.self[ix].mKey) ;
+			const auto r1x = BOOL (mSet.self[mLast].mItem < mSet.self[ix].mItem) ;
 			auto fbx = TRUE ;
 			if switch_case (fbx) {
 				if (!r1x)
@@ -4958,5 +4066,28 @@ private:
 		compute_esort (mSet[curr].mRight ,out ,iw) ;
 		out_i = iw ;
 	}
+} ;
+
+template <class ITEM ,class SIZE>
+struct SoftSet<ITEM ,SIZE>::Detail {
+	template <class BASE>
+	class Pair final
+		:private Proxy {
+	public:
+		friend SoftSet ;
+		const ITEM &key ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+
+	public:
+		inline Pair () = delete ;
+
+		inline implicit operator const ITEM & () && {
+			return key ;
+		}
+
+	private:
+		inline explicit Pair (BASE &base ,INDEX index)
+			: key (base.mSet.self[index].mItem) ,mapx (base.mSet.self[index].mMap) {}
+	} ;
 } ;
 } ;

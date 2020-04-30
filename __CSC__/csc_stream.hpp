@@ -76,13 +76,15 @@ public:
 	} ;
 
 private:
-	struct HEAP {
+	class Heap {
+	private:
+		friend ByteReader ;
 		BOOL mEndianFlag ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<HEAP> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -93,7 +95,7 @@ public:
 	}
 
 	explicit ByteReader (const PhanBuffer<const REAL> &stream) {
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mStream = PhanBuffer<const REAL>::make (stream) ;
 		reset () ;
 	}
@@ -380,13 +382,15 @@ public:
 	} ;
 
 private:
-	struct HEAP {
+	class Heap {
+	private:
+		friend ByteWriter ;
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<HEAP> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -397,13 +401,13 @@ public:
 	}
 
 	explicit ByteWriter (const PhanBuffer<REAL> &stream) {
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
 	}
 
 	explicit ByteWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
@@ -678,16 +682,20 @@ public:
 	} ;
 
 private:
-	struct HEAP {
+	class Heap {
+	private:
+		friend TextReader ;
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
-		HashSet<REAL ,REAL> mEscapeSet ;
-		HashSet<REAL ,FLAG> mSpaceSet ;
+		Deque<REAL> mEscapeList ;
+		HashSet<REAL> mEscapeMappingSet ;
+		Deque<PACK<REAL ,FLAG>> mSpaceList ;
+		HashSet<REAL> mSpaceMappingSet ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<HEAP> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -699,7 +707,7 @@ public:
 
 	explicit TextReader (const PhanBuffer<const REAL> &stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		r1x.enable_endian (FALSE) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<const REAL>::make (stream) ;
@@ -1216,28 +1224,30 @@ struct TextReader<REAL>::Detail {
 		inline void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
 			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_a) == VAR_NONE) ;
-			mBase.mHeap->mEscapeSet.add (str_a ,str_e) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeMappingSet.find (str_a) == VAR_NONE) ;
+			INDEX ix = mBase.mHeap->mEscapeList.insert () ;
+			mBase.mHeap->mEscapeMappingSet.add (str_a ,ix) ;
+			mBase.mHeap->mEscapeList[ix] = str_e ;
 		}
 
 		inline REAL convert_escape_r (const REAL &str_a) const {
-			INDEX ix = mBase.mHeap->mEscapeSet.find (str_a) ;
+			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mBase.mHeap->mEscapeSet[ix].item ;
+			return mBase.mHeap->mEscapeList[ix] ;
 		}
 
 		inline BOOL varify_space (const REAL &item) const {
-			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
+			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
 		}
 
 		inline BOOL varify_space (const REAL &item ,VAR32 group) const {
-			INDEX ix = mBase.mHeap->mSpaceSet.find (item) ;
+			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
-			if (mBase.mHeap->mSpaceSet[ix].item != group)
+			if (mBase.mHeap->mSpaceList[ix].P2 != group)
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1245,8 +1255,11 @@ struct TextReader<REAL>::Detail {
 		inline void modify_space (const REAL &item ,VAR32 group) const {
 			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mSpaceSet.find (item) == VAR_NONE) ;
-			mBase.mHeap->mSpaceSet.add (item ,group) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mSpaceMappingSet.find (item) == VAR_NONE) ;
+			INDEX ix = mBase.mHeap->mSpaceList.insert () ;
+			mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
+			mBase.mHeap->mSpaceList[ix].P1 = item ;
+			mBase.mHeap->mSpaceList[ix].P2 = group ;
 		}
 
 		inline BOOL varify_control (const REAL &item) const {
@@ -1276,15 +1289,18 @@ public:
 	} ;
 
 private:
-	struct HEAP {
+	class Heap {
+	private:
+		friend TextWriter ;
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 		BOOL mEscapeFlag ;
-		HashSet<REAL ,REAL> mEscapeSet ;
+		Deque<REAL> mEscapeList ;
+		HashSet<REAL> mEscapeMappingSet ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<HEAP> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -1296,7 +1312,7 @@ public:
 
 	explicit TextWriter (const PhanBuffer<REAL> &stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
@@ -1304,7 +1320,7 @@ public:
 
 	explicit TextWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mHeap->mBuffer = std::move (stream) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
@@ -1803,21 +1819,23 @@ struct TextWriter<REAL>::Detail {
 		inline BOOL varify_escape_w (const REAL &key) const {
 			if (!mBase.mHeap->mEscapeFlag)
 				return FALSE ;
-			if (mBase.mHeap->mEscapeSet.find (key) == VAR_NONE)
+			if (mBase.mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
 		}
 
 		inline void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
 			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeSet.find (str_e) == VAR_NONE) ;
-			mBase.mHeap->mEscapeSet.add (str_e ,str_a) ;
+			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeMappingSet.find (str_e) == VAR_NONE) ;
+			INDEX ix = mBase.mHeap->mEscapeList.insert () ;
+			mBase.mHeap->mEscapeMappingSet.add (str_e ,ix) ;
+			mBase.mHeap->mEscapeList[ix] = str_a ;
 		}
 
 		inline REAL convert_escape_w (const REAL &str_e) const {
-			INDEX ix = mBase.mHeap->mEscapeSet.find (str_e) ;
+			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mBase.mHeap->mEscapeSet[ix].item ;
+			return mBase.mHeap->mEscapeList[ix] ;
 		}
 
 		inline BOOL varify_space (const REAL &item) const {

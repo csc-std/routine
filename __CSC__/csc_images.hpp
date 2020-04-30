@@ -104,14 +104,16 @@ struct ArrayRange<SIZE>::Detail {
 template <class UNIT>
 class Bitmap {
 private:
-	struct HEAP {
+	class Heap {
+	private:
+		friend Bitmap ;
 		SharedRef<FixedBuffer<UNIT>> mBuffer ;
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<HEAP> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -131,7 +133,7 @@ public:
 		_DEBUG_ASSERT_ (cy_ >= 0) ;
 		_DEBUG_ASSERT_ (cx_ <= cw_) ;
 		_DEBUG_ASSERT_ (ck_ >= 0) ;
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		const auto r1x = cy_ * cw_ + ck_ ;
 		mHeap->mBuffer = SharedRef<FixedBuffer<UNIT>>::make (r1x) ;
 		mHeap->mWidth[0] = cx_ ;
@@ -144,7 +146,7 @@ public:
 	}
 
 	explicit Bitmap (const PhanBuffer<UNIT> &image) {
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
@@ -155,7 +157,7 @@ public:
 	}
 
 	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
-		mHeap = SharedRef<HEAP>::make () ;
+		mHeap = SharedRef<Heap>::make () ;
 		mHeap->mBuffer = std::move (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;

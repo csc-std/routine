@@ -765,12 +765,13 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 
 inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
 
-inline const HashSet<STRUW ,STRUW> &_inline_GBKSTOWS_TABLE_ () {
+inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &_inline_GBKSTOWS_TABLE_ () {
 	return _CACHE_ ([&] () {
-		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
-			ret.add (r1x[i][1] ,r1x[i][0]) ;
+		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
+		ret.P1 = _LOADUWSTOUGBKSTABLE_ () ;
+		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
+			ret.P2.add (ret.P1[i][1] ,i) ;
 		return std::move (ret) ;
 	}) ;
 }
@@ -804,14 +805,14 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		INDEX ix = r1x.find (rbx) ;
+		INDEX ix = r1x.P2.map (rbx) ;
 		auto fbx = TRUE ;
 		if switch_case (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1x[ix].item) ;
+			ret[iw++] = STRW (r1x.P1[ix][0]) ;
 			rax = 0 ;
 		}
 		if switch_case (fbx) {
@@ -826,7 +827,7 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1x[ix].item) ;
+			ret[iw++] = STRW (r1x.P1[ix][0]) ;
 			rax = 0 ;
 		}
 		if switch_case (fbx) {
@@ -849,12 +850,13 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	return std::move (ret) ;
 }
 
-inline const HashSet<STRUW ,STRUW> &_inline_WSTOGBKS_TABLE_ () {
+inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &_inline_WSTOGBKS_TABLE_ () {
 	return _CACHE_ ([&] () {
-		const auto r1x = _LOADUWSTOUGBKSTABLE_ () ;
-		HashSet<STRUW ,STRUW> ret = HashSet<STRUW ,STRUW> (r1x.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,r1x.size ()))
-			ret.add (r1x[i][0] ,r1x[i][1]) ;
+		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
+		ret.P1 = _LOADUWSTOUGBKSTABLE_ () ;
+		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
+			ret.P2.add (ret.P1[i][0] ,i) ;
 		return std::move (ret) ;
 	}) ;
 }
@@ -867,7 +869,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		INDEX ix = r1x.find (STRUW (i)) ;
+		INDEX ix = r1x.P2.find (STRUW (i)) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(rax == 0))
@@ -879,17 +881,17 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1x[ix].item <= STRUW (0X00FF)))
+			if (!(r1x.P1[ix][1] <= STRUW (0X00FF)))
 				discard ;
-			ret[iw++] = STRUA (r1x[ix].item) ;
+			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
 		}
 		if switch_case (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1x[ix].item <= STRUW (0XFFFF)))
+			if (!(r1x.P1[ix][1] <= STRUW (0XFFFF)))
 				discard ;
-			ret[iw++] = STRUA (r1x[ix].item >> 8) ;
-			ret[iw++] = STRUA (r1x[ix].item) ;
+			ret[iw++] = STRUA (r1x.P1[ix][1] >> 8) ;
+			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
 		}
 		if switch_case (fax) {
 			ret.clear () ;

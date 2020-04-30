@@ -318,8 +318,10 @@ private:
 		using INTRUSIVE_THIS = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
-		HashSet<FLAG ,VALUE_NODE> mValueSet ;
-		HashSet<FLAG ,CLASS_NODE> mClassSet ;
+		Deque<VALUE_NODE> mValueList ;
+		HashSet<FLAG> mValueMappingSet ;
+		Deque<CLASS_NODE> mClassList ;
+		HashSet<FLAG> mClassMappingSet ;
 	} ;
 
 private:
@@ -351,9 +353,15 @@ private:
 
 	static PTR<VALUE_NODE> static_new_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueSet.insert (r1x) ;
-		self_.mValueSet[ix].item.mGUID = guid ;
-		return &self_.mValueSet[ix].item ;
+		INDEX ix = self_.mValueMappingSet.map (r1x) ;
+		if switch_case (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			ix = self_.mValueList.insert () ;
+			self_.mValueMappingSet.add (r1x ,ix) ;
+			self_.mValueList[ix].mGUID = guid ;
+		}
+		return &self_.mValueList[ix] ;
 	}
 
 	static FLAG node_guid_hash (FLAG guid) {
@@ -362,17 +370,23 @@ private:
 
 	static PTR<VALUE_NODE> static_find_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueSet.find (r1x) ;
+		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return &self_.mValueSet[ix].item ;
+		return &self_.mValueList[ix] ;
 	}
 
 	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassSet.insert (r1x) ;
-		self_.mClassSet[ix].item.mGUID = guid ;
-		return &self_.mClassSet[ix].item ;
+		INDEX ix = self_.mClassMappingSet.insert (r1x) ;
+		if switch_case (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			ix = self_.mClassList.insert () ;
+			self_.mClassMappingSet.add (r1x ,ix) ;
+			self_.mClassList[ix].mGUID = guid ;
+		}
+		return &self_.mClassList[ix] ;
 	}
 
 	static FLAG node_guid_hash (const String<STR> &guid) {
@@ -383,10 +397,10 @@ private:
 
 	static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassSet.find (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return &self_.mClassSet[ix].item ;
+		return &self_.mClassList[ix] ;
 	}
 
 public:
@@ -397,14 +411,14 @@ private:
 	static void friend_create (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
-		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
-		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
+		self_.mValueList = Deque<VALUE_NODE> () ;
+		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
 		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
-		self_.mValueSet = HashSet<FLAG ,VALUE_NODE> () ;
-		self_.mClassSet = HashSet<FLAG ,CLASS_NODE> () ;
+		self_.mValueList = Deque<VALUE_NODE> () ;
+		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
 	static LENGTH friend_attach (Pack &self_) popping {
@@ -558,10 +572,10 @@ private:
 		EFLAG mState ;
 		AutoRef<CONT> mContext ;
 		AnyRef<void> mBreakPoint ;
-		Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> mSubProcSet ;
+		Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
 		Array<AnyRef<void>> mSubBreakPoint ;
 		Deque<INDEX> mSubQueue ;
-		Priority<VAR ,INDEX> mSubAwaitQueue ;
+		Priority<FLAG> mSubAwaitQueue ;
 		INDEX mSubCurr ;
 	} ;
 
@@ -591,14 +605,16 @@ public:
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		mThis->mContext = AutoRef<CONT>::make () ;
 		mThis->mBreakPoint = AnyRef<void> () ;
-		mThis->mSubProcSet = Set<INDEX ,Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
-		for (auto &&i : _RANGE_ (0 ,proc.length ()))
-			mThis->mSubProcSet.add (i ,std::move (proc[i])) ;
-		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProcSet.length ()) ;
-		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProcSet.length ()) ;
-		for (auto &&i : mThis->mSubProcSet.range ())
+		mThis->mSubProc = Array<Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
+			_DEBUG_ASSERT_ (proc[i].exist ()) ;
+			mThis->mSubProc[i] = std::move (proc[i]) ;
+		}
+		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProc.length ()) ;
+		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProc.length ()) ;
+		for (auto &&i : mThis->mSubProc.range ())
 			mThis->mSubQueue.add (i) ;
-		mThis->mSubAwaitQueue = Priority<VAR ,INDEX> (mThis->mSubProcSet.length ()) ;
+		mThis->mSubAwaitQueue = Priority<FLAG> (mThis->mSubProc.length ()) ;
 		mThis->mSubQueue.take (mThis->mSubCurr) ;
 	}
 
@@ -631,8 +647,7 @@ public:
 			if (mThis->mState == STATE_STOPPED)
 				return ;
 			mThis->mState = STATE_RUNNING ;
-			INDEX ix = mThis->mSubProcSet.find (r1x) ;
-			mThis->mSubProcSet[ix].item (_CAST_<SubRef> ((*this))) ;
+			mThis->mSubProc[r1x] (_CAST_<SubRef> ((*this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
@@ -715,7 +730,7 @@ public:
 		sub_await (mSelf.mThis->mSubAwaitQueue.length ()) ;
 	}
 
-	void sub_await (VAR priority) {
+	void sub_await (FLAG priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
 		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
 		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
@@ -739,7 +754,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,count)) {
 			if (mSelf.mThis->mSubAwaitQueue.empty ())
 				continue ;
-			const auto r1x = mSelf.mThis->mSubAwaitQueue[mSelf.mThis->mSubAwaitQueue.head ()].item ;
+			const auto r1x = mSelf.mThis->mSubAwaitQueue[mSelf.mThis->mSubAwaitQueue.head ()].mapx ;
 			mSelf.mThis->mSubAwaitQueue.take () ;
 			mSelf.mThis->mSubQueue.add (r1x) ;
 		}

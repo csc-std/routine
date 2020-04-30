@@ -260,7 +260,7 @@ private:
 	friend AbstractSprite ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
-	Set<String<STR> ,INDEX> mUniformSet ;
+	Set<String<STR>> mUniformSet ;
 
 public:
 	AbstractShader () = default ;
@@ -293,9 +293,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAR64 &data) {
@@ -305,9 +305,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAL32 &data) {
@@ -317,9 +317,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const VAL64 &data) {
@@ -329,9 +329,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
@@ -341,9 +341,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
@@ -353,9 +353,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
@@ -365,9 +365,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
@@ -377,9 +377,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mUniformSet.find (name) ;
-			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].item) ;
+			mAbstract->compute_uniform_find (mHolder ,name ,mUniformSet[ix].mapx) ;
 		}
-		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].item ,data) ;
+		mAbstract->compute_uniform_write (mHolder ,mUniformSet[ix].mapx ,data) ;
 	}
 
 	template <class _RET = NONE>

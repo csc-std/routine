@@ -118,15 +118,15 @@ public:
 			if (mTable[i].mUp == VAR_NONE)
 				continue ;
 			INDEX ix = lead (i) ;
-			INDEX iy = r1x.find (ix) ;
-			ret[r1x[iy].item][i] = TRUE ;
+			INDEX iy = r1x.map (ix) ;
+			ret[iy][i] = TRUE ;
 		}
 		return std::move (ret) ;
 	}
 
 private:
-	Set<INDEX ,INDEX> map_of_closure () const {
-		Set<INDEX ,INDEX> ret = Set<INDEX ,INDEX> (mTable.length ()) ;
+	Set<INDEX> map_of_closure () const {
+		Set<INDEX> ret = Set<INDEX> (mTable.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,mTable.length ())) {
 			if (mTable[i].mUp != i)
 				continue ;
@@ -300,7 +300,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			while (TRUE) {
 				if (mPriority.empty ())
 					break ;
-				const auto r1x = mPriority[mPriority.head ()].item ;
+				const auto r1x = mPriority[mPriority.head ()].mapx ;
 				mPriority.take () ;
 				update_distance (r1x) ;
 			}
@@ -338,7 +338,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 template <class REAL>
 class KMeansAlgorithm {
 private:
-	Set<BitSet<>> mClusterSet ;
+	Deque<BitSet<>> mClusterList ;
 
 public:
 	KMeansAlgorithm () = delete ;
@@ -349,8 +349,8 @@ public:
 		initialize (dataset ,distance ,center) ;
 	}
 
-	const Set<BitSet<>> &query () const & {
-		return mClusterSet ;
+	const Deque<BitSet<>> &query () const & {
+		return mClusterList ;
 	}
 
 	auto query () && ->void = delete ;
@@ -373,8 +373,9 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 
 		SList<REAL> mCurrCenterList ;
 		SList<REAL> mNextCenterList ;
-		Set<INDEX ,INDEX> mCenterMoveSet ;
-		Set<INDEX ,BitSet<>> mClusterSet ;
+		Set<INDEX> mCenterMoveSet ;
+		Deque<BitSet<>> mClusterList ;
+		Set<INDEX> mClusterMappingSet ;
 		ARRAY3<REAL> mConvergence ;
 
 	public:
@@ -392,8 +393,9 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			mCurrCenterList = SList<REAL> (mCenter.length ()) ;
 			mNextCenterList = SList<REAL> (mCenter.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
-			mCenterMoveSet = Set<INDEX ,INDEX> (mCenter.length ()) ;
-			mClusterSet = Set<INDEX ,BitSet<>> () ;
+			mCenterMoveSet = Set<INDEX> (mCenter.length ()) ;
+			mClusterList = Deque<BitSet<>> () ;
+			mClusterMappingSet = Set<INDEX> () ;
 			mConvergence.fill (mInfinity) ;
 		}
 
@@ -408,20 +410,24 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		}
 
 		inline void update_cluster_set () {
-			mClusterSet.clear () ;
+			mClusterList.clear () ;
+			mClusterMappingSet.clear () ;
 			for (auto &&i : mDataSet) {
 				INDEX ix = closest_center_of_point (i) ;
-				INDEX iy = mClusterSet.insert (ix) ;
-				if (mClusterSet[iy].item.size () == 0)
-					mClusterSet[iy].item = BitSet<> (mDataSet.size ()) ;
+				INDEX iy = mClusterMappingSet.map (ix) ;
+				if switch_case (TRUE) {
+					if (iy != VAR_NONE)
+						discard ;
+					iy = mClusterList.insert () ;
+					mClusterMappingSet.add (ix ,iy) ;
+					mClusterList[iy] = BitSet<> (mDataSet.size ()) ;
+				}
 				INDEX jx = mDataSet.at (i) ;
-				mClusterSet[iy].item[jx] = TRUE ;
+				mClusterList[iy][jx] = TRUE ;
 			}
-			for (auto &&i : mClusterSet) {
-				if (i.item.length () == 0)
-					continue ;
+			for (auto &&i : mClusterList) {
 				INDEX ix = mNextCenterList.insert () ;
-				mNextCenterList[ix] = average_center (i.item) ;
+				mNextCenterList[ix] = average_center (i) ;
 				mCenterMoveSet.add (i.key ,ix) ;
 			}
 		}
@@ -459,7 +465,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 				return ;
 			mConvergence[ix] = REAL (0) ;
 			for (auto &&i : mCenterMoveSet) {
-				const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.item]) ;
+				const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.mapx]) ;
 				mConvergence[ix] = _MAX_ (mConvergence[ix] ,r1x) ;
 			}
 		}
@@ -482,8 +488,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		}
 
 		inline void refresh () {
-			mContext.mClusterSet = Set<BitSet<>> () ;
-			mContext.mClusterSet.appand (mClusterSet) ;
+			mContext.mClusterList = std::move (mClusterList) ;
 		}
 	} ;
 	_CALL_ (Lambda ((*this) ,dataset ,distance ,center)) ;

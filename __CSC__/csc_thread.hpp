@@ -24,7 +24,7 @@ private:
 		Monostate<std::condition_variable> mThreadCondition ;
 		AutoRef<BOOL> mThreadFlag ;
 		LENGTH mThreadCounter ;
-		Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> mThreadProcSet ;
+		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
 		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
@@ -118,10 +118,10 @@ public:
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r2x.mThreadCounter = 0 ;
-		r2x.mThreadProcSet = Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> (proc.length ()) ;
+		r2x.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
 			_DEBUG_ASSERT_ (proc[i].exist ()) ;
-			r2x.mThreadProcSet.add (i ,std::move (proc[i])) ;
+			r2x.mThreadProc[i] = std::move (proc[i]) ;
 		}
 		if (!r2x.mItemQueue.exist ())
 			r2x.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (proc.length ()) ;
@@ -167,12 +167,11 @@ private:
 	static void static_execute (Pack &self_ ,INDEX tid) {
 		using ThreadCounter = typename Detail::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
-		INDEX ix = self_.mThreadProcSet.find (tid) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			_CATCH_ ([&] () {
 				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
-				rax = self_.mThreadProcSet[ix].item () ;
+				rax = self_.mThreadProc[tid] () ;
 			} ,[&] (const Exception &e) noexcept {
 				_CALL_TRY_ ([&] () {
 					static_rethrow (self_ ,e) ;
@@ -217,7 +216,7 @@ private:
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
 		self_.mThreadPool = Array<AutoRef<std::thread>> () ;
-		self_.mThreadProcSet = Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> () ;
+		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
@@ -242,7 +241,7 @@ private:
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
 		self_.mThreadPool = Array<AutoRef<std::thread>> () ;
-		self_.mThreadProcSet = Set<INDEX ,Function<DEF<ITEM ()> NONE::*>> () ;
+		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
 	static LENGTH friend_attach (Pack &self_) popping {
