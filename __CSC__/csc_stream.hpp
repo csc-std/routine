@@ -1224,8 +1224,9 @@ struct TextReader<REAL>::Detail {
 		inline void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
 			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeMappingSet.find (str_a) == VAR_NONE) ;
-			INDEX ix = mBase.mHeap->mEscapeList.insert () ;
+			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
+			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+			ix = mBase.mHeap->mEscapeList.insert () ;
 			mBase.mHeap->mEscapeMappingSet.add (str_a ,ix) ;
 			mBase.mHeap->mEscapeList[ix] = str_e ;
 		}
@@ -1255,8 +1256,9 @@ struct TextReader<REAL>::Detail {
 		inline void modify_space (const REAL &item ,VAR32 group) const {
 			_STATIC_ASSERT_ (!std::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mSpaceMappingSet.find (item) == VAR_NONE) ;
-			INDEX ix = mBase.mHeap->mSpaceList.insert () ;
+			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+			ix = mBase.mHeap->mSpaceList.insert () ;
 			mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
 			mBase.mHeap->mSpaceList[ix].P1 = item ;
 			mBase.mHeap->mSpaceList[ix].P2 = group ;
@@ -1826,8 +1828,9 @@ struct TextWriter<REAL>::Detail {
 
 		inline void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
 			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-			_DEBUG_ASSERT_ (mBase.mHeap->mEscapeMappingSet.find (str_e) == VAR_NONE) ;
-			INDEX ix = mBase.mHeap->mEscapeList.insert () ;
+			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
+			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+			ix = mBase.mHeap->mEscapeList.insert () ;
 			mBase.mHeap->mEscapeMappingSet.add (str_e ,ix) ;
 			mBase.mHeap->mEscapeList[ix] = str_a ;
 		}

@@ -378,7 +378,7 @@ private:
 
 	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.insert (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;

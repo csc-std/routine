@@ -1069,18 +1069,19 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Priority>> &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item.key)) ;
+	INDEX at (const ITEM &item) const {
+		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return std::move (ret) ;
 	}
 
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Priority>> &item) const {
+		return at (item.key) ;
+	}
+
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Priority>> &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item.key)) ;
-		if (!(ret >= 0 && ret < mWrite))
-			ret = VAR_NONE ;
-		return std::move (ret) ;
+		return at (item.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -2778,12 +2779,16 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
+	INDEX at (const ITEM &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+	}
+
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Set>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Set>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3422,12 +3427,16 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
+	INDEX at (const ITEM &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+	}
+
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<HashSet>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const HashSet>> &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3762,12 +3771,16 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
+	INDEX at (const ITEM &item) const {
+		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+	}
+
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<SoftSet>> &item) const {
-		return mSet->at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const SoftSet>> &item) const {
-		return mSet->at (_OFFSET_ (&Node::mItem ,item.key)) ;
+		return at (item.key) ;
 	}
 
 	Array<INDEX> range () const {

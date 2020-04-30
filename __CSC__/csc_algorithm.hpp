@@ -425,9 +425,9 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 				INDEX jx = mDataSet.at (i) ;
 				mClusterList[iy][jx] = TRUE ;
 			}
-			for (auto &&i : mClusterList) {
+			for (auto &&i : mClusterMappingSet) {
 				INDEX ix = mNextCenterList.insert () ;
-				mNextCenterList[ix] = average_center (i) ;
+				mNextCenterList[ix] = average_center (mClusterList[i.mapx]) ;
 				mCenterMoveSet.add (i.key ,ix) ;
 			}
 		}
