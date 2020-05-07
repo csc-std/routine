@@ -87,7 +87,7 @@ public:
 	void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * 3 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -202,7 +202,7 @@ public:
 	void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * 4 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
 			me = FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;

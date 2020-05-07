@@ -159,7 +159,7 @@ public:
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
-		layout.mCW = LENGTH (r1x.step.p[0] / _SIZEOF_ (COLOR_BGR)) ;
+		layout.mCW = LENGTH (r1x.step.p[0]) / _SIZEOF_ (COLOR_BGR) ;
 		layout.mCK = 0 ;
 	}
 
@@ -235,7 +235,7 @@ public:
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
-		layout.mCW = LENGTH (r1x.step.p[0] / _SIZEOF_ (COLOR_BGRA)) ;
+		layout.mCW = LENGTH (r1x.step.p[0]) / _SIZEOF_ (COLOR_BGRA) ;
 		layout.mCK = 0 ;
 	}
 
@@ -311,7 +311,7 @@ public:
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
-		layout.mCW = LENGTH (r1x.step.p[0] / _SIZEOF_ (COLOR_GRAY)) ;
+		layout.mCW = LENGTH (r1x.step.p[0]) / _SIZEOF_ (COLOR_GRAY) ;
 		layout.mCK = 0 ;
 	}
 
@@ -387,7 +387,7 @@ public:
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
-		layout.mCW = LENGTH (r1x.step.p[0] / _SIZEOF_ (COLOR_GRAY32)) ;
+		layout.mCW = LENGTH (r1x.step.p[0]) / _SIZEOF_ (COLOR_GRAY32) ;
 		layout.mCK = 0 ;
 	}
 
@@ -463,7 +463,7 @@ public:
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
-		layout.mCW = LENGTH (r1x.step.p[0] / _SIZEOF_ (COLOR_GRAY64)) ;
+		layout.mCW = LENGTH (r1x.step.p[0]) / _SIZEOF_ (COLOR_GRAY64) ;
 		layout.mCK = 0 ;
 	}
 

@@ -1645,7 +1645,7 @@ private:
 			for (auto &&i : _RANGE_ (0 ,r4x - 1)) {
 				rax[0] /= r1x.varify_radix () ;
 				rax[1]++ ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			if (r4x <= 0)
 				discard ;
@@ -1672,14 +1672,14 @@ private:
 			const auto r7x = _MAX_ ((r5x - 1 - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r7x)) {
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r7x ,r5x - 1)) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
@@ -1692,12 +1692,12 @@ private:
 				discard ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (rax[1]))) {
 				out[--iw] = r1x.convert_number_w (0) ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			for (auto &&i : _RANGE_ (0 ,r5x)) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 		}
 		if switch_case (fax) {
@@ -1709,21 +1709,21 @@ private:
 			const auto r8x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r8x)) {
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r8x ,LENGTH (-rax[1]))) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (r5x + rax[1]))) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 		}
 		if switch_case (fax) {
@@ -1735,19 +1735,19 @@ private:
 			const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r9x)) {
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r9x ,r5x)) {
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			for (auto &&i : _RANGE_ (_MAX_ (r9x ,r5x) ,LENGTH (-rax[1]))) {
 				out[--iw] = r1x.convert_number_w (0) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
-				(void) i ;
+				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
@@ -2039,7 +2039,7 @@ inline void _EOS_ (ByteWriter<_ARG1> &writer) {
 	auto wos = writer.copy () ;
 	for (auto &&i : _RANGE_ (0 ,wos.size () - wos.length ())) {
 		wos << r1x.varify_ending_item () ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	writer = std::move (wos) ;
 }

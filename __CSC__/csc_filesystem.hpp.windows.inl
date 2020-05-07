@@ -366,7 +366,7 @@ inline exports BOOL _LOCKDIRECTORY_ (const String<STR> &dire) popping {
 				_ERASEFILE_ (me) ;
 			}) ;
 		}) ;
-		(void) r9x ;
+		_STATIC_UNUSED_ (r9x) ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;

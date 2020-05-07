@@ -177,8 +177,8 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
 		struct Dependent ;
-		using Storage = typename DEPENDENT_TYPE<Detail ,Dependent>::template Storage<_ARG2> ;
-		static volatile Storage mInstance ;
+		using WatchInterface = typename DEPENDENT_TYPE<Detail ,Dependent>::template WatchInterface<_ARG2> ;
+		static volatile WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = &data ;
 		mInstance.mTypeMID = _TYPEMID_<_ARG2> () ;
@@ -188,7 +188,7 @@ public:
 
 struct GlobalWatch::Detail {
 	template <class UNIT>
-	class Storage final
+	class WatchInterface final
 		:private Interface {
 	private:
 		friend GlobalWatch ;
@@ -198,7 +198,7 @@ struct GlobalWatch::Detail {
 		PTR<void (UNIT &)> mWatch ;
 
 	public:
-		inline Storage () {
+		inline WatchInterface () {
 			mName = NULL ;
 			mAddress = NULL ;
 			mTypeMID = 0 ;
@@ -1785,7 +1785,7 @@ private:
 			return ;
 		const auto r1x = ++holder->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		mThis = holder ;
 		mPointer = pointer ;
 	}
@@ -2117,7 +2117,7 @@ public:
 		acquire (address ,FALSE) ;
 		const auto r1x = safe_exchange (address) ;
 		_DEBUG_ASSERT_ (r1x == NULL) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 	}
 
 	inline ~IntrusiveRef () noexcept {
@@ -2135,7 +2135,7 @@ public:
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
-		(void) r2x ;
+		_STATIC_UNUSED_ (r2x) ;
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
@@ -2163,7 +2163,7 @@ public:
 		acquire (r1x ,FALSE) ;
 		const auto r2x = ret.safe_exchange (r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
-		(void) r2x ;
+		_STATIC_UNUSED_ (r2x) ;
 		return std::move (ret) ;
 	}
 
@@ -2187,7 +2187,7 @@ public:
 		acquire (&r1x ,TRUE) ;
 		const auto r2x = ret.safe_exchange (&r1x) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
-		(void) r2x ;
+		_STATIC_UNUSED_ (r2x) ;
 		rax = NULL ;
 		return std::move (ret) ;
 	}
@@ -2209,7 +2209,7 @@ private:
 		while (TRUE) {
 			const auto r2x = ir++ ;
 			_DEBUG_ASSERT_ (r2x <= DEFAULT_RECURSIVE_SIZE::value) ;
-			(void) r2x ;
+			_STATIC_UNUSED_ (r2x) ;
 			const auto r3x = mLatch.load () ;
 			if (r3x == 0)
 				break ;
@@ -2227,7 +2227,7 @@ private:
 			INTRUSIVE_THIS::friend_create ((*address)) ;
 		const auto r1x = INTRUSIVE_THIS::friend_attach ((*address)) ;
 		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 	}
 
 	inline static void release (PTR<UNIT> address) {
@@ -2276,15 +2276,6 @@ struct IntrusiveRef<UNIT>::Detail {
 
 		inline implicit operator UNIT & () && = delete ;
 
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT & ,_RET>::value>>
-		inline implicit operator _RET () const & {
-			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-			return _RET ((*r1x)) ;
-		}
-
-		template <class _RET>
-		inline implicit operator _RET () && = delete ;
-
 	private:
 		inline explicit WatchProxy (PTR<UNIT> pointer) noexcept
 			:mPointer (pointer) {}
@@ -2296,13 +2287,13 @@ struct IntrusiveRef<UNIT>::Detail {
 		inline void lock () {
 			const auto r1x = ++LatchCounter::mSelf ;
 			_DEBUG_ASSERT_ (r1x >= 1) ;
-			(void) r1x ;
+			_STATIC_UNUSED_ (r1x) ;
 		}
 
 		inline void unlock () {
 			const auto r1x = --LatchCounter::mSelf ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
-			(void) r1x ;
+			_STATIC_UNUSED_ (r1x) ;
 		}
 	} ;
 } ;

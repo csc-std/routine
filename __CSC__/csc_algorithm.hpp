@@ -646,20 +646,20 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			*		return ;
 			*	}
 			*/
-			static const auto M_STATE = PACK<EFLAG[21]> ({
-				EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
+			static const auto M_STATE = PACK<EFLAG[22]> ({
+				EFLAG (0) ,EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
 				EFLAG (5) ,EFLAG (6) ,EFLAG (7) ,EFLAG (8) ,EFLAG (9) ,
 				EFLAG (10) ,EFLAG (11) ,EFLAG (12) ,EFLAG (13) ,EFLAG (14) ,
 				EFLAG (15) ,EFLAG (16) ,EFLAG (17) ,EFLAG (18) ,EFLAG (19) ,
 				EFLAG (20) ,EFLAG (21)}) ;
 			mTempStack.clear () ;
-			mTempState = M_STATE.P1[0] ;
+			mTempState = M_STATE.P1[21] ;
 			INDEX ix = VAR_NONE ;
 			while (TRUE) {
-				if (mTempState == UNKNOWN)
+				if (mTempState == M_STATE.P1[0])
 					break ;
 				if switch_case (TRUE) {
-					if (!(mTempState == M_STATE.P1[0]))
+					if (!(mTempState == M_STATE.P1[21]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
@@ -792,7 +792,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 				if switch_case (TRUE) {
 					if (!(mTempState == M_STATE.P1[20]))
 						discard ;
-					mTempState = UNKNOWN ;
+					mTempState = M_STATE.P1[0] ;
 				}
 			}
 		}
@@ -1285,7 +1285,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 				INDEX ix = seg + seg_len / 2 ;
 				for (auto &&i : _RANGE_ (seg ,seg + seg_len - 1)) {
 					_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
-					(void) i ;
+					_STATIC_UNUSED_ (i) ;
 				}
 				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg ,ix ,seg_len) ;
 				compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg ,ix ,seg_len) ;

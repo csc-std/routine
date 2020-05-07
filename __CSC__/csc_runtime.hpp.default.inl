@@ -52,11 +52,11 @@
 namespace CSC {
 #ifdef __CSC_SYSTEM_WINDOWS__
 inline exports FLAG GlobalRuntime::thread_tid () {
-	return FLAG (GetCurrentThreadId ()) ;
+	return _XVALUE_<FLAG> (GetCurrentThreadId ()) ;
 }
 
 inline exports FLAG GlobalRuntime::process_pid () {
-	return FLAG (GetCurrentProcessId ()) ;
+	return _XVALUE_<FLAG> (GetCurrentProcessId ()) ;
 }
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
@@ -99,11 +99,11 @@ inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU
 }
 #elif defined __CSC_SYSTEM_LINUX__
 inline exports FLAG GlobalRuntime::thread_tid () {
-	return FLAG (syscall (SYS_gettid)) ;
+	return _XVALUE_<FLAG> (syscall (SYS_gettid)) ;
 }
 
 inline exports FLAG GlobalRuntime::process_pid () {
-	return FLAG (syscall (SYS_getpid)) ;
+	return _XVALUE_<FLAG> (syscall (SYS_getpid)) ;
 }
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
@@ -198,7 +198,7 @@ public:
 		_MEMCOPY_ (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
 		const auto r6x = ::setjmp (r5x.mEbp) ;
-		(void) r6x ;
+		_STATIC_UNUSED_ (r6x) ;
 	}
 
 	static void goto_break_point (PTR<AnyRef<void>> bp) noexcept {

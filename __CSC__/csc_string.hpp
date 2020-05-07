@@ -728,7 +728,7 @@ inline String<STRU8> _UASTOU8S_ (const String<STRA> &val) {
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	return std::move (ret) ;
 }
@@ -738,7 +738,7 @@ inline String<STRU8> _UASTOU8S_ (String<STRA> &&val) {
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	return std::move (ret) ;
 }
@@ -748,7 +748,7 @@ inline String<STRA> _U8STOUAS_ (const String<STRU8> &val) {
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
@@ -758,7 +758,7 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
@@ -869,7 +869,7 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		INDEX ix = r1x.P2.find (STRUW (i)) ;
+		INDEX ix = r1x.P2.map (STRUW (i)) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(rax == 0))
@@ -1084,7 +1084,7 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 			r2x ? r1x[0] :
 			r1x[1]) ;
 		ret = (ret << 4) | CHAR (rax - r4x) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	ris >> _EOS_ ;
 	return std::move (ret) ;

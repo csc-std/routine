@@ -229,11 +229,11 @@ public:
 #ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("press any key to continue...\n")) ;
 		const auto r1x = std::getchar () ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 #elif defined __CSC_CONFIG_STRW__
 		std::wprintf (_PCSTR_ ("press any key to continue...\n")) ;
 		const auto r2x = std::getchar () ;
-		(void) r2x ;
+		_STATIC_UNUSED_ (r2x) ;
 #endif
 	}
 

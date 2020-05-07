@@ -292,8 +292,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -304,8 +304,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -316,8 +316,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -328,8 +328,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -340,8 +340,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -352,8 +352,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -364,8 +364,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
@@ -376,8 +376,8 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mUniformMappingSet.map (name) ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
+			mUniformMappingSet.add (name ,ix) ;
 		}
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}

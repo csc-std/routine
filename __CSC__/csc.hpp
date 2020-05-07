@@ -320,6 +320,8 @@ using std::is_convertible ;
 
 #define _STATIC_WARNING_(...)
 
+#define _STATIC_UNUSED_(var1) (void) var1 ;
+
 #ifdef __CSC_COMPILER_MSVC__
 #define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
 #else
@@ -394,8 +396,6 @@ using LENGTH = VAR ;
 using FLAG = VAR ;
 
 enum class EFLAG :VAR ;
-
-static constexpr auto UNKNOWN = EFLAG (0) ;
 
 #define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
 #define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
@@ -1578,13 +1578,13 @@ inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
 }
 
 template <class _RET>
-inline REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
+inline _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return object ;
 }
 
 template <class _RET>
-inline const REMOVE_REFERENCE_TYPE<_RET> &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
+inline const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return object ;
 }
@@ -1658,7 +1658,7 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_<_ARG1> (address) ;
 	r1x.~_ARG1 () ;
-	(void) r1x ;
+	_STATIC_UNUSED_ (r1x) ;
 }
 
 template <class _ARG1>
@@ -1747,7 +1747,7 @@ public:
 } ;
 
 template <class UNIT>
-class MemoryInterface final
+class TypeInterface final
 	:private Interface {
 	_STATIC_ASSERT_ (std::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
 } ;
@@ -1755,7 +1755,7 @@ class MemoryInterface final
 template <class _RET>
 inline FLAG _TYPEMID_ () noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	MemoryInterface<REMOVE_CVR_TYPE<_RET>> ret ;
+	TypeInterface<REMOVE_CVR_TYPE<_RET>> ret ;
 	return std::move (_CAST_<FLAG> (ret)) ;
 }
 
@@ -2030,7 +2030,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
-	(void) r1x ;
+	_STATIC_UNUSED_ (r1x) ;
 	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return (*r3x) ;
 }
@@ -2042,7 +2042,7 @@ inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
 	auto &r1x = _LOAD_<_ARG1> (address) ;
 	const auto r2x = new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
 	_DEBUG_ASSERT_ (r2x == &r1x) ;
-	(void) r2x ;
+	_STATIC_UNUSED_ (r2x) ;
 }
 
 template <class _ARG1>

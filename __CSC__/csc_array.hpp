@@ -973,8 +973,6 @@ private:
 		inline Node () = default ;
 	} ;
 
-	struct Dependent ;
-
 private:
 	struct Detail ;
 	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
@@ -1076,11 +1074,13 @@ public:
 		return std::move (ret) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Priority>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<Priority>> &item) const {
 		return at (item.key) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Priority>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<const Priority>> &item) const {
 		return at (item.key) ;
 	}
 
@@ -2256,9 +2256,6 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
-	struct Dependent ;
-
-private:
 	struct Detail ;
 	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
@@ -2377,16 +2374,18 @@ public:
 
 	inline auto operator[] (INDEX) && ->void = delete ;
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<BitSet>> &item) const {
-		if (this == &item.mBase)
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<BitSet>> &item) const {
+		if (this != &item.mBase)
 			return VAR_NONE ;
-		return INDEX (item) ;
+		return _XVALUE_<INDEX> (item) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<const BitSet>> &item) const {
-		if (this == &item.mBase)
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<const BitSet>> &item) const {
+		if (this != &item.mBase)
 			return VAR_NONE ;
-		return INDEX (item) ;
+		return _XVALUE_<INDEX> (item) ;
 	}
 
 	Array<INDEX> range () const {
@@ -2684,8 +2683,6 @@ private:
 			: mItem (std::move (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	struct Dependent ;
-
 private:
 	struct Detail ;
 	Allocator<Node ,SIZE> mSet ;
@@ -2783,11 +2780,13 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Set>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<Set>> &item) const {
 		return at (item.key) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Set>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<const Set>> &item) const {
 		return at (item.key) ;
 	}
 
@@ -3332,8 +3331,6 @@ private:
 			: mItem (std::move (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	struct Dependent ;
-
 private:
 	struct Detail ;
 	Allocator<Node ,SIZE> mSet ;
@@ -3431,11 +3428,13 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<HashSet>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<HashSet>> &item) const {
 		return at (item.key) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const HashSet>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<const HashSet>> &item) const {
 		return at (item.key) ;
 	}
 
@@ -3657,8 +3656,6 @@ private:
 			: mItem (std::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	struct Dependent ;
-
 private:
 	struct Detail ;
 	SharedRef<Allocator<Node ,SIZE>> mHeap ;
@@ -3775,11 +3772,13 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<SoftSet>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<SoftSet>> &item) const {
 		return at (item.key) ;
 	}
 
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const SoftSet>> &item) const {
+	template <class _RET = NONE>
+	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Pair<const SoftSet>> &item) const {
 		return at (item.key) ;
 	}
 

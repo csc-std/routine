@@ -92,7 +92,7 @@ inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 		if (r1x == 0)
 			continue ;
 		ret ^= CHAR (0XEDB88320) ;
-		(void) i ;
+		_STATIC_UNUSED_ (i) ;
 	}
 	return std::move (ret) ;
 }
@@ -414,15 +414,6 @@ struct GlobalHeap::Detail {
 		}
 
 		inline implicit operator const PTR<UNIT> & () && = delete ;
-
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<const PTR<UNIT> & ,_RET>::value>>
-		inline implicit operator _RET () const & {
-			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return _RET (_XVALUE_<const PTR<UNIT>> (mPointer)) ;
-		}
-
-		template <class _RET>
-		inline implicit operator _RET () && = delete ;
 
 		inline void operator= (const DEF<decltype (NULL)> &) & noexcept {
 			mPointer = NULL ;
@@ -957,7 +948,7 @@ private:
 			return ;
 		const auto r1x = ++pointer->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		mPointer = pointer ;
 	}
 } ;
@@ -2009,7 +2000,7 @@ public:
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
-			(void) i ;
+			_STATIC_UNUSED_ (i) ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2172,7 +2163,7 @@ public:
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
-			(void) i ;
+			_STATIC_UNUSED_ (i) ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2231,7 +2222,7 @@ public:
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			(*mBuffer)[i].~UNIT () ;
-			(void) i ;
+			_STATIC_UNUSED_ (i) ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;

@@ -915,17 +915,6 @@ struct AbstractImage<UNIT>::Detail {
 
 		inline implicit operator UNIT_ & () && = delete ;
 
-		template <class _RET ,class = ENABLE_TYPE<std::is_convertible<UNIT_ & ,_RET>::value>>
-		inline implicit operator _RET () const & {
-			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-			_DEBUG_ASSERT_ (mThis.exist ()) ;
-			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return _RET (_XVALUE_<UNIT_> (mThis->mHolder.template rebind<UNIT_> ().self)) ;
-		}
-
-		template <class _RET>
-		inline implicit operator _RET () && = delete ;
-
 	private:
 		inline explicit NativeProxy (const PhanRef<const Abstract> &abstract_ ,const SharedRef<Pack> &this_)
 			:mAbstract (PhanRef<const Abstract>::make (abstract_)) ,mThis (this_) {}

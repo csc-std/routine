@@ -17,6 +17,7 @@ private:
 	static constexpr auto NODE_CLAZZ_TABLE = EFLAG (1) ;
 	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (2) ;
 	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
+	static constexpr auto NODE_CLAZZ_FINAL = EFLAG (4) ;
 
 	class Node {
 	private:
@@ -714,8 +715,6 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 		SoftSet<INDEX> mMemberSoftSet ;
 		SoftSet<String<STRU8>> mObjectSoftSet ;
 		Allocator<Node ,SAUTO> mNodeHeap ;
-		String<STRU8> mRootName ;
-		EFLAG mRootType ;
 		Deque<FOUND_NODE> mFoundNode ;
 		Set<String<STRU8>> mFoundNodeMappingSet ;
 		SharedRef<FixedBuffer<Node>> mHeap ;
@@ -742,28 +741,14 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_TABLE) ,0) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_final_node) ;
+			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
 			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
 			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
 			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
 			mNodeHeap = Allocator<Node ,SAUTO> () ;
-			if switch_case (TRUE) {
-				mRootName.clear () ;
-				mRootType = UNKNOWN ;
-				INDEX iy = find_normal_node () ;
-				if (iy == VAR_NONE)
-					discard ;
-				mRootName = mSequence[iy].name () ;
-				mRootType = node_type (mSequence[iy]) ;
-			}
-			for (auto &&i : mSequence) {
-				if (!i.exist ())
-					continue ;
-				_DYNAMIC_ASSERT_ (i.name () == mRootName) ;
-				_DYNAMIC_ASSERT_ (node_type (i) == mRootType) ;
-			}
 			mRoot = mNodeHeap.alloc () ;
 			mNodeHeap[mRoot].mMemberSet = mMemberSoftSet.share () ;
 			mNodeHeap[mRoot].mObjectSet = mObjectSoftSet.share () ;
@@ -771,24 +756,18 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mNodeHeap[mRoot].mChild = VAR_NONE ;
 			mNodeHeap[mRoot].mBrother = VAR_NONE ;
 			mFoundNode = Deque<FOUND_NODE> () ;
-			mHeap = SharedRef<FixedBuffer<Node>>::make () ;
-		}
-
-		inline INDEX find_normal_node () const {
-			for (auto &&i : mSequence)
-				if (i.exist ())
-					return mSequence.at (i) ;
-			return VAR_NONE ;
 		}
 
 		inline EFLAG node_type (const XmlParser &node) const {
 			auto &r1x = node.attribute (mClazzString) ;
-			if (r1x == mFinalClazzString)
+			if (r1x == mTableClazzString)
 				return NODE_CLAZZ_TABLE ;
 			if (r1x == mObjectClazzString)
 				return NODE_CLAZZ_OBJECT ;
 			if (r1x == mArrayClazzString)
 				return NODE_CLAZZ_ARRAY ;
+			if (r1x == mFinalClazzString)
+				return NODE_CLAZZ_FINAL ;
 			_DYNAMIC_ASSERT_ (r1x.empty ()) ;
 			return NODE_CLAZZ_TABLE ;
 		}
@@ -800,57 +779,43 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					break ;
 				mTempNode = std::move (mNodeStack[mNodeStack.tail ()]) ;
 				mNodeStack.pop () ;
-				if switch_case (TRUE) {
-					if (mTempNode.mClazz == UNKNOWN)
-						discard ;
-					for (auto &&i : mTempNode.mBaseNode) {
-						INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
-						mFoundNodeProc[ix] (i) ;
-					}
-					update_merge_found_node (mTempNode.mParent) ;
-					mFoundNodeBaseNodeHeap.add (std::move (mTempNode.mBaseNode)) ;
+				for (auto &&i : mTempNode.mBaseNode) {
+					INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
+					mFoundNodeProc[ix] (i) ;
 				}
+				update_merge_found_node (mTempNode.mParent) ;
+				mFoundNodeBaseNodeHeap.add (std::move (mTempNode.mBaseNode)) ;
 			}
 			update_heap () ;
 		}
 
 		inline void update_root_node () {
-			INDEX ix = mNodeStack.insert () ;
-			mNodeStack[ix].mBaseNode = Deque<XmlParser> (mSequence.length ()) ;
-			for (auto &&i : mSequence)
-				mNodeStack[ix].mBaseNode.add (i.child ()) ;
-			mNodeStack[ix].mClazz = mRootType ;
-			INDEX iy = mRoot ;
-			if switch_case (TRUE) {
-				if (mRootName.empty ())
-					discard ;
-				iy = mNodeHeap.alloc () ;
-				mNodeHeap[iy].mName = std::move (mRootName) ;
-				mNodeHeap[iy].mAttributeList = Deque<String<STRU8>> () ;
-				mNodeHeap[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-				for (auto &&i : mSequence) {
-					if (!i.exist ())
-						continue ;
-					mNodeHeap[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-					mNodeHeap[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
-				}
-				mNodeHeap[iy].mParent = mRoot ;
-				mNodeHeap[mRoot].mChild = iy ;
-				const auto r1x = mNodeHeap[mRoot].mMemberSet.length () ;
-				mNodeHeap[mRoot].mMemberSet.add (r1x ,mNodeHeap[mRoot].mChild) ;
-				mNodeHeap[mRoot].mObjectSet.add (mNodeHeap[iy].mName ,mNodeHeap[mRoot].mChild) ;
-				mNodeHeap[iy].mChild = VAR_NONE ;
-				mNodeHeap[iy].mBrother = VAR_NONE ;
+			INDEX ix = find_normal_node () ;
+			if (ix == VAR_NONE)
+				return ;
+			INDEX jx = mNodeStack.insert () ;
+			mNodeStack[jx].mBaseNode = Deque<XmlParser> (mSequence.length ()) ;
+			for (auto &&i : mSequence) {
+				if (!i.exist ())
+					continue ;
+				mNodeStack[jx].mBaseNode.add (i) ;
 			}
-			mNodeStack[ix].mParent = iy ;
+			mNodeStack[jx].mClazz = NODE_CLAZZ_OBJECT ;
+			mNodeStack[jx].mParent = mRoot ;
 		}
 
-		inline void update_found_final_node (const XmlParser &node) {
+		inline INDEX find_normal_node () const {
+			for (auto &&i : mSequence)
+				if (i.exist ())
+					return mSequence.at (i) ;
+			return VAR_NONE ;
+		}
+
+		inline void update_found_table_node (const XmlParser &node) {
 			for (XmlParser i = node ,it ; i.exist () ; i = it) {
 				it = i.brother () ;
-				const auto r1x = i.name () ;
 				INDEX ix = mFoundNode.insert () ;
-				mFoundNode[ix].mName = r1x ;
+				mFoundNode[ix].mName = i.name () ;
 				mFoundNode[ix].mClazz = node_type (i) ;
 				mFoundNode[ix].mAttributeList = Deque<String<STRU8>> () ;
 				mFoundNode[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
@@ -868,14 +833,22 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (XmlParser i = node ,it ; i.exist () ; i = it) {
 				it = i.brother () ;
 				const auto r1x = i.name () ;
+				const auto r2x = node_type (i) ;
 				INDEX ix = mFoundNodeMappingSet.map (r1x) ;
+				if switch_case (TRUE) {
+					if (ix == VAR_NONE)
+						discard ;
+					_DYNAMIC_ASSERT_ (mFoundNode[ix].mClazz == r2x) ;
+					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
+				}
 				INDEX iy = ix ;
 				if switch_case (TRUE) {
-					if (iy != VAR_NONE)
+					if (ix != VAR_NONE)
 						discard ;
 					iy = mFoundNode.insert () ;
 					mFoundNodeMappingSet.add (r1x ,iy) ;
 					mFoundNode[iy].mName = r1x ;
+					mFoundNode[iy].mClazz = r2x ;
 					mFoundNode[iy].mAttributeList = Deque<String<STRU8>> () ;
 					mFoundNode[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
 					if (mFoundNodeBaseNodeHeap.empty ())
@@ -883,7 +856,6 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 					mFoundNodeBaseNodeHeap.take (mFoundNode[iy].mBaseNode) ;
 					mFoundNode[iy].mBaseNode.clear () ;
 				}
-				mFoundNode[iy].mClazz = node_type (i) ;
 				mFoundNode[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
 				mFoundNode[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
 				mFoundNode[iy].mBaseNode.add (i.child ()) ;
@@ -894,11 +866,18 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (XmlParser i = node ,it ; i.exist () ; i = it) {
 				it = i.brother () ;
 				const auto r1x = i.name () ;
+				const auto r2x = node_type (i) ;
 				INDEX ix = mFoundNode.head () ;
+				if switch_case (TRUE) {
+					if (ix == VAR_NONE)
+						discard ;
+					_DYNAMIC_ASSERT_ (mFoundNode[ix].mName == r1x) ;
+					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
+				}
 				INDEX iy = mFoundNode.insert () ;
 				mFoundNodeMappingSet.add (r1x ,iy) ;
 				mFoundNode[iy].mName = r1x ;
-				mFoundNode[iy].mClazz = node_type (i) ;
+				mFoundNode[iy].mClazz = r2x ;
 				mFoundNode[iy].mAttributeList = Deque<String<STRU8>> () ;
 				mFoundNode[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
 				mFoundNode[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
@@ -1637,13 +1616,13 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		//@info: $7->$3 : $4
 		inline void update_shift_e7 (INDEX curr) {
 			update_shift_e3 () ;
-			auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
-			const auto r2x = std::move (mLatestString) ;
+			const auto r1x = std::move (mLatestString) ;
 			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
 			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e4 (curr) ;
-			r1x.add (r2x ,mLatestIndex) ;
+			auto &r2x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
+			r2x.add (r1x ,mLatestIndex) ;
 		}
 
 		//@info: $8->$7|$7 , $8

@@ -268,14 +268,14 @@ public:
 		FlashWindow (r1x ,TRUE) ;
 		SetConsoleTextAttribute (mConsole ,(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)) ;
 		const auto r2x = std::system (_PCSTRA_ ("pause")) ;
-		(void) r2x ;
+		_STATIC_UNUSED_ (r2x) ;
 	}
 
 	void clear () override {
 		if (!mConsole.exist ())
 			return ;
 		const auto r1x = std::system (_PCSTRA_ ("cls")) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 	}
 
 private:
@@ -398,9 +398,9 @@ public:
 		const auto r1x = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG) ;
 		const auto r2x = VAR32 (r1x | _CRTDBG_LEAK_CHECK_DF) ;
 		const auto r3x = _CrtSetDbgFlag (r2x) ;
-		(void) r1x ;
-		(void) r2x ;
-		(void) r3x ;
+		_STATIC_UNUSED_ (r1x) ;
+		_STATIC_UNUSED_ (r2x) ;
+		_STATIC_UNUSED_ (r3x) ;
 	}
 
 	Array<LENGTH> captrue_stack_trace () popping override {
