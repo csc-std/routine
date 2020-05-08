@@ -701,13 +701,14 @@ public:
 	}
 
 public:
-	static Matrix make_identity () {
-		Matrix ret = Matrix ({
-			{REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ,
-			{REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)} ,
-			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
+	static const Matrix &identity () {
+		return _CACHE_ ([&] () {
+			return Matrix ({
+				{REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ,
+				{REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ,
+				{REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)} ,
+				{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
+		}) ;
 	}
 
 	static Matrix make_diag (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
@@ -1017,7 +1018,7 @@ public:
 	static Matrix make_reflection (const Vector<REAL> &normal) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		const auto r1x = normal.normalize () ;
-		return make_identity () - make_symmetry (r1x ,r1x) * REAL (2) ;
+		return identity () - make_symmetry (r1x ,r1x) * REAL (2) ;
 	}
 
 private:

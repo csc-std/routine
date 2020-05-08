@@ -371,8 +371,8 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		const REAL mTolerance ;
 		const REAL mInfinity ;
 
-		SList<REAL> mCurrCenterList ;
-		SList<REAL> mNextCenterList ;
+		SoftList<REAL> mCurrCenterList ;
+		SoftList<REAL> mNextCenterList ;
 		Set<INDEX> mCenterMoveSet ;
 		Deque<BitSet<>> mClusterList ;
 		Set<INDEX> mClusterMappingSet ;
@@ -390,8 +390,8 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 
 	private:
 		inline void prepare () {
-			mCurrCenterList = SList<REAL> (mCenter.length ()) ;
-			mNextCenterList = SList<REAL> (mCenter.length ()) ;
+			mCurrCenterList = SoftList<REAL> (mCenter.length ()) ;
+			mNextCenterList = SoftList<REAL> (mCenter.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
 			mCenterMoveSet = Set<INDEX> (mCenter.length ()) ;
 			mClusterList = Deque<BitSet<>> () ;

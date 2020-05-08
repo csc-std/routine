@@ -1338,14 +1338,14 @@ struct Priority<ITEM ,SIZE>::Detail {
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
-class QList ;
+class List ;
 
 template <class ITEM ,class SIZE>
-class QList {
+class List {
 private:
 	class Node {
 	private:
-		friend QList ;
+		friend List ;
 		ITEM mItem ;
 		INDEX mLeft ;
 		INDEX mRight ;
@@ -1369,17 +1369,17 @@ private:
 	INDEX mLast ;
 
 public:
-	QList () {
+	List () {
 		clear () ;
 	}
 
-	explicit QList (LENGTH len)
-		:QList (ARGVP0 ,len) {
+	explicit List (LENGTH len)
+		:List (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit QList (const std::initializer_list<ITEM> &that)
-		: QList (that.size ()) {
+	implicit List (const std::initializer_list<ITEM> &that)
+		: List (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1410,20 +1410,20 @@ public:
 		return mList[index].mRight ;
 	}
 
-	ArrayIterator<QList> begin () {
-		return ArrayIterator<QList> ((*this) ,ibegin ()) ;
+	ArrayIterator<List> begin () {
+		return ArrayIterator<List> ((*this) ,ibegin ()) ;
 	}
 
-	ArrayIterator<const QList> begin () const {
-		return ArrayIterator<const QList> ((*this) ,ibegin ()) ;
+	ArrayIterator<const List> begin () const {
+		return ArrayIterator<const List> ((*this) ,ibegin ()) ;
 	}
 
-	ArrayIterator<QList> end () {
-		return ArrayIterator<QList> ((*this) ,iend ()) ;
+	ArrayIterator<List> end () {
+		return ArrayIterator<List> ((*this) ,iend ()) ;
 	}
 
-	ArrayIterator<const QList> end () const {
-		return ArrayIterator<const QList> ((*this) ,iend ()) ;
+	ArrayIterator<const List> end () const {
+		return ArrayIterator<const List> ((*this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) & {
@@ -1467,7 +1467,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const QList &that) const {
+	BOOL equal (const List &that) const {
 		if (length () != that.length ())
 			return FALSE ;
 		INDEX ix = ibegin () ;
@@ -1491,11 +1491,11 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const QList &that) const {
+	inline BOOL operator== (const List &that) const {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const QList &that) const {
+	inline BOOL operator!= (const List &that) const {
 		return !equal (that) ;
 	}
 
@@ -1520,7 +1520,7 @@ public:
 		mLast = ix ;
 	}
 
-	inline QList &operator<< (const ITEM &item) {
+	inline List &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -1534,7 +1534,7 @@ public:
 		mLast = ix ;
 	}
 
-	inline QList &operator<< (ITEM &&item) {
+	inline List &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -1580,7 +1580,7 @@ public:
 		mList.free (ix) ;
 	}
 
-	inline QList &operator>> (ITEM &item) {
+	inline List &operator>> (ITEM &item) {
 		take (item) ;
 		return (*this) ;
 	}
@@ -1742,7 +1742,7 @@ public:
 	}
 
 private:
-	explicit QList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit List (const DEF<decltype (ARGVP0)> & ,LENGTH len)
 		:mList (len) {}
 
 private:
@@ -1764,14 +1764,14 @@ private:
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
-class SList ;
+class SoftList ;
 
 template <class ITEM ,class SIZE>
-class SList {
+class SoftList {
 private:
 	class Node {
 	private:
-		friend SList ;
+		friend SoftList ;
 		ITEM mItem ;
 		INDEX mSeq ;
 
@@ -1800,17 +1800,17 @@ private:
 	INDEX mWrite ;
 
 public:
-	SList () {
+	SoftList () {
 		clear () ;
 	}
 
-	explicit SList (LENGTH len)
-		:SList (ARGVP0 ,len) {
+	explicit SoftList (LENGTH len)
+		:SoftList (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit SList (const std::initializer_list<ITEM> &that)
-		: SList (that.size ()) {
+	implicit SoftList (const std::initializer_list<ITEM> &that)
+		: SoftList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1851,20 +1851,20 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<SList> begin () {
-		return ArrayIterator<SList> ((*this) ,ibegin ()) ;
+	ArrayIterator<SoftList> begin () {
+		return ArrayIterator<SoftList> ((*this) ,ibegin ()) ;
 	}
 
-	ArrayIterator<const SList> begin () const {
-		return ArrayIterator<const SList> ((*this) ,ibegin ()) ;
+	ArrayIterator<const SoftList> begin () const {
+		return ArrayIterator<const SoftList> ((*this) ,ibegin ()) ;
 	}
 
-	ArrayIterator<SList> end () {
-		return ArrayIterator<SList> ((*this) ,iend ()) ;
+	ArrayIterator<SoftList> end () {
+		return ArrayIterator<SoftList> ((*this) ,iend ()) ;
 	}
 
-	ArrayIterator<const SList> end () const {
-		return ArrayIterator<const SList> ((*this) ,iend ()) ;
+	ArrayIterator<const SoftList> end () const {
+		return ArrayIterator<const SoftList> ((*this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) & {
@@ -1919,7 +1919,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	BOOL equal (const SList &that) const {
+	BOOL equal (const SoftList &that) const {
 		if (length () != that.length ())
 			return FALSE ;
 		INDEX ix = ibegin () ;
@@ -1943,11 +1943,11 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const SList &that) const {
+	inline BOOL operator== (const SoftList &that) const {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const SList &that) const {
+	inline BOOL operator!= (const SoftList &that) const {
 		return !equal (that) ;
 	}
 
@@ -1957,7 +1957,7 @@ public:
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline SList &operator<< (const ITEM &item) {
+	inline SoftList &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -1968,7 +1968,7 @@ public:
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline SList &operator<< (ITEM &&item) {
+	inline SoftList &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
 		return (*this) ;
 	}
@@ -2077,7 +2077,7 @@ public:
 	}
 
 private:
-	explicit SList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit SoftList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
 		:mList (len) ,mHead (len) {}
 
 private:
@@ -3656,9 +3656,21 @@ private:
 			: mItem (std::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
+	class Heap {
+	private:
+		friend SoftSet ;
+		Allocator<Node ,SIZE> mBuffer ;
+
+	public:
+		inline Heap () = delete ;
+
+		inline explicit Heap (LENGTH len)
+			:mBuffer (len) {}
+	} ;
+
 private:
 	struct Detail ;
-	SharedRef<Allocator<Node ,SIZE>> mHeap ;
+	SharedRef<Heap> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
 	INDEX mFirst ;
@@ -3675,18 +3687,12 @@ public:
 	}
 
 	explicit SoftSet (LENGTH len) {
-		mHeap = SharedRef<Allocator<Node ,SIZE>>::make (len) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap.self) ;
+		mHeap = SharedRef<Heap>::make (len) ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap->mBuffer) ;
 		mLength = 0 ;
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
 		mRoot = VAR_NONE ;
-	}
-
-	LENGTH capacity () const {
-		if (!mHeap.exist ())
-			return 0 ;
-		return mSet->size () ;
 	}
 
 	LENGTH size () const {
@@ -3704,7 +3710,7 @@ public:
 	inline SoftSet share () popping {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
-		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap.self) ;
+		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer) ;
 		ret.mLength = 0 ;
 		ret.mFirst = VAR_NONE ;
 		ret.mLast = VAR_NONE ;

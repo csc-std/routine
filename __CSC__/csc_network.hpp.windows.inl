@@ -283,39 +283,39 @@ private:
 } ;
 
 inline exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
-	mThis = AnyRef<Implement>::make (ip_addr) ;
+	mThis = StrongRef<Implement>::make (ip_addr) ;
 }
 
 inline exports String<STRU8> TCPSocket::sock_name () const {
-	return mThis.rebind<Implement> ()->sock_name () ;
+	return mThis->sock_name () ;
 }
 
 inline exports String<STRU8> TCPSocket::peer_sock_name () const {
-	return mThis.rebind<Implement> ()->peer_sock_name () ;
+	return mThis->peer_sock_name () ;
 }
 
 inline exports void TCPSocket::link (const String<STRU8> &ip_addr) {
-	mThis.rebind<Implement> ()->link (ip_addr) ;
+	mThis->link (ip_addr) ;
 }
 
 inline exports void TCPSocket::modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
-	mThis.rebind<Implement> ()->modify_buffer (rcv_len ,snd_len) ;
+	mThis->modify_buffer (rcv_len ,snd_len) ;
 }
 
 inline exports void TCPSocket::modify_timeout (LENGTH timeout) {
-	mThis.rebind<Implement> ()->modify_timeout (timeout) ;
+	mThis->modify_timeout (timeout) ;
 }
 
 inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) {
-	mThis.rebind<Implement> ()->read (data) ;
+	mThis->read (data) ;
 }
 
 inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
-	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
+	mThis->read (data ,out_i ,timeout) ;
 }
 
 inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
-	mThis.rebind<Implement> ()->write (data) ;
+	mThis->write (data) ;
 }
 
 inline String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping {
@@ -357,12 +357,11 @@ private:
 public:
 	Implement () = delete ;
 
-	explicit Implement (const AnyRef<void> &socket_) {
-		auto &r1x = socket_.rebind<TCPSocket::Implement> ().self ;
-		mThis = r1x.mThis ;
+	explicit Implement (const StrongRef<TCPSocket::Implement> &socket_) {
+		mThis = socket_->mThis ;
 		mListener = std::move (mThis->mSocket) ;
-		const auto r2x = ::listen (mListener ,5) ;
-		_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
+		const auto r1x = ::listen (mListener ,5) ;
+		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;
 	}
 
 	void wait_linker () {
@@ -389,15 +388,15 @@ public:
 } ;
 
 inline exports void TCPSocket::Listener::wait_linker () {
-	mThis.rebind<Implement> ()->wait_linker () ;
+	mThis->wait_linker () ;
 }
 
 inline exports void TCPSocket::Listener::accept () {
-	mThis.rebind<Implement> ()->accept () ;
+	mThis->accept () ;
 }
 
-inline exports TCPSocket::Listener::Listener (const AnyRef<void> &socket_) {
-	mThis = AnyRef<Implement>::make (socket_) ;
+inline exports TCPSocket::Listener::Listener (const StrongRef<TCPSocket::Implement> &socket_) {
+	mThis = StrongRef<Implement>::make (socket_) ;
 }
 
 class UDPSocket::Implement {
@@ -497,35 +496,35 @@ public:
 } ;
 
 inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
-	mThis = AnyRef<Implement>::make (ip_addr) ;
+	mThis = StrongRef<Implement>::make (ip_addr) ;
 }
 
 inline exports String<STRU8> UDPSocket::sock_name () const {
-	return mThis.rebind<Implement> ()->sock_name () ;
+	return mThis->sock_name () ;
 }
 
 inline exports String<STRU8> UDPSocket::peer_sock_name () const {
-	return mThis.rebind<Implement> ()->peer_sock_name () ;
+	return mThis->peer_sock_name () ;
 }
 
 inline exports void UDPSocket::link (const String<STRU8> &ip_addr) {
-	mThis.rebind<Implement> ()->link (ip_addr) ;
+	mThis->link (ip_addr) ;
 }
 
 inline exports void UDPSocket::modify_timeout (LENGTH timeout) {
-	mThis.rebind<Implement> ()->modify_timeout (timeout) ;
+	mThis->modify_timeout (timeout) ;
 }
 
 inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) {
-	mThis.rebind<Implement> ()->read (data) ;
+	mThis->read (data) ;
 }
 
 inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
-	mThis.rebind<Implement> ()->read (data ,out_i ,timeout) ;
+	mThis->read (data ,out_i ,timeout) ;
 }
 
 inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
-	mThis.rebind<Implement> ()->write (data) ;
+	mThis->write (data) ;
 }
 
 class NetworkService::Implement

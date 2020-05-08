@@ -26,7 +26,7 @@ private:
 		LENGTH mThreadCounter ;
 		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
-		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
+		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
 	} ;
 
@@ -66,7 +66,7 @@ public:
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
-		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
+		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
 		tmp->appand (std::move (r2x.mItemQueue.self)) ;
 		r2x.mItemQueue = std::move (tmp) ;
 	}
@@ -124,7 +124,7 @@ public:
 			r2x.mThreadProc[i] = std::move (proc[i]) ;
 		}
 		if (!r2x.mItemQueue.exist ())
-			r2x.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (proc.length ()) ;
+			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (proc.length ()) ;
 		r2x.mItemQueue->clear () ;
 		r2x.mException = AutoRef<Exception> () ;
 		r2x.mThreadPool = Array<AutoRef<std::thread>> (proc.size ()) ;
@@ -310,7 +310,7 @@ private:
 		AutoRef<BOOL> mThreadFlag ;
 		Function<DEF<void (const ITEM &)> NONE::*> mThreadProc ;
 		Array<AutoRef<std::thread>> mThreadPool ;
-		AutoRef<QList<ITEM ,SFIXED>> mItemQueue ;
+		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
 	} ;
 
@@ -350,7 +350,7 @@ public:
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
-		auto tmp = AutoRef<QList<ITEM ,SFIXED>>::make (post_len) ;
+		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
 		tmp->appand (std::move (r2x.mItemQueue.self)) ;
 		r2x.mItemQueue = std::move (tmp) ;
 	}
@@ -443,7 +443,7 @@ public:
 		r2x.mThreadWaitCounter = 0 ;
 		r2x.mThreadProc = std::move (proc) ;
 		if (!r2x.mItemQueue.exist ())
-			r2x.mItemQueue = AutoRef<QList<ITEM ,SFIXED>>::make (count) ;
+			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (count) ;
 		r2x.mItemQueue->clear () ;
 		r2x.mException = AutoRef<Exception> () ;
 		r2x.mThreadPool = Array<AutoRef<std::thread>> (count) ;

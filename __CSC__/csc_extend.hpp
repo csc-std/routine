@@ -1125,7 +1125,8 @@ private:
 public:
 	inline Tuple () = default ;
 
-	inline implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
+	inline implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
+		:Tuple<UNITS...> (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (std::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
@@ -1775,18 +1776,18 @@ public:
 	}
 
 private:
-	inline explicit StrongRef (const SharedRef<Pack> &holder ,PTR<UNIT> pointer)
+	inline explicit StrongRef (const SharedRef<Pack> &this_ ,PTR<UNIT> pointer)
 		:StrongRef () {
 		if (pointer == NULL)
 			return ;
-		if (!holder.exist ())
+		if (!this_.exist ())
 			return ;
-		if (!holder->mHolder.exist ())
+		if (!this_->mHolder.exist ())
 			return ;
-		const auto r1x = ++holder->mCounter ;
+		const auto r1x = ++this_->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		_STATIC_UNUSED_ (r1x) ;
-		mThis = holder ;
+		mThis = this_ ;
 		mPointer = pointer ;
 	}
 } ;
@@ -1932,12 +1933,6 @@ public:
 			new (this) SoftRef (std::move (that)) ;
 		}
 		return (*this) ;
-	}
-
-	LENGTH capacity () const {
-		if (!mHeap.exist ())
-			return 0 ;
-		return mHeap->size () ;
 	}
 
 	inline BOOL exist () const {

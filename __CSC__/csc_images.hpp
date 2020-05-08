@@ -649,12 +649,12 @@ public:
 	exports class Abstract
 		:public Interface {
 	public:
-		virtual void compute_layout (AnyRef<void> &this_ ,LAYOUT &layout) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &this_ ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &this_ ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void compute_save_data (const AnyRef<void> &this_ ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
-		virtual void compute_load_data_file (AnyRef<void> &this_ ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_data_file (const AnyRef<void> &this_ ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
+		virtual void compute_layout (AnyRef<void> &holder ,LAYOUT &layout) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
+		virtual void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
+		virtual void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const = 0 ;
+		virtual void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
 	} ;
 
 private:

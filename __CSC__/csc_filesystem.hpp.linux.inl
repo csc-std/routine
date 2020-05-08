@@ -567,19 +567,19 @@ public:
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	mThis = AnyRef<Implement>::make (file) ;
+	mThis = StrongRef<Implement>::make (file) ;
 }
 
 inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
-	mThis.rebind<Implement> ()->read (data) ;
+	mThis->read (data) ;
 }
 
 inline exports void StreamLoader::write (const PhanBuffer<const BYTE> &data) {
-	mThis.rebind<Implement> ()->write (data) ;
+	mThis->write (data) ;
 }
 
 inline exports void StreamLoader::flush () {
-	mThis.rebind<Implement> ()->flush () ;
+	mThis->flush () ;
 }
 
 class BufferLoader::Implement {
@@ -631,31 +631,31 @@ public:
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	mThis = AnyRef<Implement>::make (file) ;
+	mThis = StrongRef<Implement>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_len) {
-	mThis = AnyRef<Implement>::make (file ,file_len) ;
+	mThis = StrongRef<Implement>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,BOOL cache) {
-	mThis = AnyRef<Implement>::make (file ,cache) ;
+	mThis = StrongRef<Implement>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
-	mThis = AnyRef<Implement>::make (file ,file_len ,cache) ;
+	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
 }
 
 inline exports PhanBuffer<BYTE> BufferLoader::watch () & {
-	return mThis.rebind<Implement> ()->watch () ;
+	return _XVALUE_<Implement> (mThis).watch () ;
 }
 
 inline exports PhanBuffer<const BYTE> BufferLoader::watch () const & {
-	return mThis.rebind<Implement> ()->watch () ;
+	return _XVALUE_<const Implement> (mThis).watch () ;
 }
 
 inline exports void BufferLoader::flush () {
-	mThis.rebind<Implement> ()->flush () ;
+	mThis->flush () ;
 }
 
 class FileSystemService::Implement

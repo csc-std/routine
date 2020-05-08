@@ -115,7 +115,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (decltype ((*this))) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &this_ ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
+	void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
 		_DEBUG_ASSERT_ (vs.size () < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (fs.size () < VAR32_MAX) ;
 		auto tmp = UniqueRef<CHAR> ([&] (CHAR &me) {
@@ -140,54 +140,54 @@ public:
 		} ,[] (CHAR &me) {
 			glDeleteProgram (me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
-	void compute_active_pipeline (AnyRef<void> &this_) const override {
-		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
+	void compute_active_pipeline (AnyRef<void> &holder) const override {
+		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
 		glUseProgram (r1x) ;
 	}
 
-	void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1x = this_.rebind<NATIVE_THIS> ().self ;
+	void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const override {
+		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR32 &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR32 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1i (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR64 &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR64 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1i64NV (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL32 &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL32 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1f (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL64 &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL64 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		glUniform1d (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL32> &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL32> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL32> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		glUniform4fv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL64> &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL64> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL64> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		glUniform4dv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL32> &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL32> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY16<VAL32> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
@@ -197,7 +197,7 @@ public:
 		glUniformMatrix4fv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL64> &data) const override {
+	void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL64> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY16<VAL64> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
@@ -207,7 +207,7 @@ public:
 		glUniformMatrix4dv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
-	void compute_sprite_load_data (AnyRef<void> &this_ ,const Mesh &mesh) const override {
+	void compute_sprite_load_data (AnyRef<void> &holder ,const Mesh &mesh) const override {
 		auto tmp = Pack () ;
 		tmp.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
 			glGenVertexArrays (1 ,&me) ;
@@ -229,17 +229,17 @@ public:
 		}) ;
 		compute_transfer_data (tmp ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
 		compute_transfer_data (tmp ,mesh.texture ()[0]) ;
-		this_ = AnyRef<SPRITE_NATIVE_THIS>::make (std::move (tmp)) ;
+		holder = AnyRef<SPRITE_NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
-	void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const override {
-		auto &r1x = this_.rebind<SPRITE_NATIVE_THIS> ().self ;
+	void compute_sprite_active_texture (AnyRef<void> &holder ,INDEX texture) const override {
+		auto &r1x = holder.rebind<SPRITE_NATIVE_THIS> ().self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
-	void compute_sprite_draw (AnyRef<void> &this_) const override {
-		auto &r1x = this_.rebind<SPRITE_NATIVE_THIS> ().self ;
+	void compute_sprite_draw (AnyRef<void> &holder) const override {
+		auto &r1x = holder.rebind<SPRITE_NATIVE_THIS> ().self ;
 		glBindVertexArray (r1x.mVAO) ;
 		if switch_case (TRUE) {
 			if (r1x.mTexture == VAR_NONE)
@@ -281,7 +281,7 @@ private:
 		_DYNAMIC_ASSERT_ (rbx.empty ()) ;
 	}
 
-	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY1<INDEX>> &element) const {
+	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SoftList<ARRAY1<INDEX>> &element) const {
 		Array<ARRAY1<ARRAY3<VAL32>>> ret = Array<ARRAY1<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -292,7 +292,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY2<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY2<INDEX>> &element) const {
+	Array<ARRAY2<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SoftList<ARRAY2<INDEX>> &element) const {
 		Array<ARRAY2<ARRAY3<VAL32>>> ret = Array<ARRAY2<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -304,7 +304,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY3<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY3<INDEX>> &element) const {
+	Array<ARRAY3<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SoftList<ARRAY3<INDEX>> &element) const {
 		Array<ARRAY3<ARRAY3<VAL32>>> ret = Array<ARRAY3<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {
@@ -317,7 +317,7 @@ private:
 		return std::move (ret) ;
 	}
 
-	Array<ARRAY4<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SList<ARRAY4<INDEX>> &element) const {
+	Array<ARRAY4<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const SoftList<ARRAY4<INDEX>> &element) const {
 		Array<ARRAY4<ARRAY3<VAL32>>> ret = Array<ARRAY4<ARRAY3<VAL32>>> (element.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : element) {

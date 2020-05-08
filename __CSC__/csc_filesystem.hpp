@@ -69,7 +69,7 @@ inline imports DEF<void (const String<STR> &dire)> _CLEARDIRECTORY_ ;
 class StreamLoader {
 private:
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	StreamLoader () = delete ;
@@ -96,7 +96,7 @@ public:
 class BufferLoader {
 private:
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	BufferLoader () = delete ;

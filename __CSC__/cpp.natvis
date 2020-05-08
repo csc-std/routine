@@ -291,7 +291,7 @@
   </Type>
 
 
-  <Type Name="CSC::QList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::List&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mFirst]">mFirst</Item>
       <Item Name="[mLast]">mLast</Item>
@@ -300,7 +300,7 @@
   </Type>
 
 
-  <Type Name="CSC::SList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::SoftList&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mHead]">mHead</Item>
       <Item Name="[mRead]">mRead</Item>

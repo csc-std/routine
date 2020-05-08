@@ -20,7 +20,7 @@ namespace CSC {
 class Mesh {
 private:
 	Set<ARRAY3<VAL32>> mVertexSet ;
-	SList<ARRAY3<INDEX>> mElementList ;
+	SoftList<ARRAY3<INDEX>> mElementList ;
 	Array<Bitmap<COLOR_BGR>> mTexture ;
 
 public:
@@ -32,7 +32,7 @@ public:
 
 	auto vertex () && ->void = delete ;
 
-	const SList<ARRAY3<INDEX>> &element () const & {
+	const SoftList<ARRAY3<INDEX>> &element () const & {
 		return mElementList ;
 	}
 
@@ -240,20 +240,20 @@ public:
 	exports class Abstract
 		:public Interface {
 	public:
-		virtual void compute_load_data (AnyRef<void> &this_ ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
-		virtual void compute_active_pipeline (AnyRef<void> &this_) const = 0 ;
-		virtual void compute_uniform_find (AnyRef<void> &this_ ,const String<STR> &name ,INDEX &index) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAR64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const VAL64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &this_ ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
-		virtual void compute_sprite_load_data (AnyRef<void> &this_ ,const Mesh &mesh) const = 0 ;
-		virtual void compute_sprite_active_texture (AnyRef<void> &this_ ,INDEX texture) const = 0 ;
-		virtual void compute_sprite_draw (AnyRef<void> &this_) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
+		virtual void compute_active_pipeline (AnyRef<void> &holder) const = 0 ;
+		virtual void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
+		virtual void compute_sprite_load_data (AnyRef<void> &holder ,const Mesh &mesh) const = 0 ;
+		virtual void compute_sprite_active_texture (AnyRef<void> &holder ,INDEX texture) const = 0 ;
+		virtual void compute_sprite_draw (AnyRef<void> &holder) const = 0 ;
 	} ;
 
 private:

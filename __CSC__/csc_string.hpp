@@ -1047,10 +1047,11 @@ inline exports String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...init
 	return std::move (ret) ;
 }
 
+#ifdef __CSC_EXTEND__
 class RegexMatcher {
 private:
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	RegexMatcher () = delete ;
@@ -1063,6 +1064,7 @@ public:
 
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
 } ;
+#endif
 
 inline namespace STRING {
 template <class _ARG1>

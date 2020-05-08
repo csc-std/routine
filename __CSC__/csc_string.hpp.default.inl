@@ -186,6 +186,7 @@ inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (co
 }
 } ;
 
+#ifdef __CSC_EXTEND__
 class RegexMatcher::Implement {
 private:
 	AutoRef<std::regex> mRegex ;
@@ -247,18 +248,19 @@ public:
 } ;
 
 inline exports RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
-	mThis = AnyRef<Implement>::make (reg) ;
+	mThis = StrongRef<Implement>::make (reg) ;
 }
 
 inline exports BOOL RegexMatcher::match (const String<STRU8> &expr) const {
-	return mThis.rebind<Implement> ()->match (expr) ;
+	return mThis->match (expr) ;
 }
 
 inline exports Deque<ARRAY2<INDEX>> RegexMatcher::search (const String<STRU8> &expr) const {
-	return mThis.rebind<Implement> ()->search (expr) ;
+	return mThis->search (expr) ;
 }
 
 inline exports String<STRU8> RegexMatcher::replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
-	return mThis.rebind<Implement> ()->replace (expr ,rep) ;
+	return mThis->replace (expr ,rep) ;
 }
+#endif
 } ;

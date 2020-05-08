@@ -21,7 +21,7 @@ private:
 	exports class Abstract
 		:public Interface {
 	public:
-		virtual void compute_load_data (AnyRef<void> &this_) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &holder) const = 0 ;
 	} ;
 
 	class Pack {

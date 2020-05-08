@@ -65,13 +65,13 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (decltype ((*this))) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &this_) const override {
+	void compute_load_data (AnyRef<void> &holder) const override {
 		auto tmp = UniqueRef<MYSQL> ([&] (MYSQL &me) {
 			::mysql_init (&me) ;
 		} ,[] (MYSQL &me) {
 			::mysql_close (&me) ;
 		}) ;
-		this_ = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 private:

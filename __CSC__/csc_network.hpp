@@ -21,7 +21,7 @@ public:
 
 private:
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	TCPSocket () = delete ;
@@ -84,7 +84,7 @@ class TCPSocket::Listener {
 private:
 	friend TCPSocket ;
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	Listener () = delete ;
@@ -94,13 +94,13 @@ public:
 	void accept () ;
 
 private:
-	explicit Listener (const AnyRef<void> &socket_) ;
+	explicit Listener (const StrongRef<TCPSocket::Implement> &socket_) ;
 } ;
 
 class UDPSocket {
 private:
 	class Implement ;
-	AnyRef<void> mThis ;
+	StrongRef<Implement> mThis ;
 
 public:
 	UDPSocket () = delete ;
