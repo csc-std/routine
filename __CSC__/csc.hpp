@@ -157,6 +157,16 @@
 #endif
 #define popping
 
+#ifdef leftvalue
+#error "∑(っ°Д° ;)っ : defined 'leftvalue'"
+#endif
+#define leftvalue &
+
+#ifdef rightvalue
+#error "∑(っ°Д° ;)っ : defined 'leftvalue'"
+#endif
+#define rightvalue &&
+
 #ifdef imports
 #error "∑(っ°Д° ;)っ : defined 'imports'"
 #endif
@@ -170,7 +180,7 @@
 #ifdef switch_case
 #error "∑(っ°Д° ;)っ : defined 'switch_case'"
 #endif
-#define switch_case SWITCH_CASE_IMPL
+#define switch_case SWITCH_CASE
 
 #ifdef discard
 #error "∑(っ°Д° ;)っ : defined 'discard'"
@@ -182,6 +192,8 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
+#pragma push_macro ("leftvalue")
+#pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
 #pragma push_macro ("switch_case")
@@ -189,6 +201,8 @@
 #undef self
 #undef implicit
 #undef popping
+#undef leftvalue
+#undef rightvalue
 #undef imports
 #undef exports
 #undef switch_case
@@ -209,6 +223,8 @@
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
 #pragma pop_macro ("popping")
+#pragma pop_macro ("leftvalue")
+#pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
 #pragma pop_macro ("switch_case")
@@ -350,7 +366,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE_IMPL(var1) (var1) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (var1)) ANONYMOUS:
+#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (var1)) ANONYMOUS:
 
 using BOOL = bool ;
 
@@ -1870,7 +1886,7 @@ struct ArrayRange<ZERO>::Detail {
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline const INDEX &operator* () const {
+		inline const INDEX &operator* () const leftvalue {
 			return mIndex ;
 		}
 
@@ -1938,12 +1954,12 @@ public:
 		return mSize ;
 	}
 
-	inline constexpr const ARR<REAL> &to () const {
+	inline constexpr const ARR<REAL> &to () const leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
-	inline constexpr implicit operator const ARR<REAL> & () const {
+	inline constexpr implicit operator const ARR<REAL> & () const leftvalue {
 		return to () ;
 	}
 

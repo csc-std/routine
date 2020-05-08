@@ -594,12 +594,10 @@ public:
 		return TRUE ;
 	}
 
-	CONT &context () & {
+	CONT &context () leftvalue {
 		_DEBUG_ASSERT_ (mThis->mContext.exist ()) ;
 		return mThis->mContext ;
 	}
-
-	auto context () && ->void = delete ;
 
 	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
@@ -700,29 +698,29 @@ private:
 	using Wrapped<Coroutine<CONT>>::mSelf ;
 
 public:
-	CONT &to () {
+	CONT &to () leftvalue {
 		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
 		return mSelf.mThis->mContext ;
 	}
 
-	inline implicit operator CONT & () {
+	inline implicit operator CONT & () leftvalue {
 		return to () ;
 	}
 
-	inline PTR<CONT> operator-> () {
+	inline PTR<CONT> operator-> () leftvalue {
 		return &to () ;
 	}
 
-	const CONT &to () const {
+	const CONT &to () const leftvalue {
 		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
 		return mSelf.mThis->mContext ;
 	}
 
-	inline implicit operator const CONT & () const {
+	inline implicit operator const CONT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<const CONT> operator-> () const {
+	inline PTR<const CONT> operator-> () const leftvalue {
 		return &to () ;
 	}
 

@@ -23,11 +23,9 @@ public:
 		initialize (len) ;
 	}
 
-	const BitSet<> &query () const & {
+	const BitSet<> &query () const leftvalue {
 		return mPrimeSet ;
 	}
-
-	auto query () && ->void = delete ;
 
 private:
 	void initialize (LENGTH len) ;
@@ -349,11 +347,9 @@ public:
 		initialize (dataset ,distance ,center) ;
 	}
 
-	const Deque<BitSet<>> &query () const & {
+	const Deque<BitSet<>> &query () const leftvalue {
 		return mClusterList ;
 	}
-
-	auto query () && ->void = delete ;
 
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) ;
@@ -511,11 +507,9 @@ public:
 		return mWeight ;
 	}
 
-	const Array<ARRAY2<INDEX>> &query_match () const & {
+	const Array<ARRAY2<INDEX>> &query_match () const leftvalue {
 		return mMatch ;
 	}
-
-	auto query_match () && ->void = delete ;
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency) ;
@@ -846,11 +840,9 @@ public:
 		initialize (loss ,gradient ,fdx) ;
 	}
 
-	const Array<REAL> &query () const & {
+	const Array<REAL> &query () const leftvalue {
 		return mDX ;
 	}
-
-	auto query () && ->void = delete ;
 
 	REAL query_loss () const {
 		return mDXLoss ;
@@ -1342,11 +1334,9 @@ public:
 		return mMaxFlow ;
 	}
 
-	const Bitmap<REAL> &query_flow () const & {
+	const Bitmap<REAL> &query_flow () const leftvalue {
 		return mCurrentFlow ;
 	}
-
-	auto query_flow () && ->void = delete ;
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,INDEX source ,INDEX sink) ;

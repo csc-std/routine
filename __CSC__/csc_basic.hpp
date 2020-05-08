@@ -340,91 +340,39 @@ struct OPERATOR_HASH {
 } ;
 } ;
 
-class GlobalHeap final
-	:private Wrapped<void> {
+template <class HEAP ,class UNIT>
+class ScopedPtr final
+	:private Proxy {
 private:
-	struct Detail ;
+	PTR<UNIT> mPointer ;
 
 public:
-	template <class _RET>
-	inline static auto alloc () popping
-		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::template OwnerProxy<_RET>> {
-		struct Dependent ;
-		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<_RET> ;
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
-		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
-		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		auto &r2x = _LOAD_<_RET> (r1x) ;
-		return OwnerProxy (&r2x) ;
+	inline ScopedPtr () = delete ;
+
+	inline explicit ScopedPtr (PTR<UNIT> pointer) noexcept
+		:mPointer (pointer) {}
+
+	inline ~ScopedPtr () noexcept {
+		if (mPointer == NULL)
+			return ;
+		HEAP::free (mPointer) ;
+		mPointer = NULL ;
 	}
 
-	template <class _RET>
-	inline static auto alloc (LENGTH len) popping
-		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::template OwnerProxy<ARR<_RET>>> {
-		struct Dependent ;
-		using OwnerProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template OwnerProxy<ARR<_RET>> ;
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
-		_DEBUG_ASSERT_ (len > 0) ;
-		const auto r1x = len * _SIZEOF_ (_RET) ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		const auto r2x = operator new (r1x ,std::nothrow) ;
-		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
-		return OwnerProxy (&r3x) ;
+	inline ScopedPtr (const ScopedPtr &) = default ;
+	inline ScopedPtr &operator= (const ScopedPtr &) = default ;
+
+	inline ScopedPtr (ScopedPtr &&) = default ;
+	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
+
+	inline implicit operator const PTR<UNIT> & () const leftvalue noexcept {
+		_DEBUG_ASSERT_ (mPointer != NULL) ;
+		return mPointer ;
 	}
 
-	template <class _ARG1>
-	inline static void free (const PTR<_ARG1> &address) noexcept {
-		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
-		operator delete (r1x ,std::nothrow) ;
+	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
+		mPointer = NULL ;
 	}
-} ;
-
-struct GlobalHeap::Detail {
-	template <class UNIT>
-	class OwnerProxy final
-		:private Proxy {
-	private:
-		friend GlobalHeap ;
-		PTR<UNIT> mPointer ;
-
-	public:
-		inline OwnerProxy () = delete ;
-
-		inline ~OwnerProxy () noexcept {
-			if (mPointer == NULL)
-				return ;
-			GlobalHeap::free (mPointer) ;
-			mPointer = NULL ;
-		}
-
-		inline OwnerProxy (const OwnerProxy &) = default ;
-		inline OwnerProxy &operator= (const OwnerProxy &) = default ;
-
-		inline OwnerProxy (OwnerProxy &&) = default ;
-		inline OwnerProxy &operator= (OwnerProxy &&) = default ;
-
-		inline implicit operator const PTR<UNIT> & () const & noexcept {
-			_DEBUG_ASSERT_ (mPointer != NULL) ;
-			return mPointer ;
-		}
-
-		inline implicit operator const PTR<UNIT> & () && = delete ;
-
-		inline void operator= (const DEF<decltype (NULL)> &) & noexcept {
-			mPointer = NULL ;
-		}
-
-		inline void operator= (const DEF<decltype (NULL)> &) && = delete ;
-
-	private:
-		inline explicit OwnerProxy (PTR<UNIT> pointer) noexcept
-			:mPointer (pointer) {}
-	} ;
 } ;
 
 template <class UNIT>
@@ -578,74 +526,42 @@ private:
 		:mAddress (NULL) ,mSize (0) {}
 } ;
 
-template <class>
-class GlobalStatic ;
-
-template <class UNIT>
-class Singleton final
-	:private Proxy {
-	_STATIC_ASSERT_ (std::is_class<UNIT>::value) ;
-	_STATIC_ASSERT_ (!std::is_default_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<UNIT>::value) ;
-
+class GlobalHeap final
+	:private Wrapped<void> {
 private:
-	class Holder {
-	private:
-		friend Singleton ;
-		UNIT mValue ;
-
-	public:
-		template <class... _ARGS>
-		inline explicit Holder (_ARGS &&...initval)
-			:mValue (std::forward<_ARGS> (initval)...) {}
-	} ;
-
-private:
-	friend UNIT ;
-	template <class>
-	friend class GlobalStatic ;
-	PTR<Holder> mPointer ;
-
-private:
-	inline Singleton ()
-		:Singleton (ARGVP0) {
-		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
-		ScopedBuild<Holder> ANONYMOUS (rax) ;
-		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
-		mPointer = &r1x ;
-		rax = NULL ;
-	}
-
-	inline ~Singleton () noexcept {
-		if (mPointer == NULL)
-			return ;
-		mPointer->~Holder () ;
-		GlobalHeap::free (mPointer) ;
-		mPointer = NULL ;
-	}
-
-	inline Singleton (const Singleton &) = default ;
-	inline Singleton &operator= (const Singleton &) = default ;
-
-	inline Singleton (Singleton &&) = default ;
-	inline Singleton &operator= (Singleton &&) = default ;
-
-	inline UNIT &to () {
-		_DEBUG_ASSERT_ (mPointer != NULL) ;
-		return mPointer->mValue ;
-	}
-
-	inline implicit operator UNIT & () {
-		return to () ;
-	}
-
-private:
-	inline explicit Singleton (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+	struct Detail ;
 
 public:
-	//@warn: static instance across DLL ruins Singleton
-	inline static DEF<UNIT & ()> instance ;
+	template <class _RET>
+	inline static ScopedPtr<GlobalHeap ,_RET> alloc () popping {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
+		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
+		_DYNAMIC_ASSERT_ (r1x != NULL) ;
+		auto &r2x = _LOAD_<_RET> (r1x) ;
+		return ScopedPtr<GlobalHeap ,_RET> (&r2x) ;
+	}
+
+	template <class _RET>
+	inline static ScopedPtr<GlobalHeap ,ARR<_RET>> alloc (LENGTH len) popping {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
+		_DEBUG_ASSERT_ (len > 0) ;
+		const auto r1x = len * _SIZEOF_ (_RET) ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
+		const auto r2x = operator new (r1x ,std::nothrow) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
+		return ScopedPtr<GlobalHeap ,ARR<_RET>> (&r3x) ;
+	}
+
+	template <class _ARG1>
+	inline static void free (const PTR<_ARG1> &address) noexcept {
+		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
+		operator delete (r1x ,std::nothrow) ;
+	}
 } ;
 
 template <class>
@@ -801,29 +717,29 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () {
+	inline UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return mPointer->mValue ;
 	}
 
-	inline implicit operator UNIT & () {
+	inline implicit operator UNIT & () leftvalue {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () {
+	inline PTR<UNIT> operator-> () leftvalue {
 		return &to () ;
 	}
 
-	inline const UNIT &to () const {
+	inline const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return mPointer->mValue ;
 	}
 
-	inline implicit operator const UNIT & () const {
+	inline implicit operator const UNIT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<const UNIT> operator-> () const {
+	inline PTR<const UNIT> operator-> () const leftvalue {
 		return &to () ;
 	}
 
@@ -916,17 +832,17 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<Holder>> (mPointer) ;
 		return r1x->mValue ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () const leftvalue {
 		return &to () ;
 	}
 
@@ -1005,19 +921,16 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () & {
+	inline AnyRef<_RET> &rebind () leftvalue {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
-	inline const AnyRef<_RET> &rebind () const & {
+	inline const AnyRef<_RET> &rebind () const leftvalue {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
-
-	template <class _RET>
-	inline auto rebind () && ->void = delete ;
 
 	inline BOOL exist () const {
 		if (mPointer == NULL)
@@ -1077,19 +990,16 @@ public:
 	}
 
 	template <class _RET>
-	inline AnyRef<_RET> &rebind () & {
+	inline AnyRef<_RET> &rebind () leftvalue {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
 
 	template <class _RET>
-	inline const AnyRef<_RET> &rebind () const & {
+	inline const AnyRef<_RET> &rebind () const leftvalue {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return _CAST_<AnyRef<_RET>> ((*this)) ;
 	}
-
-	template <class _RET>
-	inline auto rebind () && ->void = delete ;
 
 	inline BOOL exist () const {
 		if (mPointer == NULL)
@@ -1102,33 +1012,33 @@ public:
 		return mPointer->typemid () ;
 	}
 
-	inline UNIT &to () {
+	inline UNIT &to () leftvalue {
 		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
 	}
 
-	inline implicit operator UNIT & () {
+	inline implicit operator UNIT & () leftvalue {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () {
+	inline PTR<UNIT> operator-> () leftvalue {
 		return &to () ;
 	}
 
-	inline const UNIT &to () const {
+	inline const UNIT &to () const leftvalue {
 		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
 	}
 
-	inline implicit operator const UNIT & () const {
+	inline implicit operator const UNIT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<const UNIT> operator-> () const {
+	inline PTR<const UNIT> operator-> () const leftvalue {
 		return &to () ;
 	}
 
@@ -1332,18 +1242,18 @@ public:
 		return TRUE ;
 	}
 
-	inline const UNIT &to () const {
+	inline const UNIT &to () const leftvalue {
 		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
 	}
 
-	inline implicit operator const UNIT & () const {
+	inline implicit operator const UNIT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<const UNIT> operator-> () const {
+	inline PTR<const UNIT> operator-> () const leftvalue {
 		return &to () ;
 	}
 
@@ -1430,17 +1340,17 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &to () const {
+	inline UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
 		return (*r1x) ;
 	}
 
-	inline implicit operator UNIT & () const {
+	inline implicit operator UNIT & () const leftvalue {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const {
+	inline PTR<UNIT> operator-> () const leftvalue {
 		return &to () ;
 	}
 
@@ -1716,15 +1626,13 @@ public:
 	}
 
 private:
-	inline Holder &m_fake () & {
+	inline Holder &m_fake () leftvalue {
 		return _CAST_<FakeHolder> (mVariant) ;
 	}
 
-	inline const Holder &m_fake () const & {
+	inline const Holder &m_fake () const leftvalue {
 		return _CAST_<FakeHolder> (mVariant) ;
 	}
-
-	inline auto m_fake () && ->void = delete ;
 
 private:
 	template <class _RET ,class... _ARGS>
@@ -1869,21 +1777,21 @@ public:
 	inline implicit Buffer (DEF<UNIT[SIZE::value]> &&that)
 		: Buffer (std::move (_CAST_<Buffer> (that))) {}
 
-	inline ARR<UNIT> &to () {
+	inline ARR<UNIT> &to () leftvalue {
 		return PTRTOARR[mBuffer] ;
 	}
 
-	inline implicit operator ARR<UNIT> & () {
+	inline implicit operator ARR<UNIT> & () leftvalue {
 		return to () ;
 	}
 
 	inline implicit operator PTR<UNIT> () = delete ;
 
-	inline const ARR<UNIT> &to () const {
+	inline const ARR<UNIT> &to () const leftvalue {
 		return PTRTOARR[mBuffer] ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const {
+	inline implicit operator const ARR<UNIT> & () const leftvalue {
 		return to () ;
 	}
 
@@ -1893,27 +1801,23 @@ public:
 		return SIZE::value ;
 	}
 
-	inline UNIT &get (INDEX index) & {
+	inline UNIT &get (INDEX index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) & {
+	inline UNIT &operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - mBuffer ;
@@ -2012,21 +1916,21 @@ public:
 	inline Buffer (Buffer &&) = delete ;
 	inline Buffer &operator= (Buffer &&) = delete ;
 
-	inline ARR<UNIT> &to () {
+	inline ARR<UNIT> &to () leftvalue {
 		return (*mBuffer) ;
 	}
 
-	inline implicit operator ARR<UNIT> & () {
+	inline implicit operator ARR<UNIT> & () leftvalue {
 		return to () ;
 	}
 
 	inline implicit operator PTR<UNIT> () = delete ;
 
-	inline const ARR<UNIT> &to () const {
+	inline const ARR<UNIT> &to () const leftvalue {
 		return (*mBuffer) ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const {
+	inline implicit operator const ARR<UNIT> & () const leftvalue {
 		return to () ;
 	}
 
@@ -2036,27 +1940,23 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) & {
+	inline UNIT &get (INDEX index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) & {
+	inline UNIT &operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2284,21 +2184,21 @@ public:
 	inline explicit Buffer (LENGTH len)
 		:SPECIALIZATION_BASE (len) {}
 
-	inline ARR<UNIT> &to () {
+	inline ARR<UNIT> &to () leftvalue {
 		return (*mBuffer) ;
 	}
 
-	inline implicit operator ARR<UNIT> & () {
+	inline implicit operator ARR<UNIT> & () leftvalue {
 		return to () ;
 	}
 
 	inline implicit operator PTR<UNIT> () = delete ;
 
-	inline const ARR<UNIT> &to () const {
+	inline const ARR<UNIT> &to () const leftvalue {
 		return (*mBuffer) ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const {
+	inline implicit operator const ARR<UNIT> & () const leftvalue {
 		return to () ;
 	}
 
@@ -2308,27 +2208,23 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) & {
+	inline UNIT &get (INDEX index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) & {
+	inline UNIT &operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return (*mBuffer)[index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2440,14 +2336,14 @@ public:
 		return (*this) ;
 	}
 
-	inline const ARR<UNIT> &to () const {
+	inline const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
 		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
 		return (*r1x) ;
 	}
 
-	inline implicit operator const ARR<UNIT> & () const {
+	inline implicit operator const ARR<UNIT> & () const leftvalue {
 		return to () ;
 	}
 
@@ -2457,7 +2353,7 @@ public:
 		return mSize ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const leftvalue {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -2468,13 +2364,9 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2614,14 +2506,14 @@ public:
 		return (*this) ;
 	}
 
-	inline ARR<UNIT> &to () const {
+	inline ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
 			return (*mBuffer) ;
 		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
 		return (*r1x) ;
 	}
 
-	inline implicit operator ARR<UNIT> & () const {
+	inline implicit operator ARR<UNIT> & () const leftvalue {
 		return to () ;
 	}
 
@@ -2631,7 +2523,7 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) const & {
+	inline UNIT &get (INDEX index) const leftvalue {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -2642,13 +2534,9 @@ public:
 #pragma GCC diagnostic pop
 	}
 
-	inline UNIT &operator[] (INDEX index) const & {
+	inline UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		INDEX ret = &item - (*mBuffer) ;
@@ -2820,15 +2708,13 @@ private:
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_THIS &m_spec () & {
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
 		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_THIS &m_spec () const & {
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
-
-	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -2925,15 +2811,13 @@ private:
 		:mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_THIS &m_spec () & {
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
 		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_THIS &m_spec () const & {
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
-
-	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3063,15 +2947,13 @@ private:
 		:mAllocator (std::move (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
-	inline SPECIALIZATION_THIS &m_spec () & {
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
 		return (*static_cast<PTR<SPECIALIZATION_THIS>> (this)) ;
 	}
 
-	inline const SPECIALIZATION_THIS &m_spec () const & {
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
 		return (*static_cast<PTR<const SPECIALIZATION_THIS>> (this)) ;
 	}
-
-	inline auto m_spec () && ->void = delete ;
 
 #pragma pop_macro ("spec")
 } ;
@@ -3155,27 +3037,23 @@ public:
 		return TRUE ;
 	}
 
-	inline UNIT &get (INDEX index) & {
+	inline UNIT &get (INDEX index) leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
-	inline UNIT &operator[] (INDEX index) & {
+	inline UNIT &operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const & {
+	inline const UNIT &get (INDEX index) const leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const & {
+	inline const UNIT &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	inline auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	inline INDEX at (const UNIT &item) const {
 		auto &r1x = _OFFSET_ (&Node::mValue ,_CAST_<TEMP<UNIT>> (item)) ;

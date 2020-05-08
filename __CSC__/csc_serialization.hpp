@@ -137,14 +137,12 @@ public:
 		return !equal (that) ;
 	}
 
-	const String<STRU8> &name () const & {
+	const String<STRU8> &name () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		return mHeap.self[mIndex].mName ;
 	}
 
-	auto name () && ->void = delete ;
-
-	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
+	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
 		auto &r1x = _CACHE_ ([&] () {
 			return String<STRU8> () ;
 		}) ;
@@ -155,8 +153,6 @@ public:
 			return r1x ;
 		return mHeap.self[mIndex].mAttributeList[ix] ;
 	}
-
-	auto attribute (const String<STRU8> &) && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -221,15 +217,13 @@ public:
 
 	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
 
-	const String<STRU8> &value () const & {
+	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mMemberSet.size () == 0) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mAttributeList.length () == 1) ;
 		INDEX ix = mHeap.self[mIndex].mAttributeList.head () ;
 		return mHeap.self[mIndex].mAttributeList[ix] ;
 	}
-
-	auto value () && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1103,13 +1097,11 @@ public:
 		return !equal (that) ;
 	}
 
-	const String<STRU8> &value () const & {
+	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (string_type ()) ;
 		return mHeap.self[mIndex].mValue.rebind<String<STRU8>> () ;
 	}
-
-	auto value () && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1745,7 +1737,7 @@ public:
 		return TRUE ;
 	}
 
-	const String<STRU8> &attribute (const String<STRU8> &tag) const & {
+	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
 		auto &r1x = _CACHE_ ([&] () {
 			return String<STRU8> () ;
 		}) ;
@@ -1754,8 +1746,6 @@ public:
 			return r1x ;
 		return mAttributeList[ix] ;
 	}
-
-	auto attribute (const String<STRU8> &) && ->void = delete ;
 
 	template <class _ARG1>
 	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
@@ -1820,11 +1810,9 @@ public:
 		return attribute (tag ,def ,r1x) ;
 	}
 
-	const Array<String<STRU8>> &command () const & {
+	const Array<String<STRU8>> &command () const leftvalue {
 		return mCommand ;
 	}
-
-	auto command () && ->void = delete ;
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;

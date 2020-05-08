@@ -89,12 +89,9 @@ public:
 	}
 
 	template <class _RET>
-	const _RET &as () const & {
+	const _RET &as () const leftvalue {
 		return template_as (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 	}
-
-	template <class _RET>
-	auto as () && ->void = delete ;
 
 public:
 	template <class _ARG1>
@@ -106,7 +103,7 @@ public:
 
 private:
 	template <class _ARG1>
-	const _ARG1 &template_as (const ARGV<_ARG1> &) const {
+	const _ARG1 &template_as (const ARGV<_ARG1> &) const leftvalue {
 		const auto r1x = exist () ;
 		_DYNAMIC_ASSERT_ (r1x) ;
 		const auto r2x = mThis->mHolder.typemid () ;
@@ -115,7 +112,7 @@ private:
 		return mThis->mHolder.template rebind<REMOVE_CVR_TYPE<_ARG1>> ().self ;
 	}
 
-	const Operand &template_as (const ARGV<Operand> &) const {
+	const Operand &template_as (const ARGV<Operand> &) const leftvalue {
 		return (*this) ;
 	}
 } ;
@@ -140,7 +137,7 @@ private:
 
 private:
 	struct Detail ;
-	StrongRef<Functor> mThis ;
+	StrongRef<Functor> mHolder ;
 
 public:
 	Operator () = default ;
@@ -153,20 +150,20 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplFunctor>::value) ;
 		const auto r1x = _XVALUE_<PTR<FUNC_HINT>> (that) ;
-		mThis = StrongRef<ImplFunctor>::make (r1x) ;
+		mHolder = StrongRef<ImplFunctor>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
-		if (!mThis.exist ())
+		if (!mHolder.exist ())
 			return VAR_NONE ;
-		return mThis->rank () ;
+		return mHolder->rank () ;
 	}
 
 	template <class... _ARGS>
 	Operand invoke (const LexicalNode &node ,const _ARGS &...funcval) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) <= 9) ;
-		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
-		return mThis->invoke (node ,funcval...) ;
+		_DYNAMIC_ASSERT_ (mHolder.exist ()) ;
+		return mHolder->invoke (node ,funcval...) ;
 	}
 
 	template <class... _ARGS>
@@ -345,11 +342,11 @@ public:
 		mThis = StrongRef<LexicalNode>::make () ;
 	}
 
-	const StrongRef<LexicalNode> &to () const {
+	const StrongRef<LexicalNode> &to () const leftvalue {
 		return mThis ;
 	}
 
-	inline implicit operator const StrongRef<LexicalNode> & () const {
+	inline implicit operator const StrongRef<LexicalNode> & () const leftvalue {
 		return to () ;
 	}
 
@@ -410,7 +407,7 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	const Operand &invoke (const UNITS &...funcval) const {
+	const Operand &invoke (const UNITS &...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
 		if switch_case (TRUE) {
 			if (mThis->mOperand.exist ())
@@ -574,7 +571,7 @@ public:
 	using SPECIALIZATION_BASE::invoke ;
 
 	template <class... _ARGS>
-	inline const Operand &operator() (const _ARGS &...funcval) const {
+	inline const Operand &operator() (const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 } ;
@@ -602,7 +599,7 @@ public:
 	using SPECIALIZATION_BASE::invoke ;
 
 	template <class... _ARGS>
-	inline const Operand &operator() (const _ARGS &...funcval) const {
+	inline const Operand &operator() (const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
@@ -647,7 +644,7 @@ public:
 	using SPECIALIZATION_BASE::invoke ;
 
 	template <class... _ARGS>
-	inline const Operand &operator() (const _ARGS &...funcval) const {
+	inline const Operand &operator() (const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
@@ -689,7 +686,7 @@ public:
 	using SPECIALIZATION_BASE::invoke ;
 
 	template <class... _ARGS>
-	inline const Operand &operator() (const _ARGS &...funcval) const {
+	inline const Operand &operator() (const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 

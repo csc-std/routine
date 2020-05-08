@@ -26,23 +26,17 @@ private:
 public:
 	Mesh () = default ;
 
-	const Set<ARRAY3<VAL32>> &vertex () const & {
+	const Set<ARRAY3<VAL32>> &vertex () const leftvalue {
 		return mVertexSet ;
 	}
 
-	auto vertex () && ->void = delete ;
-
-	const SoftList<ARRAY3<INDEX>> &element () const & {
+	const SoftList<ARRAY3<INDEX>> &element () const leftvalue {
 		return mElementList ;
 	}
 
-	auto element () && ->void = delete ;
-
-	const Array<Bitmap<COLOR_BGR>> &texture () const & {
+	const Array<Bitmap<COLOR_BGR>> &texture () const leftvalue {
 		return mTexture ;
 	}
-
-	auto texture () && ->void = delete ;
 
 	void add_vertex (const Set<ARRAY3<VAL32>> &vertex_) {
 		mVertexSet.appand (vertex_) ;

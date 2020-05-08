@@ -44,25 +44,21 @@ public:
 		return std::move (ret) ;
 	}
 
-	REAL &get (INDEX y) & {
+	REAL &get (INDEX y) leftvalue {
 		return mVector[y] ;
 	}
 
-	inline REAL &operator[] (INDEX y) & {
+	inline REAL &operator[] (INDEX y) leftvalue {
 		return get (y) ;
 	}
 
-	const REAL &get (INDEX y) const & {
+	const REAL &get (INDEX y) const leftvalue {
 		return mVector[y] ;
 	}
 
-	inline const REAL &operator[] (INDEX y) const & {
+	inline const REAL &operator[] (INDEX y) const leftvalue {
 		return get (y) ;
 	}
-
-	auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Vector &that) const {
 		return BOOL (mVector == that.mVector) ;
@@ -355,43 +351,37 @@ public:
 		}
 	}
 
-	REAL &get (INDEX y ,INDEX x) & {
+	REAL &get (INDEX y ,INDEX x) leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
-	const REAL &get (INDEX y ,INDEX x) const & {
+	const REAL &get (INDEX y ,INDEX x) const leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
-	auto get (INDEX ,INDEX) && ->void = delete ;
-
-	DEF<typename Detail::template Row<Matrix>> get (INDEX y) & {
+	DEF<typename Detail::template Row<Matrix>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Matrix> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) &
+	inline auto operator[] (INDEX y) leftvalue
 		->DEF<decltype (_NULL_<Matrix> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const & {
+	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Matrix> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const &
+	inline auto operator[] (INDEX y) const leftvalue
 		->DEF<decltype (_NULL_<const Matrix> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
-
-	auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Matrix &that) const {
 		return BOOL (mMatrix == that.mMatrix) ;
@@ -1062,7 +1052,7 @@ struct Matrix<REAL>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) && {
+		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 

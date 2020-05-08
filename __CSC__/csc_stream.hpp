@@ -100,12 +100,10 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteReader>> attr () & {
+	DEF<typename Detail::template Attribute<ByteReader>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<ByteReader> ;
 		return Attribute ((*this)) ;
 	}
-
-	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -117,12 +115,10 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const REAL> raw () const & {
+	PhanBuffer<const REAL> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
-
-	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -413,12 +409,10 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteWriter>> attr () & {
+	DEF<typename Detail::template Attribute<ByteWriter>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<ByteWriter> ;
 		return Attribute ((*this)) ;
 	}
-
-	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -430,12 +424,10 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const REAL> raw () const & {
+	PhanBuffer<const REAL> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
-
-	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -714,12 +706,10 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextReader>> attr () & {
+	DEF<typename Detail::template Attribute<TextReader>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<TextReader> ;
 		return Attribute ((*this)) ;
 	}
-
-	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -731,12 +721,10 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const REAL> raw () const & {
+	PhanBuffer<const REAL> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
-
-	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -1329,12 +1317,10 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextWriter>> attr () & {
+	DEF<typename Detail::template Attribute<TextWriter>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<TextWriter> ;
 		return Attribute ((*this)) ;
 	}
-
-	auto attr () && ->void = delete ;
 
 	LENGTH size () const {
 		return mStream.size () ;
@@ -1346,12 +1332,10 @@ public:
 		return mWrite - mRead ;
 	}
 
-	PhanBuffer<const REAL> raw () const & {
+	PhanBuffer<const REAL> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
 		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
 	}
-
-	auto raw () && ->void = delete ;
 
 	void reset () {
 		mRead = 0 ;
@@ -2181,19 +2165,15 @@ public:
 		return RegularReader (mReader->copy () ,mCache ,mPeek) ;
 	}
 
-	const STRU8 &get (INDEX index) const & {
+	const STRU8 &get (INDEX index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
 		_DEBUG_ASSERT_ (mPeek >= 0 && mPeek < mCache.length ()) ;
 		return mCache[(mPeek + index) % mCache.length ()] ;
 	}
 
-	inline const STRU8 &operator[] (INDEX index) const & {
+	inline const STRU8 &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
-
-	auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	void read () {
 		mReader.self >> mCache[mPeek] ;

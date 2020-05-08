@@ -8,6 +8,8 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
+#pragma push_macro ("leftvalue")
+#pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
 #pragma push_macro ("switch_case")
@@ -15,6 +17,8 @@
 #undef self
 #undef implicit
 #undef popping
+#undef leftvalue
+#undef rightvalue
 #undef imports
 #undef exports
 #undef switch_case
@@ -36,6 +40,8 @@
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
 #pragma pop_macro ("popping")
+#pragma pop_macro ("leftvalue")
+#pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
 #pragma pop_macro ("switch_case")
@@ -610,19 +616,17 @@ public:
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	PhanBuffer<BYTE> watch () & {
+	PhanBuffer<BYTE> watch () leftvalue {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<BYTE> () ;
 	}
 
-	PhanBuffer<const BYTE> watch () const & {
+	PhanBuffer<const BYTE> watch () const leftvalue {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<const BYTE> () ;
 	}
-
-	auto watch () && ->void = delete ;
 
 	void flush () {
 		_STATIC_WARNING_ ("unimplemented") ;
@@ -646,11 +650,11 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_
 	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
 }
 
-inline exports PhanBuffer<BYTE> BufferLoader::watch () & {
+inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
 	return _XVALUE_<Implement> (mThis).watch () ;
 }
 
-inline exports PhanBuffer<const BYTE> BufferLoader::watch () const & {
+inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
 	return _XVALUE_<const Implement> (mThis).watch () ;
 }
 

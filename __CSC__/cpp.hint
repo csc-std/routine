@@ -5,6 +5,8 @@
 #define popping
 #define imports
 #define exports
+#define leftvalue
+#define rightvalue
 #define switch_case
 #define discard
 

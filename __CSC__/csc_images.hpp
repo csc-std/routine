@@ -70,7 +70,7 @@ struct ArrayRange<SIZE>::Detail {
 			return BOOL (mIndex != that.mIndex) ;
 		}
 
-		inline const Array<LENGTH ,SIZE> &operator* () const {
+		inline const Array<LENGTH ,SIZE> &operator* () const leftvalue {
 			return mItem ;
 		}
 
@@ -191,17 +191,15 @@ public:
 		return mCK ;
 	}
 
-	PhanBuffer<UNIT> raw () & {
+	PhanBuffer<UNIT> raw () leftvalue {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
 		return PhanBuffer<UNIT>::make (mImage) ;
 	}
 
-	PhanBuffer<const UNIT> raw () const & {
+	PhanBuffer<const UNIT> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (mImage.size () > 0) ;
 		return PhanBuffer<const UNIT>::make (mImage) ;
 	}
-
-	auto raw () && ->void = delete ;
 
 	void reset () {
 		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
@@ -243,63 +241,53 @@ public:
 		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
-	UNIT &get (INDEX y ,INDEX x) & {
+	UNIT &get (INDEX y ,INDEX x) leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	const UNIT &get (INDEX y ,INDEX x) const & {
+	const UNIT &get (INDEX y ,INDEX x) const leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	auto get (INDEX ,INDEX) && ->void = delete ;
-
-	UNIT &get (const ARRAY2<INDEX> &index) & {
+	UNIT &get (const ARRAY2<INDEX> &index) leftvalue {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline UNIT &operator[] (const ARRAY2<INDEX> &index) & {
+	inline UNIT &operator[] (const ARRAY2<INDEX> &index) leftvalue {
 		return get (index) ;
 	}
 
-	const UNIT &get (const ARRAY2<INDEX> &index) const & {
+	const UNIT &get (const ARRAY2<INDEX> &index) const leftvalue {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const & {
+	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const leftvalue {
 		return get (index) ;
 	}
 
-	auto get (const ARRAY2<INDEX> &) && ->void = delete ;
-
-	inline auto operator[] (const ARRAY2<INDEX> &) && ->void = delete ;
-
-	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) & {
+	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Bitmap> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) &
+	inline auto operator[] (INDEX y) leftvalue
 		->DEF<decltype (_NULL_<Bitmap> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const & {
+	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Bitmap> ;
 		return Row ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const &
+	inline auto operator[] (INDEX y) const leftvalue
 		->DEF<decltype (_NULL_<const Bitmap> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
-
-	auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	BOOL equal (const Bitmap &that) const {
 		if (mCX != that.mCX)
@@ -605,7 +593,7 @@ struct Bitmap<UNIT>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) && {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 
@@ -724,7 +712,7 @@ public:
 		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
-	UNIT &get (INDEX y ,INDEX x) & {
+	UNIT &get (INDEX y ,INDEX x) leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -732,7 +720,7 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	const UNIT &get (INDEX y ,INDEX x) const & {
+	const UNIT &get (INDEX y ,INDEX x) const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -740,51 +728,41 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	auto get (INDEX ,INDEX) && ->void = delete ;
-
-	UNIT &get (const ARRAY2<INDEX> &index) & {
+	UNIT &get (const ARRAY2<INDEX> &index) leftvalue {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline UNIT &operator[] (const ARRAY2<INDEX> &index) & {
+	inline UNIT &operator[] (const ARRAY2<INDEX> &index) leftvalue {
 		return get (index) ;
 	}
 
-	const UNIT &get (const ARRAY2<INDEX> &index) const & {
+	const UNIT &get (const ARRAY2<INDEX> &index) const leftvalue {
 		return get (index[0] ,index[1]) ;
 	}
 
-	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const & {
+	inline const UNIT &operator[] (const ARRAY2<INDEX> &index) const leftvalue {
 		return get (index) ;
 	}
 
-	auto get (const ARRAY2<INDEX> &) && ->void = delete ;
-
-	inline auto operator[] (const ARRAY2<INDEX> &) && ->void = delete ;
-
-	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) & {
+	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) leftvalue {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
 		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) &
+	inline auto operator[] (INDEX y) leftvalue
 		->DEF<decltype (_NULL_<AbstractImage> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const & {
+	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const leftvalue {
 		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
 		return AbstractImage ((*this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const &
+	inline auto operator[] (INDEX y) const leftvalue
 		->DEF<decltype (_NULL_<const AbstractImage> ().get (_NULL_<INDEX> ()))> {
 		return get (y) ;
 	}
-
-	auto get (INDEX) && ->void = delete ;
-
-	inline auto operator[] (INDEX) && ->void = delete ;
 
 	template <class _RET>
 	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {
@@ -792,7 +770,8 @@ public:
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
-		return NativeProxy (mAbstract ,mThis) ;
+		auto tmp = AbstractImage (PhanRef<const Abstract>::make (mAbstract) ,_COPY_ (mThis)) ;
+		return NativeProxy (std::move (tmp)) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
@@ -809,33 +788,33 @@ public:
 		_DEBUG_ASSERT_ (cx_ * cy_ > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,cx_ ,cy_) ;
-		static_update_layout (mAbstract ,mThis) ;
+		update_layout () ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,data) ;
-		static_update_layout (mAbstract ,mThis) ;
+		update_layout () ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_load_data (mThis->mHolder ,data ,option) ;
-		static_update_layout (mAbstract ,mThis) ;
+		update_layout () ;
 	}
 
 	void load_data_file (const String<STR> &file) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		mAbstract->compute_load_data_file (mThis->mHolder ,file) ;
-		static_update_layout (mAbstract ,mThis) ;
+		update_layout () ;
 	}
 
 	void save_data_file (const String<STR> &file ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_save_data_file (mThis->mHolder ,file ,option) ;
-		static_update_layout (mAbstract ,mThis) ;
+		update_layout () ;
 	}
 
 private:
@@ -843,19 +822,19 @@ private:
 		:mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
 
 private:
-	inline static void static_update_layout (PhanRef<const Abstract> &abstract_ ,SharedRef<Pack> &this_) {
-		_DEBUG_ASSERT_ (abstract_.exist ()) ;
-		_DEBUG_ASSERT_ (this_.exist ()) ;
-		_DEBUG_ASSERT_ (this_->mHolder.exist ()) ;
+	inline void update_layout () {
+		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
 		auto rax = LAYOUT () ;
 		_ZERO_ (rax) ;
-		abstract_->compute_layout (this_->mHolder ,rax) ;
+		mAbstract->compute_layout (mThis->mHolder ,rax) ;
 		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-		this_->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
-		this_->mCX = rax.mCX ;
-		this_->mCY = rax.mCY ;
-		this_->mCW = rax.mCW ;
-		this_->mCK = rax.mCK ;
+		mThis->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
+		mThis->mCX = rax.mCX ;
+		mThis->mCY = rax.mCY ;
+		mThis->mCW = rax.mCW ;
+		mThis->mCK = rax.mCK ;
 	}
 } ;
 
@@ -872,7 +851,7 @@ struct AbstractImage<UNIT>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) && {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 
@@ -886,38 +865,26 @@ struct AbstractImage<UNIT>::Detail {
 		:private Proxy {
 	private:
 		friend AbstractImage ;
-		PhanRef<const Abstract> mAbstract ;
-		SharedRef<Pack> mThis ;
+		UniqueRef<AbstractImage> mBase ;
 
 	public:
 		inline NativeProxy () = delete ;
 
-		inline ~NativeProxy () noexcept {
-			_CALL_TRY_ ([&] () {
-				static_update_layout (mAbstract ,mThis) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
+		inline implicit operator UNIT_ & () const leftvalue {
+			_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
+			_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
+			_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
+			return mBase->mThis->mHolder.template rebind<UNIT_> ().self ;
 		}
-
-		inline NativeProxy (const NativeProxy &) = default ;
-		inline NativeProxy &operator= (const NativeProxy &) = default ;
-
-		inline NativeProxy (NativeProxy &&) = default ;
-		inline NativeProxy &operator= (NativeProxy &&) = default ;
-
-		inline implicit operator UNIT_ & () const & {
-			_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-			_DEBUG_ASSERT_ (mThis.exist ()) ;
-			_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
-			return mThis->mHolder.template rebind<UNIT_> ().self ;
-		}
-
-		inline implicit operator UNIT_ & () && = delete ;
 
 	private:
-		inline explicit NativeProxy (const PhanRef<const Abstract> &abstract_ ,const SharedRef<Pack> &this_)
-			:mAbstract (PhanRef<const Abstract>::make (abstract_)) ,mThis (this_) {}
+		inline explicit NativeProxy (AbstractImage &&base) {
+			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
+				me = std::move (base) ;
+			} ,[] (AbstractImage &me) {
+				me.update_layout () ;
+			}) ;
+		}
 	} ;
 } ;
 } ;

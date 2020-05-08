@@ -8,6 +8,8 @@
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
 #pragma push_macro ("popping")
+#pragma push_macro ("leftvalue")
+#pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
 #pragma push_macro ("switch_case")
@@ -15,6 +17,8 @@
 #undef self
 #undef implicit
 #undef popping
+#undef leftvalue
+#undef rightvalue
 #undef imports
 #undef exports
 #undef switch_case
@@ -50,6 +54,8 @@
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
 #pragma pop_macro ("popping")
+#pragma pop_macro ("leftvalue")
+#pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
 #pragma pop_macro ("switch_case")
@@ -64,7 +70,8 @@ template <>
 class AbstractImage_Engine_FREEIMAGE<COLOR_BGR>
 	:public AbstractImage<COLOR_BGR>::Abstract {
 public:
-	using NATIVE_THIS = UniqueRef<PTR<FIBITMAP>> ;
+	using HFIBITMAP = PTR<FIBITMAP> ;
+	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
@@ -88,10 +95,10 @@ public:
 		const auto r1x = cx_ * cy_ * 3 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		_STATIC_UNUSED_ (r1x) ;
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
@@ -100,12 +107,13 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			const auto r1x = UniqueRef<PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>>> ([&] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
+		using HFIMEMORY = PTR<FIMEMORY> ;
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				me.P2 = data ;
 				me.P1 = FreeImage_OpenMemory (me.P2.self ,VARY (me.P2.size ())) ;
 				_DYNAMIC_ASSERT_ (me.P1 != NULL) ;
-			} ,[] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
+			} ,[] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				FreeImage_CloseMemory (me.P1) ;
 			}) ;
 			const auto r2x = FreeImage_GetFileTypeFromMemory (r1x->P1) ;
@@ -113,18 +121,19 @@ public:
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 			const auto r3x = FreeImage_GetImageType (me) ;
 			_DYNAMIC_ASSERT_ (r3x == FIT_BITMAP) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+		using HFIMEMORY = PTR<FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		const auto r1x = UniqueRef<PTR<FIMEMORY>> ([&] (PTR<FIMEMORY> &me) {
+		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
 			me = FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIMEMORY> &me) {
+		} ,[] (HFIMEMORY &me) {
 			FreeImage_CloseMemory (me) ;
 		}) ;
 		const auto r2x = holder.rebind<NATIVE_THIS> ()->self ;
@@ -147,20 +156,20 @@ public:
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
 			me = FreeImage_Load (r2x ,r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		if (FreeImage_GetBPP (tmp.self) == 24)
 			return ;
-		tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = FreeImage_ConvertTo24Bits (tmp.self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
@@ -179,7 +188,8 @@ template <>
 class AbstractImage_Engine_FREEIMAGE<COLOR_BGRA>
 	:public AbstractImage<COLOR_BGRA>::Abstract {
 public:
-	using NATIVE_THIS = UniqueRef<PTR<FIBITMAP>> ;
+	using HFIBITMAP = PTR<FIBITMAP> ;
+	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
 
 public:
 	AbstractImage_Engine_FREEIMAGE () {
@@ -203,10 +213,10 @@ public:
 		const auto r1x = cx_ * cy_ * 4 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		_STATIC_UNUSED_ (r1x) ;
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		const auto r2x = COLOR_BGRA {0 ,0 ,0 ,0} ;
@@ -215,12 +225,13 @@ public:
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
-			const auto r1x = UniqueRef<PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>>> ([&] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
+		using HFIMEMORY = PTR<FIMEMORY> ;
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				me.P2 = data ;
 				me.P1 = FreeImage_OpenMemory (me.P2.self ,VARY (me.P2.size ())) ;
 				_DYNAMIC_ASSERT_ (me.P1 != NULL) ;
-			} ,[] (PACK<PTR<FIMEMORY> ,AutoBuffer<BYTE>> &me) {
+			} ,[] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				FreeImage_CloseMemory (me.P1) ;
 			}) ;
 			const auto r2x = FreeImage_GetFileTypeFromMemory (r1x->P1) ;
@@ -228,18 +239,19 @@ public:
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 			const auto r3x = FreeImage_GetImageType (me) ;
 			_DYNAMIC_ASSERT_ (r3x == FIT_BITMAP) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+		using HFIMEMORY = PTR<FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		const auto r1x = UniqueRef<PTR<FIMEMORY>> ([&] (PTR<FIMEMORY> &me) {
+		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
 			me = FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIMEMORY> &me) {
+		} ,[] (HFIMEMORY &me) {
 			FreeImage_CloseMemory (me) ;
 		}) ;
 		const auto r2x = holder.rebind<NATIVE_THIS> ()->self ;
@@ -262,20 +274,20 @@ public:
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
 		const auto r1x = _BUILDSTRS_<STRA> (file) ;
-		auto tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
 			me = FreeImage_Load (r2x ,r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		if (FreeImage_GetBPP (tmp.self) == 32)
 			return ;
-		tmp = UniqueRef<PTR<FIBITMAP>> ([&] (PTR<FIBITMAP> &me) {
+		tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = FreeImage_ConvertTo32Bits (tmp.self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (PTR<FIBITMAP> &me) {
+		} ,[] (HFIBITMAP &me) {
 			FreeImage_Unload (me) ;
 		}) ;
 		holder = AnyRef<NATIVE_THIS>::make (std::move (tmp)) ;
