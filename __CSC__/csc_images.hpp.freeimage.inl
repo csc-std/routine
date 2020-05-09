@@ -151,11 +151,11 @@ public:
 			_DYNAMIC_ASSERT_ (LENGTH (tmp.P2) >= 0 && LENGTH (tmp.P2) < VAR32_MAX) ;
 		}
 		data = AutoBuffer<BYTE> (LENGTH (tmp.P2)) ;
-		_MEMCOPY_ (data.self ,PTRTOARR[tmp.P1] ,data.size ()) ;
+		BasicProc::mem_copy (data.self ,PTRTOARR[tmp.P1] ,data.size ()) ;
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
@@ -178,7 +178,7 @@ public:
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -269,11 +269,11 @@ public:
 			_DYNAMIC_ASSERT_ (LENGTH (tmp.P2) >= 0 && LENGTH (tmp.P2) < VAR32_MAX) ;
 		}
 		data = AutoBuffer<BYTE> (LENGTH (tmp.P2)) ;
-		_MEMCOPY_ (data.self ,PTRTOARR[tmp.P1] ,data.size ()) ;
+		BasicProc::mem_copy (data.self ,PTRTOARR[tmp.P1] ,data.size ()) ;
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
@@ -296,7 +296,7 @@ public:
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}

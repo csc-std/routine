@@ -7,9 +7,45 @@
 #include "csc.hpp"
 
 namespace CSC {
-inline namespace BASIC {
+class BasicProc
+	:private Wrapped<void> {
+public:
+	template <class _ARG1>
+	inline imports_static BOOL mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static FLAG mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static FLAG mem_hash (const ARR<_ARG1> &src ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static FLAG mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static INDEX mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) ;
+
+	template <class _ARG1>
+	inline imports_static INDEX mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) ;
+
+	template <class _ARG1>
+	inline imports_static void mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static void mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static void mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static void mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) ;
+
+	template <class _ARG1>
+	inline imports_static void mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) ;
+} ;
+
 template <class _ARG1>
-inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
+inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -31,7 +67,7 @@ inline BOOL _MEMEQUAL_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 }
 
 template <class _ARG1>
-inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
+inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -56,7 +92,7 @@ inline FLAG _MEMCOMPR_ (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH l
 }
 
 template <class _ARG1>
-inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
+inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -84,7 +120,8 @@ inline FLAG _MEMHASH_ (const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic pop
 }
 
-inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
+namespace U {
+inline CHAR static_mem_crc32_table_each (CHAR val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
@@ -97,24 +134,25 @@ inline CHAR _inline_MEMCRC32_TABLE_EACH_ (CHAR val) {
 	return std::move (ret) ;
 }
 
-inline const PACK<CHAR[256]> &_inline_MEMCRC32_TABLE_ () {
+inline const PACK<CHAR[256]> &static_mem_crc32_table () {
 	return _CACHE_ ([&] () {
 		PACK<CHAR[256]> ret ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.P1))))
-			ret.P1[i] = _inline_MEMCRC32_TABLE_EACH_ (CHAR (i)) ;
+			ret.P1[i] = static_mem_crc32_table_each (CHAR (i)) ;
 		return std::move (ret) ;
 	}) ;
 }
+} ;
 
 template <class _ARG1>
-inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
+inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	FLAG ret = FLAG (0XFFFFFFFF) ;
-	auto &r1x = _inline_MEMCRC32_TABLE_ () ;
+	auto &r1x = U::static_mem_crc32_table () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
 		const auto r2x = CHAR ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
 		ret = FLAG (r1x.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
@@ -125,7 +163,7 @@ inline FLAG _MEMCRC32_ (const ARR<_ARG1> &src ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
+inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -144,7 +182,7 @@ inline INDEX _MEMCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 }
 
 template <class _ARG1>
-inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
+inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -163,7 +201,7 @@ inline INDEX _MEMRCHR_ (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
 }
 
 template <class _ARG1>
-inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
+inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -184,7 +222,7 @@ inline void _MEMCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
+inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -221,7 +259,7 @@ inline void _MEMRCOPY_ (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
+inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -252,7 +290,7 @@ inline void _MEMMOVE_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
+inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -273,7 +311,7 @@ inline void _MEMSWAP_ (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
+inline void BasicProc::mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 #pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -288,7 +326,6 @@ inline void _MEMFILL_ (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
 		dst[i] = val ;
 #pragma GCC diagnostic pop
 }
-} ;
 
 namespace U {
 struct OPERATOR_COMPR {
@@ -299,12 +336,12 @@ struct OPERATOR_COMPR {
 
 	template <class _ARG1>
 	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().operator< (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP2)> &) {
-		return _MEMCOMPR_ (PTRTOARR[&lhs] ,PTRTOARR[&rhs] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&lhs] ,PTRTOARR[&rhs] ,1) ;
 	}
 
 	template <class _ARG1>
 	inline static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		return _MEMCOMPR_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (lhs)] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (rhs)] ,_SIZEOF_ (_ARG1)) ;
+		return BasicProc::mem_compr (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (lhs)] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (rhs)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
@@ -328,7 +365,7 @@ struct OPERATOR_HASH {
 
 	template <class _ARG1>
 	inline static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<std::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
-		return _MEMHASH_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (self_)] ,_SIZEOF_ (_ARG1)) ;
+		return BasicProc::mem_hash (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (self_)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
@@ -533,7 +570,7 @@ private:
 
 public:
 	template <class _RET>
-	inline static ScopedPtr<GlobalHeap ,_RET> alloc () popping {
+	inline imports_static ScopedPtr<GlobalHeap ,_RET> alloc () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -544,7 +581,7 @@ public:
 	}
 
 	template <class _RET>
-	inline static ScopedPtr<GlobalHeap ,ARR<_RET>> alloc (LENGTH len) popping {
+	inline imports_static ScopedPtr<GlobalHeap ,ARR<_RET>> alloc (LENGTH len) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -558,7 +595,7 @@ public:
 	}
 
 	template <class _ARG1>
-	inline static void free (const PTR<_ARG1> &address) noexcept {
+	inline imports_static void free (const PTR<_ARG1> &address) noexcept {
 		const auto r1x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (address)) ;
 		operator delete (r1x ,std::nothrow) ;
 	}
@@ -745,7 +782,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static AutoRef make (_ARGS &&...initval) {
+	inline imports_static AutoRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
@@ -848,7 +885,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static SharedRef make (_ARGS &&...initval) {
+	inline imports_static SharedRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<Holder> (_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
@@ -1044,7 +1081,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static AnyRef make (_ARGS &&...initval) {
+	inline imports_static AnyRef make (_ARGS &&...initval) {
 		using ImplHolder = typename Detail::template ImplHolder<UNIT> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
@@ -1259,17 +1296,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static UniqueRef make (_ARGS &&...initval) {
-		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
-		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
-		const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		r2x.mValue = UNIT (std::forward<_ARGS> (initval)...) ;
-		UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2x)) ;
-		rax = NULL ;
-		return std::move (ret) ;
-	}
+	inline exports UniqueRef make (_ARGS &&...initval) ;
 
 private:
 	inline explicit UniqueRef (PTR<Holder> pointer) noexcept
@@ -1300,6 +1327,20 @@ struct UniqueRef<UNIT>::Detail {
 		}
 	} ;
 } ;
+
+template <class UNIT>
+template <class... _ARGS>
+inline exports UniqueRef<UNIT> UniqueRef<UNIT>::make (_ARGS &&...initval) {
+	using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
+	auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
+	const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
+	ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
+	auto &r2x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
+	r2x.mValue = UNIT (std::forward<_ARGS> (initval)...) ;
+	UniqueRef ret = UniqueRef (_XVALUE_<PTR<Holder>> (&r2x)) ;
+	rax = NULL ;
+	return std::move (ret) ;
+}
 
 template <class UNIT>
 class PhanRef {
@@ -1361,12 +1402,12 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value>>
-	inline static PhanRef make (_ARG1 &val) popping {
+	inline imports_static PhanRef make (_ARG1 &val) popping {
 		return PhanRef (&val) ;
 	}
 
 	template <class _ARG1>
-	inline static PhanRef make (const PhanRef<_ARG1> &val) {
+	inline imports_static PhanRef make (const PhanRef<_ARG1> &val) {
 		_STATIC_ASSERT_ (std::is_convertible<_ARG1 & ,UNIT &>::value) ;
 		if (!val.exist ())
 			return PhanRef () ;
@@ -1471,7 +1512,7 @@ private:
 public:
 	//@info: this function is incompleted without 'csc_extend.hpp'
 	template <class... _ARGS>
-	inline static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) ;
+	inline imports_static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -1533,6 +1574,7 @@ private:
 		inline FakeHolder () = delete ;
 
 		inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
+
 		inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override ;
 	} ;
 
@@ -1827,7 +1869,7 @@ public:
 	}
 
 	inline BOOL equal (const Buffer &that) const {
-		return _MEMEQUAL_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
+		return BasicProc::mem_equal (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 
 	inline BOOL operator== (const Buffer &that) const {
@@ -1839,7 +1881,7 @@ public:
 	}
 
 	inline FLAG compr (const Buffer &that) const {
-		return _MEMCOMPR_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
+		return BasicProc::mem_compr (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -1868,7 +1910,7 @@ public:
 	}
 
 	inline void swap (Buffer &that) {
-		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
+		BasicProc::mem_swap (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::value) ;
 	}
 } ;
 
@@ -1968,7 +2010,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
+		if (!BasicProc::mem_equal ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1983,10 +2025,10 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
+		const auto r2x = BasicProc::mem_compr ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2020,7 +2062,7 @@ public:
 
 	inline void swap (Buffer &that) {
 		_DYNAMIC_ASSERT_ (mSize == that.mSize) ;
-		_MEMSWAP_ (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,mSize) ;
+		BasicProc::mem_swap (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,mSize) ;
 	}
 } ;
 
@@ -2236,7 +2278,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
+		if (!BasicProc::mem_equal ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2251,10 +2293,10 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
+		const auto r2x = BasicProc::mem_compr ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2378,7 +2420,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
+		if (!BasicProc::mem_equal ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2393,10 +2435,10 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
+		const auto r2x = BasicProc::mem_compr ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2435,7 +2477,7 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static Buffer make (const ARR<UNIT> &src ,LENGTH len) popping {
+	inline imports_static Buffer make (const ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
 			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -2444,17 +2486,17 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	inline static Buffer make (_ARG1 &val) popping {
+	inline imports_static Buffer make (_ARG1 &val) popping {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	inline static Buffer make (const Buffer<UNIT ,_ARG1> &val) {
+	inline imports_static Buffer make (const Buffer<UNIT ,_ARG1> &val) {
 		return make (val ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
+	inline imports_static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;
@@ -2548,7 +2590,7 @@ public:
 	inline BOOL equal (const Buffer &that) const {
 		if (mSize != that.mSize)
 			return FALSE ;
-		if (!_MEMEQUAL_ ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
+		if (!BasicProc::mem_equal ((*mBuffer) ,(*that.mBuffer) ,that.mSize))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2563,10 +2605,10 @@ public:
 
 	inline FLAG compr (const Buffer &that) const {
 		const auto r1x = _MIN_ (mSize ,that.mSize) ;
-		const auto r2x = _MEMCOMPR_ ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
+		const auto r2x = BasicProc::mem_compr ((*mBuffer) ,(*that.mBuffer) ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return _MEMCOMPR_ (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&mSize] ,PTRTOARR[&that.mSize] ,1) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2605,7 +2647,7 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline static Buffer make (ARR<UNIT> &src ,LENGTH len) popping {
+	inline imports_static Buffer make (ARR<UNIT> &src ,LENGTH len) popping {
 		if (len == 0)
 			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -2614,29 +2656,29 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	inline static Buffer make (_ARG1 &val) popping {
+	inline imports_static Buffer make (_ARG1 &val) popping {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	inline static Buffer make (Buffer<UNIT ,_ARG1> &val) popping {
+	inline imports_static Buffer make (Buffer<UNIT ,_ARG1> &val) popping {
 		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
+	inline imports_static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;
 		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
-	inline static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
+	inline imports_static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
 		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<UNIT ,BYTE>::value && !std::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
-	inline static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
+	inline imports_static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (&val.self) ;

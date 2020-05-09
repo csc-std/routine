@@ -33,8 +33,7 @@ public:
 	String<STRU8> peer_sock_name () const ;
 
 	template <class _RET = NONE>
-	auto listener () popping
-		->DEF<DEPENDENT_TYPE<Listener ,ARGVS<_RET>>> {
+	DEPENDENT_TYPE<Listener ,_RET> listener () popping {
 		struct Dependent ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return DEPENDENT_TYPE<Listener ,Dependent> (mThis) ;
@@ -75,9 +74,9 @@ public:
 	}
 
 public:
-	static String<STRU8> http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
+	imports_static String<STRU8> http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
 
-	static String<STRU8> http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
+	imports_static String<STRU8> http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping ;
 } ;
 
 class TCPSocket::Listener {

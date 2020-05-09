@@ -95,7 +95,7 @@ public:
 
 public:
 	template <class _ARG1>
-	inline static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
+	inline imports_static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
 			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
 		}) ;
@@ -385,12 +385,6 @@ class Expression<SPECIALIZATION<PTR<Operand (const UNITS &...)>>>
 private:
 	using RANK = PTR<Operand (const UNITS &...)> ;
 
-	template <class... _ARGS>
-	using FLIP_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ;
-
-	template <class _ARG1>
-	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
-
 	using Dependent = Expression ;
 
 private:
@@ -429,12 +423,13 @@ public:
 			return r1x.template_flip_invoke (_NULL_<ARGV<ARGVS<UNITS...>>> () ,ins...) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	template <class... _ARGS>
-	FLIP_RETURN_HINT<_ARGS...> flip (const ARGV<ARGVP<_ARGS>> &...) const {
+	auto flip (const ARGV<ARGVP<_ARGS>> &...) const
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip2 (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
@@ -449,7 +444,7 @@ public:
 			return Operand (std::move (tmp)) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
@@ -461,12 +456,13 @@ public:
 			return r1x.template_fold_invoke (r2x ,_NULL_<ARGV<SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>>>>) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	template <class _ARG1>
-	CONCAT_RETURN_HINT<_ARG1> concat (const Expression<_ARG1> &that) const {
+	auto concat (const Expression<_ARG1> &that) const
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Dependent> {
 		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 		return template_concat (_NULL_<ARGV<CONCAT_RANK_HINT>> () ,that ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<CONCAT_RANK_HINT>>>> ()) ;
 	}
@@ -495,7 +491,7 @@ private:
 			return r1x.template_flip2_invoke (r2x ,_NULL_<ARGV<_ARG2>> ()) ;
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth) + 1 ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
@@ -540,7 +536,7 @@ private:
 		}) ;
 		ret.mThis->mChild[0] = (*this) ;
 		ret.mThis->mChild[1] = that ;
-		ret.mThis->mDepth = _MAXOF_ (mThis->mDepth ,that.mThis->mDepth) + 1 ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth ,that.mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 } ;
@@ -581,9 +577,6 @@ class Expression<RANK1>
 	:private Expression<SPECIALIZATION<RANK1>> {
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1>> ;
-
-	template <class _ARG1>
-	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK1>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>
@@ -627,9 +620,6 @@ class Expression
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK>> ;
 
-	template <class _ARG1>
-	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
-
 private:
 	template <class>
 	friend class Expression ;
@@ -668,9 +658,6 @@ class Expression<RANK3>
 	:private Expression<SPECIALIZATION<RANK3>> {
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK3>> ;
-
-	template <class _ARG1>
-	using CONCAT_RETURN_HINT = Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK3>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ;
 
 private:
 	template <class>

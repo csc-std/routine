@@ -43,109 +43,107 @@
 #endif
 
 namespace CSC {
-inline namespace MATH {
-inline exports VAL32 _SQRT_ (const VAL32 &x) {
+inline exports VAL32 MathProc::sqrt (const VAL32 &x) {
 	return std::sqrt (x) ;
 }
 
-inline exports VAL64 _SQRT_ (const VAL64 &x) {
+inline exports VAL64 MathProc::sqrt (const VAL64 &x) {
 	return std::sqrt (x) ;
 }
 
-inline exports VAL32 _CBRT_ (const VAL32 &x) {
+inline exports VAL32 MathProc::cbrt (const VAL32 &x) {
 	return std::cbrt (x) ;
 }
 
-inline exports VAL64 _CBRT_ (const VAL64 &x) {
+inline exports VAL64 MathProc::cbrt (const VAL64 &x) {
 	return std::cbrt (x) ;
 }
 
-inline exports VAL32 _POW_ (const VAL32 &x ,const VAL32 &y) {
+inline exports VAL32 MathProc::pow (const VAL32 &x ,const VAL32 &y) {
 	return std::pow (x ,y) ;
 }
 
-inline exports VAL64 _POW_ (const VAL64 &x ,const VAL64 &y) {
+inline exports VAL64 MathProc::pow (const VAL64 &x ,const VAL64 &y) {
 	return std::pow (x ,y) ;
 }
 
-inline exports VAL32 _EXP_ (const VAL32 &x) {
+inline exports VAL32 MathProc::exp (const VAL32 &x) {
 	return std::exp (x) ;
 }
 
-inline exports VAL64 _EXP_ (const VAL64 &x) {
+inline exports VAL64 MathProc::exp (const VAL64 &x) {
 	return std::exp (x) ;
 }
 
-inline exports VAL32 _LOG_ (const VAL32 &x) {
+inline exports VAL32 MathProc::log (const VAL32 &x) {
 	return std::log (x) ;
 }
 
-inline exports VAL64 _LOG_ (const VAL64 &x) {
+inline exports VAL64 MathProc::log (const VAL64 &x) {
 	return std::log (x) ;
 }
 
-inline exports VAL32 _NCDF_ (const VAL32 &x) {
-	return std::erf (x * _PINV_ (VAL32 (MATH_SQRT2))) / 2 + VAL32 (0.5) ;
+inline exports VAL32 MathProc::ncdf (const VAL32 &x) {
+	return std::erf (x * MathProc::inverse (VAL32 (MATH_SQRT2))) / 2 + VAL32 (0.5) ;
 }
 
-inline exports VAL64 _NCDF_ (const VAL64 &x) {
-	return std::erf (x * _PINV_ (VAL64 (MATH_SQRT2))) / 2 + VAL64 (0.5) ;
+inline exports VAL64 MathProc::ncdf (const VAL64 &x) {
+	return std::erf (x * MathProc::inverse (VAL64 (MATH_SQRT2))) / 2 + VAL64 (0.5) ;
 }
 
-inline exports VAL32 _SIN_ (const VAL32 &x) {
+inline exports VAL32 MathProc::sin (const VAL32 &x) {
 	return std::sin (x) ;
 }
 
-inline exports VAL64 _SIN_ (const VAL64 &x) {
+inline exports VAL64 MathProc::sin (const VAL64 &x) {
 	return std::sin (x) ;
 }
 
-inline exports VAL32 _COS_ (const VAL32 &x) {
+inline exports VAL32 MathProc::cos (const VAL32 &x) {
 	return std::cos (x) ;
 }
 
-inline exports VAL64 _COS_ (const VAL64 &x) {
+inline exports VAL64 MathProc::cos (const VAL64 &x) {
 	return std::cos (x) ;
 }
 
-inline exports VAL32 _TAN_ (const VAL32 &x) {
+inline exports VAL32 MathProc::tan (const VAL32 &x) {
 	return std::tan (x) ;
 }
 
-inline exports VAL64 _TAN_ (const VAL64 &x) {
+inline exports VAL64 MathProc::tan (const VAL64 &x) {
 	return std::tan (x) ;
 }
 
-inline exports VAL32 _ASIN_ (const VAL32 &y) {
+inline exports VAL32 MathProc::arcsin (const VAL32 &y) {
 	return std::asin (y) ;
 }
 
-inline exports VAL64 _ASIN_ (const VAL64 &y) {
+inline exports VAL64 MathProc::arcsin (const VAL64 &y) {
 	return std::asin (y) ;
 }
 
-inline exports VAL32 _ACOS_ (const VAL32 &x) {
+inline exports VAL32 MathProc::arccos (const VAL32 &x) {
 	return std::acos (x) ;
 }
 
-inline exports VAL64 _ACOS_ (const VAL64 &x) {
+inline exports VAL64 MathProc::arccos (const VAL64 &x) {
 	return std::acos (x) ;
 }
 
-inline exports VAL32 _ATAN_ (const VAL32 &x) {
+inline exports VAL32 MathProc::arctan (const VAL32 &x) {
 	return std::atan (x) ;
 }
 
-inline exports VAL64 _ATAN_ (const VAL64 &x) {
+inline exports VAL64 MathProc::arctan (const VAL64 &x) {
 	return std::atan (x) ;
 }
 
-inline exports VAL32 _ATAN_ (const VAL32 &y ,const VAL32 &x) {
+inline exports VAL32 MathProc::arctan (const VAL32 &y ,const VAL32 &x) {
 	return std::atan2 (y ,x) ;
 }
 
-inline exports VAL64 _ATAN_ (const VAL64 &y ,const VAL64 &x) {
+inline exports VAL64 MathProc::arctan (const VAL64 &y ,const VAL64 &x) {
 	return std::atan2 (y ,x) ;
 }
-} ;
 } ;

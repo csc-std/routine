@@ -79,9 +79,9 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		if (r1x == NULL)
 			discard ;
 		wos << VAR64 (pid) ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 		wos << _PCSTRU8_ ("windows") ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 		auto rax = ARRAY4<FILETIME> () ;
 		_ZERO_ (rax[0]) ;
 		_ZERO_ (rax[1]) ;
@@ -90,9 +90,9 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		GetProcessTimes (r1x ,&rax[0] ,&rax[1] ,&rax[2] ,&rax[3]) ;
 		const auto r2x = (VAR64 (rax[0].dwHighDateTime) << 32) | VAR64 (rax[0].dwLowDateTime) ;
 		wos << VAR64 (r2x) ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 	}
-	wos << _EOS_ ;
+	wos << ByteWriter<BYTE>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -120,16 +120,16 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		if (r1x < 0)
 			discard ;
 		wos << VAR64 (pid) ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 		wos << _PCSTRU8_ ("linux") ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 		wos << VAR64 (r1x) ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 		const auto r2x = getsid (pid_t (pid)) ;
 		wos << VAR64 (r2x) ;
-		wos << _GAP_ ;
+		wos << ByteWriter<BYTE>::GAP ;
 	}
-	wos << _EOS_ ;
+	wos << ByteWriter<BYTE>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -184,7 +184,7 @@ private:
 	friend Coroutine<CONT> ;
 
 public:
-	static void init_break_point (PTR<AnyRef<void>> bp) {
+	imports_static void init_break_point (PTR<AnyRef<void>> bp) {
 		auto tmp = BREAKPOINT () ;
 		_ZERO_ (tmp) ;
 		tmp.mStackPoint[0] = _ADDRESS_ (&bp) ;
@@ -193,7 +193,7 @@ public:
 		(*bp) = AnyRef<BREAKPOINT>::make (std::move (tmp)) ;
 	}
 
-	static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
+	imports_static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
 		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
 		r1x.mStackPoint[1] = _ADDRESS_ (&bp) ;
@@ -201,13 +201,13 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = _EBOOL_ (r2x < 0) ;
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
-		_MEMCOPY_ (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
+		BasicProc::mem_copy (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
 		const auto r6x = ::setjmp (r5x.mEbp) ;
 		_STATIC_UNUSED_ (r6x) ;
 	}
 
-	static void goto_break_point (PTR<AnyRef<void>> bp) noexcept {
+	imports_static void goto_break_point (PTR<AnyRef<void>> bp) noexcept {
 		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
 		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
 		_DEBUG_ASSERT_ (r1x.mStackPoint[1] != 0) ;
@@ -218,12 +218,12 @@ public:
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = _EBOOL_ (r2x < 0) ;
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
-		_MEMCOPY_ (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
+		BasicProc::mem_copy (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
 		::longjmp (r5x.mEbp ,1) ;
 	}
 
-	static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
+	imports_static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
 		const auto r1x = _ALIGNAS_ (_ADDRESS_ (&ebp) ,_ALIGNOF_ (CONTEXT_EBP)) ;
 		return _LOAD_<CONTEXT_EBP> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
 	}

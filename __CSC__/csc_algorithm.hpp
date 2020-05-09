@@ -36,12 +36,12 @@ inline exports void PrimeSieveAlgorithm::initialize (LENGTH len) {
 	mPrimeSet.fill (BYTE (0XAA)) ;
 	mPrimeSet[1] = FALSE ;
 	mPrimeSet[2] = TRUE ;
-	const auto r1x = (_SQRT_ (mPrimeSet.size ()) - 2) / 2 + 1 ;
+	const auto r1x = (MathProc::sqrt (mPrimeSet.size ()) - 2) / 2 + 1 ;
 	for (auto &&i : _RANGE_ (0 ,r1x)) {
 		INDEX ix = i * 2 + 3 ;
 		const auto r2x = ix * 2 ;
 		_DEBUG_ASSERT_ (r2x > 0) ;
-		const auto r3x = _SQUARE_ (ix) ;
+		const auto r3x = MathProc::square (ix) ;
 		const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
 		for (auto &&j : _RANGE_ (0 ,r4x)) {
 			INDEX jx = j * r2x + r3x ;
@@ -448,7 +448,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			_DEBUG_ASSERT_ (r1x != 0) ;
 			for (auto &&i : cluster)
 				ret += mDataSet[i] ;
-			ret *= _PINV_ (REAL (r1x)) ;
+			ret *= MathProc::inverse (REAL (r1x)) ;
 			return std::move (ret) ;
 		}
 
@@ -989,8 +989,8 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 		inline REAL current_convergence () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : mIG)
-				ret += _SQUARE_ (i) ;
-			ret = _SQRT_ (ret) ;
+				ret += MathProc::square (i) ;
+			ret = MathProc::sqrt (ret) ;
 			return std::move (ret) ;
 		}
 
@@ -1002,7 +1002,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 		}
 
 		inline void update_dm () {
-			const auto r1x = _PINV_ (math_vector_dot (mIY ,mIS)) ;
+			const auto r1x = MathProc::inverse (math_vector_dot (mIY ,mIS)) ;
 			for (auto &&i : mDM.range ()) {
 				const auto r2x = hessian_matrix_each (i[0] ,i[1] ,r1x) ;
 				mIM[i] = r2x + mIS[i[0]] * mIS[i[1]] * r1x ;

@@ -9,8 +9,175 @@
 #include "csc_array.hpp"
 
 namespace CSC {
-inline namespace MATH {
-inline BOOL _ISNAN_ (const VAL32 &x) {
+class MathProc
+	:private Wrapped<void> {
+public:
+	inline imports_static BOOL is_nan (const VAL32 &x) ;
+
+	inline imports_static BOOL is_nan (const VAL64 &x) ;
+
+	inline imports_static BOOL is_infinite (const VAL32 &x) ;
+
+	inline imports_static BOOL is_infinite (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 square (const _ARG1 &val) ;
+
+	inline imports_static VAL32 sqrt (const VAL32 &x) ;
+
+	inline imports_static VAL64 sqrt (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 sqrt (const _ARG1 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 cube (const _ARG1 &val) ;
+
+	inline imports_static VAL32 cbrt (const VAL32 &x) ;
+
+	inline imports_static VAL64 cbrt (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 cbrt (const _ARG1 &x) ;
+
+	inline imports_static VAL32 pow (const VAL32 &x ,const VAL32 &y) ;
+
+	inline imports_static VAL64 pow (const VAL64 &x ,const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 pow (const _ARG1 &x ,const _ARG1 &y) ;
+
+	inline imports_static VAL32 exp (const VAL32 &x) ;
+
+	inline imports_static VAL64 exp (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 exp (const _ARG1 &x) ;
+
+	inline imports_static VAL32 log (const VAL32 &x) ;
+
+	inline imports_static VAL64 log (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 log (const _ARG1 &x) ;
+
+	inline imports_static VAL32 sin (const VAL32 &x) ;
+
+	inline imports_static VAL64 sin (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 sin (const _ARG1 &x) ;
+
+	inline imports_static VAL32 cos (const VAL32 &x) ;
+
+	inline imports_static VAL64 cos (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 cos (const _ARG1 &x) ;
+
+	inline imports_static VAL32 tan (const VAL32 &x) ;
+
+	inline imports_static VAL64 tan (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 tan (const _ARG1 &x) ;
+
+	inline imports_static VAL32 arcsin (const VAL32 &y) ;
+
+	inline imports_static VAL64 arcsin (const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 arcsin (const _ARG1 &y) ;
+
+	inline imports_static VAL32 arccos (const VAL32 &x) ;
+
+	inline imports_static VAL64 arccos (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 arccos (const _ARG1 &x) ;
+
+	inline imports_static VAL32 arctan (const VAL32 &x) ;
+
+	inline imports_static VAL64 arctan (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 arctan (const _ARG1 &x) ;
+
+	inline imports_static VAL32 arctan (const VAL32 &y ,const VAL32 &x) ;
+
+	inline imports_static VAL64 arctan (const VAL64 &y ,const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 arctan (const _ARG1 &y ,const _ARG1 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 sign (const _ARG1 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 negative (const _ARG1 &x ,VAR y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 inverse (const _ARG1 &x ,const _ARG1 &y) ;
+
+	inline imports_static VAL32 inverse (const VAL32 &x) ;
+
+	inline imports_static VAL64 inverse (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 npdf (const _ARG1 &x) ;
+
+	inline imports_static VAL32 ncdf (const VAL32 &x) ;
+
+	inline imports_static VAL64 ncdf (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 ncdf (const _ARG1 &x) ;
+
+	inline imports_static VAL32 floor (const VAL32 &x ,const VAL32 &y) ;
+
+	inline imports_static VAL64 floor (const VAL64 &x ,const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 floor (const _ARG1 &x ,const _ARG1 &y) ;
+
+	inline imports_static VAL32 ceil (const VAL32 &x ,const VAL32 &y) ;
+
+	inline imports_static VAL64 ceil (const VAL64 &x ,const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 ceil (const _ARG1 &x ,const _ARG1 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 round (const _ARG1 &x ,const _ARG1 &y) ;
+
+	template <class _ARG1>
+	inline imports_static _ARG1 trunc (const _ARG1 &x ,const _ARG1 &y) ;
+
+	template <class _ARG1 ,class _ARG2>
+	inline imports_static _ARG2 clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) ;
+
+	template <class _ARG1>
+	inline imports_static const _ARG1 &minof (const _ARG1 &list_one) ;
+
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	inline imports_static const _ARG1 &minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
+
+	template <class _ARG1>
+	inline imports_static const _ARG1 &maxof (const _ARG1 &list_one) ;
+
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	inline imports_static const _ARG1 &maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
+
+	inline imports_static VAL64 ieee754_encode (const ARRAY3<VAR64> &sne2) ;
+
+	inline imports_static ARRAY3<VAR64> ieee754_decode (const VAL64 &ieee754) ;
+
+	inline imports_static ARRAY3<VAR64> ieee754_e2_e10 (const ARRAY3<VAR64> &sne2) ;
+
+	inline imports_static ARRAY3<VAR64> ieee754_e10_e2 (const ARRAY3<VAR64> &sne10) ;
+} ;
+
+inline exports BOOL MathProc::is_nan (const VAL32 &x) {
 	const auto r1x = _CAST_<CHAR> (x) ;
 	if ((r1x & CHAR (0X7F800000)) != CHAR (0X7F800000))
 		return FALSE ;
@@ -19,7 +186,7 @@ inline BOOL _ISNAN_ (const VAL32 &x) {
 	return TRUE ;
 }
 
-inline BOOL _ISNAN_ (const VAL64 &x) {
+inline exports BOOL MathProc::is_nan (const VAL64 &x) {
 	const auto r1x = _CAST_<DATA> (x) ;
 	if ((r1x & DATA (0X7FF0000000000000)) != DATA (0X7FF0000000000000))
 		return FALSE ;
@@ -28,7 +195,7 @@ inline BOOL _ISNAN_ (const VAL64 &x) {
 	return TRUE ;
 }
 
-inline BOOL _ISINF_ (const VAL32 &x) {
+inline exports BOOL MathProc::is_infinite (const VAL32 &x) {
 	const auto r1x = _CAST_<CHAR> (x) ;
 	if ((r1x & CHAR (0X7F800000)) != CHAR (0X7F800000))
 		return FALSE ;
@@ -37,7 +204,7 @@ inline BOOL _ISINF_ (const VAL32 &x) {
 	return TRUE ;
 }
 
-inline BOOL _ISINF_ (const VAL64 &x) {
+inline exports BOOL MathProc::is_infinite (const VAL64 &x) {
 	const auto r1x = _CAST_<DATA> (x) ;
 	if ((r1x & DATA (0X7FF0000000000000)) != DATA (0X7FF0000000000000))
 		return FALSE ;
@@ -47,125 +214,89 @@ inline BOOL _ISINF_ (const VAL64 &x) {
 }
 
 template <class _ARG1>
-inline _ARG1 _SQUARE_ (const _ARG1 &val) {
+inline exports _ARG1 MathProc::square (const _ARG1 &val) {
 	return val * val ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _SQRT_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _SQRT_ ;
-
 template <class _ARG1>
-inline _ARG1 _SQRT_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::sqrt (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_SQRT_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::sqrt (VAL64 (x))) ;
 }
 
 template <class _ARG1>
-inline _ARG1 _CUBE_ (const _ARG1 &val) {
+inline exports _ARG1 MathProc::cube (const _ARG1 &val) {
 	return val * val * val ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _CBRT_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _CBRT_ ;
-
 template <class _ARG1>
-inline _ARG1 _CBRT_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::cbrt (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_CBRT_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::cbrt (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x ,const VAL32 &y)> _POW_ ;
-inline imports DEF<VAL64 (const VAL64 &x ,const VAL64 &y)> _POW_ ;
-
 template <class _ARG1>
-inline _ARG1 _POW_ (const _ARG1 &x ,const _ARG1 &y) {
+inline exports _ARG1 MathProc::pow (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_POW_ (VAL64 (x) ,VAL64 (y))) ;
+	return _ARG1 (MathProc::pow (VAL64 (x) ,VAL64 (y))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _EXP_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _EXP_ ;
-
 template <class _ARG1>
-inline _ARG1 _EXP_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::exp (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_EXP_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::exp (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _LOG_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _LOG_ ;
-
 template <class _ARG1>
-inline _ARG1 _LOG_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::log (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_LOG_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::log (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _SIN_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _SIN_ ;
-
 template <class _ARG1>
-inline _ARG1 _SIN_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::sin (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_SIN_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::sin (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _COS_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _COS_ ;
-
 template <class _ARG1>
-inline _ARG1 _COS_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::cos (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_COS_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::cos (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _TAN_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _TAN_ ;
-
 template <class _ARG1>
-inline _ARG1 _TAN_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::tan (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_TAN_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::tan (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &y)> _ASIN_ ;
-inline imports DEF<VAL64 (const VAL64 &y)> _ASIN_ ;
-
 template <class _ARG1>
-inline _ARG1 _ASIN_ (const _ARG1 &y) {
+inline exports _ARG1 MathProc::arcsin (const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_ASIN_ (VAL64 (y))) ;
+	return _ARG1 (MathProc::arcsin (VAL64 (y))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _ACOS_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _ACOS_ ;
-
 template <class _ARG1>
-inline _ARG1 _ACOS_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::arccos (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_ACOS_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::arccos (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &x)> _ATAN_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _ATAN_ ;
-
 template <class _ARG1>
-inline _ARG1 _ATAN_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::arctan (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_ATAN_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::arctan (VAL64 (x))) ;
 }
 
-inline imports DEF<VAL32 (const VAL32 &y ,const VAL32 &x)> _ATAN_ ;
-inline imports DEF<VAL64 (const VAL64 &y ,const VAL64 &x)> _ATAN_ ;
-
 template <class _ARG1>
-inline _ARG1 _ATAN_ (const _ARG1 &y ,const _ARG1 &x) {
+inline exports _ARG1 MathProc::arctan (const _ARG1 &y ,const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_ATAN_ (VAL64 (y) ,VAL64 (x))) ;
+	return _ARG1 (MathProc::arctan (VAL64 (y) ,VAL64 (x))) ;
 }
 
 template <class _ARG1>
-inline _ARG1 _SIGN_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::sign (const _ARG1 &x) {
 	if (x < _ARG1 (0))
 		return _ARG1 (-1) ;
 	if (x > _ARG1 (0))
@@ -174,7 +305,7 @@ inline _ARG1 _SIGN_ (const _ARG1 &x) {
 }
 
 template <class _ARG1>
-inline _ARG1 _NEGATIVE_ (const _ARG1 &x ,VAR y) {
+inline exports _ARG1 MathProc::negative (const _ARG1 &x ,VAR y) {
 	_DEBUG_ASSERT_ (y >= 0) ;
 	if (y % 2 == 0)
 		return x ;
@@ -182,7 +313,7 @@ inline _ARG1 _NEGATIVE_ (const _ARG1 &x ,VAR y) {
 }
 
 template <class _ARG1>
-inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
+inline exports _ARG1 MathProc::inverse (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	if (_ABS_ (x) < y)
@@ -190,34 +321,31 @@ inline _ARG1 _PINV_ (const _ARG1 &x ,const _ARG1 &y) {
 	return _ARG1 (1) / x ;
 }
 
-inline VAL32 _PINV_ (const VAL32 &x) {
-	return _PINV_ (x ,VAL32_EPS) ;
+inline exports VAL32 MathProc::inverse (const VAL32 &x) {
+	return MathProc::inverse (x ,VAL32_EPS) ;
 }
 
-inline VAL64 _PINV_ (const VAL64 &x) {
-	return _PINV_ (x ,VAL64_EPS) ;
+inline exports VAL64 MathProc::inverse (const VAL64 &x) {
+	return MathProc::inverse (x ,VAL64_EPS) ;
 }
 
 template <class _ARG1>
-inline _ARG1 _NPDF_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::npdf (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	static const auto M_2PII = _PINV_ (_SQRT_ (VAL64 (2 * MATH_PI))) ;
-	const auto r1x = -_SQUARE_ (VAL64 (x)) / 2 ;
-	return _EXP_ (r1x) * M_2PII ;
+	static const auto M_2PII = MathProc::inverse (MathProc::sqrt (VAL64 (2 * MATH_PI))) ;
+	const auto r1x = -MathProc::square (VAL64 (x)) / 2 ;
+	return MathProc::exp (r1x) * M_2PII ;
 }
-
-inline imports DEF<VAL32 (const VAL32 &x)> _NCDF_ ;
-inline imports DEF<VAL64 (const VAL64 &x)> _NCDF_ ;
 
 template <class _ARG1>
-inline _ARG1 _NCDF_ (const _ARG1 &x) {
+inline exports _ARG1 MathProc::ncdf (const _ARG1 &x) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_NCDF_ (VAL64 (x))) ;
+	return _ARG1 (MathProc::ncdf (VAL64 (x))) ;
 }
 
-inline VAL32 _FLOOR_ (const VAL32 &x ,const VAL32 &y) {
+inline exports VAL32 MathProc::floor (const VAL32 &x ,const VAL32 &y) {
 	_DEBUG_ASSERT_ (y > 0) ;
-	const auto r1x = VAR64 (x * _PINV_ (y)) ;
+	const auto r1x = VAR64 (x * MathProc::inverse (y)) ;
 	const auto r2x = y * VAL32 (r1x) ;
 	if (x >= 0)
 		return r2x ;
@@ -226,9 +354,9 @@ inline VAL32 _FLOOR_ (const VAL32 &x ,const VAL32 &y) {
 	return y * VAL32 (r1x - 1) ;
 }
 
-inline VAL64 _FLOOR_ (const VAL64 &x ,const VAL64 &y) {
+inline exports VAL64 MathProc::floor (const VAL64 &x ,const VAL64 &y) {
 	_DEBUG_ASSERT_ (y > 0) ;
-	const auto r1x = VAR64 (x * _PINV_ (y)) ;
+	const auto r1x = VAR64 (x * MathProc::inverse (y)) ;
 	const auto r2x = y * VAL64 (r1x) ;
 	if (x >= 0)
 		return r2x ;
@@ -238,14 +366,14 @@ inline VAL64 _FLOOR_ (const VAL64 &x ,const VAL64 &y) {
 }
 
 template <class _ARG1>
-inline _ARG1 _FLOOR_ (const _ARG1 &x ,const _ARG1 &y) {
+inline exports _ARG1 MathProc::floor (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_FLOOR_ (VAL64 (x) ,VAL64 (y))) ;
+	return _ARG1 (MathProc::floor (VAL64 (x) ,VAL64 (y))) ;
 }
 
-inline VAL32 _CEIL_ (const VAL32 &x ,const VAL32 &y) {
+inline exports VAL32 MathProc::ceil (const VAL32 &x ,const VAL32 &y) {
 	_DEBUG_ASSERT_ (y > 0) ;
-	const auto r1x = VAR64 (x * _PINV_ (y)) ;
+	const auto r1x = VAR64 (x * MathProc::inverse (y)) ;
 	const auto r2x = y * VAL32 (r1x) ;
 	if (x <= 0)
 		return r2x ;
@@ -254,9 +382,9 @@ inline VAL32 _CEIL_ (const VAL32 &x ,const VAL32 &y) {
 	return y * VAL32 (r1x + 1) ;
 }
 
-inline VAL64 _CEIL_ (const VAL64 &x ,const VAL64 &y) {
+inline exports VAL64 MathProc::ceil (const VAL64 &x ,const VAL64 &y) {
 	_DEBUG_ASSERT_ (y > 0) ;
-	const auto r1x = VAR64 (x * _PINV_ (y)) ;
+	const auto r1x = VAR64 (x * MathProc::inverse (y)) ;
 	const auto r2x = y * VAL64 (r1x) ;
 	if (x <= 0)
 		return r2x ;
@@ -266,27 +394,27 @@ inline VAL64 _CEIL_ (const VAL64 &x ,const VAL64 &y) {
 }
 
 template <class _ARG1>
-inline _ARG1 _CEIL_ (const _ARG1 &x ,const _ARG1 &y) {
+inline exports _ARG1 MathProc::ceil (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _ARG1 (_CEIL_ (VAL64 (x) ,VAL64 (y))) ;
+	return _ARG1 (MathProc::ceil (VAL64 (x) ,VAL64 (y))) ;
 }
 
 template <class _ARG1>
-inline _ARG1 _TRUNC_ (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return _FLOOR_ (_ABS_ (x) ,y) * _SIGN_ (x) ;
-}
-
-template <class _ARG1>
-inline _ARG1 _ROUND_ (const _ARG1 &x ,const _ARG1 &y) {
+inline exports _ARG1 MathProc::round (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	const auto r1x = VAL64 (x) + VAL64 (y) / 2 ;
-	return _ARG1 (_FLOOR_ (r1x ,VAL64 (y))) ;
+	return _ARG1 (MathProc::floor (r1x ,VAL64 (y))) ;
+}
+
+template <class _ARG1>
+inline exports _ARG1 MathProc::trunc (const _ARG1 &x ,const _ARG1 &y) {
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	return MathProc::floor (_ABS_ (x) ,y) * MathProc::sign (x) ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline _ARG2 _CLAMP_ (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
+inline exports _ARG2 MathProc::clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
 	if (val < _ARG1 (min_))
 		return min_ ;
 	if (val > _ARG1 (max_))
@@ -295,28 +423,29 @@ inline _ARG2 _CLAMP_ (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
 }
 
 template <class _ARG1>
-inline const _ARG1 &_MINOF_ (const _ARG1 &list_one) {
+inline exports const _ARG1 &MathProc::minof (const _ARG1 &list_one) {
 	return list_one ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline const _ARG1 &_MINOF_ (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
+inline exports const _ARG1 &MathProc::minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-	return _MINOF_ (_MIN_ (list_one ,list_two) ,list_rest...) ;
+	return MathProc::minof (_MIN_ (list_one ,list_two) ,list_rest...) ;
 }
 
 template <class _ARG1>
-inline const _ARG1 &_MAXOF_ (const _ARG1 &list_one) {
+inline exports const _ARG1 &MathProc::maxof (const _ARG1 &list_one) {
 	return list_one ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline const _ARG1 &_MAXOF_ (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
+inline exports const _ARG1 &MathProc::maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (std::is_same<_ARG1 ,_ARG2>::value) ;
-	return _MAXOF_ (_MAX_ (list_one ,list_two) ,list_rest...) ;
+	return MathProc::maxof (_MAX_ (list_one ,list_two) ,list_rest...) ;
 }
 
-inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
+namespace U {
+inline ARRAY3<DATA> static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) {
 	const auto r1x = _CAST_<ARRAY3<DATA>> (sne2) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
@@ -348,9 +477,10 @@ inline ARRAY3<DATA> _inline_IEEE754_ENCODE_PART_ (const ARRAY3<VAR64> &sne2) {
 		ret[1] = 0 ;
 	return std::move (ret) ;
 }
+} ;
 
-inline VAL64 _IEEE754_ENCODE_ (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _inline_IEEE754_ENCODE_PART_ (sne2) ;
+inline exports VAL64 MathProc::ieee754_encode (const ARRAY3<VAR64> &sne2) {
+	const auto r1x = U::static_ieee754_encode_part (sne2) ;
 	_DYNAMIC_ASSERT_ ((r1x[0] & ~DATA (0X001FFFFFFFFFFFFF)) == 0) ;
 	_DYNAMIC_ASSERT_ ((r1x[1] & ~DATA (0X7FF0000000000000)) == 0) ;
 	DATA ret = 0 ;
@@ -360,7 +490,7 @@ inline VAL64 _IEEE754_ENCODE_ (const ARRAY3<VAR64> &sne2) {
 	return std::move (_CAST_<VAL64> (ret)) ;
 }
 
-inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
+inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 	ARRAY3<DATA> ret ;
 	const auto r1x = _CAST_<DATA> (ieee754) ;
 	ret[0] = r1x & DATA (0X000FFFFFFFFFFFFF) ;
@@ -384,14 +514,15 @@ inline ARRAY3<VAR64> _IEEE754_DECODE_ (const VAL64 &ieee754) {
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
-inline VAL64 _inline_TAYLOR_EXP_ (VAL64 lnx ,VAL64 y) {
+namespace U {
+inline VAL64 static_taylor_exp (VAL64 lnx ,VAL64 y) {
 	VAL64 ret = 1 ;
 	const auto r1x = lnx * y ;
 	_DEBUG_ASSERT_ (r1x >= 0) ;
 	auto rax = VAL64 (1) ;
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
-		rax *= r1x * _PINV_ (rbx) ;
+		rax *= r1x * MathProc::inverse (rbx) ;
 		if (_ABS_ (rax) < VAL64_EPS)
 			break ;
 		ret += rax ;
@@ -400,7 +531,7 @@ inline VAL64 _inline_TAYLOR_EXP_ (VAL64 lnx ,VAL64 y) {
 	return std::move (ret) ;
 }
 
-inline ARRAY3<VAR64> _inline_IEEE754_E2TOE10_PART_ (const ARRAY3<VAR64> &sne2) {
+inline ARRAY3<VAR64> static_ieee754_e2_e10_part (const ARRAY3<VAR64> &sne2) {
 	const auto r1x = _CAST_<ARRAY3<DATA>> (sne2) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
@@ -422,14 +553,15 @@ inline ARRAY3<VAR64> _inline_IEEE754_E2TOE10_PART_ (const ARRAY3<VAR64> &sne2) {
 	}
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
+} ;
 
-inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
+inline exports ARRAY3<VAR64> MathProc::ieee754_e2_e10 (const ARRAY3<VAR64> &sne2) {
 	ARRAY3<DATA> ret ;
-	const auto r1x = _inline_IEEE754_E2TOE10_PART_ (sne2) ;
+	const auto r1x = U::static_ieee754_e2_e10_part (sne2) ;
 	_STATIC_WARNING_ ("mark") ;
 	const auto r2x = VAL64 (MATH_LN2 / MATH_LN10) * VAL64 (r1x[1]) ;
-	const auto r3x = _FLOOR_ (r2x ,VAL64 (1)) ;
-	const auto r4x = VAL64 (r1x[0]) * _inline_TAYLOR_EXP_ (VAL64 (MATH_LN10) ,(r2x - r3x)) ;
+	const auto r3x = MathProc::floor (r2x ,VAL64 (1)) ;
+	const auto r4x = VAL64 (r1x[0]) * U::static_taylor_exp (VAL64 (MATH_LN10) ,(r2x - r3x)) ;
 	ret[0] = DATA (VAR64 (r4x)) ;
 	ret[1] = DATA (VAR64 (r3x)) ;
 	while (TRUE) {
@@ -444,7 +576,8 @@ inline ARRAY3<VAR64> _IEEE754_E2TOE10_ (const ARRAY3<VAR64> &sne2) {
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
-inline ARRAY3<VAR64> _inline_IEEE754_E10TOE2_PART_ (const ARRAY3<VAR64> &sne10) {
+namespace U {
+inline ARRAY3<VAR64> static_ieee754_e10_e2_part (const ARRAY3<VAR64> &sne10) {
 	const auto r1x = _CAST_<ARRAY3<DATA>> (sne10) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
@@ -466,14 +599,15 @@ inline ARRAY3<VAR64> _inline_IEEE754_E10TOE2_PART_ (const ARRAY3<VAR64> &sne10) 
 	}
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
+} ;
 
-inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
+inline exports ARRAY3<VAR64> MathProc::ieee754_e10_e2 (const ARRAY3<VAR64> &sne10) {
 	ARRAY3<DATA> ret ;
-	const auto r1x = _inline_IEEE754_E10TOE2_PART_ (sne10) ;
+	const auto r1x = U::static_ieee754_e10_e2_part (sne10) ;
 	_STATIC_WARNING_ ("mark") ;
 	const auto r2x = VAL64 (MATH_LN10 / MATH_LN2) * VAL64 (r1x[1]) ;
-	const auto r3x = _FLOOR_ (r2x ,VAL64 (1)) ;
-	const auto r4x = VAL64 (r1x[0]) * _inline_TAYLOR_EXP_ (VAL64 (MATH_LN2) ,(r2x - r3x)) ;
+	const auto r3x = MathProc::floor (r2x ,VAL64 (1)) ;
+	const auto r4x = VAL64 (r1x[0]) * U::static_taylor_exp (VAL64 (MATH_LN2) ,(r2x - r3x)) ;
 	ret[0] = DATA (VAR64 (r4x)) ;
 	ret[1] = DATA (VAR64 (r3x)) ;
 	while (TRUE) {
@@ -487,5 +621,4 @@ inline ARRAY3<VAR64> _IEEE754_E10TOE2_ (const ARRAY3<VAR64> &sne10) {
 	ret[2] = r1x[2] ;
 	return std::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
-} ;
 } ;

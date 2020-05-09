@@ -19,7 +19,7 @@ struct OPERATOR_TYPENAME {
 	template <class _RET>
 	inline static TYPENAME typeid_name_from_func () {
 		TYPENAME ret ;
-		ret.mName = _PARSESTRS_ (String<STRA> (M_FUNC)) ;
+		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 #ifdef __CSC_COMPILER_MSVC__
 		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
@@ -45,7 +45,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mName = ret.mName.segment (r7x ,r9x) ;
 #else
-		ret.mName = _BUILDVAR64S_ (_TYPEMID_<_RET> ()) ;
+		ret.mName = StringProc::build_var64s (_TYPEMID_<_RET> ()) ;
 #endif
 		return std::move (ret) ;
 	}
@@ -330,7 +330,7 @@ private:
 	friend IntrusiveRef<Pack> ;
 
 private:
-	static Pack &static_unique () popping {
+	imports_static Pack &static_unique () popping {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
@@ -351,7 +351,7 @@ private:
 		}) ;
 	}
 
-	static PTR<VALUE_NODE> static_new_node (Pack &self_ ,FLAG guid) popping {
+	imports_static PTR<VALUE_NODE> static_new_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if switch_case (TRUE) {
@@ -364,11 +364,11 @@ private:
 		return &self_.mValueList[ix] ;
 	}
 
-	static FLAG node_guid_hash (FLAG guid) {
+	imports_static FLAG node_guid_hash (FLAG guid) {
 		return guid ;
 	}
 
-	static PTR<VALUE_NODE> static_find_node (Pack &self_ ,FLAG guid) popping {
+	imports_static PTR<VALUE_NODE> static_find_node (Pack &self_ ,FLAG guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -376,7 +376,7 @@ private:
 		return &self_.mValueList[ix] ;
 	}
 
-	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
+	imports_static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if switch_case (TRUE) {
@@ -389,13 +389,13 @@ private:
 		return &self_.mClassList[ix] ;
 	}
 
-	static FLAG node_guid_hash (const String<STR> &guid) {
+	imports_static FLAG node_guid_hash (const String<STR> &guid) {
 		const auto r1x = guid.raw () ;
 		const auto r2x = PhanBuffer<const BYTE>::make (r1x) ;
-		return _MEMHASH_ (r2x.self ,r2x.size ()) ;
+		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) popping {
+	imports_static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -405,7 +405,7 @@ private:
 
 public:
 	//@warn: this function should be implemented in a 'runtime.dll'
-	static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
+	imports_static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 private:
 	static void friend_create (Pack &self_) {
@@ -440,7 +440,7 @@ class GlobalStatic final
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
 public:
-	static void init (VAR data) {
+	imports_static void init (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -452,7 +452,7 @@ public:
 		r3x->mValue = data ;
 	}
 
-	static VAR load () popping {
+	imports_static VAR load () popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -460,7 +460,7 @@ public:
 		return r2x->mValue ;
 	}
 
-	static VAR compare_and_swap (VAR expect ,VAR data) popping {
+	imports_static VAR compare_and_swap (VAR expect ,VAR data) popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -471,7 +471,7 @@ public:
 		return r2x->mValue ;
 	}
 
-	static void save (VAR data) {
+	imports_static void save (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -684,7 +684,7 @@ private:
 	}
 
 public:
-	static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
+	imports_static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
 		auto rax = Coroutine<CONT> (std::move (proc)) ;
 		rax.execute () ;
 		return std::move (rax.context ()) ;

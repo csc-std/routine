@@ -47,9 +47,9 @@
 #endif
 
 namespace CSC {
-inline namespace STRING {
+namespace U {
 #ifdef __CSC_COMPILER_MSVC__
-inline const UniqueRef<_locale_t> &_inline_LOCALE_PAGE_ () {
+inline const UniqueRef<_locale_t> &static_locale_page () {
 	return _CACHE_ ([&] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
@@ -61,9 +61,9 @@ inline const UniqueRef<_locale_t> &_inline_LOCALE_PAGE_ () {
 }
 #endif
 
-inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
+inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1x = _inline_LOCALE_PAGE_ () ;
+	auto &r1x = static_locale_page () ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
@@ -86,9 +86,9 @@ inline String<STRW> _inline_LOCALE_LASTOWS_ (const String<STRA> &val) {
 #endif
 }
 
-inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
+inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 #ifdef __CSC_COMPILER_MSVC__
-	auto &r1x = _inline_LOCALE_PAGE_ () ;
+	auto &r1x = static_locale_page () ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
@@ -110,44 +110,44 @@ inline String<STRA> _inline_LOCALE_WSTOLAS_ (const String<STRW> &val) {
 	return std::move (ret) ;
 #endif
 }
-
-inline exports String<STRW> _ASTOWS_ (const String<STRA> &val) {
-	//@warn: not thread-safe due to internel storage
-	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r1x != NULL) ;
-	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (r2x == 1)
-		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-			return _U8STOWS_ (_UASTOU8S_ (val)) ;
-	if (r2x >= 4)
-		if (_MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-			return _GBKSTOWS_ (val) ;
-	if (r2x >= 5)
-		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-			return _GBKSTOWS_ (val) ;
-	return _inline_LOCALE_LASTOWS_ (val) ;
-}
-
-inline exports String<STRA> _WSTOAS_ (const String<STRW> &val) {
-	//@warn: not thread-safe due to internel storage
-	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
-	_DEBUG_ASSERT_ (r1x != NULL) ;
-	const auto r2x = _MEMCHR_ (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
-	if (r2x == 1)
-		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-			return _U8STOUAS_ (_WSTOU8S_ (val)) ;
-	if (r2x >= 4)
-		if (_MEMEQUAL_ (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
-			return _WSTOGBKS_ (val) ;
-	if (r2x >= 5)
-		if (_MEMEQUAL_ (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
-			return _WSTOGBKS_ (val) ;
-	return _inline_LOCALE_WSTOLAS_ (val) ;
-}
 } ;
 
-inline namespace STRING {
-inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system_clock::time_point &val) {
+inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
+	//@warn: not thread-safe due to internel storage
+	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
+	_DEBUG_ASSERT_ (r1x != NULL) ;
+	const auto r2x = BasicProc::mem_chr (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
+	if (r2x == 1)
+		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
+			return StringProc::cvt_u8s_ws (StringProc::cvt_uas_u8s (val)) ;
+	if (r2x >= 4)
+		if (BasicProc::mem_equal (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
+			return StringProc::cvt_gbks_ws (val) ;
+	if (r2x >= 5)
+		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
+			return StringProc::cvt_gbks_ws (val) ;
+	return U::static_locale_cvt_lastows (val) ;
+}
+
+inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
+	//@warn: not thread-safe due to internel storage
+	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
+	_DEBUG_ASSERT_ (r1x != NULL) ;
+	const auto r2x = BasicProc::mem_chr (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
+	if (r2x == 1)
+		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
+			return StringProc::cvt_u8s_as (StringProc::cvt_ws_u8s (val)) ;
+	if (r2x >= 4)
+		if (BasicProc::mem_equal (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
+			return StringProc::cvt_ws_gbks (val) ;
+	if (r2x >= 5)
+		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
+			return StringProc::cvt_ws_gbks (val) ;
+	return U::static_locale_cvt_wstolas (val) ;
+}
+
+namespace U {
+inline exports ARRAY8<VAR32> locale_make_timemetric (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
 	const auto r1x = ::time_t (std::chrono::system_clock::to_time_t (val)) ;
@@ -172,7 +172,7 @@ inline exports ARRAY8<VAR32> _LOCALE_MAKE_TIMEMETRIC_ (const std::chrono::system
 	return std::move (ret) ;
 }
 
-inline exports std::chrono::system_clock::time_point _LOCALE_MAKE_TIMEPOINT_ (const ARRAY8<VAR32> &val) {
+inline exports std::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) {
 	auto rax = std::tm () ;
 	_ZERO_ (rax) ;
 	const auto r1x = _EBOOL_ (val[0] > 0) * (val[0] - 1900) ;
@@ -201,14 +201,14 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &reg) {
-		const auto r1x = _U8STOUAS_ (reg) ;
+		const auto r1x = StringProc::cvt_u8s_uas (reg) ;
 		mRegex = AutoRef<std::regex>::make (r1x.raw ().self) ;
 	}
 
 	BOOL match (const String<STRU8> &expr) const {
 		if (expr.empty ())
 			return FALSE ;
-		const auto r1x = _U8STOUAS_ (expr) ;
+		const auto r1x = StringProc::cvt_u8s_uas (expr) ;
 		if (!std::regex_match (r1x.raw ().self ,mRegex.self))
 			return FALSE ;
 		return TRUE ;
@@ -220,7 +220,7 @@ public:
 			if (expr.empty ())
 				discard ;
 			auto rax = AutoRef<std::smatch>::make () ;
-			const auto r1x = _U8STOUAS_ (expr) ;
+			const auto r1x = StringProc::cvt_u8s_uas (expr) ;
 			const auto r2x = std::string (r1x.raw ().self) ;
 			auto rbx = r2x.begin () ;
 			const auto r3x = r2x.end () ;
@@ -242,14 +242,14 @@ public:
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
 		if (expr.empty ())
 			return String<STRU8> () ;
-		const auto r1x = _U8STOUAS_ (expr) ;
-		const auto r2x = _U8STOUAS_ (rep) ;
+		const auto r1x = StringProc::cvt_u8s_uas (expr) ;
+		const auto r2x = StringProc::cvt_u8s_uas (rep) ;
 		const auto r3x = std::string (r1x.raw ().self) ;
 		const auto r4x = std::string (r2x.raw ().self) ;
 		const auto r5x = std::regex_replace (r3x ,mRegex.self ,r4x) ;
 		if (r5x.empty ())
 			return String<STRU8> () ;
-		return _UASTOU8S_ (PTRTOARR[r5x.c_str ()]) ;
+		return StringProc::cvt_uas_u8s (PTRTOARR[r5x.c_str ()]) ;
 	}
 } ;
 

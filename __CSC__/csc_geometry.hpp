@@ -118,7 +118,7 @@ public:
 	}
 
 	Vector div (const REAL &scale) const {
-		return mul (_PINV_ (scale)) ;
+		return mul (MathProc::inverse (scale)) ;
 	}
 
 	inline Vector operator/ (const REAL &scale) const {
@@ -130,7 +130,7 @@ public:
 	}
 
 	void divto (const REAL &scale) {
-		multo (_PINV_ (scale)) ;
+		multo (MathProc::inverse (scale)) ;
 	}
 
 	inline Vector &operator/= (const REAL &scale) {
@@ -263,12 +263,13 @@ public:
 
 	REAL magnitude () const {
 		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
-		return _SQRT_ (_SQUARE_ (mVector[0]) + _SQUARE_ (mVector[1]) + _SQUARE_ (mVector[2])) ;
+		const auto r1x = MathProc::square (mVector[0]) + MathProc::square (mVector[1]) + MathProc::square (mVector[2]) ;
+		return MathProc::sqrt (r1x) ;
 	}
 
 	Vector normalize () const {
 		Vector ret ;
-		const auto r1x = _PINV_ (magnitude ()) ;
+		const auto r1x = MathProc::inverse (magnitude ()) ;
 		ret.mVector[0] = mVector[0] * r1x ;
 		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = mVector[2] * r1x ;
@@ -278,7 +279,7 @@ public:
 
 	Vector projection () const {
 		Vector ret ;
-		const auto r1x = _PINV_ (mVector[3]) ;
+		const auto r1x = MathProc::inverse (mVector[3]) ;
 		ret.mVector[0] = mVector[0] * r1x ;
 		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = mVector[2] * r1x ;
@@ -296,25 +297,25 @@ public:
 	}
 
 public:
-	static const Vector &axis_x () {
+	imports_static const Vector &axis_x () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_y () {
+	imports_static const Vector &axis_y () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_z () {
+	imports_static const Vector &axis_z () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_w () {
+	imports_static const Vector &axis_w () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
 		}) ;
@@ -441,7 +442,7 @@ public:
 	}
 
 	Matrix div (const REAL &scale) const {
-		return mul (_PINV_ (scale)) ;
+		return mul (MathProc::inverse (scale)) ;
 	}
 
 	inline Matrix operator/ (const REAL &scale) const {
@@ -453,7 +454,7 @@ public:
 	}
 
 	void divto (const REAL &scale) {
-		multo (_PINV_ (scale)) ;
+		multo (MathProc::inverse (scale)) ;
 	}
 
 	inline Matrix &operator/= (const REAL &scale) {
@@ -588,7 +589,7 @@ public:
 					ret.get (ix ,j) = r1x ;
 				}
 			}
-			const auto r2x = _PINV_ (ret.get (i ,i)) ;
+			const auto r2x = MathProc::inverse (ret.get (i ,i)) ;
 			if (r2x == REAL (0))
 				continue ;
 			for (auto &&j : _RANGE_ (i + 1 ,4)) {
@@ -605,7 +606,7 @@ public:
 		LENGTH ret = 0 ;
 		const auto r1x = triangular () ;
 		for (auto &&i : _RANGE_ (0 ,4))
-			ret += _EBOOL_ (_PINV_ (r1x[i][i]) == REAL (0)) ;
+			ret += _EBOOL_ (MathProc::inverse (r1x[i][i]) == REAL (0)) ;
 		ret = 4 - ret ;
 		return std::move (ret) ;
 	}
@@ -620,7 +621,7 @@ public:
 
 	Matrix inverse () const {
 		Matrix ret ;
-		const auto r1x = _PINV_ (det ()) ;
+		const auto r1x = MathProc::inverse (det ()) ;
 		_DYNAMIC_ASSERT_ (r1x != REAL (0)) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 0 ;
@@ -640,7 +641,7 @@ public:
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
-				const auto r6x = _NEGATIVE_ (r5x ,(i + j)) ;
+				const auto r6x = MathProc::negative (r5x ,(i + j)) ;
 				ret.get (j ,i) = r6x ;
 			}
 		}
@@ -652,7 +653,7 @@ public:
 				discard ;
 			if (!ret.affine_matrix_like ())
 				discard ;
-			const auto r7x = _PINV_ (ret.get (3 ,3)) ;
+			const auto r7x = MathProc::inverse (ret.get (3 ,3)) ;
 			ret *= r7x ;
 			ret.get (3 ,3) = REAL (1) ;
 		}
@@ -679,7 +680,7 @@ public:
 		const auto r6x = r4x.mul (Vector<REAL>::axis_y ()) ;
 		const auto r7x = r4x.mul (Vector<REAL>::axis_z ()) ;
 		const auto r8x = r4x.mul (Vector<REAL>::axis_w ()) ;
-		const auto r9x = _SIGN_ ((r5x ^ r6x) * r7x) * _PINV_ (r8x[3]) ;
+		const auto r9x = MathProc::sign ((r5x ^ r6x) * r7x) * MathProc::inverse (r8x[3]) ;
 		const auto r10x = r5x.magnitude () * r9x ;
 		const auto r11x = r6x.magnitude () * r9x ;
 		const auto r12x = r7x.magnitude () * r9x ;
@@ -691,7 +692,7 @@ public:
 	}
 
 public:
-	static const Matrix &identity () {
+	imports_static const Matrix &identity () {
 		return _CACHE_ ([&] () {
 			return Matrix ({
 				{REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ,
@@ -701,7 +702,7 @@ public:
 		}) ;
 	}
 
-	static Matrix make_diag (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
+	imports_static Matrix make_diag (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
 		Matrix ret = Matrix ({
 			{x ,REAL (0) ,REAL (0) ,REAL (0)} ,
 			{REAL (0) ,y ,REAL (0) ,REAL (0)} ,
@@ -710,7 +711,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_shear (const Vector<REAL> &vx ,const Vector<REAL> &vy ,const Vector<REAL> &vz) {
+	imports_static Matrix make_shear (const Vector<REAL> &vx ,const Vector<REAL> &vy ,const Vector<REAL> &vz) {
 		_DEBUG_ASSERT_ (vx[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vy[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vz[3] == REAL (0)) ;
@@ -720,9 +721,9 @@ public:
 		const auto r4x = r1x * r2x ;
 		const auto r5x = r1x * r3x ;
 		const auto r6x = r2x * r3x ;
-		const auto r7x = _SQRT_ (REAL (1) - _SQUARE_ (r4x)) ;
-		const auto r8x = (r6x - r4x * r5x) * _PINV_ (r7x) ;
-		const auto r9x = _SQRT_ (REAL (1) - _SQUARE_ (r5x) - _SQUARE_ (r8x)) ;
+		const auto r7x = MathProc::sqrt (REAL (1) - MathProc::square (r4x)) ;
+		const auto r8x = (r6x - r4x * r5x) * MathProc::inverse (r7x) ;
+		const auto r9x = MathProc::sqrt (REAL (1) - MathProc::square (r5x) - MathProc::square (r8x)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,r4x ,r5x ,REAL (0)} ,
 			{REAL (0) ,r7x ,r8x ,REAL (0)} ,
@@ -731,12 +732,12 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
+	imports_static Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		Matrix ret ;
 		const auto r1x = normal.normalize () ;
-		const auto r2x = _COS_ (angle) ;
-		const auto r3x = r1x * _SIN_ (angle) ;
+		const auto r2x = MathProc::cos (angle) ;
+		const auto r3x = r1x * MathProc::sin (angle) ;
 		const auto r4x = r1x * (REAL (1) - r2x) ;
 		ret[0][0] = r1x[0] * r4x[0] + r2x ;
 		ret[0][1] = r1x[0] * r4x[1] - r3x[2] ;
@@ -757,10 +758,10 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
+	imports_static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
 		Matrix ret ;
-		const auto r1x = _SQUARE_ (qx) + _SQUARE_ (qy) + _SQUARE_ (qz) + _SQUARE_ (qw) ;
-		const auto r2x = REAL (2) * _PINV_ (r1x) ;
+		const auto r1x = MathProc::square (qx) + MathProc::square (qy) + MathProc::square (qz) + MathProc::square (qw) ;
+		const auto r2x = REAL (2) * MathProc::inverse (r1x) ;
 		const auto r3x = qx * r2x ;
 		const auto r4x = qy * r2x ;
 		const auto r5x = qz * r2x ;
@@ -784,7 +785,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
+	imports_static ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
 		ARRAY4<REAL> ret ;
 		const auto r1x = rot_mat.decompose () ;
 		const auto r2x = r1x[2] ;
@@ -805,7 +806,7 @@ public:
 			}
 			return std::move (ret) ;
 		}) ;
-		const auto r5x = _PINV_ (REAL (2) * _SQRT_ (r3x[r4x])) ;
+		const auto r5x = MathProc::inverse (REAL (2) * MathProc::sqrt (r3x[r4x])) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(r4x == 0))
@@ -842,20 +843,20 @@ public:
 		return std::move (ret) ;
 	}
 
-	static ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
+	imports_static ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
 		ARRAY3<REAL> ret ;
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,REAL (0)}.magnitude () ;
-		const auto r3x = r2x * _SIGN_ (r1x[3]) ;
-		const auto r4x = _ATAN_ (r3x ,_ABS_ (r1x[3])) ;
-		const auto r5x = (REAL (1) - (r2x - r4x) * _PINV_ (r2x)) * REAL (2) ;
+		const auto r3x = r2x * MathProc::sign (r1x[3]) ;
+		const auto r4x = MathProc::arctan (r3x ,_ABS_ (r1x[3])) ;
+		const auto r5x = (REAL (1) - (r2x - r4x) * MathProc::inverse (r2x)) * REAL (2) ;
 		ret[0] = r1x[0] * r5x ;
 		ret[1] = r1x[1] * r5x ;
 		ret[2] = r1x[2] * r5x ;
 		return std::move (ret) ;
 	}
 
-	static Matrix make_translation (const Vector<REAL> &direction) {
+	imports_static Matrix make_translation (const Vector<REAL> &direction) {
 		_DEBUG_ASSERT_ (direction[3] == REAL (0)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,REAL (0) ,REAL (0) ,direction[0]} ,
@@ -865,7 +866,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
+	imports_static Matrix make_view (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
 		_DEBUG_ASSERT_ (vx[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vy[3] == REAL (0)) ;
 		const auto r1x = vx.normalize () ;
@@ -880,7 +881,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_view_xy (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
+	imports_static Matrix make_view_xy (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_x () ,
 			Vector<REAL>::axis_y () ,
@@ -889,7 +890,7 @@ public:
 		return make_view (vx ,vy) * r1x ;
 	}
 
-	static Matrix make_view_zx (const Vector<REAL> &vz ,const Vector<REAL> &vx) {
+	imports_static Matrix make_view_zx (const Vector<REAL> &vz ,const Vector<REAL> &vx) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_y () ,
 			Vector<REAL>::axis_z () ,
@@ -898,7 +899,7 @@ public:
 		return make_view (vz ,vx) * r1x ;
 	}
 
-	static Matrix make_view_yz (const Vector<REAL> &vy ,const Vector<REAL> &vz) {
+	imports_static Matrix make_view_yz (const Vector<REAL> &vy ,const Vector<REAL> &vz) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_z () ,
 			Vector<REAL>::axis_x () ,
@@ -907,7 +908,7 @@ public:
 		return make_view (vy ,vz) * r1x ;
 	}
 
-	static Matrix make_view_yx (const Vector<REAL> &vy ,const Vector<REAL> &vx) {
+	imports_static Matrix make_view_yx (const Vector<REAL> &vy ,const Vector<REAL> &vx) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_y () ,
 			Vector<REAL>::axis_x () ,
@@ -916,7 +917,7 @@ public:
 		return make_view (vy ,vx) * r1x ;
 	}
 
-	static Matrix make_view_xz (const Vector<REAL> &vx ,const Vector<REAL> &vz) {
+	imports_static Matrix make_view_xz (const Vector<REAL> &vx ,const Vector<REAL> &vz) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_x () ,
 			-Vector<REAL>::axis_z () ,
@@ -925,7 +926,7 @@ public:
 		return make_view (vx ,vz) * r1x ;
 	}
 
-	static Matrix make_view_zy (const Vector<REAL> &vz ,const Vector<REAL> &vy) {
+	imports_static Matrix make_view_zy (const Vector<REAL> &vz ,const Vector<REAL> &vy) {
 		const auto r1x = Matrix ({
 			-Vector<REAL>::axis_z () ,
 			Vector<REAL>::axis_y () ,
@@ -934,7 +935,7 @@ public:
 		return make_view (vz ,vy) * r1x ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py ,const Vector<REAL> &pw) {
+	imports_static Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py ,const Vector<REAL> &pw) {
 		_DEBUG_ASSERT_ (px[3] == REAL (1)) ;
 		_DEBUG_ASSERT_ (py[3] == REAL (1)) ;
 		_DEBUG_ASSERT_ (pw[3] == REAL (1)) ;
@@ -950,7 +951,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
+	imports_static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
 		_DEBUG_ASSERT_ (fx > REAL (0)) ;
 		_DEBUG_ASSERT_ (fy > REAL (0)) ;
 		Matrix ret = Matrix ({
@@ -961,7 +962,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
+	imports_static Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (light[3] == REAL (0)) ;
 		Matrix ret ;
@@ -987,7 +988,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_cross_product (const Vector<REAL> &first) {
+	imports_static Matrix make_cross_product (const Vector<REAL> &first) {
 		_DEBUG_ASSERT_ (first[3] == REAL (0)) ;
 		Matrix ret = Matrix ({
 			{REAL (0) ,-first[2] ,first[1] ,REAL (0)} ,
@@ -997,7 +998,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
+	imports_static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
 		Matrix ret ;
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
 		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
@@ -1005,7 +1006,7 @@ public:
 		return std::move (ret) ;
 	}
 
-	static Matrix make_reflection (const Vector<REAL> &normal) {
+	imports_static Matrix make_reflection (const Vector<REAL> &normal) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		const auto r1x = normal.normalize () ;
 		return identity () - make_symmetry (r1x ,r1x) * REAL (2) ;
@@ -1019,7 +1020,7 @@ private:
 			return FALSE ;
 		if (get (3 ,2) != REAL (0))
 			return FALSE ;
-		if (_PINV_ (get (3 ,3)) == REAL (0))
+		if (MathProc::inverse (get (3 ,3)) == REAL (0))
 			return FALSE ;
 		return TRUE ;
 	}

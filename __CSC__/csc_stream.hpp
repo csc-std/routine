@@ -75,6 +75,10 @@ public:
 		virtual void friend_read (ByteReader &reader) = 0 ;
 	} ;
 
+	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+
 private:
 	class Heap {
 	private:
@@ -276,7 +280,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		auto rax = _ARG1 () ;
+		auto rax = REAL () ;
 		for (auto &&i : _RANGE_ (0 ,data.size ())) {
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
@@ -338,6 +342,59 @@ public:
 		read (proc) ;
 		return (*this) ;
 	}
+
+	void scans () {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	void scans (_ARG1 &list_one ,_ARGS &...list_rest) {
+		read (list_one) ;
+		scans (list_rest...) ;
+	}
+
+	void read (const PTR<decltype (CLS)> &) {
+		reset () ;
+	}
+
+	inline ByteReader &operator>> (const PTR<decltype (CLS)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
+	void read (const PTR<decltype (GAP)> &) {
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = REAL () ;
+		ris >> rax ;
+		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
+		ris >> rax ;
+		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
+		(*this) = ris.copy () ;
+	}
+
+	inline ByteReader &operator>> (const PTR<decltype (GAP)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
+	void read (const PTR<decltype (EOS)> &) {
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = REAL () ;
+		while (TRUE) {
+			if (ris.length () == 0)
+				break ;
+			ris >> rax ;
+			_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
+		}
+		(*this) = ris.copy () ;
+	}
+
+	inline ByteReader &operator>> (const PTR<decltype (EOS)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
 } ;
 
 template <class REAL>
@@ -352,12 +409,12 @@ struct ByteReader<REAL>::Detail {
 	public:
 		inline Attribute () = delete ;
 
-		inline BYTE varify_ending_item () const {
-			return BYTE (0X00) ;
+		inline REAL varify_ending_item () const {
+			return REAL (0X00) ;
 		}
 
-		inline BYTE varify_space_item () const {
-			return BYTE (0X00) ;
+		inline REAL varify_space_item () const {
+			return REAL (0X00) ;
 		}
 
 	private:
@@ -376,6 +433,10 @@ public:
 	public:
 		virtual void friend_write (ByteWriter &writer) const = 0 ;
 	} ;
+
+	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
 
 private:
 	class Heap {
@@ -634,6 +695,53 @@ public:
 		write (proc) ;
 		return (*this) ;
 	}
+
+	void prints () {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	void prints (const _ARG1 &list_one ,const _ARGS &...list_rest) {
+		write (list_one) ;
+		prints (list_rest...) ;
+	}
+
+	void write (const PTR<decltype (CLS)> &) {
+		reset () ;
+	}
+
+	inline ByteWriter &operator<< (const PTR<decltype (CLS)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
+	void write (const PTR<decltype (GAP)> &) {
+		const auto r1x = attr () ;
+		auto wos = copy () ;
+		wos << r1x.varify_space_item () ;
+		wos << r1x.varify_space_item () ;
+		(*this) = wos.copy () ;
+	}
+
+	inline ByteWriter &operator<< (const PTR<decltype (GAP)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
+	void write (const PTR<decltype (EOS)> &) {
+		const auto r1x = attr () ;
+		auto wos = copy () ;
+		for (auto &&i : _RANGE_ (0 ,wos.size () - wos.length ())) {
+			wos << r1x.varify_ending_item () ;
+			_STATIC_UNUSED_ (i) ;
+		}
+		(*this) = wos.copy () ;
+	}
+
+	inline ByteWriter &operator<< (const PTR<decltype (EOS)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
 } ;
 
 template <class REAL>
@@ -648,12 +756,12 @@ struct ByteWriter<REAL>::Detail {
 	public:
 		inline Attribute () = delete ;
 
-		inline BYTE varify_ending_item () const {
-			return BYTE (0X00) ;
+		inline REAL varify_ending_item () const {
+			return REAL (0X00) ;
 		}
 
-		inline BYTE varify_space_item () const {
-			return BYTE (0X00) ;
+		inline REAL varify_space_item () const {
+			return REAL (0X00) ;
 		}
 
 	private:
@@ -673,6 +781,11 @@ public:
 		virtual void friend_read (TextReader &reader) = 0 ;
 	} ;
 
+	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGV<ARGC<2>> &)> BOM ;
+	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+
 private:
 	class Heap {
 	private:
@@ -686,6 +799,8 @@ private:
 	} ;
 
 private:
+	template <class>
+	friend class TextReader ;
 	struct Detail ;
 	SharedRef<Heap> mHeap ;
 	PhanBuffer<const REAL> mStream ;
@@ -864,7 +979,7 @@ public:
 		const auto r1x = BOOL (rax == REAL ('-')) ;
 		if (rax == REAL ('+') || r1x)
 			read (rax) ;
-		compute_read_number (data ,(*this) ,rax) ;
+		compute_read_number (data ,rax) ;
 		if (!r1x)
 			return ;
 		data = -data ;
@@ -878,9 +993,9 @@ public:
 	void read (VAL32 &data) {
 		const auto r1x = read<VAL64> () ;
 		if switch_case (TRUE) {
-			if (_ISINF_ (r1x))
+			if (MathProc::is_infinite (r1x))
 				discard ;
-			if (_ISNAN_ (r1x))
+			if (MathProc::is_nan (r1x))
 				discard ;
 			_DYNAMIC_ASSERT_ (r1x >= VAL32_MIN && r1x <= VAL32_MAX) ;
 		}
@@ -939,7 +1054,7 @@ public:
 		if switch_case (fax) {
 			const auto r3x = r1x.varify_number_item (rax) ;
 			_DYNAMIC_ASSERT_ (r3x) ;
-			compute_read_number (data ,(*this) ,rax) ;
+			compute_read_number (data ,rax) ;
 		}
 		if (!r2x)
 			return ;
@@ -973,7 +1088,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
 		read (data) ;
@@ -1028,6 +1143,66 @@ public:
 		return (*this) ;
 	}
 
+	void scans () {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	void scans (_ARG1 &list_one ,_ARGS &...list_rest) {
+		read (list_one) ;
+		scans (list_rest...) ;
+	}
+
+	void read (const PTR<decltype (CLS)> &) {
+		reset () ;
+	}
+
+	inline TextReader &operator>> (const PTR<decltype (CLS)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
+	void read (const PTR<decltype (BOM)> &) {
+		template_read_bom (_NULL_<ARGV<REAL>> ()) ;
+	}
+
+	inline TextReader &operator>> (const PTR<decltype (BOM)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
+	void read (const PTR<decltype (GAP)> &) {
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = REAL () ;
+		ris >> rax ;
+		while (TRUE) {
+			if (!r1x.varify_space (rax))
+				break ;
+			(*this) = ris.copy () ;
+			ris >> rax ;
+		}
+	}
+
+	inline TextReader &operator>> (const PTR<decltype (GAP)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
+	void read (const PTR<decltype (EOS)> &) {
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = REAL () ;
+		ris.read (rax) ;
+		_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
+		(*this) = ris.copy () ;
+	}
+
+	inline TextReader &operator>> (const PTR<decltype (EOS)> &proc) {
+		read (proc) ;
+		return (*this) ;
+	}
+
 private:
 	LENGTH next_string_size () popping {
 		const auto r1x = attr () ;
@@ -1046,10 +1221,10 @@ private:
 		return std::move (ret) ;
 	}
 
-	void compute_read_number (VAR64 &data ,TextReader &reader ,REAL &top) const {
-		const auto r1x = reader.attr () ;
+	void compute_read_number (VAR64 &data ,REAL &top) {
+		const auto r1x = attr () ;
 		_DEBUG_ASSERT_ (r1x.varify_number_item (top)) ;
-		auto ris = reader.copy () ;
+		auto ris = copy () ;
 		data = r1x.convert_number_r (top) ;
 		ris.read (top) ;
 		while (TRUE) {
@@ -1058,19 +1233,19 @@ private:
 			const auto r2x = data * r1x.varify_radix () + r1x.convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r2x) ;
 			data = r2x ;
-			reader = ris.copy () ;
+			(*this) = ris.copy () ;
 			ris.read (top) ;
 		}
 	}
 
-	void compute_read_number (VAL64 &data ,TextReader &reader ,REAL &top) const {
-		const auto r1x = reader.attr () ;
+	void compute_read_number (VAL64 &data ,REAL &top) {
+		const auto r1x = attr () ;
 		_DEBUG_ASSERT_ (r1x.varify_number_item (top)) ;
-		auto ris = reader.copy () ;
+		auto ris = copy () ;
 		while (TRUE) {
 			if (r1x.convert_number_r (top) != 0)
 				break ;
-			reader = ris.copy () ;
+			(*this) = ris.copy () ;
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
@@ -1078,7 +1253,7 @@ private:
 			if (!r1x.varify_number_item (top))
 				discard ;
 			rax[0] = r1x.convert_number_r (top) ;
-			reader = ris.copy () ;
+			(*this) = ris.copy () ;
 			ris.read (top) ;
 			while (TRUE) {
 				if (!r1x.varify_number_item (top))
@@ -1093,14 +1268,14 @@ private:
 				if switch_case (fax) {
 					rax[1]++ ;
 				}
-				reader = ris.copy () ;
+				(*this) = ris.copy () ;
 				ris.read (top) ;
 			}
 		}
 		if switch_case (TRUE) {
 			if (top != REAL ('.'))
 				discard ;
-			reader = ris.copy () ;
+			(*this) = ris.copy () ;
 			ris.read (top) ;
 			_DYNAMIC_ASSERT_ (r1x.varify_number_item (top)) ;
 			while (TRUE) {
@@ -1113,7 +1288,7 @@ private:
 					rax[0] = r3x ;
 					rax[1]-- ;
 				}
-				reader = ris.copy () ;
+				(*this) = ris.copy () ;
 				ris.read (top) ;
 			}
 		}
@@ -1122,7 +1297,7 @@ private:
 				discard ;
 			const auto r4x = ris.template read<VAR32> () ;
 			rax[1] += r4x ;
-			reader = ris.copy () ;
+			(*this) = ris.copy () ;
 		}
 		if switch_case (TRUE) {
 			if (rax[0] >= 0)
@@ -1134,8 +1309,66 @@ private:
 			rax[0] = -(rax[0] / r1x.varify_radix ()) ;
 			rax[1]++ ;
 		}
-		const auto r5x = _IEEE754_E10TOE2_ (rax) ;
-		data = _IEEE754_ENCODE_ (r5x) ;
+		const auto r5x = MathProc::ieee754_e10_e2 (rax) ;
+		data = MathProc::ieee754_encode (r5x) ;
+	}
+
+	template <class _ARG1>
+	void template_read_bom (const ARGV<_ARG1> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	void template_read_bom (const ARGV<STRU8> &) {
+		static constexpr auto M_BOM = PACK<STRU8[3]> ({
+			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = STRU8 () ;
+		ris >> rax ;
+		if (rax != M_BOM.P1[0])
+			return ;
+		ris >> rax ;
+		if (rax != M_BOM.P1[1])
+			return ;
+		ris >> rax ;
+		if (rax != M_BOM.P1[2])
+			return ;
+		r1x.enable_endian (FALSE) ;
+		(*this) = ris.copy () ;
+	}
+
+	void template_read_bom (const ARGV<STRU16> &) {
+		static constexpr auto M_BOM = PACK<STRU16[2]> ({
+			STRU16 (0XFEFF) ,STRU16 (0XFFFE)}) ;
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = STRU16 () ;
+		ris >> rax ;
+		if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
+			return ;
+		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
+		r1x.enable_endian (r2x) ;
+		(*this) = ris.copy () ;
+	}
+
+	void template_read_bom (const ARGV<STRU32> &) {
+		static constexpr auto M_BOM = PACK<STRU32[2]> ({
+			STRU32 (0X0000FEFF) ,STRU32 (0XFFFE0000)}) ;
+		const auto r1x = attr () ;
+		auto ris = copy () ;
+		auto rax = STRU32 () ;
+		ris >> rax ;
+		if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
+			return ;
+		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
+		r1x.enable_endian (r2x) ;
+		(*this) = ris.copy () ;
+	}
+
+	void template_read_bom (const ARGV<STRW> &) {
+		auto ris = copy () ;
+		_CAST_<TextReader<STRUW>> (ris).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
+		(*this) = ris.copy () ;
 	}
 } ;
 
@@ -1278,6 +1511,11 @@ public:
 		virtual void friend_write (TextWriter &writer) const = 0 ;
 	} ;
 
+	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGV<ARGC<2>> &)> BOM ;
+	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+
 private:
 	class Heap {
 	private:
@@ -1289,6 +1527,8 @@ private:
 	} ;
 
 private:
+	template <class>
+	friend class TextWriter ;
 	struct Detail ;
 	SharedRef<Heap> mHeap ;
 	PhanBuffer<REAL> mStream ;
@@ -1419,7 +1659,7 @@ public:
 	void write (const VAR64 &data) {
 		auto rax = Buffer<REAL ,ARGC<128>> () ;
 		INDEX ix = rax.size () ;
-		compute_write_number (data ,(*this) ,PhanBuffer<REAL>::make (rax) ,ix) ;
+		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,ix) ;
 		write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 	}
 
@@ -1438,19 +1678,19 @@ public:
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
-			if (!_ISNAN_ (data))
+			if (!MathProc::is_nan (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
 		if switch_case (fax) {
-			if (!_ISINF_ (data))
+			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
 		if switch_case (fax) {
-			if (!_ISINF_ (data))
+			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
@@ -1460,7 +1700,7 @@ public:
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val32_precision () ;
-			compute_write_number (data ,(*this) ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
+			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
 			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}
 	}
@@ -1480,19 +1720,19 @@ public:
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
-			if (!_ISNAN_ (data))
+			if (!MathProc::is_nan (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
 		if switch_case (fax) {
-			if (!_ISINF_ (data))
+			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
 		if switch_case (fax) {
-			if (!_ISINF_ (data))
+			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
@@ -1502,7 +1742,7 @@ public:
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val64_precision () ;
-			compute_write_number (data ,(*this) ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
+			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
 			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
 		}
 	}
@@ -1531,7 +1771,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,data.size ()))
 			write (data.self[i]) ;
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
 		write (data) ;
@@ -1583,9 +1823,61 @@ public:
 		return (*this) ;
 	}
 
+	void prints () {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	void prints (const _ARG1 &list_one ,const _ARGS &...list_rest) {
+		write (list_one) ;
+		prints (list_rest...) ;
+	}
+
+	void write (const PTR<decltype (CLS)> &) {
+		reset () ;
+	}
+
+	inline TextWriter &operator<< (const PTR<decltype (CLS)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
+	void write (const PTR<decltype (BOM)> &) {
+		template_write_bom (_NULL_<ARGV<REAL>> ()) ;
+	}
+
+	inline TextWriter &operator<< (const PTR<decltype (BOM)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
+	void write (const PTR<decltype (GAP)> &) {
+		auto wos = copy () ;
+		_DYNAMIC_ASSERT_ (wos.length () + 2 < wos.size ()) ;
+		wos << REAL ('\r') << REAL ('\n') ;
+		(*this) = wos.copy () ;
+	}
+
+	inline TextWriter &operator<< (const PTR<decltype (GAP)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
+	void write (const PTR<decltype (EOS)> &) {
+		const auto r1x = attr () ;
+		auto wos = copy () ;
+		wos << r1x.varify_ending_item () ;
+		(*this) = wos.copy () ;
+	}
+
+	inline TextWriter &operator<< (const PTR<decltype (EOS)> &proc) {
+		write (proc) ;
+		return (*this) ;
+	}
+
 private:
-	void compute_write_number (const VAR64 &data ,TextWriter &writer ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
-		const auto r1x = writer.attr () ;
+	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
+		const auto r1x = attr () ;
 		auto rax = data ;
 		INDEX iw = out_i ;
 		auto fax = TRUE ;
@@ -1618,11 +1910,11 @@ private:
 		out_i = iw ;
 	}
 
-	void compute_write_number (const VAL64 &data ,TextWriter &writer ,LENGTH precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) const {
-		const auto r1x = writer.attr () ;
+	void compute_write_number (const VAL64 &data ,LENGTH precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
+		const auto r1x = attr () ;
 		INDEX iw = out_i ;
-		const auto r2x = _IEEE754_DECODE_ (data) ;
-		auto rax = _IEEE754_E2TOE10_ (r2x) ;
+		const auto r2x = MathProc::ieee754_decode (data) ;
+		auto rax = MathProc::ieee754_e2_e10 (r2x) ;
 		const auto r3x = log_of_number (rax[0] ,r1x.varify_radix ()) ;
 		if switch_case (TRUE) {
 			const auto r4x = r3x - precision ;
@@ -1633,7 +1925,7 @@ private:
 			}
 			if (r4x <= 0)
 				discard ;
-			rax[0] = _ROUND_ (rax[0] ,r1x.varify_radix ()) / r1x.varify_radix () ;
+			rax[0] = MathProc::round (rax[0] ,r1x.varify_radix ()) / r1x.varify_radix () ;
 			rax[1]++ ;
 		}
 		const auto r5x = log_of_number (rax[0] ,r1x.varify_radix ()) ;
@@ -1649,7 +1941,7 @@ private:
 			const auto r6x = r5x - 1 + rax[1] ;
 			if (!(_ABS_ (r6x) >= precision))
 				discard ;
-			compute_write_number (r6x ,writer ,out ,iw) ;
+			compute_write_number (r6x ,out ,iw) ;
 			if (r6x > 0)
 				out[--iw] = REAL ('+') ;
 			out[--iw] = REAL ('e') ;
@@ -1753,6 +2045,41 @@ private:
 		}
 		return std::move (ret) ;
 	}
+	
+	template <class _ARG1>
+	void template_write_bom (const ARGV<_ARG1> &) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	void template_write_bom (const ARGV<STRU8> &) {
+		static constexpr auto M_BOM = PACK<STRU8[3]> ({
+			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
+		auto wos = copy () ;
+		wos << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
+		(*this) = wos.copy () ;
+	}
+
+	void template_write_bom (const ARGV<STRU16> &) {
+		static constexpr auto M_BOM = PACK<STRU16[1]> ({
+			STRU16 (0XFEFF)}) ;
+		auto wos = copy () ;
+		wos << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
+		(*this) = wos.copy () ;
+	}
+
+	void template_write_bom (const ARGV<STRU32> &) {
+		static constexpr auto M_BOM = PACK<STRU32[1]> ({
+			STRU32 (0X0000FEFF)}) ;
+		auto wos = copy () ;
+		wos << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
+		(*this) = wos.copy () ;
+	}
+
+	void template_write_bom (const ARGV<STRW> &) {
+		auto wos = copy () ;
+		_CAST_<TextWriter<STRUW>> (wos).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
+		(*this) = wos.copy () ;
+	}
 } ;
 
 template <class REAL>
@@ -1846,275 +2173,17 @@ struct TextWriter<REAL>::Detail {
 	} ;
 } ;
 
-inline namespace STREAM {
-template <class _ARG1>
-inline void _CLS_ (ByteReader<_ARG1> &reader) {
-	reader.reset () ;
-}
-
-template <class _ARG1>
-inline void _CLS_ (ByteWriter<_ARG1> &writer) {
-	writer.reset () ;
-}
-
-template <class _ARG1>
-inline void _CLS_ (TextReader<_ARG1> &reader) {
-	reader.reset () ;
-}
-
-template <class _ARG1>
-inline void _CLS_ (TextWriter<_ARG1> &writer) {
-	writer.reset () ;
-}
-
-template <class _ARG1>
-inline void _BOM_ (TextReader<_ARG1> &reader) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-inline void _BOM_ (TextReader<STRU8> &reader) {
-	static constexpr auto M_BOM = PACK<STRU8[3]> ({
-		STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = STRU8 () ;
-	ris >> rax ;
-	if (rax != M_BOM.P1[0])
-		return ;
-	ris >> rax ;
-	if (rax != M_BOM.P1[1])
-		return ;
-	ris >> rax ;
-	if (rax != M_BOM.P1[2])
-		return ;
-	r1x.enable_endian (FALSE) ;
-	reader = std::move (ris) ;
-}
-
-inline void _BOM_ (TextReader<STRU16> &reader) {
-	static constexpr auto M_BOM = PACK<STRU16[2]> ({
-		STRU16 (0XFEFF) ,STRU16 (0XFFFE)}) ;
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = STRU16 () ;
-	ris >> rax ;
-	if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
-		return ;
-	const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
-	r1x.enable_endian (r2x) ;
-	reader = std::move (ris) ;
-}
-
-inline void _BOM_ (TextReader<STRU32> &reader) {
-	static constexpr auto M_BOM = PACK<STRU32[2]> ({
-		STRU32 (0X0000FEFF) ,STRU32 (0XFFFE0000)}) ;
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = STRU32 () ;
-	ris >> rax ;
-	if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
-		return ;
-	const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
-	r1x.enable_endian (r2x) ;
-	reader = std::move (ris) ;
-}
-
-inline void _BOM_ (TextReader<STRW> &reader) {
-	_BOM_ (_CAST_<TextReader<STRUW>> (reader)) ;
-}
-
-template <class _ARG1>
-inline void _BOM_ (TextWriter<_ARG1> &writer) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-inline void _BOM_ (TextWriter<STRU8> &writer) {
-	static constexpr auto M_BOM = PACK<STRU8[3]> ({
-		STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
-	auto wos = writer.copy () ;
-	wos << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
-	writer = std::move (wos) ;
-}
-
-inline void _BOM_ (TextWriter<STRU16> &writer) {
-	static constexpr auto M_BOM = PACK<STRU16[1]> ({
-		STRU16 (0XFEFF)}) ;
-	auto wos = writer.copy () ;
-	wos << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
-	writer = std::move (wos) ;
-}
-
-inline void _BOM_ (TextWriter<STRU32> &writer) {
-	static constexpr auto M_BOM = PACK<STRU32[1]> ({
-		STRU32 (0X0000FEFF)}) ;
-	auto wos = writer.copy () ;
-	wos << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
-	writer = std::move (wos) ;
-}
-
-inline void _BOM_ (TextWriter<STRA> &writer) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-inline void _BOM_ (TextWriter<STRW> &writer) {
-	_BOM_ (_CAST_<TextWriter<STRUW>> (writer)) ;
-}
-
-template <class _ARG1>
-inline void _GAP_ (ByteReader<_ARG1> &reader) {
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = BYTE () ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
-	reader = std::move (ris) ;
-}
-
-template <class _ARG1>
-inline void _GAP_ (ByteWriter<_ARG1> &writer) {
-	const auto r1x = writer.attr () ;
-	auto wos = writer.copy () ;
-	wos << r1x.varify_space_item () ;
-	wos << r1x.varify_space_item () ;
-	writer = std::move (wos) ;
-}
-
-template <class _ARG1>
-inline void _GAP_ (TextReader<_ARG1> &reader) {
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = _ARG1 () ;
-	ris >> rax ;
-	while (TRUE) {
-		if (!r1x.varify_space (rax))
-			break ;
-		reader = ris.copy () ;
-		ris >> rax ;
-	}
-}
-
-template <class _ARG1>
-inline void _GAP_ (TextWriter<_ARG1> &writer) {
-	auto wos = writer.copy () ;
-	_DYNAMIC_ASSERT_ (wos.length () + 2 < wos.size ()) ;
-	wos << _ARG1 ('\r') << _ARG1 ('\n') ;
-	writer = std::move (wos) ;
-}
-
-template <class _ARG1>
-inline void _EOS_ (ByteReader<_ARG1> &reader) {
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = BYTE () ;
-	while (TRUE) {
-		if (ris.length () == 0)
-			break ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
-	}
-	reader = std::move (ris) ;
-}
-
-template <class _ARG1>
-inline void _EOS_ (ByteWriter<_ARG1> &writer) {
-	const auto r1x = writer.attr () ;
-	auto wos = writer.copy () ;
-	for (auto &&i : _RANGE_ (0 ,wos.size () - wos.length ())) {
-		wos << r1x.varify_ending_item () ;
-		_STATIC_UNUSED_ (i) ;
-	}
-	writer = std::move (wos) ;
-}
-
-template <class _ARG1>
-inline void _EOS_ (TextReader<_ARG1> &reader) {
-	const auto r1x = reader.attr () ;
-	auto ris = reader.copy () ;
-	auto rax = _ARG1 () ;
-	ris.read (rax) ;
-	_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
-	reader = std::move (ris) ;
-}
-
-template <class _ARG1>
-inline void _EOS_ (TextWriter<_ARG1> &writer) {
-	const auto r1x = writer.attr () ;
-	auto wos = writer.copy () ;
-	wos << r1x.varify_ending_item () ;
-	writer = std::move (wos) ;
-}
-} ;
-
-inline namespace STREAM {
-template <class _ARG1>
-inline void _SCANS_ (ByteReader<_ARG1> &reader) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline void _SCANS_ (ByteReader<_ARG1> &reader ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
-	reader >> list_one ;
-	_SCANS_ (reader ,list_rest...) ;
-}
-
-template <class _ARG1>
-inline void _SCANS_ (TextReader<_ARG1> &reader) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline void _SCANS_ (TextReader<_ARG1> &reader ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
-	reader >> list_one ;
-	_SCANS_ (reader ,list_rest...) ;
-}
-
-template <class _ARG1>
-inline void _PRINTS_ (ByteWriter<_ARG1> &writer) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline void _PRINTS_ (ByteWriter<_ARG1> &writer ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
-	writer << list_one ;
-	_PRINTS_ (writer ,list_rest...) ;
-}
-
-template <class _ARG1>
-inline void _PRINTS_ (TextWriter<_ARG1> &writer) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-inline void _PRINTS_ (TextWriter<_ARG1> &writer ,const _ARG2 &list_one ,const _ARGS &...list_rest) {
-	writer << list_one ;
-	_PRINTS_ (writer ,list_rest...) ;
-}
-} ;
-
 class RegularReader {
-private:
-	struct HINT_IDENTIFIER_TEXT_TYPE ;
-	struct HINT_VALUE_TEXT_TYPE ;
-	struct HINT_STRING_TEXT_TYPE ;
-	struct HINT_NEWGAP_TEXT_TYPE ;
-	struct HINT_NEWLINE_TEXT_TYPE ;
-	struct SKIP_GAP_TYPE ;
-	struct SKIP_GAP_SPACE_ONLY_TYPE ;
-	struct SKIP_GAP_ENDLINE_ONLY_TYPE ;
-	struct SKIP_LINE_TYPE ;
-
 public:
-	static void HINT_IDENTIFIER_TEXT (const ARGV<HINT_IDENTIFIER_TEXT_TYPE> &) {}
-	static void HINT_VALUE_TEXT (const ARGV<HINT_VALUE_TEXT_TYPE> &) {}
-	static void HINT_STRING_TEXT (const ARGV<HINT_STRING_TEXT_TYPE> &) {}
-	static void HINT_NEWGAP_TEXT (const ARGV<HINT_NEWGAP_TEXT_TYPE> &) {}
-	static void HINT_NEWLINE_TEXT (const ARGV<HINT_NEWLINE_TEXT_TYPE> &) {}
-	static void SKIP_GAP (const ARGV<SKIP_GAP_TYPE> &) {}
-	static void SKIP_GAP_SPACE_ONLY (const ARGV<SKIP_GAP_SPACE_ONLY_TYPE> &) {}
-	static void SKIP_GAP_ENDLINE_ONLY (const ARGV<SKIP_GAP_ENDLINE_ONLY_TYPE> &) {}
-	static void SKIP_LINE (const ARGV<SKIP_LINE_TYPE> &) {}
+	static DEF<void (const ARGV<ARGC<1>> &)> HINT_IDENTIFIER ;
+	static DEF<void (const ARGV<ARGC<2>> &)> HINT_VALUE ;
+	static DEF<void (const ARGV<ARGC<3>> &)> HINT_STRING ;
+	static DEF<void (const ARGV<ARGC<4>> &)> HINT_NEWGAP ;
+	static DEF<void (const ARGV<ARGC<5>> &)> HINT_NEWLINE ;
+	static DEF<void (const ARGV<ARGC<6>> &)> SKIP_GAP ;
+	static DEF<void (const ARGV<ARGC<7>> &)> SKIP_GAP_SPACE ;
+	static DEF<void (const ARGV<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
+	static DEF<void (const ARGV<ARGC<9>> &)> SKIP_LINE ;
 
 private:
 	TextReader<STRU8> mShadowReader ;
@@ -2152,7 +2221,7 @@ public:
 		_STATIC_WARNING_ ("mark") ;
 		//@info: disable default escape-str convertion
 		r1x.enable_escape (FALSE) ;
-		mReader.self >> _BOM_ ;
+		mReader.self >> TextReader<STRU8>::BOM ;
 		mCache = Array<STRU8> (ll_len) ;
 		for (auto &&i : _RANGE_ (0 ,mCache.length ()))
 			mReader.self >> mCache[i] ;
@@ -2194,60 +2263,60 @@ public:
 			read () ;
 		}
 #pragma GCC diagnostic pop
-	}
+}
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (HINT_IDENTIFIER_TEXT)> &) {
+	void read (const PTR<decltype (HINT_IDENTIFIER)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_identifier_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_IDENTIFIER_TEXT)> &) {
-		read (HINT_IDENTIFIER_TEXT) ;
+	inline RegularReader &operator>> (const PTR<decltype (HINT_IDENTIFIER)> &) {
+		read (HINT_IDENTIFIER) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (HINT_VALUE_TEXT)> &) {
+	void read (const PTR<decltype (HINT_VALUE)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_value_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_VALUE_TEXT)> &) {
-		read (HINT_VALUE_TEXT) ;
+	inline RegularReader &operator>> (const PTR<decltype (HINT_VALUE)> &) {
+		read (HINT_VALUE) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (HINT_STRING_TEXT)> &) {
+	void read (const PTR<decltype (HINT_STRING)> &) {
 		mHintStringTextFlag = TRUE ;
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_STRING_TEXT)> &) {
-		read (HINT_STRING_TEXT) ;
+	inline RegularReader &operator>> (const PTR<decltype (HINT_STRING)> &) {
+		read (HINT_STRING) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (HINT_NEWGAP_TEXT)> &) {
+	void read (const PTR<decltype (HINT_NEWGAP)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newgap_text_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWGAP_TEXT)> &) {
-		read (HINT_NEWGAP_TEXT) ;
+	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWGAP)> &) {
+		read (HINT_NEWGAP) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (HINT_NEWLINE_TEXT)> &) {
+	void read (const PTR<decltype (HINT_NEWLINE)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newline_text_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWLINE_TEXT)> &) {
-		read (HINT_NEWLINE_TEXT) ;
+	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWLINE)> &) {
+		read (HINT_NEWLINE) ;
 		return (*this) ;
 	}
 
@@ -2265,7 +2334,7 @@ public:
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (SKIP_GAP_SPACE_ONLY)> &) {
+	void read (const PTR<decltype (SKIP_GAP_SPACE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
 			if (!r1x.varify_space (get (0) ,1))
@@ -2274,12 +2343,12 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_SPACE_ONLY)> &) {
-		read (SKIP_GAP_SPACE_ONLY) ;
+	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_SPACE)> &) {
+		read (SKIP_GAP_SPACE) ;
 		return (*this) ;
 	}
 
-	void read (const PTR<decltype (SKIP_GAP_ENDLINE_ONLY)> &) {
+	void read (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
 			if (!r1x.varify_space (get (0) ,2))
@@ -2288,8 +2357,8 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_ENDLINE_ONLY)> &) {
-		read (SKIP_GAP_ENDLINE_ONLY) ;
+	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
+		read (SKIP_GAP_ENDLINE) ;
 		return (*this) ;
 	}
 

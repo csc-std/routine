@@ -11,30 +11,152 @@
 #include "csc_stream.hpp"
 
 namespace CSC {
-inline namespace STRING {
-inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) ;
-inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) ;
-inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) ;
-inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) ;
-inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) ;
-inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) ;
-inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) ;
-inline String<STRW> _U8STOWS_ (const String<STRU8> &val) ;
-inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) ;
-inline String<STRW> _U16STOWS_ (const String<STRU16> &val) ;
-inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) ;
-inline String<STRW> _U32STOWS_ (const String<STRU32> &val) ;
-inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) ;
-inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) ;
-inline String<STRU8> _ASTOU8S_ (const String<STRA> &val) ;
-inline String<STRA> _U8STOAS_ (const String<STRU8> &val) ;
-inline String<STRU16> _ASTOU16S_ (const String<STRA> &val) ;
-inline String<STRA> _U16STOAS_ (const String<STRU16> &val) ;
-inline String<STRU32> _ASTOU32S_ (const String<STRA> &val) ;
-inline String<STRA> _U32STOAS_ (const String<STRU32> &val) ;
+class StringProc
+	:private Wrapped<void> {
+public:
+	inline imports_static String<STRU16> cvt_u8s_u16s (const String<STRU8> &val) ;
 
-inline imports DEF<String<STRW> (const String<STRA> &val)> _ASTOWS_ ;
-inline imports DEF<String<STRA> (const String<STRW> &val)> _WSTOAS_ ;
+	inline imports_static String<STRU8> cvt_u16s_u8s (const String<STRU16> &val) ;
+
+	inline imports_static String<STRU32> cvt_u8s_u32s (const String<STRU8> &val) ;
+
+	inline imports_static String<STRU8> cvt_u32s_u8s (const String<STRU32> &val) ;
+
+	inline imports_static String<STRU32> cvt_u16s_u32s (const String<STRU16> &val) ;
+
+	inline imports_static String<STRU16> cvt_u32s_u16s (const String<STRU32> &val) ;
+
+	inline imports_static String<STRU8> cvt_ws_u8s (const String<STRW> &val) ;
+
+	inline imports_static String<STRW> cvt_u8s_ws (const String<STRU8> &val) ;
+
+	inline imports_static String<STRU16> cvt_ws_u16s (const String<STRW> &val) ;
+
+	inline imports_static String<STRW> cvt_u16s_ws (const String<STRU16> &val) ;
+
+	inline imports_static String<STRU32> cvt_ws_u32s (const String<STRW> &val) ;
+
+	inline imports_static String<STRW> cvt_u32s_ws (const String<STRU32> &val) ;
+
+	inline imports_static String<STRA> cvt_ws_gbks (const String<STRW> &val) ;
+
+	inline imports_static String<STRW> cvt_gbks_ws (const String<STRA> &val) ;
+
+	inline imports_static String<STRU8> cvt_as_u8s (const String<STRA> &val) ;
+
+	inline imports_static String<STRA> cvt_u8s_as (const String<STRU8> &val) ;
+
+	inline imports_static String<STRU16> cvt_as_u16s (const String<STRA> &val) ;
+
+	inline imports_static String<STRA> cvt_u16s_as (const String<STRU16> &val) ;
+
+	inline imports_static String<STRU32> cvt_as_u32s (const String<STRA> &val) ;
+
+	inline imports_static String<STRA> cvt_u32s_as (const String<STRU32> &val) ;
+
+	inline imports_static String<STRA> cvt_ws_as (const String<STRW> &val) ;
+
+	inline imports_static String<STRW> cvt_as_ws (const String<STRA> &val) ;
+
+	inline imports_static String<STRU8> cvt_uas_u8s (const String<STRA> &val) ;
+
+	inline imports_static String<STRU8> cvt_uas_u8s (String<STRA> &&val) ;
+
+	inline imports_static String<STRA> cvt_u8s_uas (const String<STRU8> &val) ;
+
+	inline imports_static String<STRA> cvt_u8s_uas (String<STRU8> &&val) ;
+
+	template <class _ARG1>
+	inline imports_static BOOL parse_bools (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_bools (const BOOL &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAR32 parse_var32s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_var32s (const VAR32 &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAR64 parse_var64s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_var64s (const VAR64 &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAR parse_vars (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_vars (const VAR &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAL32 parse_val32s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_val32s (const VAL32 &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAL64 parse_val64s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_val64s (const VAL64 &stru) ;
+
+	template <class _ARG1>
+	inline imports_static VAL parse_vals (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_vals (const VAL &stru) ;
+
+	template <class _ARG1>
+	inline imports_static String<STR> parse_strs (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_strs (const String<STR> &stru) ;
+
+	template <class _ARG1>
+	inline imports_static CHAR parse_hex8s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_hex8s (const CHAR &stru) ;
+
+	template <class _ARG1>
+	inline imports_static DATA parse_hex16s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_hex16s (const DATA &stru) ;
+
+	template <class _ARG1>
+	inline imports_static String<STRU8> parse_base64u8s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_base64u8s (const String<STRU8> &stru) ;
+
+	template <class _ARG1>
+	inline imports_static PACK<WORD ,CHAR> parse_ipv4s (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_ipv4s (const PACK<WORD ,CHAR> &stru) ;
+
+#ifdef __CSC_EXTEND__
+	template <class _ARG1>
+	inline imports_static std::chrono::system_clock::time_point parse_dates (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_dates (const std::chrono::system_clock::time_point &stru) ;
+
+	template <class _ARG1>
+	inline imports_static std::chrono::system_clock::time_point parse_hours (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_hours (const std::chrono::system_clock::time_point &stru) ;
+
+	template <class _ARG1>
+	inline imports_static std::chrono::system_clock::time_point parse_times (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports_static String<_RET> build_times (const std::chrono::system_clock::time_point &stru) ;
+#endif
 } ;
 
 namespace U {
@@ -79,146 +201,145 @@ struct OPERATOR_STRING<STRW ,STRW> {
 template <>
 struct OPERATOR_STRING<STRU8 ,STRU16> {
 	inline static String<STRU8> invoke (const String<STRU16> &val) {
-		return _U16STOU8S_ (val) ;
+		return StringProc::cvt_u16s_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRU8> {
 	inline static String<STRU16> invoke (const String<STRU8> &val) {
-		return _U8STOU16S_ (val) ;
+		return StringProc::cvt_u8s_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRU32> {
 	inline static String<STRU8> invoke (const String<STRU32> &val) {
-		return _U32STOU8S_ (val) ;
+		return StringProc::cvt_u32s_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRU8> {
 	inline static String<STRU32> invoke (const String<STRU8> &val) {
-		return _U8STOU32S_ (val) ;
+		return StringProc::cvt_u8s_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRU32> {
 	inline static String<STRU16> invoke (const String<STRU32> &val) {
-		return _U32STOU16S_ (val) ;
+		return StringProc::cvt_u32s_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRU16> {
 	inline static String<STRU32> invoke (const String<STRU16> &val) {
-		return _U16STOU32S_ (val) ;
+		return StringProc::cvt_u16s_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRW> {
 	inline static String<STRU8> invoke (const String<STRW> &val) {
-		return _WSTOU8S_ (val) ;
+		return StringProc::cvt_ws_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU8> {
 	inline static String<STRW> invoke (const String<STRU8> &val) {
-		return _U8STOWS_ (val) ;
+		return StringProc::cvt_u8s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRW> {
 	inline static String<STRU16> invoke (const String<STRW> &val) {
-		return _WSTOU16S_ (val) ;
+		return StringProc::cvt_ws_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU16> {
 	inline static String<STRW> invoke (const String<STRU16> &val) {
-		return _U16STOWS_ (val) ;
+		return StringProc::cvt_u16s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRW> {
 	inline static String<STRU32> invoke (const String<STRW> &val) {
-		return _WSTOU32S_ (val) ;
+		return StringProc::cvt_ws_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU32> {
 	inline static String<STRW> invoke (const String<STRU32> &val) {
-		return _U32STOWS_ (val) ;
+		return StringProc::cvt_u32s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRA> {
 	inline static String<STRW> invoke (const String<STRA> &val) {
-		return _ASTOWS_ (val) ;
+		return StringProc::cvt_as_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRW> {
 	inline static String<STRA> invoke (const String<STRW> &val) {
-		return _WSTOAS_ (val) ;
+		return StringProc::cvt_ws_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRA> {
 	inline static String<STRU8> invoke (const String<STRA> &val) {
-		return _ASTOU8S_ (val) ;
+		return StringProc::cvt_as_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU8> {
 	inline static String<STRA> invoke (const String<STRU8> &val) {
-		return _U8STOAS_ (val) ;
+		return StringProc::cvt_u8s_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRA> {
 	inline static String<STRU16> invoke (const String<STRA> &val) {
-		return _ASTOU16S_ (val) ;
+		return StringProc::cvt_as_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU16> {
 	inline static String<STRA> invoke (const String<STRU16> &val) {
-		return _U16STOAS_ (val) ;
+		return StringProc::cvt_u16s_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRA> {
 	inline static String<STRU32> invoke (const String<STRA> &val) {
-		return _ASTOU32S_ (val) ;
+		return StringProc::cvt_as_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU32> {
 	inline static String<STRA> invoke (const String<STRU32> &val) {
-		return _U32STOAS_ (val) ;
+		return StringProc::cvt_u32s_as (val) ;
 	}
 } ;
 } ;
 
-inline namespace STRING {
-inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
+inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val) {
 	String<STRU16> ret = String<STRU16> (val.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -335,7 +456,7 @@ inline String<STRU16> _U8STOU16S_ (const String<STRU8> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
+inline exports String<STRU8> StringProc::cvt_u16s_u8s (const String<STRU16> &val) {
 	String<STRU8> ret = String<STRU8> (val.length () * 3) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -398,7 +519,7 @@ inline String<STRU8> _U16STOU8S_ (const String<STRU16> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
+inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val) {
 	/*
 	*	1 bytes [0,0X7F] 0xxxxxxx
 	*	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -491,7 +612,7 @@ inline String<STRU32> _U8STOU32S_ (const String<STRU8> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
+inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val) {
 	/*
 	*	1 bytes [0,0X7F] 0xxxxxxx
 	*	2 bytes [0x80,0X7FF] 110xxxxx 10xxxxxx
@@ -574,7 +695,7 @@ inline String<STRU8> _U32STOU8S_ (const String<STRU32> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
+inline exports String<STRU32> StringProc::cvt_u16s_u32s (const String<STRU16> &val) {
 	/*
 	*	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	*	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx
@@ -628,7 +749,7 @@ inline String<STRU32> _U16STOU32S_ (const String<STRU16> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
+inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &val) {
 	/*
 	*	utf16 surrogate pairs [D800,DBFF] 110110xx xxxxxxxx [DC00,DFFF] 110111xx xxxxxxxx
 	*	utf16-utf32 surrogate pairs [0X10000,0X10FFFF]-[0,0XFFFFF] 0000xxxx xxxxxxxx xxxxxxxx
@@ -672,58 +793,58 @@ inline String<STRU16> _U32STOU16S_ (const String<STRU32> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU8> _WSTOU8S_ (const String<STRW> &val) {
+inline exports String<STRU8> StringProc::cvt_ws_u8s (const String<STRW> &val) {
 	return U::OPERATOR_STRING<STRU8 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
-inline String<STRW> _U8STOWS_ (const String<STRU8> &val) {
+inline exports String<STRW> StringProc::cvt_u8s_ws (const String<STRU8> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU8>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
-inline String<STRU16> _WSTOU16S_ (const String<STRW> &val) {
+inline exports String<STRU16> StringProc::cvt_ws_u16s (const String<STRW> &val) {
 	return U::OPERATOR_STRING<STRU16 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
-inline String<STRW> _U16STOWS_ (const String<STRU16> &val) {
+inline exports String<STRW> StringProc::cvt_u16s_ws (const String<STRU16> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU16>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
-inline String<STRU32> _WSTOU32S_ (const String<STRW> &val) {
+inline exports String<STRU32> StringProc::cvt_ws_u32s (const String<STRW> &val) {
 	return U::OPERATOR_STRING<STRU32 ,STRUW>::invoke (_CAST_<String<STRUW>> (val)) ;
 }
 
-inline String<STRW> _U32STOWS_ (const String<STRU32> &val) {
+inline exports String<STRW> StringProc::cvt_u32s_ws (const String<STRU32> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU32>::invoke (val) ;
 	return std::move (_CAST_<String<STRW>> (ret)) ;
 }
 
-inline String<STRU8> _ASTOU8S_ (const String<STRA> &val) {
-	return _WSTOU8S_ (_ASTOWS_ (val)) ;
+inline exports String<STRU8> StringProc::cvt_as_u8s (const String<STRA> &val) {
+	return StringProc::cvt_ws_u8s (StringProc::cvt_as_ws (val)) ;
 }
 
-inline String<STRA> _U8STOAS_ (const String<STRU8> &val) {
-	return _WSTOAS_ (_U8STOWS_ (val)) ;
+inline exports String<STRA> StringProc::cvt_u8s_as (const String<STRU8> &val) {
+	return StringProc::cvt_ws_as (StringProc::cvt_u8s_ws (val)) ;
 }
 
-inline String<STRU16> _ASTOU16S_ (const String<STRA> &val) {
-	return _WSTOU16S_ (_ASTOWS_ (val)) ;
+inline exports String<STRU16> StringProc::cvt_as_u16s (const String<STRA> &val) {
+	return StringProc::cvt_ws_u16s (StringProc::cvt_as_ws (val)) ;
 }
 
-inline String<STRA> _U16STOAS_ (const String<STRU16> &val) {
-	return _WSTOAS_ (_U16STOWS_ (val)) ;
+inline exports String<STRA> StringProc::cvt_u16s_as (const String<STRU16> &val) {
+	return StringProc::cvt_ws_as (StringProc::cvt_u16s_ws (val)) ;
 }
 
-inline String<STRU32> _ASTOU32S_ (const String<STRA> &val) {
-	return _WSTOU32S_ (_ASTOWS_ (val)) ;
+inline exports String<STRU32> StringProc::cvt_as_u32s (const String<STRA> &val) {
+	return StringProc::cvt_ws_u32s (StringProc::cvt_as_ws (val)) ;
 }
 
-inline String<STRA> _U32STOAS_ (const String<STRU32> &val) {
-	return _WSTOAS_ (_U32STOWS_ (val)) ;
+inline exports String<STRA> StringProc::cvt_u32s_as (const String<STRU32> &val) {
+	return StringProc::cvt_ws_as (StringProc::cvt_u32s_ws (val)) ;
 }
 
-inline String<STRU8> _UASTOU8S_ (const String<STRA> &val) {
+inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
@@ -733,7 +854,7 @@ inline String<STRU8> _UASTOU8S_ (const String<STRA> &val) {
 	return std::move (ret) ;
 }
 
-inline String<STRU8> _UASTOU8S_ (String<STRA> &&val) {
+inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = std::move (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
@@ -743,7 +864,7 @@ inline String<STRU8> _UASTOU8S_ (String<STRA> &&val) {
 	return std::move (ret) ;
 }
 
-inline String<STRA> _U8STOUAS_ (const String<STRU8> &val) {
+inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
@@ -753,7 +874,7 @@ inline String<STRA> _U8STOUAS_ (const String<STRU8> &val) {
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
 
-inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
+inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 	_STATIC_ASSERT_ (std::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = std::move (val) ;
 	for (auto &&i : ret) {
@@ -763,21 +884,25 @@ inline String<STRA> _U8STOUAS_ (String<STRU8> &&val) {
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
 
-inline imports DEF<PhanBuffer<const DEF<STRUW[2]>> ()> _LOADUWSTOUGBKSTABLE_ ;
+namespace U {
+inline imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
+} ;
 
-inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &_inline_GBKSTOWS_TABLE_ () {
+namespace U {
+inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_gbks_ws_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = _LOADUWSTOUGBKSTABLE_ () ;
+		ret.P1 = static_gbks_ws_table () ;
 		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
 			ret.P2.add (ret.P1[i][1] ,i) ;
 		return std::move (ret) ;
 	}) ;
 }
+} ;
 
-inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
-	auto &r1x = _inline_GBKSTOWS_TABLE_ () ;
+inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
+	auto &r1x = U::static_cvt_gbks_ws_table () ;
 	auto &r2x = _CAST_<String<STRUA>> (val) ;
 	String<STRW> ret = String<STRW> (r2x.length ()) ;
 	INDEX iw = 0 ;
@@ -850,19 +975,21 @@ inline String<STRW> _GBKSTOWS_ (const String<STRA> &val) {
 	return std::move (ret) ;
 }
 
-inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &_inline_WSTOGBKS_TABLE_ () {
+namespace U {
+inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_ws_gbks_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = _LOADUWSTOUGBKSTABLE_ () ;
+		ret.P1 = static_gbks_ws_table () ;
 		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
 			ret.P2.add (ret.P1[i][0] ,i) ;
 		return std::move (ret) ;
 	}) ;
 }
+} ;
 
-inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
-	auto &r1x = _inline_WSTOGBKS_TABLE_ () ;
+inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
+	auto &r1x = U::static_cvt_ws_gbks_table () ;
 	String<STRUA> ret = String<STRUA> (val.length () * 2) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -902,139 +1029,136 @@ inline String<STRA> _WSTOGBKS_ (const String<STRW> &val) {
 		ret[iw] = 0 ;
 	return std::move (_CAST_<String<STRA>> (ret)) ;
 }
-} ;
 
-inline namespace STRING {
 template <class _ARG1>
-inline BOOL _PARSEBOOLS_ (const String<_ARG1> &stri) {
+inline exports BOOL StringProc::parse_bools (const String<_ARG1> &stri) {
 	BOOL ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDBOOLS_ (const BOOL &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_bools (const BOOL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (7) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAR32 _PARSEVAR32S_ (const String<_ARG1> &stri) {
+inline exports VAR32 StringProc::parse_var32s (const String<_ARG1> &stri) {
 	VAR32 ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVAR32S_ (const VAR32 &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_var32s (const VAR32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAR64 _PARSEVAR64S_ (const String<_ARG1> &stri) {
+inline exports VAR64 StringProc::parse_var64s (const String<_ARG1> &stri) {
 	VAR64 ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVAR64S_ (const VAR64 &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_var64s (const VAR64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAR _PARSEVARS_ (const String<_ARG1> &stri) {
+inline exports VAR StringProc::parse_vars (const String<_ARG1> &stri) {
 	VAR ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVARS_ (const VAR &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_vars (const VAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAL32 _PARSEVAL32S_ (const String<_ARG1> &stri) {
+inline exports VAL32 StringProc::parse_val32s (const String<_ARG1> &stri) {
 	VAL32 ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVAL32S_ (const VAL32 &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_val32s (const VAL32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAL64 _PARSEVAL64S_ (const String<_ARG1> &stri) {
+inline exports VAL64 StringProc::parse_val64s (const String<_ARG1> &stri) {
 	VAL64 ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVAL64S_ (const VAL64 &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_val64s (const VAL64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline VAL _PARSEVALS_ (const String<_ARG1> &stri) {
+inline exports VAL StringProc::parse_vals (const String<_ARG1> &stri) {
 	VAL ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> _EOS_ ;
+	ris >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDVALS_ (const VAL &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_vals (const VAL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << _EOS_ ;
+	wos << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline String<STR> _PARSESTRS_ (const String<_ARG1> &stri) {
+inline exports String<STR> StringProc::parse_strs (const String<_ARG1> &stri) {
 	return U::OPERATOR_STRING<STR ,REMOVE_CVR_TYPE<_ARG1>>::invoke (stri) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDSTRS_ (const String<STR> &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_strs (const String<STR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	return U::OPERATOR_STRING<REMOVE_CVR_TYPE<_RET> ,STR>::invoke (stru) ;
 }
-} ;
 
 template <class ITEM ,class SIZE>
 template <class... _ARGS>
@@ -1042,8 +1166,8 @@ inline exports String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...init
 	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
 	String<ITEM> ret = String<ITEM> (DEFAULT_LONGSTRING_SIZE::value) ;
 	auto wos = TextWriter<ITEM> (ret.raw ()) ;
-	_PRINTS_ (wos ,initval...) ;
-	wos << _EOS_ ;
+	wos.prints (initval...) ;
+	wos << TextWriter<ITEM>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1066,9 +1190,8 @@ public:
 } ;
 #endif
 
-inline namespace STRING {
 template <class _ARG1>
-inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
+inline exports CHAR StringProc::parse_hex8s (const String<_ARG1> &stri) {
 	CHAR ret = 0 ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
 	auto rax = _ARG1 () ;
@@ -1088,12 +1211,12 @@ inline CHAR _PARSEHEX8S_ (const String<_ARG1> &stri) {
 		ret = (ret << 4) | CHAR (rax - r4x) ;
 		_STATIC_UNUSED_ (i) ;
 	}
-	ris >> _EOS_ ;
+	ris >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_hex8s (const CHAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (15) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
@@ -1107,12 +1230,12 @@ inline String<_RET> _BUILDHEX8S_ (const CHAR &stru) {
 			r1x[1]) ;
 		wos << _RET (r3x + r2x) ;
 	}
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
+inline exports DATA StringProc::parse_hex16s (const String<_ARG1> &stri) {
 	DATA ret = 0 ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
 	auto rax = _ARG1 () ;
@@ -1131,12 +1254,12 @@ inline DATA _PARSEHEX16S_ (const String<_ARG1> &stri) {
 			r1x[1]) ;
 		ret = (ret << 4) | DATA (rax - r4x) ;
 	}
-	ris >> _EOS_ ;
+	ris >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_hex16s (const DATA &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (31) ;
 	auto wos = TextWriter<_RET> (ret.raw ()) ;
@@ -1150,12 +1273,12 @@ inline String<_RET> _BUILDHEX16S_ (const DATA &stru) {
 			r1x[1]) ;
 		wos << _RET (r3x + r2x) ;
 	}
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &stru) {
 	static constexpr auto M_BASE64 = PACK<STRU8[66]> ({
 		'-' ,'A' ,'B' ,'C' ,'D' ,'E' ,'F' ,'G' ,
 		'H' ,'I' ,'J' ,'K' ,'L' ,'M' ,'N' ,'O' ,
@@ -1241,7 +1364,7 @@ inline String<_RET> _BUILDBASE64U8S_ (const String<STRU8> &stru) {
 }
 
 template <class _ARG1>
-inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
+inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &stri) {
 	static constexpr auto M_BASE64 = PACK<INDEX[96]> ({
 		-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,+0 ,64 ,-1 ,
 		54 ,55 ,56 ,57 ,58 ,59 ,60 ,61 ,62 ,63 ,64 ,-1 ,-1 ,-1 ,-1 ,-1 ,
@@ -1334,7 +1457,7 @@ inline String<STRU8> _PARSEBASE64U8S_ (const String<_ARG1> &stri) {
 }
 
 template <class _ARG1>
-inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
+inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &stri) {
 	PACK<WORD ,CHAR> ret ;
 	auto ris = TextReader<_ARG1> (stri.raw ()) ;
 	auto rax = _ARG1 () ;
@@ -1369,12 +1492,12 @@ inline PACK<WORD ,CHAR> _PARSEIPV4S_ (const String<_ARG1> &stri) {
 		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 65536) ;
 		ret.P1 = WORD (rbx) ;
 	}
-	ris >> _EOS_ ;
+	ris >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_ipv4s (const PACK<WORD ,CHAR> &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
 	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
@@ -1393,16 +1516,18 @@ inline String<_RET> _BUILDIPV4S_ (const PACK<WORD ,CHAR> &stru) {
 		wos << _RET (':') ;
 		wos << VAR (stru.P1) ;
 	}
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 #ifdef __CSC_EXTEND__
-inline imports DEF<ARRAY8<VAR32> (const std::chrono::system_clock::time_point &val)> _LOCALE_MAKE_TIMEMETRIC_ ;
-inline imports DEF<std::chrono::system_clock::time_point (const ARRAY8<VAR32> &val)> _LOCALE_MAKE_TIMEPOINT_ ;
+namespace U {
+inline imports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) ;
+inline imports std::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) ;
+} ;
 
 template <class _ARG1>
-inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &stri) {
+inline exports std::chrono::system_clock::time_point StringProc::parse_dates (const String<_ARG1> &stri) {
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
@@ -1422,18 +1547,18 @@ inline std::chrono::system_clock::time_point _PARSEDATES_ (const String<_ARG1> &
 		ris >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx >= 1 && rbx <= 31) ;
 		ret[2] = VAR32 (rbx) ;
-		ris >> _EOS_ ;
+		ris >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
+	return U::static_make_time_point (r1x) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDDATES_ (const std::chrono::system_clock::time_point &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_dates (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
+	const auto r1x = U::static_make_time_metric (stru) ;
 	wos << r1x[0] ;
 	wos << STR ('-') ;
 	if (r1x[1] < 10)
@@ -1443,12 +1568,12 @@ inline String<_RET> _BUILDDATES_ (const std::chrono::system_clock::time_point &s
 	if (r1x[2] < 10)
 		wos << STR ('0') ;
 	wos << r1x[2] ;
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &stri) {
+inline exports std::chrono::system_clock::time_point StringProc::parse_hours (const String<_ARG1> &stri) {
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
@@ -1468,18 +1593,18 @@ inline std::chrono::system_clock::time_point _PARSEHOURS_ (const String<_ARG1> &
 		ris >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 60) ;
 		ret[7] = VAR32 (rbx) ;
-		ris >> _EOS_ ;
+		ris >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
+	return U::static_make_time_point (r1x) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDHOURS_ (const std::chrono::system_clock::time_point &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_hours (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
+	const auto r1x = U::static_make_time_metric (stru) ;
 	if (r1x[5] < 10)
 		wos << STR ('0') ;
 	wos << r1x[5] ;
@@ -1491,12 +1616,12 @@ inline String<_RET> _BUILDHOURS_ (const std::chrono::system_clock::time_point &s
 	if (r1x[7] < 10)
 		wos << STR ('0') ;
 	wos << r1x[7] ;
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
-inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &stri) {
+inline exports std::chrono::system_clock::time_point StringProc::parse_times (const String<_ARG1> &stri) {
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
@@ -1531,18 +1656,18 @@ inline std::chrono::system_clock::time_point _PARSETIMES_ (const String<_ARG1> &
 		ris >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 60) ;
 		ret[7] = VAR32 (rbx) ;
-		ris >> _EOS_ ;
+		ris >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
-	return _LOCALE_MAKE_TIMEPOINT_ (r1x) ;
+	return U::static_make_time_point (r1x) ;
 }
 
-template <class _RET = STR>
-inline String<_RET> _BUILDTIMES_ (const std::chrono::system_clock::time_point &stru) {
+template <class _RET>
+inline exports String<_RET> StringProc::build_times (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;
 	auto wos = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _LOCALE_MAKE_TIMEMETRIC_ (stru) ;
+	const auto r1x = U::static_make_time_metric (stru) ;
 	wos << r1x[0] ;
 	wos << STR ('-') ;
 	if (r1x[1] < 10)
@@ -1564,9 +1689,8 @@ inline String<_RET> _BUILDTIMES_ (const std::chrono::system_clock::time_point &s
 	if (r1x[7] < 10)
 		wos << STR ('0') ;
 	wos << r1x[7] ;
-	wos << _EOS_ ;
+	wos << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 #endif
-} ;
 } ;

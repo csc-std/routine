@@ -726,7 +726,7 @@ public:
 	}
 
 public:
-	static DEPENDENT_TYPE<Future<ITEM> ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	imports_static DEPENDENT_TYPE<Future<ITEM> ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (std::move (proc)) ;
 		return rax.future () ;

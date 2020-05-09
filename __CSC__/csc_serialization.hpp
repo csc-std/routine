@@ -166,27 +166,27 @@ public:
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR64 attribute (const String<STRU8> &tag ,const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&_PARSEVAR64S_<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL32 attribute (const String<STRU8> &tag ,const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&_PARSEVAL32S_<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL64 attribute (const String<STRU8> &tag ,const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&_PARSEVAL64S_<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
@@ -196,22 +196,22 @@ public:
 	}
 
 	String<STRU16> attribute (const String<STRU8> &tag ,const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&_U8STOU16S_) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU32> attribute (const String<STRU8> &tag ,const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&_U8STOU32S_) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRA> attribute (const String<STRU8> &tag ,const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&_U8STOAS_) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRW> attribute (const String<STRU8> &tag ,const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
@@ -237,29 +237,29 @@ public:
 	}
 
 	BOOL value (const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAR64 value (const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&_PARSEVAR64S_<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL32 value (const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&_PARSEVAL32S_<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL64 value (const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&_PARSEVAL64S_<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
@@ -269,35 +269,35 @@ public:
 	}
 
 	String<STRU16> value (const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&_U8STOU16S_) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU32> value (const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&_U8STOU32S_) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRA> value (const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&_U8STOAS_) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRW> value (const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
 		return value (def ,r1x) ;
 	}
 
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	inline static XmlParser make (const PhanBuffer<const STRU8> &data) {
+	inline imports_static XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
 		ret.initialize (data) ;
 		return std::move (ret) ;
 	}
 
-	inline static XmlParser make (const Array<XmlParser> &sequence) {
+	inline imports_static XmlParser make (const Array<XmlParser> &sequence) {
 		XmlParser ret ;
 		ret.initialize (sequence) ;
 		return std::move (ret) ;
@@ -364,7 +364,7 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			auto &r2x = mHeap.self[r1x.P1] ;
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
-			writer << _GAP_ ;
+			writer << TextWriter<STRU8>::GAP ;
 			rbx.clear () ;
 			for (INDEX i = r2x.mChild ,it ; i != VAR_NONE ; i = it) {
 				it = mHeap.self[i].mBrother ;
@@ -513,12 +513,12 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader::HINT_IDENTIFIER_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_IDENTIFIER >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING >> mLatestString ;
 		}
 
 		//@info: $3->$1 = $2
@@ -1115,29 +1115,29 @@ public:
 	}
 
 	BOOL value (const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAR64 value (const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&_PARSEVAR64S_<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL32 value (const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&_PARSEVAL32S_<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL64 value (const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&_PARSEVAL64S_<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
@@ -1147,29 +1147,29 @@ public:
 	}
 
 	String<STRU16> value (const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&_U8STOU16S_) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU32> value (const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&_U8STOU32S_) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRA> value (const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&_U8STOAS_) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRW> value (const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
 		return value (def ,r1x) ;
 	}
 
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	inline static JsonParser make (const PhanBuffer<const STRU8> &data) {
+	inline imports_static JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
 		ret.initialize (data) ;
 		return std::move (ret) ;
@@ -1446,7 +1446,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 
 		//@info: $1->${value}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader::HINT_VALUE_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_VALUE >> mLatestString ;
 		}
 
 		//@info: $2->true|TRUE|false|FALSE
@@ -1489,7 +1489,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 
 		//@info: $3->"${string}"
 		inline void update_shift_e3 () {
-			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING >> mLatestString ;
 		}
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
@@ -1721,10 +1721,10 @@ public:
 			String<STRU8> ret = String<STRU8>::make () ;
 			auto wos = TextWriter<STRU8> (ret.raw ()) ;
 			for (auto &&i : _RANGE_ (1 ,LENGTH (argc))) {
-				wos << _ASTOU8S_ (PTRTOARR[argv[i]]) ;
+				wos << StringProc::cvt_as_u8s (PTRTOARR[argv[i]]) ;
 				wos << _PCSTRU8_ (" ") ;
 			}
-			wos << _EOS_ ;
+			wos << TextWriter<STRU8>::EOS ;
 			return std::move (ret) ;
 		}) ;
 		initialize (r1x.raw ()) ;
@@ -1759,29 +1759,29 @@ public:
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&_PARSEBOOLS_<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&_PARSEVAR32S_<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR64 attribute (const String<STRU8> &tag ,const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&_PARSEVAR64S_<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL32 attribute (const String<STRU8> &tag ,const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&_PARSEVAL32S_<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL64 attribute (const String<STRU8> &tag ,const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&_PARSEVAL64S_<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
@@ -1791,22 +1791,22 @@ public:
 	}
 
 	String<STRU16> attribute (const String<STRU8> &tag ,const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&_U8STOU16S_) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU32> attribute (const String<STRU8> &tag ,const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&_U8STOU32S_) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRA> attribute (const String<STRU8> &tag ,const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&_U8STOAS_) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRW> attribute (const String<STRU8> &tag ,const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&_U8STOWS_) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
@@ -1873,25 +1873,25 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		//@info: $0->$8 $7 $9
 		inline void update_shift_e0 () {
 			update_shift_e8 () ;
-			mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
+			mRis >> RegularReader::SKIP_GAP_SPACE ;
 			update_shift_e7 () ;
-			mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
+			mRis >> RegularReader::SKIP_GAP_SPACE ;
 			update_shift_e9 () ;
 		}
 
 		//@info: $1->${identity}
 		inline void update_shift_e1 () {
-			mRis >> RegularReader::HINT_IDENTIFIER_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_IDENTIFIER >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
 		inline void update_shift_e2 () {
-			mRis >> RegularReader::HINT_STRING_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_STRING >> mLatestString ;
 		}
 
 		//@info: $3->${newgap}
 		inline void update_shift_e3 () {
-			mRis >> RegularReader::HINT_NEWGAP_TEXT >> mLatestString ;
+			mRis >> RegularReader::HINT_NEWGAP >> mLatestString ;
 		}
 
 		//@info: $4->/$1
@@ -1964,7 +1964,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 				if switch_case (fax) {
 					update_shift_e6 () ;
 				}
-				mRis >> RegularReader::SKIP_GAP_SPACE_ONLY ;
+				mRis >> RegularReader::SKIP_GAP_SPACE ;
 			}
 		}
 

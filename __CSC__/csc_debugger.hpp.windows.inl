@@ -226,7 +226,7 @@ public:
 	}
 
 	void attach_log (const String<STR> &path) override {
-		const auto r1x = _ABSOLUTEPATH_ (path) ;
+		const auto r1x = FileSystemProc::absolution_path (path) ;
 		if switch_case (TRUE) {
 			if (mLogPath == r1x)
 				discard ;
@@ -286,9 +286,9 @@ public:
 
 private:
 	void write_con_buffer (const Binder &msg) {
-		mConWriter << _CLS_ ;
+		mConWriter << TextWriter<STR>::CLS ;
 		mConWriter << msg ;
-		mConWriter << _EOS_ ;
+		mConWriter << TextWriter<STR>::EOS ;
 	}
 
 	void attach_console () {
@@ -302,15 +302,15 @@ private:
 	}
 
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
-		mLogWriter << _CLS_ ;
+		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << _BUILDHOURS_ (std::chrono::system_clock ().now ()) ;
+		mLogWriter << StringProc::build_hours (std::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
 		mLogWriter << msg ;
-		mLogWriter << _GAP_ ;
-		mLogWriter << _EOS_ ;
+		mLogWriter << TextWriter<STR>::GAP ;
+		mLogWriter << TextWriter<STR>::EOS ;
 	}
 
 	void write_debugger () {
@@ -354,10 +354,10 @@ private:
 	void attach_log_file () {
 		const auto r1x = mLogPath + _PCSTR_ ("console.log") ;
 		const auto r2x = mLogPath + _PCSTR_ ("console.old.log") ;
-		_ERASEFILE_ (r2x) ;
-		_MOVEFILE_ (r2x ,r1x) ;
+		FileSystemProc::erase_file (r2x) ;
+		FileSystemProc::move_file (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
-		const auto r3x = String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
+		const auto r3x = String<STR>::make (TextWriter<STR>::BOM) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
 	}
 } ;
@@ -435,14 +435,14 @@ public:
 			r3x.MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : list) {
 				SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,&r3x) ;
-				const auto r4x = _BUILDHEX16S_ (DATA (r3x.Address)) ;
-				const auto r5x = _PARSESTRS_ (String<STRA> (PTRTOARR[r3x.Name])) ;
+				const auto r4x = StringProc::build_hex16s (DATA (r3x.Address)) ;
+				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r3x.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}
 		if switch_case (fax) {
 			for (auto &&i : list) {
-				const auto r6x = _BUILDHEX16S_ (DATA (i)) ;
+				const auto r6x = StringProc::build_hex16s (DATA (i)) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : null")) ;
 			}
 		}

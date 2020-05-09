@@ -172,6 +172,11 @@
 #endif
 #define imports extern
 
+#ifdef imports_static
+#error "∑(っ°Д° ;)っ : defined 'imports'"
+#endif
+#define imports_static static
+
 #ifdef exports
 #error "∑(っ°Д° ;)っ : defined 'exports'"
 #endif
@@ -180,7 +185,7 @@
 #ifdef switch_case
 #error "∑(っ°Д° ;)っ : defined 'switch_case'"
 #endif
-#define switch_case SWITCH_CASE
+#define switch_case _SWITCH_CASE_
 
 #ifdef discard
 #error "∑(っ°Д° ;)っ : defined 'discard'"
@@ -216,6 +221,7 @@
 #include <type_traits>
 #include <initializer_list>
 #include <new>
+#include <exception>
 #include <typeinfo>
 #include <utility>
 
@@ -286,6 +292,8 @@ using std::is_copy_assignable ;
 using std::is_nothrow_move_constructible ;
 using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
+
+using std::exception ;
 } ;
 
 #define M_DATE __DATE__
@@ -329,14 +337,14 @@ using std::is_convertible ;
 #define _UNW_(...) _UNWIND_IMPL_(__VA_ARGS__)
 #define _STRINGIZE_IMPL_(...) #__VA_ARGS__
 #define _STR_(...) _STRINGIZE_IMPL_(__VA_ARGS__)
-#define _CONCAT_IMPL_(var1 ,var2) var1##var2
-#define _CAT_(var1 ,var2) _CONCAT_IMPL_(var1 ,var2)
+#define _CONCAT_IMPL_(arg ,arg_) arg##arg_
+#define _CAT_(arg ,arg_) _CONCAT_IMPL_(arg ,arg_)
 
 #define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
 
 #define _STATIC_WARNING_(...)
 
-#define _STATIC_UNUSED_(var1) (void) var1 ;
+#define _STATIC_UNUSED_(...) (void) _UNW_ (__VA_ARGS__) ;
 
 #ifdef __CSC_COMPILER_MSVC__
 #define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
@@ -366,7 +374,7 @@ using std::is_convertible ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define SWITCH_CASE(var1) (var1) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (var1)) ANONYMOUS:
+#define _SWITCH_CASE_(arg) (arg) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (arg)) ANONYMOUS:
 
 using BOOL = bool ;
 
@@ -504,15 +512,15 @@ using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
 //@error: fuck std
-#define _PCSTRU8_(var1) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,var1)))]> (_CAT_ (u8 ,var1)))
-#define _PCSTRU16_(var1) CSC::Plain<CSC::STRU16> (_CAT_ (u ,var1))
-#define _PCSTRU32_(var1) CSC::Plain<CSC::STRU32> (_CAT_ (U ,var1))
+#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,arg)))]> (_CAT_ (u8 ,arg)))
+#define _PCSTRU16_(arg) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg))
+#define _PCSTRU32_(arg) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg))
 
 using STRA = char ;
 using STRW = wchar_t ;
 
-#define _PCSTRA_(var1) CSC::Plain<CSC::STRA> (_UNW_ (var1))
-#define _PCSTRW_(var1) CSC::Plain<CSC::STRW> (_CAT_ (L ,var1))
+#define _PCSTRA_(arg) CSC::Plain<CSC::STRA> (_UNW_ (arg))
+#define _PCSTRW_(arg) CSC::Plain<CSC::STRW> (_CAT_ (L ,arg))
 
 #ifdef __CSC_CONFIG_STRA__
 using STR = STRA ;
@@ -1593,6 +1601,10 @@ inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
 	return LENGTH (address) ;
 }
 
+inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
+	return base + (align_ - base % align_) % align_ ;
+}
+
 template <class _RET>
 inline _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
@@ -1633,6 +1645,20 @@ template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_CAST_<TEMP<_ARG1>> (object) = {0} ;
+}
+
+template <class _RET ,class _ARG1>
+inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
+	TEMP<_RET> ret ;
+	_ZERO_ (ret) ;
+	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
+	return std::move (_CAST_<_RET> (ret)) ;
 }
 
 template <class _ARG1>
@@ -1854,16 +1880,14 @@ public:
 		:mIBegin (ibegin_) ,mIEnd (iend_) {}
 
 	template <class _RET = NONE>
-	inline auto begin () const
-		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::Iterator> {
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator ((*this) ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
-	inline auto end () const
-		->DEF<typename DEPENDENT_TYPE<Detail ,ARGVS<_RET>>::Iterator> {
+	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
@@ -1930,9 +1954,7 @@ class Plain final
 	:private Proxy {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
-private:
-	template <class... _ARGS>
-	using CACHE_STRING_RETURN_HINT = DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ;
+	using Dependent = Plain ;
 
 private:
 	struct Detail ;
@@ -1965,7 +1987,8 @@ public:
 
 private:
 	template <class _ARG1 ,class... _ARGS>
-	inline static CACHE_STRING_RETURN_HINT<_ARGS...> cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept {
+	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
+		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,Dependent> {
 		using PlainString = typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () noexcept {
@@ -2092,5 +2115,21 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 
 //@info: this function is incompleted without 'csc_extend.hpp'
 template <class _ARG1 ,class _ARG2>
-inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept ;
+inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
+	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
+	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
+	try {
+		try_proc () ;
+		return ;
+	} catch (const Exception &e) {
+		catch_proc (e) ;
+	} catch (const std::exception &e) {
+		catch_proc (Exception (_PCSTR_ ("std::exception : unknown"))) ;
+		_STATIC_UNUSED_ (e) ;
+	} catch (...) {
+		catch_proc (Exception (_PCSTR_ ("unknown C++ exception"))) ;
+	}
+}
 } ;

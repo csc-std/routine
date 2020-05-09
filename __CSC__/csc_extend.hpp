@@ -5,6 +5,7 @@
 #endif
 
 #include "csc.hpp"
+#include "csc_basic.hpp"
 
 #ifdef __CSC__
 #pragma push_macro ("self")
@@ -34,7 +35,6 @@
 #endif
 #include <cstdlib>
 #include <locale>
-#include <exception>
 #include <chrono>
 #include <atomic>
 #include <mutex>
@@ -57,8 +57,6 @@
 
 namespace CSC {
 namespace stl {
-using std::exception ;
-
 using std::mutex ;
 using std::recursive_mutex ;
 using std::atomic ;
@@ -95,82 +93,83 @@ using std::terminate ;
 class GlobalRuntime final
 	:private Wrapped<void> {
 public:
-	inline static std::chrono::system_clock::time_point clock_now () {
-		return std::chrono::system_clock::now () ;
-	}
+	inline imports_static std::chrono::system_clock::time_point clock_now () ;
 
-	inline static std::chrono::steady_clock::time_point clock_tick () {
-		return std::chrono::steady_clock::now () ;
-	}
+	inline imports_static std::chrono::steady_clock::time_point clock_tick () ;
 
-	inline static FLAG thread_tid () ;
+	inline imports_static FLAG thread_tid () ;
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void thread_sleep (const std::chrono::duration<_ARG1 ,_ARG2> &time_) {
-		std::this_thread::sleep_for (time_) ;
-	}
+	inline imports_static void thread_sleep (const std::chrono::duration<_ARG1 ,_ARG2> &time_) ;
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void thread_sleep (const std::chrono::time_point<_ARG1 ,_ARG2> &time_) {
-		std::this_thread::sleep_for (time_) ;
-	}
+	inline imports_static void thread_sleep (const std::chrono::time_point<_ARG1 ,_ARG2> &time_) ;
 
-	inline static void thread_sleep () {
-		std::this_thread::yield () ;
-	}
+	inline imports_static void thread_sleep () ;
 
-	inline static LENGTH thread_concurrency () {
-		return LENGTH (std::thread::hardware_concurrency ()) ;
-	}
+	inline imports_static LENGTH thread_concurrency () ;
 
-	inline static void thread_fence () {
-		std::atomic_thread_fence (std::memory_order::memory_order_seq_cst) ;
-	}
+	inline imports_static void thread_fence () ;
 
-	inline static void locale_init (const Plain<STRA> &locale_) {
-		stl::setlocale (LC_ALL ,locale_.self) ;
-	}
+	inline imports_static void locale_init (const Plain<STRA> &locale_) ;
 
-	inline static FLAG process_pid () ;
+	inline imports_static FLAG process_pid () ;
 
-	inline static Buffer<BYTE ,ARGC<128>> process_info (FLAG pid) ;
+	inline imports_static Buffer<BYTE ,ARGC<128>> process_info (FLAG pid) ;
 
-	inline static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
+	inline imports_static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
 
-	inline static FLAG module_mid () {
-		return _TYPEMID_<Interface> () ;
-	}
+	inline imports_static void process_exit[[noreturn]] () ;
 
-	inline static void process_exit[[noreturn]] () {
-#ifdef __CSC_COMPILER_GNUC__
-		//@error: fuck g++4.8
-		std::exit (EXIT_FAILURE) ;
-#else
-		std::quick_exit (EXIT_FAILURE) ;
-#endif
-	}
-
-	inline static void process_abort[[noreturn]] () {
-		std::terminate () ;
-	}
+	inline imports_static void process_abort[[noreturn]] () ;
 } ;
 
+
+inline exports std::chrono::system_clock::time_point GlobalRuntime::clock_now () {
+	return std::chrono::system_clock::now () ;
+}
+
+inline exports std::chrono::steady_clock::time_point GlobalRuntime::clock_tick () {
+	return std::chrono::steady_clock::now () ;
+}
+
 template <class _ARG1 ,class _ARG2>
-inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
-	try {
-		try_proc () ;
-		return ;
-	} catch (const Exception &e) {
-		catch_proc (e) ;
-	} catch (const std::exception &) {
-		catch_proc (Exception (_PCSTR_ ("std::exception : unknown"))) ;
-	} catch (...) {
-		catch_proc (Exception (_PCSTR_ ("unknown C++ exception"))) ;
-	}
+inline exports void GlobalRuntime::thread_sleep (const std::chrono::duration<_ARG1 ,_ARG2> &time_) {
+	std::this_thread::sleep_for (time_) ;
+}
+
+template <class _ARG1 ,class _ARG2>
+inline exports void GlobalRuntime::thread_sleep (const std::chrono::time_point<_ARG1 ,_ARG2> &time_) {
+	std::this_thread::sleep_for (time_) ;
+}
+
+inline exports void GlobalRuntime::thread_sleep () {
+	std::this_thread::yield () ;
+}
+
+inline exports LENGTH GlobalRuntime::thread_concurrency () {
+	return LENGTH (std::thread::hardware_concurrency ()) ;
+}
+
+inline exports void GlobalRuntime::thread_fence () {
+	std::atomic_thread_fence (std::memory_order::memory_order_seq_cst) ;
+}
+
+inline exports void GlobalRuntime::locale_init (const Plain<STRA> &locale_) {
+	stl::setlocale (LC_ALL ,locale_.self) ;
+}
+
+inline exports void GlobalRuntime::process_exit[[noreturn]] () {
+#ifdef __CSC_COMPILER_GNUC__
+	//@error: fuck g++4.8
+	std::exit (EXIT_FAILURE) ;
+#else
+	std::quick_exit (EXIT_FAILURE) ;
+#endif
+}
+
+inline exports void GlobalRuntime::process_abort[[noreturn]] () {
+	std::terminate () ;
 }
 
 #ifdef __CSC_UNITTEST__
@@ -181,7 +180,7 @@ private:
 
 public:
 	template <class _ARG1 ,class _ARG2>
-	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
+	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
 		struct Dependent ;
 		using WatchInterface = typename DEPENDENT_TYPE<Detail ,Dependent>::template WatchInterface<_ARG2> ;
 		static volatile WatchInterface mInstance ;
@@ -260,7 +259,7 @@ private:
 
 public:
 	//@warn: static instance across DLL ruins Singleton
-	inline static DEF<UNIT & ()> instance ;
+	inline imports_static UNIT &instance () ;
 } ;
 
 class VAR128 {
@@ -604,10 +603,10 @@ private:
 	inline FLAG compr (const VAR128 &that) const {
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		const auto r3x = _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+		const auto r3x = BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
 		if (r3x != 0)
 			return r3x ;
-		return _MEMCOMPR_ (PTRTOARR[&v2i1] ,PTRTOARR[&that.v2i1] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&v2i1] ,PTRTOARR[&that.v2i1] ,1) ;
 	}
 
 	inline DATA &m_v2i0 () leftvalue {
@@ -952,7 +951,7 @@ public:
 	}
 
 public:
-	inline static Variant nullopt () noexcept {
+	inline imports_static Variant nullopt () noexcept {
 		return Variant (ARGVP0) ;
 	}
 
@@ -1217,7 +1216,7 @@ public:
 	}
 
 	inline FLAG compr (const Tuple &that) const {
-		const auto r1x = _MEMCOMPR_ (PTRTOARR[&one ()] ,PTRTOARR[&that.one ()] ,1) ;
+		const auto r1x = BasicProc::mem_compr (PTRTOARR[&one ()] ,PTRTOARR[&that.one ()] ,1) ;
 		if (r1x != 0)
 			return r1x ;
 		return rest ().compr (that.rest ()) ;
@@ -1325,6 +1324,9 @@ private:
 
 public:
 	inline AllOfTuple () = delete ;
+
+	inline implicit AllOfTuple (const UNITS &...initval)
+		:mTuple (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
 		return template_boolean (mTuple) ;
@@ -1458,6 +1460,9 @@ private:
 public:
 	inline AnyOfTuple () = delete ;
 
+	inline implicit AnyOfTuple (const UNITS &...initval)
+		:mTuple (initval...) {}
+
 	inline implicit operator BOOL () rightvalue {
 		return template_boolean (mTuple) ;
 	}
@@ -1573,22 +1578,6 @@ private:
 			return TRUE ;
 		return template_not_less (self_.rest () ,that) ;
 	}
-} ;
-
-inline namespace EXTEND {
-template <class... _ARGS>
-inline static AllOfTuple<_ARGS...> _ALLOF_ (const _ARGS &...list) {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
-	return std::move (_CAST_<AllOfTuple<_ARGS...>> (ret)) ;
-}
-
-template <class... _ARGS>
-inline static AnyOfTuple<_ARGS...> _ANYOF_ (const _ARGS &...list) {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-	TupleBinder<const _ARGS...> ret = TupleBinder<const _ARGS...> (list...) ;
-	return std::move (_CAST_<AnyOfTuple<_ARGS...>> (ret)) ;
-}
 } ;
 
 template <class>
@@ -1802,7 +1791,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static StrongRef make (_ARGS &&...initval) {
+	inline imports_static StrongRef make (_ARGS &&...initval) {
 		auto rax = SharedRef<Pack>::make () ;
 		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (std::forward<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
@@ -2204,7 +2193,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline static IntrusiveRef make (_ARGS &&...initval) {
+	inline imports_static IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,std::forward<_ARGS> (initval)...) ;
@@ -2313,28 +2302,6 @@ struct IntrusiveRef<UNIT>::Detail {
 	} ;
 } ;
 
-inline namespace EXTEND {
-inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
-	return base + (align_ - base % align_) % align_ ;
-}
-} ;
-
-inline namespace EXTEND {
-template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	TEMP<_RET> ret ;
-	_ZERO_ (ret) ;
-	_MEMCOPY_ (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_RET)]> (ret)] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (object)] ,_SIZEOF_ (_ARG1)) ;
-	return std::move (_CAST_<_RET> (ret)) ;
-}
-} ;
-
 class MemoryPool {
 private:
 	struct HEADER ;
@@ -2366,7 +2333,9 @@ private:
 	UniqueRef<Pack> mThis ;
 
 public:
-	inline MemoryPool () ;
+	inline MemoryPool () {
+		initialize () ;
+	}
 
 	inline LENGTH size () const {
 		LENGTH ret = 0 ;
@@ -2422,7 +2391,7 @@ public:
 		_STATIC_ASSERT_ (std::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
-		INDEX ix = _MEMCHR_ (mThis->mPool.self ,mThis->mPool.size () ,r2x.mFrom) ;
+		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,r2x.mFrom) ;
 		mThis->mPool[ix]->free (r2x.mCurr) ;
 	}
 
@@ -2430,6 +2399,9 @@ public:
 		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
 			mThis->mPool[i]->clean () ;
 	}
+
+private:
+	void initialize () ;
 } ;
 
 struct MemoryPool::Detail {
@@ -2452,7 +2424,6 @@ struct MemoryPool::Detail {
 		_STATIC_ASSERT_ (RESE::value > 0) ;
 
 	private:
-		friend ImplPool ;
 		PTR<CHUNK> mRoot ;
 		PTR<BLOCK> mFree ;
 		LENGTH mSize ;
@@ -2648,7 +2619,7 @@ struct MemoryPool::Detail {
 	} ;
 } ;
 
-inline MemoryPool::MemoryPool () {
+inline exports void MemoryPool::initialize () {
 	using ImplPool8 = typename Detail::template ImplPool<ARGC<8> ,ARGC<32>> ;
 	using ImplPool16 = typename Detail::template ImplPool<ARGC<16> ,ARGC<32>> ;
 	using ImplPool24 = typename Detail::template ImplPool<ARGC<24> ,ARGC<32>> ;

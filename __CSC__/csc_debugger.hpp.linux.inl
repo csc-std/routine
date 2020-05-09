@@ -196,7 +196,7 @@ public:
 	}
 
 	void attach_log (const String<STR> &path) override {
-		const auto r1x = _ABSOLUTEPATH_ (path) ;
+		const auto r1x = FileSystemProc::absolution_path (path) ;
 		if switch_case (TRUE) {
 			if (mLogPath == r1x)
 				discard ;
@@ -269,7 +269,7 @@ private:
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
 		mLogWriter << _CLS_ ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << _BUILDHOURS_ (std::chrono::system_clock ().now ()) ;
+		mLogWriter << StringProc::build_hours (std::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -319,8 +319,8 @@ private:
 	void attach_log_file () {
 		const auto r1x = mLogPath + _PCSTR_ ("console.log") ;
 		const auto r2x = mLogPath + _PCSTR_ ("console.old.log") ;
-		_ERASEFILE_ (r2x) ;
-		_MOVEFILE_ (r2x ,r1x) ;
+		FileSystemProc::erase_file (r2x) ;
+		FileSystemProc::move_file (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
 		const auto r3x = String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
@@ -390,8 +390,8 @@ public:
 		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			const auto r5x = _BUILDHEX16S_ (list[i]) ;
-			const auto r6x = _PARSESTRS_ (String<STRA> (PTRTOARR[r4x[i]])) ;
+			const auto r5x = StringProc::build_hex16s (list[i]) ;
+			const auto r6x = StringProc::parse_strs (String<STRA> (PTRTOARR[r4x[i]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;

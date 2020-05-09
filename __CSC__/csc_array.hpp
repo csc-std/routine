@@ -37,80 +37,80 @@ private:
 		: mBase (base) ,mIndex (index) {}
 } ;
 
-inline namespace ARRAY {
-template <class _ARG1 ,class _ARG2>
-inline void _inline_SORT_SLOW_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
-	for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
-		INDEX ix = i ;
+struct OPERATOR_SORT {
+	template <class _ARG1 ,class _ARG2>
+	inline static void _inline_SORT_SLOW_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+		for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
+			INDEX ix = i ;
+			auto tmp = std::move (out[ix]) ;
+			while (TRUE) {
+				if (ix - 1 < seg_a)
+					break ;
+				if (array_[tmp] >= array_[out[ix - 1]])
+					break ;
+				out[ix] = std::move (out[ix - 1]) ;
+				ix-- ;
+			}
+			out[ix] = std::move (tmp) ;
+		}
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	inline static void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
+		INDEX ix = seg_a ;
+		INDEX iy = seg_b ;
 		auto tmp = std::move (out[ix]) ;
 		while (TRUE) {
-			if (ix - 1 < seg_a)
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (array_[out[iy]] <= array_[tmp])
+					break ;
+				iy-- ;
+			}
+			if (ix >= iy)
 				break ;
-			if (array_[tmp] >= array_[out[ix - 1]])
+			out[ix++] = std::move (out[iy]) ;
+			while (TRUE) {
+				if (ix >= iy)
+					break ;
+				if (array_[out[ix]] >= array_[tmp])
+					break ;
+				ix++ ;
+			}
+			if (ix >= iy)
 				break ;
-			out[ix] = std::move (out[ix - 1]) ;
-			ix-- ;
+			out[iy--] = std::move (out[ix]) ;
 		}
 		out[ix] = std::move (tmp) ;
+		mid_one = ix ;
 	}
-}
 
-template <class _ARG1 ,class _ARG2>
-inline void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
-	INDEX ix = seg_a ;
-	INDEX iy = seg_b ;
-	auto tmp = std::move (out[ix]) ;
-	while (TRUE) {
+	template <class _ARG1 ,class _ARG2>
+	inline static void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+		INDEX ix = seg_a ;
 		while (TRUE) {
-			if (ix >= iy)
+			if (ix >= seg_b)
 				break ;
-			if (array_[out[iy]] <= array_[tmp])
+			if (ideal <= 0)
 				break ;
-			iy-- ;
+			ideal = ideal / 2 + ideal / 4 ;
+			INDEX jx = VAR_NONE ;
+			_inline_SORT_PARTITION_ (array_ ,out ,ix ,seg_b ,jx) ;
+			_inline_SORT_FAST_ (array_ ,out ,ix ,(jx - 1) ,ideal) ;
+			ix = jx + 1 ;
 		}
-		if (ix >= iy)
-			break ;
-		out[ix++] = std::move (out[iy]) ;
-		while (TRUE) {
-			if (ix >= iy)
-				break ;
-			if (array_[out[ix]] >= array_[tmp])
-				break ;
-			ix++ ;
-		}
-		if (ix >= iy)
-			break ;
-		out[iy--] = std::move (out[ix]) ;
-	}
-	out[ix] = std::move (tmp) ;
-	mid_one = ix ;
-}
-
-template <class _ARG1 ,class _ARG2>
-inline void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
-	INDEX ix = seg_a ;
-	while (TRUE) {
 		if (ix >= seg_b)
-			break ;
-		if (ideal <= 0)
-			break ;
-		ideal = ideal / 2 + ideal / 4 ;
-		INDEX jx = VAR_NONE ;
-		_inline_SORT_PARTITION_ (array_ ,out ,ix ,seg_b ,jx) ;
-		_inline_SORT_FAST_ (array_ ,out ,ix ,(jx - 1) ,ideal) ;
-		ix = jx + 1 ;
+			return ;
+		_inline_SORT_SLOW_ (array_ ,out ,ix ,seg_b) ;
 	}
-	if (ix >= seg_b)
-		return ;
-	_inline_SORT_SLOW_ (array_ ,out ,ix ,seg_b) ;
-}
 
-template <class _ARG1 ,class _ARG2>
-inline void _SORT_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
-	_DEBUG_ASSERT_ (seg_len > 0) ;
-	_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
-	_inline_SORT_FAST_ (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
-}
+	template <class _ARG1 ,class _ARG2>
+	inline static void invoke (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+		_DEBUG_ASSERT_ (seg_len > 0) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
+		_inline_SORT_FAST_ (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -309,12 +309,12 @@ public:
 
 	implicit String (const ARR<ITEM> &that)
 		:String (plain_string_length (that)) {
-		_MEMCOPY_ (mString.self ,that ,size ()) ;
+		BasicProc::mem_copy (mString.self ,that ,size ()) ;
 	}
 
 	implicit String (const Plain<ITEM> &that)
 		: String (that.size ()) {
-		_MEMCOPY_ (mString.self ,that.self ,size ()) ;
+		BasicProc::mem_copy (mString.self ,that.self ,size ()) ;
 	}
 
 	LENGTH size () const {
@@ -326,7 +326,7 @@ public:
 	LENGTH length () const {
 		if (mString.size () == 0)
 			return 0 ;
-		return _MEMCHR_ (mString.self ,mString.size () ,ITEM (0)) ;
+		return BasicProc::mem_chr (mString.self ,mString.size () ,ITEM (0)) ;
 	}
 
 	PhanBuffer<ITEM> raw () leftvalue {
@@ -342,7 +342,7 @@ public:
 	void clear () {
 		if (mString.size () == 0)
 			return ;
-		_MEMFILL_ (mString.self ,mString.size () ,ITEM (0)) ;
+		BasicProc::mem_fill (mString.self ,mString.size () ,ITEM (0)) ;
 	}
 
 	INDEX ibegin () const {
@@ -430,7 +430,7 @@ public:
 	BOOL equal (const Plain<ITEM> &that) const {
 		if (mString.size () < that.size () + 1)
 			return FALSE ;
-		if (!_MEMEQUAL_ (mString.self ,that.self ,(that.size () + 1)))
+		if (!BasicProc::mem_equal (mString.self ,that.self ,(that.size () + 1)))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -447,9 +447,9 @@ public:
 		const auto r1x = size () ;
 		const auto r2x = that.size () ;
 		if (r1x == 0)
-			return _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+			return BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
 		if (r2x == 0)
-			return _MEMCOMPR_ (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+			return BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
 		INDEX ix = 0 ;
 		while (TRUE) {
 			if (mString[ix] == ITEM (0))
@@ -458,7 +458,7 @@ public:
 				break ;
 			ix++ ;
 		}
-		return _MEMCOMPR_ (PTRTOARR[&mString[ix]] ,PTRTOARR[&that.mString[ix]] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&mString[ix]] ,PTRTOARR[&that.mString[ix]] ,1) ;
 	}
 
 	inline BOOL operator< (const String &that) const {
@@ -489,8 +489,8 @@ public:
 		const auto r1x = length () ;
 		const auto r2x = that.length () ;
 		String ret = String (r1x + r2x) ;
-		_MEMCOPY_ (ret.mString.self ,mString.self ,r1x) ;
-		_MEMCOPY_ (PTRTOARR[&ret.mString.self[r1x]] ,that.mString.self ,r2x) ;
+		BasicProc::mem_copy (ret.mString.self ,mString.self ,r1x) ;
+		BasicProc::mem_copy (PTRTOARR[&ret.mString.self[r1x]] ,that.mString.self ,r2x) ;
 		return std::move (ret) ;
 	}
 
@@ -511,7 +511,7 @@ public:
 			const auto r2x = that.length () ;
 			if (!(r1x + r2x <= size ()))
 				discard ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.mString.self ,r2x) ;
+			BasicProc::mem_copy (PTRTOARR[&mString.self[r1x]] ,that.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
 		if switch_case (fax) {
@@ -533,7 +533,7 @@ public:
 			const auto r2x = that.size () ;
 			if (!(r1x + r2x <= size ()))
 				discard ;
-			_MEMCOPY_ (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
+			BasicProc::mem_copy (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
 		if switch_case (fax) {
@@ -558,7 +558,7 @@ public:
 public:
 	//@info: this function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
-	inline static String make (const _ARGS &...initval) ;
+	inline imports_static String make (const _ARGS &...initval) ;
 
 private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
@@ -567,7 +567,7 @@ private:
 private:
 	inline static LENGTH plain_string_length (const ARR<ITEM> &val) {
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
-		LENGTH ret = _MEMCHR_ (val ,r1x ,ITEM (0)) ;
+		LENGTH ret = BasicProc::mem_chr (val ,r1x ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
 		return std::move (ret) ;
 	}
@@ -693,7 +693,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -908,14 +908,14 @@ private:
 		if switch_case (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			_MEMMOVE_ (PTRTOARR[&tmp.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
+			BasicProc::mem_move (PTRTOARR[&tmp.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
 		}
 		if switch_case (fax) {
 			if (!(mRead > mWrite))
 				discard ;
-			_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
+			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
 			INDEX ix = mRead + tmp.size () - mDeque.size () ;
-			_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+			BasicProc::mem_move (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
 		mDeque.swap (tmp) ;
@@ -925,7 +925,7 @@ private:
 		if (mRead != mWrite)
 			return ;
 		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
-		_MEMMOVE_ (tmp.self ,mDeque.self ,mWrite) ;
+		BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mDeque.size () ;
 		if switch_case (TRUE) {
@@ -934,7 +934,7 @@ private:
 			ix = mRead + tmp.size () - mDeque.size () ;
 			iy = mWrite ;
 		}
-		_MEMMOVE_ (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+		BasicProc::mem_move (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
 		mRead = ix ;
 		mWrite = iy ;
 		mDeque.swap (tmp) ;
@@ -1086,7 +1086,7 @@ public:
 			ix-- ;
 		}
 		if (ret.size () > 0)
-			_MEMRCOPY_ (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;
+			BasicProc::mem_rcopy (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1212,7 +1212,7 @@ private:
 		if (r1x == 0)
 			return ;
 		auto tmp = mPriority.expand (mPriority.size () + r1x) ;
-		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
+		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
 		mPriority.swap (tmp) ;
 	}
 
@@ -1220,7 +1220,7 @@ private:
 		if (mWrite < mPriority.size ())
 			return ;
 		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
-		_MEMMOVE_ (tmp.self ,mPriority.self ,mPriority.size ()) ;
+		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
 		mPriority.swap (tmp) ;
 	}
 
@@ -1439,7 +1439,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1798,7 +1798,7 @@ public:
 	void clear () {
 		mList.clear () ;
 		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		_MEMFILL_ (mHead.self ,mHead.size () ,r1x) ;
+		BasicProc::mem_fill (mHead.self ,mHead.size () ,r1x) ;
 		mRead = 0 ;
 		mWrite = 0 ;
 	}
@@ -1883,7 +1883,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		_SORT_ ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -2093,7 +2093,7 @@ private:
 			return ;
 		auto tmp = mHead.expand (mList.size ()) ;
 		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		_MEMFILL_ (tmp.self ,tmp.size () ,r1x) ;
+		BasicProc::mem_fill (tmp.self ,tmp.size () ,r1x) ;
 		mHead.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
@@ -2391,12 +2391,12 @@ public:
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return 0 ;
-		const auto r1x = _MEMCOMPR_ (mSet ,that.mSet ,ix) ;
+		const auto r1x = BasicProc::mem_compr (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
 			return r1x ;
 		const auto r2x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
 		const auto r3x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
-		return _MEMCOMPR_ (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;
+		return BasicProc::mem_compr (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;
 	}
 
 	inline BOOL operator< (const BitSet &that) const {
@@ -3311,7 +3311,7 @@ public:
 
 	void clear () {
 		mSet.clear () ;
-		_MEMFILL_ (mHead.self ,mHead.size () ,VAR_NONE) ;
+		BasicProc::mem_fill (mHead.self ,mHead.size () ,VAR_NONE) ;
 	}
 
 	INDEX ibegin () const {
@@ -3513,7 +3513,7 @@ private:
 		if (mHead.size () == mSet.size ())
 			return ;
 		auto tmp = mHead.expand (mSet.size ()) ;
-		_MEMFILL_ (tmp.self ,tmp.size () ,VAR_NONE) ;
+		BasicProc::mem_fill (tmp.self ,tmp.size () ,VAR_NONE) ;
 		mHead.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)

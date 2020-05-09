@@ -5,8 +5,8 @@
 #endif
 
 namespace CSC {
-inline namespace STRING {
-inline exports PhanBuffer<const DEF<STRUW[2]>> _LOADUWSTOUGBKSTABLE_ () {
+namespace U {
+inline exports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () {
 #pragma region
 #ifdef __CSC_COMPILER_MSVC__
 	static constexpr PACK<STRUW[24481][2]> M_TABLE = {

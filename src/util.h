@@ -60,11 +60,11 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 #endif
 
 #ifndef TEST_CLASS
-#define TEST_CLASS(var1) class var1
+#define TEST_CLASS(arg) class arg
 #endif
 
 #ifndef TEST_METHOD
-#define TEST_METHOD(var1) void var1 () const
+#define TEST_METHOD(arg) void arg () const
 #endif
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
@@ -117,10 +117,10 @@ namespace UNITTEST {
 class GlobalUnittest final
 	:private Wrapped<void> {
 public:
-	inline static void done (const ARR<STR> &what) {
+	inline imports_static void done (const ARR<STR> &what) {
 #ifdef MS_CPP_UNITTESTFRAMEWORK
 #ifdef __CSC_STRING__
-		const auto r1x = _BUILDSTRS_<STRW> (what) ;
+		const auto r1x = StringProc::build_strs<STRW> (what) ;
 		Assert::Fail (r1x.raw ().self) ;
 #else
 		Assert::Fail () ;

@@ -202,7 +202,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = cv::imread (r1x.raw ().self ,cv::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC3) ;
@@ -211,7 +211,7 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4x = _SWITCH_ (
 			(option.exist ()) ? option.rebind<std::vector<VAR32>> ().self :
@@ -278,7 +278,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = cv::imread (r1x.raw ().self ,cv::IMREAD_UNCHANGED) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC4) ;
@@ -287,7 +287,7 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4x = _SWITCH_ (
 			(option.exist ()) ? option.rebind<std::vector<VAR32>> ().self :
@@ -354,7 +354,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = cv::imread (r1x.raw ().self ,cv::IMREAD_GRAYSCALE) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC1) ;
@@ -363,7 +363,7 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4x = _SWITCH_ (
 			(option.exist ()) ? option.rebind<std::vector<VAR32>> ().self :
@@ -430,7 +430,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = cv::imread (r1x.raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_4) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_32FC1) ;
@@ -439,7 +439,7 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4x = _SWITCH_ (
 			(option.exist ()) ? option.rebind<std::vector<VAR32>> ().self :
@@ -506,7 +506,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = _BUILDSTRS_<STRA> (file) ;
+		const auto r1x = StringProc::build_strs<STRA> (file) ;
 		auto tmp = cv::imread (r1x.raw ().self ,cv::IMREAD_REDUCED_GRAYSCALE_8) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_64FC1) ;
@@ -515,7 +515,7 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _BUILDSTRS_<STRA> (file) ;
+		const auto r2x = StringProc::build_strs<STRA> (file) ;
 		const auto r3x = std::vector<VAR32> () ;
 		auto &r4x = _SWITCH_ (
 			(option.exist ()) ? option.rebind<std::vector<VAR32>> ().self :
