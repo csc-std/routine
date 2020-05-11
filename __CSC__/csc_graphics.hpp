@@ -126,7 +126,7 @@ public:
 	}
 
 	Matrix<REAL> view_matrix () const {
-		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make ((*this)) ,&Camera::compute_view_matrix) ;
+		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (_DEREF_ (this)) ,&Camera::compute_view_matrix) ;
 		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
 	}

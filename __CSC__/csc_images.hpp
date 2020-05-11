@@ -27,12 +27,12 @@ public:
 
 	inline DEF<typename Detail::Iterator> begin () const {
 		using Iterator = typename Detail::Iterator ;
-		return Iterator ((*this) ,0 ,first_item ()) ;
+		return Iterator (_DEREF_ (this) ,0 ,first_item ()) ;
 	}
 
 	inline DEF<typename Detail::Iterator> end () const {
 		using Iterator = typename Detail::Iterator ;
-		return Iterator ((*this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
+		return Iterator (_DEREF_ (this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
@@ -271,7 +271,7 @@ public:
 
 	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Bitmap> ;
-		return Row ((*this) ,y) ;
+		return Row (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) leftvalue
@@ -281,7 +281,7 @@ public:
 
 	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Bitmap> ;
-		return Row ((*this) ,y) ;
+		return Row (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) const leftvalue
@@ -330,7 +330,7 @@ public:
 
 	inline Bitmap &operator+= (const Bitmap &that) {
 		addto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap sub (const Bitmap &that) const {
@@ -355,7 +355,7 @@ public:
 
 	inline Bitmap &operator-= (const Bitmap &that) {
 		subto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap mul (const Bitmap &that) const {
@@ -380,7 +380,7 @@ public:
 
 	inline Bitmap &operator*= (const Bitmap &that) {
 		multo (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap div (const Bitmap &that) const {
@@ -405,7 +405,7 @@ public:
 
 	inline Bitmap &operator/= (const Bitmap &that) {
 		divto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap mod (const Bitmap &that) const {
@@ -430,7 +430,7 @@ public:
 
 	inline Bitmap &operator%= (const Bitmap &that) {
 		modto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap plus () const {
@@ -477,7 +477,7 @@ public:
 
 	inline Bitmap &operator&= (const Bitmap &that) {
 		bandto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap bor (const Bitmap &that) const {
@@ -502,7 +502,7 @@ public:
 
 	inline Bitmap &operator|= (const Bitmap &that) {
 		borto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap bxor (const Bitmap &that) const {
@@ -527,7 +527,7 @@ public:
 
 	inline Bitmap &operator^= (const Bitmap &that) {
 		bxorto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Bitmap bnot () const {
@@ -746,7 +746,7 @@ public:
 
 	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) leftvalue {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
-		return AbstractImage ((*this) ,y) ;
+		return AbstractImage (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) leftvalue
@@ -756,7 +756,7 @@ public:
 
 	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const leftvalue {
 		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
-		return AbstractImage ((*this) ,y) ;
+		return AbstractImage (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) const leftvalue
@@ -830,7 +830,7 @@ private:
 		_ZERO_ (rax) ;
 		mAbstract->compute_layout (mThis->mHolder ,rax) ;
 		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-		mThis->mImage = PhanBuffer<UNIT>::make ((*rax.mImage) ,r1x) ;
+		mThis->mImage = PhanBuffer<UNIT>::make (_DEREF_ (rax.mImage) ,r1x) ;
 		mThis->mCX = rax.mCX ;
 		mThis->mCY = rax.mCY ;
 		mThis->mCW = rax.mCW ;

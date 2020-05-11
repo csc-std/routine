@@ -179,6 +179,8 @@ private:
 	struct Detail ;
 
 public:
+	inline imports_static void done (const Exception &e) ;
+
 	template <class _ARG1 ,class _ARG2>
 	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
 		struct Dependent ;
@@ -359,7 +361,7 @@ public:
 	inline VAR128 &operator+= (const VAR128 &that) {
 		v2i0 += that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
 		v2i1 += that.v2i1 ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator- (const VAR128 &that) const {
@@ -372,7 +374,7 @@ public:
 	inline VAR128 &operator-= (const VAR128 &that) {
 		v2i0 -= that.v2i0 + _EBOOL_ (v2i1 < that.v2i1) ;
 		v2i1 -= that.v2i1 ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator* (const VAR128 &that) const {
@@ -400,8 +402,8 @@ public:
 	}
 
 	inline VAR128 &operator*= (const VAR128 &that) {
-		(*this) = (*this) * that ;
-		return (*this) ;
+		_DEREF_ (this) = _DEREF_ (this) * that ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator/ (const VAR128 &that) const {
@@ -437,7 +439,7 @@ public:
 				discard ;
 			if (!(r2x >= 0))
 				discard ;
-			ret = -(-((*this) + that) / that + 1) ;
+			ret = -(-(_DEREF_ (this) + that) / that + 1) ;
 		}
 		if switch_case (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
@@ -446,12 +448,12 @@ public:
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = -(-((*this) - that) / that - 1) ;
+			ret = -(-(_DEREF_ (this) - that) / that - 1) ;
 		}
 		if switch_case (fax) {
 			if (!(r1x < 0))
 				discard ;
-			ret = -(-(*this) / that) ;
+			ret = -(-_DEREF_ (this) / that) ;
 		}
 		if switch_case (fax) {
 			if (!(r1x >= 0))
@@ -467,17 +469,17 @@ public:
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = (*this) / (-that) ;
+			ret = _DEREF_ (this) / (-that) ;
 		}
 		if switch_case (fax) {
-			ret = slow_divide ((*this) ,that) ;
+			ret = slow_divide (_DEREF_ (this) ,that) ;
 		}
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator/= (const VAR128 &that) {
-		(*this) = (*this) / that ;
-		return (*this) ;
+		_DEREF_ (this) = _DEREF_ (this) / that ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator% (const VAR128 &that) const {
@@ -513,7 +515,7 @@ public:
 				discard ;
 			if (!(r2x >= 0))
 				discard ;
-			ret = -(-((*this) + that) % that) ;
+			ret = -(-(_DEREF_ (this) + that) % that) ;
 		}
 		if switch_case (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
@@ -522,12 +524,12 @@ public:
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = -(-((*this) - that) % that) ;
+			ret = -(-(_DEREF_ (this) - that) % that) ;
 		}
 		if switch_case (fax) {
 			if (!(r1x < 0))
 				discard ;
-			ret = -(-(*this) % that) ;
+			ret = -(-_DEREF_ (this) % that) ;
 		}
 		if switch_case (fax) {
 			if (!(r1x >= 0))
@@ -536,28 +538,28 @@ public:
 				discard ;
 			if (!(that.v2i1 == 0))
 				discard ;
-			ret = (*this) ;
+			ret = _DEREF_ (this) ;
 		}
 		if switch_case (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
-			ret = (*this) % (-that) ;
+			ret = _DEREF_ (this) % (-that) ;
 		}
 		if switch_case (fax) {
-			ret = that - slow_divide ((*this) ,that) * that ;
+			ret = that - slow_divide (_DEREF_ (this) ,that) * that ;
 		}
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator%= (const VAR128 &that) {
-		(*this) = (*this) % that ;
-		return (*this) ;
+		_DEREF_ (this) = _DEREF_ (this) % that ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator+ () const {
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator- () const {
@@ -570,24 +572,24 @@ public:
 	inline VAR128 &operator++ () {
 		v2i1++ ;
 		v2i0 += _EBOOL_ (v2i1 == DATA (0)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator++ (VAR32) popping {
-		VAR128 ret = (*this) ;
-		++(*this) ;
+		VAR128 ret = _DEREF_ (this) ;
+		++_DEREF_ (this) ;
 		return std::move (ret) ;
 	}
 
 	inline VAR128 &operator-- () {
 		v2i1-- ;
 		v2i0 -= _EBOOL_ (v2i1 == DATA (-1)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline VAR128 operator-- (VAR32) popping {
-		VAR128 ret = (*this) ;
-		--(*this) ;
+		VAR128 ret = _DEREF_ (this) ;
+		--_DEREF_ (this) ;
 		return std::move (ret) ;
 	}
 
@@ -784,23 +786,23 @@ private:
 } ;
 
 namespace U {
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) noexcept {
 	return 1 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) {
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) noexcept {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 	return _MAX_ (_SIZEOF_ (ONE_HINT) ,constexpr_max_sizeof (_NULL_<ARGV<REST_HINT>> ())) ;
 }
 
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) noexcept {
 	return 1 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) {
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) noexcept {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 	return _MAX_ (_ALIGNOF_ (ONE_HINT) ,constexpr_max_alignof (_NULL_<ARGV<REST_HINT>> ())) ;
@@ -867,10 +869,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~Variant () ;
+			_DEREF_ (this).~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline Variant (Variant &&that) noexcept
@@ -885,10 +887,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~Variant () ;
+			_DEREF_ (this).~Variant () ;
 			new (this) Variant (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1182,21 +1184,21 @@ public:
 	}
 
 	inline Tuple<UNITS...> &rest () leftvalue {
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline const Tuple<UNITS...> &rest () const leftvalue {
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
 	inline INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) leftvalue {
-		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (_DEREF_ (this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	template <class _ARG1>
 	inline const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const leftvalue {
-		return template_pick ((*this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (_DEREF_ (this) ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	inline BOOL equal (const Tuple &that) const {
@@ -1291,18 +1293,6 @@ private:
 		return template_invoke (parameter.rest () ,std::forward<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
-
-template <class UNIT1 ,class... UNITS>
-template <class... _ARGS>
-inline exports Function<UNIT1 (UNITS...)> Function<UNIT1 (UNITS...)>::make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
-	using ImplHolder = typename Detail::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>> ;
-	auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
-	ScopedBuild<ImplHolder> ANONYMOUS (rax ,func ,parameter...) ;
-	auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-	Function ret = Function (ARGVP0 ,_XVALUE_<PTR<Holder>> (&r1x)) ;
-	rax = NULL ;
-	return std::move (ret) ;
-}
 
 template <class...>
 class AllOfTuple ;
@@ -1640,8 +1630,6 @@ class StrongRef {
 private:
 	using Pack = typename WeakRef<void>::Pack ;
 
-	using Dependent = StrongRef ;
-
 private:
 	template <class>
 	friend class StrongRef ;
@@ -1660,10 +1648,10 @@ public:
 	inline implicit StrongRef (const StrongRef<_ARG1> &that)
 		: StrongRef (that.template recast<UNIT> ()) {}
 
-	inline implicit StrongRef (const DEPENDENT_TYPE<WeakRef<UNIT> ,Dependent> &that)
+	inline implicit StrongRef (const DEPENDENT_TYPE<WeakRef<UNIT> ,StrongRef> &that)
 		: StrongRef (that.watch ()) {}
 
-	inline implicit StrongRef (const DEPENDENT_TYPE<SoftRef<UNIT> ,Dependent> &that)
+	inline implicit StrongRef (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that)
 		: StrongRef (that.watch ()) {}
 
 	inline ~StrongRef () noexcept {
@@ -1691,10 +1679,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~StrongRef () ;
+			_DEREF_ (this).~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline StrongRef (StrongRef &&that) noexcept {
@@ -1706,10 +1694,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~StrongRef () ;
+			_DEREF_ (this).~StrongRef () ;
 			new (this) StrongRef (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline BOOL exist () const {
@@ -1733,7 +1721,7 @@ public:
 	inline UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-		return (*r1x) ;
+		return _DEREF_ (r1x) ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -1765,8 +1753,8 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL equal (const DEPENDENT_TYPE<WeakRef<UNIT> ,Dependent> &that) const {
-		return that.equal ((*this)) ;
+	inline BOOL equal (const DEPENDENT_TYPE<WeakRef<UNIT> ,StrongRef> &that) const {
+		return that.equal (_DEREF_ (this)) ;
 	}
 
 	inline BOOL operator== (const WeakRef<UNIT> &that) const {
@@ -1777,8 +1765,8 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL equal (const DEPENDENT_TYPE<SoftRef<UNIT> ,Dependent> &that) const {
-		return that.equal ((*this)) ;
+	inline BOOL equal (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that) const {
+		return that.equal (_DEREF_ (this)) ;
 	}
 
 	inline BOOL operator== (const SoftRef<UNIT> &that) const {
@@ -1937,10 +1925,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~SoftRef () ;
+			_DEREF_ (this).~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline SoftRef (SoftRef &&that) noexcept {
@@ -1953,10 +1941,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~SoftRef () ;
+			_DEREF_ (this).~SoftRef () ;
 			new (this) SoftRef (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2161,10 +2149,10 @@ public:
 		if switch_case (TRUE) {
 			if (this == &that)
 				discard ;
-			(*this).~IntrusiveRef () ;
+			_DEREF_ (this).~IntrusiveRef () ;
 			new (this) IntrusiveRef (std::move (that)) ;
 		}
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	inline BOOL exist () const {
@@ -2227,7 +2215,7 @@ private:
 			const auto r3x = mLatch.load () ;
 			if (r3x == 0)
 				break ;
-			INTRUSIVE_THIS::friend_latch ((*r1x)) ;
+			INTRUSIVE_THIS::friend_latch (_DEREF_ (r1x)) ;
 		}
 		return r1x ;
 #pragma GCC diagnostic pop
@@ -2238,8 +2226,8 @@ private:
 		if (address == NULL)
 			return ;
 		if (init)
-			INTRUSIVE_THIS::friend_create ((*address)) ;
-		const auto r1x = INTRUSIVE_THIS::friend_attach ((*address)) ;
+			INTRUSIVE_THIS::friend_create (_DEREF_ (address)) ;
+		const auto r1x = INTRUSIVE_THIS::friend_attach (_DEREF_ (address)) ;
 		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 		_STATIC_UNUSED_ (r1x) ;
 	}
@@ -2247,11 +2235,11 @@ private:
 	inline static void release (PTR<UNIT> address) {
 		if (address == NULL)
 			return ;
-		const auto r1x = INTRUSIVE_THIS::friend_detach ((*address)) ;
+		const auto r1x = INTRUSIVE_THIS::friend_detach (_DEREF_ (address)) ;
 		_DEBUG_ASSERT_ (r1x >= 0) ;
 		if (r1x > 0)
 			return ;
-		INTRUSIVE_THIS::friend_destroy ((*address)) ;
+		INTRUSIVE_THIS::friend_destroy (_DEREF_ (address)) ;
 		address->~UNIT () ;
 		GlobalHeap::free (address) ;
 	}
@@ -2271,7 +2259,7 @@ struct IntrusiveRef<UNIT>::Detail {
 
 		inline implicit operator UNIT & () const leftvalue noexcept {
 			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-			return (*r1x) ;
+			return _DEREF_ (r1x) ;
 		}
 
 	private:
@@ -2498,7 +2486,7 @@ struct MemoryPool::Detail {
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,(*address)) ;
+			auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,_DEREF_ (address)) ;
 			_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
 			r1x.mNext = mFree ;
 			mFree = &r1x ;
@@ -2601,7 +2589,7 @@ struct MemoryPool::Detail {
 
 		inline void free (PTR<HEADER> address) noexcept override {
 			_DEBUG_ASSERT_ (address != NULL) ;
-			auto &r1x = _OFFSET_ (&FBLOCK::mFlexData ,(*address)) ;
+			auto &r1x = _OFFSET_ (&FBLOCK::mFlexData ,_DEREF_ (address)) ;
 			auto &r2x = _SWITCH_ (
 				(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
 				mRoot) ;
@@ -2740,7 +2728,7 @@ class Object::Virtual
 	:public virtual Object {
 public:
 	inline Virtual ()
-		:Object (_NULL_<ARGV<decltype ((*this))>> ()) {}
+		:Object (_NULL_<ARGV<decltype (_DEREF_ (this))>> ()) {}
 } ;
 
 template <class UNIT ,class CONT>
@@ -2769,7 +2757,7 @@ public:
 	inline DEF<typename Detail::Member> operator() (CONT &context_) const popping {
 		using Member = typename Detail::Member ;
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
-		return Member ((*this) ,context_) ;
+		return Member (_DEREF_ (this) ,context_) ;
 	}
 } ;
 

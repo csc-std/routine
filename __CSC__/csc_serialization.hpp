@@ -685,7 +685,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,data)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
@@ -736,9 +736,9 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_table_node) ;
-			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_object_node) ;
-			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make ((*this)) ,&Lambda::update_found_array_node) ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_table_node) ;
+			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_object_node) ;
+			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_array_node) ;
 			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
@@ -943,7 +943,7 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,sequence)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,sequence)) ;
 }
 
 class JsonParser {
@@ -1314,8 +1314,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			if (!(r2x.P2 == M_NODE_X2))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			auto &r6x = (*r1x[r2x.P1].key) ;
-			writer << r6x ;
+			writer << _DEREF_ (r1x[r2x.P1].key) ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
@@ -1699,7 +1698,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,data)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
 }
 
 class CommandParser {
@@ -1991,6 +1990,6 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 			mContext.mCommand = std::move (mCommand) ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,data)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
 }
 } ;

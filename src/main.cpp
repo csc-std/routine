@@ -12,7 +12,7 @@ TEST_CLASS (UNITTEST_MAIN) {
 public:
 	TEST_METHOD (TEST_MAIN) {
 		using namespace UNITTEST ;
-
+		//^(?!\t*(inline )?(static |imports_static )?(exports |constexpr )?(const )?\w+(<[^\r]*>)? &?(\w+(<[^\r]+>)?::)?(\w+|operator[^\w ]+) \([^\r]*\)( \w+)*( ;\r\n(} ;)?\r\n| {| = \w+ ;|\r\n\t+:))(?!\t*(const )?\w+(<[^\r]*>)? &?m\w+ ;)[^\r]+&(?<!^\t*for \(auto &&)(?<!^\t*auto &)(?<!PTRTOARR\[&)\w+[^\r]+
 	}
 } ;
 

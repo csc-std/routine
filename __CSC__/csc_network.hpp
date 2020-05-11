@@ -55,7 +55,7 @@ public:
 	template <class _ARG1>
 	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
@@ -70,7 +70,7 @@ public:
 	template <class _ARG1>
 	inline TCPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 public:
@@ -124,7 +124,7 @@ public:
 	template <class _ARG1>
 	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
@@ -139,7 +139,7 @@ public:
 	template <class _ARG1>
 	inline UDPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 } ;
 

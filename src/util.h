@@ -108,40 +108,28 @@ inline exports DebuggerService &Singleton<DebuggerService>::instance () {
 } ;
 #endif
 
+#ifdef __CSC_COMPILER_MSVC__
+namespace CSC {
+inline exports void GlobalWatch::done (const Exception &e) {
+	const auto r1x = String<STR> (e.what ()) ;
+#ifdef MS_CPP_UNITTESTFRAMEWORK
+#ifdef __CSC_STRING__
+	const auto r2x = StringProc::build_strs<STRW> (r1x) ;
+	Assert::Fail (r2x.raw ().self) ;
+#else
+	Assert::Fail () ;
+#endif
+#else
+	Singleton<ConsoleService>::instance ().fatal (r1x) ;
+#endif
+	_STATIC_UNUSED_ (r1x) ;
+}
+} ;
+#endif
+
 namespace UNITTEST {
 using namespace CSC ;
 } ;
-
-namespace UNITTEST {
-#ifdef __CSC_UNITTEST__
-class GlobalUnittest final
-	:private Wrapped<void> {
-public:
-	inline imports_static void done (const ARR<STR> &what) {
-#ifdef MS_CPP_UNITTESTFRAMEWORK
-#ifdef __CSC_STRING__
-		const auto r1x = StringProc::build_strs<STRW> (what) ;
-		Assert::Fail (r1x.raw ().self) ;
-#else
-		Assert::Fail () ;
-#endif
-#else
-		Singleton<ConsoleService>::instance ().fatal (String<STR> (what)) ;
-#endif
-	}
-} ;
-#endif
-} ;
-
-#ifdef __CSC_UNITTEST__
-#ifdef __CSC_COMPILER_MSVC__
-#define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) GlobalUnittest::done (CSC::Plain<CSC::STR> (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE))) ; } while (FALSE)
-#else
-#define _UNITTEST_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) GlobalUnittest::done (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)) ; } while (FALSE)
-#endif
-#else
-#define _UNITTEST_ASSERT_(...) do {} while (FALSE)
-#endif
 
 #ifdef __CSC_COMPILER_GNUC__
 #pragma region

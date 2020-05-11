@@ -264,7 +264,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 }
 } ;
 
-inline exports String<STR> FileSystemProc::absolution_path (const String<STR> &path) {
+inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	auto rax = FileSystemProc::decouple_path_name (path) ;
 	auto fax = TRUE ;
@@ -383,7 +383,7 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	if (FileSystemProc::find_directory (dire))
 		return ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
-	const auto r1x = FileSystemProc::absolution_path (dire) ;
+	const auto r1x = FileSystemProc::absolute_path (dire) ;
 	const auto r2x = FileSystemProc::decouple_path_name (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
 	if switch_case (TRUE) {
@@ -584,7 +584,7 @@ public:
 
 	explicit Implement (const String<STR> &file) {
 		UniqueRef<PhanRef<Implement>> ANONYMOUS ([&] (PhanRef<Implement> &me) {
-			me = PhanRef<Implement>::make ((*this)) ;
+			me = PhanRef<Implement>::make (_DEREF_ (this)) ;
 		} ,[] (PhanRef<Implement> &me) {
 			me->mBuildBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mBuildMapping = UniqueRef<HANDLE> () ;
@@ -628,7 +628,7 @@ public:
 	explicit Implement (const String<STR> &file ,LENGTH file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		UniqueRef<PhanRef<Implement>> ANONYMOUS ([&] (PhanRef<Implement> &me) {
-			me = PhanRef<Implement>::make ((*this)) ;
+			me = PhanRef<Implement>::make (_DEREF_ (this)) ;
 		} ,[] (PhanRef<Implement> &me) {
 			me->mBuildBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mBuildMapping = UniqueRef<HANDLE> () ;
@@ -672,7 +672,7 @@ public:
 	explicit Implement (const String<STR> &file ,BOOL cache) {
 		_DEBUG_ASSERT_ (cache) ;
 		UniqueRef<PhanRef<Implement>> ANONYMOUS ([&] (PhanRef<Implement> &me) {
-			me = PhanRef<Implement>::make ((*this)) ;
+			me = PhanRef<Implement>::make (_DEREF_ (this)) ;
 		} ,[] (PhanRef<Implement> &me) {
 			me->mBuildBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mBuildMapping = UniqueRef<HANDLE> () ;
@@ -719,7 +719,7 @@ public:
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
 		UniqueRef<PhanRef<Implement>> ANONYMOUS ([&] (PhanRef<Implement> &me) {
-			me = PhanRef<Implement>::make ((*this)) ;
+			me = PhanRef<Implement>::make (_DEREF_ (this)) ;
 		} ,[] (PhanRef<Implement> &me) {
 			me->mBuildBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mBuildMapping = UniqueRef<HANDLE> () ;

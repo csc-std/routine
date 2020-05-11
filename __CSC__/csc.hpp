@@ -367,6 +367,14 @@ using std::exception ;
 #endif
 
 #ifdef __CSC_UNITTEST__
+#ifdef __CSC_COMPILER_MSVC__
+#define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::GlobalWatch::done (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE))) ; } while (FALSE)
+#else
+#define _UNITTEST_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::GlobalWatch::done (CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE))) ; } while (FALSE)
+#endif
+#endif
+
+#ifdef __CSC_UNITTEST__
 #define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
 #else
 #define _UNITTEST_WATCH_(...) do {} while (FALSE)
@@ -970,7 +978,7 @@ struct INVOKE_RESULT<_ARG1 (_ARGS...)> {
 } ;
 
 template <class _ARG1>
-using INVOKE_RESULT_TYPE = typename INVOKE_RESULT<_ARG1>::TYPE ;
+using INVOKE_RESULT_TYPE = typename INVOKE_RESULT<REMOVE_FUNCATTR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -983,33 +991,25 @@ struct INVOKE_PARAMS<_ARG1 (_ARGS...)> {
 } ;
 
 template <class _ARG1>
-using INVOKE_PARAMS_TYPE = typename INVOKE_PARAMS<_ARG1>::TYPE ;
+using INVOKE_PARAMS_TYPE = typename INVOKE_PARAMS<REMOVE_FUNCATTR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class ,class>
 struct RESULT_OF ;
 
-#ifdef __CSC_COMPILER_CLANG__
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct RESULT_OF {
-	//@error: fuck clang
-	using TYPE = NONE ;
-} ;
-#endif
-
-template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-struct RESULT_OF<_ARG1 (_ARGS...) ,ARGVS<_ARGS...> ,_ARG2> {
-	using TYPE = _ARG1 ;
+template <class _ARG1 ,class _ARG2>
+struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<!std::is_class<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
+	using TYPE = INVOKE_RESULT_TYPE<REMOVE_POINTER_TYPE<_ARG1>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
 struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
-	using TYPE = typename RESULT_OF<REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())>> ,_ARG2 ,VOID>::TYPE ;
+	using TYPE = typename RESULT_OF<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())> ,_ARG2 ,VOID>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<REMOVE_POINTER_TYPE<_ARG1>> ,_ARG2 ,VOID>::TYPE ;
+using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<_ARG1> ,_ARG2 ,VOID>::TYPE ;
 } ;
 
 namespace U {
@@ -1558,25 +1558,19 @@ template <class... _ARGS>
 using is_any_same = U::IS_ANY_SAME_HELP<_ARGS...> ;
 } ;
 
-namespace U {
-struct OPERATOR_PTRTOARR {
-	template <class _ARG1>
-	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return (*PTR<ARR<_ARG1>> (that)) ;
-	}
+template <class _ARG1>
+inline constexpr _ARG1 &_DEREF_ (PTR<_ARG1> address) noexcept {
+	return (*address) ;
+}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
-	inline constexpr ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const {
-		return (*PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (&that)) ;
-	}
-} ;
-} ;
-
-static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
+template <class _ARG1>
+inline constexpr PTR<_ARG1> _DEPTR_ (_ARG1 &object) noexcept {
+	return std::addressof (object) ;
+}
 
 template <class _RET>
-inline constexpr _RET &_NULL_ () {
-	return (*PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
+inline constexpr _RET &_NULL_ () noexcept {
+	return _DEREF_ (PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
 }
 
 template <class _ARG1>
@@ -1601,7 +1595,7 @@ inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
 	return LENGTH (address) ;
 }
 
-inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) {
+inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) noexcept {
 	return base + (align_ - base % align_) % align_ ;
 }
 
@@ -1627,7 +1621,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
 	const auto r1x = _ADDRESS_ (&object) ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
-	return (*r2x) ;
+	return _DEREF_ (r2x) ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
@@ -1645,20 +1639,6 @@ template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
 	_CAST_<TEMP<_ARG1>> (object) = {0} ;
-}
-
-template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	TEMP<_RET> ret ;
-	_ZERO_ (ret) ;
-	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
-	return std::move (_CAST_<_RET> (ret)) ;
 }
 
 template <class _ARG1>
@@ -1691,6 +1671,20 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
 	rhs = std::move (tmp) ;
 }
 
+template <class _RET ,class _ARG1>
+inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
+	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
+	TEMP<_RET> ret ;
+	_ZERO_ (ret) ;
+	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
+	return std::move (_CAST_<_RET> (ret)) ;
+}
+
 template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) ;
 
@@ -1704,7 +1698,7 @@ inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
 }
 
 template <class _ARG1>
-inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
+inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) noexcept {
 	return expr ;
 }
 
@@ -1723,7 +1717,7 @@ struct CONSTEXPR_SWITCH_ABS {
 } ;
 
 template <class _ARG1>
-inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
+inline constexpr _ARG1 _ABS_ (const _ARG1 &val) noexcept {
 	return _SWITCH_ (
 		(val < _ARG1 (0)) ? U::CONSTEXPR_SWITCH_ABS<_ARG1>::case1 :
 		U::CONSTEXPR_SWITCH_ABS<_ARG1>::case2)
@@ -1731,14 +1725,14 @@ inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
 }
 
 template <class _ARG1>
-inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) noexcept {
 	return _SWITCH_ (
 		!(rhs < lhs) ? lhs :
 		rhs) ;
 }
 
 template <class _ARG1>
-inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) noexcept {
 	return _SWITCH_ (
 		!(lhs < rhs) ? lhs :
 		rhs) ;
@@ -1758,7 +1752,7 @@ struct CONSTEXPR_SWITCH_EBOOL {
 } ;
 } ;
 
-inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
+inline constexpr VAR32 _EBOOL_ (const BOOL &flag) noexcept {
 	return _SWITCH_ (
 		flag ? U::CONSTEXPR_SWITCH_EBOOL<VAR32>::case1 :
 		U::CONSTEXPR_SWITCH_EBOOL<VAR32>::case2)
@@ -1883,7 +1877,7 @@ public:
 	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
-		return Iterator ((*this) ,mIBegin) ;
+		return Iterator (_DEREF_ (this) ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
@@ -1891,7 +1885,7 @@ public:
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return Iterator ((*this) ,r1x) ;
+		return Iterator (_DEREF_ (this) ,r1x) ;
 	}
 } ;
 
@@ -1937,24 +1931,38 @@ inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) popping {
 }
 
 namespace U {
-inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) {
+inline constexpr LENGTH constexpr_cache_string_size (const ARGV<ARGVS<>> &) noexcept {
 	return 1 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_cache_string_size (const ARGV<_ARG1> &) {
+inline constexpr LENGTH constexpr_cache_string_size (const ARGV<_ARG1> &) noexcept {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 	return _COUNTOF_ (ONE_HINT) - 1 + constexpr_cache_string_size (_NULL_<ARGV<REST_HINT>> ()) ;
 }
 } ;
 
+namespace U {
+struct OPERATOR_PTRTOARR {
+	template <class _ARG1>
+	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const noexcept {
+		return _DEREF_ (PTR<ARR<_ARG1>> (that)) ;
+	}
+
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
+	inline constexpr ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const noexcept {
+		return _DEREF_ (PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (&that)) ;
+	}
+} ;
+} ;
+
+static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
+
 template <class REAL>
 class Plain final
 	:private Proxy {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
-
-	using Dependent = Plain ;
 
 private:
 	struct Detail ;
@@ -1972,23 +1980,23 @@ public:
 	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
 		:Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
 
-	inline constexpr LENGTH size () const {
+	inline constexpr LENGTH size () const noexcept {
 		return mSize ;
 	}
 
-	inline constexpr const ARR<REAL> &to () const leftvalue {
+	inline constexpr const ARR<REAL> &to () const leftvalue noexcept {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
-	inline constexpr implicit operator const ARR<REAL> & () const leftvalue {
+	inline constexpr implicit operator const ARR<REAL> & () const leftvalue noexcept {
 		return to () ;
 	}
 
 private:
 	template <class _ARG1 ,class... _ARGS>
 	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
-		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,Dependent> {
+		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,Plain> {
 		using PlainString = typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () noexcept {
@@ -2052,11 +2060,11 @@ public:
 	inline Exception &operator= (Exception &&) = default ;
 
 	inline const ARR<STR> &what () const noexcept {
-		return (*mWhat) ;
+		return _DEREF_ (mWhat) ;
 	}
 
 	inline void raise[[noreturn]] () const {
-		throw (*this) ;
+		throw _DEREF_ (this) ;
 	}
 } ;
 
@@ -2071,7 +2079,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	_STATIC_UNUSED_ (r1x) ;
 	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
-	return (*r3x) ;
+	return _DEREF_ (r3x) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
@@ -2113,7 +2121,6 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 	_CALL_TRY_ (std::forward<_ARGS> (proc_rest)...) ;
 }
 
-//@info: this function is incompleted without 'csc_extend.hpp'
 template <class _ARG1 ,class _ARG2>
 inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
 	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;

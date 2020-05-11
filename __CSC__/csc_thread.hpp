@@ -649,8 +649,6 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
-	using Dependent = Promise ;
-
 private:
 	struct Detail ;
 	friend Future<ITEM> ;
@@ -662,8 +660,8 @@ public:
 		mThis = IntrusiveRef<Pack>::make () ;
 	}
 
-	DEPENDENT_TYPE<Future<ITEM> ,Dependent> future () popping {
-		return DEPENDENT_TYPE<Future<ITEM> ,Dependent> (mThis) ;
+	DEPENDENT_TYPE<Future<ITEM> ,Promise> future () popping {
+		return DEPENDENT_TYPE<Future<ITEM> ,Promise> (mThis) ;
 	}
 
 	void push (const ITEM &item) {
@@ -726,7 +724,7 @@ public:
 	}
 
 public:
-	imports_static DEPENDENT_TYPE<Future<ITEM> ,Dependent> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	imports_static DEPENDENT_TYPE<Future<ITEM> ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (std::move (proc)) ;
 		return rax.future () ;

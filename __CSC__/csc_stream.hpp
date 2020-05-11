@@ -106,7 +106,7 @@ public:
 
 	DEF<typename Detail::template Attribute<ByteReader>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<ByteReader> ;
-		return Attribute ((*this)) ;
+		return Attribute (_DEREF_ (this)) ;
 	}
 
 	LENGTH size () const {
@@ -171,7 +171,7 @@ public:
 
 	inline ByteReader &operator>> (BYTE &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (WORD &data) {
@@ -184,7 +184,7 @@ public:
 
 	inline ByteReader &operator>> (WORD &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (CHAR &data) {
@@ -197,7 +197,7 @@ public:
 
 	inline ByteReader &operator>> (CHAR &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (DATA &data) {
@@ -210,7 +210,7 @@ public:
 
 	inline ByteReader &operator>> (DATA &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (BOOL &data) {
@@ -219,7 +219,7 @@ public:
 
 	inline ByteReader &operator>> (BOOL &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAR32 &data) {
@@ -228,7 +228,7 @@ public:
 
 	inline ByteReader &operator>> (VAR32 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAR64 &data) {
@@ -237,7 +237,7 @@ public:
 
 	inline ByteReader &operator>> (VAR64 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAL32 &data) {
@@ -246,7 +246,7 @@ public:
 
 	inline ByteReader &operator>> (VAL32 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAL64 &data) {
@@ -255,7 +255,7 @@ public:
 
 	inline ByteReader &operator>> (VAL64 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -271,7 +271,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (Array<_ARG1 ,_ARG2> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -291,7 +291,7 @@ public:
 	template <class _ARG1>
 	inline ByteReader &operator>> (const Plain<_ARG1> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -309,7 +309,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (String<_ARG1 ,_ARG2> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -321,26 +321,26 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (Binder &data) {
-		data.friend_read ((*this)) ;
+		data.friend_read (_DEREF_ (this)) ;
 	}
 
 	inline ByteReader &operator>> (Binder &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<void (ByteReader &)> &proc) {
 		const auto r1x = Function<void (ByteReader &)> (proc) ;
-		r1x ((*this)) ;
+		r1x (_DEREF_ (this)) ;
 	}
 
 	inline ByteReader &operator>> (const PTR<void (ByteReader &)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void scans () {
@@ -359,7 +359,7 @@ public:
 
 	inline ByteReader &operator>> (const PTR<decltype (CLS)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (GAP)> &) {
@@ -370,12 +370,12 @@ public:
 		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
 		ris >> rax ;
 		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	inline ByteReader &operator>> (const PTR<decltype (GAP)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (EOS)> &) {
@@ -388,12 +388,12 @@ public:
 			ris >> rax ;
 			_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
 		}
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	inline ByteReader &operator>> (const PTR<decltype (EOS)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 } ;
 
@@ -422,6 +422,13 @@ struct ByteReader<REAL>::Detail {
 			:mBase (base) {}
 	} ;
 } ;
+
+template <class REAL>
+inline void ByteReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+template <class REAL>
+inline void ByteReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+template <class REAL>
+inline void ByteReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 template <class REAL>
 class ByteWriter {
@@ -472,7 +479,7 @@ public:
 
 	DEF<typename Detail::template Attribute<ByteWriter>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<ByteWriter> ;
-		return Attribute ((*this)) ;
+		return Attribute (_DEREF_ (this)) ;
 	}
 
 	LENGTH size () const {
@@ -521,7 +528,7 @@ public:
 
 	inline ByteWriter &operator<< (const BYTE &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const WORD &data) {
@@ -534,7 +541,7 @@ public:
 
 	inline ByteWriter &operator<< (const WORD &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const CHAR &data) {
@@ -547,7 +554,7 @@ public:
 
 	inline ByteWriter &operator<< (const CHAR &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const DATA &data) {
@@ -560,7 +567,7 @@ public:
 
 	inline ByteWriter &operator<< (const DATA &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const BOOL &data) {
@@ -570,7 +577,7 @@ public:
 
 	inline ByteWriter &operator<< (const BOOL &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<const VOID> &) = delete ;
@@ -584,7 +591,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAR32 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAR64 &data) {
@@ -594,7 +601,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAR64 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAL32 &data) {
@@ -604,7 +611,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAL32 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAL64 &data) {
@@ -614,7 +621,7 @@ public:
 
 	inline ByteWriter &operator<< (const VAL64 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -629,7 +636,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const Array<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -646,7 +653,7 @@ public:
 	template <class _ARG1>
 	inline ByteWriter &operator<< (const Plain<_ARG1> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -662,7 +669,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const String<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -674,26 +681,26 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline ByteWriter &operator<< (const Buffer<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const Binder &data) {
-		data.friend_write ((*this)) ;
+		data.friend_write (_DEREF_ (this)) ;
 	}
 
 	inline ByteWriter &operator<< (const Binder &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<void (ByteWriter &)> &proc) {
 		const auto r1x = Function<void (ByteWriter &)> (proc) ;
-		r1x ((*this)) ;
+		r1x (_DEREF_ (this)) ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<void (ByteWriter &)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void prints () {
@@ -712,7 +719,7 @@ public:
 
 	inline ByteWriter &operator<< (const PTR<decltype (CLS)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<decltype (GAP)> &) {
@@ -720,12 +727,12 @@ public:
 		auto wos = copy () ;
 		wos << r1x.varify_space_item () ;
 		wos << r1x.varify_space_item () ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<decltype (GAP)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<decltype (EOS)> &) {
@@ -735,12 +742,12 @@ public:
 			wos << r1x.varify_ending_item () ;
 			_STATIC_UNUSED_ (i) ;
 		}
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<decltype (EOS)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 } ;
 
@@ -769,6 +776,13 @@ struct ByteWriter<REAL>::Detail {
 			:mBase (base) {}
 	} ;
 } ;
+
+template <class REAL>
+inline void ByteWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+template <class REAL>
+inline void ByteWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+template <class REAL>
+inline void ByteWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 template <class REAL>
 class TextReader {
@@ -823,7 +837,7 @@ public:
 
 	DEF<typename Detail::template Attribute<TextReader>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<TextReader> ;
-		return Attribute ((*this)) ;
+		return Attribute (_DEREF_ (this)) ;
 	}
 
 	LENGTH size () const {
@@ -897,7 +911,7 @@ public:
 
 	inline TextReader &operator>> (REAL &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (BOOL &data) {
@@ -959,7 +973,7 @@ public:
 
 	inline TextReader &operator>> (BOOL &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAR32 &data) {
@@ -970,7 +984,7 @@ public:
 
 	inline TextReader &operator>> (VAR32 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAR64 &data) {
@@ -987,7 +1001,7 @@ public:
 
 	inline TextReader &operator>> (VAR64 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAL32 &data) {
@@ -1004,7 +1018,7 @@ public:
 
 	inline TextReader &operator>> (VAL32 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (VAL64 &data) {
@@ -1063,7 +1077,7 @@ public:
 
 	inline TextReader &operator>> (VAL64 &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1074,7 +1088,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextReader &operator>> (Array<_ARG1 ,_ARG2> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const Plain<REAL> &data) {
@@ -1092,7 +1106,7 @@ public:
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -1109,7 +1123,7 @@ public:
 	template <class _ARG1>
 	inline TextReader &operator>> (String<REAL ,_ARG1> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1121,26 +1135,26 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextReader &operator>> (Buffer<_ARG1 ,_ARG2> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (Binder &data) {
-		data.friend_read ((*this)) ;
+		data.friend_read (_DEREF_ (this)) ;
 	}
 
 	inline TextReader &operator>> (Binder &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<void (TextReader &)> &proc) {
 		const auto r1x = Function<void (TextReader &)> (proc) ;
-		r1x ((*this)) ;
+		r1x (_DEREF_ (this)) ;
 	}
 
 	inline TextReader &operator>> (const PTR<void (TextReader &)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void scans () {
@@ -1159,7 +1173,7 @@ public:
 
 	inline TextReader &operator>> (const PTR<decltype (CLS)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (BOM)> &) {
@@ -1168,7 +1182,7 @@ public:
 
 	inline TextReader &operator>> (const PTR<decltype (BOM)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (GAP)> &) {
@@ -1179,14 +1193,14 @@ public:
 		while (TRUE) {
 			if (!r1x.varify_space (rax))
 				break ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 			ris >> rax ;
 		}
 	}
 
 	inline TextReader &operator>> (const PTR<decltype (GAP)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (EOS)> &) {
@@ -1195,12 +1209,12 @@ public:
 		auto rax = REAL () ;
 		ris.read (rax) ;
 		_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	inline TextReader &operator>> (const PTR<decltype (EOS)> &proc) {
 		read (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 private:
@@ -1233,7 +1247,7 @@ private:
 			const auto r2x = data * r1x.varify_radix () + r1x.convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r2x) ;
 			data = r2x ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 			ris.read (top) ;
 		}
 	}
@@ -1245,7 +1259,7 @@ private:
 		while (TRUE) {
 			if (r1x.convert_number_r (top) != 0)
 				break ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 			ris.read (top) ;
 		}
 		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
@@ -1253,7 +1267,7 @@ private:
 			if (!r1x.varify_number_item (top))
 				discard ;
 			rax[0] = r1x.convert_number_r (top) ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 			ris.read (top) ;
 			while (TRUE) {
 				if (!r1x.varify_number_item (top))
@@ -1268,14 +1282,14 @@ private:
 				if switch_case (fax) {
 					rax[1]++ ;
 				}
-				(*this) = ris.copy () ;
+				_DEREF_ (this) = ris.copy () ;
 				ris.read (top) ;
 			}
 		}
 		if switch_case (TRUE) {
 			if (top != REAL ('.'))
 				discard ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 			ris.read (top) ;
 			_DYNAMIC_ASSERT_ (r1x.varify_number_item (top)) ;
 			while (TRUE) {
@@ -1288,7 +1302,7 @@ private:
 					rax[0] = r3x ;
 					rax[1]-- ;
 				}
-				(*this) = ris.copy () ;
+				_DEREF_ (this) = ris.copy () ;
 				ris.read (top) ;
 			}
 		}
@@ -1297,7 +1311,7 @@ private:
 				discard ;
 			const auto r4x = ris.template read<VAR32> () ;
 			rax[1] += r4x ;
-			(*this) = ris.copy () ;
+			_DEREF_ (this) = ris.copy () ;
 		}
 		if switch_case (TRUE) {
 			if (rax[0] >= 0)
@@ -1334,7 +1348,7 @@ private:
 		if (rax != M_BOM.P1[2])
 			return ;
 		r1x.enable_endian (FALSE) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRU16> &) {
@@ -1348,7 +1362,7 @@ private:
 			return ;
 		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
 		r1x.enable_endian (r2x) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRU32> &) {
@@ -1362,13 +1376,13 @@ private:
 			return ;
 		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
 		r1x.enable_endian (r2x) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRW> &) {
 		auto ris = copy () ;
 		_CAST_<TextReader<STRUW>> (ris).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
-		(*this) = ris.copy () ;
+		_DEREF_ (this) = ris.copy () ;
 	}
 } ;
 
@@ -1501,6 +1515,15 @@ struct TextReader<REAL>::Detail {
 } ;
 
 template <class REAL>
+inline void TextReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+template <class REAL>
+inline void TextReader<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+template <class REAL>
+inline void TextReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+template <class REAL>
+inline void TextReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
+
+template <class REAL>
 class TextWriter {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
@@ -1559,7 +1582,7 @@ public:
 
 	DEF<typename Detail::template Attribute<TextWriter>> attr () leftvalue {
 		using Attribute = typename Detail::template Attribute<TextWriter> ;
-		return Attribute ((*this)) ;
+		return Attribute (_DEREF_ (this)) ;
 	}
 
 	LENGTH size () const {
@@ -1622,7 +1645,7 @@ public:
 
 	inline TextWriter &operator<< (const REAL &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const BOOL &data) {
@@ -1640,7 +1663,7 @@ public:
 
 	inline TextWriter &operator<< (const BOOL &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<const VOID> &) = delete ;
@@ -1653,7 +1676,7 @@ public:
 
 	inline TextWriter &operator<< (const VAR32 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAR64 &data) {
@@ -1665,7 +1688,7 @@ public:
 
 	inline TextWriter &operator<< (const VAR64 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAL32 &data) {
@@ -1707,7 +1730,7 @@ public:
 
 	inline TextWriter &operator<< (const VAL32 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const VAL64 &data) {
@@ -1749,7 +1772,7 @@ public:
 
 	inline TextWriter &operator<< (const VAL64 &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1760,7 +1783,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextWriter &operator<< (const Array<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const Plain<REAL> &data) {
@@ -1775,7 +1798,7 @@ public:
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -1789,7 +1812,7 @@ public:
 	template <class _ARG1>
 	inline TextWriter &operator<< (const String<REAL ,_ARG1> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1801,26 +1824,26 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline TextWriter &operator<< (const Buffer<_ARG1 ,_ARG2> &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const Binder &data) {
-		data.friend_write ((*this)) ;
+		data.friend_write (_DEREF_ (this)) ;
 	}
 
 	inline TextWriter &operator<< (const Binder &data) {
 		write (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<void (TextWriter &)> &proc) {
 		const auto r1x = Function<void (TextWriter &)> (proc) ;
-		r1x ((*this)) ;
+		r1x (_DEREF_ (this)) ;
 	}
 
 	inline TextWriter &operator<< (const PTR<void (TextWriter &)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void prints () {
@@ -1839,7 +1862,7 @@ public:
 
 	inline TextWriter &operator<< (const PTR<decltype (CLS)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<decltype (BOM)> &) {
@@ -1848,31 +1871,31 @@ public:
 
 	inline TextWriter &operator<< (const PTR<decltype (BOM)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<decltype (GAP)> &) {
 		auto wos = copy () ;
 		_DYNAMIC_ASSERT_ (wos.length () + 2 < wos.size ()) ;
 		wos << REAL ('\r') << REAL ('\n') ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	inline TextWriter &operator<< (const PTR<decltype (GAP)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void write (const PTR<decltype (EOS)> &) {
 		const auto r1x = attr () ;
 		auto wos = copy () ;
 		wos << r1x.varify_ending_item () ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	inline TextWriter &operator<< (const PTR<decltype (EOS)> &proc) {
 		write (proc) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 private:
@@ -2056,7 +2079,7 @@ private:
 			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
 		auto wos = copy () ;
 		wos << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRU16> &) {
@@ -2064,7 +2087,7 @@ private:
 			STRU16 (0XFEFF)}) ;
 		auto wos = copy () ;
 		wos << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRU32> &) {
@@ -2072,13 +2095,13 @@ private:
 			STRU32 (0X0000FEFF)}) ;
 		auto wos = copy () ;
 		wos << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRW> &) {
 		auto wos = copy () ;
 		_CAST_<TextWriter<STRUW>> (wos).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
-		(*this) = wos.copy () ;
+		_DEREF_ (this) = wos.copy () ;
 	}
 } ;
 
@@ -2172,6 +2195,15 @@ struct TextWriter<REAL>::Detail {
 			:mBase (base) {}
 	} ;
 } ;
+
+template <class REAL>
+inline void TextWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+template <class REAL>
+inline void TextWriter<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+template <class REAL>
+inline void TextWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+template <class REAL>
+inline void TextWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 class RegularReader {
 public:
@@ -2267,7 +2299,7 @@ public:
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (HINT_IDENTIFIER)> &) {
@@ -2277,7 +2309,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (HINT_IDENTIFIER)> &) {
 		read (HINT_IDENTIFIER) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (HINT_VALUE)> &) {
@@ -2287,7 +2319,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (HINT_VALUE)> &) {
 		read (HINT_VALUE) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (HINT_STRING)> &) {
@@ -2297,7 +2329,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (HINT_STRING)> &) {
 		read (HINT_STRING) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (HINT_NEWGAP)> &) {
@@ -2307,7 +2339,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWGAP)> &) {
 		read (HINT_NEWGAP) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (HINT_NEWLINE)> &) {
@@ -2317,7 +2349,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWLINE)> &) {
 		read (HINT_NEWLINE) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (SKIP_GAP)> &) {
@@ -2331,7 +2363,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP)> &) {
 		read (SKIP_GAP) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (SKIP_GAP_SPACE)> &) {
@@ -2345,7 +2377,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_SPACE)> &) {
 		read (SKIP_GAP_SPACE) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
@@ -2359,7 +2391,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
 		read (SKIP_GAP_ENDLINE) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (const PTR<decltype (SKIP_LINE)> &) {
@@ -2381,7 +2413,7 @@ public:
 
 	inline RegularReader &operator>> (const PTR<decltype (SKIP_LINE)> &) {
 		read (SKIP_LINE) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void read (String<STRU8> &data) {
@@ -2427,7 +2459,7 @@ public:
 
 	inline RegularReader &operator>> (String<STRU8> &data) {
 		read (data) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 private:
@@ -2583,4 +2615,14 @@ private:
 		return std::move (ret) ;
 	}
 } ;
+
+inline void RegularReader::HINT_IDENTIFIER (const ARGV<ARGC<1>> &) {}
+inline void RegularReader::HINT_VALUE (const ARGV<ARGC<2>> &) {}
+inline void RegularReader::HINT_STRING (const ARGV<ARGC<3>> &) {}
+inline void RegularReader::HINT_NEWGAP (const ARGV<ARGC<4>> &) {}
+inline void RegularReader::HINT_NEWLINE (const ARGV<ARGC<5>> &) {}
+inline void RegularReader::SKIP_GAP (const ARGV<ARGC<6>> &) {}
+inline void RegularReader::SKIP_GAP_SPACE (const ARGV<ARGC<7>> &) {}
+inline void RegularReader::SKIP_GAP_ENDLINE (const ARGV<ARGC<8>> &) {}
+inline void RegularReader::SKIP_LINE (const ARGV<ARGC<9>> &) {}
 } ;

@@ -238,7 +238,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 		_DYNAMIC_ASSERT_ (ris.attr ().varify_space (rax)) ;
 	}
 	ret.pop () ;
-	ris >> _EOS_ ;
+	ris >> TextReader<STR>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -263,6 +263,7 @@ inline exports String<STR> FileSystemProc::working_path () {
 	return StringProc::parse_strs (rax) ;
 }
 
+namespace U {
 inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) {
 	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
 	for (auto &&i : _RANGE_ (0 ,path_name.length ())) {
@@ -285,8 +286,9 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 	}
 	return std::move (ret) ;
 }
+} ;
 
-inline exports String<STR> FileSystemProc::absolution_path (const String<STR> &path) {
+inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	auto rax = FileSystemProc::decouple_path_name (path) ;
 	auto fax = TRUE ;
@@ -416,7 +418,7 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	if (FileSystemProc::find_directory (dire))
 		return ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
-	const auto r1x = FileSystemProc::absolution_path (dire) ;
+	const auto r1x = FileSystemProc::absolute_path (dire) ;
 	const auto r2x = FileSystemProc::decouple_path_name (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
 	if switch_case (TRUE) {

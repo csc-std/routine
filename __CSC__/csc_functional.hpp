@@ -113,7 +113,7 @@ private:
 	}
 
 	const Operand &template_as (const ARGV<Operand> &) const leftvalue {
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 } ;
 
@@ -357,18 +357,18 @@ private:
 } ;
 
 namespace U {
-inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) {
+inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) noexcept {
 	//@error: fuck clang
 	return 0 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1>> &) {
+inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1>> &) noexcept {
 	return _ARG1::value ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_value (const ARGV<_ARG1> &) {
+inline constexpr LENGTH constexpr_max_value (const ARGV<_ARG1> &) noexcept {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using TWO_HINT = ARGVS_ONE_TYPE<ARGVS_REST_TYPE<_ARG1>> ;
 	using BIGGER_HINT = ARGVS<ARGC<_MAX_<VAR> (ONE_HINT::value ,TWO_HINT::value)>> ;
@@ -384,8 +384,6 @@ class Expression<SPECIALIZATION<PTR<Operand (const UNITS &...)>>>
 
 private:
 	using RANK = PTR<Operand (const UNITS &...)> ;
-
-	using Dependent = Expression ;
 
 private:
 	template <class>
@@ -422,47 +420,47 @@ public:
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			return r1x.template_flip_invoke (_NULL_<ARGV<ARGVS<UNITS...>>> () ,ins...) ;
 		}) ;
-		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mChild[0] = _DEREF_ (this) ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	template <class... _ARGS>
 	auto flip (const ARGV<ARGVP<_ARGS>> &...) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Expression> {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip2 (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
 	}
 
-	DEPENDENT_TYPE<Expression<RANK1> ,Dependent> curry () const {
+	DEPENDENT_TYPE<Expression<RANK1> ,Expression> curry () const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 2 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
-		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
+		DEPENDENT_TYPE<Expression<RANK1> ,Expression> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;
 			return Operand (std::move (tmp)) ;
 		}) ;
-		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mChild[0] = _DEREF_ (this) ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
-	DEPENDENT_TYPE<Expression<RANK1> ,Dependent> fold () const {
-		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
+	DEPENDENT_TYPE<Expression<RANK1> ,Expression> fold () const {
+		DEPENDENT_TYPE<Expression<RANK1> ,Expression> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
-			auto &r2x = in1.template as<DEPENDENT_TYPE<Expression<RANK1> ,Dependent>> () ;
+			auto &r2x = in1.template as<DEPENDENT_TYPE<Expression<RANK1> ,Expression>> () ;
 			return r1x.template_fold_invoke (r2x ,_NULL_<ARGV<SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>>>>) ;
 		}) ;
-		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mChild[0] = _DEREF_ (this) ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	template <class _ARG1>
 	auto concat (const Expression<_ARG1> &that) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Dependent> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
 		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 		return template_concat (_NULL_<ARGV<CONCAT_RANK_HINT>> () ,that ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<CONCAT_RANK_HINT>>>> ()) ;
 	}
@@ -490,18 +488,18 @@ private:
 			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
 			return r1x.template_flip2_invoke (r2x ,_NULL_<ARGV<_ARG2>> ()) ;
 		}) ;
-		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mChild[0] = _DEREF_ (this) ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return std::move (ret) ;
 	}
 
 	template <class... _ARGS>
-	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Dependent> &patch_ ,const ARGV<ARGVS<>> & ,const _ARGS &...placeholder) const {
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<ARGVS<>> & ,const _ARGS &...placeholder) const {
 		return invoke (patch_.invoke (Operand::nth (placeholder))...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Dependent> &patch_ ,const ARGV<_ARG1> & ,const _ARGS &...placeholder) const {
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<_ARG1> & ,const _ARGS &...placeholder) const {
 		return template_flip_invoke (patch_ ,_NULL_<ARGV<ARGVS_REST_TYPE<_ARG1>>> () ,placeholder... ,_NULL_<ARGVP<ARGVS_ONE_TYPE<_ARG1>>>) ;
 	}
 
@@ -534,7 +532,7 @@ private:
 			const auto r3x = TupleBinder<const _ARGS...> (ins...) ;
 			return r1x.template_concat_patch (r2x ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG2>>>> () ,r3x) ;
 		}) ;
-		ret.mThis->mChild[0] = (*this) ;
+		ret.mThis->mChild[0] = _DEREF_ (this) ;
 		ret.mThis->mChild[1] = that ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth ,that.mThis->mDepth) + 1 ;
 		return std::move (ret) ;
@@ -599,7 +597,7 @@ public:
 	using SPECIALIZATION_BASE::flip ;
 
 	Expression<RANK1> curry () const {
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	using SPECIALIZATION_BASE::fold ;

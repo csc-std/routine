@@ -1160,17 +1160,6 @@ inline exports String<_RET> StringProc::build_strs (const String<STR> &stru) {
 	return U::OPERATOR_STRING<REMOVE_CVR_TYPE<_RET> ,STR>::invoke (stru) ;
 }
 
-template <class ITEM ,class SIZE>
-template <class... _ARGS>
-inline exports String<ITEM ,SIZE> String<ITEM ,SIZE>::make (const _ARGS &...initval) {
-	_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
-	String<ITEM> ret = String<ITEM> (DEFAULT_LONGSTRING_SIZE::value) ;
-	auto wos = TextWriter<ITEM> (ret.raw ()) ;
-	wos.prints (initval...) ;
-	wos << TextWriter<ITEM>::EOS ;
-	return std::move (ret) ;
-}
-
 #ifdef __CSC_EXTEND__
 class RegexMatcher {
 private:

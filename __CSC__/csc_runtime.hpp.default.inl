@@ -190,7 +190,7 @@ public:
 		tmp.mStackPoint[0] = _ADDRESS_ (&bp) ;
 		tmp.mStackPoint[1] = 0 ;
 		tmp.mStackPoint[2] = 0 ;
-		(*bp) = AnyRef<BREAKPOINT>::make (std::move (tmp)) ;
+		_DEREF_ (bp) = AnyRef<BREAKPOINT>::make (std::move (tmp)) ;
 	}
 
 	imports_static void store_break_point (PTR<AnyRef<void>> bp) noexcept {

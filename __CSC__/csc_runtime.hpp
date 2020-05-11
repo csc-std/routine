@@ -645,7 +645,7 @@ public:
 			if (mThis->mState == STATE_STOPPED)
 				return ;
 			mThis->mState = STATE_RUNNING ;
-			mThis->mSubProc[r1x] (_CAST_<SubRef> ((*this))) ;
+			mThis->mSubProc[r1x] (_CAST_<SubRef> (_DEREF_ (this))) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;

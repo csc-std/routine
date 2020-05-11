@@ -196,7 +196,7 @@ public:
 	}
 
 	void attach_log (const String<STR> &path) override {
-		const auto r1x = FileSystemProc::absolution_path (path) ;
+		const auto r1x = FileSystemProc::absolute_path (path) ;
 		if switch_case (TRUE) {
 			if (mLogPath == r1x)
 				discard ;
@@ -255,9 +255,9 @@ public:
 
 private:
 	void write_con_buffer (const Binder &msg) {
-		mConWriter << _CLS_ ;
+		mConWriter << TextWriter<STR>::CLS ;
 		mConWriter << msg ;
-		mConWriter << _EOS_ ;
+		mConWriter << TextWriter<STR>::EOS ;
 	}
 
 	void attach_console () {
@@ -267,15 +267,15 @@ private:
 	}
 
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
-		mLogWriter << _CLS_ ;
+		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
 		mLogWriter << StringProc::build_hours (std::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
 		mLogWriter << msg ;
-		mLogWriter << _GAP_ ;
-		mLogWriter << _EOS_ ;
+		mLogWriter << TextWriter<STR>::GAP ;
+		mLogWriter << TextWriter<STR>::EOS ;
 	}
 
 	void write_debugger () {
@@ -322,7 +322,7 @@ private:
 		FileSystemProc::erase_file (r2x) ;
 		FileSystemProc::move_file (r2x ,r1x) ;
 		mLogFileStream = AutoRef<StreamLoader>::make (r1x) ;
-		const auto r3x = String<STR>::make (_XVALUE_<PTR<void (TextWriter<STR> &)>> (_BOM_)) ;
+		const auto r3x = String<STR>::make (TextWriter<STR>::BOM) ;
 		mLogFileStream->write (PhanBuffer<const BYTE>::make (r3x.raw ())) ;
 	}
 } ;

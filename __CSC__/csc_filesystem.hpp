@@ -49,7 +49,7 @@ public:
 
 	inline imports_static String<STR> working_path () ;
 
-	inline imports_static String<STR> absolution_path (const String<STR> &path) ;
+	inline imports_static String<STR> absolute_path (const String<STR> &path) ;
 
 	inline imports_static const String<STR> &module_file_path () popping ;
 

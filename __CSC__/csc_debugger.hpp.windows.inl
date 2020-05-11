@@ -226,7 +226,7 @@ public:
 	}
 
 	void attach_log (const String<STR> &path) override {
-		const auto r1x = FileSystemProc::absolution_path (path) ;
+		const auto r1x = FileSystemProc::absolute_path (path) ;
 		if switch_case (TRUE) {
 			if (mLogPath == r1x)
 				discard ;

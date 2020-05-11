@@ -39,7 +39,7 @@ private:
 
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	inline static void _inline_SORT_SLOW_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
 		for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
 			INDEX ix = i ;
 			auto tmp = std::move (out[ix]) ;
@@ -56,7 +56,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void _inline_SORT_PARTITION_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
+	inline static void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
 		auto tmp = std::move (out[ix]) ;
@@ -87,7 +87,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void _inline_SORT_FAST_ (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+	inline static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
 		INDEX ix = seg_a ;
 		while (TRUE) {
 			if (ix >= seg_b)
@@ -96,20 +96,20 @@ struct OPERATOR_SORT {
 				break ;
 			ideal = ideal / 2 + ideal / 4 ;
 			INDEX jx = VAR_NONE ;
-			_inline_SORT_PARTITION_ (array_ ,out ,ix ,seg_b ,jx) ;
-			_inline_SORT_FAST_ (array_ ,out ,ix ,(jx - 1) ,ideal) ;
+			quick_sort_partition (array_ ,out ,ix ,seg_b ,jx) ;
+			quick_sort (array_ ,out ,ix ,(jx - 1) ,ideal) ;
 			ix = jx + 1 ;
 		}
 		if (ix >= seg_b)
 			return ;
-		_inline_SORT_SLOW_ (array_ ,out ,ix ,seg_b) ;
+		insert_sort (array_ ,out ,ix ,seg_b) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void invoke (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
-		_inline_SORT_FAST_ (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
 } ;
 
@@ -167,19 +167,19 @@ public:
 	}
 
 	ArrayIterator<Array> begin () {
-		return ArrayIterator<Array> ((*this) ,ibegin ()) ;
+		return ArrayIterator<Array> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Array> begin () const {
-		return ArrayIterator<const Array> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const Array> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Array> end () {
-		return ArrayIterator<Array> ((*this) ,iend ()) ;
+		return ArrayIterator<Array> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const Array> end () const {
-		return ArrayIterator<const Array> ((*this) ,iend ()) ;
+		return ArrayIterator<const Array> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) leftvalue {
@@ -274,10 +274,13 @@ template <class ITEM>
 using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
-inline constexpr LENGTH constexpr_reserve_size (LENGTH len) {
+inline constexpr LENGTH constexpr_reserve_size (LENGTH len) noexcept {
 	return len + _EBOOL_ (len > 0) ;
 }
 } ;
+
+template <class>
+class TextWriter ;
 
 template <class ITEM ,class SIZE = SAUTO>
 class String ;
@@ -358,19 +361,19 @@ public:
 	}
 
 	ArrayIterator<String> begin () {
-		return ArrayIterator<String> ((*this) ,ibegin ()) ;
+		return ArrayIterator<String> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const String> begin () const {
-		return ArrayIterator<const String> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const String> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<String> end () {
-		return ArrayIterator<String> ((*this) ,iend ()) ;
+		return ArrayIterator<String> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const String> end () const {
-		return ArrayIterator<const String> ((*this) ,iend ()) ;
+		return ArrayIterator<const String> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) leftvalue {
@@ -499,7 +502,7 @@ public:
 	}
 
 	inline String operator- (const String &that) const {
-		return that.concat ((*this)) ;
+		return that.concat (_DEREF_ (this)) ;
 	}
 
 	void concatto (const String &that) {
@@ -515,13 +518,13 @@ public:
 			mString[r1x + r2x] = ITEM (0) ;
 		}
 		if switch_case (fax) {
-			(*this) = concat (that) ;
+			_DEREF_ (this) = concat (that) ;
 		}
 	}
 
 	inline String &operator+= (const String &that) {
 		concatto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void concatto (const Plain<ITEM> &that) {
@@ -537,13 +540,13 @@ public:
 			mString[r1x + r2x] = ITEM (0) ;
 		}
 		if switch_case (fax) {
-			(*this) = concat (that) ;
+			_DEREF_ (this) = concat (that) ;
 		}
 	}
 
 	inline String &operator+= (const Plain<ITEM> &that) {
 		concatto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	String segment (INDEX seg ,LENGTH seg_len) const {
@@ -556,9 +559,15 @@ public:
 	}
 
 public:
-	//@info: this function is incompleted without 'csc_string.hpp'
 	template <class... _ARGS>
-	inline imports_static String make (const _ARGS &...initval) ;
+	inline imports_static String make (const _ARGS &...initval) {
+		_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
+		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
+		auto wos = DEPENDENT_TYPE<TextWriter<ITEM> ,String> (ret.raw ()) ;
+		wos.prints (initval...) ;
+		wos << DEPENDENT_TYPE<TextWriter<ITEM> ,String>::EOS ;
+		return std::move (ret) ;
+	}
 
 private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
@@ -633,19 +642,19 @@ public:
 	}
 
 	ArrayIterator<Deque> begin () {
-		return ArrayIterator<Deque> ((*this) ,ibegin ()) ;
+		return ArrayIterator<Deque> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Deque> begin () const {
-		return ArrayIterator<const Deque> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const Deque> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Deque> end () {
-		return ArrayIterator<Deque> ((*this) ,iend ()) ;
+		return ArrayIterator<Deque> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const Deque> end () const {
-		return ArrayIterator<const Deque> ((*this) ,iend ()) ;
+		return ArrayIterator<const Deque> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	//@warn: index would be no longer valid once resized
@@ -693,7 +702,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke (_DEREF_ (this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -753,7 +762,7 @@ public:
 
 	inline Deque &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -766,7 +775,7 @@ public:
 
 	inline Deque &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -800,7 +809,7 @@ public:
 
 	inline Deque &operator>> (ITEM &item) {
 		take (item) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	INDEX head () const {
@@ -1008,26 +1017,26 @@ public:
 	}
 
 	ArrayIterator<Priority> begin () {
-		return ArrayIterator<Priority> ((*this) ,ibegin ()) ;
+		return ArrayIterator<Priority> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Priority> begin () const {
-		return ArrayIterator<const Priority> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const Priority> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Priority> end () {
-		return ArrayIterator<Priority> ((*this) ,iend ()) ;
+		return ArrayIterator<Priority> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const Priority> end () const {
-		return ArrayIterator<const Priority> ((*this) ,iend ()) ;
+		return ArrayIterator<const Priority> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
 	DEF<typename Detail::template Pair<Priority>> get (INDEX index) leftvalue {
 		using Pair = typename Detail::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) leftvalue
@@ -1039,7 +1048,7 @@ public:
 	DEF<typename Detail::template Pair<const Priority>> get (INDEX index) const leftvalue {
 		using Pair = typename Detail::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) const leftvalue
@@ -1108,7 +1117,7 @@ public:
 
 	inline Priority &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (const ITEM &item ,const INDEX &map_) {
@@ -1128,7 +1137,7 @@ public:
 
 	inline Priority &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item ,const INDEX &map_) {
@@ -1177,7 +1186,7 @@ public:
 
 	inline Priority &operator>> (ITEM &item) {
 		take (item) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	INDEX head () const {
@@ -1391,19 +1400,19 @@ public:
 	}
 
 	ArrayIterator<List> begin () {
-		return ArrayIterator<List> ((*this) ,ibegin ()) ;
+		return ArrayIterator<List> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const List> begin () const {
-		return ArrayIterator<const List> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const List> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<List> end () {
-		return ArrayIterator<List> ((*this) ,iend ()) ;
+		return ArrayIterator<List> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const List> end () const {
-		return ArrayIterator<const List> ((*this) ,iend ()) ;
+		return ArrayIterator<const List> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) leftvalue {
@@ -1439,7 +1448,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke (_DEREF_ (this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1498,7 +1507,7 @@ public:
 
 	inline List &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -1512,7 +1521,7 @@ public:
 
 	inline List &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -1558,7 +1567,7 @@ public:
 
 	inline List &operator>> (ITEM &item) {
 		take (item) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	INDEX head () const {
@@ -1824,19 +1833,19 @@ public:
 	}
 
 	ArrayIterator<SoftList> begin () {
-		return ArrayIterator<SoftList> ((*this) ,ibegin ()) ;
+		return ArrayIterator<SoftList> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const SoftList> begin () const {
-		return ArrayIterator<const SoftList> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const SoftList> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<SoftList> end () {
-		return ArrayIterator<SoftList> ((*this) ,iend ()) ;
+		return ArrayIterator<SoftList> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const SoftList> end () const {
-		return ArrayIterator<const SoftList> ((*this) ,iend ()) ;
+		return ArrayIterator<const SoftList> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ITEM &get (INDEX index) leftvalue {
@@ -1883,7 +1892,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke ((*this) ,ret ,0 ,ret.length ()) ;
+		OPERATOR_SORT::invoke (_DEREF_ (this) ,ret ,0 ,ret.length ()) ;
 		return std::move (ret) ;
 	}
 
@@ -1927,7 +1936,7 @@ public:
 
 	inline SoftList &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item) {
@@ -1938,7 +1947,7 @@ public:
 
 	inline SoftList &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	template <class _ARG1>
@@ -2210,7 +2219,7 @@ struct CONSTEXPR_SWITCH_CEIL8 {
 	}
 } ;
 
-inline constexpr LENGTH constexpr_ceil8_size (LENGTH len) {
+inline constexpr LENGTH constexpr_ceil8_size (LENGTH len) noexcept {
 	return _SWITCH_ (
 		(len <= 0) ? CONSTEXPR_SWITCH_CEIL8<LENGTH>::case1 :
 		CONSTEXPR_SWITCH_CEIL8<LENGTH>::case2)
@@ -2299,26 +2308,26 @@ public:
 	}
 
 	ArrayIterator<BitSet> begin () {
-		return ArrayIterator<BitSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<BitSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const BitSet> begin () const {
-		return ArrayIterator<const BitSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const BitSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<BitSet> end () {
-		return ArrayIterator<BitSet> ((*this) ,iend ()) ;
+		return ArrayIterator<BitSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const BitSet> end () const {
-		return ArrayIterator<const BitSet> ((*this) ,iend ()) ;
+		return ArrayIterator<const BitSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	DEF<typename Detail::template Bit<BitSet>> get (INDEX index) leftvalue {
 		using Bit = typename Detail::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit ((*this) ,index) ;
+		return Bit (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) leftvalue
@@ -2330,7 +2339,7 @@ public:
 	DEF<typename Detail::template Bit<const BitSet>> get (INDEX index) const leftvalue {
 		using Bit = typename Detail::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit ((*this) ,index) ;
+		return Bit (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) const leftvalue
@@ -2422,7 +2431,7 @@ public:
 
 	inline BitSet &operator<< (const INDEX &item) {
 		add (item) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void erase (const INDEX &item) {
@@ -2450,7 +2459,7 @@ public:
 
 	inline BitSet &operator&= (const BitSet &that) {
 		bandto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	BitSet bor (const BitSet &that) const {
@@ -2473,7 +2482,7 @@ public:
 
 	inline BitSet &operator|= (const BitSet &that) {
 		borto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	BitSet bxor (const BitSet &that) const {
@@ -2496,7 +2505,7 @@ public:
 
 	inline BitSet &operator^= (const BitSet &that) {
 		bxorto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	BitSet bsub (const BitSet &that) const {
@@ -2519,7 +2528,7 @@ public:
 
 	inline BitSet &operator-= (const BitSet &that) {
 		bsubto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	BitSet bnot () const {
@@ -2691,24 +2700,24 @@ public:
 	}
 
 	ArrayIterator<Set> begin () {
-		return ArrayIterator<Set> ((*this) ,ibegin ()) ;
+		return ArrayIterator<Set> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Set> begin () const {
-		return ArrayIterator<const Set> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const Set> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Set> end () {
-		return ArrayIterator<Set> ((*this) ,iend ()) ;
+		return ArrayIterator<Set> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const Set> end () const {
-		return ArrayIterator<const Set> ((*this) ,iend ()) ;
+		return ArrayIterator<const Set> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	DEF<typename Detail::template Pair<Set>> get (INDEX index) leftvalue {
 		using Pair = typename Detail::template Pair<Set> ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) leftvalue
@@ -2718,7 +2727,7 @@ public:
 
 	DEF<typename Detail::template Pair<const Set>> get (INDEX index) const leftvalue {
 		using Pair = typename Detail::template Pair<const Set> ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) const leftvalue
@@ -2765,7 +2774,7 @@ public:
 
 	inline Set &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (const ITEM &item ,const INDEX &map_) {
@@ -2787,7 +2796,7 @@ public:
 
 	inline Set &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item ,const INDEX &map_) {
@@ -3333,24 +3342,24 @@ public:
 	}
 
 	ArrayIterator<HashSet> begin () {
-		return ArrayIterator<HashSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<HashSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const HashSet> begin () const {
-		return ArrayIterator<const HashSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const HashSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<HashSet> end () {
-		return ArrayIterator<HashSet> ((*this) ,iend ()) ;
+		return ArrayIterator<HashSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const HashSet> end () const {
-		return ArrayIterator<const HashSet> ((*this) ,iend ()) ;
+		return ArrayIterator<const HashSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	DEF<typename Detail::template Pair<HashSet>> get (INDEX index) leftvalue {
 		using Pair = typename Detail::template Pair<HashSet> ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) leftvalue
@@ -3360,7 +3369,7 @@ public:
 
 	DEF<typename Detail::template Pair<const HashSet>> get (INDEX index) const leftvalue {
 		using Pair = typename Detail::template Pair<const HashSet> ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) const leftvalue
@@ -3399,7 +3408,7 @@ public:
 
 	inline HashSet &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (const ITEM &item ,const INDEX &map_) {
@@ -3421,7 +3430,7 @@ public:
 
 	inline HashSet &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item ,const INDEX &map_) {
@@ -3675,25 +3684,25 @@ public:
 	}
 
 	ArrayIterator<SoftSet> begin () {
-		return ArrayIterator<SoftSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<SoftSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const SoftSet> begin () const {
-		return ArrayIterator<const SoftSet> ((*this) ,ibegin ()) ;
+		return ArrayIterator<const SoftSet> (_DEREF_ (this) ,ibegin ()) ;
 	}
 
 	ArrayIterator<SoftSet> end () {
-		return ArrayIterator<SoftSet> ((*this) ,iend ()) ;
+		return ArrayIterator<SoftSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	ArrayIterator<const SoftSet> end () const {
-		return ArrayIterator<const SoftSet> ((*this) ,iend ()) ;
+		return ArrayIterator<const SoftSet> (_DEREF_ (this) ,iend ()) ;
 	}
 
 	DEF<typename Detail::template Pair<SoftSet>> get (INDEX index) leftvalue {
 		using Pair = typename Detail::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) leftvalue
@@ -3704,7 +3713,7 @@ public:
 	DEF<typename Detail::template Pair<const SoftSet>> get (INDEX index) const leftvalue {
 		using Pair = typename Detail::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair ((*this) ,index) ;
+		return Pair (_DEREF_ (this) ,index) ;
 	}
 
 	inline auto operator[] (INDEX index) const leftvalue
@@ -3751,7 +3760,7 @@ public:
 
 	inline SoftSet &operator<< (const ITEM &item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (const ITEM &item ,const INDEX &map_) {
@@ -3779,7 +3788,7 @@ public:
 
 	inline SoftSet &operator<< (ITEM &&item) {
 		add (std::move (item)) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	void add (ITEM &&item ,const INDEX &map_) {

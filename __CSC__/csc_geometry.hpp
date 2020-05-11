@@ -18,9 +18,6 @@ class Vector {
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 
 private:
-	using Dependent = Vector ;
-
-private:
 	Buffer<REAL ,ARGC<4>> mVector ;
 
 public:
@@ -114,7 +111,7 @@ public:
 
 	inline Vector &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector div (const REAL &scale) const {
@@ -135,7 +132,7 @@ public:
 
 	inline Vector &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector add (const Vector &that) const {
@@ -156,7 +153,7 @@ public:
 
 	inline Vector &operator+= (const Vector &that) {
 		addto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector sub (const Vector &that) const {
@@ -177,7 +174,7 @@ public:
 
 	inline Vector &operator-= (const Vector &that) {
 		subto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector plus () const {
@@ -212,7 +209,7 @@ public:
 		return mul (that) ;
 	}
 
-	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Dependent> &that) const {
+	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Vector> &that) const {
 		Vector<REAL> ret ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			const auto r1x = get (0) * that.get (0 ,i) ;
@@ -229,12 +226,12 @@ public:
 	}
 
 	void multo (const Matrix<REAL> &that) {
-		(*this) = mul (that) ;
+		_DEREF_ (this) = mul (that) ;
 	}
 
 	inline Vector &operator*= (const Matrix<REAL> &that) {
 		multo (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector cross (const Vector &that) const {
@@ -253,12 +250,12 @@ public:
 	}
 
 	void crossto (const Vector &that) {
-		(*this) = cross (that) ;
+		_DEREF_ (this) = cross (that) ;
 	}
 
 	inline Vector &operator^= (const Vector &that) {
 		crossto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	REAL magnitude () const {
@@ -366,7 +363,7 @@ public:
 
 	DEF<typename Detail::template Row<Matrix>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Matrix> ;
-		return Row ((*this) ,y) ;
+		return Row (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) leftvalue
@@ -376,7 +373,7 @@ public:
 
 	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Matrix> ;
-		return Row ((*this) ,y) ;
+		return Row (_DEREF_ (this) ,y) ;
 	}
 
 	inline auto operator[] (INDEX y) const leftvalue
@@ -438,7 +435,7 @@ public:
 
 	inline Matrix &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Matrix div (const REAL &scale) const {
@@ -459,7 +456,7 @@ public:
 
 	inline Matrix &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Matrix add (const Matrix &that) const {
@@ -480,7 +477,7 @@ public:
 
 	inline Matrix &operator+= (const Matrix &that) {
 		addto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Matrix sub (const Matrix &that) const {
@@ -501,7 +498,7 @@ public:
 
 	inline Matrix &operator-= (const Matrix &that) {
 		subto (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Matrix plus () const {
@@ -544,12 +541,12 @@ public:
 	}
 
 	void multo (const Matrix &that) {
-		(*this) = mul (that) ;
+		_DEREF_ (this) = mul (that) ;
 	}
 
 	inline Matrix &operator*= (const Matrix &that) {
 		multo (that) ;
-		return (*this) ;
+		return _DEREF_ (this) ;
 	}
 
 	Vector<REAL> mul (const Vector<REAL> &that) const {
@@ -577,7 +574,7 @@ public:
 	}
 
 	Matrix triangular () const {
-		Matrix ret = (*this) ;
+		Matrix ret = _DEREF_ (this) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			if switch_case (TRUE) {
 				INDEX ix = ret.find_max_row (i) ;

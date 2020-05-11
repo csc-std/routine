@@ -67,8 +67,8 @@ private:
 
 public:
 	AbstractDatabase_Engine_MYSQL () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype ((*this))) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype ((*this))) == _ALIGNOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (decltype (_DEREF_ (this))) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (_DEREF_ (this))) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder) const override {

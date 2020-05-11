@@ -136,7 +136,7 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 	const auto r2x = BasicProc::mem_chr (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1)
 		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("C").self ,1))
-			return StringProc::cvt_u8s_as (StringProc::cvt_ws_u8s (val)) ;
+			return StringProc::cvt_u8s_uas (StringProc::cvt_ws_u8s (val)) ;
 	if (r2x >= 4)
 		if (BasicProc::mem_equal (PTRTOARR[&r1x[r2x - 4]] ,_PCSTRA_ (".936").self ,4))
 			return StringProc::cvt_ws_gbks (val) ;
@@ -147,7 +147,7 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 }
 
 namespace U {
-inline exports ARRAY8<VAR32> locale_make_timemetric (const std::chrono::system_clock::time_point &val) {
+inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
 	const auto r1x = ::time_t (std::chrono::system_clock::to_time_t (val)) ;
@@ -159,7 +159,7 @@ inline exports ARRAY8<VAR32> locale_make_timemetric (const std::chrono::system_c
 	//@warn: not thread-safe due to internel storage
 	const auto r2x = std::localtime (&r1x) ;
 	_DEBUG_ASSERT_ (r2x != NULL) ;
-	rax = (*r2x) ;
+	rax = _DEREF_ (r2x) ;
 #endif
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
@@ -229,10 +229,10 @@ public:
 				if (!r4x)
 					break ;
 				INDEX ix = ret.insert () ;
-				auto &r5x = rax.self[0].first ;
-				auto &r6x = rax.self[0].second ;
-				ret[ix][0] = INDEX (&(*r5x) - &r2x[0]) ;
-				ret[ix][1] = INDEX (&(*r6x) - &r2x[0]) ;
+				auto &r5x = (*rax.self[0].first) ;
+				auto &r6x = (*rax.self[0].second) ;
+				ret[ix][0] = INDEX (&r5x - &r2x[0]) ;
+				ret[ix][1] = INDEX (&r6x - &r2x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}

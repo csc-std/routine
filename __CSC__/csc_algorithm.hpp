@@ -330,7 +330,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,adjacency ,root_)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,adjacency ,root_)) ;
 }
 
 template <class REAL>
@@ -487,7 +487,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			mContext.mClusterList = std::move (mClusterList) ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,dataset ,distance ,center)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,dataset ,distance ,center)) ;
 }
 
 template <class REAL>
@@ -824,7 +824,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			return std::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,adjacency)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,adjacency)) ;
 }
 
 template <class REAL>
@@ -1038,7 +1038,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			mContext.mDXLoss = mDXLoss[0] ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,loss ,fdx)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,loss ,fdx)) ;
 }
 
 template <class REAL>
@@ -1312,7 +1312,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,vertex)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,vertex)) ;
 }
 
 template <class REAL>
@@ -1448,6 +1448,6 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			return std::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda ((*this) ,adjacency ,source ,sink)) ;
+	_CALL_ (Lambda (_DEREF_ (this) ,adjacency ,source ,sink)) ;
 }
 } ;
