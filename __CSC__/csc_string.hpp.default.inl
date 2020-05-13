@@ -47,33 +47,49 @@
 #endif
 
 namespace CSC {
+namespace api {
+#ifdef __CSC_COMPILER_MSVC__
+using ::_create_locale ;
+using ::_free_locale ;
+using ::_mbstowcs_s_l ;
+using ::_wcstombs_s_l ;
+#endif
+
+using ::tm ;
+using ::time_t ;
+} ;
+
 namespace U {
 #ifdef __CSC_COMPILER_MSVC__
 inline const UniqueRef<_locale_t> &static_locale_page () {
 	return _CACHE_ ([&] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
-			me = ::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
+			me = api::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (_locale_t &me) {
-			::_free_locale (me) ;
+			api::_free_locale (me) ;
 		}) ;
 	}) ;
 }
 #endif
 
-inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 #ifdef __CSC_COMPILER_MSVC__
+inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 	auto &r1x = static_locale_page () ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r2x = ::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
+		const auto r2x = api::_mbstowcs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRW> () ;
 	}
 	return std::move (ret) ;
-#else
+}
+#endif
+
+#ifndef __CSC_COMPILER_MSVC__
+inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
@@ -83,22 +99,26 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 		ret = String<STRW> () ;
 	}
 	return std::move (ret) ;
-#endif
 }
+#endif
 
-inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 #ifdef __CSC_COMPILER_MSVC__
+inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 	auto &r1x = static_locale_page () ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r2x = ::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
+		const auto r2x = api::_wcstombs_s_l (NULL ,ret.raw ().self ,VAR32 (ret.size ()) ,val.raw ().self ,_TRUNCATE ,r1x) ;
 		if (r2x == 0)
 			discard ;
 		ret = String<STRA> () ;
 	}
 	return std::move (ret) ;
-#else
+}
+#endif
+
+#ifndef __CSC_COMPILER_MSVC__
+inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
@@ -108,8 +128,8 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 		ret = String<STRA> () ;
 	}
 	return std::move (ret) ;
-#endif
 }
+#endif
 } ;
 
 inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
@@ -147,20 +167,14 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 }
 
 namespace U {
+#ifdef __CSC_COMPILER_MSVC__
 inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = ::time_t (std::chrono::system_clock::to_time_t (val)) ;
-	auto rax = std::tm () ;
+	const auto r1x = api::time_t (std::chrono::system_clock::to_time_t (val)) ;
+	auto rax = api::tm () ;
 	_ZERO_ (rax) ;
-#ifdef __CSC_COMPILER_MSVC__
 	localtime_s (&rax ,&r1x) ;
-#else
-	//@warn: not thread-safe due to internel storage
-	const auto r2x = std::localtime (&r1x) ;
-	_DEBUG_ASSERT_ (r2x != NULL) ;
-	rax = _DEREF_ (r2x) ;
-#endif
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
 	ret[2] = rax.tm_mday ;
@@ -171,9 +185,33 @@ inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_
 	ret[7] = rax.tm_sec ;
 	return std::move (ret) ;
 }
+#endif
+
+#ifndef __CSC_COMPILER_MSVC__
+inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) {
+	ARRAY8<VAR32> ret ;
+	ret.fill (0) ;
+	const auto r1x = api::time_t (std::chrono::system_clock::to_time_t (val)) ;
+	auto rax = api::tm () ;
+	_ZERO_ (rax) ;
+	//@warn: not thread-safe due to internel storage
+	const auto r2x = std::localtime (&r1x) ;
+	_DEBUG_ASSERT_ (r2x != NULL) ;
+	rax = _DEREF_ (r2x) ;
+	ret[0] = rax.tm_year + 1900 ;
+	ret[1] = rax.tm_mon + 1 ;
+	ret[2] = rax.tm_mday ;
+	ret[3] = rax.tm_wday + 1 ;
+	ret[4] = rax.tm_yday + 1 ;
+	ret[5] = rax.tm_hour ;
+	ret[6] = rax.tm_min ;
+	ret[7] = rax.tm_sec ;
+	return std::move (ret) ;
+}
+#endif
 
 inline exports std::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) {
-	auto rax = std::tm () ;
+	auto rax = api::tm () ;
 	_ZERO_ (rax) ;
 	const auto r1x = _EBOOL_ (val[0] > 0) * (val[0] - 1900) ;
 	rax.tm_year = VAR32 (r1x) ;

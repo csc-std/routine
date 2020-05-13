@@ -30,8 +30,6 @@
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :5039)
-#endif
-#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :26440)
 #endif
 #include <GL/glew.h>
@@ -58,22 +56,26 @@
 #ifndef use_comment_lib_glew32
 #define use_comment_lib_glew32 "glew32.lib"
 #endif
+#pragma comment (lib ,use_comment_lib_glew32)
+#undef use_comment_lib_glew32
+
 #ifndef use_comment_lib_freeglut
 #define use_comment_lib_freeglut "freeglut.lib"
 #endif
+#pragma comment (lib ,use_comment_lib_freeglut)
+#undef use_comment_lib_freeglut
+
 #ifndef use_comment_lib_glu32
 #define use_comment_lib_glu32 "glu32.lib"
 #endif
+#pragma comment (lib ,use_comment_lib_glu32)
+#undef use_comment_lib_glu32
+
 #ifndef use_comment_lib_opengl32
 #define use_comment_lib_opengl32 "opengl32.lib"
 #endif
-#pragma comment (lib ,use_comment_lib_glew32)
-#pragma comment (lib ,use_comment_lib_freeglut)
-#pragma comment (lib ,use_comment_lib_glu32)
+
 #pragma comment (lib ,use_comment_lib_opengl32)
-#undef use_comment_lib_glew32
-#undef use_comment_lib_freeglut
-#undef use_comment_lib_glu32
 #undef use_comment_lib_opengl32
 #endif
 #endif

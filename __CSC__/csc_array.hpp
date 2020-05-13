@@ -1700,9 +1700,8 @@ public:
 	INDEX find (const ITEM &item) const {
 		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
 			it = inext (i) ;
-			if (get (i) != item)
-				continue ;
-			return i ;
+			if (get (i) == item)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -2035,9 +2034,8 @@ public:
 	INDEX find (const ITEM &item) const {
 		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
 			it = inext (i) ;
-			if (get (i) != item)
-				continue ;
-			return i ;
+			if (get (i) == item)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -2590,7 +2588,9 @@ struct BitSet<SIZE>::Detail {
 		inline explicit operator VAR64 () const leftvalue {
 			return VAR64 (mIndex) ;
 		}
-#elif defined __CSC_CONFIG_VAR64__
+#endif
+
+#ifdef __CSC_CONFIG_VAR64__
 		inline explicit operator VAR32 () const leftvalue {
 			return VAR32 (mIndex) ;
 		}
@@ -2830,9 +2830,8 @@ public:
 	INDEX head () const {
 		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
 			it = mSet[i].mLeft ;
-			if (it != VAR_NONE)
-				continue ;
-			return i ;
+			if (it == VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -2840,9 +2839,8 @@ public:
 	INDEX tail () const {
 		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
 			it = mSet[i].mRight ;
-			if (it != VAR_NONE)
-				continue ;
-			return i ;
+			if (it == VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -3191,9 +3189,8 @@ private:
 	INDEX find_successor (INDEX index) const {
 		for (INDEX i = mSet[index].mRight ,it ; i != VAR_NONE ; i = it) {
 			it = mSet[i].mLeft ;
-			if (it != VAR_NONE)
-				continue ;
-			return i ;
+			if (it == VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -3828,9 +3825,8 @@ public:
 			return VAR_NONE ;
 		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
 			it = mSet.self[i].mLeft ;
-			if (it != VAR_NONE)
-				continue ;
-			return i ;
+			if (it == VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -3840,9 +3836,8 @@ public:
 			return VAR_NONE ;
 		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
 			it = mSet.self[i].mRight ;
-			if (it != VAR_NONE)
-				continue ;
-			return i ;
+			if (it == VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}

@@ -54,8 +54,6 @@
 #pragma warning (disable :6294)
 #pragma warning (disable :6297)
 #pragma warning (disable :6385)
-#endif
-#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :26401)
 #pragma warning (disable :26408)
 #pragma warning (disable :26409)
@@ -120,7 +118,11 @@
 #ifndef use_comment_lib_opencv_world
 #ifdef __CSC_DEBUG__
 #define use_comment_lib_opencv_world "opencv_world" _STR_ (CV_MAJOR_VERSION) _STR_ (CV_MINOR_VERSION) _STR_ (CV_SUBMINOR_VERSION) "d.lib"
-#else
+#endif
+#endif
+
+#ifndef use_comment_lib_opencv_world
+#ifndef __CSC_DEBUG__
 #define use_comment_lib_opencv_world "opencv_world" _STR_ (CV_MAJOR_VERSION) _STR_ (CV_MINOR_VERSION) _STR_ (CV_SUBMINOR_VERSION) ".lib"
 #endif
 #endif

@@ -38,7 +38,11 @@
 #ifndef use_comment_lib_mysql
 #ifdef __CSC_DEBUG__
 #define use_comment_lib_mysql "libmysqld.lib"
-#else
+#endif
+#endif
+
+#ifndef use_comment_lib_mysql
+#ifndef __CSC_DEBUG__
 #define use_comment_lib_mysql "libmysql.lib"
 #endif
 #endif

@@ -46,6 +46,13 @@
 #endif
 
 namespace CSC {
+namespace api {
+using ::signal ;
+using ::backtrace ;
+using ::free ;
+using ::backtrace_symbols ;
+} ;
+
 class ConsoleService::Implement
 	:public ConsoleService::Abstract {
 private:
@@ -83,117 +90,201 @@ public:
 		mOptionSet.erase (option) ;
 	}
 
+#ifdef __CSC_CONFIG_STRA__
 	void print (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_PRINT)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("%s\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("%ls\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("PRINT") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void print (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_PRINT)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("%ls\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("PRINT") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void fatal (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_FATAL)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;34m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;34m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("FATAL") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void fatal (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_FATAL)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;34m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("FATAL") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void error (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_ERROR)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;31m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;31m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("ERROR") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void error (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_ERROR)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;31m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("ERROR") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void warn (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_WARN)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;33m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;33m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("WARN") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void warn (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_WARN)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;33m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("WARN") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void info (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_INFO)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;32m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;32m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("INFO") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void info (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_INFO)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;32m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("INFO") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void debug (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_DEBUG)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;36m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;36m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("DEBUG") ,r1x) ;
 	}
+#endif
 
+#ifdef __CSC_CONFIG_STRW__
+	void debug (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_DEBUG)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;36m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("DEBUG") ,r1x) ;
+	}
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
 	void verbose (const Binder &msg) override {
 		if (mOptionSet.find (EFLAG (OPTION_NO_VERBOSE)) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\033[1;37m%s\033[0m\n") ,mConWriter.raw ().self) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\033[1;37m%ls\033[0m\n") ,mConWriter.raw ().self) ;
-#endif
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
 		log (_PCSTR_ ("VERBOSE") ,r1x) ;
 	}
+#endif
+
+#ifdef __CSC_CONFIG_STRW__
+	void verbose (const Binder &msg) override {
+		if (mOptionSet.find (EFLAG (OPTION_NO_VERBOSE)) != VAR_NONE)
+			return ;
+		write_con_buffer (msg) ;
+		attach_console () ;
+		std::wprintf (_PCSTR_ ("\033[1;37m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		if (mLogPath.empty ())
+			return ;
+		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
+		log (_PCSTR_ ("VERBOSE") ,r1x) ;
+	}
+#endif
 
 	void attach_log (const String<STR> &path) override {
 		const auto r1x = FileSystemProc::absolute_path (path) ;
@@ -232,25 +323,15 @@ public:
 	void pause () override {
 		if (!mConsole.exist ())
 			return ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("press any key to continue...\n")) ;
 		const auto r1x = std::getchar () ;
 		_STATIC_UNUSED_ (r1x) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("press any key to continue...\n")) ;
-		const auto r2x = std::getchar () ;
-		_STATIC_UNUSED_ (r2x) ;
-#endif
 	}
 
 	void clear () override {
 		if (!mConsole.exist ())
 			return ;
-#ifdef __CSC_CONFIG_STRA__
 		std::printf (_PCSTR_ ("\f\f")) ;
-#elif defined __CSC_CONFIG_STRW__
-		std::wprintf (_PCSTR_ ("\f\f")) ;
-#endif
 	}
 
 private:
@@ -349,9 +430,9 @@ public:
 			GlobalRuntime::process_abort () ;
 		}) ;
 		std::atexit (r1x) ;
-		::signal (SIGFPE ,r2x) ;
-		::signal (SIGILL ,r3x) ;
-		::signal (SIGSEGV ,r4x) ;
+		api::signal (SIGFPE ,r2x) ;
+		api::signal (SIGILL ,r3x) ;
+		api::signal (SIGSEGV ,r4x) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) override {
@@ -362,7 +443,7 @@ public:
 
 	Array<LENGTH> captrue_stack_trace () popping override {
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
-		const auto r1x = ::backtrace (rax.self ,VAR32 (rax.size ())) ;
+		const auto r1x = api::backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
@@ -380,11 +461,11 @@ public:
 			return std::move (ret) ;
 		}) ;
 		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
-			me = ::backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
+			me = api::backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
 		} ,[&] (PTR<PTR<STRA>> &me) {
 			if (me == NULL)
 				return ;
-			::free (me) ;
+			api::free (me) ;
 		}) ;
 		auto &r4x = PTRTOARR[r3x.self] ;
 		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;

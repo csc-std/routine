@@ -29,7 +29,9 @@
 #ifndef _INC_WINDOWS
 #error "б╞(д├бузебу ;)д├ : require 'Windows.h'"
 #endif
-#elif defined __CSC_SYSTEM_LINUX__
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
 #ifdef __CSC_DEPRECATED__
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -56,13 +58,32 @@
 #endif
 
 namespace CSC {
+namespace api {
+#ifdef __CSC_SYSTEM_WINDOWS__
+using ::GetCurrentThreadId ;
+using ::GetCurrentProcessId ;
+using ::OpenProcess ;
+using ::CloseHandle ;
+using ::GetProcessTimes ;
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
+using ::pid_t ;
+using ::getpgid ;
+using ::getsid ;
+#endif
+
+using ::setjmp ;
+using ::longjmp ;
+} ;
+
 #ifdef __CSC_SYSTEM_WINDOWS__
 inline exports FLAG GlobalRuntime::thread_tid () {
-	return _XVALUE_<FLAG> (GetCurrentThreadId ()) ;
+	return _XVALUE_<FLAG> (api::GetCurrentThreadId ()) ;
 }
 
 inline exports FLAG GlobalRuntime::process_pid () {
-	return _XVALUE_<FLAG> (GetCurrentProcessId ()) ;
+	return _XVALUE_<FLAG> (api::GetCurrentProcessId ()) ;
 }
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
@@ -70,11 +91,11 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
-			me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
+			me = api::OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
 		} ,[] (HANDLE &me) {
 			if (me == NULL)
 				return ;
-			CloseHandle (me) ;
+			api::CloseHandle (me) ;
 		}) ;
 		if (r1x == NULL)
 			discard ;
@@ -87,7 +108,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		_ZERO_ (rbx[1]) ;
 		_ZERO_ (rbx[2]) ;
 		_ZERO_ (rbx[3]) ;
-		GetProcessTimes (r1x ,&rbx[0] ,&rbx[1] ,&rbx[2] ,&rbx[3]) ;
+		api::GetProcessTimes (r1x ,&rbx[0] ,&rbx[1] ,&rbx[2] ,&rbx[3]) ;
 		const auto r2x = (VAR64 (rbx[0].dwHighDateTime) << 32) | VAR64 (rbx[0].dwLowDateTime) ;
 		rax << VAR64 (r2x) ;
 		rax << ByteWriter<BYTE>::GAP ;
@@ -103,7 +124,9 @@ inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
-#elif defined __CSC_SYSTEM_LINUX__
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
 inline exports FLAG GlobalRuntime::thread_tid () {
 	return _XVALUE_<FLAG> (syscall (SYS_gettid)) ;
 }
@@ -116,7 +139,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
-		const auto r1x = getpgid (pid_t (pid)) ;
+		const auto r1x = api::getpgid (api::pid_t (pid)) ;
 		if (r1x < 0)
 			discard ;
 		rax << VAR64 (pid) ;
@@ -125,7 +148,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		rax << ByteWriter<BYTE>::GAP ;
 		rax << VAR64 (r1x) ;
 		rax << ByteWriter<BYTE>::GAP ;
-		const auto r2x = getsid (pid_t (pid)) ;
+		const auto r2x = api::getsid (api::pid_t (pid)) ;
 		rax << VAR64 (r2x) ;
 		rax << ByteWriter<BYTE>::GAP ;
 	}
@@ -139,27 +162,6 @@ inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU
 	const auto r1x = rax.template read<VAR64> () ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
-}
-#else
-inline exports FLAG GlobalRuntime::thread_tid () {
-	_DYNAMIC_ASSERT_ (FALSE) ;
-	return 0 ;
-}
-
-inline exports FLAG GlobalRuntime::process_pid () {
-	_DYNAMIC_ASSERT_ (FALSE) ;
-	return 0 ;
-}
-
-inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
-	_DYNAMIC_ASSERT_ (FALSE) ;
-	return Buffer<BYTE ,ARGC<128>> () ;
-}
-
-inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
-	_DEBUG_ASSERT_ (info.size () == 128) ;
-	_DYNAMIC_ASSERT_ (FALSE) ;
-	return 0 ;
 }
 #endif
 
@@ -203,7 +205,7 @@ public:
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		BasicProc::mem_copy (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		const auto r6x = ::setjmp (r5x.mEbp) ;
+		const auto r6x = api::setjmp (r5x.mEbp) ;
 		_STATIC_UNUSED_ (r6x) ;
 	}
 
@@ -220,7 +222,7 @@ public:
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		BasicProc::mem_copy (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		::longjmp (r5x.mEbp ,1) ;
+		api::longjmp (r5x.mEbp ,1) ;
 	}
 
 	imports_static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {

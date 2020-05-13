@@ -16,39 +16,53 @@ struct OPERATOR_TYPENAME {
 		String<STR> mName ;
 	} ;
 
+#ifdef __CSC_COMPILER_MSVC__
 	template <class _RET>
 	inline static TYPENAME typeid_name_from_func () {
-		TYPENAME ret ;
-		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-#ifdef __CSC_COMPILER_MSVC__
 		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
+		TYPENAME ret ;
+		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r1x = M_PREFIX.size () ;
 		const auto r2x = M_SUFFIX.size () ;
 		const auto r3x = ret.mName.length () - r1x - r2x ;
 		_DYNAMIC_ASSERT_ (r3x > 0) ;
 		ret.mName = ret.mName.segment (r1x ,r3x) ;
-#elif defined __CSC_COMPILER_GNUC__
+		return std::move (ret) ;
+	}
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+	template <class _RET>
+	inline static TYPENAME typeid_name_from_func () {
 		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [with _RET = ") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		TYPENAME ret ;
+		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r4x = M_PREFIX.size () ;
 		const auto r5x = M_SUFFIX.size () ;
 		const auto r6x = ret.mName.length () - r4x - r5x ;
 		_DYNAMIC_ASSERT_ (r6x > 0) ;
 		ret.mName = ret.mName.segment (r4x ,r6x) ;
-#elif defined __CSC_COMPILER_CLANG__
+		return std::move (ret) ;
+	}
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+	template <class _RET>
+	inline static TYPENAME typeid_name_from_func () {
 		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [_RET = ") ;
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		TYPENAME ret ;
+		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r7x = M_PREFIX.size () ;
 		const auto r8x = M_SUFFIX.size () ;
 		const auto r9x = ret.mName.length () - r7x - r8x ;
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mName = ret.mName.segment (r7x ,r9x) ;
-#else
-		ret.mName = StringProc::build_var64s (_TYPEMID_<_RET> ()) ;
-#endif
 		return std::move (ret) ;
 	}
+#endif
 
 	template <class _ARG1>
 	inline static void template_write_typename_cv (TextWriter<STR> &writer ,const ARGV<_ARG1> &) {

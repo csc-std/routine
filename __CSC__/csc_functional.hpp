@@ -137,7 +137,7 @@ private:
 
 private:
 	struct Detail ;
-	StrongRef<Functor> mHolder ;
+	StrongRef<Functor> mOperator ;
 
 public:
 	Operator () = default ;
@@ -150,20 +150,20 @@ public:
 		_STATIC_ASSERT_ (std::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplFunctor>::value) ;
 		const auto r1x = _XVALUE_<PTR<FUNC_HINT>> (that) ;
-		mHolder = StrongRef<ImplFunctor>::make (r1x) ;
+		mOperator = StrongRef<ImplFunctor>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
-		if (!mHolder.exist ())
+		if (!mOperator.exist ())
 			return VAR_NONE ;
-		return mHolder->rank () ;
+		return mOperator->rank () ;
 	}
 
 	template <class... _ARGS>
 	Operand invoke (const LexicalNode &node ,const _ARGS &...funcval) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) <= 9) ;
-		_DYNAMIC_ASSERT_ (mHolder.exist ()) ;
-		return mHolder->invoke (node ,funcval...) ;
+		_DYNAMIC_ASSERT_ (mOperator.exist ()) ;
+		return mOperator->invoke (node ,funcval...) ;
 	}
 
 	template <class... _ARGS>
@@ -244,13 +244,13 @@ class Operator::Detail::ImplFunctor<PTR<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
-	Function<UNIT1 (UNITS1...)> mFunction ;
+	Function<UNIT1 (UNITS1...)> mFunctor ;
 
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &func)
-		:mFunction (func) {}
+	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &functor)
+		:mFunctor (functor) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -263,7 +263,7 @@ public:
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+		return mFunctor (std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -281,13 +281,13 @@ class Operator::Detail::ImplFunctor<PTR<UNIT1 (const LexicalNode & ,UNITS1...)> 
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
-	Function<UNIT1 (const LexicalNode & ,UNITS1...)> mFunction ;
+	Function<UNIT1 (const LexicalNode & ,UNITS1...)> mFunctor ;
 
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &func)
-		:mFunction (func) {}
+	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &functor)
+		:mFunctor (functor) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -300,7 +300,7 @@ public:
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunction (node ,std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+		return mFunctor (node ,std::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>

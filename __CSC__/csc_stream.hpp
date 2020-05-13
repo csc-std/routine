@@ -276,8 +276,8 @@ public:
 
 	template <class _ARG1>
 	void read (const Plain<_ARG1> &data) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		auto rax = REAL () ;
@@ -285,7 +285,9 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 	}
 
 	template <class _ARG1>
@@ -641,13 +643,15 @@ public:
 
 	template <class _ARG1>
 	void write (const Plain<_ARG1> &data) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		for (auto &&i : _RANGE_ (0 ,data.size ()))
 			write (data.self[i]) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 	}
 
 	template <class _ARG1>
@@ -1092,8 +1096,8 @@ public:
 	}
 
 	void read (const Plain<REAL> &data) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		auto rax = REAL () ;
@@ -1101,7 +1105,9 @@ public:
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == data.self[i]) ;
 		}
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
@@ -1787,13 +1793,15 @@ public:
 	}
 
 	void write (const Plain<REAL> &data) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		for (auto &&i : _RANGE_ (0 ,data.size ()))
 			write (data.self[i]) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
@@ -2286,15 +2294,17 @@ public:
 	}
 
 	void read (const Plain<STRU8> &data) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		for (auto &&i : _RANGE_ (0 ,data.size ())) {
 			_DYNAMIC_ASSERT_ (get (0) == data.self[i]) ;
 			read () ;
 		}
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {

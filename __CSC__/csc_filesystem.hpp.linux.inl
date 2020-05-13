@@ -49,19 +49,27 @@
 #endif
 
 namespace CSC {
+namespace api {
+using ::open ;
+using ::close ;
+using ::lseek ;
+using ::read ;
+using ::write ;
+} ;
+
 inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) popping {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
-		me = ::open (r1x.raw ().self ,O_RDONLY) ;
+		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
 	} ,[] (VAR32 &me) {
-		::close (me) ;
+		api::close (me) ;
 	}) ;
-	const auto r3x = LENGTH (::lseek (r2x.self ,0 ,SEEK_END)) ;
+	const auto r3x = LENGTH (api::lseek (r2x.self ,0 ,SEEK_END)) ;
 	_DYNAMIC_ASSERT_ (r3x >= 0 && r3x < VAR32_MAX) ;
-	::lseek (r2x.self ,0 ,SEEK_SET) ;
+	api::lseek (r2x.self ,0 ,SEEK_SET) ;
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r3x) ;
-	const auto r4x = LENGTH (::read (r2x.self ,ret.self ,VAR32 (r3x))) ;
+	const auto r4x = LENGTH (api::read (r2x.self ,ret.self ,VAR32 (r3x))) ;
 	_DYNAMIC_ASSERT_ (r4x == r3x) ;
 	return std::move (ret) ;
 }
@@ -69,15 +77,15 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
-		me = ::open (r1x.raw ().self ,O_RDONLY) ;
+		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
 	} ,[] (VAR32 &me) {
-		::close (me) ;
+		api::close (me) ;
 	}) ;
-	const auto r3x = LENGTH (::lseek (r2x.self ,0 ,SEEK_END)) ;
+	const auto r3x = LENGTH (api::lseek (r2x.self ,0 ,SEEK_END)) ;
 	_DYNAMIC_ASSERT_ (r3x > 0 && r3x <= data.size ()) ;
-	::lseek (r2x.self ,0 ,SEEK_SET) ;
-	const auto r4x = LENGTH (::read (r2x.self ,data.self ,VAR32 (r3x))) ;
+	api::lseek (r2x.self ,0 ,SEEK_SET) ;
+	const auto r4x = LENGTH (api::read (r2x.self ,data.self ,VAR32 (r3x))) ;
 	_DYNAMIC_ASSERT_ (r4x == r3x) ;
 	BasicProc::mem_fill (PTRTOARR[&data.self[r3x]] ,(data.size () - r3x) ,BYTE (0X00)) ;
 }
@@ -88,12 +96,12 @@ inline exports void FileSystemProc::save_file (const String<STR> &file ,const Ph
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		const auto r3x = VAR32 (O_CREAT | O_WRONLY | O_TRUNC) ;
 		const auto r4x = VAR32 (S_IRWXU | S_IRWXG | S_IRWXO) ;
-		me = ::open (r1x.raw ().self ,r3x ,r4x) ;
+		me = api::open (r1x.raw ().self ,r3x ,r4x) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
 	} ,[] (VAR32 &me) {
-		::close (me) ;
+		api::close (me) ;
 	}) ;
-	const auto r5x = LENGTH (::write (r2x.self ,data.self ,VAR32 (data.size ()))) ;
+	const auto r5x = LENGTH (api::write (r2x.self ,data.self ,VAR32 (data.size ()))) ;
 	_DYNAMIC_ASSERT_ (r5x == data.size ()) ;
 }
 
@@ -106,11 +114,11 @@ inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (FLAG res
 inline exports BOOL FileSystemProc::find_file (const String<STR> &file) popping {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
-		me = ::open (r1x.raw ().self ,O_RDONLY) ;
+		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 	} ,[] (VAR32 &me) {
 		if (me < 0)
 			return ;
-		::close (me) ;
+		api::close (me) ;
 	}) ;
 	if (r2x.self < 0)
 		return FALSE ;
@@ -541,22 +549,22 @@ public:
 		mWriteFile = UniqueRef<VAR32> ([&] (VAR32 &me) {
 			const auto r2x = VAR32 (O_CREAT | O_WRONLY | O_APPEND) ;
 			const auto r3x = VAR32 (S_IRWXU | S_IRWXG | S_IRWXO) ;
-			me = ::open (r1x.raw ().self ,r2x ,r3x) ;
+			me = api::open (r1x.raw ().self ,r2x ,r3x) ;
 			_DYNAMIC_ASSERT_ (me >= 0) ;
 		} ,[] (VAR32 &me) {
-			::close (me) ;
+			api::close (me) ;
 		}) ;
 		mReadFile = UniqueRef<VAR32> ([&] (VAR32 &me) {
-			me = ::open (r1x.raw ().self ,O_RDONLY) ;
+			me = api::open (r1x.raw ().self ,O_RDONLY) ;
 			_DYNAMIC_ASSERT_ (me >= 0) ;
 		} ,[] (VAR32 &me) {
-			::close (me) ;
+			api::close (me) ;
 		}) ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = LENGTH (::read (mReadFile ,data.self ,VAR32 (data.size ()))) ;
+		const auto r1x = LENGTH (api::read (mReadFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		BasicProc::mem_fill (PTRTOARR[&data.self[r1x]] ,(data.size () - r1x) ,BYTE (0X00)) ;
@@ -564,7 +572,7 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = LENGTH (::write (mWriteFile ,data.self ,VAR32 (data.size ()))) ;
+		const auto r1x = LENGTH (api::write (mWriteFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x == data.size ()) ;
 	}
@@ -578,11 +586,11 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 	mThis = StrongRef<Implement>::make (file) ;
 }
 
-inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
+inline exports void StreamLoaderapi::read (const PhanBuffer<BYTE> &data) {
 	mThis->read (data) ;
 }
 
-inline exports void StreamLoader::write (const PhanBuffer<const BYTE> &data) {
+inline exports void StreamLoaderapi::write (const PhanBuffer<const BYTE> &data) {
 	mThis->write (data) ;
 }
 

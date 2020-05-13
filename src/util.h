@@ -26,8 +26,6 @@
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4996)
 #pragma warning (disable :5039)
-#endif
-#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :26429)
 #pragma warning (disable :26432)
 #pragma warning (disable :26433)
@@ -42,13 +40,17 @@
 #pragma warning (disable :26495)
 #pragma warning (disable :26496)
 #endif
+
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+
 #include <Windows.h>
+
 #ifdef __CSC_COMPILER_MSVC__
 #ifdef __CSC_TARGET_DLL__
 #include <CppUnitTest.h>
@@ -108,23 +110,19 @@ inline exports DebuggerService &Singleton<DebuggerService>::instance () {
 } ;
 #endif
 
+#ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
 namespace CSC {
 inline exports void GlobalWatch::done (const Exception &e) {
 	const auto r1x = String<STR> (e.what ()) ;
+	Singleton<ConsoleService>::instance ().fatal (r1x) ;
 #ifdef MS_CPP_UNITTESTFRAMEWORK
-#ifdef __CSC_STRING__
 	const auto r2x = StringProc::build_strs<STRW> (r1x) ;
 	Assert::Fail (r2x.raw ().self) ;
-#else
-	Assert::Fail () ;
 #endif
-#else
-	Singleton<ConsoleService>::instance ().fatal (r1x) ;
-#endif
-	_STATIC_UNUSED_ (r1x) ;
 }
 } ;
+#endif
 #endif
 
 namespace UNITTEST {
@@ -153,7 +151,9 @@ using namespace CSC ;
 #ifdef __CSC_FILESYSTEM__
 #ifdef __CSC_SYSTEM_WINDOWS__
 #include <csc_filesystem.hpp.windows.inl>
-#elif defined __CSC_SYSTEM_LINUX__
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
 #include <csc_filesystem.hpp.linux.inl>
 #endif
 #endif
@@ -167,7 +167,9 @@ using namespace CSC ;
 #ifdef __CSC_DEBUGGER__
 #ifdef __CSC_SYSTEM_WINDOWS__
 #include <csc_debugger.hpp.windows.inl>
-#elif defined __CSC_SYSTEM_LINUX__
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
 #include <csc_debugger.hpp.linux.inl>
 #endif
 #endif

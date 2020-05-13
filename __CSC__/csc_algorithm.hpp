@@ -180,9 +180,8 @@ private:
 	INDEX find_next (INDEX slow ,INDEX fast) const {
 		for (INDEX i = fast ,it ; i != VAR_NONE ; i = it) {
 			it = mNext[i] ;
-			if (mPattern[i] == mPattern[slow])
-				continue ;
-			return i ;
+			if (mPattern[i] != mPattern[slow])
+				return i ;
 		}
 		return VAR_NONE ;
 	}

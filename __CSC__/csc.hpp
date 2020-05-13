@@ -22,12 +22,16 @@
 #define __CSC_COMPILER_GNUC__
 #elif defined _MSC_VER
 #define __CSC_COMPILER_MSVC__
+#else
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #if defined (linux) || defined (__linux) || defined (__linux__)
 #define __CSC_SYSTEM_LINUX__
 #elif defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
 #define __CSC_SYSTEM_WINDOWS__
+#else
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #ifdef _M_IX86
@@ -40,6 +44,8 @@
 #define __CSC_PLATFORM_ARM64__
 #elif defined _M_IA64
 #define __CSC_PLATFORM_IA64__
+#else
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #ifdef _WINEXE
@@ -237,8 +243,10 @@
 #pragma pop_macro ("discard")
 #endif
 
+#ifdef _HAS_CXX17
 #if _HAS_CXX17
 #define __CSC_CXX_LATEST__
+#endif
 #endif
 
 namespace CSC {
@@ -254,11 +262,13 @@ using std::move ;
 using std::forward ;
 using std::nothrow ;
 
+#ifndef __CSC_COMPILER_GNUC__
+using std::max_align_t ;
+#endif
+
 #ifdef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
 using ::max_align_t ;
-#else
-using std::max_align_t ;
 #endif
 
 using std::numeric_limits ;
@@ -303,12 +313,14 @@ using std::exception ;
 
 #ifdef __CSC_COMPILER_MSVC__
 #define M_FUNC __FUNCSIG__
-#elif defined __CSC_COMPILER_GNUC__
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
 #define M_FUNC __PRETTY_FUNCTION__
-#elif defined __CSC_COMPILER_CLANG__
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
 #define M_FUNC __PRETTY_FUNCTION__
-#else
-#define M_FUNC __func__
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
@@ -316,21 +328,20 @@ using std::exception ;
 #define DLLABI_EXPORT __declspec (dllexport)
 #define DLLABI_API __stdcall
 #define DLLABI_NATIVE extern "C"
-#elif defined __CSC_COMPILER_GNUC__
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
 #define DLLABI_IMPORT
 #define DLLABI_EXPORT __attribute__ ((visibility ("default")))
 #define DLLABI_API
 #define DLLABI_NATIVE extern "C"
-#elif defined __CSC_COMPILER_CLANG__
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
 #define DLLABI_IMPORT
 #define DLLABI_EXPORT __attribute__ ((visibility ("default")))
 #define DLLABI_API
 #define DLLABI_NATIVE extern "C"
-#else
-#define DLLABI_IMPORT
-#define DLLABI_EXPORT
-#define DLLABI_API
-#define DLLABI_NATIVE
 #endif
 
 #define _UNWIND_IMPL_(...) __VA_ARGS__
@@ -348,35 +359,57 @@ using std::exception ;
 
 #ifdef __CSC_COMPILER_MSVC__
 #define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
-#else
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
 #define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_DEBUG__
-#ifdef __CSC_SYSTEM_WINDOWS__
+#ifdef __CSC_COMPILER_MSVC__
 #define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __debugbreak () ; } while (FALSE)
-#elif defined __CSC_SYSTEM_LINUX__
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
 #define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __builtin_trap () ; } while (FALSE)
-#else
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
 #define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) assert (FALSE) ; } while (FALSE)
 #endif
-#elif defined __CSC_UNITTEST__
+#endif
+
+#ifndef __CSC_DEBUG__
+#ifdef __CSC_UNITTEST__
 #define _DEBUG_ASSERT_ _DYNAMIC_ASSERT_
-#else
+#endif
+#endif
+
+#ifndef _DEBUG_ASSERT_
 #define _DEBUG_ASSERT_(...) do {} while (FALSE)
 #endif
 
 #ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
 #define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::GlobalWatch::done (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE))) ; } while (FALSE)
-#else
-#define _UNITTEST_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::GlobalWatch::done (CSC::Exception (CSC::Plain<CSC::STR> (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,"unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE))) ; } while (FALSE)
 #endif
 #endif
 
+#ifndef _UNITTEST_ASSERT_
+#define _UNITTEST_ASSERT_(...) do {} while (FALSE)
+#endif
+
 #ifdef __CSC_UNITTEST__
+#ifdef __CSC_COMPILER_MSVC__
 #define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::_NULL_<CSC::ARGV<ARGVPL>> () ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
-#else
+#endif
+#endif
+
+#ifndef _UNITTEST_WATCH_
 #define _UNITTEST_WATCH_(...) do {} while (FALSE)
 #endif
 
@@ -409,7 +442,9 @@ using VAR = VAR32 ;
 
 static constexpr auto VAR_MAX = VAR32_MAX ;
 static constexpr auto VAR_MIN = VAR32_MIN ;
-#elif defined __CSC_CONFIG_VAR64__
+#endif
+
+#ifdef __CSC_CONFIG_VAR64__
 using VAR = VAR64 ;
 
 static constexpr auto VAR_MAX = VAR64_MAX ;
@@ -456,7 +491,9 @@ static constexpr auto VAL_MIN = VAL32_MIN ;
 static constexpr auto VAL_EPS = VAL32_EPS ;
 static constexpr auto VAL_INF = VAL32_INF ;
 static constexpr auto VAL_NAN = VAL32_NAN ;
-#elif defined __CSC_CONFIG_VAL64__
+#endif
+
+#ifdef __CSC_CONFIG_VAL64__
 using VAL = VAL64 ;
 
 static constexpr auto VAL_MAX = VAL64_MAX ;
@@ -495,13 +532,15 @@ using DEF = TYPE ;
 template <class TYPE>
 using PTR = DEF<TYPE *> ;
 
+#ifndef __CSC_COMPILER_GNUC__
+template <class TYPE>
+using ARR = DEF<TYPE[]> ;
+#endif
+
 #ifdef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
 template <class TYPE>
 using ARR = DEF<TYPE[0]> ;
-#else
-template <class TYPE>
-using ARR = DEF<TYPE[]> ;
 #endif
 
 using BYTE = std::uint8_t ;
@@ -535,7 +574,9 @@ using STRW = wchar_t ;
 using STR = STRA ;
 
 #define _PCSTR_ _PCSTRA_
-#elif defined __CSC_CONFIG_STRW__
+#endif
+
+#ifdef __CSC_CONFIG_STRW__
 using STR = STRW ;
 
 #define _PCSTR_ _PCSTRW_
@@ -559,7 +600,9 @@ template <class _ARG1>
 using DECREASE = ARGC<_ARG1::value - 1> ;
 
 template <class>
-struct ARGV {} ;
+struct ARGV {
+	_STATIC_WARNING_ ("noop") ;
+} ;
 
 template <class...>
 struct ARGVS ;
@@ -568,7 +611,9 @@ template <class>
 struct ARGVP ;
 
 template <>
-struct ARGV<ARGVP<ZERO>> {} ;
+struct ARGV<ARGVP<ZERO>> {
+	_STATIC_WARNING_ ("noop") ;
+} ;
 
 template <class _ARG1>
 struct ARGV<ARGVP<_ARG1>>
@@ -602,7 +647,9 @@ template <class...>
 struct PACK ;
 
 template <>
-struct PACK<> {} ;
+struct PACK<> {
+	_STATIC_WARNING_ ("noop") ;
+} ;
 
 template <class UNIT1>
 struct PACK<UNIT1> {
@@ -623,7 +670,6 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 } ;
 
 #pragma region
-#ifdef __CSC__
 namespace U {
 template <class>
 struct ENABLE ;
@@ -1508,7 +1554,6 @@ struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
 template <class _ARG1>
 using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
-#endif
 #pragma endregion
 
 using U::ENABLE_TYPE ;
@@ -1855,7 +1900,9 @@ public:
 
 #ifdef __CSC_CXX_LATEST__
 	inline Proxy (Proxy &&) = delete ;
-#else
+#endif
+
+#ifndef __CSC_CXX_LATEST__
 	inline Proxy (Proxy &&) = default ;
 #endif
 

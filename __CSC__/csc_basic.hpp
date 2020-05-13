@@ -46,8 +46,8 @@ public:
 
 template <class _ARG1>
 inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -63,13 +63,15 @@ inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2
 		if (!(src1[i] == src2[i]))
 			return FALSE ;
 	return TRUE ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -88,28 +90,26 @@ inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2
 			return FLAG (+1) ;
 	}
 	return FLAG (0) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
+#ifdef __CSC_CONFIG_VAR32__
 template <class _ARG1>
 inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
+	static constexpr auto M_MAGIC_N1 = VAR (-2128831035) ;
+	static constexpr auto M_MAGIC_N2 = VAR (16777619) ;
 	if switch_case (TRUE) {
 		if (len == 0)
 			discard ;
 		_DEBUG_ASSERT_ (src != NULL) ;
 		_DEBUG_ASSERT_ (len > 0) ;
 	}
-#ifdef __CSC_CONFIG_VAR32__
-	static constexpr auto M_MAGIC_N1 = VAR (-2128831035) ;
-	static constexpr auto M_MAGIC_N2 = VAR (16777619) ;
-#elif defined __CSC_CONFIG_VAR64__
-	static constexpr auto M_MAGIC_N1 = VAR (-3750763034362895579) ;
-	static constexpr auto M_MAGIC_N2 = VAR (1099511628211) ;
-#endif
 	FLAG ret = M_MAGIC_N1 ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
 		ret ^= FLAG (src[i]) ;
@@ -117,8 +117,39 @@ inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
 	}
 	ret &= VAR_MAX ;
 	return std::move (ret) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
+#endif
+
+#ifdef __CSC_CONFIG_VAR64__
+template <class _ARG1>
+inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+	static constexpr auto M_MAGIC_N1 = VAR (-3750763034362895579) ;
+	static constexpr auto M_MAGIC_N2 = VAR (1099511628211) ;
+	if switch_case (TRUE) {
+		if (len == 0)
+			discard ;
+		_DEBUG_ASSERT_ (src != NULL) ;
+		_DEBUG_ASSERT_ (len > 0) ;
+	}
+	FLAG ret = M_MAGIC_N1 ;
+	for (auto &&i : _RANGE_ (0 ,len)) {
+		ret ^= FLAG (src[i]) ;
+		ret *= M_MAGIC_N2 ;
+	}
+	ret &= VAR_MAX ;
+	return std::move (ret) ;
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic pop
+#endif
+}
+#endif
 
 namespace U {
 inline CHAR static_mem_crc32_table_each (CHAR val) {
@@ -146,11 +177,11 @@ inline const PACK<CHAR[256]> &static_mem_crc32_table () {
 
 template <class _ARG1>
 inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) {
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
+	_STATIC_ASSERT_ (std::is_same<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1x = U::static_mem_crc32_table () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
@@ -159,13 +190,15 @@ inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) {
 	}
 	ret &= VAR32_MAX ;
 	return std::move (ret) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -178,13 +211,15 @@ inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 
 		if (src[i] == val)
 			return i ;
 	return VAR_NONE ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -197,13 +232,15 @@ inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1
 		if (src[len + ~i] == val)
 			return (len + ~i) ;
 	return VAR_NONE ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -218,13 +255,15 @@ inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH 
 	_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 	for (auto &&i : _RANGE_ (0 ,len))
 		dst[i] = src[i] ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -255,13 +294,15 @@ inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH
 			dst[len + ~i] = r1x ;
 		}
 	}
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -286,13 +327,15 @@ inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len)
 		for (auto &&i : _RANGE_ (0 ,len))
 			dst1[len + ~i] = std::move (dst2[len + ~i]) ;
 	}
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -307,13 +350,15 @@ inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len)
 	_DEBUG_ASSERT_ (_ABS_ (dst1 - dst2) >= len) ;
 	for (auto &&i : _RANGE_ (0 ,len))
 		_SWAP_ (dst1[i] ,dst2[i]) ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 template <class _ARG1>
 inline void BasicProc::mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	if switch_case (TRUE) {
@@ -324,7 +369,9 @@ inline void BasicProc::mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) 
 	}
 	for (auto &&i : _RANGE_ (0 ,len))
 		dst[i] = val ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 namespace U {
@@ -1143,13 +1190,13 @@ public:
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
 		:UniqueRef () {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplHolder<PTR<void ()>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_XVALUE_<PTR<void ()>> (destructor)) ;
 		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		constructor () ;
 		mPointer = &r1x ;
@@ -1232,13 +1279,13 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
 		:UniqueRef () {
-		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG2>> ;
+		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
 		_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (std::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG2> (destructor)) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_XVALUE_<PTR<void (UNIT &)>> (destructor)) ;
 		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
 		constructor (r1x.mValue) ;
 		mPointer = &r1x ;
@@ -1425,18 +1472,18 @@ private:
 
 private:
 	struct Detail ;
-	PTR<Holder> mFunction ;
-	PTR<UNIT1 (UNITS...)> mCPPFunction ;
+	PTR<Holder> mPointer ;
+	PTR<UNIT1 (UNITS...)> mFunction ;
 
 public:
 	inline Function () noexcept {
+		mPointer = NULL ;
 		mFunction = NULL ;
-		mCPPFunction = NULL ;
 	}
 
 	inline implicit Function (const PTR<UNIT1 (UNITS...)> &that) noexcept {
-		mFunction = NULL ;
-		mCPPFunction = that ;
+		mPointer = NULL ;
+		mFunction = that ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!std::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
@@ -1446,31 +1493,31 @@ public:
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,std::forward<_ARG1> (that)) ;
 		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		mFunction = &r1x ;
-		mCPPFunction = NULL ;
+		mPointer = &r1x ;
+		mFunction = NULL ;
 		rax = NULL ;
 	}
 
 	inline ~Function () noexcept {
-		if (mFunction == NULL)
-			if (mCPPFunction == NULL)
+		if (mPointer == NULL)
+			if (mFunction == NULL)
 				return ;
 		if switch_case (TRUE) {
-			if (mFunction == NULL)
+			if (mPointer == NULL)
 				discard ;
-			mFunction->~Holder () ;
-			GlobalHeap::free (mFunction) ;
+			mPointer->~Holder () ;
+			GlobalHeap::free (mPointer) ;
 		}
+		mPointer = NULL ;
 		mFunction = NULL ;
-		mCPPFunction = NULL ;
 	}
 
 	inline Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
 	inline Function (Function &&that) noexcept {
+		mPointer = _EXCHANGE_ (that.mPointer) ;
 		mFunction = _EXCHANGE_ (that.mFunction) ;
-		mCPPFunction = _EXCHANGE_ (that.mCPPFunction) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -1484,17 +1531,17 @@ public:
 	}
 
 	inline BOOL exist () const {
-		if (mFunction == NULL)
-			if (mCPPFunction == NULL)
+		if (mPointer == NULL)
+			if (mFunction == NULL)
 				return FALSE ;
 		return TRUE ;
 	}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		if (mCPPFunction != NULL)
-			return mCPPFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
-		return mFunction->invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		if (mFunction != NULL)
+			return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return mPointer->invoke (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
@@ -1502,8 +1549,8 @@ public:
 	}
 
 private:
-	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> _function)
-		:mFunction (_function) ,mCPPFunction (NULL) {}
+	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> pointer)
+		:mPointer (pointer) ,mFunction (NULL) {}
 
 public:
 	template <class... _ARGS>
@@ -2401,14 +2448,16 @@ public:
 	}
 
 	inline const UNIT &get (INDEX index) const leftvalue {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
 		return _DEREF_ (r1x)[index] ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 	}
 
 	inline const UNIT &operator[] (INDEX index) const leftvalue {
@@ -2571,14 +2620,16 @@ public:
 	}
 
 	inline UNIT &get (INDEX index) const leftvalue {
-#pragma GCC diagnostic push
 #ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
 		return _DEREF_ (r1x)[index] ;
+#ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
+#endif
 	}
 
 	inline UNIT &operator[] (INDEX index) const leftvalue {
@@ -3115,35 +3166,32 @@ public:
 		_STATIC_ASSERT_ (std::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (std::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
-		if switch_case (TRUE) {
+		INDEX ret = VAR_NONE ;
+		auto fax = TRUE ;
+		if switch_case (fax) {
 			if (mFree != VAR_NONE)
 				discard ;
 			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
-			const auto r1x = mSize ;
-			_CREATE_ (&tmp[r1x].mValue ,std::forward<_ARGS> (initval)...) ;
+			ret = mSize ;
+			_CREATE_ (&tmp[ret].mValue ,std::forward<_ARGS> (initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
 				_CREATE_ (&tmp[i].mValue ,std::move (_CAST_<UNIT> (mAllocator[i].mValue))) ;
 				tmp[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (tmp) ;
 			update_reserve (mSize ,mFree) ;
-			mFree = mAllocator[r1x].mNext ;
-			mAllocator[r1x].mNext = VAR_USED ;
+			mFree = mAllocator[ret].mNext ;
+			mAllocator[ret].mNext = VAR_USED ;
 			mLength++ ;
-			return r1x ;
 		}
-		if switch_case (TRUE) {
-			if (mFree == VAR_NONE)
-				discard ;
-			const auto r2x = mFree ;
-			_CREATE_ (&mAllocator[r2x].mValue ,std::forward<_ARGS> (initval)...) ;
-			mFree = mAllocator[r2x].mNext ;
-			mAllocator[r2x].mNext = VAR_USED ;
+		if switch_case (fax) {
+			ret = mFree ;
+			_CREATE_ (&mAllocator[ret].mValue ,std::forward<_ARGS> (initval)...) ;
+			mFree = mAllocator[ret].mNext ;
+			mAllocator[ret].mNext = VAR_USED ;
 			mLength++ ;
-			return r2x ;
 		}
-		_DEBUG_ASSERT_ (FALSE) ;
-		return VAR_NONE ;
+		return std::move (ret) ;
 	}
 
 	inline void free (INDEX index) noexcept {

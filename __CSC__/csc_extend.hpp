@@ -159,14 +159,18 @@ inline exports void GlobalRuntime::locale_init (const Plain<STRA> &locale_) {
 	stl::setlocale (LC_ALL ,locale_.self) ;
 }
 
+#ifndef __CSC_COMPILER_GNUC__
 inline exports void GlobalRuntime::process_exit[[noreturn]] () {
+	std::quick_exit (EXIT_FAILURE) ;
+}
+#endif
+
 #ifdef __CSC_COMPILER_GNUC__
+inline exports void GlobalRuntime::process_exit[[noreturn]] () {
 	//@error: fuck g++4.8
 	std::exit (EXIT_FAILURE) ;
-#else
-	std::quick_exit (EXIT_FAILURE) ;
-#endif
 }
+#endif
 
 inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 	std::terminate () ;
@@ -1270,14 +1274,14 @@ template <class... UNITS_>
 class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>
 	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
-	Function<UNIT1 (UNITS... ,UNITS_...)> mFunction ;
+	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
 	inline ImplHolder () = delete ;
 
 	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
-		:mFunction (func) ,mParameter (parameter...) {}
+		:mFunctor (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return template_invoke (mParameter ,std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
@@ -1285,7 +1289,7 @@ public:
 
 private:
 	inline UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunction (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
+		return mFunctor (std::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1891,7 +1895,7 @@ private:
 	class Node {
 	private:
 		friend SoftRef ;
-		StrongRef<UNIT> mHolder ;
+		StrongRef<UNIT> mStrongRef ;
 		LENGTH mWeight ;
 
 	public:
@@ -2028,7 +2032,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mWeight < 0)
 				continue ;
-			mHeap.self[i].mHolder = StrongRef<UNIT> () ;
+			mHeap.self[i].mStrongRef = StrongRef<UNIT> () ;
 			mHeap.self[i].mWeight = 0 ;
 		}
 	}
@@ -2041,14 +2045,14 @@ private:
 			return FALSE ;
 		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
 			return FALSE ;
-		if (mWeakRef != mHeap.self[mIndex].mHolder)
+		if (mWeakRef != mHeap.self[mIndex].mStrongRef)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	inline INDEX find_has_linked (const WeakRef<UNIT> &that) const {
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
-			if (mHeap.self[i].mHolder == that)
+			if (mHeap.self[i].mStrongRef == that)
 				return i ;
 		return VAR_NONE ;
 	}
@@ -2071,7 +2075,7 @@ private:
 				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
 		}
 		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
-		mHeap.self[mIndex].mHolder = mWeakRef ;
+		mHeap.self[mIndex].mStrongRef = mWeakRef ;
 		mHeap.self[mIndex].mWeight = 3 ;
 	}
 
@@ -2197,10 +2201,6 @@ private:
 
 private:
 	inline PTR<UNIT> safe_exchange (PTR<UNIT> address) noexcept popping {
-#pragma GCC diagnostic push
-#ifdef __CSC_COMPILER_GNUC__
-#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
-#endif
 		const auto r1x = mPointer.exchange (address) ;
 		if (r1x == NULL)
 			return r1x ;
@@ -2215,7 +2215,6 @@ private:
 			CONT::friend_latch (_DEREF_ (r1x)) ;
 		}
 		return r1x ;
-#pragma GCC diagnostic pop
 	}
 
 private:
