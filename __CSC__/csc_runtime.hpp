@@ -314,8 +314,6 @@ private:
 	private:
 		template <class>
 		friend class GlobalStatic ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mNodeMutex ;
 		Deque<VALUE_NODE> mValueList ;
@@ -327,19 +325,19 @@ private:
 private:
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<Pack> ;
+	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 private:
 	imports_static Pack &static_unique () popping {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<Pack> () ;
+			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
 			if switch_case (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack>::make () ;
+				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
 				auto &r2x = _XVALUE_<Pack> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (&r2x) ;
@@ -347,7 +345,7 @@ private:
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_<Pack> (rax) ;
-			return IntrusiveRef<Pack> (&r4x).watch () ;
+			return IntrusiveRef<Pack ,GlobalStatic> (&r4x).watch () ;
 		}) ;
 	}
 
@@ -494,14 +492,12 @@ private:
 	class Pack {
 	private:
 		friend GlobalStatic ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = GlobalStatic ;
 		std::atomic<LENGTH> mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
 
 private:
-	friend IntrusiveRef<Pack> ;
+	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 public:
 	static Singleton<UNIT> &unique () popping {
@@ -510,21 +506,21 @@ public:
 			ScopedGuard<std::mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
-			auto rbx = IntrusiveRef<Pack> () ;
+			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
 			if switch_case (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack>::make () ;
+				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
 				auto &r5x = _XVALUE_<Pack> (r4x) ;
 				auto &r6x = _LOAD_<NONE> (&r5x) ;
 				rax->mValue = &r6x ;
 			}
 			auto &r7x = _LOAD_<Pack> (rax->mValue) ;
-			return IntrusiveRef<Pack> (&r7x).watch () ;
+			return IntrusiveRef<Pack ,GlobalStatic> (&r7x).watch () ;
 		}) ;
 		return _XVALUE_<Pack> (r1x).mValue ;
 	}
@@ -566,8 +562,6 @@ private:
 	class Pack {
 	private:
 		friend Coroutine ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = Coroutine ;
 		std::atomic<LENGTH> mCounter ;
 		EFLAG mState ;
 		AutoRef<CONT> mContext ;
@@ -581,11 +575,11 @@ private:
 
 private:
 	class Implement ;
-	IntrusiveRef<Pack> mThis ;
+	IntrusiveRef<Pack ,Coroutine> mThis ;
 
 public:
 	Coroutine () {
-		mThis = IntrusiveRef<Pack>::make () ;
+		mThis = IntrusiveRef<Pack ,Coroutine>::make () ;
 	}
 
 	BOOL ready () const {

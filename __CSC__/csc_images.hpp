@@ -274,8 +274,7 @@ public:
 		return Row (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) leftvalue
-		->DEF<decltype (_NULL_<Bitmap> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<Bitmap>> operator[] (INDEX y) leftvalue {
 		return get (y) ;
 	}
 
@@ -284,8 +283,7 @@ public:
 		return Row (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const leftvalue
-		->DEF<decltype (_NULL_<const Bitmap> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (INDEX y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -749,8 +747,7 @@ public:
 		return AbstractImage (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) leftvalue
-		->DEF<decltype (_NULL_<AbstractImage> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (INDEX y) leftvalue {
 		return get (y) ;
 	}
 
@@ -759,8 +756,7 @@ public:
 		return AbstractImage (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const leftvalue
-		->DEF<decltype (_NULL_<const AbstractImage> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (INDEX y) const leftvalue {
 		return get (y) ;
 	}
 

@@ -208,27 +208,27 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 			return file.raw () ;
 		return PhanBuffer<const STR> () ;
 	}) ;
-	auto ris = TextReader<STR> (r1x) ;
-	ris.attr ().modify_space (STR ('\\') ,0) ;
-	ris.attr ().modify_space (STR ('/') ,0) ;
-	auto rax = STR () ;
+	auto rax = TextReader<STR> (r1x) ;
+	rax.attr ().modify_space (STR ('\\') ,0) ;
+	rax.attr ().modify_space (STR ('/') ,0) ;
+	auto rbx = STR () ;
 	Deque<String<STR>> ret ;
 	INDEX ix = ret.insert () ;
-	ris.copy () >> rax ;
-	if (ris.attr ().varify_space (rax))
-		ris >> rax ;
+	rax.copy () >> rbx ;
+	if (rax.attr ().varify_space (rbx))
+		rax >> rbx ;
 	while (TRUE) {
-		ris >> ret[ix] ;
+		rax >> ret[ix] ;
 		if (ret[ix].empty ())
 			break ;
 		ix = ret.insert () ;
-		ris >> rax ;
-		if (rax == ris.attr ().varify_ending_item ())
+		rax >> rbx ;
+		if (rbx == rax.attr ().varify_ending_item ())
 			break ;
-		_DYNAMIC_ASSERT_ (ris.attr ().varify_space (rax)) ;
+		_DYNAMIC_ASSERT_ (rax.attr ().varify_space (rbx)) ;
 	}
 	ret.pop () ;
-	ris >> TextReader<STR>::EOS ;
+	rax >> TextReader<STR>::EOS ;
 	return std::move (ret) ;
 }
 

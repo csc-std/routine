@@ -211,7 +211,7 @@
   </Type>
 
 
-  <Type Name="CSC::IntrusiveRef&lt;*&gt;">
+  <Type Name="CSC::IntrusiveRef&lt;*,*&gt;">
     <Expand>
       <ExpandedItem>*mPointer.load(std::memory_order::memory_order_seq_cst)</ExpandedItem>
     </Expand>
@@ -318,7 +318,7 @@
   </Type>
 
 
-  <Type Name="CSC::Set&lt;*,*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::Set&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mRoot]">mRoot</Item>
       <ExpandedItem>mSet</ExpandedItem>
@@ -326,7 +326,7 @@
   </Type>
 
 
-  <Type Name="CSC::HashSet&lt;*,*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::HashSet&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mHead]">mHead</Item>
       <ExpandedItem>mSet</ExpandedItem>
@@ -334,7 +334,7 @@
   </Type>
 
 
-  <Type Name="CSC::SoftSet&lt;*,*,CSC::ARGC&lt;*&gt; &gt;">
+  <Type Name="CSC::SoftSet&lt;*,CSC::ARGC&lt;*&gt; &gt;">
     <Expand>
       <Item Name="[mHeap]">mThis->mValue.mHeap</Item>
       <Item Name="[mLength]">mThis->mValue.mLength</Item>

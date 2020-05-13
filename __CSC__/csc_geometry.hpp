@@ -366,8 +366,7 @@ public:
 		return Row (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) leftvalue
-		->DEF<decltype (_NULL_<Matrix> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX y) leftvalue {
 		return get (y) ;
 	}
 
@@ -376,8 +375,7 @@ public:
 		return Row (_DEREF_ (this) ,y) ;
 	}
 
-	inline auto operator[] (INDEX y) const leftvalue
-		->DEF<decltype (_NULL_<const Matrix> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Row<const Matrix>> operator[] (INDEX y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -845,7 +843,7 @@ public:
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,REAL (0)}.magnitude () ;
 		const auto r3x = r2x * MathProc::sign (r1x[3]) ;
-		const auto r4x = MathProc::arctan (r3x ,_ABS_ (r1x[3])) ;
+		const auto r4x = MathProc::arctan (r3x ,MathProc::abs (r1x[3])) ;
 		const auto r5x = (REAL (1) - (r2x - r4x) * MathProc::inverse (r2x)) * REAL (2) ;
 		ret[0] = r1x[0] * r5x ;
 		ret[1] = r1x[1] * r5x ;
@@ -1026,7 +1024,7 @@ private:
 		INDEX ret = VAR_NONE ;
 		auto rax = REAL () ;
 		for (auto &&i : _RANGE_ (yx ,4)) {
-			const auto r1x = _ABS_ (get (i ,yx)) ;
+			const auto r1x = MathProc::abs (get (i ,yx)) ;
 			if (ret != VAR_NONE)
 				if (rax >= r1x)
 					continue ;

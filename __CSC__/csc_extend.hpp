@@ -2100,11 +2100,8 @@ private:
 	}
 } ;
 
-template <class UNIT>
+template <class UNIT ,class CONT>
 class IntrusiveRef {
-private:
-	using INTRUSIVE_THIS = typename UNIT::INTRUSIVE_THIS ;
-
 private:
 	struct Detail ;
 	friend ScopedGuard<IntrusiveRef> ;
@@ -2215,7 +2212,7 @@ private:
 			const auto r3x = mLatch.load () ;
 			if (r3x == 0)
 				break ;
-			INTRUSIVE_THIS::friend_latch (_DEREF_ (r1x)) ;
+			CONT::friend_latch (_DEREF_ (r1x)) ;
 		}
 		return r1x ;
 #pragma GCC diagnostic pop
@@ -2226,8 +2223,8 @@ private:
 		if (address == NULL)
 			return ;
 		if (init)
-			INTRUSIVE_THIS::friend_create (_DEREF_ (address)) ;
-		const auto r1x = INTRUSIVE_THIS::friend_attach (_DEREF_ (address)) ;
+			CONT::friend_create (_DEREF_ (address)) ;
+		const auto r1x = CONT::friend_attach (_DEREF_ (address)) ;
 		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 		_STATIC_UNUSED_ (r1x) ;
 	}
@@ -2235,18 +2232,18 @@ private:
 	inline static void release (PTR<UNIT> address) {
 		if (address == NULL)
 			return ;
-		const auto r1x = INTRUSIVE_THIS::friend_detach (_DEREF_ (address)) ;
+		const auto r1x = CONT::friend_detach (_DEREF_ (address)) ;
 		_DEBUG_ASSERT_ (r1x >= 0) ;
 		if (r1x > 0)
 			return ;
-		INTRUSIVE_THIS::friend_destroy (_DEREF_ (address)) ;
+		CONT::friend_destroy (_DEREF_ (address)) ;
 		address->~UNIT () ;
 		GlobalHeap::free (address) ;
 	}
 } ;
 
-template <class UNIT>
-struct IntrusiveRef<UNIT>::Detail {
+template <class UNIT ,class CONT>
+struct IntrusiveRef<UNIT ,CONT>::Detail {
 	class WatchProxy final
 		:private Proxy {
 	private:

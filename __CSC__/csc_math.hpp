@@ -157,6 +157,9 @@ public:
 	inline imports_static _ARG2 clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) ;
 
 	template <class _ARG1>
+	inline imports_static _ARG1 abs (const _ARG1 &val) ;
+
+	template <class _ARG1>
 	inline imports_static const _ARG1 &minof (const _ARG1 &list_one) ;
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -316,7 +319,7 @@ template <class _ARG1>
 inline exports _ARG1 MathProc::inverse (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
-	if (_ABS_ (x) < y)
+	if (MathProc::abs (x) < y)
 		return _ARG1 (0) ;
 	return _ARG1 (1) / x ;
 }
@@ -410,16 +413,25 @@ inline exports _ARG1 MathProc::round (const _ARG1 &x ,const _ARG1 &y) {
 template <class _ARG1>
 inline exports _ARG1 MathProc::trunc (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
-	return MathProc::floor (_ABS_ (x) ,y) * MathProc::sign (x) ;
+	return MathProc::floor (MathProc::abs (x) ,y) * MathProc::sign (x) ;
 }
 
 template <class _ARG1 ,class _ARG2>
 inline exports _ARG2 MathProc::clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	if (val < _ARG1 (min_))
 		return min_ ;
 	if (val > _ARG1 (max_))
 		return max_ ;
 	return _ARG2 (val) ;
+}
+
+template <class _ARG1>
+inline exports _ARG1 MathProc::abs (const _ARG1 &val) {
+	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_ARG1 ret = _ABS_ (val) ;
+	_DEBUG_ASSERT_ (ret >= _ARG1 (0)) ;
+	return std::move (ret) ;
 }
 
 template <class _ARG1>
@@ -523,7 +535,7 @@ inline VAL64 static_taylor_exp (VAL64 lnx ,VAL64 y) {
 	auto rbx = VAL64 (1) ;
 	while (TRUE) {
 		rax *= r1x * MathProc::inverse (rbx) ;
-		if (_ABS_ (rax) < VAL64_EPS)
+		if (MathProc::abs (rax) < VAL64_EPS)
 			break ;
 		ret += rax ;
 		rbx += VAL64 (1) ;

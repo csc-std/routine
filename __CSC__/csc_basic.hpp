@@ -377,7 +377,7 @@ struct OPERATOR_HASH {
 } ;
 } ;
 
-template <class HEAP ,class UNIT>
+template <class UNIT ,class CONT>
 class ScopedPtr final
 	:private Proxy {
 private:
@@ -392,7 +392,7 @@ public:
 	inline ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
-		HEAP::free (mPointer) ;
+		CONT::free (mPointer) ;
 		mPointer = NULL ;
 	}
 
@@ -570,18 +570,18 @@ private:
 
 public:
 	template <class _RET>
-	inline imports_static ScopedPtr<GlobalHeap ,_RET> alloc () popping {
+	inline imports_static ScopedPtr<_RET ,GlobalHeap> alloc () popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_RET) ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		auto &r2x = _LOAD_<_RET> (r1x) ;
-		return ScopedPtr<GlobalHeap ,_RET> (&r2x) ;
+		return ScopedPtr<_RET ,GlobalHeap> (&r2x) ;
 	}
 
 	template <class _RET>
-	inline imports_static ScopedPtr<GlobalHeap ,ARR<_RET>> alloc (LENGTH len) popping {
+	inline imports_static ScopedPtr<ARR<_RET> ,GlobalHeap> alloc (LENGTH len) popping {
 		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -591,7 +591,7 @@ public:
 		const auto r2x = operator new (r1x ,std::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		auto &r3x = _LOAD_<ARR<_RET>> (r2x) ;
-		return ScopedPtr<GlobalHeap ,ARR<_RET>> (&r3x) ;
+		return ScopedPtr<ARR<_RET> ,GlobalHeap> (&r3x) ;
 	}
 
 	template <class _ARG1>

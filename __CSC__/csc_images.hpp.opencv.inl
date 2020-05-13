@@ -172,7 +172,7 @@ public:
 	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * _SIZEOF_ (COLOR_BGR) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = cv::Mat (cv::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC3)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC3) ;
@@ -248,7 +248,7 @@ public:
 	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * _SIZEOF_ (COLOR_BGRA) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = cv::Mat (cv::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC4)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC4) ;
@@ -324,7 +324,7 @@ public:
 	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * _SIZEOF_ (COLOR_GRAY) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = cv::Mat (cv::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC1) ;
@@ -400,7 +400,7 @@ public:
 	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * _SIZEOF_ (COLOR_GRAY32) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = cv::Mat (cv::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_32FC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_32FC1) ;
@@ -476,7 +476,7 @@ public:
 	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
 		const auto r1x = cx_ * cy_ * _SIZEOF_ (COLOR_GRAY64) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		(void) r1x ;
+		_STATIC_UNUSED_ (r1x) ;
 		auto tmp = cv::Mat (cv::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_64FC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_64FC1) ;

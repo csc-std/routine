@@ -364,13 +364,13 @@ public:
 
 	void read (const PTR<decltype (GAP)> &) {
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = REAL () ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == r1x.varify_space_item ()) ;
-		_DEREF_ (this) = ris.copy () ;
+		auto rax = copy () ;
+		auto rbx = REAL () ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == r1x.varify_space_item ()) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == r1x.varify_space_item ()) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline ByteReader &operator>> (const PTR<decltype (GAP)> &proc) {
@@ -380,15 +380,15 @@ public:
 
 	void read (const PTR<decltype (EOS)> &) {
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = REAL () ;
+		auto rax = copy () ;
+		auto rbx = REAL () ;
 		while (TRUE) {
-			if (ris.length () == 0)
+			if (rax.length () == 0)
 				break ;
-			ris >> rax ;
-			_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
+			rax >> rbx ;
+			_DYNAMIC_ASSERT_ (rbx == r1x.varify_ending_item ()) ;
 		}
-		_DEREF_ (this) = ris.copy () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline ByteReader &operator>> (const PTR<decltype (EOS)> &proc) {
@@ -724,10 +724,10 @@ public:
 
 	void write (const PTR<decltype (GAP)> &) {
 		const auto r1x = attr () ;
-		auto wos = copy () ;
-		wos << r1x.varify_space_item () ;
-		wos << r1x.varify_space_item () ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		rax << r1x.varify_space_item () ;
+		rax << r1x.varify_space_item () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<decltype (GAP)> &proc) {
@@ -737,12 +737,12 @@ public:
 
 	void write (const PTR<decltype (EOS)> &) {
 		const auto r1x = attr () ;
-		auto wos = copy () ;
-		for (auto &&i : _RANGE_ (0 ,wos.size () - wos.length ())) {
-			wos << r1x.varify_ending_item () ;
+		auto rax = copy () ;
+		for (auto &&i : _RANGE_ (0 ,rax.size () - rax.length ())) {
+			rax << r1x.varify_ending_item () ;
 			_STATIC_UNUSED_ (i) ;
 		}
-		_DEREF_ (this) = wos.copy () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline ByteWriter &operator<< (const PTR<decltype (EOS)> &proc) {
@@ -1187,14 +1187,14 @@ public:
 
 	void read (const PTR<decltype (GAP)> &) {
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = REAL () ;
-		ris >> rax ;
+		auto rax = copy () ;
+		auto rbx = REAL () ;
+		rax >> rbx ;
 		while (TRUE) {
-			if (!r1x.varify_space (rax))
+			if (!r1x.varify_space (rbx))
 				break ;
-			_DEREF_ (this) = ris.copy () ;
-			ris >> rax ;
+			_DEREF_ (this) = rax.copy () ;
+			rax >> rbx ;
 		}
 	}
 
@@ -1205,11 +1205,11 @@ public:
 
 	void read (const PTR<decltype (EOS)> &) {
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = REAL () ;
-		ris.read (rax) ;
-		_DYNAMIC_ASSERT_ (rax == r1x.varify_ending_item ()) ;
-		_DEREF_ (this) = ris.copy () ;
+		auto rax = copy () ;
+		auto rbx = REAL () ;
+		rax.read (rbx) ;
+		_DYNAMIC_ASSERT_ (rbx == r1x.varify_ending_item ()) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline TextReader &operator>> (const PTR<decltype (EOS)> &proc) {
@@ -1221,16 +1221,16 @@ private:
 	LENGTH next_string_size () popping {
 		const auto r1x = attr () ;
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
-		auto rax = REAL () ;
-		ris.read (rax) ;
+		auto rax = copy () ;
+		auto rbx = REAL () ;
+		rax.read (rbx) ;
 		while (TRUE) {
-			if (rax == r1x.varify_ending_item ())
+			if (rbx == r1x.varify_ending_item ())
 				break ;
-			if (r1x.varify_space (rax))
+			if (r1x.varify_space (rbx))
 				break ;
 			ret++ ;
-			ris.read (rax) ;
+			rax.read (rbx) ;
 		}
 		return std::move (ret) ;
 	}
@@ -1238,92 +1238,92 @@ private:
 	void compute_read_number (VAR64 &data ,REAL &top) {
 		const auto r1x = attr () ;
 		_DEBUG_ASSERT_ (r1x.varify_number_item (top)) ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		data = r1x.convert_number_r (top) ;
-		ris.read (top) ;
+		rax.read (top) ;
 		while (TRUE) {
 			if (!r1x.varify_number_item (top))
 				break ;
 			const auto r2x = data * r1x.varify_radix () + r1x.convert_number_r (top) ;
 			_DYNAMIC_ASSERT_ (data <= r2x) ;
 			data = r2x ;
-			_DEREF_ (this) = ris.copy () ;
-			ris.read (top) ;
+			_DEREF_ (this) = rax.copy () ;
+			rax.read (top) ;
 		}
 	}
 
 	void compute_read_number (VAL64 &data ,REAL &top) {
 		const auto r1x = attr () ;
 		_DEBUG_ASSERT_ (r1x.varify_number_item (top)) ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		while (TRUE) {
 			if (r1x.convert_number_r (top) != 0)
 				break ;
-			_DEREF_ (this) = ris.copy () ;
-			ris.read (top) ;
+			_DEREF_ (this) = rax.copy () ;
+			rax.read (top) ;
 		}
-		auto rax = ARRAY3<VAR64> {0 ,0 ,0} ;
+		auto rbx = ARRAY3<VAR64> {0 ,0 ,0} ;
 		if switch_case (TRUE) {
 			if (!r1x.varify_number_item (top))
 				discard ;
-			rax[0] = r1x.convert_number_r (top) ;
-			_DEREF_ (this) = ris.copy () ;
-			ris.read (top) ;
+			rbx[0] = r1x.convert_number_r (top) ;
+			_DEREF_ (this) = rax.copy () ;
+			rax.read (top) ;
 			while (TRUE) {
 				if (!r1x.varify_number_item (top))
 					break ;
 				auto fax = TRUE ;
 				if switch_case (fax) {
-					const auto r2x = rax[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
-					if (!(rax[0] < r2x))
+					const auto r2x = rbx[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
+					if (!(rbx[0] < r2x))
 						discard ;
-					rax[0] = r2x ;
+					rbx[0] = r2x ;
 				}
 				if switch_case (fax) {
-					rax[1]++ ;
+					rbx[1]++ ;
 				}
-				_DEREF_ (this) = ris.copy () ;
-				ris.read (top) ;
+				_DEREF_ (this) = rax.copy () ;
+				rax.read (top) ;
 			}
 		}
 		if switch_case (TRUE) {
 			if (top != REAL ('.'))
 				discard ;
-			_DEREF_ (this) = ris.copy () ;
-			ris.read (top) ;
+			_DEREF_ (this) = rax.copy () ;
+			rax.read (top) ;
 			_DYNAMIC_ASSERT_ (r1x.varify_number_item (top)) ;
 			while (TRUE) {
 				if (!r1x.varify_number_item (top))
 					break ;
 				if switch_case (TRUE) {
-					const auto r3x = rax[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
-					if (rax[0] > r3x)
+					const auto r3x = rbx[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
+					if (rbx[0] > r3x)
 						discard ;
-					rax[0] = r3x ;
-					rax[1]-- ;
+					rbx[0] = r3x ;
+					rbx[1]-- ;
 				}
-				_DEREF_ (this) = ris.copy () ;
-				ris.read (top) ;
+				_DEREF_ (this) = rax.copy () ;
+				rax.read (top) ;
 			}
 		}
 		if switch_case (TRUE) {
 			if (!(top == REAL ('e') || top == REAL ('E')))
 				discard ;
-			const auto r4x = ris.template read<VAR32> () ;
-			rax[1] += r4x ;
-			_DEREF_ (this) = ris.copy () ;
+			const auto r4x = rax.template read<VAR32> () ;
+			rbx[1] += r4x ;
+			_DEREF_ (this) = rax.copy () ;
 		}
 		if switch_case (TRUE) {
-			if (rax[0] >= 0)
+			if (rbx[0] >= 0)
 				discard ;
-			rax[0] = -rax[0] ;
-			rax[2] = -1 ;
-			if (rax[0] >= 0)
+			rbx[0] = -rbx[0] ;
+			rbx[2] = -1 ;
+			if (rbx[0] >= 0)
 				discard ;
-			rax[0] = -(rax[0] / r1x.varify_radix ()) ;
-			rax[1]++ ;
+			rbx[0] = -(rbx[0] / r1x.varify_radix ()) ;
+			rbx[1]++ ;
 		}
-		const auto r5x = MathProc::ieee754_e10_e2 (rax) ;
+		const auto r5x = MathProc::ieee754_e10_e2 (rbx) ;
 		data = MathProc::ieee754_encode (r5x) ;
 	}
 
@@ -1336,53 +1336,53 @@ private:
 		static constexpr auto M_BOM = PACK<STRU8[3]> ({
 			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = STRU8 () ;
-		ris >> rax ;
-		if (rax != M_BOM.P1[0])
+		auto rax = copy () ;
+		auto rbx = STRU8 () ;
+		rax >> rbx ;
+		if (rbx != M_BOM.P1[0])
 			return ;
-		ris >> rax ;
-		if (rax != M_BOM.P1[1])
+		rax >> rbx ;
+		if (rbx != M_BOM.P1[1])
 			return ;
-		ris >> rax ;
-		if (rax != M_BOM.P1[2])
+		rax >> rbx ;
+		if (rbx != M_BOM.P1[2])
 			return ;
 		r1x.enable_endian (FALSE) ;
-		_DEREF_ (this) = ris.copy () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRU16> &) {
 		static constexpr auto M_BOM = PACK<STRU16[2]> ({
 			STRU16 (0XFEFF) ,STRU16 (0XFFFE)}) ;
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = STRU16 () ;
-		ris >> rax ;
-		if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
+		auto rax = copy () ;
+		auto rbx = STRU16 () ;
+		rax >> rbx ;
+		if (!(rbx == M_BOM.P1[0] || rbx == M_BOM.P1[1]))
 			return ;
-		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
+		const auto r2x = BOOL (rbx != M_BOM.P1[0]) ;
 		r1x.enable_endian (r2x) ;
-		_DEREF_ (this) = ris.copy () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRU32> &) {
 		static constexpr auto M_BOM = PACK<STRU32[2]> ({
 			STRU32 (0X0000FEFF) ,STRU32 (0XFFFE0000)}) ;
 		const auto r1x = attr () ;
-		auto ris = copy () ;
-		auto rax = STRU32 () ;
-		ris >> rax ;
-		if (!(rax == M_BOM.P1[0] || rax == M_BOM.P1[1]))
+		auto rax = copy () ;
+		auto rbx = STRU32 () ;
+		rax >> rbx ;
+		if (!(rbx == M_BOM.P1[0] || rbx == M_BOM.P1[1]))
 			return ;
-		const auto r2x = BOOL (rax != M_BOM.P1[0]) ;
+		const auto r2x = BOOL (rbx != M_BOM.P1[0]) ;
 		r1x.enable_endian (r2x) ;
-		_DEREF_ (this) = ris.copy () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_read_bom (const ARGV<STRW> &) {
-		auto ris = copy () ;
-		_CAST_<TextReader<STRUW>> (ris).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
-		_DEREF_ (this) = ris.copy () ;
+		auto rax = copy () ;
+		_CAST_<TextReader<STRUW>> (rax).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 } ;
 
@@ -1875,10 +1875,10 @@ public:
 	}
 
 	void write (const PTR<decltype (GAP)> &) {
-		auto wos = copy () ;
-		_DYNAMIC_ASSERT_ (wos.length () + 2 < wos.size ()) ;
-		wos << REAL ('\r') << REAL ('\n') ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		_DYNAMIC_ASSERT_ (rax.length () + 2 < rax.size ()) ;
+		rax << REAL ('\r') << REAL ('\n') ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline TextWriter &operator<< (const PTR<decltype (GAP)> &proc) {
@@ -1888,9 +1888,9 @@ public:
 
 	void write (const PTR<decltype (EOS)> &) {
 		const auto r1x = attr () ;
-		auto wos = copy () ;
-		wos << r1x.varify_ending_item () ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		rax << r1x.varify_ending_item () ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	inline TextWriter &operator<< (const PTR<decltype (EOS)> &proc) {
@@ -2077,31 +2077,31 @@ private:
 	void template_write_bom (const ARGV<STRU8> &) {
 		static constexpr auto M_BOM = PACK<STRU8[3]> ({
 			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
-		auto wos = copy () ;
-		wos << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		rax << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRU16> &) {
 		static constexpr auto M_BOM = PACK<STRU16[1]> ({
 			STRU16 (0XFEFF)}) ;
-		auto wos = copy () ;
-		wos << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		rax << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRU32> &) {
 		static constexpr auto M_BOM = PACK<STRU32[1]> ({
 			STRU32 (0X0000FEFF)}) ;
-		auto wos = copy () ;
-		wos << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		rax << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 
 	void template_write_bom (const ARGV<STRW> &) {
-		auto wos = copy () ;
-		_CAST_<TextWriter<STRUW>> (wos).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
-		_DEREF_ (this) = wos.copy () ;
+		auto rax = copy () ;
+		_CAST_<TextWriter<STRUW>> (rax).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
+		_DEREF_ (this) = rax.copy () ;
 	}
 } ;
 
@@ -2475,18 +2475,18 @@ private:
 private:
 	LENGTH next_identifier_size () popping {
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		while (TRUE) {
-			const auto r1x = BOOL (ris[0] >= STRU8 ('A') && ris[0] <= STRU8 ('Z')) ;
-			const auto r2x = BOOL (ris[0] >= STRU8 ('a') && ris[0] <= STRU8 ('z')) ;
-			const auto r3x = BOOL (ris[0] == STRU8 ('_')) ;
+			const auto r1x = BOOL (rax[0] >= STRU8 ('A') && rax[0] <= STRU8 ('Z')) ;
+			const auto r2x = BOOL (rax[0] >= STRU8 ('a') && rax[0] <= STRU8 ('z')) ;
+			const auto r3x = BOOL (rax[0] == STRU8 ('_')) ;
 			if (ret == 0)
 				_DYNAMIC_ASSERT_ (r1x || r2x || r3x) ;
 			if (!r1x && !r2x && !r3x)
-				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
-					if (!(ris[0] == STRU8 ('-') || ris[0] == STRU8 ('.') || ris[0] == STRU8 (':')))
+				if (!(rax[0] >= STRU8 ('0') && rax[0] <= STRU8 ('9')))
+					if (!(rax[0] == STRU8 ('-') || rax[0] == STRU8 ('.') || rax[0] == STRU8 (':')))
 						break ;
-			ris++ ;
+			rax++ ;
 			ret++ ;
 		}
 		return std::move (ret) ;
@@ -2494,55 +2494,55 @@ private:
 
 	LENGTH next_value_size () popping {
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		if switch_case (TRUE) {
-			if (!(ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
+			if (!(rax[0] == STRU8 ('+') || rax[0] == STRU8 ('-')))
 				discard ;
-			ris++ ;
+			rax++ ;
 			ret++ ;
 		}
-		const auto r1x = ris[0] ;
+		const auto r1x = rax[0] ;
 		_DYNAMIC_ASSERT_ (r1x >= STRU8 ('0') && r1x <= STRU8 ('9')) ;
-		ris++ ;
+		rax++ ;
 		ret++ ;
 		while (TRUE) {
 			if (r1x == STRU8 ('0'))
 				break ;
-			if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+			if (!(rax[0] >= STRU8 ('0') && rax[0] <= STRU8 ('9')))
 				break ;
-			ris++ ;
+			rax++ ;
 			ret++ ;
 		}
 		if switch_case (TRUE) {
-			if (ris[0] != STRU8 ('.'))
+			if (rax[0] != STRU8 ('.'))
 				discard ;
-			ris++ ;
+			rax++ ;
 			ret++ ;
 			while (TRUE) {
-				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+				if (!(rax[0] >= STRU8 ('0') && rax[0] <= STRU8 ('9')))
 					break ;
-				ris++ ;
+				rax++ ;
 				ret++ ;
 			}
 		}
 		if switch_case (TRUE) {
-			if (!(ris[0] == STRU8 ('e') || ris[0] == STRU8 ('E')))
+			if (!(rax[0] == STRU8 ('e') || rax[0] == STRU8 ('E')))
 				discard ;
-			ris++ ;
+			rax++ ;
 			ret++ ;
 			if switch_case (TRUE) {
-				if (!(ris[0] == STRU8 ('+') || ris[0] == STRU8 ('-')))
+				if (!(rax[0] == STRU8 ('+') || rax[0] == STRU8 ('-')))
 					discard ;
-				ris++ ;
+				rax++ ;
 				ret++ ;
 			}
-			_DYNAMIC_ASSERT_ (ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')) ;
-			ris++ ;
+			_DYNAMIC_ASSERT_ (rax[0] >= STRU8 ('0') && rax[0] <= STRU8 ('9')) ;
+			rax++ ;
 			ret++ ;
 			while (TRUE) {
-				if (!(ris[0] >= STRU8 ('0') && ris[0] <= STRU8 ('9')))
+				if (!(rax[0] >= STRU8 ('0') && rax[0] <= STRU8 ('9')))
 					break ;
-				ris++ ;
+				rax++ ;
 				ret++ ;
 			}
 		}
@@ -2552,48 +2552,48 @@ private:
 	LENGTH next_string_size () popping {
 		const auto r1x = mReader->attr () ;
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
-		auto rax = STRU8 () ;
-		_DYNAMIC_ASSERT_ (ris[0] == STRU8 ('\"')) ;
-		ris++ ;
+		auto rax = copy () ;
+		auto rbx = STRU8 () ;
+		_DYNAMIC_ASSERT_ (rax[0] == STRU8 ('\"')) ;
+		rax++ ;
 		while (TRUE) {
-			if (ris[0] == STRU8 ('\0'))
+			if (rax[0] == STRU8 ('\0'))
 				break ;
-			if (ris[0] == STRU8 ('\"'))
+			if (rax[0] == STRU8 ('\"'))
 				break ;
 			auto fax = TRUE ;
 			if switch_case (fax) {
-				rax = ris[0] ;
-				ris++ ;
-				if (!(rax == r1x.varify_escape_item ()))
+				rbx = rax[0] ;
+				rax++ ;
+				if (!(rbx == r1x.varify_escape_item ()))
 					discard ;
-				rax = ris[0] ;
-				ris++ ;
-				rax = r1x.convert_escape_r (rax) ;
+				rbx = rax[0] ;
+				rax++ ;
+				rbx = r1x.convert_escape_r (rbx) ;
 				ret++ ;
 			}
 			if switch_case (fax) {
-				const auto r2x = r1x.varify_control (rax) ;
+				const auto r2x = r1x.varify_control (rbx) ;
 				_DYNAMIC_ASSERT_ (!r2x) ;
 				ret++ ;
 			}
 		}
-		_DYNAMIC_ASSERT_ (ris[0] == STRU8 ('\"')) ;
-		ris++ ;
+		_DYNAMIC_ASSERT_ (rax[0] == STRU8 ('\"')) ;
+		rax++ ;
 		return std::move (ret) ;
 	}
 
 	LENGTH next_newgap_text_size () popping {
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1x.varify_ending_item ())
+			if (rax[0] == r1x.varify_ending_item ())
 				break ;
-			if (r1x.varify_space (ris[0]))
+			if (r1x.varify_space (rax[0]))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1x.varify_control (ris[0])) ;
-			ris++ ;
+			_DYNAMIC_ASSERT_ (!r1x.varify_control (rax[0])) ;
+			rax++ ;
 			ret++ ;
 		}
 		return std::move (ret) ;
@@ -2601,15 +2601,15 @@ private:
 
 	LENGTH next_newline_text_size () popping {
 		LENGTH ret = 0 ;
-		auto ris = copy () ;
+		auto rax = copy () ;
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
-			if (ris[0] == r1x.varify_ending_item ())
+			if (rax[0] == r1x.varify_ending_item ())
 				break ;
-			if (r1x.varify_space (ris[0] ,2))
+			if (r1x.varify_space (rax[0] ,2))
 				break ;
-			_DYNAMIC_ASSERT_ (!r1x.varify_control (ris[0])) ;
-			ris++ ;
+			_DYNAMIC_ASSERT_ (!r1x.varify_control (rax[0])) ;
+			rax++ ;
 			ret++ ;
 		}
 		return std::move (ret) ;

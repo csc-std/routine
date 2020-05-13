@@ -12,6 +12,9 @@ template <class BASE>
 class ArrayIterator final
 	:private Proxy {
 private:
+	using ITEM_TYPE = DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> ;
+
+private:
 	friend BASE ;
 	BASE &mBase ;
 	INDEX mIndex ;
@@ -23,8 +26,7 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline auto operator* () const leftvalue
-		->DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> {
+	inline ITEM_TYPE operator* () const leftvalue {
 		return mBase.get (_XVALUE_<const INDEX> (mIndex)) ;
 	}
 
@@ -561,11 +563,12 @@ public:
 public:
 	template <class... _ARGS>
 	inline imports_static String make (const _ARGS &...initval) {
+		struct Dependent ;
 		_STATIC_ASSERT_ (std::is_same<SIZE ,SAUTO>::value) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
-		auto wos = DEPENDENT_TYPE<TextWriter<ITEM> ,String> (ret.raw ()) ;
-		wos.prints (initval...) ;
-		wos << DEPENDENT_TYPE<TextWriter<ITEM> ,String>::EOS ;
+		auto rax = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> (ret.raw ()) ;
+		rax.prints (initval...) ;
+		rax << DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent>::EOS ;
 		return std::move (ret) ;
 	}
 
@@ -1039,8 +1042,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) leftvalue
-		->DEF<decltype (_NULL_<Priority> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<Priority>> operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
@@ -1051,8 +1053,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const leftvalue
-		->DEF<decltype (_NULL_<const Priority> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<const Priority>> operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2330,8 +2331,7 @@ public:
 		return Bit (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) leftvalue
-		->DEF<decltype (_NULL_<BitSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
@@ -2342,8 +2342,7 @@ public:
 		return Bit (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const leftvalue
-		->DEF<decltype (_NULL_<const BitSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2720,8 +2719,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) leftvalue
-		->DEF<decltype (_NULL_<Set> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<Set>> operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
@@ -2730,8 +2728,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const leftvalue
-		->DEF<decltype (_NULL_<const Set> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<const Set>> operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3362,8 +3359,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) leftvalue
-		->DEF<decltype (_NULL_<HashSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<HashSet>> operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
@@ -3372,8 +3368,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const leftvalue
-		->DEF<decltype (_NULL_<const HashSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<const HashSet>> operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3705,8 +3700,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) leftvalue
-		->DEF<decltype (_NULL_<SoftSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<SoftSet>> operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
@@ -3716,8 +3710,7 @@ public:
 		return Pair (_DEREF_ (this) ,index) ;
 	}
 
-	inline auto operator[] (INDEX index) const leftvalue
-		->DEF<decltype (_NULL_<const SoftSet> ().get (_NULL_<INDEX> ()))> {
+	inline DEF<typename Detail::template Pair<const SoftSet>> operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 

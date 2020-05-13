@@ -471,7 +471,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			for (auto &&i : _RANGE_ (0 ,ix))
 				if (mConvergence[i] > mConvergence[i + 1])
 					return FALSE ;
-			if (_ABS_ (mConvergence[0] - mConvergence[ix]) >= mTolerance)
+			if (MathProc::abs (mConvergence[0] - mConvergence[ix]) >= mTolerance)
 				return FALSE ;
 			return TRUE ;
 		}
@@ -926,7 +926,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			for (auto &&i : _RANGE_ (0 ,mDG.length ()))
 				mIS[i] = -math_matrix_mul (mDM ,i ,mDG) ;
 			const auto r1x = math_vector_dot (mDG ,mIS) ;
-			mDXLoss[0] = _ABS_ (mLossFunc (mDX)) ;
+			mDXLoss[0] = MathProc::abs (mLossFunc (mDX)) ;
 			mDXLoss[2] = mDXLoss[0] ;
 			mDXLambda[0] = REAL (0) ;
 			mDXLambda[1] = mDXLambdaFirst ;
@@ -938,12 +938,12 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 					break ;
 				for (auto &&i : _RANGE_ (0 ,mIX.length ()))
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
-				mDXLoss[1] = _ABS_ (mLossFunc (mIX)) ;
+				mDXLoss[1] = MathProc::abs (mLossFunc (mIX)) ;
 				if switch_case (TRUE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXLambdaC1 * r1x)
 						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
-					if (_ABS_ (math_vector_dot (mIG ,mIS)) > -mDXLambdaC2 * r1x)
+					if (MathProc::abs (math_vector_dot (mIG ,mIS)) > -mDXLambdaC2 * r1x)
 						discard ;
 					mDXLoss[2] = REAL (0) ;
 				}

@@ -139,7 +139,7 @@ inline exports void FileSystemProc::erase_file (const String<STR> &file) {
 	if (r2x)
 		return ;
 	const auto r3x = ::unlink (r1x.raw ().self) ;
-	(void) r3x ;
+	_STATIC_UNUSED_ (r3x) ;
 }
 
 inline exports void FileSystemProc::copy_file (const String<STR> &dst_file ,const String<STR> &src_file) {
@@ -155,7 +155,7 @@ inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,cons
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
 	const auto r4x = ::rename (r1x.raw ().self ,r2x.raw ().self) ;
-	(void) r4x ;
+	_STATIC_UNUSED_ (r4x) ;
 }
 
 inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,const String<STR> &src_file) {
@@ -164,7 +164,7 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
 	const auto r4x = ::link (r1x.raw ().self ,r2x.raw ().self) ;
-	(void) r4x ;
+	_STATIC_UNUSED_ (r4x) ;
 }
 
 inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) popping {
@@ -218,27 +218,27 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 			return file.raw () ;
 		return PhanBuffer<const STR> () ;
 	}) ;
-	auto ris = TextReader<STR> (r1x) ;
-	ris.attr ().modify_space (STR ('\\') ,0) ;
-	ris.attr ().modify_space (STR ('/') ,0) ;
-	auto rax = STR () ;
+	auto rax = TextReader<STR> (r1x) ;
+	rax.attr ().modify_space (STR ('\\') ,0) ;
+	rax.attr ().modify_space (STR ('/') ,0) ;
+	auto rbx = STR () ;
 	Deque<String<STR>> ret ;
 	INDEX ix = ret.insert () ;
-	ris.copy () >> rax ;
-	if (ris.attr ().varify_space (rax))
-		ris >> rax ;
+	rax.copy () >> rbx ;
+	if (rax.attr ().varify_space (rbx))
+		rax >> rbx ;
 	while (TRUE) {
-		ris >> ret[ix] ;
+		rax >> ret[ix] ;
 		if (ret[ix].empty ())
 			break ;
 		ix = ret.insert () ;
-		ris >> rax ;
-		if (rax == ris.attr ().varify_ending_item ())
+		rax >> rbx ;
+		if (rbx == rax.attr ().varify_ending_item ())
 			break ;
-		_DYNAMIC_ASSERT_ (ris.attr ().varify_space (rax)) ;
+		_DYNAMIC_ASSERT_ (rax.attr ().varify_space (rbx)) ;
 	}
 	ret.pop () ;
-	ris >> TextReader<STR>::EOS ;
+	rax >> TextReader<STR>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -408,7 +408,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) pop
 				FileSystemProc::erase_file (me) ;
 			}) ;
 		}) ;
-		(void) r9x ;
+		_STATIC_UNUSED_ (r9x) ;
 		ret = TRUE ;
 	}
 	return std::move (ret) ;
@@ -447,12 +447,12 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	const auto r1x = StringProc::build_strs<STRA> (dire) ;
 	const auto r2x = ::rmdir (r1x.raw ().self) ;
-	(void) r2x ;
+	_STATIC_UNUSED_ (r2x) ;
 	const auto r3x = U::static_find_juntion (r1x) ;
 	if (!r3x)
 		return ;
 	const auto r4x = ::unlink (r1x.raw ().self) ;
-	(void) r4x ;
+	_STATIC_UNUSED_ (r4x) ;
 }
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop

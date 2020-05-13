@@ -509,7 +509,8 @@ using WORD = std::uint16_t ;
 using CHAR = std::uint32_t ;
 using DATA = std::uint64_t ;
 
-struct __uint128_t {
+class __uint128_t {
+private:
 	alignas (16) DEF<BYTE[16]> unused ;
 } ;
 
@@ -1686,7 +1687,12 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
 }
 
 template <class _ARG1 ,class... _ARGS>
-inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) ;
+inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
+	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
+	auto &r1x = _LOAD_<_ARG1> (address) ;
+	new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
+}
 
 template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
@@ -2080,16 +2086,6 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
 	_STATIC_UNUSED_ (r1x) ;
 	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return _DEREF_ (r3x) ;
-}
-
-template <class _ARG1 ,class... _ARGS>
-inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
-	auto &r1x = _LOAD_<_ARG1> (address) ;
-	const auto r2x = new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
-	_DEBUG_ASSERT_ (r2x == &r1x) ;
-	_STATIC_UNUSED_ (r2x) ;
 }
 
 template <class _ARG1>

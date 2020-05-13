@@ -358,7 +358,6 @@ private:
 
 namespace U {
 inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) noexcept {
-	//@error: fuck clang
 	return 0 ;
 }
 
@@ -606,7 +605,7 @@ public:
 
 	template <class _ARG1>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
 		return concat (that) ;
 	}
 } ;
@@ -646,7 +645,7 @@ public:
 
 	template <class _ARG1>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
 		return concat (that) ;
 	}
 } ;
@@ -685,7 +684,7 @@ public:
 
 	template <class _ARG1>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEF<decltype (_NULL_<const Expression> ().concat (_NULL_<Expression<_ARG1>> ()))> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
 		return concat (that) ;
 	}
 } ;

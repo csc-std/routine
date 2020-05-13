@@ -1033,8 +1033,8 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 template <class _ARG1>
 inline exports BOOL StringProc::parse_bools (const String<_ARG1> &stri) {
 	BOOL ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1042,16 +1042,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_bools (const BOOL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (7) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAR32 StringProc::parse_var32s (const String<_ARG1> &stri) {
 	VAR32 ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1059,16 +1059,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_var32s (const VAR32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAR64 StringProc::parse_var64s (const String<_ARG1> &stri) {
 	VAR64 ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1076,16 +1076,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_var64s (const VAR64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAR StringProc::parse_vars (const String<_ARG1> &stri) {
 	VAR ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1093,16 +1093,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_vars (const VAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAL32 StringProc::parse_val32s (const String<_ARG1> &stri) {
 	VAL32 ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1110,16 +1110,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_val32s (const VAL32 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAL64 StringProc::parse_val64s (const String<_ARG1> &stri) {
 	VAL64 ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1127,16 +1127,16 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_val64s (const VAL64 &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports VAL StringProc::parse_vals (const String<_ARG1> &stri) {
 	VAL ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	ris >> ret >> TextReader<_ARG1>::EOS ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	rax >> ret >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1144,8 +1144,8 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_vals (const VAL &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (127) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << stru << TextWriter<_RET>::EOS ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << stru << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1182,25 +1182,25 @@ public:
 template <class _ARG1>
 inline exports CHAR StringProc::parse_hex8s (const String<_ARG1> &stri) {
 	CHAR ret = 0 ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	auto rax = _ARG1 () ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('&')) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('H')) ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	auto rbx = _ARG1 () ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('&')) ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('H')) ;
 	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		ris >> rax ;
-		const auto r2x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
-		const auto r3x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
+		rax >> rbx ;
+		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
+		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
 		auto &r4x = _SWITCH_ (
 			r2x ? r1x[0] :
 			r1x[1]) ;
-		ret = (ret << 4) | CHAR (rax - r4x) ;
+		ret = (ret << 4) | CHAR (rbx - r4x) ;
 		_STATIC_UNUSED_ (i) ;
 	}
-	ris >> TextReader<_ARG1>::EOS ;
+	rax >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1208,42 +1208,42 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_hex8s (const CHAR &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (15) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << _RET ('&') ;
-	wos << _RET ('H') ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << _RET ('&') ;
+	rax << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		const auto r2x = CHAR (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
 		auto &r3x = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
-		wos << _RET (r3x + r2x) ;
+		rax << _RET (r3x + r2x) ;
 	}
-	wos << TextWriter<_RET>::EOS ;
+	rax << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
 template <class _ARG1>
 inline exports DATA StringProc::parse_hex16s (const String<_ARG1> &stri) {
 	DATA ret = 0 ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	auto rax = _ARG1 () ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('&')) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('H')) ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	auto rbx = _ARG1 () ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('&')) ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('H')) ;
 	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,16)) {
-		ris >> rax ;
-		const auto r2x = BOOL (rax >= _ARG1 ('0') && rax <= _ARG1 ('9')) ;
-		const auto r3x = BOOL (rax >= _ARG1 ('A') && rax <= _ARG1 ('F')) ;
+		rax >> rbx ;
+		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
+		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
 		auto &r4x = _SWITCH_ (
 			r2x ? r1x[0] :
 			r1x[1]) ;
-		ret = (ret << 4) | DATA (rax - r4x) ;
+		ret = (ret << 4) | DATA (rbx - r4x) ;
 	}
-	ris >> TextReader<_ARG1>::EOS ;
+	rax >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1251,18 +1251,18 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_hex16s (const DATA &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (31) ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << _RET ('&') ;
-	wos << _RET ('H') ;
+	auto rax = TextWriter<_RET> (ret.raw ()) ;
+	rax << _RET ('&') ;
+	rax << _RET ('H') ;
 	const auto r1x = ARRAY2<_RET> {_RET ('0') ,(_RET ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,16)) {
 		const auto r2x = DATA (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
 		auto &r3x = _SWITCH_ (
 			(r2x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
-		wos << _RET (r3x + r2x) ;
+		rax << _RET (r3x + r2x) ;
 	}
-	wos << TextWriter<_RET>::EOS ;
+	rax << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1318,34 +1318,32 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 			rax = VAR_NONE ;
 		}
 	}
-	if switch_case (TRUE) {
-		auto fax = TRUE ;
-		if switch_case (fax) {
-			if (!(rax == 1))
-				discard ;
-			rbx = CHAR (rbx << 16) ;
-			const auto r6x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
-			const auto r7x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r6x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r7x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[64]) ;
-			ret[iw++] = _RET (M_BASE64.P1[64]) ;
-		}
-		if switch_case (fax) {
-			if (!(rax == 2))
-				discard ;
-			rbx = CHAR (rbx << 8) ;
-			const auto r8x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
-			const auto r9x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
-			const auto r10x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r8x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r9x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[64]) ;
-		}
-		if switch_case (fax) {
-			_DYNAMIC_ASSERT_ (rax == 0) ;
-		}
+	auto fbx = TRUE ;
+	if switch_case (fbx) {
+		if (!(rax == 1))
+			discard ;
+		rbx = CHAR (rbx << 16) ;
+		const auto r6x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
+		const auto r7x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX (r6x)]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX (r7x)]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+	}
+	if switch_case (fbx) {
+		if (!(rax == 2))
+			discard ;
+		rbx = CHAR (rbx << 8) ;
+		const auto r8x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
+		const auto r9x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
+		const auto r10x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX (r8x)]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX (r9x)]) ;
+		ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;
+		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+	}
+	if switch_case (fbx) {
+		_DYNAMIC_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -1413,32 +1411,30 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			rax = VAR_NONE ;
 		}
 	}
-	if switch_case (TRUE) {
-		auto fax = TRUE ;
-		if switch_case (fax) {
-			if (!(rax == 1))
-				discard ;
-			rbx = CHAR (rbx << 18) ;
-			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-		}
-		if switch_case (fax) {
-			if (!(rax == 2))
-				discard ;
-			rbx = CHAR (rbx << 12) ;
-			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
-		}
-		if switch_case (fax) {
-			if (!(rax == 3))
-				discard ;
-			rbx = CHAR (rbx << 6) ;
-			ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
-			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
-			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
-		}
-		if switch_case (fax) {
-			_DYNAMIC_ASSERT_ (rax == 0) ;
-		}
+	auto fbx = TRUE ;
+	if switch_case (fbx) {
+		if (!(rax == 1))
+			discard ;
+		rbx = CHAR (rbx << 18) ;
+		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+	}
+	if switch_case (fbx) {
+		if (!(rax == 2))
+			discard ;
+		rbx = CHAR (rbx << 12) ;
+		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
+	}
+	if switch_case (fbx) {
+		if (!(rax == 3))
+			discard ;
+		rbx = CHAR (rbx << 6) ;
+		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
+		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
+		ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
+	}
+	if switch_case (fbx) {
+		_DYNAMIC_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
@@ -1448,40 +1444,40 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 template <class _ARG1>
 inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &stri) {
 	PACK<WORD ,CHAR> ret ;
-	auto ris = TextReader<_ARG1> (stri.raw ()) ;
-	auto rax = _ARG1 () ;
-	auto rbx = VAR () ;
-	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
-	const auto r1x = BYTE (rbx) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
-	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
-	const auto r2x = BYTE (rbx) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
-	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
-	const auto r3x = BYTE (rbx) ;
-	ris >> rax ;
-	_DYNAMIC_ASSERT_ (rax == _ARG1 ('.')) ;
-	ris >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 256) ;
-	const auto r4x = BYTE (rbx) ;
+	auto rax = TextReader<_ARG1> (stri.raw ()) ;
+	auto rbx = _ARG1 () ;
+	auto rcx = VAR () ;
+	rax >> rcx ;
+	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
+	const auto r1x = BYTE (rcx) ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('.')) ;
+	rax >> rcx ;
+	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
+	const auto r2x = BYTE (rcx) ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('.')) ;
+	rax >> rcx ;
+	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
+	const auto r3x = BYTE (rcx) ;
+	rax >> rbx ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('.')) ;
+	rax >> rcx ;
+	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
+	const auto r4x = BYTE (rcx) ;
 	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
 	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
-	ris.copy () >> rax ;
+	rax.copy () >> rbx ;
 	if switch_case (TRUE) {
-		if (rax != _ARG1 (':'))
+		if (rbx != _ARG1 (':'))
 			discard ;
-		ris >> rax ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx < 65536) ;
-		ret.P1 = WORD (rbx) ;
+		rax >> rbx ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 65536) ;
+		ret.P1 = WORD (rcx) ;
 	}
-	ris >> TextReader<_ARG1>::EOS ;
+	rax >> TextReader<_ARG1>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1491,21 +1487,21 @@ inline exports String<_RET> StringProc::build_ipv4s (const PACK<WORD ,CHAR> &str
 	String<_RET> ret = String<_RET> (63) ;
 	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
 	ByteWriter<BYTE> (PhanBuffer<BYTE>::make (rax.P1)) << stru.P2 ;
-	auto wos = TextWriter<_RET> (ret.raw ()) ;
-	wos << VAR (rax.P1[0]) ;
-	wos << _RET ('.') ;
-	wos << VAR (rax.P1[1]) ;
-	wos << _RET ('.') ;
-	wos << VAR (rax.P1[2]) ;
-	wos << _RET ('.') ;
-	wos << VAR (rax.P1[3]) ;
+	auto rbx = TextWriter<_RET> (ret.raw ()) ;
+	rbx << VAR (rax.P1[0]) ;
+	rbx << _RET ('.') ;
+	rbx << VAR (rax.P1[1]) ;
+	rbx << _RET ('.') ;
+	rbx << VAR (rax.P1[2]) ;
+	rbx << _RET ('.') ;
+	rbx << VAR (rax.P1[3]) ;
 	if switch_case (TRUE) {
 		if (stru.P1 == 0)
 			discard ;
-		wos << _RET (':') ;
-		wos << VAR (stru.P1) ;
+		rbx << _RET (':') ;
+		rbx << VAR (stru.P1) ;
 	}
-	wos << TextWriter<_RET>::EOS ;
+	rbx << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1520,23 +1516,23 @@ inline exports std::chrono::system_clock::time_point StringProc::parse_dates (co
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
-		auto ris = TextReader<STR> (stri.raw ()) ;
-		auto rax = STR () ;
-		auto rbx = VAR () ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1900) ;
-		ret[0] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1 && rbx <= 12) ;
-		ret[1] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1 && rbx <= 31) ;
-		ret[2] = VAR32 (rbx) ;
-		ris >> TextReader<_ARG1>::EOS ;
+		auto rax = TextReader<STR> (stri.raw ()) ;
+		auto rbx = STR () ;
+		auto rcx = VAR () ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1900) ;
+		ret[0] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 12) ;
+		ret[1] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 31) ;
+		ret[2] = VAR32 (rcx) ;
+		rax >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
 	return U::static_make_time_point (r1x) ;
@@ -1546,18 +1542,18 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_dates (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
-	auto wos = TextWriter<STR> (ret.raw ()) ;
+	auto rax = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = U::static_make_time_metric (stru) ;
-	wos << r1x[0] ;
-	wos << STR ('-') ;
+	rax << r1x[0] ;
+	rax << STR ('-') ;
 	if (r1x[1] < 10)
-		wos << STR ('0') ;
-	wos << r1x[1] ;
-	wos << STR ('-') ;
+		rax << STR ('0') ;
+	rax << r1x[1] ;
+	rax << STR ('-') ;
 	if (r1x[2] < 10)
-		wos << STR ('0') ;
-	wos << r1x[2] ;
-	wos << TextWriter<_RET>::EOS ;
+		rax << STR ('0') ;
+	rax << r1x[2] ;
+	rax << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1566,23 +1562,23 @@ inline exports std::chrono::system_clock::time_point StringProc::parse_hours (co
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
-		auto ris = TextReader<STR> (stri.raw ()) ;
-		auto rax = STR () ;
-		auto rbx = VAR () ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 23) ;
-		ret[5] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 59) ;
-		ret[6] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 60) ;
-		ret[7] = VAR32 (rbx) ;
-		ris >> TextReader<_ARG1>::EOS ;
+		auto rax = TextReader<STR> (stri.raw ()) ;
+		auto rbx = STR () ;
+		auto rcx = VAR () ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 23) ;
+		ret[5] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 59) ;
+		ret[6] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 60) ;
+		ret[7] = VAR32 (rcx) ;
+		rax >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
 	return U::static_make_time_point (r1x) ;
@@ -1592,20 +1588,20 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_hours (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
-	auto wos = TextWriter<STR> (ret.raw ()) ;
+	auto rax = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = U::static_make_time_metric (stru) ;
 	if (r1x[5] < 10)
-		wos << STR ('0') ;
-	wos << r1x[5] ;
-	wos << STR (':') ;
+		rax << STR ('0') ;
+	rax << r1x[5] ;
+	rax << STR (':') ;
 	if (r1x[6] < 10)
-		wos << STR ('0') ;
-	wos << r1x[6] ;
-	wos << STR (':') ;
+		rax << STR ('0') ;
+	rax << r1x[6] ;
+	rax << STR (':') ;
 	if (r1x[7] < 10)
-		wos << STR ('0') ;
-	wos << r1x[7] ;
-	wos << TextWriter<_RET>::EOS ;
+		rax << STR ('0') ;
+	rax << r1x[7] ;
+	rax << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 
@@ -1614,38 +1610,38 @@ inline exports std::chrono::system_clock::time_point StringProc::parse_times (co
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
-		auto ris = TextReader<STR> (stri.raw ()) ;
-		auto rax = STR () ;
-		auto rbx = VAR () ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1900) ;
-		ret[0] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1 && rbx <= 12) ;
-		ret[1] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR ('-')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 1 && rbx <= 31) ;
-		ret[2] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR (' ')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 23) ;
-		ret[5] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 59) ;
-		ret[6] = VAR32 (rbx) ;
-		ris >> rax ;
-		_DYNAMIC_ASSERT_ (rax == STR (':')) ;
-		ris >> rbx ;
-		_DYNAMIC_ASSERT_ (rbx >= 0 && rbx <= 60) ;
-		ret[7] = VAR32 (rbx) ;
-		ris >> TextReader<_ARG1>::EOS ;
+		auto rax = TextReader<STR> (stri.raw ()) ;
+		auto rbx = STR () ;
+		auto rcx = VAR () ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1900) ;
+		ret[0] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 12) ;
+		ret[1] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 31) ;
+		ret[2] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR (' ')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 23) ;
+		ret[5] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 59) ;
+		ret[6] = VAR32 (rcx) ;
+		rax >> rbx ;
+		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
+		rax >> rcx ;
+		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 60) ;
+		ret[7] = VAR32 (rcx) ;
+		rax >> TextReader<_ARG1>::EOS ;
 		return std::move (ret) ;
 	}) ;
 	return U::static_make_time_point (r1x) ;
@@ -1655,30 +1651,30 @@ template <class _RET>
 inline exports String<_RET> StringProc::build_times (const std::chrono::system_clock::time_point &stru) {
 	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;
-	auto wos = TextWriter<STR> (ret.raw ()) ;
+	auto rax = TextWriter<STR> (ret.raw ()) ;
 	const auto r1x = U::static_make_time_metric (stru) ;
-	wos << r1x[0] ;
-	wos << STR ('-') ;
+	rax << r1x[0] ;
+	rax << STR ('-') ;
 	if (r1x[1] < 10)
-		wos << STR ('0') ;
-	wos << r1x[1] ;
-	wos << STR ('-') ;
+		rax << STR ('0') ;
+	rax << r1x[1] ;
+	rax << STR ('-') ;
 	if (r1x[2] < 10)
-		wos << STR ('0') ;
-	wos << r1x[2] ;
-	wos << STR (' ') ;
+		rax << STR ('0') ;
+	rax << r1x[2] ;
+	rax << STR (' ') ;
 	if (r1x[5] < 10)
-		wos << STR ('0') ;
-	wos << r1x[5] ;
-	wos << STR (':') ;
+		rax << STR ('0') ;
+	rax << r1x[5] ;
+	rax << STR (':') ;
 	if (r1x[6] < 10)
-		wos << STR ('0') ;
-	wos << r1x[6] ;
-	wos << STR (':') ;
+		rax << STR ('0') ;
+	rax << r1x[6] ;
+	rax << STR (':') ;
 	if (r1x[7] < 10)
-		wos << STR ('0') ;
-	wos << r1x[7] ;
-	wos << TextWriter<_RET>::EOS ;
+		rax << STR ('0') ;
+	rax << r1x[7] ;
+	rax << TextWriter<_RET>::EOS ;
 	return std::move (ret) ;
 }
 #endif

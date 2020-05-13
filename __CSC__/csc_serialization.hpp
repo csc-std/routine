@@ -1718,12 +1718,12 @@ public:
 	explicit CommandParser (VAR32 argc ,PTR<const PTR<STRA>> argv) {
 		const auto r1x = _CALL_ ([&] () {
 			String<STRU8> ret = String<STRU8>::make () ;
-			auto wos = TextWriter<STRU8> (ret.raw ()) ;
+			auto rax = TextWriter<STRU8> (ret.raw ()) ;
 			for (auto &&i : _RANGE_ (1 ,LENGTH (argc))) {
-				wos << StringProc::cvt_as_u8s (PTRTOARR[argv[i]]) ;
-				wos << _PCSTRU8_ (" ") ;
+				rax << StringProc::cvt_as_u8s (PTRTOARR[argv[i]]) ;
+				rax << _PCSTRU8_ (" ") ;
 			}
-			wos << TextWriter<STRU8>::EOS ;
+			rax << TextWriter<STRU8>::EOS ;
 			return std::move (ret) ;
 		}) ;
 		initialize (r1x.raw ()) ;

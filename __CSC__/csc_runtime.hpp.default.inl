@@ -67,7 +67,7 @@ inline exports FLAG GlobalRuntime::process_pid () {
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
-	auto wos = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
+	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			me = OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
@@ -78,28 +78,28 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		}) ;
 		if (r1x == NULL)
 			discard ;
-		wos << VAR64 (pid) ;
-		wos << ByteWriter<BYTE>::GAP ;
-		wos << _PCSTRU8_ ("windows") ;
-		wos << ByteWriter<BYTE>::GAP ;
-		auto rax = ARRAY4<FILETIME> () ;
-		_ZERO_ (rax[0]) ;
-		_ZERO_ (rax[1]) ;
-		_ZERO_ (rax[2]) ;
-		_ZERO_ (rax[3]) ;
-		GetProcessTimes (r1x ,&rax[0] ,&rax[1] ,&rax[2] ,&rax[3]) ;
-		const auto r2x = (VAR64 (rax[0].dwHighDateTime) << 32) | VAR64 (rax[0].dwLowDateTime) ;
-		wos << VAR64 (r2x) ;
-		wos << ByteWriter<BYTE>::GAP ;
+		rax << VAR64 (pid) ;
+		rax << ByteWriter<BYTE>::GAP ;
+		rax << _PCSTRU8_ ("windows") ;
+		rax << ByteWriter<BYTE>::GAP ;
+		auto rbx = ARRAY4<FILETIME> () ;
+		_ZERO_ (rbx[0]) ;
+		_ZERO_ (rbx[1]) ;
+		_ZERO_ (rbx[2]) ;
+		_ZERO_ (rbx[3]) ;
+		GetProcessTimes (r1x ,&rbx[0] ,&rbx[1] ,&rbx[2] ,&rbx[3]) ;
+		const auto r2x = (VAR64 (rbx[0].dwHighDateTime) << 32) | VAR64 (rbx[0].dwLowDateTime) ;
+		rax << VAR64 (r2x) ;
+		rax << ByteWriter<BYTE>::GAP ;
 	}
-	wos << ByteWriter<BYTE>::EOS ;
+	rax << ByteWriter<BYTE>::EOS ;
 	return std::move (ret) ;
 }
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto ris = ByteReader<BYTE> (info) ;
-	const auto r1x = ris.template read<VAR64> () ;
+	auto rax = ByteReader<BYTE> (info) ;
+	const auto r1x = rax.template read<VAR64> () ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
@@ -114,29 +114,29 @@ inline exports FLAG GlobalRuntime::process_pid () {
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
-	auto wos = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
+	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
 		const auto r1x = getpgid (pid_t (pid)) ;
 		if (r1x < 0)
 			discard ;
-		wos << VAR64 (pid) ;
-		wos << ByteWriter<BYTE>::GAP ;
-		wos << _PCSTRU8_ ("linux") ;
-		wos << ByteWriter<BYTE>::GAP ;
-		wos << VAR64 (r1x) ;
-		wos << ByteWriter<BYTE>::GAP ;
+		rax << VAR64 (pid) ;
+		rax << ByteWriter<BYTE>::GAP ;
+		rax << _PCSTRU8_ ("linux") ;
+		rax << ByteWriter<BYTE>::GAP ;
+		rax << VAR64 (r1x) ;
+		rax << ByteWriter<BYTE>::GAP ;
 		const auto r2x = getsid (pid_t (pid)) ;
-		wos << VAR64 (r2x) ;
-		wos << ByteWriter<BYTE>::GAP ;
+		rax << VAR64 (r2x) ;
+		rax << ByteWriter<BYTE>::GAP ;
 	}
-	wos << ByteWriter<BYTE>::EOS ;
+	rax << ByteWriter<BYTE>::EOS ;
 	return std::move (ret) ;
 }
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto ris = ByteReader<BYTE> (info) ;
-	const auto r1x = ris.template read<VAR64> () ;
+	auto rax = ByteReader<BYTE> (info) ;
+	const auto r1x = rax.template read<VAR64> () ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }

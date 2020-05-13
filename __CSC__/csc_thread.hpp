@@ -17,8 +17,6 @@ private:
 	class Pack {
 	private:
 		friend CalcThread ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = CalcThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -32,12 +30,12 @@ private:
 
 private:
 	struct Detail ;
-	friend IntrusiveRef<Pack> ;
-	IntrusiveRef<Pack> mThis ;
+	friend IntrusiveRef<Pack ,CalcThread> ;
+	IntrusiveRef<Pack ,CalcThread> mThis ;
 
 public:
 	CalcThread () {
-		mThis = IntrusiveRef<Pack>::make () ;
+		mThis = IntrusiveRef<Pack ,CalcThread>::make () ;
 	}
 
 	LENGTH size () popping {
@@ -74,7 +72,7 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -92,7 +90,7 @@ public:
 	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -139,7 +137,7 @@ public:
 	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
@@ -186,7 +184,7 @@ private:
 	}
 
 	static void static_push (Pack &self_ ,ITEM &&item) {
-		ScopedGuard<std::mutex> sgd (self_.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
@@ -220,7 +218,7 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
@@ -300,8 +298,6 @@ private:
 	class Pack {
 	private:
 		friend WorkThread ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = WorkThread ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -316,12 +312,12 @@ private:
 
 private:
 	struct Detail ;
-	friend IntrusiveRef<Pack> ;
-	IntrusiveRef<Pack> mThis ;
+	friend IntrusiveRef<Pack ,WorkThread> ;
+	IntrusiveRef<Pack ,WorkThread> mThis ;
 
 public:
 	WorkThread () {
-		mThis = IntrusiveRef<Pack>::make () ;
+		mThis = IntrusiveRef<Pack ,WorkThread>::make () ;
 	}
 
 	LENGTH size () popping {
@@ -358,7 +354,7 @@ public:
 	void post (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -375,7 +371,7 @@ public:
 	void post (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -393,7 +389,7 @@ public:
 	void post (const ITEM &item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -413,7 +409,7 @@ public:
 	void post (ITEM &&item ,const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -458,7 +454,7 @@ public:
 	void join (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 			if (r2x.mException.exist ())
@@ -505,7 +501,7 @@ private:
 
 	static void static_poll (Pack &self_ ,Optional<ITEM> &item) {
 		using Counter = typename Detail::Counter ;
-		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
 		while (TRUE) {
@@ -539,7 +535,7 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
@@ -635,8 +631,6 @@ private:
 	private:
 		friend Promise ;
 		friend Future<ITEM> ;
-		friend IntrusiveRef<Pack> ;
-		using INTRUSIVE_THIS = Promise ;
 		std::atomic<LENGTH> mCounter ;
 		Monostate<std::mutex> mThreadMutex ;
 		Monostate<std::condition_variable> mThreadCondition ;
@@ -652,12 +646,12 @@ private:
 private:
 	struct Detail ;
 	friend Future<ITEM> ;
-	friend IntrusiveRef<Pack> ;
-	IntrusiveRef<Pack> mThis ;
+	friend IntrusiveRef<Pack ,Promise> ;
+	IntrusiveRef<Pack ,Promise> mThis ;
 
 public:
 	Promise () {
-		mThis = IntrusiveRef<Pack>::make () ;
+		mThis = IntrusiveRef<Pack ,Promise>::make () ;
 	}
 
 	DEPENDENT_TYPE<Future<ITEM> ,Promise> future () popping {
@@ -731,7 +725,7 @@ public:
 	}
 
 private:
-	explicit Promise (IntrusiveRef<Pack> &this_)
+	explicit Promise (IntrusiveRef<Pack ,Promise> &this_)
 		: mThis (this_.copy ()) {}
 
 private:
@@ -804,7 +798,7 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		std::unique_lock<std::mutex> sgd (self_.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
@@ -882,7 +876,7 @@ private:
 
 private:
 	friend Promise<ITEM> ;
-	IntrusiveRef<Pack> mThis ;
+	IntrusiveRef<Pack ,Promise<ITEM>> mThis ;
 
 public:
 	Future () = delete ;
@@ -901,7 +895,7 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -921,7 +915,7 @@ public:
 	ITEM poll (const std::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		std::unique_lock<std::mutex> sgd (r2x.mThreadMutex) ;
+		auto sgd = std::unique_lock<std::mutex> (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -974,7 +968,7 @@ public:
 	}
 
 private:
-	explicit Future (IntrusiveRef<Pack> &this_)
+	explicit Future (IntrusiveRef<Pack ,Promise<ITEM>> &this_)
 		: mThis (this_.copy ()) {}
 } ;
 } ;
