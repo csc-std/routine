@@ -586,11 +586,11 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 	mThis = StrongRef<Implement>::make (file) ;
 }
 
-inline exports void StreamLoaderapi::read (const PhanBuffer<BYTE> &data) {
+inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
 	mThis->read (data) ;
 }
 
-inline exports void StreamLoaderapi::write (const PhanBuffer<const BYTE> &data) {
+inline exports void StreamLoader::write (const PhanBuffer<const BYTE> &data) {
 	mThis->write (data) ;
 }
 

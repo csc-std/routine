@@ -72,9 +72,6 @@ using ::pid_t ;
 using ::getpgid ;
 using ::getsid ;
 #endif
-
-using ::setjmp ;
-using ::longjmp ;
 } ;
 
 #ifdef __CSC_SYSTEM_WINDOWS__
@@ -205,7 +202,7 @@ public:
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		BasicProc::mem_copy (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		const auto r6x = api::setjmp (r5x.mEbp) ;
+		const auto r6x = setjmp (r5x.mEbp) ;
 		_STATIC_UNUSED_ (r6x) ;
 	}
 
@@ -222,7 +219,7 @@ public:
 		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
 		BasicProc::mem_copy (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		api::longjmp (r5x.mEbp ,1) ;
+		longjmp (r5x.mEbp ,1) ;
 	}
 
 	imports_static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {

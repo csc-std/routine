@@ -651,34 +651,35 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			while (TRUE) {
 				if (mTempState == M_STATE.P1[0])
 					break ;
-				if switch_case (TRUE) {
+				auto fax = TRUE ;
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[21]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = M_STATE.P1[1] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[1]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 					mTempState = M_STATE.P1[7] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[2]))
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[3]))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = M_STATE.P1[4] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[4]))
 						discard ;
 					auto &r1x = _SWITCH_ (
@@ -686,7 +687,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[16]) ;
 					mTempState = r1x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[5]))
 						discard ;
 					auto &r2x = _SWITCH_ (
@@ -694,13 +695,13 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[6]) ;
 					mTempState = r2x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[6]))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					mTempState = M_STATE.P1[9] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[7]))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -709,14 +710,14 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[3]) ;
 					mTempState = r3x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[8]))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = M_STATE.P1[7] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[9]))
 						discard ;
 					auto &r4x = _SWITCH_ (
@@ -724,7 +725,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[14]) ;
 					mTempState = r4x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[10]))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -733,32 +734,32 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[15]) ;
 					mTempState = r5x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[11]))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[14]))
 						discard ;
 					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = M_STATE.P1[15] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[15]))
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = M_STATE.P1[4] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[16]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[17]))
 						discard ;
 					mTempStack.pop () ;
@@ -767,7 +768,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[18]) ;
 					mTempState = r6x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[18]))
 						discard ;
 					auto &r7x = _SWITCH_ (
@@ -775,14 +776,14 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[20]) ;
 					mTempState = r7x ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[19]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = M_STATE.P1[20] ;
 				}
-				if switch_case (TRUE) {
+				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[20]))
 						discard ;
 					mTempState = M_STATE.P1[0] ;

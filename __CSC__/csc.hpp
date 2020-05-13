@@ -23,7 +23,7 @@
 #elif defined _MSC_VER
 #define __CSC_COMPILER_MSVC__
 #else
-#error "∑(っ°Д° ;)っ : unsupported"
+#define __CSC_COMPILER_WTF__
 #endif
 
 #if defined (linux) || defined (__linux) || defined (__linux__)
@@ -31,7 +31,7 @@
 #elif defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
 #define __CSC_SYSTEM_WINDOWS__
 #else
-#error "∑(っ°Д° ;)っ : unsupported"
+#define __CSC_SYSTEM_WTF__
 #endif
 
 #ifdef _M_IX86
@@ -45,7 +45,7 @@
 #elif defined _M_IA64
 #define __CSC_PLATFORM_IA64__
 #else
-#error "∑(っ°Д° ;)っ : unsupported"
+#define __CSC_PLATFORM_WTF__
 #endif
 
 #ifdef _WINEXE
