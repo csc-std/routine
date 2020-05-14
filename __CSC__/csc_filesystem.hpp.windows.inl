@@ -73,7 +73,7 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 	rax = VARY (0) ;
 	const auto r3x = api::ReadFile (r1x.self ,ret.self ,VARY (r2x) ,DEPTR[rax] ,NULL) ;
 	_DYNAMIC_ASSERT_ (r3x) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
@@ -203,7 +203,7 @@ inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = MathProc::maxof (r3x ,r4x ,VAR_ZERO) ;
 	BasicProc::mem_copy (ret.raw ().self ,r2x.self ,r5x) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
@@ -214,7 +214,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = _MAX_ (r3x ,r4x) + 1 ;
 	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR> &file) {
@@ -244,14 +244,14 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 	}
 	ret.pop () ;
 	rax >> TextReader<STR>::EOS ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::working_path () {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	GetCurrentDirectory (VARY (ret.size ()) ,ret.raw ().self) ;
 	ret += _PCSTR_ ("\\") ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 namespace U {
@@ -275,7 +275,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 			ret.add (ix) ;
 		}
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 } ;
 
@@ -300,8 +300,8 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 		const auto r1x = FileSystemProc::working_path () ;
 		if switch_case (TRUE) {
 			auto tmp = FileSystemProc::decouple_path_name (r1x) ;
-			tmp.appand (stl::move (rax)) ;
-			rax = stl::move (tmp) ;
+			tmp.appand (_MOVE_ (rax)) ;
+			rax = _MOVE_ (tmp) ;
 		}
 		if (r1x.size () < 0)
 			discard ;
@@ -327,7 +327,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 			discard ;
 		ret += _PCSTR_ ("\\") ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports const String<STR> &FileSystemProc::module_file_path () popping {
@@ -336,7 +336,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () popping {
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = FileSystemProc::parse_path_name (ret) ;
 		ret += _PCSTR_ ("\\") ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}) ;
 }
 
@@ -345,7 +345,7 @@ inline exports const String<STR> &FileSystemProc::module_file_name () popping {
 		String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
 		ret = FileSystemProc::parse_file_name (ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}) ;
 }
 
@@ -391,7 +391,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) pop
 		_STATIC_UNUSED_ (r9x) ;
 		ret = TRUE ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
@@ -630,9 +630,9 @@ public:
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
 		mThis = UniqueRef<Pack> ([&] (Pack &me) {
-			me.mFile = stl::move (mBuildFile) ;
-			me.mMapping = stl::move (mBuildMapping) ;
-			me.mBuffer = stl::move (mBuildBuffer) ;
+			me.mFile = _MOVE_ (mBuildFile) ;
+			me.mMapping = _MOVE_ (mBuildMapping) ;
+			me.mBuffer = _MOVE_ (mBuildBuffer) ;
 		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
@@ -674,9 +674,9 @@ public:
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
 		mThis = UniqueRef<Pack> ([&] (Pack &me) {
-			me.mFile = stl::move (mBuildFile) ;
-			me.mMapping = stl::move (mBuildMapping) ;
-			me.mBuffer = stl::move (mBuildBuffer) ;
+			me.mFile = _MOVE_ (mBuildFile) ;
+			me.mMapping = _MOVE_ (mBuildMapping) ;
+			me.mBuffer = _MOVE_ (mBuildBuffer) ;
 		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
@@ -720,9 +720,9 @@ public:
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
 		mThis = UniqueRef<Pack> ([&] (Pack &me) {
-			me.mFile = stl::move (mBuildFile) ;
-			me.mMapping = stl::move (mBuildMapping) ;
-			me.mBuffer = stl::move (mBuildBuffer) ;
+			me.mFile = _MOVE_ (mBuildFile) ;
+			me.mMapping = _MOVE_ (mBuildMapping) ;
+			me.mBuffer = _MOVE_ (mBuildBuffer) ;
 		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
@@ -756,9 +756,9 @@ public:
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
 		mThis = UniqueRef<Pack> ([&] (Pack &me) {
-			me.mFile = stl::move (mBuildFile) ;
-			me.mMapping = stl::move (mBuildMapping) ;
-			me.mBuffer = stl::move (mBuildBuffer) ;
+			me.mFile = _MOVE_ (mBuildFile) ;
+			me.mMapping = _MOVE_ (mBuildMapping) ;
+			me.mBuffer = _MOVE_ (mBuildBuffer) ;
 		} ,[] (Pack &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;

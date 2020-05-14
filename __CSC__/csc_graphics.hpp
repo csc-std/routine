@@ -4,7 +4,7 @@
 #define __CSC_GRAPHICS__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
@@ -48,7 +48,7 @@ public:
 
 	void add_texture (Bitmap<COLOR_BGR> &&texture_) {
 		mTexture = Array<Bitmap<COLOR_BGR>> (1) ;
-		mTexture[0] = stl::move (texture_) ;
+		mTexture[0] = _MOVE_ (texture_) ;
 	}
 } ;
 

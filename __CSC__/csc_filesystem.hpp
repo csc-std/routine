@@ -4,7 +4,7 @@
 #define __CSC_FILESYSTEM__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"

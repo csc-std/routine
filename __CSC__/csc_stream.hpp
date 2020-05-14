@@ -4,7 +4,7 @@
 #define __CSC_STREAM__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
@@ -144,7 +144,7 @@ public:
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET>
@@ -152,7 +152,7 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_RET ret ;
 		read (ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void read (BYTE &data) {
@@ -474,7 +474,7 @@ public:
 
 	explicit ByteWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
 		mHeap = SharedRef<Heap>::make () ;
-		mHeap->mBuffer = stl::move (stream) ;
+		mHeap->mBuffer = _MOVE_ (stream) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
@@ -519,7 +519,7 @@ public:
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void write (const BYTE &data) {
@@ -879,7 +879,7 @@ public:
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET>
@@ -887,7 +887,7 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_RET ret ;
 		read (ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void read (REAL &data) {
@@ -1238,7 +1238,7 @@ private:
 			ret++ ;
 			rax.read (rbx) ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void compute_read_number (VAR64 &data ,REAL &top) {
@@ -1419,7 +1419,7 @@ struct TextReader<REAL>::Detail {
 			U::BYTE_BASE_TYPE<REAL> ret ;
 			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
 			ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
-			return stl::move (_CAST_<REAL> (ret)) ;
+			return _MOVE_ (_CAST_<REAL> (ret)) ;
 		}
 
 		inline VAR64 varify_radix () const {
@@ -1580,7 +1580,7 @@ public:
 	explicit TextWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
 		const auto r1x = attr () ;
 		mHeap = SharedRef<Heap>::make () ;
-		mHeap->mBuffer = stl::move (stream) ;
+		mHeap->mBuffer = _MOVE_ (stream) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
@@ -1626,7 +1626,7 @@ public:
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
 		ret.mRead = mRead ;
 		ret.mWrite = mWrite ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void write (const REAL &data) {
@@ -2074,7 +2074,7 @@ private:
 			ret++ ;
 			rax *= radix ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 	
 	template <class _ARG1>
@@ -2474,7 +2474,7 @@ public:
 
 private:
 	explicit RegularReader (TextReader<STRU8> &&reader ,const Array<STRU8> &cache ,INDEX peek) {
-		mShadowReader = stl::move (reader) ;
+		mShadowReader = _MOVE_ (reader) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (mShadowReader) ;
 		mCache = cache ;
 		mPeek = peek ;
@@ -2499,7 +2499,7 @@ private:
 			rax++ ;
 			ret++ ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH next_value_size () popping {
@@ -2556,7 +2556,7 @@ private:
 				ret++ ;
 			}
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH next_string_size () popping {
@@ -2590,7 +2590,7 @@ private:
 		}
 		_DYNAMIC_ASSERT_ (rax[0] == STRU8 ('\"')) ;
 		rax++ ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH next_newgap_text_size () popping {
@@ -2606,7 +2606,7 @@ private:
 			rax++ ;
 			ret++ ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH next_newline_text_size () popping {
@@ -2622,7 +2622,7 @@ private:
 			rax++ ;
 			ret++ ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 

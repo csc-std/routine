@@ -176,7 +176,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		rax << ByteWriter<BYTE>::GAP ;
 	}
 	rax << ByteWriter<BYTE>::EOS ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
@@ -211,7 +211,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (FLAG pid) {
 		rax << ByteWriter<BYTE>::GAP ;
 	}
 	rax << ByteWriter<BYTE>::EOS ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
@@ -267,7 +267,7 @@ public:
 		tmp.mStackPoint[0] = _ADDRESS_ (DEPTR[bp]) ;
 		tmp.mStackPoint[1] = 0 ;
 		tmp.mStackPoint[2] = 0 ;
-		DEREF[bp] = AnyRef<BREAKPOINT>::make (stl::move (tmp)) ;
+		DEREF[bp] = AnyRef<BREAKPOINT>::make (_MOVE_ (tmp)) ;
 	}
 
 	imports_static void store_break_point (PTR<AnyRef<void>> bp) noexcept {
@@ -277,7 +277,7 @@ public:
 		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = _EBOOL_ (r2x < 0) ;
-		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
+		auto &r4x = _LOAD_UNSAFE_<ARR<BYTE>> (r1x.mStackPoint[r3x]) ;
 		BasicProc::mem_copy (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
 		const auto r6x = setjmp (r5x.mEbp) ;
@@ -294,7 +294,7 @@ public:
 		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
 		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
 		const auto r3x = _EBOOL_ (r2x < 0) ;
-		auto &r4x = _LOAD_<ARR<BYTE>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x.mStackPoint[r3x])) ;
+		auto &r4x = _LOAD_UNSAFE_<ARR<BYTE>> (r1x.mStackPoint[r3x]) ;
 		BasicProc::mem_copy (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
 		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
 		api::longjmp (r5x.mEbp ,1) ;
@@ -302,7 +302,7 @@ public:
 
 	imports_static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
 		const auto r1x = _ALIGNAS_ (_ADDRESS_ (DEPTR[ebp]) ,_ALIGNOF_ (CONTEXT_EBP)) ;
-		return _LOAD_<CONTEXT_EBP> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
+		return _LOAD_UNSAFE_<CONTEXT_EBP> (r1x) ;
 	}
 } ;
 

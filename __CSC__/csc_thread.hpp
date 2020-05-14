@@ -4,7 +4,7 @@
 #define __CSC_THREAD__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
@@ -65,8 +65,8 @@ public:
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
 		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (stl::move (r2x.mItemQueue.self)) ;
-		r2x.mItemQueue = stl::move (tmp) ;
+		tmp->appand (_MOVE_ (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = _MOVE_ (tmp) ;
 	}
 
 	ITEM poll () popping {
@@ -81,9 +81,9 @@ public:
 			r2x.mThreadCondition.self.wait (sgd) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		ITEM ret = stl::move (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
+		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
 		r2x.mItemQueue->take () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -101,9 +101,9 @@ public:
 			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		ITEM ret = stl::move (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
+		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
 		r2x.mItemQueue->take () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void start (Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
@@ -119,7 +119,7 @@ public:
 		r2x.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
 			_DEBUG_ASSERT_ (proc[i].exist ()) ;
-			r2x.mThreadProc[i] = stl::move (proc[i]) ;
+			r2x.mThreadProc[i] = _MOVE_ (proc[i]) ;
 		}
 		if (!r2x.mItemQueue.exist ())
 			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (proc.length ()) ;
@@ -129,7 +129,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
 			auto tmp = LocalProc (PhanRef<Pack>::make (r2x) ,i) ;
-			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (stl::move (tmp)) ;
+			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
 
@@ -150,7 +150,7 @@ public:
 				break ;
 			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		const auto r4x = stl::move (r2x.mException) ;
+		const auto r4x = _MOVE_ (r2x.mException) ;
 		if (!r4x.exist ())
 			return ;
 		r4x->raise () ;
@@ -178,7 +178,7 @@ private:
 				}) ;
 			}) ;
 			if (rax.exist ())
-				static_push (self_ ,stl::move (rax.self)) ;
+				static_push (self_ ,_MOVE_ (rax.self)) ;
 			rax = Optional<ITEM>::nullopt () ;
 		}
 	}
@@ -196,7 +196,7 @@ private:
 				discard ;
 			self_.mItemQueue->take () ;
 		}
-		self_.mItemQueue->add (stl::move (item)) ;
+		self_.mItemQueue->add (_MOVE_ (item)) ;
 		self_.mThreadCondition.self.notify_all () ;
 	}
 
@@ -347,8 +347,8 @@ public:
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
 		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (stl::move (r2x.mItemQueue.self)) ;
-		r2x.mItemQueue = stl::move (tmp) ;
+		tmp->appand (_MOVE_ (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = _MOVE_ (tmp) ;
 	}
 
 	void post (const ITEM &item) {
@@ -364,7 +364,7 @@ public:
 			r2x.mThreadCondition.self.wait (sgd) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		r2x.mItemQueue->add (stl::move (item)) ;
+		r2x.mItemQueue->add (_MOVE_ (item)) ;
 		r2x.mThreadCondition.self.notify_all () ;
 	}
 
@@ -381,7 +381,7 @@ public:
 			r2x.mThreadCondition.self.wait (sgd) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		r2x.mItemQueue->add (stl::move (item)) ;
+		r2x.mItemQueue->add (_MOVE_ (item)) ;
 		r2x.mThreadCondition.self.notify_all () ;
 	}
 
@@ -401,7 +401,7 @@ public:
 			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		r2x.mItemQueue->add (stl::move (item)) ;
+		r2x.mItemQueue->add (_MOVE_ (item)) ;
 		r2x.mThreadCondition.self.notify_all () ;
 	}
 
@@ -421,7 +421,7 @@ public:
 			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
-		r2x.mItemQueue->add (stl::move (item)) ;
+		r2x.mItemQueue->add (_MOVE_ (item)) ;
 		r2x.mThreadCondition.self.notify_all () ;
 	}
 
@@ -437,7 +437,7 @@ public:
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r2x.mThreadCounter = 0 ;
 		r2x.mThreadWaitCounter = 0 ;
-		r2x.mThreadProc = stl::move (proc) ;
+		r2x.mThreadProc = _MOVE_ (proc) ;
 		if (!r2x.mItemQueue.exist ())
 			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (count) ;
 		r2x.mItemQueue->clear () ;
@@ -446,7 +446,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
 			auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
-			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (stl::move (tmp)) ;
+			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
 
@@ -467,7 +467,7 @@ public:
 				break ;
 			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
 		}
-		const auto r4x = stl::move (r2x.mException) ;
+		const auto r4x = _MOVE_ (r2x.mException) ;
 		if (!r4x.exist ())
 			return ;
 		r4x->raise () ;
@@ -512,7 +512,7 @@ private:
 			self_.mThreadCondition.self.wait (sgd) ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
-		item = stl::move (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
+		item = _MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
 		self_.mItemQueue->take () ;
 	}
 
@@ -698,13 +698,13 @@ public:
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r2x.mThreadCounter = 0 ;
-		r2x.mThreadProc = stl::move (proc) ;
+		r2x.mThreadProc = _MOVE_ (proc) ;
 		r2x.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
 		auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
-		r2x.mThreadPool = AutoRef<stl::thread>::make (stl::move (tmp)) ;
+		r2x.mThreadPool = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
 	}
 
 	void signal () {
@@ -720,7 +720,7 @@ public:
 public:
 	imports_static DEPENDENT_TYPE<Future<ITEM> ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
-		rax.start (stl::move (proc)) ;
+		rax.start (_MOVE_ (proc)) ;
 		return rax.future () ;
 	}
 
@@ -744,7 +744,7 @@ private:
 			}) ;
 		}) ;
 		if (rax.exist ())
-			static_push (self_ ,stl::move (rax.self)) ;
+			static_push (self_ ,_MOVE_ (rax.self)) ;
 		static_signal (self_) ;
 	}
 
@@ -753,7 +753,7 @@ private:
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
-		self_.mItem = AutoRef<ITEM>::make (stl::move (item)) ;
+		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
 	static void static_push (Pack &self_ ,ITEM &&item) {
@@ -761,7 +761,7 @@ private:
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
-		self_.mItem = AutoRef<ITEM>::make (stl::move (item)) ;
+		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
 	static void static_rethrow (Pack &self_ ,const Exception &e) {
@@ -906,9 +906,9 @@ public:
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
 		_DYNAMIC_ASSERT_ (r2x.mItem.exist ()) ;
-		ITEM ret = stl::move (r2x.mItem.self) ;
+		ITEM ret = _MOVE_ (r2x.mItem.self) ;
 		r2x.mItem = AutoRef<ITEM> () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -928,9 +928,9 @@ public:
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
 		_DYNAMIC_ASSERT_ (r2x.mItem.exist ()) ;
-		ITEM ret = stl::move (r2x.mItem.self) ;
+		ITEM ret = _MOVE_ (r2x.mItem.self) ;
 		r2x.mItem = AutoRef<ITEM> () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	ITEM value (const ITEM &def) popping {
@@ -953,7 +953,7 @@ public:
 		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r2x.mCallbackProc.exist ()) ;
-		r2x.mCallbackProc = stl::move (proc) ;
+		r2x.mCallbackProc = _MOVE_ (proc) ;
 		if (r2x.mThreadFlag.self)
 			return ;
 		if (!r2x.mItem.exist ())

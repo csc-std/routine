@@ -4,7 +4,7 @@
 #define __CSC_RUNTIME__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
@@ -62,7 +62,7 @@ struct OPERATOR_TYPENAME {
 		const auto r3x = ret.mName.length () - r1x - r2x ;
 		_DYNAMIC_ASSERT_ (r3x > 0) ;
 		ret.mName = ret.mName.segment (r1x ,r3x) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 #endif
 
@@ -78,7 +78,7 @@ struct OPERATOR_TYPENAME {
 		const auto r6x = ret.mName.length () - r4x - r5x ;
 		_DYNAMIC_ASSERT_ (r6x > 0) ;
 		ret.mName = ret.mName.segment (r4x ,r6x) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 #endif
 
@@ -94,7 +94,7 @@ struct OPERATOR_TYPENAME {
 		const auto r9x = ret.mName.length () - r7x - r8x ;
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mName = ret.mName.segment (r7x ,r9x) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 #endif
 
@@ -346,6 +346,12 @@ class GlobalStatic ;
 template <>
 class GlobalStatic<void> final
 	:private Wrapped<void> {
+public:
+	struct Extern {
+		//@warn: this function should be implemented in a 'runtime.dll'
+		imports_static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
+	} ;
+
 private:
 	struct VALUE_NODE {
 		FLAG mGUID ;
@@ -376,6 +382,10 @@ private:
 	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 private:
+	imports_static PTR<NONE> unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
+		return Extern::unique_atomic_address (expect ,data) ;
+	}
+
 	imports_static Pack &static_unique () popping {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
@@ -448,10 +458,6 @@ private:
 			return NULL ;
 		return &self_.mClassList[ix] ;
 	}
-
-public:
-	//@warn: this function should be implemented in a 'runtime.dll'
-	imports_static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
 
 private:
 	static void friend_create (Pack &self_) {
@@ -648,7 +654,7 @@ public:
 		mThis->mSubProc = Array<Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
 			_DEBUG_ASSERT_ (proc[i].exist ()) ;
-			mThis->mSubProc[i] = stl::move (proc[i]) ;
+			mThis->mSubProc[i] = _MOVE_ (proc[i]) ;
 		}
 		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProc.length ()) ;
 		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProc.length ()) ;
@@ -727,9 +733,9 @@ private:
 
 public:
 	imports_static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-		auto rax = Coroutine<CONT> (stl::move (proc)) ;
+		auto rax = Coroutine<CONT> (_MOVE_ (proc)) ;
 		rax.execute () ;
-		return stl::move (rax.context ()) ;
+		return _MOVE_ (rax.context ()) ;
 	}
 } ;
 
@@ -875,7 +881,7 @@ public:
 			const auto r2x = mThis->random_value () ;
 			ret[i] = r2x % r1x + min_ ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range_) popping {
@@ -885,7 +891,7 @@ public:
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range_ ,BitSet<> &&res) popping {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
-		BitSet<> ret = stl::move (res) ;
+		BitSet<> ret = _MOVE_ (res) ;
 		ret.clear () ;
 		while (TRUE) {
 			if (ret.length () >= count)
@@ -893,13 +899,13 @@ public:
 			INDEX ix = random_value (0 ,(range_ - 1)) ;
 			ret[ix] = TRUE ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range_) popping {
 		BitSet<> ret = BitSet<> (range_.size ()) ;
 		compute_random_shuffle (count ,range_ ,ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) {
@@ -940,7 +946,7 @@ public:
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void random_skip (LENGTH len) {

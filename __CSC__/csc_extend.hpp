@@ -4,7 +4,7 @@
 #define __CSC_EXTEND__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 
 #ifdef __CSC__
@@ -75,11 +75,18 @@ using std::chrono::steady_clock ;
 #ifdef __CSC_UNITTEST__
 class GlobalWatch final
 	:private Wrapped<void> {
+public:
+	struct Extern {
+		imports_static DEF<void (const Exception &)> done ;
+	} ;
+
 private:
 	struct Detail ;
 
 public:
-	inline imports_static void done (const Exception &e) ;
+	inline imports_static void done (const Exception &e) {
+		Extern::done (e) ;
+	}
 
 	template <class _ARG1 ,class _ARG2>
 	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
@@ -136,7 +143,7 @@ private:
 	public:
 		template <class... _ARGS>
 		inline explicit Holder (_ARGS &&...initval)
-			:mValue (stl::forward<_ARGS> (initval)...) {}
+			:mValue (_FORWARD_<_ARGS> (initval)...) {}
 	} ;
 
 private:
@@ -161,7 +168,10 @@ private:
 
 public:
 	//@warn: static instance across DLL ruins Singleton
-	inline imports_static UNIT &instance () ;
+	inline imports_static UNIT &instance () {
+		struct Dependent ;
+		return DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent>::unique () ;
+	}
 } ;
 
 class Atomic {} ;
@@ -269,7 +279,7 @@ public:
 		VAR128 ret = 0 ;
 		ret.v2i0 = v2i0 + that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
 		ret.v2i1 = v2i1 + that.v2i1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator+= (const VAR128 &that) {
@@ -282,7 +292,7 @@ public:
 		VAR128 ret = 0 ;
 		ret.v2i0 = v2i0 - that.v2i0 - _EBOOL_ (v2i1 < that.v2i1) ;
 		ret.v2i1 = v2i1 - that.v2i1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator-= (const VAR128 &that) {
@@ -312,7 +322,7 @@ public:
 		rax += DATA (v4i1) * DATA (that.v4i2) ;
 		rax += DATA (v4i0) * DATA (that.v4i3) ;
 		ret.v4i0 = CHAR (rax) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator*= (const VAR128 &that) {
@@ -388,7 +398,7 @@ public:
 		if switch_case (fax) {
 			ret = slow_divide (DEREF[this] ,that) ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator/= (const VAR128 &that) {
@@ -464,7 +474,7 @@ public:
 		if switch_case (fax) {
 			ret = that - slow_divide (DEREF[this] ,that) * that ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator%= (const VAR128 &that) {
@@ -480,7 +490,7 @@ public:
 		VAR128 ret = 0 ;
 		ret.v2i1 = ~v2i1 + 1 ;
 		ret.v2i0 = ~v2i0 + _EBOOL_ (ret.v2i1 == DATA (0)) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator++ () {
@@ -492,7 +502,7 @@ public:
 	inline VAR128 operator++ (VAR32) popping {
 		VAR128 ret = DEREF[this] ;
 		++DEREF[this] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline VAR128 &operator-- () {
@@ -504,7 +514,7 @@ public:
 	inline VAR128 operator-- (VAR32) popping {
 		VAR128 ret = DEREF[this] ;
 		--DEREF[this] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 private:
@@ -617,7 +627,7 @@ private:
 			}
 		}
 		ret -= _EBOOL_ (x * ret > y) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 #undef v2i0
@@ -652,10 +662,10 @@ public:
 	}
 
 	inline implicit Mutable (const UNIT &that)
-		:Mutable (ARGVP0 ,stl::move (that)) {}
+		:Mutable (ARGVP0 ,_MOVE_ (that)) {}
 
 	inline implicit Mutable (UNIT &&that)
-		: Mutable (ARGVP0 ,stl::move (that)) {}
+		: Mutable (ARGVP0 ,_MOVE_ (that)) {}
 
 	inline const UNIT &to () const leftvalue {
 		return mValue ;
@@ -696,7 +706,7 @@ public:
 private:
 	template <class... _ARGS>
 	inline explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mValue (stl::forward<_ARGS> (initval)...) ,mState (STATE_CACHED) {}
+		:mValue (_FORWARD_<_ARGS> (initval)...) ,mState (STATE_CACHED) {}
 } ;
 
 namespace U {
@@ -760,7 +770,7 @@ public:
 		_STATIC_ASSERT_ (!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1x = _NULL_<ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ;
 		auto &r2x = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (DEPTR[mVariant]) ;
-		template_create (r1x ,DEPTR[r2x] ,stl::forward<_ARG1> (that)) ;
+		template_create (r1x ,DEPTR[r2x] ,_FORWARD_<_ARG1> (that)) ;
 		mIndex = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value ;
 	}
 
@@ -784,7 +794,7 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~Variant () ;
-			new (this) Variant (stl::move (that)) ;
+			new (this) Variant (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -802,7 +812,7 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~Variant () ;
-			new (this) Variant (stl::move (that)) ;
+			new (this) Variant (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -937,7 +947,7 @@ private:
 			auto &r2x = _NULL_<ARGV<ARGC<stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
 			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[mVariant]) ;
 			auto &r4x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[that.mVariant]) ;
-			template_create (r2x ,DEPTR[r3x] ,stl::move (_CAST_<ONE_HINT> (r4x))) ;
+			template_create (r2x ,DEPTR[r3x] ,_MOVE_ (_CAST_<ONE_HINT> (r4x))) ;
 		}
 		if (r1x)
 			return ;
@@ -960,7 +970,7 @@ private:
 				discard ;
 			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[mVariant]) ;
 			auto &r3x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[that.mVariant]) ;
-			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,DEPTR[r2x] ,stl::move (_CAST_<ONE_HINT> (r3x))) ;
+			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,DEPTR[r2x] ,_MOVE_ (_CAST_<ONE_HINT> (r3x))) ;
 		}
 		if (r1x)
 			return ;
@@ -984,7 +994,7 @@ private:
 
 	template <class _ARG1 ,class... _ARGS>
 	inline static void template_create (const ARGV<ARGC<TRUE>> & ,PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-		_CREATE_ (address ,stl::forward<_ARGS> (initval)...) ;
+		_CREATE_ (address ,_FORWARD_<_ARGS> (initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1082,8 +1092,8 @@ private:
 public:
 	inline Tuple () = default ;
 
-	inline implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
-		:Tuple<UNITS...> (stl::forward<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (stl::forward<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
+	inline implicit Tuple (INVOKE_TRAITS_TYPE<UNIT1> &&one_ ,INVOKE_TRAITS_TYPE<UNITS> &&...rest_)
+		:Tuple<UNITS...> (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (_FORWARD_<INVOKE_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline LENGTH capacity () const {
 		return 1 + rest ().capacity () ;
@@ -1193,18 +1203,18 @@ public:
 	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
 		:mFunctor (func) ,mParameter (parameter...) {}
 
-	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter ,stl::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+	inline UNIT1 invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const override {
+		return template_invoke (mParameter ,_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 private:
-	inline UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunctor (stl::forward<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
+	inline UNIT1 template_invoke (const Tuple<> &parameter ,INVOKE_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
+		return mFunctor (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const {
-		return template_invoke (parameter.rest () ,stl::forward<_ARGS> (funcval)... ,parameter.one ()) ;
+		return template_invoke (parameter.rest () ,_FORWARD_<_ARGS> (funcval)... ,parameter.one ()) ;
 	}
 } ;
 
@@ -1241,7 +1251,7 @@ public:
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) == that ;
+		return _MOVE_ (self_) == that ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
@@ -1249,7 +1259,7 @@ public:
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) != that ;
+		return _MOVE_ (self_) != that ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
@@ -1257,7 +1267,7 @@ public:
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) > that ;
+		return _MOVE_ (self_) > that ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
@@ -1265,7 +1275,7 @@ public:
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) <= that ;
+		return _MOVE_ (self_) <= that ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
@@ -1273,7 +1283,7 @@ public:
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) < that ;
+		return _MOVE_ (self_) < that ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
@@ -1281,7 +1291,7 @@ public:
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return stl::move (self_) >= that ;
+		return _MOVE_ (self_) >= that ;
 	}
 
 private:
@@ -1376,7 +1386,7 @@ public:
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) == that ;
+		return _MOVE_ (self_) == that ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
@@ -1384,7 +1394,7 @@ public:
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) != that ;
+		return _MOVE_ (self_) != that ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
@@ -1392,7 +1402,7 @@ public:
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) > that ;
+		return _MOVE_ (self_) > that ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
@@ -1400,7 +1410,7 @@ public:
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) <= that ;
+		return _MOVE_ (self_) <= that ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
@@ -1408,7 +1418,7 @@ public:
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) < that ;
+		return _MOVE_ (self_) < that ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
@@ -1416,7 +1426,7 @@ public:
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return stl::move (self_) >= that ;
+		return _MOVE_ (self_) >= that ;
 	}
 
 private:
@@ -1534,6 +1544,7 @@ struct OPERATOR_RECAST {
 
 	template <class _RET ,class _ARG1>
 	inline static PTR<_RET> invoke (PTR<_ARG1> address) {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return template_recast (address ,_NULL_<ARGV<CAST_TRAITS_TYPE<_RET ,_ARG1>>> () ,ARGVPX ,ARGVP9) ;
 	}
 } ;
@@ -1594,13 +1605,13 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~StrongRef () ;
-			new (this) StrongRef (stl::move (that)) ;
+			new (this) StrongRef (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
 
 	inline StrongRef (StrongRef &&that) noexcept {
-		mThis = stl::move (that.mThis) ;
+		mThis = _MOVE_ (that.mThis) ;
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
 
@@ -1609,7 +1620,7 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~StrongRef () ;
-			new (this) StrongRef (stl::move (that)) ;
+			new (this) StrongRef (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1695,7 +1706,7 @@ public:
 	template <class... _ARGS>
 	inline imports_static StrongRef make (_ARGS &&...initval) {
 		auto rax = SharedRef<Pack>::make () ;
-		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (stl::forward<_ARGS> (initval)...) ;
+		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
 		rax->mCounter = 0 ;
 		auto &r1x = rax->mHolder.rebind<UNIT> ().self ;
 		return StrongRef (rax ,DEPTR[r1x]) ;
@@ -1794,8 +1805,8 @@ public:
 	}
 
 	inline void assign (StrongRef<UNIT> &&that) {
-		mThis = stl::move (that.mThis) ;
-		mPointer = stl::move (that.mPointer) ;
+		mThis = _MOVE_ (that.mThis) ;
+		mPointer = _MOVE_ (that.mPointer) ;
 	}
 } ;
 
@@ -1840,14 +1851,14 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~SoftRef () ;
-			new (this) SoftRef (stl::move (that)) ;
+			new (this) SoftRef (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
 
 	inline SoftRef (SoftRef &&that) noexcept {
-		mHeap = stl::move (that.mHeap) ;
-		mWeakRef = stl::move (that.mWeakRef) ;
+		mHeap = _MOVE_ (that.mHeap) ;
+		mWeakRef = _MOVE_ (that.mWeakRef) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -1856,7 +1867,7 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~SoftRef () ;
-			new (this) SoftRef (stl::move (that)) ;
+			new (this) SoftRef (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1869,7 +1880,7 @@ public:
 		SoftRef ret ;
 		ret.mHeap = mHeap ;
 		ret.mIndex = VAR_NONE ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BOOL equal (const SoftRef &that) const {
@@ -1909,13 +1920,13 @@ public:
 	}
 
 	inline void assign (const StrongRef<UNIT> &that) {
-		mWeakRef.assign (stl::move (that)) ;
+		mWeakRef.assign (_MOVE_ (that)) ;
 		mIndex = find_has_linked (mWeakRef) ;
 		acquire () ;
 	}
 
 	inline void assign (StrongRef<UNIT> &&that) {
-		mWeakRef.assign (stl::move (that)) ;
+		mWeakRef.assign (_MOVE_ (that)) ;
 		mIndex = find_has_linked (mWeakRef) ;
 		acquire () ;
 	}
@@ -2010,7 +2021,7 @@ private:
 			ret = i ;
 			rax = r1x ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 
@@ -2061,7 +2072,7 @@ public:
 			if (this == &that)
 				discard ;
 			DEREF[this].~IntrusiveRef () ;
-			new (this) IntrusiveRef (stl::move (that)) ;
+			new (this) IntrusiveRef (_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -2087,7 +2098,7 @@ public:
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		auto tmp = IntrusiveRef (r1x) ;
-		return WatchProxy (stl::move (tmp) ,r1x) ;
+		return WatchProxy (_MOVE_ (tmp) ,r1x) ;
 	}
 
 public:
@@ -2095,14 +2106,14 @@ public:
 	inline imports_static IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
-		ScopedBuild<UNIT> ANONYMOUS (rax ,stl::forward<_ARGS> (initval)...) ;
+		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
 		_STATIC_UNUSED_ (r2x) ;
 		rax = NULL ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 private:
@@ -2171,7 +2182,7 @@ struct IntrusiveRef<UNIT ,CONT>::Detail {
 	private:
 		inline explicit WatchProxy (IntrusiveRef &&base ,PTR<UNIT> pointer) {
 			mBase = UniqueRef<IntrusiveRef> ([&] (IntrusiveRef &me) {
-				me = stl::move (base) ;
+				me = _MOVE_ (base) ;
 			} ,[] (IntrusiveRef &me) {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
@@ -2235,14 +2246,14 @@ public:
 		LENGTH ret = 0 ;
 		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
 			ret += mThis->mPool[i]->size () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline LENGTH length () const {
 		LENGTH ret = 0 ;
 		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
 			ret += mThis->mPool[i]->length () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -2255,10 +2266,10 @@ public:
 		const auto r2x = mThis->mPool[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+		auto &r5x = _LOAD_UNSAFE_<HEADER> (r4x) ;
 		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r5x.mCurr = r2x ;
-		auto &r6x = _LOAD_<_RET> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+		auto &r6x = _LOAD_UNSAFE_<_RET> (r3x) ;
 		return &r6x ;
 	}
 
@@ -2273,10 +2284,10 @@ public:
 		const auto r2x = mThis->mPool[ix]->alloc (r1x) ;
 		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
 		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+		auto &r5x = _LOAD_UNSAFE_<HEADER> (r4x) ;
 		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r5x.mCurr = r2x ;
-		auto &r6x = _LOAD_<ARR<_RET>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+		auto &r6x = _LOAD_UNSAFE_<ARR<_RET>> (r3x) ;
 		return &r6x ;
 	}
 
@@ -2284,7 +2295,7 @@ public:
 	inline void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		auto &r2x = _LOAD_<HEADER> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
+		auto &r2x = _LOAD_UNSAFE_<HEADER> (r1x) ;
 		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,r2x.mFrom) ;
 		mThis->mPool[ix]->free (r2x.mCurr) ;
 	}
@@ -2360,7 +2371,7 @@ struct MemoryPool::Detail {
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-			auto &r5x = _LOAD_<CHUNK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+			auto &r5x = _LOAD_UNSAFE_<CHUNK> (r4x) ;
 			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r5x.mPrev = NULL ;
 			r5x.mNext = mRoot ;
@@ -2372,7 +2383,7 @@ struct MemoryPool::Detail {
 			const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 				const auto r7x = r6x + i * r1x ;
-				auto &r8x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r7x)) ;
+				auto &r8x = _LOAD_UNSAFE_<BLOCK> (r7x) ;
 				r8x.mNext = mFree ;
 				mFree = DEPTR[r8x] ;
 			}
@@ -2423,7 +2434,7 @@ struct MemoryPool::Detail {
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 			for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 				const auto r3x = r2x + i * r1x ;
-				auto &r4x = _LOAD_<BLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r3x)) ;
+				auto &r4x = _LOAD_UNSAFE_<BLOCK> (r3x) ;
 				if (_ADDRESS_ (r4x.mNext) == VAR_USED)
 					return FALSE ;
 			}
@@ -2479,7 +2490,7 @@ struct MemoryPool::Detail {
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
 			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
-			auto &r5x = _LOAD_<FBLOCK> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r4x)) ;
+			auto &r5x = _LOAD_UNSAFE_<FBLOCK> (r4x) ;
 			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
 			r5x.mPrev = NULL ;
 			r5x.mNext = mRoot ;

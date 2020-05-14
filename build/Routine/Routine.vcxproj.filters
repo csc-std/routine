@@ -6,9 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\util.h" />
-    <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc.hpp">
-      <Filter>csc</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_algorithm.hpp">
       <Filter>csc</Filter>
     </ClInclude>
@@ -61,6 +58,9 @@
       <Filter>csc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_functional.hpp">
+      <Filter>csc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\__CSC__\csc_core.hpp">
       <Filter>csc</Filter>
     </ClInclude>
   </ItemGroup>

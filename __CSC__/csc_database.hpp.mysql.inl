@@ -89,7 +89,7 @@ public:
 		} ,[] (api::MYSQL &me) {
 			api::mysql_close (DEPTR[me]) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 private:

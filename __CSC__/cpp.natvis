@@ -8,7 +8,7 @@
   <!--"https://docs.microsoft.com/en-us/visualstudio/debugger/context-operator-cpp?view=vs-2017"-->
 
 
-  <!--csc.hpp-->
+  <!--csc_core.hpp-->
 
 
   <Type Name="CSC::TEMP&lt;*&gt;">

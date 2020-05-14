@@ -178,9 +178,8 @@ public:
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1x.data)) ;
-		auto &r3x = _LOAD_<ARR<COLOR_BGR>> (r2x) ;
-		layout.mImage = DEPTR[r3x] ;
+		auto &r2x = _LOAD_UNSAFE_<ARR<COLOR_BGR>> (_ADDRESS_ (r1x.data)) ;
+		layout.mImage = DEPTR[r2x] ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -195,7 +194,7 @@ public:
 		auto tmp = api::Mat (api::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC3)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC3) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -203,7 +202,7 @@ public:
 		auto tmp = api::imdecode (api::_InputArray (data.self ,VAR32 (data.size ())) ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC3) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -225,7 +224,7 @@ public:
 		auto tmp = api::imread (r1x.raw ().self ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC3) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
@@ -254,9 +253,8 @@ public:
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1x.data)) ;
-		auto &r3x = _LOAD_<ARR<COLOR_BGRA>> (r2x) ;
-		layout.mImage = DEPTR[r3x] ;
+		auto &r2x = _LOAD_UNSAFE_<ARR<COLOR_BGRA>> (_ADDRESS_ (r1x.data)) ;
+		layout.mImage = DEPTR[r2x] ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -271,7 +269,7 @@ public:
 		auto tmp = api::Mat (api::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC4)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC4) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -279,7 +277,7 @@ public:
 		auto tmp = api::imdecode (api::_InputArray (data.self ,VAR32 (data.size ())) ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC4) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -301,7 +299,7 @@ public:
 		auto tmp = api::imread (r1x.raw ().self ,api::IMREAD_UNCHANGED) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC4) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
@@ -330,9 +328,8 @@ public:
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1x.data)) ;
-		auto &r3x = _LOAD_<ARR<COLOR_GRAY>> (r2x) ;
-		layout.mImage = DEPTR[r3x] ;
+		auto &r2x = _LOAD_UNSAFE_<ARR<COLOR_GRAY>> (_ADDRESS_ (r1x.data)) ;
+		layout.mImage = DEPTR[r2x] ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -347,7 +344,7 @@ public:
 		auto tmp = api::Mat (api::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_8UC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -355,7 +352,7 @@ public:
 		auto tmp = api::imdecode (api::_InputArray (data.self ,VAR32 (data.size ())) ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -377,7 +374,7 @@ public:
 		auto tmp = api::imread (r1x.raw ().self ,api::IMREAD_GRAYSCALE) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_8UC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
@@ -406,9 +403,8 @@ public:
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1x.data)) ;
-		auto &r3x = _LOAD_<ARR<COLOR_GRAY32>> (r2x) ;
-		layout.mImage = DEPTR[r3x] ;
+		auto &r2x = _LOAD_UNSAFE_<ARR<COLOR_GRAY32>> (_ADDRESS_ (r1x.data)) ;
+		layout.mImage = DEPTR[r2x] ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -423,7 +419,7 @@ public:
 		auto tmp = api::Mat (api::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_32FC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_32FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -431,7 +427,7 @@ public:
 		auto tmp = api::imdecode (api::_InputArray (data.self ,VAR32 (data.size ())) ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_32FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -453,7 +449,7 @@ public:
 		auto tmp = api::imread (r1x.raw ().self ,api::IMREAD_REDUCED_GRAYSCALE_4) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_32FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
@@ -482,9 +478,8 @@ public:
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
-		const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r1x.data)) ;
-		auto &r3x = _LOAD_<ARR<COLOR_GRAY64>> (r2x) ;
-		layout.mImage = DEPTR[r3x] ;
+		auto &r2x = _LOAD_UNSAFE_<ARR<COLOR_GRAY64>> (_ADDRESS_ (r1x.data)) ;
+		layout.mImage = DEPTR[r2x] ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -499,7 +494,7 @@ public:
 		auto tmp = api::Mat (api::Mat::zeros (VAR32 (cy_) ,VAR32 (cx_) ,CV_64FC1)) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_64FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -507,7 +502,7 @@ public:
 		auto tmp = api::imdecode (api::_InputArray (data.self ,VAR32 (data.size ())) ,api::IMREAD_COLOR) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_64FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -529,7 +524,7 @@ public:
 		auto tmp = api::imread (r1x.raw ().self ,api::IMREAD_REDUCED_GRAYSCALE_8) ;
 		_DYNAMIC_ASSERT_ (!tmp.empty ()) ;
 		_DYNAMIC_ASSERT_ (tmp.type () == CV_64FC1) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {

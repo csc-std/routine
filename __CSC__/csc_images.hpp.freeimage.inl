@@ -106,9 +106,8 @@ public:
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
-		auto &r4x = _LOAD_<ARR<COLOR_BGR>> (r3x) ;
-		layout.mImage = DEPTR[r4x] ;
+		auto &r3x = _LOAD_UNSAFE_<ARR<COLOR_BGR>> (_ADDRESS_ (r2x)) ;
+		layout.mImage = DEPTR[r3x] ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;
@@ -127,7 +126,7 @@ public:
 		}) ;
 		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
 		api::FreeImage_FillBackground (tmp.self ,DEPTR[r2x] ,0) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -148,7 +147,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -196,7 +195,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
@@ -224,9 +223,8 @@ public:
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		const auto r3x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + _ADDRESS_ (r2x)) ;
-		auto &r4x = _LOAD_<ARR<COLOR_BGRA>> (r3x) ;
-		layout.mImage = DEPTR[r4x] ;
+		auto &r3x = _LOAD_UNSAFE_<ARR<COLOR_BGRA>> (_ADDRESS_ (r2x)) ;
+		layout.mImage = DEPTR[r3x] ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;
@@ -245,7 +243,7 @@ public:
 		}) ;
 		const auto r2x = COLOR_BGRA {0 ,0 ,0 ,0} ;
 		api::FreeImage_FillBackground (tmp.self ,DEPTR[r2x] ,0) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
@@ -266,7 +264,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
@@ -314,7 +312,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (stl::move (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {

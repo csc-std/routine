@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <csc.hpp>
+#include <csc_core.hpp>
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>
 #include <csc_array.hpp>
@@ -71,7 +71,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
-inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
+inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
 		auto &r1y = _CACHE_ ([] () {
@@ -82,30 +82,7 @@ inline exports PTR<NONE> GlobalStatic<void>::unique_atomic_address (PTR<NONE> ex
 	} ,[&] () {
 		ret = NULL ;
 	}) ;
-	return stl::move (ret) ;
-}
-} ;
-#endif
-
-namespace CSC {
-template <>
-inline exports ConsoleService &Singleton<ConsoleService>::instance () {
-	return GlobalStatic<Singleton<ConsoleService>>::unique () ;
-}
-} ;
-
-#ifdef __CSC_COMPILER_MSVC__
-namespace CSC {
-template <>
-inline exports NetworkService &Singleton<NetworkService>::instance () {
-	return GlobalStatic<Singleton<NetworkService>>::unique () ;
-}
-} ;
-
-namespace CSC {
-template <>
-inline exports DebuggerService &Singleton<DebuggerService>::instance () {
-	return GlobalStatic<Singleton<DebuggerService>>::unique () ;
+	return _MOVE_ (ret) ;
 }
 } ;
 #endif
@@ -113,7 +90,7 @@ inline exports DebuggerService &Singleton<DebuggerService>::instance () {
 #ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
 namespace CSC {
-inline exports void GlobalWatch::done (const Exception &e) {
+inline exports void GlobalWatch::Extern::done (const Exception &e) {
 	const auto r1x = String<STR> (e.what ()) ;
 	Singleton<ConsoleService>::instance ().fatal (r1x) ;
 #ifdef MS_CPP_UNITTESTFRAMEWORK

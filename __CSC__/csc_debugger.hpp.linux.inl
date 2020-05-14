@@ -452,18 +452,18 @@ public:
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping override {
-		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &address) popping override {
+		_DEBUG_ASSERT_ (address.length () < VAR32_MAX) ;
 		const auto r1x = _CALL_ ([&] () {
-			Array<PTR<VOID>> ret = Array<PTR<VOID>> (list.length ()) ;
+			Array<PTR<VOID>> ret = Array<PTR<VOID>> (address.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + i) ;
+				const auto r2x = &_LOAD_<NONE> (address[i]) ;
 				ret[i] = r2x ;
 			}
-			return stl::move (ret) ;
+			return _MOVE_ (ret) ;
 		}) ;
 		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
 			me = api::backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
@@ -472,16 +472,15 @@ public:
 				return ;
 			api::free (me) ;
 		}) ;
-		auto &r4x = PTRTOARR[r3x.self] ;
-		Array<String<STR>> ret = Array<String<STR>> (list.length ()) ;
+		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			const auto r5x = StringProc::build_hex16s (list[i]) ;
-			const auto r6x = StringProc::parse_strs (String<STRA> (PTRTOARR[r4x[i]])) ;
-			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
+			const auto r4x = StringProc::build_hex16s (address[i]) ;
+			const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[PTRTOARR[r3x.self][i]])) ;
+			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 

@@ -99,7 +99,7 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 			discard ;
 		ret = String<STRW> () ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 
@@ -113,7 +113,7 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 			discard ;
 		ret = String<STRW> () ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 
@@ -128,7 +128,7 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 			discard ;
 		ret = String<STRA> () ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 
@@ -142,7 +142,7 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 			discard ;
 		ret = String<STRA> () ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 } ;
@@ -198,7 +198,7 @@ inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_
 	ret[5] = rax.tm_hour ;
 	ret[6] = rax.tm_min ;
 	ret[7] = rax.tm_sec ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 
@@ -221,7 +221,7 @@ inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_
 	ret[5] = rax.tm_hour ;
 	ret[6] = rax.tm_min ;
 	ret[7] = rax.tm_sec ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 #endif
 
@@ -289,7 +289,7 @@ public:
 				rbx = rax.self[0].second ;
 			}
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {

@@ -4,7 +4,7 @@
 #define __CSC_ARRAY__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 
 namespace CSC {
@@ -44,16 +44,16 @@ struct OPERATOR_SORT {
 	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
 		for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
 			INDEX ix = i ;
-			auto tmp = stl::move (out[ix]) ;
+			auto tmp = _MOVE_ (out[ix]) ;
 			while (TRUE) {
 				if (ix - 1 < seg_a)
 					break ;
 				if (array_[tmp] >= array_[out[ix - 1]])
 					break ;
-				out[ix] = stl::move (out[ix - 1]) ;
+				out[ix] = _MOVE_ (out[ix - 1]) ;
 				ix-- ;
 			}
-			out[ix] = stl::move (tmp) ;
+			out[ix] = _MOVE_ (tmp) ;
 		}
 	}
 
@@ -61,7 +61,7 @@ struct OPERATOR_SORT {
 	inline static void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
-		auto tmp = stl::move (out[ix]) ;
+		auto tmp = _MOVE_ (out[ix]) ;
 		while (TRUE) {
 			while (TRUE) {
 				if (ix >= iy)
@@ -72,7 +72,7 @@ struct OPERATOR_SORT {
 			}
 			if (ix >= iy)
 				break ;
-			out[ix++] = stl::move (out[iy]) ;
+			out[ix++] = _MOVE_ (out[iy]) ;
 			while (TRUE) {
 				if (ix >= iy)
 					break ;
@@ -82,9 +82,9 @@ struct OPERATOR_SORT {
 			}
 			if (ix >= iy)
 				break ;
-			out[iy--] = stl::move (out[ix]) ;
+			out[iy--] = _MOVE_ (out[ix]) ;
 		}
-		out[ix] = stl::move (tmp) ;
+		out[ix] = _MOVE_ (tmp) ;
 		mid_one = ix ;
 	}
 
@@ -400,7 +400,7 @@ public:
 		INDEX ret = mString.at (item) ;
 		if (!(ret >= 0 && ret < size ()))
 			ret = VAR_NONE ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL equal (const String &that) const {
@@ -496,7 +496,7 @@ public:
 		String ret = String (r1x + r2x) ;
 		BasicProc::mem_copy (ret.mString.self ,mString.self ,r1x) ;
 		BasicProc::mem_copy (PTRTOARR[&ret.mString.self[r1x]] ,that.mString.self ,r2x) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline String operator+ (const String &that) const {
@@ -557,7 +557,7 @@ public:
 		String ret = String (seg_len) ;
 		for (auto &&i : _RANGE_ (0 ,ret.size ()))
 			ret.get (i) = get (seg + i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 public:
@@ -569,7 +569,7 @@ public:
 		auto rax = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> (ret.raw ()) ;
 		rax.prints (initval...) ;
 		rax << DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent>::EOS ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 private:
@@ -581,7 +581,7 @@ private:
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		LENGTH ret = BasicProc::mem_chr (val ,r1x ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 
@@ -684,7 +684,7 @@ public:
 		INDEX ret = mDeque.at (item) ;
 		if (!ensure_index (ret))
 			ret = VAR_NONE ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX access (INDEX pos) const {
@@ -700,13 +700,13 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL equal (const Deque &that) const {
@@ -758,26 +758,26 @@ public:
 	void add (const ITEM &item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
-		mDeque[mWrite] = stl::move (item) ;
+		mDeque[mWrite] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 	}
 
 	inline Deque &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
 	void add (ITEM &&item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
-		mDeque[mWrite] = stl::move (item) ;
+		mDeque[mWrite] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 	}
 
 	inline Deque &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -786,7 +786,7 @@ public:
 		reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -795,7 +795,7 @@ public:
 		reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -806,7 +806,7 @@ public:
 
 	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		item = stl::move (mDeque[mRead]) ;
+		item = _MOVE_ (mDeque[mRead]) ;
 		mRead = (mRead + 1) % mDeque.size () ;
 	}
 
@@ -831,7 +831,7 @@ public:
 		INDEX ret = mWrite ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_sort (const ITEM &item) popping {
@@ -844,13 +844,13 @@ public:
 				break ;
 			if (mDeque[ret - 1] >= item)
 				break ;
-			mDeque[ret] = stl::move (mDeque[ret - 1]) ;
+			mDeque[ret] = _MOVE_ (mDeque[ret - 1]) ;
 			ret-- ;
 		}
-		mDeque[ret] = stl::move (item) ;
+		mDeque[ret] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_sort (ITEM &&item) popping {
@@ -863,20 +863,20 @@ public:
 				break ;
 			if (mDeque[ret - 1] >= item)
 				break ;
-			mDeque[ret] = stl::move (mDeque[ret - 1]) ;
+			mDeque[ret] = _MOVE_ (mDeque[ret - 1]) ;
 			ret-- ;
 		}
-		mDeque[ret] = stl::move (item) ;
+		mDeque[ret] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void push (const ITEM &item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
-		mDeque[ix] = stl::move (item) ;
+		mDeque[ix] = _MOVE_ (item) ;
 		mRead = ix ;
 		update_resize () ;
 	}
@@ -885,7 +885,7 @@ public:
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
-		mDeque[ix] = stl::move (item) ;
+		mDeque[ix] = _MOVE_ (item) ;
 		mRead = ix ;
 		update_resize () ;
 	}
@@ -1061,7 +1061,7 @@ public:
 		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET = NONE>
@@ -1082,7 +1082,7 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
@@ -1097,7 +1097,7 @@ public:
 		}
 		if (ret.size () > 0)
 			BasicProc::mem_rcopy (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL empty () const {
@@ -1113,11 +1113,11 @@ public:
 	}
 
 	void add (const ITEM &item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline Priority &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -1125,7 +1125,7 @@ public:
 		if (mPriority.size () == 0)
 			reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
-		mPriority[ix].mItem = stl::move (item) ;
+		mPriority[ix].mItem = _MOVE_ (item) ;
 		mPriority[ix].mMap = map_ ;
 		mWrite++ ;
 		update_resize () ;
@@ -1133,11 +1133,11 @@ public:
 	}
 
 	void add (ITEM &&item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline Priority &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -1145,7 +1145,7 @@ public:
 		if (mPriority.size () == 0)
 			reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
-		mPriority[ix].mItem = stl::move (item) ;
+		mPriority[ix].mItem = _MOVE_ (item) ;
 		mPriority[ix].mMap = map_ ;
 		mWrite++ ;
 		update_resize () ;
@@ -1172,15 +1172,15 @@ public:
 
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		mPriority[0] = stl::move (mPriority[mWrite - 1]) ;
+		mPriority[0] = _MOVE_ (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (0) ;
 	}
 
 	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		item = stl::move (mPriority[0]) ;
-		mPriority[0] = stl::move (mPriority[mWrite - 1]) ;
+		item = _MOVE_ (mPriority[0]) ;
+		mPriority[0] = _MOVE_ (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (0) ;
 	}
@@ -1196,18 +1196,18 @@ public:
 	}
 
 	INDEX insert (const ITEM &item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	INDEX insert (ITEM &&item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	void remove (INDEX index) {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		mPriority[index] = stl::move (mPriority[mWrite - 1]) ;
+		mPriority[index] = _MOVE_ (mPriority[mWrite - 1]) ;
 		mWrite-- ;
 		update_insert (index) ;
 	}
@@ -1236,7 +1236,7 @@ private:
 
 	void update_insert (INDEX curr) {
 		INDEX ix = curr ;
-		auto tmp = stl::move (mPriority[ix]) ;
+		auto tmp = _MOVE_ (mPriority[ix]) ;
 		while (TRUE) {
 			//@info: '-1 >> 1' is not the same as '-1 / 2'
 			INDEX iy = (ix - 1) >> 1 ;
@@ -1244,7 +1244,7 @@ private:
 				break ;
 			if (tmp.mItem >= mPriority[iy].mItem)
 				break ;
-			mPriority[ix] = stl::move (mPriority[iy]) ;
+			mPriority[ix] = _MOVE_ (mPriority[iy]) ;
 			ix = iy ;
 		}
 		while (TRUE) {
@@ -1267,10 +1267,10 @@ private:
 			}
 			if (jx == ix)
 				break ;
-			mPriority[ix] = stl::move (mPriority[jx]) ;
+			mPriority[ix] = _MOVE_ (mPriority[jx]) ;
 			ix = jx ;
 		}
-		mPriority[ix] = stl::move (tmp) ;
+		mPriority[ix] = _MOVE_ (tmp) ;
 		mTop = ix ;
 	}
 
@@ -1347,10 +1347,10 @@ private:
 			:mLeft (left) ,mRight (right) {}
 
 		inline implicit Node (const ITEM &item ,INDEX left ,INDEX right)
-			: mItem (stl::move (item)) ,mLeft (left) ,mRight (right) {}
+			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 
 		inline implicit Node (ITEM &&item ,INDEX left ,INDEX right)
-			: mItem (stl::move (item)) ,mLeft (left) ,mRight (right) {}
+			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -1444,13 +1444,13 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL equal (const List &that) const {
@@ -1498,7 +1498,7 @@ public:
 	}
 
 	void add (const ITEM &item) {
-		INDEX ix = mList.alloc (stl::move (item) ,mLast ,VAR_NONE) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,mLast ,VAR_NONE) ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
 			mFirst) ;
@@ -1507,12 +1507,12 @@ public:
 	}
 
 	inline List &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
 	void add (ITEM &&item) {
-		INDEX ix = mList.alloc (stl::move (item) ,mLast ,VAR_NONE) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,mLast ,VAR_NONE) ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
 			mFirst) ;
@@ -1521,7 +1521,7 @@ public:
 	}
 
 	inline List &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -1530,7 +1530,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -1539,7 +1539,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -1557,7 +1557,7 @@ public:
 	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		INDEX ix = mFirst ;
-		item = stl::move (mList[ix].mItem) ;
+		item = _MOVE_ (mList[ix].mItem) ;
 		mFirst = mList[ix].mRight ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
@@ -1588,7 +1588,7 @@ public:
 			mFirst) ;
 		r1x = ret ;
 		mLast = ret ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_before (INDEX index) popping {
@@ -1601,7 +1601,7 @@ public:
 			mFirst) ;
 		r2x = ret ;
 		r1x = ret ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_after (INDEX index) popping {
@@ -1614,11 +1614,11 @@ public:
 			mLast) ;
 		r2x = ret ;
 		r1x = ret ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void push (const ITEM &item) {
-		INDEX ix = mList.alloc (stl::move (item) ,VAR_NONE ,mFirst) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE ,mFirst) ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
 			mLast) ;
@@ -1627,7 +1627,7 @@ public:
 	}
 
 	void push (ITEM &&item) {
-		INDEX ix = mList.alloc (stl::move (item) ,VAR_NONE ,mFirst) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE ,mFirst) ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
 			mLast) ;
@@ -1763,10 +1763,10 @@ private:
 			:mSeq (seq) {}
 
 		inline implicit Node (const ITEM &item ,INDEX seq)
-			: mItem (stl::move (item)) ,mSeq (seq) {}
+			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 
 		inline implicit Node (ITEM &&item ,INDEX seq)
-			: mItem (stl::move (item)) ,mSeq (seq) {}
+			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 	} ;
 
 	struct TREE_NODE {
@@ -1887,13 +1887,13 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL equal (const SoftList &that) const {
@@ -1929,24 +1929,24 @@ public:
 	}
 
 	void add (const ITEM &item) {
-		INDEX ix = mList.alloc (stl::move (item) ,VAR_NONE) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE) ;
 		update_resize (ix) ;
 		update_compress_left (mWrite ,ix) ;
 	}
 
 	inline SoftList &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
 	void add (ITEM &&item) {
-		INDEX ix = mList.alloc (stl::move (item) ,VAR_NONE) ;
+		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE) ;
 		update_resize (ix) ;
 		update_compress_left (mWrite ,ix) ;
 	}
 
 	inline SoftList &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -1955,7 +1955,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -1964,7 +1964,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (stl::move (val[i])) ;
+			add (_MOVE_ (val[i])) ;
 		}
 	}
 
@@ -1972,7 +1972,7 @@ public:
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		update_compress_left (mWrite ,ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_before (INDEX index) popping {
@@ -1984,7 +1984,7 @@ public:
 			return mWrite ;
 		}) ;
 		update_compress_left (r1x ,ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert_after (INDEX index) popping {
@@ -1996,7 +1996,7 @@ public:
 			return mRead ;
 		}) ;
 		update_compress_left (r1x ,ret) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void eswap (INDEX index1 ,INDEX index2) {
@@ -2080,7 +2080,7 @@ private:
 			}
 		}
 		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX position_before (INDEX curr) const {
@@ -2093,7 +2093,7 @@ private:
 			ix -= (ix + 1) & -(ix + 1) ;
 		}
 		ret-- ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void update_resize (INDEX curr) {
@@ -2281,7 +2281,7 @@ public:
 			const auto r2x = BYTE (mSet[mWidth / 8] & ~BYTE (INDEX (r1x) - 1)) ;
 			ret -= M_LENGTH.P1[INDEX (r2x)] ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void clear () {
@@ -2366,7 +2366,7 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	BOOL equal (const BitSet &that) const {
@@ -2441,7 +2441,7 @@ public:
 		BitSet ret = BitSet (mWidth) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret.mSet[i] = mSet[i] & that.mSet[i] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BitSet operator& (const BitSet &that) const {
@@ -2464,7 +2464,7 @@ public:
 		BitSet ret = BitSet (mWidth) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret.mSet[i] = mSet[i] | that.mSet[i] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BitSet operator| (const BitSet &that) const {
@@ -2487,7 +2487,7 @@ public:
 		BitSet ret = BitSet (mWidth) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret.mSet[i] = mSet[i] ^ that.mSet[i] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BitSet operator^ (const BitSet &that) const {
@@ -2510,7 +2510,7 @@ public:
 		BitSet ret = BitSet (mWidth) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret.mSet[i] = mSet[i] & ~that.mSet[i] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BitSet operator- (const BitSet &that) const {
@@ -2532,7 +2532,7 @@ public:
 		BitSet ret = BitSet (mWidth) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret.mSet[i] = ~mSet[i] ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline BitSet operator~ () const {
@@ -2639,10 +2639,10 @@ private:
 		inline Node () = delete ;
 
 		inline implicit Node (const ITEM &item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mItem (stl::move (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
 		inline implicit Node (ITEM &&item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
-			: mItem (stl::move (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -2754,7 +2754,7 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
@@ -2762,15 +2762,15 @@ public:
 		INDEX iw = 0 ;
 		compute_esort (mRoot ,ret ,iw) ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void add (const ITEM &item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline Set &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -2779,7 +2779,7 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (stl::move (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			ix = mSet.alloc (_MOVE_ (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
 			update_insert (ix) ;
@@ -2788,11 +2788,11 @@ public:
 	}
 
 	void add (ITEM &&item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline Set &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -2801,7 +2801,7 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (stl::move (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			ix = mSet.alloc (_MOVE_ (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			update_emplace (mRoot ,ix) ;
 			mRoot = mTop ;
 			update_insert (ix) ;
@@ -2846,12 +2846,12 @@ public:
 	}
 
 	INDEX insert (const ITEM &item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	INDEX insert (ITEM &&item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
@@ -2888,7 +2888,7 @@ public:
 				mSet[ret].mRight) ;
 			ret = r2x ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX map (const ITEM &item) const {
@@ -3276,10 +3276,10 @@ private:
 		inline Node () = delete ;
 
 		inline implicit Node (const ITEM &item ,const INDEX &map_ ,FLAG hash ,INDEX next)
-			: mItem (stl::move (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 
 		inline implicit Node (ITEM &&item ,const INDEX &map_ ,FLAG hash ,INDEX next)
-			: mItem (stl::move (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
 private:
@@ -3391,15 +3391,15 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void add (const ITEM &item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline HashSet &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -3409,7 +3409,7 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
-			ix = mSet.alloc (stl::move (item) ,map_ ,r1x ,VAR_NONE) ;
+			ix = mSet.alloc (_MOVE_ (item) ,map_ ,r1x ,VAR_NONE) ;
 			update_resize (ix) ;
 			update_insert (ix) ;
 		}
@@ -3417,11 +3417,11 @@ public:
 	}
 
 	void add (ITEM &&item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline HashSet &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -3431,7 +3431,7 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
-			ix = mSet.alloc (stl::move (item) ,map_ ,r1x ,VAR_NONE) ;
+			ix = mSet.alloc (_MOVE_ (item) ,map_ ,r1x ,VAR_NONE) ;
 			update_resize (ix) ;
 			update_insert (ix) ;
 		}
@@ -3457,12 +3457,12 @@ public:
 	}
 
 	INDEX insert (const ITEM &item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	INDEX insert (ITEM &&item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
@@ -3488,7 +3488,7 @@ public:
 				ret = mSet[ret].mNext ;
 			}
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX map (const ITEM &item) const {
@@ -3593,10 +3593,10 @@ private:
 		inline Node () = delete ;
 
 		inline implicit Node (const ITEM &item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mItem (stl::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
 		inline implicit Node (ITEM &&item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
-			: mItem (stl::move (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
+			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
 	class Heap {
@@ -3658,7 +3658,7 @@ public:
 		ret.mFirst = VAR_NONE ;
 		ret.mLast = VAR_NONE ;
 		ret.mRoot = VAR_NONE ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX ibegin () const {
@@ -3733,7 +3733,7 @@ public:
 			ret[iw++] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range_sort () const {
@@ -3741,15 +3741,15 @@ public:
 		INDEX iw = 0 ;
 		compute_esort (mRoot ,ret ,iw) ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void add (const ITEM &item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline SoftSet &operator<< (const ITEM &item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -3759,7 +3759,7 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet->alloc (stl::move (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			ix = mSet->alloc (_MOVE_ (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1x = _SWITCH_ (
 				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
 				mFirst) ;
@@ -3773,11 +3773,11 @@ public:
 	}
 
 	void add (ITEM &&item) {
-		add (stl::move (item) ,VAR_NONE) ;
+		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
 	inline SoftSet &operator<< (ITEM &&item) {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
@@ -3787,7 +3787,7 @@ public:
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet->alloc (stl::move (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			ix = mSet->alloc (_MOVE_ (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
 			auto &r1x = _SWITCH_ (
 				(mLast != VAR_NONE) ? mSet.self[mLast].mNext :
 				mFirst) ;
@@ -3843,12 +3843,12 @@ public:
 	}
 
 	INDEX insert (const ITEM &item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	INDEX insert (ITEM &&item) popping {
-		add (stl::move (item)) ;
+		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
@@ -3868,7 +3868,7 @@ public:
 				mSet.self[ret].mRight) ;
 			ret = r2x ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX map (const ITEM &item) const {

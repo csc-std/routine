@@ -4,7 +4,7 @@
 #define __CSC_FUNCTIONAL__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
@@ -56,7 +56,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value>>
 	explicit Operand (_ARG1 &&that) {
 		mThis = SharedRef<Pack>::make () ;
-		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (stl::forward<_ARG1> (that)) ;
+		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_<_ARG1> (that)) ;
 	}
 
 	BOOL exist () const {
@@ -90,6 +90,7 @@ public:
 
 	template <class _RET>
 	const _RET &as () const leftvalue {
+		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
 		return template_as (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 	}
 
@@ -258,12 +259,12 @@ public:
 
 	Operand invoke (const LexicalNode &node ,const UNITS2 &...funcval) const {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> ()) ;
-		return Operand (stl::move (tmp)) ;
+		return Operand (_MOVE_ (tmp)) ;
 	}
 
 private:
-	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (stl::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,INVOKE_TRAITS_TYPE<UNITS1> &&...funcval) const {
+		return mFunctor (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -271,7 +272,7 @@ private:
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().template as<ONE_HINT> () ;
-		return template_invoke (parameter.rest () ,_NULL_<ARGV<REST_HINT>> () ,stl::forward<_ARGS> (funcval)... ,r1x) ;
+		return template_invoke (parameter.rest () ,_NULL_<ARGV<REST_HINT>> () ,_FORWARD_<_ARGS> (funcval)... ,r1x) ;
 	}
 } ;
 
@@ -295,12 +296,12 @@ public:
 
 	Operand invoke (const LexicalNode &node ,const UNITS2 &...funcval) const override {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> () ,node) ;
-		return Operand (stl::move (tmp)) ;
+		return Operand (_MOVE_ (tmp)) ;
 	}
 
 private:
-	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (node ,stl::forward<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS1> &&...funcval) const {
+		return mFunctor (node ,_FORWARD_<INVOKE_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -308,7 +309,7 @@ private:
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().template as<ONE_HINT> () ;
-		return template_invoke (parameter.rest () ,_NULL_<ARGV<REST_HINT>> () ,stl::forward<_ARGS> (funcval)... ,r1x) ;
+		return template_invoke (parameter.rest () ,_NULL_<ARGV<REST_HINT>> () ,_FORWARD_<_ARGS> (funcval)... ,r1x) ;
 	}
 } ;
 
@@ -421,7 +422,7 @@ public:
 		}) ;
 		ret.mThis->mChild[0] = DEREF[this] ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class... _ARGS>
@@ -438,11 +439,11 @@ public:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;
-			return Operand (stl::move (tmp)) ;
+			return Operand (_MOVE_ (tmp)) ;
 		}) ;
 		ret.mThis->mChild[0] = DEREF[this] ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	DEPENDENT_TYPE<Expression<RANK1> ,Expression> fold () const {
@@ -454,7 +455,7 @@ public:
 		}) ;
 		ret.mThis->mChild[0] = DEREF[this] ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _ARG1>
@@ -489,7 +490,7 @@ private:
 		}) ;
 		ret.mThis->mChild[0] = DEREF[this] ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class... _ARGS>
@@ -534,7 +535,7 @@ private:
 		ret.mThis->mChild[0] = DEREF[this] ;
 		ret.mThis->mChild[1] = that ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth ,that.mThis->mDepth) + 1 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 

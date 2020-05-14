@@ -4,7 +4,7 @@
 #define __CSC_IMAGES__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
@@ -43,13 +43,13 @@ private:
 			ret *= i ;
 			_DEBUG_ASSERT_ (ret >= 0) ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Array<LENGTH ,SIZE> first_item () const {
 		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
 		ret.fill (0) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 
@@ -81,7 +81,7 @@ struct ArrayRange<SIZE>::Detail {
 
 	private:
 		inline explicit Iterator (const ArrayRange &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
-			: mBase (base) ,mIndex (index) ,mItem (stl::move (item)) {}
+			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
 	private:
 		inline void template_incrase (const ARGV<ZERO> &) {
@@ -158,7 +158,7 @@ public:
 
 	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
 		mHeap = SharedRef<Heap>::make () ;
-		mHeap->mBuffer = stl::move (image) ;
+		mHeap->mBuffer = _MOVE_ (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
@@ -172,7 +172,7 @@ public:
 		ARRAY2<LENGTH> ret ;
 		ret[0] = mCX ;
 		ret[1] = mCY ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH cx () const {
@@ -233,7 +233,7 @@ public:
 		ret.mCY = mCY ;
 		ret.mCW = mCW ;
 		ret.mCK = mCK ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	ArrayRange<ARGC<2>> range () const {
@@ -312,7 +312,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) + that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator+ (const Bitmap &that) const {
@@ -337,7 +337,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) - that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator- (const Bitmap &that) const {
@@ -362,7 +362,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) * that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator* (const Bitmap &that) const {
@@ -387,7 +387,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) / that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator/ (const Bitmap &that) const {
@@ -412,7 +412,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) % that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator% (const Bitmap &that) const {
@@ -435,7 +435,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = +get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator+ () const {
@@ -446,7 +446,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = -get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator- () const {
@@ -459,7 +459,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) & that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator& (const Bitmap &that) const {
@@ -484,7 +484,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) | that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator| (const Bitmap &that) const {
@@ -509,7 +509,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ^ that.get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator^ (const Bitmap &that) const {
@@ -532,7 +532,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = ~get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	inline Bitmap operator~ () const {
@@ -548,28 +548,28 @@ public:
 			for (auto &&j : _RANGE_ (0 ,mCX))
 				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
 		}
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Bitmap transpose () const {
 		Bitmap ret = Bitmap (mCY ,mCX) ;
 		for (auto &&i : range ())
 			ret.get (i[1] ,i[0]) = get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Bitmap horizontal_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i[0] ,(mCX + ~i[1])) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Bitmap vertical_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get ((mCY + ~i[0]) ,i[1]) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void fill (const UNIT &val) {
@@ -681,7 +681,7 @@ public:
 		ARRAY2<LENGTH> ret ;
 		ret[0] = mThis->mCX ;
 		ret[1] = mThis->mCY ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	LENGTH cx () const {
@@ -767,7 +767,7 @@ public:
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
 		auto tmp = AbstractImage (PhanRef<const Abstract>::make (mAbstract) ,_COPY_ (mThis)) ;
-		return NativeProxy (stl::move (tmp)) ;
+		return NativeProxy (_MOVE_ (tmp)) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
@@ -775,7 +775,7 @@ public:
 		Bitmap<UNIT> ret = Bitmap<UNIT> (mThis->mCX ,mThis->mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void load_data (LENGTH cx_ ,LENGTH cy_) {
@@ -815,7 +815,7 @@ public:
 
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (stl::move (abstract_)) ,mThis (stl::move (this_)) {}
+		:mAbstract (_MOVE_ (abstract_)) ,mThis (_MOVE_ (this_)) {}
 
 private:
 	inline void update_layout () {
@@ -876,7 +876,7 @@ struct AbstractImage<UNIT>::Detail {
 	private:
 		inline explicit NativeProxy (AbstractImage &&base) {
 			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
-				me = stl::move (base) ;
+				me = _MOVE_ (base) ;
 			} ,[] (AbstractImage &me) {
 				me.update_layout () ;
 			}) ;

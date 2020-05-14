@@ -84,7 +84,7 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r3x) ;
 	const auto r4x = LENGTH (api::read (r2x.self ,ret.self ,VAR32 (r3x))) ;
 	_DYNAMIC_ASSERT_ (r4x == r3x) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
@@ -219,7 +219,7 @@ inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = MathProc::maxof (r3x ,r4x ,VAR_ZERO) ;
 	BasicProc::mem_copy (ret.raw ().self ,r2x.self ,r5x) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
@@ -230,7 +230,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = _MAX_ (r3x ,r4x) + 1 ;
 	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR> &file) {
@@ -260,7 +260,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 	}
 	ret.pop () ;
 	rax >> TextReader<STR>::EOS ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::working_path () {
@@ -305,7 +305,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 			ret.add (ix) ;
 		}
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 } ;
 
@@ -330,8 +330,8 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 		const auto r1x = FileSystemProc::working_path () ;
 		if switch_case (TRUE) {
 			auto tmp = FileSystemProc::decouple_path_name (r1x) ;
-			tmp.appand (stl::move (rax)) ;
-			rax = stl::move (tmp) ;
+			tmp.appand (_MOVE_ (rax)) ;
+			rax = _MOVE_ (tmp) ;
 		}
 		if (r1x.size () < 1)
 			discard ;
@@ -357,7 +357,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 			discard ;
 		ret += _PCSTR_ ("/") ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports const String<STR> &FileSystemProc::module_file_path () popping {
@@ -369,7 +369,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () popping {
 		String<STR> ret = StringProc::parse_strs (rax) ;
 		ret = FileSystemProc::parse_path_name (ret) ;
 		ret += _PCSTR_ ("/") ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}) ;
 }
 
@@ -432,7 +432,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) pop
 		_STATIC_UNUSED_ (r9x) ;
 		ret = TRUE ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports void FileSystemProc::build_directory (const String<STR> &dire) {

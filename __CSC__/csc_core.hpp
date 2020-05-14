@@ -260,10 +260,7 @@ using std::uint16_t ;
 using std::uint32_t ;
 using std::uint64_t ;
 
-using std::move ;
-using std::forward ;
 using std::nothrow ;
-using std::addressof ;
 
 #ifndef __CSC_COMPILER_GNUC__
 using std::max_align_t ;
@@ -937,22 +934,22 @@ using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 
 namespace U {
 template <class _ARG1>
-struct FORWARD_TRAITS {
+struct INVOKE_TRAITS {
 	using TYPE = const _ARG1 & ;
 } ;
 
 template <class _ARG1>
-struct FORWARD_TRAITS<_ARG1 &> {
+struct INVOKE_TRAITS<_ARG1 &> {
 	using TYPE = _ARG1 & ;
 } ;
 
 template <class _ARG1>
-struct FORWARD_TRAITS<_ARG1 &&> {
+struct INVOKE_TRAITS<_ARG1 &&> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1>
-using FORWARD_TRAITS_TYPE = typename FORWARD_TRAITS<_ARG1>::TYPE ;
+using INVOKE_TRAITS_TYPE = typename INVOKE_TRAITS<_ARG1>::TYPE ;
 } ;
 
 namespace U {
@@ -1573,7 +1570,7 @@ using U::REMOVE_ARRAY_TYPE ;
 using U::REMOVE_FUNCATTR_TYPE ;
 using U::REMOVE_MEMPTR_TYPE ;
 using U::MEMPTR_CLASS_TYPE ;
-using U::FORWARD_TRAITS_TYPE ;
+using U::INVOKE_TRAITS_TYPE ;
 using U::CAST_TRAITS_TYPE ;
 using U::INVOKE_RESULT_TYPE ;
 using U::INVOKE_PARAMS_TYPE ;
@@ -1620,7 +1617,7 @@ struct OPERATOR_DEREF {
 struct OPERATOR_DEPTR {
 	template <class _ARG1>
 	inline constexpr PTR<_ARG1> operator[] (_ARG1 &object) const noexcept {
-		return stl::addressof (object) ;
+		return (&object) ;
 	}
 } ;
 } ;
@@ -1630,7 +1627,8 @@ static constexpr auto DEPTR = U::OPERATOR_DEPTR {} ;
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () noexcept {
-	return DEREF[PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)] ;
+	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	return DEREF[PTR<_RET> (NULL)] ;
 }
 
 template <class _ARG1>
@@ -1659,18 +1657,6 @@ inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) noexcept {
 	return base + (align_ - base % align_) % align_ ;
 }
 
-template <class _RET>
-inline _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	return object ;
-}
-
-template <class _RET>
-inline const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	return object ;
-}
-
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
@@ -1682,18 +1668,6 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
 	const auto r1x = _ADDRESS_ (DEPTR[object]) ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
 	return DEREF[r2x] ;
-}
-
-//@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) noexcept {
-	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
-	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
-	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
-	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x)) ;
 }
 
 template <class _ARG1>
@@ -1708,11 +1682,39 @@ inline REMOVE_CVR_TYPE<_ARG1> _COPY_ (const _ARG1 &object) {
 }
 
 template <class _ARG1>
+inline constexpr REMOVE_REFERENCE_TYPE<_ARG1> &&_MOVE_ (_ARG1 &&object) noexcept {
+	return static_cast<REMOVE_REFERENCE_TYPE<_ARG1> &&> (object) ;
+}
+
+template <class _RET>
+inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &object) noexcept {
+	return static_cast<_RET &&> (object) ;
+}
+
+template <class _RET>
+inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &&object) noexcept {
+	_STATIC_ASSERT_ (!std::is_lvalue_reference<_RET>::value) ;
+	return static_cast<_RET &&> (object) ;
+}
+
+template <class _RET>
+inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
+	return object ;
+}
+
+template <class _RET>
+inline constexpr const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
+	return object ;
+}
+
+template <class _ARG1>
 inline _ARG1 _EXCHANGE_ (_ARG1 &handle) noexcept popping {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
 	_ZERO_ (handle) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 template <class _ARG1>
@@ -1720,16 +1722,35 @@ inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexc
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
 	handle = val ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
 	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<_ARG1>::value) ;
-	auto tmp = stl::move (lhs) ;
-	lhs = stl::move (rhs) ;
-	rhs = stl::move (tmp) ;
+	auto tmp = _MOVE_ (lhs) ;
+	lhs = _MOVE_ (rhs) ;
+	rhs = _MOVE_ (tmp) ;
+}
+
+//@warn: not type-safe; be careful about strict-aliasing
+template <class _RET ,class _ARG1>
+inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept ;
+
+//@warn: not type-safe; be careful about strict-aliasing
+template <class _RET>
+inline _RET &_LOAD_UNSAFE_ (LENGTH address) noexcept {
+	const auto r1x = _XVALUE_ <PTR<VOID>> (&_NULL_<BYTE> () + address) ;
+	return _LOAD_<_RET> (r1x) ;
+}
+
+template <class _ARG1 ,class _ARG2 ,class _ARG3>
+inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) noexcept {
+	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
+	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
+	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
+	return _LOAD_UNSAFE_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (r2x) ;
 }
 
 template <class _RET ,class _ARG1>
@@ -1743,7 +1764,7 @@ inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
 	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
-	return stl::move (_CAST_<_RET> (ret)) ;
+	return _MOVE_ (_CAST_<_RET> (ret)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
@@ -1751,7 +1772,7 @@ inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_<_ARG1> (address) ;
-	new (DEPTR[r1x]) _ARG1 (stl::forward<_ARGS> (initval)...) ;
+	new (DEPTR[r1x]) _ARG1 (_FORWARD_<_ARGS> (initval)...) ;
 }
 
 template <class _ARG1>
@@ -1858,7 +1879,7 @@ template <class _RET>
 inline FLAG _TYPEMID_ () noexcept {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	TypeInterface<REMOVE_CVR_TYPE<_RET>> ret ;
-	return stl::move (_CAST_<FLAG> (ret)) ;
+	return _MOVE_ (_CAST_<FLAG> (ret)) ;
 }
 
 namespace stl {
@@ -2176,7 +2197,7 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 	} catch (const Exception &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
-	_CALL_TRY_ (stl::forward<_ARGS> (proc_rest)...) ;
+	_CALL_TRY_ (_FORWARD_<_ARGS> (proc_rest)...) ;
 }
 
 template <class _ARG1 ,class _ARG2>

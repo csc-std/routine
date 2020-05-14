@@ -94,7 +94,7 @@ inline TIMEVAL static_make_timeval (LENGTH val) {
 	TIMEVAL ret ;
 	ret.tv_sec = VAR32 (val / 1000) ;
 	ret.tv_usec = VAR32 ((val % 1000) * 1000) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline String<STRU8> static_make_ipv4s (const SOCKADDR &val) {
@@ -106,7 +106,7 @@ inline String<STRU8> static_make_ipv4s (const SOCKADDR &val) {
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (r1x.sin_addr.S_un.S_addr) ;
 		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.P1 ;
 		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.P2 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}) ;
 	return StringProc::build_ipv4s<STRU8> (r2x) ;
 }
@@ -122,7 +122,7 @@ inline SOCKADDR static_make_socket_addr (const String<STRU8> &val) {
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (ret.sin_addr.S_un.S_addr) ;
 		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.P1 ;
 		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.P2 ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}) ;
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
 }
@@ -151,7 +151,7 @@ inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,LENGTH t
 		_STATIC_WARNING_ ("noop") ;
 	}
 	_ZERO_ (rax) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 #pragma warning (pop)
 }
 } ;
@@ -358,7 +358,7 @@ inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,
 	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping {
@@ -373,7 +373,7 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 	_DYNAMIC_ASSERT_ (iw >= 0 && iw < ret.size ()) ;
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 class TCPSocket::Listener::Implement {
@@ -387,7 +387,7 @@ public:
 
 	explicit Implement (const StrongRef<TCPSocket::Implement> &socket_) {
 		mThis = socket_->mThis ;
-		mListener = stl::move (mThis->mSocket) ;
+		mListener = _MOVE_ (mThis->mSocket) ;
 		const auto r1x = api::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;
 	}
@@ -405,7 +405,7 @@ public:
 	}
 
 	void accept () {
-		mThis->mSocket = stl::move (mLinker) ;
+		mThis->mSocket = _MOVE_ (mLinker) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;

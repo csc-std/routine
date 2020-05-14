@@ -4,7 +4,7 @@
 #define __CSC_DATABASE__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
@@ -52,6 +52,6 @@ public:
 
 private:
 	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (stl::move (abstract_)) ,mThis (stl::move (this_)) {}
+		:mAbstract (_MOVE_ (abstract_)) ,mThis (_MOVE_ (this_)) {}
 } ;
 } ;

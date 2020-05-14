@@ -437,7 +437,7 @@ public:
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping override {
@@ -452,7 +452,7 @@ public:
 			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (DEPTR[rax.self]) ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			auto &r3x = _LOAD_<api::SYMBOL_INFO> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x)) ;
+			auto &r3x = _LOAD_UNSAFE_<api::SYMBOL_INFO> (r2x) ;
 			r3x.SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
 			r3x.MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : list) {
@@ -469,7 +469,7 @@ public:
 			}
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return stl::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 private:

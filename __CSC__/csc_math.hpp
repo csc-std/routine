@@ -4,7 +4,7 @@
 #define __CSC_MATH__
 #endif
 
-#include "csc.hpp"
+#include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
 
@@ -431,7 +431,7 @@ inline exports _ARG1 MathProc::abs (const _ARG1 &val) {
 	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
 	_ARG1 ret = _ABS_ (val) ;
 	_DEBUG_ASSERT_ (ret >= _ARG1 (0)) ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 template <class _ARG1>
@@ -487,7 +487,7 @@ inline ARRAY3<DATA> static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) {
 	ret[1] = ret[1] << 52 ;
 	if (ret[0] == 0)
 		ret[1] = 0 ;
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 } ;
 
@@ -499,7 +499,7 @@ inline exports VAL64 MathProc::ieee754_encode (const ARRAY3<VAR64> &sne2) {
 	ret |= r1x[0] & DATA (0X000FFFFFFFFFFFFF) ;
 	ret |= r1x[1] & DATA (0X7FF0000000000000) ;
 	ret |= r1x[2] & DATA (0X8000000000000000) ;
-	return stl::move (_CAST_<VAL64> (ret)) ;
+	return _MOVE_ (_CAST_<VAL64> (ret)) ;
 }
 
 inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
@@ -523,7 +523,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 	}
 	const auto r3x = _EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
 	ret[2] = r3x ;
-	return stl::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
 namespace U {
@@ -540,7 +540,7 @@ inline VAL64 static_taylor_exp (VAL64 lnx ,VAL64 y) {
 		ret += rax ;
 		rbx += VAL64 (1) ;
 	}
-	return stl::move (ret) ;
+	return _MOVE_ (ret) ;
 }
 
 inline ARRAY3<VAR64> static_ieee754_e2_e10_part (const ARRAY3<VAR64> &sne2) {
@@ -563,7 +563,7 @@ inline ARRAY3<VAR64> static_ieee754_e2_e10_part (const ARRAY3<VAR64> &sne2) {
 		ret[0] = r2x ;
 		ret[1]-- ;
 	}
-	return stl::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 } ;
 
@@ -585,7 +585,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_e2_e10 (const ARRAY3<VAR64> &sne2
 		ret[1]++ ;
 	}
 	ret[2] = r1x[2] ;
-	return stl::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 
 namespace U {
@@ -609,7 +609,7 @@ inline ARRAY3<VAR64> static_ieee754_e10_e2_part (const ARRAY3<VAR64> &sne10) {
 		ret[0] = r2x ;
 		ret[1]-- ;
 	}
-	return stl::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 } ;
 
@@ -631,6 +631,6 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_e10_e2 (const ARRAY3<VAR64> &sne1
 		ret[1]++ ;
 	}
 	ret[2] = r1x[2] ;
-	return stl::move (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
 }
 } ;
