@@ -38,7 +38,7 @@ public:
 		ret[0] = mVector[0] ;
 		ret[1] = mVector[1] ;
 		ret[2] = mVector[2] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	REAL &get (INDEX y) leftvalue {
@@ -93,7 +93,7 @@ public:
 		Vector ret ;
 		for (auto &&i : _RANGE_ (0 ,mVector.size ()))
 			ret.mVector[i] = mVector[i] * scale ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator* (const REAL &scale) const {
@@ -111,7 +111,7 @@ public:
 
 	inline Vector &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector div (const REAL &scale) const {
@@ -132,14 +132,14 @@ public:
 
 	inline Vector &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector add (const Vector &that) const {
 		Vector ret ;
 		for (auto &&i : _RANGE_ (0 ,mVector.size ()))
 			ret.mVector[i] = mVector[i] + that.mVector[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator+ (const Vector &that) const {
@@ -153,14 +153,14 @@ public:
 
 	inline Vector &operator+= (const Vector &that) {
 		addto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector sub (const Vector &that) const {
 		Vector ret ;
 		for (auto &&i : _RANGE_ (0 ,mVector.size ()))
 			ret.mVector[i] = mVector[i] - that.mVector[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator- (const Vector &that) const {
@@ -174,14 +174,14 @@ public:
 
 	inline Vector &operator-= (const Vector &that) {
 		subto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector plus () const {
 		Vector ret ;
 		for (auto &&i : _RANGE_ (0 ,mVector.size ()))
 			ret.mVector[i] = +mVector[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator+ () const {
@@ -192,7 +192,7 @@ public:
 		Vector ret ;
 		for (auto &&i : _RANGE_ (0 ,mVector.size ()))
 			ret.mVector[i] = -mVector[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator- () const {
@@ -218,7 +218,7 @@ public:
 			const auto r4x = get (3) * that.get (3 ,i) ;
 			ret.get (i) = r1x + r2x + r3x + r4x ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator* (const Matrix<REAL> &that) const {
@@ -226,12 +226,12 @@ public:
 	}
 
 	void multo (const Matrix<REAL> &that) {
-		_DEREF_ (this) = mul (that) ;
+		DEREF[this] = mul (that) ;
 	}
 
 	inline Vector &operator*= (const Matrix<REAL> &that) {
 		multo (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector cross (const Vector &that) const {
@@ -242,7 +242,7 @@ public:
 		ret.mVector[1] = mVector[2] * that.mVector[0] - mVector[0] * that.mVector[2] ;
 		ret.mVector[2] = mVector[0] * that.mVector[1] - mVector[1] * that.mVector[0] ;
 		ret.mVector[3] = REAL (0) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector operator^ (const Vector &that) const {
@@ -250,12 +250,12 @@ public:
 	}
 
 	void crossto (const Vector &that) {
-		_DEREF_ (this) = cross (that) ;
+		DEREF[this] = cross (that) ;
 	}
 
 	inline Vector &operator^= (const Vector &that) {
 		crossto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	REAL magnitude () const {
@@ -271,7 +271,7 @@ public:
 		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = mVector[2] * r1x ;
 		ret.mVector[3] = REAL (0) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Vector projection () const {
@@ -281,7 +281,7 @@ public:
 		ret.mVector[1] = mVector[1] * r1x ;
 		ret.mVector[2] = mVector[2] * r1x ;
 		ret.mVector[3] = REAL (1) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Vector homogenize () const {
@@ -290,7 +290,7 @@ public:
 		ret.mVector[1] = mVector[1] ;
 		ret.mVector[2] = mVector[2] ;
 		ret.mVector[3] = REAL (0) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 public:
@@ -339,7 +339,7 @@ public:
 		}
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<_ARG1 ,REAL>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<_ARG1 ,REAL>::value>>
 	implicit Matrix (const Vector<_ARG1> &vx ,const Vector<_ARG1> &vy ,const Vector<_ARG1> &vz ,const Vector<_ARG1> &vw) {
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			get (i ,0) = vx[i] ;
@@ -363,7 +363,7 @@ public:
 
 	DEF<typename Detail::template Row<Matrix>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Matrix> ;
-		return Row (_DEREF_ (this) ,y) ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX y) leftvalue {
@@ -372,7 +372,7 @@ public:
 
 	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Matrix> ;
-		return Row (_DEREF_ (this) ,y) ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<const Matrix>> operator[] (INDEX y) const leftvalue {
@@ -415,7 +415,7 @@ public:
 		Matrix ret ;
 		for (auto &&i : _RANGE_ (0 ,mMatrix.size ()))
 			ret.mMatrix[i] = mMatrix[i] * scale ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator* (const REAL &scale) const {
@@ -433,7 +433,7 @@ public:
 
 	inline Matrix &operator*= (const REAL &scale) {
 		multo (scale) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Matrix div (const REAL &scale) const {
@@ -454,14 +454,14 @@ public:
 
 	inline Matrix &operator/= (const REAL &scale) {
 		divto (scale) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Matrix add (const Matrix &that) const {
 		Matrix ret ;
 		for (auto &&i : _RANGE_ (0 ,mMatrix.size ()))
 			ret.mMatrix[i] = mMatrix[i] + that.mMatrix[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator+ (const Matrix &that) const {
@@ -475,14 +475,14 @@ public:
 
 	inline Matrix &operator+= (const Matrix &that) {
 		addto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Matrix sub (const Matrix &that) const {
 		Matrix ret ;
 		for (auto &&i : _RANGE_ (0 ,mMatrix.size ()))
 			ret.mMatrix[i] = mMatrix[i] - that.mMatrix[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator- (const Matrix &that) const {
@@ -496,14 +496,14 @@ public:
 
 	inline Matrix &operator-= (const Matrix &that) {
 		subto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Matrix plus () const {
 		Matrix ret ;
 		for (auto &&i : _RANGE_ (0 ,mMatrix.size ()))
 			ret.mMatrix[i] = +mMatrix[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator+ () const {
@@ -514,7 +514,7 @@ public:
 		Matrix ret ;
 		for (auto &&i : _RANGE_ (0 ,mMatrix.size ()))
 			ret.mMatrix[i] = -mMatrix[i] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator- () const {
@@ -531,7 +531,7 @@ public:
 			const auto r5x = get (i[0] ,3) * that.get (3 ,i[1]) ;
 			ret.get (i[0] ,i[1]) = r2x + r3x + r4x + r5x ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Matrix operator* (const Matrix &that) const {
@@ -539,12 +539,12 @@ public:
 	}
 
 	void multo (const Matrix &that) {
-		_DEREF_ (this) = mul (that) ;
+		DEREF[this] = mul (that) ;
 	}
 
 	inline Matrix &operator*= (const Matrix &that) {
 		multo (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Vector<REAL> mul (const Vector<REAL> &that) const {
@@ -556,7 +556,7 @@ public:
 			const auto r4x = get (i ,3) * that.get (3) ;
 			ret.get (i) = r1x + r2x + r3x + r4x ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Vector<REAL> operator* (const Vector<REAL> &that) const {
@@ -568,11 +568,11 @@ public:
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
 		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
 			ret.get (i[1] ,i[0]) = get (i[0] ,i[1]) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Matrix triangular () const {
-		Matrix ret = _DEREF_ (this) ;
+		Matrix ret = DEREF[this] ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			if switch_case (TRUE) {
 				INDEX ix = ret.find_max_row (i) ;
@@ -594,7 +594,7 @@ public:
 				ret.get (j ,i) = REAL (0) ;
 			}
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	LENGTH rank () const {
@@ -603,7 +603,7 @@ public:
 		for (auto &&i : _RANGE_ (0 ,4))
 			ret += _EBOOL_ (MathProc::inverse (r1x[i][i]) == REAL (0)) ;
 		ret = 4 - ret ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	REAL det () const {
@@ -611,7 +611,7 @@ public:
 		REAL ret = REAL (1) ;
 		for (auto &&i : _RANGE_ (0 ,4))
 			ret *= r1x.get (i ,i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Matrix inverse () const {
@@ -652,14 +652,14 @@ public:
 			ret *= r7x ;
 			ret.get (3 ,3) = REAL (1) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	REAL trace () const {
 		REAL ret = REAL (0) ;
 		for (auto &&i : _RANGE_ (0 ,4))
 			ret += get (i ,i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	//@info: 3-translation * 2-rotation * 1-scale * 0-shear
@@ -683,7 +683,7 @@ public:
 		ret[2] = Matrix::make_view (r5x ,r6x) ;
 		const auto r13x = r8x.projection () - Vector<REAL>::axis_w () ;
 		ret[3] = Matrix::make_translation (r13x) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 public:
@@ -703,7 +703,7 @@ public:
 			{REAL (0) ,y ,REAL (0) ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,z ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,w}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_shear (const Vector<REAL> &vx ,const Vector<REAL> &vy ,const Vector<REAL> &vz) {
@@ -724,7 +724,7 @@ public:
 			{REAL (0) ,r7x ,r8x ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,r9x ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
@@ -750,7 +750,7 @@ public:
 		ret[3][1] = REAL (0) ;
 		ret[3][2] = REAL (0) ;
 		ret[3][3] = REAL (1) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
@@ -777,7 +777,7 @@ public:
 		ret[3][1] = REAL (0) ;
 		ret[3][2] = REAL (0) ;
 		ret[3][3] = REAL (1) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
@@ -799,7 +799,7 @@ public:
 				ret = i ;
 				rax = r3x[i] ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}) ;
 		const auto r5x = MathProc::inverse (REAL (2) * MathProc::sqrt (r3x[r4x])) ;
 		auto fax = TRUE ;
@@ -835,7 +835,7 @@ public:
 			ret[2] = r3x[3] * r5x ;
 			ret[3] = (r2x[1][0] - r2x[0][1]) * r5x ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
@@ -848,7 +848,7 @@ public:
 		ret[0] = r1x[0] * r5x ;
 		ret[1] = r1x[1] * r5x ;
 		ret[2] = r1x[2] * r5x ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_translation (const Vector<REAL> &direction) {
@@ -858,7 +858,7 @@ public:
 			{REAL (0) ,REAL (1) ,REAL (0) ,direction[1]} ,
 			{REAL (0) ,REAL (0) ,REAL (1) ,direction[2]} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_view (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
@@ -873,7 +873,7 @@ public:
 			{r1x[1] ,r4x[1] ,r3x[1] ,REAL (0)} ,
 			{r1x[2] ,r4x[2] ,r3x[2] ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_view_xy (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
@@ -943,7 +943,7 @@ public:
 			{r1x[1] ,r4x[1] ,r3x[1] ,pw[1]} ,
 			{r1x[2] ,r4x[2] ,r3x[2] ,pw[2]} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
@@ -954,7 +954,7 @@ public:
 			{REAL (0) ,fy ,wy ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ,
 			{REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
@@ -980,7 +980,7 @@ public:
 		ret[3][1] = REAL (0) ;
 		ret[3][2] = REAL (0) ;
 		ret[3][3] = r3x ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_cross_product (const Vector<REAL> &first) {
@@ -990,7 +990,7 @@ public:
 			{first[2] ,REAL (0) ,-first[0] ,REAL (0)} ,
 			{-first[1] ,first[0] ,REAL (0) ,REAL (0)} ,
 			{REAL (0) ,REAL (0) ,REAL (0) ,REAL (0)}}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
@@ -998,7 +998,7 @@ public:
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
 		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
 			ret[i[0]][i[1]] = first[i[0]] * second[i[1]] ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	imports_static Matrix make_reflection (const Vector<REAL> &normal) {
@@ -1031,7 +1031,7 @@ private:
 			ret = i ;
 			rax = r1x ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 

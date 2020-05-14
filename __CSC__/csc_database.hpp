@@ -52,6 +52,6 @@ public:
 
 private:
 	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
+		:mAbstract (stl::move (abstract_)) ,mThis (stl::move (this_)) {}
 } ;
 } ;

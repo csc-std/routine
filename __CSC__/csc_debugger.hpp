@@ -63,22 +63,22 @@ private:
 	struct Detail ;
 	class Implement ;
 	friend Singleton<ConsoleService> ;
-	Monostate<std::recursive_mutex> mMutex ;
+	Monostate<stl::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	LENGTH buffer_size () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->buffer_size () ;
 	}
 
 	void enable_option (EFLAG option) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->enable_option (option) ;
 	}
 
 	void disable_option (EFLAG option) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->disable_option (option) ;
 	}
 
@@ -86,7 +86,7 @@ public:
 	void print (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->print (ImplBinder (msg...)) ;
 	}
 
@@ -94,7 +94,7 @@ public:
 	void fatal (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->fatal (ImplBinder (msg...)) ;
 	}
 
@@ -102,7 +102,7 @@ public:
 	void error (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->error (ImplBinder (msg...)) ;
 	}
 
@@ -110,7 +110,7 @@ public:
 	void warn (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->warn (ImplBinder (msg...)) ;
 	}
 
@@ -118,7 +118,7 @@ public:
 	void info (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->info (ImplBinder (msg...)) ;
 	}
 
@@ -126,7 +126,7 @@ public:
 	void debug (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->debug (ImplBinder (msg...)) ;
 	}
 
@@ -134,12 +134,12 @@ public:
 	void verbose (const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->verbose (ImplBinder (msg...)) ;
 	}
 
 	void attach_log (const String<STR> &path) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->attach_log (path) ;
 	}
 
@@ -147,27 +147,27 @@ public:
 	void log (const String<STR> &tag ,const _ARGS &...msg) {
 		struct Dependent ;
 		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->log (tag.raw () ,ImplBinder (msg...)) ;
 	}
 
 	void show () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->show () ;
 	}
 
 	void pause () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->pause () ;
 	}
 
 	void clear () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->clear () ;
 	}
 
 	void hide () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->hide () ;
 	}
 
@@ -218,27 +218,27 @@ private:
 private:
 	class Implement ;
 	friend Singleton<DebuggerService> ;
-	Monostate<std::recursive_mutex> mMutex ;
+	Monostate<stl::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	void abort_once_invoked_exit (BOOL flag) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->abort_once_invoked_exit (flag) ;
 	}
 
 	void output_memory_leaks_report (BOOL flag) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->output_memory_leaks_report (flag) ;
 	}
 
 	Array<LENGTH> captrue_stack_trace () popping {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->captrue_stack_trace () ;
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->symbol_from_address (list) ;
 	}
 

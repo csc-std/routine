@@ -48,15 +48,30 @@
 
 namespace CSC {
 namespace api {
+using std::smatch ;
+using std::regex ;
+using std::string ;
+
+using std::regex_match ;
+using std::regex_search ;
+using std::regex_replace ;
+using std::localtime ;
+using std::setlocale ;
+using std::mbstowcs ;
+using std::wcstombs ;
+
+using ::tm ;
+using ::time_t ;
+
+using ::mktime ;
+
 #ifdef __CSC_COMPILER_MSVC__
+using ::localtime_s ;
 using ::_create_locale ;
 using ::_free_locale ;
 using ::_mbstowcs_s_l ;
 using ::_wcstombs_s_l ;
 #endif
-
-using ::tm ;
-using ::time_t ;
 } ;
 
 namespace U {
@@ -84,7 +99,7 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 			discard ;
 		ret = String<STRW> () ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 
@@ -93,12 +108,12 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r3x = std::mbstowcs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
+		const auto r3x = api::mbstowcs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRW> () ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 
@@ -113,7 +128,7 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 			discard ;
 		ret = String<STRA> () ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 
@@ -122,19 +137,19 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_case (TRUE) {
-		const auto r3x = std::wcstombs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
+		const auto r3x = api::wcstombs (ret.raw ().self ,val.raw ().self ,VAR32 (ret.size ())) ;
 		if (r3x == 0)
 			discard ;
 		ret = String<STRA> () ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 } ;
 
 inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = api::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = BasicProc::mem_chr (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1)
@@ -151,7 +166,7 @@ inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
 
 inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 	//@warn: not thread-safe due to internel storage
-	const auto r1x = stl::setlocale (LC_CTYPE ,NULL) ;
+	const auto r1x = api::setlocale (LC_CTYPE ,NULL) ;
 	_DEBUG_ASSERT_ (r1x != NULL) ;
 	const auto r2x = BasicProc::mem_chr (PTRTOARR[r1x] ,VAR32_MAX ,STRA (0)) ;
 	if (r2x == 1)
@@ -168,13 +183,13 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 
 namespace U {
 #ifdef __CSC_COMPILER_MSVC__
-inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) {
+inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = api::time_t (std::chrono::system_clock::to_time_t (val)) ;
+	const auto r1x = api::time_t (stl::chrono::system_clock::to_time_t (val)) ;
 	auto rax = api::tm () ;
 	_ZERO_ (rax) ;
-	localtime_s (&rax ,&r1x) ;
+	api::localtime_s (DEPTR[rax] ,DEPTR[r1x]) ;
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
 	ret[2] = rax.tm_mday ;
@@ -183,21 +198,21 @@ inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_
 	ret[5] = rax.tm_hour ;
 	ret[6] = rax.tm_min ;
 	ret[7] = rax.tm_sec ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 
 #ifndef __CSC_COMPILER_MSVC__
-inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_clock::time_point &val) {
+inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_clock::time_point &val) {
 	ARRAY8<VAR32> ret ;
 	ret.fill (0) ;
-	const auto r1x = api::time_t (std::chrono::system_clock::to_time_t (val)) ;
+	const auto r1x = api::time_t (stl::chrono::system_clock::to_time_t (val)) ;
 	auto rax = api::tm () ;
 	_ZERO_ (rax) ;
 	//@warn: not thread-safe due to internel storage
-	const auto r2x = std::localtime (&r1x) ;
+	const auto r2x = api::localtime (DEPTR[r1x]) ;
 	_DEBUG_ASSERT_ (r2x != NULL) ;
-	rax = _DEREF_ (r2x) ;
+	rax = DEREF[r2x] ;
 	ret[0] = rax.tm_year + 1900 ;
 	ret[1] = rax.tm_mon + 1 ;
 	ret[2] = rax.tm_mday ;
@@ -206,11 +221,11 @@ inline exports ARRAY8<VAR32> static_make_time_metric (const std::chrono::system_
 	ret[5] = rax.tm_hour ;
 	ret[6] = rax.tm_min ;
 	ret[7] = rax.tm_sec ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 #endif
 
-inline exports std::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) {
+inline exports stl::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) {
 	auto rax = api::tm () ;
 	_ZERO_ (rax) ;
 	const auto r1x = _EBOOL_ (val[0] > 0) * (val[0] - 1900) ;
@@ -225,29 +240,29 @@ inline exports std::chrono::system_clock::time_point static_make_time_point (con
 	rax.tm_hour = val[5] ;
 	rax.tm_min = val[6] ;
 	rax.tm_sec = val[7] ;
-	const auto r5x = std::mktime (&rax) ;
-	return std::chrono::system_clock::from_time_t (r5x) ;
+	const auto r5x = api::mktime (DEPTR[rax]) ;
+	return stl::chrono::system_clock::from_time_t (r5x) ;
 }
 } ;
 
 #ifdef __CSC_EXTEND__
 class RegexMatcher::Implement {
 private:
-	AutoRef<std::regex> mRegex ;
+	AutoRef<api::regex> mRegex ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &reg) {
 		const auto r1x = StringProc::cvt_u8s_uas (reg) ;
-		mRegex = AutoRef<std::regex>::make (r1x.raw ().self) ;
+		mRegex = AutoRef<api::regex>::make (r1x.raw ().self) ;
 	}
 
 	BOOL match (const String<STRU8> &expr) const {
 		if (expr.empty ())
 			return FALSE ;
 		const auto r1x = StringProc::cvt_u8s_uas (expr) ;
-		if (!std::regex_match (r1x.raw ().self ,mRegex.self))
+		if (!api::regex_match (r1x.raw ().self ,mRegex.self))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -257,24 +272,24 @@ public:
 		if switch_case (TRUE) {
 			if (expr.empty ())
 				discard ;
-			auto rax = AutoRef<std::smatch>::make () ;
+			auto rax = AutoRef<api::smatch>::make () ;
 			const auto r1x = StringProc::cvt_u8s_uas (expr) ;
-			const auto r2x = std::string (r1x.raw ().self) ;
+			const auto r2x = api::string (r1x.raw ().self) ;
 			auto rbx = r2x.begin () ;
 			const auto r3x = r2x.end () ;
 			while (TRUE) {
-				const auto r4x = std::regex_search (rbx ,r3x ,rax.self ,mRegex.self) ;
+				const auto r4x = api::regex_search (rbx ,r3x ,rax.self ,mRegex.self) ;
 				if (!r4x)
 					break ;
 				INDEX ix = ret.insert () ;
 				auto &r5x = (*rax.self[0].first) ;
 				auto &r6x = (*rax.self[0].second) ;
-				ret[ix][0] = INDEX (&r5x - &r2x[0]) ;
-				ret[ix][1] = INDEX (&r6x - &r2x[0]) ;
+				ret[ix][0] = INDEX (DEPTR[r5x] - &r2x[0]) ;
+				ret[ix][1] = INDEX (DEPTR[r6x] - &r2x[0]) ;
 				rbx = rax.self[0].second ;
 			}
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
@@ -282,9 +297,9 @@ public:
 			return String<STRU8> () ;
 		const auto r1x = StringProc::cvt_u8s_uas (expr) ;
 		const auto r2x = StringProc::cvt_u8s_uas (rep) ;
-		const auto r3x = std::string (r1x.raw ().self) ;
-		const auto r4x = std::string (r2x.raw ().self) ;
-		const auto r5x = std::regex_replace (r3x ,mRegex.self ,r4x) ;
+		const auto r3x = api::string (r1x.raw ().self) ;
+		const auto r4x = api::string (r2x.raw ().self) ;
+		const auto r5x = api::regex_replace (r3x ,mRegex.self ,r4x) ;
 		if (r5x.empty ())
 			return String<STRU8> () ;
 		return StringProc::cvt_uas_u8s (PTRTOARR[r5x.c_str ()]) ;

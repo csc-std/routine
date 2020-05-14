@@ -27,12 +27,12 @@ public:
 
 	inline DEF<typename Detail::Iterator> begin () const {
 		using Iterator = typename Detail::Iterator ;
-		return Iterator (_DEREF_ (this) ,0 ,first_item ()) ;
+		return Iterator (DEREF[this] ,0 ,first_item ()) ;
 	}
 
 	inline DEF<typename Detail::Iterator> end () const {
 		using Iterator = typename Detail::Iterator ;
-		return Iterator (_DEREF_ (this) ,total_length () ,Array<LENGTH ,SIZE> ()) ;
+		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
@@ -43,13 +43,13 @@ private:
 			ret *= i ;
 			_DEBUG_ASSERT_ (ret >= 0) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Array<LENGTH ,SIZE> first_item () const {
 		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
 		ret.fill (0) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 
@@ -81,7 +81,7 @@ struct ArrayRange<SIZE>::Detail {
 
 	private:
 		inline explicit Iterator (const ArrayRange &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
-			: mBase (base) ,mIndex (index) ,mItem (std::move (item)) {}
+			: mBase (base) ,mIndex (index) ,mItem (stl::move (item)) {}
 
 	private:
 		inline void template_incrase (const ARGV<ZERO> &) {
@@ -158,7 +158,7 @@ public:
 
 	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
 		mHeap = SharedRef<Heap>::make () ;
-		mHeap->mBuffer = std::move (image) ;
+		mHeap->mBuffer = stl::move (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
@@ -172,7 +172,7 @@ public:
 		ARRAY2<LENGTH> ret ;
 		ret[0] = mCX ;
 		ret[1] = mCY ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	LENGTH cx () const {
@@ -233,7 +233,7 @@ public:
 		ret.mCY = mCY ;
 		ret.mCW = mCW ;
 		ret.mCK = mCK ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	ArrayRange<ARGC<2>> range () const {
@@ -271,7 +271,7 @@ public:
 
 	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) leftvalue {
 		using Row = typename Detail::template Row<Bitmap> ;
-		return Row (_DEREF_ (this) ,y) ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<Bitmap>> operator[] (INDEX y) leftvalue {
@@ -280,7 +280,7 @@ public:
 
 	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const leftvalue {
 		using Row = typename Detail::template Row<const Bitmap> ;
-		return Row (_DEREF_ (this) ,y) ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (INDEX y) const leftvalue {
@@ -312,7 +312,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) + that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator+ (const Bitmap &that) const {
@@ -328,7 +328,7 @@ public:
 
 	inline Bitmap &operator+= (const Bitmap &that) {
 		addto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap sub (const Bitmap &that) const {
@@ -337,7 +337,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) - that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator- (const Bitmap &that) const {
@@ -353,7 +353,7 @@ public:
 
 	inline Bitmap &operator-= (const Bitmap &that) {
 		subto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap mul (const Bitmap &that) const {
@@ -362,7 +362,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) * that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator* (const Bitmap &that) const {
@@ -378,7 +378,7 @@ public:
 
 	inline Bitmap &operator*= (const Bitmap &that) {
 		multo (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap div (const Bitmap &that) const {
@@ -387,7 +387,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) / that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator/ (const Bitmap &that) const {
@@ -403,7 +403,7 @@ public:
 
 	inline Bitmap &operator/= (const Bitmap &that) {
 		divto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap mod (const Bitmap &that) const {
@@ -412,7 +412,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) % that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator% (const Bitmap &that) const {
@@ -428,14 +428,14 @@ public:
 
 	inline Bitmap &operator%= (const Bitmap &that) {
 		modto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap plus () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = +get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator+ () const {
@@ -446,7 +446,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = -get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator- () const {
@@ -459,7 +459,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) & that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator& (const Bitmap &that) const {
@@ -475,7 +475,7 @@ public:
 
 	inline Bitmap &operator&= (const Bitmap &that) {
 		bandto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap bor (const Bitmap &that) const {
@@ -484,7 +484,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) | that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator| (const Bitmap &that) const {
@@ -500,7 +500,7 @@ public:
 
 	inline Bitmap &operator|= (const Bitmap &that) {
 		borto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap bxor (const Bitmap &that) const {
@@ -509,7 +509,7 @@ public:
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ^ that.get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator^ (const Bitmap &that) const {
@@ -525,14 +525,14 @@ public:
 
 	inline Bitmap &operator^= (const Bitmap &that) {
 		bxorto (that) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	Bitmap bnot () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = ~get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline Bitmap operator~ () const {
@@ -548,28 +548,28 @@ public:
 			for (auto &&j : _RANGE_ (0 ,mCX))
 				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Bitmap transpose () const {
 		Bitmap ret = Bitmap (mCY ,mCX) ;
 		for (auto &&i : range ())
 			ret.get (i[1] ,i[0]) = get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Bitmap horizontal_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i[0] ,(mCX + ~i[1])) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Bitmap vertical_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get ((mCY + ~i[0]) ,i[1]) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void fill (const UNIT &val) {
@@ -681,7 +681,7 @@ public:
 		ARRAY2<LENGTH> ret ;
 		ret[0] = mThis->mCX ;
 		ret[1] = mThis->mCY ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	LENGTH cx () const {
@@ -744,7 +744,7 @@ public:
 
 	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) leftvalue {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
-		return AbstractImage (_DEREF_ (this) ,y) ;
+		return AbstractImage (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (INDEX y) leftvalue {
@@ -753,7 +753,7 @@ public:
 
 	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const leftvalue {
 		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
-		return AbstractImage (_DEREF_ (this) ,y) ;
+		return AbstractImage (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (INDEX y) const leftvalue {
@@ -763,11 +763,11 @@ public:
 	template <class _RET>
 	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {
 		using NativeProxy = typename Detail::template NativeProxy<_RET> ;
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
 		auto tmp = AbstractImage (PhanRef<const Abstract>::make (mAbstract) ,_COPY_ (mThis)) ;
-		return NativeProxy (std::move (tmp)) ;
+		return NativeProxy (stl::move (tmp)) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
@@ -775,7 +775,7 @@ public:
 		Bitmap<UNIT> ret = Bitmap<UNIT> (mThis->mCX ,mThis->mCY) ;
 		for (auto &&i : range ())
 			ret.get (i) = get (i) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void load_data (LENGTH cx_ ,LENGTH cy_) {
@@ -815,7 +815,7 @@ public:
 
 private:
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (std::move (abstract_)) ,mThis (std::move (this_)) {}
+		:mAbstract (stl::move (abstract_)) ,mThis (stl::move (this_)) {}
 
 private:
 	inline void update_layout () {
@@ -826,7 +826,7 @@ private:
 		_ZERO_ (rax) ;
 		mAbstract->compute_layout (mThis->mHolder ,rax) ;
 		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-		mThis->mImage = PhanBuffer<UNIT>::make (_DEREF_ (rax.mImage) ,r1x) ;
+		mThis->mImage = PhanBuffer<UNIT>::make (DEREF[rax.mImage] ,r1x) ;
 		mThis->mCX = rax.mCX ;
 		mThis->mCY = rax.mCY ;
 		mThis->mCW = rax.mCW ;
@@ -876,7 +876,7 @@ struct AbstractImage<UNIT>::Detail {
 	private:
 		inline explicit NativeProxy (AbstractImage &&base) {
 			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
-				me = std::move (base) ;
+				me = stl::move (base) ;
 			} ,[] (AbstractImage &me) {
 				me.update_layout () ;
 			}) ;

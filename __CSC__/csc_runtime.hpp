@@ -10,6 +10,40 @@
 #include "csc_array.hpp"
 
 namespace CSC {
+class GlobalRuntime final
+	:private Wrapped<void> {
+public:
+	inline imports_static stl::chrono::system_clock::time_point clock_now () ;
+
+	inline imports_static stl::chrono::steady_clock::time_point clock_tick () ;
+
+	inline imports_static FLAG thread_tid () ;
+
+	template <class _ARG1 ,class _ARG2>
+	inline imports_static void thread_sleep (const stl::chrono::duration<_ARG1 ,_ARG2> &time_) ;
+
+	template <class _ARG1 ,class _ARG2>
+	inline imports_static void thread_sleep (const stl::chrono::time_point<_ARG1 ,_ARG2> &time_) ;
+
+	inline imports_static void thread_sleep () ;
+
+	inline imports_static LENGTH thread_concurrency () ;
+
+	inline imports_static void thread_fence () ;
+
+	inline imports_static void locale_init (const Plain<STRA> &locale_) ;
+
+	inline imports_static FLAG process_pid () ;
+
+	inline imports_static Buffer<BYTE ,ARGC<128>> process_info (FLAG pid) ;
+
+	inline imports_static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
+
+	inline imports_static void process_exit[[noreturn]] () ;
+
+	inline imports_static void process_abort[[noreturn]] () ;
+} ;
+
 namespace U {
 struct OPERATOR_TYPENAME {
 	struct TYPENAME {
@@ -28,7 +62,7 @@ struct OPERATOR_TYPENAME {
 		const auto r3x = ret.mName.length () - r1x - r2x ;
 		_DYNAMIC_ASSERT_ (r3x > 0) ;
 		ret.mName = ret.mName.segment (r1x ,r3x) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 #endif
 
@@ -44,7 +78,7 @@ struct OPERATOR_TYPENAME {
 		const auto r6x = ret.mName.length () - r4x - r5x ;
 		_DYNAMIC_ASSERT_ (r6x > 0) ;
 		ret.mName = ret.mName.segment (r4x ,r6x) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 #endif
 
@@ -60,7 +94,7 @@ struct OPERATOR_TYPENAME {
 		const auto r9x = ret.mName.length () - r7x - r8x ;
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mName = ret.mName.segment (r7x ,r9x) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 #endif
 
@@ -100,14 +134,14 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP8)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP8)> &) {
 		writer << _PCSTR_ ("PTR<") ;
 		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_POINTER_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (">") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_member_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP7)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_member_pointer<_ARG1>::value>> & ,const DEF<decltype (ARGVP7)> &) {
 		writer << _PCSTR_ ("DEF<") ;
 		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_MEMPTR_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (" ") ;
@@ -116,7 +150,7 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_arr (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,ARR<REMOVE_ARRAY_TYPE<_ARG1>>>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	inline static void template_write_typename_arr (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,ARR<REMOVE_ARRAY_TYPE<_ARG1>>>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ ("ARR<") ;
 		template_write_typename_x (writer ,_NULL_<ARGV<REMOVE_ARRAY_TYPE<_ARG1>>> ()) ;
 		writer << _PCSTR_ (">") ;
@@ -132,7 +166,7 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_array<_ARG1>::value>> & ,const DEF<decltype (ARGVP6)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_array<_ARG1>::value>> & ,const DEF<decltype (ARGVP6)> &) {
 		template_write_typename_arr (writer ,_NULL_<ARGV<_ARG1>> () ,ARGVPX ,ARGVP9) ;
 	}
 
@@ -146,7 +180,7 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_function<_ARG1>::value>> & ,const DEF<decltype (ARGVP5)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_function<_ARG1>::value>> & ,const DEF<decltype (ARGVP5)> &) {
 		template_write_typename_func (writer ,_NULL_<ARGV<REMOVE_FUNCATTR_TYPE<_ARG1>>> () ,ARGVPX ,ARGVP9) ;
 	}
 
@@ -169,37 +203,37 @@ struct OPERATOR_TYPENAME {
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_class<_ARG1>::value>> & ,const DEF<decltype (ARGVP4)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_class<_ARG1>::value>> & ,const DEF<decltype (ARGVP4)> &) {
 		template_write_typename_claz (writer ,_NULL_<ARGV<_ARG1>> () ,ARGVPX ,ARGVP9) ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU8>::value && !std::is_same<_ARG1 ,BYTE>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,STRU8>::value && !stl::is_same<_ARG1 ,BYTE>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("STRU8") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU16>::value && !std::is_same<_ARG1 ,WORD>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,STRU16>::value && !stl::is_same<_ARG1 ,WORD>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("STRU16") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,STRU32>::value && !std::is_same<_ARG1 ,CHAR>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,STRU32>::value && !stl::is_same<_ARG1 ,CHAR>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("STRU32") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VARX>::value && !std::is_same<_ARG1 ,VAR32>::value && !std::is_same<_ARG1 ,VAR64>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("VARX") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VARY>::value && !std::is_same<_ARG1 ,CHAR>::value && !std::is_same<_ARG1 ,DATA>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("VARY") ;
 	}
 
 	template <class _ARG1>
-	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<std::is_same<_ARG1 ,VALX>::value && !std::is_same<_ARG1 ,VAL32>::value && !std::is_same<_ARG1 ,VAL64>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	inline static void template_write_typename_id (TextWriter<STR> &writer ,const ARGV<_ARG1> & ,const ARGV<ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("VALX") ;
 	}
 
@@ -328,8 +362,8 @@ private:
 	private:
 		template <class>
 		friend class GlobalStatic ;
-		std::atomic<LENGTH> mCounter ;
-		Monostate<std::mutex> mNodeMutex ;
+		stl::atomic<LENGTH> mCounter ;
+		Monostate<stl::mutex> mNodeMutex ;
 		Deque<VALUE_NODE> mValueList ;
 		HashSet<FLAG> mValueMappingSet ;
 		Deque<CLASS_NODE> mClassList ;
@@ -354,12 +388,12 @@ private:
 				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
 				auto &r2x = _XVALUE_<Pack> (r1x) ;
-				auto &r3x = _LOAD_<NONE> (&r2x) ;
-				rax = unique_atomic_address (NULL ,&r3x) ;
+				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
+				rax = unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_<Pack> (rax) ;
-			return IntrusiveRef<Pack ,GlobalStatic> (&r4x).watch () ;
+			return IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r4x]).watch () ;
 		}) ;
 	}
 
@@ -421,14 +455,14 @@ public:
 
 private:
 	static void friend_create (Pack &self_) {
-		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
-		ScopedGuard<std::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
@@ -454,7 +488,7 @@ class GlobalStatic final
 public:
 	imports_static void init (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if (r2x != NULL)
 			return ;
@@ -466,7 +500,7 @@ public:
 
 	imports_static VAR load () popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		return r2x->mValue ;
@@ -474,7 +508,7 @@ public:
 
 	imports_static VAR compare_and_swap (VAR expect ,VAR data) popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
@@ -485,7 +519,7 @@ public:
 
 	imports_static void save (VAR data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<std::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if switch_case (TRUE) {
 			if (rax != NULL)
@@ -506,7 +540,7 @@ private:
 	class Pack {
 	private:
 		friend GlobalStatic ;
-		std::atomic<LENGTH> mCounter ;
+		stl::atomic<LENGTH> mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
 
@@ -517,7 +551,7 @@ public:
 	static Singleton<UNIT> &unique () popping {
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStatic<void>::static_unique () ;
-			ScopedGuard<std::mutex> ANONYMOUS (r2x.mNodeMutex) ;
+			ScopedGuard<stl::mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
@@ -530,11 +564,11 @@ public:
 				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
 				auto &r5x = _XVALUE_<Pack> (r4x) ;
-				auto &r6x = _LOAD_<NONE> (&r5x) ;
-				rax->mValue = &r6x ;
+				auto &r6x = _LOAD_<NONE> (DEPTR[r5x]) ;
+				rax->mValue = DEPTR[r6x] ;
 			}
 			auto &r7x = _LOAD_<Pack> (rax->mValue) ;
-			return IntrusiveRef<Pack ,GlobalStatic> (&r7x).watch () ;
+			return IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r7x]).watch () ;
 		}) ;
 		return _XVALUE_<Pack> (r1x).mValue ;
 	}
@@ -576,7 +610,7 @@ private:
 	class Pack {
 	private:
 		friend Coroutine ;
-		std::atomic<LENGTH> mCounter ;
+		stl::atomic<LENGTH> mCounter ;
 		EFLAG mState ;
 		AutoRef<CONT> mContext ;
 		AnyRef<void> mBreakPoint ;
@@ -614,7 +648,7 @@ public:
 		mThis->mSubProc = Array<Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
 			_DEBUG_ASSERT_ (proc[i].exist ()) ;
-			mThis->mSubProc[i] = std::move (proc[i]) ;
+			mThis->mSubProc[i] = stl::move (proc[i]) ;
 		}
 		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProc.length ()) ;
 		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProc.length ()) ;
@@ -653,7 +687,7 @@ public:
 			if (mThis->mState == STATE_STOPPED)
 				return ;
 			mThis->mState = STATE_RUNNING ;
-			mThis->mSubProc[r1x] (_CAST_<SubRef> (_DEREF_ (this))) ;
+			mThis->mSubProc[r1x] (_CAST_<SubRef> (DEREF[this])) ;
 		} ,[&] () {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
@@ -693,9 +727,9 @@ private:
 
 public:
 	imports_static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-		auto rax = Coroutine<CONT> (std::move (proc)) ;
+		auto rax = Coroutine<CONT> (stl::move (proc)) ;
 		rax.execute () ;
-		return std::move (rax.context ()) ;
+		return stl::move (rax.context ()) ;
 	}
 } ;
 
@@ -810,22 +844,22 @@ private:
 private:
 	class Implement ;
 	friend Singleton<RandomService> ;
-	Monostate<std::recursive_mutex> mMutex ;
+	Monostate<stl::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	VAR entropy () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->entropy () ;
 	}
 
 	void reset_seed (VAR seed_) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->reset_seed (seed_) ;
 	}
 
 	VAR random_value (VAR min_ ,VAR max_) popping {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		const auto r1x = max_ - min_ + 1 ;
 		const auto r2x = mThis->random_value () ;
@@ -833,7 +867,7 @@ public:
 	}
 
 	Array<VAR> random_value (VAR min_ ,VAR max_ ,LENGTH len) popping {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		Array<VAR> ret = Array<VAR> (len) ;
 		const auto r1x = max_ - min_ + 1 ;
@@ -841,7 +875,7 @@ public:
 			const auto r2x = mThis->random_value () ;
 			ret[i] = r2x % r1x + min_ ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range_) popping {
@@ -851,7 +885,7 @@ public:
 	BitSet<> random_shuffle (LENGTH count ,LENGTH range_ ,BitSet<> &&res) popping {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
-		BitSet<> ret = std::move (res) ;
+		BitSet<> ret = stl::move (res) ;
 		ret.clear () ;
 		while (TRUE) {
 			if (ret.length () >= count)
@@ -859,13 +893,13 @@ public:
 			INDEX ix = random_value (0 ,(range_ - 1)) ;
 			ret[ix] = TRUE ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range_) popping {
 		BitSet<> ret = BitSet<> (range_.size ()) ;
 		compute_random_shuffle (count ,range_ ,ret) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) {
@@ -906,11 +940,11 @@ public:
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void random_skip (LENGTH len) {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->random_skip (len) ;
 	}
 

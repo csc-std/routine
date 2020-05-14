@@ -23,7 +23,7 @@
 #elif defined _MSC_VER
 #define __CSC_COMPILER_MSVC__
 #else
-#define __CSC_COMPILER_WTF__
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #if defined (linux) || defined (__linux) || defined (__linux__)
@@ -31,11 +31,13 @@
 #elif defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
 #define __CSC_SYSTEM_WINDOWS__
 #else
-#define __CSC_SYSTEM_WTF__
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #ifdef _M_IX86
 #define __CSC_PLATFORM_X86__
+#elif defined _M_X64
+#define __CSC_PLATFORM_X64__
 #elif defined _M_AMD64
 #define __CSC_PLATFORM_X64__
 #elif defined _M_ARM
@@ -45,7 +47,7 @@
 #elif defined _M_IA64
 #define __CSC_PLATFORM_IA64__
 #else
-#define __CSC_PLATFORM_WTF__
+#error "∑(っ°Д° ;)っ : unsupported"
 #endif
 
 #ifdef _WINEXE
@@ -112,7 +114,7 @@
 #pragma warning (default :26401) //@info: warning C26401: Do not delete a raw pointer that is not an owner<T> (i.11).
 #pragma warning (default :26403) //@info: warning C26403: Reset or explicitly delete an owner<T> pointer 'xxx' (r.3).
 #pragma warning (default :26406) //@info: warning C26406: Do not assign a raw pointer to an owner<T> (r.3).
-#pragma warning (default :26409) //@info: warning C26409: Avoid calling new and delete explicitly, use std::make_unique<T> instead (r.11).
+#pragma warning (default :26409) //@info: warning C26409: Avoid calling new and delete explicitly, use stl::make_unique<T> instead (r.11).
 #pragma warning (default :26410) //@info: warning C26410: The parameter 'xxx' is a reference to const unique pointer, use const T* or const T& instead (r.32).
 #pragma warning (default :26411) //@info: warning C26411: The parameter 'xxx' is a reference to unique pointer and it is never reassigned or reset, use T* or T& instead (r.33).
 #pragma warning (default :26415) //@info: warning C26415: Smart pointer parameter 'xxx' is used only to access contained pointer. Use T* or T& instead (r.30).
@@ -261,6 +263,7 @@ using std::uint64_t ;
 using std::move ;
 using std::forward ;
 using std::nothrow ;
+using std::addressof ;
 
 #ifndef __CSC_COMPILER_GNUC__
 using std::max_align_t ;
@@ -296,12 +299,14 @@ using std::is_base_of ;
 using std::is_abstract ;
 using std::is_default_constructible ;
 using std::is_constructible ;
+using std::is_nothrow_constructible ;
 using std::is_nothrow_destructible ;
 using std::is_copy_constructible ;
 using std::is_copy_assignable ;
 using std::is_nothrow_move_constructible ;
 using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
+using std::is_integral ;
 
 using std::exception ;
 } ;
@@ -429,8 +434,8 @@ using BOOL = bool ;
 #endif
 #define TRUE true
 
-using VAR32 = std::int32_t ;
-using VAR64 = std::int64_t ;
+using VAR32 = stl::int32_t ;
+using VAR64 = stl::int64_t ;
 
 static constexpr auto VAR32_MAX = VAR32 (2147483647) ;
 static constexpr auto VAR32_MIN = ~VAR32_MAX ;
@@ -475,13 +480,13 @@ using VAL64 = double ;
 static constexpr auto VAL32_MAX = VAL32 (3.402823466E+38) ;
 static constexpr auto VAL32_MIN = VAL32 (1.175494351E-38) ;
 static constexpr auto VAL32_EPS = VAL32 (1.192092896E-07) ;
-static constexpr auto VAL32_INF = std::numeric_limits<VAL32>::infinity () ;
-static constexpr auto VAL32_NAN = std::numeric_limits<VAL32>::quiet_NaN () ;
+static constexpr auto VAL32_INF = stl::numeric_limits<VAL32>::infinity () ;
+static constexpr auto VAL32_NAN = stl::numeric_limits<VAL32>::quiet_NaN () ;
 static constexpr auto VAL64_MAX = VAL64 (1.7976931348623158E+308) ;
 static constexpr auto VAL64_MIN = VAL64 (2.2250738585072014E-308) ;
 static constexpr auto VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
-static constexpr auto VAL64_INF = std::numeric_limits<VAL64>::infinity () ;
-static constexpr auto VAL64_NAN = std::numeric_limits<VAL64>::quiet_NaN () ;
+static constexpr auto VAL64_INF = stl::numeric_limits<VAL64>::infinity () ;
+static constexpr auto VAL64_NAN = stl::numeric_limits<VAL64>::quiet_NaN () ;
 
 #ifdef __CSC_CONFIG_VAL32__
 using VAL = VAL32 ;
@@ -543,10 +548,10 @@ template <class TYPE>
 using ARR = DEF<TYPE[0]> ;
 #endif
 
-using BYTE = std::uint8_t ;
-using WORD = std::uint16_t ;
-using CHAR = std::uint32_t ;
-using DATA = std::uint64_t ;
+using BYTE = stl::uint8_t ;
+using WORD = stl::uint16_t ;
+using CHAR = stl::uint32_t ;
+using DATA = stl::uint64_t ;
 
 class __uint128_t {
 private:
@@ -1046,7 +1051,7 @@ template <class ,class ,class>
 struct RESULT_OF ;
 
 template <class _ARG1 ,class _ARG2>
-struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<!std::is_class<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
+struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<!stl::is_class<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
 	using TYPE = INVOKE_RESULT_TYPE<REMOVE_POINTER_TYPE<_ARG1>> ;
 } ;
 
@@ -1604,24 +1609,33 @@ template <class... _ARGS>
 using is_any_same = U::IS_ANY_SAME_HELP<_ARGS...> ;
 } ;
 
-template <class _ARG1>
-inline constexpr _ARG1 &_DEREF_ (PTR<_ARG1> address) noexcept {
-	return (*address) ;
-}
+namespace U {
+struct OPERATOR_DEREF {
+	template <class _ARG1>
+	inline constexpr _ARG1 &operator[] (PTR<_ARG1> address) const noexcept {
+		return (*address) ;
+	}
+} ;
 
-template <class _ARG1>
-inline constexpr PTR<_ARG1> _DEPTR_ (_ARG1 &object) noexcept {
-	return std::addressof (object) ;
-}
+struct OPERATOR_DEPTR {
+	template <class _ARG1>
+	inline constexpr PTR<_ARG1> operator[] (_ARG1 &object) const noexcept {
+		return stl::addressof (object) ;
+	}
+} ;
+} ;
+
+static constexpr auto DEREF = U::OPERATOR_DEREF {} ;
+static constexpr auto DEPTR = U::OPERATOR_DEPTR {} ;
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () noexcept {
-	return _DEREF_ (PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)) ;
+	return DEREF[PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)] ;
 }
 
 template <class _ARG1>
 inline LENGTH _ADDRESS_ (PTR<_ARG1> address) noexcept popping {
-	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" :: "rm" (address) : "memory") ;
 #endif
@@ -1637,7 +1651,7 @@ inline LENGTH _ADDRESS_ (PTR<VOID> address) noexcept popping {
 
 template <class _ARG1>
 inline LENGTH _ADDRESS_ (PTR<const _ARG1> address) noexcept popping {
-	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 	return LENGTH (address) ;
 }
 
@@ -1647,27 +1661,27 @@ inline constexpr INDEX _ALIGNAS_ (INDEX base ,LENGTH align_) noexcept {
 
 template <class _RET>
 inline _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	return object ;
 }
 
 template <class _RET>
 inline const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	return object ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (!(std::is_pointer<_ARG1>::value && !std::is_same<_RET ,TEMP<_ARG1>>::value)) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG1>::value && !stl::is_same<_RET ,TEMP<_ARG1>>::value)) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
-	const auto r1x = _ADDRESS_ (&object) ;
+	const auto r1x = _ADDRESS_ (DEPTR[object]) ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
-	return _DEREF_ (r2x) ;
+	return DEREF[r2x] ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
@@ -1676,14 +1690,15 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) noexcept {
-	_STATIC_ASSERT_ (std::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
-	const auto r1x = _ADDRESS_ (&mref) - _ADDRESS_ (&(_NULL_<_ARG2> ().*mptr)) ;
-	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r1x)) ;
+	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
+	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
+	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
+	return _LOAD_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (_XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + r2x)) ;
 }
 
 template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) noexcept {
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_CAST_<TEMP<_ARG1>> (object) = {0} ;
 }
 
@@ -1694,55 +1709,55 @@ inline REMOVE_CVR_TYPE<_ARG1> _COPY_ (const _ARG1 &object) {
 
 template <class _ARG1>
 inline _ARG1 _EXCHANGE_ (_ARG1 &handle) noexcept popping {
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
 	_ZERO_ (handle) ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 template <class _ARG1>
 inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) noexcept popping {
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_ARG1 ret = handle ;
 	handle = val ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) noexcept {
-	_STATIC_ASSERT_ (std::is_nothrow_move_constructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_nothrow_move_assignable<_ARG1>::value) ;
-	auto tmp = std::move (lhs) ;
-	lhs = std::move (rhs) ;
-	rhs = std::move (tmp) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<_ARG1>::value) ;
+	auto tmp = stl::move (lhs) ;
+	lhs = stl::move (rhs) ;
+	rhs = stl::move (tmp) ;
 }
 
 template <class _RET ,class _ARG1>
 inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_RET>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (std::is_pod<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_pointer<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_pointer<_ARG1>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	TEMP<_RET> ret ;
 	_ZERO_ (ret) ;
 	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
-	return std::move (_CAST_<_RET> (ret)) ;
+	return stl::move (_CAST_<_RET> (ret)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (PTR<TEMP<_ARG1>> address ,_ARGS &&...initval) {
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_<_ARG1> (address) ;
-	new (&r1x) _ARG1 (std::forward<_ARGS> (initval)...) ;
+	new (DEPTR[r1x]) _ARG1 (stl::forward<_ARGS> (initval)...) ;
 }
 
 template <class _ARG1>
 inline void _DESTROY_ (PTR<TEMP<_ARG1>> address) noexcept {
-	_STATIC_ASSERT_ (std::is_nothrow_destructible<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_array<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_<_ARG1> (address) ;
 	r1x.~_ARG1 () ;
 	_STATIC_UNUSED_ (r1x) ;
@@ -1836,14 +1851,14 @@ public:
 template <class UNIT>
 class TypeInterface final
 	:private Interface {
-	_STATIC_ASSERT_ (std::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
 } ;
 
 template <class _RET>
 inline FLAG _TYPEMID_ () noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	TypeInterface<REMOVE_CVR_TYPE<_RET>> ret ;
-	return std::move (_CAST_<FLAG> (ret)) ;
+	return stl::move (_CAST_<FLAG> (ret)) ;
 }
 
 namespace stl {
@@ -1862,7 +1877,7 @@ using is_always_base_of = U::IS_ALWAYS_BASE_OF_HELP<_ARG1 ,_ARG2> ;
 
 template <class UNIT>
 struct TEMP {
-	_STATIC_ASSERT_ (!std::is_reference<UNIT>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<UNIT>::value) ;
 	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
 
@@ -1930,7 +1945,7 @@ public:
 	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
-		return Iterator (_DEREF_ (this) ,mIBegin) ;
+		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
 	template <class _RET = NONE>
@@ -1938,7 +1953,7 @@ public:
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return Iterator (_DEREF_ (this) ,r1x) ;
+		return Iterator (DEREF[this] ,r1x) ;
 	}
 } ;
 
@@ -1977,8 +1992,8 @@ inline ArrayRange<ZERO> _RANGE_ (INDEX ibegin_ ,INDEX iend_) {
 
 template <class _ARG1>
 inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) popping {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
 	return mInstance ;
 }
@@ -2000,12 +2015,12 @@ namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
 	inline constexpr ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const noexcept {
-		return _DEREF_ (PTR<ARR<_ARG1>> (that)) ;
+		return DEREF[PTR<ARR<_ARG1>> (that)] ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
 	inline constexpr ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const noexcept {
-		return _DEREF_ (PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (&that)) ;
+		return DEREF[PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (DEPTR[that])] ;
 	}
 } ;
 } ;
@@ -2025,9 +2040,9 @@ private:
 public:
 	inline Plain () = delete ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<std::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
 	inline constexpr implicit Plain (_ARG1 &that) noexcept
-		:mPlain (&that[0]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
+		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
 	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
@@ -2104,7 +2119,7 @@ public:
 	inline Exception () = delete ;
 
 	inline explicit Exception (const Plain<STR> &what_) noexcept
-		:mWhat (&what_.self) {}
+		:mWhat (DEPTR[what_.self]) {}
 
 	inline Exception (const Exception &) = default ;
 	inline Exception &operator= (const Exception &) = default ;
@@ -2113,70 +2128,70 @@ public:
 	inline Exception &operator= (Exception &&) = default ;
 
 	inline const ARR<STR> &what () const noexcept {
-		return _DEREF_ (mWhat) ;
+		return DEREF[mWhat] ;
 	}
 
 	inline void raise[[noreturn]] () const {
-		throw _DEREF_ (this) ;
+		throw DEREF[this] ;
 	}
 } ;
 
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (PTR<_ARG1> address) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(std::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	_STATIC_UNUSED_ (r1x) ;
 	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
-	return _DEREF_ (r3x) ;
+	return DEREF[r3x] ;
 }
 
 template <class _ARG1>
 inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return func () ;
 }
 
 //@warn: check ruined object when an exception was thrown
 template <class _ARG1>
 inline void _CALL_TRY_ (_ARG1 &&proc) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	proc () ;
 }
 
 //@warn: check ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
 inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	try {
 		proc_one () ;
 		return ;
 	} catch (const Exception &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
-	_CALL_TRY_ (std::forward<_ARGS> (proc_rest)...) ;
+	_CALL_TRY_ (stl::forward<_ARGS> (proc_rest)...) ;
 }
 
 template <class _ARG1 ,class _ARG2>
 inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) noexcept {
-	_STATIC_ASSERT_ (!std::is_reference<_ARG1>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	_STATIC_ASSERT_ (!std::is_reference<_ARG2>::value) ;
-	_STATIC_ASSERT_ (std::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
 	try {
 		try_proc () ;
 		return ;
 	} catch (const Exception &e) {
 		catch_proc (e) ;
-	} catch (const std::exception &e) {
-		catch_proc (Exception (_PCSTR_ ("std::exception : unknown"))) ;
+	} catch (const stl::exception &e) {
+		catch_proc (Exception (_PCSTR_ ("stl::exception : unknown"))) ;
 		_STATIC_UNUSED_ (e) ;
 	} catch (...) {
 		catch_proc (Exception (_PCSTR_ ("unknown C++ exception"))) ;

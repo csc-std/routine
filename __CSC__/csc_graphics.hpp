@@ -48,7 +48,7 @@ public:
 
 	void add_texture (Bitmap<COLOR_BGR> &&texture_) {
 		mTexture = Array<Bitmap<COLOR_BGR>> (1) ;
-		mTexture[0] = std::move (texture_) ;
+		mTexture[0] = stl::move (texture_) ;
 	}
 } ;
 
@@ -126,7 +126,7 @@ public:
 	}
 
 	Matrix<REAL> view_matrix () const {
-		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (_DEREF_ (this)) ,&Camera::compute_view_matrix) ;
+		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (DEREF[this]) ,&Camera::compute_view_matrix) ;
 		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
 	}

@@ -50,11 +50,24 @@
 
 namespace CSC {
 namespace api {
+using ::DIR ;
+
 using ::open ;
 using ::close ;
 using ::lseek ;
 using ::read ;
 using ::write ;
+using ::opendir ;
+using ::readdir ;
+using ::closedir ;
+using ::link ;
+using ::unlink ;
+using ::rename ;
+using ::stat ;
+using ::getcwd ;
+using ::readlink ;
+using ::mkdir ;
+using ::rmdir ;
 } ;
 
 inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) popping {
@@ -71,7 +84,7 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 	AutoBuffer<BYTE> ret = AutoBuffer<BYTE> (r3x) ;
 	const auto r4x = LENGTH (api::read (r2x.self ,ret.self ,VAR32 (r3x))) ;
 	_DYNAMIC_ASSERT_ (r4x == r3x) ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
@@ -127,13 +140,13 @@ inline exports BOOL FileSystemProc::find_file (const String<STR> &file) popping 
 
 namespace U {
 inline BOOL static_find_juntion (const String<STRA> &dire) popping {
-	using HDIR = PTR<DIR> ;
+	using HDIR = PTR<api::DIR> ;
 	const auto r1x = UniqueRef<HDIR> ([&] (HDIR &me) {
-		me = ::opendir (dire.raw ().self) ;
+		me = api::opendir (dire.raw ().self) ;
 	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
-		::closedir (me) ;
+		api::closedir (me) ;
 	}) ;
 	if (r1x.self == NULL)
 		return FALSE ;
@@ -146,7 +159,7 @@ inline exports void FileSystemProc::erase_file (const String<STR> &file) {
 	const auto r2x = U::static_find_juntion (r1x) ;
 	if (r2x)
 		return ;
-	const auto r3x = ::unlink (r1x.raw ().self) ;
+	const auto r3x = api::unlink (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r3x) ;
 }
 
@@ -162,7 +175,7 @@ inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,cons
 	const auto r2x = StringProc::build_strs<STRA> (dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
-	const auto r4x = ::rename (r1x.raw ().self ,r2x.raw ().self) ;
+	const auto r4x = api::rename (r1x.raw ().self ,r2x.raw ().self) ;
 	_STATIC_UNUSED_ (r4x) ;
 }
 
@@ -171,7 +184,7 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 	const auto r2x = StringProc::build_strs<STRA> (dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
-	const auto r4x = ::link (r1x.raw ().self ,r2x.raw ().self) ;
+	const auto r4x = api::link (r1x.raw ().self ,r2x.raw ().self) ;
 	_STATIC_UNUSED_ (r4x) ;
 }
 
@@ -180,13 +193,13 @@ inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,co
 	const auto r2x = StringProc::build_strs<STRA> (file2) ;
 	auto rax = ARRAY2<DEF<struct stat>> () ;
 	_ZERO_ (rax[0]) ;
-	const auto r3x = ::stat (r1x.raw ().self ,&rax[0]) ;
+	const auto r3x = api::stat (r1x.raw ().self ,DEPTR[rax[0]]) ;
 	if (r3x != 0)
 		return FALSE ;
 	if (rax[0].st_nlink == 0)
 		return FALSE ;
 	_ZERO_ (rax[1]) ;
-	const auto r4x = ::stat (r2x.raw ().self ,&rax[1]) ;
+	const auto r4x = api::stat (r2x.raw ().self ,DEPTR[rax[1]]) ;
 	if (r4x != 0)
 		return FALSE ;
 	if (rax[1].st_nlink == 0)
@@ -206,7 +219,7 @@ inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = MathProc::maxof (r3x ,r4x ,VAR_ZERO) ;
 	BasicProc::mem_copy (ret.raw ().self ,r2x.self ,r5x) ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
@@ -217,7 +230,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = _MAX_ (r3x ,r4x) + 1 ;
 	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR> &file) {
@@ -247,13 +260,13 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 	}
 	ret.pop () ;
 	rax >> TextReader<STR>::EOS ;
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports String<STR> FileSystemProc::working_path () {
 	auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
 	if switch_case (TRUE) {
-		const auto r1x = ::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
+		const auto r1x = api::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (r1x != NULL)
 			discard ;
 		rax.clear () ;
@@ -292,7 +305,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 			ret.add (ix) ;
 		}
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 } ;
 
@@ -317,8 +330,8 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 		const auto r1x = FileSystemProc::working_path () ;
 		if switch_case (TRUE) {
 			auto tmp = FileSystemProc::decouple_path_name (r1x) ;
-			tmp.appand (std::move (rax)) ;
-			rax = std::move (tmp) ;
+			tmp.appand (stl::move (rax)) ;
+			rax = stl::move (tmp) ;
 		}
 		if (r1x.size () < 1)
 			discard ;
@@ -344,26 +357,26 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 			discard ;
 		ret += _PCSTR_ ("/") ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports const String<STR> &FileSystemProc::module_file_path () popping {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
-		const auto r1x = ::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
+		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
 		String<STR> ret = StringProc::parse_strs (rax) ;
 		ret = FileSystemProc::parse_path_name (ret) ;
 		ret += _PCSTR_ ("/") ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}) ;
 }
 
 inline exports const String<STR> &FileSystemProc::module_file_name () popping {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
-		const auto r1x = ::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
+		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
 		const auto r2x = StringProc::parse_strs (rax) ;
@@ -372,14 +385,14 @@ inline exports const String<STR> &FileSystemProc::module_file_name () popping {
 }
 
 inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) popping {
-	using HDIR = PTR<DIR> ;
+	using HDIR = PTR<api::DIR> ;
 	const auto r1x = StringProc::build_strs<STRA> (dire) ;
 	const auto r2x = UniqueRef<HDIR> ([&] (HDIR &me) {
-		me = ::opendir (r1x.raw ().self) ;
+		me = api::opendir (r1x.raw ().self) ;
 	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
-		::closedir (me) ;
+		api::closedir (me) ;
 	}) ;
 	if (r2x.self == NULL)
 		return FALSE ;
@@ -419,7 +432,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) pop
 		_STATIC_UNUSED_ (r9x) ;
 		ret = TRUE ;
 	}
-	return std::move (ret) ;
+	return stl::move (ret) ;
 }
 
 inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
@@ -448,40 +461,40 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 				continue ;
 		const auto r4x = StringProc::build_strs<STRA> (rax) ;
 		const auto r5x = VAR32 (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ;
-		::mkdir (r4x.raw ().self ,r5x) ;
+		api::mkdir (r4x.raw ().self ,r5x) ;
 	}
 }
 
 inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	const auto r1x = StringProc::build_strs<STRA> (dire) ;
-	const auto r2x = ::rmdir (r1x.raw ().self) ;
+	const auto r2x = api::rmdir (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r2x) ;
 	const auto r3x = U::static_find_juntion (r1x) ;
 	if (!r3x)
 		return ;
-	const auto r4x = ::unlink (r1x.raw ().self) ;
+	const auto r4x = api::unlink (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r4x) ;
 }
 
 //@warn: recursive call with junction(symbolic link) may cause endless loop
 inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
-	using HDIR = PTR<DIR> ;
+	using HDIR = PTR<api::DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	rax += dire ;
 	rax += _PCSTR_ ("/") ;
 	const auto r1x = rax.length () ;
 	const auto r2x = StringProc::build_strs<STRA> (rax) ;
 	const auto r3x = UniqueRef<HDIR> ([&] (HDIR &me) {
-		me = ::opendir (r2x.raw ().self) ;
+		me = api::opendir (r2x.raw ().self) ;
 	} ,[] (HDIR &me) {
 		if (me == NULL)
 			return ;
-		::closedir (me) ;
+		api::closedir (me) ;
 	}) ;
 	if (r3x.self == NULL)
 		return ;
 	while (TRUE) {
-		const auto r4x = ::readdir (r3x.self) ;
+		const auto r4x = api::readdir (r3x.self) ;
 		if (r4x == NULL)
 			break ;
 		const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r4x->d_name])) ;

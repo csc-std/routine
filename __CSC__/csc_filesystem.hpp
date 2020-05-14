@@ -131,17 +131,17 @@ private:
 private:
 	class Implement ;
 	friend Singleton<FileSystemService> ;
-	Monostate<std::recursive_mutex> mMutex ;
+	Monostate<stl::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	void startup () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->startup () ;
 	}
 
 	void shutdown () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->shutdown () ;
 	}
 

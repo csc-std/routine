@@ -55,7 +55,7 @@ public:
 	template <class _ARG1>
 	inline TCPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
@@ -70,7 +70,7 @@ public:
 	template <class _ARG1>
 	inline TCPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 public:
@@ -124,7 +124,7 @@ public:
 	template <class _ARG1>
 	inline UDPSocket &operator>> (Buffer<BYTE ,_ARG1> &data) {
 		read (data) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) ;
@@ -139,7 +139,7 @@ public:
 	template <class _ARG1>
 	inline UDPSocket &operator<< (const Buffer<BYTE ,_ARG1> &data) {
 		write (data) ;
-		return _DEREF_ (this) ;
+		return DEREF[this] ;
 	}
 } ;
 
@@ -160,37 +160,37 @@ private:
 private:
 	class Implement ;
 	friend Singleton<NetworkService> ;
-	Monostate<std::recursive_mutex> mMutex ;
+	Monostate<stl::recursive_mutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	void startup () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->startup () ;
 	}
 
 	void shutdown () {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		mThis->shutdown () ;
 	}
 
 	String<STRU8> localhost_name () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->localhost_name () ;
 	}
 
 	String<STRU8> localhost_addr () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->localhost_addr () ;
 	}
 
 	String<STRU8> broadcast_addr () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->broadcast_addr () ;
 	}
 
 	LENGTH pref_timeout () const {
-		ScopedGuard<std::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
 		return mThis->pref_timeout () ;
 	}
 

@@ -47,6 +47,11 @@
 
 namespace CSC {
 namespace api {
+using std::printf ;
+using std::wprintf ;
+using std::getchar ;
+
+using ::atexit ;
 using ::signal ;
 using ::backtrace ;
 using ::free ;
@@ -96,7 +101,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("%s\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("%s\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -110,7 +115,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("%ls\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("%ls\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -124,7 +129,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;34m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;34m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -138,7 +143,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;34m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;34m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -152,7 +157,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;31m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;31m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -166,7 +171,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;31m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;31m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -180,7 +185,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;33m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;33m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -194,7 +199,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;33m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;33m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -208,7 +213,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;32m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;32m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -222,7 +227,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;32m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;32m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -236,7 +241,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;36m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;36m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -250,7 +255,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;36m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;36m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -264,7 +269,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::printf (_PCSTR_ ("\033[1;37m%s\033[0m\n") ,mConWriter.raw ().self) ;
+		api::printf (_PCSTR_ ("\033[1;37m%s\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -278,7 +283,7 @@ public:
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
-		std::wprintf (_PCSTR_ ("\033[1;37m%ls\033[0m\n") ,mConWriter.raw ().self) ;
+		api::wprintf (_PCSTR_ ("\033[1;37m%ls\033[0m\n") ,mConWriter.raw ().self) ;
 		if (mLogPath.empty ())
 			return ;
 		const auto r1x = PhanBuffer<const STR>::make (mConWriter.raw () ,(mConWriter.length () - 1)) ;
@@ -323,15 +328,15 @@ public:
 	void pause () override {
 		if (!mConsole.exist ())
 			return ;
-		std::printf (_PCSTR_ ("press any key to continue...\n")) ;
-		const auto r1x = std::getchar () ;
+		api::printf (_PCSTR_ ("press any key to continue...\n")) ;
+		const auto r1x = api::getchar () ;
 		_STATIC_UNUSED_ (r1x) ;
 	}
 
 	void clear () override {
 		if (!mConsole.exist ())
 			return ;
-		std::printf (_PCSTR_ ("\f\f")) ;
+		api::printf (_PCSTR_ ("\f\f")) ;
 	}
 
 private:
@@ -350,7 +355,7 @@ private:
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << StringProc::build_hours (std::chrono::system_clock ().now ()) ;
+		mLogWriter << StringProc::build_hours (stl::chrono::system_clock ().now ()) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -429,7 +434,7 @@ public:
 		const auto r4x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		std::atexit (r1x) ;
+		api::atexit (r1x) ;
 		api::signal (SIGFPE ,r2x) ;
 		api::signal (SIGILL ,r3x) ;
 		api::signal (SIGSEGV ,r4x) ;
@@ -447,7 +452,7 @@ public:
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
 			ret[i] = _ADDRESS_ (rax[i]) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping override {
@@ -458,7 +463,7 @@ public:
 				const auto r2x = _XVALUE_<PTR<VOID>> (&_NULL_<BYTE> () + i) ;
 				ret[i] = r2x ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}) ;
 		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
 			me = api::backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
@@ -476,7 +481,7 @@ public:
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 

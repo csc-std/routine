@@ -95,7 +95,7 @@ public:
 				continue ;
 			mTable[it].mWidth -= mTable[i].mWidth ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void joint (INDEX index1 ,INDEX index2) {
@@ -119,7 +119,7 @@ public:
 			INDEX iy = r1x.map (ix) ;
 			ret[iy][i] = TRUE ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 private:
@@ -131,7 +131,7 @@ private:
 			const auto r1x = ret.length () ;
 			ret.add (i ,r1x) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 
@@ -239,7 +239,7 @@ public:
 			ret[--iw] = i ;
 		}
 		_DEBUG_ASSERT_ (iw == 0) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 private:
@@ -251,7 +251,7 @@ private:
 			it = mPrev[i] ;
 			ret++ ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 
@@ -324,12 +324,12 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		}
 
 		inline void refresh () {
-			mContext.mPrev = std::move (mPrev) ;
-			mContext.mDistance = std::move (mDistance) ;
+			mContext.mPrev = stl::move (mPrev) ;
+			mContext.mDistance = stl::move (mDistance) ;
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,adjacency ,root_)) ;
+	_CALL_ (Lambda (DEREF[this] ,adjacency ,root_)) ;
 }
 
 template <class REAL>
@@ -438,7 +438,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 				ret = mCurrCenterList.at (i) ;
 				rax = r1x ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline REAL average_center (const BitSet<> &cluster) const {
@@ -448,7 +448,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			for (auto &&i : cluster)
 				ret += mDataSet[i] ;
 			ret *= MathProc::inverse (REAL (r1x)) ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void update_convergence () {
@@ -483,10 +483,10 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		}
 
 		inline void refresh () {
-			mContext.mClusterList = std::move (mClusterList) ;
+			mContext.mClusterList = stl::move (mClusterList) ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,dataset ,distance ,center)) ;
+	_CALL_ (Lambda (DEREF[this] ,dataset ,distance ,center)) ;
 }
 
 template <class REAL>
@@ -800,7 +800,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mXYLink.length ()))
 				ret += mAdjacency[mXYLink[i]][i] ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline Array<ARRAY2<INDEX>> best_match () const {
@@ -814,17 +814,17 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 				ret[ix][1] = i ;
 			}
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline LENGTH best_match_depth () const {
 			LENGTH ret = 0 ;
 			for (auto &&i : mXYLink)
 				ret += _EBOOL_ (i != VAR_NONE) ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,adjacency)) ;
+	_CALL_ (Lambda (DEREF[this] ,adjacency)) ;
 }
 
 template <class REAL>
@@ -975,7 +975,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,v.length ()))
 				ret += mat[y][i] * v[i] ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline REAL math_vector_dot (const Array<REAL> &v1 ,const Array<REAL> &v2) const {
@@ -983,7 +983,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,v1.length ()))
 				ret += v1[i] * v2[i] ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline REAL current_convergence () const {
@@ -991,7 +991,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			for (auto &&i : mIG)
 				ret += MathProc::square (i) ;
 			ret = MathProc::sqrt (ret) ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void update_iy_and_dg () {
@@ -1019,7 +1019,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 					continue ;
 				ret += r1x ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline REAL hessian_matrix_each_factor (INDEX x ,INDEX z ,const REAL &ys) const {
@@ -1030,15 +1030,15 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 					continue ;
 				ret += mDM[z][i] ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void refresh () {
-			mContext.mDX = std::move (mDX) ;
+			mContext.mDX = stl::move (mDX) ;
 			mContext.mDXLoss = mDXLoss[0] ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,loss ,fdx)) ;
+	_CALL_ (Lambda (DEREF[this] ,loss ,fdx)) ;
 }
 
 template <class REAL>
@@ -1056,7 +1056,7 @@ private:
 		inline Node () = delete ;
 
 		inline implicit Node (const REAL &key ,INDEX leaf ,INDEX left ,INDEX right)
-			:mKey (std::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
+			:mKey (stl::move (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
@@ -1085,7 +1085,7 @@ public:
 		rax[2][0] = _MAX_ ((point[2] - width) ,mBound[2][0]) ;
 		rax[2][1] = _MIN_ ((point[2] + width) ,mBound[2][1]) ;
 		compute_search_range (point ,width ,mRoot ,0 ,rax ,ret) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,LENGTH count) const {
@@ -1098,7 +1098,7 @@ public:
 			ret[i].P2 = r1x[r2x[i]] ;
 		}
 		compute_search_range (point ,mRoot ,0 ,ret) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 private:
@@ -1153,7 +1153,7 @@ private:
 			const auto r1x = distance_of_point (mVertex[i] ,point) ;
 			ret.add (r1x) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	void compute_search_range (const ARRAY3<REAL> &point ,INDEX curr ,INDEX rot ,Array<PACK<INDEX ,REAL>> &out) const {
@@ -1234,7 +1234,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			Deque<INDEX> ret = Deque<INDEX> (mVertex.length ()) ;
 			for (auto &&i : mVertex)
 				ret.add (i[rot]) ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void generate () {
@@ -1307,12 +1307,12 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 		inline void refresh () {
 			mContext.mVertex = mVertex ;
 			mContext.mNextRot = mNextRot ;
-			mContext.mBound = std::move (mBound) ;
-			mContext.mKDTree = std::move (mKDTree) ;
+			mContext.mBound = stl::move (mBound) ;
+			mContext.mKDTree = stl::move (mKDTree) ;
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,vertex)) ;
+	_CALL_ (Lambda (DEREF[this] ,vertex)) ;
 }
 
 template <class REAL>
@@ -1383,7 +1383,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 					continue ;
 				ret = _MAX_ (ret ,mAdjacency[i]) ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void generate () {
@@ -1433,21 +1433,21 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 				const auto r1x = mAdjacency[i][it] + mCurrentFlow[it][i] - mCurrentFlow[i][it] ;
 				ret = _MIN_ (ret ,r1x) ;
 			}
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 
 		inline void refresh () {
 			mContext.mMaxFlow = max_flow () ;
-			mContext.mCurrentFlow = std::move (mCurrentFlow) ;
+			mContext.mCurrentFlow = stl::move (mCurrentFlow) ;
 		}
 
 		inline REAL max_flow () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mCurrentFlow.cy ()))
 				ret += mCurrentFlow[i][mSink] ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,adjacency ,source ,sink)) ;
+	_CALL_ (Lambda (DEREF[this] ,adjacency ,source ,sink)) ;
 }
 } ;

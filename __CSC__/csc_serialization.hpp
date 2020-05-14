@@ -95,7 +95,7 @@ public:
 				ret[iw++] = XmlParser (mHeap ,i.mapx) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Array<XmlParser> child_array (LENGTH fixed_len) const {
@@ -111,7 +111,7 @@ public:
 				ret[ix] = XmlParser (mHeap ,i.mapx) ;
 			}
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL equal (const XmlParser &that) const {
@@ -122,7 +122,7 @@ public:
 			return FALSE ;
 		if (!that.exist ())
 			return FALSE ;
-		if (&mHeap.self != &that.mHeap.self)
+		if (DEPTR[mHeap.self] != &that.mHeap.self)
 			return FALSE ;
 		if (mIndex != that.mIndex)
 			return FALSE ;
@@ -162,7 +162,7 @@ public:
 		} ,[&] () {
 			ret = def ;
 		}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
@@ -233,7 +233,7 @@ public:
 		} ,[&] () {
 			ret = def ;
 		}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL value (const BOOL &def) const {
@@ -294,13 +294,13 @@ public:
 	inline imports_static XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
 		ret.initialize (data) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	inline imports_static XmlParser make (const Array<XmlParser> &sequence) {
 		XmlParser ret ;
 		ret.initialize (sequence) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 private:
@@ -527,12 +527,12 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 			INDEX ix = mNodeHeap[curr].mAttributeMappingSet.map (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 			ix = mNodeHeap[curr].mAttributeList.insert () ;
-			mNodeHeap[curr].mAttributeMappingSet.add (std::move (mLatestString) ,ix) ;
+			mNodeHeap[curr].mAttributeMappingSet.add (stl::move (mLatestString) ,ix) ;
 			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ ("=") ;
 			mRis >> RegularReader::SKIP_GAP ;
 			update_shift_e2 () ;
-			mNodeHeap[curr].mAttributeList[ix] = std::move (mLatestString) ;
+			mNodeHeap[curr].mAttributeList[ix] = stl::move (mLatestString) ;
 		}
 
 		//@info: $4->${eps}|$3 $4
@@ -553,7 +553,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 			mRis >> _PCSTRU8_ ("<") ;
 			INDEX ix = mNodeHeap.alloc () ;
 			update_shift_e1 () ;
-			mNodeHeap[ix].mName = std::move (mLatestString) ;
+			mNodeHeap[ix].mName = stl::move (mLatestString) ;
 			mNodeHeap[ix].mAttributeList = Deque<String<STRU8>> () ;
 			mNodeHeap[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
 			mNodeHeap[ix].mParent = curr ;
@@ -675,17 +675,17 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
-				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
+				mHeap.self[iw++] = stl::move (mNodeHeap[i]) ;
 			}
 			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
 		}
 
 		inline void refresh () {
-			mContext.mHeap = std::move (mHeap) ;
+			mContext.mHeap = stl::move (mHeap) ;
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
+	_CALL_ (Lambda (DEREF[this] ,data)) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
@@ -736,9 +736,9 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
 			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_table_node) ;
-			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_object_node) ;
-			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (_DEREF_ (this)) ,&Lambda::update_found_array_node) ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_table_node) ;
+			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_object_node) ;
+			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_array_node) ;
 			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 			mMemberSoftSet = SoftSet<INDEX> (0) ;
 			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
@@ -771,14 +771,14 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			while (TRUE) {
 				if (mNodeStack.empty ())
 					break ;
-				mTempNode = std::move (mNodeStack[mNodeStack.tail ()]) ;
+				mTempNode = stl::move (mNodeStack[mNodeStack.tail ()]) ;
 				mNodeStack.pop () ;
 				for (auto &&i : mTempNode.mBaseNodeList) {
 					INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
 					mFoundNodeProc[ix] (i) ;
 				}
 				update_merge_found_node (mTempNode.mParent) ;
-				mFoundNodeBaseNodeQueue.add (std::move (mTempNode.mBaseNodeList)) ;
+				mFoundNodeBaseNodeQueue.add (stl::move (mTempNode.mBaseNodeList)) ;
 			}
 			update_heap () ;
 		}
@@ -890,9 +890,9 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (auto &&i : mFoundNodeList) {
 				iy = ix ;
 				ix = mNodeHeap.alloc () ;
-				mNodeHeap[ix].mName = std::move (i.mName) ;
-				mNodeHeap[ix].mAttributeList = std::move (i.mAttributeList) ;
-				mNodeHeap[ix].mAttributeMappingSet = std::move (i.mAttributeMappingSet) ;
+				mNodeHeap[ix].mName = stl::move (i.mName) ;
+				mNodeHeap[ix].mAttributeList = stl::move (i.mAttributeList) ;
+				mNodeHeap[ix].mAttributeMappingSet = stl::move (i.mAttributeMappingSet) ;
 				mNodeHeap[ix].mParent = curr ;
 				if switch_case (TRUE) {
 					INDEX jx = mNodeHeap[ix].mParent ;
@@ -917,7 +917,7 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 				if (mRoot == VAR_NONE)
 					mRoot = ix ;
 				INDEX jy = mNodeStack.insert () ;
-				mNodeStack[jy].mBaseNodeList = std::move (i.mBaseNodeList) ;
+				mNodeStack[jy].mBaseNodeList = stl::move (i.mBaseNodeList) ;
 				mNodeStack[jy].mClazz = i.mClazz ;
 				mNodeStack[jy].mParent = ix ;
 			}
@@ -933,17 +933,17 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
-				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
+				mHeap.self[iw++] = stl::move (mNodeHeap[i]) ;
 			}
 			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
 		}
 
 		inline void refresh () {
-			mContext.mHeap = std::move (mHeap) ;
+			mContext.mHeap = stl::move (mHeap) ;
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,sequence)) ;
+	_CALL_ (Lambda (DEREF[this] ,sequence)) ;
 }
 
 class JsonParser {
@@ -1052,7 +1052,7 @@ public:
 				ret[iw++] = JsonParser (mHeap ,i.mapx) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	Array<JsonParser> child_array (LENGTH fixed_len) const {
@@ -1071,7 +1071,7 @@ public:
 				ret[ix] = JsonParser (mHeap ,i.mapx) ;
 			}
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL equal (const JsonParser &that) const {
@@ -1082,7 +1082,7 @@ public:
 			return FALSE ;
 		if (!that.exist ())
 			return FALSE ;
-		if (&mHeap.self != &that.mHeap.self)
+		if (DEPTR[mHeap.self] != &that.mHeap.self)
 			return FALSE ;
 		if (mIndex != that.mIndex)
 			return FALSE ;
@@ -1111,7 +1111,7 @@ public:
 		} ,[&] () {
 			ret = def ;
 		}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL value (const BOOL &def) const {
@@ -1172,7 +1172,7 @@ public:
 	inline imports_static JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
 		ret.initialize (data) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 private:
@@ -1189,9 +1189,9 @@ private:
 				continue ;
 			auto &r1x = mHeap.self[i].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
 			for (auto &&j : r1x)
-				ret.add (&j.key) ;
+				ret.add (DEPTR[j.key]) ;
 		}
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 } ;
 
@@ -1295,7 +1295,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				if (ir > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
 				ir++ ;
-				INDEX ix = r1x.find (&i.key) ;
+				INDEX ix = r1x.find (DEPTR[i.key]) ;
 				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {i.mapx ,M_NODE_X1}) ;
@@ -1314,7 +1314,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			if (!(r2x.P2 == M_NODE_X2))
 				discard ;
 			writer << _PCSTRU8_ ("\"") ;
-			writer << _DEREF_ (r1x[r2x.P1].key) ;
+			writer << DEREF[r1x[r2x.P1].key] ;
 			writer << _PCSTRU8_ ("\"") ;
 		}
 		if switch_case (fax) {
@@ -1502,7 +1502,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 						discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e1 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (stl::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1514,7 +1514,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 						discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e2 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (stl::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1535,7 +1535,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 					discard ;
 				ix = mNodeHeap.alloc () ;
 				update_shift_e3 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (std::move (mLatestString)) ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (stl::move (mLatestString)) ;
 				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
 				mNodeHeap[ix].mParent = curr ;
 				mNodeHeap[ix].mBrother = VAR_NONE ;
@@ -1607,7 +1607,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		//@info: $7->$3 : $4
 		inline void update_shift_e7 (INDEX curr) {
 			update_shift_e3 () ;
-			const auto r1x = std::move (mLatestString) ;
+			const auto r1x = stl::move (mLatestString) ;
 			mRis >> RegularReader::SKIP_GAP ;
 			mRis >> _PCSTRU8_ (":") ;
 			mRis >> RegularReader::SKIP_GAP ;
@@ -1688,17 +1688,17 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
 				if (!mNodeHeap.used (i))
 					continue ;
-				mHeap.self[iw++] = std::move (mNodeHeap[i]) ;
+				mHeap.self[iw++] = stl::move (mNodeHeap[i]) ;
 			}
 			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
 		}
 
 		inline void refresh () {
-			mContext.mHeap = std::move (mHeap) ;
+			mContext.mHeap = stl::move (mHeap) ;
 			mContext.mIndex = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
+	_CALL_ (Lambda (DEREF[this] ,data)) ;
 }
 
 class CommandParser {
@@ -1724,7 +1724,7 @@ public:
 				rax << _PCSTRU8_ (" ") ;
 			}
 			rax << TextWriter<STRU8>::EOS ;
-			return std::move (ret) ;
+			return stl::move (ret) ;
 		}) ;
 		initialize (r1x.raw ()) ;
 	}
@@ -1754,7 +1754,7 @@ public:
 		} ,[&] () {
 			ret = def ;
 		}) ;
-		return std::move (ret) ;
+		return stl::move (ret) ;
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
@@ -1897,7 +1897,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		inline void update_shift_e4 () {
 			mRis >> _PCSTRU8_ ("/") ;
 			update_shift_e1 () ;
-			mOptionSet.add (std::move (mLatestString)) ;
+			mOptionSet.add (stl::move (mLatestString)) ;
 		}
 
 		//@info: $5->-$1|-$1=$2|-$1=$3
@@ -1907,7 +1907,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 			INDEX ix = mAttributeMappingSet.map (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 			ix = mAttributeList.insert () ;
-			mAttributeMappingSet.add (std::move (mLatestString) ,ix) ;
+			mAttributeMappingSet.add (stl::move (mLatestString) ,ix) ;
 			auto fax = TRUE ;
 			if switch_case (fax) {
 				if (!(mRis[0] == STRU8 ('=')))
@@ -1916,14 +1916,14 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 					discard ;
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e2 () ;
-				mAttributeList[ix] = std::move (mLatestString) ;
+				mAttributeList[ix] = stl::move (mLatestString) ;
 			}
 			if switch_case (fax) {
 				if (!(mRis[0] == STRU8 ('=')))
 					discard ;
 				mRis >> _PCSTRU8_ ("=") ;
 				update_shift_e3 () ;
-				mAttributeList[ix] = std::move (mLatestString) ;
+				mAttributeList[ix] = stl::move (mLatestString) ;
 			}
 			if switch_case (fax) {
 				mAttributeList[ix] = _PCSTRU8_ ("TRUE") ;
@@ -1941,7 +1941,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 			if switch_case (fax) {
 				update_shift_e3 () ;
 			}
-			mCommandList.add (std::move (mLatestString)) ;
+			mCommandList.add (stl::move (mLatestString)) ;
 		}
 
 		//@info: $7->${eps}|$4 $7|$5 $7|$6 $7
@@ -1980,16 +1980,16 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		inline void update_command () {
 			mCommand = Array<String<STRU8>> (mCommandList.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,mCommandList.length ()))
-				mCommand[i] = std::move (mCommandList[mCommandList.access (i)]) ;
+				mCommand[i] = stl::move (mCommandList[mCommandList.access (i)]) ;
 		}
 
 		inline void refresh () {
-			mContext.mOptionSet = std::move (mOptionSet) ;
-			mContext.mAttributeList = std::move (mAttributeList) ;
-			mContext.mAttributeMappingSet = std::move (mAttributeMappingSet) ;
-			mContext.mCommand = std::move (mCommand) ;
+			mContext.mOptionSet = stl::move (mOptionSet) ;
+			mContext.mAttributeList = stl::move (mAttributeList) ;
+			mContext.mAttributeMappingSet = stl::move (mAttributeMappingSet) ;
+			mContext.mCommand = stl::move (mCommand) ;
 		}
 	} ;
-	_CALL_ (Lambda (_DEREF_ (this) ,data)) ;
+	_CALL_ (Lambda (DEREF[this] ,data)) ;
 }
 } ;
