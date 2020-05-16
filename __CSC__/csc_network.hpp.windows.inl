@@ -89,7 +89,7 @@ using ::gethostname ;
 } ;
 
 namespace U {
-inline TIMEVAL static_make_timeval (LENGTH val) {
+inline TIMEVAL static_make_timeval (const LENGTH &val) {
 	_DEBUG_ASSERT_ (val >= 0) ;
 	TIMEVAL ret ;
 	ret.tv_sec = VAR32 (val / 1000) ;
@@ -133,7 +133,7 @@ inline void static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_a
 	_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 }
 
-inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,LENGTH timeout) {
+inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4548)
@@ -224,7 +224,7 @@ public:
 		link_confirm () ;
 	}
 
-	void modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
+	void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) {
 		_DEBUG_ASSERT_ (rcv_len >= 0 && rcv_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (snd_len >= 0 && snd_len < VAR32_MAX) ;
 		const auto r1x = VAR32 (rcv_len) ;
@@ -233,7 +233,7 @@ public:
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDBUF ,_CAST_<STRA[_SIZEOF_ (VAR32)]> (r2x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 	}
 
-	void modify_timeout (LENGTH timeout) {
+	void modify_timeout (const LENGTH &timeout) {
 		mThis->mTimeout = timeout ;
 	}
 
@@ -256,7 +256,7 @@ public:
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 		out_i = VAR_NONE ;
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = U::static_make_timeval (timeout) ;
@@ -326,11 +326,11 @@ inline exports void TCPSocket::link (const String<STRU8> &ip_addr) {
 	mThis->link (ip_addr) ;
 }
 
-inline exports void TCPSocket::modify_buffer (LENGTH rcv_len ,LENGTH snd_len) {
+inline exports void TCPSocket::modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) {
 	mThis->modify_buffer (rcv_len ,snd_len) ;
 }
 
-inline exports void TCPSocket::modify_timeout (LENGTH timeout) {
+inline exports void TCPSocket::modify_timeout (const LENGTH &timeout) {
 	mThis->modify_timeout (timeout) ;
 }
 
@@ -338,7 +338,7 @@ inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) {
 	mThis->read (data) ;
 }
 
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
+inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 	mThis->read (data ,out_i ,timeout) ;
 }
 
@@ -346,7 +346,7 @@ inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis->write (data) ;
 }
 
-inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping {
+inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) popping {
 	String<STRU8> ret = String<STRU8> (buffer_len) ;
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
@@ -361,7 +361,7 @@ inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,LENGTH buffer_len ,LENGTH timeout) popping {
+inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) popping {
 	String<STRU8> ret = String<STRU8> (buffer_len) ;
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
@@ -477,7 +477,7 @@ public:
 		mThis->mPeer = U::static_make_socket_addr (ip_addr) ;
 	}
 
-	void modify_timeout (LENGTH timeout) {
+	void modify_timeout (const LENGTH &timeout) {
 		mThis->mTimeout = timeout ;
 	}
 
@@ -496,7 +496,7 @@ public:
 		mThis->mPeer = rax.P1 ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		out_i = VAR_NONE ;
 		const auto r1x = U::static_socket_select (mThis->mSocket ,timeout) ;
@@ -539,7 +539,7 @@ inline exports void UDPSocket::link (const String<STRU8> &ip_addr) {
 	mThis->link (ip_addr) ;
 }
 
-inline exports void UDPSocket::modify_timeout (LENGTH timeout) {
+inline exports void UDPSocket::modify_timeout (const LENGTH &timeout) {
 	mThis->modify_timeout (timeout) ;
 }
 
@@ -547,7 +547,7 @@ inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) {
 	mThis->read (data) ;
 }
 
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,LENGTH timeout) {
+inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 	mThis->read (data ,out_i ,timeout) ;
 }
 

@@ -4,6 +4,7 @@
 #define __CSC_FUNCTIONAL__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
@@ -90,7 +91,7 @@ public:
 
 	template <class _RET>
 	const _RET &as () const leftvalue {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		return template_as (_NULL_<ARGV<REMOVE_CVR_TYPE<_RET>>> ()) ;
 	}
 
@@ -257,7 +258,7 @@ public:
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const UNITS2 &...funcval) const {
+	Operand invoke (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS2> &&...funcval) const {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> ()) ;
 		return Operand (_MOVE_ (tmp)) ;
 	}
@@ -294,7 +295,7 @@ public:
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const UNITS2 &...funcval) const override {
+	Operand invoke (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS2> &&...funcval) const override {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> () ,node) ;
 		return Operand (_MOVE_ (tmp)) ;
 	}
@@ -378,12 +379,12 @@ inline constexpr LENGTH constexpr_max_value (const ARGV<_ARG1> &) noexcept {
 } ;
 
 template <class... UNITS>
-class Expression<SPECIALIZATION<PTR<Operand (const UNITS &...)>>>
-	:private LexicalTree<Expression<PTR<Operand (const UNITS &...)>>> {
+class Expression<SPECIALIZATION<PTR<Operand (UNITS...)>>>
+	:private LexicalTree<Expression<PTR<Operand (UNITS...)>>> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 0 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
 
 private:
-	using RANK = PTR<Operand (const UNITS &...)> ;
+	using RANK = PTR<Operand (UNITS...)> ;
 
 private:
 	template <class>
@@ -399,7 +400,7 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	const Operand &invoke (const UNITS &...funcval) const leftvalue {
+	const Operand &invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
 		if switch_case (TRUE) {
 			if (mThis->mOperand.exist ())
@@ -416,7 +417,7 @@ public:
 
 	Expression<RANK> flip () const {
 		Expression<RANK> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...ins) {
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS> &&...ins) {
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			return r1x.template_flip_invoke (_NULL_<ARGV<ARGVS<UNITS...>>> () ,ins...) ;
 		}) ;

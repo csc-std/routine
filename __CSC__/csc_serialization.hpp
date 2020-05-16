@@ -4,6 +4,7 @@
 #define __CSC_SERIALIZATION__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -98,7 +99,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<XmlParser> child_array (LENGTH fixed_len) const {
+	Array<XmlParser> child_array (const LENGTH &fixed_len) const {
 		Array<XmlParser> ret = Array<XmlParser> (fixed_len) ;
 		INDEX iw = 0 ;
 		if switch_case (TRUE) {
@@ -304,7 +305,7 @@ public:
 	}
 
 private:
-	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
+	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,const INDEX &index)
 		:mHeap (heap) ,mIndex (index) {}
 
 private:
@@ -522,7 +523,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 		}
 
 		//@info: $3->$1 = $2
-		inline void update_shift_e3 (INDEX curr) {
+		inline void update_shift_e3 (const INDEX &curr) {
 			update_shift_e1 () ;
 			INDEX ix = mNodeHeap[curr].mAttributeMappingSet.map (mLatestString) ;
 			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
@@ -536,7 +537,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 		}
 
 		//@info: $4->${eps}|$3 $4
-		inline void update_shift_e4 (INDEX curr) {
+		inline void update_shift_e4 (const INDEX &curr) {
 			while (TRUE) {
 				if (!(mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')))
 					if (!(mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')))
@@ -548,7 +549,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 		}
 
 		//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
-		inline void update_shift_e5 (INDEX curr) {
+		inline void update_shift_e5 (const INDEX &curr) {
 			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("<") ;
 			INDEX ix = mNodeHeap.alloc () ;
@@ -600,7 +601,7 @@ inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) 
 		}
 
 		//@info: $7->${eps}|$5 $7|$6 $7
-		inline void update_shift_e7 (INDEX curr) {
+		inline void update_shift_e7 (const INDEX &curr) {
 			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
@@ -884,7 +885,7 @@ inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 			}
 		}
 
-		inline void update_merge_found_node (INDEX curr) {
+		inline void update_merge_found_node (const INDEX &curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			for (auto &&i : mFoundNodeList) {
@@ -1055,7 +1056,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<JsonParser> child_array (LENGTH fixed_len) const {
+	Array<JsonParser> child_array (const LENGTH &fixed_len) const {
 		Array<JsonParser> ret = Array<JsonParser> (fixed_len) ;
 		INDEX iw = 0 ;
 		if switch_case (TRUE) {
@@ -1176,7 +1177,7 @@ public:
 	}
 
 private:
-	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,INDEX index)
+	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,const INDEX &index)
 		:mHeap (heap) ,mIndex (index) {}
 
 private:
@@ -1492,7 +1493,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $4->$1|$2|$2x|$3|$6|$9
-		inline void update_shift_e4 (INDEX curr) {
+		inline void update_shift_e4 (const INDEX &curr) {
 			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			INDEX ix = VAR_NONE ;
 			auto fax = TRUE ;
@@ -1560,7 +1561,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $5->$4|$4 , $5
-		inline void update_shift_e5 (INDEX curr) {
+		inline void update_shift_e5 (const INDEX &curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
@@ -1583,7 +1584,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $6->[ ]|[ $5 ]
-		inline void update_shift_e6 (INDEX curr) {
+		inline void update_shift_e6 (const INDEX &curr) {
 			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("[") ;
 			INDEX ix = mNodeHeap.alloc () ;
@@ -1605,7 +1606,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $7->$3 : $4
-		inline void update_shift_e7 (INDEX curr) {
+		inline void update_shift_e7 (const INDEX &curr) {
 			update_shift_e3 () ;
 			const auto r1x = _MOVE_ (mLatestString) ;
 			mRis >> RegularReader::SKIP_GAP ;
@@ -1617,7 +1618,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $8->$7|$7 , $8
-		inline void update_shift_e8 (INDEX curr) {
+		inline void update_shift_e8 (const INDEX &curr) {
 			INDEX ix = VAR_NONE ;
 			INDEX iy = VAR_NONE ;
 			while (TRUE) {
@@ -1637,7 +1638,7 @@ inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data)
 		}
 
 		//@info: $9->{ }|{ $8 }
-		inline void update_shift_e9 (INDEX curr) {
+		inline void update_shift_e9 (const INDEX &curr) {
 			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
 			mRis >> _PCSTRU8_ ("{") ;
 			INDEX ix = mNodeHeap.alloc () ;
@@ -1715,7 +1716,7 @@ public:
 		initialize (data) ;
 	}
 
-	explicit CommandParser (VAR32 argc ,PTR<const PTR<STRA>> argv) {
+	explicit CommandParser (const VAR32 &argc ,const PTR<const PTR<STRA>> &argv) {
 		const auto r1x = _CALL_ ([&] () {
 			String<STRU8> ret = String<STRU8>::make () ;
 			auto rax = TextWriter<STRU8> (ret.raw ()) ;

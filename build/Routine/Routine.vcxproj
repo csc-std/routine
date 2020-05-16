@@ -50,6 +50,7 @@
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_thread.hpp" />
     <ClInclude Include="..\..\src\util.h" />
+    <ClInclude Include="..\..\__CSC__\csc.hpp" />
     <ClInclude Include="..\..\__CSC__\csc_core.hpp" />
   </ItemGroup>
   <ItemGroup>

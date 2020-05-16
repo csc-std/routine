@@ -4,6 +4,7 @@
 #define __CSC_STREAM__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -129,7 +130,7 @@ public:
 		mWrite = mStream.size () ;
 	}
 
-	void reset (INDEX read_ ,INDEX write_) {
+	void reset (const INDEX &read_ ,const INDEX &write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
 		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
@@ -504,7 +505,7 @@ public:
 		mWrite = 0 ;
 	}
 
-	void reset (INDEX read_ ,INDEX write_) {
+	void reset (const INDEX &read_ ,const INDEX &write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
 		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
@@ -864,7 +865,7 @@ public:
 		mWrite = mStream.size () ;
 	}
 
-	void reset (INDEX read_ ,INDEX write_) {
+	void reset (const INDEX &read_ ,const INDEX &write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
 		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
@@ -1408,7 +1409,7 @@ struct TextReader<REAL>::Detail {
 			return REAL ('\0') ;
 		}
 
-		inline void enable_endian (BOOL flag) const {
+		inline void enable_endian (const BOOL &flag) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			mBase.mHeap->mEndianFlag = flag ;
 		}
@@ -1445,7 +1446,7 @@ struct TextReader<REAL>::Detail {
 			return VAR64 (item) - VAR64 ('0') ;
 		}
 
-		inline void enable_escape (BOOL flag) const {
+		inline void enable_escape (const BOOL &flag) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			mBase.mHeap->mEscapeFlag = flag ;
 		}
@@ -1485,7 +1486,7 @@ struct TextReader<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline BOOL varify_space (const REAL &item ,VAR32 group) const {
+		inline BOOL varify_space (const REAL &item ,const VAR32 &group) const {
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
@@ -1494,7 +1495,7 @@ struct TextReader<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline void modify_space (const REAL &item ,VAR32 group) const {
+		inline void modify_space (const REAL &item ,const VAR32 &group) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
@@ -1611,7 +1612,7 @@ public:
 		mWrite = 0 ;
 	}
 
-	void reset (INDEX read_ ,INDEX write_) {
+	void reset (const INDEX &read_ ,const INDEX &write_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		_DEBUG_ASSERT_ (read_ >= 0 && read_ < mStream.size ()) ;
 		_DEBUG_ASSERT_ (write_ >= 0 && write_ < mStream.size ()) ;
@@ -1689,7 +1690,8 @@ public:
 		auto rax = Buffer<REAL ,ARGC<128>> () ;
 		INDEX ix = rax.size () ;
 		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,ix) ;
-		write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
+		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+		write (r1x) ;
 	}
 
 	inline TextWriter &operator<< (const VAR64 &data) {
@@ -1730,7 +1732,8 @@ public:
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val32_precision () ;
 			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+			write (r3x) ;
 		}
 	}
 
@@ -1772,7 +1775,8 @@ public:
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val64_precision () ;
 			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			write (PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix))) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+			write (r3x) ;
 		}
 	}
 
@@ -1941,7 +1945,7 @@ private:
 		out_i = iw ;
 	}
 
-	void compute_write_number (const VAL64 &data ,LENGTH precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
+	void compute_write_number (const VAL64 &data ,const LENGTH &precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
 		const auto r1x = attr () ;
 		INDEX iw = out_i ;
 		const auto r2x = MathProc::ieee754_decode (data) ;
@@ -2065,7 +2069,7 @@ private:
 		out_i = iw ;
 	}
 
-	LENGTH log_of_number (VAR64 val ,LENGTH radix) const {
+	LENGTH log_of_number (const VAR64 &val ,const LENGTH &radix) const {
 		LENGTH ret = 0 ;
 		auto rax = VAR64 (1) ;
 		while (TRUE) {
@@ -2148,11 +2152,11 @@ struct TextWriter<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline REAL convert_number_w (VAR64 number) const {
+		inline REAL convert_number_w (const VAR64 &number) const {
 			return REAL (VAR64 ('0') + number) ;
 		}
 
-		inline void enable_escape (BOOL flag) const {
+		inline void enable_escape (const BOOL &flag) const {
 			mBase.mHeap->mEscapeFlag = flag ;
 		}
 
@@ -2240,7 +2244,7 @@ public:
 		mHintNextTextSize = 0 ;
 	}
 
-	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader ,LENGTH ll_len) {
+	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader ,const LENGTH &ll_len) {
 		_DEBUG_ASSERT_ (reader.exist ()) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (reader) ;
 		const auto r1x = mReader->attr () ;
@@ -2274,13 +2278,13 @@ public:
 		return RegularReader (mReader->copy () ,mCache ,mPeek) ;
 	}
 
-	const STRU8 &get (INDEX index) const leftvalue {
+	const STRU8 &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
 		_DEBUG_ASSERT_ (mPeek >= 0 && mPeek < mCache.length ()) ;
 		return mCache[(mPeek + index) % mCache.length ()] ;
 	}
 
-	inline const STRU8 &operator[] (INDEX index) const leftvalue {
+	inline const STRU8 &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2473,7 +2477,7 @@ public:
 	}
 
 private:
-	explicit RegularReader (TextReader<STRU8> &&reader ,const Array<STRU8> &cache ,INDEX peek) {
+	explicit RegularReader (TextReader<STRU8> &&reader ,const Array<STRU8> &cache ,const INDEX &peek) {
 		mShadowReader = _MOVE_ (reader) ;
 		mReader = PhanRef<TextReader<STRU8>>::make (mShadowReader) ;
 		mCache = cache ;

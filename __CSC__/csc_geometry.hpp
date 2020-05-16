@@ -4,6 +4,7 @@
 #define __CSC_GEOMETRY__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -41,19 +42,19 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	REAL &get (INDEX y) leftvalue {
+	REAL &get (const INDEX &y) leftvalue {
 		return mVector[y] ;
 	}
 
-	inline REAL &operator[] (INDEX y) leftvalue {
+	inline REAL &operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	const REAL &get (INDEX y) const leftvalue {
+	const REAL &get (const INDEX &y) const leftvalue {
 		return mVector[y] ;
 	}
 
-	inline const REAL &operator[] (INDEX y) const leftvalue {
+	inline const REAL &operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -349,33 +350,33 @@ public:
 		}
 	}
 
-	REAL &get (INDEX y ,INDEX x) leftvalue {
+	REAL &get (const INDEX &y ,const INDEX &x) leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
-	const REAL &get (INDEX y ,INDEX x) const leftvalue {
+	const REAL &get (const INDEX &y ,const INDEX &x) const leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < 4) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < 4) ;
 		return mMatrix[y * 4 + x] ;
 	}
 
-	DEF<typename Detail::template Row<Matrix>> get (INDEX y) leftvalue {
+	DEF<typename Detail::template Row<Matrix>> get (const INDEX &y) leftvalue {
 		using Row = typename Detail::template Row<Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Matrix>> operator[] (INDEX y) leftvalue {
+	inline DEF<typename Detail::template Row<Matrix>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Matrix>> get (INDEX y) const leftvalue {
+	DEF<typename Detail::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
 		using Row = typename Detail::template Row<const Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Matrix>> operator[] (INDEX y) const leftvalue {
+	inline DEF<typename Detail::template Row<const Matrix>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -1020,7 +1021,7 @@ private:
 		return TRUE ;
 	}
 
-	INDEX find_max_row (INDEX yx) const {
+	INDEX find_max_row (const INDEX &yx) const {
 		INDEX ret = VAR_NONE ;
 		auto rax = REAL () ;
 		for (auto &&i : _RANGE_ (yx ,4)) {
@@ -1048,12 +1049,12 @@ struct Matrix<REAL>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (INDEX x) rightvalue {
+		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y)
+		inline explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 	} ;
 } ;

@@ -28,8 +28,6 @@
 #ifdef __CSC_DEPRECATED__
 #include <cstdlib>
 #include <clocale>
-#include <ctime>
-#include <chrono>
 #include <string>
 #include <regex>
 #endif
@@ -180,70 +178,6 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 			return StringProc::cvt_ws_gbks (val) ;
 	return U::static_locale_cvt_wstolas (val) ;
 }
-
-namespace U {
-#ifdef __CSC_COMPILER_MSVC__
-inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_clock::time_point &val) {
-	ARRAY8<VAR32> ret ;
-	ret.fill (0) ;
-	const auto r1x = api::time_t (stl::chrono::system_clock::to_time_t (val)) ;
-	auto rax = api::tm () ;
-	_ZERO_ (rax) ;
-	api::localtime_s (DEPTR[rax] ,DEPTR[r1x]) ;
-	ret[0] = rax.tm_year + 1900 ;
-	ret[1] = rax.tm_mon + 1 ;
-	ret[2] = rax.tm_mday ;
-	ret[3] = rax.tm_wday + 1 ;
-	ret[4] = rax.tm_yday + 1 ;
-	ret[5] = rax.tm_hour ;
-	ret[6] = rax.tm_min ;
-	ret[7] = rax.tm_sec ;
-	return _MOVE_ (ret) ;
-}
-#endif
-
-#ifndef __CSC_COMPILER_MSVC__
-inline exports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_clock::time_point &val) {
-	ARRAY8<VAR32> ret ;
-	ret.fill (0) ;
-	const auto r1x = api::time_t (stl::chrono::system_clock::to_time_t (val)) ;
-	auto rax = api::tm () ;
-	_ZERO_ (rax) ;
-	//@warn: not thread-safe due to internel storage
-	const auto r2x = api::localtime (DEPTR[r1x]) ;
-	_DEBUG_ASSERT_ (r2x != NULL) ;
-	rax = DEREF[r2x] ;
-	ret[0] = rax.tm_year + 1900 ;
-	ret[1] = rax.tm_mon + 1 ;
-	ret[2] = rax.tm_mday ;
-	ret[3] = rax.tm_wday + 1 ;
-	ret[4] = rax.tm_yday + 1 ;
-	ret[5] = rax.tm_hour ;
-	ret[6] = rax.tm_min ;
-	ret[7] = rax.tm_sec ;
-	return _MOVE_ (ret) ;
-}
-#endif
-
-inline exports stl::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) {
-	auto rax = api::tm () ;
-	_ZERO_ (rax) ;
-	const auto r1x = _EBOOL_ (val[0] > 0) * (val[0] - 1900) ;
-	rax.tm_year = VAR32 (r1x) ;
-	const auto r2x = _EBOOL_ (val[1] > 0) * (val[1] - 1) ;
-	rax.tm_mon = VAR32 (r2x) ;
-	rax.tm_mday = val[2] ;
-	const auto r3x = _EBOOL_ (val[3] > 0) * (val[3] - 1) ;
-	rax.tm_wday = VAR32 (r3x) ;
-	const auto r4x = _EBOOL_ (val[4] > 0) * (val[4] - 1) ;
-	rax.tm_yday = VAR32 (r4x) ;
-	rax.tm_hour = val[5] ;
-	rax.tm_min = val[6] ;
-	rax.tm_sec = val[7] ;
-	const auto r5x = api::mktime (DEPTR[rax]) ;
-	return stl::chrono::system_clock::from_time_t (r5x) ;
-}
-} ;
 
 #ifdef __CSC_EXTEND__
 class RegexMatcher::Implement {

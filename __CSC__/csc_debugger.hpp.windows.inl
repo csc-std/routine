@@ -118,13 +118,13 @@ public:
 		return mBufferSize ;
 	}
 
-	void enable_option (EFLAG option) override {
+	void enable_option (const EFLAG &option) override {
 		if (option == OPTION_DEFAULT)
 			mOptionSet.clear () ;
 		mOptionSet.add (option) ;
 	}
 
-	void disable_option (EFLAG option) override {
+	void disable_option (const EFLAG &option) override {
 		mOptionSet.erase (option) ;
 	}
 
@@ -326,7 +326,8 @@ private:
 	void write_log_buffer (const PhanBuffer<const STR> &tag ,const Binder &msg) {
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
-		mLogWriter << StringProc::build_hours (stl::chrono::system_clock ().now ()) ;
+		const auto r1x = GlobalRuntime::clock_now () ;
+		mLogWriter << StringProc::build_hours (r1x) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -394,7 +395,7 @@ private:
 	UniqueRef<HANDLE> mSymbolFromAddress ;
 
 public:
-	void abort_once_invoked_exit (BOOL flag) override {
+	void abort_once_invoked_exit (const BOOL &flag) override {
 #pragma region
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
@@ -421,7 +422,7 @@ public:
 #pragma endregion
 	}
 
-	void output_memory_leaks_report (BOOL flag) override {
+	void output_memory_leaks_report (const BOOL &flag) override {
 		_DEBUG_ASSERT_ (flag) ;
 		const auto r1x = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG) ;
 		const auto r2x = VAR32 (r1x | _CRTDBG_LEAK_CHECK_DF) ;

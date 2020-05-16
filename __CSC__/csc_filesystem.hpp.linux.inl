@@ -118,7 +118,7 @@ inline exports void FileSystemProc::save_file (const String<STR> &file ,const Ph
 	_DYNAMIC_ASSERT_ (r5x == data.size ()) ;
 }
 
-inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (FLAG resource) popping {
+inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) popping {
 	_STATIC_WARNING_ ("unimplemented") ;
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return PhanBuffer<const BYTE> () ;
@@ -240,13 +240,14 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 		return PhanBuffer<const STR> () ;
 	}) ;
 	auto rax = TextReader<STR> (r1x) ;
-	rax.attr ().modify_space (STR ('\\') ,0) ;
-	rax.attr ().modify_space (STR ('/') ,0) ;
+	const auto r2x = rax.attr () ;
+	r2x.modify_space (STR ('\\') ,0) ;
+	r2x.modify_space (STR ('/') ,0) ;
 	auto rbx = STR () ;
 	Deque<String<STR>> ret ;
 	INDEX ix = ret.insert () ;
 	rax.copy () >> rbx ;
-	if (rax.attr ().varify_space (rbx))
+	if (r2x.varify_space (rbx))
 		rax >> rbx ;
 	while (TRUE) {
 		rax >> ret[ix] ;
@@ -254,9 +255,9 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 			break ;
 		ix = ret.insert () ;
 		rax >> rbx ;
-		if (rbx == rax.attr ().varify_ending_item ())
+		if (rbx == r2x.varify_ending_item ())
 			break ;
-		_DYNAMIC_ASSERT_ (rax.attr ().varify_space (rbx)) ;
+		_DYNAMIC_ASSERT_ (r2x.varify_space (rbx)) ;
 	}
 	ret.pop () ;
 	rax >> TextReader<STR>::EOS ;
@@ -476,7 +477,7 @@ inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	_STATIC_UNUSED_ (r4x) ;
 }
 
-//@warn: recursive call with junction(symbolic link) may cause endless loop
+//@warn: recursive call with junction(const symbolic &link) may cause endless loop
 inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
 	using HDIR = PTR<api::DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
@@ -620,19 +621,19 @@ public:
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	explicit Implement (const String<STR> &file ,LENGTH file_len) {
+	explicit Implement (const String<STR> &file ,const LENGTH &file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	explicit Implement (const String<STR> &file ,BOOL cache) {
+	explicit Implement (const String<STR> &file ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (cache) ;
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	explicit Implement (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
+	explicit Implement (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
 		_STATIC_WARNING_ ("unimplemented") ;
@@ -661,15 +662,15 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file) {
 	mThis = StrongRef<Implement>::make (file) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_len) {
+inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
 	mThis = StrongRef<Implement>::make (file ,file_len) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,BOOL cache) {
+inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
 	mThis = StrongRef<Implement>::make (file ,cache) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,LENGTH file_len ,BOOL cache) {
+inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
 	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
 }
 

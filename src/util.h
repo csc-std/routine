@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <csc.hpp>
 #include <csc_core.hpp>
 #include <csc_basic.hpp>
 #include <csc_extend.hpp>
@@ -71,14 +72,14 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
-inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
+inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) popping {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
-		auto &r1y = _CACHE_ ([] () {
-			return SharedRef<stl::atomic<PTR<NONE>>>::make (_XVALUE_<PTR<NONE>> (NULL)) ;
+		auto &r1x = _CACHE_ ([] () {
+			return SharedRef<Atomic>::make () ;
 		}) ;
-		r1y->compare_exchange_strong (expect ,data) ;
-		ret = r1y->load () ;
+		const auto r2x = r1x->compare_exchange (_ADDRESS_ (expect) ,_ADDRESS_ (data)) ;
+		ret = &_LOAD_UNSAFE_<NONE> (r2x) ;
 	} ,[&] () {
 		ret = NULL ;
 	}) ;

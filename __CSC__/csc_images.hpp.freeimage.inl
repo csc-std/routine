@@ -114,7 +114,7 @@ public:
 		layout.mCK = 0 ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
+	void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
 		const auto r1x = cx_ * cy_ * 3 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		_STATIC_UNUSED_ (r1x) ;
@@ -231,7 +231,7 @@ public:
 		layout.mCK = 0 ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const override {
+	void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
 		const auto r1x = cx_ * cy_ * 4 ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		_STATIC_UNUSED_ (r1x) ;

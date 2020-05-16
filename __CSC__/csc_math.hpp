@@ -4,6 +4,7 @@
 #define __CSC_MATH__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -114,7 +115,7 @@ public:
 	inline imports_static _ARG1 sign (const _ARG1 &x) ;
 
 	template <class _ARG1>
-	inline imports_static _ARG1 negative (const _ARG1 &x ,VAR y) ;
+	inline imports_static _ARG1 negative (const _ARG1 &x ,const VAR &y) ;
 
 	template <class _ARG1>
 	inline imports_static _ARG1 inverse (const _ARG1 &x ,const _ARG1 &y) ;
@@ -308,7 +309,7 @@ inline exports _ARG1 MathProc::sign (const _ARG1 &x) {
 }
 
 template <class _ARG1>
-inline exports _ARG1 MathProc::negative (const _ARG1 &x ,VAR y) {
+inline exports _ARG1 MathProc::negative (const _ARG1 &x ,const VAR &y) {
 	_DEBUG_ASSERT_ (y >= 0) ;
 	if (y % 2 == 0)
 		return x ;
@@ -442,7 +443,8 @@ inline exports const _ARG1 &MathProc::minof (const _ARG1 &list_one) {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports const _ARG1 &MathProc::minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
-	return MathProc::minof (_MIN_ (list_one ,list_two) ,list_rest...) ;
+	auto &r1x = _MIN_ (list_one ,list_two) ;
+	return MathProc::minof (r1x ,list_rest...) ;
 }
 
 template <class _ARG1>
@@ -453,7 +455,8 @@ inline exports const _ARG1 &MathProc::maxof (const _ARG1 &list_one) {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports const _ARG1 &MathProc::maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
-	return MathProc::maxof (_MAX_ (list_one ,list_two) ,list_rest...) ;
+	auto &r1x = _MAX_ (list_one ,list_two) ;
+	return MathProc::maxof (r1x ,list_rest...) ;
 }
 
 namespace U {
@@ -527,7 +530,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 }
 
 namespace U {
-inline VAL64 static_taylor_exp (VAL64 lnx ,VAL64 y) {
+inline VAL64 static_taylor_exp (const VAL64 &lnx ,const VAL64 &y) {
 	VAL64 ret = 1 ;
 	const auto r1x = lnx * y ;
 	_DEBUG_ASSERT_ (r1x >= 0) ;

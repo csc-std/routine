@@ -4,10 +4,13 @@
 #define __CSC_THREAD__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
+#include "csc_stream.hpp"
+#include "csc_string.hpp"
 #include "csc_runtime.hpp"
 
 namespace CSC {
@@ -17,13 +20,13 @@ private:
 	class Pack {
 	private:
 		friend CalcThread ;
-		stl::atomic<LENGTH> mCounter ;
-		Monostate<stl::mutex> mThreadMutex ;
-		Monostate<stl::condition_variable> mThreadCondition ;
+		Atomic mCounter ;
+		Mutex mThreadMutex ;
+		ConditionLock mThreadCondition ;
 		AutoRef<BOOL> mThreadFlag ;
 		LENGTH mThreadCounter ;
 		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
-		Array<AutoRef<stl::thread>> mThreadPool ;
+		Array<AutoRef<Thread>> mThreadPool ;
 		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
 	} ;
@@ -41,7 +44,7 @@ public:
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
 		return r2x.mItemQueue->size () ;
@@ -50,17 +53,17 @@ public:
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
 		return r2x.mItemQueue->length () ;
 	}
 
-	void reserve (LENGTH post_len) {
+	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
@@ -72,13 +75,14 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			r2x.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -86,19 +90,19 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	ITEM poll (const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
+	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			const auto r3x = predicate () ;
-			_DYNAMIC_ASSERT_ (r3x) ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			const auto r4x = predicate () ;
+			_DYNAMIC_ASSERT_ (r4x) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -111,7 +115,7 @@ public:
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -125,19 +129,19 @@ public:
 			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (proc.length ()) ;
 		r2x.mItemQueue->clear () ;
 		r2x.mException = AutoRef<Exception> () ;
-		r2x.mThreadPool = Array<AutoRef<stl::thread>> (proc.size ()) ;
+		r2x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = LocalProc (PhanRef<Pack>::make (r2x) ,i) ;
-			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
+			const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x) ,i) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
 		}
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	void join (const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
+	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
@@ -145,15 +149,15 @@ public:
 				break ;
 			if (r2x.mItemQueue->full ())
 				break ;
-			const auto r3x = predicate () ;
-			if (!r3x)
+			const auto r4x = predicate () ;
+			if (!r4x)
 				break ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
-		const auto r4x = _MOVE_ (r2x.mException) ;
-		if (!r4x.exist ())
+		const auto r5x = _MOVE_ (r2x.mException) ;
+		if (!r5x.exist ())
 			return ;
-		r4x->raise () ;
+		r5x->raise () ;
 	}
 
 	void stop () {
@@ -162,7 +166,7 @@ public:
 	}
 
 private:
-	static void static_execute (Pack &self_ ,INDEX tid) {
+	static void static_execute (Pack &self_ ,const INDEX &tid) {
 		using ThreadCounter = typename Detail::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
@@ -184,24 +188,25 @@ private:
 	}
 
 	static void static_push (Pack &self_ ,ITEM &&item) {
-		auto sgd = stl::unique_lock<stl::mutex> (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 		if switch_case (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
-			self_.mThreadCondition.self.wait_for (sgd ,stl::chrono::milliseconds (0)) ;
+			self_.mThreadCondition.yield () ;
 			if (!self_.mItemQueue->full ())
 				discard ;
 			self_.mItemQueue->take () ;
 		}
 		self_.mItemQueue->add (_MOVE_ (item)) ;
-		self_.mThreadCondition.self.notify_all () ;
+		self_.mThreadCondition.notify () ;
 	}
 
 	static void static_rethrow (Pack &self_ ,const Exception &e) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
 			return ;
@@ -209,26 +214,27 @@ private:
 	}
 
 	static void friend_create (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
-		self_.mThreadPool = Array<AutoRef<stl::thread>> () ;
+		self_.mThreadPool = Array<AutoRef<Thread>> () ;
 		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
-		auto sgd = stl::unique_lock<stl::mutex> (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.self.notify_all () ;
+		self_.mThreadCondition.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.self.wait_for (sgd ,stl::chrono::milliseconds (0)) ;
+			self_.mThreadCondition.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -238,7 +244,7 @@ private:
 		}
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
-		self_.mThreadPool = Array<AutoRef<stl::thread>> () ;
+		self_.mThreadPool = Array<AutoRef<Thread>> () ;
 		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
@@ -251,13 +257,14 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
 struct CalcThread<ITEM>::Detail {
-	class LocalProc {
+	class LocalProc
+		:public Thread::Binder {
 	private:
 		PhanRef<Pack> mThis ;
 		INDEX mIndex ;
@@ -265,10 +272,10 @@ struct CalcThread<ITEM>::Detail {
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (const PhanRef<Pack> &this_ ,INDEX index)
+		inline explicit LocalProc (const PhanRef<Pack> &this_ ,const INDEX &index)
 			:mThis (PhanRef<Pack>::make (this_)) ,mIndex (index) {}
 
-		inline void operator() () {
+		inline void execute () override {
 			_CALL_TRY_ ([&] () {
 				static_execute (mThis ,mIndex) ;
 			} ,[&] () {
@@ -281,12 +288,12 @@ struct CalcThread<ITEM>::Detail {
 		:private Wrapped<Pack> {
 	public:
 		inline void lock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter++ ;
 		}
 
 		inline void unlock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter-- ;
 		}
 	} ;
@@ -298,14 +305,14 @@ private:
 	class Pack {
 	private:
 		friend WorkThread ;
-		stl::atomic<LENGTH> mCounter ;
-		Monostate<stl::mutex> mThreadMutex ;
-		Monostate<stl::condition_variable> mThreadCondition ;
+		Atomic mCounter ;
+		Mutex mThreadMutex ;
+		ConditionLock mThreadCondition ;
 		LENGTH mThreadCounter ;
 		LENGTH mThreadWaitCounter ;
 		AutoRef<BOOL> mThreadFlag ;
 		Function<DEF<void (const ITEM &)> NONE::*> mThreadProc ;
-		Array<AutoRef<stl::thread>> mThreadPool ;
+		Array<AutoRef<Thread>> mThreadPool ;
 		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
 	} ;
@@ -323,7 +330,7 @@ public:
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
 		return r2x.mItemQueue->size () ;
@@ -332,17 +339,17 @@ public:
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
 		return r2x.mItemQueue->length () ;
 	}
 
-	void reserve (LENGTH post_len) {
+	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
@@ -354,84 +361,86 @@ public:
 	void post (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.self.notify_all () ;
+		r2x.mThreadCondition.notify () ;
 	}
 
 	void post (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.self.notify_all () ;
+		r2x.mThreadCondition.notify () ;
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	void post (const ITEM &item ,const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
+	void post (const ITEM &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			const auto r3x = predicate () ;
-			_DYNAMIC_ASSERT_ (r3x) ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			const auto r4x = predicate () ;
+			_DYNAMIC_ASSERT_ (r4x) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.self.notify_all () ;
+		r2x.mThreadCondition.notify () ;
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	void post (ITEM &&item ,const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
+	void post (ITEM &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			const auto r3x = predicate () ;
-			_DYNAMIC_ASSERT_ (r3x) ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			const auto r4x = predicate () ;
+			_DYNAMIC_ASSERT_ (r4x) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.self.notify_all () ;
+		r2x.mThreadCondition.notify () ;
 	}
 
-	void start (LENGTH count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
+	void start (const LENGTH &count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
 		using LocalProc = typename Detail::LocalProc ;
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -442,19 +451,19 @@ public:
 			r2x.mItemQueue = AutoRef<List<ITEM ,SFIXED>>::make (count) ;
 		r2x.mItemQueue->clear () ;
 		r2x.mException = AutoRef<Exception> () ;
-		r2x.mThreadPool = Array<AutoRef<stl::thread>> (count) ;
+		r2x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
-			r2x.mThreadPool[i] = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
+			const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
 		}
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	void join (const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) {
+	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 			if (r2x.mException.exist ())
@@ -462,15 +471,15 @@ public:
 			if (r2x.mThreadWaitCounter >= r2x.mThreadPool.length ())
 				if (r2x.mItemQueue->empty ())
 					break ;
-			const auto r3x = predicate () ;
-			if (!r3x)
+			const auto r4x = predicate () ;
+			if (!r4x)
 				break ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
-		const auto r4x = _MOVE_ (r2x.mException) ;
-		if (!r4x.exist ())
+		const auto r5x = _MOVE_ (r2x.mException) ;
+		if (!r5x.exist ())
 			return ;
-		r4x->raise () ;
+		r5x->raise () ;
 	}
 
 	void stop () {
@@ -501,7 +510,8 @@ private:
 
 	static void static_poll (Pack &self_ ,Optional<ITEM> &item) {
 		using Counter = typename Detail::Counter ;
-		auto sgd = stl::unique_lock<stl::mutex> (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
 		while (TRUE) {
@@ -509,7 +519,7 @@ private:
 				break ;
 			if (!self_.mItemQueue->empty ())
 				break ;
-			self_.mThreadCondition.self.wait (sgd) ;
+			self_.mThreadCondition.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		item = _MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
@@ -517,7 +527,7 @@ private:
 	}
 
 	static void static_rethrow (Pack &self_ ,const Exception &e) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
 			return ;
@@ -525,27 +535,28 @@ private:
 	}
 
 	static void friend_create (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
 		self_.mThreadWaitCounter = 0 ;
-		self_.mThreadPool = Array<AutoRef<stl::thread>> () ;
+		self_.mThreadPool = Array<AutoRef<Thread>> () ;
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
-		auto sgd = stl::unique_lock<stl::mutex> (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.self.notify_all () ;
+		self_.mThreadCondition.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.self.wait_for (sgd ,stl::chrono::milliseconds (0)) ;
+			self_.mThreadCondition.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -556,7 +567,7 @@ private:
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
 		self_.mThreadWaitCounter = 0 ;
-		self_.mThreadPool = Array<AutoRef<stl::thread>> () ;
+		self_.mThreadPool = Array<AutoRef<Thread>> () ;
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
@@ -569,13 +580,14 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
 struct WorkThread<ITEM>::Detail {
-	class LocalProc {
+	class LocalProc
+		:public Thread::Binder {
 	private:
 		PhanRef<Pack> mThis ;
 
@@ -585,7 +597,7 @@ struct WorkThread<ITEM>::Detail {
 		inline explicit LocalProc (const PhanRef<Pack> &this_)
 			:mThis (PhanRef<Pack>::make (this_)) {}
 
-		inline void operator() () {
+		inline void execute () override {
 			_CALL_TRY_ ([&] () {
 				static_execute (mThis) ;
 			} ,[&] () {
@@ -598,12 +610,12 @@ struct WorkThread<ITEM>::Detail {
 		:private Wrapped<Pack> {
 	public:
 		inline void lock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter++ ;
 		}
 
 		inline void unlock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter-- ;
 		}
 	} ;
@@ -631,14 +643,14 @@ private:
 	private:
 		friend Promise ;
 		friend Future<ITEM> ;
-		stl::atomic<LENGTH> mCounter ;
-		Monostate<stl::mutex> mThreadMutex ;
-		Monostate<stl::condition_variable> mThreadCondition ;
+		Atomic mCounter ;
+		Mutex mThreadMutex ;
+		ConditionLock mThreadCondition ;
 		LENGTH mThreadCounter ;
 		AutoRef<BOOL> mThreadFlag ;
 		Function<DEF<ITEM ()> NONE::*> mThreadProc ;
 		Function<DEF<void (ITEM &)> NONE::*> mCallbackProc ;
-		AutoRef<stl::thread> mThreadPool ;
+		AutoRef<Thread> mThreadPool ;
 		AutoRef<ITEM> mItem ;
 		AutoRef<Exception> mException ;
 	} ;
@@ -676,7 +688,7 @@ public:
 	void start () {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -685,7 +697,7 @@ public:
 		r2x.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
-		r2x.mThreadPool = AutoRef<stl::thread> () ;
+		r2x.mThreadPool = AutoRef<Thread> () ;
 	}
 
 	void start (Function<DEF<ITEM ()> NONE::*> &&proc) {
@@ -693,7 +705,7 @@ public:
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
 		r2x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
@@ -703,8 +715,8 @@ public:
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		auto tmp = LocalProc (PhanRef<Pack>::make (r2x)) ;
-		r2x.mThreadPool = AutoRef<stl::thread>::make (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
+		r2x.mThreadPool = AutoRef<Thread>::make (r3x) ;
 	}
 
 	void signal () {
@@ -749,7 +761,7 @@ private:
 	}
 
 	static void static_push (Pack &self_ ,const ITEM &item) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
@@ -757,7 +769,7 @@ private:
 	}
 
 	static void static_push (Pack &self_ ,ITEM &&item) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
@@ -765,7 +777,7 @@ private:
 	}
 
 	static void static_rethrow (Pack &self_ ,const Exception &e) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
 		self_.mItem = AutoRef<ITEM> () ;
@@ -773,10 +785,10 @@ private:
 	}
 
 	static void static_signal (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.self.notify_all () ;
+		self_.mThreadCondition.notify () ;
 		if switch_case (TRUE) {
 			if (!self_.mItem.exist ())
 				discard ;
@@ -788,34 +800,35 @@ private:
 	}
 
 	static void friend_create (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
-		self_.mThreadPool = AutoRef<stl::thread> () ;
+		self_.mThreadPool = AutoRef<Thread> () ;
 		self_.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
-		auto sgd = stl::unique_lock<stl::mutex> (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.self.notify_all () ;
+		self_.mThreadCondition.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.self.wait_for (sgd ,stl::chrono::milliseconds (0)) ;
+			self_.mThreadCondition.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mThreadPool.exist ())
 			self_.mThreadPool->join () ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
-		self_.mThreadPool = AutoRef<stl::thread> () ;
+		self_.mThreadPool = AutoRef<Thread> () ;
 		self_.mThreadProc = Function<DEF<ITEM ()> NONE::*> () ;
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
@@ -829,13 +842,14 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
 struct Promise<ITEM>::Detail {
-	class LocalProc {
+	class LocalProc
+		:public Thread::Binder {
 	private:
 		PhanRef<Pack> mThis ;
 
@@ -845,7 +859,7 @@ struct Promise<ITEM>::Detail {
 		inline explicit LocalProc (const PhanRef<Pack> &this_)
 			:mThis (PhanRef<Pack>::make (this_)) {}
 
-		inline void operator() () {
+		inline void execute () override {
 			_CALL_TRY_ ([&] () {
 				static_execute (mThis) ;
 			} ,[&] () {
@@ -858,12 +872,12 @@ struct Promise<ITEM>::Detail {
 		:private Wrapped<Pack> {
 	public:
 		inline void lock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter++ ;
 		}
 
 		inline void unlock () {
-			ScopedGuard<stl::mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
 			ThreadCounter::mSelf.mThreadCounter-- ;
 		}
 	} ;
@@ -884,7 +898,7 @@ public:
 	BOOL ready () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return TRUE ;
 		if (r2x.mThreadFlag.self)
@@ -895,13 +909,14 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			r2x.mThreadCondition.self.wait (sgd) ;
+			r2x.mThreadCondition.wait () ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -911,19 +926,19 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _ARG1 ,class _ARG2>
-	ITEM poll (const stl::chrono::duration<_ARG1 ,_ARG2> &interval ,const Function<BOOL ()> &predicate) popping {
+	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		auto sgd = stl::unique_lock<stl::mutex> (r2x.mThreadMutex) ;
+		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
+		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			const auto r3x = predicate () ;
-			_DYNAMIC_ASSERT_ (r3x) ;
-			r2x.mThreadCondition.self.wait_for (sgd ,interval) ;
+			const auto r4x = predicate () ;
+			_DYNAMIC_ASSERT_ (r4x) ;
+			r2x.mThreadCondition.wait (interval) ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -936,7 +951,7 @@ public:
 	ITEM value (const ITEM &def) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return def ;
 		if (r2x.mThreadFlag.self)
@@ -950,7 +965,7 @@ public:
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r2x.mThreadMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r2x.mCallbackProc.exist ()) ;
 		r2x.mCallbackProc = _MOVE_ (proc) ;

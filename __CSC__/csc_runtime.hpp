@@ -4,28 +4,316 @@
 #define __CSC_RUNTIME__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
+#include "csc_stream.hpp"
+#include "csc_string.hpp"
 
 namespace CSC {
+class TimePoint ;
+
+class Duration
+	:private Proxy {
+private:
+	friend TimePoint ;
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	Duration () = default ;
+
+	explicit Duration (const LENGTH &milliseconds_) ;
+
+	explicit Duration (const ARRAY6<LENGTH> &time_) ;
+
+	explicit Duration (const StrongRef<Implement> &this_) ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	LENGTH hours () const ;
+
+	LENGTH minutes () const ;
+
+	LENGTH seconds () const ;
+
+	LENGTH miliseconds () const ;
+
+	LENGTH microseconds () const ;
+
+	LENGTH nanoseconds () const ;
+
+	Duration add (const Duration &that) const ;
+
+	inline Duration operator+ (const Duration &that) const {
+		return add (that) ;
+	}
+
+	Duration sub (const Duration &that) const ;
+
+	inline Duration operator- (const Duration &that) const {
+		return sub (that) ;
+	}
+} ;
+
+class TimePoint
+	:private Proxy {
+private:
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	TimePoint () = default ;
+
+	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
+
+	explicit TimePoint (const StrongRef<Implement> &this_) ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	ARRAY8<LENGTH> calendar () const ;
+
+	TimePoint add (const Duration &that) const ;
+
+	inline TimePoint operator+ (const Duration &that) const {
+		return add (that) ;
+	}
+
+	Duration sub (const TimePoint &that) const ;
+
+	inline Duration operator- (const TimePoint &that) const {
+		return sub (that) ;
+	}
+} ;
+
+class Atomic
+	:private Proxy {
+private:
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	Atomic () ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	VAR fetch () const ;
+
+	inline implicit operator VAR () const {
+		return fetch () ;
+	}
+
+	VAR compare_exchange (const VAR &expect ,const VAR &data) popping ;
+
+	void store (const VAR &data) ;
+
+	inline void operator= (const VAR &data) {
+		store (data) ;
+	}
+
+	VAR increase () popping ;
+
+	inline VAR operator++ () popping {
+		return increase () ;
+	}
+
+	VAR decrease () popping ;
+
+	inline VAR operator-- () popping {
+		return decrease () ;
+	}
+} ;
+
+class Mutex
+	:private Proxy {
+private:
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	Mutex () ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	void lock () ;
+
+	BOOL try_lock () popping ;
+
+	void unlock () ;
+} ;
+
+class RecursiveMutex
+	:private Proxy {
+private:
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	RecursiveMutex () ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	void lock () ;
+
+	BOOL try_lock () popping ;
+
+	void unlock () ;
+} ;
+
+class ConditionLock ;
+
+class UniqueLock
+	:private Proxy {
+private:
+	friend ConditionLock ;
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	UniqueLock () = delete ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	void lock () const ;
+
+	void unlock () const ;
+
+private:
+	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
+} ;
+
+class ConditionLock
+	:private Proxy {
+private:
+	friend UniqueLock ;
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	ConditionLock () ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	UniqueLock guard (Mutex &mutex_) popping {
+		return UniqueLock (mutex_ ,DEREF[this]) ;
+	}
+
+	void wait () ;
+
+	void wait (const Duration &time_) ;
+
+	void wait (const TimePoint &time_) ;
+
+	void yield () ;
+
+	void notify () ;
+} ;
+
+class Thread
+	:private Proxy {
+public:
+	exports class Binder
+		:public Interface {
+	public:
+		virtual void execute () = 0 ;
+	} ;
+
+private:
+	struct Detail ;
+	class Implement ;
+	StrongRef<Implement> mThis ;
+
+public:
+	Thread () = delete ;
+
+	Implement &as () leftvalue {
+		return mThis ;
+	}
+
+	const Implement &as () const leftvalue {
+		return mThis ;
+	}
+
+	explicit Thread (const StrongRef<Binder> &runnable) ;
+
+	void join () ;
+} ;
+
+struct Thread::Detail {
+	class Runnable {
+	private:
+		PhanRef<Binder> mBinder ;
+
+	public:
+		inline Runnable () = delete ;
+
+		inline explicit Runnable (const PhanRef<Binder> &binder)
+			:mBinder (PhanRef<Binder>::make (binder)) {}
+
+		inline void operator() () {
+			mBinder->execute () ;
+		}
+	} ;
+} ;
+
 class GlobalRuntime final
 	:private Wrapped<void> {
 public:
-	inline imports_static stl::chrono::system_clock::time_point clock_now () ;
+	inline imports_static TimePoint clock_now () ;
 
-	inline imports_static stl::chrono::steady_clock::time_point clock_tick () ;
+	inline imports_static TimePoint clock_epoch () ;
 
 	inline imports_static FLAG thread_tid () ;
 
-	template <class _ARG1 ,class _ARG2>
-	inline imports_static void thread_sleep (const stl::chrono::duration<_ARG1 ,_ARG2> &time_) ;
+	inline imports_static void thread_sleep (const Duration &time_) ;
 
-	template <class _ARG1 ,class _ARG2>
-	inline imports_static void thread_sleep (const stl::chrono::time_point<_ARG1 ,_ARG2> &time_) ;
+	inline imports_static void thread_sleep (const TimePoint &time_) ;
 
-	inline imports_static void thread_sleep () ;
+	inline imports_static void thread_yield () ;
 
 	inline imports_static LENGTH thread_concurrency () ;
 
@@ -35,7 +323,7 @@ public:
 
 	inline imports_static FLAG process_pid () ;
 
-	inline imports_static Buffer<BYTE ,ARGC<128>> process_info (FLAG pid) ;
+	inline imports_static Buffer<BYTE ,ARGC<128>> process_info (const FLAG &pid) ;
 
 	inline imports_static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
 
@@ -79,7 +367,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r6x > 0) ;
 		ret.mName = ret.mName.segment (r4x ,r6x) ;
 		return _MOVE_ (ret) ;
-	}
+}
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
@@ -95,7 +383,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r9x > 0) ;
 		ret.mName = ret.mName.segment (r7x ,r9x) ;
 		return _MOVE_ (ret) ;
-	}
+}
 #endif
 
 	template <class _ARG1>
@@ -349,7 +637,7 @@ class GlobalStatic<void> final
 public:
 	struct Extern {
 		//@warn: this function should be implemented in a 'runtime.dll'
-		imports_static DEF<PTR<NONE> (PTR<NONE> ,PTR<NONE>) popping> unique_atomic_address ;
+		imports_static DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) popping> unique_atomic_address ;
 	} ;
 
 private:
@@ -368,8 +656,8 @@ private:
 	private:
 		template <class>
 		friend class GlobalStatic ;
-		stl::atomic<LENGTH> mCounter ;
-		Monostate<stl::mutex> mNodeMutex ;
+		Atomic mCounter ;
+		Mutex mNodeMutex ;
 		Deque<VALUE_NODE> mValueList ;
 		HashSet<FLAG> mValueMappingSet ;
 		Deque<CLASS_NODE> mClassList ;
@@ -382,7 +670,7 @@ private:
 	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 private:
-	imports_static PTR<NONE> unique_atomic_address (PTR<NONE> expect ,PTR<NONE> data) popping {
+	imports_static PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) popping {
 		return Extern::unique_atomic_address (expect ,data) ;
 	}
 
@@ -403,11 +691,12 @@ private:
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_<Pack> (rax) ;
-			return IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r4x]).watch () ;
+			auto rcx = IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r4x]) ;
+			return rcx.watch () ;
 		}) ;
 	}
 
-	imports_static PTR<VALUE_NODE> static_new_node (Pack &self_ ,FLAG guid) popping {
+	imports_static PTR<VALUE_NODE> static_new_node (Pack &self_ ,const FLAG &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if switch_case (TRUE) {
@@ -420,11 +709,11 @@ private:
 		return &self_.mValueList[ix] ;
 	}
 
-	imports_static FLAG node_guid_hash (FLAG guid) {
+	imports_static FLAG node_guid_hash (const FLAG &guid) {
 		return guid ;
 	}
 
-	imports_static PTR<VALUE_NODE> static_find_node (Pack &self_ ,FLAG guid) popping {
+	imports_static PTR<VALUE_NODE> static_find_node (Pack &self_ ,const FLAG &guid) popping {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -461,14 +750,14 @@ private:
 
 private:
 	static void friend_create (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
 	static void friend_destroy (Pack &self_) {
-		ScopedGuard<stl::mutex> ANONYMOUS (self_.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
@@ -482,7 +771,7 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
@@ -492,9 +781,9 @@ class GlobalStatic final
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
 public:
-	imports_static void init (VAR data) {
+	imports_static void init (const VAR &data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if (r2x != NULL)
 			return ;
@@ -504,17 +793,17 @@ public:
 		r3x->mValue = data ;
 	}
 
-	imports_static VAR load () popping {
+	imports_static VAR fetch () popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		return r2x->mValue ;
 	}
 
-	imports_static VAR compare_and_swap (VAR expect ,VAR data) popping {
+	imports_static VAR compare_exchange (const VAR &expect ,const VAR &data) popping {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
@@ -523,9 +812,9 @@ public:
 		return r2x->mValue ;
 	}
 
-	imports_static void save (VAR data) {
+	imports_static void store (const VAR &data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
-		ScopedGuard<stl::mutex> ANONYMOUS (r1x.mNodeMutex) ;
+		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
 		if switch_case (TRUE) {
 			if (rax != NULL)
@@ -546,7 +835,7 @@ private:
 	class Pack {
 	private:
 		friend GlobalStatic ;
-		stl::atomic<LENGTH> mCounter ;
+		Atomic mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
 
@@ -557,7 +846,7 @@ public:
 	static Singleton<UNIT> &unique () popping {
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStatic<void>::static_unique () ;
-			ScopedGuard<stl::mutex> ANONYMOUS (r2x.mNodeMutex) ;
+			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
@@ -574,9 +863,11 @@ public:
 				rax->mValue = DEPTR[r6x] ;
 			}
 			auto &r7x = _LOAD_<Pack> (rax->mValue) ;
-			return IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r7x]).watch () ;
+			auto rcx = IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r7x]) ;
+			return rcx.watch () ;
 		}) ;
-		return _XVALUE_<Pack> (r1x).mValue ;
+		auto &r8x = _XVALUE_<Pack> (r1x) ;
+		return r8x.mValue ;
 	}
 
 private:
@@ -597,7 +888,7 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
@@ -616,7 +907,7 @@ private:
 	class Pack {
 	private:
 		friend Coroutine ;
-		stl::atomic<LENGTH> mCounter ;
+		Atomic mCounter ;
 		EFLAG mState ;
 		AutoRef<CONT> mContext ;
 		AnyRef<void> mBreakPoint ;
@@ -728,7 +1019,7 @@ private:
 	}
 
 	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_sleep () ;
+		GlobalRuntime::thread_yield () ;
 	}
 
 public:
@@ -776,7 +1067,7 @@ public:
 		sub_await (mSelf.mThis->mSubAwaitQueue.length ()) ;
 	}
 
-	void sub_await (FLAG priority) {
+	void sub_await (const FLAG &priority) {
 		_DEBUG_ASSERT_ (priority >= 0) ;
 		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
 		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
@@ -796,7 +1087,7 @@ public:
 		sub_resume (mSelf.mThis->mSubAwaitQueue.length ()) ;
 	}
 
-	void sub_resume (LENGTH count) {
+	void sub_resume (const LENGTH &count) {
 		for (auto &&i : _RANGE_ (0 ,count)) {
 			if (mSelf.mThis->mSubAwaitQueue.empty ())
 				continue ;
@@ -842,38 +1133,38 @@ private:
 		:public Interface {
 	public:
 		virtual VAR entropy () const = 0 ;
-		virtual void reset_seed (VAR seed_) = 0 ;
+		virtual void reset_seed (const VAR &seed_) = 0 ;
 		virtual VAR random_value () popping = 0 ;
-		virtual void random_skip (LENGTH len) = 0 ;
+		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
 
 private:
 	class Implement ;
 	friend Singleton<RandomService> ;
-	Monostate<stl::recursive_mutex> mMutex ;
+	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	VAR entropy () const {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->entropy () ;
 	}
 
-	void reset_seed (VAR seed_) {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+	void reset_seed (const VAR &seed_) {
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->reset_seed (seed_) ;
 	}
 
-	VAR random_value (VAR min_ ,VAR max_) popping {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+	VAR random_value (const VAR &min_ ,const VAR &max_) popping {
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		const auto r1x = max_ - min_ + 1 ;
 		const auto r2x = mThis->random_value () ;
 		return r2x % r1x + min_ ;
 	}
 
-	Array<VAR> random_value (VAR min_ ,VAR max_ ,LENGTH len) popping {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) popping {
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		Array<VAR> ret = Array<VAR> (len) ;
 		const auto r1x = max_ - min_ + 1 ;
@@ -884,11 +1175,11 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,LENGTH range_) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_) popping {
 		return random_shuffle (count ,range_ ,BitSet<> (range_)) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,LENGTH range_ ,BitSet<> &&res) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) popping {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
 		BitSet<> ret = _MOVE_ (res) ;
@@ -902,13 +1193,13 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (LENGTH count ,const BitSet<> &range_) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const BitSet<> &range_) popping {
 		BitSet<> ret = BitSet<> (range_.size ()) ;
 		compute_random_shuffle (count ,range_ ,ret) ;
 		return _MOVE_ (ret) ;
 	}
 
-	void compute_random_shuffle (LENGTH count ,const BitSet<> &range_ ,BitSet<> &chosen) {
+	void compute_random_shuffle (const LENGTH &count ,const BitSet<> &range_ ,BitSet<> &chosen) {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_.size ()) ;
 		_DEBUG_ASSERT_ (chosen.size () == range_.size ()) ;
 		chosen.clear () ;
@@ -949,8 +1240,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void random_skip (LENGTH len) {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+	void random_skip (const LENGTH &len) {
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->random_skip (len) ;
 	}
 
@@ -958,7 +1249,7 @@ private:
 	RandomService () ;
 
 private:
-	inline static STRU8 index_to_hex_str (INDEX index) {
+	inline static STRU8 index_to_hex_str (const INDEX &index) {
 		if (index < 10)
 			return STRU8 (STRU8 ('0') + index) ;
 		return STRU8 (STRU8 ('A' - 10) + index) ;

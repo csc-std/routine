@@ -4,6 +4,7 @@
 #define __CSC_BASIC__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 
 namespace CSC {
@@ -11,41 +12,41 @@ class BasicProc
 	:private Wrapped<void> {
 public:
 	template <class _ARG1>
-	inline imports_static BOOL mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) ;
+	inline imports_static BOOL mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static FLAG mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) ;
+	inline imports_static FLAG mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static FLAG mem_hash (const ARR<_ARG1> &src ,LENGTH len) ;
+	inline imports_static FLAG mem_hash (const ARR<_ARG1> &src ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static FLAG mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) ;
+	inline imports_static FLAG mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static INDEX mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) ;
+	inline imports_static INDEX mem_chr (const ARR<_ARG1> &src ,const LENGTH &len ,const _ARG1 &val) ;
 
 	template <class _ARG1>
-	inline imports_static INDEX mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) ;
+	inline imports_static INDEX mem_rchr (const ARR<_ARG1> &src ,const LENGTH &len ,const _ARG1 &val) ;
 
 	template <class _ARG1>
-	inline imports_static void mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) ;
+	inline imports_static void mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static void mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) ;
+	inline imports_static void mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static void mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) ;
+	inline imports_static void mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static void mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) ;
+	inline imports_static void mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,const LENGTH &len) ;
 
 	template <class _ARG1>
-	inline imports_static void mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) ;
+	inline imports_static void mem_fill (ARR<_ARG1> &dst ,const LENGTH &len ,const _ARG1 &val) ;
 } ;
 
 template <class _ARG1>
-inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
+inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -69,7 +70,7 @@ inline BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2
 }
 
 template <class _ARG1>
-inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,LENGTH len) {
+inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -97,7 +98,7 @@ inline FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2
 
 #ifdef __CSC_CONFIG_VAR32__
 template <class _ARG1>
-inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
+inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -125,7 +126,7 @@ inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
 
 #ifdef __CSC_CONFIG_VAR64__
 template <class _ARG1>
-inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
+inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -152,7 +153,7 @@ inline FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,LENGTH len) {
 #endif
 
 namespace U {
-inline CHAR static_mem_crc32_table_each (CHAR val) {
+inline CHAR static_mem_crc32_table_each (const CHAR &val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
@@ -176,7 +177,7 @@ inline const PACK<CHAR[256]> &static_mem_crc32_table () {
 } ;
 
 template <class _ARG1>
-inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) {
+inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -196,7 +197,7 @@ inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,LENGTH len) {
 }
 
 template <class _ARG1>
-inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
+inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,const LENGTH &len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -217,7 +218,7 @@ inline INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 
 }
 
 template <class _ARG1>
-inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1 &val) {
+inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,const LENGTH &len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -238,7 +239,7 @@ inline INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,LENGTH len ,const _ARG1
 }
 
 template <class _ARG1>
-inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
+inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -261,7 +262,7 @@ inline void BasicProc::mem_copy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH 
 }
 
 template <class _ARG1>
-inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH len) {
+inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -300,7 +301,7 @@ inline void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src ,LENGTH
 }
 
 template <class _ARG1>
-inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
+inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -333,7 +334,7 @@ inline void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len)
 }
 
 template <class _ARG1>
-inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len) {
+inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -356,7 +357,7 @@ inline void BasicProc::mem_swap (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,LENGTH len)
 }
 
 template <class _ARG1>
-inline void BasicProc::mem_fill (ARR<_ARG1> &dst ,LENGTH len ,const _ARG1 &val) {
+inline void BasicProc::mem_fill (ARR<_ARG1> &dst ,const LENGTH &len ,const _ARG1 &val) {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -433,7 +434,7 @@ private:
 public:
 	inline ScopedPtr () = delete ;
 
-	inline explicit ScopedPtr (PTR<UNIT> pointer) noexcept
+	inline explicit ScopedPtr (const PTR<UNIT> &pointer) noexcept
 		:mPointer (pointer) {}
 
 	inline ~ScopedPtr () noexcept {
@@ -554,7 +555,7 @@ public:
 	inline ScopedBuild () = delete ;
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<stl::is_convertible<_ARG1 & ,const PTR<ARR<TEMP<UNIT>>> &>::value>>
-	inline explicit ScopedBuild (_ARG1 &address ,LENGTH len) popping
+	inline explicit ScopedBuild (_ARG1 &address ,const LENGTH &len) popping
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
 		if (r1x == NULL)
@@ -569,7 +570,7 @@ public:
 	}
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<stl::is_convertible<_ARG1 & ,const PTR<ARR<TEMP<UNIT>>> &>::value>>
-	inline explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,LENGTH len) popping
+	inline explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len) popping
 		:ScopedBuild (ARGVP0) {
 		_DEBUG_ASSERT_ (src != NULL) ;
 		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
@@ -628,7 +629,7 @@ public:
 	}
 
 	template <class _RET>
-	inline imports_static ScopedPtr<ARR<_RET> ,GlobalHeap> alloc (LENGTH len) popping {
+	inline imports_static ScopedPtr<ARR<_RET> ,GlobalHeap> alloc (const LENGTH &len) popping {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -703,7 +704,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) noexcept
+	inline explicit AutoRef (const PTR<Holder> &pointer) noexcept
 		:mPointer (pointer) {}
 } ;
 
@@ -777,7 +778,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) noexcept
+	inline explicit AutoRef (const PTR<Holder> &pointer) noexcept
 		:mPointer (pointer) {}
 } ;
 
@@ -839,7 +840,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (PTR<Holder> pointer) noexcept
+	inline explicit AutoRef (const PTR<Holder> &pointer) noexcept
 		:SPECIALIZATION_BASE (pointer) {}
 } ;
 
@@ -942,7 +943,7 @@ public:
 	}
 
 private:
-	inline explicit SharedRef (PTR<Holder> pointer)
+	inline explicit SharedRef (const PTR<Holder> &pointer)
 		:SharedRef () {
 		if (pointer == NULL)
 			return ;
@@ -1139,7 +1140,7 @@ public:
 	}
 
 private:
-	inline explicit AnyRef (PTR<Holder> pointer) noexcept
+	inline explicit AnyRef (const PTR<Holder> &pointer) noexcept
 		:mPointer (pointer) {}
 } ;
 
@@ -1356,7 +1357,7 @@ public:
 	}
 
 private:
-	inline explicit UniqueRef (PTR<Holder> pointer) noexcept
+	inline explicit UniqueRef (const PTR<Holder> &pointer) noexcept
 		:mPointer (pointer) {}
 } ;
 
@@ -1439,7 +1440,7 @@ public:
 	}
 
 private:
-	inline explicit PhanRef (PTR<UNIT> pointer) noexcept
+	inline explicit PhanRef (const PTR<UNIT> &pointer) noexcept
 		:mPointer (pointer) {}
 
 public:
@@ -1549,7 +1550,7 @@ public:
 	}
 
 private:
-	inline explicit Function (const DEF<decltype (ARGVP0)> & ,PTR<Holder> pointer)
+	inline explicit Function (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
 		:mPointer (pointer) ,mFunction (NULL) {}
 
 public:
@@ -1612,7 +1613,7 @@ private:
 	exports class Holder
 		:public Interface {
 	public:
-		virtual void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept = 0 ;
+		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept = 0 ;
 		virtual UNIT1 invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;
 
@@ -1625,7 +1626,7 @@ private:
 	public:
 		inline FakeHolder () = delete ;
 
-		inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override ;
+		inline void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept override ;
 
 		inline UNIT1 invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const override ;
 	} ;
@@ -1656,22 +1657,22 @@ public:
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func) noexcept
 		:Function () {
-		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
+		using ImplHolder = typename Detail::template ImplHolder<const _ARG1> ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
 	template <class _ARG1>
 	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func) noexcept
 		:Function () {
-		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
+		using ImplHolder = typename Detail::template ImplHolder<PTR<_ARG1>> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
 	template <class _ARG1>
-	inline explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept
+	inline explicit Function (const PhanRef<const _ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func) noexcept
 		:Function () {
-		using ImplHolder = typename Detail::template ImplHolder<_ARG1> ;
+		using ImplHolder = typename Detail::template ImplHolder<PTR<const _ARG1>> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
@@ -1730,8 +1731,8 @@ private:
 
 private:
 	template <class _RET ,class... _ARGS>
-	inline static void static_create (PTR<TEMP<FakeHolder>> address ,_ARGS &&...funcval) noexcept {
-		_STATIC_ASSERT_ (!std::is_reference<_RET>::value) ;
+	inline static void static_create (const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) noexcept {
+		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_constructible<_RET ,_ARGS &&...>::value) ;
 		auto &r1x = _LOAD_<TEMP<_RET>> (address) ;
 		auto &r2x = _XVALUE_<Holder> (_CAST_<_RET> (r1x)) ;
@@ -1756,7 +1757,7 @@ struct Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail {
 		inline explicit PureHolder (const PTR<UNIT1 (UNITS...)> &func) noexcept
 			:mFunction (func) {}
 
-		inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+		inline void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept override {
 			static_create<PureHolder> (address ,mFunction) ;
 		}
 
@@ -1780,10 +1781,10 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept
+	inline explicit ImplHolder (const PTR<UNIT_> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> &func) noexcept
 		:mContext (context_) ,mFunction (func) {}
 
-	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept override {
 		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -1803,10 +1804,10 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<const UNIT_> context_ ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept
+	inline explicit ImplHolder (const PTR<const UNIT_> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> &func) noexcept
 		:mContext (context_) ,mFunction (func) {}
 
-	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept override {
 		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -1826,10 +1827,10 @@ private:
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (PTR<UNIT_> context_ ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept
+	inline explicit ImplHolder (const PTR<UNIT_> &context_ ,const PTR<UNIT1 (PTR<UNIT_> ,UNITS...)> &func) noexcept
 		:mContext (context_) ,mFunction (func) {}
 
-	inline void friend_copy (PTR<TEMP<FakeHolder>> address) const noexcept override {
+	inline void friend_copy (const PTR<TEMP<FakeHolder>> &address) const noexcept override {
 		static_create<ImplHolder> (address ,mContext ,mFunction) ;
 	}
 
@@ -1862,7 +1863,7 @@ private:
 public:
 	inline Buffer () = default ;
 
-	inline explicit Buffer (LENGTH len) {
+	inline explicit Buffer (const LENGTH &len) {
 		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE::value) ;
 	}
 
@@ -1896,21 +1897,21 @@ public:
 		return SIZE::value ;
 	}
 
-	inline UNIT &get (INDEX index) leftvalue {
+	inline UNIT &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) leftvalue {
+	inline UNIT &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const leftvalue {
+	inline const UNIT &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mBuffer[index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const leftvalue {
+	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1957,7 +1958,7 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -1981,7 +1982,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:Buffer () {
 		if (len == 0)
 			return ;
@@ -2035,21 +2036,21 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) leftvalue {
+	inline UNIT &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return DEREF[mBuffer][index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) leftvalue {
+	inline UNIT &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const leftvalue {
+	inline const UNIT &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return DEREF[mBuffer][index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const leftvalue {
+	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2104,7 +2105,7 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer<UNIT ,SAUTO> expand (LENGTH len) const {
+	inline Buffer<UNIT ,SAUTO> expand (const LENGTH &len) const {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
 	}
@@ -2140,7 +2141,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:Buffer () {
 		if (len == 0)
 			return ;
@@ -2199,7 +2200,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:Buffer () {
 		if (len == 0)
 			return ;
@@ -2276,7 +2277,7 @@ private:
 public:
 	inline Buffer () = default ;
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:SPECIALIZATION_BASE (len) {}
 
 	inline ARR<UNIT> &to () leftvalue {
@@ -2303,21 +2304,21 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) leftvalue {
+	inline UNIT &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return DEREF[mBuffer][index] ;
 	}
 
-	inline UNIT &operator[] (INDEX index) leftvalue {
+	inline UNIT &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const leftvalue {
+	inline const UNIT &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return DEREF[mBuffer][index] ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const leftvalue {
+	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2374,7 +2375,7 @@ public:
 		return _MAX_ (r1x ,r2x) ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand (const LENGTH &len) const {
 		return Buffer (len) ;
 	}
 
@@ -2401,7 +2402,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
@@ -2448,7 +2449,7 @@ public:
 		return mSize ;
 	}
 
-	inline const UNIT &get (INDEX index) const leftvalue {
+	inline const UNIT &get (const INDEX &index) const leftvalue {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -2461,7 +2462,7 @@ public:
 #endif
 	}
 
-	inline const UNIT &operator[] (INDEX index) const leftvalue {
+	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2516,7 +2517,7 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -2527,12 +2528,12 @@ public:
 	}
 
 private:
-	inline explicit Buffer (PTR<const ARR<UNIT>> src ,LENGTH len) noexcept
+	inline explicit Buffer (const PTR<const ARR<UNIT>> &src ,const LENGTH &len) noexcept
 		:mBuffer (src) ,mSize (len) {}
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline imports_static Buffer make (const ARR<UNIT> &src ,LENGTH len) popping {
+	inline imports_static Buffer make (const ARR<UNIT> &src ,const LENGTH &len) popping {
 		if (len == 0)
 			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -2573,7 +2574,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline explicit Buffer (LENGTH len)
+	inline explicit Buffer (const LENGTH &len)
 		:Buffer () {
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
@@ -2620,7 +2621,7 @@ public:
 		return mSize ;
 	}
 
-	inline UNIT &get (INDEX index) const leftvalue {
+	inline UNIT &get (const INDEX &index) const leftvalue {
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -2633,7 +2634,7 @@ public:
 #endif
 	}
 
-	inline UNIT &operator[] (INDEX index) const leftvalue {
+	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2688,7 +2689,7 @@ public:
 		return 0 ;
 	}
 
-	inline Buffer expand (LENGTH len) const {
+	inline Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
@@ -2699,12 +2700,12 @@ public:
 	}
 
 private:
-	inline explicit Buffer (PTR<ARR<UNIT>> src ,LENGTH len) noexcept
+	inline explicit Buffer (const PTR<ARR<UNIT>> &src ,const LENGTH &len) noexcept
 		:mBuffer (src) ,mSize (len) {}
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	inline imports_static Buffer make (ARR<UNIT> &src ,LENGTH len) popping {
+	inline imports_static Buffer make (ARR<UNIT> &src ,const LENGTH &len) popping {
 		if (len == 0)
 			return Buffer () ;
 		_DEBUG_ASSERT_ (src != NULL) ;
@@ -2783,7 +2784,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len)
+	inline explicit Allocator (const LENGTH &len)
 		:Allocator (ARGVP0 ,len) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -2803,7 +2804,7 @@ public:
 	inline Allocator &operator= (Allocator &&) = delete ;
 
 private:
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
@@ -2852,7 +2853,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len)
+	inline explicit Allocator (const LENGTH &len)
 		:Allocator (ARGVP0 ,len) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -2903,7 +2904,7 @@ public:
 	}
 
 private:
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&allocator_)
@@ -2956,7 +2957,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline explicit Allocator (LENGTH len)
+	inline explicit Allocator (const LENGTH &len)
 		:Allocator (ARGVP0 ,len) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -3036,7 +3037,7 @@ public:
 	}
 
 private:
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<Node ,SIZE> &allocator_)
@@ -3102,7 +3103,7 @@ private:
 public:
 	inline Allocator () = default ;
 
-	inline explicit Allocator (LENGTH len)
+	inline explicit Allocator (const LENGTH &len)
 		:SPECIALIZATION_BASE (len) {}
 
 	inline LENGTH size () const {
@@ -3130,27 +3131,27 @@ public:
 		mFree = ix ;
 	}
 
-	inline BOOL used (INDEX index) const {
+	inline BOOL used (const INDEX &index) const {
 		if (mAllocator[index].mNext != VAR_USED)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	inline UNIT &get (INDEX index) leftvalue {
+	inline UNIT &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
-	inline UNIT &operator[] (INDEX index) leftvalue {
+	inline UNIT &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	inline const UNIT &get (INDEX index) const leftvalue {
+	inline const UNIT &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
 		return _CAST_<UNIT> (mAllocator[index].mValue) ;
 	}
 
-	inline const UNIT &operator[] (INDEX index) const leftvalue {
+	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3195,7 +3196,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	inline void free (INDEX index) noexcept {
+	inline void free (const INDEX &index) noexcept {
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (used (index)) ;
 		_DESTROY_ (DEPTR[mAllocator[index].mValue]) ;
@@ -3204,7 +3205,7 @@ public:
 		mLength-- ;
 	}
 
-	inline void reserve (LENGTH len) {
+	inline void reserve (const LENGTH &len) {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
@@ -3242,7 +3243,7 @@ public:
 	}
 
 private:
-	inline void update_reserve (INDEX size_ ,INDEX free_) {
+	inline void update_reserve (const INDEX &size_ ,const INDEX &free_) {
 		INDEX ix = free_ ;
 		INDEX iy = VAR_NONE ;
 		for (auto &&i : _RANGE_ (size_ ,mAllocator.size ())) {

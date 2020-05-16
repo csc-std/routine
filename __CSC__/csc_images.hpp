@@ -4,6 +4,7 @@
 #define __CSC_IMAGES__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -80,7 +81,7 @@ struct ArrayRange<SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Iterator (const ArrayRange &base ,INDEX index ,Array<LENGTH ,SIZE> &&item)
+		inline explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
 			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
 	private:
@@ -125,10 +126,10 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (LENGTH cx_ ,LENGTH cy_)
+	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_)
 		:Bitmap (cx_ ,cy_ ,cx_ ,0) {}
 
-	explicit Bitmap (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {
+	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_ ,const LENGTH &cw_ ,const LENGTH &ck_) {
 		_DEBUG_ASSERT_ (cx_ >= 0) ;
 		_DEBUG_ASSERT_ (cy_ >= 0) ;
 		_DEBUG_ASSERT_ (cx_ <= cw_) ;
@@ -212,7 +213,7 @@ public:
 		mCK = r2x[3] ;
 	}
 
-	void reset (LENGTH cx_ ,LENGTH cy_ ,LENGTH cw_ ,LENGTH ck_) {
+	void reset (const LENGTH &cx_ ,const LENGTH &cy_ ,const LENGTH &cw_ ,const LENGTH &ck_) {
 		_DEBUG_ASSERT_ (cx_ >= 0) ;
 		_DEBUG_ASSERT_ (cy_ >= 0) ;
 		_DEBUG_ASSERT_ (cx_ <= cw_) ;
@@ -241,13 +242,13 @@ public:
 		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
-	UNIT &get (INDEX y ,INDEX x) leftvalue {
+	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
 	}
 
-	const UNIT &get (INDEX y ,INDEX x) const leftvalue {
+	const UNIT &get (const INDEX &y ,const INDEX &x) const leftvalue {
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		return mImage[y * mCW + x + mCK] ;
@@ -269,21 +270,21 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Row<Bitmap>> get (INDEX y) leftvalue {
+	DEF<typename Detail::template Row<Bitmap>> get (const INDEX &y) leftvalue {
 		using Row = typename Detail::template Row<Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Bitmap>> operator[] (INDEX y) leftvalue {
+	inline DEF<typename Detail::template Row<Bitmap>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Bitmap>> get (INDEX y) const leftvalue {
+	DEF<typename Detail::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
 		using Row = typename Detail::template Row<const Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (INDEX y) const leftvalue {
+	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -591,12 +592,12 @@ struct Bitmap<UNIT>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) rightvalue {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y)
+		inline explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 	} ;
 } ;
@@ -636,7 +637,7 @@ public:
 		:public Interface {
 	public:
 		virtual void compute_layout (AnyRef<void> &holder ,LAYOUT &layout) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &holder ,LENGTH cx_ ,LENGTH cy_) const = 0 ;
+		virtual void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
 		virtual void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
 		virtual void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const = 0 ;
@@ -710,7 +711,7 @@ public:
 		return ArrayRange<ARGC<2>> (r1x) ;
 	}
 
-	UNIT &get (INDEX y ,INDEX x) leftvalue {
+	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -718,7 +719,7 @@ public:
 		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
 	}
 
-	const UNIT &get (INDEX y ,INDEX x) const leftvalue {
+	const UNIT &get (const INDEX &y ,const INDEX &x) const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
@@ -742,21 +743,21 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Row<AbstractImage>> get (INDEX y) leftvalue {
+	DEF<typename Detail::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
 		using AbstractImage = typename Detail::template Row<AbstractImage> ;
 		return AbstractImage (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (INDEX y) leftvalue {
+	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const AbstractImage>> get (INDEX y) const leftvalue {
+	DEF<typename Detail::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
 		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
 		return AbstractImage (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (INDEX y) const leftvalue {
+	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -778,7 +779,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void load_data (LENGTH cx_ ,LENGTH cy_) {
+	void load_data (const LENGTH &cx_ ,const LENGTH &cy_) {
 		_DEBUG_ASSERT_ (cx_ >= 0 && cx_ < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cy_ >= 0 && cy_ < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cx_ * cy_ > 0) ;
@@ -847,12 +848,12 @@ struct AbstractImage<UNIT>::Detail {
 	public:
 		inline Row () = delete ;
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (INDEX x) rightvalue {
+		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
 
 	private:
-		inline explicit Row (BASE &base ,INDEX y)
+		inline explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 	} ;
 

@@ -4,6 +4,7 @@
 #define __CSC_DATABASE__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"

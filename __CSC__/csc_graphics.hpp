@@ -4,6 +4,7 @@
 #define __CSC_GRAPHICS__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
@@ -237,16 +238,16 @@ public:
 		virtual void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
 		virtual void compute_active_pipeline (AnyRef<void> &holder) const = 0 ;
 		virtual void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAR64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL32 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const VAL64 &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Vector<VAL64> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL32> &data) const = 0 ;
-		virtual void compute_uniform_write (AnyRef<void> &holder ,INDEX index ,const Matrix<VAL64> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAR32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAR64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAL32 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAL64 &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Vector<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Vector<VAL64> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL32> &data) const = 0 ;
+		virtual void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL64> &data) const = 0 ;
 		virtual void compute_sprite_load_data (AnyRef<void> &holder ,const Mesh &mesh) const = 0 ;
-		virtual void compute_sprite_active_texture (AnyRef<void> &holder ,INDEX texture) const = 0 ;
+		virtual void compute_sprite_active_texture (AnyRef<void> &holder ,const INDEX &texture) const = 0 ;
 		virtual void compute_sprite_draw (AnyRef<void> &holder) const = 0 ;
 	} ;
 
@@ -408,7 +409,7 @@ public:
 		mAbstract->compute_sprite_load_data (mHolder ,mesh) ;
 	}
 
-	void active_texture (INDEX texture) {
+	void active_texture (const INDEX &texture) {
 		if (!exist ())
 			return ;
 		mAbstract->compute_sprite_active_texture (mHolder ,texture) ;

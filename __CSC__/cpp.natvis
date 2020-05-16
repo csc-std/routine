@@ -213,7 +213,7 @@
 
   <Type Name="CSC::IntrusiveRef&lt;*,*&gt;">
     <Expand>
-      <ExpandedItem>*mPointer.load(std::memory_order::memory_order_seq_cst)</ExpandedItem>
+      <ExpandedItem>*mPointer.fetch()</ExpandedItem>
     </Expand>
   </Type>
 

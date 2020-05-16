@@ -4,6 +4,7 @@
 #define __CSC_FILESYSTEM__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
@@ -27,7 +28,7 @@ public:
 
 	inline imports_static void save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) ;
 
-	inline imports_static PhanBuffer<const BYTE> load_assert_file (FLAG resource) popping ;
+	inline imports_static PhanBuffer<const BYTE> load_assert_file (const FLAG &resource) popping ;
 
 	inline imports_static BOOL find_file (const String<STR> &file) popping ;
 
@@ -105,11 +106,11 @@ public:
 
 	explicit BufferLoader (const String<STR> &file) ;
 
-	explicit BufferLoader (const String<STR> &file ,LENGTH file_len) ;
+	explicit BufferLoader (const String<STR> &file ,const LENGTH &file_len) ;
 
-	explicit BufferLoader (const String<STR> &file ,BOOL cache) ;
+	explicit BufferLoader (const String<STR> &file ,const BOOL &cache) ;
 
-	explicit BufferLoader (const String<STR> &file ,LENGTH file_len ,BOOL cache) ;
+	explicit BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) ;
 
 	PhanBuffer<BYTE> watch () leftvalue ;
 
@@ -131,17 +132,17 @@ private:
 private:
 	class Implement ;
 	friend Singleton<FileSystemService> ;
-	Monostate<stl::recursive_mutex> mMutex ;
+	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	void startup () {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->startup () ;
 	}
 
 	void shutdown () {
-		ScopedGuard<stl::recursive_mutex> ANONYMOUS (mMutex) ;
+		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->shutdown () ;
 	}
 

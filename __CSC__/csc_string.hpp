@@ -4,6 +4,7 @@
 #define __CSC_STRING__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 #include "csc_array.hpp"
@@ -11,6 +12,8 @@
 #include "csc_stream.hpp"
 
 namespace CSC {
+class TimePoint ;
+
 class StringProc
 	:private Wrapped<void> {
 public:
@@ -138,25 +141,23 @@ public:
 	template <class _RET = STR>
 	inline imports_static String<_RET> build_ipv4s (const PACK<WORD ,CHAR> &stru) ;
 
-#ifdef __CSC_EXTEND__
 	template <class _ARG1>
-	inline imports_static stl::chrono::system_clock::time_point parse_dates (const String<_ARG1> &stri) ;
+	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_dates (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_dates (const stl::chrono::system_clock::time_point &stru) ;
+	inline imports_static String<_RET> build_dates (const TimePoint &stru) ;
 
 	template <class _ARG1>
-	inline imports_static stl::chrono::system_clock::time_point parse_hours (const String<_ARG1> &stri) ;
+	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_hours (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_hours (const stl::chrono::system_clock::time_point &stru) ;
+	inline imports_static String<_RET> build_hours (const TimePoint &stru) ;
 
 	template <class _ARG1>
-	inline imports_static stl::chrono::system_clock::time_point parse_times (const String<_ARG1> &stri) ;
+	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_times (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_times (const stl::chrono::system_clock::time_point &stru) ;
-#endif
+	inline imports_static String<_RET> build_times (const TimePoint &stru) ;
 } ;
 
 namespace U {
@@ -1506,45 +1507,41 @@ inline exports String<_RET> StringProc::build_ipv4s (const PACK<WORD ,CHAR> &str
 	return _MOVE_ (ret) ;
 }
 
-#ifdef __CSC_EXTEND__
-namespace U {
-inline imports ARRAY8<VAR32> static_make_time_metric (const stl::chrono::system_clock::time_point &val) ;
-inline imports stl::chrono::system_clock::time_point static_make_time_point (const ARRAY8<VAR32> &val) ;
-} ;
-
 template <class _ARG1>
-inline exports stl::chrono::system_clock::time_point StringProc::parse_dates (const String<_ARG1> &stri) {
+inline exports DEPENDENT_TYPE<TimePoint ,_ARG1> StringProc::parse_dates (const String<_ARG1> &stri) {
+	struct Dependent ;
 	const auto r1x = _CALL_ ([&] () {
-		ARRAY8<VAR32> ret ;
+		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
 		auto rax = TextReader<STR> (stri.raw ()) ;
 		auto rbx = STR () ;
-		auto rcx = VAR () ;
+		auto rcx = VAR32 () ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1900) ;
-		ret[0] = VAR32 (rcx) ;
+		ret[0] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 12) ;
-		ret[1] = VAR32 (rcx) ;
+		ret[1] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 31) ;
-		ret[2] = VAR32 (rcx) ;
+		ret[2] = rcx ;
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return U::static_make_time_point (r1x) ;
+	return DEPENDENT_TYPE<TimePoint ,Dependent> (r1x) ;
 }
 
 template <class _RET>
-inline exports String<_RET> StringProc::build_dates (const stl::chrono::system_clock::time_point &stru) {
+inline exports String<_RET> StringProc::build_dates (const TimePoint &stru) {
+	struct Dependent ;
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = U::static_make_time_metric (stru) ;
+	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
 	rax << r1x[0] ;
 	rax << STR ('-') ;
 	if (r1x[1] < 10)
@@ -1559,38 +1556,40 @@ inline exports String<_RET> StringProc::build_dates (const stl::chrono::system_c
 }
 
 template <class _ARG1>
-inline exports stl::chrono::system_clock::time_point StringProc::parse_hours (const String<_ARG1> &stri) {
+inline exports DEPENDENT_TYPE<TimePoint ,_ARG1> StringProc::parse_hours (const String<_ARG1> &stri) {
+	struct Dependent ;
 	const auto r1x = _CALL_ ([&] () {
-		ARRAY8<VAR32> ret ;
+		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
 		auto rax = TextReader<STR> (stri.raw ()) ;
 		auto rbx = STR () ;
-		auto rcx = VAR () ;
+		auto rcx = VAR32 () ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 23) ;
-		ret[5] = VAR32 (rcx) ;
+		ret[5] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 59) ;
-		ret[6] = VAR32 (rcx) ;
+		ret[6] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 60) ;
-		ret[7] = VAR32 (rcx) ;
+		ret[7] = rcx ;
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return U::static_make_time_point (r1x) ;
+	return DEPENDENT_TYPE<TimePoint ,Dependent> (r1x) ;
 }
 
 template <class _RET>
-inline exports String<_RET> StringProc::build_hours (const stl::chrono::system_clock::time_point &stru) {
+inline exports String<_RET> StringProc::build_hours (const TimePoint &stru) {
+	struct Dependent ;
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = U::static_make_time_metric (stru) ;
+	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
 	if (r1x[5] < 10)
 		rax << STR ('0') ;
 	rax << r1x[5] ;
@@ -1607,53 +1606,55 @@ inline exports String<_RET> StringProc::build_hours (const stl::chrono::system_c
 }
 
 template <class _ARG1>
-inline exports stl::chrono::system_clock::time_point StringProc::parse_times (const String<_ARG1> &stri) {
+inline exports DEPENDENT_TYPE<TimePoint ,_ARG1> StringProc::parse_times (const String<_ARG1> &stri) {
+	struct Dependent ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
 		auto rax = TextReader<STR> (stri.raw ()) ;
 		auto rbx = STR () ;
-		auto rcx = VAR () ;
+		auto rcx = VAR32 () ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1900) ;
-		ret[0] = VAR32 (rcx) ;
+		ret[0] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 12) ;
-		ret[1] = VAR32 (rcx) ;
+		ret[1] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR ('-')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 1 && rcx <= 31) ;
-		ret[2] = VAR32 (rcx) ;
+		ret[2] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR (' ')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 23) ;
-		ret[5] = VAR32 (rcx) ;
+		ret[5] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 59) ;
-		ret[6] = VAR32 (rcx) ;
+		ret[6] = rcx ;
 		rax >> rbx ;
 		_DYNAMIC_ASSERT_ (rbx == STR (':')) ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx <= 60) ;
-		ret[7] = VAR32 (rcx) ;
+		ret[7] = rcx ;
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return U::static_make_time_point (r1x) ;
+	return DEPENDENT_TYPE<TimePoint ,Dependent> (r1x) ;
 }
 
 template <class _RET>
-inline exports String<_RET> StringProc::build_times (const stl::chrono::system_clock::time_point &stru) {
+inline exports String<_RET> StringProc::build_times (const TimePoint &stru) {
+	struct Dependent ;
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = U::static_make_time_metric (stru) ;
+	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
 	rax << r1x[0] ;
 	rax << STR ('-') ;
 	if (r1x[1] < 10)
@@ -1678,5 +1679,4 @@ inline exports String<_RET> StringProc::build_times (const stl::chrono::system_c
 	rax << TextWriter<_RET>::EOS ;
 	return _MOVE_ (ret) ;
 }
-#endif
 } ;

@@ -4,6 +4,7 @@
 #define __CSC_ARRAY__
 #endif
 
+#include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
 
@@ -35,13 +36,13 @@ public:
 	}
 
 private:
-	inline explicit ArrayIterator (BASE &base ,INDEX index)
+	inline explicit ArrayIterator (BASE &base ,const INDEX &index)
 		: mBase (base) ,mIndex (index) {}
 } ;
 
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b) {
+	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
 		for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
 			INDEX ix = i ;
 			auto tmp = _MOVE_ (out[ix]) ;
@@ -58,7 +59,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,INDEX &mid_one) {
+	inline static void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
 		auto tmp = _MOVE_ (out[ix]) ;
@@ -89,7 +90,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg_a ,INDEX seg_b ,LENGTH ideal) {
+	inline static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &ideal) {
 		INDEX ix = seg_a ;
 		while (TRUE) {
 			if (ix >= seg_b)
@@ -108,7 +109,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline static void invoke (const _ARG1 &array_ ,_ARG2 &out ,INDEX seg ,LENGTH seg_len) {
+	inline static void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg ,const LENGTH &seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
 		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
@@ -126,7 +127,7 @@ private:
 public:
 	Array () = default ;
 
-	explicit Array (LENGTH len)
+	explicit Array (const LENGTH &len)
 		:mArray (len) {}
 
 	implicit Array (const stl::initializer_list<ITEM> &that)
@@ -164,7 +165,7 @@ public:
 		return length () ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return index + 1 ;
 	}
 
@@ -184,19 +185,19 @@ public:
 		return ArrayIterator<const Array> (DEREF[this] ,iend ()) ;
 	}
 
-	ITEM &get (INDEX index) leftvalue {
+	ITEM &get (const INDEX &index) leftvalue {
 		return mArray[index] ;
 	}
 
-	inline ITEM &operator[] (INDEX index) leftvalue {
+	inline ITEM &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	const ITEM &get (INDEX index) const leftvalue {
+	const ITEM &get (const INDEX &index) const leftvalue {
 		return mArray[index] ;
 	}
 
-	inline const ITEM &operator[] (INDEX index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -276,7 +277,7 @@ template <class ITEM>
 using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
-inline constexpr LENGTH constexpr_reserve_size (LENGTH len) noexcept {
+inline constexpr LENGTH constexpr_reserve_size (const LENGTH &len) noexcept {
 	return len + _EBOOL_ (len > 0) ;
 }
 } ;
@@ -297,7 +298,7 @@ public:
 		clear () ;
 	}
 
-	explicit String (LENGTH len)
+	explicit String (const LENGTH &len)
 		:String (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
@@ -358,7 +359,7 @@ public:
 		return length () ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return index + 1 ;
 	}
 
@@ -378,21 +379,21 @@ public:
 		return ArrayIterator<const String> (DEREF[this] ,iend ()) ;
 	}
 
-	ITEM &get (INDEX index) leftvalue {
+	ITEM &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mString[index] ;
 	}
 
-	inline ITEM &operator[] (INDEX index) leftvalue {
+	inline ITEM &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	const ITEM &get (INDEX index) const leftvalue {
+	const ITEM &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
 		return mString[index] ;
 	}
 
-	inline const ITEM &operator[] (INDEX index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -551,7 +552,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	String segment (INDEX seg ,LENGTH seg_len) const {
+	String segment (const INDEX &seg ,const LENGTH &seg_len) const {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= size () - seg_len) ;
 		String ret = String (seg_len) ;
@@ -573,7 +574,7 @@ public:
 	}
 
 private:
-	explicit String (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit String (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mString (len) {}
 
 private:
@@ -600,7 +601,7 @@ public:
 		clear () ;
 	}
 
-	explicit Deque (LENGTH len)
+	explicit Deque (const LENGTH &len)
 		:Deque (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
@@ -640,7 +641,7 @@ public:
 		return mWrite ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return (index + 1) % mDeque.size () ;
 	}
 
@@ -661,22 +662,22 @@ public:
 	}
 
 	//@warn: index would be no longer valid once resized
-	ITEM &get (INDEX index) leftvalue {
+	ITEM &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (ensure_index (index)) ;
 		return mDeque[index] ;
 	}
 
-	inline ITEM &operator[] (INDEX index) leftvalue {
+	inline ITEM &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid once resized
-	const ITEM &get (INDEX index) const leftvalue {
+	const ITEM &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (ensure_index (index)) ;
 		return mDeque[index] ;
 	}
 
-	inline const ITEM &operator[] (INDEX index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -687,7 +688,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX access (INDEX pos) const {
+	INDEX access (const INDEX &pos) const {
 		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		return (mRead + pos) % mDeque.size () ;
 	}
@@ -896,11 +897,11 @@ public:
 	}
 
 private:
-	explicit Deque (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit Deque (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mDeque (len) {}
 
 private:
-	BOOL ensure_index (INDEX index) const {
+	BOOL ensure_index (const INDEX &index) const {
 		if (mRead <= mWrite)
 			if (!(index >= mRead && index < mWrite))
 				return FALSE ;
@@ -911,7 +912,7 @@ private:
 		return TRUE ;
 	}
 
-	void reserve (LENGTH len) {
+	void reserve (const LENGTH &len) {
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
@@ -980,7 +981,7 @@ public:
 		clear () ;
 	}
 
-	explicit Priority (LENGTH len)
+	explicit Priority (const LENGTH &len)
 		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
 		clear () ;
 	}
@@ -1015,7 +1016,7 @@ public:
 		return length () ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return index + 1 ;
 	}
 
@@ -1036,24 +1037,24 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename Detail::template Pair<Priority>> get (INDEX index) leftvalue {
+	DEF<typename Detail::template Pair<Priority>> get (const INDEX &index) leftvalue {
 		using Pair = typename Detail::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<Priority>> operator[] (INDEX index) leftvalue {
+	inline DEF<typename Detail::template Pair<Priority>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename Detail::template Pair<const Priority>> get (INDEX index) const leftvalue {
+	DEF<typename Detail::template Pair<const Priority>> get (const INDEX &index) const leftvalue {
 		using Pair = typename Detail::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const Priority>> operator[] (INDEX index) const leftvalue {
+	inline DEF<typename Detail::template Pair<const Priority>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1205,7 +1206,7 @@ public:
 		return mTop ;
 	}
 
-	void remove (INDEX index) {
+	void remove (const INDEX &index) {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		mPriority[index] = _MOVE_ (mPriority[mWrite - 1]) ;
 		mWrite-- ;
@@ -1213,11 +1214,11 @@ public:
 	}
 
 private:
-	explicit Priority (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit Priority (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mPriority (len) {}
 
 private:
-	void reserve (LENGTH len) {
+	void reserve (const LENGTH &len) {
 		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
 		if (r1x == 0)
 			return ;
@@ -1234,7 +1235,7 @@ private:
 		mPriority.swap (tmp) ;
 	}
 
-	void update_insert (INDEX curr) {
+	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
 		auto tmp = _MOVE_ (mPriority[ix]) ;
 		while (TRUE) {
@@ -1274,7 +1275,7 @@ private:
 		mTop = ix ;
 	}
 
-	void compute_esort (Array<INDEX> &out ,LENGTH len) const {
+	void compute_esort (Array<INDEX> &out ,const LENGTH &len) const {
 		INDEX ix = 0 ;
 		const auto r1x = out[ix] ;
 		while (TRUE) {
@@ -1322,7 +1323,7 @@ struct Priority<ITEM ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index)
+		inline explicit Pair (BASE &base ,const INDEX &index)
 			: key (base.mPriority[index].mItem) ,mapx (base.mPriority[index].mMap) {}
 	} ;
 } ;
@@ -1343,13 +1344,13 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (INDEX left ,INDEX right)
+		inline implicit Node (const INDEX &left ,const INDEX &right)
 			:mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (const ITEM &item ,INDEX left ,INDEX right)
+		inline implicit Node (const ITEM &item ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (ITEM &&item ,INDEX left ,INDEX right)
+		inline implicit Node (ITEM &&item ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 	} ;
 
@@ -1363,7 +1364,7 @@ public:
 		clear () ;
 	}
 
-	explicit List (LENGTH len)
+	explicit List (const LENGTH &len)
 		:List (ARGVP0 ,len) {
 		clear () ;
 	}
@@ -1396,7 +1397,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return mList[index].mRight ;
 	}
 
@@ -1416,19 +1417,19 @@ public:
 		return ArrayIterator<const List> (DEREF[this] ,iend ()) ;
 	}
 
-	ITEM &get (INDEX index) leftvalue {
+	ITEM &get (const INDEX &index) leftvalue {
 		return mList[index].mItem ;
 	}
 
-	inline ITEM &operator[] (INDEX index) leftvalue {
+	inline ITEM &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	const ITEM &get (INDEX index) const leftvalue {
+	const ITEM &get (const INDEX &index) const leftvalue {
 		return mList[index].mItem ;
 	}
 
-	inline const ITEM &operator[] (INDEX index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1591,7 +1592,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_before (INDEX index) popping {
+	INDEX insert_before (const INDEX &index) popping {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mLeft :
 			mLast) ;
@@ -1604,7 +1605,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_after (INDEX index) popping {
+	INDEX insert_after (const INDEX &index) popping {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mRight :
 			mFirst) ;
@@ -1646,7 +1647,7 @@ public:
 		mList.free (ix) ;
 	}
 
-	void eswap (INDEX index1 ,INDEX index2) {
+	void eswap (const INDEX &index1 ,const INDEX &index2) {
 		if (index1 == index2)
 			return ;
 		auto &r1x = prev_next (index1) ;
@@ -1661,7 +1662,7 @@ public:
 		_SWAP_ (mList[index1].mRight ,mList[index2].mRight) ;
 	}
 
-	void splice_before (INDEX index ,INDEX last) {
+	void splice_before (const INDEX &index ,const INDEX &last) {
 		prev_next (last) = mList[last].mRight ;
 		next_prev (last) = mList[last].mLeft ;
 		auto &r1x = _SWITCH_ (
@@ -1676,7 +1677,7 @@ public:
 		r1x = last ;
 	}
 
-	void splice_after (INDEX index ,INDEX last) {
+	void splice_after (const INDEX &index ,const INDEX &last) {
 		prev_next (last) = mList[last].mRight ;
 		next_prev (last) = mList[last].mLeft ;
 		auto &r1x = _SWITCH_ (
@@ -1691,7 +1692,7 @@ public:
 		r1x = last ;
 	}
 
-	void remove (INDEX index) {
+	void remove (const INDEX &index) {
 		prev_next (index) = mList[index].mRight ;
 		next_prev (index) = mList[index].mLeft ;
 		mList.free (index) ;
@@ -1727,17 +1728,17 @@ public:
 	}
 
 private:
-	explicit List (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit List (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) {}
 
 private:
-	INDEX &prev_next (INDEX curr) leftvalue {
+	INDEX &prev_next (const INDEX &curr) leftvalue {
 		if (mList[curr].mLeft == VAR_NONE)
 			return mFirst ;
 		return mList[mList[curr].mLeft].mRight ;
 	}
 
-	INDEX &next_prev (INDEX curr) leftvalue {
+	INDEX &next_prev (const INDEX &curr) leftvalue {
 		if (mList[curr].mRight == VAR_NONE)
 			return mLast ;
 		return mList[mList[curr].mRight].mLeft ;
@@ -1759,13 +1760,13 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (INDEX seq)
+		inline implicit Node (const INDEX &seq)
 			:mSeq (seq) {}
 
-		inline implicit Node (const ITEM &item ,INDEX seq)
+		inline implicit Node (const ITEM &item ,const INDEX &seq)
 			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 
-		inline implicit Node (ITEM &&item ,INDEX seq)
+		inline implicit Node (ITEM &&item ,const INDEX &seq)
 			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 	} ;
 
@@ -1785,7 +1786,7 @@ public:
 		clear () ;
 	}
 
-	explicit SoftList (LENGTH len)
+	explicit SoftList (const LENGTH &len)
 		:SoftList (ARGVP0 ,len) {
 		clear () ;
 	}
@@ -1825,7 +1826,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		for (auto &&i : _RANGE_ (mList[index].mSeq + 1 ,mWrite + 1))
 			if (mHead[i].mIndex != VAR_NONE)
 				return mHead[i].mIndex ;
@@ -1848,19 +1849,19 @@ public:
 		return ArrayIterator<const SoftList> (DEREF[this] ,iend ()) ;
 	}
 
-	ITEM &get (INDEX index) leftvalue {
+	ITEM &get (const INDEX &index) leftvalue {
 		return mList[index].mItem ;
 	}
 
-	inline ITEM &operator[] (INDEX index) leftvalue {
+	inline ITEM &operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	const ITEM &get (INDEX index) const leftvalue {
+	const ITEM &get (const INDEX &index) const leftvalue {
 		return mList[index].mItem ;
 	}
 
-	inline const ITEM &operator[] (INDEX index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1868,7 +1869,7 @@ public:
 		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX access (INDEX pos) const {
+	INDEX access (const INDEX &pos) const {
 		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
 		if (mWrite - mRead + 1 == mList.length ())
 			return mHead[mRead + pos].mIndex ;
@@ -1975,7 +1976,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_before (INDEX index) popping {
+	INDEX insert_before (const INDEX &index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		const auto r1x = _CALL_ ([&] () {
@@ -1987,7 +1988,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_after (INDEX index) popping {
+	INDEX insert_after (const INDEX &index) popping {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		const auto r1x = _CALL_ ([&] () {
@@ -1999,14 +2000,14 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void eswap (INDEX index1 ,INDEX index2) {
+	void eswap (const INDEX &index1 ,const INDEX &index2) {
 		if (index1 == index2)
 			return ;
 		sequence_rewrite (mList[index1].mSeq ,index2) ;
 		sequence_rewrite (mList[index2].mSeq ,index1) ;
 	}
 
-	void splice_before (INDEX index ,INDEX last) {
+	void splice_before (const INDEX &index ,const INDEX &last) {
 		sequence_remove (mList[last].mSeq) ;
 		const auto r1x = _CALL_ ([&] () {
 			if (index != VAR_NONE)
@@ -2016,7 +2017,7 @@ public:
 		update_compress_left (r1x ,last) ;
 	}
 
-	void splice_after (INDEX index ,INDEX last) {
+	void splice_after (const INDEX &index ,const INDEX &last) {
 		sequence_remove (mList[last].mSeq) ;
 		const auto r1x = _CALL_ ([&] () {
 			if (index != VAR_NONE)
@@ -2026,7 +2027,7 @@ public:
 		update_compress_left (r1x ,last) ;
 	}
 
-	void remove (INDEX index) {
+	void remove (const INDEX &index) {
 		sequence_remove (mList[index].mSeq) ;
 		mList.free (index) ;
 	}
@@ -2053,11 +2054,11 @@ public:
 	}
 
 private:
-	explicit SoftList (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit SoftList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) ,mHead (len) {}
 
 private:
-	INDEX access (INDEX pos ,INDEX seg_a ,LENGTH seg_b) const {
+	INDEX access (const INDEX &pos ,const INDEX &seg_a ,const LENGTH &seg_b) const {
 		INDEX ret = VAR_NONE ;
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
@@ -2083,7 +2084,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX position_before (INDEX curr) const {
+	INDEX position_before (const INDEX &curr) const {
 		INDEX ret = 0 ;
 		INDEX ix = curr ;
 		while (TRUE) {
@@ -2096,7 +2097,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	void update_resize (INDEX curr) {
+	void update_resize (const INDEX &curr) {
 		if (mHead.size () == mList.size ())
 			return ;
 		auto tmp = mHead.expand (mList.size ()) ;
@@ -2112,7 +2113,7 @@ private:
 		}
 	}
 
-	void update_compress_left (INDEX curr ,INDEX last) {
+	void update_compress_left (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(mHead[curr].mIndex == VAR_NONE))
@@ -2134,7 +2135,7 @@ private:
 		}
 	}
 
-	void update_compress_left_force (INDEX curr ,INDEX last) {
+	void update_compress_left_force (const INDEX &curr ,const INDEX &last) {
 		INDEX ix = curr ;
 		INDEX iy = last ;
 		for (auto &&i : _RANGE_ (0 ,mList.length ())) {
@@ -2177,7 +2178,7 @@ private:
 		mWrite = _MIN_ (mList.length () ,(mHead.size () - 1)) ;
 	}
 
-	void sequence_rewrite (INDEX curr ,INDEX index) {
+	void sequence_rewrite (const INDEX &curr ,const INDEX &index) {
 		_DEBUG_ASSERT_ (index != VAR_NONE) ;
 		INDEX ix = curr ;
 		const auto r1x = mHead[curr].mIndex ;
@@ -2193,7 +2194,7 @@ private:
 		}
 	}
 
-	void sequence_remove (INDEX curr) {
+	void sequence_remove (const INDEX &curr) {
 		INDEX ix = curr ;
 		mHead[ix].mIndex = VAR_NONE ;
 		while (TRUE) {
@@ -2218,7 +2219,7 @@ struct CONSTEXPR_SWITCH_CEIL8 {
 	}
 } ;
 
-inline constexpr LENGTH constexpr_ceil8_size (LENGTH len) noexcept {
+inline constexpr LENGTH constexpr_ceil8_size (const LENGTH &len) noexcept {
 	return _SWITCH_ (
 		(len <= 0) ? CONSTEXPR_SWITCH_CEIL8<LENGTH>::case1 :
 		CONSTEXPR_SWITCH_CEIL8<LENGTH>::case2)
@@ -2242,7 +2243,7 @@ public:
 		clear () ;
 	}
 
-	explicit BitSet (LENGTH len)
+	explicit BitSet (const LENGTH &len)
 		:BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,forward_width (len)) {
 		clear () ;
 	}
@@ -2299,7 +2300,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		for (auto &&i : _RANGE_ (index + 1 ,size ()))
 			if (get (i))
 				return i ;
@@ -2323,24 +2324,24 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<BitSet>> get (INDEX index) leftvalue {
+	DEF<typename Detail::template Bit<BitSet>> get (const INDEX &index) leftvalue {
 		using Bit = typename Detail::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<BitSet>> operator[] (INDEX index) leftvalue {
+	inline DEF<typename Detail::template Bit<BitSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<const BitSet>> get (INDEX index) const leftvalue {
+	DEF<typename Detail::template Bit<const BitSet>> get (const INDEX &index) const leftvalue {
 		using Bit = typename Detail::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (INDEX index) const leftvalue {
+	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2549,11 +2550,11 @@ private:
 		mWidth = _MAX_ (VAR_ZERO ,LENGTH (SIZE::value)) ;
 	}
 
-	explicit BitSet (const DEF<decltype (ARGVP0)> & ,LENGTH len ,LENGTH width)
+	explicit BitSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len ,const LENGTH &width)
 		:mSet (len) ,mWidth (width) {}
 
 private:
-	inline static LENGTH forward_width (LENGTH width) {
+	inline static LENGTH forward_width (const LENGTH &width) {
 		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 		return width ;
 	}
@@ -2614,7 +2615,7 @@ struct BitSet<SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Bit (BASE &base ,INDEX index)
+		inline explicit Bit (BASE &base ,const INDEX &index)
 			: mBase (base) ,mIndex (index) {}
 	} ;
 } ;
@@ -2638,10 +2639,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,BOOL red ,INDEX up ,INDEX left ,INDEX right)
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
@@ -2656,7 +2657,7 @@ public:
 		clear () ;
 	}
 
-	explicit Set (LENGTH len)
+	explicit Set (const LENGTH &len)
 		:Set (ARGVP0 ,len) {
 		clear () ;
 	}
@@ -2691,7 +2692,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		for (auto &&i : _RANGE_ (index + 1 ,size ()))
 			if (mSet.used (i))
 				return i ;
@@ -2714,21 +2715,21 @@ public:
 		return ArrayIterator<const Set> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<Set>> get (INDEX index) leftvalue {
+	DEF<typename Detail::template Pair<Set>> get (const INDEX &index) leftvalue {
 		using Pair = typename Detail::template Pair<Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<Set>> operator[] (INDEX index) leftvalue {
+	inline DEF<typename Detail::template Pair<Set>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const Set>> get (INDEX index) const leftvalue {
+	DEF<typename Detail::template Pair<const Set>> get (const INDEX &index) const leftvalue {
 		using Pair = typename Detail::template Pair<const Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const Set>> operator[] (INDEX index) const leftvalue {
+	inline DEF<typename Detail::template Pair<const Set>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2855,7 +2856,7 @@ public:
 		return mTop ;
 	}
 
-	void remove (INDEX index) {
+	void remove (const INDEX &index) {
 		if switch_case (TRUE) {
 			if (mSet[index].mLeft == VAR_NONE)
 				discard ;
@@ -2906,11 +2907,11 @@ public:
 	}
 
 private:
-	explicit Set (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit Set (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mSet (len) {}
 
 private:
-	void update_emplace (INDEX curr ,INDEX last) {
+	void update_emplace (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(curr == VAR_NONE))
@@ -2930,7 +2931,7 @@ private:
 		}
 	}
 
-	void update_insert (INDEX curr) {
+	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
 		while (TRUE) {
 			INDEX jx = mSet[ix].mUp ;
@@ -2954,7 +2955,7 @@ private:
 		mSet[mRoot].mRed = FALSE ;
 	}
 
-	void update_insert_left (INDEX curr) {
+	void update_insert_left (const INDEX &curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
@@ -2993,7 +2994,7 @@ private:
 		}
 	}
 
-	void update_insert_right (INDEX curr) {
+	void update_insert_right (const INDEX &curr) {
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
@@ -3032,7 +3033,7 @@ private:
 		}
 	}
 
-	void update_remove (INDEX curr ,INDEX last) {
+	void update_remove (const INDEX &curr ,const INDEX &last) {
 		INDEX ix = curr ;
 		INDEX iy = last ;
 		while (TRUE) {
@@ -3060,7 +3061,7 @@ private:
 		mSet[ix].mRed = FALSE ;
 	}
 
-	void update_remove_left (INDEX curr ,INDEX last) {
+	void update_remove_left (const INDEX &curr ,const INDEX &last) {
 		auto &r1x = mSet[last].mRight ;
 		if switch_case (TRUE) {
 			if (!mSet[r1x].mRed)
@@ -3108,7 +3109,7 @@ private:
 		}
 	}
 
-	void update_remove_right (INDEX curr ,INDEX last) {
+	void update_remove_right (const INDEX &curr ,const INDEX &last) {
 		auto &r1x = mSet[last].mLeft ;
 		if switch_case (TRUE) {
 			if (!mSet[r1x].mRed)
@@ -3156,7 +3157,7 @@ private:
 		}
 	}
 
-	void rotate_left (INDEX curr) {
+	void rotate_left (const INDEX &curr) {
 		INDEX ix = mSet[curr].mRight ;
 		mSet[curr].mRight = mSet[ix].mLeft ;
 		if (mSet[ix].mLeft != VAR_NONE)
@@ -3167,7 +3168,7 @@ private:
 		mTop = ix ;
 	}
 
-	void rotate_right (INDEX curr) {
+	void rotate_right (const INDEX &curr) {
 		INDEX ix = mSet[curr].mLeft ;
 		mSet[curr].mLeft = mSet[ix].mRight ;
 		if (mSet[ix].mRight != VAR_NONE)
@@ -3178,7 +3179,7 @@ private:
 		mTop = ix ;
 	}
 
-	INDEX &prev_next (INDEX curr) leftvalue {
+	INDEX &prev_next (const INDEX &curr) leftvalue {
 		if (mSet[curr].mUp == VAR_NONE)
 			return mRoot ;
 		if (mSet[mSet[curr].mUp].mLeft == curr)
@@ -3186,7 +3187,7 @@ private:
 		return mSet[mSet[curr].mUp].mRight ;
 	}
 
-	INDEX find_successor (INDEX index) const {
+	INDEX find_successor (const INDEX &index) const {
 		for (INDEX i = mSet[index].mRight ,it ; i != VAR_NONE ; i = it) {
 			it = mSet[i].mLeft ;
 			if (it == VAR_NONE)
@@ -3195,23 +3196,24 @@ private:
 		return VAR_NONE ;
 	}
 
-	void eswap (INDEX index1 ,INDEX index2) {
+	void eswap (const INDEX &index1 ,const INDEX &index2) {
 		if (index1 == index2)
 			return ;
+		auto rax = ARRAY2<INDEX> {index1 ,index2} ;
 		auto &r1x = prev_next (index2) ;
 		auto &r2x = _SWITCH_ (
 			(mSet[index2].mLeft != VAR_NONE) ? mSet[mSet[index2].mLeft].mUp :
-			index1) ;
+			rax[0]) ;
 		auto &r3x = _SWITCH_ (
 			(mSet[index2].mRight != VAR_NONE) ? mSet[mSet[index2].mRight].mUp :
-			index1) ;
+			rax[0]) ;
 		auto &r4x = prev_next (index1) ;
 		auto &r5x = _SWITCH_ (
 			(mSet[index1].mLeft != VAR_NONE) ? mSet[mSet[index1].mLeft].mUp :
-			index2) ;
+			rax[1]) ;
 		auto &r6x = _SWITCH_ (
 			(mSet[index1].mRight != VAR_NONE) ? mSet[mSet[index1].mRight].mUp :
-			index2) ;
+			rax[1]) ;
 		r1x = index1 ;
 		r2x = index1 ;
 		r3x = index1 ;
@@ -3224,7 +3226,7 @@ private:
 		_SWAP_ (mSet[index1].mRight ,mSet[index2].mRight) ;
 	}
 
-	void compute_esort (INDEX curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_esort (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
 		if (curr == VAR_NONE)
 			return ;
 		INDEX iw = out_i ;
@@ -3253,7 +3255,7 @@ struct Set<ITEM ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index)
+		inline explicit Pair (BASE &base ,const INDEX &index)
 			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
 	} ;
 } ;
@@ -3275,10 +3277,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,FLAG hash ,INDEX next)
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,FLAG hash ,INDEX next)
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
@@ -3293,7 +3295,7 @@ public:
 		clear () ;
 	}
 
-	explicit HashSet (LENGTH len)
+	explicit HashSet (const LENGTH &len)
 		:HashSet (ARGVP0 ,len) {
 		clear () ;
 	}
@@ -3328,7 +3330,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		for (auto &&i : _RANGE_ (index + 1 ,size ()))
 			if (mSet.used (i))
 				return i ;
@@ -3351,21 +3353,21 @@ public:
 		return ArrayIterator<const HashSet> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<HashSet>> get (INDEX index) leftvalue {
+	DEF<typename Detail::template Pair<HashSet>> get (const INDEX &index) leftvalue {
 		using Pair = typename Detail::template Pair<HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<HashSet>> operator[] (INDEX index) leftvalue {
+	inline DEF<typename Detail::template Pair<HashSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const HashSet>> get (INDEX index) const leftvalue {
+	DEF<typename Detail::template Pair<const HashSet>> get (const INDEX &index) const leftvalue {
 		using Pair = typename Detail::template Pair<const HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const HashSet>> operator[] (INDEX index) const leftvalue {
+	inline DEF<typename Detail::template Pair<const HashSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3466,7 +3468,7 @@ public:
 		return mTop ;
 	}
 
-	void remove (INDEX index) {
+	void remove (const INDEX &index) {
 		prev_next (index) = mSet[index].mNext ;
 		mSet.free (index) ;
 	}
@@ -3506,11 +3508,11 @@ public:
 	}
 
 private:
-	explicit HashSet (const DEF<decltype (ARGVP0)> & ,LENGTH len)
+	explicit HashSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mSet (len) ,mHead (len) {}
 
 private:
-	void update_resize (INDEX curr) {
+	void update_resize (const INDEX &curr) {
 		if (mHead.size () == mSet.size ())
 			return ;
 		auto tmp = mHead.expand (mSet.size ()) ;
@@ -3527,13 +3529,13 @@ private:
 		}
 	}
 
-	void update_insert (INDEX curr) {
+	void update_insert (const INDEX &curr) {
 		INDEX ix = mSet[curr].mHash % mHead.size () ;
 		mSet[curr].mNext = mHead[ix] ;
 		mHead[ix] = curr ;
 	}
 
-	INDEX &prev_next (INDEX curr) leftvalue {
+	INDEX &prev_next (const INDEX &curr) leftvalue {
 		INDEX ix = mSet[curr].mHash % mHead.size () ;
 		if (mHead[ix] == curr)
 			return mHead[ix] ;
@@ -3568,7 +3570,7 @@ struct HashSet<ITEM ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index)
+		inline explicit Pair (BASE &base ,const INDEX &index)
 			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
 	} ;
 } ;
@@ -3592,10 +3594,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,LENGTH weight ,INDEX left ,INDEX right ,INDEX next)
+		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
@@ -3607,7 +3609,7 @@ private:
 	public:
 		inline Heap () = delete ;
 
-		inline explicit Heap (LENGTH len)
+		inline explicit Heap (const LENGTH &len)
 			:mBuffer (len) {}
 	} ;
 
@@ -3629,7 +3631,7 @@ public:
 		mRoot = VAR_NONE ;
 	}
 
-	explicit SoftSet (LENGTH len) {
+	explicit SoftSet (const LENGTH &len) {
 		mHeap = SharedRef<Heap>::make (len) ;
 		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap->mBuffer) ;
 		mLength = 0 ;
@@ -3671,7 +3673,7 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX inext (INDEX index) const {
+	INDEX inext (const INDEX &index) const {
 		return mSet.self[index].mNext ;
 	}
 
@@ -3691,23 +3693,23 @@ public:
 		return ArrayIterator<const SoftSet> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<SoftSet>> get (INDEX index) leftvalue {
+	DEF<typename Detail::template Pair<SoftSet>> get (const INDEX &index) leftvalue {
 		using Pair = typename Detail::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<SoftSet>> operator[] (INDEX index) leftvalue {
+	inline DEF<typename Detail::template Pair<SoftSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const SoftSet>> get (INDEX index) const leftvalue {
+	DEF<typename Detail::template Pair<const SoftSet>> get (const INDEX &index) const leftvalue {
 		using Pair = typename Detail::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const SoftSet>> operator[] (INDEX index) const leftvalue {
+	inline DEF<typename Detail::template Pair<const SoftSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3885,7 +3887,7 @@ public:
 	}
 
 private:
-	void update_insert (INDEX curr) {
+	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
@@ -3916,7 +3918,7 @@ private:
 		}
 	}
 
-	void update_insert_left (INDEX curr) {
+	void update_insert_left (const INDEX &curr) {
 		INDEX ix = curr ;
 		mTop = ix ;
 		if (mSet.self[ix].mLeft == VAR_NONE)
@@ -3949,7 +3951,7 @@ private:
 		mTop = ix ;
 	}
 
-	void update_insert_right (INDEX curr) {
+	void update_insert_right (const INDEX &curr) {
 		INDEX ix = curr ;
 		mTop = ix ;
 		if (mSet.self[ix].mRight == VAR_NONE)
@@ -3982,7 +3984,7 @@ private:
 		mTop = ix ;
 	}
 
-	void rotate_left (INDEX curr) {
+	void rotate_left (const INDEX &curr) {
 		INDEX ix = mSet.self[curr].mRight ;
 		mSet.self[curr].mRight = mSet.self[ix].mLeft ;
 		mSet.self[ix].mLeft = curr ;
@@ -3993,7 +3995,7 @@ private:
 		mTop = ix ;
 	}
 
-	void rotate_right (INDEX curr) {
+	void rotate_right (const INDEX &curr) {
 		INDEX ix = mSet.self[curr].mLeft ;
 		mSet.self[curr].mLeft = mSet.self[ix].mRight ;
 		mSet.self[ix].mRight = curr ;
@@ -4004,13 +4006,13 @@ private:
 		mTop = ix ;
 	}
 
-	LENGTH node_weight (INDEX curr) const {
+	LENGTH node_weight (const INDEX &curr) const {
 		if (curr == VAR_NONE)
 			return 0 ;
 		return mSet.self[curr].mWeight ;
 	}
 
-	void compute_esort (INDEX curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_esort (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
 		if (curr == VAR_NONE)
 			return ;
 		INDEX iw = out_i ;
@@ -4039,7 +4041,7 @@ struct SoftSet<ITEM ,SIZE>::Detail {
 		}
 
 	private:
-		inline explicit Pair (BASE &base ,INDEX index)
+		inline explicit Pair (BASE &base ,const INDEX &index)
 			: key (base.mSet.self[index].mItem) ,mapx (base.mSet.self[index].mMap) {}
 	} ;
 } ;
