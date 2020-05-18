@@ -91,16 +91,17 @@ struct OPERATOR_SORT {
 
 	template <class _ARG1 ,class _ARG2>
 	inline static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &ideal) {
+		auto rax = ideal ;
 		INDEX ix = seg_a ;
 		while (TRUE) {
 			if (ix >= seg_b)
 				break ;
-			if (ideal <= 0)
+			if (rax <= 0)
 				break ;
-			ideal = ideal / 2 + ideal / 4 ;
+			rax = rax / 2 + rax / 4 ;
 			INDEX jx = VAR_NONE ;
 			quick_sort_partition (array_ ,out ,ix ,seg_b ,jx) ;
-			quick_sort (array_ ,out ,ix ,(jx - 1) ,ideal) ;
+			quick_sort (array_ ,out ,ix ,(jx - 1) ,rax) ;
 			ix = jx + 1 ;
 		}
 		if (ix >= seg_b)

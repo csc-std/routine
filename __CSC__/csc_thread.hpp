@@ -82,7 +82,7 @@ public:
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			r2x.mThreadCondition.wait () ;
+			r2x.mThreadCondition.wait (r3x) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -102,7 +102,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -152,7 +152,7 @@ public:
 			const auto r4x = predicate () ;
 			if (!r4x)
 				break ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		const auto r5x = _MOVE_ (r2x.mException) ;
 		if (!r5x.exist ())
@@ -196,7 +196,7 @@ private:
 		if switch_case (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
-			self_.mThreadCondition.yield () ;
+			self_.mThreadCondition.yield (r1x) ;
 			if (!self_.mItemQueue->full ())
 				discard ;
 			self_.mItemQueue->take () ;
@@ -234,7 +234,7 @@ private:
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield () ;
+			self_.mThreadCondition.yield (r1x) ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -369,7 +369,7 @@ public:
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.wait () ;
+			r2x.mThreadCondition.wait (r3x) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
@@ -387,7 +387,7 @@ public:
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.wait () ;
+			r2x.mThreadCondition.wait (r3x) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
@@ -407,7 +407,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
@@ -427,7 +427,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
@@ -474,7 +474,7 @@ public:
 			const auto r4x = predicate () ;
 			if (!r4x)
 				break ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		const auto r5x = _MOVE_ (r2x.mException) ;
 		if (!r5x.exist ())
@@ -519,7 +519,7 @@ private:
 				break ;
 			if (!self_.mItemQueue->empty ())
 				break ;
-			self_.mThreadCondition.wait () ;
+			self_.mThreadCondition.wait (r1x) ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		item = _MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
@@ -556,7 +556,7 @@ private:
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield () ;
+			self_.mThreadCondition.yield (r1x) ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -821,7 +821,7 @@ private:
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield () ;
+			self_.mThreadCondition.yield (r1x) ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mThreadPool.exist ())
@@ -916,7 +916,7 @@ public:
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			r2x.mThreadCondition.wait () ;
+			r2x.mThreadCondition.wait (r3x) ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -938,7 +938,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (interval) ;
+			r2x.mThreadCondition.wait (r3x ,interval) ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;

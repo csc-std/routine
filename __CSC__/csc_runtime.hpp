@@ -31,11 +31,7 @@ public:
 
 	explicit Duration (const StrongRef<Implement> &this_) ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -77,11 +73,7 @@ public:
 
 	explicit TimePoint (const StrongRef<Implement> &this_) ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -109,11 +101,7 @@ private:
 public:
 	Atomic () ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -153,11 +141,7 @@ private:
 public:
 	Mutex () ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -177,11 +161,7 @@ private:
 public:
 	RecursiveMutex () ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -204,11 +184,7 @@ private:
 public:
 	UniqueLock () = delete ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -230,11 +206,7 @@ private:
 public:
 	ConditionLock () ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 
@@ -242,13 +214,13 @@ public:
 		return UniqueLock (mutex_ ,DEREF[this]) ;
 	}
 
-	void wait () ;
+	void wait (const UniqueLock &lock_) ;
 
-	void wait (const Duration &time_) ;
+	void wait (const UniqueLock &lock_ ,const Duration &time_) ;
 
-	void wait (const TimePoint &time_) ;
+	void wait (const UniqueLock &lock_ ,const TimePoint &time_) ;
 
-	void yield () ;
+	void yield (const UniqueLock &lock_) ;
 
 	void notify () ;
 } ;
@@ -270,11 +242,7 @@ private:
 public:
 	Thread () = delete ;
 
-	Implement &as () leftvalue {
-		return mThis ;
-	}
-
-	const Implement &as () const leftvalue {
+	Implement &native () const leftvalue {
 		return mThis ;
 	}
 

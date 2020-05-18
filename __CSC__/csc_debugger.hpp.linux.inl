@@ -461,7 +461,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<VOID>> ret = Array<PTR<VOID>> (address.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				const auto r2x = &_LOAD_<NONE> (address[i]) ;
+				const auto r2x = &_LOAD_UNSAFE_<NONE> (address[i]) ;
 				ret[i] = r2x ;
 			}
 			return _MOVE_ (ret) ;

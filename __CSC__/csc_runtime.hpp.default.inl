@@ -494,66 +494,6 @@ inline exports void RecursiveMutex::unlock () {
 	mThis->unlock () ;
 }
 
-class ConditionLock::Implement {
-private:
-	api::condition_variable mCondition ;
-	PhanRef<api::unique_lock<api::mutex>> mUniqueLock ;
-
-public:
-	Implement () = default ;
-
-	void wait () {
-		mCondition.wait (mUniqueLock) ;
-	}
-
-	void wait (const TimePoint &time_) {
-		auto &r1x = time_.as () ;
-		mCondition.wait_until (mUniqueLock ,r1x.mTimePoint) ;
-	}
-
-	void wait (const Duration &time_) {
-		auto &r1x = time_.as () ;
-		mCondition.wait_for (mUniqueLock ,r1x.mDuration) ;
-	}
-
-	void yield () {
-		const auto r1x = api::chrono::milliseconds (0) ;
-		mCondition.wait_for (mUniqueLock ,r1x) ;
-	}
-
-	void notify () {
-		mCondition.notify_all () ;
-	}
-
-	void use_lock (api::unique_lock<api::mutex> &lock_) {
-		mUniqueLock = PhanRef<api::unique_lock<api::mutex>>::make (lock_) ;
-	}
-} ;
-
-inline exports ConditionLock::ConditionLock () {
-	mThis = StrongRef<Implement>::make () ;
-}
-
-inline exports void ConditionLock::wait () {
-	mThis->wait () ;
-}
-
-inline exports void ConditionLock::wait (const TimePoint &time_) {
-	mThis->wait (time_) ;
-}
-
-inline exports void ConditionLock::wait (const Duration &time_) {
-	mThis->wait (time_) ;
-}
-
-inline exports void ConditionLock::yield () {
-	mThis->yield () ;
-}
-
-inline exports void ConditionLock::notify () {
-	mThis->notify () ;
-}
-
 class UniqueLock::Implement {
 private:
 	friend ConditionLock ;
@@ -571,9 +511,8 @@ public:
 	}
 
 	void lock () {
-		auto &r1x = mMutex->as () ;
+		auto &r1x = mMutex->native () ;
 		mUniqueLock = api::unique_lock<api::mutex> (r1x.mMutex) ;
-		mCondition->mThis->use_lock (mUniqueLock) ;
 	}
 
 	void unlock () {
@@ -591,6 +530,61 @@ inline exports void UniqueLock::lock () const {
 
 inline exports void UniqueLock::unlock () const {
 	mThis->unlock () ;
+}
+
+class ConditionLock::Implement {
+private:
+	api::condition_variable mCondition ;
+
+public:
+	Implement () = default ;
+
+	void wait (const UniqueLock &lock_) {
+		mCondition.wait (lock_.native ().mUniqueLock) ;
+	}
+
+	void wait (const UniqueLock &lock_ ,const TimePoint &time_) {
+		auto &r1x = time_.native () ;
+		mCondition.wait_until (lock_.native ().mUniqueLock ,r1x.mTimePoint) ;
+	}
+
+	void wait (const UniqueLock &lock_ ,const Duration &time_) {
+		auto &r1x = time_.native () ;
+		mCondition.wait_for (lock_.native ().mUniqueLock ,r1x.mDuration) ;
+	}
+
+	void yield (const UniqueLock &lock_) {
+		const auto r1x = api::chrono::milliseconds (0) ;
+		mCondition.wait_for (lock_.native ().mUniqueLock ,r1x) ;
+	}
+
+	void notify () {
+		mCondition.notify_all () ;
+	}
+} ;
+
+inline exports ConditionLock::ConditionLock () {
+	mThis = StrongRef<Implement>::make () ;
+}
+
+inline exports void ConditionLock::wait (const UniqueLock &lock_) {
+	mThis->wait (lock_) ;
+}
+
+inline exports void ConditionLock::wait (const UniqueLock &lock_ ,const TimePoint &time_) {
+	mThis->wait (lock_ ,time_) ;
+}
+
+inline exports void ConditionLock::wait (const UniqueLock &lock_ ,const Duration &time_) {
+	mThis->wait (lock_ ,time_) ;
+}
+
+inline exports void ConditionLock::yield (const UniqueLock &lock_) {
+	mThis->yield (lock_) ;
+}
+
+inline exports void ConditionLock::notify () {
+	mThis->notify () ;
 }
 
 class Thread::Implement {
@@ -621,14 +615,14 @@ inline exports void Thread::join () {
 }
 
 inline exports TimePoint GlobalRuntime::clock_now () {
-	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().as ())>> ;
+	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::now () ;
 	const auto r2x = StrongRef<Implement>::make (r1x) ;
 	return TimePoint (r2x) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
-	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().as ())>> ;
+	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::duration::zero () ;
 	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
 	const auto r3x = StrongRef<Implement>::make (r2x) ;
@@ -648,12 +642,12 @@ inline exports FLAG GlobalRuntime::thread_tid () {
 #endif
 
 inline exports void GlobalRuntime::thread_sleep (const Duration &time_) {
-	auto &r1x = time_.as () ;
+	auto &r1x = time_.native () ;
 	api::this_thread::sleep_for (r1x.mDuration) ;
 }
 
 inline exports void GlobalRuntime::thread_sleep (const TimePoint &time_) {
-	auto &r1x = time_.as () ;
+	auto &r1x = time_.native () ;
 	api::this_thread::sleep_until (r1x.mTimePoint) ;
 }
 

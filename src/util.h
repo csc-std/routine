@@ -79,6 +79,8 @@ inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (cons
 			return SharedRef<Atomic>::make () ;
 		}) ;
 		const auto r2x = r1x->compare_exchange (_ADDRESS_ (expect) ,_ADDRESS_ (data)) ;
+		if (r2x == 0)
+			return ;
 		ret = &_LOAD_UNSAFE_<NONE> (r2x) ;
 	} ,[&] () {
 		ret = NULL ;

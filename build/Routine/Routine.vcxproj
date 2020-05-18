@@ -31,9 +31,11 @@
     <ClCompile Include="..\..\src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_algorithm.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_array.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_basic.hpp" />
+    <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_core.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_database.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_debugger.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_extend.hpp" />
@@ -50,8 +52,6 @@
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp" />
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_thread.hpp" />
     <ClInclude Include="..\..\src\util.h" />
-    <ClInclude Include="..\..\__CSC__\csc.hpp" />
-    <ClInclude Include="..\..\__CSC__\csc_core.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\Depends\__CSC__\cpp.hint" />
