@@ -1335,6 +1335,7 @@ using U::REPEAT_PARAMS_TYPE ;
 using U::SEQUENCE_PARAMS_TYPE ;
 using U::ARGVS_ONE_TYPE ;
 using U::ARGVS_REST_TYPE ;
+using U::ARGVS_CAT_TYPE ;
 using U::INDEX_OF_TYPE ;
 using U::INDEX_TO_TYPE ;
 using U::TEMPLATE_PARAMS_TYPE ;
@@ -1383,8 +1384,7 @@ static constexpr auto DEPTR = U::OPERATOR_DEPTR {} ;
 
 template <class _RET>
 inline constexpr _RET &_NULL_ () noexcept {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	return DEREF[PTR<_RET> (NULL)] ;
+	return DEREF[PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)] ;
 }
 
 template <class _ARG1>

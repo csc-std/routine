@@ -695,7 +695,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 		_ZERO_ (rbx[2]) ;
 		_ZERO_ (rbx[3]) ;
 		api::GetProcessTimes (r1x ,DEPTR[rbx[0]] ,DEPTR[rbx[1]] ,DEPTR[rbx[2]] ,DEPTR[rbx[3]]) ;
-		const auto r2x = (VAR64 (rbx[0].dwHighDateTime) << 32) | VAR64 (rbx[0].dwLowDateTime) ;
+		const auto r2x = DATA ((DATA (rbx[0].dwHighDateTime) << 32) | DATA (rbx[0].dwLowDateTime)) ;
 		rax << VAR64 (r2x) ;
 		rax << ByteWriter<BYTE>::GAP ;
 	}

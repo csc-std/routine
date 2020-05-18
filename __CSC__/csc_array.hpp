@@ -43,16 +43,18 @@ private:
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
-		for (auto &&i : _RANGE_ (seg_a + 1 ,seg_b + 1)) {
-			INDEX ix = i ;
+		for (auto &&i : _RANGE_ (seg_a ,seg_b)) {
+			INDEX ix = i + 1 ;
+			INDEX iy = i ;
 			auto tmp = _MOVE_ (out[ix]) ;
 			while (TRUE) {
-				if (ix - 1 < seg_a)
+				if (iy < seg_a)
 					break ;
-				if (array_[tmp] >= array_[out[ix - 1]])
+				if (array_[tmp] >= array_[out[iy]])
 					break ;
-				out[ix] = _MOVE_ (out[ix - 1]) ;
-				ix-- ;
+				out[ix] = _MOVE_ (out[iy]) ;
+				ix = iy ;
+				iy-- ;
 			}
 			out[ix] = _MOVE_ (tmp) ;
 		}
@@ -93,20 +95,22 @@ struct OPERATOR_SORT {
 	inline static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &ideal) {
 		auto rax = ideal ;
 		INDEX ix = seg_a ;
+		INDEX iy = seg_b ;
 		while (TRUE) {
-			if (ix >= seg_b)
+			if (ix >= iy)
 				break ;
 			if (rax <= 0)
 				break ;
 			rax = rax / 2 + rax / 4 ;
 			INDEX jx = VAR_NONE ;
-			quick_sort_partition (array_ ,out ,ix ,seg_b ,jx) ;
-			quick_sort (array_ ,out ,ix ,(jx - 1) ,rax) ;
+			quick_sort_partition (array_ ,out ,ix ,iy ,jx) ;
+			INDEX iz = jx - 1 ;
+			quick_sort (array_ ,out ,ix ,iz ,rax) ;
 			ix = jx + 1 ;
 		}
-		if (ix >= seg_b)
+		if (ix >= iy)
 			return ;
-		insert_sort (array_ ,out ,ix ,seg_b) ;
+		insert_sort (array_ ,out ,ix ,iy) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1090,12 +1094,14 @@ public:
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		INDEX ix = ret.length () ;
+		INDEX iy = ix - 1 ;
 		while (TRUE) {
-			if (ix - 1 < 1)
+			if (iy < 1)
 				break ;
-			_SWAP_ (ret[0] ,ret[ix - 1]) ;
-			compute_esort (ret ,(ix - 1)) ;
-			ix-- ;
+			_SWAP_ (ret[0] ,ret[iy]) ;
+			compute_esort (ret ,iy) ;
+			ix = iy ;
+			iy-- ;
 		}
 		if (ret.size () > 0)
 			BasicProc::mem_rcopy (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;
@@ -1236,12 +1242,25 @@ private:
 		mPriority.swap (tmp) ;
 	}
 
+	INDEX parent (INDEX curr) const {
+		if (curr == 0)
+			return VAR_NONE ;
+		return (curr - 1) / 2 ;
+	}
+
+	INDEX left_child (INDEX curr) const {
+		return curr * 2 + 1 ;
+	}
+
+	INDEX right_child (INDEX curr) const {
+		return curr * 2 + 2 ;
+	}
+
 	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
 		auto tmp = _MOVE_ (mPriority[ix]) ;
 		while (TRUE) {
-			//@info: '-1 >> 1' is not the same as '-1 / 2'
-			INDEX iy = (ix - 1) >> 1 ;
+			INDEX iy = parent (ix) ;
 			if (iy < 0)
 				break ;
 			if (tmp.mItem >= mPriority[iy].mItem)
@@ -1250,22 +1269,22 @@ private:
 			ix = iy ;
 		}
 		while (TRUE) {
-			INDEX iy = ix * 2 + 1 ;
+			INDEX iy = left_child (ix) ;
 			if (iy >= mWrite)
 				break ;
 			INDEX jx = ix ;
 			if (tmp.mItem > mPriority[iy].mItem)
 				jx = iy ;
-			iy++ ;
+			INDEX iz = right_child (ix) ;
 			auto &r1x = _SWITCH_ (
 				(jx != ix) ? mPriority[jx].mItem :
 				tmp.mItem) ;
 			if switch_case (TRUE) {
-				if (iy >= mWrite)
+				if (iz >= mWrite)
 					discard ;
-				if (r1x <= mPriority[iy].mItem)
+				if (r1x <= mPriority[iz].mItem)
 					discard ;
-				jx = iy ;
+				jx = iz ;
 			}
 			if (jx == ix)
 				break ;
@@ -1280,22 +1299,22 @@ private:
 		INDEX ix = 0 ;
 		const auto r1x = out[ix] ;
 		while (TRUE) {
-			INDEX iy = ix * 2 + 1 ;
+			INDEX iy = left_child (ix) ;
 			if (iy >= len)
 				break ;
 			INDEX jx = ix ;
 			if (mPriority[r1x].mItem > mPriority[out[iy]].mItem)
 				jx = iy ;
-			iy++ ;
+			INDEX iz = right_child (ix) ;
 			auto &r2x = _SWITCH_ (
 				(jx != ix) ? mPriority[out[jx]].mItem :
 				mPriority[r1x].mItem) ;
 			if switch_case (TRUE) {
-				if (iy >= len)
+				if (iz >= len)
 					discard ;
-				if (r2x <= mPriority[out[iy]].mItem)
+				if (r2x <= mPriority[out[iz]].mItem)
 					discard ;
-				jx = iy ;
+				jx = iz ;
 			}
 			if (jx == ix)
 				break ;

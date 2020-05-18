@@ -1166,14 +1166,16 @@ private:
 				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = distance_of_point (mVertex[ix] ,point) ;
 				INDEX jx = out.length () ;
+				INDEX jy = jx - 1 ;
 				while (TRUE) {
-					if (jx - 1 < 0)
+					if (jy < 0)
 						break ;
-					if (r1x >= out[jx - 1].P2)
+					if (r1x >= out[jy].P2)
 						break ;
 					if (jx < out.length ())
-						out[jx] = out[jx - 1] ;
-					jx-- ;
+						out[jx] = out[jy] ;
+					jx = jy ;
+					jy-- ;
 				}
 				if (jx >= out.length ())
 					discard ;
