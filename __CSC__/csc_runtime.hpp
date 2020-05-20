@@ -9,13 +9,14 @@
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
+#include "csc_math.hpp"
 #include "csc_stream.hpp"
 #include "csc_string.hpp"
 
 namespace CSC {
 class TimePoint ;
 
-class Duration
+class Duration final
 	:private Proxy {
 private:
 	friend TimePoint ;
@@ -29,7 +30,7 @@ public:
 
 	explicit Duration (const ARRAY6<LENGTH> &time_) ;
 
-	explicit Duration (const StrongRef<Implement> &this_) ;
+	explicit Duration (StrongRef<Implement> &&this_) ;
 
 	Implement &native () const leftvalue {
 		return mThis ;
@@ -60,7 +61,7 @@ public:
 	}
 } ;
 
-class TimePoint
+class TimePoint final
 	:private Proxy {
 private:
 	class Implement ;
@@ -71,7 +72,7 @@ public:
 
 	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
 
-	explicit TimePoint (const StrongRef<Implement> &this_) ;
+	explicit TimePoint (StrongRef<Implement> &&this_) ;
 
 	Implement &native () const leftvalue {
 		return mThis ;
@@ -92,7 +93,7 @@ public:
 	}
 } ;
 
-class Atomic
+class Atomic final
 	:private Proxy {
 private:
 	class Implement ;
@@ -132,7 +133,7 @@ public:
 	}
 } ;
 
-class Mutex
+class Mutex final
 	:private Proxy {
 private:
 	class Implement ;
@@ -152,7 +153,7 @@ public:
 	void unlock () ;
 } ;
 
-class RecursiveMutex
+class RecursiveMutex final
 	:private Proxy {
 private:
 	class Implement ;
@@ -174,7 +175,7 @@ public:
 
 class ConditionLock ;
 
-class UniqueLock
+class UniqueLock final
 	:private Proxy {
 private:
 	friend ConditionLock ;
@@ -196,7 +197,7 @@ private:
 	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
 } ;
 
-class ConditionLock
+class ConditionLock final
 	:private Proxy {
 private:
 	friend UniqueLock ;
@@ -225,7 +226,7 @@ public:
 	void notify () ;
 } ;
 
-class Thread
+class Thread final
 	:private Proxy {
 public:
 	exports class Binder
@@ -246,7 +247,7 @@ public:
 		return mThis ;
 	}
 
-	explicit Thread (const StrongRef<Binder> &runnable) ;
+	explicit Thread (StrongRef<Binder> &&runnable) ;
 
 	void join () ;
 } ;
@@ -259,8 +260,9 @@ struct Thread::Detail {
 	public:
 		inline Runnable () = delete ;
 
-		inline explicit Runnable (const PhanRef<Binder> &binder)
-			:mBinder (PhanRef<Binder>::make (binder)) {}
+		inline explicit Runnable (const PhanRef<Binder> &binder) {
+			mBinder = PhanRef<Binder>::make (binder) ;
+		}
 
 		inline void operator() () {
 			mBinder->execute () ;
@@ -674,7 +676,7 @@ private:
 			self_.mValueMappingSet.add (r1x ,ix) ;
 			self_.mValueList[ix].mGUID = guid ;
 		}
-		return &self_.mValueList[ix] ;
+		return DEPTR[self_.mValueList[ix]] ;
 	}
 
 	imports_static FLAG node_guid_hash (const FLAG &guid) {
@@ -686,7 +688,7 @@ private:
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return &self_.mValueList[ix] ;
+		return DEPTR[self_.mValueList[ix]] ;
 	}
 
 	imports_static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
@@ -699,7 +701,7 @@ private:
 			self_.mClassMappingSet.add (r1x ,ix) ;
 			self_.mClassList[ix].mGUID = guid ;
 		}
-		return &self_.mClassList[ix] ;
+		return DEPTR[self_.mClassList[ix]] ;
 	}
 
 	imports_static FLAG node_guid_hash (const String<STR> &guid) {
@@ -713,7 +715,7 @@ private:
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return &self_.mClassList[ix] ;
+		return DEPTR[self_.mClassList[ix]] ;
 	}
 
 private:
@@ -864,232 +866,9 @@ private:
 template <class CONT>
 class Coroutine {
 public:
-	class SubRef ;
-
-private:
-	static constexpr auto STATE_CREATED = EFLAG (1) ;
-	static constexpr auto STATE_RUNNING = EFLAG (2) ;
-	static constexpr auto STATE_SUSPEND = EFLAG (3) ;
-	static constexpr auto STATE_STOPPED = EFLAG (4) ;
-
-	class Pack {
-	private:
-		friend Coroutine ;
-		Atomic mCounter ;
-		EFLAG mState ;
-		AutoRef<CONT> mContext ;
-		AnyRef<void> mBreakPoint ;
-		Array<Function<DEF<void (SubRef &)> NONE::*>> mSubProc ;
-		Array<AnyRef<void>> mSubBreakPoint ;
-		Deque<INDEX> mSubQueue ;
-		Priority<FLAG> mSubAwaitQueue ;
-		INDEX mSubCurr ;
-	} ;
-
-private:
-	class Implement ;
-	IntrusiveRef<Pack ,Coroutine> mThis ;
-
-public:
 	Coroutine () {
-		mThis = IntrusiveRef<Pack ,Coroutine>::make () ;
-	}
-
-	BOOL ready () const {
-		if (mThis->mState != STATE_STOPPED)
-			return FALSE ;
-		return TRUE ;
-	}
-
-	CONT &context () leftvalue {
-		_DEBUG_ASSERT_ (mThis->mContext.exist ()) ;
-		return mThis->mContext ;
-	}
-
-	void start (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-		_DEBUG_ASSERT_ (proc.length () > 0) ;
-		mThis->mContext = AutoRef<CONT>::make () ;
-		mThis->mBreakPoint = AnyRef<void> () ;
-		mThis->mSubProc = Array<Function<DEF<void (SubRef &)> NONE::*>> (proc.length ()) ;
-		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
-			_DEBUG_ASSERT_ (proc[i].exist ()) ;
-			mThis->mSubProc[i] = _MOVE_ (proc[i]) ;
-		}
-		mThis->mSubBreakPoint = Array<AnyRef<void>> (mThis->mSubProc.length ()) ;
-		mThis->mSubQueue = Deque<INDEX> (mThis->mSubProc.length ()) ;
-		for (auto &&i : mThis->mSubProc.range ())
-			mThis->mSubQueue.add (i) ;
-		mThis->mSubAwaitQueue = Priority<FLAG> (mThis->mSubProc.length ()) ;
-		mThis->mSubQueue.take (mThis->mSubCurr) ;
-	}
-
-	void execute () {
-		_DEBUG_ASSERT_ (!mThis->mBreakPoint.exist ()) ;
-		init_break_point (mThis->mBreakPoint) ;
-		for (auto &&i : mThis->mSubBreakPoint) {
-			_DEBUG_ASSERT_ (!i.exist ()) ;
-			init_break_point (i) ;
-		}
-		mThis->mState = STATE_CREATED ;
-		store_break_point (mThis->mBreakPoint) ;
-		for (auto &&i : mThis->mSubBreakPoint) {
-			if (mThis->mState != STATE_STOPPED)
-				continue ;
-			if (!i.exist ())
-				continue ;
-			goto_break_point (i) ;
-		}
-		if (mThis->mState != STATE_CREATED)
-			return ;
-		for (auto &&i : mThis->mSubBreakPoint) {
-			if (mThis->mState != STATE_CREATED)
-				continue ;
-			store_break_point (i) ;
-		}
-		const auto r1x = mThis->mSubCurr ;
-		_DEBUG_ASSERT_ (r1x != VAR_NONE) ;
-		_CALL_TRY_ ([&] () {
-			if (mThis->mState == STATE_STOPPED)
-				return ;
-			mThis->mState = STATE_RUNNING ;
-			mThis->mSubProc[r1x] (_CAST_<SubRef> (DEREF[this])) ;
-		} ,[&] () {
-			_STATIC_WARNING_ ("noop") ;
-		}) ;
-		mThis->mSubBreakPoint[r1x] = AnyRef<void> () ;
-		mThis->mState = STATE_STOPPED ;
-		goto_break_point (mThis->mBreakPoint) ;
-	}
-
-private:
-	void init_break_point (AnyRef<void> &bp) ;
-
-	void store_break_point (AnyRef<void> &bp) noexcept ;
-
-	void goto_break_point (AnyRef<void> &bp) noexcept ;
-
-private:
-	static void friend_create (Pack &self_) {
-		self_.mState = STATE_CREATED ;
-		self_.mSubCurr = VAR_NONE ;
-	}
-
-	static void friend_destroy (Pack &self_) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	static LENGTH friend_attach (Pack &self_) popping {
-		return ++self_.mCounter ;
-	}
-
-	static LENGTH friend_detach (Pack &self_) popping {
-		return --self_.mCounter ;
-	}
-
-	static void friend_latch (Pack &self_) {
-		GlobalRuntime::thread_yield () ;
-	}
-
-public:
-	imports_static CONT csync (Array<Function<DEF<void (SubRef &)> NONE::*>> &&proc) {
-		auto rax = Coroutine<CONT> (_MOVE_ (proc)) ;
-		rax.execute () ;
-		return _MOVE_ (rax.context ()) ;
-	}
-} ;
-
-template <class CONT>
-class Coroutine<CONT>::SubRef
-	:private Wrapped<Coroutine<CONT>> {
-private:
-	using Wrapped<Coroutine<CONT>>::mSelf ;
-
-public:
-	CONT &to () leftvalue {
-		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
-		return mSelf.mThis->mContext ;
-	}
-
-	inline implicit operator CONT & () leftvalue {
-		return to () ;
-	}
-
-	inline PTR<CONT> operator-> () leftvalue {
-		return &to () ;
-	}
-
-	const CONT &to () const leftvalue {
-		_DEBUG_ASSERT_ (mSelf.mThis->mContext.exist ()) ;
-		return mSelf.mThis->mContext ;
-	}
-
-	inline implicit operator const CONT & () const leftvalue {
-		return to () ;
-	}
-
-	inline PTR<const CONT> operator-> () const leftvalue {
-		return &to () ;
-	}
-
-	void sub_await () {
-		sub_await (mSelf.mThis->mSubAwaitQueue.length ()) ;
-	}
-
-	void sub_await (const FLAG &priority) {
-		_DEBUG_ASSERT_ (priority >= 0) ;
-		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
-		mSelf.mThis->mState = STATE_SUSPEND ;
-		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mState != STATE_STOPPED) ;
-		if (mSelf.mThis->mState != STATE_SUSPEND)
-			return ;
-		mSelf.mThis->mSubAwaitQueue.add (priority ,mSelf.mThis->mSubCurr) ;
-		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
-		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
-		mSelf.mThis->mState = STATE_RUNNING ;
-		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-	}
-
-	void sub_resume () {
-		sub_resume (mSelf.mThis->mSubAwaitQueue.length ()) ;
-	}
-
-	void sub_resume (const LENGTH &count) {
-		for (auto &&i : _RANGE_ (0 ,count)) {
-			if (mSelf.mThis->mSubAwaitQueue.empty ())
-				continue ;
-			const auto r1x = mSelf.mThis->mSubAwaitQueue[mSelf.mThis->mSubAwaitQueue.head ()].mapx ;
-			mSelf.mThis->mSubAwaitQueue.take () ;
-			mSelf.mThis->mSubQueue.add (r1x) ;
-		}
-	}
-
-	void sub_yield () {
-		_DEBUG_ASSERT_ (mSelf.mThis->mSubCurr != VAR_NONE) ;
-		if (mSelf.mThis->mSubQueue.empty ())
-			return ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
-		mSelf.mThis->mState = STATE_SUSPEND ;
-		store_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mState != STATE_STOPPED) ;
-		if (mSelf.mThis->mState != STATE_SUSPEND)
-			return ;
-		mSelf.mThis->mSubQueue.add (mSelf.mThis->mSubCurr) ;
-		_DYNAMIC_ASSERT_ (!mSelf.mThis->mSubQueue.empty ()) ;
-		mSelf.mThis->mSubQueue.take (mSelf.mThis->mSubCurr) ;
-		mSelf.mThis->mState = STATE_RUNNING ;
-		goto_break_point (mSelf.mThis->mSubBreakPoint[mSelf.mThis->mSubCurr]) ;
-	}
-
-	void sub_return () {
-		_DEBUG_ASSERT_ (mThis->mSubCurr != VAR_NONE) ;
-		_DYNAMIC_ASSERT_ (mSelf.mThis->mState == STATE_RUNNING) ;
-		mSelf.mThis->mSubQueue.clear () ;
-		mSelf.mThis->mSubAwaitQueue.clear () ;
-		mSelf.mThis->mSubCurr = VAR_NONE ;
-		mSelf.mThis->mState = STATE_STOPPED ;
-		goto_break_point (mSelf.mThis->mBreakPoint) ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 #endif

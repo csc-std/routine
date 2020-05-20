@@ -12,7 +12,7 @@ struct COMPILE_RETURN {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using COMPILE_RETURN_TYPE = typename COMPILE_RETURN<_ARG1 ,_ARG2>::TYPE ;
+using COMPILE_RETURN_TYPE = CALL<COMPILE_RETURN<_ARG1 ,_ARG2>> ;
 } ;
 
 template <class...>
@@ -38,11 +38,7 @@ struct FUN_compr<IN_lhs ,IN_rhs> {
 	struct CON_compr {
 		template <class CONTEXT>
 		static FLAG compile (CONTEXT &me) {
-			if (IN_lhs::compile (me) < IN_rhs::compile (me))
-				return FLAG (-1) ;
-			if (IN_rhs::compile (me) < IN_lhs::compile (me))
-				return FLAG (+1) ;
-			return FLAG (0) ;
+			return U::OPERATOR_COMPR::invoke (IN_lhs::compile (me) ,IN_rhs::compile (me)) ;
 		}
 	} ;
 
@@ -194,7 +190,7 @@ struct FUN_increase<IN_lhs> {
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> ret = IN_lhs::compile (me) ;
 			++ret ;
-			return std::move (ret) ;
+			return _MOVE_ (ret) ;
 		}
 	} ;
 
@@ -211,7 +207,7 @@ struct FUN_decrease<IN_lhs> {
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> ret = IN_lhs::compile (me) ;
 			--ret ;
-			return std::move (ret) ;
+			return _MOVE_ (ret) ;
 		}
 	} ;
 
@@ -308,17 +304,34 @@ struct FUN_cross<IN_lhs ,IN_rhs> {
 	using TYPE = CON_cross ;
 } ;
 
+template <class... IN_lhs>
+struct FUN_tuple {
+	struct CON_tuple {
+		using TYPE = ARGVS<IN_lhs...> ;
+	} ;
+
+	using TYPE = CON_tuple ;
+} ;
+
+template <class...>
+struct FUN_tuple_pick ;
+
+template <class IN_tuple ,class IN_id>
+struct FUN_tuple_pick<IN_tuple ,IN_id> {
+	using tuple_argvs = CALL<IN_tuple> ;
+
+	using TYPE = INDEX_TO_TYPE<IN_id ,tuple_argvs> ;
+} ;
+
 template <class...>
 struct FUN_get ;
 
 template <class IN_lhs ,class IN_rhs>
 struct FUN_get<IN_lhs ,IN_rhs> {
-	template <class _ARG1>
-	using HINT_RETURN = DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>> ()])> ;
-
 	struct CON_get {
 		template <class CONTEXT>
-		static HINT_RETURN<CONTEXT> compile (CONTEXT &me) {
+		static auto compile (CONTEXT &me)
+			->DEPENDENT_TYPE<DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>> ()])> ,CONTEXT> {
 			return IN_lhs::compile (me)[IN_rhs::compile (me)] ;
 		}
 	} ;
@@ -334,8 +347,8 @@ struct FUN_assign<IN_lhs ,IN_rhs> {
 	struct CON_assign {
 		template <class CONTEXT>
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
-			IN_lhs::compile (me) = IN_rhs::compile (me) ;
-			return IN_lhs::compile (me) ;
+			_STATIC_ASSERT_ (stl::is_lvalue_reference<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>>::value) ;
+			return IN_lhs::compile (me) = IN_rhs::compile (me) ;
 		}
 	} ;
 
@@ -347,34 +360,15 @@ struct FUN_call ;
 
 template <class IN_lhs ,class... IN_rhs>
 struct FUN_call<IN_lhs ,IN_rhs...> {
-	template <class _ARG1>
-	using HINT_RETURN = RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>...>> ;
-
 	struct CON_call {
 		template <class CONTEXT>
-		static HINT_RETURN<CONTEXT> compile (CONTEXT &me) {
+		static auto compile (CONTEXT &me)
+			->DEPENDENT_TYPE<RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>...>> ,CONTEXT> {
 			return IN_lhs::compile (me) (IN_rhs::compile (me)...) ;
 		}
 	} ;
 
 	using TYPE = CON_call ;
-} ;
-
-template <class...>
-struct FUN_switch ;
-
-template <class IN_lhs ,class IN_rhs1 ,class IN_rhs2>
-struct FUN_switch<IN_lhs ,IN_rhs1 ,IN_rhs2> {
-	struct CON_switch {
-		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_rhs1 ,CONTEXT> compile (CONTEXT &me) {
-			if (IN_lhs::compile (me))
-				return IN_rhs1::compile (me) ;
-			return IN_rhs2::compile (me) ;
-		}
-	} ;
-
-	using TYPE = CON_switch ;
 } ;
 
 template <class...>
@@ -393,22 +387,20 @@ struct FUN_assert<IN_lhs> {
 	using TYPE = CON_assert ;
 } ;
 
-template <class... IN_lhs>
-struct FUN_tuple {
-	struct CON_tuple {
-		using TYPE = ARGVS<IN_lhs...> ;
+template <class...>
+struct FUN_switch ;
+
+template <class IN_lhs ,class IN_rhs1 ,class IN_rhs2>
+struct FUN_switch<IN_lhs ,IN_rhs1 ,IN_rhs2> {
+	struct CON_switch {
+		template <class CONTEXT>
+		static U::COMPILE_RETURN_TYPE<IN_rhs1 ,CONTEXT> compile (CONTEXT &me) {
+			if (IN_lhs::compile (me))
+				return IN_rhs1::compile (me) ;
+			return IN_rhs2::compile (me) ;
+		}
 	} ;
 
-	using TYPE = CON_tuple ;
-} ;
-
-template <class...>
-struct FUN_tuple_pick ;
-
-template <class IN_tuple ,class IN_id>
-struct FUN_tuple_pick<IN_tuple ,IN_id> {
-	using tuple_argvs = typename IN_tuple::TYPE ;
-
-	using TYPE = INDEX_TO_TYPE<IN_id ,tuple_argvs> ;
+	using TYPE = CON_switch ;
 } ;
 } ;

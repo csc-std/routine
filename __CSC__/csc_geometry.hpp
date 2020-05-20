@@ -25,7 +25,9 @@ public:
 	Vector () = default ;
 
 	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w)
-		:Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {}
+		:Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	implicit Vector (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
 		mVector[0] = x ;

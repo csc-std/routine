@@ -51,7 +51,6 @@ using std::is_base_of ;
 using std::is_abstract ;
 using std::is_default_constructible ;
 using std::is_constructible ;
-using std::is_nothrow_constructible ;
 using std::is_nothrow_destructible ;
 using std::is_copy_constructible ;
 using std::is_copy_assignable ;
@@ -427,6 +426,9 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 	UNIT3 P3 ;
 } ;
 
+template <class _ARG1>
+using CALL = typename _ARG1::TYPE ;
+
 #pragma region
 namespace U {
 template <class>
@@ -438,7 +440,7 @@ struct ENABLE<ARGC<TRUE>> {
 } ;
 
 template <BOOL _VAL1>
-using ENABLE_TYPE = typename ENABLE<ARGC<_VAL1>>::TYPE ;
+using ENABLE_TYPE = CALL<ENABLE<ARGC<_VAL1>>> ;
 } ;
 
 namespace U {
@@ -448,7 +450,7 @@ struct DEPENDENT {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using DEPENDENT_TYPE = typename DEPENDENT<_ARG1 ,_ARG2>::TYPE ;
+using DEPENDENT_TYPE = CALL<DEPENDENT<_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -466,7 +468,7 @@ struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 } ;
 
 template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_VAL1> ,_ARG1 ,_ARG2>::TYPE ;
+using CONDITIONAL_TYPE = CALL<CONDITIONAL<ARGC<_VAL1> ,_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -486,7 +488,7 @@ struct REMOVE_REFERENCE<_ARG1 &&> {
 } ;
 
 template <class _ARG1>
-using REMOVE_REFERENCE_TYPE = typename REMOVE_REFERENCE<_ARG1>::TYPE ;
+using REMOVE_REFERENCE_TYPE = CALL<REMOVE_REFERENCE<_ARG1>> ;
 } ;
 
 namespace U {
@@ -501,7 +503,7 @@ struct REMOVE_CONST<const _ARG1> {
 } ;
 
 template <class _ARG1>
-using REMOVE_CONST_TYPE = typename REMOVE_CONST<_ARG1>::TYPE ;
+using REMOVE_CONST_TYPE = CALL<REMOVE_CONST<_ARG1>> ;
 } ;
 
 namespace U {
@@ -516,7 +518,7 @@ struct REMOVE_VOLATILE<volatile _ARG1> {
 } ;
 
 template <class _ARG1>
-using REMOVE_VOLATILE_TYPE = typename REMOVE_VOLATILE<_ARG1>::TYPE ;
+using REMOVE_VOLATILE_TYPE = CALL<REMOVE_VOLATILE<_ARG1>> ;
 } ;
 
 namespace U {
@@ -536,7 +538,7 @@ struct REMOVE_POINTER<PTR<_ARG1>> {
 } ;
 
 template <class _ARG1>
-using REMOVE_POINTER_TYPE = typename REMOVE_POINTER<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using REMOVE_POINTER_TYPE = CALL<REMOVE_POINTER<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -556,7 +558,7 @@ struct REMOVE_ARRAY<_ARG1[_VAL1]> {
 } ;
 
 template <class _ARG1>
-using REMOVE_ARRAY_TYPE = typename REMOVE_ARRAY<_ARG1>::TYPE ;
+using REMOVE_ARRAY_TYPE = CALL<REMOVE_ARRAY<_ARG1>> ;
 } ;
 
 namespace U {
@@ -571,7 +573,7 @@ struct REMOVE_TEMP<TEMP<_ARG1>> {
 } ;
 
 template <class _ARG1>
-using REMOVE_TEMP_TYPE = typename REMOVE_TEMP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using REMOVE_TEMP_TYPE = CALL<REMOVE_TEMP<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -623,7 +625,7 @@ struct REMOVE_FUNCATTR<_ARG1 (_ARGS...) const volatile noexcept> {
 #endif
 
 template <class _ARG1>
-using REMOVE_FUNCATTR_TYPE = typename REMOVE_FUNCATTR<_ARG1>::TYPE ;
+using REMOVE_FUNCATTR_TYPE = CALL<REMOVE_FUNCATTR<_ARG1>> ;
 } ;
 
 namespace U {
@@ -636,7 +638,7 @@ struct REMOVE_MEMPTR<_ARG1 _ARG2::*> {
 } ;
 
 template <class _ARG1>
-using REMOVE_MEMPTR_TYPE = typename REMOVE_MEMPTR<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using REMOVE_MEMPTR_TYPE = CALL<REMOVE_MEMPTR<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -649,7 +651,7 @@ struct MEMPTR_CLASS<_ARG1 _ARG2::*> {
 } ;
 
 template <class _ARG1>
-using MEMPTR_CLASS_TYPE = typename MEMPTR_CLASS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using MEMPTR_CLASS_TYPE = CALL<MEMPTR_CLASS<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -667,7 +669,7 @@ struct COUNT_OF<_ARG1[_VAL1]> {
 } ;
 
 template <class _ARG1>
-using COUNT_OF_TYPE = typename COUNT_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using COUNT_OF_TYPE = CALL<COUNT_OF<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -685,27 +687,27 @@ struct CAPACITY_OF<ARGVS<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using CAPACITY_OF_TYPE = CALL<CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
 template <class _ARG1>
-struct INVOKE_TRAITS {
+struct FORWARD_TRAITS {
 	using TYPE = const _ARG1 & ;
 } ;
 
 template <class _ARG1>
-struct INVOKE_TRAITS<_ARG1 &> {
+struct FORWARD_TRAITS<_ARG1 &> {
 	using TYPE = _ARG1 & ;
 } ;
 
 template <class _ARG1>
-struct INVOKE_TRAITS<_ARG1 &&> {
+struct FORWARD_TRAITS<_ARG1 &&> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1>
-using INVOKE_TRAITS_TYPE = typename INVOKE_TRAITS<_ARG1>::TYPE ;
+using FORWARD_TRAITS_TYPE = CALL<FORWARD_TRAITS<_ARG1>> ;
 } ;
 
 namespace U {
@@ -770,7 +772,7 @@ struct CAST_TRAITS<_ARG1 ,const volatile _ARG2 &&> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using CAST_TRAITS_TYPE = typename CAST_TRAITS<_ARG1 ,_ARG2>::TYPE ;
+using CAST_TRAITS_TYPE = CALL<CAST_TRAITS<_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -783,7 +785,7 @@ struct INVOKE_RESULT<_ARG1 (_ARGS...)> {
 } ;
 
 template <class _ARG1>
-using INVOKE_RESULT_TYPE = typename INVOKE_RESULT<REMOVE_FUNCATTR_TYPE<_ARG1>>::TYPE ;
+using INVOKE_RESULT_TYPE = CALL<INVOKE_RESULT<REMOVE_FUNCATTR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -796,7 +798,7 @@ struct INVOKE_PARAMS<_ARG1 (_ARGS...)> {
 } ;
 
 template <class _ARG1>
-using INVOKE_PARAMS_TYPE = typename INVOKE_PARAMS<REMOVE_FUNCATTR_TYPE<_ARG1>>::TYPE ;
+using INVOKE_PARAMS_TYPE = CALL<INVOKE_PARAMS<REMOVE_FUNCATTR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -810,11 +812,11 @@ struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<!stl::is_class<REMOVE_POINTER_TYPE<_A
 
 template <class _ARG1 ,class _ARG2>
 struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
-	using TYPE = typename RESULT_OF<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())> ,_ARG2 ,VOID>::TYPE ;
+	using TYPE = CALL<RESULT_OF<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())> ,_ARG2 ,VOID>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<_ARG1> ,_ARG2 ,VOID>::TYPE ;
+using RESULT_OF_TYPE = CALL<RESULT_OF<REMOVE_CVR_TYPE<_ARG1> ,_ARG2 ,VOID>> ;
 } ;
 
 namespace U {
@@ -829,11 +831,11 @@ struct REPEAT_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (_ARG1::value > 0) ;
-	using TYPE = typename REPEAT_PARAMS<DECREASE<_ARG1> ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
+	using TYPE = CALL<REPEAT_PARAMS<DECREASE<_ARG1> ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using REPEAT_PARAMS_TYPE = typename REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<>>::TYPE ;
+using REPEAT_PARAMS_TYPE = CALL<REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<>>> ;
 } ;
 
 namespace U {
@@ -848,11 +850,11 @@ struct SEQUENCE_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct SEQUENCE_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (_ARG1::value > 0) ;
-	using TYPE = typename SEQUENCE_PARAMS<DECREASE<_ARG1> ,INCREASE<_ARG2> ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
+	using TYPE = CALL<SEQUENCE_PARAMS<DECREASE<_ARG1> ,INCREASE<_ARG2> ,ARGVS<_ARGS... ,_ARG2>>> ;
 } ;
 
 template <class _ARG1>
-using SEQUENCE_PARAMS_TYPE = typename SEQUENCE_PARAMS<_ARG1 ,ARGC<1> ,ARGVS<>>::TYPE ;
+using SEQUENCE_PARAMS_TYPE = CALL<SEQUENCE_PARAMS<_ARG1 ,ARGC<1> ,ARGVS<>>> ;
 } ;
 
 namespace U {
@@ -865,7 +867,7 @@ struct ARGVS_ONE<ARGVS<_ARG1 ,_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using ARGVS_ONE_TYPE = typename ARGVS_ONE<_ARG1>::TYPE ;
+using ARGVS_ONE_TYPE = CALL<ARGVS_ONE<_ARG1>> ;
 } ;
 
 namespace U {
@@ -878,7 +880,7 @@ struct ARGVS_REST<ARGVS<_ARG1 ,_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using ARGVS_REST_TYPE = typename ARGVS_REST<_ARG1>::TYPE ;
+using ARGVS_REST_TYPE = CALL<ARGVS_REST<_ARG1>> ;
 } ;
 
 namespace U {
@@ -891,7 +893,7 @@ struct ARGVS_CAT<ARGVS<_ARGS1...> ,ARGVS<_ARGS2...>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
+using ARGVS_CAT_TYPE = CALL<ARGVS_CAT<_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -911,7 +913,7 @@ struct IS_BOUNDED_ARRAY_OF<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_BOUNDED_ARRAY_OF_HELP = CALL<IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>> ;
 } ;
 
 namespace U {
@@ -941,7 +943,7 @@ struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::i
 } ;
 
 template <class _ARG1>
-using IS_VAR_XYZ_HELP = typename IS_VAR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_VAR_XYZ_HELP = CALL<IS_VAR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>> ;
 } ;
 
 namespace U {
@@ -966,7 +968,7 @@ struct IS_VAL_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::i
 } ;
 
 template <class _ARG1>
-using IS_VAL_XYZ_HELP = typename IS_VAL_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_VAL_XYZ_HELP = CALL<IS_VAL_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>> ;
 } ;
 
 namespace U {
@@ -1001,7 +1003,7 @@ struct IS_BYTE_XYZ<MEGA> {
 } ;
 
 template <class _ARG1>
-using IS_BYTE_XYZ_HELP = typename IS_BYTE_XYZ<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using IS_BYTE_XYZ_HELP = CALL<IS_BYTE_XYZ<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -1041,7 +1043,7 @@ struct IS_STR_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,STRX>::value && !stl::i
 } ;
 
 template <class _ARG1>
-using IS_STR_XYZ_HELP = typename IS_STR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_STR_XYZ_HELP = CALL<IS_STR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>> ;
 } ;
 
 namespace U {
@@ -1072,7 +1074,7 @@ struct IS_SAFE_ALIASING<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
+	using TYPE = CALL<IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>> ;
 } ;
 
 template <class _ARG1>
@@ -1087,7 +1089,7 @@ struct IS_SAFE_ALIASING<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,A
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
+	using TYPE = CALL<IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>> ;
 } ;
 
 template <>
@@ -1123,7 +1125,7 @@ struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
+	using TYPE = CALL<IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1133,7 +1135,7 @@ struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_A
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
+	using TYPE = CALL<IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>> ;
 } ;
 
 template <class _ARG1>
@@ -1142,7 +1144,7 @@ struct IS_SAFE_ALIASING<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value>
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_SAFE_ALIASING_HELP = typename IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,ARGC<1>>::TYPE ;
+using IS_SAFE_ALIASING_HELP = CALL<IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,ARGC<1>>> ;
 } ;
 
 namespace U {
@@ -1158,11 +1160,11 @@ struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
-	using TYPE = typename INDEX_OF<INCREASE<_ARG1> ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = CALL<INDEX_OF<INCREASE<_ARG1> ,_ARG2 ,ARGVS<_ARGS...>>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_OF_TYPE = typename INDEX_OF<ZERO ,_ARG1 ,_ARG2>::TYPE ;
+using INDEX_OF_TYPE = CALL<INDEX_OF<ZERO ,_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -1183,11 +1185,11 @@ struct INDEX_TO<_ARG1 ,ARGVS<>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
 	_STATIC_ASSERT_ (_ARG1::value > 0) ;
-	using TYPE = typename INDEX_TO<DECREASE<_ARG1> ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = CALL<INDEX_TO<DECREASE<_ARG1> ,ARGVS<_ARGS...>>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_TO_TYPE = typename INDEX_TO<_ARG1 ,_ARG2>::TYPE ;
+using INDEX_TO_TYPE = CALL<INDEX_TO<_ARG1 ,_ARG2>> ;
 } ;
 
 namespace U {
@@ -1202,7 +1204,7 @@ struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> {
 } ;
 
 template <class _ARG1>
-using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_COMPLETE_HELP = CALL<IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,VOID>> ;
 } ;
 
 namespace U {
@@ -1217,7 +1219,7 @@ struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_INTERFACE_HELP = CALL<IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>> ;
 } ;
 
 namespace U {
@@ -1232,7 +1234,7 @@ struct IS_ALWAYS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZ
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_ALWAYS_BASE_OF_HELP = typename IS_ALWAYS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_ALWAYS_BASE_OF_HELP = CALL<IS_ALWAYS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>> ;
 } ;
 
 namespace U {
@@ -1253,11 +1255,11 @@ struct IS_ALL_SAME<_ARG1 ,_ARG1> {
 
 template <class _ARG1 ,class... _ARGS>
 struct IS_ALL_SAME<_ARG1 ,_ARG1 ,_ARGS...> {
-	using TYPE = typename IS_ALL_SAME<_ARG1 ,_ARGS...>::TYPE ;
+	using TYPE = CALL<IS_ALL_SAME<_ARG1 ,_ARGS...>> ;
 } ;
 
 template <class... _ARGS>
-using IS_ALL_SAME_HELP = typename IS_ALL_SAME<_ARGS...>::TYPE ;
+using IS_ALL_SAME_HELP = CALL<IS_ALL_SAME<_ARGS...>> ;
 } ;
 
 namespace U {
@@ -1282,7 +1284,7 @@ struct IS_ANY_SAME<_ARG1 ,_ARG2 ,_ARGS...> {
 } ;
 
 template <class... _ARGS>
-using IS_ANY_SAME_HELP = typename IS_ANY_SAME<_ARGS...>::TYPE ;
+using IS_ANY_SAME_HELP = CALL<IS_ANY_SAME<_ARGS...>> ;
 } ;
 
 namespace U {
@@ -1297,7 +1299,7 @@ struct IS_TEMPLATE<_ARGT<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using IS_TEMPLATE_HELP = typename IS_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using IS_TEMPLATE_HELP = CALL<IS_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 
 namespace U {
@@ -1310,7 +1312,7 @@ struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+using TEMPLATE_PARAMS_TYPE = CALL<TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>> ;
 } ;
 #pragma endregion
 
@@ -1326,7 +1328,7 @@ using U::REMOVE_ARRAY_TYPE ;
 using U::REMOVE_FUNCATTR_TYPE ;
 using U::REMOVE_MEMPTR_TYPE ;
 using U::MEMPTR_CLASS_TYPE ;
-using U::INVOKE_TRAITS_TYPE ;
+using U::FORWARD_TRAITS_TYPE ;
 using U::CAST_TRAITS_TYPE ;
 using U::INVOKE_RESULT_TYPE ;
 using U::INVOKE_PARAMS_TYPE ;
@@ -1497,7 +1499,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) noexcep
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET>
 inline _RET &_LOAD_UNSAFE_ (const LENGTH &address) noexcept {
-	const auto r1x = _XVALUE_ <PTR<VOID>> (&_NULL_<BYTE> () + address) ;
+	const auto r1x = _XVALUE_<PTR<VOID>> (DEPTR[_NULL_<BYTE> ()] + address) ;
 	return _LOAD_<_RET> (r1x) ;
 }
 
@@ -1510,7 +1512,7 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr
 }
 
 template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
+inline _RET _BITWISE_CAST_ (const _ARG1 &object) noexcept {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 	_STATIC_ASSERT_ (!stl::is_pointer<_RET>::value) ;
@@ -1604,11 +1606,11 @@ inline constexpr VAR32 _EBOOL_ (const BOOL &flag) noexcept {
 
 namespace U {
 struct OPERATOR_ONCE {
-	inline static BOOL invoke (const BOOL &) noexcept {
+	inline static BOOL invoke (const BOOL &) {
 		return FALSE ;
 	}
 
-	inline static BOOL invoke (BOOL &flag) noexcept popping {
+	inline static BOOL invoke (BOOL &flag) popping {
 		flag = FALSE ;
 		return FALSE ;
 	}
@@ -1715,8 +1717,10 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_)
-		:mIBegin (ibegin_) ,mIEnd (iend_) {}
+	inline explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_) {
+		mIBegin = ibegin_ ;
+		mIEnd = iend_ ;
+	}
 
 	template <class _RET = NONE>
 	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
@@ -1818,33 +1822,35 @@ public:
 	inline Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
-	inline constexpr implicit Plain (_ARG1 &that) noexcept
+	inline constexpr implicit Plain (_ARG1 &that)
 		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
-		:Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {}
+	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text)
+		:Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline constexpr LENGTH size () const noexcept {
 		return mSize ;
 	}
 
-	inline constexpr const ARR<REAL> &to () const leftvalue noexcept {
+	inline constexpr const ARR<REAL> &to () const leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
-	inline constexpr implicit operator const ARR<REAL> & () const leftvalue noexcept {
+	inline constexpr implicit operator const ARR<REAL> & () const leftvalue {
 		return to () ;
 	}
 
 private:
 	template <class _ARG1 ,class... _ARGS>
-	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) noexcept
+	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
 		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,Plain> {
 		using PlainString = typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
-		auto &r2x = _CACHE_ ([&] () noexcept {
+		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
 		}) ;
 		return r2x.mString ;
@@ -1865,19 +1871,19 @@ struct Plain<REAL>::Detail {
 		inline PlainString () = delete ;
 
 		template <class... _ARGS>
-		inline explicit PlainString (const _ARGS &...text) noexcept {
+		inline explicit PlainString (const _ARGS &...text) {
 			template_write (_NULL_<ARGV<ZERO>> () ,text...) ;
 		}
 
 	private:
 		template <class _ARG1>
-		inline void template_write (const ARGV<_ARG1> &) noexcept {
+		inline void template_write (const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (_ARG1::value == SIZE::value - 1) ;
 			mString[_ARG1::value] = 0 ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) noexcept {
+		inline void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
 			_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 			_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
 			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
@@ -1895,14 +1901,9 @@ private:
 public:
 	inline Exception () = delete ;
 
-	inline explicit Exception (const Plain<STR> &what_) noexcept
-		:mWhat (DEPTR[what_.self]) {}
-
-	inline Exception (const Exception &) = default ;
-	inline Exception &operator= (const Exception &) = default ;
-
-	inline Exception (Exception &&) = default ;
-	inline Exception &operator= (Exception &&) = default ;
+	inline explicit Exception (const Plain<STR> &what_) noexcept {
+		mWhat = DEPTR[what_.self] ;
+	}
 
 	inline const ARR<STR> &what () const noexcept {
 		return DEREF[mWhat] ;

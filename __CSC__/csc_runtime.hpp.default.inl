@@ -195,15 +195,15 @@ public:
 	Duration add (const Implement &that) const {
 		const auto r1x = mDuration + that.mDuration ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (_MOVE_ (tmp)) ;
 	}
 
 	Duration sub (const Implement &that) const {
 		const auto r1x = mDuration - that.mDuration ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (_MOVE_ (tmp)) ;
 	}
 } ;
 
@@ -215,7 +215,7 @@ inline exports Duration::Duration (const ARRAY6<LENGTH> &time_) {
 	mThis = StrongRef<Implement>::make (time_) ;
 }
 
-inline exports Duration::Duration (const StrongRef<Implement> &this_) {
+inline exports Duration::Duration (StrongRef<Implement> &&this_) {
 	mThis = _MOVE_ (this_) ;
 }
 
@@ -329,15 +329,15 @@ public:
 	TimePoint add (const Duration::Implement &that) const {
 		const auto r1x = mTimePoint + that.mDuration ;
 		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<TimePoint::Implement>::make (r2x) ;
-		return TimePoint (r3x) ;
+		auto tmp = StrongRef<TimePoint::Implement>::make (r2x) ;
+		return TimePoint (_MOVE_ (tmp)) ;
 	}
 
 	Duration sub (const TimePoint::Implement &that) const {
 		const auto r1x = mTimePoint - that.mTimePoint ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (_MOVE_ (tmp)) ;
 	}
 } ;
 
@@ -345,7 +345,7 @@ inline exports TimePoint::TimePoint (const ARRAY8<LENGTH> &time_) {
 	mThis = StrongRef<Implement>::make (time_) ;
 }
 
-inline exports TimePoint::TimePoint (const StrongRef<Implement> &this_) {
+inline exports TimePoint::TimePoint (StrongRef<Implement> &&this_) {
 	mThis = _MOVE_ (this_) ;
 }
 
@@ -595,8 +595,8 @@ private:
 public:
 	Implement () = delete ;
 
-	explicit Implement (const StrongRef<Binder> &runnable) {
-		mRunnable = runnable ;
+	explicit Implement (StrongRef<Binder> &&runnable) {
+		mRunnable = _MOVE_ (runnable) ;
 		const auto r1x = PhanRef<Binder>::make (mRunnable.self) ;
 		mThread = api::thread (Detail::Runnable (r1x)) ;
 	}
@@ -606,8 +606,8 @@ public:
 	}
 } ;
 
-inline exports Thread::Thread (const StrongRef<Binder> &runnable) {
-	mThis = StrongRef<Implement>::make (runnable) ;
+inline exports Thread::Thread (StrongRef<Binder> &&runnable) {
+	mThis = StrongRef<Implement>::make (_MOVE_ (runnable)) ;
 }
 
 inline exports void Thread::join () {
@@ -617,16 +617,16 @@ inline exports void Thread::join () {
 inline exports TimePoint GlobalRuntime::clock_now () {
 	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::now () ;
-	const auto r2x = StrongRef<Implement>::make (r1x) ;
-	return TimePoint (r2x) ;
+	auto tmp = StrongRef<Implement>::make (r1x) ;
+	return TimePoint (_MOVE_ (tmp)) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
 	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::duration::zero () ;
 	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
-	const auto r3x = StrongRef<Implement>::make (r2x) ;
-	return TimePoint (r3x) ;
+	auto tmp = StrongRef<Implement>::make (r2x) ;
+	return TimePoint (_MOVE_ (tmp)) ;
 }
 
 #ifdef __CSC_SYSTEM_WINDOWS__
@@ -763,88 +763,6 @@ inline exports void GlobalRuntime::process_exit[[noreturn]] () {
 inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 	api::terminate () ;
 }
-
-#ifdef __CSC_DEPRECATED__
-template <class CONT>
-class Coroutine<CONT>::Implement {
-private:
-	struct CONTEXT_EBP {
-		jmp_buf mEbp ;
-	} ;
-
-	static constexpr auto CONTEXT_EBP_SIZE = _ALIGNOF_ (CONTEXT_EBP) - 1 + _SIZEOF_ (CONTEXT_EBP) ;
-	static constexpr auto STACK_FRAME_SIZE = 65536 ;
-
-	struct BREAKPOINT {
-		DEF<BYTE[CONTEXT_EBP_SIZE]> mContextEbp ;
-		ARRAY3<LENGTH> mStackPoint ;
-		DEF<BYTE[STACK_FRAME_SIZE]> mStackFrame ;
-	} ;
-
-private:
-	friend Coroutine<CONT> ;
-
-public:
-	imports_static void init_break_point (const PTR<AnyRef<void>> &bp) {
-		auto tmp = BREAKPOINT () ;
-		_ZERO_ (tmp) ;
-		tmp.mStackPoint[0] = _ADDRESS_ (DEPTR[bp]) ;
-		tmp.mStackPoint[1] = 0 ;
-		tmp.mStackPoint[2] = 0 ;
-		DEREF[bp] = AnyRef<BREAKPOINT>::make (_MOVE_ (tmp)) ;
-	}
-
-	imports_static void store_break_point (const PTR<AnyRef<void>> &bp) noexcept {
-		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
-		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
-		r1x.mStackPoint[1] = _ADDRESS_ (DEPTR[bp]) ;
-		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
-		const auto r3x = _EBOOL_ (r2x < 0) ;
-		auto &r4x = _LOAD_UNSAFE_<ARR<BYTE>> (r1x.mStackPoint[r3x]) ;
-		BasicProc::mem_copy (PTRTOARR[r1x.mStackFrame] ,r4x ,_ABS_ (r2x)) ;
-		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		const auto r6x = setjmp (r5x.mEbp) ;
-		_STATIC_UNUSED_ (r6x) ;
-	}
-
-	imports_static void goto_break_point (const PTR<AnyRef<void>> &bp) noexcept {
-		auto &r1x = bp->rebind<BREAKPOINT> ().self ;
-		_DEBUG_ASSERT_ (r1x.mStackPoint[0] != 0) ;
-		_DEBUG_ASSERT_ (r1x.mStackPoint[1] != 0) ;
-		r1x.mStackPoint[2] = _ADDRESS_ (DEPTR[bp]) ;
-		_STATIC_WARNING_ ("mark") ;
-		_DEBUG_ASSERT_ (r1x.mStackPoint[2] == r1x.mStackPoint[1]) ;
-		const auto r2x = r1x.mStackPoint[1] - r1x.mStackPoint[0] ;
-		_DEBUG_ASSERT_ (_ABS_ (r2x) <= _SIZEOF_ (decltype (r1x.mStackFrame))) ;
-		const auto r3x = _EBOOL_ (r2x < 0) ;
-		auto &r4x = _LOAD_UNSAFE_<ARR<BYTE>> (r1x.mStackPoint[r3x]) ;
-		BasicProc::mem_copy (r4x ,PTRTOARR[r1x.mStackFrame] ,_ABS_ (r2x)) ;
-		auto &r5x = load_context_ebp (r1x.mContextEbp) ;
-		api::longjmp (r5x.mEbp ,1) ;
-	}
-
-	imports_static CONTEXT_EBP &load_context_ebp (DEF<BYTE[CONTEXT_EBP_SIZE]> &ebp) noexcept {
-		const auto r1x = _ALIGNAS_ (_ADDRESS_ (DEPTR[ebp]) ,_ALIGNOF_ (CONTEXT_EBP)) ;
-		return _LOAD_UNSAFE_<CONTEXT_EBP> (r1x) ;
-	}
-} ;
-
-template <class CONT>
-inline exports void Coroutine<CONT>::init_break_point (AnyRef<void> &bp) {
-	Implement::init_break_point (DEPTR[bp]) ;
-}
-
-template <class CONT>
-inline exports void Coroutine<CONT>::store_break_point (AnyRef<void> &bp) noexcept {
-	Implement::store_break_point (DEPTR[bp]) ;
-}
-
-template <class CONT>
-inline exports void Coroutine<CONT>::goto_break_point (AnyRef<void> &bp) noexcept {
-	Implement::goto_break_point (DEPTR[bp]) ;
-}
-#endif
 
 class RandomService::Implement
 	:public RandomService::Abstract {

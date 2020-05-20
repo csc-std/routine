@@ -38,8 +38,10 @@ private:
 public:
 	AbstractDatabase () = default ;
 
-	explicit AbstractDatabase (const PhanRef<const Abstract> &abstract_)
-		:AbstractDatabase (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
+	explicit AbstractDatabase (const PhanRef<const Abstract> &abstract_) {
+		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
+		mThis = SharedRef<Pack>::make () ;
+	}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -50,9 +52,5 @@ public:
 			return FALSE ;
 		return TRUE ;
 	}
-
-private:
-	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (_MOVE_ (abstract_)) ,mThis (_MOVE_ (this_)) {}
 } ;
 } ;

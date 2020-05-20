@@ -24,7 +24,7 @@ struct RANK_FUNC<_ARG1 ,ARGVS<_ARGS...>> {
 } ;
 
 template <class _ARG1>
-using RANK_FUNC_TYPE = typename RANK_FUNC<Operand ,REPEAT_PARAMS_TYPE<_ARG1 ,const Operand &>>::TYPE ;
+using RANK_FUNC_TYPE = CALL<RANK_FUNC<Operand ,REPEAT_PARAMS_TYPE<_ARG1 ,const Operand &>>> ;
 } ;
 
 using RANK0 = U::RANK_FUNC_TYPE<ZERO> ;
@@ -121,7 +121,7 @@ private:
 
 class Operator {
 private:
-	exports class Functor
+	exports class Holder
 		:public Interface {
 	public:
 		virtual LENGTH rank () const = 0 ;
@@ -139,7 +139,7 @@ private:
 
 private:
 	struct Detail ;
-	StrongRef<Functor> mOperator ;
+	StrongRef<Holder> mFunctor ;
 
 public:
 	Operator () = default ;
@@ -152,20 +152,20 @@ public:
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplFunctor>::value) ;
 		const auto r1x = _XVALUE_<PTR<FUNC_HINT>> (that) ;
-		mOperator = StrongRef<ImplFunctor>::make (r1x) ;
+		mFunctor = StrongRef<ImplFunctor>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
-		if (!mOperator.exist ())
+		if (!mFunctor.exist ())
 			return VAR_NONE ;
-		return mOperator->rank () ;
+		return mFunctor->rank () ;
 	}
 
 	template <class... _ARGS>
 	Operand invoke (const LexicalNode &node ,const _ARGS &...funcval) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) <= 9) ;
-		_DYNAMIC_ASSERT_ (mOperator.exist ()) ;
-		return mOperator->invoke (node ,funcval...) ;
+		_DYNAMIC_ASSERT_ (mFunctor.exist ()) ;
+		return mFunctor->invoke (node ,funcval...) ;
 	}
 
 	template <class... _ARGS>
@@ -181,7 +181,7 @@ struct Operator::Detail {
 
 template <>
 class Operator::Detail::ImplFunctor<void ,void>
-	:public Functor {
+	:public Holder {
 public:
 	ImplFunctor () = default ;
 
@@ -194,47 +194,47 @@ public:
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
 
-	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const {
+	Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Operand () ;
 	}
@@ -251,21 +251,22 @@ private:
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &functor)
-		:mFunctor (functor) {}
+	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &func) {
+		mFunctor = Function<UNIT1 (UNITS1...)> (func) ;
+	}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
 	}
 
-	Operand invoke (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS2> &&...funcval) const {
+	Operand invoke (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS2> &&...funcval) const {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> ()) ;
 		return Operand (_MOVE_ (tmp)) ;
 	}
 
 private:
-	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,INVOKE_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
+		return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -288,21 +289,22 @@ private:
 public:
 	ImplFunctor () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &functor)
-		:mFunctor (functor) {}
+	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &func) {
+		mFunctor = Function<UNIT1 (const LexicalNode & ,UNITS1...)> (func) ;
+	}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
 	}
 
-	Operand invoke (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS2> &&...funcval) const override {
+	Operand invoke (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS2> &&...funcval) const override {
 		auto tmp = template_invoke (TupleBinder<const UNITS2...> (funcval...) ,_NULL_<ARGV<ARGVS<UNITS1...>>> () ,node) ;
 		return Operand (_MOVE_ (tmp)) ;
 	}
 
 private:
-	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (node ,_FORWARD_<INVOKE_TRAITS_TYPE<UNITS1>> (funcval)...) ;
+	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGV<ARGVS<>> & ,const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
+		return mFunctor (node ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS1>> (funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -329,7 +331,9 @@ private:
 
 public:
 	LexicalNode ()
-		:Object (_NULL_<ARGV<LexicalNode>> ()) ,mDepth (0) {}
+		:Object (_NULL_<ARGV<LexicalNode>> ()) {
+		mDepth = 0 ;
+	}
 } ;
 
 template <class UNIT>
@@ -400,7 +404,7 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	const Operand &invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const leftvalue {
+	const Operand &invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
 		if switch_case (TRUE) {
 			if (mThis->mOperand.exist ())
@@ -417,7 +421,7 @@ public:
 
 	Expression<RANK> flip () const {
 		Expression<RANK> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,INVOKE_TRAITS_TYPE<UNITS> &&...ins) {
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS> &&...ins) {
 			auto &r1x = Expression<RANK>::from (node.mChild[0]) ;
 			return r1x.template_flip_invoke (_NULL_<ARGV<ARGVS<UNITS...>>> () ,ins...) ;
 		}) ;
@@ -561,7 +565,9 @@ public:
 	}
 
 	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {}
+		:SPECIALIZATION_BASE (that) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	using SPECIALIZATION_BASE::invoke ;
 
@@ -586,7 +592,9 @@ public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {}
+		:SPECIALIZATION_BASE (that) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	using SPECIALIZATION_BASE::invoke ;
 
@@ -628,7 +636,9 @@ public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {}
+		:SPECIALIZATION_BASE (that) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	using SPECIALIZATION_BASE::invoke ;
 
@@ -667,7 +677,9 @@ public:
 	Expression () = default ;
 
 	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {}
+		:SPECIALIZATION_BASE (that) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	using SPECIALIZATION_BASE::invoke ;
 

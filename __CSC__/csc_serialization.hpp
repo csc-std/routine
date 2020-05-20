@@ -56,33 +56,33 @@ public:
 
 	XmlParser root () const {
 		if (!exist ())
-			return XmlParser (mHeap ,VAR_NONE) ;
-		return XmlParser (mHeap ,0) ;
+			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return XmlParser (_COPY_ (mHeap) ,0) ;
 	}
 
 	XmlParser parent () const {
 		if (!exist ())
-			return XmlParser (mHeap ,VAR_NONE) ;
-		return XmlParser (mHeap ,mHeap.self[mIndex].mParent) ;
+			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mParent) ;
 	}
 
 	XmlParser brother () const {
 		if (!exist ())
-			return XmlParser (mHeap ,VAR_NONE) ;
-		return XmlParser (mHeap ,mHeap.self[mIndex].mBrother) ;
+			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mBrother) ;
 	}
 
 	XmlParser child () const {
 		if (!exist ())
-			return XmlParser (mHeap ,VAR_NONE) ;
-		return XmlParser (mHeap ,mHeap.self[mIndex].mChild) ;
+			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mChild) ;
 	}
 
 	XmlParser child (const String<STRU8> &name) const {
 		if (!exist ())
-			return XmlParser (mHeap ,VAR_NONE) ;
+			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
 		INDEX ix = mHeap.self[mIndex].mObjectSet.map (name) ;
-		return XmlParser (mHeap ,ix) ;
+		return XmlParser (_COPY_ (mHeap) ,ix) ;
 	}
 
 	Array<XmlParser> child_array () const {
@@ -93,7 +93,7 @@ public:
 			ret = Array<XmlParser> (mHeap.self[mIndex].mMemberSet.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : mHeap.self[mIndex].mMemberSet)
-				ret[iw++] = XmlParser (mHeap ,i.mapx) ;
+				ret[iw++] = XmlParser (_COPY_ (mHeap) ,i.sid) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
 		return _MOVE_ (ret) ;
@@ -109,7 +109,7 @@ public:
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
 					continue ;
-				ret[ix] = XmlParser (mHeap ,i.mapx) ;
+				ret[ix] = XmlParser (_COPY_ (mHeap) ,i.sid) ;
 			}
 		}
 		return _MOVE_ (ret) ;
@@ -305,8 +305,10 @@ public:
 	}
 
 private:
-	explicit XmlParser (const SharedRef<FixedBuffer<Node>> &heap ,const INDEX &index)
-		:mHeap (heap) ,mIndex (index) {}
+	explicit XmlParser (SharedRef<FixedBuffer<Node>> &&heap ,const INDEX &index) {
+		mHeap = _MOVE_ (heap) ;
+		mIndex = index ;
+	}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -391,7 +393,7 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			for (auto &&i : r3x.mAttributeMappingSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
-				writer << r3x.mAttributeList[i.mapx] << _PCSTRU8_ ("\" ") ;
+				writer << r3x.mAttributeList[i.sid] << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ ("/>") ;
 		}
@@ -408,7 +410,7 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			for (auto &&i : r4x.mAttributeMappingSet) {
 				writer << i.key ;
 				writer << _PCSTRU8_ ("=\"") ;
-				writer << r4x.mAttributeList[i.mapx] << _PCSTRU8_ ("\" ") ;
+				writer << r4x.mAttributeList[i.sid] << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
@@ -1007,36 +1009,36 @@ public:
 
 	JsonParser root () const {
 		if (!exist ())
-			return JsonParser (mHeap ,VAR_NONE) ;
-		return JsonParser (mHeap ,0) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return JsonParser (_COPY_ (mHeap) ,0) ;
 	}
 
 	JsonParser parent () const {
 		if (!exist ())
-			return JsonParser (mHeap ,VAR_NONE) ;
-		return JsonParser (mHeap ,mHeap.self[mIndex].mParent) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mParent) ;
 	}
 
 	JsonParser brother () const {
 		if (!exist ())
-			return JsonParser (mHeap ,VAR_NONE) ;
-		return JsonParser (mHeap ,mHeap.self[mIndex].mBrother) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mBrother) ;
 	}
 
 	JsonParser child () const {
 		if (!exist ())
-			return JsonParser (mHeap ,VAR_NONE) ;
-		return JsonParser (mHeap ,mHeap.self[mIndex].mChild) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mChild) ;
 	}
 
 	JsonParser child (const String<STRU8> &key) const {
 		if (!exist ())
-			return JsonParser (mHeap ,VAR_NONE) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
 		if (!object_type ())
-			return JsonParser (mHeap ,VAR_NONE) ;
+			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
 		auto &r1x = mHeap.self[mIndex].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
 		INDEX ix = r1x.map (key) ;
-		return JsonParser (mHeap ,ix) ;
+		return JsonParser (_COPY_ (mHeap) ,ix) ;
 	}
 
 	Array<JsonParser> child_array () const {
@@ -1050,7 +1052,7 @@ public:
 			ret = Array<JsonParser> (r1x.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : r1x)
-				ret[iw++] = JsonParser (mHeap ,i.mapx) ;
+				ret[iw++] = JsonParser (_COPY_ (mHeap) ,i.sid) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
 		return _MOVE_ (ret) ;
@@ -1069,7 +1071,7 @@ public:
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
 					continue ;
-				ret[ix] = JsonParser (mHeap ,i.mapx) ;
+				ret[ix] = JsonParser (_COPY_ (mHeap) ,i.sid) ;
 			}
 		}
 		return _MOVE_ (ret) ;
@@ -1177,8 +1179,10 @@ public:
 	}
 
 private:
-	explicit JsonParser (const SharedRef<FixedBuffer<Node>> &heap ,const INDEX &index)
-		:mHeap (heap) ,mIndex (index) {}
+	explicit JsonParser (SharedRef<FixedBuffer<Node>> &&heap ,const INDEX &index) {
+		mHeap = _MOVE_ (heap) ;
+		mIndex = index ;
+	}
 
 private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
@@ -1270,7 +1274,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				if (ir > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
 				ir++ ;
-				rbx.add (PACK<INDEX ,EFLAG> {i.mapx ,M_NODE_X1}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i.sid ,M_NODE_X1}) ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
 			while (TRUE) {
@@ -1299,7 +1303,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				INDEX ix = r1x.find (DEPTR[i.key]) ;
 				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
-				rbx.add (PACK<INDEX ,EFLAG> {i.mapx ,M_NODE_X1}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {i.sid ,M_NODE_X1}) ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
 			while (TRUE) {

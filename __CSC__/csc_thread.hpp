@@ -9,6 +9,7 @@
 #include "csc_basic.hpp"
 #include "csc_extend.hpp"
 #include "csc_array.hpp"
+#include "csc_math.hpp"
 #include "csc_stream.hpp"
 #include "csc_string.hpp"
 #include "csc_runtime.hpp"
@@ -132,8 +133,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x) ,i) ;
-			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
+			auto tmp = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x) ,i) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
 
@@ -174,7 +175,7 @@ private:
 			_CATCH_ ([&] () {
 				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 				rax = self_.mThreadProc[tid] () ;
-			} ,[&] (const Exception &e) noexcept {
+			} ,[&] (const Exception &e) {
 				_CALL_TRY_ ([&] () {
 					static_rethrow (self_ ,e) ;
 				} ,[&] () {
@@ -272,8 +273,10 @@ struct CalcThread<ITEM>::Detail {
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (const PhanRef<Pack> &this_ ,const INDEX &index)
-			:mThis (PhanRef<Pack>::make (this_)) ,mIndex (index) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_ ,const INDEX &index) {
+			mThis = PhanRef<Pack>::make (this_) ;
+			mIndex = index ;
+		}
 
 		inline void execute () override {
 			_CALL_TRY_ ([&] () {
@@ -454,8 +457,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
-			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
+			auto tmp = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
 
@@ -497,7 +500,7 @@ private:
 			_CATCH_ ([&] () {
 				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 				self_.mThreadProc (rax.self) ;
-			} ,[&] (const Exception &e) noexcept {
+			} ,[&] (const Exception &e) {
 				_CALL_TRY_ ([&] () {
 					static_rethrow (self_ ,e) ;
 				} ,[&] () {
@@ -594,8 +597,9 @@ struct WorkThread<ITEM>::Detail {
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (const PhanRef<Pack> &this_)
-			:mThis (PhanRef<Pack>::make (this_)) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_) {
+			mThis = PhanRef<Pack>::make (this_) ;
+		}
 
 		inline void execute () override {
 			_CALL_TRY_ ([&] () {
@@ -715,8 +719,8 @@ public:
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		const auto r3x = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
-		r2x.mThreadPool = AutoRef<Thread>::make (r3x) ;
+		auto tmp = StrongRef<LocalProc>::make (PhanRef<Pack>::make (r2x)) ;
+		r2x.mThreadPool = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 	}
 
 	void signal () {
@@ -748,7 +752,7 @@ private:
 		_CATCH_ ([&] () {
 			//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 			rax = self_.mThreadProc () ;
-		} ,[&] (const Exception &e) noexcept {
+		} ,[&] (const Exception &e) {
 			_CALL_TRY_ ([&] () {
 				static_rethrow (self_ ,e) ;
 			} ,[&] () {
@@ -856,8 +860,9 @@ struct Promise<ITEM>::Detail {
 	public:
 		inline LocalProc () = delete ;
 
-		inline explicit LocalProc (const PhanRef<Pack> &this_)
-			:mThis (PhanRef<Pack>::make (this_)) {}
+		inline explicit LocalProc (const PhanRef<Pack> &this_) {
+			mThis = PhanRef<Pack>::make (this_) ;
+		}
 
 		inline void execute () override {
 			_CALL_TRY_ ([&] () {

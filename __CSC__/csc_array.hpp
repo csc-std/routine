@@ -40,6 +40,7 @@ private:
 		: mBase (base) ,mIndex (index) {}
 } ;
 
+namespace U {
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
 	inline static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
@@ -119,6 +120,7 @@ struct OPERATOR_SORT {
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
 		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
 	}
+} ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -458,9 +460,9 @@ public:
 		const auto r1x = size () ;
 		const auto r2x = that.size () ;
 		if (r1x == 0)
-			return BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+			return U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
 		if (r2x == 0)
-			return BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+			return U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
 		INDEX ix = 0 ;
 		while (TRUE) {
 			if (mString[ix] == ITEM (0))
@@ -469,7 +471,7 @@ public:
 				break ;
 			ix++ ;
 		}
-		return BasicProc::mem_compr (PTRTOARR[&mString[ix]] ,PTRTOARR[&that.mString[ix]] ,1) ;
+		return U::OPERATOR_COMPR::invoke (mString[ix] ,that.mString[ix]) ;
 	}
 
 	inline BOOL operator< (const String &that) const {
@@ -711,7 +713,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1011,6 +1013,7 @@ public:
 
 	void clear () {
 		mWrite = 0 ;
+		mTop = VAR_NONE ;
 	}
 
 	INDEX ibegin () const {
@@ -1165,7 +1168,7 @@ public:
 		reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -1174,7 +1177,7 @@ public:
 		reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -1333,7 +1336,7 @@ struct Priority<ITEM ,SIZE>::Detail {
 	public:
 		friend Priority ;
 		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
@@ -1344,7 +1347,7 @@ struct Priority<ITEM ,SIZE>::Detail {
 
 	private:
 		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mPriority[index].mItem) ,mapx (base.mPriority[index].mMap) {}
+			: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
 	} ;
 } ;
 
@@ -1470,7 +1473,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1913,7 +1916,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
+		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -2423,7 +2426,7 @@ public:
 			return r1x ;
 		const auto r2x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
 		const auto r3x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
-		return BasicProc::mem_compr (PTRTOARR[&r2x] ,PTRTOARR[&r3x] ,1) ;
+		return U::OPERATOR_COMPR::invoke (r2x ,r3x) ;
 	}
 
 	inline BOOL operator< (const BitSet &that) const {
@@ -2699,6 +2702,7 @@ public:
 	void clear () {
 		mSet.clear () ;
 		mRoot = VAR_NONE ;
+		mTop = VAR_NONE ;
 	}
 
 	INDEX ibegin () const {
@@ -2835,7 +2839,7 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -2844,7 +2848,7 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -3265,7 +3269,7 @@ struct Set<ITEM ,SIZE>::Detail {
 	public:
 		friend Set ;
 		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
@@ -3276,7 +3280,7 @@ struct Set<ITEM ,SIZE>::Detail {
 
 	private:
 		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
+			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 	} ;
 } ;
 
@@ -3337,6 +3341,7 @@ public:
 	void clear () {
 		mSet.clear () ;
 		BasicProc::mem_fill (mHead.self ,mHead.size () ,VAR_NONE) ;
+		mTop = VAR_NONE ;
 	}
 
 	INDEX ibegin () const {
@@ -3465,7 +3470,7 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -3474,7 +3479,7 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -3580,7 +3585,7 @@ struct HashSet<ITEM ,SIZE>::Detail {
 	public:
 		friend HashSet ;
 		const ITEM &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &mapx ;
+		CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
@@ -3591,7 +3596,7 @@ struct HashSet<ITEM ,SIZE>::Detail {
 
 	private:
 		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,mapx (base.mSet[index].mMap) {}
+			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 	} ;
 } ;
 
@@ -3649,6 +3654,7 @@ public:
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
 		mRoot = VAR_NONE ;
+		mTop = VAR_NONE ;
 	}
 
 	explicit SoftSet (const LENGTH &len) {
@@ -3658,6 +3664,7 @@ public:
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
 		mRoot = VAR_NONE ;
+		mTop = VAR_NONE ;
 	}
 
 	LENGTH size () const {
@@ -3828,7 +3835,7 @@ public:
 		mSet->reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -3838,7 +3845,7 @@ public:
 		mSet->reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (val[i].key ,val[i].mapx) ;
+			add (val[i].key ,val[i].sid) ;
 		}
 	}
 
@@ -4051,7 +4058,7 @@ struct SoftSet<ITEM ,SIZE>::Detail {
 	public:
 		friend SoftSet ;
 		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &mapx ;
+		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
@@ -4062,7 +4069,7 @@ struct SoftSet<ITEM ,SIZE>::Detail {
 
 	private:
 		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet.self[index].mItem) ,mapx (base.mSet.self[index].mMap) {}
+			: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
 	} ;
 } ;
 } ;

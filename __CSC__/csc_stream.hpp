@@ -36,7 +36,7 @@ struct BYTE_BASE<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
 } ;
 
 template <class _ARG1>
-using BYTE_BASE_TYPE = typename U::BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+using BYTE_BASE_TYPE = CALL<U::BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>> ;
 } ;
 
 namespace U {
@@ -59,7 +59,7 @@ struct TEXT_BASE<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
 } ;
 
 template <class _ARG1>
-using TEXT_BASE_TYPE = typename U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+using TEXT_BASE_TYPE = CALL<U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>> ;
 } ;
 
 using STRUA = U::TEXT_BASE_TYPE<STRA> ;

@@ -26,7 +26,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) noexcept {
+	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
 		using WatchInterface = typename DEPENDENT_TYPE<Detail ,Dependent>::template WatchInterface<_ARG2> ;
 		static volatile WatchInterface mInstance ;
@@ -452,10 +452,10 @@ private:
 	inline FLAG compr (const VAR128 &that) const {
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
-		const auto r3x = BasicProc::mem_compr (PTRTOARR[&r1x] ,PTRTOARR[&r2x] ,1) ;
+		const auto r3x = U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
 		if (r3x != 0)
 			return r3x ;
-		return BasicProc::mem_compr (PTRTOARR[&v2i1] ,PTRTOARR[&that.v2i1] ,1) ;
+		return U::OPERATOR_COMPR::invoke (v2i1 ,that.v2i1) ;
 	}
 
 	inline DATA &m_v2i0 () leftvalue {
@@ -585,10 +585,14 @@ public:
 	}
 
 	inline implicit Mutable (const UNIT &that)
-		:Mutable (ARGVP0 ,_MOVE_ (that)) {}
+		:Mutable (ARGVP0 ,_MOVE_ (that)) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline implicit Mutable (UNIT &&that)
-		: Mutable (ARGVP0 ,_MOVE_ (that)) {}
+		: Mutable (ARGVP0 ,_MOVE_ (that)) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline const UNIT &to () const leftvalue {
 		return mValue ;
@@ -794,13 +798,13 @@ public:
 	}
 
 	//@warn: none class shall be base on its address
-	inline void aswap (Variant &that) noexcept {
+	inline void aswap (Variant &that) {
 		_SWAP_ (mVariant ,that.mVariant) ;
 		_SWAP_ (mIndex ,that.mIndex) ;
 	}
 
 public:
-	inline imports_static Variant nullopt () noexcept {
+	inline imports_static Variant nullopt () {
 		return Variant (ARGVP0) ;
 	}
 
@@ -832,12 +836,12 @@ private:
 		template_construct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
-	inline void template_destruct (const INDEX &index ,const ARGV<ARGVS<>> &) noexcept {
+	inline void template_destruct (const INDEX &index ,const ARGV<ARGVS<>> &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	template <class _ARG1>
-	inline void template_destruct (const INDEX &index ,const ARGV<_ARG1> &) noexcept {
+	inline void template_destruct (const INDEX &index ,const ARGV<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 		_STATIC_ASSERT_ (stl::is_nothrow_destructible<ONE_HINT>::value) ;
@@ -877,12 +881,12 @@ private:
 		template_copy_construct (that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
-	inline void template_move_construct (Variant &that ,const INDEX &index ,const ARGV<ARGVS<>> &) noexcept {
+	inline void template_move_construct (Variant &that ,const INDEX &index ,const ARGV<ARGVS<>> &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	template <class _ARG1>
-	inline void template_move_construct (Variant &that ,const INDEX &index ,const ARGV<_ARG1> &) noexcept {
+	inline void template_move_construct (Variant &that ,const INDEX &index ,const ARGV<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
@@ -1015,8 +1019,8 @@ private:
 public:
 	inline Tuple () = default ;
 
-	inline implicit Tuple (INVOKE_TRAITS_TYPE<UNIT1> &&one_ ,INVOKE_TRAITS_TYPE<UNITS> &&...rest_)
-		:Tuple<UNITS...> (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (_FORWARD_<INVOKE_TRAITS_TYPE<UNIT1>> (one_)) {}
+	inline implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
+		:Tuple<UNITS...> (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (_FORWARD_<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline LENGTH capacity () const {
 		auto &r1x = rest () ;
@@ -1066,7 +1070,7 @@ public:
 	}
 
 	inline FLAG compr (const Tuple &that) const {
-		const auto r1x = BasicProc::mem_compr (PTRTOARR[&one ()] ,PTRTOARR[&that.one ()] ,1) ;
+		const auto r1x = U::OPERATOR_COMPR::invoke (one () ,that.one ()) ;
 		if (r1x != 0)
 			return r1x ;
 		auto &r2x = rest () ;
@@ -1121,21 +1125,23 @@ class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_
 	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
-	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
+	AutoRef<Tuple<REMOVE_CVR_TYPE<UNITS_>...>> mParameter ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
-		:mFunctor (func) ,mParameter (parameter...) {}
+	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) {
+		mFunctor = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
+		mParameter = AutoRef<Tuple<REMOVE_CVR_TYPE<UNITS_>...>>::make (parameter...) ;
+	}
 
-	inline UNIT1 invoke (INVOKE_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter ,_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (funcval)...) ;
+	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
+		return template_invoke (mParameter.self ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 private:
-	inline UNIT1 template_invoke (const Tuple<> &parameter ,INVOKE_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunctor (_FORWARD_<INVOKE_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
+	inline UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
+		return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1426,9 +1432,6 @@ class StrongRef ;
 template <class>
 class WeakRef ;
 
-template <class>
-class SoftRef ;
-
 template <>
 class WeakRef<void> {
 private:
@@ -1485,32 +1488,29 @@ private:
 	template <class>
 	friend class StrongRef ;
 	friend WeakRef<UNIT> ;
-	friend SoftRef<UNIT> ;
 	SharedRef<Pack> mThis ;
 	PTR<UNIT> mPointer ;
 
 public:
-	inline StrongRef () noexcept {
-		mPointer = NULL ;
+	inline StrongRef ()
+		:StrongRef (ARGVP0) {
+		_STATIC_WARNING_ ("noop") ;
 	}
 
 	//@warn: circular reference ruins StrongRef
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_always_base_of<UNIT ,_ARG1>::value>>
 	inline implicit StrongRef (const StrongRef<_ARG1> &that)
-		: StrongRef (that.template recast<UNIT> ()) {}
+		: StrongRef (that.template recast<UNIT> ()) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline implicit StrongRef (const DEPENDENT_TYPE<WeakRef<UNIT> ,StrongRef> &that)
-		: StrongRef (that.watch ()) {}
-
-	inline implicit StrongRef (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that)
-		: StrongRef (that.watch ()) {}
+		: StrongRef (that.watch ()) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	inline ~StrongRef () noexcept {
 		if (mPointer == NULL)
-			return ;
-		if (!mThis.exist ())
-			return ;
-		if (!mThis->mHolder.exist ())
 			return ;
 		if switch_case (TRUE) {
 			const auto r1x = --mThis->mCounter ;
@@ -1522,7 +1522,7 @@ public:
 	}
 
 	inline StrongRef (const StrongRef &that)
-		:StrongRef (that.mThis ,that.mPointer) {
+		:StrongRef (_COPY_ (that.mThis) ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1536,7 +1536,8 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline StrongRef (StrongRef &&that) noexcept {
+	inline StrongRef (StrongRef &&that) noexcept
+		:StrongRef (ARGVP0) {
 		mThis = _MOVE_ (that.mThis) ;
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1566,7 +1567,7 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		const auto r1x = U::OPERATOR_RECAST::template invoke<_RET> (mPointer) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r1x != NULL) == _EBOOL_ (mPointer != NULL)) ;
-		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (mThis ,r1x) ;
+		return StrongRef<CAST_TRAITS_TYPE<_RET ,UNIT>> (_COPY_ (mThis) ,r1x) ;
 	}
 
 	inline UNIT &to () const leftvalue {
@@ -1580,7 +1581,7 @@ public:
 	}
 
 	inline PTR<UNIT> operator-> () const leftvalue {
-		return &to () ;
+		return DEPTR[to ()] ;
 	}
 
 	inline BOOL equal (const StrongRef &that) const {
@@ -1616,41 +1617,28 @@ public:
 		return !equal (that) ;
 	}
 
-	inline BOOL equal (const DEPENDENT_TYPE<SoftRef<UNIT> ,StrongRef> &that) const {
-		return that.equal (DEREF[this]) ;
-	}
-
-	inline BOOL operator== (const SoftRef<UNIT> &that) const {
-		return equal (that) ;
-	}
-
-	inline BOOL operator!= (const SoftRef<UNIT> &that) const {
-		return !equal (that) ;
-	}
-
 public:
 	template <class... _ARGS>
 	inline imports_static StrongRef make (_ARGS &&...initval) {
-		auto rax = SharedRef<Pack>::make () ;
-		rax->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
-		rax->mCounter = 0 ;
-		auto &r1x = rax->mHolder.rebind<UNIT> ().self ;
-		return StrongRef (rax ,DEPTR[r1x]) ;
+		auto tmp = SharedRef<Pack>::make () ;
+		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
+		tmp->mCounter = 0 ;
+		auto &r1x = tmp->mHolder.rebind<UNIT> ().self ;
+		return StrongRef (_MOVE_ (tmp) ,DEPTR[r1x]) ;
 	}
 
 private:
-	inline explicit StrongRef (const SharedRef<Pack> &this_ ,const PTR<UNIT> &pointer)
-		:StrongRef () {
+	inline explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
+		:mPointer (NULL) {}
+
+	inline explicit StrongRef (SharedRef<Pack> &&this_ ,const PTR<UNIT> &pointer) noexcept
+		:StrongRef (ARGVP0) {
 		if (pointer == NULL)
-			return ;
-		if (!this_.exist ())
-			return ;
-		if (!this_->mHolder.exist ())
 			return ;
 		const auto r1x = ++this_->mCounter ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		_STATIC_UNUSED_ (r1x) ;
-		mThis = this_ ;
+		mThis = _MOVE_ (this_) ;
 		mPointer = pointer ;
 	}
 } ;
@@ -1665,7 +1653,7 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	inline WeakRef () noexcept {
+	inline WeakRef () {
 		mPointer = NULL ;
 	}
 
@@ -1736,220 +1724,16 @@ public:
 	}
 } ;
 
+#ifdef __CSC_DEPRECATED__
 template <class UNIT>
 class SoftRef {
-private:
-	class Node {
-	private:
-		friend SoftRef ;
-		StrongRef<UNIT> mStrongRef ;
-		LENGTH mWeight ;
-
-	public:
-		inline Node ()
-			:mWeight (0) {}
-	} ;
-
-private:
-	SharedRef<FixedBuffer<Node>> mHeap ;
-	WeakRef<UNIT> mWeakRef ;
-	INDEX mIndex ;
-
 public:
 	inline SoftRef () {
-		mIndex = VAR_NONE ;
-	}
-
-	inline explicit SoftRef (const LENGTH &len) {
-		mHeap = SharedRef<FixedBuffer<Node>>::make (len) ;
-		mIndex = VAR_NONE ;
-	}
-
-	inline SoftRef (const SoftRef &that) {
-		mHeap = that.mHeap ;
-		mWeakRef = that.mWeakRef ;
-		mIndex = that.mIndex ;
-		acquire () ;
-	}
-
-	inline SoftRef &operator= (const SoftRef &that) {
-		if switch_case (TRUE) {
-			if (this == &that)
-				discard ;
-			DEREF[this].~SoftRef () ;
-			new (this) SoftRef (_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	inline SoftRef (SoftRef &&that) noexcept {
-		mHeap = _MOVE_ (that.mHeap) ;
-		mWeakRef = _MOVE_ (that.mWeakRef) ;
-		mIndex = that.mIndex ;
-	}
-
-	inline SoftRef &operator= (SoftRef &&that) noexcept {
-		if switch_case (TRUE) {
-			if (this == &that)
-				discard ;
-			DEREF[this].~SoftRef () ;
-			new (this) SoftRef (_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	inline BOOL exist () const {
-		return mWeakRef.exist () ;
-	}
-
-	inline SoftRef share () popping {
-		SoftRef ret ;
-		ret.mHeap = mHeap ;
-		ret.mIndex = VAR_NONE ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline BOOL equal (const SoftRef &that) const {
-		return BOOL (mWeakRef == that.mWeakRef) ;
-	}
-
-	inline BOOL operator== (const SoftRef &that) const {
-		return equal (that) ;
-	}
-
-	inline BOOL operator!= (const SoftRef &that) const {
-		return !equal (that) ;
-	}
-
-	inline BOOL equal (const StrongRef<UNIT> &that) const {
-		return BOOL (mWeakRef == that) ;
-	}
-
-	inline BOOL operator== (const StrongRef<UNIT> &that) const {
-		return equal (that) ;
-	}
-
-	inline BOOL operator!= (const StrongRef<UNIT> &that) const {
-		return !equal (that) ;
-	}
-
-	inline StrongRef<UNIT> watch () const {
-		if switch_case (TRUE) {
-			if (!linked ())
-				discard ;
-			auto &r1x = mHeap.self[mIndex].mWeight ;
-			const auto r2x = _EBOOL_ (r1x >= 0 && r1x < VAR32_MAX) ;
-			const auto r3x = _EBOOL_ (r1x < 0 && r1x > VAR32_MIN) ;
-			r1x += r2x - r3x ;
-		}
-		return mWeakRef.watch () ;
-	}
-
-	inline void assign (const StrongRef<UNIT> &that) {
-		mWeakRef.assign (_MOVE_ (that)) ;
-		mIndex = find_has_linked (mWeakRef) ;
-		acquire () ;
-	}
-
-	inline void assign (StrongRef<UNIT> &&that) {
-		mWeakRef.assign (_MOVE_ (that)) ;
-		mIndex = find_has_linked (mWeakRef) ;
-		acquire () ;
-	}
-
-	inline void as_strong () const {
-		if (!linked ())
-			return ;
-		if (mHeap.self[mIndex].mWeight < 0)
-			return ;
-		mHeap.self[mIndex].mWeight = ~mHeap.self[mIndex].mWeight ;
-	}
-
-	inline void as_weak () const {
-		if (!linked ())
-			return ;
-		if (mHeap.self[mIndex].mWeight >= 0)
-			return ;
-		mHeap.self[mIndex].mWeight = ~mHeap.self[mIndex].mWeight ;
-	}
-
-	inline void clean () const {
-		if (!mHeap.exist ())
-			return ;
-		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
-			if (mHeap.self[i].mWeight < 0)
-				continue ;
-			mHeap.self[i].mStrongRef = StrongRef<UNIT> () ;
-			mHeap.self[i].mWeight = 0 ;
-		}
-	}
-
-private:
-	inline BOOL linked () const {
-		if (!mHeap.exist ())
-			return FALSE ;
-		if (!mWeakRef.exist ())
-			return FALSE ;
-		if (!(mIndex >= 0 && mIndex < mHeap->size ()))
-			return FALSE ;
-		if (mWeakRef != mHeap.self[mIndex].mStrongRef)
-			return FALSE ;
-		return TRUE ;
-	}
-
-	inline INDEX find_has_linked (const WeakRef<UNIT> &that) const {
-		for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
-			if (mHeap.self[i].mStrongRef == that)
-				return i ;
-		return VAR_NONE ;
-	}
-
-	inline void acquire () {
-		if (linked ())
-			return ;
-		if (!mHeap.exist ())
-			return ;
-		if (!mWeakRef.exist ())
-			return ;
-		if switch_case (TRUE) {
-			mIndex = find_min_weight () ;
-			if (mIndex == VAR_NONE)
-				discard ;
-			const auto r1x = easy_log2x (mHeap.self[mIndex].mWeight) ;
-			if (r1x <= 0)
-				discard ;
-			for (auto &&i : _RANGE_ (0 ,mHeap->size ()))
-				mHeap.self[i].mWeight = mHeap.self[i].mWeight >> r1x ;
-		}
-		_DYNAMIC_ASSERT_ (mIndex != VAR_NONE) ;
-		mHeap.self[mIndex].mStrongRef = mWeakRef ;
-		mHeap.self[mIndex].mWeight = 3 ;
-	}
-
-	inline VAR easy_log2x (const VAR &val) const {
-		if (val <= 0)
-			return VAR_NONE ;
-		if (val == 1)
-			return 0 ;
-		return 1 + easy_log2x (val / 2) ;
-	}
-
-	inline INDEX find_min_weight () const {
-		INDEX ret = VAR_NONE ;
-		auto rax = LENGTH () ;
-		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
-			const auto r1x = mHeap.self[i].mWeight ;
-			if (r1x < 0)
-				continue ;
-			if (ret != VAR_NONE)
-				if (rax <= r1x)
-					continue ;
-			ret = i ;
-			rax = r1x ;
-		}
-		return _MOVE_ (ret) ;
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
+#endif
 
 template <class UNIT ,class CONT>
 class IntrusiveRef {
@@ -1960,9 +1744,9 @@ private:
 	stl::atomic<LENGTH> mLatch ;
 
 public:
-	inline IntrusiveRef () noexcept {
-		mPointer = NULL ;
-		mLatch = 0 ;
+	inline IntrusiveRef ()
+		:IntrusiveRef (ARGVP0) {
+		_STATIC_WARNING_ ("noop") ;
 	}
 
 	//@warn: address must be from 'IntrusiveRef::make'
@@ -1979,6 +1763,8 @@ public:
 		const auto r1x = safe_exchange (NULL) ;
 		_CALL_TRY_ ([&] () {
 			release (r1x) ;
+		} ,[&] () {
+			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
 	}
 
@@ -2030,7 +1816,7 @@ public:
 public:
 	template <class... _ARGS>
 	inline imports_static IntrusiveRef make (_ARGS &&...initval) {
-		IntrusiveRef ret = IntrusiveRef (ARGVP0) ;
+		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
@@ -2047,7 +1833,7 @@ private:
 		:mPointer (NULL) ,mLatch (0) {}
 
 private:
-	inline PTR<UNIT> safe_exchange (const PTR<UNIT> &address) noexcept popping {
+	inline PTR<UNIT> safe_exchange (const PTR<UNIT> &address) popping {
 		const auto r1x = mPointer.exchange (address) ;
 		if (r1x == NULL)
 			return r1x ;
@@ -2100,7 +1886,7 @@ struct IntrusiveRef<UNIT ,CONT>::Detail {
 	public:
 		inline WatchProxy () = delete ;
 
-		inline implicit operator UNIT & () const leftvalue noexcept {
+		inline implicit operator UNIT & () const leftvalue {
 			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
 			return DEREF[r1x] ;
 		}
@@ -2137,7 +1923,7 @@ class MemoryPool {
 private:
 	struct HEADER ;
 
-	exports class Pool
+	exports class Holder
 		:public Interface {
 	public:
 		virtual void clear () noexcept = 0 ;
@@ -2145,18 +1931,18 @@ private:
 		virtual LENGTH length () const = 0 ;
 		virtual PTR<HEADER> alloc (const LENGTH &len) popping = 0 ;
 		virtual void free (const PTR<HEADER> &address) noexcept = 0 ;
-		virtual void clean () = 0 ;
+		virtual void clean () noexcept = 0 ;
 	} ;
 
 	struct HEADER {
-		alignas (8) PTR<Pool> mFrom ;
+		alignas (8) PTR<Holder> mFrom ;
 		alignas (8) PTR<struct HEADER> mCurr ;
 	} ;
 
 	class Pack {
 	private:
 		friend MemoryPool ;
-		AutoBuffer<StrongRef<Pool>> mPool ;
+		AutoBuffer<StrongRef<Holder>> mPool ;
 	} ;
 
 private:
@@ -2196,7 +1982,7 @@ public:
 		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_UNSAFE_<_RET> (r3x) ;
-		return &r6x ;
+		return DEPTR[r6x] ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -2214,7 +2000,7 @@ public:
 		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r5x.mCurr = r2x ;
 		auto &r6x = _LOAD_UNSAFE_<ARR<_RET>> (r3x) ;
-		return &r6x ;
+		return DEPTR[r6x] ;
 	}
 
 	template <class _ARG1>
@@ -2249,8 +2035,8 @@ struct MemoryPool::Detail {
 	} ;
 
 	template <class SIZE ,class RESE>
-	class ImplPool
-		:public Pool {
+	class ImplHolder
+		:public Holder {
 		_STATIC_ASSERT_ (SIZE::value > 0) ;
 		_STATIC_ASSERT_ (RESE::value > 0) ;
 
@@ -2261,7 +2047,7 @@ struct MemoryPool::Detail {
 		LENGTH mLength ;
 
 	public:
-		inline ImplPool () noexcept {
+		inline ImplHolder () {
 			mRoot = NULL ;
 			mFree = NULL ;
 			mSize = 0 ;
@@ -2324,7 +2110,7 @@ struct MemoryPool::Detail {
 			mLength += SIZE::value ;
 			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (_XVALUE_<LENGTH> (VAR_USED)) ;
 			_CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) = r2x ;
-			return &r1x->mFlexData ;
+			return DEPTR[r1x->mFlexData] ;
 		}
 
 		inline void free (const PTR<HEADER> &address) noexcept override {
@@ -2336,7 +2122,7 @@ struct MemoryPool::Detail {
 			mLength -= SIZE::value ;
 		}
 
-		inline void clean () override {
+		inline void clean () noexcept override {
 			if (mSize == mLength)
 				return ;
 			for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
@@ -2376,15 +2162,15 @@ struct MemoryPool::Detail {
 		HEADER mFlexData ;
 	} ;
 
-	class HugePool
-		:public Pool {
+	class HugeHolder
+		:public Holder {
 	private:
 		PTR<FBLOCK> mRoot ;
 		LENGTH mSize ;
 		LENGTH mLength ;
 
 	public:
-		inline HugePool () noexcept {
+		inline HugeHolder () {
 			mRoot = NULL ;
 			mSize = 0 ;
 			mLength = 0 ;
@@ -2427,7 +2213,7 @@ struct MemoryPool::Detail {
 			mSize += r5x.mCount ;
 			mLength += r5x.mCount ;
 			rax = NULL ;
-			return &r5x.mFlexData ;
+			return DEPTR[r5x.mFlexData] ;
 		}
 
 		inline void free (const PTR<HEADER> &address) noexcept override {
@@ -2444,49 +2230,49 @@ struct MemoryPool::Detail {
 			GlobalHeap::free (r1x.mOrigin) ;
 		}
 
-		inline void clean () override {
+		inline void clean () noexcept override {
 			_STATIC_WARNING_ ("noop") ;
 		}
 	} ;
 } ;
 
 inline exports void MemoryPool::initialize () {
-	using ImplPool8 = typename Detail::template ImplPool<ARGC<8> ,ARGC<32>> ;
-	using ImplPool16 = typename Detail::template ImplPool<ARGC<16> ,ARGC<32>> ;
-	using ImplPool24 = typename Detail::template ImplPool<ARGC<24> ,ARGC<32>> ;
-	using ImplPool32 = typename Detail::template ImplPool<ARGC<32> ,ARGC<32>> ;
-	using ImplPool40 = typename Detail::template ImplPool<ARGC<40> ,ARGC<16>> ;
-	using ImplPool48 = typename Detail::template ImplPool<ARGC<48> ,ARGC<16>> ;
-	using ImplPool56 = typename Detail::template ImplPool<ARGC<56> ,ARGC<16>> ;
-	using ImplPool64 = typename Detail::template ImplPool<ARGC<64> ,ARGC<16>> ;
-	using ImplPool72 = typename Detail::template ImplPool<ARGC<72> ,ARGC<8>> ;
-	using ImplPool80 = typename Detail::template ImplPool<ARGC<80> ,ARGC<8>> ;
-	using ImplPool88 = typename Detail::template ImplPool<ARGC<88> ,ARGC<8>> ;
-	using ImplPool96 = typename Detail::template ImplPool<ARGC<96> ,ARGC<8>> ;
-	using ImplPool104 = typename Detail::template ImplPool<ARGC<104> ,ARGC<4>> ;
-	using ImplPool112 = typename Detail::template ImplPool<ARGC<112> ,ARGC<4>> ;
-	using ImplPool120 = typename Detail::template ImplPool<ARGC<120> ,ARGC<4>> ;
-	using ImplPool128 = typename Detail::template ImplPool<ARGC<128> ,ARGC<4>> ;
-	using HugePool = typename Detail::HugePool ;
+	using ImplHolder8 = typename Detail::template ImplHolder<ARGC<8> ,ARGC<32>> ;
+	using ImplHolder16 = typename Detail::template ImplHolder<ARGC<16> ,ARGC<32>> ;
+	using ImplHolder24 = typename Detail::template ImplHolder<ARGC<24> ,ARGC<32>> ;
+	using ImplHolder32 = typename Detail::template ImplHolder<ARGC<32> ,ARGC<32>> ;
+	using ImplHolder40 = typename Detail::template ImplHolder<ARGC<40> ,ARGC<16>> ;
+	using ImplHolder48 = typename Detail::template ImplHolder<ARGC<48> ,ARGC<16>> ;
+	using ImplHolder56 = typename Detail::template ImplHolder<ARGC<56> ,ARGC<16>> ;
+	using ImplHolder64 = typename Detail::template ImplHolder<ARGC<64> ,ARGC<16>> ;
+	using ImplHolder72 = typename Detail::template ImplHolder<ARGC<72> ,ARGC<8>> ;
+	using ImplHolder80 = typename Detail::template ImplHolder<ARGC<80> ,ARGC<8>> ;
+	using ImplHolder88 = typename Detail::template ImplHolder<ARGC<88> ,ARGC<8>> ;
+	using ImplHolder96 = typename Detail::template ImplHolder<ARGC<96> ,ARGC<8>> ;
+	using ImplHolder104 = typename Detail::template ImplHolder<ARGC<104> ,ARGC<4>> ;
+	using ImplHolder112 = typename Detail::template ImplHolder<ARGC<112> ,ARGC<4>> ;
+	using ImplHolder120 = typename Detail::template ImplHolder<ARGC<120> ,ARGC<4>> ;
+	using ImplHolder128 = typename Detail::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using HugeHolder = typename Detail::HugeHolder ;
 	mThis = UniqueRef<Pack> ([&] (Pack &me) {
-		me.mPool = AutoBuffer<StrongRef<Pool>> (17) ;
-		me.mPool[0] = StrongRef<ImplPool8>::make () ;
-		me.mPool[1] = StrongRef<ImplPool16>::make () ;
-		me.mPool[2] = StrongRef<ImplPool24>::make () ;
-		me.mPool[3] = StrongRef<ImplPool32>::make () ;
-		me.mPool[4] = StrongRef<ImplPool40>::make () ;
-		me.mPool[5] = StrongRef<ImplPool48>::make () ;
-		me.mPool[6] = StrongRef<ImplPool56>::make () ;
-		me.mPool[7] = StrongRef<ImplPool64>::make () ;
-		me.mPool[8] = StrongRef<ImplPool72>::make () ;
-		me.mPool[9] = StrongRef<ImplPool80>::make () ;
-		me.mPool[10] = StrongRef<ImplPool88>::make () ;
-		me.mPool[11] = StrongRef<ImplPool96>::make () ;
-		me.mPool[12] = StrongRef<ImplPool104>::make () ;
-		me.mPool[13] = StrongRef<ImplPool112>::make () ;
-		me.mPool[14] = StrongRef<ImplPool120>::make () ;
-		me.mPool[15] = StrongRef<ImplPool128>::make () ;
-		me.mPool[16] = StrongRef<HugePool>::make () ;
+		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
+		me.mPool[0] = StrongRef<ImplHolder8>::make () ;
+		me.mPool[1] = StrongRef<ImplHolder16>::make () ;
+		me.mPool[2] = StrongRef<ImplHolder24>::make () ;
+		me.mPool[3] = StrongRef<ImplHolder32>::make () ;
+		me.mPool[4] = StrongRef<ImplHolder40>::make () ;
+		me.mPool[5] = StrongRef<ImplHolder48>::make () ;
+		me.mPool[6] = StrongRef<ImplHolder56>::make () ;
+		me.mPool[7] = StrongRef<ImplHolder64>::make () ;
+		me.mPool[8] = StrongRef<ImplHolder72>::make () ;
+		me.mPool[9] = StrongRef<ImplHolder80>::make () ;
+		me.mPool[10] = StrongRef<ImplHolder88>::make () ;
+		me.mPool[11] = StrongRef<ImplHolder96>::make () ;
+		me.mPool[12] = StrongRef<ImplHolder104>::make () ;
+		me.mPool[13] = StrongRef<ImplHolder112>::make () ;
+		me.mPool[14] = StrongRef<ImplHolder120>::make () ;
+		me.mPool[15] = StrongRef<ImplHolder128>::make () ;
+		me.mPool[16] = StrongRef<HugeHolder>::make () ;
 	} ,[] (Pack &me) {
 		for (auto &&i : _RANGE_ (0 ,me.mPool.size ()))
 			me.mPool[i]->clear () ;
@@ -2571,7 +2357,9 @@ class Object::Virtual
 	:public virtual Object {
 public:
 	inline Virtual ()
-		:Object (_NULL_<ARGV<decltype (DEREF[this])>> ()) {}
+		:Object (_NULL_<ARGV<decltype (DEREF[this])>> ()) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 } ;
 
 template <class UNIT ,class CONT>
@@ -2591,10 +2379,10 @@ public:
 	inline Serializer () = delete ;
 
 	template <class... _ARGS>
-	inline explicit Serializer (const DEF<_ARGS CONT::*> &...memptr) {
+	inline explicit Serializer (const ARGV<ARGVS<_ARGS...>> &) {
 		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		mBinder = StrongRef<const ImplBinder>::make (memptr...) ;
+		mBinder = StrongRef<const ImplBinder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
 	inline DEF<typename Detail::Member> operator() (CONT &context_) const popping {
@@ -2628,29 +2416,27 @@ struct Serializer<UNIT ,CONT>::Detail {
 	template <class... UNITS_>
 	class ImplBinder
 		:public Binder {
-	private:
-		Tuple<UNITS_...> mMemPtr ;
-
 	public:
 		inline ImplBinder () = delete ;
 
-		inline explicit ImplBinder (const UNITS_ &...memptr)
-			:mMemPtr (memptr...) {}
+		inline explicit ImplBinder (const ARGV<ARGVS<UNITS_...>> &) {}
 
 		inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
-			template_visit (visitor ,context_ ,mMemPtr) ;
+			template_visit (visitor ,context_ ,_NULL_<ARGV<ARGVS<UNITS_...>>> ()) ;
 		}
 
 	private:
-		inline void template_visit (UNIT &visitor ,CONT &context_ ,const Tuple<> &memptr) const {
+		inline void template_visit (UNIT &visitor ,CONT &context_ ,const ARGV<ARGVS<>> &) const {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		template <class _ARG1>
-		inline void template_visit (UNIT &visitor ,CONT &context_ ,const _ARG1 &memptr) const {
-			auto &r1x = (context_.*memptr.one ()) ;
+		inline void template_visit (UNIT &visitor ,CONT &context_ ,const ARGV<_ARG1> &) const {
+			using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+			using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+			auto &r1x = ONE_HINT::compile (context_) ;
 			visitor.visit (r1x) ;
-			template_visit (visitor ,context_ ,memptr.rest ()) ;
+			template_visit (visitor ,context_ ,_NULL_<ARGV<REST_HINT>> ()) ;
 		}
 	} ;
 } ;

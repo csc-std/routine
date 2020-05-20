@@ -23,8 +23,9 @@ private:
 public:
 	inline ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_)
-		:mRange (range_) {}
+	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) {
+		mRange = range_ ;
+	}
 
 	inline DEF<typename Detail::Iterator> begin () const {
 		using Iterator = typename Detail::Iterator ;
@@ -127,7 +128,9 @@ public:
 	}
 
 	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_)
-		:Bitmap (cx_ ,cy_ ,cx_ ,0) {}
+		:Bitmap (cx_ ,cy_ ,cx_ ,0) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_ ,const LENGTH &cw_ ,const LENGTH &ck_) {
 		_DEBUG_ASSERT_ (cx_ >= 0) ;
@@ -664,8 +667,10 @@ private:
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &abstract_)
-		:AbstractImage (PhanRef<const Abstract>::make (abstract_) ,SharedRef<Pack>::make ()) {}
+	explicit AbstractImage (const PhanRef<const Abstract> &abstract_) {
+		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
+		mThis = SharedRef<Pack>::make () ;
+	}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -744,8 +749,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
-		using AbstractImage = typename Detail::template Row<AbstractImage> ;
-		return AbstractImage (DEREF[this] ,y) ;
+		using Row = typename Detail::template Row<AbstractImage> ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (const INDEX &y) leftvalue {
@@ -753,8 +758,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
-		using AbstractImage = typename Detail::template Row<const AbstractImage> ;
-		return AbstractImage (DEREF[this] ,y) ;
+		using Row = typename Detail::template Row<const AbstractImage> ;
+		return Row (DEREF[this] ,y) ;
 	}
 
 	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (const INDEX &y) const leftvalue {
@@ -767,7 +772,9 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
-		auto tmp = AbstractImage (PhanRef<const Abstract>::make (mAbstract) ,_COPY_ (mThis)) ;
+		auto tmp = AbstractImage () ;
+		tmp.mAbstract = PhanRef<const Abstract>::make (mAbstract) ;
+		tmp.mThis = _COPY_ (mThis) ;
 		return NativeProxy (_MOVE_ (tmp)) ;
 	}
 
@@ -813,10 +820,6 @@ public:
 		mAbstract->compute_save_data_file (mThis->mHolder ,file ,option) ;
 		update_layout () ;
 	}
-
-private:
-	explicit AbstractImage (PhanRef<const Abstract> &&abstract_ ,SharedRef<Pack> &&this_)
-		:mAbstract (_MOVE_ (abstract_)) ,mThis (_MOVE_ (this_)) {}
 
 private:
 	inline void update_layout () {

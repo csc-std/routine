@@ -298,7 +298,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			while (TRUE) {
 				if (mPriority.empty ())
 					break ;
-				const auto r1x = mPriority[mPriority.head ()].mapx ;
+				const auto r1x = mPriority[mPriority.head ()].sid ;
 				mPriority.take () ;
 				update_distance (r1x) ;
 			}
@@ -423,7 +423,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			}
 			for (auto &&i : mClusterMappingSet) {
 				INDEX ix = mNextCenterList.insert () ;
-				mNextCenterList[ix] = average_center (mClusterList[i.mapx]) ;
+				mNextCenterList[ix] = average_center (mClusterList[i.sid]) ;
 				mCenterMoveSet.add (i.key ,ix) ;
 			}
 		}
@@ -461,7 +461,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 				return ;
 			mConvergence[ix] = REAL (0) ;
 			for (auto &&i : mCenterMoveSet) {
-				const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.mapx]) ;
+				const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.sid]) ;
 				mConvergence[ix] = _MAX_ (mConvergence[ix] ,r1x) ;
 			}
 		}
