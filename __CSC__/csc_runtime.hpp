@@ -173,29 +173,7 @@ public:
 	void unlock () ;
 } ;
 
-class ConditionLock ;
-
-class UniqueLock final
-	:private Proxy {
-private:
-	friend ConditionLock ;
-	class Implement ;
-	StrongRef<Implement> mThis ;
-
-public:
-	UniqueLock () = delete ;
-
-	Implement &native () const leftvalue {
-		return mThis ;
-	}
-
-	void lock () const ;
-
-	void unlock () const ;
-
-private:
-	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
-} ;
+class UniqueLock ;
 
 class ConditionLock final
 	:private Proxy {
@@ -211,19 +189,35 @@ public:
 		return mThis ;
 	}
 
-	UniqueLock guard (Mutex &mutex_) popping {
-		return UniqueLock (mutex_ ,DEREF[this]) ;
+	template <class _RET = NONE>
+	DEPENDENT_TYPE<UniqueLock ,_RET> watch (Mutex &mutex_) popping {
+		struct Dependent ;
+		return DEPENDENT_TYPE<UniqueLock ,Dependent> (mutex_ ,DEREF[this]) ;
 	}
+} ;
 
-	void wait (const UniqueLock &lock_) ;
+class UniqueLock final
+	:private Proxy {
+private:
+	friend ConditionLock ;
+	class Implement ;
+	StrongRef<Implement> mThis ;
 
-	void wait (const UniqueLock &lock_ ,const Duration &time_) ;
+public:
+	UniqueLock () = delete ;
 
-	void wait (const UniqueLock &lock_ ,const TimePoint &time_) ;
+	void wait () const ;
 
-	void yield (const UniqueLock &lock_) ;
+	void wait (const Duration &time_) const ;
 
-	void notify () ;
+	void wait (const TimePoint &time_) const ;
+
+	void yield () const ;
+
+	void notify () const ;
+
+private:
+	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
 } ;
 
 class Thread final

@@ -145,7 +145,7 @@ public:
 	Operator () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value>>
-	explicit Operator (const _ARG1 &that) {
+	explicit Operator (_ARG1 &&that) {
 		struct Dependent ;
 		using FUNC_HINT = REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>> ;
 		using ImplFunctor = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplFunctor<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
@@ -363,17 +363,17 @@ private:
 } ;
 
 namespace U {
-inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) noexcept {
+inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<>> &) {
 	return 0 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1>> &) noexcept {
+inline constexpr LENGTH constexpr_max_value (const ARGV<ARGVS<_ARG1>> &) {
 	return _ARG1::value ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_value (const ARGV<_ARG1> &) noexcept {
+inline constexpr LENGTH constexpr_max_value (const ARGV<_ARG1> &) {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using TWO_HINT = ARGVS_ONE_TYPE<ARGVS_REST_TYPE<_ARG1>> ;
 	using BIGGER_HINT = ARGVS<ARGC<_MAX_<VAR> (ONE_HINT::value ,TWO_HINT::value)>> ;

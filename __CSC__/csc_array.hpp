@@ -284,7 +284,7 @@ template <class ITEM>
 using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
-inline constexpr LENGTH constexpr_reserve_size (const LENGTH &len) noexcept {
+inline constexpr LENGTH constexpr_reserve_size (const LENGTH &len) {
 	return len + _EBOOL_ (len > 0) ;
 }
 } ;
@@ -2242,7 +2242,7 @@ struct CONSTEXPR_SWITCH_CEIL8 {
 	}
 } ;
 
-inline constexpr LENGTH constexpr_ceil8_size (const LENGTH &len) noexcept {
+inline constexpr LENGTH constexpr_ceil8_size (const LENGTH &len) {
 	return _SWITCH_ (
 		(len <= 0) ? CONSTEXPR_SWITCH_CEIL8<LENGTH>::case1 :
 		CONSTEXPR_SWITCH_CEIL8<LENGTH>::case2)

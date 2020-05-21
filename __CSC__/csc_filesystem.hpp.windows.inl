@@ -230,7 +230,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 	auto rbx = STR () ;
 	Deque<String<STR>> ret ;
 	INDEX ix = ret.insert () ;
-	rax.copy () >> rbx ;
+	rax.share () >> rbx ;
 	if (r2x.varify_space (rbx))
 		rax >> rbx ;
 	while (TRUE) {

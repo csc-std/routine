@@ -229,7 +229,7 @@ public:
 		mCK = ck_ ;
 	}
 
-	Bitmap copy () popping {
+	Bitmap share () popping {
 		Bitmap ret ;
 		ret.mHeap = mHeap ;
 		ret.mImage = PhanBuffer<UNIT>::make (mImage) ;

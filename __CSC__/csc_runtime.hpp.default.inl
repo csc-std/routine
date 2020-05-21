@@ -118,6 +118,8 @@ using ::setlocale ;
 using ::longjmp ;
 
 #ifdef __CSC_SYSTEM_WINDOWS__
+using ::HANDLE ;
+
 using ::GetCurrentThreadId ;
 using ::GetCurrentProcessId ;
 using ::OpenProcess ;
@@ -135,7 +137,7 @@ using ::getsid ;
 class Duration::Implement {
 private:
 	friend GlobalRuntime ;
-	friend ConditionLock ;
+	friend UniqueLock ;
 	friend TimePoint ;
 	api::chrono::system_clock::duration mDuration ;
 
@@ -164,32 +166,32 @@ public:
 
 	LENGTH hours () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::hours> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH minutes () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::minutes> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH seconds () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::seconds> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH miliseconds () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::seconds> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH microseconds () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::microseconds> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH nanoseconds () const {
 		const auto r1x = api::chrono::duration_cast<api::chrono::nanoseconds> (mDuration) ;
-		return r1x.count () ;
+		return LENGTH (r1x.count ()) ;
 	}
 
 	Duration add (const Implement &that) const {
@@ -254,7 +256,7 @@ inline exports Duration Duration::sub (const Duration &that) const {
 class TimePoint::Implement {
 private:
 	friend GlobalRuntime ;
-	friend ConditionLock ;
+	friend UniqueLock ;
 	api::chrono::system_clock::time_point mTimePoint ;
 
 public:
@@ -494,29 +496,54 @@ inline exports void RecursiveMutex::unlock () {
 	mThis->unlock () ;
 }
 
+class ConditionLock::Implement {
+private:
+	friend UniqueLock ;
+	api::condition_variable mConditionLock ;
+
+public:
+	Implement () = default ;
+} ;
+
+inline exports ConditionLock::ConditionLock () {
+	mThis = StrongRef<Implement>::make () ;
+}
+
 class UniqueLock::Implement {
 private:
-	friend ConditionLock ;
 	struct Detail ;
-	PhanRef<Mutex> mMutex ;
-	PhanRef<ConditionLock> mCondition ;
 	api::unique_lock<api::mutex> mUniqueLock ;
+	PhanRef<api::condition_variable> mConditionLock ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (Mutex &mutex_ ,ConditionLock &condition) {
-		mMutex = PhanRef<Mutex>::make (mutex_) ;
-		mCondition = PhanRef<ConditionLock>::make (condition) ;
+		mUniqueLock = api::unique_lock<api::mutex> (mutex_.native ().mMutex) ;
+		mConditionLock = PhanRef<api::condition_variable>::make (condition.native ().mConditionLock) ;
 	}
 
-	void lock () {
-		auto &r1x = mMutex->native () ;
-		mUniqueLock = api::unique_lock<api::mutex> (r1x.mMutex) ;
+	void wait () {
+		mConditionLock->wait (mUniqueLock) ;
 	}
 
-	void unlock () {
-		mUniqueLock = api::unique_lock<api::mutex> () ;
+	void wait (const TimePoint &time_) {
+		auto &r1x = time_.native () ;
+		mConditionLock->wait_until (mUniqueLock ,r1x.mTimePoint) ;
+	}
+
+	void wait (const Duration &time_) {
+		auto &r1x = time_.native () ;
+		mConditionLock->wait_for (mUniqueLock ,r1x.mDuration) ;
+	}
+
+	void yield () {
+		const auto r1x = api::chrono::milliseconds (0) ;
+		mConditionLock->wait_for (mUniqueLock ,r1x) ;
+	}
+
+	void notify () {
+		mConditionLock->notify_all () ;
 	}
 } ;
 
@@ -524,66 +551,23 @@ inline exports UniqueLock::UniqueLock (Mutex &mutex_ ,ConditionLock &condition) 
 	mThis = StrongRef<Implement>::make (mutex_ ,condition) ;
 }
 
-inline exports void UniqueLock::lock () const {
-	mThis->lock () ;
+inline exports void UniqueLock::wait () const {
+	mThis->wait () ;
 }
 
-inline exports void UniqueLock::unlock () const {
-	mThis->unlock () ;
+inline exports void UniqueLock::wait (const TimePoint &time_) const {
+	mThis->wait (time_) ;
 }
 
-class ConditionLock::Implement {
-private:
-	api::condition_variable mCondition ;
-
-public:
-	Implement () = default ;
-
-	void wait (const UniqueLock &lock_) {
-		mCondition.wait (lock_.native ().mUniqueLock) ;
-	}
-
-	void wait (const UniqueLock &lock_ ,const TimePoint &time_) {
-		auto &r1x = time_.native () ;
-		mCondition.wait_until (lock_.native ().mUniqueLock ,r1x.mTimePoint) ;
-	}
-
-	void wait (const UniqueLock &lock_ ,const Duration &time_) {
-		auto &r1x = time_.native () ;
-		mCondition.wait_for (lock_.native ().mUniqueLock ,r1x.mDuration) ;
-	}
-
-	void yield (const UniqueLock &lock_) {
-		const auto r1x = api::chrono::milliseconds (0) ;
-		mCondition.wait_for (lock_.native ().mUniqueLock ,r1x) ;
-	}
-
-	void notify () {
-		mCondition.notify_all () ;
-	}
-} ;
-
-inline exports ConditionLock::ConditionLock () {
-	mThis = StrongRef<Implement>::make () ;
+inline exports void UniqueLock::wait (const Duration &time_) const {
+	mThis->wait (time_) ;
 }
 
-inline exports void ConditionLock::wait (const UniqueLock &lock_) {
-	mThis->wait (lock_) ;
+inline exports void UniqueLock::yield () const {
+	mThis->yield () ;
 }
 
-inline exports void ConditionLock::wait (const UniqueLock &lock_ ,const TimePoint &time_) {
-	mThis->wait (lock_ ,time_) ;
-}
-
-inline exports void ConditionLock::wait (const UniqueLock &lock_ ,const Duration &time_) {
-	mThis->wait (lock_ ,time_) ;
-}
-
-inline exports void ConditionLock::yield (const UniqueLock &lock_) {
-	mThis->yield (lock_) ;
-}
-
-inline exports void ConditionLock::notify () {
+inline exports void UniqueLock::notify () const {
 	mThis->notify () ;
 }
 
@@ -676,9 +660,9 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
 	if switch_case (TRUE) {
-		const auto r1x = UniqueRef<HANDLE> ([&] (HANDLE &me) {
+		const auto r1x = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = api::OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
-		} ,[] (HANDLE &me) {
+		} ,[] (api::HANDLE &me) {
 			if (me == NULL)
 				return ;
 			api::CloseHandle (me) ;

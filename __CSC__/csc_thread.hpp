@@ -23,7 +23,7 @@ private:
 		friend CalcThread ;
 		Atomic mCounter ;
 		Mutex mThreadMutex ;
-		ConditionLock mThreadCondition ;
+		ConditionLock mThreadConditionLock ;
 		AutoRef<BOOL> mThreadFlag ;
 		LENGTH mThreadCounter ;
 		Array<Function<DEF<ITEM ()> NONE::*>> mThreadProc ;
@@ -76,14 +76,13 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			r2x.mThreadCondition.wait (r3x) ;
+			r3x.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -94,8 +93,7 @@ public:
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -103,7 +101,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -141,8 +139,7 @@ public:
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
@@ -153,7 +150,7 @@ public:
 			const auto r4x = predicate () ;
 			if (!r4x)
 				break ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		const auto r5x = _MOVE_ (r2x.mException) ;
 		if (!r5x.exist ())
@@ -189,21 +186,20 @@ private:
 	}
 
 	static void static_push (Pack &self_ ,ITEM &&item) {
-		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 		if switch_case (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
-			self_.mThreadCondition.yield (r1x) ;
+			r1x.yield () ;
 			if (!self_.mItemQueue->full ())
 				discard ;
 			self_.mItemQueue->take () ;
 		}
 		self_.mItemQueue->add (_MOVE_ (item)) ;
-		self_.mThreadCondition.notify () ;
+		r1x.notify () ;
 	}
 
 	static void static_rethrow (Pack &self_ ,const Exception &e) {
@@ -224,18 +220,17 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.notify () ;
+		r1x.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield (r1x) ;
+			r1x.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -310,7 +305,7 @@ private:
 		friend WorkThread ;
 		Atomic mCounter ;
 		Mutex mThreadMutex ;
-		ConditionLock mThreadCondition ;
+		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
 		LENGTH mThreadWaitCounter ;
 		AutoRef<BOOL> mThreadFlag ;
@@ -364,44 +359,41 @@ public:
 	void post (const ITEM &item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.wait (r3x) ;
+			r3x.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.notify () ;
+		r3x.notify () ;
 	}
 
 	void post (ITEM &&item) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r2x.mThreadCondition.wait (r3x) ;
+			r3x.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.notify () ;
+		r3x.notify () ;
 	}
 
 	void post (const ITEM &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -410,18 +402,17 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.notify () ;
+		r3x.notify () ;
 	}
 
 	void post (ITEM &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -430,11 +421,11 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r2x.mThreadCondition.notify () ;
+		r3x.notify () ;
 	}
 
 	void start (const LENGTH &count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
@@ -465,8 +456,7 @@ public:
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 			if (r2x.mException.exist ())
@@ -477,7 +467,7 @@ public:
 			const auto r4x = predicate () ;
 			if (!r4x)
 				break ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		const auto r5x = _MOVE_ (r2x.mException) ;
 		if (!r5x.exist ())
@@ -513,8 +503,7 @@ private:
 
 	static void static_poll (Pack &self_ ,Optional<ITEM> &item) {
 		using Counter = typename Detail::Counter ;
-		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
 		while (TRUE) {
@@ -522,7 +511,7 @@ private:
 				break ;
 			if (!self_.mItemQueue->empty ())
 				break ;
-			self_.mThreadCondition.wait (r1x) ;
+			r1x.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		item = _MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
@@ -548,18 +537,17 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.notify () ;
+		r1x.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield (r1x) ;
+			r1x.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -649,7 +637,7 @@ private:
 		friend Future<ITEM> ;
 		Atomic mCounter ;
 		Mutex mThreadMutex ;
-		ConditionLock mThreadCondition ;
+		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
 		AutoRef<BOOL> mThreadFlag ;
 		Function<DEF<ITEM ()> NONE::*> mThreadProc ;
@@ -742,7 +730,7 @@ public:
 
 private:
 	explicit Promise (IntrusiveRef<Pack ,Promise> &this_)
-		: mThis (this_.copy ()) {}
+		: mThis (this_.share ()) {}
 
 private:
 	static void static_execute (Pack &self_) {
@@ -789,10 +777,10 @@ private:
 	}
 
 	static void static_signal (Pack &self_) {
-		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.notify () ;
+		r1x.notify () ;
 		if switch_case (TRUE) {
 			if (!self_.mItem.exist ())
 				discard ;
@@ -814,18 +802,17 @@ private:
 	}
 
 	static void friend_destroy (Pack &self_) {
-		const auto r1x = self_.mThreadCondition.guard (self_.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r1x) ;
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		self_.mThreadCondition.notify () ;
+		r1x.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			self_.mThreadCondition.yield (r1x) ;
+			r1x.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mThreadPool.exist ())
@@ -914,14 +901,13 @@ public:
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			r2x.mThreadCondition.wait (r3x) ;
+			r3x.wait () ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -934,8 +920,7 @@ public:
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _XVALUE_<Pack> (r1x) ;
-		const auto r3x = r2x.mThreadCondition.guard (r2x.mThreadMutex) ;
-		ScopedGuard<const UniqueLock> ANONYMOUS (r3x) ;
+		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
@@ -943,7 +928,7 @@ public:
 				break ;
 			const auto r4x = predicate () ;
 			_DYNAMIC_ASSERT_ (r4x) ;
-			r2x.mThreadCondition.wait (r3x ,interval) ;
+			r3x.wait (interval) ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -989,6 +974,6 @@ public:
 
 private:
 	explicit Future (IntrusiveRef<Pack ,Promise<ITEM>> &this_)
-		: mThis (this_.copy ()) {}
+		: mThis (this_.share ()) {}
 } ;
 } ;

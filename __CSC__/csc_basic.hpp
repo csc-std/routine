@@ -390,7 +390,7 @@ public:
 	inline ScopedPtr (ScopedPtr &&) = default ;
 	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
 
-	inline implicit operator const PTR<UNIT> & () const leftvalue noexcept {
+	inline implicit operator const PTR<UNIT> & () const leftvalue {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
 		return mPointer ;
 	}
@@ -789,7 +789,7 @@ public:
 	}
 
 private:
-	inline explicit AutoRef (const PTR<Holder> &pointer) noexcept
+	inline explicit AutoRef (const PTR<Holder> &pointer)
 		:SPECIALIZATION_BASE (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1112,7 +1112,7 @@ private:
 	inline explicit AnyRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	inline explicit AnyRef (const PTR<Holder> &pointer) noexcept
+	inline explicit AnyRef (const PTR<Holder> &pointer)
 		:AnyRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1346,7 +1346,7 @@ private:
 	inline explicit UniqueRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	inline explicit UniqueRef (const PTR<Holder> &pointer) noexcept
+	inline explicit UniqueRef (const PTR<Holder> &pointer)
 		:UniqueRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1391,6 +1391,8 @@ public:
 	}
 
 	inline ~PhanRef () noexcept {
+		if (mPointer == NULL)
+			return ;
 		mPointer = NULL ;
 	}
 
@@ -1436,7 +1438,7 @@ private:
 	inline explicit PhanRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	inline explicit PhanRef (const PTR<UNIT> &pointer) noexcept
+	inline explicit PhanRef (const PTR<UNIT> &pointer)
 		:PhanRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1486,10 +1488,11 @@ public:
 		mFunction = that ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value>>
 	inline implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		using ImplHolder = typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
+		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARG1> (that)) ;
 		auto &r1x = _LOAD_<ImplHolder> (_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
@@ -1564,7 +1567,7 @@ private:
 	inline explicit Function (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) ,mFunction (NULL) {}
 
-	inline explicit Function (const PTR<Holder> &pointer) noexcept
+	inline explicit Function (const PTR<Holder> &pointer)
 		:Function (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1740,6 +1743,12 @@ private:
 	}
 
 private:
+	inline static TEMP<FakeHolder> zero_variant () {
+		TEMP<FakeHolder> ret ;
+		_ZERO_ (ret) ;
+		return std::move (ret) ;
+	}
+
 	template <class _RET ,class... _ARGS>
 	inline static void static_create (const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
@@ -2002,7 +2011,7 @@ public:
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
@@ -2143,7 +2152,7 @@ private:
 } ;
 
 template <class UNIT>
-using FixedBuffer = Buffer<UNIT ,SFIXED> ;
+using FixedBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SFIXED> ,UNIT> ;
 
 template <class UNIT>
 class Buffer<UNIT ,SAUTO> ;
@@ -2169,7 +2178,7 @@ public:
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
@@ -2233,7 +2242,7 @@ public:
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (len) ;
-		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,len) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
@@ -2257,7 +2266,7 @@ public:
 		if (that.mBuffer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> (that.mSize) ;
-		ScopedBuild<ARR<UNIT>> ANONYMOUS (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax) ,DEREF[that.mBuffer] ,that.mSize) ;
+		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
 		auto &r1x = _LOAD_<ARR<UNIT>> (_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = that.mSize ;
@@ -2424,7 +2433,7 @@ public:
 } ;
 
 template <class UNIT>
-using AutoBuffer = Buffer<UNIT ,SAUTO> ;
+using AutoBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SAUTO> ,UNIT> ;
 
 template <class UNIT>
 class Buffer<UNIT ,SCPHAN> {
@@ -2570,7 +2579,7 @@ private:
 	inline explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		: mBuffer (NULL) ,mSize (0) {}
 
-	inline explicit Buffer (const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_) noexcept
+	inline explicit Buffer (const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
 		if (size_ == 0)
 			return ;
@@ -2586,7 +2595,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	inline imports_static Buffer make (_ARG1 &val) popping {
+	inline imports_static Buffer make (const _ARG1 &val) popping {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
@@ -2595,8 +2604,9 @@ public:
 		return make (val ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
 	inline imports_static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
+		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (DEPTR[val.self]) ;
@@ -2748,7 +2758,7 @@ private:
 	inline explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		: mBuffer (NULL) ,mSize (0) {}
 
-	inline explicit Buffer (const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_) noexcept
+	inline explicit Buffer (const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
 		if (size_ == 0)
 			return ;
@@ -2773,20 +2783,22 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	inline imports_static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
+		return make (val.self ,val.size ()) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
 	inline imports_static Buffer make (Buffer<_ARG1 ,_ARG2> &val) popping {
+		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (DEPTR[val.self]) ;
 		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
-	inline imports_static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
-		return make (val.self ,val.size ()) ;
-	}
-
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value && U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
 	inline imports_static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
+		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;
 		auto &r1x = _LOAD_<ARR<BYTE>> (DEPTR[val.self]) ;
@@ -2840,10 +2852,19 @@ public:
 	}
 
 	inline ~Allocator () noexcept {
-		if (mSize == 0)
+		if (mAllocator.size () == 0)
 			return ;
-		spec.clear () ;
-		mSize = 0 ;
+		while (TRUE) {
+			if (mSize <= 0)
+				break ;
+			if switch_case (TRUE) {
+				INDEX ix = mSize - 1 ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_DESTROY_ (&mAllocator[ix].mValue) ;
+			}
+			mSize-- ;
+		}
 		mLength = 0 ;
 		mFree = VAR_NONE ;
 	}
@@ -2909,10 +2930,19 @@ public:
 	}
 
 	inline ~Allocator () noexcept {
-		if (mSize == 0)
+		if (mAllocator.size () == 0)
 			return ;
-		spec.clear () ;
-		mSize = 0 ;
+		while (TRUE) {
+			if (mSize <= 0)
+				break ;
+			if switch_case (TRUE) {
+				INDEX ix = mSize - 1 ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_DESTROY_ (&mAllocator[ix].mValue) ;
+			}
+			mSize-- ;
+		}
 		mLength = 0 ;
 		mFree = VAR_NONE ;
 	}
@@ -2924,10 +2954,11 @@ public:
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = _EBOOL_ (stl::is_pod<UNIT>::value) * mAllocator.size () ;
-		mSize = r1x ;
+		if (mAllocator.size () != that.mAllocator.size ())
+			mSize = _EXCHANGE_ (that.mSize) ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
 		while (TRUE) {
-			if (mSize >= that.mAllocator.size ())
+			if (mSize >= that.mSize)
 				break ;
 			if switch_case (TRUE) {
 				INDEX ix = mSize ;
@@ -2937,10 +2968,8 @@ public:
 			}
 			mSize++ ;
 		}
-		mSize = mAllocator.size () ;
-		mLength = that.mLength ;
-		mFree = that.mFree ;
-		that.spec.clear () ;
+		mLength = _EXCHANGE_ (that.mLength) ;
+		mFree = _EXCHANGE_ (that.mFree ,VAR_NONE) ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
@@ -2994,7 +3023,6 @@ private:
 	} ;
 
 private:
-	struct Detail ;
 	friend SPECIALIZATION_THIS ;
 	Buffer<Node ,SIZE> mAllocator ;
 	LENGTH mSize ;
@@ -3013,22 +3041,32 @@ public:
 	}
 
 	inline ~Allocator () noexcept {
-		if (mSize == 0)
+		if (mAllocator.size () == 0)
 			return ;
-		spec.clear () ;
-		mSize = 0 ;
+		while (TRUE) {
+			if (mSize <= 0)
+				break ;
+			if switch_case (TRUE) {
+				INDEX ix = mSize - 1 ;
+				if (mAllocator[ix].mNext != VAR_USED)
+					discard ;
+				_DESTROY_ (&mAllocator[ix].mValue) ;
+			}
+			mSize-- ;
+		}
 		mLength = 0 ;
 		mFree = VAR_NONE ;
 	}
 
 	inline Allocator (const Allocator &that)
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
-		using Finally = typename Detail::Finally ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		ScopedGuard<Finally> ANONYMOUS (_CAST_<Finally> (DEREF[this])) ;
+		if (mAllocator.size () != that.mAllocator.size ())
+			mSize = that.mSize ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
 		while (TRUE) {
-			if (mSize >= that.mAllocator.size ())
+			if (mSize >= that.mSize)
 				break ;
 			if switch_case (TRUE) {
 				INDEX ix = mSize ;
@@ -3038,7 +3076,6 @@ public:
 			}
 			mSize++ ;
 		}
-		mSize = mAllocator.size () ;
 		mLength = that.mLength ;
 		mFree = that.mFree ;
 	}
@@ -3057,10 +3094,11 @@ public:
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		const auto r1x = _EBOOL_ (stl::is_pod<UNIT>::value) * mAllocator.size () ;
-		mSize = r1x ;
+		if (mAllocator.size () != that.mAllocator.size ())
+			mSize = _EXCHANGE_ (that.mSize) ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
 		while (TRUE) {
-			if (mSize >= that.mAllocator.size ())
+			if (mSize >= that.mSize)
 				break ;
 			if switch_case (TRUE) {
 				INDEX ix = mSize ;
@@ -3070,10 +3108,8 @@ public:
 			}
 			mSize++ ;
 		}
-		mSize = mAllocator.size () ;
-		mLength = that.mLength ;
-		mFree = that.mFree ;
-		that.spec.clear () ;
+		mLength = _EXCHANGE_ (that.mLength) ;
+		mFree = _EXCHANGE_ (that.mFree ,VAR_NONE) ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
@@ -3109,34 +3145,6 @@ private:
 } ;
 
 template <class UNIT ,class SIZE>
-struct Allocator<SPECIALIZATION<UNIT ,TRUE ,TRUE> ,SIZE>::Detail {
-	class Finally
-		:private Wrapped<Allocator> {
-	public:
-		inline void lock () {
-			const auto r1x = _EBOOL_ (stl::is_pod<UNIT>::value) * Finally::mSelf.mAllocator.size () ;
-			Finally::mSelf.mSize = r1x ;
-		}
-
-		inline void unlock () noexcept {
-			if (Finally::mSelf.mSize == Finally::mSelf.mAllocator.size ())
-				return ;
-			while (TRUE) {
-				if (Finally::mSelf.mSize <= 0)
-					break ;
-				if switch_case (TRUE) {
-					INDEX ix = Finally::mSelf.mSize - 1 ;
-					if (Finally::mSelf.mAllocator[ix].mNext != VAR_USED)
-						discard ;
-					_DESTROY_ (&Finally::mSelf.mAllocator[ix].mValue) ;
-					Finally::mSelf.mSize-- ;
-				}
-			}
-		}
-	} ;
-} ;
-
-template <class UNIT ,class SIZE>
 class Allocator
 	:private Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
 private:
@@ -3168,17 +3176,16 @@ public:
 		return mLength ;
 	}
 
-	inline void clear () noexcept {
+	inline void clear () {
 		INDEX ix = VAR_NONE ;
 		INDEX iy = VAR_NONE ;
-		for (auto &&i : _RANGE_ (0 ,mAllocator.size ())) {
+		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			iy = ix ;
-			ix = mAllocator.size () + ~i ;
+			ix = mSize + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
 				_DESTROY_ (DEPTR[mAllocator[ix].mValue]) ;
 			mAllocator[ix].mNext = iy ;
 		}
-		mSize = mAllocator.size () ;
 		mLength = 0 ;
 		mFree = ix ;
 	}
@@ -3219,7 +3226,6 @@ public:
 	inline INDEX alloc (_ARGS &&...initval) popping {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		INDEX ret = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
@@ -3234,22 +3240,18 @@ public:
 			}
 			mAllocator.swap (tmp) ;
 			update_reserve (mSize ,mFree) ;
-			mFree = mAllocator[ret].mNext ;
-			mAllocator[ret].mNext = VAR_USED ;
-			mLength++ ;
 		}
 		if switch_case (fax) {
 			ret = mFree ;
 			_CREATE_ (DEPTR[mAllocator[ret].mValue] ,_FORWARD_<_ARGS> (initval)...) ;
-			mFree = mAllocator[ret].mNext ;
-			mAllocator[ret].mNext = VAR_USED ;
-			mLength++ ;
 		}
+		mFree = mAllocator[ret].mNext ;
+		mAllocator[ret].mNext = VAR_USED ;
+		mLength++ ;
 		return _MOVE_ (ret) ;
 	}
 
 	inline void free (const INDEX &index) noexcept {
-		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (used (index)) ;
 		_DESTROY_ (DEPTR[mAllocator[index].mValue]) ;
 		mAllocator[index].mNext = mFree ;
@@ -3260,7 +3262,6 @@ public:
 	inline void reserve (const LENGTH &len) {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 		const auto r1x = _MAX_ (len - (mSize - mLength) ,VAR_ZERO) ;
 		if (r1x == 0)
@@ -3279,7 +3280,6 @@ public:
 	inline void clean () {
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
-		_DEBUG_ASSERT_ (mSize == mAllocator.size ()) ;
 		const auto r1x = shrink_size () ;
 		if (r1x == mSize)
 			return ;
@@ -3295,7 +3295,7 @@ public:
 	}
 
 private:
-	inline void update_reserve (const INDEX &size_ ,const INDEX &free_) {
+	inline void update_reserve (const INDEX &size_ ,const INDEX &free_) noexcept {
 		INDEX ix = free_ ;
 		INDEX iy = VAR_NONE ;
 		for (auto &&i : _RANGE_ (size_ ,mAllocator.size ())) {

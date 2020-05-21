@@ -637,23 +637,23 @@ private:
 } ;
 
 namespace U {
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) noexcept {
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
 	return 1 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) noexcept {
+inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 	return _MAX_ (_SIZEOF_ (ONE_HINT) ,constexpr_max_sizeof (_NULL_<ARGV<REST_HINT>> ())) ;
 }
 
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) noexcept {
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
 	return 1 ;
 }
 
 template <class _ARG1>
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) noexcept {
+inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 	return _MAX_ (_ALIGNOF_ (ONE_HINT) ,constexpr_max_alignof (_NULL_<ARGV<REST_HINT>> ())) ;
@@ -691,9 +691,10 @@ public:
 		mIndex = r1x ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value != VAR_NONE>>
+	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value>>
 	inline implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
+		_STATIC_ASSERT_ (INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<UNITS...>>::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1x = _NULL_<ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ;
 		auto &r2x = _LOAD_<TEMP<REMOVE_CVR_TYPE<_ARG1>>> (DEPTR[mVariant]) ;
@@ -1512,6 +1513,7 @@ public:
 	inline ~StrongRef () noexcept {
 		if (mPointer == NULL)
 			return ;
+		_STATIC_WARNING_ ("mark") ;
 		if switch_case (TRUE) {
 			const auto r1x = --mThis->mCounter ;
 			if (r1x != 0)
@@ -1796,7 +1798,7 @@ public:
 		return TRUE ;
 	}
 
-	inline IntrusiveRef copy () popping {
+	inline IntrusiveRef share () popping {
 		using LatchCounter = typename Detail::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;

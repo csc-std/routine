@@ -1470,7 +1470,7 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
 	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
-	rax.copy () >> rbx ;
+	rax.share () >> rbx ;
 	if switch_case (TRUE) {
 		if (rbx != _ARG1 (':'))
 			discard ;
