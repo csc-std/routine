@@ -423,16 +423,16 @@ class DebuggerService::Implement
 public:
 	void abort_once_invoked_exit (const BOOL &flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		const auto r1x = _XVALUE_<PTR<void ()>> ([] () noexcept {
+		const auto r1x = _FORWARD_<PTR<void ()>> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r2x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r2x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r3x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r3x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r4x = _XVALUE_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r4x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
 		api::atexit (r1x) ;

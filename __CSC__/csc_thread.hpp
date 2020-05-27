@@ -44,7 +44,7 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -53,7 +53,7 @@ public:
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -63,7 +63,7 @@ public:
 	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
@@ -75,7 +75,7 @@ public:
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -92,7 +92,7 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -113,7 +113,7 @@ public:
 		using LocalProc = typename Detail::LocalProc ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -138,7 +138,7 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -185,7 +185,24 @@ private:
 		}
 	}
 
-	static void static_push (Pack &self_ ,ITEM &&item) {
+	static void static_push (Pack &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
+		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
+		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
+		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
+		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
+		if switch_case (TRUE) {
+			if (!self_.mItemQueue->full ())
+				discard ;
+			r1x.yield () ;
+			if (!self_.mItemQueue->full ())
+				discard ;
+			self_.mItemQueue->take () ;
+		}
+		self_.mItemQueue->add (_MOVE_ (item)) ;
+		r1x.notify () ;
+	}
+
+	static void static_push (Pack &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -327,7 +344,7 @@ public:
 
 	LENGTH size () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -336,7 +353,7 @@ public:
 
 	LENGTH length () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -346,7 +363,7 @@ public:
 	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
@@ -356,9 +373,9 @@ public:
 		r2x.mItemQueue = _MOVE_ (tmp) ;
 	}
 
-	void post (const ITEM &item) {
+	void post (const REMOVE_CVR_TYPE<ITEM> &item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -373,9 +390,9 @@ public:
 		r3x.notify () ;
 	}
 
-	void post (ITEM &&item) {
+	void post (REMOVE_CVR_TYPE<ITEM> &&item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -390,9 +407,9 @@ public:
 		r3x.notify () ;
 	}
 
-	void post (const ITEM &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
+	void post (const REMOVE_CVR_TYPE<ITEM> &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -409,9 +426,9 @@ public:
 		r3x.notify () ;
 	}
 
-	void post (ITEM &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
+	void post (REMOVE_CVR_TYPE<ITEM> &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -433,7 +450,7 @@ public:
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -455,7 +472,7 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
@@ -662,12 +679,12 @@ public:
 		return DEPENDENT_TYPE<Future<ITEM> ,Promise> (mThis) ;
 	}
 
-	void push (const ITEM &item) {
+	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
 		const auto r1x = mThis.watch () ;
 		static_push (r1x) ;
 	}
 
-	void push (ITEM &&item) {
+	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
 		const auto r1x = mThis.watch () ;
 		static_push (r1x) ;
 	}
@@ -679,7 +696,7 @@ public:
 
 	void start () {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -696,7 +713,7 @@ public:
 		using LocalProc = typename Detail::LocalProc ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -752,7 +769,7 @@ private:
 		static_signal (self_) ;
 	}
 
-	static void static_push (Pack &self_ ,const ITEM &item) {
+	static void static_push (Pack &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -760,7 +777,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	static void static_push (Pack &self_ ,ITEM &&item) {
+	static void static_push (Pack &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -889,7 +906,7 @@ public:
 
 	BOOL ready () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return TRUE ;
@@ -900,7 +917,7 @@ public:
 
 	ITEM poll () popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -919,7 +936,7 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
@@ -940,7 +957,7 @@ public:
 
 	ITEM value (const ITEM &def) popping {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return def ;
@@ -954,7 +971,7 @@ public:
 	void then (Function<DEF<void (ITEM &)> NONE::*> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_<Pack> (r1x) ;
+		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r2x.mCallbackProc.exist ()) ;

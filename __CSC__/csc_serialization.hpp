@@ -156,8 +156,8 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
-		_ARG1 ret ;
+	REMOVE_CVR_TYPE<_ARG1> attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		REMOVE_CVR_TYPE<_ARG1> ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (attribute (tag)) ;
 		} ,[&] () {
@@ -227,8 +227,8 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
-		_ARG1 ret ;
+	REMOVE_CVR_TYPE<_ARG1> value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		REMOVE_CVR_TYPE<_ARG1> ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (value ()) ;
 		} ,[&] () {
@@ -1107,8 +1107,8 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
-		_ARG1 ret ;
+	REMOVE_CVR_TYPE<_ARG1> value (const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		REMOVE_CVR_TYPE<_ARG1> ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (value ()) ;
 		} ,[&] () {
@@ -1752,8 +1752,8 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
-		_ARG1 ret ;
+	REMOVE_CVR_TYPE<_ARG1> attribute (const String<STRU8> &tag ,const _ARG1 &def ,const Function<_ARG1 (const String<STRU8> &)> &convert) const {
+		REMOVE_CVR_TYPE<_ARG1> ret ;
 		_CALL_TRY_ ([&] () {
 			ret = convert (attribute (tag)) ;
 		} ,[&] () {

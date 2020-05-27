@@ -83,7 +83,8 @@ struct FUN_band<IN_lhs ,IN_rhs> {
 	struct CON_band {
 		template <class CONTEXT>
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
-			return _XVALUE_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> (IN_lhs::compile (me) & IN_rhs::compile (me)) ;
+			const auto r1x = IN_lhs::compile (me) & IN_rhs::compile (me) ;
+			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
 	} ;
 
@@ -113,7 +114,8 @@ struct FUN_bor<IN_lhs ,IN_rhs> {
 	struct CON_bor {
 		template <class CONTEXT>
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
-			return _XVALUE_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> (IN_lhs::compile (me) | IN_rhs::compile (me)) ;
+			const auto r1x = IN_lhs::compile (me) | IN_rhs::compile (me) ;
+			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
 	} ;
 
@@ -143,7 +145,8 @@ struct FUN_bxor<IN_lhs ,IN_rhs> {
 	struct CON_bxor {
 		template <class CONTEXT>
 		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
-			return _XVALUE_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> (IN_lhs::compile (me) ^ IN_rhs::compile (me)) ;
+			const auto r1x = IN_lhs::compile (me) ^ IN_rhs::compile (me) ;
+			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
 	} ;
 

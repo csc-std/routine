@@ -151,7 +151,7 @@ public:
 		using ImplFunctor = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplFunctor<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplFunctor>::value) ;
-		const auto r1x = _XVALUE_<PTR<FUNC_HINT>> (that) ;
+		const auto r1x = _FORWARD_<PTR<FUNC_HINT>> (that) ;
 		mFunctor = StrongRef<ImplFunctor>::make (r1x) ;
 	}
 
@@ -346,6 +346,7 @@ private:
 public:
 	LexicalTree () {
 		mThis = StrongRef<LexicalNode>::make () ;
+		mThis->weak_of_this (mThis.recast<Object> ()) ;
 	}
 
 	const StrongRef<LexicalNode> &to () const leftvalue {
@@ -357,8 +358,11 @@ public:
 	}
 
 private:
-	inline static const UNIT &from (const StrongRef<LexicalNode> &me) {
-		return _CAST_<UNIT> (me) ;
+	template <class _ARG1>
+	inline static const UNIT &from (_ARG1 &me) {
+		_STATIC_ASSERT_ (std::is_convertible<_ARG1 & ,const StrongRef<LexicalNode> &>::vallue) ;
+		auto &r1x = _FORWARD_<const StrongRef<LexicalNode> &> (me) ;
+		return _CAST_<UNIT> (r1x) ;
 	}
 } ;
 
@@ -409,8 +413,9 @@ public:
 		if switch_case (TRUE) {
 			if (mThis->mOperand.exist ())
 				discard ;
-			mThis->mOperand = mThis->mOperator (mThis.self ,funcval...) ;
-			mThis->mOperator = Operator () ;
+			_DYNAMIC_ASSERT_ (mThis->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+			const auto r1x = _MOVE_ (mThis->mOperator) ;
+			mThis->mOperand = r1x (mThis.self ,funcval...) ;
 			mThis->mChild[0] = StrongRef<LexicalNode> () ;
 			mThis->mChild[1] = StrongRef<LexicalNode> () ;
 			mThis->mChild[2] = StrongRef<LexicalNode> () ;
@@ -472,16 +477,16 @@ public:
 
 private:
 	template <class... _ARGS>
-	const Operand &template_flip_invoke (const ARGV<ARGVS<>> & ,const _ARGS &...funcval) const {
+	const Operand &template_flip_invoke (const ARGV<ARGVS<>> & ,const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const Operand &template_flip_invoke (const ARGV<_ARG1> & ,const ARGVS_ONE_TYPE<_ARG1> &funcval_one ,const _ARGS &...funcval_rest) const {
+	const Operand &template_flip_invoke (const ARGV<_ARG1> & ,const ARGVS_ONE_TYPE<_ARG1> &funcval_one ,const _ARGS &...funcval_rest) const leftvalue {
 		return template_flip_invoke (_NULL_<ARGV<ARGVS_REST_TYPE<_ARG1>>> () ,funcval_rest... ,funcval_one) ;
 	}
 	template <class _ARG1 ,class... _ARGS>
-	const Operand &template_flip2_invoke (const _ARG1 &parameter ,const ARGV<ARGVS<_ARGS...>> &) const {
+	const Operand &template_flip2_invoke (const _ARG1 &parameter ,const ARGV<ARGVS<_ARGS...>> &) const leftvalue {
 		return invoke (parameter.pick (_NULL_<ARGV<ARGVP<_ARGS>>> ())...) ;
 	}
 
@@ -499,32 +504,32 @@ private:
 	}
 
 	template <class... _ARGS>
-	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<ARGVS<>> & ,const _ARGS &...placeholder) const {
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<ARGVS<>> & ,const _ARGS &...placeholder) const leftvalue {
 		return invoke (patch_.invoke (Operand::nth (placeholder))...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<_ARG1> & ,const _ARGS &...placeholder) const {
+	const Operand &template_fold_invoke (const DEPENDENT_TYPE<Expression<RANK1> ,Expression> &patch_ ,const ARGV<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
 		return template_flip_invoke (patch_ ,_NULL_<ARGV<ARGVS_REST_TYPE<_ARG1>>> () ,placeholder... ,_NULL_<ARGVP<ARGVS_ONE_TYPE<_ARG1>>>) ;
 	}
 
 	template <class... _ARGS>
-	const Operand &template_concat_invoke (const Tuple<> &parameter ,const _ARGS &...funcval) const {
+	const Operand &template_concat_invoke (const Tuple<> &parameter ,const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const Operand &template_concat_invoke (const _ARG1 &parameter ,const _ARGS &...funcval) const {
+	const Operand &template_concat_invoke (const _ARG1 &parameter ,const _ARGS &...funcval) const leftvalue {
 		return template_concat_invoke (parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	const Operand &template_concat_patch (const Expression<_ARG1> &patch_ ,const ARGV<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const {
+	const Operand &template_concat_patch (const Expression<_ARG1> &patch_ ,const ARGV<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
 		return template_concat_invoke (parameter ,patch_.invoke (funcval...)) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	const Operand &template_concat_patch (const Expression<_ARG1> &patch_ ,const ARGV<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const {
+	const Operand &template_concat_patch (const Expression<_ARG1> &patch_ ,const ARGV<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const leftvalue {
 		return template_concat_patch (patch_ ,_NULL_<ARGV<ARGVS_REST_TYPE<_ARG2>>> () ,parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 

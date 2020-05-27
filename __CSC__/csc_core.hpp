@@ -693,6 +693,7 @@ using CAPACITY_OF_TYPE = CALL<CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>> ;
 namespace U {
 template <class _ARG1>
 struct FORWARD_TRAITS {
+	//@warn: should not be used
 	using TYPE = const _ARG1 & ;
 } ;
 
@@ -1419,7 +1420,7 @@ inline constexpr INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (!stl::is_pointer<_RET>::value) ;
+	_STATIC_ASSERT_ (!(stl::is_pointer<_RET>::value && !stl::is_same<_ARG1 ,TEMP<_RET>>::value)) ;
 	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG1>::value && !stl::is_same<_RET ,TEMP<_ARG1>>::value)) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
@@ -1455,30 +1456,18 @@ inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &&object) {
 	return static_cast<_RET &&> (object) ;
 }
 
-template <class _RET>
-inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	return object ;
-}
-
-template <class _RET>
-inline constexpr const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	return object ;
-}
-
 template <class _ARG1>
-inline _ARG1 _EXCHANGE_ (_ARG1 &handle) popping {
+inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) popping {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	_ARG1 ret = handle ;
+	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
 	_ZERO_ (handle) ;
 	return _MOVE_ (ret) ;
 }
 
 template <class _ARG1>
-inline _ARG1 _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) popping {
+inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) popping {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	_ARG1 ret = handle ;
+	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
 	handle = val ;
 	return _MOVE_ (ret) ;
 }
@@ -1492,6 +1481,18 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 	rhs = _MOVE_ (tmp) ;
 }
 
+template <class _RET ,class _ARG1>
+inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
+	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
+	TEMP<_RET> ret ;
+	_ZERO_ (ret) ;
+	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
+	return _MOVE_ (_CAST_<_RET> (ret)) ;
+}
+
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET ,class _ARG1>
 inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) ;
@@ -1499,7 +1500,9 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) ;
 //@warn: not type-safe; be careful about strict-aliasing
 template <class _RET>
 inline _RET &_LOAD_UNSAFE_ (const LENGTH &address) {
-	const auto r1x = _XVALUE_<PTR<VOID>> (DEPTR[_NULL_<BYTE> ()] + address) ;
+	const auto r1x = _BITWISE_CAST_<PTR<VOID>> (address) ;
+	if (r1x == NULL)
+		return _NULL_<_RET> () ;
 	return _LOAD_<_RET> (r1x) ;
 }
 
@@ -1509,20 +1512,6 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr
 	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
 	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
 	return _LOAD_UNSAFE_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (r2x) ;
-}
-
-template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
-	_STATIC_ASSERT_ (!stl::is_pointer<_RET>::value) ;
-	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	_STATIC_ASSERT_ (!stl::is_pointer<_ARG1>::value) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	TEMP<_RET> ret ;
-	_ZERO_ (ret) ;
-	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
-	return _MOVE_ (_CAST_<_RET> (ret)) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
@@ -1562,7 +1551,7 @@ struct CONSTEXPR_SWITCH_ABS {
 } ;
 
 template <class _ARG1>
-inline constexpr _ARG1 _ABS_ (const _ARG1 &val) {
+inline constexpr REMOVE_CVR_TYPE<_ARG1> _ABS_ (const _ARG1 &val) {
 	return _SWITCH_ (
 		(val < _ARG1 (0)) ? U::CONSTEXPR_SWITCH_ABS<_ARG1>::case1 :
 		U::CONSTEXPR_SWITCH_ABS<_ARG1>::case2)
@@ -1905,7 +1894,7 @@ public:
 		mWhat = DEPTR[what_.self] ;
 	}
 
-	inline const ARR<STR> &what () const {
+	inline const ARR<STR> &what () const leftvalue {
 		return DEREF[mWhat] ;
 	}
 
@@ -1924,7 +1913,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) {
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
 	_STATIC_UNUSED_ (r1x) ;
-	const auto r3x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
+	const auto r3x = _BITWISE_CAST_<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return DEREF[r3x] ;
 }
 

@@ -28,11 +28,11 @@ public:
 	}
 
 	inline ITEM_TYPE operator* () const leftvalue {
-		return mBase.get (_XVALUE_<const INDEX> (mIndex)) ;
+		return mBase.get (_FORWARD_<const INDEX &> (mIndex)) ;
 	}
 
 	inline void operator++ () {
-		mIndex = mBase.inext (_XVALUE_<const INDEX> (mIndex)) ;
+		mIndex = mBase.inext (_FORWARD_<const INDEX &> (mIndex)) ;
 	}
 
 private:
@@ -763,7 +763,7 @@ public:
 		return TRUE ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		mDeque[mWrite] = _MOVE_ (item) ;
@@ -771,12 +771,12 @@ public:
 		update_resize () ;
 	}
 
-	inline Deque &operator<< (const ITEM &item) {
+	inline Deque &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		mDeque[mWrite] = _MOVE_ (item) ;
@@ -784,7 +784,7 @@ public:
 		update_resize () ;
 	}
 
-	inline Deque &operator<< (ITEM &&item) {
+	inline Deque &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -842,7 +842,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_sort (const ITEM &item) popping {
+	INDEX insert_sort (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		_DEBUG_ASSERT_ (mRead == 0) ;
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
@@ -861,7 +861,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_sort (ITEM &&item) popping {
+	INDEX insert_sort (REMOVE_CVR_TYPE<ITEM> &&item) popping {
 		_DEBUG_ASSERT_ (mRead == 0) ;
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
@@ -880,7 +880,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void push (const ITEM &item) {
+	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
@@ -889,7 +889,7 @@ public:
 		update_resize () ;
 	}
 
-	void push (ITEM &&item) {
+	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
@@ -1132,7 +1132,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	void add (const ITEM &item ,const INDEX &map_) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
 			reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
@@ -1143,16 +1143,16 @@ public:
 		update_insert (ix) ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Priority &operator<< (ITEM &&item) {
+	inline Priority &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item ,const INDEX &map_) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
 			reserve (mPriority.expand_size ()) ;
 		INDEX ix = mWrite ;
@@ -1206,12 +1206,12 @@ public:
 		return 0 ;
 	}
 
-	INDEX insert (const ITEM &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (ITEM &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -1370,10 +1370,10 @@ private:
 		inline implicit Node (const INDEX &left ,const INDEX &right)
 			:mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (const ITEM &item ,const INDEX &left ,const INDEX &right)
+		inline implicit Node (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &left ,const INDEX &right)
+		inline implicit Node (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mLeft (left) ,mRight (right) {}
 	} ;
 
@@ -1521,7 +1521,7 @@ public:
 		return TRUE ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,mLast ,VAR_NONE) ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1530,12 +1530,12 @@ public:
 		mLast = ix ;
 	}
 
-	inline List &operator<< (const ITEM &item) {
+	inline List &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,mLast ,VAR_NONE) ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1544,7 +1544,7 @@ public:
 		mLast = ix ;
 	}
 
-	inline List &operator<< (ITEM &&item) {
+	inline List &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -1641,7 +1641,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void push (const ITEM &item) {
+	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE ,mFirst) ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
@@ -1650,7 +1650,7 @@ public:
 		mFirst = ix ;
 	}
 
-	void push (ITEM &&item) {
+	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE ,mFirst) ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
@@ -1786,10 +1786,10 @@ private:
 		inline implicit Node (const INDEX &seq)
 			:mSeq (seq) {}
 
-		inline implicit Node (const ITEM &item ,const INDEX &seq)
+		inline implicit Node (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &seq)
 			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &seq)
+		inline implicit Node (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &seq)
 			: mItem (_MOVE_ (item)) ,mSeq (seq) {}
 	} ;
 
@@ -1952,24 +1952,24 @@ public:
 		return !equal (that) ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE) ;
 		update_resize (ix) ;
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline SoftList &operator<< (const ITEM &item) {
+	inline SoftList &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item) ,VAR_NONE) ;
 		update_resize (ix) ;
 		update_compress_left (mWrite ,ix) ;
 	}
 
-	inline SoftList &operator<< (ITEM &&item) {
+	inline SoftList &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -2231,13 +2231,13 @@ private:
 
 namespace U {
 //@error: fuck gcc
-template <class _ARG1>
+template <class UNIT>
 struct CONSTEXPR_SWITCH_CEIL8 {
-	inline static constexpr _ARG1 case1 (const _ARG1 &len) {
+	inline static constexpr UNIT case1 (const UNIT &len) {
 		return len ;
 	}
 
-	inline static constexpr _ARG1 case2 (const _ARG1 &len) {
+	inline static constexpr UNIT case2 (const UNIT &len) {
 		return (len + 7) / 8 ;
 	}
 } ;
@@ -2372,14 +2372,14 @@ public:
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<BitSet>> &item) const {
 		if (this != &item.mBase)
 			return VAR_NONE ;
-		return _XVALUE_<INDEX> (item) ;
+		return item ;
 	}
 
 	template <class _RET = NONE>
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<const BitSet>> &item) const {
 		if (this != &item.mBase)
 			return VAR_NONE ;
-		return _XVALUE_<INDEX> (item) ;
+		return item ;
 	}
 
 	Array<INDEX> range () const {
@@ -2662,10 +2662,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
+		inline implicit Node (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
+		inline implicit Node (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_ ,const BOOL &red ,const INDEX &up ,const INDEX &left ,const INDEX &right)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
@@ -2790,16 +2790,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Set &operator<< (const ITEM &item) {
+	inline Set &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const ITEM &item ,const INDEX &map_) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
@@ -2812,16 +2812,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Set &operator<< (ITEM &&item) {
+	inline Set &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item ,const INDEX &map_) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
@@ -2870,12 +2870,12 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX insert (const ITEM &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (ITEM &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3301,10 +3301,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
+		inline implicit Node (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
+		inline implicit Node (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_ ,const FLAG &hash ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
@@ -3421,16 +3421,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline HashSet &operator<< (const ITEM &item) {
+	inline HashSet &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const ITEM &item ,const INDEX &map_) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
@@ -3443,16 +3443,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline HashSet &operator<< (ITEM &&item) {
+	inline HashSet &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item ,const INDEX &map_) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
 			if (ix != VAR_NONE)
@@ -3483,12 +3483,12 @@ public:
 		}
 	}
 
-	INDEX insert (const ITEM &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (ITEM &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3619,10 +3619,10 @@ private:
 	public:
 		inline Node () = delete ;
 
-		inline implicit Node (const ITEM &item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
+		inline implicit Node (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 
-		inline implicit Node (ITEM &&item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
+		inline implicit Node (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_ ,const LENGTH &weight ,const INDEX &left ,const INDEX &right ,const INDEX &next)
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
@@ -3773,16 +3773,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline SoftSet &operator<< (const ITEM &item) {
+	inline SoftSet &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const ITEM &item ,const INDEX &map_) {
+	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
@@ -3801,16 +3801,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (ITEM &&item) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline SoftSet &operator<< (ITEM &&item) {
+	inline SoftSet &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (ITEM &&item ,const INDEX &map_) {
+	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
 		if switch_case (TRUE) {
@@ -3871,12 +3871,12 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX insert (const ITEM &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (ITEM &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}

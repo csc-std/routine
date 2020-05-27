@@ -212,7 +212,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	const auto r2x = file.raw () ;
 	const auto r3x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('\\')) ;
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
-	const auto r5x = _MAX_ (r3x ,r4x) + 1 ;
+	const auto r5x = MathProc::maxof (r3x ,r4x) + 1 ;
 	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
 	return _MOVE_ (ret) ;
 }
@@ -800,11 +800,11 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 }
 
 inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
-	return _XVALUE_<Implement> (mThis).watch () ;
+	return _FORWARD_<Implement &> (mThis).watch () ;
 }
 
 inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
-	return _XVALUE_<const Implement> (mThis).watch () ;
+	return _FORWARD_<const Implement &> (mThis).watch () ;
 }
 
 inline exports void BufferLoader::flush () {

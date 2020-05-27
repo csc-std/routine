@@ -1541,16 +1541,17 @@ inline exports String<_RET> StringProc::build_dates (const TimePoint &stru) {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
-	rax << r1x[0] ;
+	auto &r1x = _FORWARD_<const DEPENDENT_TYPE<TimePoint ,Dependent> &> (stru) ;
+	const auto r2x = r1x.calendar () ;
+	rax << r2x[0] ;
 	rax << STR ('-') ;
-	if (r1x[1] < 10)
+	if (r2x[1] < 10)
 		rax << STR ('0') ;
-	rax << r1x[1] ;
+	rax << r2x[1] ;
 	rax << STR ('-') ;
-	if (r1x[2] < 10)
+	if (r2x[2] < 10)
 		rax << STR ('0') ;
-	rax << r1x[2] ;
+	rax << r2x[2] ;
 	rax << TextWriter<_RET>::EOS ;
 	return _MOVE_ (ret) ;
 }
@@ -1589,18 +1590,19 @@ inline exports String<_RET> StringProc::build_hours (const TimePoint &stru) {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
-	if (r1x[5] < 10)
+	auto &r1x = _FORWARD_<const DEPENDENT_TYPE<TimePoint ,Dependent> &> (stru) ;
+	const auto r2x = r1x.calendar () ;
+	if (r2x[5] < 10)
 		rax << STR ('0') ;
-	rax << r1x[5] ;
+	rax << r2x[5] ;
 	rax << STR (':') ;
-	if (r1x[6] < 10)
+	if (r2x[6] < 10)
 		rax << STR ('0') ;
-	rax << r1x[6] ;
+	rax << r2x[6] ;
 	rax << STR (':') ;
-	if (r1x[7] < 10)
+	if (r2x[7] < 10)
 		rax << STR ('0') ;
-	rax << r1x[7] ;
+	rax << r2x[7] ;
 	rax << TextWriter<_RET>::EOS ;
 	return _MOVE_ (ret) ;
 }
@@ -1654,28 +1656,29 @@ inline exports String<_RET> StringProc::build_times (const TimePoint &stru) {
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	const auto r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru).calendar () ;
-	rax << r1x[0] ;
+	auto &r1x = _FORWARD_<const DEPENDENT_TYPE<TimePoint ,Dependent> &> (stru) ;
+	const auto r2x = r1x.calendar () ;
+	rax << r2x[0] ;
 	rax << STR ('-') ;
-	if (r1x[1] < 10)
+	if (r2x[1] < 10)
 		rax << STR ('0') ;
-	rax << r1x[1] ;
+	rax << r2x[1] ;
 	rax << STR ('-') ;
-	if (r1x[2] < 10)
+	if (r2x[2] < 10)
 		rax << STR ('0') ;
-	rax << r1x[2] ;
+	rax << r2x[2] ;
 	rax << STR (' ') ;
-	if (r1x[5] < 10)
+	if (r2x[5] < 10)
 		rax << STR ('0') ;
-	rax << r1x[5] ;
+	rax << r2x[5] ;
 	rax << STR (':') ;
-	if (r1x[6] < 10)
+	if (r2x[6] < 10)
 		rax << STR ('0') ;
-	rax << r1x[6] ;
+	rax << r2x[6] ;
 	rax << STR (':') ;
-	if (r1x[7] < 10)
+	if (r2x[7] < 10)
 		rax << STR ('0') ;
-	rax << r1x[7] ;
+	rax << r2x[7] ;
 	rax << TextWriter<_RET>::EOS ;
 	return _MOVE_ (ret) ;
 }

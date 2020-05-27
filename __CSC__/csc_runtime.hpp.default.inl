@@ -113,6 +113,7 @@ using std::quick_exit ;
 
 using std::exit ;
 using std::terminate ;
+using std::system ;
 
 using ::setlocale ;
 using ::longjmp ;
@@ -381,7 +382,7 @@ public:
 		const auto r1x = mAtomic.compare_exchange_strong (ret ,data ,api::memory_order::memory_order_seq_cst) ;
 		if (r1x)
 			ret = data ;
-		return std::move (ret) ;
+		return _MOVE_ (ret) ;
 	}
 
 	void store (const VAR &data) {
@@ -615,13 +616,13 @@ inline exports TimePoint GlobalRuntime::clock_epoch () {
 
 #ifdef __CSC_SYSTEM_WINDOWS__
 inline exports FLAG GlobalRuntime::thread_tid () {
-	return _XVALUE_<FLAG> (api::GetCurrentThreadId ()) ;
+	return FLAG (api::GetCurrentThreadId ()) ;
 }
 #endif
 
 #ifdef __CSC_SYSTEM_LINUX__
 inline exports FLAG GlobalRuntime::thread_tid () {
-	return _XVALUE_<FLAG> (syscall (SYS_gettid)) ;
+	return FLAG (syscall (SYS_gettid)) ;
 }
 #endif
 
@@ -653,7 +654,7 @@ inline exports void GlobalRuntime::locale_init (const Plain<STRA> &locale_) {
 
 #ifdef __CSC_SYSTEM_WINDOWS__
 inline exports FLAG GlobalRuntime::process_pid () {
-	return _XVALUE_<FLAG> (api::GetCurrentProcessId ()) ;
+	return FLAG (api::GetCurrentProcessId ()) ;
 }
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &pid) {
@@ -698,7 +699,7 @@ inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU
 
 #ifdef __CSC_SYSTEM_LINUX__
 inline exports FLAG GlobalRuntime::process_pid () {
-	return _XVALUE_<FLAG> (syscall (SYS_getpid)) ;
+	return FLAG (syscall (SYS_getpid)) ;
 }
 
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &pid) {
@@ -746,6 +747,13 @@ inline exports void GlobalRuntime::process_exit[[noreturn]] () {
 
 inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 	api::terminate () ;
+}
+
+
+inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) popping {
+	const auto r1x = StringProc::build_strs<STRA> (cmd) ;
+	const auto r2x = api::system (r1x.raw ().self) ;
+	return FLAG (r2x) ;
 }
 
 class RandomService::Implement

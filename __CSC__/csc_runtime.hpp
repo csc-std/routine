@@ -294,6 +294,8 @@ public:
 	inline imports_static void process_exit[[noreturn]] () ;
 
 	inline imports_static void process_abort[[noreturn]] () ;
+
+	inline imports_static FLAG system_exec (const String<STR> &cmd) popping ;
 } ;
 
 namespace U {
@@ -584,7 +586,7 @@ struct OPERATOR_TYPENAME {
 
 	template <class _RET>
 	inline static String<STR> invoke () {
-		const auto r1x = _XVALUE_<PTR<void (TextWriter<STR> &)>> ([] (TextWriter<STR> &writer) {
+		const auto r1x = PTR<void (TextWriter<STR> &)> ([] (TextWriter<STR> &writer) {
 			template_write_typename_x (writer ,_NULL_<ARGV<_RET>> ()) ;
 		}) ;
 		return String<STR>::make (r1x) ;
@@ -649,7 +651,7 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _XVALUE_<Pack> (r1x) ;
+				auto &r2x = _FORWARD_<Pack &> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
 				rax = unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
@@ -822,7 +824,7 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _XVALUE_<Pack> (r4x) ;
+				auto &r5x = _FORWARD_<Pack &> (r4x) ;
 				auto &r6x = _LOAD_<NONE> (DEPTR[r5x]) ;
 				rax->mValue = DEPTR[r6x] ;
 			}
@@ -830,7 +832,7 @@ public:
 			auto rcx = IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r7x]) ;
 			return rcx.watch () ;
 		}) ;
-		auto &r8x = _XVALUE_<Pack> (r1x) ;
+		auto &r8x = _FORWARD_<Pack &> (r1x) ;
 		return r8x.mValue ;
 	}
 

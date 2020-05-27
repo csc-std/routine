@@ -53,7 +53,7 @@ struct GlobalWatch::Detail {
 			mName = NULL ;
 			mAddress = NULL ;
 			mTypeMID = 0 ;
-			const auto r1x = _XVALUE_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
+			const auto r1x = PTR<void (UNIT &)> ([] (UNIT &) {}) ;
 			mWatch = r1x ;
 		} ;
 	} ;
@@ -584,12 +584,12 @@ public:
 		mState = STATE_SIGNALED ;
 	}
 
-	inline implicit Mutable (const UNIT &that)
+	inline implicit Mutable (const REMOVE_CVR_TYPE<UNIT> &that)
 		:Mutable (ARGVP0 ,_MOVE_ (that)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline implicit Mutable (UNIT &&that)
+	inline implicit Mutable (REMOVE_CVR_TYPE<UNIT> &&that)
 		: Mutable (ARGVP0 ,_MOVE_ (that)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1046,12 +1046,12 @@ public:
 
 	template <class _ARG1>
 	inline INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) leftvalue {
-		return template_pick (DEREF[this] ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	template <class _ARG1>
 	inline const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const leftvalue {
-		return template_pick (DEREF[this] ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
 	inline BOOL equal (const Tuple &that) const {
@@ -1096,24 +1096,24 @@ public:
 	}
 
 private:
-	inline static UNIT1 &template_pick (Tuple &self_ ,const ARGV<ZERO> &) {
-		return self_.one () ;
+	inline UNIT1 &template_pick (const ARGV<ZERO> &) leftvalue {
+		return one () ;
 	}
 
 	template <class _ARG1>
-	inline static INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (Tuple &self_ ,const ARGV<_ARG1> &) {
+	inline INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGV<_ARG1> &) leftvalue {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return rest ().template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 
-	inline static constexpr const UNIT1 &template_pick (const Tuple &self_ ,const ARGV<ZERO> &) {
-		return self_.one () ;
+	inline const UNIT1 &template_pick (const ARGV<ZERO> &) const leftvalue {
+		return one () ;
 	}
 
 	template <class _ARG1>
-	inline static constexpr const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const Tuple &self_ ,const ARGV<_ARG1> &) {
+	inline const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGV<_ARG1> &) const leftvalue {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		return Tuple<UNITS...>::template_pick (self_.rest () ,_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return rest ().template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
 	}
 } ;
 
@@ -1458,7 +1458,7 @@ namespace U {
 struct OPERATOR_RECAST {
 	template <class _ARG1 ,class _ARG2>
 	inline static PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG2 ,_ARG1>::value>> & ,const DEF<decltype (ARGVP3)> &) {
-		return _XVALUE_<PTR<_ARG2>> (address) ;
+		return static_cast<PTR<_ARG2>> (address) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1821,7 +1821,7 @@ public:
 		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_<UNIT> (_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
+		auto &r1x = _LOAD_<UNIT> (_FORWARD_<const PTR<TEMP<UNIT>> &> (rax)) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
 		_DEBUG_ASSERT_ (r2x == NULL) ;
@@ -2083,10 +2083,10 @@ struct MemoryPool::Detail {
 			const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
 			const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+			const auto r3x = _ADDRESS_ (_FORWARD_<const PTR<ARR<BYTE>> &> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
 			auto &r5x = _LOAD_UNSAFE_<CHUNK> (r4x) ;
-			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5x.mOrigin = rax ;
 			r5x.mPrev = NULL ;
 			r5x.mNext = mRoot ;
 			r5x.mCount = RESE::value ;
@@ -2110,8 +2110,8 @@ struct MemoryPool::Detail {
 			const auto r1x = mFree ;
 			mFree = r1x->mNext ;
 			mLength += SIZE::value ;
-			const auto r2x = _CAST_<TEMP<PTR<BLOCK>>> (_XVALUE_<LENGTH> (VAR_USED)) ;
-			_CAST_<TEMP<PTR<BLOCK>>> (r1x->mNext) = r2x ;
+			const auto r2x = VAR_USED ;	
+			r1x->mNext = _BITWISE_CAST_<PTR<BLOCK>> (r2x) ;
 			return DEPTR[r1x->mFlexData] ;
 		}
 
@@ -2202,10 +2202,10 @@ struct MemoryPool::Detail {
 			const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
 			const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
-			const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+			const auto r3x = _ADDRESS_ (_FORWARD_<const PTR<ARR<BYTE>> &> (rax)) ;
 			const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
 			auto &r5x = _LOAD_UNSAFE_<FBLOCK> (r4x) ;
-			r5x.mOrigin = _XVALUE_<PTR<ARR<BYTE>>> (rax) ;
+			r5x.mOrigin = rax ;
 			r5x.mPrev = NULL ;
 			r5x.mNext = mRoot ;
 			r5x.mCount = r1x ;
@@ -2287,7 +2287,7 @@ exports class Objective
 	:public Interface {
 public:
 	virtual WeakRef<Object> weak_of_this () const = 0 ;
-	virtual void weak_of_this (const WeakRef<Object> &that) = 0 ;
+	virtual void weak_of_this (const StrongRef<Object> &that) = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
@@ -2313,8 +2313,8 @@ public:
 		return mWeakOfThis ;
 	}
 
-	inline void weak_of_this (const WeakRef<Object> &that) override {
-		mWeakOfThis = that ;
+	inline void weak_of_this (const StrongRef<Object> &that) override {
+		mWeakOfThis.assign (that) ;
 	}
 
 	inline StrongRef<Object> clone () const override {
@@ -2341,12 +2341,12 @@ struct Object::Detail {
 			mObjectSize = _SIZEOF_ (_ARG1) ;
 			mObjectAlign = _ALIGNOF_ (_ARG1) ;
 			mObjectTypeMID = _TYPEMID_<_ARG1> () ;
-			const auto r1x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
+			const auto r1x = _FORWARD_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
 				auto &r2x = _LOAD_<TEMP<_ARG1>> (address) ;
 				_CREATE_ (DEPTR[r2x]) ;
 			}) ;
 			mConstrutor = r1x ;
-			const auto r3x = _XVALUE_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
+			const auto r3x = _FORWARD_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
 				auto &r4x = _LOAD_<TEMP<_ARG1>> (address) ;
 				_DESTROY_ (DEPTR[r4x]) ;
 			}) ;

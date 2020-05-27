@@ -462,7 +462,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			mConvergence[ix] = REAL (0) ;
 			for (auto &&i : mCenterMoveSet) {
 				const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.sid]) ;
-				mConvergence[ix] = _MAX_ (mConvergence[ix] ,r1x) ;
+				mConvergence[ix] = MathProc::maxof (mConvergence[ix] ,r1x) ;
 			}
 		}
 
@@ -558,7 +558,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			mYWeight.fill (REAL (0)) ;
 			for (auto &&i : mAdjacency.range ()) {
 				_DYNAMIC_ASSERT_ (mAdjacency[i] >= REAL (0)) ;
-				mYWeight[i[0]] = _MAX_ (mYWeight[i[0]] ,mAdjacency[i]) ;
+				mYWeight[i[0]] = MathProc::maxof (mYWeight[i[0]] ,mAdjacency[i]) ;
 			}
 		}
 
@@ -628,7 +628,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			*					}
 			*				} else {
 			*					//@info: $14
-			*					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
+			*					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
 			*				}
 			*			}
 			*			//@info: $15
@@ -745,7 +745,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 				if switch_case (fax) {
 					if (!(mTempState == M_STATE.P1[14]))
 						discard ;
-					mLackWeight[1] = _MIN_ (mLackWeight[1] ,mLackWeight[0]) ;
+					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = M_STATE.P1[15] ;
 				}
 				if switch_case (fax) {
@@ -1079,12 +1079,12 @@ public:
 		_DEBUG_ASSERT_ (width > REAL (0)) ;
 		Deque<INDEX> ret ;
 		auto rax = ARRAY3<ARRAY2<REAL>> () ;
-		rax[0][0] = _MAX_ ((point[0] - width) ,mBound[0][0]) ;
-		rax[0][1] = _MIN_ ((point[0] + width) ,mBound[0][1]) ;
-		rax[1][0] = _MAX_ ((point[1] - width) ,mBound[1][0]) ;
-		rax[1][1] = _MIN_ ((point[1] + width) ,mBound[1][1]) ;
-		rax[2][0] = _MAX_ ((point[2] - width) ,mBound[2][0]) ;
-		rax[2][1] = _MIN_ ((point[2] + width) ,mBound[2][1]) ;
+		rax[0][0] = MathProc::maxof ((point[0] - width) ,mBound[0][0]) ;
+		rax[0][1] = MathProc::minof ((point[0] + width) ,mBound[0][1]) ;
+		rax[1][0] = MathProc::maxof ((point[1] - width) ,mBound[1][0]) ;
+		rax[1][1] = MathProc::minof ((point[1] + width) ,mBound[1][1]) ;
+		rax[2][0] = MathProc::maxof ((point[2] - width) ,mBound[2][0]) ;
+		rax[2][1] = MathProc::minof ((point[2] + width) ,mBound[2][1]) ;
 		compute_search_range (point ,width ,mRoot ,0 ,rax ,ret) ;
 		return _MOVE_ (ret) ;
 	}
@@ -1132,7 +1132,7 @@ private:
 				if (r2x < bound[rot][0])
 					discard ;
 				const auto r3x = bound[rot][1] ;
-				bound[rot][1] = _MIN_ (bound[rot][1] ,r2x) ;
+				bound[rot][1] = MathProc::minof (bound[rot][1] ,r2x) ;
 				compute_search_range (point ,width ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r3x ;
 			}
@@ -1140,7 +1140,7 @@ private:
 				if (r2x > bound[rot][1])
 					discard ;
 				const auto r4x = bound[rot][0] ;
-				bound[rot][0] = _MAX_ (bound[rot][0] ,r2x) ;
+				bound[rot][0] = MathProc::maxof (bound[rot][0] ,r2x) ;
 				compute_search_range (point ,width ,mKDTree[curr].mRight ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][0] = r4x ;
 			}
@@ -1255,12 +1255,12 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			mBound[2][0] = mVertex[0][2] ;
 			mBound[2][1] = mVertex[0][2] ;
 			for (auto &&i : mVertex) {
-				mBound[0][0] = _MIN_ (mBound[0][0] ,i[0]) ;
-				mBound[0][1] = _MAX_ (mBound[0][1] ,i[0]) ;
-				mBound[1][0] = _MIN_ (mBound[1][0] ,i[1]) ;
-				mBound[1][1] = _MAX_ (mBound[1][1] ,i[1]) ;
-				mBound[2][0] = _MIN_ (mBound[2][0] ,i[2]) ;
-				mBound[2][1] = _MAX_ (mBound[2][1] ,i[2]) ;
+				mBound[0][0] = MathProc::minof (mBound[0][0] ,i[0]) ;
+				mBound[0][1] = MathProc::maxof (mBound[0][1] ,i[0]) ;
+				mBound[1][0] = MathProc::minof (mBound[1][0] ,i[1]) ;
+				mBound[1][1] = MathProc::maxof (mBound[1][1] ,i[1]) ;
+				mBound[2][0] = MathProc::minof (mBound[2][0] ,i[2]) ;
+				mBound[2][1] = MathProc::maxof (mBound[2][1] ,i[2]) ;
 			}
 		}
 
@@ -1384,7 +1384,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			for (auto &&i : mAdjacency.range ()) {
 				if (i[0] == i[1])
 					continue ;
-				ret = _MAX_ (ret ,mAdjacency[i]) ;
+				ret = MathProc::maxof (ret ,mAdjacency[i]) ;
 			}
 			return _MOVE_ (ret) ;
 		}
@@ -1397,7 +1397,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 				const auto r1x = augument_max_flow () ;
 				for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
 					it = mBFSPath[i] ;
-					const auto r2x = _MIN_ (mCurrentFlow[it][i] ,r1x) ;
+					const auto r2x = MathProc::minof (mCurrentFlow[it][i] ,r1x) ;
 					mCurrentFlow[it][i] -= r2x ;
 					mCurrentFlow[i][it] += r1x - r2x ;
 				}
@@ -1434,7 +1434,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 				it = mBFSPath[i] ;
 				_DEBUG_ASSERT_ (i != it) ;
 				const auto r1x = mAdjacency[i][it] + mCurrentFlow[it][i] - mCurrentFlow[i][it] ;
-				ret = _MIN_ (ret ,r1x) ;
+				ret = MathProc::minof (ret ,r1x) ;
 			}
 			return _MOVE_ (ret) ;
 		}

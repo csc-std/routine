@@ -1974,13 +1974,13 @@ private:
 		if switch_case (fax) {
 			//@info: case 'x.xxxExxx'
 			const auto r6x = r5x - 1 + rax[1] ;
-			if (!(_ABS_ (r6x) >= precision))
+			if (!(MathProc::abs (r6x) >= precision))
 				discard ;
 			compute_write_number (r6x ,out ,iw) ;
 			if (r6x > 0)
 				out[--iw] = REAL ('+') ;
 			out[--iw] = REAL ('e') ;
-			const auto r7x = _MAX_ ((r5x - 1 - precision) ,VAR_ZERO) ;
+			const auto r7x = MathProc::maxof ((r5x - 1 - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r7x)) {
 				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
@@ -2017,7 +2017,7 @@ private:
 				discard ;
 			if (!(rax[1] < 0))
 				discard ;
-			const auto r8x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
+			const auto r8x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r8x)) {
 				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
@@ -2043,7 +2043,7 @@ private:
 				discard ;
 			if (!(rax[1] < 0))
 				discard ;
-			const auto r9x = _MAX_ (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
+			const auto r9x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r9x)) {
 				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
@@ -2055,7 +2055,7 @@ private:
 				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
 			}
-			for (auto &&i : _RANGE_ (_MAX_ (r9x ,r5x) ,LENGTH (-rax[1]))) {
+			for (auto &&i : _RANGE_ (MathProc::maxof (r9x ,r5x) ,LENGTH (-rax[1]))) {
 				out[--iw] = r1x.convert_number_w (0) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				_STATIC_UNUSED_ (i) ;
