@@ -849,8 +849,8 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = _MOVE_ (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 		_STATIC_UNUSED_ (i) ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
 	return _MOVE_ (ret) ;
 }
@@ -859,8 +859,8 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
 	String<STRU8> ret = _MOVE_ (_CAST_<String<STRUA>> (val)) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 		_STATIC_UNUSED_ (i) ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
 	return _MOVE_ (ret) ;
 }
@@ -869,8 +869,8 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 		_STATIC_UNUSED_ (i) ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
 	return _MOVE_ (_CAST_<String<STRA>> (ret)) ;
 }
@@ -879,8 +879,8 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 		_STATIC_UNUSED_ (i) ;
+		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
 	return _MOVE_ (_CAST_<String<STRA>> (ret)) ;
 }
@@ -1191,6 +1191,7 @@ inline exports CHAR StringProc::parse_hex8s (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('H')) ;
 	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
+		_STATIC_UNUSED_ (i) ;
 		rax >> rbx ;
 		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
 		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
@@ -1199,7 +1200,6 @@ inline exports CHAR StringProc::parse_hex8s (const String<_ARG1> &stri) {
 			r2x ? r1x[0] :
 			r1x[1]) ;
 		ret = (ret << 4) | CHAR (rbx - r4x) ;
-		_STATIC_UNUSED_ (i) ;
 	}
 	rax >> TextReader<_ARG1>::EOS ;
 	return _MOVE_ (ret) ;

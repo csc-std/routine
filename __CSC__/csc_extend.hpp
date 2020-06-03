@@ -645,7 +645,7 @@ template <class _ARG1>
 inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-	return _MAX_ (_SIZEOF_ (ONE_HINT) ,constexpr_max_sizeof (_NULL_<ARGV<REST_HINT>> ())) ;
+	return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,constexpr_max_sizeof (_NULL_<ARGV<REST_HINT>> ())) ;
 }
 
 inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
@@ -656,7 +656,7 @@ template <class _ARG1>
 inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) {
 	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-	return _MAX_ (_ALIGNOF_ (ONE_HINT) ,constexpr_max_alignof (_NULL_<ARGV<REST_HINT>> ())) ;
+	return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,constexpr_max_alignof (_NULL_<ARGV<REST_HINT>> ())) ;
 }
 } ;
 
@@ -1638,8 +1638,8 @@ private:
 		if (pointer == NULL)
 			return ;
 		const auto r1x = ++this_->mCounter ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
 		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
 		mThis = _MOVE_ (this_) ;
 		mPointer = pointer ;
 	}
@@ -1757,8 +1757,8 @@ public:
 		: IntrusiveRef (ARGVP0) {
 		acquire (address ,FALSE) ;
 		const auto r1x = safe_exchange (address) ;
-		_DEBUG_ASSERT_ (r1x == NULL) ;
 		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x == NULL) ;
 	}
 
 	inline ~IntrusiveRef () noexcept {
@@ -1777,8 +1777,8 @@ public:
 		:IntrusiveRef (ARGVP0) {
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
-		_DEBUG_ASSERT_ (r2x == NULL) ;
 		_STATIC_UNUSED_ (r2x) ;
+		_DEBUG_ASSERT_ (r2x == NULL) ;
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
@@ -1824,8 +1824,8 @@ public:
 		auto &r1x = _LOAD_<UNIT> (_FORWARD_<const PTR<TEMP<UNIT>> &> (rax)) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
-		_DEBUG_ASSERT_ (r2x == NULL) ;
 		_STATIC_UNUSED_ (r2x) ;
+		_DEBUG_ASSERT_ (r2x == NULL) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1842,8 +1842,8 @@ private:
 		INDEX ir = 0 ;
 		while (TRUE) {
 			const auto r2x = ir++ ;
-			_DEBUG_ASSERT_ (r2x <= DEFAULT_RECURSIVE_SIZE::value) ;
 			_STATIC_UNUSED_ (r2x) ;
+			_DEBUG_ASSERT_ (r2x <= DEFAULT_RECURSIVE_SIZE::value) ;
 			const auto r3x = mLatch.load () ;
 			if (r3x == 0)
 				break ;
@@ -1859,8 +1859,8 @@ private:
 		if (init)
 			CONT::friend_create (DEREF[address]) ;
 		const auto r1x = CONT::friend_attach (DEREF[address]) ;
-		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 	}
 
 	inline static void release (const PTR<UNIT> &address) {
@@ -1909,14 +1909,14 @@ struct IntrusiveRef<UNIT ,CONT>::Detail {
 	public:
 		inline void lock () {
 			const auto r1x = ++LatchCounter::mSelf ;
-			_DEBUG_ASSERT_ (r1x >= 1) ;
 			_STATIC_UNUSED_ (r1x) ;
+			_DEBUG_ASSERT_ (r1x >= 1) ;
 		}
 
 		inline void unlock () {
 			const auto r1x = --LatchCounter::mSelf ;
-			_DEBUG_ASSERT_ (r1x >= 0) ;
 			_STATIC_UNUSED_ (r1x) ;
+			_DEBUG_ASSERT_ (r1x >= 0) ;
 		}
 	} ;
 } ;
@@ -1975,16 +1975,18 @@ public:
 	inline PTR<_RET> alloc () popping {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
-		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + _SIZEOF_ (_RET) ;
-		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mThis->mPool[ix]->alloc (r1x) ;
-		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5x = _LOAD_UNSAFE_<HEADER> (r4x) ;
-		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
-		r5x.mCurr = r2x ;
-		auto &r6x = _LOAD_UNSAFE_<_RET> (r3x) ;
-		return DEPTR[r6x] ;
+		const auto r1x = _ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ;
+		const auto r2x = _MAX_ (r1x ,VAR_ZERO) + _SIZEOF_ (_RET) ;
+		const auto r3x = (r2x - 1) / 8 ;
+		INDEX ix = _MIN_ (r3x ,_SIZEOF_ (HEADER)) ;
+		const auto r4x = mThis->mPool[ix]->alloc (r2x) ;
+		const auto r5x = _ALIGNAS_ (_ADDRESS_ (r4x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
+		const auto r6x = r5x - _SIZEOF_ (HEADER) ;
+		auto &r7x = _LOAD_UNSAFE_<HEADER> (r6x) ;
+		r7x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r7x.mCurr = r4x ;
+		auto &r8x = _LOAD_UNSAFE_<_RET> (r5x) ;
+		return DEPTR[r8x] ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -1992,17 +1994,19 @@ public:
 	inline PTR<ARR<_RET>> alloc (const LENGTH &len) popping {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
-		const auto r1x = _MAX_ (_ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ,VAR_ZERO) + len * _SIZEOF_ (_RET) ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		INDEX ix = _MIN_ (((r1x - 1) / 8) ,_SIZEOF_ (HEADER)) ;
-		const auto r2x = mThis->mPool[ix]->alloc (r1x) ;
-		const auto r3x = _ALIGNAS_ (_ADDRESS_ (r2x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r4x = r3x - _SIZEOF_ (HEADER) ;
-		auto &r5x = _LOAD_UNSAFE_<HEADER> (r4x) ;
-		r5x.mFrom = DEPTR[mThis->mPool[ix].self] ;
-		r5x.mCurr = r2x ;
-		auto &r6x = _LOAD_UNSAFE_<ARR<_RET>> (r3x) ;
-		return DEPTR[r6x] ;
+		const auto r1x = _ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ;
+		const auto r2x = _MAX_ (r1x ,VAR_ZERO) + len * _SIZEOF_ (_RET) ;
+		_DEBUG_ASSERT_ (r2x > 0) ;
+		const auto r3x = (r2x - 1) / 8 ;
+		INDEX ix = _MIN_ (r3x ,_SIZEOF_ (HEADER)) ;
+		const auto r4x = mThis->mPool[ix]->alloc (r2x) ;
+		const auto r5x = _ALIGNAS_ (_ADDRESS_ (r4x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
+		const auto r6x = r5x - _SIZEOF_ (HEADER) ;
+		auto &r7x = _LOAD_UNSAFE_<HEADER> (r6x) ;
+		r7x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r7x.mCurr = r4x ;
+		auto &r8x = _LOAD_UNSAFE_<ARR<_RET>> (r5x) ;
+		return DEPTR[r8x] ;
 	}
 
 	template <class _ARG1>

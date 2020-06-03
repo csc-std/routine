@@ -115,9 +115,6 @@ public:
 	inline imports_static REMOVE_CVR_TYPE<_ARG1> sign (const _ARG1 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> negative (const _ARG1 &x ,const VAR &y) ;
-
-	template <class _ARG1>
 	inline imports_static REMOVE_CVR_TYPE<_ARG1> inverse (const _ARG1 &x ,const _ARG1 &y) ;
 
 	inline imports_static VAL32 inverse (const VAL32 &x) ;
@@ -309,14 +306,6 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::sign (const _ARG1 &x) {
 }
 
 template <class _ARG1>
-inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::negative (const _ARG1 &x ,const VAR &y) {
-	_DEBUG_ASSERT_ (y >= 0) ;
-	if (y % 2 == 0)
-		return x ;
-	return -x ;
-}
-
-template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::inverse (const _ARG1 &x ,const _ARG1 &y) {
 	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
@@ -443,7 +432,8 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::minof (const _ARG1 &list_one) {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
-	return MathProc::minof (_MIN_ (list_one ,list_two) ,list_rest...) ;
+	auto &r1x = _MIN_ (list_one ,list_two) ;
+	return MathProc::minof (r1x ,list_rest...) ;
 }
 
 template <class _ARG1>
@@ -454,7 +444,8 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one) {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
-	return MathProc::maxof (_MAX_ (list_one ,list_two) ,list_rest...) ;
+	auto &r1x = _MAX_ (list_one ,list_two) ;
+	return MathProc::maxof (r1x ,list_rest...) ;
 }
 
 namespace U {

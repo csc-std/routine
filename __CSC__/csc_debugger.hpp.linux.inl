@@ -306,7 +306,8 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		using ImplBinder = typename Detail::template ImplBinder<PhanBuffer<const STR>> ;
-		log (PhanBuffer<const STR>::make (tag.self ,tag.size ()) ,ImplBinder (msg)) ;
+		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
+		log (r1x ,ImplBinder (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {

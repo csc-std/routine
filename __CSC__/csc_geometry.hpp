@@ -639,8 +639,11 @@ public:
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
-				const auto r6x = MathProc::negative (r5x ,(i + j)) ;
-				ret.get (j ,i) = r6x ;
+				const auto r6x = -r5x ;
+				auto &r7x = _SWITCH_ (
+					((i + j) % 2 == 0) ? r5x :
+					r6x) ;
+				ret.get (j ,i) = r7x ;
 			}
 		}
 		ret *= r1x ;
@@ -651,8 +654,8 @@ public:
 				discard ;
 			if (!ret.affine_matrix_like ())
 				discard ;
-			const auto r7x = MathProc::inverse (ret.get (3 ,3)) ;
-			ret *= r7x ;
+			const auto r8x = MathProc::inverse (ret.get (3 ,3)) ;
+			ret *= r8x ;
 			ret.get (3 ,3) = REAL (1) ;
 		}
 		return _MOVE_ (ret) ;

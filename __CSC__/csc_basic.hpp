@@ -187,12 +187,12 @@ namespace U {
 inline CHAR static_mem_crc32_table_each (const CHAR &val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
+		_STATIC_UNUSED_ (i) ;
 		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
 		ret >>= 1 ;
 		if (r1x == 0)
 			continue ;
 		ret ^= CHAR (0XEDB88320) ;
-		_STATIC_UNUSED_ (i) ;
 	}
 	return _MOVE_ (ret) ;
 }
@@ -909,8 +909,8 @@ private:
 		if (pointer == NULL)
 			return ;
 		const auto r1x = ++pointer->mCounter ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
 		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x > 0) ;
 		mPointer = pointer ;
 	}
 } ;
@@ -1167,11 +1167,10 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
+	inline explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) popping
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplHolder<PTR<void ()>> ;
-		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
@@ -1266,10 +1265,9 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline explicit UniqueRef (_ARG1 &&constructor ,_ARG2 &&destructor) popping
+	inline explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) popping
 		: UniqueRef (ARGVP0) {
 		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
-		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
@@ -2030,8 +2028,8 @@ public:
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			DEREF[mBuffer][i].~UNIT () ;
 			_STATIC_UNUSED_ (i) ;
+			DEREF[mBuffer][i].~UNIT () ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2197,8 +2195,8 @@ public:
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			DEREF[mBuffer][i].~UNIT () ;
 			_STATIC_UNUSED_ (i) ;
+			DEREF[mBuffer][i].~UNIT () ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2261,8 +2259,8 @@ public:
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			DEREF[mBuffer][i].~UNIT () ;
 			_STATIC_UNUSED_ (i) ;
+			DEREF[mBuffer][i].~UNIT () ;
 		}
 		GlobalHeap::free (mBuffer) ;
 		mBuffer = NULL ;
@@ -2964,7 +2962,8 @@ public:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
+		const auto r1x = that.mSize - mSize ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,r1x) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3072,7 +3071,8 @@ public:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = that.mSize ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
+		const auto r1x = that.mSize - mSize ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,r1x) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3104,7 +3104,8 @@ public:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,(that.mSize - mSize)) ;
+		const auto r1x = that.mSize - mSize ;
+		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (VAR_ZERO ,r1x) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3155,6 +3156,9 @@ private:
 template <class UNIT ,class SIZE>
 class Allocator
 	:private Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
+	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
+
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
 	using Node = typename SPECIALIZATION_BASE::Node ;
@@ -3232,8 +3236,6 @@ public:
 
 	template <class... _ARGS>
 	inline INDEX alloc (_ARGS &&...initval) popping {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		INDEX ret = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
@@ -3268,14 +3270,13 @@ public:
 	}
 
 	inline void reserve (const LENGTH &len) {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
-		const auto r1x = _MAX_ (len - (mSize - mLength) ,VAR_ZERO) ;
-		if (r1x == 0)
+		const auto r1x = len - (mSize - mLength) ;
+		const auto r2x = _MAX_ (r1x ,VAR_ZERO) ;
+		if (r2x == 0)
 			return ;
-		_DEBUG_ASSERT_ (mSize + r1x > mSize) ;
-		auto tmp = mAllocator.expand (mSize + r1x) ;
+		_DEBUG_ASSERT_ (mSize + r2x > mSize) ;
+		auto tmp = mAllocator.expand (mSize + r2x) ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			if (mAllocator[i].mNext == VAR_USED)
 				_CREATE_ (DEPTR[tmp[i].mValue] ,_MOVE_ (_CAST_<UNIT> (mAllocator[i].mValue))) ;
@@ -3286,8 +3287,6 @@ public:
 	}
 
 	inline void clean () {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		const auto r1x = shrink_size () ;
 		if (r1x == mSize)
 			return ;

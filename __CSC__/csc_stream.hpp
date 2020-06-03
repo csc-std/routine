@@ -744,8 +744,8 @@ public:
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		for (auto &&i : _RANGE_ (0 ,rax.size () - rax.length ())) {
-			rax << r1x.varify_ending_item () ;
 			_STATIC_UNUSED_ (i) ;
+			rax << r1x.varify_ending_item () ;
 		}
 		DEREF[this] = rax.share () ;
 	}
@@ -1954,9 +1954,9 @@ private:
 		if switch_case (TRUE) {
 			const auto r4x = r3x - precision ;
 			for (auto &&i : _RANGE_ (0 ,r4x - 1)) {
+				_STATIC_UNUSED_ (i) ;
 				rax[0] /= r1x.varify_radix () ;
 				rax[1]++ ;
-				_STATIC_UNUSED_ (i) ;
 			}
 			if (r4x <= 0)
 				discard ;
@@ -1982,15 +1982,15 @@ private:
 			out[--iw] = REAL ('e') ;
 			const auto r7x = MathProc::maxof ((r5x - 1 - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r7x)) {
-				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
+				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r7x ,r5x - 1)) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
@@ -2002,13 +2002,13 @@ private:
 			if (!(rax[1] >= 0))
 				discard ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (rax[1]))) {
-				out[--iw] = r1x.convert_number_w (0) ;
 				_STATIC_UNUSED_ (i) ;
+				out[--iw] = r1x.convert_number_w (0) ;
 			}
 			for (auto &&i : _RANGE_ (0 ,r5x)) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
-				_STATIC_UNUSED_ (i) ;
 			}
 		}
 		if switch_case (fax) {
@@ -2019,22 +2019,22 @@ private:
 				discard ;
 			const auto r8x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r8x)) {
-				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
+				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r8x ,LENGTH (-rax[1]))) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (r5x + rax[1]))) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
-				_STATIC_UNUSED_ (i) ;
 			}
 		}
 		if switch_case (fax) {
@@ -2045,20 +2045,21 @@ private:
 				discard ;
 			const auto r9x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r9x)) {
-				rax[0] /= r1x.varify_radix () ;
 				_STATIC_UNUSED_ (i) ;
+				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r9x ,r5x)) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
-				_STATIC_UNUSED_ (i) ;
 			}
-			for (auto &&i : _RANGE_ (MathProc::maxof (r9x ,r5x) ,LENGTH (-rax[1]))) {
+			const auto r10x = MathProc::maxof (r9x ,r5x) ;
+			for (auto &&i : _RANGE_ (r10x ,LENGTH (-rax[1]))) {
+				_STATIC_UNUSED_ (i) ;
 				out[--iw] = r1x.convert_number_w (0) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
-				_STATIC_UNUSED_ (i) ;
 			}
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;

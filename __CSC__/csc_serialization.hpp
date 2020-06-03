@@ -13,6 +13,14 @@
 #include "csc_string.hpp"
 
 namespace CSC {
+namespace U {
+inline const String<STRU8> &static_empty_string () {
+	return _CACHE_ ([&] () {
+		return String<STRU8> () ;
+	}) ;
+}
+} ;
+
 class XmlParser {
 private:
 	static constexpr auto NODE_CLAZZ_TABLE = EFLAG (1) ;
@@ -144,14 +152,11 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
-		auto &r1x = _CACHE_ ([&] () {
-			return String<STRU8> () ;
-		}) ;
 		if (!exist ())
-			return r1x ;
+			return U::static_empty_string () ;
 		INDEX ix = mHeap.self[mIndex].mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
-			return r1x ;
+			return U::static_empty_string () ;
 		return mHeap.self[mIndex].mAttributeList[ix] ;
 	}
 
@@ -1742,12 +1747,9 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
-		auto &r1x = _CACHE_ ([&] () {
-			return String<STRU8> () ;
-		}) ;
 		INDEX ix = mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
-			return r1x ;
+			return U::static_empty_string () ;
 		return mAttributeList[ix] ;
 	}
 

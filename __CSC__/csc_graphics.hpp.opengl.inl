@@ -276,7 +276,8 @@ public:
 		} ,[] (AutoBuffer<CHAR> &me) {
 			api::glDeleteTextures (VAR32 (me.size ()) ,me.self) ;
 		}) ;
-		compute_transfer_data (tmp ,bind_vertex (mesh.vertex () ,mesh.element ())) ;
+		const auto r1x = bind_vertex (mesh.vertex () ,mesh.element ()) ;
+		compute_transfer_data (tmp ,r1x) ;
 		compute_transfer_data (tmp ,mesh.texture ()[0]) ;
 		holder = AnyRef<SPRITE_NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}

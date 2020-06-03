@@ -299,14 +299,15 @@ private:
 	void link_confirm () {
 		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) != 0) ;
+		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
+		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (VAR32)) ;
 		api::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.P1] ,DEPTR[rax.P2]) ;
-		const auto r2x = _BITWISE_CAST_<VAR32> (rax.P1) ;
+		const auto r3x = _BITWISE_CAST_<VAR32> (rax.P1) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x == 0) ;
+		_DYNAMIC_ASSERT_ (r3x == 0) ;
 	}
 } ;
 
@@ -395,7 +396,8 @@ public:
 	void wait_linker () {
 		const auto r1x = U::static_socket_select (mListener ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mListener ,DEPTR[r1x[0]]) != 0) ;
+		const auto r2x = FD_ISSET (mListener ,DEPTR[r1x[0]]) ;
+		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		mLinker = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::accept (mListener ,NULL ,NULL) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -485,14 +487,15 @@ public:
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) != 0) ;
+		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
+		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r2x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 		mThis->mPeer = rax.P1 ;
 	}
 
@@ -501,25 +504,27 @@ public:
 		out_i = VAR_NONE ;
 		const auto r1x = U::static_socket_select (mThis->mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) != 0) ;
+		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
+		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.P1) ;
 		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r2x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
 		mThis->mPeer = rax.P1 ;
-		out_i = r2x ;
+		out_i = r3x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) != 0) ;
-		const auto r2x = api::sendto (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[mThis->mPeer] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
+		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
+		_DYNAMIC_ASSERT_ (r2x != 0) ;
+		const auto r3x = api::sendto (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[mThis->mPeer] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
 	}
 } ;
 

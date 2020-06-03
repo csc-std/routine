@@ -794,16 +794,7 @@ public:
 		reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
+			add (val[i]) ;
 		}
 	}
 
@@ -920,10 +911,11 @@ private:
 	}
 
 	void reserve (const LENGTH &len) {
-		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
-		if (r1x == 0)
+		const auto r1x = len - (size () - length ()) ;
+		const auto r2x = _MAX_ (r1x ,VAR_ZERO) ;
+		if (r2x == 0)
 			return ;
-		auto tmp = mDeque.expand (mDeque.size () + r1x) ;
+		auto tmp = mDeque.expand (mDeque.size () + r2x) ;
 		auto fax = TRUE ;
 		if switch_case (fax) {
 			if (!(mRead <= mWrite))
@@ -1172,15 +1164,6 @@ public:
 		}
 	}
 
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
-	}
-
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		mPriority[0] = _MOVE_ (mPriority[mWrite - 1]) ;
@@ -1229,10 +1212,11 @@ private:
 
 private:
 	void reserve (const LENGTH &len) {
-		const auto r1x = _MAX_ ((len - (size () - length ())) ,VAR_ZERO) ;
-		if (r1x == 0)
+		const auto r1x = len - (size () - length ()) ;
+		const auto r2x = _MAX_ (r1x ,VAR_ZERO) ;
+		if (r2x == 0)
 			return ;
-		auto tmp = mPriority.expand (mPriority.size () + r1x) ;
+		auto tmp = mPriority.expand (mPriority.size () + r2x) ;
 		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
 		mPriority.swap (tmp) ;
 	}
@@ -1554,16 +1538,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mList.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
+			add (val[i]) ;
 		}
 	}
 
@@ -1979,16 +1954,7 @@ public:
 		mList.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mList.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (_MOVE_ (val[i])) ;
+			add (val[i]) ;
 		}
 	}
 
@@ -2138,11 +2104,13 @@ private:
 
 	void update_compress_left (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
+		const auto r1x = mHead.size () - 1 ;
 		if switch_case (fax) {
 			if (!(mHead[curr].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (curr ,last) ;
-			mWrite = _MIN_ ((curr + 1) ,(mHead.size () - 1)) ;
+			const auto r2x = curr + 1 ;
+			mWrite = _MIN_ (r2x ,r1x) ;
 		}
 		if switch_case (fax) {
 			INDEX ix = curr + 1 ;
@@ -2151,7 +2119,8 @@ private:
 			if (!(mHead[ix].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (ix ,last) ;
-			mWrite = _MIN_ ((ix + 1) ,(mHead.size () - 1)) ;
+			const auto r3x = ix + 1 ;
+			mWrite = _MIN_ (r3x ,r1x) ;
 		}
 		if switch_case (fax) {
 			update_compress_left_force (curr ,last) ;
@@ -2198,7 +2167,9 @@ private:
 			mRead++ ;
 		}
 		mRead = 0 ;
-		mWrite = _MIN_ (mList.length () ,(mHead.size () - 1)) ;
+		const auto r2x = mList.length () ;
+		const auto r3x = mHead.size () - 1 ;
+		mWrite = _MIN_ (r2x ,r3x) ;
 	}
 
 	void sequence_rewrite (const INDEX &curr ,const INDEX &index) {
@@ -2570,7 +2541,8 @@ public:
 
 private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> &) {
-		mWidth = _MAX_ (VAR_ZERO ,LENGTH (SIZE::value)) ;
+		const auto r1x = LENGTH (SIZE::value) ;
+		mWidth = _MAX_ (VAR_ZERO ,r1x) ;
 	}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len ,const LENGTH &width)
@@ -2836,15 +2808,6 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
 		mSet.reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
 			it = val.inext (i) ;
@@ -3474,15 +3437,6 @@ public:
 		}
 	}
 
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
-		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
-	}
-
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
 		add (_MOVE_ (item)) ;
 		return mTop ;
@@ -3831,16 +3785,6 @@ public:
 
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
-	}
-
-	template <class _ARG1>
-	void appand (_ARG1 &&val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (val.length ()) ;
 		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {

@@ -75,7 +75,7 @@ namespace CSC {
 inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) popping {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
-		auto &r1x = _CACHE_ ([] () {
+		auto &r1x = _CACHE_ ([&] () {
 			return SharedRef<Atomic>::make () ;
 		}) ;
 		const auto r2x = r1x->compare_exchange (_ADDRESS_ (expect) ,_ADDRESS_ (data)) ;

@@ -262,7 +262,8 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		using ImplBinder = typename Detail::template ImplBinder<PhanBuffer<const STR>> ;
-		log (PhanBuffer<const STR>::make (tag.self ,tag.size ()) ,ImplBinder (msg)) ;
+		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
+		log (r1x ,ImplBinder (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -425,10 +426,10 @@ public:
 	void output_memory_leaks_report (const BOOL &flag) override {
 		_DEBUG_ASSERT_ (flag) ;
 		const auto r1x = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG) ;
-		const auto r2x = VAR32 (r1x | _CRTDBG_LEAK_CHECK_DF) ;
-		const auto r3x = _CrtSetDbgFlag (r2x) ;
 		_STATIC_UNUSED_ (r1x) ;
+		const auto r2x = VAR32 (r1x | _CRTDBG_LEAK_CHECK_DF) ;
 		_STATIC_UNUSED_ (r2x) ;
+		const auto r3x = _CrtSetDbgFlag (r2x) ;
 		_STATIC_UNUSED_ (r3x) ;
 	}
 

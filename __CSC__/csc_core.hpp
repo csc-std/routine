@@ -1527,8 +1527,8 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_<_ARG1> (address) ;
-	r1x.~_ARG1 () ;
 	_STATIC_UNUSED_ (r1x) ;
+	r1x.~_ARG1 () ;
 }
 
 template <class _ARG1>
@@ -1559,14 +1559,14 @@ inline constexpr REMOVE_CVR_TYPE<_ARG1> _ABS_ (const _ARG1 &val) {
 }
 
 template <class _ARG1>
-inline constexpr const _ARG1 &_MIN_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+inline constexpr _ARG1 &_MIN_ (_ARG1 &lhs ,_ARG1 &rhs) {
 	return _SWITCH_ (
 		!(rhs < lhs) ? lhs :
 		rhs) ;
 }
 
 template <class _ARG1>
-inline constexpr const _ARG1 &_MAX_ (const _ARG1 &lhs ,const _ARG1 &rhs) {
+inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 	return _SWITCH_ (
 		!(lhs < rhs) ? lhs :
 		rhs) ;
@@ -1761,9 +1761,9 @@ inline ArrayRange<ZERO> _RANGE_ (const INDEX &ibegin_ ,const INDEX &iend_) {
 }
 
 template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (_ARG1 &&func) popping {
-	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &func) popping {
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+	_STATIC_ASSERT_ (!stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
 	return mInstance ;
 }
@@ -1910,9 +1910,9 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) {
 	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
+	_STATIC_UNUSED_ (r1x) ;
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
-	_STATIC_UNUSED_ (r1x) ;
 	const auto r3x = _BITWISE_CAST_<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
 	return DEREF[r3x] ;
 }
@@ -1926,16 +1926,14 @@ inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
 
 //@warn: check ruined object when an exception was thrown
 template <class _ARG1>
-inline void _CALL_TRY_ (_ARG1 &&proc) {
-	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+inline void _CALL_TRY_ (const _ARG1 &proc) {
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	proc () ;
 }
 
 //@warn: check ruined object when an exception was thrown
 template <class _ARG1 ,class... _ARGS>
-inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
-	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+inline void _CALL_TRY_ (const _ARG1 &proc_one ,const _ARGS &...proc_rest) {
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	try {
 		proc_one () ;
@@ -1943,14 +1941,12 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 	} catch (const Exception &) {
 		_STATIC_WARNING_ ("noop") ;
 	}
-	_CALL_TRY_ (_FORWARD_<_ARGS> (proc_rest)...) ;
+	_CALL_TRY_ (proc_rest...) ;
 }
 
 template <class _ARG1 ,class _ARG2>
-inline void _CATCH_ (_ARG1 &&try_proc ,_ARG2 &&catch_proc) {
-	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+inline void _CATCH_ (const _ARG1 &try_proc ,const _ARG2 &catch_proc) {
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<const Exception &>> ,void>::value) ;
 	try {
 		try_proc () ;
