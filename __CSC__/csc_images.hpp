@@ -229,7 +229,7 @@ public:
 		mCK = ck_ ;
 	}
 
-	Bitmap share () popping {
+	Bitmap share () side_effects {
 		Bitmap ret ;
 		ret.mHeap = mHeap ;
 		ret.mImage = PhanBuffer<UNIT>::make (mImage) ;
@@ -767,7 +767,7 @@ public:
 	}
 
 	template <class _RET>
-	inline DEF<typename Detail::template NativeProxy<_RET>> native () popping {
+	inline DEF<typename Detail::template NativeProxy<_RET>> native () side_effects {
 		using NativeProxy = typename Detail::template NativeProxy<_RET> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;

@@ -76,9 +76,9 @@ public:
 		mTable = Array<Node> (len) ;
 	}
 
-	INDEX lead (const INDEX &index) popping {
+	INDEX lead (const INDEX &index) side_effects {
 		INDEX ret = index ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (mTable[ret].mUp != VAR_NONE)
 				discard ;
 			mTable[ret].mUp = ret ;
@@ -108,7 +108,7 @@ public:
 		mTable[ix].mWidth += mTable[iy].mWidth ;
 	}
 
-	Array<BitSet<>> closure () popping {
+	Array<BitSet<>> closure () side_effects {
 		const auto r1x = map_of_closure () ;
 		Array<BitSet<>> ret = Array<BitSet<>> (r1x.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
@@ -411,7 +411,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			for (auto &&i : mDataSet) {
 				INDEX ix = closest_center_of_point (i) ;
 				INDEX iy = mClusterMappingSet.map (ix) ;
-				if switch_case (TRUE) {
+				if switch_once (TRUE) {
 					if (iy != VAR_NONE)
 						discard ;
 					iy = mClusterList.insert () ;
@@ -653,34 +653,34 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 				if (mTempState == M_STATE.P1[0])
 					break ;
 				auto fax = TRUE ;
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[21]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = M_STATE.P1[1] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[1]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
 					mTempState = M_STATE.P1[7] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[2]))
 						discard ;
 					mTempRet = TRUE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[3]))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
 					mTempState = M_STATE.P1[4] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[4]))
 						discard ;
 					auto &r1x = _SWITCH_ (
@@ -688,7 +688,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[16]) ;
 					mTempState = r1x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[5]))
 						discard ;
 					auto &r2x = _SWITCH_ (
@@ -696,13 +696,13 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[6]) ;
 					mTempState = r2x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[6]))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
 					mTempState = M_STATE.P1[9] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[7]))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -711,14 +711,14 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[3]) ;
 					mTempState = r3x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[8]))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
 					mTempState = M_STATE.P1[7] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[9]))
 						discard ;
 					auto &r4x = _SWITCH_ (
@@ -726,7 +726,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[14]) ;
 					mTempState = r4x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[10]))
 						discard ;
 					ix = mTempStack.tail () ;
@@ -735,32 +735,32 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[15]) ;
 					mTempState = r5x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[11]))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[14]))
 						discard ;
 					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
 					mTempState = M_STATE.P1[15] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[15]))
 						discard ;
 					mTempStack[ix][0]++ ;
 					mTempState = M_STATE.P1[4] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[16]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempState = M_STATE.P1[17] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[17]))
 						discard ;
 					mTempStack.pop () ;
@@ -769,7 +769,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[18]) ;
 					mTempState = r6x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[18]))
 						discard ;
 					auto &r7x = _SWITCH_ (
@@ -777,14 +777,14 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 						M_STATE.P1[20]) ;
 					mTempState = r7x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[19]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
 					mTempState = M_STATE.P1[20] ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					if (!(mTempState == M_STATE.P1[20]))
 						discard ;
 					mTempState = M_STATE.P1[0] ;
@@ -940,7 +940,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 				for (auto &&i : _RANGE_ (0 ,mIX.length ()))
 					mIX[i] = mDX[i] + mIS[i] * mDXLambda[1] ;
 				mDXLoss[1] = MathProc::abs (mLossFunc (mIX)) ;
-				if switch_case (TRUE) {
+				if switch_once (TRUE) {
 					if (mDXLoss[1] - mDXLoss[0] > mDXLambda[1] * mDXLambdaC1 * r1x)
 						discard ;
 					compute_gradient_of_loss (mIX ,mIG ,mSX) ;
@@ -948,7 +948,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 						discard ;
 					mDXLoss[2] = REAL (0) ;
 				}
-				if switch_case (TRUE) {
+				if switch_once (TRUE) {
 					if (mDXLoss[1] >= mDXLoss[2])
 						discard ;
 					mDXLoss[2] = mDXLoss[1] ;
@@ -957,7 +957,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 				mDXLambda[1] *= mDXLambdaPower ;
 			}
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(mDXLoss[0] >= mDXLoss[2]))
 					discard ;
 				auto &r2x = _SWITCH_ (
@@ -967,7 +967,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 				_SWAP_ (mDX ,mIX) ;
 				compute_gradient_of_loss (mDX ,mIG ,mSX) ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				mIG.fill (REAL (0)) ;
 			}
 		}
@@ -1113,10 +1113,10 @@ private:
 
 	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &width ,const INDEX &curr ,const INDEX &rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = distance_of_point (mVertex[ix] ,point) ;
 				if (r1x > width)
@@ -1124,11 +1124,11 @@ private:
 				out.add (ix) ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (r2x < bound[rot][0])
 					discard ;
 				const auto r3x = bound[rot][1] ;
@@ -1136,7 +1136,7 @@ private:
 				compute_search_range (point ,width ,mKDTree[curr].mLeft ,mNextRot[rot] ,bound ,out) ;
 				bound[rot][1] = r3x ;
 			}
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (r2x > bound[rot][1])
 					discard ;
 				const auto r4x = bound[rot][0] ;
@@ -1159,10 +1159,10 @@ private:
 
 	void compute_search_range (const ARRAY3<REAL> &point ,const INDEX &curr ,const INDEX &rot ,Array<PACK<INDEX ,REAL>> &out) const {
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mKDTree[curr].mLeaf != VAR_NONE))
 				discard ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
 				const auto r1x = distance_of_point (mVertex[ix] ,point) ;
 				INDEX jx = out.length () ;
@@ -1183,7 +1183,7 @@ private:
 				out[jx].P2 = r1x ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
@@ -1268,13 +1268,13 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			_DEBUG_ASSERT_ (seg_len > 0) ;
 			_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(seg_len == 1))
 					discard ;
 				INDEX jx = mKDTree.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
 				mLatestIndex = jx ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(seg_len > 1))
 					discard ;
 				INDEX ix = seg + seg_len / 2 ;

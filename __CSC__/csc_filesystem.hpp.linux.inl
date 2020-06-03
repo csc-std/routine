@@ -7,21 +7,21 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("popping")
+#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("switch_case")
+#pragma push_macro ("switch_once")
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef popping
+#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
 #undef exports
-#undef switch_case
+#undef switch_once
 #undef discard
 #endif
 
@@ -39,12 +39,12 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
+#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("switch_case")
+#pragma pop_macro ("switch_once")
 #pragma pop_macro ("discard")
 #endif
 
@@ -70,7 +70,7 @@ using ::mkdir ;
 using ::rmdir ;
 } ;
 
-inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) popping {
+inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) side_effects {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
@@ -100,7 +100,7 @@ inline exports void FileSystemProc::load_file (const String<STR> &file ,const Ph
 	api::lseek (r2x.self ,0 ,SEEK_SET) ;
 	const auto r4x = LENGTH (api::read (r2x.self ,data.self ,VAR32 (r3x))) ;
 	_DYNAMIC_ASSERT_ (r4x == r3x) ;
-	BasicProc::mem_fill (PTRTOARR[&data.self[r3x]] ,(data.size () - r3x) ,BYTE (0X00)) ;
+	BasicProc::mem_fill (PTRTOARR[DEPTR[data.self[r3x]]] ,(data.size () - r3x) ,BYTE (0X00)) ;
 }
 
 inline exports void FileSystemProc::save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
@@ -118,13 +118,13 @@ inline exports void FileSystemProc::save_file (const String<STR> &file ,const Ph
 	_DYNAMIC_ASSERT_ (r5x == data.size ()) ;
 }
 
-inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) popping {
+inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) side_effects {
 	_STATIC_WARNING_ ("unimplemented") ;
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return PhanBuffer<const BYTE> () ;
 }
 
-inline exports BOOL FileSystemProc::find_file (const String<STR> &file) popping {
+inline exports BOOL FileSystemProc::find_file (const String<STR> &file) side_effects {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
@@ -139,7 +139,7 @@ inline exports BOOL FileSystemProc::find_file (const String<STR> &file) popping 
 }
 
 namespace U {
-inline BOOL static_find_juntion (const String<STRA> &dire) popping {
+inline BOOL static_find_juntion (const String<STRA> &dire) side_effects {
 	using HDIR = PTR<api::DIR> ;
 	const auto r1x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = api::opendir (dire.raw ().self) ;
@@ -188,7 +188,7 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 	_STATIC_UNUSED_ (r4x) ;
 }
 
-inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) popping {
+inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) side_effects {
 	const auto r1x = StringProc::build_strs<STRA> (file1) ;
 	const auto r2x = StringProc::build_strs<STRA> (file2) ;
 	auto rax = ARRAY2<DEF<struct stat>> () ;
@@ -229,7 +229,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	const auto r3x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('\\')) ;
 	const auto r4x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('/')) ;
 	const auto r5x = MathProc::maxof (r3x ,r4x) + 1 ;
-	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[&r2x.self[r5x]] ,(r1x - r5x)) ;
+	BasicProc::mem_copy (ret.raw ().self ,PTRTOARR[DEPTR[r2x.self[r5x]]] ,(r1x - r5x)) ;
 	return _MOVE_ (ret) ;
 }
 
@@ -266,13 +266,13 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 
 inline exports String<STR> FileSystemProc::working_path () {
 	auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r1x = api::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (r1x != NULL)
 			discard ;
 		rax.clear () ;
 	}
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r2x = rax.length () ;
 		if (r2x < 1)
 			discard ;
@@ -293,7 +293,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 		if (path_name[ix] == _PCSTR_ ("."))
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (ret.empty ())
 				discard ;
 			if (!(path_name[ix] == _PCSTR_ ("..")))
@@ -302,7 +302,7 @@ inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_na
 				discard ;
 			ret.pop () ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.add (ix) ;
 		}
 	}
@@ -314,7 +314,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 	auto rax = FileSystemProc::decouple_path_name (path) ;
 	auto fax = TRUE ;
-	if switch_case (fax) {
+	if switch_once (fax) {
 		if (path.size () < 1)
 			discard ;
 		if (path[0] != STR ('\\'))
@@ -322,14 +322,14 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 				discard ;
 		ret += _PCSTR_ ("/") ;
 	}
-	if switch_case (fax) {
+	if switch_once (fax) {
 		if (rax.length () < 1)
 			discard ;
 		if (rax[rax.access (0)] != _PCSTR_ ("."))
 			if (rax[rax.access (0)] != _PCSTR_ (".."))
 				discard ;
 		const auto r1x = FileSystemProc::working_path () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			auto tmp = FileSystemProc::decouple_path_name (r1x) ;
 			tmp.appand (_MOVE_ (rax)) ;
 			rax = _MOVE_ (tmp) ;
@@ -348,7 +348,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 		INDEX ix = r2x[r2x.access (i)] ;
 		ret += rax[ix] ;
 	}
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r3x = ret.length () ;
 		if (r3x < 1)
 			discard ;
@@ -361,7 +361,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 	return _MOVE_ (ret) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_path () popping {
+inline exports const String<STR> &FileSystemProc::module_file_path () side_effects {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
@@ -374,7 +374,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () popping {
 	}) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_name () popping {
+inline exports const String<STR> &FileSystemProc::module_file_name () side_effects {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
@@ -385,7 +385,7 @@ inline exports const String<STR> &FileSystemProc::module_file_name () popping {
 	}) ;
 }
 
-inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) popping {
+inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) side_effects {
 	using HDIR = PTR<api::DIR> ;
 	const auto r1x = StringProc::build_strs<STRA> (dire) ;
 	const auto r2x = UniqueRef<HDIR> ([&] (HDIR &me) {
@@ -400,13 +400,13 @@ inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) pop
 	return TRUE ;
 }
 
-inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) popping {
+inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) side_effects {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("/") ,_PCSTR_ (".lockdirectory")) ;
 	const auto r2x = GlobalRuntime::process_pid () ;
 	const auto r3x = GlobalRuntime::process_info (r2x) ;
 	auto fax = TRUE ;
-	if switch_case (fax) {
+	if switch_once (fax) {
 		const auto r4x = FileSystemProc::find_file (r1x) ;
 		if (!r4x)
 			discard ;
@@ -421,7 +421,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) pop
 			discard ;
 		ret = CSC::BOOL (r2x == r6x) ;
 	}
-	if switch_case (fax) {
+	if switch_once (fax) {
 		auto &r9x = _CACHE_ ([&] () {
 			return UniqueRef<String<STR>> ([&] (String<STR> &me) {
 				me = r1x ;
@@ -443,7 +443,7 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	const auto r1x = FileSystemProc::absolute_path (dire) ;
 	const auto r2x = FileSystemProc::decouple_path_name (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		if (dire.size () < 1)
 			discard ;
 		if (dire[0] != STR ('\\'))
@@ -499,7 +499,7 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 		if (r4x == NULL)
 			break ;
 		const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r4x->d_name])) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (r5x == _PCSTR_ ("."))
 				discard ;
 			if (r5x == _PCSTR_ (".."))
@@ -531,12 +531,12 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 		INDEX ix = rax.tail () ;
 		FileSystemProc::erase_directory (rax[ix].P1) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!rax[ix].P2)
 				discard ;
 			rax.pop () ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			rbx[0].clear () ;
 			rbx[1].clear () ;
 			FileSystemProc::enum_directory (rax[ix].P1 ,rbx[0] ,rbx[1]) ;
@@ -581,7 +581,7 @@ public:
 		const auto r1x = LENGTH (api::read (mReadFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		BasicProc::mem_fill (PTRTOARR[&data.self[r1x]] ,(data.size () - r1x) ,BYTE (0X00)) ;
+		BasicProc::mem_fill (PTRTOARR[DEPTR[data.self[r1x]]] ,(data.size () - r1x) ,BYTE (0X00)) ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) {

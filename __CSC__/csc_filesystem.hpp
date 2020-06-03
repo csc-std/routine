@@ -22,51 +22,51 @@ using DEFAULT_DIRECTORY_SIZE = ARGC<65536> ;
 class FileSystemProc
 	:private Wrapped<void> {
 public:
-	inline imports_static AutoBuffer<BYTE> load_file (const String<STR> &file) popping ;
+	inline imports AutoBuffer<BYTE> load_file (const String<STR> &file) side_effects ;
 
-	inline imports_static void load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) ;
+	inline imports void load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) ;
 
-	inline imports_static void save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) ;
+	inline imports void save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) ;
 
-	inline imports_static PhanBuffer<const BYTE> load_assert_file (const FLAG &resource) popping ;
+	inline imports PhanBuffer<const BYTE> load_assert_file (const FLAG &resource) side_effects ;
 
-	inline imports_static BOOL find_file (const String<STR> &file) popping ;
+	inline imports BOOL find_file (const String<STR> &file) side_effects ;
 
-	inline imports_static void erase_file (const String<STR> &file) ;
+	inline imports void erase_file (const String<STR> &file) ;
 
-	inline imports_static void copy_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
+	inline imports void copy_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
 
-	inline imports_static void move_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
+	inline imports void move_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
 
-	inline imports_static void link_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
+	inline imports void link_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
 
-	inline imports_static BOOL identical_file (const String<STR> &file1 ,const String<STR> &file2) popping ;
+	inline imports BOOL identical_file (const String<STR> &file1 ,const String<STR> &file2) side_effects ;
 
-	inline imports_static String<STR> parse_path_name (const String<STR> &file) ;
+	inline imports String<STR> parse_path_name (const String<STR> &file) ;
 
-	inline imports_static String<STR> parse_file_name (const String<STR> &file) ;
+	inline imports String<STR> parse_file_name (const String<STR> &file) ;
 
-	inline imports_static Deque<String<STR>> decouple_path_name (const String<STR> &file) ;
+	inline imports Deque<String<STR>> decouple_path_name (const String<STR> &file) ;
 
-	inline imports_static String<STR> working_path () ;
+	inline imports String<STR> working_path () ;
 
-	inline imports_static String<STR> absolute_path (const String<STR> &path) ;
+	inline imports String<STR> absolute_path (const String<STR> &path) ;
 
-	inline imports_static const String<STR> &module_file_path () popping ;
+	inline imports const String<STR> &module_file_path () side_effects ;
 
-	inline imports_static const String<STR> &module_file_name () popping ;
+	inline imports const String<STR> &module_file_name () side_effects ;
 
-	inline imports_static BOOL find_directory (const String<STR> &dire) popping ;
+	inline imports BOOL find_directory (const String<STR> &dire) side_effects ;
 
-	inline imports_static BOOL lock_directory (const String<STR> &dire) popping ;
+	inline imports BOOL lock_directory (const String<STR> &dire) side_effects ;
 
-	inline imports_static void build_directory (const String<STR> &dire) ;
+	inline imports void build_directory (const String<STR> &dire) ;
 
-	inline imports_static void erase_directory (const String<STR> &dire) ;
+	inline imports void erase_directory (const String<STR> &dire) ;
 
-	inline imports_static void enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) ;
+	inline imports void enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) ;
 
-	inline imports_static void clear_directory (const String<STR> &dire) ;
+	inline imports void clear_directory (const String<STR> &dire) ;
 } ;
 
 class StreamLoader {

@@ -13,169 +13,169 @@ namespace CSC {
 class MathProc
 	:private Wrapped<void> {
 public:
-	inline imports_static BOOL is_nan (const VAL32 &x) ;
+	inline imports BOOL is_nan (const VAL32 &x) ;
 
-	inline imports_static BOOL is_nan (const VAL64 &x) ;
+	inline imports BOOL is_nan (const VAL64 &x) ;
 
-	inline imports_static BOOL is_infinite (const VAL32 &x) ;
+	inline imports BOOL is_infinite (const VAL32 &x) ;
 
-	inline imports_static BOOL is_infinite (const VAL64 &x) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> square (const _ARG1 &val) ;
-
-	inline imports_static VAL32 sqrt (const VAL32 &x) ;
-
-	inline imports_static VAL64 sqrt (const VAL64 &x) ;
+	inline imports BOOL is_infinite (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> sqrt (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> square (const _ARG1 &val) ;
+
+	inline imports VAL32 sqrt (const VAL32 &x) ;
+
+	inline imports VAL64 sqrt (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> cube (const _ARG1 &val) ;
-
-	inline imports_static VAL32 cbrt (const VAL32 &x) ;
-
-	inline imports_static VAL64 cbrt (const VAL64 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> sqrt (const _ARG1 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> cbrt (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> cube (const _ARG1 &val) ;
 
-	inline imports_static VAL32 pow (const VAL32 &x ,const VAL32 &y) ;
+	inline imports VAL32 cbrt (const VAL32 &x) ;
 
-	inline imports_static VAL64 pow (const VAL64 &x ,const VAL64 &y) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> pow (const _ARG1 &x ,const _ARG1 &y) ;
-
-	inline imports_static VAL32 exp (const VAL32 &x) ;
-
-	inline imports_static VAL64 exp (const VAL64 &x) ;
+	inline imports VAL64 cbrt (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> exp (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> cbrt (const _ARG1 &x) ;
 
-	inline imports_static VAL32 log (const VAL32 &x) ;
+	inline imports VAL32 pow (const VAL32 &x ,const VAL32 &y) ;
 
-	inline imports_static VAL64 log (const VAL64 &x) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> log (const _ARG1 &x) ;
-
-	inline imports_static VAL32 sin (const VAL32 &x) ;
-
-	inline imports_static VAL64 sin (const VAL64 &x) ;
+	inline imports VAL64 pow (const VAL64 &x ,const VAL64 &y) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> sin (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> pow (const _ARG1 &x ,const _ARG1 &y) ;
 
-	inline imports_static VAL32 cos (const VAL32 &x) ;
+	inline imports VAL32 exp (const VAL32 &x) ;
 
-	inline imports_static VAL64 cos (const VAL64 &x) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> cos (const _ARG1 &x) ;
-
-	inline imports_static VAL32 tan (const VAL32 &x) ;
-
-	inline imports_static VAL64 tan (const VAL64 &x) ;
+	inline imports VAL64 exp (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> tan (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> exp (const _ARG1 &x) ;
 
-	inline imports_static VAL32 arcsin (const VAL32 &y) ;
+	inline imports VAL32 log (const VAL32 &x) ;
 
-	inline imports_static VAL64 arcsin (const VAL64 &y) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> arcsin (const _ARG1 &y) ;
-
-	inline imports_static VAL32 arccos (const VAL32 &x) ;
-
-	inline imports_static VAL64 arccos (const VAL64 &x) ;
+	inline imports VAL64 log (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> arccos (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> log (const _ARG1 &x) ;
 
-	inline imports_static VAL32 arctan (const VAL32 &x) ;
+	inline imports VAL32 sin (const VAL32 &x) ;
 
-	inline imports_static VAL64 arctan (const VAL64 &x) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> arctan (const _ARG1 &x) ;
-
-	inline imports_static VAL32 arctan (const VAL32 &y ,const VAL32 &x) ;
-
-	inline imports_static VAL64 arctan (const VAL64 &y ,const VAL64 &x) ;
+	inline imports VAL64 sin (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> arctan (const _ARG1 &y ,const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> sin (const _ARG1 &x) ;
+
+	inline imports VAL32 cos (const VAL32 &x) ;
+
+	inline imports VAL64 cos (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> sign (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> cos (const _ARG1 &x) ;
+
+	inline imports VAL32 tan (const VAL32 &x) ;
+
+	inline imports VAL64 tan (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> inverse (const _ARG1 &x ,const _ARG1 &y) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> tan (const _ARG1 &x) ;
 
-	inline imports_static VAL32 inverse (const VAL32 &x) ;
+	inline imports VAL32 arcsin (const VAL32 &y) ;
 
-	inline imports_static VAL64 inverse (const VAL64 &x) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> npdf (const _ARG1 &x) ;
-
-	inline imports_static VAL32 ncdf (const VAL32 &x) ;
-
-	inline imports_static VAL64 ncdf (const VAL64 &x) ;
+	inline imports VAL64 arcsin (const VAL64 &y) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> ncdf (const _ARG1 &x) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> arcsin (const _ARG1 &y) ;
 
-	inline imports_static VAL32 floor (const VAL32 &x ,const VAL32 &y) ;
+	inline imports VAL32 arccos (const VAL32 &x) ;
 
-	inline imports_static VAL64 floor (const VAL64 &x ,const VAL64 &y) ;
-
-	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> floor (const _ARG1 &x ,const _ARG1 &y) ;
-
-	inline imports_static VAL32 ceil (const VAL32 &x ,const VAL32 &y) ;
-
-	inline imports_static VAL64 ceil (const VAL64 &x ,const VAL64 &y) ;
+	inline imports VAL64 arccos (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> ceil (const _ARG1 &x ,const _ARG1 &y) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> arccos (const _ARG1 &x) ;
+
+	inline imports VAL32 arctan (const VAL32 &x) ;
+
+	inline imports VAL64 arctan (const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> round (const _ARG1 &x ,const _ARG1 &y) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> arctan (const _ARG1 &x) ;
+
+	inline imports VAL32 arctan (const VAL32 &y ,const VAL32 &x) ;
+
+	inline imports VAL64 arctan (const VAL64 &y ,const VAL64 &x) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> trunc (const _ARG1 &x ,const _ARG1 &y) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> arctan (const _ARG1 &y ,const _ARG1 &x) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> sign (const _ARG1 &x) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> inverse (const _ARG1 &x ,const _ARG1 &y) ;
+
+	inline imports VAL32 inverse (const VAL32 &x) ;
+
+	inline imports VAL64 inverse (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> npdf (const _ARG1 &x) ;
+
+	inline imports VAL32 ncdf (const VAL32 &x) ;
+
+	inline imports VAL64 ncdf (const VAL64 &x) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> ncdf (const _ARG1 &x) ;
+
+	inline imports VAL32 floor (const VAL32 &x ,const VAL32 &y) ;
+
+	inline imports VAL64 floor (const VAL64 &x ,const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> floor (const _ARG1 &x ,const _ARG1 &y) ;
+
+	inline imports VAL32 ceil (const VAL32 &x ,const VAL32 &y) ;
+
+	inline imports VAL64 ceil (const VAL64 &x ,const VAL64 &y) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> ceil (const _ARG1 &x ,const _ARG1 &y) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> round (const _ARG1 &x ,const _ARG1 &y) ;
+
+	template <class _ARG1>
+	inline imports REMOVE_CVR_TYPE<_ARG1> trunc (const _ARG1 &x ,const _ARG1 &y) ;
 
 	template <class _ARG1 ,class _ARG2>
-	inline imports_static REMOVE_CVR_TYPE<_ARG2> clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) ;
+	inline imports REMOVE_CVR_TYPE<_ARG2> clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> abs (const _ARG1 &val) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> abs (const _ARG1 &val) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> minof (const _ARG1 &list_one) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> minof (const _ARG1 &list_one) ;
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
 
 	template <class _ARG1>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> maxof (const _ARG1 &list_one) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> maxof (const _ARG1 &list_one) ;
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	inline imports_static REMOVE_CVR_TYPE<_ARG1> maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
+	inline imports REMOVE_CVR_TYPE<_ARG1> maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
 
-	inline imports_static VAL64 ieee754_encode (const ARRAY3<VAR64> &sne2) ;
+	inline imports VAL64 ieee754_encode (const ARRAY3<VAR64> &sne2) ;
 
-	inline imports_static ARRAY3<VAR64> ieee754_decode (const VAL64 &ieee754) ;
+	inline imports ARRAY3<VAR64> ieee754_decode (const VAL64 &ieee754) ;
 
-	inline imports_static ARRAY3<VAR64> ieee754_e2_e10 (const ARRAY3<VAR64> &sne2) ;
+	inline imports ARRAY3<VAR64> ieee754_e2_e10 (const ARRAY3<VAR64> &sne2) ;
 
-	inline imports_static ARRAY3<VAR64> ieee754_e10_e2 (const ARRAY3<VAR64> &sne10) ;
+	inline imports ARRAY3<VAR64> ieee754_e10_e2 (const ARRAY3<VAR64> &sne10) ;
 } ;
 
 inline exports BOOL MathProc::is_nan (const VAL32 &x) {
@@ -468,7 +468,7 @@ inline ARRAY3<DATA> static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) {
 		ret[0] = ret[0] << 1 ;
 		ret[1]-- ;
 	}
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r2x = VAR64 (DATA (-1074) - ret[1]) ;
 		if (r2x <= 0)
 			discard ;

@@ -7,21 +7,21 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("popping")
+#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("switch_case")
+#pragma push_macro ("switch_once")
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef popping
+#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
 #undef exports
-#undef switch_case
+#undef switch_once
 #undef discard
 #endif
 
@@ -53,12 +53,12 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
+#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("switch_case")
+#pragma pop_macro ("switch_once")
 #pragma pop_macro ("discard")
 #endif
 
@@ -167,7 +167,7 @@ public:
 		rax.P2 = VARY (0) ;
 		const auto r4x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;
@@ -284,7 +284,7 @@ public:
 		rax.P2 = VARY (0) ;
 		const auto r4x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
 		_DYNAMIC_ASSERT_ (r4x) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (LENGTH (rax.P2) == 0)
 				discard ;
 			_DYNAMIC_ASSERT_ (rax.P1 != NULL) ;

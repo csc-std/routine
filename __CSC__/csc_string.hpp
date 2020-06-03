@@ -17,147 +17,147 @@ class TimePoint ;
 class StringProc
 	:private Wrapped<void> {
 public:
-	inline imports_static String<STRU16> cvt_u8s_u16s (const String<STRU8> &val) ;
+	inline imports String<STRU16> cvt_u8s_u16s (const String<STRU8> &val) ;
 
-	inline imports_static String<STRU8> cvt_u16s_u8s (const String<STRU16> &val) ;
+	inline imports String<STRU8> cvt_u16s_u8s (const String<STRU16> &val) ;
 
-	inline imports_static String<STRU32> cvt_u8s_u32s (const String<STRU8> &val) ;
+	inline imports String<STRU32> cvt_u8s_u32s (const String<STRU8> &val) ;
 
-	inline imports_static String<STRU8> cvt_u32s_u8s (const String<STRU32> &val) ;
+	inline imports String<STRU8> cvt_u32s_u8s (const String<STRU32> &val) ;
 
-	inline imports_static String<STRU32> cvt_u16s_u32s (const String<STRU16> &val) ;
+	inline imports String<STRU32> cvt_u16s_u32s (const String<STRU16> &val) ;
 
-	inline imports_static String<STRU16> cvt_u32s_u16s (const String<STRU32> &val) ;
+	inline imports String<STRU16> cvt_u32s_u16s (const String<STRU32> &val) ;
 
-	inline imports_static String<STRU8> cvt_ws_u8s (const String<STRW> &val) ;
+	inline imports String<STRU8> cvt_ws_u8s (const String<STRW> &val) ;
 
-	inline imports_static String<STRW> cvt_u8s_ws (const String<STRU8> &val) ;
+	inline imports String<STRW> cvt_u8s_ws (const String<STRU8> &val) ;
 
-	inline imports_static String<STRU16> cvt_ws_u16s (const String<STRW> &val) ;
+	inline imports String<STRU16> cvt_ws_u16s (const String<STRW> &val) ;
 
-	inline imports_static String<STRW> cvt_u16s_ws (const String<STRU16> &val) ;
+	inline imports String<STRW> cvt_u16s_ws (const String<STRU16> &val) ;
 
-	inline imports_static String<STRU32> cvt_ws_u32s (const String<STRW> &val) ;
+	inline imports String<STRU32> cvt_ws_u32s (const String<STRW> &val) ;
 
-	inline imports_static String<STRW> cvt_u32s_ws (const String<STRU32> &val) ;
+	inline imports String<STRW> cvt_u32s_ws (const String<STRU32> &val) ;
 
-	inline imports_static String<STRA> cvt_ws_gbks (const String<STRW> &val) ;
+	inline imports String<STRA> cvt_ws_gbks (const String<STRW> &val) ;
 
-	inline imports_static String<STRW> cvt_gbks_ws (const String<STRA> &val) ;
+	inline imports String<STRW> cvt_gbks_ws (const String<STRA> &val) ;
 
-	inline imports_static String<STRU8> cvt_as_u8s (const String<STRA> &val) ;
+	inline imports String<STRU8> cvt_as_u8s (const String<STRA> &val) ;
 
-	inline imports_static String<STRA> cvt_u8s_as (const String<STRU8> &val) ;
+	inline imports String<STRA> cvt_u8s_as (const String<STRU8> &val) ;
 
-	inline imports_static String<STRU16> cvt_as_u16s (const String<STRA> &val) ;
+	inline imports String<STRU16> cvt_as_u16s (const String<STRA> &val) ;
 
-	inline imports_static String<STRA> cvt_u16s_as (const String<STRU16> &val) ;
+	inline imports String<STRA> cvt_u16s_as (const String<STRU16> &val) ;
 
-	inline imports_static String<STRU32> cvt_as_u32s (const String<STRA> &val) ;
+	inline imports String<STRU32> cvt_as_u32s (const String<STRA> &val) ;
 
-	inline imports_static String<STRA> cvt_u32s_as (const String<STRU32> &val) ;
+	inline imports String<STRA> cvt_u32s_as (const String<STRU32> &val) ;
 
-	inline imports_static String<STRA> cvt_ws_as (const String<STRW> &val) ;
+	inline imports String<STRA> cvt_ws_as (const String<STRW> &val) ;
 
-	inline imports_static String<STRW> cvt_as_ws (const String<STRA> &val) ;
+	inline imports String<STRW> cvt_as_ws (const String<STRA> &val) ;
 
-	inline imports_static String<STRU8> cvt_uas_u8s (const String<STRA> &val) ;
+	inline imports String<STRU8> cvt_uas_u8s (const String<STRA> &val) ;
 
-	inline imports_static String<STRU8> cvt_uas_u8s (String<STRA> &&val) ;
+	inline imports String<STRU8> cvt_uas_u8s (String<STRA> &&val) ;
 
-	inline imports_static String<STRA> cvt_u8s_uas (const String<STRU8> &val) ;
+	inline imports String<STRA> cvt_u8s_uas (const String<STRU8> &val) ;
 
-	inline imports_static String<STRA> cvt_u8s_uas (String<STRU8> &&val) ;
-
-	template <class _ARG1>
-	inline imports_static BOOL parse_bools (const String<_ARG1> &stri) ;
-
-	template <class _RET = STR>
-	inline imports_static String<_RET> build_bools (const BOOL &stru) ;
+	inline imports String<STRA> cvt_u8s_uas (String<STRU8> &&val) ;
 
 	template <class _ARG1>
-	inline imports_static VAR32 parse_var32s (const String<_ARG1> &stri) ;
+	inline imports BOOL parse_bools (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_var32s (const VAR32 &stru) ;
+	inline imports String<_RET> build_bools (const BOOL &stru) ;
 
 	template <class _ARG1>
-	inline imports_static VAR64 parse_var64s (const String<_ARG1> &stri) ;
+	inline imports VAR32 parse_var32s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_var64s (const VAR64 &stru) ;
+	inline imports String<_RET> build_var32s (const VAR32 &stru) ;
 
 	template <class _ARG1>
-	inline imports_static VAR parse_vars (const String<_ARG1> &stri) ;
+	inline imports VAR64 parse_var64s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_vars (const VAR &stru) ;
+	inline imports String<_RET> build_var64s (const VAR64 &stru) ;
 
 	template <class _ARG1>
-	inline imports_static VAL32 parse_val32s (const String<_ARG1> &stri) ;
+	inline imports VAR parse_vars (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_val32s (const VAL32 &stru) ;
+	inline imports String<_RET> build_vars (const VAR &stru) ;
 
 	template <class _ARG1>
-	inline imports_static VAL64 parse_val64s (const String<_ARG1> &stri) ;
+	inline imports VAL32 parse_val32s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_val64s (const VAL64 &stru) ;
+	inline imports String<_RET> build_val32s (const VAL32 &stru) ;
 
 	template <class _ARG1>
-	inline imports_static VAL parse_vals (const String<_ARG1> &stri) ;
+	inline imports VAL64 parse_val64s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_vals (const VAL &stru) ;
+	inline imports String<_RET> build_val64s (const VAL64 &stru) ;
 
 	template <class _ARG1>
-	inline imports_static String<STR> parse_strs (const String<_ARG1> &stri) ;
+	inline imports VAL parse_vals (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_strs (const String<STR> &stru) ;
+	inline imports String<_RET> build_vals (const VAL &stru) ;
 
 	template <class _ARG1>
-	inline imports_static CHAR parse_hex8s (const String<_ARG1> &stri) ;
+	inline imports String<STR> parse_strs (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_hex8s (const CHAR &stru) ;
+	inline imports String<_RET> build_strs (const String<STR> &stru) ;
 
 	template <class _ARG1>
-	inline imports_static DATA parse_hex16s (const String<_ARG1> &stri) ;
+	inline imports CHAR parse_hex8s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_hex16s (const DATA &stru) ;
+	inline imports String<_RET> build_hex8s (const CHAR &stru) ;
 
 	template <class _ARG1>
-	inline imports_static String<STRU8> parse_base64u8s (const String<_ARG1> &stri) ;
+	inline imports DATA parse_hex16s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_base64u8s (const String<STRU8> &stru) ;
+	inline imports String<_RET> build_hex16s (const DATA &stru) ;
 
 	template <class _ARG1>
-	inline imports_static PACK<WORD ,CHAR> parse_ipv4s (const String<_ARG1> &stri) ;
+	inline imports String<STRU8> parse_base64u8s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_ipv4s (const PACK<WORD ,CHAR> &stru) ;
+	inline imports String<_RET> build_base64u8s (const String<STRU8> &stru) ;
 
 	template <class _ARG1>
-	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_dates (const String<_ARG1> &stri) ;
+	inline imports PACK<WORD ,CHAR> parse_ipv4s (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_dates (const TimePoint &stru) ;
+	inline imports String<_RET> build_ipv4s (const PACK<WORD ,CHAR> &stru) ;
 
 	template <class _ARG1>
-	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_hours (const String<_ARG1> &stri) ;
+	inline imports DEPENDENT_TYPE<TimePoint ,_ARG1> parse_dates (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_hours (const TimePoint &stru) ;
+	inline imports String<_RET> build_dates (const TimePoint &stru) ;
 
 	template <class _ARG1>
-	inline imports_static DEPENDENT_TYPE<TimePoint ,_ARG1> parse_times (const String<_ARG1> &stri) ;
+	inline imports DEPENDENT_TYPE<TimePoint ,_ARG1> parse_hours (const String<_ARG1> &stri) ;
 
 	template <class _RET = STR>
-	inline imports_static String<_RET> build_times (const TimePoint &stru) ;
+	inline imports String<_RET> build_hours (const TimePoint &stru) ;
+
+	template <class _ARG1>
+	inline imports DEPENDENT_TYPE<TimePoint ,_ARG1> parse_times (const String<_ARG1> &stri) ;
+
+	template <class _RET = STR>
+	inline imports String<_RET> build_times (const TimePoint &stru) ;
 } ;
 
 namespace U {
@@ -349,14 +349,14 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0X7F)))
 				discard ;
 			ret[iw++] = STRU16 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XDF)))
@@ -364,7 +364,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XEF)))
@@ -372,7 +372,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XF7)))
@@ -380,7 +380,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFB)))
@@ -388,7 +388,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFD)))
@@ -396,7 +396,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -404,7 +404,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax = 10 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax >= 2 && rax <= 5))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -412,14 +412,14 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 		if (rax < 10)
 			continue ;
 		auto fbx = TRUE ;
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X0000FFFF)))
@@ -427,7 +427,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			ret[iw++] = STRU16 (rbx) ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X0010FFFF)))
@@ -437,7 +437,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			ret[iw++] = (STRU16 (rbx) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(rbx <= STRU32 (0X7FFFFFFF)))
@@ -445,7 +445,7 @@ inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val
 			ret[iw++] = STRU16 ('?') ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -466,14 +466,14 @@ inline exports String<STRU8> StringProc::cvt_u16s_u8s (const String<STRU16> &val
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X007F)))
 				discard ;
 			ret[iw++] = STRU8 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X07FF)))
@@ -481,7 +481,7 @@ inline exports String<STRU8> StringProc::cvt_u16s_u8s (const String<STRU16> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
@@ -489,14 +489,14 @@ inline exports String<STRU8> StringProc::cvt_u16s_u8s (const String<STRU16> &val
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			ret[iw++] = (STRU8 (i >> 12) & STRU8 (0X0F)) | STRU8 (0XE0) ;
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
@@ -508,7 +508,7 @@ inline exports String<STRU8> StringProc::cvt_u16s_u8s (const String<STRU16> &val
 			ret[iw++] = (STRU8 (rbx) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			rax = 0 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -537,14 +537,14 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0X7F)))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XDF)))
@@ -552,7 +552,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X1F)) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XEF)))
@@ -560,7 +560,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X0F)) ;
 			rax = 2 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XF7)))
@@ -568,7 +568,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X07)) ;
 			rax = 3 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFB)))
@@ -576,7 +576,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X03)) ;
 			rax = 4 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XFD)))
@@ -584,7 +584,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 (i & STRU8 (0X01)) ;
 			rax = 5 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -593,7 +593,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			ret[iw++] = rbx ;
 			rax = 0 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax >= 2 && rax <= 5))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
@@ -601,7 +601,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rbx = STRU32 ((rbx << 6) | (i & STRU8 (0X3F))) ;
 			rax-- ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -629,14 +629,14 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000007F)))
 				discard ;
 			ret[iw++] = STRU8 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X000007FF)))
@@ -644,7 +644,7 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X1F)) | STRU8 (0XC0) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000FFFF)))
@@ -653,7 +653,7 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X001FFFFF)))
@@ -663,7 +663,7 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X03FFFFFF)))
@@ -674,7 +674,7 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X7FFFFFFF)))
@@ -686,7 +686,7 @@ inline exports String<STRU8> StringProc::cvt_u32s_u8s (const String<STRU32> &val
 			ret[iw++] = (STRU8 (i >> 6) & STRU8 (0X3F)) | STRU8 (0X80) ;
 			ret[iw++] = (STRU8 (i) & STRU8 (0X3F)) | STRU8 (0X80) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -709,14 +709,14 @@ inline exports String<STRU32> StringProc::cvt_u16s_u32s (const String<STRU16> &v
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU16 (0X07FF)))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i >= STRU16 (0XD800) && i <= STRU16 (0XDBFF)))
@@ -724,12 +724,12 @@ inline exports String<STRU32> StringProc::cvt_u16s_u32s (const String<STRU16> &v
 			rbx = STRU32 (i & STRU16 (0X03FF)) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			ret[iw++] = STRU32 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			if (!(i >= STRU16 (0XDC00) && i <= STRU16 (0XDFFF)))
@@ -738,7 +738,7 @@ inline exports String<STRU32> StringProc::cvt_u16s_u32s (const String<STRU16> &v
 			ret[iw++] = rbx ;
 			rax = 0 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -762,14 +762,14 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0000FFFF)))
 				discard ;
 			ret[iw++] = STRU16 (i) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X0010FFFF)))
@@ -777,14 +777,14 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 			ret[iw++] = (STRU16 ((i - STRU32 (0X00010000)) >> 10) & STRU16 (0X03FF)) | STRU16 (0XD800) ;
 			ret[iw++] = (STRU16 (i - STRU32 (0X00010000)) & STRU16 (0X03FF)) | STRU16 (0XDC00) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(i <= STRU32 (0X7FFFFFFF)))
 				discard ;
 			ret[iw++] = STRU16 ('?') ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -885,15 +885,17 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 	return _MOVE_ (_CAST_<String<STRA>> (ret)) ;
 }
 
-namespace U {
-inline imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
+class GBKSTableProc
+	:private Wrapped<void> {
+public:
+	inline imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
 } ;
 
 namespace U {
 inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_gbks_ws_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = static_gbks_ws_table () ;
+		ret.P1 = GBKSTableProc::static_gbks_ws_table () ;
 		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
 			ret.P2.add (ret.P1[i][1] ,i) ;
@@ -913,19 +915,19 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			rbx = STRUW (i) ;
 			rax = 10 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			rbx = STRUW ((rbx << 8) | STRUW (i)) ;
 			rax = 11 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -933,7 +935,7 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 			continue ;
 		INDEX ix = r1x.P2.map (rbx) ;
 		auto fbx = TRUE ;
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
@@ -941,14 +943,14 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 			ret[iw++] = STRW (r1x.P1[ix][0]) ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix == VAR_NONE))
 				discard ;
 			rax = 1 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 11))
 				discard ;
 			if (!(ix != VAR_NONE))
@@ -956,7 +958,7 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 			ret[iw++] = STRW (r1x.P1[ix][0]) ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			if (!(rax == 11))
 				discard ;
 			if (!(ix == VAR_NONE))
@@ -964,7 +966,7 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 			ret[iw++] = STRW ('?') ;
 			rax = 0 ;
 		}
-		if switch_case (fbx) {
+		if switch_once (fbx) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -980,7 +982,7 @@ namespace U {
 inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_ws_gbks_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = static_gbks_ws_table () ;
+		ret.P1 = GBKSTableProc::static_gbks_ws_table () ;
 		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
 			ret.P2.add (ret.P1[i][0] ,i) ;
@@ -999,21 +1001,21 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 			continue ;
 		INDEX ix = r1x.P2.map (STRUW (i)) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(ix == VAR_NONE))
 				discard ;
 			ret[iw++] = STRUA ('?') ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r1x.P1[ix][1] <= STRUW (0X00FF)))
 				discard ;
 			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r1x.P1[ix][1] <= STRUW (0XFFFF)))
@@ -1021,7 +1023,7 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 			ret[iw++] = STRUA (r1x.P1[ix][1] >> 8) ;
 			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
@@ -1289,19 +1291,19 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 		if (rax == VAR_NONE)
 			continue ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			rbx = CHAR (i) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
 			rax = 2 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 2))
 				discard ;
 			rbx = CHAR ((rbx << 8) | CHAR (i & STRU8 (0XFF))) ;
@@ -1315,13 +1317,13 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r4x)]) ;
 			ret[iw++] = _RET (M_BASE64.P1[INDEX (r5x)]) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
 	auto fbx = TRUE ;
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		if (!(rax == 1))
 			discard ;
 		rbx = CHAR (rbx << 16) ;
@@ -1332,7 +1334,7 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 		ret[iw++] = _RET (M_BASE64.P1[64]) ;
 		ret[iw++] = _RET (M_BASE64.P1[64]) ;
 	}
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		if (!(rax == 2))
 			discard ;
 		rbx = CHAR (rbx << 8) ;
@@ -1344,7 +1346,7 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 		ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;
 		ret[iw++] = _RET (M_BASE64.P1[64]) ;
 	}
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		_DYNAMIC_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
@@ -1373,7 +1375,7 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			((i & STRU8 (0X80)) == 0) ? M_BASE64.P1[LENGTH (i) - 32] :
 			M_BASE64.P1[0]) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
 			if (!(r2x >= 0))
@@ -1381,7 +1383,7 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			rbx = CHAR (r2x & 63) ;
 			rax = 1 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 1))
 				discard ;
 			if (!(r2x >= 0))
@@ -1389,7 +1391,7 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 2 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 2))
 				discard ;
 			if (!(r2x >= 0))
@@ -1397,7 +1399,7 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			rbx = CHAR ((rbx << 6) | CHAR (r2x & 63)) ;
 			rax = 3 ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == 3))
 				discard ;
 			if (!(r2x >= 0))
@@ -1408,26 +1410,26 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 			ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 			ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret.clear () ;
 			rax = VAR_NONE ;
 		}
 	}
 	auto fbx = TRUE ;
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		if (!(rax == 1))
 			discard ;
 		rbx = CHAR (rbx << 18) ;
 		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 	}
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		if (!(rax == 2))
 			discard ;
 		rbx = CHAR (rbx << 12) ;
 		ret[iw++] = STRU8 ((rbx >> 16) & CHAR (0XFF)) ;
 		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 	}
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		if (!(rax == 3))
 			discard ;
 		rbx = CHAR (rbx << 6) ;
@@ -1435,7 +1437,7 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 		ret[iw++] = STRU8 ((rbx >> 8) & CHAR (0XFF)) ;
 		ret[iw++] = STRU8 (rbx & CHAR (0XFF)) ;
 	}
-	if switch_case (fbx) {
+	if switch_once (fbx) {
 		_DYNAMIC_ASSERT_ (rax == 0) ;
 	}
 	if (iw < ret.size ())
@@ -1471,7 +1473,7 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
 	ret.P1 = 0 ;
 	rax.share () >> rbx ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		if (rbx != _ARG1 (':'))
 			discard ;
 		rax >> rbx ;
@@ -1497,7 +1499,7 @@ inline exports String<_RET> StringProc::build_ipv4s (const PACK<WORD ,CHAR> &str
 	rbx << VAR (rax.P1[2]) ;
 	rbx << _RET ('.') ;
 	rbx << VAR (rax.P1[3]) ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		if (stru.P1 == 0)
 			discard ;
 		rbx << _RET (':') ;

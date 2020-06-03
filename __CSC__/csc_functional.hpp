@@ -76,7 +76,7 @@ public:
 			return FALSE ;
 		if (!that.mThis.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != &that.mThis.self)
+		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -97,7 +97,7 @@ public:
 
 public:
 	template <class _ARG1>
-	inline imports_static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
+	inline static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
 			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
 		}) ;
@@ -410,7 +410,7 @@ public:
 
 	const Operand &invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (mThis->mOperand.exist ())
 				discard ;
 			_DYNAMIC_ASSERT_ (mThis->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;

@@ -30,7 +30,7 @@ inline static void main_shutdown () {
 }
 
 #ifdef __CSC_TARGET_EXE__
-exports int main () noexcept popping {
+exports int main () noexcept side_effects {
 	using namespace UNITTEST ;
 	UniqueRef<void> ANONYMOUS (&main_startup ,&main_shutdown) ;
 	UNITTEST_MAIN ().TEST_MAIN () ;

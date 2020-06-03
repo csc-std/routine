@@ -112,7 +112,7 @@ public:
 		return fetch () ;
 	}
 
-	VAR compare_exchange (const VAR &expect ,const VAR &data) popping ;
+	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects ;
 
 	void store (const VAR &data) ;
 
@@ -120,15 +120,15 @@ public:
 		store (data) ;
 	}
 
-	VAR increase () popping ;
+	VAR increase () side_effects ;
 
-	inline VAR operator++ () popping {
+	inline VAR operator++ () side_effects {
 		return increase () ;
 	}
 
-	VAR decrease () popping ;
+	VAR decrease () side_effects ;
 
-	inline VAR operator-- () popping {
+	inline VAR operator-- () side_effects {
 		return decrease () ;
 	}
 } ;
@@ -148,7 +148,7 @@ public:
 
 	void lock () ;
 
-	BOOL try_lock () popping ;
+	BOOL try_lock () side_effects ;
 
 	void unlock () ;
 } ;
@@ -168,7 +168,7 @@ public:
 
 	void lock () ;
 
-	BOOL try_lock () popping ;
+	BOOL try_lock () side_effects ;
 
 	void unlock () ;
 } ;
@@ -190,7 +190,7 @@ public:
 	}
 
 	template <class _RET = NONE>
-	DEPENDENT_TYPE<UniqueLock ,_RET> watch (Mutex &mutex_) popping {
+	DEPENDENT_TYPE<UniqueLock ,_RET> watch (Mutex &mutex_) side_effects {
 		struct Dependent ;
 		return DEPENDENT_TYPE<UniqueLock ,Dependent> (mutex_ ,DEREF[this]) ;
 	}
@@ -267,35 +267,35 @@ struct Thread::Detail {
 class GlobalRuntime final
 	:private Wrapped<void> {
 public:
-	inline imports_static TimePoint clock_now () ;
+	inline imports TimePoint clock_now () ;
 
-	inline imports_static TimePoint clock_epoch () ;
+	inline imports TimePoint clock_epoch () ;
 
-	inline imports_static FLAG thread_tid () ;
+	inline imports FLAG thread_tid () ;
 
-	inline imports_static void thread_sleep (const Duration &time_) ;
+	inline imports void thread_sleep (const Duration &time_) ;
 
-	inline imports_static void thread_sleep (const TimePoint &time_) ;
+	inline imports void thread_sleep (const TimePoint &time_) ;
 
-	inline imports_static void thread_yield () ;
+	inline imports void thread_yield () ;
 
-	inline imports_static LENGTH thread_concurrency () ;
+	inline imports LENGTH thread_concurrency () ;
 
-	inline imports_static void thread_fence () ;
+	inline imports void thread_fence () ;
 
-	inline imports_static void locale_init (const Plain<STRA> &locale_) ;
+	inline imports void locale_init (const Plain<STRA> &locale_) ;
 
-	inline imports_static FLAG process_pid () ;
+	inline imports FLAG process_pid () ;
 
-	inline imports_static Buffer<BYTE ,ARGC<128>> process_info (const FLAG &pid) ;
+	inline imports Buffer<BYTE ,ARGC<128>> process_info (const FLAG &pid) ;
 
-	inline imports_static FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
+	inline imports FLAG process_info_pid (const PhanBuffer<const STRU8> &info) ;
 
-	inline imports_static void process_exit[[noreturn]] () ;
+	inline imports void process_exit[[noreturn]] () ;
 
-	inline imports_static void process_abort[[noreturn]] () ;
+	inline imports void process_abort[[noreturn]] () ;
 
-	inline imports_static FLAG system_exec (const String<STR> &cmd) popping ;
+	inline imports FLAG system_exec (const String<STR> &cmd) side_effects ;
 } ;
 
 namespace U {
@@ -603,7 +603,7 @@ class GlobalStatic<void> final
 public:
 	struct Extern {
 		//@warn: this function should be implemented in a 'runtime.dll'
-		imports_static DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) popping> unique_atomic_address ;
+		imports DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) side_effects> unique_atomic_address ;
 	} ;
 
 private:
@@ -636,16 +636,12 @@ private:
 	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 private:
-	imports_static PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) popping {
-		return Extern::unique_atomic_address (expect ,data) ;
-	}
-
-	imports_static Pack &static_unique () popping {
+	static Pack &static_unique () side_effects {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
-			auto rax = unique_atomic_address (NULL ,NULL) ;
+			auto rax = Extern::unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
@@ -653,7 +649,7 @@ private:
 				const auto r1x = rbx.watch () ;
 				auto &r2x = _FORWARD_<Pack &> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
-				rax = unique_atomic_address (NULL ,DEPTR[r3x]) ;
+				rax = Extern::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_<Pack> (rax) ;
@@ -662,10 +658,10 @@ private:
 		}) ;
 	}
 
-	imports_static PTR<VALUE_NODE> static_new_node (Pack &self_ ,const FLAG &guid) popping {
+	static PTR<VALUE_NODE> static_new_node (Pack &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = self_.mValueList.insert () ;
@@ -675,11 +671,11 @@ private:
 		return DEPTR[self_.mValueList[ix]] ;
 	}
 
-	imports_static FLAG node_guid_hash (const FLAG &guid) {
+	static FLAG node_guid_hash (const FLAG &guid) {
 		return guid ;
 	}
 
-	imports_static PTR<VALUE_NODE> static_find_node (Pack &self_ ,const FLAG &guid) popping {
+	static PTR<VALUE_NODE> static_find_node (Pack &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -687,10 +683,10 @@ private:
 		return DEPTR[self_.mValueList[ix]] ;
 	}
 
-	imports_static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) popping {
+	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = self_.mClassList.insert () ;
@@ -700,13 +696,13 @@ private:
 		return DEPTR[self_.mClassList[ix]] ;
 	}
 
-	imports_static FLAG node_guid_hash (const String<STR> &guid) {
+	static FLAG node_guid_hash (const String<STR> &guid) {
 		const auto r1x = guid.raw () ;
 		const auto r2x = PhanBuffer<const BYTE>::make (r1x) ;
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	imports_static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) popping {
+	static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -728,11 +724,11 @@ private:
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
@@ -747,7 +743,7 @@ class GlobalStatic final
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
 public:
-	imports_static void init (const VAR &data) {
+	static void init (const VAR &data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -759,7 +755,7 @@ public:
 		r3x->mValue = data ;
 	}
 
-	imports_static VAR fetch () popping {
+	static VAR fetch () side_effects {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -767,7 +763,7 @@ public:
 		return r2x->mValue ;
 	}
 
-	imports_static VAR compare_exchange (const VAR &expect ,const VAR &data) popping {
+	static VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
@@ -778,11 +774,11 @@ public:
 		return r2x->mValue ;
 	}
 
-	imports_static void store (const VAR &data) {
+	static void store (const VAR &data) {
 		auto &r1x = GlobalStatic<void>::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (rax != NULL)
 				discard ;
 			rax = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
@@ -809,14 +805,14 @@ private:
 	friend IntrusiveRef<Pack ,GlobalStatic> ;
 
 public:
-	static Singleton<UNIT> &unique () popping {
+	static Singleton<UNIT> &unique () side_effects {
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
@@ -845,11 +841,11 @@ private:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
@@ -877,7 +873,7 @@ private:
 	public:
 		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (const VAR &seed_) = 0 ;
-		virtual VAR random_value () popping = 0 ;
+		virtual VAR random_value () side_effects = 0 ;
 		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
 
@@ -898,7 +894,7 @@ public:
 		mThis->reset_seed (seed_) ;
 	}
 
-	VAR random_value (const VAR &min_ ,const VAR &max_) popping {
+	VAR random_value (const VAR &min_ ,const VAR &max_) side_effects {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		const auto r1x = max_ - min_ + 1 ;
@@ -906,7 +902,7 @@ public:
 		return r2x % r1x + min_ ;
 	}
 
-	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) popping {
+	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) side_effects {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		Array<VAR> ret = Array<VAR> (len) ;
@@ -918,11 +914,11 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_) side_effects {
 		return random_shuffle (count ,range_ ,BitSet<> (range_)) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) side_effects {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
 		BitSet<> ret = _MOVE_ (res) ;
@@ -936,7 +932,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const BitSet<> &range_) popping {
+	BitSet<> random_shuffle (const LENGTH &count ,const BitSet<> &range_) side_effects {
 		BitSet<> ret = BitSet<> (range_.size ()) ;
 		compute_random_shuffle (count ,range_ ,ret) ;
 		return _MOVE_ (ret) ;
@@ -954,7 +950,7 @@ public:
 		}
 	}
 
-	String<STR> random_uuid () popping {
+	String<STR> random_uuid () side_effects {
 		static constexpr auto M_UUID = _PCSTR_ ("00000000-0000-0000-000000000000") ;
 		String<STR> ret = String<STR> (M_UUID.size ()) ;
 		INDEX iw = 0 ;

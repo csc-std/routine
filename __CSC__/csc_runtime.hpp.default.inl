@@ -7,21 +7,21 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("popping")
+#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
 #pragma push_macro ("exports")
-#pragma push_macro ("switch_case")
+#pragma push_macro ("switch_once")
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef popping
+#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
 #undef exports
-#undef switch_case
+#undef switch_once
 #undef discard
 #endif
 
@@ -62,12 +62,12 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("popping")
+#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
 #pragma pop_macro ("exports")
-#pragma pop_macro ("switch_case")
+#pragma pop_macro ("switch_once")
 #pragma pop_macro ("discard")
 #endif
 
@@ -377,7 +377,7 @@ public:
 		return mAtomic.load (api::memory_order::memory_order_seq_cst) ;
 	}
 
-	VAR compare_exchange (const VAR &expect ,const VAR &data) popping {
+	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
 		VAR ret = expect ;
 		const auto r1x = mAtomic.compare_exchange_strong (ret ,data ,api::memory_order::memory_order_seq_cst) ;
 		if (r1x)
@@ -389,12 +389,12 @@ public:
 		mAtomic.store (data ,api::memory_order::memory_order_seq_cst) ;
 	}
 
-	VAR increase () popping {
+	VAR increase () side_effects {
 		const auto r1x = mAtomic.fetch_add (1 ,api::memory_order::memory_order_seq_cst) ;
 		return r1x + 1 ;
 	}
 
-	VAR decrease () popping {
+	VAR decrease () side_effects {
 		const auto r1x = mAtomic.fetch_sub (1 ,api::memory_order::memory_order_seq_cst) ;
 		return r1x - 1 ;
 	}
@@ -408,7 +408,7 @@ inline exports VAR Atomic::fetch () const {
 	return mThis->fetch () ;
 }
 
-inline exports VAR Atomic::compare_exchange (const VAR &expect ,const VAR &data) popping {
+inline exports VAR Atomic::compare_exchange (const VAR &expect ,const VAR &data) side_effects {
 	return mThis->compare_exchange (expect ,data) ;
 }
 
@@ -416,11 +416,11 @@ inline exports void Atomic::store (const VAR &data) {
 	return mThis->store (data) ;
 }
 
-inline exports VAR Atomic::increase () popping {
+inline exports VAR Atomic::increase () side_effects {
 	return mThis->increase () ;
 }
 
-inline exports VAR Atomic::decrease () popping {
+inline exports VAR Atomic::decrease () side_effects {
 	return mThis->decrease () ;
 }
 
@@ -436,7 +436,7 @@ public:
 		mMutex.lock () ;
 	}
 
-	BOOL try_lock () popping {
+	BOOL try_lock () side_effects {
 		return mMutex.try_lock () ;
 	}
 
@@ -453,7 +453,7 @@ inline exports void Mutex::lock () {
 	mThis->lock () ;
 }
 
-inline exports BOOL Mutex::try_lock () popping {
+inline exports BOOL Mutex::try_lock () side_effects {
 	return mThis->try_lock () ;
 }
 
@@ -472,7 +472,7 @@ public:
 		mMutex.lock () ;
 	}
 
-	BOOL try_lock () popping {
+	BOOL try_lock () side_effects {
 		return mMutex.try_lock () ;
 	}
 
@@ -489,7 +489,7 @@ inline exports void RecursiveMutex::lock () {
 	mThis->lock () ;
 }
 
-inline exports BOOL RecursiveMutex::try_lock () popping {
+inline exports BOOL RecursiveMutex::try_lock () side_effects {
 	return mThis->try_lock () ;
 }
 
@@ -660,7 +660,7 @@ inline exports FLAG GlobalRuntime::process_pid () {
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r1x = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = api::OpenProcess (PROCESS_QUERY_INFORMATION ,FALSE ,VARY (pid)) ;
 		} ,[] (api::HANDLE &me) {
@@ -705,7 +705,7 @@ inline exports FLAG GlobalRuntime::process_pid () {
 inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &pid) {
 	Buffer<BYTE ,ARGC<128>> ret ;
 	auto rax = ByteWriter<BYTE> (PhanBuffer<BYTE>::make (ret)) ;
-	if switch_case (TRUE) {
+	if switch_once (TRUE) {
 		const auto r1x = api::getpgid (api::pid_t (pid)) ;
 		if (r1x < 0)
 			discard ;
@@ -750,7 +750,7 @@ inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 }
 
 
-inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) popping {
+inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) side_effects {
 	const auto r1x = StringProc::build_strs<STRA> (cmd) ;
 	const auto r2x = api::system (r1x.raw ().self) ;
 	return FLAG (r2x) ;
@@ -776,7 +776,7 @@ public:
 		mRandomDevice = AutoRef<api::mt19937>::make (CHAR (seed_)) ;
 	}
 
-	VAR random_value () popping override {
+	VAR random_value () side_effects override {
 		return VAR (mRandomDevice.self ()) ;
 	}
 

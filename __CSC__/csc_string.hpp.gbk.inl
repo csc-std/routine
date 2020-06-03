@@ -5,8 +5,7 @@
 #endif
 
 namespace CSC {
-namespace U {
-inline exports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () {
+inline exports PhanBuffer<const DEF<STRUW[2]>> GBKSTableProc::static_gbks_ws_table () {
 #pragma region
 	//@info: fuck vs2017
 	static constexpr PACK<STRUW[24481][2]> M_TABLE = {
@@ -14,5 +13,4 @@ inline exports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () {
 #pragma endregion
 	return PhanBuffer<const DEF<STRUW[2]>>::make (M_TABLE.P1) ;
 }
-} ;
 } ;

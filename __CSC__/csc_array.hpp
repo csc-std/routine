@@ -503,7 +503,7 @@ public:
 		const auto r2x = that.length () ;
 		String ret = String (r1x + r2x) ;
 		BasicProc::mem_copy (ret.mString.self ,mString.self ,r1x) ;
-		BasicProc::mem_copy (PTRTOARR[&ret.mString.self[r1x]] ,that.mString.self ,r2x) ;
+		BasicProc::mem_copy (PTRTOARR[DEPTR[ret.mString.self[r1x]]] ,that.mString.self ,r2x) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -517,17 +517,17 @@ public:
 
 	void concatto (const String &that) {
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
 			const auto r2x = that.length () ;
 			if (!(r1x + r2x <= size ()))
 				discard ;
-			BasicProc::mem_copy (PTRTOARR[&mString.self[r1x]] ,that.mString.self ,r2x) ;
+			BasicProc::mem_copy (PTRTOARR[DEPTR[mString.self[r1x]]] ,that.mString.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			DEREF[this] = concat (that) ;
 		}
 	}
@@ -539,17 +539,17 @@ public:
 
 	void concatto (const Plain<ITEM> &that) {
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mString.size () > 0))
 				discard ;
 			const auto r1x = length () ;
 			const auto r2x = that.size () ;
 			if (!(r1x + r2x <= size ()))
 				discard ;
-			BasicProc::mem_copy (PTRTOARR[&mString.self[r1x]] ,that.self ,r2x) ;
+			BasicProc::mem_copy (PTRTOARR[DEPTR[mString.self[r1x]]] ,that.self ,r2x) ;
 			mString[r1x + r2x] = ITEM (0) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			DEREF[this] = concat (that) ;
 		}
 	}
@@ -570,7 +570,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline imports_static String make (const _ARGS &...initval) {
+	inline static String make (const _ARGS &...initval) {
 		struct Dependent ;
 		_STATIC_ASSERT_ (stl::is_same<SIZE ,SAUTO>::value) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
@@ -824,7 +824,7 @@ public:
 		return (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
 	}
 
-	INDEX insert () popping {
+	INDEX insert () side_effects {
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ret = mWrite ;
@@ -833,7 +833,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_sort (const REMOVE_CVR_TYPE<ITEM> &item) popping {
+	INDEX insert_sort (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
 		_DEBUG_ASSERT_ (mRead == 0) ;
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
@@ -852,7 +852,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_sort (REMOVE_CVR_TYPE<ITEM> &&item) popping {
+	INDEX insert_sort (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
 		_DEBUG_ASSERT_ (mRead == 0) ;
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
@@ -912,22 +912,23 @@ private:
 
 	void reserve (const LENGTH &len) {
 		const auto r1x = len - (size () - length ()) ;
-		const auto r2x = _MAX_ (r1x ,VAR_ZERO) ;
-		if (r2x == 0)
+		const auto r2x = VAR_ZERO ;
+		const auto r3x = _MAX_ (r1x ,r2x) ;
+		if (r3x == 0)
 			return ;
-		auto tmp = mDeque.expand (mDeque.size () + r2x) ;
+		auto tmp = mDeque.expand (mDeque.size () + r3x) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			BasicProc::mem_move (PTRTOARR[&tmp.self[mRead]] ,PTRTOARR[&mDeque.self[mRead]] ,(mWrite - mRead)) ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[mRead]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mWrite - mRead)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mRead > mWrite))
 				discard ;
 			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
 			INDEX ix = mRead + tmp.size () - mDeque.size () ;
-			BasicProc::mem_move (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
 		mDeque.swap (tmp) ;
@@ -940,13 +941,13 @@ private:
 		BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
 		INDEX ix = 0 ;
 		INDEX iy = mDeque.size () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (mRead == 0)
 				discard ;
 			ix = mRead + tmp.size () - mDeque.size () ;
 			iy = mWrite ;
 		}
-		BasicProc::mem_move (PTRTOARR[&tmp.self[ix]] ,PTRTOARR[&mDeque.self[mRead]] ,(mDeque.size () - mRead)) ;
+		BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 		mRead = ix ;
 		mWrite = iy ;
 		mDeque.swap (tmp) ;
@@ -1189,12 +1190,12 @@ public:
 		return 0 ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -1213,10 +1214,11 @@ private:
 private:
 	void reserve (const LENGTH &len) {
 		const auto r1x = len - (size () - length ()) ;
-		const auto r2x = _MAX_ (r1x ,VAR_ZERO) ;
-		if (r2x == 0)
+		const auto r2x = VAR_ZERO ;
+		const auto r3x = _MAX_ (r1x ,r2x) ;
+		if (r3x == 0)
 			return ;
-		auto tmp = mPriority.expand (mPriority.size () + r2x) ;
+		auto tmp = mPriority.expand (mPriority.size () + r3x) ;
 		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
 		mPriority.swap (tmp) ;
 	}
@@ -1266,7 +1268,7 @@ private:
 			auto &r1x = _SWITCH_ (
 				(jx != ix) ? mPriority[jx].mItem :
 				tmp.mItem) ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (iz >= mWrite)
 					discard ;
 				if (r1x <= mPriority[iz].mItem)
@@ -1296,7 +1298,7 @@ private:
 			auto &r2x = _SWITCH_ (
 				(jx != ix) ? mPriority[out[jx]].mItem :
 				mPriority[r1x].mItem) ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (iz >= len)
 					discard ;
 				if (r2x <= mPriority[out[iz]].mItem)
@@ -1580,7 +1582,7 @@ public:
 		return mLast ;
 	}
 
-	INDEX insert () popping {
+	INDEX insert () side_effects {
 		INDEX ret = mList.alloc (mLast ,VAR_NONE) ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1590,7 +1592,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_before (const INDEX &index) popping {
+	INDEX insert_before (const INDEX &index) side_effects {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mLeft :
 			mLast) ;
@@ -1603,7 +1605,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_after (const INDEX &index) popping {
+	INDEX insert_after (const INDEX &index) side_effects {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mRight :
 			mFirst) ;
@@ -1958,14 +1960,14 @@ public:
 		}
 	}
 
-	INDEX insert () popping {
+	INDEX insert () side_effects {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		update_compress_left (mWrite ,ret) ;
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_before (const INDEX &index) popping {
+	INDEX insert_before (const INDEX &index) side_effects {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		const auto r1x = _CALL_ ([&] () {
@@ -1977,7 +1979,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_after (const INDEX &index) popping {
+	INDEX insert_after (const INDEX &index) side_effects {
 		INDEX ret = mList.alloc (VAR_NONE) ;
 		update_resize (ret) ;
 		const auto r1x = _CALL_ ([&] () {
@@ -2060,12 +2062,12 @@ private:
 				if (mHead[ret].mIndex != VAR_NONE)
 					break ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(jx < pos))
 					discard ;
 				ix = ret + 1 ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				iy = ret - 1 ;
 			}
 		}
@@ -2105,14 +2107,14 @@ private:
 	void update_compress_left (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
 		const auto r1x = mHead.size () - 1 ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mHead[curr].mIndex == VAR_NONE))
 				discard ;
 			sequence_rewrite (curr ,last) ;
 			const auto r2x = curr + 1 ;
 			mWrite = _MIN_ (r2x ,r1x) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			INDEX ix = curr + 1 ;
 			if (!(ix < mHead.size ()))
 				discard ;
@@ -2122,7 +2124,7 @@ private:
 			const auto r3x = ix + 1 ;
 			mWrite = _MIN_ (r3x ,r1x) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			update_compress_left_force (curr ,last) ;
 		}
 	}
@@ -2140,7 +2142,7 @@ private:
 			}
 			const auto r1x = mHead[i].mIndex ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x == VAR_NONE))
@@ -2149,7 +2151,7 @@ private:
 				iy = r1x ;
 				ix = VAR_NONE ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(mRead == ix))
 					discard ;
 				if (!(r1x != VAR_NONE))
@@ -2158,7 +2160,7 @@ private:
 				iy = r1x ;
 				ix++ ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(mRead != i))
 					discard ;
 				sequence_rewrite (i ,mHead[mRead].mIndex) ;
@@ -2269,7 +2271,7 @@ public:
 		LENGTH ret = 0 ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
 			ret += M_LENGTH.P1[mSet[i]] ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (mWidth % 8 == 0)
 				discard ;
 			const auto r1x = BYTE (BYTE (0X01) << (mWidth % 8)) ;
@@ -2341,14 +2343,14 @@ public:
 
 	template <class _RET = NONE>
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<BitSet>> &item) const {
-		if (this != &item.mBase)
+		if (this != DEPTR[item.mBase])
 			return VAR_NONE ;
 		return item ;
 	}
 
 	template <class _RET = NONE>
 	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_RET>::template Bit<const BitSet>> &item) const {
-		if (this != &item.mBase)
+		if (this != DEPTR[item.mBase])
 			return VAR_NONE ;
 		return item ;
 	}
@@ -2542,7 +2544,8 @@ public:
 private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> &) {
 		const auto r1x = LENGTH (SIZE::value) ;
-		mWidth = _MAX_ (VAR_ZERO ,r1x) ;
+		const auto r2x = VAR_ZERO ;
+		mWidth = _MAX_ (r1x ,r2x) ;
 	}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len ,const LENGTH &width)
@@ -2599,12 +2602,12 @@ struct BitSet<SIZE>::Detail {
 		inline void operator= (const BOOL &that) rightvalue {
 			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!that)
 					discard ;
 				mBase.mSet[mIndex / 8] |= r1x ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				mBase.mSet[mIndex / 8] &= ~r1x ;
 			}
 		}
@@ -2773,7 +2776,7 @@ public:
 
 	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (_MOVE_ (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2795,7 +2798,7 @@ public:
 
 	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (_MOVE_ (item) ,map_ ,TRUE ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -2833,18 +2836,18 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
 	void remove (const INDEX &index) {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (mSet[index].mLeft == VAR_NONE)
 				discard ;
 			if (mSet[index].mRight == VAR_NONE)
@@ -2900,12 +2903,12 @@ private:
 private:
 	void update_emplace (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr == VAR_NONE))
 				discard ;
 			mTop = last ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr != VAR_NONE))
 				discard ;
 			mSet[last].mUp = curr ;
@@ -2927,12 +2930,12 @@ private:
 			if (!mSet[jx].mRed)
 				break ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(jx == mSet[mSet[jx].mUp].mLeft))
 					discard ;
 				update_insert_left (ix) ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(jx == mSet[mSet[jx].mUp].mRight))
 					discard ;
 				update_insert_right (ix) ;
@@ -2946,7 +2949,7 @@ private:
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mSet[iy].mRight != VAR_NONE))
 				discard ;
 			if (!mSet[mSet[iy].mRight].mRed)
@@ -2956,7 +2959,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			auto &r1x = mSet[iy].mLeft ;
@@ -2969,7 +2972,7 @@ private:
 			r2x = mTop ;
 			mTop = ix ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -2985,7 +2988,7 @@ private:
 		INDEX ix = mSet[curr].mUp ;
 		INDEX iy = mSet[ix].mUp ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mSet[iy].mLeft != VAR_NONE))
 				discard ;
 			if (!mSet[mSet[iy].mLeft].mRed)
@@ -2995,7 +2998,7 @@ private:
 			mSet[iy].mRed = TRUE ;
 			mTop = iy ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr == mSet[ix].mLeft))
 				discard ;
 			auto &r1x = mSet[iy].mRight ;
@@ -3008,7 +3011,7 @@ private:
 			r2x = mTop ;
 			mTop = ix ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(curr == mSet[ix].mRight))
 				discard ;
 			mSet[ix].mRed = FALSE ;
@@ -3030,12 +3033,12 @@ private:
 				if (mSet[ix].mRed)
 					break ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(ix == mSet[iy].mLeft))
 					discard ;
 				update_remove_left (ix ,iy) ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(ix == mSet[iy].mRight))
 					discard ;
 				update_remove_right (ix ,iy) ;
@@ -3050,7 +3053,7 @@ private:
 
 	void update_remove_left (const INDEX &curr ,const INDEX &last) {
 		auto &r1x = mSet[last].mRight ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!mSet[r1x].mRed)
 				discard ;
 			mSet[r1x].mRed = FALSE ;
@@ -3062,7 +3065,7 @@ private:
 		const auto r3x = BOOL (mSet[r1x].mLeft != VAR_NONE && mSet[mSet[r1x].mLeft].mRed) ;
 		const auto r4x = BOOL (mSet[r1x].mRight != VAR_NONE && mSet[mSet[r1x].mRight].mRed) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (r3x)
 				discard ;
 			if (r4x)
@@ -3070,7 +3073,7 @@ private:
 			mSet[r1x].mRed = TRUE ;
 			mTop = last ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (r4x)
 				discard ;
 			mSet[mSet[r1x].mLeft].mRed = FALSE ;
@@ -3085,7 +3088,7 @@ private:
 			r5x = mTop ;
 			mTop = mRoot ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			mSet[r1x].mRed = mSet[last].mRed ;
 			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1x].mRight].mRed = FALSE ;
@@ -3098,7 +3101,7 @@ private:
 
 	void update_remove_right (const INDEX &curr ,const INDEX &last) {
 		auto &r1x = mSet[last].mLeft ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!mSet[r1x].mRed)
 				discard ;
 			mSet[r1x].mRed = FALSE ;
@@ -3110,7 +3113,7 @@ private:
 		const auto r3x = BOOL (mSet[r1x].mRight != VAR_NONE && mSet[mSet[r1x].mRight].mRed) ;
 		const auto r4x = BOOL (mSet[r1x].mLeft != VAR_NONE && mSet[mSet[r1x].mLeft].mRed) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (r3x)
 				discard ;
 			if (r4x)
@@ -3118,7 +3121,7 @@ private:
 			mSet[r1x].mRed = TRUE ;
 			mTop = last ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (r4x)
 				discard ;
 			mSet[mSet[r1x].mRight].mRed = FALSE ;
@@ -3133,7 +3136,7 @@ private:
 			r5x = mTop ;
 			mTop = mRoot ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			mSet[r1x].mRed = mSet[last].mRed ;
 			mSet[last].mRed = FALSE ;
 			mSet[mSet[r1x].mLeft].mRed = FALSE ;
@@ -3186,21 +3189,21 @@ private:
 	void eswap (const INDEX &index1 ,const INDEX &index2) {
 		if (index1 == index2)
 			return ;
-		auto rax = ARRAY2<INDEX> {index1 ,index2} ;
+		auto rax = INDEX () ;
 		auto &r1x = prev_next (index2) ;
 		auto &r2x = _SWITCH_ (
 			(mSet[index2].mLeft != VAR_NONE) ? mSet[mSet[index2].mLeft].mUp :
-			rax[0]) ;
+			rax) ;
 		auto &r3x = _SWITCH_ (
 			(mSet[index2].mRight != VAR_NONE) ? mSet[mSet[index2].mRight].mUp :
-			rax[0]) ;
+			rax) ;
 		auto &r4x = prev_next (index1) ;
 		auto &r5x = _SWITCH_ (
 			(mSet[index1].mLeft != VAR_NONE) ? mSet[mSet[index1].mLeft].mUp :
-			rax[1]) ;
+			rax) ;
 		auto &r6x = _SWITCH_ (
 			(mSet[index1].mRight != VAR_NONE) ? mSet[mSet[index1].mRight].mUp :
-			rax[1]) ;
+			rax) ;
 		r1x = index1 ;
 		r2x = index1 ;
 		r3x = index1 ;
@@ -3395,7 +3398,7 @@ public:
 
 	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
@@ -3417,7 +3420,7 @@ public:
 
 	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
@@ -3437,12 +3440,12 @@ public:
 		}
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3454,7 +3457,7 @@ public:
 
 	INDEX find (const ITEM &item) const {
 		INDEX ret = VAR_NONE ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (size () == 0)
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
@@ -3633,7 +3636,7 @@ public:
 		return mLength ;
 	}
 
-	inline SoftSet share () popping {
+	inline SoftSet share () side_effects {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
 		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer) ;
@@ -3739,7 +3742,7 @@ public:
 	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (_MOVE_ (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3767,7 +3770,7 @@ public:
 	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet->alloc (_MOVE_ (item) ,map_ ,1 ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
@@ -3815,12 +3818,12 @@ public:
 		return VAR_NONE ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) popping {
+	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) popping {
+	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3861,20 +3864,20 @@ private:
 	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
 			const auto r1x = BOOL (mSet.self[mLast].mItem < mSet.self[ix].mItem) ;
 			auto fbx = TRUE ;
-			if switch_case (fbx) {
+			if switch_once (fbx) {
 				if (!r1x)
 					discard ;
 				update_insert (mSet.self[ix].mLeft) ;
 				mSet.self[ix].mLeft = mTop ;
 				update_insert_left (ix) ;
 			}
-			if switch_case (fbx) {
+			if switch_once (fbx) {
 				if (r1x)
 					discard ;
 				update_insert (mSet.self[ix].mRight) ;
@@ -3884,7 +3887,7 @@ private:
 			ix = mTop ;
 			mTop = ix ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			mTop = mLast ;
 		}
 	}
@@ -3900,7 +3903,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4x = mSet.self[ix].mLeft ;
@@ -3933,7 +3936,7 @@ private:
 		mTop = ix ;
 		if (r1x >= _MAX_ (r2x ,r3x))
 			return ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (r1x < r2x)
 				discard ;
 			auto &r4x = mSet.self[ix].mRight ;

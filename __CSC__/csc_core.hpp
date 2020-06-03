@@ -172,7 +172,7 @@ using std::atomic ;
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define _SWITCH_CASE_(arg) (arg) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (arg)) ANONYMOUS:
+#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (arg)) ANONYMOUS:
 
 using BOOL = bool ;
 
@@ -1391,7 +1391,7 @@ inline constexpr _RET &_NULL_ () {
 }
 
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) popping {
+inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) side_effects {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" :: "rm" (address) : "memory") ;
@@ -1399,7 +1399,7 @@ inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) popping {
 	return LENGTH (address) ;
 }
 
-inline LENGTH _ADDRESS_ (const PTR<VOID> &address) popping {
+inline LENGTH _ADDRESS_ (const PTR<VOID> &address) side_effects {
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" ::: "memory") ;
 #endif
@@ -1407,7 +1407,7 @@ inline LENGTH _ADDRESS_ (const PTR<VOID> &address) popping {
 }
 
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) popping {
+inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) side_effects {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 	return LENGTH (address) ;
 }
@@ -1457,7 +1457,7 @@ inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &&object) {
 }
 
 template <class _ARG1>
-inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) popping {
+inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) side_effects {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
 	_ZERO_ (handle) ;
@@ -1465,7 +1465,7 @@ inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) popping {
 }
 
 template <class _ARG1>
-inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) popping {
+inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) side_effects {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
 	handle = val ;
@@ -1599,7 +1599,7 @@ struct OPERATOR_ONCE {
 		return FALSE ;
 	}
 
-	inline static BOOL invoke (BOOL &flag) popping {
+	inline static BOOL invoke (BOOL &flag) side_effects {
 		flag = FALSE ;
 		return FALSE ;
 	}
@@ -1761,7 +1761,7 @@ inline ArrayRange<ZERO> _RANGE_ (const INDEX &ibegin_ ,const INDEX &iend_) {
 }
 
 template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &func) popping {
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &func) side_effects {
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	_STATIC_ASSERT_ (!stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
@@ -1918,7 +1918,7 @@ inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) {
 }
 
 template <class _ARG1>
-inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) popping {
+inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&func) side_effects {
 	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return func () ;

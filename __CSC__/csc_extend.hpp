@@ -14,19 +14,19 @@ class GlobalWatch final
 	:private Wrapped<void> {
 public:
 	struct Extern {
-		imports_static DEF<void (const Exception &)> done ;
+		imports DEF<void (const Exception &)> done ;
 	} ;
 
 private:
 	struct Detail ;
 
 public:
-	inline imports_static void done (const Exception &e) {
+	inline static void done (const Exception &e) {
 		Extern::done (e) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	inline imports_static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
+	inline static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
 		using WatchInterface = typename DEPENDENT_TYPE<Detail ,Dependent>::template WatchInterface<_ARG2> ;
 		static volatile WatchInterface mInstance ;
@@ -105,7 +105,7 @@ private:
 
 public:
 	//@warn: static instance across DLL ruins Singleton
-	inline imports_static UNIT &instance () {
+	inline static UNIT &instance () {
 		struct Dependent ;
 		return DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent>::unique () ;
 	}
@@ -258,7 +258,7 @@ public:
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -279,7 +279,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax / r3x) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -288,7 +288,7 @@ public:
 				discard ;
 			ret = -(-(DEREF[this] + that) / that + 1) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -297,12 +297,12 @@ public:
 				discard ;
 			ret = -(-(DEREF[this] - that) / that - 1) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-DEREF[this] / that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -311,14 +311,14 @@ public:
 				discard ;
 			ret = VAR128 (0) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = DEREF[this] / (-that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret = slow_divide (DEREF[this] ,that) ;
 		}
 		return _MOVE_ (ret) ;
@@ -334,7 +334,7 @@ public:
 		const auto r1x = _CAST_<VAR64> (v2i0) ;
 		const auto r2x = _CAST_<VAR64> (that.v2i0) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v4i0 == 0))
@@ -355,7 +355,7 @@ public:
 			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
 			ret.v4i3 = CHAR (rax % r3x) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -364,7 +364,7 @@ public:
 				discard ;
 			ret = -(-(DEREF[this] + that) % that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(v2i0 == DATA (VAR64_MIN)))
 				discard ;
 			if (!(v2i1 == 0))
@@ -373,12 +373,12 @@ public:
 				discard ;
 			ret = -(-(DEREF[this] - that) % that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x < 0))
 				discard ;
 			ret = -(-DEREF[this] % that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(that.v2i0 == DATA (VAR64_MIN)))
@@ -387,14 +387,14 @@ public:
 				discard ;
 			ret = DEREF[this] ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(r1x >= 0))
 				discard ;
 			if (!(r2x < 0))
 				discard ;
 			ret = DEREF[this] % (-that) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			ret = that - slow_divide (DEREF[this] ,that) * that ;
 		}
 		return _MOVE_ (ret) ;
@@ -422,7 +422,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline VAR128 operator++ (VAR32) popping {
+	inline VAR128 operator++ (VAR32) side_effects {
 		VAR128 ret = DEREF[this] ;
 		++DEREF[this] ;
 		return _MOVE_ (ret) ;
@@ -434,7 +434,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline VAR128 operator-- (VAR32) popping {
+	inline VAR128 operator-- (VAR32) side_effects {
 		VAR128 ret = DEREF[this] ;
 		--DEREF[this] ;
 		return _MOVE_ (ret) ;
@@ -540,12 +540,12 @@ private:
 			if (r1x == y)
 				break ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				if (!(r1x < y))
 					discard ;
 				rax[0] = ret + 1 ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				rax[1] = ret - 1 ;
 			}
 		}
@@ -718,7 +718,7 @@ public:
 	}
 
 	inline Variant &operator= (const Variant &that) {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (this == &that)
 				discard ;
 			DEREF[this].~Variant () ;
@@ -736,7 +736,7 @@ public:
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (this == &that)
 				discard ;
 			DEREF[this].~Variant () ;
@@ -805,7 +805,7 @@ public:
 	}
 
 public:
-	inline imports_static Variant nullopt () {
+	inline static Variant nullopt () {
 		return Variant (ARGVP0) ;
 	}
 
@@ -825,7 +825,7 @@ private:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
 			auto &r2x = _NULL_<ARGV<ARGC<stl::is_default_constructible<ONE_HINT>::value>>> () ;
@@ -849,7 +849,7 @@ private:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
 			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[mVariant]) ;
@@ -869,7 +869,7 @@ private:
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
 			auto &r2x = _NULL_<ARGV<ARGC<stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
@@ -893,7 +893,7 @@ private:
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
 		const auto r1x = BOOL (index == 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
 			auto &r2x = _LOAD_<TEMP<ONE_HINT>> (DEPTR[mVariant]) ;
@@ -1514,7 +1514,7 @@ public:
 		if (mPointer == NULL)
 			return ;
 		_STATIC_WARNING_ ("mark") ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			const auto r1x = --mThis->mCounter ;
 			if (r1x != 0)
 				discard ;
@@ -1529,7 +1529,7 @@ public:
 	}
 
 	inline StrongRef &operator= (const StrongRef &that) {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (this == &that)
 				discard ;
 			DEREF[this].~StrongRef () ;
@@ -1545,7 +1545,7 @@ public:
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (this == &that)
 				discard ;
 			DEREF[this].~StrongRef () ;
@@ -1594,7 +1594,7 @@ public:
 			return FALSE ;
 		if (!that.mThis.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != &that.mThis.self)
+		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1621,7 +1621,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline imports_static StrongRef make (_ARGS &&...initval) {
+	inline static StrongRef make (_ARGS &&...initval) {
 		auto tmp = SharedRef<Pack>::make () ;
 		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
 		tmp->mCounter = 0 ;
@@ -1677,7 +1677,7 @@ public:
 			return FALSE ;
 		if (!that.mThis.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != &that.mThis.self)
+		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1698,7 +1698,7 @@ public:
 			return FALSE ;
 		if (!that.mThis.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != &that.mThis.self)
+		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1782,7 +1782,7 @@ public:
 	}
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (this == &that)
 				discard ;
 			DEREF[this].~IntrusiveRef () ;
@@ -1798,14 +1798,14 @@ public:
 		return TRUE ;
 	}
 
-	inline IntrusiveRef share () popping {
+	inline IntrusiveRef share () side_effects {
 		using LatchCounter = typename Detail::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		return IntrusiveRef (r1x) ;
 	}
 
-	inline DEF<typename Detail::WatchProxy> watch () popping {
+	inline DEF<typename Detail::WatchProxy> watch () side_effects {
 		using WatchProxy = typename Detail::WatchProxy ;
 		using LatchCounter = typename Detail::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
@@ -1817,7 +1817,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	inline imports_static IntrusiveRef make (_ARGS &&...initval) {
+	inline static IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
@@ -1835,7 +1835,7 @@ private:
 		:mPointer (NULL) ,mLatch (0) {}
 
 private:
-	inline PTR<UNIT> safe_exchange (const PTR<UNIT> &address) popping {
+	inline PTR<UNIT> safe_exchange (const PTR<UNIT> &address) side_effects {
 		const auto r1x = mPointer.exchange (address) ;
 		if (r1x == NULL)
 			return r1x ;
@@ -1931,7 +1931,7 @@ private:
 		virtual void clear () noexcept = 0 ;
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH length () const = 0 ;
-		virtual PTR<HEADER> alloc (const LENGTH &len) popping = 0 ;
+		virtual PTR<HEADER> alloc (const LENGTH &len) side_effects = 0 ;
 		virtual void free (const PTR<HEADER> &address) noexcept = 0 ;
 		virtual void clean () noexcept = 0 ;
 	} ;
@@ -1972,41 +1972,45 @@ public:
 
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _RET>
-	inline PTR<_RET> alloc () popping {
+	inline PTR<_RET> alloc () side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 		const auto r1x = _ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ;
-		const auto r2x = _MAX_ (r1x ,VAR_ZERO) + _SIZEOF_ (_RET) ;
-		const auto r3x = (r2x - 1) / 8 ;
-		INDEX ix = _MIN_ (r3x ,_SIZEOF_ (HEADER)) ;
-		const auto r4x = mThis->mPool[ix]->alloc (r2x) ;
-		const auto r5x = _ALIGNAS_ (_ADDRESS_ (r4x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r6x = r5x - _SIZEOF_ (HEADER) ;
-		auto &r7x = _LOAD_UNSAFE_<HEADER> (r6x) ;
-		r7x.mFrom = DEPTR[mThis->mPool[ix].self] ;
-		r7x.mCurr = r4x ;
-		auto &r8x = _LOAD_UNSAFE_<_RET> (r5x) ;
-		return DEPTR[r8x] ;
+		const auto r2x = VAR_ZERO ;
+		const auto r3x = _MAX_ (r1x ,r2x) + _SIZEOF_ (_RET) ;
+		const auto r4x = (r3x - 1) / 8 ;
+		const auto r5x = _SIZEOF_ (HEADER) ;
+		INDEX ix = _MIN_ (r4x ,r5x) ;
+		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
+		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_RET)) ;
+		const auto r8x = r7x - r5x ;
+		auto &r9x = _LOAD_UNSAFE_<HEADER> (r8x) ;
+		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r9x.mCurr = r6x ;
+		auto &r10x = _LOAD_UNSAFE_<_RET> (r7x) ;
+		return DEPTR[r10x] ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _RET>
-	inline PTR<ARR<_RET>> alloc (const LENGTH &len) popping {
+	inline PTR<ARR<_RET>> alloc (const LENGTH &len) side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 		const auto r1x = _ALIGNOF_ (_RET) - _ALIGNOF_ (HEADER) ;
-		const auto r2x = _MAX_ (r1x ,VAR_ZERO) + len * _SIZEOF_ (_RET) ;
-		_DEBUG_ASSERT_ (r2x > 0) ;
-		const auto r3x = (r2x - 1) / 8 ;
-		INDEX ix = _MIN_ (r3x ,_SIZEOF_ (HEADER)) ;
-		const auto r4x = mThis->mPool[ix]->alloc (r2x) ;
-		const auto r5x = _ALIGNAS_ (_ADDRESS_ (r4x) + _SIZEOF_ (HEADER) ,_ALIGNOF_ (_RET)) ;
-		const auto r6x = r5x - _SIZEOF_ (HEADER) ;
-		auto &r7x = _LOAD_UNSAFE_<HEADER> (r6x) ;
-		r7x.mFrom = DEPTR[mThis->mPool[ix].self] ;
-		r7x.mCurr = r4x ;
-		auto &r8x = _LOAD_UNSAFE_<ARR<_RET>> (r5x) ;
-		return DEPTR[r8x] ;
+		const auto r2x = VAR_ZERO ;
+		const auto r3x = _MAX_ (r1x ,r2x) + len * _SIZEOF_ (_RET) ;
+		_DEBUG_ASSERT_ (r3x > 0) ;
+		const auto r4x = (r3x - 1) / 8 ;
+		const auto r5x = _SIZEOF_ (HEADER) ;
+		INDEX ix = _MIN_ (r4x ,r5x) ;
+		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
+		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_RET)) ;
+		const auto r8x = r7x - r5x ;
+		auto &r9x = _LOAD_UNSAFE_<HEADER> (r8x) ;
+		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r9x.mCurr = r6x ;
+		auto &r10x = _LOAD_UNSAFE_<ARR<_RET>> (r7x) ;
+		return DEPTR[r10x] ;
 	}
 
 	template <class _ARG1>
@@ -2108,7 +2112,7 @@ struct MemoryPool::Detail {
 			rax = NULL ;
 		}
 
-		inline PTR<HEADER> alloc (const LENGTH &len) popping override {
+		inline PTR<HEADER> alloc (const LENGTH &len) side_effects override {
 			_DEBUG_ASSERT_ (len <= SIZE::value) ;
 			reserve () ;
 			const auto r1x = mFree ;
@@ -2202,7 +2206,7 @@ struct MemoryPool::Detail {
 			return mLength ;
 		}
 
-		inline PTR<HEADER> alloc (const LENGTH &len) popping override {
+		inline PTR<HEADER> alloc (const LENGTH &len) side_effects override {
 			const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
 			const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
 			auto rax = GlobalHeap::alloc<BYTE> (r2x) ;
@@ -2391,7 +2395,7 @@ public:
 		mBinder = StrongRef<const ImplBinder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
-	inline DEF<typename Detail::Member> operator() (CONT &context_) const popping {
+	inline DEF<typename Detail::Member> operator() (CONT &context_) const side_effects {
 		using Member = typename Detail::Member ;
 		_DEBUG_ASSERT_ (mBinder.exist ()) ;
 		return Member (DEREF[this] ,context_) ;

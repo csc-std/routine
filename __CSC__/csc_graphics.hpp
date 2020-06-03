@@ -93,7 +93,7 @@ public:
 
 	//@info: 'angle_vn-angle_nu-angle_uv' equals to 'pitch-yaw-roll' (heading-pitch-bank)
 	void rotate (const REAL &angle_vn ,const REAL &angle_nu ,const REAL &angle_uv) {
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (angle_vn == REAL (0))
 				discard ;
 			const auto r1x = mEyeN * MathProc::cos (angle_vn) - mEyeV * MathProc::sin (angle_vn) ;
@@ -101,7 +101,7 @@ public:
 			mEyeN = r1x.normalize () ;
 			mEyeV = r2x.normalize () ;
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (angle_nu == REAL (0))
 				discard ;
 			const auto r3x = mEyeU * MathProc::cos (angle_nu) - mEyeN * MathProc::sin (angle_nu) ;
@@ -109,7 +109,7 @@ public:
 			mEyeU = r3x.normalize () ;
 			mEyeN = r4x.normalize () ;
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (angle_uv == REAL (0))
 				discard ;
 			const auto r5x = mEyeV * MathProc::cos (angle_uv) - mEyeU * MathProc::sin (angle_uv) ;
@@ -285,7 +285,7 @@ public:
 	void uniform (const String<STR> &name ,const VAR32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -297,7 +297,7 @@ public:
 	void uniform (const String<STR> &name ,const VAR64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -309,7 +309,7 @@ public:
 	void uniform (const String<STR> &name ,const VAL32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -321,7 +321,7 @@ public:
 	void uniform (const String<STR> &name ,const VAL64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -333,7 +333,7 @@ public:
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -345,7 +345,7 @@ public:
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -357,7 +357,7 @@ public:
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -369,7 +369,7 @@ public:
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		INDEX ix = mUniformMappingSet.map (name) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
 			mAbstract->compute_uniform_find (mHolder ,name ,ix) ;
@@ -379,7 +379,7 @@ public:
 	}
 
 	template <class _RET = NONE>
-	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () popping {
+	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () side_effects {
 		struct Dependent ;
 		return DEPENDENT_TYPE<AbstractSprite ,Dependent> (mAbstract) ;
 	}

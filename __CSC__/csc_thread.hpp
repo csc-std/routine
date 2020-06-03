@@ -42,7 +42,7 @@ public:
 		mThis = IntrusiveRef<Pack ,CalcThread>::make () ;
 	}
 
-	LENGTH size () popping {
+	LENGTH size () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
@@ -51,7 +51,7 @@ public:
 		return r2x.mItemQueue->size () ;
 	}
 
-	LENGTH length () popping {
+	LENGTH length () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
@@ -73,7 +73,7 @@ public:
 		r2x.mItemQueue = _MOVE_ (tmp) ;
 	}
 
-	ITEM poll () popping {
+	ITEM poll () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
@@ -90,7 +90,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
+	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
@@ -190,7 +190,7 @@ private:
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
 			r1x.yield () ;
@@ -207,7 +207,7 @@ private:
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
 			r1x.yield () ;
@@ -261,11 +261,11 @@ private:
 		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
@@ -342,7 +342,7 @@ public:
 		mThis = IntrusiveRef<Pack ,WorkThread>::make () ;
 	}
 
-	LENGTH size () popping {
+	LENGTH size () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
@@ -351,7 +351,7 @@ public:
 		return r2x.mItemQueue->size () ;
 	}
 
-	LENGTH length () popping {
+	LENGTH length () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
@@ -579,11 +579,11 @@ private:
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
@@ -675,7 +675,7 @@ public:
 		mThis = IntrusiveRef<Pack ,Promise>::make () ;
 	}
 
-	DEPENDENT_TYPE<Future<ITEM> ,Promise> future () popping {
+	DEPENDENT_TYPE<Future<ITEM> ,Promise> future () side_effects {
 		return DEPENDENT_TYPE<Future<ITEM> ,Promise> (mThis) ;
 	}
 
@@ -739,7 +739,7 @@ public:
 	}
 
 public:
-	imports_static DEPENDENT_TYPE<Future<ITEM> ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	static DEPENDENT_TYPE<Future<ITEM> ,Promise> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (_MOVE_ (proc)) ;
 		return rax.future () ;
@@ -798,7 +798,7 @@ private:
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
 		r1x.notify () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!self_.mItem.exist ())
 				discard ;
 			if (!self_.mCallbackProc.exist ())
@@ -841,11 +841,11 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) popping {
+	static LENGTH friend_attach (Pack &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) popping {
+	static LENGTH friend_detach (Pack &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
@@ -904,7 +904,7 @@ private:
 public:
 	Future () = delete ;
 
-	BOOL ready () popping {
+	BOOL ready () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
@@ -915,7 +915,7 @@ public:
 		return TRUE ;
 	}
 
-	ITEM poll () popping {
+	ITEM poll () side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
@@ -934,7 +934,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) popping {
+	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		const auto r3x = r2x.mThreadConditionLock.watch (r2x.mThreadMutex) ;
@@ -955,7 +955,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	ITEM value (const ITEM &def) popping {
+	ITEM value (const ITEM &def) side_effects {
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<Pack &> (r1x) ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;

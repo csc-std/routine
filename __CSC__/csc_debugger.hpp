@@ -212,8 +212,8 @@ private:
 	public:
 		virtual void abort_once_invoked_exit (const BOOL &flag) = 0 ;
 		virtual void output_memory_leaks_report (const BOOL &flag) = 0 ;
-		virtual Array<LENGTH> captrue_stack_trace () popping = 0 ;
-		virtual Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping = 0 ;
+		virtual Array<LENGTH> captrue_stack_trace () side_effects = 0 ;
+		virtual Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) side_effects = 0 ;
 	} ;
 
 private:
@@ -233,12 +233,12 @@ public:
 		mThis->output_memory_leaks_report (flag) ;
 	}
 
-	Array<LENGTH> captrue_stack_trace () popping {
+	Array<LENGTH> captrue_stack_trace () side_effects {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->captrue_stack_trace () ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) popping {
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) side_effects {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->symbol_from_address (list) ;
 	}

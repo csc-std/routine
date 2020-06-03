@@ -139,7 +139,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	ByteReader share () popping {
+	ByteReader share () side_effects {
 		ByteReader ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
@@ -149,7 +149,7 @@ public:
 	}
 
 	template <class _RET>
-	_RET read () popping {
+	_RET read () side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_RET ret ;
 		read (ret) ;
@@ -159,13 +159,13 @@ public:
 	void read (BYTE &data) {
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mRead < mWrite))
 				discard ;
 			data = BYTE (mStream[mRead]) ;
 			mRead++ ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			data = r1x.varify_ending_item () ;
 		}
 	}
@@ -514,7 +514,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	ByteWriter share () popping {
+	ByteWriter share () side_effects {
 		ByteWriter ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
@@ -874,7 +874,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	TextReader share () popping {
+	TextReader share () side_effects {
 		TextReader ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
@@ -884,7 +884,7 @@ public:
 	}
 
 	template <class _RET>
-	_RET read () popping {
+	_RET read () side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_RET ret ;
 		read (ret) ;
@@ -894,10 +894,10 @@ public:
 	void read (REAL &data) {
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(mRead < mWrite))
 				discard ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				data = r1x.convert_endian (mStream[mRead]) ;
 				const auto r2x = r1x.varify_escape_r (data) ;
 				mRead++ ;
@@ -909,7 +909,7 @@ public:
 				mRead++ ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			data = r1x.varify_ending_item () ;
 		}
 	}
@@ -923,7 +923,7 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('t')))
 				discard ;
 			read (rax) ;
@@ -934,7 +934,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('e')) ;
 			data = TRUE ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('T')))
 				discard ;
 			read (rax) ;
@@ -945,7 +945,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('E')) ;
 			data = TRUE ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('f')))
 				discard ;
 			read (rax) ;
@@ -958,7 +958,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('e')) ;
 			data = FALSE ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('F')))
 				discard ;
 			read (rax) ;
@@ -971,7 +971,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('E')) ;
 			data = FALSE ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			_DYNAMIC_ASSERT_ (FALSE) ;
 		}
 	}
@@ -1011,7 +1011,7 @@ public:
 
 	void read (VAL32 &data) {
 		const auto r1x = read<VAL64> () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (MathProc::is_infinite (r1x))
 				discard ;
 			if (MathProc::is_nan (r1x))
@@ -1034,7 +1034,7 @@ public:
 		if (rax == REAL ('+') || r2x)
 			read (rax) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('i')))
 				discard ;
 			read (rax) ;
@@ -1043,7 +1043,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('f')) ;
 			data = VAL64_INF ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('I')))
 				discard ;
 			read (rax) ;
@@ -1052,7 +1052,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('F')) ;
 			data = VAL64_INF ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('n')))
 				discard ;
 			read (rax) ;
@@ -1061,7 +1061,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('n')) ;
 			data = VAL64_NAN ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(rax == REAL ('N')))
 				discard ;
 			read (rax) ;
@@ -1070,7 +1070,7 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('N')) ;
 			data = VAL64_NAN ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			const auto r3x = r1x.varify_number_item (rax) ;
 			_DYNAMIC_ASSERT_ (r3x) ;
 			compute_read_number (data ,rax) ;
@@ -1225,7 +1225,7 @@ public:
 	}
 
 private:
-	LENGTH next_string_size () popping {
+	LENGTH next_string_size () side_effects {
 		const auto r1x = attr () ;
 		LENGTH ret = 0 ;
 		auto rax = share () ;
@@ -1270,7 +1270,7 @@ private:
 			rax.read (top) ;
 		}
 		auto rbx = ARRAY3<VAR64> {0 ,0 ,0} ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r1x.varify_number_item (top))
 				discard ;
 			rbx[0] = r1x.convert_number_r (top) ;
@@ -1280,20 +1280,20 @@ private:
 				if (!r1x.varify_number_item (top))
 					break ;
 				auto fax = TRUE ;
-				if switch_case (fax) {
+				if switch_once (fax) {
 					const auto r2x = rbx[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
 					if (!(rbx[0] < r2x))
 						discard ;
 					rbx[0] = r2x ;
 				}
-				if switch_case (fax) {
+				if switch_once (fax) {
 					rbx[1]++ ;
 				}
 				DEREF[this] = rax.share () ;
 				rax.read (top) ;
 			}
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (top != REAL ('.'))
 				discard ;
 			DEREF[this] = rax.share () ;
@@ -1302,7 +1302,7 @@ private:
 			while (TRUE) {
 				if (!r1x.varify_number_item (top))
 					break ;
-				if switch_case (TRUE) {
+				if switch_once (TRUE) {
 					const auto r3x = rbx[0] * r1x.varify_radix () + r1x.convert_number_r (top) ;
 					if (rbx[0] > r3x)
 						discard ;
@@ -1313,14 +1313,14 @@ private:
 				rax.read (top) ;
 			}
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!(top == REAL ('e') || top == REAL ('E')))
 				discard ;
 			const auto r4x = rax.template read<VAR32> () ;
 			rbx[1] += r4x ;
 			DEREF[this] = rax.share () ;
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (rbx[0] >= 0)
 				discard ;
 			rbx[0] = -rbx[0] ;
@@ -1621,7 +1621,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	TextWriter share () popping {
+	TextWriter share () side_effects {
 		TextWriter ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
@@ -1633,7 +1633,7 @@ public:
 	void write (const REAL &data) {
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!r1x.varify_escape_w (data))
 				discard ;
 			_DYNAMIC_ASSERT_ (mWrite + 1 < mStream.size ()) ;
@@ -1643,7 +1643,7 @@ public:
 			mStream[mWrite] = r2x ;
 			mWrite++ ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			_DYNAMIC_ASSERT_ (mWrite < mStream.size ()) ;
 			mStream[mWrite] = data ;
 			mWrite++ ;
@@ -1690,7 +1690,7 @@ public:
 		auto rax = Buffer<REAL ,ARGC<128>> () ;
 		INDEX ix = rax.size () ;
 		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,ix) ;
-		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
 		write (r1x) ;
 	}
 
@@ -1708,31 +1708,31 @@ public:
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_nan (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val32_precision () ;
 			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
 			write (r3x) ;
 		}
 	}
@@ -1751,31 +1751,31 @@ public:
 			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		const auto r1x = attr () ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_nan (data))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX ix = rax.size () ;
 			const auto r2x = r1x.varify_val64_precision () ;
 			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[&rax.self[ix]] ,(rax.size () - ix)) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
 			write (r3x) ;
 		}
 	}
@@ -1916,7 +1916,7 @@ private:
 		auto rax = data ;
 		INDEX iw = out_i ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(data > 0))
 				discard ;
 			while (TRUE) {
@@ -1926,7 +1926,7 @@ private:
 				rax /= r1x.varify_radix () ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(data < 0))
 				discard ;
 			while (TRUE) {
@@ -1937,7 +1937,7 @@ private:
 			}
 			out[--iw] = REAL ('-') ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			if (!(data == 0))
 				discard ;
 			out[--iw] = r1x.convert_number_w (0) ;
@@ -1951,7 +1951,7 @@ private:
 		const auto r2x = MathProc::ieee754_decode (data) ;
 		auto rax = MathProc::ieee754_e2_e10 (r2x) ;
 		const auto r3x = log_of_number (rax[0] ,r1x.varify_radix ()) ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			const auto r4x = r3x - precision ;
 			for (auto &&i : _RANGE_ (0 ,r4x - 1)) {
 				_STATIC_UNUSED_ (i) ;
@@ -1965,13 +1965,13 @@ private:
 		}
 		const auto r5x = log_of_number (rax[0] ,r1x.varify_radix ()) ;
 		auto fax = TRUE ;
-		if switch_case (fax) {
+		if switch_once (fax) {
 			//@info: case '0'
 			if (!(rax[0] == 0))
 				discard ;
 			out[--iw] = r1x.convert_number_w (0) ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			//@info: case 'x.xxxExxx'
 			const auto r6x = r5x - 1 + rax[1] ;
 			if (!(MathProc::abs (r6x) >= precision))
@@ -1997,7 +1997,7 @@ private:
 			out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 			rax[0] /= r1x.varify_radix () ;
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			//@info: case 'xxx000'
 			if (!(rax[1] >= 0))
 				discard ;
@@ -2011,7 +2011,7 @@ private:
 				rax[0] /= r1x.varify_radix () ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			//@info: case 'xxx.xxx'
 			if (!(rax[1] >= 1 - r5x))
 				discard ;
@@ -2037,7 +2037,7 @@ private:
 				rax[0] /= r1x.varify_radix () ;
 			}
 		}
-		if switch_case (fax) {
+		if switch_once (fax) {
 			//@info: case '0.000xxx'
 			if (!(rax[1] < 1 - r5x))
 				discard ;
@@ -2275,7 +2275,7 @@ public:
 		mHintNextTextSize = 0 ;
 	}
 
-	RegularReader share () popping {
+	RegularReader share () side_effects {
 		RegularReader ret ;
 		ret.mShareReader = AutoRef<TextReader<STRU8>>::make (mReader->share ()) ;
 		ret.mReader = PhanRef<TextReader<STRU8>>::make (ret.mShareReader.self) ;
@@ -2446,7 +2446,7 @@ public:
 			data = String<STRU8> (r3x) ;
 		data.clear () ;
 		auto rax = STRU8 () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r2x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2454,7 +2454,7 @@ public:
 		}
 		for (auto &&i : _RANGE_ (0 ,r3x)) {
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				rax = get (0) ;
 				read () ;
 				const auto r4x = BOOL (rax == r1x.varify_escape_item ()) ;
@@ -2465,13 +2465,13 @@ public:
 				rax = r1x.convert_escape_r (rax) ;
 				data[i] = rax ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				const auto r5x = r1x.varify_control (rax) ;
 				_DYNAMIC_ASSERT_ (!r5x) ;
 				data[i] = rax ;
 			}
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!r2x)
 				discard ;
 			_DYNAMIC_ASSERT_ (get (0) == STRU8 ('\"')) ;
@@ -2485,7 +2485,7 @@ public:
 	}
 
 private:
-	LENGTH next_identifier_size () popping {
+	LENGTH next_identifier_size () side_effects {
 		LENGTH ret = 0 ;
 		auto rax = share () ;
 		while (TRUE) {
@@ -2504,10 +2504,10 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	LENGTH next_value_size () popping {
+	LENGTH next_value_size () side_effects {
 		LENGTH ret = 0 ;
 		auto rax = share () ;
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!(rax[0] == STRU8 ('+') || rax[0] == STRU8 ('-')))
 				discard ;
 			rax++ ;
@@ -2525,7 +2525,7 @@ private:
 			rax++ ;
 			ret++ ;
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (rax[0] != STRU8 ('.'))
 				discard ;
 			rax++ ;
@@ -2537,12 +2537,12 @@ private:
 				ret++ ;
 			}
 		}
-		if switch_case (TRUE) {
+		if switch_once (TRUE) {
 			if (!(rax[0] == STRU8 ('e') || rax[0] == STRU8 ('E')))
 				discard ;
 			rax++ ;
 			ret++ ;
-			if switch_case (TRUE) {
+			if switch_once (TRUE) {
 				if (!(rax[0] == STRU8 ('+') || rax[0] == STRU8 ('-')))
 					discard ;
 				rax++ ;
@@ -2561,7 +2561,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	LENGTH next_string_size () popping {
+	LENGTH next_string_size () side_effects {
 		const auto r1x = mReader->attr () ;
 		LENGTH ret = 0 ;
 		auto rax = share () ;
@@ -2574,7 +2574,7 @@ private:
 			if (rax[0] == STRU8 ('\"'))
 				break ;
 			auto fax = TRUE ;
-			if switch_case (fax) {
+			if switch_once (fax) {
 				rbx = rax[0] ;
 				rax++ ;
 				if (!(rbx == r1x.varify_escape_item ()))
@@ -2584,7 +2584,7 @@ private:
 				rbx = r1x.convert_escape_r (rbx) ;
 				ret++ ;
 			}
-			if switch_case (fax) {
+			if switch_once (fax) {
 				const auto r2x = r1x.varify_control (rbx) ;
 				_DYNAMIC_ASSERT_ (!r2x) ;
 				ret++ ;
@@ -2595,7 +2595,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	LENGTH next_newgap_text_size () popping {
+	LENGTH next_newgap_text_size () side_effects {
 		LENGTH ret = 0 ;
 		auto rax = share () ;
 		const auto r1x = mReader->attr () ;
@@ -2611,7 +2611,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	LENGTH next_newline_text_size () popping {
+	LENGTH next_newline_text_size () side_effects {
 		LENGTH ret = 0 ;
 		auto rax = share () ;
 		const auto r1x = mReader->attr () ;
