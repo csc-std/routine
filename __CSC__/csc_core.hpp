@@ -1711,7 +1711,11 @@ template <>
 class ArrayRange<ZERO>
 	:private Proxy {
 private:
-	struct Detail ;
+	struct Detail {
+		class Iterator ;
+	} ;
+
+private:
 	INDEX mIBegin ;
 	INDEX mIEnd ;
 
@@ -1724,46 +1728,44 @@ public:
 	}
 
 	template <class _DEP = NONE>
-	DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::Iterator> begin () const {
+	DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,_DEP> begin () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
 	template <class _DEP = NONE>
-	DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::Iterator> end () const {
+	DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,_DEP> end () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
 		return Iterator (DEREF[this] ,r1x) ;
 	}
 } ;
 
-struct ArrayRange<ZERO>::Detail {
-	class Iterator
-		:private Proxy {
-	private:
-		const ArrayRange &mBase ;
-		INDEX mIndex ;
+class ArrayRange<ZERO>::Detail::Iterator
+	:private Proxy {
+private:
+	const ArrayRange &mBase ;
+	INDEX mIndex ;
 
-	public:
-		Iterator () = delete ;
+public:
+	Iterator () = delete ;
 
-		explicit Iterator (const ArrayRange &base ,const INDEX &index)
-			: mBase (base) ,mIndex (index) {}
+	explicit Iterator (const ArrayRange &base ,const INDEX &index)
+		: mBase (base) ,mIndex (index) {}
 
-		inline BOOL operator!= (const Iterator &that) const {
-			return BOOL (mIndex != that.mIndex) ;
-		}
+	inline BOOL operator!= (const Iterator &that) const {
+		return BOOL (mIndex != that.mIndex) ;
+	}
 
-		inline const INDEX &operator* () const leftvalue {
-			return mIndex ;
-		}
+	inline const INDEX &operator* () const leftvalue {
+		return mIndex ;
+	}
 
-		inline void operator++ () {
-			mIndex++ ;
-		}
-	} ;
+	inline void operator++ () {
+		mIndex++ ;
+	}
 } ;
 
 inline ArrayRange<ZERO> _RANGE_ (const INDEX &ibegin_ ,const INDEX &iend_) {
@@ -1813,7 +1815,12 @@ class Plain
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 private:
-	struct Detail ;
+	struct Detail {
+		template <class>
+		class PlainString ;
+	} ;
+
+private:
 	PTR<const REAL> mPlain ;
 	LENGTH mSize ;
 
@@ -1848,7 +1855,7 @@ private:
 	static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
 		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,_DEP> {
 		struct Dependent ;
-		using PlainString = typename DEPENDENT_TYPE<Detail ,Dependent>::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+		using PlainString = DEPENDENT_TYPE<DEF<typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
@@ -1858,40 +1865,38 @@ private:
 } ;
 
 template <class REAL>
-struct Plain<REAL>::Detail {
-	template <class SIZE>
-	class PlainString {
-		_STATIC_ASSERT_ (SIZE::value > 0) ;
+template <class SIZE>
+class Plain<REAL>::Detail::PlainString {
+	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
-	private:
-		friend Plain ;
-		DEF<REAL[SIZE::value]> mString ;
+private:
+	friend Plain ;
+	DEF<REAL[SIZE::value]> mString ;
 
-	public:
-		PlainString () = delete ;
+public:
+	PlainString () = delete ;
 
-		template <class... _ARGS>
-		explicit PlainString (const _ARGS &...text) {
-			template_write (_NULL_<ARGV<ZERO>> () ,text...) ;
-		}
+	template <class... _ARGS>
+	explicit PlainString (const _ARGS &...text) {
+		template_write (_NULL_<ARGV<ZERO>> () ,text...) ;
+	}
 
-	private:
-		template <class _ARG1>
-		void template_write (const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (_ARG1::value == SIZE::value - 1) ;
-			mString[_ARG1::value] = 0 ;
-		}
+private:
+	template <class _ARG1>
+	void template_write (const ARGV<_ARG1> &) {
+		_STATIC_ASSERT_ (_ARG1::value == SIZE::value - 1) ;
+		mString[_ARG1::value] = 0 ;
+	}
 
-		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
-			_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
-			_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
-			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
-				mString[i + _ARG1::value] = REAL (text_one[i]) ;
-			auto &r1x = _NULL_<ARGV<ARGC<_ARG1::value + _COUNTOF_ (_ARG2) - 1> >> () ;
-			template_write (r1x ,text_rest...) ;
-		}
-	} ;
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
+		_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
+		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
+			mString[i + _ARG1::value] = REAL (text_one[i]) ;
+		auto &r1x = _NULL_<ARGV<ARGC<_ARG1::value + _COUNTOF_ (_ARG2) - 1> >> () ;
+		template_write (r1x ,text_rest...) ;
+	}
 } ;
 
 class Exception final {

@@ -329,7 +329,12 @@ class Matrix {
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 
 private:
-	struct Detail ;
+	struct Detail {
+		template <class>
+		class Row ;
+	} ;
+
+private:
 	Buffer<REAL ,ARGC<16>> mMatrix ;
 
 public:
@@ -368,7 +373,7 @@ public:
 
 	DEF<typename Detail::template Row<Matrix>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<Matrix> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<Matrix>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -378,7 +383,7 @@ public:
 
 	DEF<typename Detail::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const Matrix> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const Matrix>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -1046,23 +1051,21 @@ private:
 } ;
 
 template <class REAL>
-struct Matrix<REAL>::Detail {
-	template <class BASE>
-	class Row
-		:private Proxy {
-	private:
-		BASE &mBase ;
-		INDEX mY ;
+template <class BASE>
+class Matrix<REAL>::Detail::Row
+	:private Proxy {
+private:
+	BASE &mBase ;
+	INDEX mY ;
 
-	public:
-		Row () = delete ;
+public:
+	Row () = delete ;
 
-		explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y)
+		: mBase (base) ,mY (y) {}
 
-		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {
-			return mBase.get (mY ,x) ;
-		}
-	} ;
+	inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {
+		return mBase.get (mY ,x) ;
+	}
 } ;
 } ;

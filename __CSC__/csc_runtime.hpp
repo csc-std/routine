@@ -190,7 +190,8 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<UniqueLock ,_DEP> watch (Mutex &mutex_) side_effects {
 		struct Dependent ;
-		return DEPENDENT_TYPE<UniqueLock ,Dependent> (mutex_ ,DEREF[this]) ;
+		using UniqueLock = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
+		return UniqueLock (mutex_ ,DEREF[this]) ;
 	}
 } ;
 
@@ -225,8 +226,11 @@ public:
 		virtual void execute () = 0 ;
 	} ;
 
+	struct Detail {
+		class Runnable ;
+	} ;
+
 private:
-	struct Detail ;
 	class Implement ;
 	StrongRef<Implement> mThis ;
 
@@ -242,22 +246,20 @@ public:
 	void join () ;
 } ;
 
-struct Thread::Detail {
-	class Runnable {
-	private:
-		PhanRef<Binder> mBinder ;
+class Thread::Detail::Runnable {
+private:
+	PhanRef<Binder> mBinder ;
 
-	public:
-		Runnable () = delete ;
+public:
+	Runnable () = delete ;
 
-		explicit Runnable (PhanRef<Binder> &&binder) {
-			mBinder = _MOVE_ (binder) ;
-		}
+	explicit Runnable (PhanRef<Binder> &&binder) {
+		mBinder = _MOVE_ (binder) ;
+	}
 
-		inline void operator() () {
-			mBinder->execute () ;
-		}
-	} ;
+	inline void operator() () {
+		mBinder->execute () ;
+	}
 } ;
 
 class GlobalRuntime
@@ -597,9 +599,7 @@ template <>
 class GlobalStatic<void>
 	:private Wrapped<void> {
 public:
-	class Extern
-		:private Wrapped<void> {
-	public:
+	struct Extern {
 		//@warn: this function should be implemented in a 'runtime.dll'
 		imports DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) side_effects> unique_atomic_address ;
 	} ;

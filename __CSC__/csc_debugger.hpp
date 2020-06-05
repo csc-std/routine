@@ -60,8 +60,12 @@ private:
 		virtual void clear () = 0 ;
 	} ;
 
+	struct Detail {
+		template <class...>
+		class ImplBinder ;
+	} ;
+
 private:
-	struct Detail ;
 	class Implement ;
 	friend Singleton<ConsoleService> ;
 	Monostate<RecursiveMutex> mMutex ;
@@ -86,7 +90,7 @@ public:
 	template <class... _ARGS>
 	void print (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->print (ImplBinder (msg...)) ;
 	}
@@ -94,7 +98,7 @@ public:
 	template <class... _ARGS>
 	void fatal (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->fatal (ImplBinder (msg...)) ;
 	}
@@ -102,7 +106,7 @@ public:
 	template <class... _ARGS>
 	void error (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->error (ImplBinder (msg...)) ;
 	}
@@ -110,7 +114,7 @@ public:
 	template <class... _ARGS>
 	void warn (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->warn (ImplBinder (msg...)) ;
 	}
@@ -118,7 +122,7 @@ public:
 	template <class... _ARGS>
 	void info (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->info (ImplBinder (msg...)) ;
 	}
@@ -126,7 +130,7 @@ public:
 	template <class... _ARGS>
 	void debug (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->debug (ImplBinder (msg...)) ;
 	}
@@ -134,7 +138,7 @@ public:
 	template <class... _ARGS>
 	void verbose (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->verbose (ImplBinder (msg...)) ;
 	}
@@ -147,7 +151,7 @@ public:
 	template <class... _ARGS>
 	void log (const String<STR> &tag ,const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<_ARGS...> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->log (tag.raw () ,ImplBinder (msg...)) ;
 	}
@@ -176,32 +180,30 @@ private:
 	ConsoleService () ;
 } ;
 
-struct ConsoleService::Detail {
-	template <class... UNITS>
-	class ImplBinder
-		:public Binder {
-	private:
-		TupleBinder<const UNITS...> mBinder ;
+template <class... UNITS>
+class ConsoleService::Detail::ImplBinder
+	:public Binder {
+private:
+	TupleBinder<const UNITS...> mBinder ;
 
-	public:
-		explicit ImplBinder (const UNITS &...initval)
-			:mBinder (initval...) {}
+public:
+	explicit ImplBinder (const UNITS &...initval)
+		:mBinder (initval...) {}
 
-		void friend_write (TextWriter<STR> &writer) const override {
-			template_write (writer ,mBinder) ;
-		}
+	void friend_write (TextWriter<STR> &writer) const override {
+		template_write (writer ,mBinder) ;
+	}
 
-	private:
-		void template_write (TextWriter<STR> &writer ,const Tuple<> &binder) const {
-			_STATIC_WARNING_ ("noop") ;
-		}
+private:
+	void template_write (TextWriter<STR> &writer ,const Tuple<> &binder) const {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
-		template <class... _ARGS>
-		void template_write (TextWriter<STR> &writer ,const Tuple<_ARGS...> &binder) const {
-			writer << binder.one () ;
-			template_write (writer ,binder.rest ()) ;
-		}
-	} ;
+	template <class... _ARGS>
+	void template_write (TextWriter<STR> &writer ,const Tuple<_ARGS...> &binder) const {
+		writer << binder.one () ;
+		template_write (writer ,binder.rest ()) ;
+	}
 } ;
 
 class DebuggerService

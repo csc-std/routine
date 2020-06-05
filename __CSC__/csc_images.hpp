@@ -17,7 +17,11 @@ class ArrayRange
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
 private:
-	struct Detail ;
+	struct Detail {
+		class Iterator ;
+	} ;
+
+private:
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
@@ -29,13 +33,13 @@ public:
 
 	DEF<typename Detail::Iterator> begin () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,0 ,first_item ()) ;
 	}
 
 	DEF<typename Detail::Iterator> end () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
@@ -58,49 +62,47 @@ private:
 } ;
 
 template <class SIZE>
-struct ArrayRange<SIZE>::Detail {
-	class Iterator
-		:private Proxy {
-	private:
-		const ArrayRange &mBase ;
-		INDEX mIndex ;
-		Array<LENGTH ,SIZE> mItem ;
+class ArrayRange<SIZE>::Detail::Iterator
+	:private Proxy {
+private:
+	const ArrayRange &mBase ;
+	INDEX mIndex ;
+	Array<LENGTH ,SIZE> mItem ;
 
-	public:
-		Iterator () = delete ;
+public:
+	Iterator () = delete ;
 
-		explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
-			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
+	explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
+		: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
-		inline BOOL operator!= (const Iterator &that) const {
-			return BOOL (mIndex != that.mIndex) ;
-		}
+	inline BOOL operator!= (const Iterator &that) const {
+		return BOOL (mIndex != that.mIndex) ;
+	}
 
-		inline const Array<LENGTH ,SIZE> &operator* () const leftvalue {
-			return mItem ;
-		}
+	inline const Array<LENGTH ,SIZE> &operator* () const leftvalue {
+		return mItem ;
+	}
 
-		inline void operator++ () {
-			mIndex++ ;
-			template_incrase (_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
-		}
+	inline void operator++ () {
+		mIndex++ ;
+		template_incrase (_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
+	}
 
-	private:
-		void template_incrase (const ARGV<ZERO> &) {
-			_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
-			mItem[0]++ ;
-		}
+private:
+	void template_incrase (const ARGV<ZERO> &) {
+		_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
+		mItem[0]++ ;
+	}
 
-		template <class _ARG1>
-		void template_incrase (const ARGV<_ARG1> &) {
-			_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
-			mItem[_ARG1::value]++ ;
-			if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
-				return ;
-			mItem[_ARG1::value] = 0 ;
-			template_incrase (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
-		}
-	} ;
+	template <class _ARG1>
+	void template_incrase (const ARGV<_ARG1> &) {
+		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
+		mItem[_ARG1::value]++ ;
+		if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
+			return ;
+		mItem[_ARG1::value] = 0 ;
+		template_incrase (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+	}
 } ;
 
 template <class UNIT>
@@ -111,8 +113,12 @@ private:
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Row ;
+	} ;
+
 private:
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
@@ -273,7 +279,7 @@ public:
 
 	DEF<typename Detail::template Row<Bitmap>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<Bitmap> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<Bitmap>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -283,7 +289,7 @@ public:
 
 	DEF<typename Detail::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const Bitmap> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const Bitmap>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -583,24 +589,22 @@ public:
 } ;
 
 template <class UNIT>
-struct Bitmap<UNIT>::Detail {
-	template <class BASE>
-	class Row
-		:private Proxy {
-	private:
-		BASE &mBase ;
-		INDEX mY ;
+template <class BASE>
+class Bitmap<UNIT>::Detail::Row
+	:private Proxy {
+private:
+	BASE &mBase ;
+	INDEX mY ;
 
-	public:
-		Row () = delete ;
+public:
+	Row () = delete ;
 
-		explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y)
+		: mBase (base) ,mY (y) {}
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
-			return mBase.get (mY ,x) ;
-		}
-	} ;
+	inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
+		return mBase.get (mY ,x) ;
+	}
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -655,8 +659,15 @@ private:
 		LENGTH mCK ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Row ;
+
+		template <class>
+		class NativeProxy ;
+	} ;
+
 private:
-	struct Detail ;
 	PhanRef<const Abstract> mAbstract ;
 	SharedRef<SELF_PACK> mThis ;
 
@@ -746,7 +757,7 @@ public:
 
 	DEF<typename Detail::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<AbstractImage> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<AbstractImage>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -756,7 +767,7 @@ public:
 
 	DEF<typename Detail::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const AbstractImage> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const AbstractImage>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -767,7 +778,7 @@ public:
 	template <class _RET>
 	DEF<typename Detail::template NativeProxy<_RET>> native () side_effects {
 		struct Dependent ;
-		using NativeProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template NativeProxy<_RET> ;
+		using NativeProxy = DEPENDENT_TYPE<DEF<typename Detail::template NativeProxy<_RET>> ,Dependent> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
@@ -838,48 +849,47 @@ private:
 } ;
 
 template <class UNIT>
-struct AbstractImage<UNIT>::Detail {
-	template <class BASE>
-	class Row
-		:private Proxy {
-	private:
-		BASE &mBase ;
-		INDEX mY ;
+template <class BASE>
+class AbstractImage<UNIT>::Detail::Row
+	:private Proxy {
+private:
+	BASE &mBase ;
+	INDEX mY ;
 
-	public:
-		Row () = delete ;
+public:
+	Row () = delete ;
 
-		explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y)
+		: mBase (base) ,mY (y) {}
 
-		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
-			return mBase.get (mY ,x) ;
-		}
-	} ;
+	inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
+		return mBase.get (mY ,x) ;
+	}
+} ;
 
-	template <class UNIT_>
-	class NativeProxy
-		:private Proxy {
-	private:
-		UniqueRef<AbstractImage> mBase ;
+template <class UNIT>
+template <class UNIT_>
+class AbstractImage<UNIT>::Detail::NativeProxy
+	:private Proxy {
+private:
+	UniqueRef<AbstractImage> mBase ;
 
-	public:
-		NativeProxy () = delete ;
+public:
+	NativeProxy () = delete ;
 
-		explicit NativeProxy (AbstractImage &&base) {
-			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
-				me = _MOVE_ (base) ;
-			} ,[] (AbstractImage &me) {
-				me.update_layout () ;
-			}) ;
-		}
+	explicit NativeProxy (AbstractImage &&base) {
+		mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
+			me = _MOVE_ (base) ;
+		} ,[] (AbstractImage &me) {
+			me.update_layout () ;
+		}) ;
+	}
 
-		inline implicit operator UNIT_ & () const leftvalue {
-			_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
-			_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
-			_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
-			return mBase->mThis->mHolder.template rebind<UNIT_> ().self ;
-		}
-	} ;
+	inline implicit operator UNIT_ & () const leftvalue {
+		_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
+		_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
+		_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
+		return mBase->mThis->mHolder.template rebind<UNIT_> ().self ;
+	}
 } ;
 } ;

@@ -135,8 +135,12 @@ private:
 		virtual Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const = 0 ;
 	} ;
 
+	struct Detail {
+		template <class ,class>
+		class ImplHolder ;
+	} ;
+
 private:
-	struct Detail ;
 	StrongRef<Holder> mHolder ;
 
 public:
@@ -147,11 +151,11 @@ public:
 		struct Dependent ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		using FUNC_HINT = REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>> ;
-		using ImplFunctor = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplFunctor<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>>> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
-		_STATIC_ASSERT_ (stl::is_complete<ImplFunctor>::value) ;
+		_STATIC_ASSERT_ (stl::is_complete<ImplHolder>::value) ;
 		const auto r1x = _FORWARD_<PTR<FUNC_HINT>> (func) ;
-		mHolder = StrongRef<ImplFunctor>::make (r1x) ;
+		mHolder = StrongRef<ImplHolder>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
@@ -173,16 +177,11 @@ public:
 	}
 } ;
 
-struct Operator::Detail {
-	template <class ,class>
-	class ImplFunctor ;
-} ;
-
 template <>
-class Operator::Detail::ImplFunctor<void ,void>
+class Operator::Detail::ImplHolder<void ,void>
 	:public Holder {
 public:
-	ImplFunctor () = default ;
+	ImplHolder () = default ;
 
 	LENGTH rank () const override {
 		return VAR_NONE ;
@@ -240,17 +239,17 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Detail::ImplFunctor<PTR<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
-	:public ImplFunctor<void ,void> {
+class Operator::Detail::ImplHolder<PTR<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
+	:public ImplHolder<void ,void> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
 	Function<UNIT1 (UNITS1...)> mFunctor ;
 
 public:
-	ImplFunctor () = delete ;
+	ImplHolder () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (UNITS1...)> &func) {
+	explicit ImplHolder (const PTR<UNIT1 (UNITS1...)> &func) {
 		mFunctor = Function<UNIT1 (UNITS1...)> (func) ;
 	}
 
@@ -278,17 +277,17 @@ private:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Detail::ImplFunctor<PTR<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
-	:public ImplFunctor<void ,void> {
+class Operator::Detail::ImplHolder<PTR<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
+	:public ImplHolder<void ,void> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
 	Function<UNIT1 (const LexicalNode & ,UNITS1...)> mFunctor ;
 
 public:
-	ImplFunctor () = delete ;
+	ImplHolder () = delete ;
 
-	explicit ImplFunctor (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &func) {
+	explicit ImplHolder (const PTR<UNIT1 (const LexicalNode & ,UNITS1...)> &func) {
 		mFunctor = Function<UNIT1 (const LexicalNode & ,UNITS1...)> (func) ;
 	}
 
@@ -420,8 +419,9 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<Expression<RANK1> ,_DEP> curry () const {
 		struct Dependent ;
+		using Expression1 = DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 2 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
-		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
+		Expression1 ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_<Expression<RANK>> (node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;
@@ -435,10 +435,11 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<Expression<RANK1> ,_DEP> fold () const {
 		struct Dependent ;
-		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
+		using Expression1 = DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ;
+		Expression1 ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_<Expression<RANK>> (node.mChild[0]) ;
-			auto &r2x = in1.template as<DEPENDENT_TYPE<Expression<RANK1> ,Dependent>> () ;
+			auto &r2x = in1.template as<Expression1> () ;
 			return r1x.template_fold_invoke (r2x ,_NULL_<ARGV<SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>>>>) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;

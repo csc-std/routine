@@ -30,8 +30,13 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	struct Detail {
+		class LocalProc ;
+
+		class ThreadCounter ;
+	} ;
+
 private:
-	struct Detail ;
 	friend IntrusiveRef<SELF_PACK ,CalcThread> ;
 	IntrusiveRef<SELF_PACK ,CalcThread> mThis ;
 
@@ -109,7 +114,7 @@ public:
 
 	void start (Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		struct Dependent ;
-		using LocalProc = typename DEPENDENT_TYPE<Detail ,Dependent>::LocalProc ;
+		using LocalProc = DEPENDENT_TYPE<DEF<typename Detail::LocalProc> ,Dependent> ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
@@ -165,7 +170,7 @@ public:
 private:
 	static void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Detail ,Dependent>::ThreadCounter ;
+		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Detail::ThreadCounter> ,Dependent> ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
@@ -275,43 +280,42 @@ private:
 } ;
 
 template <class ITEM>
-struct CalcThread<ITEM>::Detail {
-	class LocalProc
-		:public Thread::Binder {
-	private:
-		PhanRef<SELF_PACK> mThis ;
-		INDEX mIndex ;
+class CalcThread<ITEM>::Detail::LocalProc
+	:public Thread::Binder {
+private:
+	PhanRef<SELF_PACK> mThis ;
+	INDEX mIndex ;
 
-	public:
-		LocalProc () = delete ;
+public:
+	LocalProc () = delete ;
 
-		explicit LocalProc (PhanRef<SELF_PACK> &&this_ ,const INDEX &index) {
-			mThis = _MOVE_ (this_) ;
-			mIndex = index ;
-		}
+	explicit LocalProc (PhanRef<SELF_PACK> &&this_ ,const INDEX &index) {
+		mThis = _MOVE_ (this_) ;
+		mIndex = index ;
+	}
 
-		void execute () override {
-			_CALL_TRY_ ([&] () {
-				static_execute (mThis ,mIndex) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
-		}
-	} ;
+	void execute () override {
+		_CALL_TRY_ ([&] () {
+			static_execute (mThis ,mIndex) ;
+		} ,[&] () {
+			_STATIC_WARNING_ ("noop") ;
+		}) ;
+	}
+} ;
 
-	class ThreadCounter
-		:private Wrapped<SELF_PACK> {
-	public:
-		void lock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter++ ;
-		}
+template <class ITEM>
+class CalcThread<ITEM>::Detail::ThreadCounter
+	:private Wrapped<SELF_PACK> {
+public:
+	void lock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter++ ;
+	}
 
-		void unlock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter-- ;
-		}
-	} ;
+	void unlock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter-- ;
+	}
 } ;
 
 template <class ITEM>
@@ -330,8 +334,15 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	struct Detail {
+		class LocalProc ;
+
+		class ThreadCounter ;
+
+		class Counter ;
+	} ;
+
 private:
-	struct Detail ;
 	friend IntrusiveRef<SELF_PACK ,WorkThread> ;
 	IntrusiveRef<SELF_PACK ,WorkThread> mThis ;
 
@@ -445,7 +456,7 @@ public:
 
 	void start (const LENGTH &count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
 		struct Dependent ;
-		using LocalProc = typename DEPENDENT_TYPE<Detail ,Dependent>::LocalProc ;
+		using LocalProc = DEPENDENT_TYPE<DEF<typename Detail::LocalProc> ,Dependent> ;
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
@@ -499,7 +510,7 @@ public:
 private:
 	static void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Detail ,Dependent>::ThreadCounter ;
+		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Detail::ThreadCounter> ,Dependent> ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
@@ -520,7 +531,7 @@ private:
 
 	static void static_poll (SELF_PACK &self_ ,Optional<ITEM> &item) {
 		struct Dependent ;
-		using Counter = typename DEPENDENT_TYPE<Detail ,Dependent>::Counter ;
+		using Counter = DEPENDENT_TYPE<DEF<typename Detail::Counter> ,Dependent> ;
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
@@ -594,53 +605,53 @@ private:
 } ;
 
 template <class ITEM>
-struct WorkThread<ITEM>::Detail {
-	class LocalProc
-		:public Thread::Binder {
-	private:
-		PhanRef<SELF_PACK> mThis ;
+class WorkThread<ITEM>::Detail::LocalProc
+	:public Thread::Binder {
+private:
+	PhanRef<SELF_PACK> mThis ;
 
-	public:
-		LocalProc () = delete ;
+public:
+	LocalProc () = delete ;
 
-		explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
-			mThis = _MOVE_ (this_) ;
-		}
+	explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
+		mThis = _MOVE_ (this_) ;
+	}
 
-		void execute () override {
-			_CALL_TRY_ ([&] () {
-				static_execute (mThis) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
-		}
-	} ;
+	void execute () override {
+		_CALL_TRY_ ([&] () {
+			static_execute (mThis) ;
+		} ,[&] () {
+			_STATIC_WARNING_ ("noop") ;
+		}) ;
+	}
+} ;
 
-	class ThreadCounter
-		:private Wrapped<SELF_PACK> {
-	public:
-		void lock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter++ ;
-		}
+template <class ITEM>
+class WorkThread<ITEM>::Detail::ThreadCounter
+	:private Wrapped<SELF_PACK> {
+public:
+	void lock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter++ ;
+	}
 
-		void unlock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter-- ;
-		}
-	} ;
+	void unlock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter-- ;
+	}
+} ;
 
-	class Counter
-		:private Wrapped<LENGTH> {
-	public:
-		void lock () {
-			Counter::mSelf++ ;
-		}
+template <class ITEM>
+class WorkThread<ITEM>::Detail::Counter
+	:private Wrapped<LENGTH> {
+public:
+	void lock () {
+		Counter::mSelf++ ;
+	}
 
-		void unlock () {
-			Counter::mSelf-- ;
-		}
-	} ;
+	void unlock () {
+		Counter::mSelf-- ;
+	}
 } ;
 
 template <class>
@@ -662,8 +673,13 @@ private:
 		AutoRef<Exception> mException ;
 	} ;
 
+	struct Detail {
+		class LocalProc ;
+
+		class ThreadCounter ;
+	} ;
+
 private:
-	struct Detail ;
 	friend IntrusiveRef<SELF_PACK ,Promise> ;
 	IntrusiveRef<SELF_PACK ,Promise> mThis ;
 
@@ -675,7 +691,8 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<Future<ITEM> ,_DEP> future () side_effects {
 		struct Dependent ;
-		return DEPENDENT_TYPE<Future<ITEM> ,Dependent> (mThis.share ()) ;
+		using Future = DEPENDENT_TYPE<Future<ITEM> ,Dependent> ;
+		return Future (mThis.share ()) ;
 	}
 
 	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
@@ -710,7 +727,7 @@ public:
 
 	void start (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		struct Dependent ;
-		using LocalProc = typename DEPENDENT_TYPE<Detail ,Dependent>::LocalProc ;
+		using LocalProc = DEPENDENT_TYPE<DEF<typename Detail::LocalProc> ,Dependent> ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
@@ -749,7 +766,7 @@ public:
 private:
 	static void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Detail ,Dependent>::ThreadCounter ;
+		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Detail::ThreadCounter> ,Dependent> ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		_CATCH_ ([&] () {
@@ -853,41 +870,40 @@ private:
 } ;
 
 template <class ITEM>
-struct Promise<ITEM>::Detail {
-	class LocalProc
-		:public Thread::Binder {
-	private:
-		PhanRef<SELF_PACK> mThis ;
+class Promise<ITEM>::Detail::LocalProc
+	:public Thread::Binder {
+private:
+	PhanRef<SELF_PACK> mThis ;
 
-	public:
-		LocalProc () = delete ;
+public:
+	LocalProc () = delete ;
 
-		explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
-			mThis = _MOVE_ (this_) ;
-		}
+	explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
+		mThis = _MOVE_ (this_) ;
+	}
 
-		void execute () override {
-			_CALL_TRY_ ([&] () {
-				static_execute (mThis) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
-		}
-	} ;
+	void execute () override {
+		_CALL_TRY_ ([&] () {
+			static_execute (mThis) ;
+		} ,[&] () {
+			_STATIC_WARNING_ ("noop") ;
+		}) ;
+	}
+} ;
 
-	class ThreadCounter
-		:private Wrapped<SELF_PACK> {
-	public:
-		void lock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter++ ;
-		}
+template <class ITEM>
+class Promise<ITEM>::Detail::ThreadCounter
+	:private Wrapped<SELF_PACK> {
+public:
+	void lock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter++ ;
+	}
 
-		void unlock () {
-			ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-			ThreadCounter::mSelf.mThreadCounter-- ;
-		}
-	} ;
+	void unlock () {
+		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
+		ThreadCounter::mSelf.mThreadCounter-- ;
+	}
 } ;
 
 template <class ITEM>

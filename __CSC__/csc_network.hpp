@@ -36,8 +36,9 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<Listener ,_DEP> listener () side_effects {
 		struct Dependent ;
+		using Listener = DEPENDENT_TYPE<Listener ,Dependent> ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return DEPENDENT_TYPE<Listener ,Dependent> (mThis) ;
+		return Listener (mThis) ;
 	}
 
 	void link (const String<STRU8> &ip_addr) ;

@@ -380,7 +380,8 @@ public:
 	template <class _DEP = NONE>
 	DEPENDENT_TYPE<AbstractSprite ,_DEP> create_sprite () side_effects {
 		struct Dependent ;
-		return DEPENDENT_TYPE<AbstractSprite ,Dependent> (mAbstract) ;
+		using AbstractSprite = DEPENDENT_TYPE<AbstractSprite ,Dependent> ;
+		return AbstractSprite (mAbstract) ;
 	}
 } ;
 

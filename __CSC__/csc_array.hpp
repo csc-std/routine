@@ -577,11 +577,12 @@ public:
 	template <class... _ARGS>
 	static String make (const _ARGS &...initval) {
 		struct Dependent ;
+		using TextWriter = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<SIZE ,SAUTO>::value) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
-		auto rax = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> (ret.raw ()) ;
+		auto rax = TextWriter (ret.raw ()) ;
 		rax.prints (initval...) ;
-		rax << DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent>::EOS ;
+		rax << TextWriter::EOS ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -970,8 +971,12 @@ private:
 		INDEX mMap ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Pair ;
+	} ;
+
 private:
-	struct Detail ;
 	Buffer<NODE ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
@@ -1040,7 +1045,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	DEF<typename Detail::template Pair<Priority>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Priority> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Priority>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -1052,7 +1057,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	DEF<typename Detail::template Pair<const Priority>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Priority> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Priority>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -1068,14 +1073,18 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<Priority>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<Priority>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Priority>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<const Priority>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<const Priority>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Priority>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -1317,24 +1326,22 @@ private:
 } ;
 
 template <class ITEM ,class SIZE>
-struct Priority<ITEM ,SIZE>::Detail {
-	template <class BASE>
-	class Pair
-		:private Proxy {
-	public:
-		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
+template <class BASE>
+class Priority<ITEM ,SIZE>::Detail::Pair
+	:private Proxy {
+public:
+	const ITEM &key ;
+	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
-	public:
-		Pair () = delete ;
+public:
+	Pair () = delete ;
 
-		explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
+	explicit Pair (BASE &base ,const INDEX &index)
+		: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
 
-		inline implicit operator const ITEM & () rightvalue {
-			return key ;
-		}
-	} ;
+	inline implicit operator const ITEM & () rightvalue {
+		return key ;
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -2229,7 +2236,12 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
-	struct Detail ;
+	struct Detail {
+		template <class>
+		class Bit ;
+	} ;
+
+private:
 	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
@@ -2322,7 +2334,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	DEF<typename Detail::template Bit<BitSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Bit = typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<BitSet> ;
+		using Bit = DEPENDENT_TYPE<DEF<typename Detail::template Bit<BitSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
@@ -2334,7 +2346,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	DEF<typename Detail::template Bit<const BitSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Bit = typename DEPENDENT_TYPE<Detail ,Dependent>::template Bit<const BitSet> ;
+		using Bit = DEPENDENT_TYPE<DEF<typename Detail::template Bit<const BitSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
@@ -2343,18 +2355,22 @@ public:
 		return get (index) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Bit<BitSet>> &item) const {
-		if (this != DEPTR[item.mBase])
+	INDEX at (const DEF<typename Detail::template Bit<BitSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Bit<BitSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
-		return item ;
+		return r1x ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Bit<const BitSet>> &item) const {
-		if (this != DEPTR[item.mBase])
+	INDEX at (const DEF<typename Detail::template Bit<const BitSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Bit<const BitSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
-		return item ;
+		return r1x ;
 	}
 
 	Array<INDEX> range () const {
@@ -2561,62 +2577,60 @@ private:
 } ;
 
 template <class SIZE>
-struct BitSet<SIZE>::Detail {
-	template <class BASE>
-	class Bit
-		:private Proxy {
-	private:
-		friend BitSet ;
-		BASE &mBase ;
-		INDEX mIndex ;
+template <class BASE>
+class BitSet<SIZE>::Detail::Bit
+	:private Proxy {
+private:
+	friend BitSet ;
+	BASE &mBase ;
+	INDEX mIndex ;
 
-	public:
-		Bit () = delete ;
+public:
+	Bit () = delete ;
 
-		explicit Bit (BASE &base ,const INDEX &index)
-			: mBase (base) ,mIndex (index) {}
+	explicit Bit (BASE &base ,const INDEX &index)
+		: mBase (base) ,mIndex (index) {}
 
-		inline implicit operator BOOL () rightvalue {
-			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
-			const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
-			if (r2x == 0)
-				return FALSE ;
-			return TRUE ;
-		}
+	inline implicit operator BOOL () rightvalue {
+		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+		const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
+		if (r2x == 0)
+			return FALSE ;
+		return TRUE ;
+	}
 
 #ifdef __CSC_CONFIG_VAR32__
-		inline implicit operator VAR32 () const leftvalue {
-			return VAR32 (mIndex) ;
-		}
+	inline implicit operator VAR32 () const leftvalue {
+		return VAR32 (mIndex) ;
+	}
 
-		inline explicit operator VAR64 () const leftvalue {
-			return VAR64 (mIndex) ;
-		}
+	inline explicit operator VAR64 () const leftvalue {
+		return VAR64 (mIndex) ;
+	}
 #endif
 
 #ifdef __CSC_CONFIG_VAR64__
-		inline explicit operator VAR32 () const leftvalue {
-			return VAR32 (mIndex) ;
-		}
+	inline explicit operator VAR32 () const leftvalue {
+		return VAR32 (mIndex) ;
+	}
 
-		inline implicit operator VAR64 () const leftvalue {
-			return VAR64 (mIndex) ;
-		}
+	inline implicit operator VAR64 () const leftvalue {
+		return VAR64 (mIndex) ;
+	}
 #endif
 
-		inline void operator= (const BOOL &that) rightvalue {
-			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!that)
-					discard ;
-				mBase.mSet[mIndex / 8] |= r1x ;
-			}
-			if switch_once (fax) {
-				mBase.mSet[mIndex / 8] &= ~r1x ;
-			}
+	inline void operator= (const BOOL &that) rightvalue {
+		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+		auto fax = TRUE ;
+		if switch_once (fax) {
+			if (!that)
+				discard ;
+			mBase.mSet[mIndex / 8] |= r1x ;
 		}
-	} ;
+		if switch_once (fax) {
+			mBase.mSet[mIndex / 8] &= ~r1x ;
+		}
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -2645,8 +2659,12 @@ private:
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
+	struct Detail {
+		template <class>
+		class Pair ;
+	} ;
+
 private:
-	struct Detail ;
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
 	INDEX mTop ;
@@ -2717,7 +2735,7 @@ public:
 
 	DEF<typename Detail::template Pair<Set>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<Set> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Set>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -2727,7 +2745,7 @@ public:
 
 	DEF<typename Detail::template Pair<const Set>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const Set> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Set>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -2739,14 +2757,18 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<Set>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<Set>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Set>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<const Set>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<const Set>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Set>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3231,24 +3253,22 @@ private:
 } ;
 
 template <class ITEM ,class SIZE>
-struct Set<ITEM ,SIZE>::Detail {
-	template <class BASE>
-	class Pair
-		:private Proxy {
-	public:
-		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
+template <class BASE>
+class Set<ITEM ,SIZE>::Detail::Pair
+	:private Proxy {
+public:
+	const ITEM &key ;
+	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
-	public:
-		Pair () = delete ;
+public:
+	Pair () = delete ;
 
-		explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+	explicit Pair (BASE &base ,const INDEX &index)
+		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 
-		inline implicit operator const ITEM & () rightvalue {
-			return key ;
-		}
-	} ;
+	inline implicit operator const ITEM & () rightvalue {
+		return key ;
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -3275,8 +3295,12 @@ private:
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
+	struct Detail {
+		template <class>
+		class Pair ;
+	} ;
+
 private:
-	struct Detail ;
 	Allocator<Node ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mHead ;
 	INDEX mTop ;
@@ -3347,7 +3371,7 @@ public:
 
 	DEF<typename Detail::template Pair<HashSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<HashSet> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<HashSet>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -3357,7 +3381,7 @@ public:
 
 	DEF<typename Detail::template Pair<const HashSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const HashSet> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const HashSet>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -3369,14 +3393,18 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<HashSet>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<HashSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<HashSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<const HashSet>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<const HashSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const HashSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3538,24 +3566,22 @@ private:
 } ;
 
 template <class ITEM ,class SIZE>
-struct HashSet<ITEM ,SIZE>::Detail {
-	template <class BASE>
-	class Pair
-		:private Proxy {
-	public:
-		const ITEM &key ;
-		CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
+template <class BASE>
+class HashSet<ITEM ,SIZE>::Detail::Pair
+	:private Proxy {
+public:
+	const ITEM &key ;
+	CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
 
-	public:
-		Pair () = delete ;
+public:
+	Pair () = delete ;
 
-		explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+	explicit Pair (BASE &base ,const INDEX &index)
+		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 
-		inline implicit operator const ITEM & () rightvalue {
-			return key ;
-		}
-	} ;
+	inline implicit operator const ITEM & () rightvalue {
+		return key ;
+	}
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -3588,8 +3614,12 @@ private:
 		AutoRef<Allocator<Node ,SIZE>> mBuffer ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Pair ;
+	} ;
+
 private:
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
@@ -3673,7 +3703,7 @@ public:
 
 	DEF<typename Detail::template Pair<SoftSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<SoftSet> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<SoftSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -3684,7 +3714,7 @@ public:
 
 	DEF<typename Detail::template Pair<const SoftSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Detail ,Dependent>::template Pair<const SoftSet> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const SoftSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -3697,14 +3727,18 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<SoftSet>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<SoftSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<SoftSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
-	template <class _DEP = NONE>
-	INDEX at (const DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::template Pair<const SoftSet>> &item) const {
-		return at (item.key) ;
+	INDEX at (const DEF<typename Detail::template Pair<const SoftSet>> &item) const {
+		struct Dependent ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const SoftSet>> ,Dependent> ;
+		auto &r1x = _FORWARD_<const Pair &> (item) ;
+		return at (r1x.key) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3994,23 +4028,21 @@ private:
 } ;
 
 template <class ITEM ,class SIZE>
-struct SoftSet<ITEM ,SIZE>::Detail {
-	template <class BASE>
-	class Pair
-		:private Proxy {
-	public:
-		const ITEM &key ;
-		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
+template <class BASE>
+class SoftSet<ITEM ,SIZE>::Detail::Pair
+	:private Proxy {
+public:
+	const ITEM &key ;
+	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
-	public:
-		Pair () = delete ;
+public:
+	Pair () = delete ;
 
-		explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
+	explicit Pair (BASE &base ,const INDEX &index)
+		: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
 
-		inline implicit operator const ITEM & () rightvalue {
-			return key ;
-		}
-	} ;
+	inline implicit operator const ITEM & () rightvalue {
+		return key ;
+	}
 } ;
 } ;

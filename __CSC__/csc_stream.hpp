@@ -85,8 +85,12 @@ private:
 		BOOL mEndianFlag ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Attribute ;
+	} ;
+
 private:
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
@@ -105,7 +109,7 @@ public:
 
 	DEF<typename Detail::template Attribute<ByteReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<ByteReader> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<ByteReader>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -400,27 +404,25 @@ public:
 } ;
 
 template <class REAL>
-struct ByteReader<REAL>::Detail {
-	template <class BASE>
-	class Attribute
-		:private Proxy {
-	private:
-		BASE &mBase ;
+template <class BASE>
+class ByteReader<REAL>::Detail::Attribute
+	:private Proxy {
+private:
+	BASE &mBase ;
 
-	public:
-		Attribute () = delete ;
+public:
+	Attribute () = delete ;
 
-		explicit Attribute (BASE &base)
-			:mBase (base) {}
+	explicit Attribute (BASE &base)
+		:mBase (base) {}
 
-		REAL varify_ending_item () const {
-			return REAL (0X00) ;
-		}
+	REAL varify_ending_item () const {
+		return REAL (0X00) ;
+	}
 
-		REAL varify_space_item () const {
-			return REAL (0X00) ;
-		}
-	} ;
+	REAL varify_space_item () const {
+		return REAL (0X00) ;
+	}
 } ;
 
 template <class REAL>
@@ -452,8 +454,12 @@ private:
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Attribute ;
+	} ;
+
 private:
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
@@ -479,7 +485,7 @@ public:
 
 	DEF<typename Detail::template Attribute<ByteWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<ByteWriter> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<ByteWriter>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -755,27 +761,25 @@ public:
 } ;
 
 template <class REAL>
-struct ByteWriter<REAL>::Detail {
-	template <class BASE>
-	class Attribute
-		:private Proxy {
-	private:
-		BASE &mBase ;
+template <class BASE>
+class ByteWriter<REAL>::Detail::Attribute
+	:private Proxy {
+private:
+	BASE &mBase ;
 
-	public:
-		Attribute () = delete ;
+public:
+	Attribute () = delete ;
 
-		explicit Attribute (BASE &base)
-			:mBase (base) {}
+	explicit Attribute (BASE &base)
+		:mBase (base) {}
 
-		REAL varify_ending_item () const {
-			return REAL (0X00) ;
-		}
+	REAL varify_ending_item () const {
+		return REAL (0X00) ;
+	}
 
-		REAL varify_space_item () const {
-			return REAL (0X00) ;
-		}
-	} ;
+	REAL varify_space_item () const {
+		return REAL (0X00) ;
+	}
 } ;
 
 template <class REAL>
@@ -813,10 +817,14 @@ private:
 		HashSet<REAL> mSpaceMappingSet ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Attribute ;
+	} ;
+
 private:
 	template <class>
 	friend class TextReader ;
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
@@ -838,7 +846,7 @@ public:
 
 	DEF<typename Detail::template Attribute<TextReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<TextReader> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<TextReader>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -1106,7 +1114,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline TextReader &operator>> (const Plain<REAL> &data) {
 		read (data) ;
@@ -1391,129 +1399,127 @@ private:
 } ;
 
 template <class REAL>
-struct TextReader<REAL>::Detail {
-	template <class BASE>
-	class Attribute
-		:private Proxy {
-	private:
-		BASE &mBase ;
+template <class BASE>
+class TextReader<REAL>::Detail::Attribute
+	:private Proxy {
+private:
+	BASE &mBase ;
 
-	public:
-		Attribute () = delete ;
+public:
+	Attribute () = delete ;
 
-		explicit Attribute (BASE &base)
-			:mBase (base) {}
+	explicit Attribute (BASE &base)
+		:mBase (base) {}
 
-		REAL varify_ending_item () const {
-			return REAL ('\0') ;
-		}
+	REAL varify_ending_item () const {
+		return REAL ('\0') ;
+	}
 
-		void enable_endian (const BOOL &flag) const {
-			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-			mBase.mHeap->mEndianFlag = flag ;
-		}
+	void enable_endian (const BOOL &flag) const {
+		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
+		mBase.mHeap->mEndianFlag = flag ;
+	}
 
-		REAL convert_endian (const REAL &item) const {
-			if (!mBase.mHeap->mEndianFlag)
-				return item ;
-			U::BYTE_BASE_TYPE<REAL> ret ;
-			auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
-			ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
-			return _MOVE_ (_CAST_<REAL> (ret)) ;
-		}
+	REAL convert_endian (const REAL &item) const {
+		if (!mBase.mHeap->mEndianFlag)
+			return item ;
+		U::BYTE_BASE_TYPE<REAL> ret ;
+		auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+		ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
+		return _MOVE_ (_CAST_<REAL> (ret)) ;
+	}
 
-		VAR64 varify_radix () const {
-			return 10 ;
-		}
+	VAR64 varify_radix () const {
+		return 10 ;
+	}
 
-		LENGTH varify_val32_precision () const {
-			return 6 ;
-		}
+	LENGTH varify_val32_precision () const {
+		return 6 ;
+	}
 
-		LENGTH varify_val64_precision () const {
-			_STATIC_WARNING_ ("mark") ;
-			return 13 ;
-		}
+	LENGTH varify_val64_precision () const {
+		_STATIC_WARNING_ ("mark") ;
+		return 13 ;
+	}
 
-		BOOL varify_number_item (const REAL &item) const {
-			if (!(item >= REAL ('0') && item <= REAL ('9')))
+	BOOL varify_number_item (const REAL &item) const {
+		if (!(item >= REAL ('0') && item <= REAL ('9')))
+			return FALSE ;
+		return TRUE ;
+	}
+
+	VAR64 convert_number_r (const REAL &item) const {
+		return VAR64 (item) - VAR64 ('0') ;
+	}
+
+	void enable_escape (const BOOL &flag) const {
+		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
+		mBase.mHeap->mEscapeFlag = flag ;
+	}
+
+	REAL varify_escape_item () const {
+		return REAL ('\\') ;
+	}
+
+	BOOL varify_escape_r (const REAL &item) const {
+		if (!mBase.mHeap->mEscapeFlag)
+			return FALSE ;
+		if (item != varify_escape_item ())
+			return FALSE ;
+		return TRUE ;
+	}
+
+	void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
+		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
+		_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
+		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
+		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+		ix = mBase.mHeap->mEscapeList.insert () ;
+		mBase.mHeap->mEscapeMappingSet.add (str_a ,ix) ;
+		mBase.mHeap->mEscapeList[ix] = str_e ;
+	}
+
+	REAL convert_escape_r (const REAL &str_a) const {
+		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
+		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
+		return mBase.mHeap->mEscapeList[ix] ;
+	}
+
+	BOOL varify_space (const REAL &item) const {
+		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	BOOL varify_space (const REAL &item ,const VAR32 &group) const {
+		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		if (ix == VAR_NONE)
+			return FALSE ;
+		if (mBase.mHeap->mSpaceList[ix].mP2 != group)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	void modify_space (const REAL &item ,const VAR32 &group) const {
+		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
+		_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
+		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+		ix = mBase.mHeap->mSpaceList.insert () ;
+		mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
+		mBase.mHeap->mSpaceList[ix].mP1 = item ;
+		mBase.mHeap->mSpaceList[ix].mP2 = group ;
+	}
+
+	BOOL varify_control (const REAL &item) const {
+		if (!(item >= REAL (0) && item <= REAL (32)))
+			if (item != REAL (127))
 				return FALSE ;
-			return TRUE ;
-		}
-
-		VAR64 convert_number_r (const REAL &item) const {
-			return VAR64 (item) - VAR64 ('0') ;
-		}
-
-		void enable_escape (const BOOL &flag) const {
-			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-			mBase.mHeap->mEscapeFlag = flag ;
-		}
-
-		REAL varify_escape_item () const {
-			return REAL ('\\') ;
-		}
-
-		BOOL varify_escape_r (const REAL &item) const {
-			if (!mBase.mHeap->mEscapeFlag)
-				return FALSE ;
-			if (item != varify_escape_item ())
-				return FALSE ;
-			return TRUE ;
-		}
-
-		void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
-			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
-			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-			ix = mBase.mHeap->mEscapeList.insert () ;
-			mBase.mHeap->mEscapeMappingSet.add (str_a ,ix) ;
-			mBase.mHeap->mEscapeList[ix] = str_e ;
-		}
-
-		REAL convert_escape_r (const REAL &str_a) const {
-			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
-			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mBase.mHeap->mEscapeList[ix] ;
-		}
-
-		BOOL varify_space (const REAL &item) const {
-			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
-			if (ix == VAR_NONE)
-				return FALSE ;
-			return TRUE ;
-		}
-
-		BOOL varify_space (const REAL &item ,const VAR32 &group) const {
-			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
-			if (ix == VAR_NONE)
-				return FALSE ;
-			if (mBase.mHeap->mSpaceList[ix].mP2 != group)
-				return FALSE ;
-			return TRUE ;
-		}
-
-		void modify_space (const REAL &item ,const VAR32 &group) const {
-			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
-			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-			ix = mBase.mHeap->mSpaceList.insert () ;
-			mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
-			mBase.mHeap->mSpaceList[ix].mP1 = item ;
-			mBase.mHeap->mSpaceList[ix].mP2 = group ;
-		}
-
-		BOOL varify_control (const REAL &item) const {
-			if (!(item >= REAL (0) && item <= REAL (32)))
-				if (item != REAL (127))
-					return FALSE ;
-			if (varify_space (item))
-				return FALSE ;
-			return TRUE ;
-		}
-	} ;
+		if (varify_space (item))
+			return FALSE ;
+		return TRUE ;
+	}
 } ;
 
 template <class REAL>
@@ -1552,10 +1558,14 @@ private:
 		HashSet<REAL> mEscapeMappingSet ;
 	} ;
 
+	struct Detail {
+		template <class>
+		class Attribute ;
+	} ;
+
 private:
 	template <class>
 	friend class TextWriter ;
-	struct Detail ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
@@ -1585,7 +1595,7 @@ public:
 
 	DEF<typename Detail::template Attribute<TextWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<TextWriter> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<TextWriter>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -1803,7 +1813,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline TextWriter &operator<< (const Plain<REAL> &data) {
 		write (data) ;
@@ -2078,7 +2088,7 @@ private:
 		}
 		return _MOVE_ (ret) ;
 	}
-	
+
 	template <class _ARG1>
 	void template_write_bom (const ARGV<_ARG1> &) {
 		_STATIC_WARNING_ ("noop") ;
@@ -2116,92 +2126,90 @@ private:
 } ;
 
 template <class REAL>
-struct TextWriter<REAL>::Detail {
-	template <class BASE>
-	class Attribute
-		:private Proxy {
-	private:
-		BASE &mBase ;
+template <class BASE>
+class TextWriter<REAL>::Detail::Attribute
+	:private Proxy {
+private:
+	BASE &mBase ;
 
-	public:
-		Attribute () = delete ;
+public:
+	Attribute () = delete ;
 
-		explicit Attribute (BASE &base)
-			:mBase (base) {}
+	explicit Attribute (BASE &base)
+		:mBase (base) {}
 
-		REAL varify_ending_item () const {
-			return REAL ('\0') ;
-		}
+	REAL varify_ending_item () const {
+		return REAL ('\0') ;
+	}
 
-		VAR64 varify_radix () const {
-			return 10 ;
-		}
+	VAR64 varify_radix () const {
+		return 10 ;
+	}
 
-		LENGTH varify_val32_precision () const {
-			return 6 ;
-		}
+	LENGTH varify_val32_precision () const {
+		return 6 ;
+	}
 
-		LENGTH varify_val64_precision () const {
-			_STATIC_WARNING_ ("mark") ;
-			return 13 ;
-		}
+	LENGTH varify_val64_precision () const {
+		_STATIC_WARNING_ ("mark") ;
+		return 13 ;
+	}
 
-		BOOL varify_number_item (const REAL &item) const {
-			if (!(item >= REAL ('0') && item <= REAL ('9')))
+	BOOL varify_number_item (const REAL &item) const {
+		if (!(item >= REAL ('0') && item <= REAL ('9')))
+			return FALSE ;
+		return TRUE ;
+	}
+
+	REAL convert_number_w (const VAR64 &number) const {
+		return REAL (VAR64 ('0') + number) ;
+	}
+
+	void enable_escape (const BOOL &flag) const {
+		mBase.mHeap->mEscapeFlag = flag ;
+	}
+
+	REAL varify_escape_item () const {
+		return REAL ('\\') ;
+	}
+
+	BOOL varify_escape_w (const REAL &key) const {
+		if (!mBase.mHeap->mEscapeFlag)
+			return FALSE ;
+		if (mBase.mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
+		_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
+		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
+		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
+		ix = mBase.mHeap->mEscapeList.insert () ;
+		mBase.mHeap->mEscapeMappingSet.add (str_e ,ix) ;
+		mBase.mHeap->mEscapeList[ix] = str_a ;
+	}
+
+	REAL convert_escape_w (const REAL &str_e) const {
+		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
+		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
+		return mBase.mHeap->mEscapeList[ix] ;
+	}
+
+	BOOL varify_space (const REAL &item) const {
+		if (!(item == REAL ('\r') || item == REAL ('\n')))
+			return FALSE ;
+		return TRUE ;
+	}
+
+	BOOL varify_control (const REAL &item) const {
+		if (!(item >= REAL (0) && item <= REAL (32)))
+			if (item != REAL (127))
 				return FALSE ;
-			return TRUE ;
-		}
-
-		REAL convert_number_w (const VAR64 &number) const {
-			return REAL (VAR64 ('0') + number) ;
-		}
-
-		void enable_escape (const BOOL &flag) const {
-			mBase.mHeap->mEscapeFlag = flag ;
-		}
-
-		REAL varify_escape_item () const {
-			return REAL ('\\') ;
-		}
-
-		BOOL varify_escape_w (const REAL &key) const {
-			if (!mBase.mHeap->mEscapeFlag)
-				return FALSE ;
-			if (mBase.mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
-				return FALSE ;
-			return TRUE ;
-		}
-
-		void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
-			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
-			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-			ix = mBase.mHeap->mEscapeList.insert () ;
-			mBase.mHeap->mEscapeMappingSet.add (str_e ,ix) ;
-			mBase.mHeap->mEscapeList[ix] = str_a ;
-		}
-
-		REAL convert_escape_w (const REAL &str_e) const {
-			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
-			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-			return mBase.mHeap->mEscapeList[ix] ;
-		}
-
-		BOOL varify_space (const REAL &item) const {
-			if (!(item == REAL ('\r') || item == REAL ('\n')))
-				return FALSE ;
-			return TRUE ;
-		}
-
-		BOOL varify_control (const REAL &item) const {
-			if (!(item >= REAL (0) && item <= REAL (32)))
-				if (item != REAL (127))
-					return FALSE ;
-			if (varify_space (item))
-				return FALSE ;
-			return TRUE ;
-		}
-	} ;
+		if (varify_space (item))
+			return FALSE ;
+		return TRUE ;
+	}
 } ;
 
 template <class REAL>
@@ -2320,7 +2328,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline RegularReader &operator>> (const Plain<STRU8> &data) {
 		read (data) ;

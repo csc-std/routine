@@ -529,7 +529,6 @@ inline exports ConditionLock::ConditionLock () {
 
 class UniqueLock::Implement {
 private:
-	struct Detail ;
 	api::unique_lock<api::mutex> mUniqueLock ;
 	PhanRef<api::condition_variable> mConditionLock ;
 
