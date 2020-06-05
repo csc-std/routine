@@ -82,19 +82,17 @@ public:
 
 class TCPSocket::Listener {
 private:
-	friend TCPSocket ;
 	class Implement ;
 	StrongRef<Implement> mThis ;
 
 public:
 	Listener () = delete ;
 
+	explicit Listener (const StrongRef<TCPSocket::Implement> &socket_) ;
+
 	void wait_linker () ;
 
 	void accept () ;
-
-private:
-	explicit Listener (const StrongRef<TCPSocket::Implement> &socket_) ;
 } ;
 
 class UDPSocket {
@@ -144,7 +142,7 @@ public:
 	}
 } ;
 
-class NetworkService final
+class NetworkService
 	:private Proxy {
 private:
 	exports class Abstract

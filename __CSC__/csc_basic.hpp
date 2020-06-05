@@ -200,8 +200,8 @@ inline CHAR static_mem_crc32_table_each (const CHAR &val) {
 inline const PACK<CHAR[256]> &static_mem_crc32_table () {
 	return _CACHE_ ([&] () {
 		PACK<CHAR[256]> ret ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.P1))))
-			ret.P1[i] = static_mem_crc32_table_each (CHAR (i)) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.mP1))))
+			ret.mP1[i] = static_mem_crc32_table_each (CHAR (i)) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
@@ -218,7 +218,7 @@ inline FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &len) {
 	auto &r1x = U::static_mem_crc32_table () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
 		const auto r2x = CHAR ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
-		ret = FLAG (r1x.P1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
+		ret = FLAG (r1x.mP1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
 	}
 	ret &= VAR32_MAX ;
 	return _MOVE_ (ret) ;
@@ -386,7 +386,6 @@ public:
 
 	inline ScopedPtr (const ScopedPtr &) = default ;
 	inline ScopedPtr &operator= (const ScopedPtr &) = default ;
-
 	inline ScopedPtr (ScopedPtr &&) = default ;
 	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
 
@@ -435,7 +434,6 @@ public:
 
 	inline ScopedGuard (const ScopedGuard &) = default ;
 	inline ScopedGuard &operator= (const ScopedGuard &) = default ;
-
 	inline ScopedGuard (ScopedGuard &&) = default ;
 	inline ScopedGuard &operator= (ScopedGuard &&) = default ;
 
@@ -483,7 +481,6 @@ public:
 
 	inline ScopedBuild (const ScopedBuild &) = default ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
-
 	inline ScopedBuild (ScopedBuild &&) = default ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
@@ -551,7 +548,6 @@ public:
 
 	inline ScopedBuild (const ScopedBuild &) = default ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
-
 	inline ScopedBuild (ScopedBuild &&) = default ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
@@ -560,7 +556,7 @@ private:
 		:mPointer (NULL) ,mSize (0) {}
 } ;
 
-class GlobalHeap final
+class GlobalHeap
 	:private Wrapped<void> {
 private:
 	struct Detail ;
@@ -606,10 +602,12 @@ class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
+	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
+
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend AutoRef<UNIT> ;
+		friend SPECIALIZATION_THIS ;
 		UNIT mValue ;
 
 	public:
@@ -619,7 +617,7 @@ private:
 	} ;
 
 private:
-	friend AutoRef<UNIT> ;
+	friend SPECIALIZATION_THIS ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -646,7 +644,7 @@ public:
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~AutoRef () ;
 			new (this) AutoRef (_MOVE_ (that)) ;
@@ -664,10 +662,12 @@ class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
+	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
+
 	class Holder {
 	private:
 		friend AutoRef ;
-		friend AutoRef<UNIT> ;
+		friend SPECIALIZATION_THIS ;
 		UNIT mValue ;
 
 	public:
@@ -677,7 +677,7 @@ private:
 	} ;
 
 private:
-	friend AutoRef<UNIT> ;
+	friend SPECIALIZATION_THIS ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -707,7 +707,7 @@ public:
 
 	inline AutoRef &operator= (const AutoRef &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~AutoRef () ;
 			new (this) AutoRef (_MOVE_ (that)) ;
@@ -722,7 +722,7 @@ public:
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~AutoRef () ;
 			new (this) AutoRef (_MOVE_ (that)) ;
@@ -736,7 +736,7 @@ private:
 } ;
 
 template <class UNIT>
-class AutoRef
+class AutoRef final
 	:private AutoRef<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)>> {
 private:
 	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)>> ;
@@ -800,7 +800,7 @@ private:
 } ;
 
 template <class UNIT>
-class SharedRef {
+class SharedRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -846,7 +846,7 @@ public:
 
 	inline SharedRef &operator= (const SharedRef &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~SharedRef () ;
 			new (this) SharedRef (_MOVE_ (that)) ;
@@ -861,7 +861,7 @@ public:
 
 	inline SharedRef &operator= (SharedRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~SharedRef () ;
 			new (this) SharedRef (_MOVE_ (that)) ;
@@ -919,7 +919,7 @@ template <class>
 class AnyRef ;
 
 template <>
-class AnyRef<void> {
+class AnyRef<void> final {
 private:
 	exports class Holder
 		:public Interface {
@@ -962,7 +962,7 @@ public:
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~AnyRef () ;
 			new (this) AnyRef (_MOVE_ (that)) ;
@@ -999,7 +999,7 @@ private:
 } ;
 
 template <class UNIT>
-class AnyRef {
+class AnyRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -1039,7 +1039,7 @@ public:
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~AnyRef () ;
 			new (this) AnyRef (_MOVE_ (that)) ;
@@ -1146,7 +1146,7 @@ template <class>
 class UniqueRef ;
 
 template <>
-class UniqueRef<void> {
+class UniqueRef<void> final {
 private:
 	exports class Holder
 		:public Interface {
@@ -1172,6 +1172,7 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplHolder<PTR<void ()>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
+		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void ()>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
@@ -1206,7 +1207,7 @@ public:
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~UniqueRef () ;
 			new (this) UniqueRef (_MOVE_ (that)) ;
@@ -1248,7 +1249,7 @@ struct UniqueRef<void>::Detail {
 } ;
 
 template <class UNIT>
-class UniqueRef {
+class UniqueRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -1269,6 +1270,7 @@ public:
 		: UniqueRef (ARGVP0) {
 		using ImplHolder = typename Detail::template ImplHolder<PTR<void (UNIT &)>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
+		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (stl::is_convertible<REMOVE_REFERENCE_TYPE<_ARG2> ,PTR<void (UNIT &)>>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
@@ -1303,7 +1305,7 @@ public:
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~UniqueRef () ;
 			new (this) UniqueRef (_MOVE_ (that)) ;
@@ -1383,7 +1385,7 @@ struct UniqueRef<UNIT>::Detail {
 } ;
 
 template <class UNIT>
-class PhanRef {
+class PhanRef final {
 	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
 
 private:
@@ -1411,7 +1413,7 @@ public:
 
 	inline PhanRef &operator= (PhanRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~PhanRef () ;
 			new (this) PhanRef (_MOVE_ (that)) ;
@@ -1468,7 +1470,7 @@ template <class>
 class Function ;
 
 template <class UNIT1 ,class... UNITS>
-class Function<UNIT1 (UNITS...)> {
+class Function<UNIT1 (UNITS...)> final {
 private:
 	exports class Holder
 		:public Interface {
@@ -1530,7 +1532,7 @@ public:
 
 	inline Function &operator= (Function &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Function () ;
 			new (this) Function (_MOVE_ (that)) ;
@@ -1615,7 +1617,7 @@ using MEMBER_FUNCTION_HINT = DEF<DEF<_ARG1 (_ARGS...)> NONE::*> ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> {
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> final {
 #pragma push_macro ("fake")
 #undef fake
 #define fake m_fake ()
@@ -1710,7 +1712,7 @@ public:
 
 	inline Function &operator= (Function &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Function () ;
 			new (this) Function (_MOVE_ (that)) ;
@@ -1880,8 +1882,9 @@ class Buffer {
 
 private:
 #ifdef __CSC_COMPILER_MSVC__
-	//@error: fuck vs2015
-	friend Buffer<UNIT ,SAUTO> ;
+	//@error: fuck vs2017
+	template <class ,class>
+	friend class Buffer ;
 #endif
 	DEF<UNIT[SIZE::value]> mBuffer ;
 
@@ -1998,7 +2001,7 @@ public:
 } ;
 
 template <class UNIT>
-class Buffer<UNIT ,SFIXED> {
+class Buffer<UNIT ,SFIXED> final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -2168,7 +2171,10 @@ class Buffer<SPECIALIZATION<UNIT ,FALSE> ,SAUTO> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	friend Buffer<UNIT ,SAUTO> ;
+	using SPECIALIZATION_THIS = Buffer<UNIT ,SAUTO> ;
+
+private:
+	friend SPECIALIZATION_THIS ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2214,7 +2220,7 @@ public:
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Buffer () ;
 			new (this) Buffer (_MOVE_ (that)) ;
@@ -2232,7 +2238,10 @@ class Buffer<SPECIALIZATION<UNIT ,TRUE> ,SAUTO> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	friend Buffer<UNIT ,SAUTO> ;
+	using SPECIALIZATION_THIS = Buffer<UNIT ,SAUTO> ;
+
+private:
+	friend SPECIALIZATION_THIS ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2281,7 +2290,7 @@ public:
 
 	inline Buffer &operator= (const Buffer &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Buffer () ;
 			new (this) Buffer (_MOVE_ (that)) ;
@@ -2297,7 +2306,7 @@ public:
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Buffer () ;
 			new (this) Buffer (_MOVE_ (that)) ;
@@ -2311,7 +2320,7 @@ private:
 } ;
 
 template <class UNIT>
-class Buffer<UNIT ,SAUTO>
+class Buffer<UNIT ,SAUTO> final
 	:private Buffer<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> {
 private:
 	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> ;
@@ -2442,7 +2451,7 @@ template <class UNIT>
 using AutoBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SAUTO> ,UNIT> ;
 
 template <class UNIT>
-class Buffer<UNIT ,SCPHAN> {
+class Buffer<UNIT ,SCPHAN> final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -2478,7 +2487,7 @@ public:
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Buffer () ;
 			new (this) Buffer (_MOVE_ (that)) ;
@@ -2621,7 +2630,7 @@ public:
 } ;
 
 template <class UNIT>
-class Buffer<UNIT ,SMPHAN> {
+class Buffer<UNIT ,SMPHAN> final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
@@ -2657,7 +2666,7 @@ public:
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Buffer () ;
 			new (this) Buffer (_MOVE_ (that)) ;
@@ -2828,20 +2837,14 @@ private:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Node {
-	private:
-		friend Allocator ;
-		friend SPECIALIZATION_THIS ;
+	struct NODE {
 		TEMP<UNIT> mValue ;
 		INDEX mNext ;
-
-	public:
-		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_THIS ;
-	Buffer<Node ,SIZE> mAllocator ;
+	Buffer<NODE ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
@@ -2906,20 +2909,14 @@ private:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Node {
-	private:
-		friend Allocator ;
-		friend SPECIALIZATION_THIS ;
+	struct NODE {
 		TEMP<UNIT> mValue ;
 		INDEX mNext ;
-
-	public:
-		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_THIS ;
-	Buffer<Node ,SIZE> mAllocator ;
+	Buffer<NODE ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
@@ -2958,8 +2955,6 @@ public:
 
 	inline Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
@@ -2982,7 +2977,7 @@ public:
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Allocator () ;
 			new (this) Allocator (_MOVE_ (that)) ;
@@ -2994,7 +2989,7 @@ private:
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&allocator_)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE ,SIZE> &&allocator_)
 		:mAllocator (_MOVE_ (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
@@ -3019,20 +3014,14 @@ private:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
-	class Node {
-	private:
-		friend Allocator ;
-		friend SPECIALIZATION_THIS ;
+	struct NODE {
 		TEMP<UNIT> mValue ;
 		INDEX mNext ;
-
-	public:
-		inline Node () = default ;
 	} ;
 
 private:
 	friend SPECIALIZATION_THIS ;
-	Buffer<Node ,SIZE> mAllocator ;
+	Buffer<NODE ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
@@ -3068,8 +3057,6 @@ public:
 
 	inline Allocator (const Allocator &that)
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = that.mSize ;
 		const auto r1x = that.mSize - mSize ;
@@ -3092,7 +3079,7 @@ public:
 
 	inline Allocator &operator= (const Allocator &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Allocator () ;
 			new (this) Allocator (_MOVE_ (that)) ;
@@ -3102,8 +3089,6 @@ public:
 
 	inline Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
@@ -3126,7 +3111,7 @@ public:
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Allocator () ;
 			new (this) Allocator (_MOVE_ (that)) ;
@@ -3138,10 +3123,10 @@ private:
 	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<Node ,SIZE> &allocator_)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<NODE ,SIZE> &allocator_)
 		:mAllocator (_MOVE_ (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<Node ,SIZE> &&allocator_)
+	inline explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE ,SIZE> &&allocator_)
 		:mAllocator (_MOVE_ (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
 private:
@@ -3157,14 +3142,14 @@ private:
 } ;
 
 template <class UNIT ,class SIZE>
-class Allocator
+class Allocator final
 	:private Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
 	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
 	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
 
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
-	using Node = typename SPECIALIZATION_BASE::Node ;
+	using NODE = typename SPECIALIZATION_BASE::NODE ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3230,7 +3215,7 @@ public:
 	}
 
 	inline INDEX at (const UNIT &item) const {
-		auto &r1x = _OFFSET_ (&Node::mValue ,_CAST_<TEMP<UNIT>> (item)) ;
+		auto &r1x = _OFFSET_ (&NODE::mValue ,_CAST_<TEMP<UNIT>> (item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;

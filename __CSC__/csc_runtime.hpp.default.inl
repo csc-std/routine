@@ -137,9 +137,6 @@ using ::getsid ;
 
 class Duration::Implement {
 private:
-	friend GlobalRuntime ;
-	friend UniqueLock ;
-	friend TimePoint ;
 	api::chrono::system_clock::duration mDuration ;
 
 public:
@@ -163,6 +160,10 @@ public:
 
 	explicit Implement (const api::chrono::system_clock::duration &time_) {
 		mDuration = api::chrono::duration_cast<api::chrono::system_clock::duration> (time_) ;
+	}
+
+	const api::chrono::system_clock::duration &native () const leftvalue {
+		return mDuration ;
 	}
 
 	LENGTH hours () const {
@@ -256,8 +257,10 @@ inline exports Duration Duration::sub (const Duration &that) const {
 
 class TimePoint::Implement {
 private:
-	friend GlobalRuntime ;
-	friend UniqueLock ;
+	using DurationImplement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<Duration> ().native ())>> ;
+	using TimePointImplement = Implement ;
+
+private:
 	api::chrono::system_clock::time_point mTimePoint ;
 
 public:
@@ -284,6 +287,10 @@ public:
 
 	explicit Implement (const api::chrono::system_clock::time_point &time_) {
 		mTimePoint = api::chrono::time_point_cast<api::chrono::system_clock::duration> (time_) ;
+	}
+
+	const api::chrono::system_clock::time_point &native () const leftvalue {
+		return mTimePoint ;
 	}
 
 #ifdef __CSC_COMPILER_MSVC__
@@ -329,17 +336,17 @@ public:
 	}
 #endif
 
-	TimePoint add (const Duration::Implement &that) const {
-		const auto r1x = mTimePoint + that.mDuration ;
+	TimePoint add (const DurationImplement &that) const {
+		const auto r1x = mTimePoint + that.native () ;
 		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<TimePoint::Implement>::make (r2x) ;
+		auto tmp = StrongRef<TimePointImplement>::make (r2x) ;
 		return TimePoint (_MOVE_ (tmp)) ;
 	}
 
-	Duration sub (const TimePoint::Implement &that) const {
-		const auto r1x = mTimePoint - that.mTimePoint ;
+	Duration sub (const TimePointImplement &that) const {
+		const auto r1x = mTimePoint - that.native () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
+		auto tmp = StrongRef<DurationImplement>::make (r2x) ;
 		return Duration (_MOVE_ (tmp)) ;
 	}
 } ;
@@ -357,11 +364,11 @@ inline exports ARRAY8<LENGTH> TimePoint::calendar () const {
 }
 
 inline exports TimePoint TimePoint::add (const Duration &that) const {
-	return mThis->add (that.mThis) ;
+	return mThis->add (that.native ()) ;
 }
 
 inline exports Duration TimePoint::sub (const TimePoint &that) const {
-	return mThis->sub (that.mThis) ;
+	return mThis->sub (that.native ()) ;
 }
 
 class Atomic::Implement {
@@ -426,11 +433,14 @@ inline exports VAR Atomic::decrease () side_effects {
 
 class Mutex::Implement {
 private:
-	friend UniqueLock ;
 	api::mutex mMutex ;
 
 public:
 	Implement () = default ;
+
+	api::mutex &native () leftvalue {
+		return mMutex ;
+	}
 
 	void lock () {
 		mMutex.lock () ;
@@ -468,6 +478,10 @@ private:
 public:
 	Implement () = default ;
 
+	api::recursive_mutex &native () leftvalue {
+		return mMutex ;
+	}
+
 	void lock () {
 		mMutex.lock () ;
 	}
@@ -499,11 +513,14 @@ inline exports void RecursiveMutex::unlock () {
 
 class ConditionLock::Implement {
 private:
-	friend UniqueLock ;
 	api::condition_variable mConditionLock ;
 
 public:
 	Implement () = default ;
+
+	api::condition_variable &native () leftvalue {
+		return mConditionLock ;
+	}
 } ;
 
 inline exports ConditionLock::ConditionLock () {
@@ -520,8 +537,8 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (Mutex &mutex_ ,ConditionLock &condition) {
-		mUniqueLock = api::unique_lock<api::mutex> (mutex_.native ().mMutex) ;
-		mConditionLock = PhanRef<api::condition_variable>::make (condition.native ().mConditionLock) ;
+		mUniqueLock = api::unique_lock<api::mutex> (mutex_.native ().native ()) ;
+		mConditionLock = PhanRef<api::condition_variable>::make (condition.native ().native ()) ;
 	}
 
 	void wait () {
@@ -529,13 +546,13 @@ public:
 	}
 
 	void wait (const TimePoint &time_) {
-		auto &r1x = time_.native () ;
-		mConditionLock->wait_until (mUniqueLock ,r1x.mTimePoint) ;
+		auto &r1x = time_.native ().native () ;
+		mConditionLock->wait_until (mUniqueLock ,r1x) ;
 	}
 
 	void wait (const Duration &time_) {
-		auto &r1x = time_.native () ;
-		mConditionLock->wait_for (mUniqueLock ,r1x.mDuration) ;
+		auto &r1x = time_.native ().native () ;
+		mConditionLock->wait_for (mUniqueLock ,r1x) ;
 	}
 
 	void yield () {
@@ -582,8 +599,7 @@ public:
 
 	explicit Implement (StrongRef<Binder> &&runnable) {
 		mRunnable = _MOVE_ (runnable) ;
-		const auto r1x = PhanRef<Binder>::make (mRunnable.self) ;
-		mThread = api::thread (Detail::Runnable (r1x)) ;
+		mThread = api::thread (Detail::Runnable (PhanRef<Binder>::make (mRunnable.self))) ;
 	}
 
 	void join () {
@@ -627,13 +643,13 @@ inline exports FLAG GlobalRuntime::thread_tid () {
 #endif
 
 inline exports void GlobalRuntime::thread_sleep (const Duration &time_) {
-	auto &r1x = time_.native () ;
-	api::this_thread::sleep_for (r1x.mDuration) ;
+	auto &r1x = time_.native ().native () ;
+	api::this_thread::sleep_for (r1x) ;
 }
 
 inline exports void GlobalRuntime::thread_sleep (const TimePoint &time_) {
-	auto &r1x = time_.native () ;
-	api::this_thread::sleep_until (r1x.mTimePoint) ;
+	auto &r1x = time_.native ().native () ;
+	api::this_thread::sleep_until (r1x) ;
 }
 
 inline exports void GlobalRuntime::thread_yield () {

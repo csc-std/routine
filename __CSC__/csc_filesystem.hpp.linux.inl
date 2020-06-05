@@ -529,23 +529,23 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 		if (rax.empty ())
 			break ;
 		INDEX ix = rax.tail () ;
-		FileSystemProc::erase_directory (rax[ix].P1) ;
+		FileSystemProc::erase_directory (rax[ix].mP1) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!rax[ix].P2)
+			if (!rax[ix].mP2)
 				discard ;
 			rax.pop () ;
 		}
 		if switch_once (fax) {
 			rbx[0].clear () ;
 			rbx[1].clear () ;
-			FileSystemProc::enum_directory (rax[ix].P1 ,rbx[0] ,rbx[1]) ;
+			FileSystemProc::enum_directory (rax[ix].mP1 ,rbx[0] ,rbx[1]) ;
 			for (auto &&i : rbx[0])
 				FileSystemProc::erase_file (i) ;
 			for (auto &&i : rbx[1])
 				rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
 			_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
-			rax[ix].P2 = TRUE ;
+			rax[ix].mP2 = TRUE ;
 		}
 	}
 }

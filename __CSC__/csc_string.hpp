@@ -895,10 +895,10 @@ namespace U {
 inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_gbks_ws_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = GBKSTableProc::static_gbks_ws_table () ;
-		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
-			ret.P2.add (ret.P1[i][1] ,i) ;
+		ret.mP1 = GBKSTableProc::static_gbks_ws_table () ;
+		ret.mP2 = HashSet<STRUW> (ret.mP1.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,ret.mP1.size ()))
+			ret.mP2.add (ret.mP1[i][1] ,i) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
@@ -933,14 +933,14 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		INDEX ix = r1x.P2.map (rbx) ;
+		INDEX ix = r1x.mP2.map (rbx) ;
 		auto fbx = TRUE ;
 		if switch_once (fbx) {
 			if (!(rax == 10))
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1x.P1[ix][0]) ;
+			ret[iw++] = STRW (r1x.mP1[ix][0]) ;
 			rax = 0 ;
 		}
 		if switch_once (fbx) {
@@ -955,7 +955,7 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 				discard ;
 			if (!(ix != VAR_NONE))
 				discard ;
-			ret[iw++] = STRW (r1x.P1[ix][0]) ;
+			ret[iw++] = STRW (r1x.mP1[ix][0]) ;
 			rax = 0 ;
 		}
 		if switch_once (fbx) {
@@ -982,10 +982,10 @@ namespace U {
 inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_ws_gbks_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.P1 = GBKSTableProc::static_gbks_ws_table () ;
-		ret.P2 = HashSet<STRUW> (ret.P1.size ()) ;
-		for (auto &&i : _RANGE_ (0 ,ret.P1.size ()))
-			ret.P2.add (ret.P1[i][0] ,i) ;
+		ret.mP1 = GBKSTableProc::static_gbks_ws_table () ;
+		ret.mP2 = HashSet<STRUW> (ret.mP1.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,ret.mP1.size ()))
+			ret.mP2.add (ret.mP1[i][0] ,i) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
@@ -999,7 +999,7 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		INDEX ix = r1x.P2.map (STRUW (i)) ;
+		INDEX ix = r1x.mP2.map (STRUW (i)) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(rax == 0))
@@ -1011,17 +1011,17 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1x.P1[ix][1] <= STRUW (0X00FF)))
+			if (!(r1x.mP1[ix][1] <= STRUW (0X00FF)))
 				discard ;
-			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
+			ret[iw++] = STRUA (r1x.mP1[ix][1]) ;
 		}
 		if switch_once (fax) {
 			if (!(rax == 0))
 				discard ;
-			if (!(r1x.P1[ix][1] <= STRUW (0XFFFF)))
+			if (!(r1x.mP1[ix][1] <= STRUW (0XFFFF)))
 				discard ;
-			ret[iw++] = STRUA (r1x.P1[ix][1] >> 8) ;
-			ret[iw++] = STRUA (r1x.P1[ix][1]) ;
+			ret[iw++] = STRUA (r1x.mP1[ix][1] >> 8) ;
+			ret[iw++] = STRUA (r1x.mP1[ix][1]) ;
 		}
 		if switch_once (fax) {
 			ret.clear () ;
@@ -1312,10 +1312,10 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 			const auto r3x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
 			const auto r4x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
 			const auto r5x = CHAR (rbx & CHAR (0X3F)) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r2x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r3x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r4x)]) ;
-			ret[iw++] = _RET (M_BASE64.P1[INDEX (r5x)]) ;
+			ret[iw++] = _RET (M_BASE64.mP1[INDEX (r2x)]) ;
+			ret[iw++] = _RET (M_BASE64.mP1[INDEX (r3x)]) ;
+			ret[iw++] = _RET (M_BASE64.mP1[INDEX (r4x)]) ;
+			ret[iw++] = _RET (M_BASE64.mP1[INDEX (r5x)]) ;
 		}
 		if switch_once (fax) {
 			ret.clear () ;
@@ -1329,10 +1329,10 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 		rbx = CHAR (rbx << 16) ;
 		const auto r6x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
 		const auto r7x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX (r6x)]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX (r7x)]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[INDEX (r6x)]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[INDEX (r7x)]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[64]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[64]) ;
 	}
 	if switch_once (fbx) {
 		if (!(rax == 2))
@@ -1341,10 +1341,10 @@ inline exports String<_RET> StringProc::build_base64u8s (const String<STRU8> &st
 		const auto r8x = CHAR ((rbx >> 18) & CHAR (0X3F)) ;
 		const auto r9x = CHAR ((rbx >> 12) & CHAR (0X3F)) ;
 		const auto r10x = CHAR ((rbx >> 6) & CHAR (0X3F)) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX (r8x)]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX (r9x)]) ;
-		ret[iw++] = _RET (M_BASE64.P1[INDEX (r10x)]) ;
-		ret[iw++] = _RET (M_BASE64.P1[64]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[INDEX (r8x)]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[INDEX (r9x)]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[INDEX (r10x)]) ;
+		ret[iw++] = _RET (M_BASE64.mP1[64]) ;
 	}
 	if switch_once (fbx) {
 		_DYNAMIC_ASSERT_ (rax == 0) ;
@@ -1372,8 +1372,8 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 		if (rax == VAR_NONE)
 			continue ;
 		auto &r2x = _SWITCH_ (
-			((i & STRU8 (0X80)) == 0) ? M_BASE64.P1[LENGTH (i) - 32] :
-			M_BASE64.P1[0]) ;
+			((i & STRU8 (0X80)) == 0) ? M_BASE64.mP1[LENGTH (i) - 32] :
+			M_BASE64.mP1[0]) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(rax == 0))
@@ -1470,8 +1470,8 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
 	const auto r4x = BYTE (rcx) ;
 	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
-	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.P1)) >> ret.P2 ;
-	ret.P1 = 0 ;
+	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.mP1)) >> ret.mP2 ;
+	ret.mP1 = 0 ;
 	rax.share () >> rbx ;
 	if switch_once (TRUE) {
 		if (rbx != _ARG1 (':'))
@@ -1479,7 +1479,7 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 		rax >> rbx ;
 		rax >> rcx ;
 		_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 65536) ;
-		ret.P1 = WORD (rcx) ;
+		ret.mP1 = WORD (rcx) ;
 	}
 	rax >> TextReader<_ARG1>::EOS ;
 	return _MOVE_ (ret) ;
@@ -1490,20 +1490,20 @@ inline exports String<_RET> StringProc::build_ipv4s (const PACK<WORD ,CHAR> &str
 	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 	String<_RET> ret = String<_RET> (63) ;
 	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
-	ByteWriter<BYTE> (PhanBuffer<BYTE>::make (rax.P1)) << stru.P2 ;
+	ByteWriter<BYTE> (PhanBuffer<BYTE>::make (rax.mP1)) << stru.mP2 ;
 	auto rbx = TextWriter<_RET> (ret.raw ()) ;
-	rbx << VAR (rax.P1[0]) ;
+	rbx << VAR (rax.mP1[0]) ;
 	rbx << _RET ('.') ;
-	rbx << VAR (rax.P1[1]) ;
+	rbx << VAR (rax.mP1[1]) ;
 	rbx << _RET ('.') ;
-	rbx << VAR (rax.P1[2]) ;
+	rbx << VAR (rax.mP1[2]) ;
 	rbx << _RET ('.') ;
-	rbx << VAR (rax.P1[3]) ;
+	rbx << VAR (rax.mP1[3]) ;
 	if switch_once (TRUE) {
-		if (stru.P1 == 0)
+		if (stru.mP1 == 0)
 			discard ;
 		rbx << _RET (':') ;
-		rbx << VAR (stru.P1) ;
+		rbx << VAR (stru.mP1) ;
 	}
 	rbx << TextWriter<_RET>::EOS ;
 	return _MOVE_ (ret) ;

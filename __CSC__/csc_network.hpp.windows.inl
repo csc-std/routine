@@ -104,8 +104,8 @@ inline String<STRU8> static_make_ipv4s (const SOCKADDR &val) {
 		PACK<WORD ,CHAR> ret ;
 		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (r1x.sin_port) ;
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (r1x.sin_addr.S_un.S_addr) ;
-		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.P1 ;
-		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.P2 ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.mP1 ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.mP2 ;
 		return _MOVE_ (ret) ;
 	}) ;
 	return StringProc::build_ipv4s<STRU8> (r2x) ;
@@ -120,8 +120,8 @@ inline SOCKADDR static_make_socket_addr (const String<STRU8> &val) {
 		const auto r2x = StringProc::parse_ipv4s (val) ;
 		auto &r3x = _CAST_<CSC::BYTE[_SIZEOF_ (WORD)]> (ret.sin_port) ;
 		auto &r4x = _CAST_<CSC::BYTE[_SIZEOF_ (CHAR)]> (ret.sin_addr.S_un.S_addr) ;
-		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.P1 ;
-		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.P2 ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.mP1 ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.mP2 ;
 		return _MOVE_ (ret) ;
 	}) ;
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
@@ -158,24 +158,21 @@ inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LE
 
 class TCPSocket::Implement {
 private:
-	class Pack {
-	private:
-		friend Implement ;
-		friend Listener::Implement ;
+	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
 		SOCKADDR mPeer ;
 		LENGTH mTimeout ;
 	} ;
 
 private:
-	friend Listener::Implement ;
-	SharedRef<Pack> mThis ;
+	friend TCPSocket::Listener ;
+	SharedRef<SELF_PACK> mThis ;
 
 public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		mThis = SharedRef<Pack>::make () ;
+		mThis = SharedRef<SELF_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -190,12 +187,12 @@ public:
 
 	String<STRU8> sock_name () const {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getsockname (mThis->mSocket ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: ipv6 is not supported
-		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		return U::static_make_ipv4s (rax.P1) ;
+		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
+		return U::static_make_ipv4s (rax.mP1) ;
 	}
 
 	String<STRU8> peer_sock_name () const {
@@ -302,10 +299,10 @@ private:
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (VAR32)) ;
-		api::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.P1] ,DEPTR[rax.P2]) ;
-		const auto r3x = _BITWISE_CAST_<VAR32> (rax.P1) ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (VAR32)) ;
+		api::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		const auto r3x = _BITWISE_CAST_<VAR32> (rax.mP1) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r3x == 0) ;
 	}
@@ -352,7 +349,7 @@ inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
 	rax.link (ip_addr) ;
-	const auto r1x = TextWriter<STRU8>::GAP ;
+	auto &r1x = TextWriter<STRU8>::GAP ;
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("GET ") ,site ,_PCSTRU8_ ("?") ,msg ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,ip_addr ,r1x ,r1x) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,timeout) ;
@@ -367,7 +364,7 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
 	rax.link (ip_addr) ;
-	const auto r1x = TextWriter<STRU8>::GAP ;
+	auto &r1x = TextWriter<STRU8>::GAP ;
 	const auto r2x = String<STRU8>::make (_PCSTRU8_ ("POST ") ,site ,_PCSTRU8_ (" HTTP/1.1") ,r1x ,_PCSTRU8_ ("HOST: ") ,ip_addr ,r1x ,_PCSTRU8_ ("Content-Length: ") ,msg.length () ,r1x ,r1x ,msg) ;
 	rax.write (PhanBuffer<const BYTE>::make (r2x.raw ())) ;
 	rax.read (PhanBuffer<BYTE>::make (ret.raw ()) ,iw ,timeout) ;
@@ -379,7 +376,7 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 
 class TCPSocket::Listener::Implement {
 private:
-	SharedRef<TCPSocket::Implement::Pack> mThis ;
+	SharedRef<TCPSocket::Implement::SELF_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 
@@ -409,11 +406,11 @@ public:
 	void accept () {
 		mThis->mSocket = _MOVE_ (mLinker) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getpeername (mThis->mSocket ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
-		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		mThis->mPeer = rax.P1 ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getpeername (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
+		mThis->mPeer = rax.mP1 ;
 	}
 } ;
 
@@ -431,16 +428,14 @@ inline exports TCPSocket::Listener::Listener (const StrongRef<TCPSocket::Impleme
 
 class UDPSocket::Implement {
 private:
-	class Pack {
-	private:
-		friend Implement ;
+	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
 		SOCKADDR mPeer ;
 		LENGTH mTimeout ;
 	} ;
 
 private:
-	SharedRef<Pack> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 
 public:
 	Implement () = delete ;
@@ -463,12 +458,12 @@ public:
 
 	String<STRU8> sock_name () const {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getsockname (mThis->mSocket ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: ipv6 is not supported
-		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		return U::static_make_ipv4s (rax.P1) ;
+		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
+		return U::static_make_ipv4s (rax.mP1) ;
 	}
 
 	String<STRU8> peer_sock_name () const {
@@ -490,13 +485,13 @@ public:
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
+		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
 		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
-		mThis->mPeer = rax.P1 ;
+		mThis->mPeer = rax.mP1 ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
@@ -507,12 +502,12 @@ public:
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.P1) ;
-		rax.P2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.P1] ,DEPTR[rax.P2]) ;
+		_ZERO_ (rax.mP1) ;
+		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		const auto r3x = api::recvfrom (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0 ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (rax.P2 == _SIZEOF_ (SOCKADDR)) ;
-		mThis->mPeer = rax.P1 ;
+		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
+		mThis->mPeer = rax.mP1 ;
 		out_i = r3x ;
 	}
 

@@ -53,27 +53,21 @@ inline exports void PrimeSieveAlgorithm::initialize (const LENGTH &len) {
 
 class DisjointTable {
 private:
-	class Node {
-	private:
-		friend DisjointTable ;
+	struct NODE {
 		INDEX mUp ;
 		LENGTH mWidth ;
-
-	public:
-		inline Node () {
-			mUp = VAR_NONE ;
-			mWidth = 0 ;
-		}
 	} ;
 
 private:
-	Array<Node> mTable ;
+	Array<NODE> mTable ;
 
 public:
 	DisjointTable () = delete ;
 
 	explicit DisjointTable (const LENGTH &len) {
-		mTable = Array<Node> (len) ;
+		mTable = Array<NODE> (len) ;
+		const auto r1x = empty_node () ;
+		mTable.fill (r1x) ;
 	}
 
 	INDEX lead (const INDEX &index) side_effects {
@@ -124,6 +118,13 @@ public:
 	}
 
 private:
+	NODE empty_node () const {
+		NODE ret ;
+		ret.mUp = VAR_NONE ;
+		ret.mWidth = 0 ;
+		return _MOVE_ (ret) ;
+	}
+
 	Set<INDEX> map_of_closure () const {
 		Set<INDEX> ret = Set<INDEX> (mTable.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,mTable.length ())) {
@@ -258,7 +259,7 @@ private:
 
 template <class REAL>
 inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		DijstraAlgorithm &mContext ;
@@ -357,7 +358,7 @@ private:
 
 template <class REAL>
 inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		KMeansAlgorithm &mContext ;
@@ -517,7 +518,7 @@ private:
 
 template <class REAL>
 inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		KMHungarianAlgorithm &mContext ;
@@ -647,147 +648,147 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 				EFLAG (15) ,EFLAG (16) ,EFLAG (17) ,EFLAG (18) ,EFLAG (19) ,
 				EFLAG (20) ,EFLAG (21)}) ;
 			mTempStack.clear () ;
-			mTempState = M_STATE.P1[21] ;
+			mTempState = M_STATE.mP1[21] ;
 			INDEX ix = VAR_NONE ;
 			while (TRUE) {
-				if (mTempState == M_STATE.P1[0])
+				if (mTempState == M_STATE.mP1[0])
 					break ;
 				auto fax = TRUE ;
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[21]))
+					if (!(mTempState == M_STATE.mP1[21]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
-					mTempState = M_STATE.P1[1] ;
+					mTempState = M_STATE.mP1[1] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[1]))
+					if (!(mTempState == M_STATE.mP1[1]))
 						discard ;
 					mTempRet = FALSE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
-					mTempState = M_STATE.P1[7] ;
+					mTempState = M_STATE.mP1[7] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[2]))
+					if (!(mTempState == M_STATE.mP1[2]))
 						discard ;
 					mTempRet = TRUE ;
-					mTempState = M_STATE.P1[17] ;
+					mTempState = M_STATE.mP1[17] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[3]))
+					if (!(mTempState == M_STATE.mP1[3]))
 						discard ;
 					mYVisit[mTempStack[ix][1]] = TRUE ;
 					mTempStack[ix][0] = 0 ;
-					mTempState = M_STATE.P1[4] ;
+					mTempState = M_STATE.mP1[4] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[4]))
+					if (!(mTempState == M_STATE.mP1[4]))
 						discard ;
 					auto &r1x = _SWITCH_ (
-						(mTempStack[ix][0] < mAdjacency.cx ()) ? M_STATE.P1[5] :
-						M_STATE.P1[16]) ;
+						(mTempStack[ix][0] < mAdjacency.cx ()) ? M_STATE.mP1[5] :
+						M_STATE.mP1[16]) ;
 					mTempState = r1x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[5]))
+					if (!(mTempState == M_STATE.mP1[5]))
 						discard ;
 					auto &r2x = _SWITCH_ (
-						(mXVisit[mTempStack[ix][0]]) ? M_STATE.P1[15] :
-						M_STATE.P1[6]) ;
+						(mXVisit[mTempStack[ix][0]]) ? M_STATE.mP1[15] :
+						M_STATE.mP1[6]) ;
 					mTempState = r2x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[6]))
+					if (!(mTempState == M_STATE.mP1[6]))
 						discard ;
 					mLackWeight[0] = mYWeight[mTempStack[ix][1]] + mXWeight[mTempStack[ix][0]] - mAdjacency[mTempStack[ix][1]][mTempStack[ix][0]] ;
-					mTempState = M_STATE.P1[9] ;
+					mTempState = M_STATE.mP1[9] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[7]))
+					if (!(mTempState == M_STATE.mP1[7]))
 						discard ;
 					ix = mTempStack.tail () ;
 					auto &r3x = _SWITCH_ (
-						(mTempStack[ix][1] == VAR_NONE) ? M_STATE.P1[2] :
-						M_STATE.P1[3]) ;
+						(mTempStack[ix][1] == VAR_NONE) ? M_STATE.mP1[2] :
+						M_STATE.mP1[3]) ;
 					mTempState = r3x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[8]))
+					if (!(mTempState == M_STATE.mP1[8]))
 						discard ;
 					mXVisit[mTempStack[ix][0]] = TRUE ;
 					mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
-					mTempState = M_STATE.P1[7] ;
+					mTempState = M_STATE.mP1[7] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[9]))
+					if (!(mTempState == M_STATE.mP1[9]))
 						discard ;
 					auto &r4x = _SWITCH_ (
-						(mLackWeight[0] < mTolerance) ? M_STATE.P1[8] :
-						M_STATE.P1[14]) ;
+						(mLackWeight[0] < mTolerance) ? M_STATE.mP1[8] :
+						M_STATE.mP1[14]) ;
 					mTempState = r4x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[10]))
+					if (!(mTempState == M_STATE.mP1[10]))
 						discard ;
 					ix = mTempStack.tail () ;
 					auto &r5x = _SWITCH_ (
-						mTempRet ? M_STATE.P1[11] :
-						M_STATE.P1[15]) ;
+						mTempRet ? M_STATE.mP1[11] :
+						M_STATE.mP1[15]) ;
 					mTempState = r5x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[11]))
+					if (!(mTempState == M_STATE.mP1[11]))
 						discard ;
 					mXYLink[mTempStack[ix][0]] = mTempStack[ix][1] ;
 					mTempRet = TRUE ;
-					mTempState = M_STATE.P1[17] ;
+					mTempState = M_STATE.mP1[17] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[14]))
+					if (!(mTempState == M_STATE.mP1[14]))
 						discard ;
 					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
-					mTempState = M_STATE.P1[15] ;
+					mTempState = M_STATE.mP1[15] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[15]))
+					if (!(mTempState == M_STATE.mP1[15]))
 						discard ;
 					mTempStack[ix][0]++ ;
-					mTempState = M_STATE.P1[4] ;
+					mTempState = M_STATE.mP1[4] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[16]))
+					if (!(mTempState == M_STATE.mP1[16]))
 						discard ;
 					mTempRet = FALSE ;
-					mTempState = M_STATE.P1[17] ;
+					mTempState = M_STATE.mP1[17] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[17]))
+					if (!(mTempState == M_STATE.mP1[17]))
 						discard ;
 					mTempStack.pop () ;
 					auto &r6x = _SWITCH_ (
-						(mTempStack.length () > 0) ? M_STATE.P1[10] :
-						M_STATE.P1[18]) ;
+						(mTempStack.length () > 0) ? M_STATE.mP1[10] :
+						M_STATE.mP1[18]) ;
 					mTempState = r6x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[18]))
+					if (!(mTempState == M_STATE.mP1[18]))
 						discard ;
 					auto &r7x = _SWITCH_ (
-						mTempRet ? M_STATE.P1[19] :
-						M_STATE.P1[20]) ;
+						mTempRet ? M_STATE.mP1[19] :
+						M_STATE.mP1[20]) ;
 					mTempState = r7x ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[19]))
+					if (!(mTempState == M_STATE.mP1[19]))
 						discard ;
 					mLackWeight[0] = 0 ;
 					mLackWeight[1] = +mInfinity ;
-					mTempState = M_STATE.P1[20] ;
+					mTempState = M_STATE.mP1[20] ;
 				}
 				if switch_once (fax) {
-					if (!(mTempState == M_STATE.P1[20]))
+					if (!(mTempState == M_STATE.mP1[20]))
 						discard ;
-					mTempState = M_STATE.P1[0] ;
+					mTempState = M_STATE.mP1[0] ;
 				}
 			}
 		}
@@ -855,7 +856,7 @@ private:
 
 template <class REAL>
 inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		BFGSAlgorithm &mContext ;
@@ -1047,7 +1048,6 @@ class KDTreeAlgorithm {
 private:
 	class Node {
 	private:
-		friend KDTreeAlgorithm ;
 		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
@@ -1095,8 +1095,8 @@ public:
 		const auto r2x = r1x.range_sort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			ret[i].P1 = r2x[i] ;
-			ret[i].P2 = r1x[r2x[i]] ;
+			ret[i].mP1 = r2x[i] ;
+			ret[i].mP2 = r1x[r2x[i]] ;
 		}
 		compute_search_range (point ,mRoot ,0 ,ret) ;
 		return _MOVE_ (ret) ;
@@ -1170,7 +1170,7 @@ private:
 				while (TRUE) {
 					if (jy < 0)
 						break ;
-					if (r1x >= out[jy].P2)
+					if (r1x >= out[jy].mP2)
 						break ;
 					if (jx < out.length ())
 						out[jx] = out[jy] ;
@@ -1179,17 +1179,17 @@ private:
 				}
 				if (jx >= out.length ())
 					discard ;
-				out[jx].P1 = ix ;
-				out[jx].P2 = r1x ;
+				out[jx].mP1 = ix ;
+				out[jx].mP2 = r1x ;
 			}
 		}
 		if switch_once (fax) {
 			if (!(mKDTree[curr].mLeaf == VAR_NONE))
 				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
-			if (r2x >= point[rot] - out[out.length () - 1].P2)
+			if (r2x >= point[rot] - out[out.length () - 1].mP2)
 				compute_search_range (point ,mKDTree[curr].mLeft ,mNextRot[rot] ,out) ;
-			if (r2x <= point[rot] + out[out.length () - 1].P2)
+			if (r2x <= point[rot] + out[out.length () - 1].mP2)
 				compute_search_range (point ,mKDTree[curr].mRight ,mNextRot[rot] ,out) ;
 		}
 	}
@@ -1197,7 +1197,7 @@ private:
 
 template <class REAL>
 inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		KDTreeAlgorithm &mContext ;
@@ -1347,7 +1347,7 @@ private:
 
 template <class REAL>
 inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
-	class Lambda final
+	class Lambda
 		:private Proxy {
 	private:
 		MaxFlowAlgorithm &mContext ;

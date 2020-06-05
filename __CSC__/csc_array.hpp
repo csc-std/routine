@@ -10,7 +10,7 @@
 
 namespace CSC {
 template <class BASE>
-class ArrayIterator final
+class ArrayIterator
 	:private Proxy {
 private:
 	using ITEM_TYPE = DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> ;
@@ -23,6 +23,9 @@ private:
 public:
 	inline ArrayIterator () = delete ;
 
+	inline explicit ArrayIterator (BASE &base ,const INDEX &index)
+		:mBase (base) ,mIndex (index) {}
+
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
 	}
@@ -34,10 +37,6 @@ public:
 	inline void operator++ () {
 		mIndex = mBase.inext (_FORWARD_<const INDEX &> (mIndex)) ;
 	}
-
-private:
-	inline explicit ArrayIterator (BASE &base ,const INDEX &index)
-		: mBase (base) ,mIndex (index) {}
 } ;
 
 namespace U {
@@ -135,7 +134,9 @@ public:
 	Array () = default ;
 
 	explicit Array (const LENGTH &len)
-		:mArray (len) {}
+		:Array (ARGVP0 ,len) {
+		_STATIC_WARNING_ ("noop") ;
+	}
 
 	implicit Array (const stl::initializer_list<ITEM> &that)
 		: Array (that.size ()) {
@@ -176,19 +177,19 @@ public:
 		return index + 1 ;
 	}
 
-	ArrayIterator<Array> begin () {
+	ArrayIterator<Array> begin () leftvalue {
 		return ArrayIterator<Array> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const Array> begin () const {
+	ArrayIterator<const Array> begin () const leftvalue {
 		return ArrayIterator<const Array> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<Array> end () {
+	ArrayIterator<Array> end () leftvalue {
 		return ArrayIterator<Array> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const Array> end () const {
+	ArrayIterator<const Array> end () const leftvalue {
 		return ArrayIterator<const Array> (DEREF[this] ,iend ()) ;
 	}
 
@@ -248,6 +249,10 @@ public:
 		for (auto &&i : _RANGE_ (0 ,mArray.size ()))
 			mArray[i] = item ;
 	}
+
+private:
+	explicit Array (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
+		:mArray (len) {}
 } ;
 
 template <class ITEM>
@@ -370,19 +375,19 @@ public:
 		return index + 1 ;
 	}
 
-	ArrayIterator<String> begin () {
+	ArrayIterator<String> begin () leftvalue {
 		return ArrayIterator<String> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const String> begin () const {
+	ArrayIterator<const String> begin () const leftvalue {
 		return ArrayIterator<const String> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<String> end () {
+	ArrayIterator<String> end () leftvalue {
 		return ArrayIterator<String> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const String> end () const {
+	ArrayIterator<const String> end () const leftvalue {
 		return ArrayIterator<const String> (DEREF[this] ,iend ()) ;
 	}
 
@@ -652,19 +657,19 @@ public:
 		return (index + 1) % mDeque.size () ;
 	}
 
-	ArrayIterator<Deque> begin () {
+	ArrayIterator<Deque> begin () leftvalue {
 		return ArrayIterator<Deque> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const Deque> begin () const {
+	ArrayIterator<const Deque> begin () const leftvalue {
 		return ArrayIterator<const Deque> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<Deque> end () {
+	ArrayIterator<Deque> end () leftvalue {
 		return ArrayIterator<Deque> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const Deque> end () const {
+	ArrayIterator<const Deque> end () const leftvalue {
 		return ArrayIterator<const Deque> (DEREF[this] ,iend ()) ;
 	}
 
@@ -960,19 +965,14 @@ class Priority ;
 template <class ITEM ,class SIZE>
 class Priority {
 private:
-	class Node {
-	private:
-		friend Priority ;
+	struct NODE {
 		ITEM mItem ;
 		INDEX mMap ;
-
-	public:
-		inline Node () = default ;
 	} ;
 
 private:
 	struct Detail ;
-	Buffer<Node ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
+	Buffer<NODE ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -1021,19 +1021,19 @@ public:
 		return index + 1 ;
 	}
 
-	ArrayIterator<Priority> begin () {
+	ArrayIterator<Priority> begin () leftvalue {
 		return ArrayIterator<Priority> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const Priority> begin () const {
+	ArrayIterator<const Priority> begin () const leftvalue {
 		return ArrayIterator<const Priority> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<Priority> end () {
+	ArrayIterator<Priority> end () leftvalue {
 		return ArrayIterator<Priority> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const Priority> end () const {
+	ArrayIterator<const Priority> end () const leftvalue {
 		return ArrayIterator<const Priority> (DEREF[this] ,iend ()) ;
 	}
 
@@ -1060,7 +1060,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&Node::mItem ,item)) ;
+		INDEX ret = mPriority.at (_OFFSET_ (&NODE::mItem ,item)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return _MOVE_ (ret) ;
@@ -1317,23 +1317,21 @@ private:
 template <class ITEM ,class SIZE>
 struct Priority<ITEM ,SIZE>::Detail {
 	template <class BASE>
-	class Pair final
+	class Pair
 		:private Proxy {
 	public:
-		friend Priority ;
 		const ITEM &key ;
 		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
 
+		inline explicit Pair (BASE &base ,const INDEX &index)
+			: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
+
 		inline implicit operator const ITEM & () rightvalue {
 			return key ;
 		}
-
-	private:
-		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
 	} ;
 } ;
 
@@ -1410,19 +1408,19 @@ public:
 		return mList[index].mRight ;
 	}
 
-	ArrayIterator<List> begin () {
+	ArrayIterator<List> begin () leftvalue {
 		return ArrayIterator<List> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const List> begin () const {
+	ArrayIterator<const List> begin () const leftvalue {
 		return ArrayIterator<const List> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<List> end () {
+	ArrayIterator<List> end () leftvalue {
 		return ArrayIterator<List> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const List> end () const {
+	ArrayIterator<const List> end () const leftvalue {
 		return ArrayIterator<const List> (DEREF[this] ,iend ()) ;
 	}
 
@@ -1833,19 +1831,19 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<SoftList> begin () {
+	ArrayIterator<SoftList> begin () leftvalue {
 		return ArrayIterator<SoftList> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const SoftList> begin () const {
+	ArrayIterator<const SoftList> begin () const leftvalue {
 		return ArrayIterator<const SoftList> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<SoftList> end () {
+	ArrayIterator<SoftList> end () leftvalue {
 		return ArrayIterator<SoftList> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const SoftList> end () const {
+	ArrayIterator<const SoftList> end () const leftvalue {
 		return ArrayIterator<const SoftList> (DEREF[this] ,iend ()) ;
 	}
 
@@ -2270,13 +2268,13 @@ public:
 			4 ,5 ,5 ,6 ,5 ,6 ,6 ,7 ,5 ,6 ,6 ,7 ,6 ,7 ,7 ,8}) ;
 		LENGTH ret = 0 ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ()))
-			ret += M_LENGTH.P1[mSet[i]] ;
+			ret += M_LENGTH.mP1[mSet[i]] ;
 		if switch_once (TRUE) {
 			if (mWidth % 8 == 0)
 				discard ;
 			const auto r1x = BYTE (BYTE (0X01) << (mWidth % 8)) ;
 			const auto r2x = BYTE (mSet[mWidth / 8] & ~BYTE (INDEX (r1x) - 1)) ;
-			ret -= M_LENGTH.P1[INDEX (r2x)] ;
+			ret -= M_LENGTH.mP1[INDEX (r2x)] ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -2303,19 +2301,19 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<BitSet> begin () {
+	ArrayIterator<BitSet> begin () leftvalue {
 		return ArrayIterator<BitSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const BitSet> begin () const {
+	ArrayIterator<const BitSet> begin () const leftvalue {
 		return ArrayIterator<const BitSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<BitSet> end () {
+	ArrayIterator<BitSet> end () leftvalue {
 		return ArrayIterator<BitSet> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const BitSet> end () const {
+	ArrayIterator<const BitSet> end () const leftvalue {
 		return ArrayIterator<const BitSet> (DEREF[this] ,iend ()) ;
 	}
 
@@ -2561,7 +2559,7 @@ private:
 template <class SIZE>
 struct BitSet<SIZE>::Detail {
 	template <class BASE>
-	class Bit final
+	class Bit
 		:private Proxy {
 	private:
 		friend BitSet ;
@@ -2570,6 +2568,9 @@ struct BitSet<SIZE>::Detail {
 
 	public:
 		inline Bit () = delete ;
+
+		inline explicit Bit (BASE &base ,const INDEX &index)
+			: mBase (base) ,mIndex (index) {}
 
 		inline implicit operator BOOL () rightvalue {
 			const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
@@ -2611,10 +2612,6 @@ struct BitSet<SIZE>::Detail {
 				mBase.mSet[mIndex / 8] &= ~r1x ;
 			}
 		}
-
-	private:
-		inline explicit Bit (BASE &base ,const INDEX &index)
-			: mBase (base) ,mIndex (index) {}
 	} ;
 } ;
 
@@ -2698,19 +2695,19 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<Set> begin () {
+	ArrayIterator<Set> begin () leftvalue {
 		return ArrayIterator<Set> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const Set> begin () const {
+	ArrayIterator<const Set> begin () const leftvalue {
 		return ArrayIterator<const Set> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<Set> end () {
+	ArrayIterator<Set> end () leftvalue {
 		return ArrayIterator<Set> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const Set> end () const {
+	ArrayIterator<const Set> end () const leftvalue {
 		return ArrayIterator<const Set> (DEREF[this] ,iend ()) ;
 	}
 
@@ -3230,23 +3227,21 @@ private:
 template <class ITEM ,class SIZE>
 struct Set<ITEM ,SIZE>::Detail {
 	template <class BASE>
-	class Pair final
+	class Pair
 		:private Proxy {
 	public:
-		friend Set ;
 		const ITEM &key ;
 		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
 
+		inline explicit Pair (BASE &base ,const INDEX &index)
+			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+
 		inline implicit operator const ITEM & () rightvalue {
 			return key ;
 		}
-
-	private:
-		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 	} ;
 } ;
 
@@ -3328,19 +3323,19 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<HashSet> begin () {
+	ArrayIterator<HashSet> begin () leftvalue {
 		return ArrayIterator<HashSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const HashSet> begin () const {
+	ArrayIterator<const HashSet> begin () const leftvalue {
 		return ArrayIterator<const HashSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<HashSet> end () {
+	ArrayIterator<HashSet> end () leftvalue {
 		return ArrayIterator<HashSet> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const HashSet> end () const {
+	ArrayIterator<const HashSet> end () const leftvalue {
 		return ArrayIterator<const HashSet> (DEREF[this] ,iend ()) ;
 	}
 
@@ -3537,23 +3532,21 @@ private:
 template <class ITEM ,class SIZE>
 struct HashSet<ITEM ,SIZE>::Detail {
 	template <class BASE>
-	class Pair final
+	class Pair
 		:private Proxy {
 	public:
-		friend HashSet ;
 		const ITEM &key ;
 		CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
 
+		inline explicit Pair (BASE &base ,const INDEX &index)
+			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+
 		inline implicit operator const ITEM & () rightvalue {
 			return key ;
 		}
-
-	private:
-		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
 	} ;
 } ;
 
@@ -3583,21 +3576,13 @@ private:
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mWeight (weight) ,mLeft (left) ,mRight (right) ,mNext (next) {}
 	} ;
 
-	class Heap {
-	private:
-		friend SoftSet ;
-		Allocator<Node ,SIZE> mBuffer ;
-
-	public:
-		inline Heap () = delete ;
-
-		inline explicit Heap (const LENGTH &len)
-			:mBuffer (len) {}
+	struct HEAP_PACK {
+		AutoRef<Allocator<Node ,SIZE>> mBuffer ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanRef<Allocator<Node ,SIZE>> mSet ;
 	LENGTH mLength ;
 	INDEX mFirst ;
@@ -3615,8 +3600,9 @@ public:
 	}
 
 	explicit SoftSet (const LENGTH &len) {
-		mHeap = SharedRef<Heap>::make (len) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap->mBuffer) ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
+		mHeap->mBuffer = AutoRef<Allocator<Node ,SIZE>>::make (len) ;
+		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap->mBuffer.self) ;
 		mLength = 0 ;
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
@@ -3639,7 +3625,7 @@ public:
 	inline SoftSet share () side_effects {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
-		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer) ;
+		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer.self) ;
 		ret.mLength = 0 ;
 		ret.mFirst = VAR_NONE ;
 		ret.mLast = VAR_NONE ;
@@ -3661,19 +3647,19 @@ public:
 		return mSet.self[index].mNext ;
 	}
 
-	ArrayIterator<SoftSet> begin () {
+	ArrayIterator<SoftSet> begin () leftvalue {
 		return ArrayIterator<SoftSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<const SoftSet> begin () const {
+	ArrayIterator<const SoftSet> begin () const leftvalue {
 		return ArrayIterator<const SoftSet> (DEREF[this] ,ibegin ()) ;
 	}
 
-	ArrayIterator<SoftSet> end () {
+	ArrayIterator<SoftSet> end () leftvalue {
 		return ArrayIterator<SoftSet> (DEREF[this] ,iend ()) ;
 	}
 
-	ArrayIterator<const SoftSet> end () const {
+	ArrayIterator<const SoftSet> end () const leftvalue {
 		return ArrayIterator<const SoftSet> (DEREF[this] ,iend ()) ;
 	}
 
@@ -4000,23 +3986,21 @@ private:
 template <class ITEM ,class SIZE>
 struct SoftSet<ITEM ,SIZE>::Detail {
 	template <class BASE>
-	class Pair final
+	class Pair
 		:private Proxy {
 	public:
-		friend SoftSet ;
 		const ITEM &key ;
 		CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 	public:
 		inline Pair () = delete ;
 
+		inline explicit Pair (BASE &base ,const INDEX &index)
+			: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
+
 		inline implicit operator const ITEM & () rightvalue {
 			return key ;
 		}
-
-	private:
-		inline explicit Pair (BASE &base ,const INDEX &index)
-			: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
 	} ;
 } ;
 } ;

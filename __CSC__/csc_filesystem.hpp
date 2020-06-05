@@ -119,7 +119,7 @@ public:
 	void flush () ;
 } ;
 
-class FileSystemService final
+class FileSystemService
 	:private Proxy {
 private:
 	exports class Abstract

@@ -144,9 +144,7 @@ private:
 	//@warn: bind to (layout == 3) Vec3 in GLSL
 	static constexpr auto LAYOUT_NORMAL = CHAR (3) ;
 
-	class Pack {
-	private:
-		friend AbstractShader_Engine_OPENGL ;
+	struct SELF_PACK {
 		UniqueRef<CHAR> mVAO ;
 		UniqueRef<AutoBuffer<CHAR>> mVBO ;
 		UniqueRef<AutoBuffer<CHAR>> mVTO ;
@@ -156,7 +154,7 @@ private:
 	} ;
 
 	using NATIVE_THIS = UniqueRef<CHAR> ;
-	using SPRITE_NATIVE_THIS = Pack ;
+	using SPRITE_NATIVE_THIS = SELF_PACK ;
 
 public:
 	AbstractShader_Engine_OPENGL () {
@@ -257,7 +255,7 @@ public:
 	}
 
 	void compute_sprite_load_data (AnyRef<void> &holder ,const Mesh &mesh) const override {
-		auto tmp = Pack () ;
+		auto tmp = SELF_PACK () ;
 		tmp.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
 			api::glGenVertexArrays (1 ,DEPTR[me]) ;
 			_DYNAMIC_ASSERT_ (me != GL_INVALID_VALUE) ;
@@ -381,7 +379,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY1<ARRAY3<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY1<ARRAY3<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_POINTS ;
@@ -393,7 +391,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY2<ARRAY3<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY2<ARRAY3<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_LINES ;
@@ -405,7 +403,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY2<ARRAY5<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY2<ARRAY5<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_LINES ;
@@ -421,7 +419,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY3<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY3<ARRAY3<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
@@ -433,7 +431,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY5<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY3<ARRAY5<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
@@ -449,7 +447,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY3<ARRAY8<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY3<ARRAY8<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY8<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_TRIANGLES ;
@@ -468,7 +466,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY3<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY4<ARRAY3<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY3<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
@@ -480,7 +478,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY5<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY4<ARRAY5<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY5<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
@@ -496,7 +494,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Array<ARRAY4<ARRAY8<VAL32>>> &vbo) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Array<ARRAY4<ARRAY8<VAL32>>> &vbo) const {
 		const auto r1x = _SIZEOF_ (ARRAY8<VAL32>) ;
 		self_.mSize = vbo.length () * vbo[0].length () ;
 		self_.mMode = GL_QUADS ;
@@ -515,7 +513,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	void compute_transfer_data (Pack &self_ ,const Bitmap<COLOR_BGR> &image) const {
+	void compute_transfer_data (SELF_PACK &self_ ,const Bitmap<COLOR_BGR> &image) const {
 		self_.mTexture = 0 ;
 		api::glBindVertexArray (self_.mVAO) ;
 		api::glBindTexture (GL_TEXTURE_2D ,self_.mVTO.self[0]) ;

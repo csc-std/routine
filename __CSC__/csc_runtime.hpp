@@ -16,10 +16,9 @@
 namespace CSC {
 class TimePoint ;
 
-class Duration final
+class Duration
 	:private Proxy {
 private:
-	friend TimePoint ;
 	class Implement ;
 	StrongRef<Implement> mThis ;
 
@@ -61,7 +60,7 @@ public:
 	}
 } ;
 
-class TimePoint final
+class TimePoint
 	:private Proxy {
 private:
 	class Implement ;
@@ -93,7 +92,7 @@ public:
 	}
 } ;
 
-class Atomic final
+class Atomic
 	:private Proxy {
 private:
 	class Implement ;
@@ -133,7 +132,7 @@ public:
 	}
 } ;
 
-class Mutex final
+class Mutex
 	:private Proxy {
 private:
 	class Implement ;
@@ -153,7 +152,7 @@ public:
 	void unlock () ;
 } ;
 
-class RecursiveMutex final
+class RecursiveMutex
 	:private Proxy {
 private:
 	class Implement ;
@@ -175,10 +174,9 @@ public:
 
 class UniqueLock ;
 
-class ConditionLock final
+class ConditionLock
 	:private Proxy {
 private:
-	friend UniqueLock ;
 	class Implement ;
 	StrongRef<Implement> mThis ;
 
@@ -196,15 +194,16 @@ public:
 	}
 } ;
 
-class UniqueLock final
+class UniqueLock
 	:private Proxy {
 private:
-	friend ConditionLock ;
 	class Implement ;
 	StrongRef<Implement> mThis ;
 
 public:
 	UniqueLock () = delete ;
+
+	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
 
 	void wait () const ;
 
@@ -215,12 +214,9 @@ public:
 	void yield () const ;
 
 	void notify () const ;
-
-private:
-	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
 } ;
 
-class Thread final
+class Thread
 	:private Proxy {
 public:
 	exports class Binder
@@ -254,8 +250,8 @@ struct Thread::Detail {
 	public:
 		inline Runnable () = delete ;
 
-		inline explicit Runnable (const PhanRef<Binder> &binder) {
-			mBinder = PhanRef<Binder>::make (binder) ;
+		inline explicit Runnable (PhanRef<Binder> &&binder) {
+			mBinder = _MOVE_ (binder) ;
 		}
 
 		inline void operator() () {
@@ -264,7 +260,7 @@ struct Thread::Detail {
 	} ;
 } ;
 
-class GlobalRuntime final
+class GlobalRuntime
 	:private Wrapped<void> {
 public:
 	inline imports TimePoint clock_now () ;
@@ -327,13 +323,13 @@ struct OPERATOR_TYPENAME {
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-		const auto r4x = M_PREFIX.size () ;
-		const auto r5x = M_SUFFIX.size () ;
-		const auto r6x = ret.mName.length () - r4x - r5x ;
-		_DYNAMIC_ASSERT_ (r6x > 0) ;
-		ret.mName = ret.mName.segment (r4x ,r6x) ;
+		const auto r1x = M_PREFIX.size () ;
+		const auto r2x = M_SUFFIX.size () ;
+		const auto r3x = ret.mName.length () - r1x - r2x ;
+		_DYNAMIC_ASSERT_ (r3x > 0) ;
+		ret.mName = ret.mName.segment (r1x ,r3x) ;
 		return _MOVE_ (ret) ;
-}
+	}
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
@@ -343,13 +339,13 @@ struct OPERATOR_TYPENAME {
 		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-		const auto r7x = M_PREFIX.size () ;
-		const auto r8x = M_SUFFIX.size () ;
-		const auto r9x = ret.mName.length () - r7x - r8x ;
-		_DYNAMIC_ASSERT_ (r9x > 0) ;
-		ret.mName = ret.mName.segment (r7x ,r9x) ;
+		const auto r1x = M_PREFIX.size () ;
+		const auto r2x = M_SUFFIX.size () ;
+		const auto r3x = ret.mName.length () - r1x - r2x ;
+		_DYNAMIC_ASSERT_ (r3x > 0) ;
+		ret.mName = ret.mName.segment (r1x ,r3x) ;
 		return _MOVE_ (ret) ;
-}
+	}
 #endif
 
 	template <class _ARG1>
@@ -586,7 +582,7 @@ struct OPERATOR_TYPENAME {
 
 	template <class _RET>
 	inline static String<STR> invoke () {
-		const auto r1x = PTR<void (TextWriter<STR> &)> ([] (TextWriter<STR> &writer) {
+		const auto r1x = _FORWARD_<PTR<void (TextWriter<STR> &)>> ([] (TextWriter<STR> &writer) {
 			template_write_typename_x (writer ,_NULL_<ARGV<_RET>> ()) ;
 		}) ;
 		return String<STR>::make (r1x) ;
@@ -598,10 +594,12 @@ template <class>
 class GlobalStatic ;
 
 template <>
-class GlobalStatic<void> final
+class GlobalStatic<void>
 	:private Wrapped<void> {
 public:
-	struct Extern {
+	class Extern
+		:private Wrapped<void> {
+	public:
 		//@warn: this function should be implemented in a 'runtime.dll'
 		imports DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) side_effects> unique_atomic_address ;
 	} ;
@@ -618,10 +616,7 @@ private:
 		PTR<NONE> mValue ;
 	} ;
 
-	class Pack {
-	private:
-		template <class>
-		friend class GlobalStatic ;
+	struct SELF_PACK {
 		Atomic mCounter ;
 		Mutex mNodeMutex ;
 		Deque<VALUE_NODE> mValueList ;
@@ -633,32 +628,32 @@ private:
 private:
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<Pack ,GlobalStatic> ;
+	friend IntrusiveRef<SELF_PACK ,GlobalStatic> ;
 
 private:
-	static Pack &static_unique () side_effects {
+	static SELF_PACK &static_unique () side_effects {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = Extern::unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
+			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
+				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _FORWARD_<Pack &> (r1x) ;
+				auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
 				rax = Extern::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			auto &r4x = _LOAD_<Pack> (rax) ;
-			auto rcx = IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r4x]) ;
+			auto &r4x = _LOAD_<SELF_PACK> (rax) ;
+			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r4x]) ;
 			return rcx.watch () ;
 		}) ;
 	}
 
-	static PTR<VALUE_NODE> static_new_node (Pack &self_ ,const FLAG &guid) side_effects {
+	static PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
@@ -675,7 +670,7 @@ private:
 		return guid ;
 	}
 
-	static PTR<VALUE_NODE> static_find_node (Pack &self_ ,const FLAG &guid) side_effects {
+	static PTR<VALUE_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -683,7 +678,7 @@ private:
 		return DEPTR[self_.mValueList[ix]] ;
 	}
 
-	static PTR<CLASS_NODE> static_new_node (Pack &self_ ,const String<STR> &guid) side_effects {
+	static PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
@@ -702,7 +697,7 @@ private:
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	static PTR<CLASS_NODE> static_find_node (Pack &self_ ,const String<STR> &guid) side_effects {
+	static PTR<CLASS_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -711,34 +706,34 @@ private:
 	}
 
 private:
-	static void friend_create (Pack &self_) {
+	static void friend_create (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
-	static void friend_destroy (Pack &self_) {
+	static void friend_destroy (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mValueList = Deque<VALUE_NODE> () ;
 		self_.mClassList = Deque<CLASS_NODE> () ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) side_effects {
+	static LENGTH friend_attach (SELF_PACK &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) side_effects {
+	static LENGTH friend_detach (SELF_PACK &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
-	static void friend_latch (Pack &self_) {
+	static void friend_latch (SELF_PACK &self_) {
 		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class GUID>
-class GlobalStatic final
+class GlobalStatic
 	:private Wrapped<void> {
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
@@ -791,18 +786,16 @@ public:
 } ;
 
 template <class UNIT>
-class GlobalStatic<Singleton<UNIT>> final
+class GlobalStatic<Singleton<UNIT>>
 	:private Wrapped<void> {
 private:
-	class Pack {
-	private:
-		friend GlobalStatic ;
+	struct SELF_PACK {
 		Atomic mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
 
 private:
-	friend IntrusiveRef<Pack ,GlobalStatic> ;
+	friend IntrusiveRef<SELF_PACK ,GlobalStatic> ;
 
 public:
 	static Singleton<UNIT> &unique () side_effects {
@@ -811,45 +804,45 @@ public:
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
-			auto rbx = IntrusiveRef<Pack ,GlobalStatic> () ;
+			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<Pack ,GlobalStatic>::make () ;
+				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _FORWARD_<Pack &> (r4x) ;
+				auto &r5x = _FORWARD_<SELF_PACK &> (r4x) ;
 				auto &r6x = _LOAD_<NONE> (DEPTR[r5x]) ;
 				rax->mValue = DEPTR[r6x] ;
 			}
-			auto &r7x = _LOAD_<Pack> (rax->mValue) ;
-			auto rcx = IntrusiveRef<Pack ,GlobalStatic> (DEPTR[r7x]) ;
+			auto &r7x = _LOAD_<SELF_PACK> (rax->mValue) ;
+			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r7x]) ;
 			return rcx.watch () ;
 		}) ;
-		auto &r8x = _FORWARD_<Pack &> (r1x) ;
+		auto &r8x = _FORWARD_<SELF_PACK &> (r1x) ;
 		return r8x.mValue ;
 	}
 
 private:
-	static void friend_create (Pack &self_) {
+	static void friend_create (SELF_PACK &self_) {
 		self_.mCounter = 0 ;
 	}
 
-	static void friend_destroy (Pack &self_) {
+	static void friend_destroy (SELF_PACK &self_) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	static LENGTH friend_attach (Pack &self_) side_effects {
+	static LENGTH friend_attach (SELF_PACK &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (Pack &self_) side_effects {
+	static LENGTH friend_detach (SELF_PACK &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
-	static void friend_latch (Pack &self_) {
+	static void friend_latch (SELF_PACK &self_) {
 		GlobalRuntime::thread_yield () ;
 	}
 } ;
@@ -865,7 +858,7 @@ public:
 } ;
 #endif
 
-class RandomService final
+class RandomService
 	:private Proxy {
 private:
 	exports class Abstract

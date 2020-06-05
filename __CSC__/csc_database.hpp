@@ -25,22 +25,20 @@ private:
 		virtual void compute_load_data (AnyRef<void> &holder) const = 0 ;
 	} ;
 
-	class Pack {
-	private:
-		friend AbstractDatabase ;
+	struct SELF_PACK {
 		AnyRef<void> mHolder ;
 	} ;
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	SharedRef<Pack> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 
 public:
 	AbstractDatabase () = default ;
 
-	explicit AbstractDatabase (const PhanRef<const Abstract> &abstract_) {
-		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
-		mThis = SharedRef<Pack>::make () ;
+	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_) {
+		mAbstract = _MOVE_ (abstract_) ;
+		mThis = SharedRef<SELF_PACK>::make () ;
 	}
 
 	BOOL exist () const {

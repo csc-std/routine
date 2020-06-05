@@ -252,7 +252,6 @@ public:
 	} ;
 
 private:
-	friend AbstractSprite ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
 	Set<String<STR>> mUniformMappingSet ;
@@ -260,8 +259,8 @@ private:
 public:
 	AbstractShader () = default ;
 
-	explicit AbstractShader (const PhanRef<const Abstract> &abstract_) {
-		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
+	explicit AbstractShader (PhanRef<const Abstract> &&abstract_) {
+		mAbstract = _MOVE_ (abstract_) ;
 	}
 
 	BOOL exist () const {
@@ -390,12 +389,15 @@ public:
 	using Abstract = typename AbstractShader::Abstract ;
 
 private:
-	friend AbstractShader ;
 	PhanRef<const Abstract> mAbstract ;
 	AnyRef<void> mHolder ;
 
 public:
 	AbstractSprite () = delete ;
+
+	explicit AbstractSprite (PhanRef<const Abstract> &&abstract_) {
+		mAbstract = _MOVE_ (abstract_) ;
+	}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
@@ -420,11 +422,6 @@ public:
 		if (!exist ())
 			return ;
 		mAbstract->compute_sprite_draw (mHolder) ;
-	}
-
-private:
-	explicit AbstractSprite (const PhanRef<const Abstract> &abstract_) {
-		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
 	}
 } ;
 } ;

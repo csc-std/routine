@@ -484,23 +484,23 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 		if (rax.empty ())
 			break ;
 		INDEX ix = rax.tail () ;
-		FileSystemProc::erase_directory (rax[ix].P1) ;
+		FileSystemProc::erase_directory (rax[ix].mP1) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!rax[ix].P2)
+			if (!rax[ix].mP2)
 				discard ;
 			rax.pop () ;
 		}
 		if switch_once (fax) {
 			rbx[0].clear () ;
 			rbx[1].clear () ;
-			FileSystemProc::enum_directory (rax[ix].P1 ,rbx[0] ,rbx[1]) ;
+			FileSystemProc::enum_directory (rax[ix].mP1 ,rbx[0] ,rbx[1]) ;
 			for (auto &&i : rbx[0])
 				FileSystemProc::erase_file (i) ;
 			for (auto &&i : rbx[1])
 				rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
 			_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
-			rax[ix].P2 = TRUE ;
+			rax[ix].mP2 = TRUE ;
 		}
 	}
 }
@@ -581,9 +581,7 @@ inline exports void StreamLoader::flush () {
 
 class BufferLoader::Implement {
 private:
-	class Pack {
-	private:
-		friend Implement ;
+	struct SELF_PACK {
 		UniqueRef<api::HANDLE> mFile ;
 		UniqueRef<api::HANDLE> mMapping ;
 		UniqueRef<PhanBuffer<BYTE>> mBuffer ;
@@ -593,7 +591,7 @@ private:
 	UniqueRef<api::HANDLE> mBuildFile ;
 	UniqueRef<api::HANDLE> mBuildMapping ;
 	UniqueRef<PhanBuffer<BYTE>> mBuildBuffer ;
-	UniqueRef<Pack> mThis ;
+	UniqueRef<SELF_PACK> mThis ;
 
 public:
 	Implement () = delete ;
@@ -630,11 +628,11 @@ public:
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<Pack> ([&] (Pack &me) {
+		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 			me.mFile = _MOVE_ (mBuildFile) ;
 			me.mMapping = _MOVE_ (mBuildMapping) ;
 			me.mBuffer = _MOVE_ (mBuildBuffer) ;
-		} ,[] (Pack &me) {
+		} ,[] (SELF_PACK &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
 			me.mFile = UniqueRef<api::HANDLE> () ;
@@ -674,11 +672,11 @@ public:
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<Pack> ([&] (Pack &me) {
+		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 			me.mFile = _MOVE_ (mBuildFile) ;
 			me.mMapping = _MOVE_ (mBuildMapping) ;
 			me.mBuffer = _MOVE_ (mBuildBuffer) ;
-		} ,[] (Pack &me) {
+		} ,[] (SELF_PACK &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
 			me.mFile = UniqueRef<api::HANDLE> () ;
@@ -720,11 +718,11 @@ public:
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<Pack> ([&] (Pack &me) {
+		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 			me.mFile = _MOVE_ (mBuildFile) ;
 			me.mMapping = _MOVE_ (mBuildMapping) ;
 			me.mBuffer = _MOVE_ (mBuildBuffer) ;
-		} ,[] (Pack &me) {
+		} ,[] (SELF_PACK &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
 			me.mFile = UniqueRef<api::HANDLE> () ;
@@ -756,11 +754,11 @@ public:
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<Pack> ([&] (Pack &me) {
+		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 			me.mFile = _MOVE_ (mBuildFile) ;
 			me.mMapping = _MOVE_ (mBuildMapping) ;
 			me.mBuffer = _MOVE_ (mBuildBuffer) ;
-		} ,[] (Pack &me) {
+		} ,[] (SELF_PACK &me) {
 			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me.mMapping = UniqueRef<api::HANDLE> () ;
 			me.mFile = UniqueRef<api::HANDLE> () ;

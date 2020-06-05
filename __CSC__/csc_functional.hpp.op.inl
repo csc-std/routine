@@ -12,7 +12,7 @@ struct COMPILE_RETURN {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using COMPILE_RETURN_TYPE = CALL<COMPILE_RETURN<_ARG1 ,_ARG2>> ;
+using COMPILE_RETURN_TYPE = typename COMPILE_RETURN<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 template <class...>
@@ -321,7 +321,7 @@ struct FUN_tuple_pick ;
 
 template <class IN_tuple ,class IN_id>
 struct FUN_tuple_pick<IN_tuple ,IN_id> {
-	using tuple_argvs = CALL<IN_tuple> ;
+	using tuple_argvs = typename IN_tuple::TYPE ;
 
 	using TYPE = INDEX_TO_TYPE<IN_id ,tuple_argvs> ;
 } ;

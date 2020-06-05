@@ -36,7 +36,7 @@ struct BYTE_BASE<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
 } ;
 
 template <class _ARG1>
-using BYTE_BASE_TYPE = CALL<U::BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>> ;
+using BYTE_BASE_TYPE = typename U::BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 } ;
 
 namespace U {
@@ -59,7 +59,7 @@ struct TEXT_BASE<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
 } ;
 
 template <class _ARG1>
-using TEXT_BASE_TYPE = CALL<U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>> ;
+using TEXT_BASE_TYPE = typename U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 } ;
 
 using STRUA = U::TEXT_BASE_TYPE<STRA> ;
@@ -76,20 +76,18 @@ public:
 		virtual void friend_read (ByteReader &reader) = 0 ;
 	} ;
 
-	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
-	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
-	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+	imports DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	imports DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	imports DEF<void (const ARGV<ARGC<4>> &)> EOS ;
 
 private:
-	class Heap {
-	private:
-		friend ByteReader ;
+	struct HEAP_PACK {
 		BOOL mEndianFlag ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -100,7 +98,7 @@ public:
 	}
 
 	explicit ByteReader (const PhanBuffer<const REAL> &stream) {
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mStream = PhanBuffer<const REAL>::make (stream) ;
 		reset () ;
 	}
@@ -356,16 +354,16 @@ public:
 		scans (list_rest...) ;
 	}
 
-	void read (const PTR<decltype (CLS)> &) {
+	void read (const DEF<decltype (CLS)> &) {
 		reset () ;
 	}
 
-	inline ByteReader &operator>> (const PTR<decltype (CLS)> &proc) {
+	inline ByteReader &operator>> (const DEF<decltype (CLS)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (GAP)> &) {
+	void read (const DEF<decltype (GAP)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		auto rbx = REAL () ;
@@ -376,12 +374,12 @@ public:
 		DEREF[this] = rax.share () ;
 	}
 
-	inline ByteReader &operator>> (const PTR<decltype (GAP)> &proc) {
+	inline ByteReader &operator>> (const DEF<decltype (GAP)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (EOS)> &) {
+	void read (const DEF<decltype (EOS)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		auto rbx = REAL () ;
@@ -394,7 +392,7 @@ public:
 		DEREF[this] = rax.share () ;
 	}
 
-	inline ByteReader &operator>> (const PTR<decltype (EOS)> &proc) {
+	inline ByteReader &operator>> (const DEF<decltype (EOS)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
@@ -403,14 +401,16 @@ public:
 template <class REAL>
 struct ByteReader<REAL>::Detail {
 	template <class BASE>
-	class Attribute final
+	class Attribute
 		:private Proxy {
 	private:
-		friend ByteReader ;
 		BASE &mBase ;
 
 	public:
 		inline Attribute () = delete ;
+
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
 
 		inline REAL varify_ending_item () const {
 			return REAL (0X00) ;
@@ -419,19 +419,17 @@ struct ByteReader<REAL>::Detail {
 		inline REAL varify_space_item () const {
 			return REAL (0X00) ;
 		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
 	} ;
 } ;
 
 template <class REAL>
-inline void ByteReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+inline exports void ByteReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+
 template <class REAL>
-inline void ByteReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+inline exports void ByteReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+
 template <class REAL>
-inline void ByteReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
+inline exports void ByteReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 template <class REAL>
 class ByteWriter {
@@ -444,20 +442,18 @@ public:
 		virtual void friend_write (ByteWriter &writer) const = 0 ;
 	} ;
 
-	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
-	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
-	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+	imports DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	imports DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	imports DEF<void (const ARGV<ARGC<4>> &)> EOS ;
 
 private:
-	class Heap {
-	private:
-		friend ByteWriter ;
+	struct HEAP_PACK {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -468,13 +464,13 @@ public:
 	}
 
 	explicit ByteWriter (const PhanBuffer<REAL> &stream) {
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
 	}
 
 	explicit ByteWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mBuffer = _MOVE_ (stream) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
 		reset () ;
@@ -718,16 +714,16 @@ public:
 		prints (list_rest...) ;
 	}
 
-	void write (const PTR<decltype (CLS)> &) {
+	void write (const DEF<decltype (CLS)> &) {
 		reset () ;
 	}
 
-	inline ByteWriter &operator<< (const PTR<decltype (CLS)> &proc) {
+	inline ByteWriter &operator<< (const DEF<decltype (CLS)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<decltype (GAP)> &) {
+	void write (const DEF<decltype (GAP)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		rax << r1x.varify_space_item () ;
@@ -735,12 +731,12 @@ public:
 		DEREF[this] = rax.share () ;
 	}
 
-	inline ByteWriter &operator<< (const PTR<decltype (GAP)> &proc) {
+	inline ByteWriter &operator<< (const DEF<decltype (GAP)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<decltype (EOS)> &) {
+	void write (const DEF<decltype (EOS)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		for (auto &&i : _RANGE_ (0 ,rax.size () - rax.length ())) {
@@ -750,7 +746,7 @@ public:
 		DEREF[this] = rax.share () ;
 	}
 
-	inline ByteWriter &operator<< (const PTR<decltype (EOS)> &proc) {
+	inline ByteWriter &operator<< (const DEF<decltype (EOS)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
@@ -759,14 +755,16 @@ public:
 template <class REAL>
 struct ByteWriter<REAL>::Detail {
 	template <class BASE>
-	class Attribute final
+	class Attribute
 		:private Proxy {
 	private:
-		friend ByteWriter ;
 		BASE &mBase ;
 
 	public:
 		inline Attribute () = delete ;
+
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
 
 		inline REAL varify_ending_item () const {
 			return REAL (0X00) ;
@@ -775,19 +773,17 @@ struct ByteWriter<REAL>::Detail {
 		inline REAL varify_space_item () const {
 			return REAL (0X00) ;
 		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
 	} ;
 } ;
 
 template <class REAL>
-inline void ByteWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+inline exports void ByteWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+
 template <class REAL>
-inline void ByteWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+inline exports void ByteWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+
 template <class REAL>
-inline void ByteWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
+inline exports void ByteWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 template <class REAL>
 class TextReader {
@@ -800,15 +796,13 @@ public:
 		virtual void friend_read (TextReader &reader) = 0 ;
 	} ;
 
-	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
-	static DEF<void (const ARGV<ARGC<2>> &)> BOM ;
-	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
-	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+	imports DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	imports DEF<void (const ARGV<ARGC<2>> &)> BOM ;
+	imports DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	imports DEF<void (const ARGV<ARGC<4>> &)> EOS ;
 
 private:
-	class Heap {
-	private:
-		friend TextReader ;
+	struct HEAP_PACK {
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
 		Deque<REAL> mEscapeList ;
@@ -821,7 +815,7 @@ private:
 	template <class>
 	friend class TextReader ;
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -833,7 +827,7 @@ public:
 
 	explicit TextReader (const PhanBuffer<const REAL> &stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		r1x.enable_endian (FALSE) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<const REAL>::make (stream) ;
@@ -1174,25 +1168,25 @@ public:
 		scans (list_rest...) ;
 	}
 
-	void read (const PTR<decltype (CLS)> &) {
+	void read (const DEF<decltype (CLS)> &) {
 		reset () ;
 	}
 
-	inline TextReader &operator>> (const PTR<decltype (CLS)> &proc) {
+	inline TextReader &operator>> (const DEF<decltype (CLS)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (BOM)> &) {
+	void read (const DEF<decltype (BOM)> &) {
 		template_read_bom (_NULL_<ARGV<REAL>> ()) ;
 	}
 
-	inline TextReader &operator>> (const PTR<decltype (BOM)> &proc) {
+	inline TextReader &operator>> (const DEF<decltype (BOM)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (GAP)> &) {
+	void read (const DEF<decltype (GAP)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		auto rbx = REAL () ;
@@ -1205,12 +1199,12 @@ public:
 		}
 	}
 
-	inline TextReader &operator>> (const PTR<decltype (GAP)> &proc) {
+	inline TextReader &operator>> (const DEF<decltype (GAP)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (EOS)> &) {
+	void read (const DEF<decltype (EOS)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		auto rbx = REAL () ;
@@ -1219,7 +1213,7 @@ public:
 		DEREF[this] = rax.share () ;
 	}
 
-	inline TextReader &operator>> (const PTR<decltype (EOS)> &proc) {
+	inline TextReader &operator>> (const DEF<decltype (EOS)> &proc) {
 		read (proc) ;
 		return DEREF[this] ;
 	}
@@ -1346,13 +1340,13 @@ private:
 		auto rax = share () ;
 		auto rbx = STRU8 () ;
 		rax >> rbx ;
-		if (rbx != M_BOM.P1[0])
+		if (rbx != M_BOM.mP1[0])
 			return ;
 		rax >> rbx ;
-		if (rbx != M_BOM.P1[1])
+		if (rbx != M_BOM.mP1[1])
 			return ;
 		rax >> rbx ;
-		if (rbx != M_BOM.P1[2])
+		if (rbx != M_BOM.mP1[2])
 			return ;
 		r1x.enable_endian (FALSE) ;
 		DEREF[this] = rax.share () ;
@@ -1365,9 +1359,9 @@ private:
 		auto rax = share () ;
 		auto rbx = STRU16 () ;
 		rax >> rbx ;
-		if (!(rbx == M_BOM.P1[0] || rbx == M_BOM.P1[1]))
+		if (!(rbx == M_BOM.mP1[0] || rbx == M_BOM.mP1[1]))
 			return ;
-		const auto r2x = BOOL (rbx != M_BOM.P1[0]) ;
+		const auto r2x = BOOL (rbx != M_BOM.mP1[0]) ;
 		r1x.enable_endian (r2x) ;
 		DEREF[this] = rax.share () ;
 	}
@@ -1379,9 +1373,9 @@ private:
 		auto rax = share () ;
 		auto rbx = STRU32 () ;
 		rax >> rbx ;
-		if (!(rbx == M_BOM.P1[0] || rbx == M_BOM.P1[1]))
+		if (!(rbx == M_BOM.mP1[0] || rbx == M_BOM.mP1[1]))
 			return ;
-		const auto r2x = BOOL (rbx != M_BOM.P1[0]) ;
+		const auto r2x = BOOL (rbx != M_BOM.mP1[0]) ;
 		r1x.enable_endian (r2x) ;
 		DEREF[this] = rax.share () ;
 	}
@@ -1396,14 +1390,16 @@ private:
 template <class REAL>
 struct TextReader<REAL>::Detail {
 	template <class BASE>
-	class Attribute final
+	class Attribute
 		:private Proxy {
 	private:
-		friend TextReader ;
 		BASE &mBase ;
 
 	public:
 		inline Attribute () = delete ;
+
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
 
 		inline REAL varify_ending_item () const {
 			return REAL ('\0') ;
@@ -1490,7 +1486,7 @@ struct TextReader<REAL>::Detail {
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
-			if (mBase.mHeap->mSpaceList[ix].P2 != group)
+			if (mBase.mHeap->mSpaceList[ix].mP2 != group)
 				return FALSE ;
 			return TRUE ;
 		}
@@ -1502,8 +1498,8 @@ struct TextReader<REAL>::Detail {
 			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
 			ix = mBase.mHeap->mSpaceList.insert () ;
 			mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
-			mBase.mHeap->mSpaceList[ix].P1 = item ;
-			mBase.mHeap->mSpaceList[ix].P2 = group ;
+			mBase.mHeap->mSpaceList[ix].mP1 = item ;
+			mBase.mHeap->mSpaceList[ix].mP2 = group ;
 		}
 
 		inline BOOL varify_control (const REAL &item) const {
@@ -1514,21 +1510,20 @@ struct TextReader<REAL>::Detail {
 				return FALSE ;
 			return TRUE ;
 		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
 	} ;
 } ;
 
 template <class REAL>
-inline void TextReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+inline exports void TextReader<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+
 template <class REAL>
-inline void TextReader<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+inline exports void TextReader<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+
 template <class REAL>
-inline void TextReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+inline exports void TextReader<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+
 template <class REAL>
-inline void TextReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
+inline exports void TextReader<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 template <class REAL>
 class TextWriter {
@@ -1541,15 +1536,13 @@ public:
 		virtual void friend_write (TextWriter &writer) const = 0 ;
 	} ;
 
-	static DEF<void (const ARGV<ARGC<1>> &)> CLS ;
-	static DEF<void (const ARGV<ARGC<2>> &)> BOM ;
-	static DEF<void (const ARGV<ARGC<3>> &)> GAP ;
-	static DEF<void (const ARGV<ARGC<4>> &)> EOS ;
+	imports DEF<void (const ARGV<ARGC<1>> &)> CLS ;
+	imports DEF<void (const ARGV<ARGC<2>> &)> BOM ;
+	imports DEF<void (const ARGV<ARGC<3>> &)> GAP ;
+	imports DEF<void (const ARGV<ARGC<4>> &)> EOS ;
 
 private:
-	class Heap {
-	private:
-		friend TextWriter ;
+	struct HEAP_PACK {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 		BOOL mEscapeFlag ;
 		Deque<REAL> mEscapeList ;
@@ -1560,7 +1553,7 @@ private:
 	template <class>
 	friend class TextWriter ;
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
@@ -1572,7 +1565,7 @@ public:
 
 	explicit TextWriter (const PhanBuffer<REAL> &stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (stream) ;
 		reset () ;
@@ -1580,7 +1573,7 @@ public:
 
 	explicit TextWriter (SharedRef<FixedBuffer<REAL>> &&stream) {
 		const auto r1x = attr () ;
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mBuffer = _MOVE_ (stream) ;
 		r1x.enable_escape (FALSE) ;
 		mStream = PhanBuffer<REAL>::make (mHeap->mBuffer.self) ;
@@ -1662,8 +1655,8 @@ public:
 			REAL ('f') ,REAL ('a') ,REAL ('l') ,REAL ('s') ,REAL ('e')}) ;
 		const auto r1x = _CALL_ ([&] () {
 			if (data)
-				return PhanBuffer<const REAL>::make (M_TRUE.P1) ;
-			return PhanBuffer<const REAL>::make (M_FALSE.P1) ;
+				return PhanBuffer<const REAL>::make (M_TRUE.mP1) ;
+			return PhanBuffer<const REAL>::make (M_FALSE.mP1) ;
 		}) ;
 		write (r1x) ;
 	}
@@ -1711,21 +1704,21 @@ public:
 		if switch_once (fax) {
 			if (!MathProc::is_nan (data))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_NAN.mP1)) ;
 		}
 		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_INF.mP1)) ;
 		}
 		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_SINF.mP1)) ;
 		}
 		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
@@ -1754,21 +1747,21 @@ public:
 		if switch_once (fax) {
 			if (!MathProc::is_nan (data))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_NAN.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_NAN.mP1)) ;
 		}
 		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data > 0))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_INF.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_INF.mP1)) ;
 		}
 		if switch_once (fax) {
 			if (!MathProc::is_infinite (data))
 				discard ;
 			if (!(data < 0))
 				discard ;
-			write (PhanBuffer<const REAL>::make (M_SINF.P1)) ;
+			write (PhanBuffer<const REAL>::make (M_SINF.mP1)) ;
 		}
 		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
@@ -1868,44 +1861,44 @@ public:
 		prints (list_rest...) ;
 	}
 
-	void write (const PTR<decltype (CLS)> &) {
+	void write (const DEF<decltype (CLS)> &) {
 		reset () ;
 	}
 
-	inline TextWriter &operator<< (const PTR<decltype (CLS)> &proc) {
+	inline TextWriter &operator<< (const DEF<decltype (CLS)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<decltype (BOM)> &) {
+	void write (const DEF<decltype (BOM)> &) {
 		template_write_bom (_NULL_<ARGV<REAL>> ()) ;
 	}
 
-	inline TextWriter &operator<< (const PTR<decltype (BOM)> &proc) {
+	inline TextWriter &operator<< (const DEF<decltype (BOM)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<decltype (GAP)> &) {
+	void write (const DEF<decltype (GAP)> &) {
 		auto rax = share () ;
 		_DYNAMIC_ASSERT_ (rax.length () + 2 < rax.size ()) ;
 		rax << REAL ('\r') << REAL ('\n') ;
 		DEREF[this] = rax.share () ;
 	}
 
-	inline TextWriter &operator<< (const PTR<decltype (GAP)> &proc) {
+	inline TextWriter &operator<< (const DEF<decltype (GAP)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<decltype (EOS)> &) {
+	void write (const DEF<decltype (EOS)> &) {
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		rax << r1x.varify_ending_item () ;
 		DEREF[this] = rax.share () ;
 	}
 
-	inline TextWriter &operator<< (const PTR<decltype (EOS)> &proc) {
+	inline TextWriter &operator<< (const DEF<decltype (EOS)> &proc) {
 		write (proc) ;
 		return DEREF[this] ;
 	}
@@ -2091,7 +2084,7 @@ private:
 		static constexpr auto M_BOM = PACK<STRU8[3]> ({
 			STRU8 (0XEF) ,STRU8 (0XBB) ,STRU8 (0XBF)}) ;
 		auto rax = share () ;
-		rax << PhanBuffer<const STRU8>::make (M_BOM.P1) ;
+		rax << PhanBuffer<const STRU8>::make (M_BOM.mP1) ;
 		DEREF[this] = rax.share () ;
 	}
 
@@ -2099,7 +2092,7 @@ private:
 		static constexpr auto M_BOM = PACK<STRU16[1]> ({
 			STRU16 (0XFEFF)}) ;
 		auto rax = share () ;
-		rax << PhanBuffer<const STRU16>::make (M_BOM.P1) ;
+		rax << PhanBuffer<const STRU16>::make (M_BOM.mP1) ;
 		DEREF[this] = rax.share () ;
 	}
 
@@ -2107,7 +2100,7 @@ private:
 		static constexpr auto M_BOM = PACK<STRU32[1]> ({
 			STRU32 (0X0000FEFF)}) ;
 		auto rax = share () ;
-		rax << PhanBuffer<const STRU32>::make (M_BOM.P1) ;
+		rax << PhanBuffer<const STRU32>::make (M_BOM.mP1) ;
 		DEREF[this] = rax.share () ;
 	}
 
@@ -2121,14 +2114,16 @@ private:
 template <class REAL>
 struct TextWriter<REAL>::Detail {
 	template <class BASE>
-	class Attribute final
+	class Attribute
 		:private Proxy {
 	private:
-		friend TextWriter ;
 		BASE &mBase ;
 
 	public:
 		inline Attribute () = delete ;
+
+		inline explicit Attribute (BASE &base)
+			:mBase (base) {}
 
 		inline REAL varify_ending_item () const {
 			return REAL ('\0') ;
@@ -2202,36 +2197,40 @@ struct TextWriter<REAL>::Detail {
 				return FALSE ;
 			return TRUE ;
 		}
-
-	private:
-		inline explicit Attribute (BASE &base)
-			:mBase (base) {}
 	} ;
 } ;
 
 template <class REAL>
-inline void TextWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+inline exports void TextWriter<REAL>::CLS (const ARGV<ARGC<1>> &) {}
+
 template <class REAL>
-inline void TextWriter<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+inline exports void TextWriter<REAL>::BOM (const ARGV<ARGC<2>> &) {}
+
 template <class REAL>
-inline void TextWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+inline exports void TextWriter<REAL>::GAP (const ARGV<ARGC<3>> &) {}
+
 template <class REAL>
-inline void TextWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
+inline exports void TextWriter<REAL>::EOS (const ARGV<ARGC<4>> &) {}
 
 class RegularReader {
 public:
-	static DEF<void (const ARGV<ARGC<1>> &)> HINT_IDENTIFIER ;
-	static DEF<void (const ARGV<ARGC<2>> &)> HINT_VALUE ;
-	static DEF<void (const ARGV<ARGC<3>> &)> HINT_STRING ;
-	static DEF<void (const ARGV<ARGC<4>> &)> HINT_NEWGAP ;
-	static DEF<void (const ARGV<ARGC<5>> &)> HINT_NEWLINE ;
-	static DEF<void (const ARGV<ARGC<6>> &)> SKIP_GAP ;
-	static DEF<void (const ARGV<ARGC<7>> &)> SKIP_GAP_SPACE ;
-	static DEF<void (const ARGV<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
-	static DEF<void (const ARGV<ARGC<9>> &)> SKIP_LINE ;
+	imports DEF<void (const ARGV<ARGC<1>> &)> HINT_IDENTIFIER ;
+	imports DEF<void (const ARGV<ARGC<2>> &)> HINT_VALUE ;
+	imports DEF<void (const ARGV<ARGC<3>> &)> HINT_STRING ;
+	imports DEF<void (const ARGV<ARGC<4>> &)> HINT_NEWGAP ;
+	imports DEF<void (const ARGV<ARGC<5>> &)> HINT_NEWLINE ;
+	imports DEF<void (const ARGV<ARGC<6>> &)> SKIP_GAP ;
+	imports DEF<void (const ARGV<ARGC<7>> &)> SKIP_GAP_SPACE ;
+	imports DEF<void (const ARGV<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
+	imports DEF<void (const ARGV<ARGC<9>> &)> SKIP_LINE ;
 
 private:
-	AutoRef<TextReader<STRU8>> mShareReader ;
+	struct HEAP_PACK {
+		TextReader<STRU8> mReader ;
+	} ;
+
+private:
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanRef<TextReader<STRU8>> mReader ;
 	Array<STRU8> mCache ;
 	INDEX mPeek ;
@@ -2245,9 +2244,8 @@ public:
 		mHintNextTextSize = 0 ;
 	}
 
-	explicit RegularReader (const PhanRef<TextReader<STRU8>> &reader ,const LENGTH &ll_len) {
-		_DEBUG_ASSERT_ (reader.exist ()) ;
-		mReader = PhanRef<TextReader<STRU8>>::make (reader) ;
+	explicit RegularReader (PhanRef<TextReader<STRU8>> &&reader ,const LENGTH &ll_len) {
+		mReader = _MOVE_ (reader) ;
 		const auto r1x = mReader->attr () ;
 		r1x.modify_space (STRU8 (' ') ,1) ;
 		r1x.modify_space (STRU8 ('\t') ,1) ;
@@ -2277,8 +2275,9 @@ public:
 
 	RegularReader share () side_effects {
 		RegularReader ret ;
-		ret.mShareReader = AutoRef<TextReader<STRU8>>::make (mReader->share ()) ;
-		ret.mReader = PhanRef<TextReader<STRU8>>::make (ret.mShareReader.self) ;
+		ret.mHeap = SharedRef<HEAP_PACK>::make () ;
+		ret.mHeap->mReader = mReader->share () ;
+		ret.mReader = PhanRef<TextReader<STRU8>>::make (ret.mHeap->mReader) ;
 		ret.mCache = mCache ;
 		ret.mPeek = mPeek ;
 		ret.mHintStringTextFlag = FALSE ;
@@ -2324,57 +2323,57 @@ public:
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (HINT_IDENTIFIER)> &) {
+	void read (const DEF<decltype (HINT_IDENTIFIER)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_identifier_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_IDENTIFIER)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (HINT_IDENTIFIER)> &) {
 		read (HINT_IDENTIFIER) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (HINT_VALUE)> &) {
+	void read (const DEF<decltype (HINT_VALUE)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_value_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_VALUE)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (HINT_VALUE)> &) {
 		read (HINT_VALUE) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (HINT_STRING)> &) {
+	void read (const DEF<decltype (HINT_STRING)> &) {
 		mHintStringTextFlag = TRUE ;
 		mHintNextTextSize = next_string_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_STRING)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (HINT_STRING)> &) {
 		read (HINT_STRING) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (HINT_NEWGAP)> &) {
+	void read (const DEF<decltype (HINT_NEWGAP)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newgap_text_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWGAP)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (HINT_NEWGAP)> &) {
 		read (HINT_NEWGAP) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (HINT_NEWLINE)> &) {
+	void read (const DEF<decltype (HINT_NEWLINE)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = next_newline_text_size () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (HINT_NEWLINE)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (HINT_NEWLINE)> &) {
 		read (HINT_NEWLINE) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (SKIP_GAP)> &) {
+	void read (const DEF<decltype (SKIP_GAP)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
 			if (!r1x.varify_space (get (0)))
@@ -2383,12 +2382,12 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (SKIP_GAP)> &) {
 		read (SKIP_GAP) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (SKIP_GAP_SPACE)> &) {
+	void read (const DEF<decltype (SKIP_GAP_SPACE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
 			if (!r1x.varify_space (get (0) ,1))
@@ -2397,12 +2396,12 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_SPACE)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (SKIP_GAP_SPACE)> &) {
 		read (SKIP_GAP_SPACE) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
+	void read (const DEF<decltype (SKIP_GAP_ENDLINE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
 			if (!r1x.varify_space (get (0) ,2))
@@ -2411,12 +2410,12 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_GAP_ENDLINE)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (SKIP_GAP_ENDLINE)> &) {
 		read (SKIP_GAP_ENDLINE) ;
 		return DEREF[this] ;
 	}
 
-	void read (const PTR<decltype (SKIP_LINE)> &) {
+	void read (const DEF<decltype (SKIP_LINE)> &) {
 		auto rax = STRU8 () ;
 		while (TRUE) {
 			rax = get (0) ;
@@ -2433,7 +2432,7 @@ public:
 		read () ;
 	}
 
-	inline RegularReader &operator>> (const PTR<decltype (SKIP_LINE)> &) {
+	inline RegularReader &operator>> (const DEF<decltype (SKIP_LINE)> &) {
 		read (SKIP_LINE) ;
 		return DEREF[this] ;
 	}
@@ -2628,13 +2627,21 @@ private:
 	}
 } ;
 
-inline void RegularReader::HINT_IDENTIFIER (const ARGV<ARGC<1>> &) {}
-inline void RegularReader::HINT_VALUE (const ARGV<ARGC<2>> &) {}
-inline void RegularReader::HINT_STRING (const ARGV<ARGC<3>> &) {}
-inline void RegularReader::HINT_NEWGAP (const ARGV<ARGC<4>> &) {}
-inline void RegularReader::HINT_NEWLINE (const ARGV<ARGC<5>> &) {}
-inline void RegularReader::SKIP_GAP (const ARGV<ARGC<6>> &) {}
-inline void RegularReader::SKIP_GAP_SPACE (const ARGV<ARGC<7>> &) {}
-inline void RegularReader::SKIP_GAP_ENDLINE (const ARGV<ARGC<8>> &) {}
-inline void RegularReader::SKIP_LINE (const ARGV<ARGC<9>> &) {}
+inline exports void RegularReader::HINT_IDENTIFIER (const ARGV<ARGC<1>> &) {}
+
+inline exports void RegularReader::HINT_VALUE (const ARGV<ARGC<2>> &) {}
+
+inline exports void RegularReader::HINT_STRING (const ARGV<ARGC<3>> &) {}
+
+inline exports void RegularReader::HINT_NEWGAP (const ARGV<ARGC<4>> &) {}
+
+inline exports void RegularReader::HINT_NEWLINE (const ARGV<ARGC<5>> &) {}
+
+inline exports void RegularReader::SKIP_GAP (const ARGV<ARGC<6>> &) {}
+
+inline exports void RegularReader::SKIP_GAP_SPACE (const ARGV<ARGC<7>> &) {}
+
+inline exports void RegularReader::SKIP_GAP_ENDLINE (const ARGV<ARGC<8>> &) {}
+
+inline exports void RegularReader::SKIP_LINE (const ARGV<ARGC<9>> &) {}
 } ;

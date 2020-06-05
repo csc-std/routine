@@ -1044,23 +1044,21 @@ private:
 template <class REAL>
 struct Matrix<REAL>::Detail {
 	template <class BASE>
-	class Row final
+	class Row
 		:private Proxy {
 	private:
-		friend Matrix ;
 		BASE &mBase ;
 		INDEX mY ;
 
 	public:
 		inline Row () = delete ;
 
+		inline explicit Row (BASE &base ,const INDEX &y)
+			: mBase (base) ,mY (y) {}
+
 		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
-
-	private:
-		inline explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
 	} ;
 } ;
 } ;

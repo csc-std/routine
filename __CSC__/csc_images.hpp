@@ -12,7 +12,7 @@
 
 namespace CSC {
 template <class SIZE>
-class ArrayRange final
+class ArrayRange
 	:private Proxy {
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
@@ -57,16 +57,18 @@ private:
 
 template <class SIZE>
 struct ArrayRange<SIZE>::Detail {
-	class Iterator final
+	class Iterator
 		:private Proxy {
 	private:
-		friend ArrayRange ;
 		const ArrayRange &mBase ;
 		INDEX mIndex ;
 		Array<LENGTH ,SIZE> mItem ;
 
 	public:
 		inline Iterator () = delete ;
+
+		inline explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
+			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
 		inline BOOL operator!= (const Iterator &that) const {
 			return BOOL (mIndex != that.mIndex) ;
@@ -80,10 +82,6 @@ struct ArrayRange<SIZE>::Detail {
 			mIndex++ ;
 			template_incrase (_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
 		}
-
-	private:
-		inline explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
-			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
 	private:
 		inline void template_incrase (const ARGV<ZERO> &) {
@@ -106,16 +104,14 @@ struct ArrayRange<SIZE>::Detail {
 template <class UNIT>
 class Bitmap {
 private:
-	class Heap {
-	private:
-		friend Bitmap ;
+	struct HEAP_PACK {
 		SharedRef<FixedBuffer<UNIT>> mBuffer ;
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
 private:
 	struct Detail ;
-	SharedRef<Heap> mHeap ;
+	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -137,7 +133,7 @@ public:
 		_DEBUG_ASSERT_ (cy_ >= 0) ;
 		_DEBUG_ASSERT_ (cx_ <= cw_) ;
 		_DEBUG_ASSERT_ (ck_ >= 0) ;
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		const auto r1x = cy_ * cw_ + ck_ ;
 		mHeap->mBuffer = SharedRef<FixedBuffer<UNIT>>::make (r1x) ;
 		mHeap->mWidth[0] = cx_ ;
@@ -150,7 +146,7 @@ public:
 	}
 
 	explicit Bitmap (const PhanBuffer<UNIT> &image) {
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
@@ -161,7 +157,7 @@ public:
 	}
 
 	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
-		mHeap = SharedRef<Heap>::make () ;
+		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mBuffer = _MOVE_ (image) ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
@@ -585,23 +581,21 @@ public:
 template <class UNIT>
 struct Bitmap<UNIT>::Detail {
 	template <class BASE>
-	class Row final
+	class Row
 		:private Proxy {
 	private:
-		friend Bitmap ;
 		BASE &mBase ;
 		INDEX mY ;
 
 	public:
 		inline Row () = delete ;
 
+		inline explicit Row (BASE &base ,const INDEX &y)
+			: mBase (base) ,mY (y) {}
+
 		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
-
-	private:
-		inline explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
 	} ;
 } ;
 
@@ -648,9 +642,7 @@ public:
 	} ;
 
 private:
-	class Pack {
-	private:
-		friend AbstractImage ;
+	struct SELF_PACK {
 		AnyRef<void> mHolder ;
 		PhanBuffer<UNIT> mImage ;
 		LENGTH mCX ;
@@ -662,14 +654,14 @@ private:
 private:
 	struct Detail ;
 	PhanRef<const Abstract> mAbstract ;
-	SharedRef<Pack> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 
 public:
 	AbstractImage () = default ;
 
-	explicit AbstractImage (const PhanRef<const Abstract> &abstract_) {
-		mAbstract = PhanRef<const Abstract>::make (abstract_) ;
-		mThis = SharedRef<Pack>::make () ;
+	explicit AbstractImage (PhanRef<const Abstract> &&abstract_) {
+		mAbstract = _MOVE_ (abstract_) ;
+		mThis = SharedRef<SELF_PACK>::make () ;
 	}
 
 	BOOL exist () const {
@@ -841,49 +833,45 @@ private:
 template <class UNIT>
 struct AbstractImage<UNIT>::Detail {
 	template <class BASE>
-	class Row final
+	class Row
 		:private Proxy {
 	private:
-		friend AbstractImage ;
 		BASE &mBase ;
 		INDEX mY ;
 
 	public:
 		inline Row () = delete ;
 
+		inline explicit Row (BASE &base ,const INDEX &y)
+			: mBase (base) ,mY (y) {}
+
 		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
 			return mBase.get (mY ,x) ;
 		}
-
-	private:
-		inline explicit Row (BASE &base ,const INDEX &y)
-			: mBase (base) ,mY (y) {}
 	} ;
 
 	template <class UNIT_>
-	class NativeProxy final
+	class NativeProxy
 		:private Proxy {
 	private:
-		friend AbstractImage ;
 		UniqueRef<AbstractImage> mBase ;
 
 	public:
 		inline NativeProxy () = delete ;
 
-		inline implicit operator UNIT_ & () const leftvalue {
-			_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
-			_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
-			_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
-			return mBase->mThis->mHolder.template rebind<UNIT_> ().self ;
-		}
-
-	private:
 		inline explicit NativeProxy (AbstractImage &&base) {
 			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
 				me = _MOVE_ (base) ;
 			} ,[] (AbstractImage &me) {
 				me.update_layout () ;
 			}) ;
+		}
+
+		inline implicit operator UNIT_ & () const leftvalue {
+			_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
+			_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
+			_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
+			return mBase->mThis->mHolder.template rebind<UNIT_> ().self ;
 		}
 	} ;
 } ;

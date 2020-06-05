@@ -22,7 +22,7 @@
 #include "csc_database.hpp"
 
 namespace CSC {
-class ConsoleService final
+class ConsoleService
 	:private Proxy {
 public:
 	static constexpr auto OPTION_DEFAULT = EFLAG (0) ;
@@ -204,7 +204,7 @@ struct ConsoleService::Detail {
 	} ;
 } ;
 
-class DebuggerService final
+class DebuggerService
 	:private Proxy {
 private:
 	exports class Abstract

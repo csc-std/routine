@@ -10,10 +10,12 @@
 
 namespace CSC {
 #ifdef __CSC_UNITTEST__
-class GlobalWatch final
+class GlobalWatch
 	:private Wrapped<void> {
 public:
-	struct Extern {
+	class Extern
+		:private Wrapped<void> {
+	public:
 		imports DEF<void (const Exception &)> done ;
 	} ;
 
@@ -39,7 +41,7 @@ public:
 
 struct GlobalWatch::Detail {
 	template <class UNIT>
-	class WatchInterface final
+	class WatchInterface
 		:private Interface {
 	private:
 		friend GlobalWatch ;
@@ -53,7 +55,7 @@ struct GlobalWatch::Detail {
 			mName = NULL ;
 			mAddress = NULL ;
 			mTypeMID = 0 ;
-			const auto r1x = PTR<void (UNIT &)> ([] (UNIT &) {}) ;
+			const auto r1x = _FORWARD_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 			mWatch = r1x ;
 		} ;
 	} ;
@@ -64,7 +66,7 @@ template <class>
 class GlobalStatic ;
 
 template <class UNIT>
-class Singleton final
+class Singleton
 	:private Proxy {
 	_STATIC_ASSERT_ (stl::is_class<UNIT>::value) ;
 	_STATIC_ASSERT_ (!stl::is_default_constructible<UNIT>::value) ;
@@ -84,9 +86,7 @@ private:
 	} ;
 
 private:
-	friend UNIT ;
-	template <class>
-	friend class GlobalStatic ;
+	friend GlobalStatic<Singleton> ;
 	AutoRef<Holder> mHolder ;
 
 private:
@@ -661,7 +661,7 @@ inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) {
 } ;
 
 template <class... UNITS>
-class Variant {
+class Variant final {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 
@@ -719,7 +719,7 @@ public:
 
 	inline Variant &operator= (const Variant &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Variant () ;
 			new (this) Variant (_MOVE_ (that)) ;
@@ -737,7 +737,7 @@ public:
 
 	inline Variant &operator= (Variant &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~Variant () ;
 			new (this) Variant (_MOVE_ (that)) ;
@@ -971,7 +971,7 @@ public:
 	inline Tuple () = default ;
 
 	inline LENGTH capacity () const {
-		return 0 ;
+		return _CAPACITYOF_ (ARGVS<>) ;
 	}
 
 	inline BOOL equal (const Tuple &that) const {
@@ -1013,8 +1013,6 @@ class Tuple<UNIT1 ,UNITS...>
 	_STATIC_ASSERT_ (!stl::is_rvalue_reference<UNIT1>::value) ;
 
 private:
-	template <class...>
-	friend class Tuple ;
 	UNIT1 mValue ;
 
 public:
@@ -1024,8 +1022,7 @@ public:
 		:Tuple<UNITS...> (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (_FORWARD_<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
 
 	inline LENGTH capacity () const {
-		auto &r1x = rest () ;
-		return 1 + r1x.capacity () ;
+		return _CAPACITYOF_ (ARGVS<UNIT1 ,UNITS...>) ;
 	}
 
 	inline UNIT1 &one () leftvalue {
@@ -1126,18 +1123,16 @@ class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_
 	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
-	AutoRef<Tuple<REMOVE_CVR_TYPE<UNITS_>...>> mParameter ;
+	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
 	inline ImplHolder () = delete ;
 
-	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter) {
-		mFunctor = Function<UNIT1 (UNITS... ,UNITS_...)> (func) ;
-		mParameter = AutoRef<Tuple<REMOVE_CVR_TYPE<UNITS_>...>>::make (parameter...) ;
-	}
+	inline explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
+		:mFunctor (func) ,mParameter (parameter...) {}
 
 	inline UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter.self ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return template_invoke (mParameter ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
 	}
 
 private:
@@ -1158,7 +1153,7 @@ template <class...>
 class AnyOfTuple ;
 
 template <class... UNITS>
-class AllOfTuple final
+class AllOfTuple
 	:private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
@@ -1293,7 +1288,7 @@ private:
 } ;
 
 template <class... UNITS>
-class AnyOfTuple final
+class AnyOfTuple
 	:private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
@@ -1436,12 +1431,7 @@ class WeakRef ;
 template <>
 class WeakRef<void> {
 private:
-	class Pack {
-	private:
-		template <class>
-		friend class StrongRef ;
-		template <class>
-		friend class WeakRef ;
+	struct SELF_PACK {
 		AnyRef<void> mHolder ;
 		LENGTH mCounter ;
 	} ;
@@ -1451,7 +1441,7 @@ private:
 	friend class StrongRef ;
 	template <class>
 	friend class WeakRef ;
-	SharedRef<Pack> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 } ;
 
 namespace U {
@@ -1481,15 +1471,16 @@ struct OPERATOR_RECAST {
 } ;
 
 template <class UNIT>
-class StrongRef {
+class StrongRef final {
 private:
-	using Pack = typename WeakRef<void>::Pack ;
+	using SELF_PACK = typename WeakRef<void>::SELF_PACK ;
 
 private:
 	template <class>
 	friend class StrongRef ;
-	friend WeakRef<UNIT> ;
-	SharedRef<Pack> mThis ;
+	template <class>
+	friend class WeakRef ;
+	SharedRef<SELF_PACK> mThis ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1530,7 +1521,7 @@ public:
 
 	inline StrongRef &operator= (const StrongRef &that) {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~StrongRef () ;
 			new (this) StrongRef (_MOVE_ (that)) ;
@@ -1546,7 +1537,7 @@ public:
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~StrongRef () ;
 			new (this) StrongRef (_MOVE_ (that)) ;
@@ -1622,7 +1613,7 @@ public:
 public:
 	template <class... _ARGS>
 	inline static StrongRef make (_ARGS &&...initval) {
-		auto tmp = SharedRef<Pack>::make () ;
+		auto tmp = SharedRef<SELF_PACK>::make () ;
 		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
 		tmp->mCounter = 0 ;
 		auto &r1x = tmp->mHolder.rebind<UNIT> ().self ;
@@ -1633,7 +1624,7 @@ private:
 	inline explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	inline explicit StrongRef (SharedRef<Pack> &&this_ ,const PTR<UNIT> &pointer) noexcept
+	inline explicit StrongRef (SharedRef<SELF_PACK> &&this_ ,const PTR<UNIT> &pointer) noexcept
 		:StrongRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
@@ -1648,10 +1639,10 @@ private:
 template <class UNIT>
 class WeakRef {
 private:
-	using Pack = typename WeakRef<void>::Pack ;
+	using SELF_PACK = typename WeakRef<void>::SELF_PACK ;
 
 private:
-	SharedRef<Pack> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1728,7 +1719,7 @@ public:
 
 #ifdef __CSC_DEPRECATED__
 template <class UNIT>
-class SoftRef {
+class SoftRef final {
 public:
 	inline SoftRef () {
 		_STATIC_WARNING_ ("unimplemented") ;
@@ -1738,10 +1729,9 @@ public:
 #endif
 
 template <class UNIT ,class CONT>
-class IntrusiveRef {
+class IntrusiveRef final {
 private:
 	struct Detail ;
-	friend ScopedGuard<IntrusiveRef> ;
 	stl::atomic<PTR<UNIT>> mPointer ;
 	stl::atomic<LENGTH> mLatch ;
 
@@ -1783,7 +1773,7 @@ public:
 
 	inline IntrusiveRef &operator= (IntrusiveRef &&that) noexcept {
 		if switch_once (TRUE) {
-			if (this == &that)
+			if (this == DEPTR[that])
 				discard ;
 			DEREF[this].~IntrusiveRef () ;
 			new (this) IntrusiveRef (_MOVE_ (that)) ;
@@ -1878,22 +1868,15 @@ private:
 
 template <class UNIT ,class CONT>
 struct IntrusiveRef<UNIT ,CONT>::Detail {
-	class WatchProxy final
+	class WatchProxy
 		:private Proxy {
 	private:
-		friend IntrusiveRef ;
 		UniqueRef<IntrusiveRef> mBase ;
 		PTR<UNIT> mPointer ;
 
 	public:
 		inline WatchProxy () = delete ;
 
-		inline implicit operator UNIT & () const leftvalue {
-			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-			return DEREF[r1x] ;
-		}
-
-	private:
 		inline explicit WatchProxy (IntrusiveRef &&base ,const PTR<UNIT> &pointer) {
 			mBase = UniqueRef<IntrusiveRef> ([&] (IntrusiveRef &me) {
 				me = _MOVE_ (base) ;
@@ -1901,6 +1884,11 @@ struct IntrusiveRef<UNIT ,CONT>::Detail {
 				_STATIC_WARNING_ ("noop") ;
 			}) ;
 			mPointer = pointer ;
+		}
+
+		inline implicit operator UNIT & () const leftvalue {
+			const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+			return DEREF[r1x] ;
 		}
 	} ;
 
@@ -1941,15 +1929,13 @@ private:
 		alignas (8) PTR<struct HEADER> mCurr ;
 	} ;
 
-	class Pack {
-	private:
-		friend MemoryPool ;
+	struct SELF_PACK {
 		AutoBuffer<StrongRef<Holder>> mPool ;
 	} ;
 
 private:
 	struct Detail ;
-	UniqueRef<Pack> mThis ;
+	UniqueRef<SELF_PACK> mThis ;
 
 public:
 	inline MemoryPool () {
@@ -2118,7 +2104,7 @@ struct MemoryPool::Detail {
 			const auto r1x = mFree ;
 			mFree = r1x->mNext ;
 			mLength += SIZE::value ;
-			const auto r2x = VAR_USED ;	
+			const auto r2x = VAR_USED ;
 			r1x->mNext = _BITWISE_CAST_<PTR<BLOCK>> (r2x) ;
 			return DEPTR[r1x->mFlexData] ;
 		}
@@ -2264,7 +2250,7 @@ inline exports void MemoryPool::initialize () {
 	using ImplHolder120 = typename Detail::template ImplHolder<ARGC<120> ,ARGC<4>> ;
 	using ImplHolder128 = typename Detail::template ImplHolder<ARGC<128> ,ARGC<4>> ;
 	using HugeHolder = typename Detail::HugeHolder ;
-	mThis = UniqueRef<Pack> ([&] (Pack &me) {
+	mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
 		me.mPool[0] = StrongRef<ImplHolder8>::make () ;
 		me.mPool[1] = StrongRef<ImplHolder16>::make () ;
@@ -2283,7 +2269,7 @@ inline exports void MemoryPool::initialize () {
 		me.mPool[14] = StrongRef<ImplHolder120>::make () ;
 		me.mPool[15] = StrongRef<ImplHolder128>::make () ;
 		me.mPool[16] = StrongRef<HugeHolder>::make () ;
-	} ,[] (Pack &me) {
+	} ,[] (SELF_PACK &me) {
 		for (auto &&i : _RANGE_ (0 ,me.mPool.size ()))
 			me.mPool[i]->clear () ;
 	}) ;
@@ -2333,7 +2319,6 @@ public:
 struct Object::Detail {
 	class Metadata {
 	private:
-		friend Object ;
 		LENGTH mObjectSize ;
 		LENGTH mObjectAlign ;
 		FLAG mObjectTypeMID ;
@@ -2375,7 +2360,7 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	exports class Binder
+	exports class Holder
 		:public Interface {
 	public:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
@@ -2383,53 +2368,53 @@ private:
 
 private:
 	struct Detail ;
-	StrongRef<const Binder> mBinder ;
+	StrongRef<Holder> mHolder ;
 
 public:
 	inline Serializer () = delete ;
 
 	template <class... _ARGS>
 	inline explicit Serializer (const ARGV<ARGVS<_ARGS...>> &) {
-		using ImplBinder = typename Detail::template ImplBinder<_ARGS...> ;
+		using ImplHolder = typename Detail::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		mBinder = StrongRef<const ImplBinder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		mHolder = StrongRef<ImplHolder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
 	inline DEF<typename Detail::Member> operator() (CONT &context_) const side_effects {
 		using Member = typename Detail::Member ;
-		_DEBUG_ASSERT_ (mBinder.exist ()) ;
+		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		return Member (DEREF[this] ,context_) ;
 	}
 } ;
 
 template <class UNIT ,class CONT>
 struct Serializer<UNIT ,CONT>::Detail {
-	class Member final
+	class Member
 		:private Proxy {
 	private:
-		friend Serializer ;
 		const Serializer &mBase ;
 		CONT &mContext ;
 
 	public:
 		inline Member () = delete ;
 
-		inline void friend_visit (UNIT &visitor) {
-			mBase.mBinder->compute_visit (visitor ,mContext) ;
-		}
-
-	private:
 		inline explicit Member (const Serializer &base ,CONT &context_)
 			: mBase (base) ,mContext (context_) {}
+
+		inline void friend_visit (UNIT &visitor) {
+			mBase.mHolder->compute_visit (visitor ,mContext) ;
+		}
 	} ;
 
 	template <class... UNITS_>
-	class ImplBinder
-		:public Binder {
+	class ImplHolder
+		:public Holder {
 	public:
-		inline ImplBinder () = delete ;
+		inline ImplHolder () = delete ;
 
-		inline explicit ImplBinder (const ARGV<ARGVS<UNITS_...>> &) {}
+		inline explicit ImplHolder (const ARGV<ARGVS<UNITS_...>> &) {
+			_STATIC_WARNING_ ("noop") ;
+		}
 
 		inline void compute_visit (UNIT &visitor ,CONT &context_) const override {
 			template_visit (visitor ,context_ ,_NULL_<ARGV<ARGVS<UNITS_...>>> ()) ;
