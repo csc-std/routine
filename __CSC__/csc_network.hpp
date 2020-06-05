@@ -33,8 +33,8 @@ public:
 
 	String<STRU8> peer_sock_name () const ;
 
-	template <class _RET = NONE>
-	DEPENDENT_TYPE<Listener ,_RET> listener () side_effects {
+	template <class _DEP = NONE>
+	DEPENDENT_TYPE<Listener ,_DEP> listener () side_effects {
 		struct Dependent ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return DEPENDENT_TYPE<Listener ,Dependent> (mThis) ;

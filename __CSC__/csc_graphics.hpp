@@ -377,8 +377,8 @@ public:
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
 
-	template <class _RET = NONE>
-	DEPENDENT_TYPE<AbstractSprite ,_RET> create_sprite () side_effects {
+	template <class _DEP = NONE>
+	DEPENDENT_TYPE<AbstractSprite ,_DEP> create_sprite () side_effects {
 		struct Dependent ;
 		return DEPENDENT_TYPE<AbstractSprite ,Dependent> (mAbstract) ;
 	}

@@ -217,6 +217,7 @@ inline exports void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL>
 template <class REAL>
 class DijstraAlgorithm {
 private:
+	struct Detail ;
 	Array<INDEX> mPrev ;
 	Array<REAL> mDistance ;
 	INDEX mRoot ;
@@ -258,8 +259,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
-	class Lambda
+struct DijstraAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		DijstraAlgorithm &mContext ;
@@ -273,7 +274,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		BitSet<> mYVisit ;
 
 	public:
-		inline explicit Lambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,const INDEX &root_)
+		explicit InitializeLambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,const INDEX &root_)
 			: mContext (context_) ,mAdjacency (adjancency) ,mRoot (root_) {}
 
 		inline void operator() () {
@@ -283,7 +284,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mPrev = Array<INDEX> (mAdjacency.cx ()) ;
 			mPrev.fill (VAR_NONE) ;
 			mDistance = Array<REAL> (mAdjacency.cx ()) ;
@@ -295,7 +296,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			mYVisit = BitSet<> (mAdjacency.cy ()) ;
 		}
 
-		inline void generate () {
+		void generate () {
 			while (TRUE) {
 				if (mPriority.empty ())
 					break ;
@@ -305,7 +306,7 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			}
 		}
 
-		inline void update_distance (const INDEX &y) {
+		void update_distance (const INDEX &y) {
 			if (mYVisit[y])
 				return ;
 			mYVisit[y] = TRUE ;
@@ -325,18 +326,25 @@ inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			}
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mPrev = _MOVE_ (mPrev) ;
 			mContext.mDistance = _MOVE_ (mDistance) ;
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,adjacency ,root_)) ;
+} ;
+
+template <class REAL>
+inline exports void DijstraAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,root_)) ;
 }
 
 template <class REAL>
 class KMeansAlgorithm {
 private:
+	struct Detail ;
 	Deque<BitSet<>> mClusterList ;
 
 public:
@@ -357,8 +365,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
-	class Lambda
+struct KMeansAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		KMeansAlgorithm &mContext ;
@@ -376,7 +384,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		ARRAY3<REAL> mConvergence ;
 
 	public:
-		inline explicit Lambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center)
+		explicit InitializeLambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center)
 			: mContext (context_) ,mDistanceFunc (distance) ,mDataSet (dataset) ,mCenter (center) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
@@ -386,7 +394,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mCurrCenterList = SoftList<REAL> (mCenter.length ()) ;
 			mNextCenterList = SoftList<REAL> (mCenter.length ()) ;
 			mCurrCenterList.appand (mCenter) ;
@@ -396,7 +404,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			mConvergence.fill (mInfinity) ;
 		}
 
-		inline void generate () {
+		void generate () {
 			while (TRUE) {
 				update_cluster_set () ;
 				update_convergence () ;
@@ -406,7 +414,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			}
 		}
 
-		inline void update_cluster_set () {
+		void update_cluster_set () {
 			mClusterList.clear () ;
 			mClusterMappingSet.clear () ;
 			for (auto &&i : mDataSet) {
@@ -429,7 +437,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			}
 		}
 
-		inline INDEX closest_center_of_point (const REAL &point) const {
+		INDEX closest_center_of_point (const REAL &point) const {
 			INDEX ret = VAR_NONE ;
 			auto rax = REAL () ;
 			for (auto &&i : mCurrCenterList) {
@@ -443,7 +451,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			return _MOVE_ (ret) ;
 		}
 
-		inline REAL average_center (const BitSet<> &cluster) const {
+		REAL average_center (const BitSet<> &cluster) const {
 			REAL ret = REAL (0) ;
 			const auto r1x = cluster.length () ;
 			_DEBUG_ASSERT_ (r1x != 0) ;
@@ -453,7 +461,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			return _MOVE_ (ret) ;
 		}
 
-		inline void update_convergence () {
+		void update_convergence () {
 			INDEX ix = mConvergence.length () - 1 ;
 			for (auto &&i : _RANGE_ (0 ,ix))
 				mConvergence[i] = mConvergence[i + 1] ;
@@ -467,7 +475,7 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			}
 		}
 
-		inline BOOL reach_convergence () const {
+		BOOL reach_convergence () const {
 			INDEX ix = mConvergence.length () - 1 ;
 			for (auto &&i : _RANGE_ (0 ,ix))
 				if (mConvergence[i] > mConvergence[i + 1])
@@ -477,23 +485,30 @@ inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset 
 			return TRUE ;
 		}
 
-		inline void update_center_list () {
+		void update_center_list () {
 			mCurrCenterList.clear () ;
 			mCurrCenterList.appand (mNextCenterList) ;
 			mNextCenterList.clear () ;
 			mCenterMoveSet.clear () ;
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mClusterList = _MOVE_ (mClusterList) ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,dataset ,distance ,center)) ;
+} ;
+
+template <class REAL>
+inline exports void KMeansAlgorithm<REAL>::initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,dataset ,distance ,center)) ;
 }
 
 template <class REAL>
 class KMHungarianAlgorithm {
 private:
+	struct Detail ;
 	REAL mWeight ;
 	Array<ARRAY2<INDEX>> mMatch ;
 
@@ -517,8 +532,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
-	class Lambda
+struct KMHungarianAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		KMHungarianAlgorithm &mContext ;
@@ -538,7 +553,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 		EFLAG mTempState ;
 
 	public:
-		inline explicit Lambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency)
+		explicit InitializeLambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency)
 			: mContext (context_) ,mAdjacency (adjacency) ,mTolerance (1E-6) ,mInfinity (VAL_INF) {}
 
 		inline void operator() () {
@@ -548,7 +563,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mXYLink = Array<INDEX> (mAdjacency.cx ()) ;
 			mXYLink.fill (VAR_NONE) ;
 			mXVisit = BitSet<> (mAdjacency.cx ()) ;
@@ -563,7 +578,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			}
 		}
 
-		inline void generate () {
+		void generate () {
 			for (auto &&i : _RANGE_ (0 ,mAdjacency.cy ())) {
 				while (TRUE) {
 					mXVisit.clear () ;
@@ -579,7 +594,7 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			}
 		}
 
-		inline void update_lack_weight (const INDEX &y) {
+		void update_lack_weight (const INDEX &y) {
 			/*
 			*	inline void update_lack_weight_e0 (const INDEX &y) {
 			*		//@info: $0
@@ -793,19 +808,19 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			}
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mWeight = best_weight () ;
 			mContext.mMatch = best_match () ;
 		}
 
-		inline REAL best_weight () const {
+		REAL best_weight () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mXYLink.length ()))
 				ret += mAdjacency[mXYLink[i]][i] ;
 			return _MOVE_ (ret) ;
 		}
 
-		inline Array<ARRAY2<INDEX>> best_match () const {
+		Array<ARRAY2<INDEX>> best_match () const {
 			Array<ARRAY2<INDEX>> ret = Array<ARRAY2<INDEX>> (best_match_depth ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : _RANGE_ (0 ,mXYLink.length ())) {
@@ -819,19 +834,26 @@ inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &
 			return _MOVE_ (ret) ;
 		}
 
-		inline LENGTH best_match_depth () const {
+		LENGTH best_match_depth () const {
 			LENGTH ret = 0 ;
 			for (auto &&i : mXYLink)
 				ret += _EBOOL_ (i != VAR_NONE) ;
 			return _MOVE_ (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,adjacency)) ;
+} ;
+
+template <class REAL>
+inline exports void KMHungarianAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,adjacency)) ;
 }
 
 template <class REAL>
 class BFGSAlgorithm {
 private:
+	struct Detail ;
 	Array<REAL> mDX ;
 	REAL mDXLoss ;
 
@@ -855,8 +877,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
-	class Lambda
+struct BFGSAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		BFGSAlgorithm &mContext ;
@@ -882,7 +904,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 		Array<REAL> mSX ;
 
 	public:
-		inline explicit Lambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx)
+		explicit InitializeLambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx)
 			: mContext (context_) ,mLossFunc (loss) ,mGradientProc (gradient) ,mFDX (fdx) ,mTolerance (1E-6) ,mDXLambdaFirst (1000) ,mDXLambdaPower (0.618) ,mDXLambdaC1 (1E-4) ,mDXLambdaC2 (0.9) {}
 
 		inline void operator() () {
@@ -892,7 +914,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mDX = mFDX ;
 			mDM = Bitmap<REAL> (mDX.size () ,mDX.size ()) ;
 			mDM.fill (REAL (0)) ;
@@ -908,7 +930,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			compute_gradient_of_loss (mDX ,mDG ,mSX) ;
 		}
 
-		inline void generate () {
+		void generate () {
 			while (TRUE) {
 				update_is_and_ig () ;
 				if (current_convergence () < mTolerance)
@@ -918,13 +940,13 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			}
 		}
 
-		inline void compute_gradient_of_loss (const Array<REAL> &dx ,Array<REAL> &dg ,Array<REAL> &sx) const {
+		void compute_gradient_of_loss (const Array<REAL> &dx ,Array<REAL> &dg ,Array<REAL> &sx) const {
 			for (auto &&i : _RANGE_ (0 ,dx.length ()))
 				sx[i] = dx[i] ;
 			mGradientProc (sx ,dg) ;
 		}
 
-		inline void update_is_and_ig () {
+		void update_is_and_ig () {
 			for (auto &&i : _RANGE_ (0 ,mDG.length ()))
 				mIS[i] = -math_matrix_mul (mDM ,i ,mDG) ;
 			const auto r1x = math_vector_dot (mDG ,mIS) ;
@@ -973,14 +995,14 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			}
 		}
 
-		inline REAL math_matrix_mul (const Bitmap<REAL> &mat ,const INDEX &y ,const Array<REAL> &v) const {
+		REAL math_matrix_mul (const Bitmap<REAL> &mat ,const INDEX &y ,const Array<REAL> &v) const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,v.length ()))
 				ret += mat[y][i] * v[i] ;
 			return _MOVE_ (ret) ;
 		}
 
-		inline REAL math_vector_dot (const Array<REAL> &v1 ,const Array<REAL> &v2) const {
+		REAL math_vector_dot (const Array<REAL> &v1 ,const Array<REAL> &v2) const {
 			_DEBUG_ASSERT_ (v1.length () == v2.length ()) ;
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,v1.length ()))
@@ -988,7 +1010,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			return _MOVE_ (ret) ;
 		}
 
-		inline REAL current_convergence () const {
+		REAL current_convergence () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : mIG)
 				ret += MathProc::square (i) ;
@@ -996,14 +1018,14 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			return _MOVE_ (ret) ;
 		}
 
-		inline void update_iy_and_dg () {
+		void update_iy_and_dg () {
 			for (auto &&i : _RANGE_ (0 ,mIG.length ())) {
 				mIY[i] = mIG[i] - mDG[i] ;
 				mDG[i] = mIG[i] ;
 			}
 		}
 
-		inline void update_dm () {
+		void update_dm () {
 			const auto r1x = MathProc::inverse (math_vector_dot (mIY ,mIS)) ;
 			for (auto &&i : mDM.range ()) {
 				const auto r2x = hessian_matrix_each (i[0] ,i[1] ,r1x) ;
@@ -1012,7 +1034,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			_SWAP_ (mDM ,mIM) ;
 		}
 
-		inline REAL hessian_matrix_each (const INDEX &y ,const INDEX &x ,const REAL &ys) const {
+		REAL hessian_matrix_each (const INDEX &y ,const INDEX &x ,const REAL &ys) const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mDM.cy ())) {
 				const auto r1x = hessian_matrix_each_factor (x ,i ,ys) ;
@@ -1024,7 +1046,7 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			return _MOVE_ (ret) ;
 		}
 
-		inline REAL hessian_matrix_each_factor (const INDEX &x ,const INDEX &z ,const REAL &ys) const {
+		REAL hessian_matrix_each_factor (const INDEX &x ,const INDEX &z ,const REAL &ys) const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mDM.cx ())) {
 				ret += mDM[z][i] * (-mIY[i] * mIS[x] * ys) ;
@@ -1035,12 +1057,18 @@ inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const 
 			return _MOVE_ (ret) ;
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mDX = _MOVE_ (mDX) ;
 			mContext.mDXLoss = mDXLoss[0] ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,loss ,fdx)) ;
+} ;
+
+template <class REAL>
+inline exports void BFGSAlgorithm<REAL>::initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,loss ,fdx)) ;
 }
 
 template <class REAL>
@@ -1054,13 +1082,14 @@ private:
 		INDEX mRight ;
 
 	public:
-		inline Node () = delete ;
+		Node () = delete ;
 
-		inline implicit Node (const REAL &key ,const INDEX &leaf ,const INDEX &left ,const INDEX &right)
+		implicit Node (const REAL &key ,const INDEX &leaf ,const INDEX &left ,const INDEX &right)
 			:mKey (_MOVE_ (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 private:
+	struct Detail ;
 	Array<ARRAY3<REAL>> mVertex ;
 	ARRAY3<INDEX> mNextRot ;
 	ARRAY3<ARRAY2<REAL>> mBound ;
@@ -1196,8 +1225,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
-	class Lambda
+struct KDTreeAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		KDTreeAlgorithm &mContext ;
@@ -1213,7 +1242,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 		Array<INDEX> mTempOrder ;
 
 	public:
-		inline explicit Lambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex)
+		explicit InitializeLambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex)
 			: mContext (context_) ,mVertex (vertex) {}
 
 		inline void operator() () {
@@ -1223,7 +1252,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
 			for (auto &&i : _RANGE_ (0 ,mOrder.length ())) {
 				const auto r1x = stack_of_order (i) ;
@@ -1240,13 +1269,13 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			return _MOVE_ (ret) ;
 		}
 
-		inline void generate () {
+		void generate () {
 			update_bound () ;
 			update_build_tree (mRoot ,0 ,0 ,mVertex.length ()) ;
 			mRoot = mLatestIndex ;
 		}
 
-		inline void update_bound () {
+		void update_bound () {
 			_DEBUG_ASSERT_ (mVertex.length () > 0) ;
 			mBound[0][0] = mVertex[0][0] ;
 			mBound[0][1] = mVertex[0][0] ;
@@ -1307,7 +1336,7 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			_DEBUG_ASSERT_ (iw == seg_len) ;
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mVertex = mVertex ;
 			mContext.mNextRot = mNextRot ;
 			mContext.mBound = _MOVE_ (mBound) ;
@@ -1315,12 +1344,19 @@ inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>>
 			mContext.mRoot = mRoot ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,vertex)) ;
+} ;
+
+template <class REAL>
+inline exports void KDTreeAlgorithm<REAL>::initialize (const Array<ARRAY3<REAL>> &vertex) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,vertex)) ;
 }
 
 template <class REAL>
 class MaxFlowAlgorithm {
 private:
+	struct Detail ;
 	Bitmap<REAL> mCurrentFlow ;
 	REAL mMaxFlow ;
 
@@ -1346,8 +1382,8 @@ private:
 } ;
 
 template <class REAL>
-inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
-	class Lambda
+struct MaxFlowAlgorithm<REAL>::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		MaxFlowAlgorithm &mContext ;
@@ -1362,7 +1398,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		Deque<INDEX> mTempQueue ;
 
 	public:
-		inline explicit Lambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink)
+		explicit InitializeLambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink)
 			: mContext (context_) ,mAdjacency (adjacency) ,mSource (source) ,mSink (sink) {}
 
 		inline void operator() () {
@@ -1372,14 +1408,14 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mSingleFlow = single_flow () ;
 			mCurrentFlow = Bitmap<REAL> (mAdjacency.cx () ,mAdjacency.cy ()) ;
 			mCurrentFlow.fill (REAL (0)) ;
 			mBFSPath = Array<INDEX> (mAdjacency.cx ()) ;
 		}
 
-		inline REAL single_flow () const {
+		REAL single_flow () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : mAdjacency.range ()) {
 				if (i[0] == i[1])
@@ -1389,7 +1425,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			return _MOVE_ (ret) ;
 		}
 
-		inline void generate () {
+		void generate () {
 			while (TRUE) {
 				update_augument_bfs () ;
 				if (mBFSPath[mSource] == VAR_NONE)
@@ -1404,7 +1440,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			}
 		}
 
-		inline void update_augument_bfs () {
+		void update_augument_bfs () {
 			if (mTempQueue.size () != mAdjacency.cx ())
 				mTempQueue = Deque<INDEX> (mAdjacency.cx ()) ;
 			mTempQueue.clear () ;
@@ -1428,7 +1464,7 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			}
 		}
 
-		inline REAL augument_max_flow () const {
+		REAL augument_max_flow () const {
 			REAL ret = mSingleFlow ;
 			for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
 				it = mBFSPath[i] ;
@@ -1439,18 +1475,24 @@ inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adja
 			return _MOVE_ (ret) ;
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mMaxFlow = max_flow () ;
 			mContext.mCurrentFlow = _MOVE_ (mCurrentFlow) ;
 		}
 
-		inline REAL max_flow () const {
+		REAL max_flow () const {
 			REAL ret = REAL (0) ;
 			for (auto &&i : _RANGE_ (0 ,mCurrentFlow.cy ()))
 				ret += mCurrentFlow[i][mSink] ;
 			return _MOVE_ (ret) ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,adjacency ,source ,sink)) ;
+} ;
+
+template <class REAL>
+inline exports void MaxFlowAlgorithm<REAL>::initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,source ,sink)) ;
 }
 } ;

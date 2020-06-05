@@ -95,7 +95,7 @@ public:
 
 public:
 	template <class _ARG1>
-	inline static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
+	static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
 			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
 		}) ;
@@ -409,15 +409,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class... _ARGS>
+	template <class... _ARGS ,class _DEP = NONE>
 	auto flip (const ARGV<ARGVP<_ARGS>> &...) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Expression> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,_DEP> {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::constexpr_max_value (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		return template_flip2 (_NULL_<ARGV<FLIP_RANK_HINT>> () ,_NULL_<ARGV<ARGVS<_ARGS...>>> () ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<FLIP_RANK_HINT>>>> ()) ;
 	}
 
-	DEPENDENT_TYPE<Expression<RANK1> ,Expression> curry () const {
+	template <class _DEP = NONE>
+	DEPENDENT_TYPE<Expression<RANK1> ,_DEP> curry () const {
 		struct Dependent ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 2 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
 		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
@@ -431,7 +432,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	DEPENDENT_TYPE<Expression<RANK1> ,Expression> fold () const {
+	template <class _DEP = NONE>
+	DEPENDENT_TYPE<Expression<RANK1> ,_DEP> fold () const {
 		struct Dependent ;
 		DEPENDENT_TYPE<Expression<RANK1> ,Dependent> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
@@ -444,9 +446,9 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _ARG1>
+	template <class _ARG1 ,class _DEP = NONE>
 	auto concat (const Expression<_ARG1> &that) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,_DEP> {
 		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>> ;
 		return template_concat (_NULL_<ARGV<CONCAT_RANK_HINT>> () ,that ,_NULL_<ARGV<INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<CONCAT_RANK_HINT>>>> ()) ;
 	}
@@ -601,9 +603,9 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1>
+	template <class _ARG1 ,class _DEP = NONE>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,_DEP> {
 		return concat (that) ;
 	}
 } ;
@@ -642,9 +644,9 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1>
+	template <class _ARG1 ,class _DEP = NONE>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,_DEP> {
 		return concat (that) ;
 	}
 } ;
@@ -682,9 +684,9 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1>
+	template <class _ARG1 ,class _DEP = NONE>
 	inline auto operator+ (const Expression<_ARG1> &that) const
-		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,Expression> {
+		->DEPENDENT_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<RANK>>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<REMOVE_POINTER_TYPE<_ARG1>>)>>> ,_DEP> {
 		return concat (that) ;
 	}
 } ;

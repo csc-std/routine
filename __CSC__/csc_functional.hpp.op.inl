@@ -332,9 +332,9 @@ struct FUN_get ;
 template <class IN_lhs ,class IN_rhs>
 struct FUN_get<IN_lhs ,IN_rhs> {
 	struct CON_get {
-		template <class CONTEXT>
+		template <class CONTEXT ,class _DEP = NONE>
 		static auto compile (CONTEXT &me)
-			->DEPENDENT_TYPE<DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>> ()])> ,CONTEXT> {
+			->DEPENDENT_TYPE<DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>> ()])> ,_DEP> {
 			return IN_lhs::compile (me)[IN_rhs::compile (me)] ;
 		}
 	} ;
@@ -364,9 +364,9 @@ struct FUN_call ;
 template <class IN_lhs ,class... IN_rhs>
 struct FUN_call<IN_lhs ,IN_rhs...> {
 	struct CON_call {
-		template <class CONTEXT>
+		template <class CONTEXT ,class _DEP = NONE>
 		static auto compile (CONTEXT &me)
-			->DEPENDENT_TYPE<RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>...>> ,CONTEXT> {
+			->DEPENDENT_TYPE<RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>...>> ,_DEP> {
 			return IN_lhs::compile (me) (IN_rhs::compile (me)...) ;
 		}
 	} ;

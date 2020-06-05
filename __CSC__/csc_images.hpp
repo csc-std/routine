@@ -21,24 +21,26 @@ private:
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
-	inline ArrayRange () = delete ;
+	ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) {
+	explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) {
 		mRange = range_ ;
 	}
 
-	inline DEF<typename Detail::Iterator> begin () const {
-		using Iterator = typename Detail::Iterator ;
+	DEF<typename Detail::Iterator> begin () const {
+		struct Dependent ;
+		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,0 ,first_item ()) ;
 	}
 
-	inline DEF<typename Detail::Iterator> end () const {
-		using Iterator = typename Detail::Iterator ;
+	DEF<typename Detail::Iterator> end () const {
+		struct Dependent ;
+		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
-	inline LENGTH total_length () const {
+	LENGTH total_length () const {
 		LENGTH ret = 1 ;
 		for (auto &&i : mRange) {
 			_DEBUG_ASSERT_ (i >= 0) ;
@@ -48,7 +50,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	inline Array<LENGTH ,SIZE> first_item () const {
+	Array<LENGTH ,SIZE> first_item () const {
 		Array<LENGTH ,SIZE> ret = Array<LENGTH ,SIZE> (mRange.size ()) ;
 		ret.fill (0) ;
 		return _MOVE_ (ret) ;
@@ -65,9 +67,9 @@ struct ArrayRange<SIZE>::Detail {
 		Array<LENGTH ,SIZE> mItem ;
 
 	public:
-		inline Iterator () = delete ;
+		Iterator () = delete ;
 
-		inline explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
+		explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
 			: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
 
 		inline BOOL operator!= (const Iterator &that) const {
@@ -84,13 +86,13 @@ struct ArrayRange<SIZE>::Detail {
 		}
 
 	private:
-		inline void template_incrase (const ARGV<ZERO> &) {
+		void template_incrase (const ARGV<ZERO> &) {
 			_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
 			mItem[0]++ ;
 		}
 
 		template <class _ARG1>
-		inline void template_incrase (const ARGV<_ARG1> &) {
+		void template_incrase (const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 			mItem[_ARG1::value]++ ;
 			if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
@@ -270,7 +272,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<Bitmap>> get (const INDEX &y) leftvalue {
-		using Row = typename Detail::template Row<Bitmap> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -279,7 +282,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
-		using Row = typename Detail::template Row<const Bitmap> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -588,9 +592,9 @@ struct Bitmap<UNIT>::Detail {
 		INDEX mY ;
 
 	public:
-		inline Row () = delete ;
+		Row () = delete ;
 
-		inline explicit Row (BASE &base ,const INDEX &y)
+		explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 
 		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
@@ -741,7 +745,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
-		using Row = typename Detail::template Row<AbstractImage> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<AbstractImage> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -750,7 +755,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
-		using Row = typename Detail::template Row<const AbstractImage> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const AbstractImage> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -759,8 +765,9 @@ public:
 	}
 
 	template <class _RET>
-	inline DEF<typename Detail::template NativeProxy<_RET>> native () side_effects {
-		using NativeProxy = typename Detail::template NativeProxy<_RET> ;
+	DEF<typename Detail::template NativeProxy<_RET>> native () side_effects {
+		struct Dependent ;
+		using NativeProxy = typename DEPENDENT_TYPE<Detail ,Dependent>::template NativeProxy<_RET> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
@@ -814,7 +821,7 @@ public:
 	}
 
 private:
-	inline void update_layout () {
+	void update_layout () {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
@@ -840,9 +847,9 @@ struct AbstractImage<UNIT>::Detail {
 		INDEX mY ;
 
 	public:
-		inline Row () = delete ;
+		Row () = delete ;
 
-		inline explicit Row (BASE &base ,const INDEX &y)
+		explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 
 		inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
@@ -857,9 +864,9 @@ struct AbstractImage<UNIT>::Detail {
 		UniqueRef<AbstractImage> mBase ;
 
 	public:
-		inline NativeProxy () = delete ;
+		NativeProxy () = delete ;
 
-		inline explicit NativeProxy (AbstractImage &&base) {
+		explicit NativeProxy (AbstractImage &&base) {
 			mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
 				me = _MOVE_ (base) ;
 			} ,[] (AbstractImage &me) {

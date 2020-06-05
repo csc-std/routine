@@ -1543,11 +1543,11 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_ABS {
-	inline static constexpr UNIT case1 (const UNIT &val) {
+	static constexpr UNIT case1 (const UNIT &val) {
 		return -val ;
 	}
 
-	inline static constexpr UNIT case2 (const UNIT &val) {
+	static constexpr UNIT case2 (const UNIT &val) {
 		return +val ;
 	}
 } ;
@@ -1579,11 +1579,11 @@ inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_EBOOL {
-	inline static constexpr UNIT case1 () {
+	static constexpr UNIT case1 () {
 		return UNIT (1) ;
 	}
 
-	inline static constexpr UNIT case2 () {
+	static constexpr UNIT case2 () {
 		return UNIT (0) ;
 	}
 } ;
@@ -1598,11 +1598,11 @@ inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
 
 namespace U {
 struct OPERATOR_ONCE {
-	inline static BOOL invoke (const BOOL &) {
+	static BOOL invoke (const BOOL &) {
 		return FALSE ;
 	}
 
-	inline static BOOL invoke (BOOL &flag) side_effects {
+	static BOOL invoke (BOOL &flag) side_effects {
 		flag = FALSE ;
 		return FALSE ;
 	}
@@ -1612,9 +1612,12 @@ struct OPERATOR_ONCE {
 class Interface {
 public:
 	inline Interface () = default ;
+
 	inline virtual ~Interface () = default ;
+
 	inline Interface (const Interface &) = delete ;
 	inline Interface &operator= (const Interface &) = delete ;
+
 	inline Interface (Interface &&) = delete ;
 	inline Interface &operator= (Interface &&) = delete ;
 } ;
@@ -1659,9 +1662,12 @@ protected:
 
 public:
 	inline Wrapped () = delete ;
+
 	inline ~Wrapped () = delete ;
+
 	inline Wrapped (const Wrapped &) = delete ;
 	inline Wrapped &operator= (const Wrapped &) = delete ;
+
 	inline Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
@@ -1670,9 +1676,12 @@ template <>
 class Wrapped<void> {
 public:
 	inline Wrapped () = delete ;
+
 	inline ~Wrapped () = delete ;
+
 	inline Wrapped (const Wrapped &) = delete ;
 	inline Wrapped &operator= (const Wrapped &) = delete ;
+
 	inline Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
@@ -1686,13 +1695,13 @@ public:
 
 #ifdef __CSC_CXX_LATEST__
 	inline Proxy (Proxy &&) = delete ;
+	inline Proxy &operator= (Proxy &&) = delete ;
 #endif
 
 #ifndef __CSC_CXX_LATEST__
 	inline Proxy (Proxy &&) = default ;
-#endif
-
 	inline Proxy &operator= (Proxy &&) = delete ;
+#endif
 } ;
 
 template <class SIZE>
@@ -1707,22 +1716,22 @@ private:
 	INDEX mIEnd ;
 
 public:
-	inline ArrayRange () = delete ;
+	ArrayRange () = delete ;
 
-	inline explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_) {
+	explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_) {
 		mIBegin = ibegin_ ;
 		mIEnd = iend_ ;
 	}
 
-	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> begin () const {
+	template <class _DEP = NONE>
+	DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::Iterator> begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
-	template <class _RET = NONE>
-	inline DEF<typename DEPENDENT_TYPE<Detail ,_RET>::Iterator> end () const {
+	template <class _DEP = NONE>
+	DEF<typename DEPENDENT_TYPE<Detail ,_DEP>::Iterator> end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Detail ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
@@ -1738,9 +1747,9 @@ struct ArrayRange<ZERO>::Detail {
 		INDEX mIndex ;
 
 	public:
-		inline Iterator () = delete ;
+		Iterator () = delete ;
 
-		inline explicit Iterator (const ArrayRange &base ,const INDEX &index)
+		explicit Iterator (const ArrayRange &base ,const INDEX &index)
 			: mBase (base) ,mIndex (index) {}
 
 		inline BOOL operator!= (const Iterator &that) const {
@@ -1809,23 +1818,23 @@ private:
 	LENGTH mSize ;
 
 public:
-	inline Plain () = delete ;
+	Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
-	inline constexpr implicit Plain (_ARG1 &that)
+	constexpr implicit Plain (_ARG1 &that)
 		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
-	inline explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text)
+	explicit Plain (const ARGV<_ARG1> & ,const _ARGS &...text)
 		:Plain (cache_string (_NULL_<ARGV<_ARG1>> () ,text...)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline constexpr LENGTH size () const {
+	constexpr LENGTH size () const {
 		return mSize ;
 	}
 
-	inline constexpr const ARR<REAL> &to () const leftvalue {
+	constexpr const ARR<REAL> &to () const leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
@@ -1835,10 +1844,11 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class... _ARGS>
-	inline static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
-		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,Plain> {
-		using PlainString = typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
+	template <class _ARG1 ,class... _ARGS ,class _DEP = NONE>
+	static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
+		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,_DEP> {
+		struct Dependent ;
+		using PlainString = typename DEPENDENT_TYPE<Detail ,Dependent>::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
@@ -1858,22 +1868,22 @@ struct Plain<REAL>::Detail {
 		DEF<REAL[SIZE::value]> mString ;
 
 	public:
-		inline PlainString () = delete ;
+		PlainString () = delete ;
 
 		template <class... _ARGS>
-		inline explicit PlainString (const _ARGS &...text) {
+		explicit PlainString (const _ARGS &...text) {
 			template_write (_NULL_<ARGV<ZERO>> () ,text...) ;
 		}
 
 	private:
 		template <class _ARG1>
-		inline void template_write (const ARGV<_ARG1> &) {
+		void template_write (const ARGV<_ARG1> &) {
 			_STATIC_ASSERT_ (_ARG1::value == SIZE::value - 1) ;
 			mString[_ARG1::value] = 0 ;
 		}
 
 		template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-		inline void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
+		void template_write (const ARGV<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
 			_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 			_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
 			for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
@@ -1889,17 +1899,17 @@ private:
 	PTR<const ARR<STR>> mWhat ;
 
 public:
-	inline Exception () = delete ;
+	Exception () = delete ;
 
-	inline explicit Exception (const Plain<STR> &what_) {
+	explicit Exception (const Plain<STR> &what_) {
 		mWhat = DEPTR[what_.self] ;
 	}
 
-	inline const ARR<STR> &what () const leftvalue {
+	const ARR<STR> &what () const leftvalue {
 		return DEREF[mWhat] ;
 	}
 
-	inline void raise[[noreturn]] () const {
+	void raise[[noreturn]] () const {
 		throw DEREF[this] ;
 	}
 } ;

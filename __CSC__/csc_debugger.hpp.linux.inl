@@ -305,7 +305,8 @@ public:
 	}
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
-		using ImplBinder = typename Detail::template ImplBinder<PhanBuffer<const STR>> ;
+		struct Dependent ;
+		using ImplBinder = typename DEPENDENT_TYPE<Detail ,Dependent>::template ImplBinder<PhanBuffer<const STR>> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
 		log (r1x ,ImplBinder (msg)) ;
 	}

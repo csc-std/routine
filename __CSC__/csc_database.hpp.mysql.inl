@@ -93,7 +93,7 @@ public:
 	}
 
 private:
-	inline void compute_check_error (api::MYSQL &self_) const {
+	void compute_check_error (api::MYSQL &self_) const {
 		const auto r1x = api::mysql_error (DEPTR[self_]) ;
 		_DYNAMIC_ASSERT_ (r1x == NULL) ;
 	}

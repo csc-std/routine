@@ -212,14 +212,16 @@ public:
 		return mul (that) ;
 	}
 
-	Vector mul (const DEPENDENT_TYPE<Matrix<REAL> ,Vector> &that) const {
+	Vector mul (const Matrix<REAL> &that) const {
+		struct Dependent ;
 		Vector<REAL> ret ;
+		auto &r1x = _FORWARD_<const DEPENDENT_TYPE<Matrix<REAL> ,Dependent> &> (that) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
-			const auto r1x = get (0) * that.get (0 ,i) ;
-			const auto r2x = get (1) * that.get (1 ,i) ;
-			const auto r3x = get (2) * that.get (2 ,i) ;
-			const auto r4x = get (3) * that.get (3 ,i) ;
-			ret.get (i) = r1x + r2x + r3x + r4x ;
+			const auto r2x = get (0) * r1x.get (0 ,i) ;
+			const auto r3x = get (1) * r1x.get (1 ,i) ;
+			const auto r4x = get (2) * r1x.get (2 ,i) ;
+			const auto r5x = get (3) * r1x.get (3 ,i) ;
+			ret.get (i) = r2x + r3x + r4x + r5x ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -365,7 +367,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<Matrix>> get (const INDEX &y) leftvalue {
-		using Row = typename Detail::template Row<Matrix> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -374,7 +377,8 @@ public:
 	}
 
 	DEF<typename Detail::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
-		using Row = typename Detail::template Row<const Matrix> ;
+		struct Dependent ;
+		using Row = typename DEPENDENT_TYPE<Detail ,Dependent>::template Row<const Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -1051,9 +1055,9 @@ struct Matrix<REAL>::Detail {
 		INDEX mY ;
 
 	public:
-		inline Row () = delete ;
+		Row () = delete ;
 
-		inline explicit Row (BASE &base ,const INDEX &y)
+		explicit Row (BASE &base ,const INDEX &y)
 			: mBase (base) ,mY (y) {}
 
 		inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {

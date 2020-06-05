@@ -104,7 +104,8 @@ public:
 	}
 
 	DEF<typename Detail::template Attribute<ByteReader>> attr () leftvalue {
-		using Attribute = typename Detail::template Attribute<ByteReader> ;
+		struct Dependent ;
+		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<ByteReader> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -407,16 +408,16 @@ struct ByteReader<REAL>::Detail {
 		BASE &mBase ;
 
 	public:
-		inline Attribute () = delete ;
+		Attribute () = delete ;
 
-		inline explicit Attribute (BASE &base)
+		explicit Attribute (BASE &base)
 			:mBase (base) {}
 
-		inline REAL varify_ending_item () const {
+		REAL varify_ending_item () const {
 			return REAL (0X00) ;
 		}
 
-		inline REAL varify_space_item () const {
+		REAL varify_space_item () const {
 			return REAL (0X00) ;
 		}
 	} ;
@@ -477,7 +478,8 @@ public:
 	}
 
 	DEF<typename Detail::template Attribute<ByteWriter>> attr () leftvalue {
-		using Attribute = typename Detail::template Attribute<ByteWriter> ;
+		struct Dependent ;
+		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<ByteWriter> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -761,16 +763,16 @@ struct ByteWriter<REAL>::Detail {
 		BASE &mBase ;
 
 	public:
-		inline Attribute () = delete ;
+		Attribute () = delete ;
 
-		inline explicit Attribute (BASE &base)
+		explicit Attribute (BASE &base)
 			:mBase (base) {}
 
-		inline REAL varify_ending_item () const {
+		REAL varify_ending_item () const {
 			return REAL (0X00) ;
 		}
 
-		inline REAL varify_space_item () const {
+		REAL varify_space_item () const {
 			return REAL (0X00) ;
 		}
 	} ;
@@ -835,7 +837,8 @@ public:
 	}
 
 	DEF<typename Detail::template Attribute<TextReader>> attr () leftvalue {
-		using Attribute = typename Detail::template Attribute<TextReader> ;
+		struct Dependent ;
+		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<TextReader> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -1396,21 +1399,21 @@ struct TextReader<REAL>::Detail {
 		BASE &mBase ;
 
 	public:
-		inline Attribute () = delete ;
+		Attribute () = delete ;
 
-		inline explicit Attribute (BASE &base)
+		explicit Attribute (BASE &base)
 			:mBase (base) {}
 
-		inline REAL varify_ending_item () const {
+		REAL varify_ending_item () const {
 			return REAL ('\0') ;
 		}
 
-		inline void enable_endian (const BOOL &flag) const {
+		void enable_endian (const BOOL &flag) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			mBase.mHeap->mEndianFlag = flag ;
 		}
 
-		inline REAL convert_endian (const REAL &item) const {
+		REAL convert_endian (const REAL &item) const {
 			if (!mBase.mHeap->mEndianFlag)
 				return item ;
 			U::BYTE_BASE_TYPE<REAL> ret ;
@@ -1419,39 +1422,39 @@ struct TextReader<REAL>::Detail {
 			return _MOVE_ (_CAST_<REAL> (ret)) ;
 		}
 
-		inline VAR64 varify_radix () const {
+		VAR64 varify_radix () const {
 			return 10 ;
 		}
 
-		inline LENGTH varify_val32_precision () const {
+		LENGTH varify_val32_precision () const {
 			return 6 ;
 		}
 
-		inline LENGTH varify_val64_precision () const {
+		LENGTH varify_val64_precision () const {
 			_STATIC_WARNING_ ("mark") ;
 			return 13 ;
 		}
 
-		inline BOOL varify_number_item (const REAL &item) const {
+		BOOL varify_number_item (const REAL &item) const {
 			if (!(item >= REAL ('0') && item <= REAL ('9')))
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline VAR64 convert_number_r (const REAL &item) const {
+		VAR64 convert_number_r (const REAL &item) const {
 			return VAR64 (item) - VAR64 ('0') ;
 		}
 
-		inline void enable_escape (const BOOL &flag) const {
+		void enable_escape (const BOOL &flag) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			mBase.mHeap->mEscapeFlag = flag ;
 		}
 
-		inline REAL varify_escape_item () const {
+		REAL varify_escape_item () const {
 			return REAL ('\\') ;
 		}
 
-		inline BOOL varify_escape_r (const REAL &item) const {
+		BOOL varify_escape_r (const REAL &item) const {
 			if (!mBase.mHeap->mEscapeFlag)
 				return FALSE ;
 			if (item != varify_escape_item ())
@@ -1459,7 +1462,7 @@ struct TextReader<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
+		void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
 			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
@@ -1469,20 +1472,20 @@ struct TextReader<REAL>::Detail {
 			mBase.mHeap->mEscapeList[ix] = str_e ;
 		}
 
-		inline REAL convert_escape_r (const REAL &str_a) const {
+		REAL convert_escape_r (const REAL &str_a) const {
 			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
 			return mBase.mHeap->mEscapeList[ix] ;
 		}
 
-		inline BOOL varify_space (const REAL &item) const {
+		BOOL varify_space (const REAL &item) const {
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline BOOL varify_space (const REAL &item ,const VAR32 &group) const {
+		BOOL varify_space (const REAL &item ,const VAR32 &group) const {
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
 			if (ix == VAR_NONE)
 				return FALSE ;
@@ -1491,7 +1494,7 @@ struct TextReader<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline void modify_space (const REAL &item ,const VAR32 &group) const {
+		void modify_space (const REAL &item ,const VAR32 &group) const {
 			_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 			_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
 			INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
@@ -1502,7 +1505,7 @@ struct TextReader<REAL>::Detail {
 			mBase.mHeap->mSpaceList[ix].mP2 = group ;
 		}
 
-		inline BOOL varify_control (const REAL &item) const {
+		BOOL varify_control (const REAL &item) const {
 			if (!(item >= REAL (0) && item <= REAL (32)))
 				if (item != REAL (127))
 					return FALSE ;
@@ -1581,7 +1584,8 @@ public:
 	}
 
 	DEF<typename Detail::template Attribute<TextWriter>> attr () leftvalue {
-		using Attribute = typename Detail::template Attribute<TextWriter> ;
+		struct Dependent ;
+		using Attribute = typename DEPENDENT_TYPE<Detail ,Dependent>::template Attribute<TextWriter> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -2120,47 +2124,47 @@ struct TextWriter<REAL>::Detail {
 		BASE &mBase ;
 
 	public:
-		inline Attribute () = delete ;
+		Attribute () = delete ;
 
-		inline explicit Attribute (BASE &base)
+		explicit Attribute (BASE &base)
 			:mBase (base) {}
 
-		inline REAL varify_ending_item () const {
+		REAL varify_ending_item () const {
 			return REAL ('\0') ;
 		}
 
-		inline VAR64 varify_radix () const {
+		VAR64 varify_radix () const {
 			return 10 ;
 		}
 
-		inline LENGTH varify_val32_precision () const {
+		LENGTH varify_val32_precision () const {
 			return 6 ;
 		}
 
-		inline LENGTH varify_val64_precision () const {
+		LENGTH varify_val64_precision () const {
 			_STATIC_WARNING_ ("mark") ;
 			return 13 ;
 		}
 
-		inline BOOL varify_number_item (const REAL &item) const {
+		BOOL varify_number_item (const REAL &item) const {
 			if (!(item >= REAL ('0') && item <= REAL ('9')))
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline REAL convert_number_w (const VAR64 &number) const {
+		REAL convert_number_w (const VAR64 &number) const {
 			return REAL (VAR64 ('0') + number) ;
 		}
 
-		inline void enable_escape (const BOOL &flag) const {
+		void enable_escape (const BOOL &flag) const {
 			mBase.mHeap->mEscapeFlag = flag ;
 		}
 
-		inline REAL varify_escape_item () const {
+		REAL varify_escape_item () const {
 			return REAL ('\\') ;
 		}
 
-		inline BOOL varify_escape_w (const REAL &key) const {
+		BOOL varify_escape_w (const REAL &key) const {
 			if (!mBase.mHeap->mEscapeFlag)
 				return FALSE ;
 			if (mBase.mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
@@ -2168,7 +2172,7 @@ struct TextWriter<REAL>::Detail {
 			return TRUE ;
 		}
 
-		inline void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
+		void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
 			_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
 			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
 			_DEBUG_ASSERT_ (ix == VAR_NONE) ;
@@ -2177,19 +2181,19 @@ struct TextWriter<REAL>::Detail {
 			mBase.mHeap->mEscapeList[ix] = str_a ;
 		}
 
-		inline REAL convert_escape_w (const REAL &str_e) const {
+		REAL convert_escape_w (const REAL &str_e) const {
 			INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
 			_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
 			return mBase.mHeap->mEscapeList[ix] ;
 		}
 
-		inline BOOL varify_space (const REAL &item) const {
+		BOOL varify_space (const REAL &item) const {
 			if (!(item == REAL ('\r') || item == REAL ('\n')))
 				return FALSE ;
 			return TRUE ;
 		}
 
-		inline BOOL varify_control (const REAL &item) const {
+		BOOL varify_control (const REAL &item) const {
 			if (!(item >= REAL (0) && item <= REAL (32)))
 				if (item != REAL (127))
 					return FALSE ;

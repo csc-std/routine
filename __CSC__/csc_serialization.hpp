@@ -292,13 +292,13 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	inline static XmlParser make (const PhanBuffer<const STRU8> &data) {
+	static XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
 		ret.initialize (data) ;
 		return _MOVE_ (ret) ;
 	}
 
-	inline static XmlParser make (const Array<XmlParser> &sequence) {
+	static XmlParser make (const Array<XmlParser> &sequence) {
 		XmlParser ret ;
 		ret.initialize (sequence) ;
 		return _MOVE_ (ret) ;
@@ -320,12 +320,12 @@ struct XmlParser::Detail {
 	class RecursiveCounter
 		:private Wrapped<LENGTH> {
 	public:
-		inline void lock () {
+		void lock () {
 			_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
 			RecursiveCounter::mSelf++ ;
 		}
 
-		inline void unlock () {
+		void unlock () {
 			RecursiveCounter::mSelf-- ;
 		}
 	} ;
@@ -342,6 +342,509 @@ struct XmlParser::Detail {
 		INDEX mParent ;
 		EFLAG mClazz ;
 		Deque<XmlParser> mBaseNodeList ;
+	} ;
+
+	class InitializeLambda
+		:private Proxy {
+	private:
+		XmlParser &mContext ;
+
+		TextReader<STRU8> mTextReader ;
+		RegularReader mRis ;
+		LENGTH mRecursiveCounter ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
+
+		SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
+		SoftSet<INDEX> mMemberSoftSet ;
+		SoftSet<String<STRU8>> mObjectSoftSet ;
+		Allocator<NODE ,SAUTO> mNodeHeap ;
+		SharedRef<FixedBuffer<NODE>> mHeap ;
+		INDEX mRoot ;
+
+	public:
+		explicit InitializeLambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data)
+			: mContext (context_) ,mTextReader (data) {}
+
+		inline void operator() () {
+			prepare () ;
+			generate () ;
+			refresh () ;
+		}
+
+	private:
+		void prepare () {
+			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
+			mRecursiveCounter = 0 ;
+			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
+			mMemberSoftSet = SoftSet<INDEX> (0) ;
+			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
+			mNodeHeap = Allocator<NODE ,SAUTO> () ;
+			mHeap = SharedRef<FixedBuffer<NODE>> () ;
+			mRoot = VAR_NONE ;
+		}
+
+		void generate () {
+			/*
+			*	$0->$8 $7 $9
+			*	$1->${identity}
+			*	$2->"${string}"
+			*	$3->$1 = $2
+			*	$4->${eps}|$3 $4
+			*	$5-><$1 $4 />|<$1 $4 > $7 </$1 >
+			*	$6-><!--comment-->
+			*	$7->${eps}|$5 $7|$6 $7
+			*	$8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
+			*	$9->${end}
+			*/
+			update_shift_e0 () ;
+			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
+			mRoot = mLatestIndex ;
+			update_heap () ;
+		}
+
+		//@info: $0->$8 $7 $9
+		void update_shift_e0 () {
+			update_shift_e8 () ;
+			mRis >> RegularReader::SKIP_GAP ;
+			INDEX ix = mNodeHeap.alloc () ;
+			mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
+			mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
+			mNodeHeap[ix].mParent = VAR_NONE ;
+			update_shift_e7 (ix) ;
+			mNodeHeap[ix].mChild = mLatestIndex ;
+			mNodeHeap[ix].mBrother = VAR_NONE ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e9 () ;
+			mLatestIndex = ix ;
+		}
+
+		//@info: $1->${identity}
+		void update_shift_e1 () {
+			mRis >> RegularReader::HINT_IDENTIFIER >> mLatestString ;
+		}
+
+		//@info: $2->"${string}"
+		void update_shift_e2 () {
+			mRis >> RegularReader::HINT_STRING >> mLatestString ;
+		}
+
+		//@info: $3->$1 = $2
+		void update_shift_e3 (const INDEX &curr) {
+			update_shift_e1 () ;
+			INDEX ix = mNodeHeap[curr].mAttributeMappingSet.map (mLatestString) ;
+			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
+			ix = mNodeHeap[curr].mAttributeList.insert () ;
+			mNodeHeap[curr].mAttributeMappingSet.add (_MOVE_ (mLatestString) ,ix) ;
+			mRis >> RegularReader::SKIP_GAP ;
+			mRis >> _PCSTRU8_ ("=") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e2 () ;
+			mNodeHeap[curr].mAttributeList[ix] = _MOVE_ (mLatestString) ;
+		}
+
+		//@info: $4->${eps}|$3 $4
+		void update_shift_e4 (const INDEX &curr) {
+			while (TRUE) {
+				if (!(mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')))
+					if (!(mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')))
+						if (!(mRis[0] == STRU8 ('_')))
+							break ;
+				update_shift_e3 (curr) ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+		}
+
+		//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
+		void update_shift_e5 (const INDEX &curr) {
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
+			mRis >> _PCSTRU8_ ("<") ;
+			INDEX ix = mNodeHeap.alloc () ;
+			update_shift_e1 () ;
+			mNodeHeap[ix].mName = _MOVE_ (mLatestString) ;
+			mNodeHeap[ix].mAttributeList = Deque<String<STRU8>> () ;
+			mNodeHeap[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
+			mNodeHeap[ix].mParent = curr ;
+			mNodeHeap[ix].mBrother = VAR_NONE ;
+			mNodeHeap[ix].mChild = VAR_NONE ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e4 (ix) ;
+			mRis >> RegularReader::SKIP_GAP ;
+			auto fax = TRUE ;
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('>')))
+					discard ;
+				mRis++ ;
+				mRis >> RegularReader::SKIP_GAP ;
+				mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
+				mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
+				update_shift_e7 (ix) ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
+				mRis >> RegularReader::SKIP_GAP ;
+				mRis >> _PCSTRU8_ ("</") ;
+				update_shift_e1 () ;
+				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
+				mRis >> RegularReader::SKIP_GAP ;
+				mRis >> _PCSTRU8_ (">") ;
+			}
+			if switch_once (fax) {
+				mRis >> _PCSTRU8_ ("/>") ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $6-><!--${comment}-->
+		void update_shift_e6 () {
+			mRis >> _PCSTRU8_ ("<!--") ;
+			while (TRUE) {
+				if (mRis[0] == STRU8 ('\0'))
+					break ;
+				if (mRis[0] == STRU8 ('-'))
+					if (mRis[1] == STRU8 ('-'))
+						break ;
+				mRis++ ;
+			}
+			mRis >> _PCSTRU8_ ("-->") ;
+		}
+
+		//@info: $7->${eps}|$5 $7|$6 $7
+		void update_shift_e7 (const INDEX &curr) {
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
+			INDEX ix = VAR_NONE ;
+			INDEX iy = VAR_NONE ;
+			while (TRUE) {
+				const auto r1x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!')) ;
+				const auto r2x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
+				if (!r1x && !r2x)
+					break ;
+				auto fax = TRUE ;
+				if switch_once (fax) {
+					if (!r1x)
+						discard ;
+					update_shift_e6 () ;
+				}
+				if switch_once (fax) {
+					if (!r2x)
+						discard ;
+					update_shift_e5 (curr) ;
+					const auto r3x = mNodeHeap[curr].mMemberSet.length () ;
+					mNodeHeap[curr].mMemberSet.add (r3x ,mLatestIndex) ;
+					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
+					auto &r4x = _SWITCH_ (
+						(ix == VAR_NONE) ? ix :
+						mNodeHeap[iy].mBrother) ;
+					r4x = mLatestIndex ;
+					iy = mLatestIndex ;
+				}
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
+		void update_shift_e8 () {
+			if (mRis[0] != STRU8 ('<'))
+				return ;
+			if (mRis[1] != STRU8 ('?'))
+				return ;
+			mRis++ ;
+			mRis++ ;
+			mRis >> _PCSTRU8_ ("xml") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			mRis >> _PCSTRU8_ ("version") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			mRis >> _PCSTRU8_ ("=") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			mRis >> _PCSTRU8_ ("\"1.0\"") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			if switch_once (TRUE) {
+				if (mRis[0] == STRU8 ('?'))
+					discard ;
+				mRis >> _PCSTRU8_ ("encoding") ;
+				mRis >> RegularReader::SKIP_GAP ;
+				mRis >> _PCSTRU8_ ("=") ;
+				mRis >> RegularReader::SKIP_GAP ;
+				mRis >> _PCSTRU8_ ("\"utf-8\"") ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mRis >> _PCSTRU8_ ("?>") ;
+		}
+
+		//@info: $9->${end}
+		void update_shift_e9 () {
+			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
+		}
+
+		void update_heap () {
+			mAttributeMappingSoftSet.clean () ;
+			mObjectSoftSet.clean () ;
+			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
+			INDEX iw = 0 ;
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
+				if (!mNodeHeap.used (i))
+					continue ;
+				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
+			}
+			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
+		}
+
+		void refresh () {
+			mContext.mHeap = _MOVE_ (mHeap) ;
+			mContext.mIndex = mRoot ;
+		}
+	} ;
+
+	class InitializeLambda2
+		:private Proxy {
+	private:
+		XmlParser &mContext ;
+		const Array<XmlParser> &mSequence ;
+		const String<STRU8> mClazzString ;
+		const String<STRU8> mTableClazzString ;
+		const String<STRU8> mObjectClazzString ;
+		const String<STRU8> mArrayClazzString ;
+		const String<STRU8> mFinalClazzString ;
+
+		Deque<STACK_NODE> mNodeStack ;
+		Array<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
+		Set<EFLAG> mFoundNodeProcMappingSet ;
+		SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
+		SoftSet<INDEX> mMemberSoftSet ;
+		SoftSet<String<STRU8>> mObjectSoftSet ;
+		Allocator<NODE ,SAUTO> mNodeHeap ;
+		Deque<FOUND_NODE> mFoundNodeList ;
+		Set<String<STRU8>> mFoundNodeMappingSet ;
+		SharedRef<FixedBuffer<NODE>> mHeap ;
+		INDEX mRoot ;
+
+		Deque<Deque<XmlParser>> mFoundNodeBaseNodeQueue ;
+		STACK_NODE mTempNode ;
+
+	public:
+		explicit InitializeLambda2 (XmlParser &context_ ,const Array<XmlParser> &sequence)
+			: mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
+
+		inline void operator() () {
+			prepare () ;
+			generate () ;
+			refresh () ;
+		}
+
+	private:
+		void prepare () {
+			mNodeStack = Deque<STACK_NODE> () ;
+			//@error: fuck g++4.8
+			mFoundNodeProc = Array<Function<DEF<void (const XmlParser &)> NONE::*>> (3) ;
+			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_TABLE) ,0) ;
+			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
+			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
+			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
+			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_table_node) ;
+			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_object_node) ;
+			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_array_node) ;
+			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
+			mMemberSoftSet = SoftSet<INDEX> (0) ;
+			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
+			mNodeHeap = Allocator<NODE ,SAUTO> () ;
+			mRoot = mNodeHeap.alloc () ;
+			mNodeHeap[mRoot].mMemberSet = mMemberSoftSet.share () ;
+			mNodeHeap[mRoot].mObjectSet = mObjectSoftSet.share () ;
+			mNodeHeap[mRoot].mParent = VAR_NONE ;
+			mNodeHeap[mRoot].mChild = VAR_NONE ;
+			mNodeHeap[mRoot].mBrother = VAR_NONE ;
+			mFoundNodeList = Deque<FOUND_NODE> () ;
+		}
+
+		EFLAG node_type (const XmlParser &node) const {
+			auto &r1x = node.attribute (mClazzString) ;
+			if (r1x == mTableClazzString)
+				return NODE_CLAZZ_TABLE ;
+			if (r1x == mObjectClazzString)
+				return NODE_CLAZZ_OBJECT ;
+			if (r1x == mArrayClazzString)
+				return NODE_CLAZZ_ARRAY ;
+			if (r1x == mFinalClazzString)
+				return NODE_CLAZZ_FINAL ;
+			_DYNAMIC_ASSERT_ (r1x.empty ()) ;
+			return NODE_CLAZZ_TABLE ;
+		}
+
+		void generate () {
+			update_root_node () ;
+			while (TRUE) {
+				if (mNodeStack.empty ())
+					break ;
+				mTempNode = _MOVE_ (mNodeStack[mNodeStack.tail ()]) ;
+				mNodeStack.pop () ;
+				for (auto &&i : mTempNode.mBaseNodeList) {
+					INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
+					mFoundNodeProc[ix] (i) ;
+				}
+				update_merge_found_node (mTempNode.mParent) ;
+				mFoundNodeBaseNodeQueue.add (_MOVE_ (mTempNode.mBaseNodeList)) ;
+			}
+			update_heap () ;
+		}
+
+		void update_root_node () {
+			INDEX ix = find_normal_node () ;
+			if (ix == VAR_NONE)
+				return ;
+			INDEX jx = mNodeStack.insert () ;
+			mNodeStack[jx].mBaseNodeList = Deque<XmlParser> (mSequence.length ()) ;
+			for (auto &&i : mSequence) {
+				if (!i.exist ())
+					continue ;
+				mNodeStack[jx].mBaseNodeList.add (i) ;
+			}
+			mNodeStack[jx].mClazz = NODE_CLAZZ_OBJECT ;
+			mNodeStack[jx].mParent = mRoot ;
+		}
+
+		INDEX find_normal_node () const {
+			for (auto &&i : mSequence)
+				if (i.exist ())
+					return mSequence.at (i) ;
+			return VAR_NONE ;
+		}
+
+		void update_found_table_node (const XmlParser &node) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
+				INDEX ix = mFoundNodeList.insert () ;
+				mFoundNodeList[ix].mName = i.name () ;
+				mFoundNodeList[ix].mClazz = node_type (i) ;
+				mFoundNodeList[ix].mAttributeList = Deque<String<STRU8>> () ;
+				mFoundNodeList[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
+				mFoundNodeList[ix].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
+				mFoundNodeList[ix].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+				if (mFoundNodeBaseNodeQueue.empty ())
+					mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
+				mFoundNodeBaseNodeQueue.take (mFoundNodeList[ix].mBaseNodeList) ;
+				mFoundNodeList[ix].mBaseNodeList.clear () ;
+				mFoundNodeList[ix].mBaseNodeList.add (i.child ()) ;
+			}
+		}
+
+		void update_found_object_node (const XmlParser &node) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
+				const auto r1x = i.name () ;
+				const auto r2x = node_type (i) ;
+				INDEX ix = mFoundNodeMappingSet.map (r1x) ;
+				if switch_once (TRUE) {
+					if (ix == VAR_NONE)
+						discard ;
+					_DYNAMIC_ASSERT_ (mFoundNodeList[ix].mClazz == r2x) ;
+					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
+				}
+				INDEX iy = ix ;
+				if switch_once (TRUE) {
+					if (ix != VAR_NONE)
+						discard ;
+					iy = mFoundNodeList.insert () ;
+					mFoundNodeMappingSet.add (r1x ,iy) ;
+					mFoundNodeList[iy].mName = r1x ;
+					mFoundNodeList[iy].mClazz = r2x ;
+					mFoundNodeList[iy].mAttributeList = Deque<String<STRU8>> () ;
+					mFoundNodeList[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
+					if (mFoundNodeBaseNodeQueue.empty ())
+						mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
+					mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
+					mFoundNodeList[iy].mBaseNodeList.clear () ;
+				}
+				mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
+				mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+				mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
+			}
+		}
+
+		void update_found_array_node (const XmlParser &node) {
+			for (XmlParser i = node ,it ; i.exist () ; i = it) {
+				it = i.brother () ;
+				const auto r1x = i.name () ;
+				const auto r2x = node_type (i) ;
+				INDEX ix = mFoundNodeList.head () ;
+				if switch_once (TRUE) {
+					if (ix == VAR_NONE)
+						discard ;
+					_DYNAMIC_ASSERT_ (mFoundNodeList[ix].mName == r1x) ;
+					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
+				}
+				INDEX iy = mFoundNodeList.insert () ;
+				mFoundNodeMappingSet.add (r1x ,iy) ;
+				mFoundNodeList[iy].mName = r1x ;
+				mFoundNodeList[iy].mClazz = r2x ;
+				mFoundNodeList[iy].mAttributeList = Deque<String<STRU8>> () ;
+				mFoundNodeList[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
+				mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
+				mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+				if (mFoundNodeBaseNodeQueue.empty ())
+					mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
+				mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
+				mFoundNodeList[iy].mBaseNodeList.clear () ;
+				mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
+			}
+		}
+
+		void update_merge_found_node (const INDEX &curr) {
+			INDEX ix = VAR_NONE ;
+			INDEX iy = VAR_NONE ;
+			for (auto &&i : mFoundNodeList) {
+				iy = ix ;
+				ix = mNodeHeap.alloc () ;
+				mNodeHeap[ix].mName = _MOVE_ (i.mName) ;
+				mNodeHeap[ix].mAttributeList = _MOVE_ (i.mAttributeList) ;
+				mNodeHeap[ix].mAttributeMappingSet = _MOVE_ (i.mAttributeMappingSet) ;
+				mNodeHeap[ix].mParent = curr ;
+				if switch_once (TRUE) {
+					INDEX jx = mNodeHeap[ix].mParent ;
+					if (jx == VAR_NONE)
+						discard ;
+					if (mNodeHeap[jx].mChild == VAR_NONE)
+						mNodeHeap[jx].mChild = ix ;
+					if switch_once (TRUE) {
+						if (mNodeHeap[jx].mMemberSet.size () > 0)
+							discard ;
+						mNodeHeap[jx].mMemberSet = mMemberSoftSet.share () ;
+						mNodeHeap[jx].mObjectSet = mObjectSoftSet.share () ;
+					}
+					const auto r1x = mNodeHeap[jx].mMemberSet.length () ;
+					mNodeHeap[jx].mMemberSet.add (r1x ,ix) ;
+					mNodeHeap[jx].mObjectSet.add (mNodeHeap[ix].mName ,ix) ;
+				}
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+				if (iy != VAR_NONE)
+					mNodeHeap[iy].mBrother = ix ;
+				if (mRoot == VAR_NONE)
+					mRoot = ix ;
+				INDEX jy = mNodeStack.insert () ;
+				mNodeStack[jy].mBaseNodeList = _MOVE_ (i.mBaseNodeList) ;
+				mNodeStack[jy].mClazz = i.mClazz ;
+				mNodeStack[jy].mParent = ix ;
+			}
+			mFoundNodeMappingSet.clear () ;
+			mFoundNodeList.clear () ;
+		}
+
+		void update_heap () {
+			mAttributeMappingSoftSet.clean () ;
+			mObjectSoftSet.clean () ;
+			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
+			INDEX iw = 0 ;
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
+				if (!mNodeHeap.used (i))
+					continue ;
+				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
+			}
+			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
+		}
+
+		void refresh () {
+			mContext.mHeap = _MOVE_ (mHeap) ;
+			mContext.mIndex = mRoot ;
+		}
 	} ;
 } ;
 
@@ -438,515 +941,15 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 }
 
 inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
-	using RecursiveCounter = typename Detail::RecursiveCounter ;
-	class Lambda
-		:private Proxy {
-	private:
-		XmlParser &mContext ;
-
-		TextReader<STRU8> mTextReader ;
-		RegularReader mRis ;
-		LENGTH mRecursiveCounter ;
-		INDEX mLatestIndex ;
-		String<STRU8> mLatestString ;
-
-		SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
-		SoftSet<INDEX> mMemberSoftSet ;
-		SoftSet<String<STRU8>> mObjectSoftSet ;
-		Allocator<NODE ,SAUTO> mNodeHeap ;
-		SharedRef<FixedBuffer<NODE>> mHeap ;
-		INDEX mRoot ;
-
-	public:
-		inline explicit Lambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data)
-			: mContext (context_) ,mTextReader (data) {}
-
-		inline void operator() () {
-			prepare () ;
-			generate () ;
-			refresh () ;
-		}
-
-	private:
-		inline void prepare () {
-			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
-			mRecursiveCounter = 0 ;
-			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
-			mMemberSoftSet = SoftSet<INDEX> (0) ;
-			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-			mNodeHeap = Allocator<NODE ,SAUTO> () ;
-			mHeap = SharedRef<FixedBuffer<NODE>> () ;
-			mRoot = VAR_NONE ;
-		}
-
-		inline void generate () {
-			/*
-			*	$0->$8 $7 $9
-			*	$1->${identity}
-			*	$2->"${string}"
-			*	$3->$1 = $2
-			*	$4->${eps}|$3 $4
-			*	$5-><$1 $4 />|<$1 $4 > $7 </$1 >
-			*	$6-><!--comment-->
-			*	$7->${eps}|$5 $7|$6 $7
-			*	$8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
-			*	$9->${end}
-			*/
-			update_shift_e0 () ;
-			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
-			mRoot = mLatestIndex ;
-			update_heap () ;
-		}
-
-		//@info: $0->$8 $7 $9
-		inline void update_shift_e0 () {
-			update_shift_e8 () ;
-			mRis >> RegularReader::SKIP_GAP ;
-			INDEX ix = mNodeHeap.alloc () ;
-			mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
-			mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
-			mNodeHeap[ix].mParent = VAR_NONE ;
-			update_shift_e7 (ix) ;
-			mNodeHeap[ix].mChild = mLatestIndex ;
-			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e9 () ;
-			mLatestIndex = ix ;
-		}
-
-		//@info: $1->${identity}
-		inline void update_shift_e1 () {
-			mRis >> RegularReader::HINT_IDENTIFIER >> mLatestString ;
-		}
-
-		//@info: $2->"${string}"
-		inline void update_shift_e2 () {
-			mRis >> RegularReader::HINT_STRING >> mLatestString ;
-		}
-
-		//@info: $3->$1 = $2
-		inline void update_shift_e3 (const INDEX &curr) {
-			update_shift_e1 () ;
-			INDEX ix = mNodeHeap[curr].mAttributeMappingSet.map (mLatestString) ;
-			_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
-			ix = mNodeHeap[curr].mAttributeList.insert () ;
-			mNodeHeap[curr].mAttributeMappingSet.add (_MOVE_ (mLatestString) ,ix) ;
-			mRis >> RegularReader::SKIP_GAP ;
-			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e2 () ;
-			mNodeHeap[curr].mAttributeList[ix] = _MOVE_ (mLatestString) ;
-		}
-
-		//@info: $4->${eps}|$3 $4
-		inline void update_shift_e4 (const INDEX &curr) {
-			while (TRUE) {
-				if (!(mRis[0] >= STRU8 ('A') && mRis[0] <= STRU8 ('Z')))
-					if (!(mRis[0] >= STRU8 ('a') && mRis[0] <= STRU8 ('z')))
-						if (!(mRis[0] == STRU8 ('_')))
-							break ;
-				update_shift_e3 (curr) ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-		}
-
-		//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
-		inline void update_shift_e5 (const INDEX &curr) {
-			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
-			mRis >> _PCSTRU8_ ("<") ;
-			INDEX ix = mNodeHeap.alloc () ;
-			update_shift_e1 () ;
-			mNodeHeap[ix].mName = _MOVE_ (mLatestString) ;
-			mNodeHeap[ix].mAttributeList = Deque<String<STRU8>> () ;
-			mNodeHeap[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-			mNodeHeap[ix].mParent = curr ;
-			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e4 (ix) ;
-			mRis >> RegularReader::SKIP_GAP ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('>')))
-					discard ;
-				mRis++ ;
-				mRis >> RegularReader::SKIP_GAP ;
-				mNodeHeap[ix].mMemberSet = mMemberSoftSet.share () ;
-				mNodeHeap[ix].mObjectSet = mObjectSoftSet.share () ;
-				update_shift_e7 (ix) ;
-				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader::SKIP_GAP ;
-				mRis >> _PCSTRU8_ ("</") ;
-				update_shift_e1 () ;
-				_DYNAMIC_ASSERT_ (mNodeHeap[ix].mName == mLatestString) ;
-				mRis >> RegularReader::SKIP_GAP ;
-				mRis >> _PCSTRU8_ (">") ;
-			}
-			if switch_once (fax) {
-				mRis >> _PCSTRU8_ ("/>") ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $6-><!--${comment}-->
-		inline void update_shift_e6 () {
-			mRis >> _PCSTRU8_ ("<!--") ;
-			while (TRUE) {
-				if (mRis[0] == STRU8 ('\0'))
-					break ;
-				if (mRis[0] == STRU8 ('-'))
-					if (mRis[1] == STRU8 ('-'))
-						break ;
-				mRis++ ;
-			}
-			mRis >> _PCSTRU8_ ("-->") ;
-		}
-
-		//@info: $7->${eps}|$5 $7|$6 $7
-		inline void update_shift_e7 (const INDEX &curr) {
-			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
-			INDEX ix = VAR_NONE ;
-			INDEX iy = VAR_NONE ;
-			while (TRUE) {
-				const auto r1x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] == STRU8 ('!')) ;
-				const auto r2x = BOOL (mRis[0] == STRU8 ('<') && mRis[1] != STRU8 ('/')) ;
-				if (!r1x && !r2x)
-					break ;
-				auto fax = TRUE ;
-				if switch_once (fax) {
-					if (!r1x)
-						discard ;
-					update_shift_e6 () ;
-				}
-				if switch_once (fax) {
-					if (!r2x)
-						discard ;
-					update_shift_e5 (curr) ;
-					const auto r3x = mNodeHeap[curr].mMemberSet.length () ;
-					mNodeHeap[curr].mMemberSet.add (r3x ,mLatestIndex) ;
-					mNodeHeap[curr].mObjectSet.add (mNodeHeap[mLatestIndex].mName ,mLatestIndex) ;
-					auto &r4x = _SWITCH_ (
-						(ix == VAR_NONE) ? ix :
-						mNodeHeap[iy].mBrother) ;
-					r4x = mLatestIndex ;
-					iy = mLatestIndex ;
-				}
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $8->${eps}|<?xml version = "1.0" ?>|<?xml version = "1.0" encoding = "utf-8" ?>
-		inline void update_shift_e8 () {
-			if (mRis[0] != STRU8 ('<'))
-				return ;
-			if (mRis[1] != STRU8 ('?'))
-				return ;
-			mRis++ ;
-			mRis++ ;
-			mRis >> _PCSTRU8_ ("xml") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			mRis >> _PCSTRU8_ ("version") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			mRis >> _PCSTRU8_ ("=") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			mRis >> _PCSTRU8_ ("\"1.0\"") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			if switch_once (TRUE) {
-				if (mRis[0] == STRU8 ('?'))
-					discard ;
-				mRis >> _PCSTRU8_ ("encoding") ;
-				mRis >> RegularReader::SKIP_GAP ;
-				mRis >> _PCSTRU8_ ("=") ;
-				mRis >> RegularReader::SKIP_GAP ;
-				mRis >> _PCSTRU8_ ("\"utf-8\"") ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mRis >> _PCSTRU8_ ("?>") ;
-		}
-
-		//@info: $9->${end}
-		inline void update_shift_e9 () {
-			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
-		}
-
-		inline void update_heap () {
-			mAttributeMappingSoftSet.clean () ;
-			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
-			INDEX iw = 0 ;
-			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
-				if (!mNodeHeap.used (i))
-					continue ;
-				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
-			}
-			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
-		}
-
-		inline void refresh () {
-			mContext.mHeap = _MOVE_ (mHeap) ;
-			mContext.mIndex = mRoot ;
-		}
-	} ;
-	_CALL_ (Lambda (DEREF[this] ,data)) ;
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
-	using FOUND_NODE = typename Detail::FOUND_NODE ;
-	using STACK_NODE = typename Detail::STACK_NODE ;
-	class Lambda
-		:private Proxy {
-	private:
-		XmlParser &mContext ;
-		const Array<XmlParser> &mSequence ;
-		const String<STRU8> mClazzString ;
-		const String<STRU8> mTableClazzString ;
-		const String<STRU8> mObjectClazzString ;
-		const String<STRU8> mArrayClazzString ;
-		const String<STRU8> mFinalClazzString ;
-
-		Deque<STACK_NODE> mNodeStack ;
-		Array<Function<DEF<void (const XmlParser &)> NONE::*>> mFoundNodeProc ;
-		Set<EFLAG> mFoundNodeProcMappingSet ;
-		SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
-		SoftSet<INDEX> mMemberSoftSet ;
-		SoftSet<String<STRU8>> mObjectSoftSet ;
-		Allocator<NODE ,SAUTO> mNodeHeap ;
-		Deque<FOUND_NODE> mFoundNodeList ;
-		Set<String<STRU8>> mFoundNodeMappingSet ;
-		SharedRef<FixedBuffer<NODE>> mHeap ;
-		INDEX mRoot ;
-
-		Deque<Deque<XmlParser>> mFoundNodeBaseNodeQueue ;
-		STACK_NODE mTempNode ;
-
-	public:
-		inline explicit Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence)
-			: mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
-
-		inline void operator() () {
-			prepare () ;
-			generate () ;
-			refresh () ;
-		}
-
-	private:
-		inline void prepare () {
-			mNodeStack = Deque<STACK_NODE> () ;
-			//@error: fuck g++4.8
-			mFoundNodeProc = Array<Function<DEF<void (const XmlParser &)> NONE::*>> (3) ;
-			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_TABLE) ,0) ;
-			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
-			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
-			mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
-			mFoundNodeProc[0] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_table_node) ;
-			mFoundNodeProc[1] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_object_node) ;
-			mFoundNodeProc[2] = Function<DEF<void (const XmlParser &)> NONE::*> (PhanRef<Lambda>::make (DEREF[this]) ,&Lambda::update_found_array_node) ;
-			mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
-			mMemberSoftSet = SoftSet<INDEX> (0) ;
-			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-			mNodeHeap = Allocator<NODE ,SAUTO> () ;
-			mRoot = mNodeHeap.alloc () ;
-			mNodeHeap[mRoot].mMemberSet = mMemberSoftSet.share () ;
-			mNodeHeap[mRoot].mObjectSet = mObjectSoftSet.share () ;
-			mNodeHeap[mRoot].mParent = VAR_NONE ;
-			mNodeHeap[mRoot].mChild = VAR_NONE ;
-			mNodeHeap[mRoot].mBrother = VAR_NONE ;
-			mFoundNodeList = Deque<FOUND_NODE> () ;
-		}
-
-		inline EFLAG node_type (const XmlParser &node) const {
-			auto &r1x = node.attribute (mClazzString) ;
-			if (r1x == mTableClazzString)
-				return NODE_CLAZZ_TABLE ;
-			if (r1x == mObjectClazzString)
-				return NODE_CLAZZ_OBJECT ;
-			if (r1x == mArrayClazzString)
-				return NODE_CLAZZ_ARRAY ;
-			if (r1x == mFinalClazzString)
-				return NODE_CLAZZ_FINAL ;
-			_DYNAMIC_ASSERT_ (r1x.empty ()) ;
-			return NODE_CLAZZ_TABLE ;
-		}
-
-		inline void generate () {
-			update_root_node () ;
-			while (TRUE) {
-				if (mNodeStack.empty ())
-					break ;
-				mTempNode = _MOVE_ (mNodeStack[mNodeStack.tail ()]) ;
-				mNodeStack.pop () ;
-				for (auto &&i : mTempNode.mBaseNodeList) {
-					INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
-					mFoundNodeProc[ix] (i) ;
-				}
-				update_merge_found_node (mTempNode.mParent) ;
-				mFoundNodeBaseNodeQueue.add (_MOVE_ (mTempNode.mBaseNodeList)) ;
-			}
-			update_heap () ;
-		}
-
-		inline void update_root_node () {
-			INDEX ix = find_normal_node () ;
-			if (ix == VAR_NONE)
-				return ;
-			INDEX jx = mNodeStack.insert () ;
-			mNodeStack[jx].mBaseNodeList = Deque<XmlParser> (mSequence.length ()) ;
-			for (auto &&i : mSequence) {
-				if (!i.exist ())
-					continue ;
-				mNodeStack[jx].mBaseNodeList.add (i) ;
-			}
-			mNodeStack[jx].mClazz = NODE_CLAZZ_OBJECT ;
-			mNodeStack[jx].mParent = mRoot ;
-		}
-
-		inline INDEX find_normal_node () const {
-			for (auto &&i : mSequence)
-				if (i.exist ())
-					return mSequence.at (i) ;
-			return VAR_NONE ;
-		}
-
-		inline void update_found_table_node (const XmlParser &node) {
-			for (XmlParser i = node ,it ; i.exist () ; i = it) {
-				it = i.brother () ;
-				INDEX ix = mFoundNodeList.insert () ;
-				mFoundNodeList[ix].mName = i.name () ;
-				mFoundNodeList[ix].mClazz = node_type (i) ;
-				mFoundNodeList[ix].mAttributeList = Deque<String<STRU8>> () ;
-				mFoundNodeList[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-				mFoundNodeList[ix].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-				mFoundNodeList[ix].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
-				if (mFoundNodeBaseNodeQueue.empty ())
-					mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
-				mFoundNodeBaseNodeQueue.take (mFoundNodeList[ix].mBaseNodeList) ;
-				mFoundNodeList[ix].mBaseNodeList.clear () ;
-				mFoundNodeList[ix].mBaseNodeList.add (i.child ()) ;
-			}
-		}
-
-		inline void update_found_object_node (const XmlParser &node) {
-			for (XmlParser i = node ,it ; i.exist () ; i = it) {
-				it = i.brother () ;
-				const auto r1x = i.name () ;
-				const auto r2x = node_type (i) ;
-				INDEX ix = mFoundNodeMappingSet.map (r1x) ;
-				if switch_once (TRUE) {
-					if (ix == VAR_NONE)
-						discard ;
-					_DYNAMIC_ASSERT_ (mFoundNodeList[ix].mClazz == r2x) ;
-					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
-				}
-				INDEX iy = ix ;
-				if switch_once (TRUE) {
-					if (ix != VAR_NONE)
-						discard ;
-					iy = mFoundNodeList.insert () ;
-					mFoundNodeMappingSet.add (r1x ,iy) ;
-					mFoundNodeList[iy].mName = r1x ;
-					mFoundNodeList[iy].mClazz = r2x ;
-					mFoundNodeList[iy].mAttributeList = Deque<String<STRU8>> () ;
-					mFoundNodeList[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-					if (mFoundNodeBaseNodeQueue.empty ())
-						mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
-					mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
-					mFoundNodeList[iy].mBaseNodeList.clear () ;
-				}
-				mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-				mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
-				mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
-			}
-		}
-
-		inline void update_found_array_node (const XmlParser &node) {
-			for (XmlParser i = node ,it ; i.exist () ; i = it) {
-				it = i.brother () ;
-				const auto r1x = i.name () ;
-				const auto r2x = node_type (i) ;
-				INDEX ix = mFoundNodeList.head () ;
-				if switch_once (TRUE) {
-					if (ix == VAR_NONE)
-						discard ;
-					_DYNAMIC_ASSERT_ (mFoundNodeList[ix].mName == r1x) ;
-					_DYNAMIC_ASSERT_ (r2x != NODE_CLAZZ_FINAL) ;
-				}
-				INDEX iy = mFoundNodeList.insert () ;
-				mFoundNodeMappingSet.add (r1x ,iy) ;
-				mFoundNodeList[iy].mName = r1x ;
-				mFoundNodeList[iy].mClazz = r2x ;
-				mFoundNodeList[iy].mAttributeList = Deque<String<STRU8>> () ;
-				mFoundNodeList[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-				mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-				mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
-				if (mFoundNodeBaseNodeQueue.empty ())
-					mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
-				mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
-				mFoundNodeList[iy].mBaseNodeList.clear () ;
-				mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
-			}
-		}
-
-		inline void update_merge_found_node (const INDEX &curr) {
-			INDEX ix = VAR_NONE ;
-			INDEX iy = VAR_NONE ;
-			for (auto &&i : mFoundNodeList) {
-				iy = ix ;
-				ix = mNodeHeap.alloc () ;
-				mNodeHeap[ix].mName = _MOVE_ (i.mName) ;
-				mNodeHeap[ix].mAttributeList = _MOVE_ (i.mAttributeList) ;
-				mNodeHeap[ix].mAttributeMappingSet = _MOVE_ (i.mAttributeMappingSet) ;
-				mNodeHeap[ix].mParent = curr ;
-				if switch_once (TRUE) {
-					INDEX jx = mNodeHeap[ix].mParent ;
-					if (jx == VAR_NONE)
-						discard ;
-					if (mNodeHeap[jx].mChild == VAR_NONE)
-						mNodeHeap[jx].mChild = ix ;
-					if switch_once (TRUE) {
-						if (mNodeHeap[jx].mMemberSet.size () > 0)
-							discard ;
-						mNodeHeap[jx].mMemberSet = mMemberSoftSet.share () ;
-						mNodeHeap[jx].mObjectSet = mObjectSoftSet.share () ;
-					}
-					const auto r1x = mNodeHeap[jx].mMemberSet.length () ;
-					mNodeHeap[jx].mMemberSet.add (r1x ,ix) ;
-					mNodeHeap[jx].mObjectSet.add (mNodeHeap[ix].mName ,ix) ;
-				}
-				mNodeHeap[ix].mBrother = VAR_NONE ;
-				mNodeHeap[ix].mChild = VAR_NONE ;
-				if (iy != VAR_NONE)
-					mNodeHeap[iy].mBrother = ix ;
-				if (mRoot == VAR_NONE)
-					mRoot = ix ;
-				INDEX jy = mNodeStack.insert () ;
-				mNodeStack[jy].mBaseNodeList = _MOVE_ (i.mBaseNodeList) ;
-				mNodeStack[jy].mClazz = i.mClazz ;
-				mNodeStack[jy].mParent = ix ;
-			}
-			mFoundNodeMappingSet.clear () ;
-			mFoundNodeList.clear () ;
-		}
-
-		inline void update_heap () {
-			mAttributeMappingSoftSet.clean () ;
-			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
-			INDEX iw = 0 ;
-			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
-				if (!mNodeHeap.used (i))
-					continue ;
-				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
-			}
-			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
-		}
-
-		inline void refresh () {
-			mContext.mHeap = _MOVE_ (mHeap) ;
-			mContext.mIndex = mRoot ;
-		}
-	} ;
-	_CALL_ (Lambda (DEREF[this] ,sequence)) ;
+	struct Dependent ;
+	using InitializeLambda2 = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda2 ;
+	_CALL_ (InitializeLambda2 (DEREF[this] ,sequence)) ;
 }
 
 class JsonParser {
@@ -1167,7 +1170,7 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	inline static JsonParser make (const PhanBuffer<const STRU8> &data) {
+	static JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
 		ret.initialize (data) ;
 		return _MOVE_ (ret) ;
@@ -1199,13 +1202,341 @@ struct JsonParser::Detail {
 	class RecursiveCounter
 		:private Wrapped<LENGTH> {
 	public:
-		inline void lock () {
+		void lock () {
 			_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
 			RecursiveCounter::mSelf++ ;
 		}
 
-		inline void unlock () {
+		void unlock () {
 			RecursiveCounter::mSelf-- ;
+		}
+	} ;
+
+	class InitializeLambda
+		:private Proxy {
+	private:
+		JsonParser &mContext ;
+
+		TextReader<STRU8> mTextReader ;
+		RegularReader mRis ;
+		LENGTH mRecursiveCounter ;
+		INDEX mLatestIndex ;
+		String<STRU8> mLatestString ;
+
+		SoftSet<INDEX> mArraySoftSet ;
+		SoftSet<String<STRU8>> mObjectSoftSet ;
+		Allocator<NODE ,SAUTO> mNodeHeap ;
+		SharedRef<FixedBuffer<NODE>> mHeap ;
+		INDEX mRoot ;
+
+	public:
+		explicit InitializeLambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data)
+			: mContext (context_) ,mTextReader (data) {}
+
+		inline void operator() () {
+			prepare () ;
+			generate () ;
+			refresh () ;
+		}
+
+	private:
+		void prepare () {
+			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
+			mRecursiveCounter = 0 ;
+			mArraySoftSet = SoftSet<INDEX> (0) ;
+			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
+			mNodeHeap = Allocator<NODE ,SAUTO> () ;
+			mHeap = SharedRef<FixedBuffer<NODE>> () ;
+			mRoot = VAR_NONE ;
+		}
+
+		void generate () {
+			/*
+			*	$0->$11 $10 $12
+			*	$1->${value}
+			*	$2->true|TRUE|false|FALSE
+			*	$2x->null
+			*	$3->"${string}"
+			*	$4->$1|$2|$2x|$3|$6|$9
+			*	$5->$4|$4 , $5
+			*	$6->[ ]|[ $5 ]
+			*	$7->$3 : $4
+			*	$8->$7|$7 , $8
+			*	$9->{ }|{ $8 }
+			*	$10->${eps}|$4
+			*	$11->${eps}
+			*	$12->${end}
+			*/
+			update_shift_e0 () ;
+			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
+			mRoot = mLatestIndex ;
+			update_heap () ;
+		}
+
+		//@info: $0->$11 $10 $12
+		void update_shift_e0 () {
+			update_shift_e11 () ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e10 () ;
+			INDEX ix = mLatestIndex ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e12 () ;
+			mLatestIndex = ix ;
+		}
+
+		//@info: $1->${value}
+		void update_shift_e1 () {
+			mRis >> RegularReader::HINT_VALUE >> mLatestString ;
+		}
+
+		//@info: $2->true|TRUE|false|FALSE
+		void update_shift_e2 () {
+			auto fax = TRUE ;
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('t')))
+					discard ;
+				mRis >> _PCSTRU8_ ("true") ;
+				mLatestString = _PCSTRU8_ ("true") ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('T')))
+					discard ;
+				mRis >> _PCSTRU8_ ("TRUE") ;
+				mLatestString = _PCSTRU8_ ("TRUE") ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('f')))
+					discard ;
+				mRis >> _PCSTRU8_ ("false") ;
+				mLatestString = _PCSTRU8_ ("false") ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('F')))
+					discard ;
+				mRis >> _PCSTRU8_ ("FALSE") ;
+				mLatestString = _PCSTRU8_ ("FALSE") ;
+			}
+			if switch_once (fax) {
+				_DYNAMIC_ASSERT_ (FALSE) ;
+			}
+		}
+
+		//@info: $2x->null
+		void update_shift_e2x () {
+			mRis >> _PCSTRU8_ ("null") ;
+			mLatestString = String<STRU8> () ;
+		}
+
+		//@info: $3->"${string}"
+		void update_shift_e3 () {
+			mRis >> RegularReader::HINT_STRING >> mLatestString ;
+		}
+
+		//@info: $4->$1|$2|$2x|$3|$6|$9
+		void update_shift_e4 (const INDEX &curr) {
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
+			INDEX ix = VAR_NONE ;
+			auto fax = TRUE ;
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')))
+					if (!(mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')))
+						discard ;
+				ix = mNodeHeap.alloc () ;
+				update_shift_e1 () ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
+				mNodeHeap[ix].mParent = curr ;
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')))
+					if (!(mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')))
+						discard ;
+				ix = mNodeHeap.alloc () ;
+				update_shift_e2 () ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
+				mNodeHeap[ix].mParent = curr ;
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('n')))
+					discard ;
+				ix = mNodeHeap.alloc () ;
+				update_shift_e2x () ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_NULL ;
+				mNodeHeap[ix].mParent = curr ;
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('\"')))
+					discard ;
+				ix = mNodeHeap.alloc () ;
+				update_shift_e3 () ;
+				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
+				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
+				mNodeHeap[ix].mParent = curr ;
+				mNodeHeap[ix].mBrother = VAR_NONE ;
+				mNodeHeap[ix].mChild = VAR_NONE ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('[')))
+					discard ;
+				update_shift_e6 (curr) ;
+				ix = mLatestIndex ;
+			}
+			if switch_once (fax) {
+				if (!(mRis[0] == STRU8 ('{')))
+					discard ;
+				update_shift_e9 (curr) ;
+				ix = mLatestIndex ;
+			}
+			if switch_once (fax) {
+				_DYNAMIC_ASSERT_ (FALSE) ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $5->$4|$4 , $5
+		void update_shift_e5 (const INDEX &curr) {
+			INDEX ix = VAR_NONE ;
+			INDEX iy = VAR_NONE ;
+			while (TRUE) {
+				update_shift_e4 (curr) ;
+				auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<INDEX>> ().self ;
+				const auto r2x = r1x.length () ;
+				r1x.add (r2x ,mLatestIndex) ;
+				auto &r3x = _SWITCH_ (
+					(ix == VAR_NONE) ? ix :
+					mNodeHeap[iy].mBrother) ;
+				r3x = mLatestIndex ;
+				iy = mLatestIndex ;
+				mRis >> RegularReader::SKIP_GAP ;
+				if (mRis[0] != STRU8 (','))
+					break ;
+				mRis++ ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $6->[ ]|[ $5 ]
+		void update_shift_e6 (const INDEX &curr) {
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
+			mRis >> _PCSTRU8_ ("[") ;
+			INDEX ix = mNodeHeap.alloc () ;
+			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX>>::make (mArraySoftSet.share ()) ;
+			mNodeHeap[ix].mClazz = NODE_CLAZZ_ARRAY ;
+			mNodeHeap[ix].mParent = curr ;
+			mNodeHeap[ix].mBrother = VAR_NONE ;
+			mNodeHeap[ix].mChild = VAR_NONE ;
+			mRis >> RegularReader::SKIP_GAP ;
+			if switch_once (TRUE) {
+				if (mRis[0] == STRU8 (']'))
+					discard ;
+				update_shift_e5 (ix) ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mRis >> _PCSTRU8_ ("]") ;
+			mLatestIndex = ix ;
+		}
+
+		//@info: $7->$3 : $4
+		void update_shift_e7 (const INDEX &curr) {
+			update_shift_e3 () ;
+			const auto r1x = _MOVE_ (mLatestString) ;
+			mRis >> RegularReader::SKIP_GAP ;
+			mRis >> _PCSTRU8_ (":") ;
+			mRis >> RegularReader::SKIP_GAP ;
+			update_shift_e4 (curr) ;
+			auto &r2x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
+			r2x.add (r1x ,mLatestIndex) ;
+		}
+
+		//@info: $8->$7|$7 , $8
+		void update_shift_e8 (const INDEX &curr) {
+			INDEX ix = VAR_NONE ;
+			INDEX iy = VAR_NONE ;
+			while (TRUE) {
+				update_shift_e7 (curr) ;
+				auto &r1x = _SWITCH_ (
+					(ix == VAR_NONE) ? ix :
+					mNodeHeap[iy].mBrother) ;
+				r1x = mLatestIndex ;
+				iy = mLatestIndex ;
+				mRis >> RegularReader::SKIP_GAP ;
+				if (mRis[0] != STRU8 (','))
+					break ;
+				mRis++ ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $9->{ }|{ $8 }
+		void update_shift_e9 (const INDEX &curr) {
+			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
+			mRis >> _PCSTRU8_ ("{") ;
+			INDEX ix = mNodeHeap.alloc () ;
+			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8>>>::make (mObjectSoftSet.share ()) ;
+			mNodeHeap[ix].mClazz = NODE_CLAZZ_OBJECT ;
+			mNodeHeap[ix].mParent = curr ;
+			mNodeHeap[ix].mBrother = VAR_NONE ;
+			mNodeHeap[ix].mChild = VAR_NONE ;
+			mRis >> RegularReader::SKIP_GAP ;
+			if switch_once (TRUE) {
+				if (mRis[0] == STRU8 ('}'))
+					discard ;
+				update_shift_e8 (ix) ;
+				mNodeHeap[ix].mChild = mLatestIndex ;
+				mRis >> RegularReader::SKIP_GAP ;
+			}
+			mRis >> _PCSTRU8_ ("}") ;
+			mLatestIndex = ix ;
+		}
+
+		//@info: $10->${eps}|$4
+		void update_shift_e10 () {
+			INDEX ix = VAR_NONE ;
+			if switch_once (TRUE) {
+				if (mRis[0] == STRU8 ('\0'))
+					discard ;
+				update_shift_e4 (VAR_NONE) ;
+				ix = mLatestIndex ;
+			}
+			mLatestIndex = ix ;
+		}
+
+		//@info: $11->${eps}
+		void update_shift_e11 () {
+			_STATIC_WARNING_ ("noop") ;
+		}
+
+		//@info: $12->${end}
+		void update_shift_e12 () {
+			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
+		}
+
+		void update_heap () {
+			mArraySoftSet.clean () ;
+			mObjectSoftSet.clean () ;
+			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
+			INDEX iw = 0 ;
+			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
+				if (!mNodeHeap.used (i))
+					continue ;
+				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
+			}
+			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
+		}
+
+		void refresh () {
+			mContext.mHeap = _MOVE_ (mHeap) ;
+			mContext.mIndex = mRoot ;
 		}
 	} ;
 } ;
@@ -1370,339 +1701,14 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 }
 
 inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
-	using RecursiveCounter = typename Detail::RecursiveCounter ;
-	class Lambda
-		:private Proxy {
-	private:
-		JsonParser &mContext ;
-
-		TextReader<STRU8> mTextReader ;
-		RegularReader mRis ;
-		LENGTH mRecursiveCounter ;
-		INDEX mLatestIndex ;
-		String<STRU8> mLatestString ;
-
-		SoftSet<INDEX> mArraySoftSet ;
-		SoftSet<String<STRU8>> mObjectSoftSet ;
-		Allocator<NODE ,SAUTO> mNodeHeap ;
-		SharedRef<FixedBuffer<NODE>> mHeap ;
-		INDEX mRoot ;
-
-	public:
-		inline explicit Lambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data)
-			: mContext (context_) ,mTextReader (data) {}
-
-		inline void operator() () {
-			prepare () ;
-			generate () ;
-			refresh () ;
-		}
-
-	private:
-		inline void prepare () {
-			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
-			mRecursiveCounter = 0 ;
-			mArraySoftSet = SoftSet<INDEX> (0) ;
-			mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-			mNodeHeap = Allocator<NODE ,SAUTO> () ;
-			mHeap = SharedRef<FixedBuffer<NODE>> () ;
-			mRoot = VAR_NONE ;
-		}
-
-		inline void generate () {
-			/*
-			*	$0->$11 $10 $12
-			*	$1->${value}
-			*	$2->true|TRUE|false|FALSE
-			*	$2x->null
-			*	$3->"${string}"
-			*	$4->$1|$2|$2x|$3|$6|$9
-			*	$5->$4|$4 , $5
-			*	$6->[ ]|[ $5 ]
-			*	$7->$3 : $4
-			*	$8->$7|$7 , $8
-			*	$9->{ }|{ $8 }
-			*	$10->${eps}|$4
-			*	$11->${eps}
-			*	$12->${end}
-			*/
-			update_shift_e0 () ;
-			_DEBUG_ASSERT_ (mLatestIndex == 0) ;
-			mRoot = mLatestIndex ;
-			update_heap () ;
-		}
-
-		//@info: $0->$11 $10 $12
-		inline void update_shift_e0 () {
-			update_shift_e11 () ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e10 () ;
-			INDEX ix = mLatestIndex ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e12 () ;
-			mLatestIndex = ix ;
-		}
-
-		//@info: $1->${value}
-		inline void update_shift_e1 () {
-			mRis >> RegularReader::HINT_VALUE >> mLatestString ;
-		}
-
-		//@info: $2->true|TRUE|false|FALSE
-		inline void update_shift_e2 () {
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('t')))
-					discard ;
-				mRis >> _PCSTRU8_ ("true") ;
-				mLatestString = _PCSTRU8_ ("true") ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('T')))
-					discard ;
-				mRis >> _PCSTRU8_ ("TRUE") ;
-				mLatestString = _PCSTRU8_ ("TRUE") ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('f')))
-					discard ;
-				mRis >> _PCSTRU8_ ("false") ;
-				mLatestString = _PCSTRU8_ ("false") ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('F')))
-					discard ;
-				mRis >> _PCSTRU8_ ("FALSE") ;
-				mLatestString = _PCSTRU8_ ("FALSE") ;
-			}
-			if switch_once (fax) {
-				_DYNAMIC_ASSERT_ (FALSE) ;
-			}
-		}
-
-		//@info: $2x->null
-		inline void update_shift_e2x () {
-			mRis >> _PCSTRU8_ ("null") ;
-			mLatestString = String<STRU8> () ;
-		}
-
-		//@info: $3->"${string}"
-		inline void update_shift_e3 () {
-			mRis >> RegularReader::HINT_STRING >> mLatestString ;
-		}
-
-		//@info: $4->$1|$2|$2x|$3|$6|$9
-		inline void update_shift_e4 (const INDEX &curr) {
-			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
-			INDEX ix = VAR_NONE ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('+') || mRis[0] == STRU8 ('-')))
-					if (!(mRis[0] >= STRU8 ('0') && mRis[0] <= STRU8 ('9')))
-						discard ;
-				ix = mNodeHeap.alloc () ;
-				update_shift_e1 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
-				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = curr ;
-				mNodeHeap[ix].mBrother = VAR_NONE ;
-				mNodeHeap[ix].mChild = VAR_NONE ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('t') || mRis[0] == STRU8 ('T')))
-					if (!(mRis[0] == STRU8 ('f') || mRis[0] == STRU8 ('F')))
-						discard ;
-				ix = mNodeHeap.alloc () ;
-				update_shift_e2 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
-				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = curr ;
-				mNodeHeap[ix].mBrother = VAR_NONE ;
-				mNodeHeap[ix].mChild = VAR_NONE ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('n')))
-					discard ;
-				ix = mNodeHeap.alloc () ;
-				update_shift_e2x () ;
-				mNodeHeap[ix].mClazz = NODE_CLAZZ_NULL ;
-				mNodeHeap[ix].mParent = curr ;
-				mNodeHeap[ix].mBrother = VAR_NONE ;
-				mNodeHeap[ix].mChild = VAR_NONE ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('\"')))
-					discard ;
-				ix = mNodeHeap.alloc () ;
-				update_shift_e3 () ;
-				mNodeHeap[ix].mValue = AnyRef<String<STRU8>>::make (_MOVE_ (mLatestString)) ;
-				mNodeHeap[ix].mClazz = NODE_CLAZZ_STRING ;
-				mNodeHeap[ix].mParent = curr ;
-				mNodeHeap[ix].mBrother = VAR_NONE ;
-				mNodeHeap[ix].mChild = VAR_NONE ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('[')))
-					discard ;
-				update_shift_e6 (curr) ;
-				ix = mLatestIndex ;
-			}
-			if switch_once (fax) {
-				if (!(mRis[0] == STRU8 ('{')))
-					discard ;
-				update_shift_e9 (curr) ;
-				ix = mLatestIndex ;
-			}
-			if switch_once (fax) {
-				_DYNAMIC_ASSERT_ (FALSE) ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $5->$4|$4 , $5
-		inline void update_shift_e5 (const INDEX &curr) {
-			INDEX ix = VAR_NONE ;
-			INDEX iy = VAR_NONE ;
-			while (TRUE) {
-				update_shift_e4 (curr) ;
-				auto &r1x = mNodeHeap[curr].mValue.rebind<SoftSet<INDEX>> ().self ;
-				const auto r2x = r1x.length () ;
-				r1x.add (r2x ,mLatestIndex) ;
-				auto &r3x = _SWITCH_ (
-					(ix == VAR_NONE) ? ix :
-					mNodeHeap[iy].mBrother) ;
-				r3x = mLatestIndex ;
-				iy = mLatestIndex ;
-				mRis >> RegularReader::SKIP_GAP ;
-				if (mRis[0] != STRU8 (','))
-					break ;
-				mRis++ ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $6->[ ]|[ $5 ]
-		inline void update_shift_e6 (const INDEX &curr) {
-			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
-			mRis >> _PCSTRU8_ ("[") ;
-			INDEX ix = mNodeHeap.alloc () ;
-			mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX>>::make (mArraySoftSet.share ()) ;
-			mNodeHeap[ix].mClazz = NODE_CLAZZ_ARRAY ;
-			mNodeHeap[ix].mParent = curr ;
-			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader::SKIP_GAP ;
-			if switch_once (TRUE) {
-				if (mRis[0] == STRU8 (']'))
-					discard ;
-				update_shift_e5 (ix) ;
-				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mRis >> _PCSTRU8_ ("]") ;
-			mLatestIndex = ix ;
-		}
-
-		//@info: $7->$3 : $4
-		inline void update_shift_e7 (const INDEX &curr) {
-			update_shift_e3 () ;
-			const auto r1x = _MOVE_ (mLatestString) ;
-			mRis >> RegularReader::SKIP_GAP ;
-			mRis >> _PCSTRU8_ (":") ;
-			mRis >> RegularReader::SKIP_GAP ;
-			update_shift_e4 (curr) ;
-			auto &r2x = mNodeHeap[curr].mValue.rebind<SoftSet<String<STRU8>>> ().self ;
-			r2x.add (r1x ,mLatestIndex) ;
-		}
-
-		//@info: $8->$7|$7 , $8
-		inline void update_shift_e8 (const INDEX &curr) {
-			INDEX ix = VAR_NONE ;
-			INDEX iy = VAR_NONE ;
-			while (TRUE) {
-				update_shift_e7 (curr) ;
-				auto &r1x = _SWITCH_ (
-					(ix == VAR_NONE) ? ix :
-					mNodeHeap[iy].mBrother) ;
-				r1x = mLatestIndex ;
-				iy = mLatestIndex ;
-				mRis >> RegularReader::SKIP_GAP ;
-				if (mRis[0] != STRU8 (','))
-					break ;
-				mRis++ ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $9->{ }|{ $8 }
-		inline void update_shift_e9 (const INDEX &curr) {
-			ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_<RecursiveCounter> (mRecursiveCounter)) ;
-			mRis >> _PCSTRU8_ ("{") ;
-			INDEX ix = mNodeHeap.alloc () ;
-			mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8>>>::make (mObjectSoftSet.share ()) ;
-			mNodeHeap[ix].mClazz = NODE_CLAZZ_OBJECT ;
-			mNodeHeap[ix].mParent = curr ;
-			mNodeHeap[ix].mBrother = VAR_NONE ;
-			mNodeHeap[ix].mChild = VAR_NONE ;
-			mRis >> RegularReader::SKIP_GAP ;
-			if switch_once (TRUE) {
-				if (mRis[0] == STRU8 ('}'))
-					discard ;
-				update_shift_e8 (ix) ;
-				mNodeHeap[ix].mChild = mLatestIndex ;
-				mRis >> RegularReader::SKIP_GAP ;
-			}
-			mRis >> _PCSTRU8_ ("}") ;
-			mLatestIndex = ix ;
-		}
-
-		//@info: $10->${eps}|$4
-		inline void update_shift_e10 () {
-			INDEX ix = VAR_NONE ;
-			if switch_once (TRUE) {
-				if (mRis[0] == STRU8 ('\0'))
-					discard ;
-				update_shift_e4 (VAR_NONE) ;
-				ix = mLatestIndex ;
-			}
-			mLatestIndex = ix ;
-		}
-
-		//@info: $11->${eps}
-		inline void update_shift_e11 () {
-			_STATIC_WARNING_ ("noop") ;
-		}
-
-		//@info: $12->${end}
-		inline void update_shift_e12 () {
-			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
-		}
-
-		inline void update_heap () {
-			mArraySoftSet.clean () ;
-			mObjectSoftSet.clean () ;
-			mHeap = SharedRef<FixedBuffer<NODE>>::make (mNodeHeap.length ()) ;
-			INDEX iw = 0 ;
-			for (auto &&i : _RANGE_ (0 ,mNodeHeap.size ())) {
-				if (!mNodeHeap.used (i))
-					continue ;
-				mHeap.self[iw++] = _MOVE_ (mNodeHeap[i]) ;
-			}
-			_DEBUG_ASSERT_ (iw == mHeap->size ()) ;
-		}
-
-		inline void refresh () {
-			mContext.mHeap = _MOVE_ (mHeap) ;
-			mContext.mIndex = mRoot ;
-		}
-	} ;
-	_CALL_ (Lambda (DEREF[this] ,data)) ;
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
 class CommandParser {
 private:
+	struct Detail ;
 	Set<String<STRU8>> mOptionSet ;
 	Deque<String<STRU8>> mAttributeList ;
 	Set<String<STRU8>> mAttributeMappingSet ;
@@ -1814,8 +1820,8 @@ private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 
-inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
-	class Lambda
+struct CommandParser::Detail {
+	class InitializeLambda
 		:private Proxy {
 	private:
 		CommandParser &mContext ;
@@ -1831,7 +1837,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		Array<String<STRU8>> mCommand ;
 
 	public:
-		inline explicit Lambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data)
+		explicit InitializeLambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data)
 			: mContext (context_) ,mTextReader (data) {}
 
 		inline void operator() () {
@@ -1841,7 +1847,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 	private:
-		inline void prepare () {
+		void prepare () {
 			mRis = RegularReader (PhanRef<TextReader<STRU8>>::make (mTextReader) ,2) ;
 			mOptionSet = Set<String<STRU8>> () ;
 			mAttributeList = Deque<String<STRU8>> () ;
@@ -1849,7 +1855,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 			mCommandList = SoftList<String<STRU8>> () ;
 		}
 
-		inline void generate () {
+		void generate () {
 			/*
 			*	$0->$8 $7 $9
 			*	$1->${identity}
@@ -1867,7 +1873,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 		//@info: $0->$8 $7 $9
-		inline void update_shift_e0 () {
+		void update_shift_e0 () {
 			update_shift_e8 () ;
 			mRis >> RegularReader::SKIP_GAP_SPACE ;
 			update_shift_e7 () ;
@@ -1876,29 +1882,29 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 		//@info: $1->${identity}
-		inline void update_shift_e1 () {
+		void update_shift_e1 () {
 			mRis >> RegularReader::HINT_IDENTIFIER >> mLatestString ;
 		}
 
 		//@info: $2->"${string}"
-		inline void update_shift_e2 () {
+		void update_shift_e2 () {
 			mRis >> RegularReader::HINT_STRING >> mLatestString ;
 		}
 
 		//@info: $3->${newgap}
-		inline void update_shift_e3 () {
+		void update_shift_e3 () {
 			mRis >> RegularReader::HINT_NEWGAP >> mLatestString ;
 		}
 
 		//@info: $4->/$1
-		inline void update_shift_e4 () {
+		void update_shift_e4 () {
 			mRis >> _PCSTRU8_ ("/") ;
 			update_shift_e1 () ;
 			mOptionSet.add (_MOVE_ (mLatestString)) ;
 		}
 
 		//@info: $5->-$1|-$1=$2|-$1=$3
-		inline void update_shift_e5 () {
+		void update_shift_e5 () {
 			mRis >> _PCSTRU8_ ("-") ;
 			update_shift_e1 () ;
 			INDEX ix = mAttributeMappingSet.map (mLatestString) ;
@@ -1928,7 +1934,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 		//@info: $6->$2|$3
-		inline void update_shift_e6 () {
+		void update_shift_e6 () {
 			auto fax = TRUE ;
 			if switch_once (fax) {
 				if (!(mRis[0] == STRU8 ('\"')))
@@ -1942,7 +1948,7 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 		//@info: $7->${eps}|$4 $7|$5 $7|$6 $7
-		inline void update_shift_e7 () {
+		void update_shift_e7 () {
 			while (TRUE) {
 				if (mRis[0] == STRU8 ('\0'))
 					break ;
@@ -1965,28 +1971,33 @@ inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &da
 		}
 
 		//@info: $8->${eps}
-		inline void update_shift_e8 () {
+		void update_shift_e8 () {
 			_STATIC_WARNING_ ("noop") ;
 		}
 
 		//@info: $9->${end}
-		inline void update_shift_e9 () {
+		void update_shift_e9 () {
 			_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
 		}
 
-		inline void update_command () {
+		void update_command () {
 			mCommand = Array<String<STRU8>> (mCommandList.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,mCommandList.length ()))
 				mCommand[i] = _MOVE_ (mCommandList[mCommandList.access (i)]) ;
 		}
 
-		inline void refresh () {
+		void refresh () {
 			mContext.mOptionSet = _MOVE_ (mOptionSet) ;
 			mContext.mAttributeList = _MOVE_ (mAttributeList) ;
 			mContext.mAttributeMappingSet = _MOVE_ (mAttributeMappingSet) ;
 			mContext.mCommand = _MOVE_ (mCommand) ;
 		}
 	} ;
-	_CALL_ (Lambda (DEREF[this] ,data)) ;
+} ;
+
+inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
+	struct Dependent ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Detail ,Dependent>::InitializeLambda ;
+	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 } ;

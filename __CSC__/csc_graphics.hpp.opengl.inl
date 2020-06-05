@@ -525,7 +525,7 @@ private:
 		api::glBindVertexArray (0) ;
 	}
 
-	inline String<STRA> identity_name (const String<STR> &name) const {
+	String<STRA> identity_name (const String<STR> &name) const {
 		String<STRA> ret = String<STRA> (name.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.size ())) {
 			const auto r1x = BOOL (name[i] >= STR ('a') && name[i] <= STR ('z')) ;
@@ -538,7 +538,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	inline void compute_check_error (UniqueRef<CHAR> &self_) const {
+	void compute_check_error (UniqueRef<CHAR> &self_) const {
 		const auto r1x = api::glGetError () ;
 		_DYNAMIC_ASSERT_ (r1x == GL_NO_ERROR) ;
 	}
