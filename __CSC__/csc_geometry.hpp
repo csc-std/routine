@@ -299,25 +299,25 @@ public:
 	}
 
 public:
-	static const Vector &axis_x () {
+	imports const Vector &axis_x () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_y () {
+	imports const Vector &axis_y () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_z () {
+	imports const Vector &axis_z () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (1) ,REAL (0)} ;
 		}) ;
 	}
 
-	static const Vector &axis_w () {
+	imports const Vector &axis_w () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
 		}) ;
@@ -373,7 +373,7 @@ public:
 
 	DEF<typename Private::template Row<Matrix>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<Matrix>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -383,7 +383,7 @@ public:
 
 	DEF<typename Private::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const Matrix>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -702,7 +702,7 @@ public:
 	}
 
 public:
-	static const Matrix &identity () {
+	imports const Matrix &identity () {
 		return _CACHE_ ([&] () {
 			return Matrix ({
 				{REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ,
@@ -712,7 +712,7 @@ public:
 		}) ;
 	}
 
-	static Matrix make_diag (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
+	imports Matrix make_diag (const REAL &x ,const REAL &y ,const REAL &z ,const REAL &w) {
 		Matrix ret = Matrix ({
 			{x ,REAL (0) ,REAL (0) ,REAL (0)} ,
 			{REAL (0) ,y ,REAL (0) ,REAL (0)} ,
@@ -721,7 +721,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_shear (const Vector<REAL> &vx ,const Vector<REAL> &vy ,const Vector<REAL> &vz) {
+	imports Matrix make_shear (const Vector<REAL> &vx ,const Vector<REAL> &vy ,const Vector<REAL> &vz) {
 		_DEBUG_ASSERT_ (vx[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vy[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vz[3] == REAL (0)) ;
@@ -742,7 +742,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
+	imports Matrix make_rotation (const Vector<REAL> &normal ,const REAL &angle) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		Matrix ret ;
 		const auto r1x = normal.normalize () ;
@@ -768,7 +768,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
+	imports Matrix make_rotation (const REAL &qx ,const REAL &qy ,const REAL &qz ,const REAL &qw) {
 		Matrix ret ;
 		const auto r1x = MathProc::square (qx) + MathProc::square (qy) + MathProc::square (qz) + MathProc::square (qw) ;
 		const auto r2x = REAL (2) * MathProc::inverse (r1x) ;
@@ -795,7 +795,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
+	imports ARRAY4<REAL> make_rotation_quat (const Matrix &rot_mat) {
 		ARRAY4<REAL> ret ;
 		const auto r1x = rot_mat.decompose () ;
 		const auto r2x = r1x[2] ;
@@ -853,7 +853,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
+	imports ARRAY3<REAL> make_rotation_axis (const Matrix &rot_mat) {
 		ARRAY3<REAL> ret ;
 		const auto r1x = make_rotation_quat (rot_mat) ;
 		const auto r2x = Vector<REAL> {r1x[0] ,r1x[1] ,r1x[2] ,REAL (0)}.magnitude () ;
@@ -866,7 +866,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_translation (const Vector<REAL> &direction) {
+	imports Matrix make_translation (const Vector<REAL> &direction) {
 		_DEBUG_ASSERT_ (direction[3] == REAL (0)) ;
 		Matrix ret = Matrix ({
 			{REAL (1) ,REAL (0) ,REAL (0) ,direction[0]} ,
@@ -876,7 +876,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
+	imports Matrix make_view (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
 		_DEBUG_ASSERT_ (vx[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (vy[3] == REAL (0)) ;
 		const auto r1x = vx.normalize () ;
@@ -891,7 +891,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_view_xy (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
+	imports Matrix make_view_xy (const Vector<REAL> &vx ,const Vector<REAL> &vy) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_x () ,
 			Vector<REAL>::axis_y () ,
@@ -900,7 +900,7 @@ public:
 		return make_view (vx ,vy) * r1x ;
 	}
 
-	static Matrix make_view_zx (const Vector<REAL> &vz ,const Vector<REAL> &vx) {
+	imports Matrix make_view_zx (const Vector<REAL> &vz ,const Vector<REAL> &vx) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_y () ,
 			Vector<REAL>::axis_z () ,
@@ -909,7 +909,7 @@ public:
 		return make_view (vz ,vx) * r1x ;
 	}
 
-	static Matrix make_view_yz (const Vector<REAL> &vy ,const Vector<REAL> &vz) {
+	imports Matrix make_view_yz (const Vector<REAL> &vy ,const Vector<REAL> &vz) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_z () ,
 			Vector<REAL>::axis_x () ,
@@ -918,7 +918,7 @@ public:
 		return make_view (vy ,vz) * r1x ;
 	}
 
-	static Matrix make_view_yx (const Vector<REAL> &vy ,const Vector<REAL> &vx) {
+	imports Matrix make_view_yx (const Vector<REAL> &vy ,const Vector<REAL> &vx) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_y () ,
 			Vector<REAL>::axis_x () ,
@@ -927,7 +927,7 @@ public:
 		return make_view (vy ,vx) * r1x ;
 	}
 
-	static Matrix make_view_xz (const Vector<REAL> &vx ,const Vector<REAL> &vz) {
+	imports Matrix make_view_xz (const Vector<REAL> &vx ,const Vector<REAL> &vz) {
 		const auto r1x = Matrix ({
 			Vector<REAL>::axis_x () ,
 			-Vector<REAL>::axis_z () ,
@@ -936,7 +936,7 @@ public:
 		return make_view (vx ,vz) * r1x ;
 	}
 
-	static Matrix make_view_zy (const Vector<REAL> &vz ,const Vector<REAL> &vy) {
+	imports Matrix make_view_zy (const Vector<REAL> &vz ,const Vector<REAL> &vy) {
 		const auto r1x = Matrix ({
 			-Vector<REAL>::axis_z () ,
 			Vector<REAL>::axis_y () ,
@@ -945,7 +945,7 @@ public:
 		return make_view (vz ,vy) * r1x ;
 	}
 
-	static Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py ,const Vector<REAL> &pw) {
+	imports Matrix make_view (const Vector<REAL> &px ,const Vector<REAL> &py ,const Vector<REAL> &pw) {
 		_DEBUG_ASSERT_ (px[3] == REAL (1)) ;
 		_DEBUG_ASSERT_ (py[3] == REAL (1)) ;
 		_DEBUG_ASSERT_ (pw[3] == REAL (1)) ;
@@ -961,7 +961,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
+	imports Matrix make_perspective (const REAL &fx ,const REAL &fy ,const REAL &wx ,const REAL &wy) {
 		_DEBUG_ASSERT_ (fx > REAL (0)) ;
 		_DEBUG_ASSERT_ (fy > REAL (0)) ;
 		Matrix ret = Matrix ({
@@ -972,7 +972,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
+	imports Matrix make_projection (const Vector<REAL> &normal ,const REAL &center ,const Vector<REAL> &light) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		_DEBUG_ASSERT_ (light[3] == REAL (0)) ;
 		Matrix ret ;
@@ -998,7 +998,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_cross_product (const Vector<REAL> &first) {
+	imports Matrix make_cross_product (const Vector<REAL> &first) {
 		_DEBUG_ASSERT_ (first[3] == REAL (0)) ;
 		Matrix ret = Matrix ({
 			{REAL (0) ,-first[2] ,first[1] ,REAL (0)} ,
@@ -1008,7 +1008,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
+	imports Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
 		Matrix ret ;
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
 		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
@@ -1016,7 +1016,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	static Matrix make_reflection (const Vector<REAL> &normal) {
+	imports Matrix make_reflection (const Vector<REAL> &normal) {
 		_DEBUG_ASSERT_ (normal[3] == REAL (0)) ;
 		const auto r1x = normal.normalize () ;
 		return identity () - make_symmetry (r1x ,r1x) * REAL (2) ;

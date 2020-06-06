@@ -16,17 +16,17 @@ public:
 	}
 } ;
 
-inline static void main_startup () {
+imports void main_startup () {
 	using namespace UNITTEST ;
 #ifdef __CSC_COMPILER_MSVC__
 	Singleton<DebuggerService>::instance ().output_memory_leaks_report (TRUE) ;
 #endif
-	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("static constructor for main.cpp")) ;
+	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("main_startup")) ;
 }
 
-inline static void main_shutdown () {
+imports void main_shutdown () {
 	using namespace UNITTEST ;
-	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("static destructor for main.cpp")) ;
+	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("main_shutdown")) ;
 }
 
 #ifdef __CSC_TARGET_EXE__

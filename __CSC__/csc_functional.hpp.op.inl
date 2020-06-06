@@ -22,7 +22,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_equal<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			return IN_lhs::compile (me) == IN_rhs::compile (me) ;
 		}
 	} ;
@@ -37,7 +37,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_compr<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static FLAG compile (CONTEXT &me) {
+		imports FLAG compile (CONTEXT &me) {
 			return U::OPERATOR_COMPR::invoke (IN_lhs::compile (me) ,IN_rhs::compile (me)) ;
 		}
 	} ;
@@ -52,7 +52,7 @@ template <class IN_lhs>
 struct FUN_not<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			return !IN_lhs::compile (me) ;
 		}
 	} ;
@@ -67,7 +67,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_and<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			return IN_lhs::compile (me) && IN_rhs::compile (me) ;
 		}
 	} ;
@@ -82,7 +82,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_band<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			const auto r1x = IN_lhs::compile (me) & IN_rhs::compile (me) ;
 			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
@@ -98,7 +98,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_or<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			return IN_lhs::compile (me) || IN_rhs::compile (me) ;
 		}
 	} ;
@@ -113,7 +113,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_bor<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			const auto r1x = IN_lhs::compile (me) | IN_rhs::compile (me) ;
 			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
@@ -129,7 +129,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_xor<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			return IN_lhs::compile (me) != IN_rhs::compile (me) ;
 		}
 	} ;
@@ -144,7 +144,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_bxor<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			const auto r1x = IN_lhs::compile (me) ^ IN_rhs::compile (me) ;
 			return U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> (r1x) ;
 		}
@@ -160,7 +160,7 @@ template <class IN_lhs>
 struct FUN_plus<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return +IN_lhs::compile (me) ;
 		}
 	} ;
@@ -175,7 +175,7 @@ template <class IN_lhs>
 struct FUN_minus<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return -IN_lhs::compile (me) ;
 		}
 	} ;
@@ -190,7 +190,7 @@ template <class IN_lhs>
 struct FUN_increase<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> ret = IN_lhs::compile (me) ;
 			++ret ;
 			return _MOVE_ (ret) ;
@@ -207,7 +207,7 @@ template <class IN_lhs>
 struct FUN_decrease<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> ret = IN_lhs::compile (me) ;
 			--ret ;
 			return _MOVE_ (ret) ;
@@ -224,7 +224,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_add<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) + IN_rhs::compile (me) ;
 		}
 	} ;
@@ -239,7 +239,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_sub<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) - IN_rhs::compile (me) ;
 		}
 	} ;
@@ -254,7 +254,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_mul<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) * IN_rhs::compile (me) ;
 		}
 	} ;
@@ -269,7 +269,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_div<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) / IN_rhs::compile (me) ;
 		}
 	} ;
@@ -284,7 +284,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_mod<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) % IN_rhs::compile (me) ;
 		}
 	} ;
@@ -299,7 +299,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_cross<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			return IN_lhs::compile (me) ^ IN_rhs::compile (me) ;
 		}
 	} ;
@@ -333,7 +333,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_get<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT ,class _DEP = NONE>
-		static auto compile (CONTEXT &me)
+		imports auto compile (CONTEXT &me)
 			->DEPENDENT_TYPE<DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>> ()])> ,_DEP> {
 			return IN_lhs::compile (me)[IN_rhs::compile (me)] ;
 		}
@@ -349,7 +349,7 @@ template <class IN_lhs ,class IN_rhs>
 struct FUN_assign<IN_lhs ,IN_rhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT> compile (CONTEXT &me) {
 			_STATIC_ASSERT_ (stl::is_lvalue_reference<U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>>::value) ;
 			return IN_lhs::compile (me) = IN_rhs::compile (me) ;
 		}
@@ -365,7 +365,7 @@ template <class IN_lhs ,class... IN_rhs>
 struct FUN_call<IN_lhs ,IN_rhs...> {
 	struct CON_return {
 		template <class CONTEXT ,class _DEP = NONE>
-		static auto compile (CONTEXT &me)
+		imports auto compile (CONTEXT &me)
 			->DEPENDENT_TYPE<RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,CONTEXT>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,CONTEXT>...>> ,_DEP> {
 			return IN_lhs::compile (me) (IN_rhs::compile (me)...) ;
 		}
@@ -381,7 +381,7 @@ template <class IN_lhs>
 struct FUN_assert<IN_lhs> {
 	struct CON_return {
 		template <class CONTEXT>
-		static BOOL compile (CONTEXT &me) {
+		imports BOOL compile (CONTEXT &me) {
 			_DYNAMIC_ASSERT_ (IN_lhs::compile (me)) ;
 			return TRUE ;
 		}
@@ -397,7 +397,7 @@ template <class IN_lhs ,class IN_rhs1 ,class IN_rhs2>
 struct FUN_switch<IN_lhs ,IN_rhs1 ,IN_rhs2> {
 	struct CON_return {
 		template <class CONTEXT>
-		static U::COMPILE_RETURN_TYPE<IN_rhs1 ,CONTEXT> compile (CONTEXT &me) {
+		imports U::COMPILE_RETURN_TYPE<IN_rhs1 ,CONTEXT> compile (CONTEXT &me) {
 			if (IN_lhs::compile (me))
 				return IN_rhs1::compile (me) ;
 			return IN_rhs2::compile (me) ;

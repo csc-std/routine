@@ -39,7 +39,7 @@ public:
 private:
 	using Binder = typename TextWriter<STR>::Binder ;
 
-	exports class Abstract
+	class Abstract
 		:public Interface {
 	public:
 		virtual LENGTH buffer_size () const = 0 ;
@@ -93,7 +93,7 @@ public:
 	template <class... _ARGS>
 	void print (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->print (ImplBinder (msg...)) ;
 	}
@@ -101,7 +101,7 @@ public:
 	template <class... _ARGS>
 	void fatal (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->fatal (ImplBinder (msg...)) ;
 	}
@@ -109,7 +109,7 @@ public:
 	template <class... _ARGS>
 	void error (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->error (ImplBinder (msg...)) ;
 	}
@@ -117,7 +117,7 @@ public:
 	template <class... _ARGS>
 	void warn (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->warn (ImplBinder (msg...)) ;
 	}
@@ -125,7 +125,7 @@ public:
 	template <class... _ARGS>
 	void info (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->info (ImplBinder (msg...)) ;
 	}
@@ -133,7 +133,7 @@ public:
 	template <class... _ARGS>
 	void debug (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->debug (ImplBinder (msg...)) ;
 	}
@@ -141,7 +141,7 @@ public:
 	template <class... _ARGS>
 	void verbose (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->verbose (ImplBinder (msg...)) ;
 	}
@@ -154,7 +154,7 @@ public:
 	template <class... _ARGS>
 	void log (const String<STR> &tag ,const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<_ARGS...> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->log (tag.raw () ,ImplBinder (msg...)) ;
 	}
@@ -212,7 +212,7 @@ private:
 class DebuggerService
 	:private Proxy {
 private:
-	exports class Abstract
+	class Abstract
 		:public Interface {
 	public:
 		virtual void abort_once_invoked_exit (const BOOL &flag) = 0 ;

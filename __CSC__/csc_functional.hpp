@@ -95,7 +95,7 @@ public:
 
 public:
 	template <class _ARG1>
-	static const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
+	imports const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
 			return Operand (_NULL_<ARGV<ARGVP<_ARG1>>> ()) ;
 		}) ;
@@ -119,7 +119,7 @@ private:
 
 class Operator {
 private:
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual LENGTH rank () const = 0 ;
@@ -151,7 +151,7 @@ public:
 		struct Dependent ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		using FUNC_HINT = REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>> ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>> ;
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplHolder>::value) ;
 		const auto r1x = _FORWARD_<PTR<FUNC_HINT>> (func) ;

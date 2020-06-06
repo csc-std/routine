@@ -42,7 +42,7 @@ public:
 namespace U {
 struct OPERATOR_SORT {
 	template <class _ARG1 ,class _ARG2>
-	static void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
+	imports void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
 		for (auto &&i : _RANGE_ (seg_a ,seg_b)) {
 			INDEX ix = i + 1 ;
 			INDEX iy = i ;
@@ -61,7 +61,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,INDEX &mid_one) {
+	imports void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
 		auto tmp = _MOVE_ (out[ix]) ;
@@ -92,7 +92,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &ideal) {
+	imports void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &ideal) {
 		auto rax = ideal ;
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
@@ -114,7 +114,7 @@ struct OPERATOR_SORT {
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg ,const LENGTH &seg_len) {
+	imports void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg ,const LENGTH &seg_len) {
 		_DEBUG_ASSERT_ (seg_len > 0) ;
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
 		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
@@ -575,7 +575,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	static String make (const _ARGS &...initval) {
+	imports String make (const _ARGS &...initval) {
 		struct Dependent ;
 		using TextWriter = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<SIZE ,SAUTO>::value) ;
@@ -591,7 +591,7 @@ private:
 		:mString (len) {}
 
 private:
-	static LENGTH plain_string_length (const ARR<ITEM> &val) {
+	imports LENGTH plain_string_length (const ARR<ITEM> &val) {
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		LENGTH ret = BasicProc::mem_chr (val ,r1x ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
@@ -1045,7 +1045,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	DEF<typename Private::template Pair<Priority>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Priority>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -1057,7 +1057,7 @@ public:
 	//@warn: index would be no longer valid every time revised
 	DEF<typename Private::template Pair<const Priority>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Priority>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -1075,14 +1075,14 @@ public:
 
 	INDEX at (const DEF<typename Private::template Pair<Priority>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Priority>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const Priority>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Priority>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -2213,11 +2213,11 @@ namespace U {
 //@error: fuck gcc
 template <class UNIT>
 struct CONSTEXPR_SWITCH_CEIL8 {
-	static constexpr UNIT case1 (const UNIT &len) {
+	imports constexpr UNIT case1 (const UNIT &len) {
 		return len ;
 	}
 
-	static constexpr UNIT case2 (const UNIT &len) {
+	imports constexpr UNIT case2 (const UNIT &len) {
 		return (len + 7) / 8 ;
 	}
 } ;
@@ -2334,7 +2334,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	DEF<typename Private::template Bit<BitSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Bit = DEPENDENT_TYPE<DEF<typename Private::template Bit<BitSet>> ,Dependent> ;
+		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
@@ -2346,7 +2346,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	DEF<typename Private::template Bit<const BitSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Bit = DEPENDENT_TYPE<DEF<typename Private::template Bit<const BitSet>> ,Dependent> ;
+		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
@@ -2357,7 +2357,7 @@ public:
 
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Bit<BitSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
@@ -2366,7 +2366,7 @@ public:
 
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Bit<const BitSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
@@ -2570,7 +2570,7 @@ private:
 		:mSet (len) ,mWidth (width) {}
 
 private:
-	static LENGTH forward_width (const LENGTH &width) {
+	imports LENGTH forward_width (const LENGTH &width) {
 		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 		return width ;
 	}
@@ -2735,7 +2735,7 @@ public:
 
 	DEF<typename Private::template Pair<Set>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Set>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -2745,7 +2745,7 @@ public:
 
 	DEF<typename Private::template Pair<const Set>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Set>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -2759,14 +2759,14 @@ public:
 
 	INDEX at (const DEF<typename Private::template Pair<Set>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Set>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const Set>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Set>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -3371,7 +3371,7 @@ public:
 
 	DEF<typename Private::template Pair<HashSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<HashSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -3381,7 +3381,7 @@ public:
 
 	DEF<typename Private::template Pair<const HashSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const HashSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
@@ -3395,14 +3395,14 @@ public:
 
 	INDEX at (const DEF<typename Private::template Pair<HashSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<HashSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const HashSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const HashSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -3703,7 +3703,7 @@ public:
 
 	DEF<typename Private::template Pair<SoftSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<SoftSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -3714,7 +3714,7 @@ public:
 
 	DEF<typename Private::template Pair<const SoftSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const SoftSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
@@ -3729,14 +3729,14 @@ public:
 
 	INDEX at (const DEF<typename Private::template Pair<SoftSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<SoftSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const SoftSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const SoftSet>> ,Dependent> ;
+		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}

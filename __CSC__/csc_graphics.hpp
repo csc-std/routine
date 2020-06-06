@@ -232,7 +232,7 @@ class AbstractSprite ;
 
 class AbstractShader {
 public:
-	exports class Abstract
+	class Abstract
 		:public Interface {
 	public:
 		virtual void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;

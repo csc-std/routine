@@ -252,7 +252,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,root_)) ;
 	}
 
@@ -366,7 +366,7 @@ public:
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,dataset ,distance ,center)) ;
 	}
 } ;
@@ -532,7 +532,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency)) ;
 	}
 } ;
@@ -601,7 +601,7 @@ private:
 
 	void update_lack_weight (const INDEX &y) {
 		/*
-		*	inline void update_lack_weight_e0 (const INDEX &y) {
+		*	void update_lack_weight_e0 (const INDEX &y) {
 		*		//@info: $0
 		*		mLackWeight[0] = 0 ;
 		*		mLackWeight[1] = +mInfinity ;
@@ -617,7 +617,7 @@ private:
 		*		//@info: $20
 		*	}
 		*
-		*	inline void update_lack_weight_e7 (const INDEX &stack_x ,const INDEX &stack_y ,BOOL &stack_ret) {
+		*	void update_lack_weight_e7 (const INDEX &stack_x ,const INDEX &stack_y ,BOOL &stack_ret) {
 		*		//@info: $7
 		*		if (stack_y == VAR_NONE) {
 		*			//@info: $2
@@ -661,7 +661,7 @@ private:
 		*		return ;
 		*	}
 		*/
-		static const auto M_STATE = PACK<EFLAG[22]> ({
+		static constexpr auto M_STATE = PACK<EFLAG[22]> ({
 			EFLAG (0) ,EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
 			EFLAG (5) ,EFLAG (6) ,EFLAG (7) ,EFLAG (8) ,EFLAG (9) ,
 			EFLAG (10) ,EFLAG (11) ,EFLAG (12) ,EFLAG (13) ,EFLAG (14) ,
@@ -876,7 +876,7 @@ public:
 private:
 	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,loss ,fdx)) ;
 	}
 } ;
@@ -1133,7 +1133,7 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,vertex)) ;
 	}
 
@@ -1378,7 +1378,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,source ,sink)) ;
 	}
 } ;

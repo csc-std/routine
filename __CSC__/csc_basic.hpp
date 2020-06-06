@@ -66,12 +66,12 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 namespace U {
 struct OPERATOR_COMPR {
 	template <class _ARG1>
-	static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().compr (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().compr (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
 	}
 
 	template <class _ARG1>
-	static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> () < _NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ())> ,BOOL>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> () < _NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ())> ,BOOL>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		if (lhs < rhs)
 			return FLAG (-1) ;
 		if (rhs < lhs)
@@ -80,12 +80,12 @@ struct OPERATOR_COMPR {
 	}
 
 	template <class _ARG1>
-	static FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const ARGV<ENABLE_TYPE<stl::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		return BasicProc::mem_compr (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (lhs)] ,PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (rhs)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	static FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
+	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
 		return template_compr (lhs ,rhs ,ARGVPX ,ARGVP9) ;
 	}
 } ;
@@ -114,22 +114,22 @@ inline exports FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG
 namespace U {
 struct OPERATOR_HASH {
 	template <class _ARG1>
-	static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	imports FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
 	}
 
 	template <class _ARG1>
-	static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_integral<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	imports FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_integral<_ARG1>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		return FLAG (self_) ;
 	}
 
 	template <class _ARG1>
-	static FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
+	imports FLAG template_hash (const _ARG1 &self_ ,const ARGV<ENABLE_TYPE<stl::is_pod<_ARG1>::value>> & ,const DEF<decltype (ARGVP1)> &) {
 		return BasicProc::mem_hash (PTRTOARR[_CAST_<BYTE[_SIZEOF_ (_ARG1)]> (self_)] ,_SIZEOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	static FLAG invoke (const _ARG1 &self_) {
+	imports FLAG invoke (const _ARG1 &self_) {
 		FLAG ret = template_hash (self_ ,ARGVPX ,ARGVP9) ;
 		ret &= VAR_MAX ;
 		return _MOVE_ (ret) ;
@@ -183,8 +183,15 @@ inline exports FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &le
 }
 #endif
 
-namespace U {
-inline CHAR static_mem_crc32_table_each (const CHAR &val) {
+class CRC32StaticProc
+	:private Wrapped<void> {
+public:
+	imports CHAR static_mem_crc32_table_each (const CHAR &val) ;
+
+	imports const PACK<CHAR[256]> &static_mem_crc32_table () ;
+} ;
+
+inline exports CHAR CRC32StaticProc::static_mem_crc32_table_each (const CHAR &val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		_STATIC_UNUSED_ (i) ;
@@ -197,15 +204,14 @@ inline CHAR static_mem_crc32_table_each (const CHAR &val) {
 	return _MOVE_ (ret) ;
 }
 
-inline const PACK<CHAR[256]> &static_mem_crc32_table () {
+inline exports const PACK<CHAR[256]> &CRC32StaticProc::static_mem_crc32_table () {
 	return _CACHE_ ([&] () {
 		PACK<CHAR[256]> ret ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.mP1))))
-			ret.mP1[i] = static_mem_crc32_table_each (CHAR (i)) ;
+			ret.mP1[i] = CRC32StaticProc::static_mem_crc32_table_each (CHAR (i)) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
-} ;
 
 template <class _ARG1>
 inline exports FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &len) {
@@ -215,7 +221,7 @@ inline exports FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &l
 #endif
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
-	auto &r1x = U::static_mem_crc32_table () ;
+	auto &r1x = CRC32StaticProc::static_mem_crc32_table () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
 		const auto r2x = CHAR ((CHAR (ret) ^ CHAR (src[i])) & CHAR (0X000000FF)) ;
 		ret = FLAG (r1x.mP1[INDEX (r2x)] ^ (CHAR (ret) >> 8)) ;
@@ -564,7 +570,7 @@ class GlobalHeap
 	:private Wrapped<void> {
 public:
 	template <class _RET>
-	static ScopedPtr<_RET ,GlobalHeap> alloc () side_effects {
+	imports ScopedPtr<_RET ,GlobalHeap> alloc () side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -575,7 +581,7 @@ public:
 	}
 
 	template <class _RET>
-	static ScopedPtr<ARR<_RET> ,GlobalHeap> alloc (const LENGTH &len) side_effects {
+	imports ScopedPtr<ARR<_RET> ,GlobalHeap> alloc (const LENGTH &len) side_effects {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_RET) <= _ALIGNOF_ (stl::max_align_t)) ;
@@ -589,7 +595,7 @@ public:
 	}
 
 	template <class _ARG1>
-	static void free (const PTR<_ARG1> &address) noexcept {
+	imports void free (const PTR<_ARG1> &address) noexcept {
 		auto &r1x = _LOAD_UNSAFE_<NONE> (_ADDRESS_ (address)) ;
 		operator delete (DEPTR[r1x] ,stl::nothrow) ;
 	}
@@ -784,7 +790,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	static AutoRef make (_ARGS &&...initval) {
+	imports AutoRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<Holder> (_FORWARD_<const PTR<TEMP<Holder>> &> (rax)) ;
@@ -891,7 +897,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	static SharedRef make (_ARGS &&...initval) {
+	imports SharedRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc<TEMP<Holder>> () ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<Holder> (_FORWARD_<const PTR<TEMP<Holder>> &> (rax)) ;
@@ -921,7 +927,7 @@ class AnyRef ;
 template <>
 class AnyRef<void> final {
 private:
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual FLAG typemid () const = 0 ;
@@ -1076,7 +1082,7 @@ public:
 
 	UNIT &to () leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1092,7 +1098,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1108,9 +1114,9 @@ public:
 
 public:
 	template <class... _ARGS>
-	static AnyRef make (_ARGS &&...initval) {
+	imports AnyRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<ImplHolder> (_FORWARD_<const PTR<TEMP<ImplHolder>> &> (rax)) ;
@@ -1153,7 +1159,7 @@ class UniqueRef ;
 template <>
 class UniqueRef<void> final {
 private:
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual void release () = 0 ;
@@ -1179,7 +1185,7 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void ()>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<void ()>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
@@ -1280,7 +1286,7 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<void (UNIT &)>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
@@ -1333,7 +1339,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<void (UNIT &)>> ;
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1349,9 +1355,9 @@ public:
 
 public:
 	template <class... _ARGS>
-	static UniqueRef make (_ARGS &&...initval) {
+	imports UniqueRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<void (UNIT &)>> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		const auto r1x = _FORWARD_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
@@ -1465,12 +1471,12 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value>>
-	static PhanRef make (_ARG1 &val) side_effects {
+	imports PhanRef make (_ARG1 &val) side_effects {
 		return PhanRef (DEPTR[val]) ;
 	}
 
 	template <class _ARG1>
-	static PhanRef make (const PhanRef<_ARG1> &val) {
+	imports PhanRef make (const PhanRef<_ARG1> &val) {
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 & ,UNIT &>::value) ;
 		if (!val.exist ())
 			return PhanRef () ;
@@ -1484,7 +1490,7 @@ class Function ;
 template <class UNIT1 ,class... UNITS>
 class Function<UNIT1 (UNITS...)> final {
 private:
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
@@ -1515,7 +1521,7 @@ public:
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARG1> (that)) ;
@@ -1577,9 +1583,9 @@ public:
 
 public:
 	template <class... _ARGS>
-	static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
+	imports Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,func ,parameter...) ;
 		auto &r1x = _LOAD_<ImplHolder> (_FORWARD_<const PTR<TEMP<ImplHolder>> &> (rax)) ;
@@ -1637,7 +1643,7 @@ class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> final {
 private:
 	class FakeHolder ;
 
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const = 0 ;
@@ -1677,7 +1683,7 @@ public:
 	implicit Function (const PTR<UNIT1 (UNITS...)> &that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using PureHolder = DEPENDENT_TYPE<DEF<typename Private::PureHolder> ,Dependent> ;
+		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		_DEBUG_ASSERT_ (that != NULL) ;
 		static_create<PureHolder> (DEPTR[mVariant] ,that) ;
 	}
@@ -1686,7 +1692,7 @@ public:
 	explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<_ARG1>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1> ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
@@ -1694,7 +1700,7 @@ public:
 	explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<const _ARG1>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<const _ARG1> ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
@@ -1702,7 +1708,7 @@ public:
 	explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<_ARG1>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<_ARG1>> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
@@ -1711,7 +1717,7 @@ public:
 	explicit Function (const PhanRef<const _ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<const _ARG1>>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<const _ARG1>> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
@@ -1774,14 +1780,14 @@ private:
 	}
 
 private:
-	static TEMP<FakeHolder> zero_variant () {
+	imports TEMP<FakeHolder> zero_variant () {
 		TEMP<FakeHolder> ret ;
 		_ZERO_ (ret) ;
 		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET ,class... _ARGS>
-	static void static_create (const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) {
+	imports void static_create (const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_STATIC_ASSERT_ (stl::is_constructible<_RET ,_ARGS &&...>::value) ;
 		auto &r1x = _LOAD_<TEMP<_RET>> (address) ;
@@ -2624,22 +2630,22 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	static Buffer make (const ARR<UNIT> &src ,const LENGTH &len) side_effects {
+	imports Buffer make (const ARR<UNIT> &src ,const LENGTH &len) side_effects {
 		return Buffer (DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	static Buffer make (_ARG1 &val) side_effects {
+	imports Buffer make (_ARG1 &val) side_effects {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	static Buffer make (const Buffer<UNIT ,_ARG1> &val) {
+	imports Buffer make (const Buffer<UNIT ,_ARG1> &val) {
 		return make (val ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
-	static Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
+	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;
@@ -2803,26 +2809,26 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	static Buffer make (ARR<UNIT> &src ,const LENGTH &len) side_effects {
+	imports Buffer make (ARR<UNIT> &src ,const LENGTH &len) side_effects {
 		return Buffer (DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
-	static Buffer make (_ARG1 &val) side_effects {
+	imports Buffer make (_ARG1 &val) side_effects {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	static Buffer make (Buffer<UNIT ,_ARG1> &val) side_effects {
+	imports Buffer make (Buffer<UNIT ,_ARG1> &val) side_effects {
 		return make (val.self ,val.size ()) ;
 	}
 
-	static Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
+	imports Buffer make (const Buffer<UNIT ,SMPHAN> &val) {
 		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
-	static Buffer make (Buffer<_ARG1 ,_ARG2> &val) side_effects {
+	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) side_effects {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;
@@ -2831,7 +2837,7 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
-	static Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
+	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
 			return Buffer () ;

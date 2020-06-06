@@ -33,13 +33,13 @@ public:
 
 	DEF<typename Private::Iterator> begin () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
+		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,0 ,first_item ()) ;
 	}
 
 	DEF<typename Private::Iterator> end () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
+		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
@@ -279,7 +279,7 @@ public:
 
 	DEF<typename Private::template Row<Bitmap>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<Bitmap>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -289,7 +289,7 @@ public:
 
 	DEF<typename Private::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const Bitmap>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Bitmap> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -638,7 +638,7 @@ public:
 		LENGTH mCK ;
 	} ;
 
-	exports class Abstract
+	class Abstract
 		:public Interface {
 	public:
 		virtual void compute_layout (AnyRef<void> &holder ,LAYOUT &layout) const = 0 ;
@@ -757,7 +757,7 @@ public:
 
 	DEF<typename Private::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<AbstractImage>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<AbstractImage> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -767,7 +767,7 @@ public:
 
 	DEF<typename Private::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const AbstractImage>> ,Dependent> ;
+		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const AbstractImage> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
@@ -778,7 +778,7 @@ public:
 	template <class _RET>
 	DEF<typename Private::template NativeProxy<_RET>> native () side_effects {
 		struct Dependent ;
-		using NativeProxy = DEPENDENT_TYPE<DEF<typename Private::template NativeProxy<_RET>> ,Dependent> ;
+		using NativeProxy = typename DEPENDENT_TYPE<Private ,Dependent>::template NativeProxy<_RET> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;

@@ -13,13 +13,17 @@
 #include "csc_string.hpp"
 
 namespace CSC {
-namespace U {
-inline const String<STRU8> &static_empty_string () {
+class SerializationStaticProc
+	:private Wrapped<void> {
+public:
+	imports const String<STRU8> &static_empty_string () ;
+} ;
+
+inline exports const String<STRU8> &SerializationStaticProc::static_empty_string () {
 	return _CACHE_ ([&] () {
 		return String<STRU8> () ;
 	}) ;
 }
-} ;
 
 class XmlParser {
 private:
@@ -155,10 +159,10 @@ public:
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
 		if (!exist ())
-			return U::static_empty_string () ;
+			return SerializationStaticProc::static_empty_string () ;
 		INDEX ix = mHeap.self[mIndex].mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
-			return U::static_empty_string () ;
+			return SerializationStaticProc::static_empty_string () ;
 		return mHeap.self[mIndex].mAttributeList[ix] ;
 	}
 
@@ -299,13 +303,13 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	static XmlParser make (const PhanBuffer<const STRU8> &data) {
+	imports XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
 		ret.initialize (data) ;
 		return _MOVE_ (ret) ;
 	}
 
-	static XmlParser make (const Array<XmlParser> &sequence) {
+	imports XmlParser make (const Array<XmlParser> &sequence) {
 		XmlParser ret ;
 		ret.initialize (sequence) ;
 		return _MOVE_ (ret) ;
@@ -948,13 +952,13 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	struct Dependent ;
-	using InitializeLambda2 = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda2> ,Dependent> ;
+	using InitializeLambda2 = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda2 ;
 	_CALL_ (InitializeLambda2 (DEREF[this] ,sequence)) ;
 }
 
@@ -1181,7 +1185,7 @@ public:
 	void friend_write (TextWriter<STRU8> &writer) const ;
 
 public:
-	static JsonParser make (const PhanBuffer<const STRU8> &data) {
+	imports JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
 		ret.initialize (data) ;
 		return _MOVE_ (ret) ;
@@ -1711,7 +1715,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
@@ -1758,7 +1762,7 @@ public:
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
 		INDEX ix = mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
-			return U::static_empty_string () ;
+			return SerializationStaticProc::static_empty_string () ;
 		return mAttributeList[ix] ;
 	}
 
@@ -2008,7 +2012,7 @@ private:
 
 inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 } ;

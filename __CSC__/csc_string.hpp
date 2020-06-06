@@ -166,175 +166,175 @@ struct OPERATOR_STRING ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRU8> {
-	static String<STRU8> invoke (const String<STRU8> &val) {
+	imports String<STRU8> invoke (const String<STRU8> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRU16> {
-	static String<STRU16> invoke (const String<STRU16> &val) {
+	imports String<STRU16> invoke (const String<STRU16> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRU32> {
-	static String<STRU32> invoke (const String<STRU32> &val) {
+	imports String<STRU32> invoke (const String<STRU32> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRA> {
-	static String<STRA> invoke (const String<STRA> &val) {
+	imports String<STRA> invoke (const String<STRA> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRW> {
-	static String<STRW> invoke (const String<STRW> &val) {
+	imports String<STRW> invoke (const String<STRW> &val) {
 		return _COPY_ (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRU16> {
-	static String<STRU8> invoke (const String<STRU16> &val) {
+	imports String<STRU8> invoke (const String<STRU16> &val) {
 		return StringProc::cvt_u16s_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRU8> {
-	static String<STRU16> invoke (const String<STRU8> &val) {
+	imports String<STRU16> invoke (const String<STRU8> &val) {
 		return StringProc::cvt_u8s_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRU32> {
-	static String<STRU8> invoke (const String<STRU32> &val) {
+	imports String<STRU8> invoke (const String<STRU32> &val) {
 		return StringProc::cvt_u32s_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRU8> {
-	static String<STRU32> invoke (const String<STRU8> &val) {
+	imports String<STRU32> invoke (const String<STRU8> &val) {
 		return StringProc::cvt_u8s_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRU32> {
-	static String<STRU16> invoke (const String<STRU32> &val) {
+	imports String<STRU16> invoke (const String<STRU32> &val) {
 		return StringProc::cvt_u32s_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRU16> {
-	static String<STRU32> invoke (const String<STRU16> &val) {
+	imports String<STRU32> invoke (const String<STRU16> &val) {
 		return StringProc::cvt_u16s_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRW> {
-	static String<STRU8> invoke (const String<STRW> &val) {
+	imports String<STRU8> invoke (const String<STRW> &val) {
 		return StringProc::cvt_ws_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU8> {
-	static String<STRW> invoke (const String<STRU8> &val) {
+	imports String<STRW> invoke (const String<STRU8> &val) {
 		return StringProc::cvt_u8s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRW> {
-	static String<STRU16> invoke (const String<STRW> &val) {
+	imports String<STRU16> invoke (const String<STRW> &val) {
 		return StringProc::cvt_ws_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU16> {
-	static String<STRW> invoke (const String<STRU16> &val) {
+	imports String<STRW> invoke (const String<STRU16> &val) {
 		return StringProc::cvt_u16s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRW> {
-	static String<STRU32> invoke (const String<STRW> &val) {
+	imports String<STRU32> invoke (const String<STRW> &val) {
 		return StringProc::cvt_ws_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRU32> {
-	static String<STRW> invoke (const String<STRU32> &val) {
+	imports String<STRW> invoke (const String<STRU32> &val) {
 		return StringProc::cvt_u32s_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRW ,STRA> {
-	static String<STRW> invoke (const String<STRA> &val) {
+	imports String<STRW> invoke (const String<STRA> &val) {
 		return StringProc::cvt_as_ws (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRW> {
-	static String<STRA> invoke (const String<STRW> &val) {
+	imports String<STRA> invoke (const String<STRW> &val) {
 		return StringProc::cvt_ws_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU8 ,STRA> {
-	static String<STRU8> invoke (const String<STRA> &val) {
+	imports String<STRU8> invoke (const String<STRA> &val) {
 		return StringProc::cvt_as_u8s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU8> {
-	static String<STRA> invoke (const String<STRU8> &val) {
+	imports String<STRA> invoke (const String<STRU8> &val) {
 		return StringProc::cvt_u8s_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU16 ,STRA> {
-	static String<STRU16> invoke (const String<STRA> &val) {
+	imports String<STRU16> invoke (const String<STRA> &val) {
 		return StringProc::cvt_as_u16s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU16> {
-	static String<STRA> invoke (const String<STRU16> &val) {
+	imports String<STRA> invoke (const String<STRU16> &val) {
 		return StringProc::cvt_u16s_as (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRU32 ,STRA> {
-	static String<STRU32> invoke (const String<STRA> &val) {
+	imports String<STRU32> invoke (const String<STRA> &val) {
 		return StringProc::cvt_as_u32s (val) ;
 	}
 } ;
 
 template <>
 struct OPERATOR_STRING<STRA ,STRU32> {
-	static String<STRA> invoke (const String<STRU32> &val) {
+	imports String<STRA> invoke (const String<STRU32> &val) {
 		return StringProc::cvt_u32s_as (val) ;
 	}
 } ;
@@ -885,27 +885,29 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 	return _MOVE_ (_CAST_<String<STRA>> (ret)) ;
 }
 
-class GBKSTableProc
+class GBKSStaticProc
 	:private Wrapped<void> {
 public:
 	imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
+
+	imports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_gbks_ws_table () ;
+
+	imports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_ws_gbks_table () ;
 } ;
 
-namespace U {
-inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_gbks_ws_table () {
+inline exports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &GBKSStaticProc::static_cvt_gbks_ws_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.mP1 = GBKSTableProc::static_gbks_ws_table () ;
+		ret.mP1 = GBKSStaticProc::static_gbks_ws_table () ;
 		ret.mP2 = HashSet<STRUW> (ret.mP1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.mP1.size ()))
 			ret.mP2.add (ret.mP1[i][1] ,i) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
-} ;
 
 inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
-	auto &r1x = U::static_cvt_gbks_ws_table () ;
+	auto &r1x = GBKSStaticProc::static_cvt_gbks_ws_table () ;
 	auto &r2x = _CAST_<String<STRUA>> (val) ;
 	String<STRW> ret = String<STRW> (r2x.length ()) ;
 	INDEX iw = 0 ;
@@ -978,21 +980,19 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 	return _MOVE_ (ret) ;
 }
 
-namespace U {
-inline const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &static_cvt_ws_gbks_table () {
+inline exports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &GBKSStaticProc::static_cvt_ws_gbks_table () {
 	return _CACHE_ ([&] () {
 		PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> ret ;
-		ret.mP1 = GBKSTableProc::static_gbks_ws_table () ;
+		ret.mP1 = GBKSStaticProc::static_gbks_ws_table () ;
 		ret.mP2 = HashSet<STRUW> (ret.mP1.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.mP1.size ()))
 			ret.mP2.add (ret.mP1[i][0] ,i) ;
 		return _MOVE_ (ret) ;
 	}) ;
 }
-} ;
 
 inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
-	auto &r1x = U::static_cvt_ws_gbks_table () ;
+	auto &r1x = GBKSStaticProc::static_cvt_ws_gbks_table () ;
 	String<STRUA> ret = String<STRUA> (val.length () * 2) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;

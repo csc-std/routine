@@ -31,7 +31,7 @@ private:
 	} ;
 
 	struct Private {
-		class LocalProc ;
+		class ThreadBinder ;
 
 		class ThreadCounter ;
 	} ;
@@ -114,7 +114,7 @@ public:
 
 	void start (Array<Function<DEF<ITEM ()> NONE::*>> &&proc) {
 		struct Dependent ;
-		using LocalProc = DEPENDENT_TYPE<DEF<typename Private::LocalProc> ,Dependent> ;
+		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
@@ -135,7 +135,7 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = StrongRef<LocalProc>::make (PhanRef<SELF_PACK>::make (r2x) ,i) ;
+			auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x) ,i) ;
 			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
@@ -168,9 +168,9 @@ public:
 	}
 
 private:
-	static void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
+	imports void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
-		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Private::ThreadCounter> ,Dependent> ;
+		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
@@ -190,7 +190,7 @@ private:
 		}
 	}
 
-	static void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
+	imports void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -207,7 +207,7 @@ private:
 		r1x.notify () ;
 	}
 
-	static void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
+	imports void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -224,7 +224,7 @@ private:
 		r1x.notify () ;
 	}
 
-	static void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -232,7 +232,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void friend_create (SELF_PACK &self_) {
+	imports void friend_create (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -241,7 +241,7 @@ private:
 		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	static void friend_destroy (SELF_PACK &self_) {
+	imports void friend_destroy (SELF_PACK &self_) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -266,30 +266,30 @@ private:
 		self_.mThreadProc = Array<Function<DEF<ITEM ()> NONE::*>> () ;
 	}
 
-	static LENGTH friend_attach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_detach (SELF_PACK &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
-	static void friend_latch (SELF_PACK &self_) {
+	imports void friend_latch (SELF_PACK &self_) {
 		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
-class CalcThread<ITEM>::Private::LocalProc
+class CalcThread<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
 	PhanRef<SELF_PACK> mThis ;
 	INDEX mIndex ;
 
 public:
-	LocalProc () = delete ;
+	ThreadBinder () = delete ;
 
-	explicit LocalProc (PhanRef<SELF_PACK> &&this_ ,const INDEX &index) {
+	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_ ,const INDEX &index) {
 		mThis = _MOVE_ (this_) ;
 		mIndex = index ;
 	}
@@ -335,7 +335,7 @@ private:
 	} ;
 
 	struct Private {
-		class LocalProc ;
+		class ThreadBinder ;
 
 		class ThreadCounter ;
 
@@ -456,7 +456,7 @@ public:
 
 	void start (const LENGTH &count ,Function<DEF<void (const ITEM &)> NONE::*> &&proc) {
 		struct Dependent ;
-		using LocalProc = DEPENDENT_TYPE<DEF<typename Private::LocalProc> ,Dependent> ;
+		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
@@ -475,7 +475,7 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = StrongRef<LocalProc>::make (PhanRef<SELF_PACK>::make (r2x)) ;
+			auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
 			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 		}
 	}
@@ -508,9 +508,9 @@ public:
 	}
 
 private:
-	static void static_execute (SELF_PACK &self_) {
+	imports void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
-		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Private::ThreadCounter> ,Dependent> ;
+		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
@@ -529,9 +529,9 @@ private:
 		}
 	}
 
-	static void static_poll (SELF_PACK &self_ ,Optional<ITEM> &item) {
+	imports void static_poll (SELF_PACK &self_ ,Optional<ITEM> &item) {
 		struct Dependent ;
-		using Counter = DEPENDENT_TYPE<DEF<typename Private::Counter> ,Dependent> ;
+		using Counter = typename DEPENDENT_TYPE<Private ,Dependent>::Counter ;
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_<Counter> (self_.mThreadWaitCounter)) ;
@@ -547,7 +547,7 @@ private:
 		self_.mItemQueue->take () ;
 	}
 
-	static void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -555,7 +555,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void friend_create (SELF_PACK &self_) {
+	imports void friend_create (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -565,7 +565,7 @@ private:
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	static void friend_destroy (SELF_PACK &self_) {
+	imports void friend_destroy (SELF_PACK &self_) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -591,29 +591,29 @@ private:
 		self_.mThreadProc = Function<DEF<void (const ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH friend_attach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_detach (SELF_PACK &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
-	static void friend_latch (SELF_PACK &self_) {
+	imports void friend_latch (SELF_PACK &self_) {
 		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
-class WorkThread<ITEM>::Private::LocalProc
+class WorkThread<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
 	PhanRef<SELF_PACK> mThis ;
 
 public:
-	LocalProc () = delete ;
+	ThreadBinder () = delete ;
 
-	explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
+	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_) {
 		mThis = _MOVE_ (this_) ;
 	}
 
@@ -674,7 +674,7 @@ private:
 	} ;
 
 	struct Private {
-		class LocalProc ;
+		class ThreadBinder ;
 
 		class ThreadCounter ;
 	} ;
@@ -727,7 +727,7 @@ public:
 
 	void start (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		struct Dependent ;
-		using LocalProc = DEPENDENT_TYPE<DEF<typename Private::LocalProc> ,Dependent> ;
+		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
 		auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
@@ -741,7 +741,7 @@ public:
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		auto tmp = StrongRef<LocalProc>::make (PhanRef<SELF_PACK>::make (r2x)) ;
+		auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
 		r2x.mThreadPool = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
 	}
 
@@ -757,16 +757,16 @@ public:
 
 public:
 	template <class _DEP = NONE>
-	static DEPENDENT_TYPE<Future<ITEM> ,_DEP> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
+	imports DEPENDENT_TYPE<Future<ITEM> ,_DEP> async (Function<DEF<ITEM ()> NONE::*> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (_MOVE_ (proc)) ;
 		return rax.future () ;
 	}
 
 private:
-	static void static_execute (SELF_PACK &self_) {
+	imports void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
-		using ThreadCounter = DEPENDENT_TYPE<DEF<typename Private::ThreadCounter> ,Dependent> ;
+		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_<ThreadCounter> (self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		_CATCH_ ([&] () {
@@ -784,7 +784,7 @@ private:
 		static_signal (self_) ;
 	}
 
-	static void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
+	imports void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -792,7 +792,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	static void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
+	imports void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -800,7 +800,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	static void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
@@ -808,7 +808,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	static void static_signal (SELF_PACK &self_) {
+	imports void static_signal (SELF_PACK &self_) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
@@ -823,7 +823,7 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static void friend_create (SELF_PACK &self_) {
+	imports void friend_create (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mCounter = 0 ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
@@ -833,7 +833,7 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static void friend_destroy (SELF_PACK &self_) {
+	imports void friend_destroy (SELF_PACK &self_) {
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -856,29 +856,29 @@ private:
 		self_.mCallbackProc = Function<DEF<void (ITEM &)> NONE::*> () ;
 	}
 
-	static LENGTH friend_attach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
 		return ++self_.mCounter ;
 	}
 
-	static LENGTH friend_detach (SELF_PACK &self_) side_effects {
+	imports LENGTH friend_detach (SELF_PACK &self_) side_effects {
 		return --self_.mCounter ;
 	}
 
-	static void friend_latch (SELF_PACK &self_) {
+	imports void friend_latch (SELF_PACK &self_) {
 		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
 template <class ITEM>
-class Promise<ITEM>::Private::LocalProc
+class Promise<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
 	PhanRef<SELF_PACK> mThis ;
 
 public:
-	LocalProc () = delete ;
+	ThreadBinder () = delete ;
 
-	explicit LocalProc (PhanRef<SELF_PACK> &&this_) {
+	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_) {
 		mThis = _MOVE_ (this_) ;
 	}
 

@@ -262,7 +262,7 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<PhanBuffer<const STR>>> ,Dependent> ;
+		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<PhanBuffer<const STR>> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
 		log (r1x ,ImplBinder (msg)) ;
 	}

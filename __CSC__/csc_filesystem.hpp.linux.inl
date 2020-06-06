@@ -138,8 +138,15 @@ inline exports BOOL FileSystemProc::find_file (const String<STR> &file) side_eff
 	return TRUE ;
 }
 
-namespace U {
-inline BOOL static_find_juntion (const String<STRA> &dire) side_effects {
+class FileSystemStaticProc
+	:private Wrapped<void> {
+public:
+	imports BOOL static_find_juntion (const String<STRA> &dire) side_effects ;
+
+	imports Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) ;
+} ;
+
+inline exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA> &dire) side_effects {
 	using HDIR = PTR<api::DIR> ;
 	const auto r1x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = api::opendir (dire.raw ().self) ;
@@ -152,11 +159,10 @@ inline BOOL static_find_juntion (const String<STRA> &dire) side_effects {
 		return FALSE ;
 	return TRUE ;
 }
-} ;
 
 inline exports void FileSystemProc::erase_file (const String<STR> &file) {
 	const auto r1x = StringProc::build_strs<STRA> (file) ;
-	const auto r2x = U::static_find_juntion (r1x) ;
+	const auto r2x = FileSystemStaticProc::static_find_juntion (r1x) ;
 	if (r2x)
 		return ;
 	const auto r3x = api::unlink (r1x.raw ().self) ;
@@ -286,7 +292,7 @@ inline exports String<STR> FileSystemProc::working_path () {
 }
 
 namespace U {
-inline Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) {
+inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (const Deque<String<STR>> &path_name) {
 	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
 	for (auto &&i : _RANGE_ (0 ,path_name.length ())) {
 		INDEX ix = path_name.access (i) ;
@@ -470,7 +476,7 @@ inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	const auto r1x = StringProc::build_strs<STRA> (dire) ;
 	const auto r2x = api::rmdir (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r2x) ;
-	const auto r3x = U::static_find_juntion (r1x) ;
+	const auto r3x = FileSystemStaticProc::static_find_juntion (r1x) ;
 	if (!r3x)
 		return ;
 	const auto r4x = api::unlink (r1x.raw ().self) ;

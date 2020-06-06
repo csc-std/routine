@@ -72,9 +72,18 @@ using ::_wcstombs_s_l ;
 #endif
 } ;
 
-namespace U {
+class LocaleStaticProc
+	:private Wrapped<void> {
+public:
+	imports const UniqueRef<_locale_t> &static_locale_page () ;
+
+	imports String<STRW> static_locale_cvt_lastows (const String<STRA> &val) ;
+
+	imports String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) ;
+} ;
+
 #ifdef __CSC_COMPILER_MSVC__
-inline const UniqueRef<_locale_t> &static_locale_page () {
+inline exports const UniqueRef<_locale_t> &LocaleStaticProc::static_locale_page () {
 	return _CACHE_ ([&] () {
 		return UniqueRef<_locale_t> ([&] (_locale_t &me) {
 			me = api::_create_locale (LC_CTYPE ,_PCSTRA_ ("")) ;
@@ -87,8 +96,8 @@ inline const UniqueRef<_locale_t> &static_locale_page () {
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
-	auto &r1x = static_locale_page () ;
+inline exports String<STRW> LocaleStaticProc::static_locale_cvt_lastows (const String<STRA> &val) {
+	auto &r1x = LocaleStaticProc::static_locale_page () ;
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_once (TRUE) {
@@ -102,7 +111,7 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 #endif
 
 #ifndef __CSC_COMPILER_MSVC__
-inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
+inline exports String<STRW> LocaleStaticProc::static_locale_cvt_lastows (const String<STRA> &val) {
 	String<STRW> ret = String<STRW> (val.length () + 1) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_once (TRUE) {
@@ -116,8 +125,8 @@ inline String<STRW> static_locale_cvt_lastows (const String<STRA> &val) {
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
-	auto &r1x = static_locale_page () ;
+inline exports String<STRA> LocaleStaticProc::static_locale_cvt_wstolas (const String<STRW> &val) {
+	auto &r1x = LocaleStaticProc::static_locale_page () ;
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_once (TRUE) {
@@ -131,7 +140,7 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 #endif
 
 #ifndef __CSC_COMPILER_MSVC__
-inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
+inline exports String<STRA> LocaleStaticProc::static_locale_cvt_wstolas (const String<STRW> &val) {
 	String<STRA> ret = String<STRA> ((val.length () + 1) * _SIZEOF_ (STRW)) ;
 	_DEBUG_ASSERT_ (ret.size () < VAR32_MAX) ;
 	if switch_once (TRUE) {
@@ -143,7 +152,6 @@ inline String<STRA> static_locale_cvt_wstolas (const String<STRW> &val) {
 	return _MOVE_ (ret) ;
 }
 #endif
-} ;
 
 inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
 	//@warn: not thread-safe due to internel storage
@@ -159,7 +167,7 @@ inline exports String<STRW> StringProc::cvt_as_ws (const String<STRA> &val) {
 	if (r2x >= 5)
 		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
 			return StringProc::cvt_gbks_ws (val) ;
-	return U::static_locale_cvt_lastows (val) ;
+	return LocaleStaticProc::static_locale_cvt_lastows (val) ;
 }
 
 inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
@@ -176,7 +184,7 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 	if (r2x >= 5)
 		if (BasicProc::mem_equal (PTRTOARR[r1x] ,_PCSTRA_ ("zh_CN").self ,5))
 			return StringProc::cvt_ws_gbks (val) ;
-	return U::static_locale_cvt_wstolas (val) ;
+	return LocaleStaticProc::static_locale_cvt_wstolas (val) ;
 }
 
 #ifdef __CSC_EXTEND__

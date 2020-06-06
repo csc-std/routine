@@ -1389,11 +1389,6 @@ inline constexpr _RET &_NULL_ () {
 }
 
 template <class _ARG1>
-inline void _NOOP_ (_ARG1 &object) {
-	_STATIC_WARNING_ ("noop") ;
-}
-
-template <class _ARG1>
 inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) side_effects {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 #ifdef __CSC_COMPILER_GNUC__
@@ -1543,11 +1538,11 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_ABS {
-	static constexpr UNIT case1 (const UNIT &val) {
+	imports constexpr UNIT case1 (const UNIT &val) {
 		return -val ;
 	}
 
-	static constexpr UNIT case2 (const UNIT &val) {
+	imports constexpr UNIT case2 (const UNIT &val) {
 		return +val ;
 	}
 } ;
@@ -1579,11 +1574,11 @@ inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_EBOOL {
-	static constexpr UNIT case1 () {
+	imports constexpr UNIT case1 () {
 		return UNIT (1) ;
 	}
 
-	static constexpr UNIT case2 () {
+	imports constexpr UNIT case2 () {
 		return UNIT (0) ;
 	}
 } ;
@@ -1598,11 +1593,11 @@ inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
 
 namespace U {
 struct OPERATOR_ONCE {
-	static BOOL invoke (const BOOL &) {
+	imports BOOL invoke (const BOOL &) {
 		return FALSE ;
 	}
 
-	static BOOL invoke (BOOL &flag) side_effects {
+	imports BOOL invoke (BOOL &flag) side_effects {
 		flag = FALSE ;
 		return FALSE ;
 	}
@@ -1728,16 +1723,16 @@ public:
 	}
 
 	template <class _DEP = NONE>
-	DEPENDENT_TYPE<DEF<typename Private::Iterator> ,_DEP> begin () const {
+	DEF<typename DEPENDENT_TYPE<Private ,_DEP>::Iterator> begin () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
+		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
 	template <class _DEP = NONE>
-	DEPENDENT_TYPE<DEF<typename Private::Iterator> ,_DEP> end () const {
+	DEF<typename DEPENDENT_TYPE<Private ,_DEP>::Iterator> end () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
+		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
 		return Iterator (DEREF[this] ,r1x) ;
 	}
@@ -1776,7 +1771,7 @@ template <class _ARG1>
 inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &func) side_effects {
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	_STATIC_ASSERT_ (!stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
+	imports const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = func () ;
 	return mInstance ;
 }
 
@@ -1852,10 +1847,10 @@ public:
 
 private:
 	template <class _ARG1 ,class... _ARGS ,class _DEP = NONE>
-	static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
+	imports auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
 		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,_DEP> {
 		struct Dependent ;
-		using PlainString = DEPENDENT_TYPE<DEF<typename Private::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> ;
+		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;

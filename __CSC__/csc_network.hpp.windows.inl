@@ -88,8 +88,21 @@ using ::getpeername ;
 using ::gethostname ;
 } ;
 
-namespace U {
-inline TIMEVAL static_make_timeval (const LENGTH &val) {
+class SocketStaticProc
+	:private Wrapped<void> {
+public:
+	imports TIMEVAL static_make_timeval (const LENGTH &val) ;
+
+	imports String<STRU8> static_make_ipv4s (const SOCKADDR &val) ;
+
+	imports SOCKADDR static_make_socket_addr (const String<STRU8> &val) ;
+
+	imports void static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) ;
+
+	imports ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) ;
+} ;
+
+inline exports TIMEVAL SocketStaticProc::static_make_timeval (const LENGTH &val) {
 	_DEBUG_ASSERT_ (val >= 0) ;
 	TIMEVAL ret ;
 	ret.tv_sec = VAR32 (val / 1000) ;
@@ -97,7 +110,7 @@ inline TIMEVAL static_make_timeval (const LENGTH &val) {
 	return _MOVE_ (ret) ;
 }
 
-inline String<STRU8> static_make_ipv4s (const SOCKADDR &val) {
+inline exports String<STRU8> SocketStaticProc::static_make_ipv4s (const SOCKADDR &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _BITWISE_CAST_<SOCKADDR_IN> (val) ;
 	const auto r2x = _CALL_ ([&] () {
@@ -111,7 +124,7 @@ inline String<STRU8> static_make_ipv4s (const SOCKADDR &val) {
 	return StringProc::build_ipv4s<STRU8> (r2x) ;
 }
 
-inline SOCKADDR static_make_socket_addr (const String<STRU8> &val) {
+inline exports SOCKADDR SocketStaticProc::static_make_socket_addr (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _CALL_ ([&] () {
 		SOCKADDR_IN ret ;
@@ -127,13 +140,13 @@ inline SOCKADDR static_make_socket_addr (const String<STRU8> &val) {
 	return _BITWISE_CAST_<SOCKADDR> (r1x) ;
 }
 
-inline void static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) {
+inline exports void SocketStaticProc::static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) {
 	const auto r1x = static_make_socket_addr (ip_addr) ;
 	const auto r2x = api::bind (socket_ ,DEPTR[r1x] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 	_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 }
 
-inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
+inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
 #pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4548)
@@ -143,7 +156,7 @@ inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LE
 	FD_ZERO (DEPTR[ret[1]]) ;
 	FD_SET (socket_ ,DEPTR[ret[0]]) ;
 	FD_SET (socket_ ,DEPTR[ret[1]]) ;
-	auto rax = static_make_timeval (timeout) ;
+	auto rax = SocketStaticProc::static_make_timeval (timeout) ;
 	while (TRUE) {
 		const auto r1x = api::select (FD_SETSIZE ,DEPTR[ret[0]] ,DEPTR[ret[1]] ,NULL ,DEPTR[rax]) ;
 		if (r1x >= 0)
@@ -154,7 +167,6 @@ inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LE
 	return _MOVE_ (ret) ;
 #pragma warning (pop)
 }
-} ;
 
 class TCPSocket::Private::Implement {
 private:
@@ -180,7 +192,7 @@ public:
 			api::closesocket (me) ;
 		}) ;
 		if (!ip_addr.empty ())
-			U::static_socket_bind (mThis->mSocket ,ip_addr) ;
+			SocketStaticProc::static_socket_bind (mThis->mSocket ,ip_addr) ;
 		_ZERO_ (mThis->mPeer) ;
 		mThis->mTimeout = 30000 ;
 	}
@@ -192,15 +204,15 @@ public:
 		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: ipv6 is not supported
 		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		return U::static_make_ipv4s (rax.mP1) ;
+		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
 	}
 
 	String<STRU8> peer_sock_name () const {
-		return U::static_make_ipv4s (mThis->mPeer) ;
+		return SocketStaticProc::static_make_ipv4s (mThis->mPeer) ;
 	}
 
 	void link (const String<STRU8> &ip_addr) {
-		mThis->mPeer = U::static_make_socket_addr (ip_addr) ;
+		mThis->mPeer = SocketStaticProc::static_make_socket_addr (ip_addr) ;
 		auto rax = ULONG () ;
 		rax = ULONG (1) ;
 		api::ioctlsocket (mThis->mSocket ,FIONBIO ,DEPTR[rax]) ;
@@ -236,10 +248,10 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = U::static_make_timeval (mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = api::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = U::static_make_timeval (0) ;
+		const auto r3x = SocketStaticProc::static_make_timeval (0) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
@@ -256,10 +268,10 @@ public:
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 		out_i = VAR_NONE ;
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = U::static_make_timeval (timeout) ;
+		const auto r1x = SocketStaticProc::static_make_timeval (timeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = api::recv (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = U::static_make_timeval (0) ;
+		const auto r3x = SocketStaticProc::static_make_timeval (0) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
@@ -275,10 +287,10 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = U::static_make_timeval (mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		const auto r2x = api::send (mThis->mSocket ,_LOAD_<ARR<STRA>> (DEPTR[data.self]) ,VAR32 (data.size ()) ,0) ;
-		const auto r3x = U::static_make_timeval (0) ;
+		const auto r3x = SocketStaticProc::static_make_timeval (0) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_<STRA[_SIZEOF_ (TIMEVAL)]> (r3x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
@@ -294,7 +306,7 @@ public:
 
 private:
 	void link_confirm () {
-		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
@@ -391,7 +403,7 @@ public:
 	}
 
 	void wait_linker () {
-		const auto r1x = U::static_socket_select (mListener ,mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_socket_select (mListener ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mListener ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
@@ -451,7 +463,7 @@ public:
 			api::closesocket (me) ;
 		}) ;
 		if (!ip_addr.empty ())
-			U::static_socket_bind (mThis->mSocket ,ip_addr) ;
+			SocketStaticProc::static_socket_bind (mThis->mSocket ,ip_addr) ;
 		_ZERO_ (mThis->mPeer) ;
 		mThis->mTimeout = 30000 ;
 	}
@@ -463,15 +475,15 @@ public:
 		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
 		//@info: ipv6 is not supported
 		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		return U::static_make_ipv4s (rax.mP1) ;
+		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
 	}
 
 	String<STRU8> peer_sock_name () const {
-		return U::static_make_ipv4s (mThis->mPeer) ;
+		return SocketStaticProc::static_make_ipv4s (mThis->mPeer) ;
 	}
 
 	void link (const String<STRU8> &ip_addr) {
-		mThis->mPeer = U::static_make_socket_addr (ip_addr) ;
+		mThis->mPeer = SocketStaticProc::static_make_socket_addr (ip_addr) ;
 	}
 
 	void modify_timeout (const LENGTH &timeout) {
@@ -480,7 +492,7 @@ public:
 
 	void read (const PhanBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
@@ -497,7 +509,7 @@ public:
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		out_i = VAR_NONE ;
-		const auto r1x = U::static_socket_select (mThis->mSocket ,timeout) ;
+		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
@@ -513,7 +525,7 @@ public:
 
 	void write (const PhanBuffer<const BYTE> &data) {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		const auto r1x = U::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
+		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;

@@ -24,15 +24,15 @@ private:
 	} ;
 
 public:
-	static void done (const Exception &e) {
+	imports void done (const Exception &e) {
 		Public::done (e) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
+	imports void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
-		using WatchInterface = DEPENDENT_TYPE<DEF<typename Private::template WatchInterface<_ARG2>> ,Dependent> ;
-		static volatile WatchInterface mInstance ;
+		using WatchInterface = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
+		imports volatile WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
 		mInstance.mTypeMID = _TYPEMID_<_ARG2> () ;
@@ -103,7 +103,7 @@ private:
 
 public:
 	//@warn: static instance across DLL ruins Singleton
-	static UNIT &instance () {
+	imports UNIT &instance () {
 		struct Dependent ;
 		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
 		return GlobalStatic::unique () ;
@@ -524,7 +524,7 @@ private:
 	}
 
 private:
-	static VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
+	imports VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
 		_DEBUG_ASSERT_ (y >= 0) ;
 		_DEBUG_ASSERT_ (x > 0) ;
 		VAR128 ret = 0 ;
@@ -804,7 +804,7 @@ public:
 	}
 
 public:
-	static Variant nullopt () {
+	imports Variant nullopt () {
 		return Variant (ARGVP0) ;
 	}
 
@@ -906,12 +906,12 @@ private:
 
 private:
 	template <class _ARG1>
-	static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
+	imports INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<ARGVS<>> &) {
 		return VAR_NONE ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<_ARG2> &) {
+	imports INDEX default_constructible_index (const ARGV<_ARG1> & ,const ARGV<_ARG2> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
 		if (stl::is_default_constructible<ONE_HINT>::value)
@@ -920,12 +920,12 @@ private:
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	static void template_create (const ARGV<ARGC<TRUE>> & ,const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
+	imports void template_create (const ARGV<ARGC<TRUE>> & ,const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 		_CREATE_ (address ,_FORWARD_<_ARGS> (initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	static void template_create (const ARGV<ARGC<FALSE>> & ,const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
+	imports void template_create (const ARGV<ARGC<FALSE>> & ,const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
@@ -1223,64 +1223,64 @@ public:
 	}
 
 private:
-	static BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
 		return BOOL (lhs == rhs) ;
 	}
 
-	static BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
 		return BOOL (lhs < rhs) ;
 	}
 
-	static BOOL template_boolean (const Tuple<> &self_) {
+	imports BOOL template_boolean (const Tuple<> &self_) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_boolean (const _ARG1 &self_) {
+	imports BOOL template_boolean (const _ARG1 &self_) {
 		if (!BOOL (self_.one ()))
 			return FALSE ;
 		return template_boolean (self_.rest ()) ;
 	}
 
-	static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (!operator_equal (self_.one () ,that))
 			return FALSE ;
 		return template_equal (self_.rest () ,that) ;
 	}
 
-	static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (operator_equal (self_.one () ,that))
 			return FALSE ;
 		return template_not_equal (self_.rest () ,that) ;
 	}
 
-	static BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (!operator_less (self_.one () ,that))
 			return FALSE ;
 		return template_less (self_.rest () ,that) ;
 	}
 
-	static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (operator_less (self_.one () ,that))
 			return FALSE ;
 		return template_not_less (self_.rest () ,that) ;
@@ -1358,64 +1358,64 @@ public:
 	}
 
 private:
-	static BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
 		return BOOL (lhs == rhs) ;
 	}
 
-	static BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
 		return BOOL (lhs < rhs) ;
 	}
 
-	static BOOL template_boolean (const Tuple<> &self_) {
+	imports BOOL template_boolean (const Tuple<> &self_) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_boolean (const _ARG1 &self_) {
+	imports BOOL template_boolean (const _ARG1 &self_) {
 		if (BOOL (self_.one ()))
 			return TRUE ;
 		return template_boolean (self_.rest ()) ;
 	}
 
-	static BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (operator_equal (self_.one () ,that))
 			return TRUE ;
 		return template_equal (self_.rest () ,that) ;
 	}
 
-	static BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (!operator_equal (self_.one () ,that))
 			return TRUE ;
 		return template_not_equal (self_.rest () ,that) ;
 	}
 
-	static BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (operator_less (self_.one () ,that))
 			return TRUE ;
 		return template_less (self_.rest () ,that) ;
 	}
 
-	static BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	static BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
 		if (!operator_less (self_.one () ,that))
 			return TRUE ;
 		return template_not_less (self_.rest () ,that) ;
@@ -1447,23 +1447,23 @@ private:
 namespace U {
 struct OPERATOR_RECAST {
 	template <class _ARG1 ,class _ARG2>
-	static PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG2 ,_ARG1>::value>> & ,const DEF<decltype (ARGVP3)> &) {
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<_ARG2 ,_ARG1>::value>> & ,const DEF<decltype (ARGVP3)> &) {
 		return static_cast<PTR<_ARG2>> (address) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value>> & ,const DEF<decltype (ARGVP2)> &) {
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const ARGV<ENABLE_TYPE<stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value>> & ,const DEF<decltype (ARGVP2)> &) {
 		//@warn: RTTI might be different across DLL
 		return dynamic_cast<PTR<_ARG2>> (address) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	static PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGV<_ARG2> & ,const DEF<decltype (ARGVPX)> & ,const DEF<decltype (ARGVP1)> &) {
 		return NULL ;
 	}
 
 	template <class _RET ,class _ARG1>
-	static PTR<_RET> invoke (const PTR<_ARG1> &address) {
+	imports PTR<_RET> invoke (const PTR<_ARG1> &address) {
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		return template_recast (address ,_NULL_<ARGV<CAST_TRAITS_TYPE<_RET ,_ARG1>>> () ,ARGVPX ,ARGVP9) ;
 	}
@@ -1498,7 +1498,7 @@ public:
 
 	template <class _DEP = NONE>
 	implicit StrongRef (const WeakRef<UNIT> &that)
-		: StrongRef (_FORWARD_<DEPENDENT_TYPE<WeakRef<UNIT> ,_DEP>> (that).watch ()) {
+		: StrongRef (_FORWARD_<const DEPENDENT_TYPE<WeakRef<UNIT> ,_DEP> &> (that).watch ()) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1615,7 +1615,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	static StrongRef make (_ARGS &&...initval) {
+	imports StrongRef make (_ARGS &&...initval) {
 		auto tmp = SharedRef<SELF_PACK>::make () ;
 		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
 		tmp->mCounter = 0 ;
@@ -1799,7 +1799,7 @@ public:
 
 	IntrusiveRef share () side_effects {
 		struct Dependent ;
-		using LatchCounter = DEPENDENT_TYPE<DEF<typename Private::LatchCounter> ,Dependent> ;
+		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		return IntrusiveRef (r1x) ;
@@ -1807,8 +1807,8 @@ public:
 
 	DEF<typename Private::WatchProxy> watch () side_effects {
 		struct Dependent ;
-		using WatchProxy = DEPENDENT_TYPE<DEF<typename Private::WatchProxy> ,Dependent> ;
-		using LatchCounter = DEPENDENT_TYPE<DEF<typename Private::LatchCounter> ,Dependent> ;
+		using WatchProxy = typename DEPENDENT_TYPE<Private ,Dependent>::WatchProxy ;
+		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -1818,7 +1818,7 @@ public:
 
 public:
 	template <class... _ARGS>
-	static IntrusiveRef make (_ARGS &&...initval) {
+	imports IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc<TEMP<UNIT>> () ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
@@ -1854,7 +1854,7 @@ private:
 	}
 
 private:
-	static void acquire (const PTR<UNIT> &address ,const BOOL &init) {
+	imports void acquire (const PTR<UNIT> &address ,const BOOL &init) {
 		if (address == NULL)
 			return ;
 		if (init)
@@ -1864,7 +1864,7 @@ private:
 		_DEBUG_ASSERT_ (r1x >= 1 + _EBOOL_ (!init)) ;
 	}
 
-	static void release (const PTR<UNIT> &address) {
+	imports void release (const PTR<UNIT> &address) {
 		if (address == NULL)
 			return ;
 		const auto r1x = CONT::friend_detach (DEREF[address]) ;
@@ -1923,7 +1923,7 @@ class MemoryPool {
 private:
 	struct HEADER ;
 
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual void clear () noexcept = 0 ;
@@ -2250,23 +2250,23 @@ public:
 
 inline exports void MemoryPool::initialize () {
 	struct Dependent ;
-	using ImplHolder8 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<8> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder16 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<16> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder24 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<24> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder32 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<32> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder40 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<40> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder48 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<48> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder56 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<56> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder64 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<64> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder72 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<72> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder80 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<80> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder88 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<88> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder96 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<96> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder104 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<104> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder112 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<112> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder120 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<120> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder128 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<128> ,ARGC<4>>> ,Dependent> ;
-	using HugeHolder = DEPENDENT_TYPE<DEF<typename Private::HugeHolder> ,Dependent> ;
+	using ImplHolder8 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
+	using ImplHolder16 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
+	using ImplHolder24 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
+	using ImplHolder32 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
+	using ImplHolder40 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
+	using ImplHolder48 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
+	using ImplHolder56 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
+	using ImplHolder64 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
+	using ImplHolder72 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
+	using ImplHolder80 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
+	using ImplHolder88 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
+	using ImplHolder96 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
+	using ImplHolder104 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
+	using ImplHolder112 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
+	using ImplHolder120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
+	using ImplHolder128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using HugeHolder = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
 	mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
 		me.mPool[0] = StrongRef<ImplHolder8>::make () ;
@@ -2294,7 +2294,7 @@ inline exports void MemoryPool::initialize () {
 
 class Object ;
 
-exports class Objective
+class Objective
 	:public Interface {
 public:
 	virtual WeakRef<Object> weak_of_this () const = 0 ;
@@ -2381,7 +2381,7 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	exports class Holder
+	class Holder
 		:public Interface {
 	public:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
@@ -2403,14 +2403,14 @@ public:
 	template <class... _ARGS>
 	explicit Serializer (const ARGV<ARGVS<_ARGS...>> &) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<_ARGS...>> ,Dependent> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 		mHolder = StrongRef<ImplHolder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
 	inline DEF<typename Private::Member> operator() (CONT &context_) const side_effects {
 		struct Dependent ;
-		using Member = DEPENDENT_TYPE<DEF<typename Private::Member> ,Dependent> ;
+		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		return Member (DEREF[this] ,context_) ;
 	}

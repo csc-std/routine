@@ -134,7 +134,7 @@ public:
 class FileSystemService
 	:private Proxy {
 private:
-	exports class Abstract
+	class Abstract
 		:public Interface {
 	public:
 		virtual void startup () = 0 ;

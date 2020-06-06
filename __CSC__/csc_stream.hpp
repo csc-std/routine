@@ -70,7 +70,7 @@ class ByteReader {
 	_STATIC_ASSERT_ (stl::is_same<REAL ,BYTE>::value) ;
 
 public:
-	exports class Binder
+	class Binder
 		:public Interface {
 	public:
 		virtual void friend_read (ByteReader &reader) = 0 ;
@@ -109,7 +109,7 @@ public:
 
 	DEF<typename Private::template Attribute<ByteReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<ByteReader>> ,Dependent> ;
+		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteReader> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -439,7 +439,7 @@ class ByteWriter {
 	_STATIC_ASSERT_ (stl::is_same<REAL ,BYTE>::value) ;
 
 public:
-	exports class Binder
+	class Binder
 		:public Interface {
 	public:
 		virtual void friend_write (ByteWriter &writer) const = 0 ;
@@ -485,7 +485,7 @@ public:
 
 	DEF<typename Private::template Attribute<ByteWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<ByteWriter>> ,Dependent> ;
+		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteWriter> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -796,7 +796,7 @@ class TextReader {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 public:
-	exports class Binder
+	class Binder
 		:public Interface {
 	public:
 		virtual void friend_read (TextReader &reader) = 0 ;
@@ -846,7 +846,7 @@ public:
 
 	DEF<typename Private::template Attribute<TextReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<TextReader>> ,Dependent> ;
+		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextReader> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -1539,7 +1539,7 @@ class TextWriter {
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 public:
-	exports class Binder
+	class Binder
 		:public Interface {
 	public:
 		virtual void friend_write (TextWriter &writer) const = 0 ;
@@ -1595,7 +1595,7 @@ public:
 
 	DEF<typename Private::template Attribute<TextWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<TextWriter>> ,Dependent> ;
+		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextWriter> ;
 		return Attribute (DEREF[this]) ;
 	}
 
