@@ -1005,7 +1005,7 @@ class AnyRef final {
 private:
 	using Holder = typename AnyRef<void>::Holder ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class ImplHolder ;
 	} ;
@@ -1076,7 +1076,7 @@ public:
 
 	UNIT &to () leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1092,7 +1092,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_<UNIT> ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1110,7 +1110,7 @@ public:
 	template <class... _ARGS>
 	static AnyRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<UNIT>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<UNIT>> ,Dependent> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
 		auto &r1x = _LOAD_<ImplHolder> (_FORWARD_<const PTR<TEMP<ImplHolder>> &> (rax)) ;
@@ -1131,7 +1131,7 @@ private:
 
 template <class UNIT>
 template <class UNIT_>
-class AnyRef<UNIT>::Detail::ImplHolder
+class AnyRef<UNIT>::Private::ImplHolder
 	:public Holder {
 private:
 	friend AnyRef ;
@@ -1159,7 +1159,7 @@ private:
 		virtual void release () = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class ImplHolder ;
 	} ;
@@ -1179,7 +1179,7 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<void ()>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void ()>>> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
@@ -1236,7 +1236,7 @@ private:
 } ;
 
 template <class UNIT_>
-class UniqueRef<void>::Detail::ImplHolder
+class UniqueRef<void>::Private::ImplHolder
 	:public Holder {
 private:
 	UNIT_ mFunctor ;
@@ -1262,7 +1262,7 @@ class UniqueRef final {
 private:
 	using Holder = typename UniqueRef<void>::Holder ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class ImplHolder ;
 	} ;
@@ -1280,7 +1280,7 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
@@ -1333,7 +1333,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
 		return r1x->mValue ;
@@ -1351,7 +1351,7 @@ public:
 	template <class... _ARGS>
 	static UniqueRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<void (UNIT &)>>> ,Dependent> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		const auto r1x = _FORWARD_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
@@ -1375,7 +1375,7 @@ private:
 
 template <class UNIT>
 template <class UNIT_>
-class UniqueRef<UNIT>::Detail::ImplHolder
+class UniqueRef<UNIT>::Private::ImplHolder
 	:public Holder {
 private:
 	friend UniqueRef ;
@@ -1490,7 +1490,7 @@ private:
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class ImplHolder ;
 	} ;
@@ -1515,7 +1515,7 @@ public:
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>>> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARG1> (that)) ;
@@ -1579,7 +1579,7 @@ public:
 	template <class... _ARGS>
 	static Function make (const PTR<UNIT1 (UNITS... ,_ARGS...)> &func ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<UNIT1 (UNITS... ,_ARGS...)>>> ,Dependent> ;
 		auto rax = GlobalHeap::alloc<TEMP<ImplHolder>> () ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,func ,parameter...) ;
 		auto &r1x = _LOAD_<ImplHolder> (_FORWARD_<const PTR<TEMP<ImplHolder>> &> (rax)) ;
@@ -1601,7 +1601,7 @@ private:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<UNIT1 (UNITS...)>::Detail::ImplHolder
+class Function<UNIT1 (UNITS...)>::Private::ImplHolder
 	:public Holder {
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<UNIT_ ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 
@@ -1658,7 +1658,7 @@ private:
 		UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		class PureHolder ;
 
 		template <class>
@@ -1677,7 +1677,7 @@ public:
 	implicit Function (const PTR<UNIT1 (UNITS...)> &that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using PureHolder = DEPENDENT_TYPE<DEF<typename Detail::PureHolder> ,Dependent> ;
+		using PureHolder = DEPENDENT_TYPE<DEF<typename Private::PureHolder> ,Dependent> ;
 		_DEBUG_ASSERT_ (that != NULL) ;
 		static_create<PureHolder> (DEPTR[mVariant] ,that) ;
 	}
@@ -1686,7 +1686,7 @@ public:
 	explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<_ARG1>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<_ARG1>> ,Dependent> ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
@@ -1694,7 +1694,7 @@ public:
 	explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<const _ARG1>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<const _ARG1>> ,Dependent> ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
 
@@ -1702,7 +1702,7 @@ public:
 	explicit Function (const PhanRef<_ARG1> &context_ ,const PTR<UNIT1 (PTR<_ARG1> ,UNITS...)> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<_ARG1>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<_ARG1>>> ,Dependent> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
@@ -1711,7 +1711,7 @@ public:
 	explicit Function (const PhanRef<const _ARG1> &context_ ,const PTR<UNIT1 (PTR<const _ARG1> ,UNITS...)> &func)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<const _ARG1>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<const _ARG1>>> ,Dependent> ;
 		_DEBUG_ASSERT_ (func != NULL) ;
 		static_create<ImplHolder> (DEPTR[mVariant] ,DEPTR[context_.self] ,func) ;
 	}
@@ -1795,7 +1795,7 @@ private:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::PureHolder
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::PureHolder
 	:public Holder {
 private:
 	PTR<UNIT1 (UNITS...)> mFunction ;
@@ -1817,7 +1817,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder
 	:public Holder {
 private:
 	PTR<UNIT_> mContext ;
@@ -1840,7 +1840,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder<const UNIT_>
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder<const UNIT_>
 	:public Holder {
 private:
 	PTR<const UNIT_> mContext ;
@@ -1863,7 +1863,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Detail::ImplHolder<PTR<UNIT_>>
+class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder<PTR<UNIT_>>
 	:public Holder {
 private:
 	PTR<UNIT_> mContext ;

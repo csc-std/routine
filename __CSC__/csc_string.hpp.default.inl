@@ -180,7 +180,7 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 }
 
 #ifdef __CSC_EXTEND__
-class RegexMatcher::Implement {
+class RegexMatcher::Private::Implement {
 private:
 	AutoRef<api::regex> mRegex ;
 

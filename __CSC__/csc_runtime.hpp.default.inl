@@ -135,7 +135,7 @@ using ::getsid ;
 #endif
 } ;
 
-class Duration::Implement {
+class Duration::Private::Implement {
 private:
 	api::chrono::system_clock::duration mDuration ;
 
@@ -255,7 +255,7 @@ inline exports Duration Duration::sub (const Duration &that) const {
 	return mThis->sub (that.mThis) ;
 }
 
-class TimePoint::Implement {
+class TimePoint::Private::Implement {
 private:
 	using DurationImplement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<Duration> ().native ())>> ;
 	using TimePointImplement = Implement ;
@@ -371,7 +371,7 @@ inline exports Duration TimePoint::sub (const TimePoint &that) const {
 	return mThis->sub (that.native ()) ;
 }
 
-class Atomic::Implement {
+class Atomic::Private::Implement {
 private:
 	api::atomic<VAR> mAtomic ;
 
@@ -431,7 +431,7 @@ inline exports VAR Atomic::decrease () side_effects {
 	return mThis->decrease () ;
 }
 
-class Mutex::Implement {
+class Mutex::Private::Implement {
 private:
 	api::mutex mMutex ;
 
@@ -471,7 +471,7 @@ inline exports void Mutex::unlock () {
 	mThis->unlock () ;
 }
 
-class RecursiveMutex::Implement {
+class RecursiveMutex::Private::Implement {
 private:
 	api::recursive_mutex mMutex ;
 
@@ -511,7 +511,7 @@ inline exports void RecursiveMutex::unlock () {
 	mThis->unlock () ;
 }
 
-class ConditionLock::Implement {
+class ConditionLock::Private::Implement {
 private:
 	api::condition_variable mConditionLock ;
 
@@ -527,7 +527,7 @@ inline exports ConditionLock::ConditionLock () {
 	mThis = StrongRef<Implement>::make () ;
 }
 
-class UniqueLock::Implement {
+class UniqueLock::Private::Implement {
 private:
 	api::unique_lock<api::mutex> mUniqueLock ;
 	PhanRef<api::condition_variable> mConditionLock ;
@@ -588,7 +588,7 @@ inline exports void UniqueLock::notify () const {
 	mThis->notify () ;
 }
 
-class Thread::Implement {
+class Thread::Private::Implement {
 private:
 	StrongRef<Binder> mRunnable ;
 	api::thread mThread ;
@@ -598,7 +598,7 @@ public:
 
 	explicit Implement (StrongRef<Binder> &&runnable) {
 		mRunnable = _MOVE_ (runnable) ;
-		mThread = api::thread (Detail::Runnable (PhanRef<Binder>::make (mRunnable.self))) ;
+		mThread = api::thread (Private::Runnable (PhanRef<Binder>::make (mRunnable.self))) ;
 	}
 
 	void join () {
@@ -771,7 +771,7 @@ inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) side_eff
 	return FLAG (r2x) ;
 }
 
-class RandomService::Implement
+class RandomService::Private::Implement
 	:public RandomService::Abstract {
 private:
 	SharedRef<api::random_device> mRandomSeed ;

@@ -971,7 +971,7 @@ private:
 		INDEX mMap ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Pair ;
 	} ;
@@ -1043,26 +1043,26 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename Detail::template Pair<Priority>> get (const INDEX &index) leftvalue {
+	DEF<typename Private::template Pair<Priority>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Priority>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Priority>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<Priority>> operator[] (const INDEX &index) leftvalue {
+	inline DEF<typename Private::template Pair<Priority>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	DEF<typename Detail::template Pair<const Priority>> get (const INDEX &index) const leftvalue {
+	DEF<typename Private::template Pair<const Priority>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Priority>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Priority>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const Priority>> operator[] (const INDEX &index) const leftvalue {
+	inline DEF<typename Private::template Pair<const Priority>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1073,16 +1073,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<Priority>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<Priority>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Priority>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Priority>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<const Priority>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<const Priority>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Priority>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Priority>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -1327,7 +1327,7 @@ private:
 
 template <class ITEM ,class SIZE>
 template <class BASE>
-class Priority<ITEM ,SIZE>::Detail::Pair
+class Priority<ITEM ,SIZE>::Private::Pair
 	:private Proxy {
 public:
 	const ITEM &key ;
@@ -2236,7 +2236,7 @@ class BitSet ;
 template <class SIZE>
 class BitSet {
 private:
-	struct Detail {
+	struct Private {
 		template <class>
 		class Bit ;
 	} ;
@@ -2332,41 +2332,41 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<BitSet>> get (const INDEX &index) leftvalue {
+	DEF<typename Private::template Bit<BitSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Bit = DEPENDENT_TYPE<DEF<typename Detail::template Bit<BitSet>> ,Dependent> ;
+		using Bit = DEPENDENT_TYPE<DEF<typename Private::template Bit<BitSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<BitSet>> operator[] (const INDEX &index) leftvalue {
+	inline DEF<typename Private::template Bit<BitSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	DEF<typename Detail::template Bit<const BitSet>> get (const INDEX &index) const leftvalue {
+	DEF<typename Private::template Bit<const BitSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Bit = DEPENDENT_TYPE<DEF<typename Detail::template Bit<const BitSet>> ,Dependent> ;
+		using Bit = DEPENDENT_TYPE<DEF<typename Private::template Bit<const BitSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Bit<const BitSet>> operator[] (const INDEX &index) const leftvalue {
+	inline DEF<typename Private::template Bit<const BitSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Bit<BitSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Bit<BitSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Bit<BitSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
 		return r1x ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Bit<const BitSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Bit<const BitSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Bit<const BitSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
@@ -2578,7 +2578,7 @@ private:
 
 template <class SIZE>
 template <class BASE>
-class BitSet<SIZE>::Detail::Bit
+class BitSet<SIZE>::Private::Bit
 	:private Proxy {
 private:
 	friend BitSet ;
@@ -2659,7 +2659,7 @@ private:
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mRed (red) ,mUp (up) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Pair ;
 	} ;
@@ -2733,23 +2733,23 @@ public:
 		return ArrayIterator<const Set> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<Set>> get (const INDEX &index) leftvalue {
+	DEF<typename Private::template Pair<Set>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Set>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Set>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<Set>> operator[] (const INDEX &index) leftvalue {
+	inline DEF<typename Private::template Pair<Set>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const Set>> get (const INDEX &index) const leftvalue {
+	DEF<typename Private::template Pair<const Set>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Set>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Set>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const Set>> operator[] (const INDEX &index) const leftvalue {
+	inline DEF<typename Private::template Pair<const Set>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -2757,16 +2757,16 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<Set>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<Set>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<Set>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<Set>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<const Set>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<const Set>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const Set>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const Set>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -3254,7 +3254,7 @@ private:
 
 template <class ITEM ,class SIZE>
 template <class BASE>
-class Set<ITEM ,SIZE>::Detail::Pair
+class Set<ITEM ,SIZE>::Private::Pair
 	:private Proxy {
 public:
 	const ITEM &key ;
@@ -3295,7 +3295,7 @@ private:
 			: mItem (_MOVE_ (item)) ,mMap (map_) ,mHash (hash) ,mNext (next) {}
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Pair ;
 	} ;
@@ -3369,23 +3369,23 @@ public:
 		return ArrayIterator<const HashSet> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<HashSet>> get (const INDEX &index) leftvalue {
+	DEF<typename Private::template Pair<HashSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<HashSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<HashSet>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<HashSet>> operator[] (const INDEX &index) leftvalue {
+	inline DEF<typename Private::template Pair<HashSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const HashSet>> get (const INDEX &index) const leftvalue {
+	DEF<typename Private::template Pair<const HashSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const HashSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const HashSet>> ,Dependent> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const HashSet>> operator[] (const INDEX &index) const leftvalue {
+	inline DEF<typename Private::template Pair<const HashSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3393,16 +3393,16 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<HashSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<HashSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<HashSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<HashSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<const HashSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<const HashSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const HashSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const HashSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -3567,7 +3567,7 @@ private:
 
 template <class ITEM ,class SIZE>
 template <class BASE>
-class HashSet<ITEM ,SIZE>::Detail::Pair
+class HashSet<ITEM ,SIZE>::Private::Pair
 	:private Proxy {
 public:
 	const ITEM &key ;
@@ -3614,7 +3614,7 @@ private:
 		AutoRef<Allocator<Node ,SIZE>> mBuffer ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Pair ;
 	} ;
@@ -3701,25 +3701,25 @@ public:
 		return ArrayIterator<const SoftSet> (DEREF[this] ,iend ()) ;
 	}
 
-	DEF<typename Detail::template Pair<SoftSet>> get (const INDEX &index) leftvalue {
+	DEF<typename Private::template Pair<SoftSet>> get (const INDEX &index) leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<SoftSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<SoftSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<SoftSet>> operator[] (const INDEX &index) leftvalue {
+	inline DEF<typename Private::template Pair<SoftSet>> operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Pair<const SoftSet>> get (const INDEX &index) const leftvalue {
+	DEF<typename Private::template Pair<const SoftSet>> get (const INDEX &index) const leftvalue {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const SoftSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const SoftSet>> ,Dependent> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	inline DEF<typename Detail::template Pair<const SoftSet>> operator[] (const INDEX &index) const leftvalue {
+	inline DEF<typename Private::template Pair<const SoftSet>> operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3727,16 +3727,16 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<SoftSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<SoftSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<SoftSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<SoftSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
 
-	INDEX at (const DEF<typename Detail::template Pair<const SoftSet>> &item) const {
+	INDEX at (const DEF<typename Private::template Pair<const SoftSet>> &item) const {
 		struct Dependent ;
-		using Pair = DEPENDENT_TYPE<DEF<typename Detail::template Pair<const SoftSet>> ,Dependent> ;
+		using Pair = DEPENDENT_TYPE<DEF<typename Private::template Pair<const SoftSet>> ,Dependent> ;
 		auto &r1x = _FORWARD_<const Pair &> (item) ;
 		return at (r1x.key) ;
 	}
@@ -4029,7 +4029,7 @@ private:
 
 template <class ITEM ,class SIZE>
 template <class BASE>
-class SoftSet<ITEM ,SIZE>::Detail::Pair
+class SoftSet<ITEM ,SIZE>::Private::Pair
 	:private Proxy {
 public:
 	const ITEM &key ;

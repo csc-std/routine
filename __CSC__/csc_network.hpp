@@ -16,12 +16,18 @@
 #include "csc_thread.hpp"
 
 namespace CSC {
+class TCPListener ;
+
 class TCPSocket {
-public:
-	class Listener ;
+private:
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
 
 private:
-	class Implement ;
+	friend TCPListener ;
 	StrongRef<Implement> mThis ;
 
 public:
@@ -34,11 +40,11 @@ public:
 	String<STRU8> peer_sock_name () const ;
 
 	template <class _DEP = NONE>
-	DEPENDENT_TYPE<Listener ,_DEP> listener () side_effects {
+	DEPENDENT_TYPE<TCPListener ,_DEP> listener () side_effects {
 		struct Dependent ;
-		using Listener = DEPENDENT_TYPE<Listener ,Dependent> ;
+		using TCPListener = DEPENDENT_TYPE<TCPListener ,Dependent> ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return Listener (mThis) ;
+		return TCPListener (mThis) ;
 	}
 
 	void link (const String<STRU8> &ip_addr) ;
@@ -81,15 +87,21 @@ public:
 	imports String<STRU8> http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) side_effects ;
 } ;
 
-class TCPSocket::Listener {
+class TCPListener {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
-	Listener () = delete ;
+	TCPListener () = delete ;
 
-	explicit Listener (const StrongRef<TCPSocket::Implement> &socket_) ;
+	explicit TCPListener (const StrongRef<TCPSocket::Implement> &socket_) ;
 
 	void wait_linker () ;
 
@@ -98,7 +110,13 @@ public:
 
 class UDPSocket {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -157,8 +175,13 @@ private:
 		virtual LENGTH pref_timeout () const = 0 ;
 	} ;
 
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	friend Singleton<NetworkService> ;
 	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;

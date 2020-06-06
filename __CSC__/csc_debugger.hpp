@@ -60,13 +60,16 @@ private:
 		virtual void clear () = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class...>
 		class ImplBinder ;
+
+		class Implement ;
 	} ;
 
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	friend Singleton<ConsoleService> ;
 	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
@@ -90,7 +93,7 @@ public:
 	template <class... _ARGS>
 	void print (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->print (ImplBinder (msg...)) ;
 	}
@@ -98,7 +101,7 @@ public:
 	template <class... _ARGS>
 	void fatal (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->fatal (ImplBinder (msg...)) ;
 	}
@@ -106,7 +109,7 @@ public:
 	template <class... _ARGS>
 	void error (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->error (ImplBinder (msg...)) ;
 	}
@@ -114,7 +117,7 @@ public:
 	template <class... _ARGS>
 	void warn (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->warn (ImplBinder (msg...)) ;
 	}
@@ -122,7 +125,7 @@ public:
 	template <class... _ARGS>
 	void info (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->info (ImplBinder (msg...)) ;
 	}
@@ -130,7 +133,7 @@ public:
 	template <class... _ARGS>
 	void debug (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->debug (ImplBinder (msg...)) ;
 	}
@@ -138,7 +141,7 @@ public:
 	template <class... _ARGS>
 	void verbose (const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->verbose (ImplBinder (msg...)) ;
 	}
@@ -151,7 +154,7 @@ public:
 	template <class... _ARGS>
 	void log (const String<STR> &tag ,const _ARGS &...msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<_ARGS...>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<_ARGS...>> ,Dependent> ;
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		mThis->log (tag.raw () ,ImplBinder (msg...)) ;
 	}
@@ -181,7 +184,7 @@ private:
 } ;
 
 template <class... UNITS>
-class ConsoleService::Detail::ImplBinder
+class ConsoleService::Private::ImplBinder
 	:public Binder {
 private:
 	TupleBinder<const UNITS...> mBinder ;
@@ -218,8 +221,13 @@ private:
 		virtual Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) side_effects = 0 ;
 	} ;
 
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	friend Singleton<DebuggerService> ;
 	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;

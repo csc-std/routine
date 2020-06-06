@@ -17,7 +17,7 @@ class ArrayRange
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
 private:
-	struct Detail {
+	struct Private {
 		class Iterator ;
 	} ;
 
@@ -31,15 +31,15 @@ public:
 		mRange = range_ ;
 	}
 
-	DEF<typename Detail::Iterator> begin () const {
+	DEF<typename Private::Iterator> begin () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,0 ,first_item ()) ;
 	}
 
-	DEF<typename Detail::Iterator> end () const {
+	DEF<typename Private::Iterator> end () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
 	}
 
@@ -62,7 +62,7 @@ private:
 } ;
 
 template <class SIZE>
-class ArrayRange<SIZE>::Detail::Iterator
+class ArrayRange<SIZE>::Private::Iterator
 	:private Proxy {
 private:
 	const ArrayRange &mBase ;
@@ -113,7 +113,7 @@ private:
 		ARRAY5<LENGTH> mWidth ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Row ;
 	} ;
@@ -277,23 +277,23 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Row<Bitmap>> get (const INDEX &y) leftvalue {
+	DEF<typename Private::template Row<Bitmap>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<Bitmap>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<Bitmap>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Bitmap>> operator[] (const INDEX &y) leftvalue {
+	inline DEF<typename Private::template Row<Bitmap>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
+	DEF<typename Private::template Row<const Bitmap>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const Bitmap>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const Bitmap>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Bitmap>> operator[] (const INDEX &y) const leftvalue {
+	inline DEF<typename Private::template Row<const Bitmap>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -590,7 +590,7 @@ public:
 
 template <class UNIT>
 template <class BASE>
-class Bitmap<UNIT>::Detail::Row
+class Bitmap<UNIT>::Private::Row
 	:private Proxy {
 private:
 	BASE &mBase ;
@@ -659,7 +659,7 @@ private:
 		LENGTH mCK ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Row ;
 
@@ -755,30 +755,30 @@ public:
 		return get (index) ;
 	}
 
-	DEF<typename Detail::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
+	DEF<typename Private::template Row<AbstractImage>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<AbstractImage>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<AbstractImage>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<AbstractImage>> operator[] (const INDEX &y) leftvalue {
+	inline DEF<typename Private::template Row<AbstractImage>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
+	DEF<typename Private::template Row<const AbstractImage>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const AbstractImage>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const AbstractImage>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const AbstractImage>> operator[] (const INDEX &y) const leftvalue {
+	inline DEF<typename Private::template Row<const AbstractImage>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
 	template <class _RET>
-	DEF<typename Detail::template NativeProxy<_RET>> native () side_effects {
+	DEF<typename Private::template NativeProxy<_RET>> native () side_effects {
 		struct Dependent ;
-		using NativeProxy = DEPENDENT_TYPE<DEF<typename Detail::template NativeProxy<_RET>> ,Dependent> ;
+		using NativeProxy = DEPENDENT_TYPE<DEF<typename Private::template NativeProxy<_RET>> ,Dependent> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		mThis->mImage = PhanBuffer<UNIT> () ;
@@ -850,7 +850,7 @@ private:
 
 template <class UNIT>
 template <class BASE>
-class AbstractImage<UNIT>::Detail::Row
+class AbstractImage<UNIT>::Private::Row
 	:private Proxy {
 private:
 	BASE &mBase ;
@@ -869,7 +869,7 @@ public:
 
 template <class UNIT>
 template <class UNIT_>
-class AbstractImage<UNIT>::Detail::NativeProxy
+class AbstractImage<UNIT>::Private::NativeProxy
 	:private Proxy {
 private:
 	UniqueRef<AbstractImage> mBase ;

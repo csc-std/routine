@@ -91,7 +91,7 @@ using ::SymInitialize ;
 using ::SymCleanup ;
 } ;
 
-class ConsoleService::Implement
+class ConsoleService::Private::Implement
 	:public ConsoleService::Abstract {
 private:
 	TextWriter<STR> mConWriter ;
@@ -262,7 +262,7 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		struct Dependent ;
-		using ImplBinder = DEPENDENT_TYPE<DEF<typename Detail::template ImplBinder<PhanBuffer<const STR>>> ,Dependent> ;
+		using ImplBinder = DEPENDENT_TYPE<DEF<typename Private::template ImplBinder<PhanBuffer<const STR>>> ,Dependent> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
 		log (r1x ,ImplBinder (msg)) ;
 	}
@@ -391,7 +391,7 @@ inline exports ConsoleService::ConsoleService () {
 	mThis = StrongRef<Implement>::make () ;
 }
 
-class DebuggerService::Implement
+class DebuggerService::Private::Implement
 	:public DebuggerService::Abstract {
 private:
 	UniqueRef<HANDLE> mSymbolFromAddress ;

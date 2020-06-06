@@ -156,7 +156,7 @@ inline ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LE
 }
 } ;
 
-class TCPSocket::Implement {
+class TCPSocket::Private::Implement {
 private:
 	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -165,7 +165,7 @@ private:
 	} ;
 
 private:
-	friend TCPSocket::Listener ;
+	friend TCPListener ;
 	SharedRef<SELF_PACK> mThis ;
 
 public:
@@ -374,7 +374,7 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 	return _MOVE_ (ret) ;
 }
 
-class TCPSocket::Listener::Implement {
+class TCPListener::Private::Implement {
 private:
 	SharedRef<TCPSocket::Implement::SELF_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
@@ -414,19 +414,19 @@ public:
 	}
 } ;
 
-inline exports void TCPSocket::Listener::wait_linker () {
+inline exports void TCPListener::wait_linker () {
 	mThis->wait_linker () ;
 }
 
-inline exports void TCPSocket::Listener::accept () {
+inline exports void TCPListener::accept () {
 	mThis->accept () ;
 }
 
-inline exports TCPSocket::Listener::Listener (const StrongRef<TCPSocket::Implement> &socket_) {
+inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Implement> &socket_) {
 	mThis = StrongRef<Implement>::make (socket_) ;
 }
 
-class UDPSocket::Implement {
+class UDPSocket::Private::Implement {
 private:
 	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -555,7 +555,7 @@ inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
 	mThis->write (data) ;
 }
 
-class NetworkService::Implement
+class NetworkService::Private::Implement
 	:public NetworkService::Abstract {
 private:
 	UniqueRef<void> mService ;

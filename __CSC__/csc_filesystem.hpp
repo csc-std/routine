@@ -71,7 +71,13 @@ public:
 
 class StreamLoader {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -98,7 +104,13 @@ public:
 
 class BufferLoader {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -129,8 +141,13 @@ private:
 		virtual void shutdown () = 0 ;
 	} ;
 
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	friend Singleton<FileSystemService> ;
 	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;

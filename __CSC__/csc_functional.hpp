@@ -135,7 +135,7 @@ private:
 		virtual Operand invoke (const LexicalNode &node ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand & ,const Operand &) const = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class ,class>
 		class ImplHolder ;
 	} ;
@@ -151,7 +151,7 @@ public:
 		struct Dependent ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		using FUNC_HINT = REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<DEF<decltype (&_ARG1::operator())>>> ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<PTR<FUNC_HINT> ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNC_HINT>)> ,Operand>>> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_convertible<_ARG1 ,PTR<FUNC_HINT>>::value) ;
 		_STATIC_ASSERT_ (stl::is_complete<ImplHolder>::value) ;
 		const auto r1x = _FORWARD_<PTR<FUNC_HINT>> (func) ;
@@ -178,7 +178,7 @@ public:
 } ;
 
 template <>
-class Operator::Detail::ImplHolder<void ,void>
+class Operator::Private::ImplHolder<void ,void>
 	:public Holder {
 public:
 	ImplHolder () = default ;
@@ -239,7 +239,7 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Detail::ImplHolder<PTR<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
+class Operator::Private::ImplHolder<PTR<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
 	:public ImplHolder<void ,void> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
@@ -277,7 +277,7 @@ private:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Detail::ImplHolder<PTR<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
+class Operator::Private::ImplHolder<PTR<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
 	:public ImplHolder<void ,void> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
@@ -318,7 +318,7 @@ template <class>
 class Expression ;
 
 class LexicalNode
-	:public Object::Virtual {
+	:public Object::Public::Virtual {
 private:
 	template <class>
 	friend class Expression ;

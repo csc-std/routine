@@ -85,7 +85,7 @@ private:
 		BOOL mEndianFlag ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Attribute ;
 	} ;
@@ -107,9 +107,9 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteReader>> attr () leftvalue {
+	DEF<typename Private::template Attribute<ByteReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<ByteReader>> ,Dependent> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<ByteReader>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -405,7 +405,7 @@ public:
 
 template <class REAL>
 template <class BASE>
-class ByteReader<REAL>::Detail::Attribute
+class ByteReader<REAL>::Private::Attribute
 	:private Proxy {
 private:
 	BASE &mBase ;
@@ -454,7 +454,7 @@ private:
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Attribute ;
 	} ;
@@ -483,9 +483,9 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<ByteWriter>> attr () leftvalue {
+	DEF<typename Private::template Attribute<ByteWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<ByteWriter>> ,Dependent> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<ByteWriter>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -762,7 +762,7 @@ public:
 
 template <class REAL>
 template <class BASE>
-class ByteWriter<REAL>::Detail::Attribute
+class ByteWriter<REAL>::Private::Attribute
 	:private Proxy {
 private:
 	BASE &mBase ;
@@ -817,7 +817,7 @@ private:
 		HashSet<REAL> mSpaceMappingSet ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Attribute ;
 	} ;
@@ -844,9 +844,9 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextReader>> attr () leftvalue {
+	DEF<typename Private::template Attribute<TextReader>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<TextReader>> ,Dependent> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<TextReader>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -1400,7 +1400,7 @@ private:
 
 template <class REAL>
 template <class BASE>
-class TextReader<REAL>::Detail::Attribute
+class TextReader<REAL>::Private::Attribute
 	:private Proxy {
 private:
 	BASE &mBase ;
@@ -1558,7 +1558,7 @@ private:
 		HashSet<REAL> mEscapeMappingSet ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class>
 		class Attribute ;
 	} ;
@@ -1593,9 +1593,9 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Detail::template Attribute<TextWriter>> attr () leftvalue {
+	DEF<typename Private::template Attribute<TextWriter>> attr () leftvalue {
 		struct Dependent ;
-		using Attribute = DEPENDENT_TYPE<DEF<typename Detail::template Attribute<TextWriter>> ,Dependent> ;
+		using Attribute = DEPENDENT_TYPE<DEF<typename Private::template Attribute<TextWriter>> ,Dependent> ;
 		return Attribute (DEREF[this]) ;
 	}
 
@@ -2127,7 +2127,7 @@ private:
 
 template <class REAL>
 template <class BASE>
-class TextWriter<REAL>::Detail::Attribute
+class TextWriter<REAL>::Private::Attribute
 	:private Proxy {
 private:
 	BASE &mBase ;

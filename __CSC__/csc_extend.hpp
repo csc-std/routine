@@ -13,25 +13,25 @@ namespace CSC {
 class GlobalWatch
 	:private Wrapped<void> {
 public:
-	struct Extern {
+	struct Public {
 		imports DEF<void (const Exception &)> done ;
 	} ;
 
 private:
-	struct Detail {
+	struct Private {
 		template <class>
 		class WatchInterface ;
 	} ;
 
 public:
 	static void done (const Exception &e) {
-		Extern::done (e) ;
+		Public::done (e) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
 	static void done (const ARGV<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
-		using WatchInterface = DEPENDENT_TYPE<DEF<typename Detail::template WatchInterface<_ARG2>> ,Dependent> ;
+		using WatchInterface = DEPENDENT_TYPE<DEF<typename Private::template WatchInterface<_ARG2>> ,Dependent> ;
 		static volatile WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
@@ -41,7 +41,7 @@ public:
 } ;
 
 template <class UNIT>
-class GlobalWatch::Detail::WatchInterface
+class GlobalWatch::Private::WatchInterface
 	:private Interface {
 private:
 	friend GlobalWatch ;
@@ -75,7 +75,6 @@ private:
 	class Holder {
 	private:
 		friend Singleton ;
-		friend AutoRef<Holder> ;
 		UNIT mValue ;
 
 	public:
@@ -1120,7 +1119,7 @@ using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::Detail::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>
+class Function<UNIT1 (UNITS...)>::Private::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>
 	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
@@ -1735,7 +1734,7 @@ public:
 template <class UNIT ,class CONT>
 class IntrusiveRef final {
 private:
-	struct Detail {
+	struct Private {
 		class WatchProxy ;
 
 		class LatchCounter ;
@@ -1800,16 +1799,16 @@ public:
 
 	IntrusiveRef share () side_effects {
 		struct Dependent ;
-		using LatchCounter = DEPENDENT_TYPE<DEF<typename Detail::LatchCounter> ,Dependent> ;
+		using LatchCounter = DEPENDENT_TYPE<DEF<typename Private::LatchCounter> ,Dependent> ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		return IntrusiveRef (r1x) ;
 	}
 
-	DEF<typename Detail::WatchProxy> watch () side_effects {
+	DEF<typename Private::WatchProxy> watch () side_effects {
 		struct Dependent ;
-		using WatchProxy = DEPENDENT_TYPE<DEF<typename Detail::WatchProxy> ,Dependent> ;
-		using LatchCounter = DEPENDENT_TYPE<DEF<typename Detail::LatchCounter> ,Dependent> ;
+		using WatchProxy = DEPENDENT_TYPE<DEF<typename Private::WatchProxy> ,Dependent> ;
+		using LatchCounter = DEPENDENT_TYPE<DEF<typename Private::LatchCounter> ,Dependent> ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_<LatchCounter> (mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
@@ -1879,7 +1878,7 @@ private:
 } ;
 
 template <class UNIT ,class CONT>
-class IntrusiveRef<UNIT ,CONT>::Detail::WatchProxy
+class IntrusiveRef<UNIT ,CONT>::Private::WatchProxy
 	:private Proxy {
 private:
 	UniqueRef<IntrusiveRef> mBase ;
@@ -1904,7 +1903,7 @@ public:
 } ;
 
 template <class UNIT ,class CONT>
-class IntrusiveRef<UNIT ,CONT>::Detail::LatchCounter
+class IntrusiveRef<UNIT ,CONT>::Private::LatchCounter
 	:private Wrapped<stl::atomic<LENGTH>> {
 public:
 	void lock () {
@@ -1944,7 +1943,7 @@ private:
 		AutoBuffer<StrongRef<Holder>> mPool ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		template <class ,class>
 		class ImplHolder ;
 
@@ -2035,7 +2034,7 @@ private:
 } ;
 
 template <class SIZE ,class RESE>
-class MemoryPool::Detail::ImplHolder
+class MemoryPool::Private::ImplHolder
 	:public Holder {
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 	_STATIC_ASSERT_ (RESE::value > 0) ;
@@ -2167,7 +2166,7 @@ private:
 	}
 } ;
 
-class MemoryPool::Detail::HugeHolder
+class MemoryPool::Private::HugeHolder
 	:public Holder {
 private:
 	struct FBLOCK {
@@ -2251,23 +2250,23 @@ public:
 
 inline exports void MemoryPool::initialize () {
 	struct Dependent ;
-	using ImplHolder8 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<8> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder16 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<16> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder24 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<24> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder32 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<32> ,ARGC<32>>> ,Dependent> ;
-	using ImplHolder40 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<40> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder48 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<48> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder56 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<56> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder64 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<64> ,ARGC<16>>> ,Dependent> ;
-	using ImplHolder72 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<72> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder80 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<80> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder88 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<88> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder96 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<96> ,ARGC<8>>> ,Dependent> ;
-	using ImplHolder104 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<104> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder112 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<112> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder120 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<120> ,ARGC<4>>> ,Dependent> ;
-	using ImplHolder128 = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<ARGC<128> ,ARGC<4>>> ,Dependent> ;
-	using HugeHolder = DEPENDENT_TYPE<DEF<typename Detail::HugeHolder> ,Dependent> ;
+	using ImplHolder8 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<8> ,ARGC<32>>> ,Dependent> ;
+	using ImplHolder16 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<16> ,ARGC<32>>> ,Dependent> ;
+	using ImplHolder24 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<24> ,ARGC<32>>> ,Dependent> ;
+	using ImplHolder32 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<32> ,ARGC<32>>> ,Dependent> ;
+	using ImplHolder40 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<40> ,ARGC<16>>> ,Dependent> ;
+	using ImplHolder48 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<48> ,ARGC<16>>> ,Dependent> ;
+	using ImplHolder56 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<56> ,ARGC<16>>> ,Dependent> ;
+	using ImplHolder64 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<64> ,ARGC<16>>> ,Dependent> ;
+	using ImplHolder72 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<72> ,ARGC<8>>> ,Dependent> ;
+	using ImplHolder80 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<80> ,ARGC<8>>> ,Dependent> ;
+	using ImplHolder88 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<88> ,ARGC<8>>> ,Dependent> ;
+	using ImplHolder96 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<96> ,ARGC<8>>> ,Dependent> ;
+	using ImplHolder104 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<104> ,ARGC<4>>> ,Dependent> ;
+	using ImplHolder112 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<112> ,ARGC<4>>> ,Dependent> ;
+	using ImplHolder120 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<120> ,ARGC<4>>> ,Dependent> ;
+	using ImplHolder128 = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<ARGC<128> ,ARGC<4>>> ,Dependent> ;
+	using HugeHolder = DEPENDENT_TYPE<DEF<typename Private::HugeHolder> ,Dependent> ;
 	mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
 		me.mPool[0] = StrongRef<ImplHolder8>::make () ;
@@ -2306,10 +2305,12 @@ public:
 class Object
 	:public Objective {
 public:
-	class Virtual ;
+	struct Public {
+		class Virtual ;
+	} ;
 
 private:
-	struct Detail {
+	struct Private {
 		class Metadata ;
 	} ;
 
@@ -2338,7 +2339,7 @@ public:
 	}
 } ;
 
-class Object::Detail::Metadata {
+class Object::Private::Metadata {
 private:
 	LENGTH mObjectSize ;
 	LENGTH mObjectAlign ;
@@ -2368,7 +2369,7 @@ private:
 	}
 } ;
 
-class Object::Virtual
+class Object::Public::Virtual
 	:public virtual Object {
 public:
 	Virtual ()
@@ -2386,7 +2387,7 @@ private:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		class Member ;
 
 		template <class...>
@@ -2402,21 +2403,21 @@ public:
 	template <class... _ARGS>
 	explicit Serializer (const ARGV<ARGVS<_ARGS...>> &) {
 		struct Dependent ;
-		using ImplHolder = DEPENDENT_TYPE<DEF<typename Detail::template ImplHolder<_ARGS...>> ,Dependent> ;
+		using ImplHolder = DEPENDENT_TYPE<DEF<typename Private::template ImplHolder<_ARGS...>> ,Dependent> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 		mHolder = StrongRef<ImplHolder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
 	}
 
-	inline DEF<typename Detail::Member> operator() (CONT &context_) const side_effects {
+	inline DEF<typename Private::Member> operator() (CONT &context_) const side_effects {
 		struct Dependent ;
-		using Member = DEPENDENT_TYPE<DEF<typename Detail::Member> ,Dependent> ;
+		using Member = DEPENDENT_TYPE<DEF<typename Private::Member> ,Dependent> ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		return Member (DEREF[this] ,context_) ;
 	}
 } ;
 
 template <class UNIT ,class CONT>
-class Serializer<UNIT ,CONT>::Detail::Member
+class Serializer<UNIT ,CONT>::Private::Member
 	:private Proxy {
 private:
 	const Serializer &mBase ;
@@ -2435,7 +2436,7 @@ public:
 
 template <class UNIT ,class CONT>
 template <class... UNITS_>
-class Serializer<UNIT ,CONT>::Detail::ImplHolder
+class Serializer<UNIT ,CONT>::Private::ImplHolder
 	:public Holder {
 public:
 	ImplHolder () = delete ;

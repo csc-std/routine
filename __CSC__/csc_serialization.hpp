@@ -39,7 +39,7 @@ private:
 		INDEX mChild ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		class RecursiveCounter ;
 
 		class InitializeLambda ;
@@ -323,7 +323,7 @@ private:
 	void initialize (const Array<XmlParser> &sequence) ;
 } ;
 
-class XmlParser::Detail::RecursiveCounter
+class XmlParser::Private::RecursiveCounter
 	:private Wrapped<LENGTH> {
 public:
 	void lock () {
@@ -336,7 +336,7 @@ public:
 	}
 } ;
 
-class XmlParser::Detail::InitializeLambda
+class XmlParser::Private::InitializeLambda
 	:private Proxy {
 private:
 	XmlParser &mContext ;
@@ -586,7 +586,7 @@ private:
 	}
 } ;
 
-class XmlParser::Detail::InitializeLambda2
+class XmlParser::Private::InitializeLambda2
 	:private Proxy {
 private:
 	struct FOUND_NODE {
@@ -948,13 +948,13 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
 	struct Dependent ;
-	using InitializeLambda2 = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda2> ,Dependent> ;
+	using InitializeLambda2 = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda2> ,Dependent> ;
 	_CALL_ (InitializeLambda2 (DEREF[this] ,sequence)) ;
 }
 
@@ -973,7 +973,7 @@ private:
 		INDEX mChild ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		class RecursiveCounter ;
 
 		class InitializeLambda ;
@@ -1209,7 +1209,7 @@ private:
 	}
 } ;
 
-class JsonParser::Detail::RecursiveCounter
+class JsonParser::Private::RecursiveCounter
 	:private Wrapped<LENGTH> {
 public:
 	void lock () {
@@ -1222,7 +1222,7 @@ public:
 	}
 } ;
 
-class JsonParser::Detail::InitializeLambda
+class JsonParser::Private::InitializeLambda
 	:private Proxy {
 private:
 	JsonParser &mContext ;
@@ -1711,13 +1711,13 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 
 inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 
 class CommandParser {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -1833,7 +1833,7 @@ private:
 	void initialize (const PhanBuffer<const STRU8> &data) ;
 } ;
 
-class CommandParser::Detail::InitializeLambda
+class CommandParser::Private::InitializeLambda
 	:private Proxy {
 private:
 	CommandParser &mContext ;
@@ -2008,7 +2008,7 @@ private:
 
 inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
-	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+	using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
 }
 } ;

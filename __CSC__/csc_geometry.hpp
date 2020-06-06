@@ -329,7 +329,7 @@ class Matrix {
 	_STATIC_ASSERT_ (stl::is_val_xyz<REAL>::value) ;
 
 private:
-	struct Detail {
+	struct Private {
 		template <class>
 		class Row ;
 	} ;
@@ -371,23 +371,23 @@ public:
 		return mMatrix[y * 4 + x] ;
 	}
 
-	DEF<typename Detail::template Row<Matrix>> get (const INDEX &y) leftvalue {
+	DEF<typename Private::template Row<Matrix>> get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<Matrix>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<Matrix>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<Matrix>> operator[] (const INDEX &y) leftvalue {
+	inline DEF<typename Private::template Row<Matrix>> operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Detail::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
+	DEF<typename Private::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = DEPENDENT_TYPE<DEF<typename Detail::template Row<const Matrix>> ,Dependent> ;
+		using Row = DEPENDENT_TYPE<DEF<typename Private::template Row<const Matrix>> ,Dependent> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Detail::template Row<const Matrix>> operator[] (const INDEX &y) const leftvalue {
+	inline DEF<typename Private::template Row<const Matrix>> operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 
@@ -1052,7 +1052,7 @@ private:
 
 template <class REAL>
 template <class BASE>
-class Matrix<REAL>::Detail::Row
+class Matrix<REAL>::Private::Row
 	:private Proxy {
 private:
 	BASE &mBase ;

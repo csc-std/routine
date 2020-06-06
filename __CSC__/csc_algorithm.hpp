@@ -217,7 +217,7 @@ inline exports void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL>
 template <class REAL>
 class DijstraAlgorithm {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -252,7 +252,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,root_)) ;
 	}
 
@@ -267,7 +267,7 @@ private:
 } ;
 
 template <class REAL>
-class DijstraAlgorithm<REAL>::Detail::InitializeLambda
+class DijstraAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	DijstraAlgorithm &mContext ;
@@ -343,7 +343,7 @@ private:
 template <class REAL>
 class KMeansAlgorithm {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -366,13 +366,13 @@ public:
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,dataset ,distance ,center)) ;
 	}
 } ;
 
 template <class REAL>
-class KMeansAlgorithm<REAL>::Detail::InitializeLambda
+class KMeansAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	KMeansAlgorithm &mContext ;
@@ -506,7 +506,7 @@ private:
 template <class REAL>
 class KMHungarianAlgorithm {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -532,13 +532,13 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency)) ;
 	}
 } ;
 
 template <class REAL>
-class KMHungarianAlgorithm<REAL>::Detail::InitializeLambda
+class KMHungarianAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	KMHungarianAlgorithm &mContext ;
@@ -850,7 +850,7 @@ private:
 template <class REAL>
 class BFGSAlgorithm {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -876,13 +876,13 @@ public:
 private:
 	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,loss ,fdx)) ;
 	}
 } ;
 
 template <class REAL>
-class BFGSAlgorithm<REAL>::Detail::InitializeLambda
+class BFGSAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	BFGSAlgorithm &mContext ;
@@ -1084,7 +1084,7 @@ private:
 			:mKey (_MOVE_ (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -1133,7 +1133,7 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,vertex)) ;
 	}
 
@@ -1228,7 +1228,7 @@ private:
 } ;
 
 template <class REAL>
-class KDTreeAlgorithm<REAL>::Detail::InitializeLambda
+class KDTreeAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	KDTreeAlgorithm &mContext ;
@@ -1350,7 +1350,7 @@ private:
 template <class REAL>
 class MaxFlowAlgorithm {
 private:
-	struct Detail {
+	struct Private {
 		class InitializeLambda ;
 	} ;
 
@@ -1378,13 +1378,13 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
 		struct Dependent ;
-		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Detail::InitializeLambda> ,Dependent> ;
+		using InitializeLambda = DEPENDENT_TYPE<DEF<typename Private::InitializeLambda> ,Dependent> ;
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,source ,sink)) ;
 	}
 } ;
 
 template <class REAL>
-class MaxFlowAlgorithm<REAL>::Detail::InitializeLambda
+class MaxFlowAlgorithm<REAL>::Private::InitializeLambda
 	:private Proxy {
 private:
 	MaxFlowAlgorithm &mContext ;

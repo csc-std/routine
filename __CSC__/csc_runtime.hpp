@@ -19,7 +19,13 @@ class TimePoint ;
 class Duration
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -63,7 +69,13 @@ public:
 class TimePoint
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -95,7 +107,13 @@ public:
 class Atomic
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -135,7 +153,13 @@ public:
 class Mutex
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -155,7 +179,13 @@ public:
 class RecursiveMutex
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -177,7 +207,13 @@ class UniqueLock ;
 class ConditionLock
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -198,7 +234,13 @@ public:
 class UniqueLock
 	:private Proxy {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
@@ -226,12 +268,15 @@ public:
 		virtual void execute () = 0 ;
 	} ;
 
-	struct Detail {
+	struct Private {
 		class Runnable ;
+
+		class Implement ;
 	} ;
 
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	StrongRef<Implement> mThis ;
 
 public:
@@ -246,7 +291,7 @@ public:
 	void join () ;
 } ;
 
-class Thread::Detail::Runnable {
+class Thread::Private::Runnable {
 private:
 	PhanRef<Binder> mBinder ;
 
@@ -599,7 +644,7 @@ template <>
 class GlobalStatic<void>
 	:private Wrapped<void> {
 public:
-	struct Extern {
+	struct Public {
 		//@warn: this function should be implemented in a 'runtime.dll'
 		imports DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) side_effects> unique_atomic_address ;
 	} ;
@@ -634,7 +679,7 @@ private:
 	static SELF_PACK &static_unique () side_effects {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
-			auto rax = Extern::unique_atomic_address (NULL ,NULL) ;
+			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
 			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
@@ -644,7 +689,7 @@ private:
 				const auto r1x = rbx.watch () ;
 				auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
 				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
-				rax = Extern::unique_atomic_address (NULL ,DEPTR[r3x]) ;
+				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_<SELF_PACK> (rax) ;
@@ -870,8 +915,13 @@ private:
 		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
 
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
 private:
-	class Implement ;
 	friend Singleton<RandomService> ;
 	Monostate<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;

@@ -505,7 +505,7 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	}
 }
 
-class StreamLoader::Implement {
+class StreamLoader::Private::Implement {
 private:
 	UniqueRef<api::HANDLE> mReadFile ;
 	UniqueRef<api::HANDLE> mWriteFile ;
@@ -579,7 +579,7 @@ inline exports void StreamLoader::flush () {
 	mThis->flush () ;
 }
 
-class BufferLoader::Implement {
+class BufferLoader::Private::Implement {
 private:
 	struct SELF_PACK {
 		UniqueRef<api::HANDLE> mFile ;
@@ -809,7 +809,7 @@ inline exports void BufferLoader::flush () {
 	mThis->flush () ;
 }
 
-class FileSystemService::Implement
+class FileSystemService::Private::Implement
 	:public FileSystemService::Abstract {
 public:
 	void startup () override {

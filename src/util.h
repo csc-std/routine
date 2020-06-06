@@ -72,7 +72,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
-inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) side_effects {
+inline exports PTR<NONE> GlobalStatic<void>::Public::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) side_effects {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
 		auto &r1x = _CACHE_ ([&] () {
@@ -92,7 +92,7 @@ inline exports PTR<NONE> GlobalStatic<void>::Extern::unique_atomic_address (cons
 #ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
 namespace CSC {
-inline exports void GlobalWatch::Extern::done (const Exception &e) {
+inline exports void GlobalWatch::Public::done (const Exception &e) {
 	const auto r1x = String<STR> (e.what ()) ;
 	Singleton<ConsoleService>::instance ().fatal (r1x) ;
 #ifdef MS_CPP_UNITTESTFRAMEWORK

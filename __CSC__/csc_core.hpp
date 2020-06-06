@@ -1711,7 +1711,7 @@ template <>
 class ArrayRange<ZERO>
 	:private Proxy {
 private:
-	struct Detail {
+	struct Private {
 		class Iterator ;
 	} ;
 
@@ -1728,22 +1728,22 @@ public:
 	}
 
 	template <class _DEP = NONE>
-	DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,_DEP> begin () const {
+	DEPENDENT_TYPE<DEF<typename Private::Iterator> ,_DEP> begin () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
 	template <class _DEP = NONE>
-	DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,_DEP> end () const {
+	DEPENDENT_TYPE<DEF<typename Private::Iterator> ,_DEP> end () const {
 		struct Dependent ;
-		using Iterator = DEPENDENT_TYPE<DEF<typename Detail::Iterator> ,Dependent> ;
+		using Iterator = DEPENDENT_TYPE<DEF<typename Private::Iterator> ,Dependent> ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
 		return Iterator (DEREF[this] ,r1x) ;
 	}
 } ;
 
-class ArrayRange<ZERO>::Detail::Iterator
+class ArrayRange<ZERO>::Private::Iterator
 	:private Proxy {
 private:
 	const ArrayRange &mBase ;
@@ -1815,7 +1815,7 @@ class Plain
 	_STATIC_ASSERT_ (stl::is_str_xyz<REAL>::value) ;
 
 private:
-	struct Detail {
+	struct Private {
 		template <class>
 		class PlainString ;
 	} ;
@@ -1855,7 +1855,7 @@ private:
 	static auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
 		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,_DEP> {
 		struct Dependent ;
-		using PlainString = DEPENDENT_TYPE<DEF<typename Detail::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> ;
+		using PlainString = DEPENDENT_TYPE<DEF<typename Private::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>>> ,Dependent> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
@@ -1866,7 +1866,7 @@ private:
 
 template <class REAL>
 template <class SIZE>
-class Plain<REAL>::Detail::PlainString {
+class Plain<REAL>::Private::PlainString {
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
 private:

@@ -1166,7 +1166,13 @@ inline exports String<_RET> StringProc::build_strs (const String<STR> &stru) {
 #ifdef __CSC_EXTEND__
 class RegexMatcher {
 private:
-	class Implement ;
+	struct Private {
+		class Implement ;
+	} ;
+
+	using Implement = typename Private::Implement ;
+
+private:
 	StrongRef<Implement> mThis ;
 
 public:
