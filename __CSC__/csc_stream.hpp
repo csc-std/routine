@@ -107,7 +107,8 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Private::template Attribute<ByteReader>> attr () leftvalue {
+	template <class _RET = DEF<typename Private::template Attribute<ByteReader>>>
+	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteReader> ;
 		return Attribute (DEREF[this]) ;
@@ -151,10 +152,9 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _RET>
-	_RET read () side_effects {
-		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-		_RET ret ;
+	template <class _ARG1>
+	_ARG1 read (const ARGV<_ARG1> &) side_effects {
+		_ARG1 ret ;
 		read (ret) ;
 		return _MOVE_ (ret) ;
 	}
@@ -180,8 +180,8 @@ public:
 
 	void read (WORD &data) {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (WORD)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (WORD)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			read (r3x[r2x[i]]) ;
 	}
@@ -193,8 +193,8 @@ public:
 
 	void read (CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (CHAR)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (CHAR)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			read (r3x[r2x[i]]) ;
 	}
@@ -206,8 +206,8 @@ public:
 
 	void read (DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (DATA)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (DATA)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			read (r3x[r2x[i]]) ;
 	}
@@ -218,7 +218,7 @@ public:
 	}
 
 	void read (BOOL &data) {
-		read (_CAST_<U::BYTE_BASE_TYPE<BOOL>> (data)) ;
+		read (_CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<BOOL>>> () ,data)) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) {
@@ -227,7 +227,7 @@ public:
 	}
 
 	void read (VAR32 &data) {
-		read (_CAST_<U::BYTE_BASE_TYPE<VAR32>> (data)) ;
+		read (_CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAR32>>> () ,data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) {
@@ -236,7 +236,7 @@ public:
 	}
 
 	void read (VAR64 &data) {
-		read (_CAST_<U::BYTE_BASE_TYPE<VAR64>> (data)) ;
+		read (_CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAR64>>> () ,data)) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) {
@@ -245,7 +245,7 @@ public:
 	}
 
 	void read (VAL32 &data) {
-		read (_CAST_<U::BYTE_BASE_TYPE<VAL32>> (data)) ;
+		read (_CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAL32>>> () ,data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) {
@@ -254,7 +254,7 @@ public:
 	}
 
 	void read (VAL64 &data) {
-		read (_CAST_<U::BYTE_BASE_TYPE<VAL64>> (data)) ;
+		read (_CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAL64>>> () ,data)) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) {
@@ -264,7 +264,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (Array<_ARG1 ,_ARG2> &data) {
-		const auto r1x = LENGTH (read<VAR32> ()) ;
+		const auto r1x = LENGTH (read (_NULL_<ARGV<VAR32>> ())) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = Array<_ARG1 ,_ARG2> (r1x) ;
@@ -303,7 +303,7 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	void read (String<_ARG1 ,_ARG2> &data) {
 		_STATIC_ASSERT_ (stl::is_str_xyz<_ARG1>::value) ;
-		const auto r1x = LENGTH (read<VAR32> ()) ;
+		const auto r1x = LENGTH (read (_NULL_<ARGV<VAR32>> ())) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
 			data = String<_ARG1 ,_ARG2> (r1x) ;
@@ -483,7 +483,8 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Private::template Attribute<ByteWriter>> attr () leftvalue {
+	template <class _RET = DEF<typename Private::template Attribute<ByteWriter>>>
+	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteWriter> ;
 		return Attribute (DEREF[this]) ;
@@ -540,8 +541,8 @@ public:
 
 	void write (const WORD &data) {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (WORD)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (WORD)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (WORD)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			write (r3x[r2x[i]]) ;
 	}
@@ -553,8 +554,8 @@ public:
 
 	void write (const CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (CHAR)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (CHAR)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (CHAR)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			write (r3x[r2x[i]]) ;
 	}
@@ -566,8 +567,8 @@ public:
 
 	void write (const DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (r1x) ;
-		auto &r3x = _CAST_<BYTE[_SIZEOF_ (DATA)]> (data) ;
+		auto &r2x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (DATA)]>> () ,r1x) ;
+		auto &r3x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (DATA)]>> () ,data) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
 			write (r3x[r2x[i]]) ;
 	}
@@ -578,7 +579,7 @@ public:
 	}
 
 	void write (const BOOL &data) {
-		const auto r1x = _CAST_<U::BYTE_BASE_TYPE<BOOL>> (data) ;
+		const auto r1x = _CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<BOOL>>> () ,data) ;
 		write (r1x) ;
 	}
 
@@ -592,7 +593,7 @@ public:
 	inline ByteWriter &operator<< (const PTR<const VOID> &) = delete ;
 
 	void write (const VAR32 &data) {
-		const auto r1x = _CAST_<U::BYTE_BASE_TYPE<VAR32>> (data) ;
+		const auto r1x = _CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAR32>>> () ,data) ;
 		write (r1x) ;
 	}
 
@@ -602,7 +603,7 @@ public:
 	}
 
 	void write (const VAR64 &data) {
-		const auto r1x = _CAST_<U::BYTE_BASE_TYPE<VAR64>> (data) ;
+		const auto r1x = _CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAR64>>> () ,data) ;
 		write (r1x) ;
 	}
 
@@ -612,7 +613,7 @@ public:
 	}
 
 	void write (const VAL32 &data) {
-		const auto r1x = _CAST_<U::BYTE_BASE_TYPE<VAL32>> (data) ;
+		const auto r1x = _CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAL32>>> () ,data) ;
 		write (r1x) ;
 	}
 
@@ -622,7 +623,7 @@ public:
 	}
 
 	void write (const VAL64 &data) {
-		const auto r1x = _CAST_<U::BYTE_BASE_TYPE<VAL64>> (data) ;
+		const auto r1x = _CAST_ (_NULL_<ARGV<U::BYTE_BASE_TYPE<VAL64>>> () ,data) ;
 		write (r1x) ;
 	}
 
@@ -844,7 +845,8 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Private::template Attribute<TextReader>> attr () leftvalue {
+	template <class _RET = DEF<typename Private::template Attribute<TextReader>>>
+	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextReader> ;
 		return Attribute (DEREF[this]) ;
@@ -888,10 +890,9 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _RET>
-	_RET read () side_effects {
-		_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-		_RET ret ;
+	template <class _ARG1>
+	_ARG1 read (const ARGV<_ARG1> &) side_effects {
+		_ARG1 ret ;
 		read (ret) ;
 		return _MOVE_ (ret) ;
 	}
@@ -987,7 +988,7 @@ public:
 	}
 
 	void read (VAR32 &data) {
-		const auto r1x = read<VAR64> () ;
+		const auto r1x = read (_NULL_<ARGV<VAR64>> ()) ;
 		_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 		data = VAR32 (r1x) ;
 	}
@@ -1015,7 +1016,7 @@ public:
 	}
 
 	void read (VAL32 &data) {
-		const auto r1x = read<VAL64> () ;
+		const auto r1x = read (_NULL_<ARGV<VAL64>> ()) ;
 		if switch_once (TRUE) {
 			if (MathProc::is_infinite (r1x))
 				discard ;
@@ -1321,7 +1322,7 @@ private:
 		if switch_once (TRUE) {
 			if (!(top == REAL ('e') || top == REAL ('E')))
 				discard ;
-			const auto r4x = rax.template read<VAR32> () ;
+			const auto r4x = rax.read (_NULL_<ARGV<VAR32>> ()) ;
 			rbx[1] += r4x ;
 			DEREF[this] = rax.share () ;
 		}
@@ -1393,7 +1394,7 @@ private:
 
 	void template_read_bom (const ARGV<STRW> &) {
 		auto rax = share () ;
-		_CAST_<TextReader<STRUW>> (rax).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
+		_CAST_ (_NULL_<ARGV<TextReader<STRUW>>> () ,rax).template_read_bom (_NULL_<ARGV<STRUW>> ()) ;
 		DEREF[this] = rax.share () ;
 	}
 } ;
@@ -1424,9 +1425,9 @@ public:
 		if (!mBase.mHeap->mEndianFlag)
 			return item ;
 		U::BYTE_BASE_TYPE<REAL> ret ;
-		auto &r1x = _CAST_<BYTE[_SIZEOF_ (REAL)]> (item) ;
+		auto &r1x = _CAST_ (_NULL_<ARGV<BYTE[_SIZEOF_ (REAL)]>> () ,item) ;
 		ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
-		return _MOVE_ (_CAST_<REAL> (ret)) ;
+		return _MOVE_ (_CAST_ (_NULL_<ARGV<REAL>> () ,ret)) ;
 	}
 
 	VAR64 varify_radix () const {
@@ -1593,7 +1594,8 @@ public:
 		reset () ;
 	}
 
-	DEF<typename Private::template Attribute<TextWriter>> attr () leftvalue {
+	template <class _RET = DEF<typename Private::template Attribute<TextWriter>>>
+	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextWriter> ;
 		return Attribute (DEREF[this]) ;
@@ -2120,7 +2122,7 @@ private:
 
 	void template_write_bom (const ARGV<STRW> &) {
 		auto rax = share () ;
-		_CAST_<TextWriter<STRUW>> (rax).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
+		_CAST_ (_NULL_<ARGV<TextWriter<STRUW>>> () ,rax).template_write_bom (_NULL_<ARGV<STRUW>> ()) ;
 		DEREF[this] = rax.share () ;
 	}
 } ;

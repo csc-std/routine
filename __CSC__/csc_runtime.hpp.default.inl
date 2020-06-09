@@ -706,7 +706,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto rax = ByteReader<BYTE> (info) ;
-	const auto r1x = rax.template read<VAR64> () ;
+	const auto r1x = rax.read (_NULL_<ARGV<VAR64>> ()) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
@@ -741,7 +741,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto rax = ByteReader<BYTE> (info) ;
-	const auto r1x = rax.template read<VAR64> () ;
+	const auto r1x = rax.read (_NULL_<ARGV<VAR64>> ()) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
@@ -766,7 +766,7 @@ inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 
 
 inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) side_effects {
-	const auto r1x = StringProc::build_strs<STRA> (cmd) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,cmd) ;
 	const auto r2x = api::system (r1x.raw ().self) ;
 	return FLAG (r2x) ;
 }

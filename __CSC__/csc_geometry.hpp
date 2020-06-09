@@ -215,7 +215,7 @@ public:
 	Vector mul (const Matrix<REAL> &that) const {
 		struct Dependent ;
 		Vector<REAL> ret ;
-		auto &r1x = _FORWARD_<const DEPENDENT_TYPE<Matrix<REAL> ,Dependent> &> (that) ;
+		auto &r1x = _XVALUE_<DEPENDENT_TYPE<Matrix<REAL> ,Dependent>> (that) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			const auto r2x = get (0) * r1x.get (0 ,i) ;
 			const auto r3x = get (1) * r1x.get (1 ,i) ;
@@ -371,23 +371,27 @@ public:
 		return mMatrix[y * 4 + x] ;
 	}
 
-	DEF<typename Private::template Row<Matrix>> get (const INDEX &y) leftvalue {
+	template <class _RET = DEF<typename Private::template Row<Matrix>>>
+	_RET get (const INDEX &y) leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Private::template Row<Matrix>> operator[] (const INDEX &y) leftvalue {
+	template <class _RET = DEF<typename Private::template Row<Matrix>>>
+	inline _RET operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	DEF<typename Private::template Row<const Matrix>> get (const INDEX &y) const leftvalue {
+	template <class _RET = DEF<typename Private::template Row<const Matrix>>>
+	_RET get (const INDEX &y) const leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Matrix> ;
 		return Row (DEREF[this] ,y) ;
 	}
 
-	inline DEF<typename Private::template Row<const Matrix>> operator[] (const INDEX &y) const leftvalue {
+	template <class _RET = DEF<typename Private::template Row<const Matrix>>>
+	inline _RET operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
 

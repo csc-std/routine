@@ -1070,18 +1070,11 @@ private:
 template <class REAL>
 class KDTreeAlgorithm {
 private:
-	class Node {
-	private:
+	struct NODE {
 		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
 		INDEX mRight ;
-
-	public:
-		Node () = delete ;
-
-		implicit Node (const REAL &key ,const INDEX &leaf ,const INDEX &left ,const INDEX &right)
-			:mKey (_MOVE_ (key)) ,mLeaf (leaf) ,mLeft (left) ,mRight (right) {}
 	} ;
 
 	struct Private {
@@ -1092,7 +1085,7 @@ private:
 	Array<ARRAY3<REAL>> mVertex ;
 	ARRAY3<INDEX> mNextRot ;
 	ARRAY3<ARRAY2<REAL>> mBound ;
-	Allocator<Node ,SAUTO> mKDTree ;
+	List<NODE> mKDTree ;
 	INDEX mRoot ;
 
 public:
@@ -1237,7 +1230,7 @@ private:
 	ARRAY3<INDEX> mNextRot ;
 	ARRAY3<Array<INDEX>> mOrder ;
 	ARRAY3<ARRAY2<REAL>> mBound ;
-	Allocator<Node ,SAUTO> mKDTree ;
+	List<NODE> mKDTree ;
 	INDEX mRoot ;
 	INDEX mLatestIndex ;
 
@@ -1260,7 +1253,7 @@ private:
 			const auto r1x = stack_of_order (i) ;
 			mOrder[i] = r1x.range_sort () ;
 		}
-		mKDTree = Allocator<Node ,SAUTO> (mVertex.length ()) ;
+		mKDTree = List<NODE> (mVertex.length ()) ;
 		mRoot = VAR_NONE ;
 	}
 
@@ -1302,7 +1295,11 @@ private:
 		if switch_once (fax) {
 			if (!(seg_len == 1))
 				discard ;
-			INDEX jx = mKDTree.alloc (REAL (0) ,mOrder[rot][seg] ,VAR_NONE ,VAR_NONE) ;
+			INDEX jx = mKDTree.insert () ;
+			mKDTree[jx].mKey = REAL (0) ;
+			mKDTree[jx].mLeaf = mOrder[rot][seg] ;
+			mKDTree[jx].mLeft = VAR_NONE ;
+			mKDTree[jx].mRight = VAR_NONE ;
 			mLatestIndex = jx ;
 		}
 		if switch_once (fax) {
@@ -1315,7 +1312,11 @@ private:
 			}
 			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg ,ix ,seg_len) ;
 			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg ,ix ,seg_len) ;
-			INDEX jx = mKDTree.alloc (mVertex[mOrder[rot][ix]][rot] ,VAR_NONE ,VAR_NONE ,VAR_NONE) ;
+			INDEX jx = mKDTree.insert () ;
+			mKDTree[jx].mKey = mVertex[mOrder[rot][ix]][rot] ;
+			mKDTree[jx].mLeaf = VAR_NONE ;
+			mKDTree[jx].mLeft = VAR_NONE ;
+			mKDTree[jx].mRight = VAR_NONE ;
 			update_build_tree (mKDTree[jx].mLeft ,mNextRot[rot] ,seg ,(ix - seg)) ;
 			mKDTree[jx].mLeft = mLatestIndex ;
 			update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;

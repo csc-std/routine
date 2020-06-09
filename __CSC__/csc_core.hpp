@@ -318,7 +318,7 @@ using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
 //@error: fuck std
-#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,arg)))]> (_CAT_ (u8 ,arg)))
+#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (_NULL_<ARGV<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,arg)))]>> () ,_CAT_ (u8 ,arg)))
 #define _PCSTRU16_(arg) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg))
 #define _PCSTRU32_(arg) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg))
 
@@ -342,10 +342,10 @@ using STR = STRW ;
 
 using STRX = signed char ;
 
-template <VAR _VAL1>
+template <VAR _ARGC>
 struct ARGC {
 	enum :VAR {
-		value = _VAL1
+		value = _ARGC
 	} ;
 } ;
 
@@ -373,10 +373,10 @@ struct ARGV<ARGVP<ZERO>> {
 	_STATIC_WARNING_ ("noop") ;
 } ;
 
-template <class _ARG1>
-struct ARGV<ARGVP<_ARG1>>
-	:public ARGV<ARGVP<DECREASE<_ARG1>>> {
-	_STATIC_ASSERT_ (_ARG1::value > 0) ;
+template <class UNIT>
+struct ARGV<ARGVP<UNIT>>
+	:public ARGV<ARGVP<DECREASE<UNIT>>> {
+	_STATIC_ASSERT_ (UNIT::value > 0) ;
 } ;
 
 static constexpr auto ARGVP0 = ARGV<ARGVP<ZERO>> {} ;
@@ -437,8 +437,8 @@ struct ENABLE<ARGC<TRUE>> {
 	using TYPE = VOID ;
 } ;
 
-template <BOOL _VAL1>
-using ENABLE_TYPE = typename ENABLE<ARGC<_VAL1>>::TYPE ;
+template <BOOL _ARGC>
+using ENABLE_TYPE = typename ENABLE<ARGC<_ARGC>>::TYPE ;
 } ;
 
 namespace U {
@@ -465,8 +465,8 @@ struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 	using TYPE = _ARG2 ;
 } ;
 
-template <BOOL _VAL1 ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_VAL1> ,_ARG1 ,_ARG2>::TYPE ;
+template <BOOL _ARGC ,class _ARG1 ,class _ARG2>
+using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_ARGC> ,_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -550,8 +550,8 @@ struct REMOVE_ARRAY<ARR<_ARG1>> {
 	using TYPE = _ARG1 ;
 } ;
 
-template <class _ARG1 ,LENGTH _VAL1>
-struct REMOVE_ARRAY<_ARG1[_VAL1]> {
+template <class _ARG1 ,LENGTH _ARGC>
+struct REMOVE_ARRAY<_ARG1[_ARGC]> {
 	using TYPE = _ARG1 ;
 } ;
 
@@ -661,9 +661,9 @@ struct COUNT_OF<ARR<_ARG1>> {
 	using TYPE = ZERO ;
 } ;
 
-template <class _ARG1 ,LENGTH _VAL1>
-struct COUNT_OF<_ARG1[_VAL1]> {
-	using TYPE = ARGC<_VAL1> ;
+template <class _ARG1 ,LENGTH _ARGC>
+struct COUNT_OF<_ARG1[_ARGC]> {
+	using TYPE = ARGC<_ARGC> ;
 } ;
 
 template <class _ARG1>
@@ -896,23 +896,18 @@ using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
-template <class ,class ,class>
+template <class ,class ,class ,class>
 struct IS_BOUNDED_ARRAY_OF {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
-template <class _ARG1>
-struct IS_BOUNDED_ARRAY_OF<_ARG1 ,ARR<_ARG1> ,VOID> {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,LENGTH _VAL1>
-struct IS_BOUNDED_ARRAY_OF<_ARG1 ,DEF<_ARG1[_VAL1]> ,ENABLE_TYPE<(_VAL1 > 0)>> {
+template <class _ARG1 ,class _ARG2>
+struct IS_BOUNDED_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<std::is_same<_ARG1 ,REMOVE_ARRAY_TYPE<_ARG2>>::value> ,ENABLE_TYPE<(_COUNTOF_ (_ARG2) > 0)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,VOID>::TYPE ;
 } ;
 
 namespace U {
@@ -1415,22 +1410,21 @@ inline constexpr INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_CAST_ (_ARG1 &object) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (!(stl::is_pointer<_RET>::value && !stl::is_same<_ARG1 ,TEMP<_RET>>::value)) ;
-	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG1>::value && !stl::is_same<_RET ,TEMP<_ARG1>>::value)) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) % _ALIGNOF_ (_RET) == 0) ;
+template <class _ARG1 ,class _ARG2>
+inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_CAST_ (const ARGV<_ARG1> & ,_ARG2 &object) {
+	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG1>::value && !stl::is_same<_ARG2 ,TEMP<_ARG1>>::value)) ;
+	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG2>::value && !stl::is_same<_ARG1 ,TEMP<_ARG2>>::value)) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
+	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG2) % _ALIGNOF_ (_ARG1) == 0) ;
 	const auto r1x = _ADDRESS_ (DEPTR[object]) ;
-	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r1x) ;
+	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>> (r1x) ;
 	return DEREF[r2x] ;
 }
 
 template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	_CAST_<TEMP<_ARG1>> (object) = {0} ;
+	_CAST_ (_NULL_<ARGV<TEMP<_ARG1>>> () ,object) = {0} ;
 }
 
 template <class _ARG1>
@@ -1453,6 +1447,22 @@ inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &&object) {
 	_STATIC_ASSERT_ (!stl::is_lvalue_reference<_RET>::value) ;
 	return static_cast<_RET &&> (object) ;
 }
+
+template <class _RET>
+inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) {
+	return object ;
+}
+
+template <class _RET>
+inline constexpr const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) {
+	return object ;
+}
+
+#ifndef __CSC_COMPILER_GNUC__
+//@error: fuck g++4.8
+template <class _RET>
+inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &&) = delete ;
+#endif
 
 template <class _ARG1>
 inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) side_effects {
@@ -1479,29 +1489,30 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 	rhs = _MOVE_ (tmp) ;
 }
 
-template <class _RET ,class _ARG1>
-inline _RET _BITWISE_CAST_ (const _ARG1 &object) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (stl::is_pod<_RET>::value) ;
+template <class _ARG1 ,class _ARG2>
+inline _ARG1 _BITWISE_CAST_ (const ARGV<_ARG1> & ,const _ARG2 &object) {
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	_STATIC_ASSERT_ (_SIZEOF_ (_RET) == _SIZEOF_ (_ARG1)) ;
-	TEMP<_RET> ret ;
+	_STATIC_ASSERT_ (stl::is_pod<_ARG2>::value) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
+	TEMP<_ARG1> ret ;
 	_ZERO_ (ret) ;
-	_CAST_<TEMP<BYTE[_SIZEOF_ (_RET)]>> (ret) = _CAST_<TEMP<BYTE[_SIZEOF_ (_ARG1)]>> (object) ;
-	return _MOVE_ (_CAST_<_RET> (ret)) ;
+	auto &r1x = _NULL_<ARGV<TEMP<BYTE[_SIZEOF_ (_ARG1)]>>> () ;
+	auto &r2x = _NULL_<ARGV<TEMP<BYTE[_SIZEOF_ (_ARG2)]>>> () ;
+	_CAST_ (r1x ,ret) = _CAST_ (r2x ,object) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<_ARG1>> () ,ret)) ;
 }
 
 //@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) ;
+template <class _ARG1 ,class _ARG2>
+inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_LOAD_ (const ARGV<_ARG1> & ,const PTR<_ARG2> &address) ;
 
 //@warn: not type-safe; be careful about strict-aliasing
-template <class _RET>
-inline _RET &_LOAD_UNSAFE_ (const LENGTH &address) {
-	const auto r1x = _BITWISE_CAST_<PTR<VOID>> (address) ;
+template <class _ARG1>
+inline _ARG1 &_LOAD_UNSAFE_ (const ARGV<_ARG1> & ,const LENGTH &address) {
+	const auto r1x = _BITWISE_CAST_ (_NULL_<ARGV<PTR<VOID>>> () ,address) ;
 	if (r1x == NULL)
-		return _NULL_<_RET> () ;
-	return _LOAD_<_RET> (r1x) ;
+		return _NULL_<_ARG1> () ;
+	return _LOAD_ (_NULL_<ARGV<_ARG1>> () ,r1x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
@@ -1509,14 +1520,14 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
 	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
 	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
-	return _LOAD_UNSAFE_<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>> (r2x) ;
+	return _LOAD_UNSAFE_ (_NULL_<ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>> () ,r2x) ;
 }
 
 template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
-	auto &r1x = _LOAD_<_ARG1> (address) ;
+	auto &r1x = _LOAD_ (_NULL_<ARGV<_ARG1>> () ,address) ;
 	new (DEPTR[r1x]) _ARG1 (_FORWARD_<_ARGS> (initval)...) ;
 }
 
@@ -1524,7 +1535,7 @@ template <class _ARG1>
 inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
-	auto &r1x = _LOAD_<_ARG1> (address) ;
+	auto &r1x = _LOAD_ (_NULL_<ARGV<_ARG1>> () ,address) ;
 	_STATIC_UNUSED_ (r1x) ;
 	r1x.~_ARG1 () ;
 }
@@ -1534,7 +1545,6 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 	return expr ;
 }
 
-//@error: fuck g++4.8
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_ABS {
@@ -1570,7 +1580,6 @@ inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 		rhs) ;
 }
 
-//@error: fuck g++4.8
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_SWITCH_EBOOL {
@@ -1623,11 +1632,10 @@ class TypeInterface
 	_STATIC_ASSERT_ (stl::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
 } ;
 
-template <class _RET>
-inline FLAG _TYPEMID_ () {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	TypeInterface<REMOVE_CVR_TYPE<_RET>> ret ;
-	return _MOVE_ (_CAST_<FLAG> (ret)) ;
+template <class _ARG1>
+inline FLAG _TYPEMID_ (const ARGV<_ARG1> &) {
+	TypeInterface<REMOVE_CVR_TYPE<_ARG1>> ret ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<FLAG>> () ,ret)) ;
 }
 
 namespace stl {
@@ -1722,15 +1730,15 @@ public:
 		mIEnd = iend_ ;
 	}
 
-	template <class _DEP = NONE>
-	DEF<typename DEPENDENT_TYPE<Private ,_DEP>::Iterator> begin () const {
+	template <class _RET = DEF<typename Private::Iterator>>
+	_RET begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
-	template <class _DEP = NONE>
-	DEF<typename DEPENDENT_TYPE<Private ,_DEP>::Iterator> end () const {
+	template <class _RET = DEF<typename Private::Iterator>>
+	_RET end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
@@ -1846,9 +1854,8 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class... _ARGS ,class _DEP = NONE>
-	imports auto cache_string (const ARGV<_ARG1> & ,const _ARGS &...text)
-		->DEPENDENT_TYPE<DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &> ,_DEP> {
+	template <class _ARG1 ,class... _ARGS ,class _RET = DEF<const DEF<REAL[U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())]> &>>
+	imports _RET cache_string (const ARGV<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
 		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<U::constexpr_cache_string_size (_NULL_<ARGV<ARGVS<_ARGS...>>> ())>> ;
 		const auto r1x = PlainString (text...) ;
@@ -1915,16 +1922,15 @@ public:
 } ;
 
 //@warn: not type-safe; be careful about strict-aliasing
-template <class _RET ,class _ARG1>
-inline CAST_TRAITS_TYPE<_RET ,_ARG1> &_LOAD_ (const PTR<_ARG1> &address) {
-	_STATIC_ASSERT_ (!stl::is_reference<_RET>::value) ;
-	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_RET> ,REMOVE_CVR_TYPE<_ARG1>>::value) ;
+template <class _ARG1 ,class _ARG2>
+inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_LOAD_ (const ARGV<_ARG1> & ,const PTR<_ARG2> &address) {
+	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2>>::value) ;
 	_DEBUG_ASSERT_ (address != NULL) ;
-	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_RET> ,NONE>::value) ,BYTE ,_RET>) ;
+	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,NONE>::value) ,BYTE ,_ARG1>) ;
 	_STATIC_UNUSED_ (r1x) ;
 	const auto r2x = _ADDRESS_ (address) ;
 	_DEBUG_ASSERT_ (r2x % r1x == 0) ;
-	const auto r3x = _BITWISE_CAST_<PTR<CAST_TRAITS_TYPE<_RET ,_ARG1>>> (r2x) ;
+	const auto r3x = _BITWISE_CAST_ (_NULL_<ARGV<PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>>> () ,r2x) ;
 	return DEREF[r3x] ;
 }
 

@@ -71,7 +71,7 @@ using ::rmdir ;
 } ;
 
 inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) side_effects {
-	const auto r1x = StringProc::build_strs<STRA> (file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
@@ -88,7 +88,7 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 }
 
 inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
-	const auto r1x = StringProc::build_strs<STRA> (file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 		_DYNAMIC_ASSERT_ (me >= 0) ;
@@ -104,7 +104,7 @@ inline exports void FileSystemProc::load_file (const String<STR> &file ,const Ph
 }
 
 inline exports void FileSystemProc::save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
-	const auto r1x = StringProc::build_strs<STRA> (file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 	_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		const auto r3x = VAR32 (O_CREAT | O_WRONLY | O_TRUNC) ;
@@ -125,7 +125,7 @@ inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FL
 }
 
 inline exports BOOL FileSystemProc::find_file (const String<STR> &file) side_effects {
-	const auto r1x = StringProc::build_strs<STRA> (file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
 	} ,[] (VAR32 &me) {
@@ -161,7 +161,7 @@ inline exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA
 }
 
 inline exports void FileSystemProc::erase_file (const String<STR> &file) {
-	const auto r1x = StringProc::build_strs<STRA> (file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 	const auto r2x = FileSystemStaticProc::static_find_juntion (r1x) ;
 	if (r2x)
 		return ;
@@ -177,8 +177,8 @@ inline exports void FileSystemProc::copy_file (const String<STR> &dst_file ,cons
 }
 
 inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,const String<STR> &src_file) {
-	const auto r1x = StringProc::build_strs<STRA> (src_file) ;
-	const auto r2x = StringProc::build_strs<STRA> (dst_file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,src_file) ;
+	const auto r2x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
 	const auto r4x = api::rename (r1x.raw ().self ,r2x.raw ().self) ;
@@ -186,8 +186,8 @@ inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,cons
 }
 
 inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,const String<STR> &src_file) {
-	const auto r1x = StringProc::build_strs<STRA> (src_file) ;
-	const auto r2x = StringProc::build_strs<STRA> (dst_file) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,src_file) ;
+	const auto r2x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r3x) ;
 	const auto r4x = api::link (r1x.raw ().self ,r2x.raw ().self) ;
@@ -195,8 +195,8 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 }
 
 inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) side_effects {
-	const auto r1x = StringProc::build_strs<STRA> (file1) ;
-	const auto r2x = StringProc::build_strs<STRA> (file2) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file1) ;
+	const auto r2x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file2) ;
 	auto rax = ARRAY2<DEF<struct stat>> () ;
 	_ZERO_ (rax[0]) ;
 	const auto r3x = api::stat (r1x.raw ().self ,DEPTR[rax[0]]) ;
@@ -393,7 +393,7 @@ inline exports const String<STR> &FileSystemProc::module_file_name () side_effec
 
 inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) side_effects {
 	using HDIR = PTR<api::DIR> ;
-	const auto r1x = StringProc::build_strs<STRA> (dire) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,dire) ;
 	const auto r2x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = api::opendir (r1x.raw ().self) ;
 	} ,[] (HDIR &me) {
@@ -466,14 +466,14 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 		if (r3x > 1)
 			if (r2x[ix][r3x - 1] == STR (':'))
 				continue ;
-		const auto r4x = StringProc::build_strs<STRA> (rax) ;
+		const auto r4x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,rax) ;
 		const auto r5x = VAR32 (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) ;
 		api::mkdir (r4x.raw ().self ,r5x) ;
 	}
 }
 
 inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
-	const auto r1x = StringProc::build_strs<STRA> (dire) ;
+	const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,dire) ;
 	const auto r2x = api::rmdir (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r2x) ;
 	const auto r3x = FileSystemStaticProc::static_find_juntion (r1x) ;
@@ -490,7 +490,7 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 	rax += dire ;
 	rax += _PCSTR_ ("/") ;
 	const auto r1x = rax.length () ;
-	const auto r2x = StringProc::build_strs<STRA> (rax) ;
+	const auto r2x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,rax) ;
 	const auto r3x = UniqueRef<HDIR> ([&] (HDIR &me) {
 		me = api::opendir (r2x.raw ().self) ;
 	} ,[] (HDIR &me) {
@@ -565,7 +565,7 @@ public:
 	Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
-		const auto r1x = StringProc::build_strs<STRA> (file) ;
+		const auto r1x = StringProc::build_strs (_NULL_<ARGV<STRA>> () ,file) ;
 		mWriteFile = UniqueRef<VAR32> ([&] (VAR32 &me) {
 			const auto r2x = VAR32 (O_CREAT | O_WRONLY | O_APPEND) ;
 			const auto r3x = VAR32 (S_IRWXU | S_IRWXG | S_IRWXO) ;
@@ -681,11 +681,11 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 }
 
 inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
-	return _FORWARD_<Implement &> (mThis).watch () ;
+	return _XVALUE_<Implement> (mThis).watch () ;
 }
 
 inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
-	return _FORWARD_<const Implement &> (mThis).watch () ;
+	return _XVALUE_<const Implement> (mThis).watch () ;
 }
 
 inline exports void BufferLoader::flush () {

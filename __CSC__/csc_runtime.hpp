@@ -223,8 +223,8 @@ public:
 		return mThis ;
 	}
 
-	template <class _DEP = NONE>
-	DEPENDENT_TYPE<UniqueLock ,_DEP> watch (Mutex &mutex_) side_effects {
+	template <class _RET = UniqueLock>
+	_RET watch (Mutex &mutex_) side_effects {
 		struct Dependent ;
 		using UniqueLock = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
 		return UniqueLock (mutex_ ,DEREF[this]) ;
@@ -268,6 +268,7 @@ public:
 		virtual void execute () = 0 ;
 	} ;
 
+private:
 	struct Private {
 		class Runnable ;
 
@@ -627,10 +628,10 @@ struct OPERATOR_TYPENAME {
 		template_write_typename_y (writer ,_NULL_<ARGV<REST_HINT>> ()) ;
 	}
 
-	template <class _RET>
-	imports String<STR> invoke () {
+	template <class _ARG1>
+	imports String<STR> invoke (const ARGV<_ARG1> &) {
 		const auto r1x = _FORWARD_<PTR<void (TextWriter<STR> &)>> ([] (TextWriter<STR> &writer) {
-			template_write_typename_x (writer ,_NULL_<ARGV<_RET>> ()) ;
+			template_write_typename_x (writer ,_NULL_<ARGV<_ARG1>> ()) ;
 		}) ;
 		return String<STR>::make (r1x) ;
 	}
@@ -687,12 +688,12 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _FORWARD_<SELF_PACK &> (r1x) ;
-				auto &r3x = _LOAD_<NONE> (DEPTR[r2x]) ;
+				auto &r2x = _XVALUE_<SELF_PACK> (r1x) ;
+				auto &r3x = _LOAD_ (_NULL_<ARGV<NONE>> () ,DEPTR[r2x]) ;
 				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			auto &r4x = _LOAD_<SELF_PACK> (rax) ;
+			auto &r4x = _LOAD_ (_NULL_<ARGV<SELF_PACK>> () ,rax) ;
 			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r4x]) ;
 			return rcx.watch () ;
 		}) ;
@@ -847,7 +848,7 @@ public:
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStatic<void>::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
-			const auto r3x = U::OPERATOR_TYPENAME::invoke<Singleton<UNIT>> () ;
+			const auto r3x = U::OPERATOR_TYPENAME::invoke (_NULL_<ARGV<Singleton<UNIT>>> ()) ;
 			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
 			if switch_once (TRUE) {
@@ -858,15 +859,15 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _FORWARD_<SELF_PACK &> (r4x) ;
-				auto &r6x = _LOAD_<NONE> (DEPTR[r5x]) ;
+				auto &r5x = _XVALUE_<SELF_PACK> (r4x) ;
+				auto &r6x = _LOAD_ (_NULL_<ARGV<NONE>> () ,DEPTR[r5x]) ;
 				rax->mValue = DEPTR[r6x] ;
 			}
-			auto &r7x = _LOAD_<SELF_PACK> (rax->mValue) ;
+			auto &r7x = _LOAD_ (_NULL_<ARGV<SELF_PACK>> () ,rax->mValue) ;
 			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r7x]) ;
 			return rcx.watch () ;
 		}) ;
-		auto &r8x = _FORWARD_<SELF_PACK &> (r1x) ;
+		auto &r8x = _XVALUE_<SELF_PACK> (r1x) ;
 		return r8x.mValue ;
 	}
 

@@ -169,14 +169,14 @@ public:
 			me = api::glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = api::glCreateShader (GL_VERTEX_SHADER) ;
-			const auto r2x = _LOAD_<ARR<STRA>> (DEPTR[vs.self]) ;
+			const auto r2x = _LOAD_ (_NULL_<ARGV<ARR<STRA>>> () ,DEPTR[vs.self]) ;
 			const auto r3x = VAR32 (vs.size ()) ;
 			api::glShaderSource (r1x ,1 ,DEPTR[r2x] ,DEPTR[r3x]) ;
 			api::glCompileShader (r1x) ;
 			compute_check_shaderiv (r1x) ;
 			api::glAttachShader (me ,r1x) ;
 			const auto r4x = api::glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r5x = _LOAD_<ARR<STRA>> (DEPTR[fs.self]) ;
+			const auto r5x = _LOAD_ (_NULL_<ARGV<ARR<STRA>>> () ,DEPTR[fs.self]) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			api::glShaderSource (r4x ,1 ,DEPTR[r5x] ,DEPTR[r6x]) ;
 			api::glCompileShader (r4x) ;
@@ -191,12 +191,12 @@ public:
 	}
 
 	void compute_active_pipeline (AnyRef<void> &holder) const override {
-		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
+		auto &r1x = holder.rebind (_NULL_<ARGV<NATIVE_THIS>> ()).self ;
 		api::glUseProgram (r1x) ;
 	}
 
 	void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1x = holder.rebind<NATIVE_THIS> ().self ;
+		auto &r1x = holder.rebind (_NULL_<ARGV<NATIVE_THIS>> ()).self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (api::glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
@@ -281,13 +281,13 @@ public:
 	}
 
 	void compute_sprite_active_texture (AnyRef<void> &holder ,const INDEX &texture) const override {
-		auto &r1x = holder.rebind<SPRITE_NATIVE_THIS> ().self ;
+		auto &r1x = holder.rebind (_NULL_<ARGV<SPRITE_NATIVE_THIS>> ()).self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
 	void compute_sprite_draw (AnyRef<void> &holder) const override {
-		auto &r1x = holder.rebind<SPRITE_NATIVE_THIS> ().self ;
+		auto &r1x = holder.rebind (_NULL_<ARGV<SPRITE_NATIVE_THIS>> ()).self ;
 		api::glBindVertexArray (r1x.mVAO) ;
 		if switch_once (TRUE) {
 			if (r1x.mTexture == VAR_NONE)

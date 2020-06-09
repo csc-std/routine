@@ -179,7 +179,7 @@ public:
 } ;
 
 inline exports BOOL MathProc::is_nan (const VAL32 &x) {
-	const auto r1x = _CAST_<CHAR> (x) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<CHAR>> () ,x) ;
 	if ((r1x & CHAR (0X7F800000)) != CHAR (0X7F800000))
 		return FALSE ;
 	if ((r1x & CHAR (0X007FFFFF)) == 0)
@@ -188,7 +188,7 @@ inline exports BOOL MathProc::is_nan (const VAL32 &x) {
 }
 
 inline exports BOOL MathProc::is_nan (const VAL64 &x) {
-	const auto r1x = _CAST_<DATA> (x) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<DATA>> () ,x) ;
 	if ((r1x & DATA (0X7FF0000000000000)) != DATA (0X7FF0000000000000))
 		return FALSE ;
 	if ((r1x & DATA (0X000FFFFFFFFFFFFF)) == 0)
@@ -197,7 +197,7 @@ inline exports BOOL MathProc::is_nan (const VAL64 &x) {
 }
 
 inline exports BOOL MathProc::is_infinite (const VAL32 &x) {
-	const auto r1x = _CAST_<CHAR> (x) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<CHAR>> () ,x) ;
 	if ((r1x & CHAR (0X7F800000)) != CHAR (0X7F800000))
 		return FALSE ;
 	if ((r1x & CHAR (0X007FFFFF)) != 0)
@@ -206,7 +206,7 @@ inline exports BOOL MathProc::is_infinite (const VAL32 &x) {
 }
 
 inline exports BOOL MathProc::is_infinite (const VAL64 &x) {
-	const auto r1x = _CAST_<DATA> (x) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<DATA>> () ,x) ;
 	if ((r1x & DATA (0X7FF0000000000000)) != DATA (0X7FF0000000000000))
 		return FALSE ;
 	if ((r1x & DATA (0X000FFFFFFFFFFFFF)) != 0)
@@ -461,7 +461,7 @@ public:
 } ;
 
 inline exports ARRAY3<DATA> MathStaticProc::static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _CAST_<ARRAY3<DATA>> (sne2) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<ARRAY3<DATA>>> () ,sne2) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
 		if (ret[0] == 0)
@@ -501,12 +501,12 @@ inline exports VAL64 MathProc::ieee754_encode (const ARRAY3<VAR64> &sne2) {
 	ret |= r1x[0] & DATA (0X000FFFFFFFFFFFFF) ;
 	ret |= r1x[1] & DATA (0X7FF0000000000000) ;
 	ret |= r1x[2] & DATA (0X8000000000000000) ;
-	return _MOVE_ (_CAST_<VAL64> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<VAL64>> () ,ret)) ;
 }
 
 inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 	ARRAY3<DATA> ret ;
-	const auto r1x = _CAST_<DATA> (ieee754) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<DATA>> () ,ieee754) ;
 	ret[0] = r1x & DATA (0X000FFFFFFFFFFFFF) ;
 	const auto r2x = DATA (r1x & DATA (0X7FF0000000000000)) ;
 	if (r2x != 0)
@@ -525,7 +525,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 	}
 	const auto r3x = _EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
 	ret[2] = r3x ;
-	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<ARRAY3<VAR64>>> () ,ret)) ;
 }
 
 inline exports VAL64 MathStaticProc::static_taylor_exp (const VAL64 &lnx ,const VAL64 &y) {
@@ -545,7 +545,7 @@ inline exports VAL64 MathStaticProc::static_taylor_exp (const VAL64 &lnx ,const 
 }
 
 inline exports ARRAY3<VAR64> MathStaticProc::static_ieee754_e2_e10_part (const ARRAY3<VAR64> &sne2) {
-	const auto r1x = _CAST_<ARRAY3<DATA>> (sne2) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<ARRAY3<DATA>>> () ,sne2) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
 		if (ret[0] == 0)
@@ -564,7 +564,7 @@ inline exports ARRAY3<VAR64> MathStaticProc::static_ieee754_e2_e10_part (const A
 		ret[0] = r2x ;
 		ret[1]-- ;
 	}
-	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<ARRAY3<VAR64>>> () ,ret)) ;
 }
 
 inline exports ARRAY3<VAR64> MathProc::ieee754_e2_e10 (const ARRAY3<VAR64> &sne2) {
@@ -585,11 +585,11 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_e2_e10 (const ARRAY3<VAR64> &sne2
 		ret[1]++ ;
 	}
 	ret[2] = r1x[2] ;
-	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<ARRAY3<VAR64>>> () ,ret)) ;
 }
 
 inline exports ARRAY3<VAR64> MathStaticProc::static_ieee754_e10_e2_part (const ARRAY3<VAR64> &sne10) {
-	const auto r1x = _CAST_<ARRAY3<DATA>> (sne10) ;
+	const auto r1x = _CAST_ (_NULL_<ARGV<ARRAY3<DATA>>> () ,sne10) ;
 	ARRAY3<DATA> ret = r1x ;
 	while (TRUE) {
 		if (ret[0] == 0)
@@ -608,7 +608,7 @@ inline exports ARRAY3<VAR64> MathStaticProc::static_ieee754_e10_e2_part (const A
 		ret[0] = r2x ;
 		ret[1]-- ;
 	}
-	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<ARRAY3<VAR64>>> () ,ret)) ;
 }
 
 inline exports ARRAY3<VAR64> MathProc::ieee754_e10_e2 (const ARRAY3<VAR64> &sne10) {
@@ -629,6 +629,6 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_e10_e2 (const ARRAY3<VAR64> &sne1
 		ret[1]++ ;
 	}
 	ret[2] = r1x[2] ;
-	return _MOVE_ (_CAST_<ARRAY3<VAR64>> (ret)) ;
+	return _MOVE_ (_CAST_ (_NULL_<ARGV<ARRAY3<VAR64>>> () ,ret)) ;
 }
 } ;

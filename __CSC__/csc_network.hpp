@@ -39,8 +39,8 @@ public:
 
 	String<STRU8> peer_sock_name () const ;
 
-	template <class _DEP = NONE>
-	DEPENDENT_TYPE<TCPListener ,_DEP> listener () side_effects {
+	template <class _RET = TCPListener>
+	_RET listener () side_effects {
 		struct Dependent ;
 		using TCPListener = DEPENDENT_TYPE<TCPListener ,Dependent> ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
