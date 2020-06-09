@@ -75,7 +75,9 @@ using ::_wcstombs_s_l ;
 class LocaleStaticProc
 	:private Wrapped<void> {
 public:
+#ifdef __CSC_COMPILER_MSVC__
 	imports const UniqueRef<_locale_t> &static_locale_page () ;
+#endif
 
 	imports String<STRW> static_locale_cvt_lastows (const String<STRA> &val) ;
 

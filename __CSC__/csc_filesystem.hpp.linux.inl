@@ -291,7 +291,6 @@ inline exports String<STR> FileSystemProc::working_path () {
 	return StringProc::parse_strs (rax) ;
 }
 
-namespace U {
 inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (const Deque<String<STR>> &path_name) {
 	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
 	for (auto &&i : _RANGE_ (0 ,path_name.length ())) {
@@ -314,7 +313,6 @@ inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (con
 	}
 	return _MOVE_ (ret) ;
 }
-} ;
 
 inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
@@ -347,7 +345,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 				discard ;
 		ret += _PCSTR_ ("/") ;
 	}
-	const auto r2x = U::static_relative_path_name (rax) ;
+	const auto r2x = FileSystemStaticProc::static_relative_path_name (rax) ;
 	for (auto &&i : _RANGE_ (0 ,r2x.length ())) {
 		if (i > 0)
 			ret += _PCSTR_ ("/") ;
