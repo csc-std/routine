@@ -232,7 +232,7 @@ public:
 	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mMemberSet.size () == 0) ;
-		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mAttributeList.length () == 1) ;
+		_DYNAMIC_ASSERT_ (mHeap.self[mIndex].mAttributeMappingSet.length () == 1) ;
 		INDEX ix = mHeap.self[mIndex].mAttributeList.head () ;
 		return mHeap.self[mIndex].mAttributeList[ix] ;
 	}
@@ -764,8 +764,16 @@ private:
 				mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
 				mFoundNodeList[iy].mBaseNodeList.clear () ;
 			}
-			mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-			mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+			for (auto &&j : i.mHeap.self[i.mIndex].mAttributeMappingSet) {
+				INDEX jx = mFoundNodeList[iy].mAttributeMappingSet.map (j.key) ;
+				if switch_once (TRUE) {
+					if (jx != VAR_NONE)
+						discard ;
+					jx = mFoundNodeList[iy].mAttributeList.insert () ;
+					mFoundNodeList[iy].mAttributeMappingSet.add (j.key ,jx) ;
+					mFoundNodeList[iy].mAttributeList[jx] = i.mHeap.self[i.mIndex].mAttributeList[j.sid] ;
+				}
+			}
 			mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
 		}
 	}
