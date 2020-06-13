@@ -87,7 +87,7 @@ public:
 
 	inline void operator++ () {
 		mIndex++ ;
-		template_incrase (_NULL_<ARGV<DECREASE<SIZE>>> ()) ;
+		template_incrase (ARGV<DECREASE<SIZE>>::null ()) ;
 	}
 
 private:
@@ -103,7 +103,7 @@ private:
 		if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
 			return ;
 		mItem[_ARG1::value] = 0 ;
-		template_incrase (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		template_incrase (ARGV<DECREASE<_ARG1>>::null ()) ;
 	}
 } ;
 
@@ -898,7 +898,7 @@ public:
 		_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
 		_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
-		return mBase->mThis->mHolder.rebind (_NULL_<ARGV<UNIT_>> ()).self ;
+		return mBase->mThis->mHolder.rebind (ARGV<UNIT_>::null ()).self ;
 	}
 } ;
 } ;

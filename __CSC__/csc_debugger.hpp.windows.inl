@@ -329,7 +329,7 @@ private:
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
 		const auto r1x = GlobalRuntime::clock_now () ;
-		mLogWriter << StringProc::build_hours (_NULL_<ARGV<STR>> () ,r1x) ;
+		mLogWriter << StringProc::build_hours (ARGV<STR>::null () ,r1x) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -404,16 +404,16 @@ public:
 #pragma warning (disable :5039)
 #endif
 		_DEBUG_ASSERT_ (flag) ;
-		const auto r1x = _FORWARD_<PTR<void ()>> ([] () noexcept {
+		const auto r1x = Function<void ()> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r2x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r2x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r3x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r3x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r4x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r4x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
 		api::atexit (r1x) ;
@@ -455,19 +455,19 @@ public:
 			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (DEPTR[rax.self]) ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			auto &r3x = _LOAD_UNSAFE_ (_NULL_<ARGV<api::SYMBOL_INFO>> () ,r2x) ;
+			auto &r3x = _LOAD_UNSAFE_ (ARGV<api::SYMBOL_INFO>::null () ,r2x) ;
 			r3x.SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
 			r3x.MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : list) {
 				api::SymFromAddr (mSymbolFromAddress ,DATA (i) ,NULL ,DEPTR[r3x]) ;
-				const auto r4x = StringProc::build_hex16s (_NULL_<ARGV<STR>> () ,DATA (r3x.Address)) ;
+				const auto r4x = StringProc::build_hex16s (ARGV<STR>::null () ,DATA (r3x.Address)) ;
 				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r3x.Name])) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}
 		if switch_once (fax) {
 			for (auto &&i : list) {
-				const auto r6x = StringProc::build_hex16s (_NULL_<ARGV<STR>> () ,DATA (i)) ;
+				const auto r6x = StringProc::build_hex16s (ARGV<STR>::null () ,DATA (i)) ;
 				ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : null")) ;
 			}
 		}

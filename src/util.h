@@ -79,7 +79,7 @@ inline exports PTR<NONE> GlobalStatic<void>::Public::unique_atomic_address (cons
 			return SharedRef<Atomic>::make () ;
 		}) ;
 		const auto r2x = r1x->compare_exchange (_ADDRESS_ (expect) ,_ADDRESS_ (data)) ;
-		auto &r3x = _LOAD_UNSAFE_ (_NULL_<ARGV<NONE>> () ,r2x) ;
+		auto &r3x = _LOAD_UNSAFE_ (ARGV<NONE>::null () ,r2x) ;
 		ret = DEPTR[r3x] ;
 	} ,[&] () {
 		ret = NULL ;
@@ -96,7 +96,7 @@ inline exports void GlobalWatch::Public::done (const Exception &e) {
 	const auto r1x = String<STR> (e.what ()) ;
 	Singleton<ConsoleService>::instance ().fatal (r1x) ;
 #ifdef MS_CPP_UNITTESTFRAMEWORK
-	const auto r2x = StringProc::build_strs (_NULL_<ARGV<STRW>> () ,r1x) ;
+	const auto r2x = StringProc::build_strs (ARGV<STRW>::null () ,r1x) ;
 	Assert::Fail (r2x.raw ().self) ;
 #endif
 }

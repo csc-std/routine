@@ -171,7 +171,7 @@ private:
 	imports void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<ThreadCounter>> () ,self_)) ;
+		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null () ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			_CATCH_ ([&] () {
@@ -511,7 +511,7 @@ private:
 	imports void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<ThreadCounter>> () ,self_)) ;
+		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null () ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			static_poll (self_ ,rax) ;
@@ -534,7 +534,7 @@ private:
 		using Counter = typename DEPENDENT_TYPE<Private ,Dependent>::Counter ;
 		const auto r1x = self_.mThreadConditionLock.watch (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
-		ScopedGuard<Counter> ANONYMOUS (_CAST_ (_NULL_<ARGV<Counter>> () ,self_.mThreadWaitCounter)) ;
+		ScopedGuard<Counter> ANONYMOUS (_CAST_ (ARGV<Counter>::null () ,self_.mThreadWaitCounter)) ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.self)
 				break ;
@@ -767,7 +767,7 @@ private:
 	imports void static_execute (SELF_PACK &self_) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<ThreadCounter>> () ,self_)) ;
+		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null () ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		_CATCH_ ([&] () {
 			//@warn: 'mThreadProc' is not protected by 'mThreadMutex'

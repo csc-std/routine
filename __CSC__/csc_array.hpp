@@ -289,9 +289,11 @@ template <class ITEM>
 using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
-inline constexpr LENGTH constexpr_reserve_size (const LENGTH &len) {
-	return len + _EBOOL_ (len > 0) ;
-}
+struct CONSTEXPR_RESERVE_SIZE {
+	imports constexpr LENGTH compile (const LENGTH &len) {
+		return len + _EBOOL_ (len > 0) ;
+	}
+} ;
 } ;
 
 template <class>
@@ -303,7 +305,7 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	Buffer<ITEM ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mString ;
+	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mString ;
 
 public:
 	String () {
@@ -311,7 +313,7 @@ public:
 	}
 
 	explicit String (const LENGTH &len)
-		:String (ARGVP0 ,U::constexpr_reserve_size (len)) {
+		:String (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
 		clear () ;
 	}
 
@@ -605,7 +607,7 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	Buffer<ITEM ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mDeque ;
+	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -615,7 +617,7 @@ public:
 	}
 
 	explicit Deque (const LENGTH &len)
-		:Deque (ARGVP0 ,U::constexpr_reserve_size (len)) {
+		:Deque (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
 		clear () ;
 	}
 
@@ -977,7 +979,7 @@ private:
 	} ;
 
 private:
-	Buffer<NODE ,ARGC<U::constexpr_reserve_size (SIZE::value)>> mPriority ;
+	Buffer<NODE ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -987,7 +989,7 @@ public:
 	}
 
 	explicit Priority (const LENGTH &len)
-		:Priority (ARGVP0 ,U::constexpr_reserve_size (len)) {
+		:Priority (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
 		clear () ;
 	}
 
@@ -2210,7 +2212,7 @@ private:
 
 namespace U {
 template <class UNIT>
-struct CONSTEXPR_SWITCH_CEIL8 {
+struct CONSTEXPR_CEIL8_SIZE_SWITCH {
 	imports constexpr UNIT case1 (const UNIT &len) {
 		return len ;
 	}
@@ -2220,12 +2222,14 @@ struct CONSTEXPR_SWITCH_CEIL8 {
 	}
 } ;
 
-inline constexpr LENGTH constexpr_ceil8_size (const LENGTH &len) {
-	return _SWITCH_ (
-		(len <= 0) ? CONSTEXPR_SWITCH_CEIL8<LENGTH>::case1 :
-		CONSTEXPR_SWITCH_CEIL8<LENGTH>::case2)
-		(len) ;
-}
+struct CONSTEXPR_CEIL8_SIZE {
+	imports constexpr LENGTH compile (const LENGTH &len) {
+		return _SWITCH_ (
+			(len <= 0) ? CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case1 :
+			CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case2)
+			(len) ;
+	}
+} ;
 } ;
 
 template <class SIZE = SAUTO>
@@ -2240,7 +2244,7 @@ private:
 	} ;
 
 private:
-	Buffer<BYTE ,ARGC<U::constexpr_ceil8_size (SIZE::value)>> mSet ;
+	Buffer<BYTE ,ARGC<U::CONSTEXPR_CEIL8_SIZE::compile (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
 public:
@@ -2250,7 +2254,7 @@ public:
 	}
 
 	explicit BitSet (const LENGTH &len)
-		:BitSet (ARGVP0 ,U::constexpr_ceil8_size (len) ,forward_width (len)) {
+		:BitSet (ARGVP0 ,U::CONSTEXPR_CEIL8_SIZE::compile (len) ,forward_width (len)) {
 		clear () ;
 	}
 
@@ -2608,7 +2612,7 @@ public:
 
 	inline explicit operator VAR64 () const leftvalue {
 		return VAR64 (mIndex) ;
-	}
+}
 #endif
 
 #ifdef __CSC_CONFIG_VAR64__
@@ -2618,7 +2622,7 @@ public:
 
 	inline implicit operator VAR64 () const leftvalue {
 		return VAR64 (mIndex) ;
-}
+	}
 #endif
 
 	inline void operator= (const BOOL &that) rightvalue {

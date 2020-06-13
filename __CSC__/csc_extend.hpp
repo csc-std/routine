@@ -35,7 +35,7 @@ public:
 		imports volatile WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
-		mInstance.mTypeMID = _TYPEMID_ (_NULL_<ARGV<_ARG2>> ()) ;
+		mInstance.mTypeMID = _TYPEMID_ (ARGV<_ARG2>::null ()) ;
 		mInstance.mWatch (data) ;
 	}
 } ;
@@ -48,15 +48,14 @@ private:
 	PTR<const STR> mName ;
 	PTR<UNIT> mAddress ;
 	FLAG mTypeMID ;
-	PTR<void (UNIT &)> mWatch ;
+	Function<void (UNIT &)> mWatch ;
 
 public:
 	WatchInterface () {
 		mName = NULL ;
 		mAddress = NULL ;
 		mTypeMID = 0 ;
-		const auto r1x = _FORWARD_<PTR<void (UNIT &)>> ([] (UNIT &) {}) ;
-		mWatch = r1x ;
+		mWatch = Function<void (UNIT &)> ([] (UNIT &) {}) ;
 	} ;
 } ;
 #endif
@@ -254,8 +253,8 @@ public:
 
 	inline VAR128 operator/ (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		const auto r1x = _CAST_ (_NULL_<ARGV<VAR64>> () ,v2i0) ;
-		const auto r2x = _CAST_ (_NULL_<ARGV<VAR64>> () ,that.v2i0) ;
+		const auto r1x = _CAST_ (ARGV<VAR64>::null () ,v2i0) ;
+		const auto r2x = _CAST_ (ARGV<VAR64>::null () ,that.v2i0) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(r1x >= 0))
@@ -330,8 +329,8 @@ public:
 
 	inline VAR128 operator% (const VAR128 &that) const {
 		VAR128 ret = 0 ;
-		const auto r1x = _CAST_ (_NULL_<ARGV<VAR64>> () ,v2i0) ;
-		const auto r2x = _CAST_ (_NULL_<ARGV<VAR64>> () ,that.v2i0) ;
+		const auto r1x = _CAST_ (ARGV<VAR64>::null () ,v2i0) ;
+		const auto r2x = _CAST_ (ARGV<VAR64>::null () ,that.v2i0) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(r1x >= 0))
@@ -449,8 +448,8 @@ private:
 	}
 
 	FLAG compr (const VAR128 &that) const {
-		const auto r1x = _CAST_ (_NULL_<ARGV<VAR64>> () ,v2i0) ;
-		const auto r2x = _CAST_ (_NULL_<ARGV<VAR64>> () ,that.v2i0) ;
+		const auto r1x = _CAST_ (ARGV<VAR64>::null () ,v2i0) ;
+		const auto r2x = _CAST_ (ARGV<VAR64>::null () ,that.v2i0) ;
 		const auto r3x = U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
 		if (r3x != 0)
 			return r3x ;
@@ -460,67 +459,67 @@ private:
 	DATA &m_v2i0 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (_NULL_<ARGV<DATA[2]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[2]>> () ,r1x)[0]] ;
+		return _CAST_ (ARGV<DATA[2]>::null () ,mValue)[_CAST_ (ARGV<BYTE[2]>::null () ,r1x)[0]] ;
 	}
 
 	const DATA &m_v2i0 () const leftvalue {
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (_NULL_<ARGV<DATA[2]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[2]>> () ,r1x)[0]] ;
+		return _CAST_ (ARGV<DATA[2]>::null () ,mValue)[_CAST_ (ARGV<BYTE[2]>::null () ,r1x)[0]] ;
 	}
 
 	DATA &m_v2i1 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (_NULL_<ARGV<DATA[2]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[2]>> () ,r1x)[1]] ;
+		return _CAST_ (ARGV<DATA[2]>::null () ,mValue)[_CAST_ (ARGV<BYTE[2]>::null () ,r1x)[1]] ;
 	}
 
 	const DATA &m_v2i1 () const leftvalue {
 		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (_NULL_<ARGV<DATA[2]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[2]>> () ,r1x)[1]] ;
+		return _CAST_ (ARGV<DATA[2]>::null () ,mValue)[_CAST_ (ARGV<BYTE[2]>::null () ,r1x)[1]] ;
 	}
 
 	CHAR &m_v4i0 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[0]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[0]] ;
 	}
 
 	const CHAR &m_v4i0 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[0]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[0]] ;
 	}
 
 	CHAR &m_v4i1 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[1]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[1]] ;
 	}
 
 	const CHAR &m_v4i1 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[1]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[1]] ;
 	}
 
 	CHAR &m_v4i2 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[2]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[2]] ;
 	}
 
 	const CHAR &m_v4i2 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[2]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[2]] ;
 	}
 
 	CHAR &m_v4i3 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[3]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[3]] ;
 	}
 
 	const CHAR &m_v4i3 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (_NULL_<ARGV<CHAR[4]>> () ,mValue)[_CAST_ (_NULL_<ARGV<BYTE[4]>> () ,r1x)[3]] ;
+		return _CAST_ (ARGV<CHAR[4]>::null () ,mValue)[_CAST_ (ARGV<BYTE[4]>::null () ,r1x)[3]] ;
 	}
 
 private:
@@ -636,27 +635,31 @@ private:
 } ;
 
 namespace U {
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<ARGVS<>> &) {
-	return 1 ;
-}
+struct CONSTEXPR_MAX_SIZEOF {
+	imports constexpr LENGTH compile (const ARGV<ARGVS<>> &) {
+		return 1 ;
+	}
 
-template <class _ARG1>
-inline constexpr LENGTH constexpr_max_sizeof (const ARGV<_ARG1> &) {
-	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-	return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,constexpr_max_sizeof (_NULL_<ARGV<REST_HINT>> ())) ;
-}
+	template <class _ARG1>
+	imports constexpr LENGTH compile (const ARGV<_ARG1> &) {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,compile (ARGV<REST_HINT>::null ())) ;
+	}
+} ;
 
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<ARGVS<>> &) {
-	return 1 ;
-}
+struct CONSTEXPR_MAX_ALIGNOF {
+	imports constexpr LENGTH compile (const ARGV<ARGVS<>> &) {
+		return 1 ;
+	}
 
-template <class _ARG1>
-inline constexpr LENGTH constexpr_max_alignof (const ARGV<_ARG1> &) {
-	using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-	using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-	return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,constexpr_max_alignof (_NULL_<ARGV<REST_HINT>> ())) ;
-}
+	template <class _ARG1>
+	imports constexpr LENGTH compile (const ARGV<_ARG1> &) {
+		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
+		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,compile (ARGV<REST_HINT>::null ())) ;
+	}
+} ;
 } ;
 
 template <class... UNITS>
@@ -665,8 +668,8 @@ class Variant final {
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 
 private:
-	static constexpr auto VARIANT_ALIGN = U::constexpr_max_alignof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
-	static constexpr auto VARIANT_SIZE = U::constexpr_max_sizeof (_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+	static constexpr auto VARIANT_ALIGN = U::CONSTEXPR_MAX_ALIGNOF::compile (ARGV<ARGVS<UNITS...>>::null ()) ;
+	static constexpr auto VARIANT_SIZE = U::CONSTEXPR_MAX_SIZEOF::compile (ARGV<ARGVS<UNITS...>>::null ()) ;
 
 	//@error: fuck g++4.8
 	template <LENGTH ALIGN = VARIANT_ALIGN>
@@ -685,8 +688,8 @@ private:
 public:
 	Variant ()
 		:Variant (ARGVP0) {
-		const auto r1x = default_constructible_index (_NULL_<ARGV<ZERO>> () ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
-		template_construct (r1x ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		const auto r1x = default_constructible_index (ARGV<ZERO>::null () ,ARGV<ARGVS<UNITS...>>::null ()) ;
+		template_construct (r1x ,ARGV<ARGVS<UNITS...>>::null ()) ;
 		mIndex = r1x ;
 	}
 
@@ -696,8 +699,8 @@ public:
 		using INDEX_HINT = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		_STATIC_ASSERT_ (INDEX_HINT::value != VAR_NONE) ;
 		_STATIC_ASSERT_ (!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
-		auto &r1x = _NULL_<ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>> () ;
-		auto &r2x = _LOAD_ (_NULL_<ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>> () ,DEPTR[mVariant]) ;
+		auto &r1x = ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>::null () ;
+		auto &r2x = _LOAD_ (ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>::null () ,DEPTR[mVariant]) ;
 		template_create (r1x ,DEPTR[r2x] ,_FORWARD_<_ARG1> (that)) ;
 		mIndex = INDEX_HINT::value ;
 	}
@@ -705,7 +708,7 @@ public:
 	inline ~Variant () noexcept {
 		if (mIndex == VAR_NONE)
 			return ;
-		template_destruct (mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_destruct (mIndex ,ARGV<ARGVS<UNITS...>>::null ()) ;
 		mIndex = VAR_NONE ;
 	}
 
@@ -713,7 +716,7 @@ public:
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		template_copy_construct (that ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_copy_construct (that ,that.mIndex ,ARGV<ARGVS<UNITS...>>::null ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -731,7 +734,7 @@ public:
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
-		template_move_construct (that ,that.mIndex ,_NULL_<ARGV<ARGVS<UNITS...>>> ()) ;
+		template_move_construct (that ,that.mIndex ,ARGV<ARGVS<UNITS...>>::null ()) ;
 		mIndex = that.mIndex ;
 	}
 
@@ -764,8 +767,8 @@ public:
 	OPTIONAL &to () leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1x = _LOAD_ (_NULL_<ARGV<TEMP<OPTIONAL>>> () ,DEPTR[mVariant]) ;
-		return _CAST_ (_NULL_<ARGV<OPTIONAL>> () ,r1x) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<OPTIONAL>>::null () ,DEPTR[mVariant]) ;
+		return _CAST_ (ARGV<OPTIONAL>::null () ,r1x) ;
 	}
 
 	inline implicit operator OPTIONAL & () leftvalue {
@@ -775,8 +778,8 @@ public:
 	const OPTIONAL &to () const leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1x = _LOAD_ (_NULL_<ARGV<TEMP<OPTIONAL>>> () ,DEPTR[mVariant]) ;
-		return _CAST_ (_NULL_<ARGV<OPTIONAL>> () ,r1x) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<OPTIONAL>>::null () ,DEPTR[mVariant]) ;
+		return _CAST_ (ARGV<OPTIONAL>::null () ,r1x) ;
 	}
 
 	inline implicit operator const OPTIONAL & () const leftvalue {
@@ -785,18 +788,18 @@ public:
 
 	template <class _ARG1>
 	void apply (const Function<void (_ARG1 &)> &proc) {
-		if (!available (_NULL_<ARGV<_ARG1>> ()))
+		if (!available (ARGV<_ARG1>::null ()))
 			return ;
-		auto &r1x = _LOAD_ (_NULL_<ARGV<TEMP<_ARG1>>> () ,DEPTR[mVariant]) ;
-		proc (_CAST_ (_NULL_<ARGV<_ARG1>> () ,r1x)) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null () ,DEPTR[mVariant]) ;
+		proc (_CAST_ (ARGV<_ARG1>::null () ,r1x)) ;
 	}
 
 	template <class _ARG1>
 	void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) {
-		if (!available (_NULL_<ARGV<_ARG1>> ()))
+		if (!available (ARGV<_ARG1>::null ()))
 			return ;
-		auto &r1x = _LOAD_ (_NULL_<ARGV<TEMP<_ARG1>>> () ,DEPTR[mVariant]) ;
-		proc (_CAST_ (_NULL_<ARGV<_ARG1>> () ,r1x)) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null () ,DEPTR[mVariant]) ;
+		proc (_CAST_ (ARGV<_ARG1>::null () ,r1x)) ;
 	}
 
 	//@warn: none class shall be base on its address
@@ -829,13 +832,13 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _NULL_<ARGV<ARGC<stl::is_default_constructible<ONE_HINT>::value>>> () ;
-			auto &r3x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[mVariant]) ;
+			auto &r2x = ARGV<ARGC<stl::is_default_constructible<ONE_HINT>::value>>::null () ;
+			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[mVariant]) ;
 			template_create (r2x ,DEPTR[r3x]) ;
 		}
 		if (r1x)
 			return ;
-		template_construct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+		template_construct ((index - 1) ,ARGV<REST_HINT>::null ()) ;
 	}
 
 	void template_destruct (const INDEX &index ,const ARGV<ARGVS<>> &) {
@@ -853,12 +856,12 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[mVariant]) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[mVariant]) ;
 			_DESTROY_ (DEPTR[r2x]) ;
 		}
 		if (r1x)
 			return ;
-		template_destruct ((index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+		template_destruct ((index - 1) ,ARGV<REST_HINT>::null ()) ;
 	}
 
 	void template_copy_construct (const Variant &that ,const INDEX &index ,const ARGV<ARGVS<>> &) {
@@ -873,14 +876,14 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _NULL_<ARGV<ARGC<stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value>>> () ;
-			auto &r3x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[mVariant]) ;
-			auto &r4x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[that.mVariant]) ;
-			template_create (r2x ,DEPTR[r3x] ,_MOVE_ (_CAST_ (_NULL_<ARGV<ONE_HINT>> () ,r4x))) ;
+			auto &r2x = ARGV<ARGC<stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value>>::null () ;
+			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[mVariant]) ;
+			auto &r4x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[that.mVariant]) ;
+			template_create (r2x ,DEPTR[r3x] ,_MOVE_ (_CAST_ (ARGV<ONE_HINT>::null () ,r4x))) ;
 		}
 		if (r1x)
 			return ;
-		template_copy_construct (that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+		template_copy_construct (that ,(index - 1) ,ARGV<REST_HINT>::null ()) ;
 	}
 
 	void template_move_construct (Variant &that ,const INDEX &index ,const ARGV<ARGVS<>> &) {
@@ -897,13 +900,13 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[mVariant]) ;
-			auto &r3x = _LOAD_ (_NULL_<ARGV<TEMP<ONE_HINT>>> () ,DEPTR[that.mVariant]) ;
-			template_create (_NULL_<ARGV<ARGC<TRUE>>> () ,DEPTR[r2x] ,_MOVE_ (_CAST_ (_NULL_<ARGV<ONE_HINT>> () ,r3x))) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[mVariant]) ;
+			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null () ,DEPTR[that.mVariant]) ;
+			template_create (ARGV<ARGC<TRUE>>::null () ,DEPTR[r2x] ,_MOVE_ (_CAST_ (ARGV<ONE_HINT>::null () ,r3x))) ;
 		}
 		if (r1x)
 			return ;
-		template_move_construct (that ,(index - 1) ,_NULL_<ARGV<REST_HINT>> ()) ;
+		template_move_construct (that ,(index - 1) ,ARGV<REST_HINT>::null ()) ;
 	}
 
 private:
@@ -918,7 +921,7 @@ private:
 		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
 		if (stl::is_default_constructible<ONE_HINT>::value)
 			return _ARG1::value ;
-		return default_constructible_index (_NULL_<ARGV<INCREASE<_ARG1>>> () ,_NULL_<ARGV<REST_HINT>> ()) ;
+		return default_constructible_index (ARGV<INCREASE<_ARG1>>::null () ,ARGV<REST_HINT>::null ()) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1045,12 +1048,12 @@ public:
 
 	template <class _ARG1>
 	INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) leftvalue {
-		return template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (ARGV<DECREASE<_ARG1>>::null ()) ;
 	}
 
 	template <class _ARG1>
 	const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const leftvalue {
-		return template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return template_pick (ARGV<DECREASE<_ARG1>>::null ()) ;
 	}
 
 	BOOL equal (const Tuple &that) const {
@@ -1102,7 +1105,7 @@ private:
 	template <class _ARG1>
 	INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGV<_ARG1> &) leftvalue {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		return rest ().template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return rest ().template_pick (ARGV<DECREASE<_ARG1>>::null ()) ;
 	}
 
 	const UNIT1 &template_pick (const ARGV<ZERO> &) const leftvalue {
@@ -1112,7 +1115,7 @@ private:
 	template <class _ARG1>
 	const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGV<_ARG1> &) const leftvalue {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value <= _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		return rest ().template_pick (_NULL_<ARGV<DECREASE<_ARG1>>> ()) ;
+		return rest ().template_pick (ARGV<DECREASE<_ARG1>>::null ()) ;
 	}
 } ;
 
@@ -1121,17 +1124,16 @@ using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::Private::ImplHolder<PTR<UNIT1 (UNITS... ,UNITS_...)>>
+class Function<UNIT1 (UNITS...)>::Private::ImplHolder<UNIT1 (UNITS... ,UNITS_...)>
 	:public Function<UNIT1 (UNITS...)>::Holder {
 private:
 	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
-	ImplHolder () = delete ;
-
-	explicit ImplHolder (const PTR<UNIT1 (UNITS... ,UNITS_...)> &func ,const REMOVE_CVR_TYPE<UNITS_> &...parameter)
-		:mFunctor (func) ,mParameter (parameter...) {}
+	template <class... _ARGS>
+	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval)
+		:mParameter (_FORWARD_<_ARGS> (initval)...) ,mFunctor (functor) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return template_invoke (mParameter ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
@@ -1164,20 +1166,20 @@ private:
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	TupleBinder<const UNITS...> mTuple ;
+	TupleBinder<const UNITS...> mBinder ;
 
 public:
 	AllOfTuple () = delete ;
 
 	implicit AllOfTuple (const UNITS &...initval)
-		:mTuple (initval...) {}
+		:mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
-		return template_boolean (mTuple) ;
+		return template_boolean (mBinder) ;
 	}
 
 	inline BOOL operator== (const WRAPPED &that) const {
-		return template_equal (mTuple ,that) ;
+		return template_equal (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1185,7 +1187,7 @@ public:
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
-		return template_not_equal (mTuple ,that) ;
+		return template_not_equal (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1193,7 +1195,7 @@ public:
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
-		return template_less (mTuple ,that) ;
+		return template_less (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1201,7 +1203,7 @@ public:
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
-		return template_not_less (mTuple ,that) ;
+		return template_not_less (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1209,7 +1211,7 @@ public:
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
-		return template_less (that ,mTuple) ;
+		return template_less (that ,mBinder) ;
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1217,7 +1219,7 @@ public:
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
-		return template_not_less (that ,mTuple) ;
+		return template_not_less (that ,mBinder) ;
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &self_) {
@@ -1299,20 +1301,20 @@ private:
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	TupleBinder<const UNITS...> mTuple ;
+	TupleBinder<const UNITS...> mBinder ;
 
 public:
 	AnyOfTuple () = delete ;
 
 	implicit AnyOfTuple (const UNITS &...initval)
-		:mTuple (initval...) {}
+		:mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
-		return template_boolean (mTuple) ;
+		return template_boolean (mBinder) ;
 	}
 
 	inline BOOL operator== (const WRAPPED &that) const {
-		return template_equal (mTuple ,that) ;
+		return template_equal (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1320,7 +1322,7 @@ public:
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
-		return template_not_equal (mTuple ,that) ;
+		return template_not_equal (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1328,7 +1330,7 @@ public:
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
-		return template_less (mTuple ,that) ;
+		return template_less (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1336,7 +1338,7 @@ public:
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
-		return template_not_less (mTuple ,that) ;
+		return template_not_less (mBinder ,that) ;
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1344,7 +1346,7 @@ public:
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
-		return template_less (that ,mTuple) ;
+		return template_less (that ,mBinder) ;
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1352,7 +1354,7 @@ public:
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
-		return template_not_less (that ,mTuple) ;
+		return template_not_less (that ,mBinder) ;
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &self_) {
@@ -1466,7 +1468,7 @@ struct OPERATOR_RECAST {
 
 	template <class _ARG1 ,class _ARG2>
 	imports PTR<_ARG1> invoke (const ARGV<_ARG1> & ,const PTR<_ARG2> &address) {
-		return template_recast (address ,_NULL_<ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>> () ,ARGVPX ,ARGVP9) ;
+		return template_recast (address ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::null () ,ARGVPX ,ARGVP9) ;
 	}
 } ;
 } ;
@@ -1493,7 +1495,7 @@ public:
 	//@warn: circular reference ruins StrongRef
 	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_always_base_of<UNIT ,_ARG1>::value>>
 	implicit StrongRef (const StrongRef<_ARG1> &that)
-		: StrongRef (that.recast (_NULL_<ARGV<UNIT>> ())) {
+		: StrongRef (that.recast (ARGV<UNIT>::null ())) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1553,7 +1555,7 @@ public:
 
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGV<_ARG1> &) const {
-		const auto r1x = U::OPERATOR_RECAST::invoke (_NULL_<ARGV<_ARG1>> () ,mPointer) ;
+		const auto r1x = U::OPERATOR_RECAST::invoke (ARGV<_ARG1>::null () ,mPointer) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r1x != NULL) == _EBOOL_ (mPointer != NULL)) ;
 		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (_COPY_ (mThis) ,r1x) ;
 	}
@@ -1613,7 +1615,7 @@ public:
 		auto tmp = SharedRef<SELF_PACK>::make () ;
 		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
 		tmp->mCounter = 0 ;
-		auto &r1x = tmp->mHolder.rebind (_NULL_<ARGV<UNIT>> ()).self ;
+		auto &r1x = tmp->mHolder.rebind (ARGV<UNIT>::null ()).self ;
 		return StrongRef (_MOVE_ (tmp) ,DEPTR[r1x]) ;
 	}
 
@@ -1794,7 +1796,7 @@ public:
 	IntrusiveRef share () side_effects {
 		struct Dependent ;
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<LatchCounter>> () ,mLatch)) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null () ,mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		return IntrusiveRef (r1x) ;
 	}
@@ -1804,7 +1806,7 @@ public:
 		struct Dependent ;
 		using WatchProxy = typename DEPENDENT_TYPE<Private ,Dependent>::WatchProxy ;
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<LatchCounter>> () ,mLatch)) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null () ,mLatch)) ;
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		auto tmp = IntrusiveRef (r1x) ;
@@ -1815,9 +1817,9 @@ public:
 	template <class... _ARGS>
 	imports IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret ;
-		auto rax = GlobalHeap::alloc (_NULL_<ARGV<TEMP<UNIT>>> ()) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ()) ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_ (_NULL_<ARGV<UNIT>> () ,_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
+		auto &r1x = _LOAD_ (ARGV<UNIT>::null () ,_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
 		_STATIC_UNUSED_ (r2x) ;
@@ -1980,10 +1982,10 @@ public:
 		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
-		auto &r9x = _LOAD_UNSAFE_ (_NULL_<ARGV<HEADER>> () ,r8x) ;
+		auto &r9x = _LOAD_UNSAFE_ (ARGV<HEADER>::null () ,r8x) ;
 		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r9x.mCurr = r6x ;
-		auto &r10x = _LOAD_UNSAFE_ (_NULL_<ARGV<_ARG1>> () ,r7x) ;
+		auto &r10x = _LOAD_UNSAFE_ (ARGV<_ARG1>::null () ,r7x) ;
 		return DEPTR[r10x] ;
 	}
 
@@ -2001,10 +2003,10 @@ public:
 		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
-		auto &r9x = _LOAD_UNSAFE_ (_NULL_<ARGV<HEADER>> () ,r8x) ;
+		auto &r9x = _LOAD_UNSAFE_ (ARGV<HEADER>::null () ,r8x) ;
 		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
 		r9x.mCurr = r6x ;
-		auto &r10x = _LOAD_UNSAFE_ (_NULL_<ARGV<ARR<_ARG1>>> () ,r7x) ;
+		auto &r10x = _LOAD_UNSAFE_ (ARGV<ARR<_ARG1>>::null () ,r7x) ;
 		return DEPTR[r10x] ;
 	}
 
@@ -2012,7 +2014,7 @@ public:
 	void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		auto &r2x = _LOAD_UNSAFE_ (_NULL_<ARGV<HEADER>> () ,r1x) ;
+		auto &r2x = _LOAD_UNSAFE_ (ARGV<HEADER>::null () ,r1x) ;
 		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,r2x.mFrom) ;
 		mThis->mPool[ix]->free (r2x.mCurr) ;
 	}
@@ -2085,10 +2087,10 @@ public:
 			return ;
 		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
 		const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
-		auto rax = GlobalHeap::alloc (_NULL_<ARGV<BYTE>> () ,r2x) ;
+		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null () ,r2x) ;
 		const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-		auto &r5x = _LOAD_UNSAFE_ (_NULL_<ARGV<CHUNK>> () ,r4x) ;
+		auto &r5x = _LOAD_UNSAFE_ (ARGV<CHUNK>::null () ,r4x) ;
 		r5x.mOrigin = rax ;
 		r5x.mPrev = NULL ;
 		r5x.mNext = mRoot ;
@@ -2100,7 +2102,7 @@ public:
 		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 		for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 			const auto r7x = r6x + i * r1x ;
-			auto &r8x = _LOAD_UNSAFE_ (_NULL_<ARGV<BLOCK>> () ,r7x) ;
+			auto &r8x = _LOAD_UNSAFE_ (ARGV<BLOCK>::null () ,r7x) ;
 			r8x.mNext = mFree ;
 			mFree = DEPTR[r8x] ;
 		}
@@ -2114,7 +2116,7 @@ public:
 		mFree = r1x->mNext ;
 		mLength += SIZE::value ;
 		const auto r2x = VAR_USED ;
-		r1x->mNext = _BITWISE_CAST_ (_NULL_<ARGV<PTR<BLOCK>>> () ,r2x) ;
+		r1x->mNext = _BITWISE_CAST_ (ARGV<PTR<BLOCK>>::null () ,r2x) ;
 		return DEPTR[r1x->mFlexData] ;
 	}
 
@@ -2151,7 +2153,7 @@ private:
 		const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
 		for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 			const auto r3x = r2x + i * r1x ;
-			auto &r4x = _LOAD_UNSAFE_ (_NULL_<ARGV<BLOCK>> () ,r3x) ;
+			auto &r4x = _LOAD_UNSAFE_ (ARGV<BLOCK>::null () ,r3x) ;
 			if (_ADDRESS_ (r4x.mNext) == VAR_USED)
 				return FALSE ;
 		}
@@ -2205,10 +2207,10 @@ public:
 	PTR<HEADER> alloc (const LENGTH &len) side_effects override {
 		const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
 		const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
-		auto rax = GlobalHeap::alloc (_NULL_<ARGV<BYTE>> () ,r2x) ;
+		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null () ,r2x) ;
 		const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
-		auto &r5x = _LOAD_UNSAFE_ (_NULL_<ARGV<FBLOCK>> () ,r4x) ;
+		auto &r5x = _LOAD_UNSAFE_ (ARGV<FBLOCK>::null () ,r4x) ;
 		r5x.mOrigin = rax ;
 		r5x.mPrev = NULL ;
 		r5x.mNext = mRoot ;
@@ -2340,17 +2342,15 @@ private:
 		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 		mObjectSize = _SIZEOF_ (_ARG1) ;
 		mObjectAlign = _ALIGNOF_ (_ARG1) ;
-		mObjectTypeMID = _TYPEMID_ (_NULL_<ARGV<_ARG1>> ()) ;
-		const auto r1x = _FORWARD_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
-			auto &r2x = _LOAD_ (_NULL_<ARGV<TEMP<_ARG1>>> () ,address) ;
-			_CREATE_ (DEPTR[r2x]) ;
+		mObjectTypeMID = _TYPEMID_ (ARGV<_ARG1>::null ()) ;
+		mConstrutor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
+			auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null () ,address) ;
+			_CREATE_ (DEPTR[r1x]) ;
 		}) ;
-		mConstrutor = r1x ;
-		const auto r3x = _FORWARD_<PTR<void (PTR<NONE>)>> ([] (const PTR<NONE> &address) {
-			auto &r4x = _LOAD_ (_NULL_<ARGV<TEMP<_ARG1>>> () ,address) ;
-			_DESTROY_ (DEPTR[r4x]) ;
+		mDestructor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
+			auto &r2x = _LOAD_ (ARGV<TEMP<_ARG1>>::null () ,address) ;
+			_DESTROY_ (DEPTR[r2x]) ;
 		}) ;
-		mDestructor = r1x ;
 	}
 } ;
 
@@ -2390,7 +2390,7 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		mHolder = StrongRef<ImplHolder>::make (_NULL_<ARGV<ARGVS<_ARGS...>>> ()) ;
+		mHolder = StrongRef<ImplHolder>::make (ARGV<ARGVS<_ARGS...>>::null ()) ;
 	}
 
 	template <class _RET = DEF<typename Private::Member>>
@@ -2432,7 +2432,7 @@ public:
 	}
 
 	void compute_visit (UNIT &visitor ,CONT &context_) const override {
-		template_visit (visitor ,context_ ,_NULL_<ARGV<ARGVS<UNITS_...>>> ()) ;
+		template_visit (visitor ,context_ ,ARGV<ARGVS<UNITS_...>>::null ()) ;
 	}
 
 private:
@@ -2446,7 +2446,7 @@ private:
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
 		auto &r1x = ONE_HINT::compile (context_) ;
 		visitor.visit (r1x) ;
-		template_visit (visitor ,context_ ,_NULL_<ARGV<REST_HINT>> ()) ;
+		template_visit (visitor ,context_ ,ARGV<REST_HINT>::null ()) ;
 	}
 } ;
 } ;

@@ -178,52 +178,52 @@ public:
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (StringProc::parse_bools<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR64 attribute (const String<STRU8> &tag ,const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (StringProc::parse_var64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL32 attribute (const String<STRU8> &tag ,const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (StringProc::parse_val32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL64 attribute (const String<STRU8> &tag ,const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (StringProc::parse_val64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU8> attribute (const String<STRU8> &tag ,const String<STRU8> &def) const {
-		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (&_COPY_<String<STRU8>>) ;
+		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (_COPY_<String<STRU8>>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU16> attribute (const String<STRU8> &tag ,const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (StringProc::cvt_u8s_u16s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU32> attribute (const String<STRU8> &tag ,const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (StringProc::cvt_u8s_u32s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRA> attribute (const String<STRU8> &tag ,const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (StringProc::cvt_u8s_as) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRW> attribute (const String<STRU8> &tag ,const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (StringProc::cvt_u8s_ws) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
@@ -249,54 +249,54 @@ public:
 	}
 
 	BOOL value (const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (StringProc::parse_bools<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAR64 value (const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (StringProc::parse_var64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL32 value (const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (StringProc::parse_val32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL64 value (const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (StringProc::parse_val64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU8> value (const String<STRU8> &def) const {
-		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (&_COPY_<String<STRU8>>) ;
+		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (_COPY_<String<STRU8>>) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU16> value (const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (StringProc::cvt_u8s_u16s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU32> value (const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (StringProc::cvt_u8s_u32s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRA> value (const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (StringProc::cvt_u8s_as) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRW> value (const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (StringProc::cvt_u8s_ws) ;
 		return value (def ,r1x) ;
 	}
 
@@ -453,7 +453,7 @@ private:
 
 	//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
 	void update_shift_e5 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<RecursiveCounter>> () ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null () ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("<") ;
 		INDEX ix = mNodeHeap.alloc () ;
 		update_shift_e1 () ;
@@ -505,7 +505,7 @@ private:
 
 	//@info: $7->${eps}|$5 $7|$6 $7
 	void update_shift_e7 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<RecursiveCounter>> () ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null () ,mRecursiveCounter)) ;
 		INDEX ix = VAR_NONE ;
 		INDEX iy = VAR_NONE ;
 		while (TRUE) {
@@ -1057,7 +1057,7 @@ public:
 			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
 		if (!object_type ())
 			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		auto &r1x = mHeap.self[mIndex].mValue.rebind (_NULL_<ARGV<SoftSet<String<STRU8>>>> ()).self ;
+		auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null ()).self ;
 		INDEX ix = r1x.map (key) ;
 		return JsonParser (_COPY_ (mHeap) ,ix) ;
 	}
@@ -1069,7 +1069,7 @@ public:
 				discard ;
 			if (!array_type ())
 				discard ;
-			auto &r1x = mHeap.self[mIndex].mValue.rebind (_NULL_<ARGV<SoftSet<INDEX>>> ()).self ;
+			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::null ()).self ;
 			ret = Array<JsonParser> (r1x.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : r1x)
@@ -1087,7 +1087,7 @@ public:
 				discard ;
 			if (!array_type ())
 				discard ;
-			auto &r1x = mHeap.self[mIndex].mValue.rebind (_NULL_<ARGV<SoftSet<INDEX>>> ()).self ;
+			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::null ()).self ;
 			for (auto &&i : r1x) {
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
@@ -1124,7 +1124,7 @@ public:
 	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (string_type ()) ;
-		return mHeap.self[mIndex].mValue.rebind (_NULL_<ARGV<String<STRU8>>> ()).self ;
+		return mHeap.self[mIndex].mValue.rebind (ARGV<String<STRU8>>::null ()).self ;
 	}
 
 	template <class _ARG1>
@@ -1139,54 +1139,54 @@ public:
 	}
 
 	BOOL value (const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (StringProc::parse_bools<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAR64 value (const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (StringProc::parse_var64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL32 value (const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (StringProc::parse_val32s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	VAL64 value (const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (StringProc::parse_val64s<STRU8>) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU8> value (const String<STRU8> &def) const {
-		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (&_COPY_<String<STRU8>>) ;
+		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (_COPY_<String<STRU8>>) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU16> value (const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (StringProc::cvt_u8s_u16s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRU32> value (const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (StringProc::cvt_u8s_u32s) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRA> value (const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (StringProc::cvt_u8s_as) ;
 		return value (def ,r1x) ;
 	}
 
 	String<STRW> value (const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (StringProc::cvt_u8s_ws) ;
 		return value (def ,r1x) ;
 	}
 
@@ -1213,7 +1213,7 @@ private:
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
-			auto &r1x = mHeap.self[i].mValue.rebind (_NULL_<ARGV<SoftSet<String<STRU8>>>> ()).self ;
+			auto &r1x = mHeap.self[i].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null ()).self ;
 			for (auto &&j : r1x)
 				ret.add (DEPTR[j.key]) ;
 		}
@@ -1356,7 +1356,7 @@ private:
 
 	//@info: $4->$1|$2|$2x|$3|$6|$9
 	void update_shift_e4 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<RecursiveCounter>> () ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null () ,mRecursiveCounter)) ;
 		INDEX ix = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
@@ -1428,7 +1428,7 @@ private:
 		INDEX iy = VAR_NONE ;
 		while (TRUE) {
 			update_shift_e4 (curr) ;
-			auto &r1x = mNodeHeap[curr].mValue.rebind (_NULL_<ARGV<SoftSet<INDEX>>> ()).self ;
+			auto &r1x = mNodeHeap[curr].mValue.rebind (ARGV<SoftSet<INDEX>>::null ()).self ;
 			const auto r2x = r1x.length () ;
 			r1x.add (r2x ,mLatestIndex) ;
 			auto &r3x = _SWITCH_ (
@@ -1447,7 +1447,7 @@ private:
 
 	//@info: $6->[ ]|[ $5 ]
 	void update_shift_e6 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<RecursiveCounter>> () ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null () ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("[") ;
 		INDEX ix = mNodeHeap.alloc () ;
 		mNodeHeap[ix].mValue = AnyRef<SoftSet<INDEX>>::make (mArraySoftSet.share ()) ;
@@ -1475,7 +1475,7 @@ private:
 		mRis >> _PCSTRU8_ (":") ;
 		mRis >> RegularReader::SKIP_GAP ;
 		update_shift_e4 (curr) ;
-		auto &r2x = mNodeHeap[curr].mValue.rebind (_NULL_<ARGV<SoftSet<String<STRU8>>>> ()).self ;
+		auto &r2x = mNodeHeap[curr].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null ()).self ;
 		r2x.add (r1x ,mLatestIndex) ;
 	}
 
@@ -1501,7 +1501,7 @@ private:
 
 	//@info: $9->{ }|{ $8 }
 	void update_shift_e9 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (_NULL_<ARGV<RecursiveCounter>> () ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null () ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("{") ;
 		INDEX ix = mNodeHeap.alloc () ;
 		mNodeHeap[ix].mValue = AnyRef<SoftSet<String<STRU8>>>::make (mObjectSoftSet.share ()) ;
@@ -1600,7 +1600,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x.mP2 == M_NODE_X1))
 				discard ;
-			auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (_NULL_<ARGV<String<STRU8>>> ()).self ;
+			auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<String<STRU8>>::null ()).self ;
 			writer << _PCSTRU8_ ("\"") ;
 			writer << r3x ;
 			writer << _PCSTRU8_ ("\"") ;
@@ -1613,7 +1613,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x.mP2 == M_NODE_X1))
 				discard ;
-			auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (_NULL_<ARGV<SoftSet<INDEX>>> ()).self ;
+			auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::null ()).self ;
 			rbx.clear () ;
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
 			INDEX ir = 0 ;
@@ -1639,7 +1639,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x.mP2 == M_NODE_X1))
 				discard ;
-			auto &r5x = mHeap.self[r2x.mP1].mValue.rebind (_NULL_<ARGV<SoftSet<String<STRU8>>>> ()).self ;
+			auto &r5x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null ()).self ;
 			rbx.clear () ;
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
 			INDEX ir = 0 ;
@@ -1786,54 +1786,54 @@ public:
 	}
 
 	BOOL attribute (const String<STRU8> &tag ,const BOOL &def) const {
-		const auto r1x = Function<BOOL (const String<STRU8> &)> (&StringProc::parse_bools<STRU8>) ;
+		const auto r1x = Function<BOOL (const String<STRU8> &)> (StringProc::parse_bools<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
-		const auto r1x = Function<VAR32 (const String<STRU8> &)> (&StringProc::parse_var32s<STRU8>) ;
+		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAR64 attribute (const String<STRU8> &tag ,const VAR64 &def) const {
-		const auto r1x = Function<VAR64 (const String<STRU8> &)> (&StringProc::parse_var64s<STRU8>) ;
+		const auto r1x = Function<VAR64 (const String<STRU8> &)> (StringProc::parse_var64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL32 attribute (const String<STRU8> &tag ,const VAL32 &def) const {
-		const auto r1x = Function<VAL32 (const String<STRU8> &)> (&StringProc::parse_val32s<STRU8>) ;
+		const auto r1x = Function<VAL32 (const String<STRU8> &)> (StringProc::parse_val32s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	VAL64 attribute (const String<STRU8> &tag ,const VAL64 &def) const {
-		const auto r1x = Function<VAL64 (const String<STRU8> &)> (&StringProc::parse_val64s<STRU8>) ;
+		const auto r1x = Function<VAL64 (const String<STRU8> &)> (StringProc::parse_val64s<STRU8>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU8> attribute (const String<STRU8> &tag ,const String<STRU8> &def) const {
-		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (&_COPY_<String<STRU8>>) ;
+		const auto r1x = Function<String<STRU8> (const String<STRU8> &)> (_COPY_<String<STRU8>>) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU16> attribute (const String<STRU8> &tag ,const String<STRU16> &def) const {
-		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (&StringProc::cvt_u8s_u16s) ;
+		const auto r1x = Function<String<STRU16> (const String<STRU8> &)> (StringProc::cvt_u8s_u16s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRU32> attribute (const String<STRU8> &tag ,const String<STRU32> &def) const {
-		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (&StringProc::cvt_u8s_u32s) ;
+		const auto r1x = Function<String<STRU32> (const String<STRU8> &)> (StringProc::cvt_u8s_u32s) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRA> attribute (const String<STRU8> &tag ,const String<STRA> &def) const {
-		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (&StringProc::cvt_u8s_as) ;
+		const auto r1x = Function<String<STRA> (const String<STRU8> &)> (StringProc::cvt_u8s_as) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 
 	String<STRW> attribute (const String<STRU8> &tag ,const String<STRW> &def) const {
-		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (&StringProc::cvt_u8s_ws) ;
+		const auto r1x = Function<String<STRW> (const String<STRU8> &)> (StringProc::cvt_u8s_ws) ;
 		return attribute (tag ,def ,r1x) ;
 	}
 

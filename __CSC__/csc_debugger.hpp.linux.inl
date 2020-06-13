@@ -358,7 +358,7 @@ private:
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
 		const auto r1x = GlobalRuntime::clock_now () ;
-		mLogWriter << StringProc::build_hours (_NULL_<ARGV<STR>> () ,r1x) ;
+		mLogWriter << StringProc::build_hours (ARGV<STR>::null () ,r1x) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -425,16 +425,16 @@ class DebuggerService::Private::Implement
 public:
 	void abort_once_invoked_exit (const BOOL &flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		const auto r1x = _FORWARD_<PTR<void ()>> ([] () noexcept {
+		const auto r1x = Function<void ()> ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r2x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r2x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r3x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r3x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r4x = _FORWARD_<PTR<void (VAR32)>> ([] (VAR32) noexcept {
+		const auto r4x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
 		api::atexit (r1x) ;
@@ -463,7 +463,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<VOID>> ret = Array<PTR<VOID>> (address.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				auto &r2x = _LOAD_UNSAFE_ (_NULL_<ARGV<NONE>> () ,address[i]) ;
+				auto &r2x = _LOAD_UNSAFE_ (ARGV<NONE>::null () ,address[i]) ;
 				ret[i] = DEPTR[r2x] ;
 			}
 			return _MOVE_ (ret) ;
@@ -478,7 +478,7 @@ public:
 		Array<String<STR>> ret = Array<String<STR>> (address.length ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			const auto r4x = StringProc::build_hex16s (_NULL_<ARGV<STR>> () ,address[i]) ;
+			const auto r4x = StringProc::build_hex16s (ARGV<STR>::null () ,address[i]) ;
 			const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[PTRTOARR[r3x.self][i]])) ;
 			ret[iw++] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 		}

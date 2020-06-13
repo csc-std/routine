@@ -795,30 +795,30 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 }
 
 inline exports String<STRU8> StringProc::cvt_ws_u8s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU8 ,STRUW>::invoke (_CAST_ (_NULL_<ARGV<String<STRUW>>> () ,val)) ;
+	return U::OPERATOR_STRING<STRU8 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null () ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u8s_ws (const String<STRU8> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU8>::invoke (val) ;
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRW>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null () ,ret)) ;
 }
 
 inline exports String<STRU16> StringProc::cvt_ws_u16s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU16 ,STRUW>::invoke (_CAST_ (_NULL_<ARGV<String<STRUW>>> () ,val)) ;
+	return U::OPERATOR_STRING<STRU16 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null () ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u16s_ws (const String<STRU16> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU16>::invoke (val) ;
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRW>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null () ,ret)) ;
 }
 
 inline exports String<STRU32> StringProc::cvt_ws_u32s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU32 ,STRUW>::invoke (_CAST_ (_NULL_<ARGV<String<STRUW>>> () ,val)) ;
+	return U::OPERATOR_STRING<STRU32 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null () ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u32s_ws (const String<STRU32> &val) {
 	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU32>::invoke (val) ;
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRW>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null () ,ret)) ;
 }
 
 inline exports String<STRU8> StringProc::cvt_as_u8s (const String<STRA> &val) {
@@ -847,7 +847,7 @@ inline exports String<STRA> StringProc::cvt_u32s_as (const String<STRU32> &val) 
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
-	String<STRU8> ret = _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRUA>>> () ,val)) ;
+	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::null () ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
@@ -857,7 +857,7 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 	_STATIC_ASSERT_ (stl::is_same<STRUA ,STRU8>::value) ;
-	String<STRU8> ret = _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRUA>>> () ,val)) ;
+	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::null () ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
@@ -872,7 +872,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRA>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::null () ,ret)) ;
 }
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
@@ -882,7 +882,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRA>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::null () ,ret)) ;
 }
 
 class GBKSStaticProc
@@ -908,7 +908,7 @@ inline exports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &GBKS
 
 inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 	auto &r1x = GBKSStaticProc::static_cvt_gbks_ws_table () ;
-	auto &r2x = _CAST_ (_NULL_<ARGV<String<STRUA>>> () ,val) ;
+	auto &r2x = _CAST_ (ARGV<String<STRUA>>::null () ,val) ;
 	String<STRW> ret = String<STRW> (r2x.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -1030,7 +1030,7 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
-	return _MOVE_ (_CAST_ (_NULL_<ARGV<String<STRA>>> () ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::null () ,ret)) ;
 }
 
 template <class _ARG1>
