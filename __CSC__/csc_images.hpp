@@ -87,23 +87,23 @@ public:
 
 	inline void operator++ () {
 		mIndex++ ;
-		template_incrase (ARGV<DECREASE<SIZE>>::null ()) ;
+		template_incrase (ARGV<DECREASE<SIZE>>::null) ;
 	}
 
 private:
-	void template_incrase (const ARGV<ZERO> &) {
+	void template_incrase (const ARGVF<ZERO> &) {
 		_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
 		mItem[0]++ ;
 	}
 
 	template <class _ARG1>
-	void template_incrase (const ARGV<_ARG1> &) {
+	void template_incrase (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 		mItem[_ARG1::value]++ ;
 		if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
 			return ;
 		mItem[_ARG1::value] = 0 ;
-		template_incrase (ARGV<DECREASE<_ARG1>>::null ()) ;
+		template_incrase (ARGV<DECREASE<_ARG1>>::null) ;
 	}
 } ;
 
@@ -786,7 +786,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _RET = DEF<typename Private::template NativeProxy<_ARG1>>>
-	_RET native (const ARGV<_ARG1> &) side_effects {
+	_RET native (const ARGVF<_ARG1> &) side_effects {
 		struct Dependent ;
 		using NativeProxy = typename DEPENDENT_TYPE<Private ,Dependent>::template NativeProxy<_ARG1> ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
@@ -898,7 +898,7 @@ public:
 		_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
 		_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
-		return mBase->mThis->mHolder.rebind (ARGV<UNIT_>::null ()).self ;
+		return mBase->mThis->mHolder.rebind (ARGV<UNIT_>::null).self ;
 	}
 } ;
 } ;

@@ -273,20 +273,6 @@ template <class ITEM>
 using ARRAY8 = Array<ITEM ,ARGC<8>> ;
 template <class ITEM>
 using ARRAY9 = Array<ITEM ,ARGC<9>> ;
-template <class ITEM>
-using ARRAY10 = Array<ITEM ,ARGC<10>> ;
-template <class ITEM>
-using ARRAY11 = Array<ITEM ,ARGC<11>> ;
-template <class ITEM>
-using ARRAY12 = Array<ITEM ,ARGC<12>> ;
-template <class ITEM>
-using ARRAY13 = Array<ITEM ,ARGC<13>> ;
-template <class ITEM>
-using ARRAY14 = Array<ITEM ,ARGC<14>> ;
-template <class ITEM>
-using ARRAY15 = Array<ITEM ,ARGC<15>> ;
-template <class ITEM>
-using ARRAY16 = Array<ITEM ,ARGC<16>> ;
 
 namespace U {
 struct CONSTEXPR_RESERVE_SIZE {

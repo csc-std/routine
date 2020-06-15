@@ -104,9 +104,9 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGR>>::null () ,_ADDRESS_ (r2x)) ;
+		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r2x)) ;
 		layout.mImage = DEPTR[r3x] ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
@@ -159,7 +159,7 @@ public:
 		} ,[] (HFIMEMORY &me) {
 			api::FreeImage_CloseMemory (me) ;
 		}) ;
-		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null ())->self ;
+		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null)->self ;
 		const auto r3x = api::FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
@@ -178,7 +178,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = StringProc::build_strs (ARGV<STRA>::null () ,file) ;
+		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
@@ -200,8 +200,8 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
-		const auto r2x = StringProc::build_strs (ARGV<STRA>::null () ,file) ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
+		const auto r2x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		const auto r3x = api::FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}
@@ -221,9 +221,9 @@ public:
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGRA>>::null () ,_ADDRESS_ (r2x)) ;
+		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r2x)) ;
 		layout.mImage = DEPTR[r3x] ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
@@ -276,7 +276,7 @@ public:
 		} ,[] (HFIMEMORY &me) {
 			api::FreeImage_CloseMemory (me) ;
 		}) ;
-		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null ())->self ;
+		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null)->self ;
 		const auto r3x = api::FreeImage_SaveToMemory (FIF_BMP ,r2x ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		auto rax = PACK<PTR<BYTE> ,VARY> () ;
@@ -295,7 +295,7 @@ public:
 	}
 
 	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
-		const auto r1x = StringProc::build_strs (ARGV<STRA>::null () ,file) ;
+		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
@@ -317,8 +317,8 @@ public:
 
 	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
-		const auto r2x = StringProc::build_strs (ARGV<STRA>::null () ,file) ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
+		const auto r2x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		const auto r3x = api::FreeImage_Save (FIF_JPEG ,r1x ,r2x.raw ().self) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 	}

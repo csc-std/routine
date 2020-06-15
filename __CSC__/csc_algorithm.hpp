@@ -599,67 +599,72 @@ private:
 		}
 	}
 
+#if FALSE
+	void update_lack_weight_e0 (const INDEX &y) {
+		//@info: $0
+		mLackWeight[0] = 0 ;
+		*mLackWeight[1] = +mInfinity ;
+		//@info: $1
+		auto rax = FALSE ;
+		*update_lack_weight_e7 (0 ,y ,rax) ;
+		//@info: $18
+		if (rax) {
+			//@info: $19
+			mLackWeight[0] = 0 ;
+			*mLackWeight[1] = +mInfinity ;
+		}
+		//@info: $20
+	}
+
+	void update_lack_weight_e7 (const INDEX &stack_x ,const INDEX &stack_y ,BOOL &stack_ret) {
+		//@info: $7
+		if (stack_y == VAR_NONE) {
+			//@info: $2
+			stack_ret = TRUE ;
+			//@info: $17
+			return ;
+		}
+		//@info: $3
+		mYVisit[stack_y] = TRUE ;
+		*stack_x = 0 ;
+		//@info: $4
+		while (stack_x < mAdjacency.cx ()) {
+			//@info: $5
+			if (!mXVisit[stack_x]) {
+				//@info: $6
+				mLackWeight[0] = mYWeight[stack_y] + mXWeight[stack_x] - mAdjacency[stack_y][stack_x] ;
+				//@info: $9
+				if (mLackWeight[0] < mTolerance) {
+					//@info: $8
+					mXVisit[stack_x] = TRUE ;
+					update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
+					//@info: $10
+					if (stack_ret) {
+						//@info: $11
+						mXYLink[stack_x] = stack_y ;
+						*stack_ret = TRUE ;
+						//@info: $17
+						return ;
+					}
+				} else {
+					//@info: $14
+					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
+				}
+			}
+			//@info: $15
+			stack_x++ ;
+		}
+		//@info: $16
+		stack_ret = FALSE ;
+		//@info: $17
+		return ;
+	}
+#endif
+
 	void update_lack_weight (const INDEX &y) {
 		/*
-		*	void update_lack_weight_e0 (const INDEX &y) {
-		*		//@info: $0
-		*		mLackWeight[0] = 0 ;
-		*		mLackWeight[1] = +mInfinity ;
-		*		//@info: $1
-		*		auto rax = FALSE ;
-		*		update_lack_weight_e7 (0 ,y ,rax) ;
-		*		//@info: $18
-		*		if (rax) {
-		*			//@info: $19
-		*			mLackWeight[0] = 0 ;
-		*			mLackWeight[1] = +mInfinity ;
-		*		}
-		*		//@info: $20
-		*	}
-		*
-		*	void update_lack_weight_e7 (const INDEX &stack_x ,const INDEX &stack_y ,BOOL &stack_ret) {
-		*		//@info: $7
-		*		if (stack_y == VAR_NONE) {
-		*			//@info: $2
-		*			stack_ret = TRUE ;
-		*			//@info: $17
-		*			return ;
-		*		}
-		*		//@info: $3
-		*		mYVisit[stack_y] = TRUE ;
-		*		stack_x = 0 ;
-		*		//@info: $4
-		*		while (stack_x < mAdjacency.cx ()) {
-		*			//@info: $5
-		*			if (!mXVisit[stack_x]) {
-		*				//@info: $6
-		*				mLackWeight[0] = mYWeight[stack_y] + mXWeight[stack_x] - mAdjacency[stack_y][stack_x] ;
-		*				//@info: $9
-		*				if (mLackWeight[0] < mTolerance) {
-		*					//@info: $8
-		*					mXVisit[stack_x] = TRUE ;
-		*					update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
-		*					//@info: $10
-		*					if (stack_ret) {
-		*						//@info: $11
-		*						mXYLink[stack_x] = stack_y ;
-		*						stack_ret = TRUE ;
-		*						//@info: $17
-		*						return ;
-		*					}
-		*				} else {
-		*					//@info: $14
-		*					mLackWeight[1] = MathProc::minof (mLackWeight[1] ,mLackWeight[0]) ;
-		*				}
-		*			}
-		*			//@info: $15
-		*			stack_x++ ;
-		*		}
-		*		//@info: $16
-		*		stack_ret = FALSE ;
-		*		//@info: $17
-		*		return ;
-		*	}
+		*	update_lack_weight_e0
+		*	update_lack_weight_e7
 		*/
 		static constexpr auto M_STATE = PACK<EFLAG[22]> ({
 			EFLAG (0) ,EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,

@@ -169,14 +169,14 @@ public:
 			me = api::glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = api::glCreateShader (GL_VERTEX_SHADER) ;
-			const auto r2x = _LOAD_ (ARGV<ARR<STRA>>::null () ,DEPTR[vs.self]) ;
+			const auto r2x = _LOAD_ (ARGV<ARR<STRA>>::null ,DEPTR[vs.self]) ;
 			const auto r3x = VAR32 (vs.size ()) ;
 			api::glShaderSource (r1x ,1 ,DEPTR[r2x] ,DEPTR[r3x]) ;
 			api::glCompileShader (r1x) ;
 			compute_check_shaderiv (r1x) ;
 			api::glAttachShader (me ,r1x) ;
 			const auto r4x = api::glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r5x = _LOAD_ (ARGV<ARR<STRA>>::null () ,DEPTR[fs.self]) ;
+			const auto r5x = _LOAD_ (ARGV<ARR<STRA>>::null ,DEPTR[fs.self]) ;
 			const auto r6x = VAR32 (fs.size ()) ;
 			api::glShaderSource (r4x ,1 ,DEPTR[r5x] ,DEPTR[r6x]) ;
 			api::glCompileShader (r4x) ;
@@ -191,12 +191,12 @@ public:
 	}
 
 	void compute_active_pipeline (AnyRef<void> &holder) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		api::glUseProgram (r1x) ;
 	}
 
 	void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (api::glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
@@ -236,7 +236,7 @@ public:
 
 	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL32> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
-		const auto r1x = ARRAY16<VAL32> ({
+		const auto r1x = Array<VAL32 ,ARGC<16>> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
 			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,
 			data[2][0] ,data[2][1] ,data[2][2] ,data[2][3] ,
@@ -246,7 +246,7 @@ public:
 
 	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL64> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
-		const auto r1x = ARRAY16<VAL64> ({
+		const auto r1x = Array<VAL64 ,ARGC<16>> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
 			data[1][0] ,data[1][1] ,data[1][2] ,data[1][3] ,
 			data[2][0] ,data[2][1] ,data[2][2] ,data[2][3] ,
@@ -281,13 +281,13 @@ public:
 	}
 
 	void compute_sprite_active_texture (AnyRef<void> &holder ,const INDEX &texture) const override {
-		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
 	void compute_sprite_draw (AnyRef<void> &holder) const override {
-		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null ()).self ;
+		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
 		api::glBindVertexArray (r1x.mVAO) ;
 		if switch_once (TRUE) {
 			if (r1x.mTexture == VAR_NONE)
