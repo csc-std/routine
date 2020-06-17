@@ -13,9 +13,6 @@ template <class BASE>
 class ArrayIterator
 	:private Proxy {
 private:
-	using ITEM_TYPE = DEF<decltype (_NULL_<BASE> ().get (_NULL_<const INDEX> ()))> ;
-
-private:
 	friend BASE ;
 	BASE &mBase ;
 	INDEX mIndex ;
@@ -30,12 +27,13 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline ITEM_TYPE operator* () const leftvalue {
-		return mBase.get (_XVALUE_<const INDEX> (mIndex)) ;
+	template <class _RET = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))>>
+	inline _RET operator* () const leftvalue {
+		return mBase.get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 
 	inline void operator++ () {
-		mIndex = mBase.inext (_XVALUE_<const INDEX> (mIndex)) ;
+		mIndex = mBase.inext (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 } ;
 
@@ -276,7 +274,7 @@ using ARRAY9 = Array<ITEM ,ARGC<9>> ;
 
 namespace U {
 struct CONSTEXPR_RESERVE_SIZE {
-	imports constexpr LENGTH compile (const LENGTH &len) {
+	imports constexpr LENGTH invoke (const LENGTH &len) {
 		return len + _EBOOL_ (len > 0) ;
 	}
 } ;
@@ -291,7 +289,7 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mString ;
+	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mString ;
 
 public:
 	String () {
@@ -299,7 +297,7 @@ public:
 	}
 
 	explicit String (const LENGTH &len)
-		:String (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
+		:String (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
 		clear () ;
 	}
 
@@ -593,7 +591,7 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mDeque ;
+	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -603,7 +601,7 @@ public:
 	}
 
 	explicit Deque (const LENGTH &len)
-		:Deque (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
+		:Deque (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
 		clear () ;
 	}
 
@@ -965,7 +963,7 @@ private:
 	} ;
 
 private:
-	Buffer<NODE ,ARGC<U::CONSTEXPR_RESERVE_SIZE::compile (SIZE::value)>> mPriority ;
+	Buffer<NODE ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -975,7 +973,7 @@ public:
 	}
 
 	explicit Priority (const LENGTH &len)
-		:Priority (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::compile (len)) {
+		:Priority (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
 		clear () ;
 	}
 
@@ -1031,7 +1029,7 @@ public:
 	}
 
 	//@warn: index would be no longer valid every time revised
-	template <class _RET = DEF<typename Private::template Pair<Priority>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Priority>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
@@ -1039,13 +1037,13 @@ public:
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<Priority>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Priority>>>
 	inline _RET operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
-	template <class _RET = DEF<typename Private::template Pair<const Priority>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Priority>>>
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
@@ -1053,7 +1051,7 @@ public:
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const Priority>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Priority>>>
 	inline _RET operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
@@ -1068,14 +1066,14 @@ public:
 	INDEX at (const DEF<typename Private::template Pair<Priority>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const Priority>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
@@ -1352,7 +1350,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_<_ARGS> (initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
@@ -1761,7 +1759,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_<_ARGS> (initval)...) ,mSeq (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mSeq (VAR_NONE) {}
 	} ;
 
 	struct TREE_NODE {
@@ -2209,7 +2207,7 @@ struct CONSTEXPR_CEIL8_SIZE_SWITCH {
 } ;
 
 struct CONSTEXPR_CEIL8_SIZE {
-	imports constexpr LENGTH compile (const LENGTH &len) {
+	imports constexpr LENGTH invoke (const LENGTH &len) {
 		return _SWITCH_ (
 			(len <= 0) ? CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case1 :
 			CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case2)
@@ -2230,7 +2228,7 @@ private:
 	} ;
 
 private:
-	Buffer<BYTE ,ARGC<U::CONSTEXPR_CEIL8_SIZE::compile (SIZE::value)>> mSet ;
+	Buffer<BYTE ,ARGC<U::CONSTEXPR_CEIL8_SIZE::invoke (SIZE::value)>> mSet ;
 	LENGTH mWidth ;
 
 public:
@@ -2240,7 +2238,7 @@ public:
 	}
 
 	explicit BitSet (const LENGTH &len)
-		:BitSet (ARGVP0 ,U::CONSTEXPR_CEIL8_SIZE::compile (len) ,forward_width (len)) {
+		:BitSet (ARGVP0 ,U::CONSTEXPR_CEIL8_SIZE::invoke (len) ,forward_width (len)) {
 		clear () ;
 	}
 
@@ -2320,7 +2318,7 @@ public:
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	template <class _RET = DEF<typename Private::template Bit<BitSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<BitSet>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
@@ -2328,13 +2326,13 @@ public:
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Bit<BitSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<BitSet>>>
 	inline _RET operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
-	template <class _RET = DEF<typename Private::template Bit<const BitSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<const BitSet>>>
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
@@ -2342,7 +2340,7 @@ public:
 		return Bit (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Bit<const BitSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<const BitSet>>>
 	inline _RET operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
@@ -2350,7 +2348,7 @@ public:
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
-		auto &r1x = _XVALUE_<Bit> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
 		return r1x ;
@@ -2359,7 +2357,7 @@ public:
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
-		auto &r1x = _XVALUE_<Bit> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
 		if (this != DEPTR[r1x.mBase])
 			return VAR_NONE ;
 		return r1x ;
@@ -2644,7 +2642,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_<_ARGS> (initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 	struct Private {
@@ -2721,26 +2719,26 @@ public:
 		return ArrayIterator<const Set> (DEREF[this] ,iend ()) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<Set>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<Set>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
 	inline _RET operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const Set>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Set>>>
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const Set>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Set>>>
 	inline _RET operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
@@ -2752,14 +2750,14 @@ public:
 	INDEX at (const DEF<typename Private::template Pair<Set>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const Set>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
@@ -3284,7 +3282,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_<_ARGS> (initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
 	} ;
 
 	struct Private {
@@ -3361,26 +3359,26 @@ public:
 		return ArrayIterator<const HashSet> (DEREF[this] ,iend ()) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<HashSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<HashSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
 	inline _RET operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const HashSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const HashSet>>>
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const HashSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const HashSet>>>
 	inline _RET operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
@@ -3392,14 +3390,14 @@ public:
 	INDEX at (const DEF<typename Private::template Pair<HashSet>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const HashSet>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
@@ -3601,7 +3599,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_<_ARGS> (initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
 	} ;
 
 	struct HEAP_PACK {
@@ -3695,7 +3693,7 @@ public:
 		return ArrayIterator<const SoftSet> (DEREF[this] ,iend ()) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<SoftSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
@@ -3703,12 +3701,12 @@ public:
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<SoftSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
 	inline _RET operator[] (const INDEX &index) leftvalue {
 		return get (index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const SoftSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const SoftSet>>>
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
@@ -3716,7 +3714,7 @@ public:
 		return Pair (DEREF[this] ,index) ;
 	}
 
-	template <class _RET = DEF<typename Private::template Pair<const SoftSet>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const SoftSet>>>
 	inline _RET operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
@@ -3728,14 +3726,14 @@ public:
 	INDEX at (const DEF<typename Private::template Pair<SoftSet>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 
 	INDEX at (const DEF<typename Private::template Pair<const SoftSet>> &item) const {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
-		auto &r1x = _XVALUE_<Pair> (item) ;
+		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
 		return at (r1x.key) ;
 	}
 

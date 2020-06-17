@@ -127,7 +127,7 @@ public:
 	}
 
 	Matrix<REAL> view_matrix () const {
-		const auto r1x = Function<DEF<void (Matrix<REAL> &)> NONE::*> (PhanRef<const Camera>::make (DEREF[this]) ,&Camera::compute_view_matrix) ;
+		const auto r1x = Function<MEMPTR<void (Matrix<REAL> &)>> (PhanRef<const Camera>::make (DEREF[this]) ,&Camera::compute_view_matrix) ;
 		mViewMatrix.apply (r1x) ;
 		return mViewMatrix ;
 	}
@@ -377,7 +377,7 @@ public:
 		mAbstract->compute_uniform_write (mHolder ,ix ,data) ;
 	}
 
-	template <class _RET = AbstractSprite>
+	template <class _RET = REMOVE_CVR_TYPE<AbstractSprite>>
 	_RET create_sprite () side_effects {
 		struct Dependent ;
 		using AbstractSprite = DEPENDENT_TYPE<AbstractSprite ,Dependent> ;

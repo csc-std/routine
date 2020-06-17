@@ -802,11 +802,11 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 }
 
 inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
-	return _XVALUE_<Implement> (mThis).watch () ;
+	return _XVALUE_ (ARGV<Implement>::null ,mThis).watch () ;
 }
 
 inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
-	return _XVALUE_<const Implement> (mThis).watch () ;
+	return _XVALUE_ (ARGV<const Implement>::null ,mThis).watch () ;
 }
 
 inline exports void BufferLoader::flush () {

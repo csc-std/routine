@@ -65,12 +65,12 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 
 namespace U {
 struct OPERATOR_COMPR {
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().compr (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ()))> ,FLAG>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> () < _NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ())> ,BOOL>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
 		if (lhs < rhs)
 			return FLAG (-1) ;
@@ -113,7 +113,7 @@ inline exports FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG
 
 namespace U {
 struct OPERATOR_HASH {
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_<const REMOVE_REFERENCE_TYPE<_ARG1>> ().hash ())> ,FLAG>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
 	}
@@ -422,7 +422,7 @@ public:
 	template <class _ARG1>
 	explicit ScopedGuard (_ARG1 &address) side_effects
 		:ScopedGuard (ARGVP0) {
-		auto &r1x = _XVALUE_<UNIT> (address) ;
+		auto &r1x = _XVALUE_ (ARGV<UNIT>::null ,address) ;
 		r1x.lock () ;
 		mPointer = DEPTR[r1x] ;
 	}
@@ -462,11 +462,11 @@ public:
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval) side_effects
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _XVALUE_<PTR<TEMP<UNIT>>> (address) ;
+		auto &r1x = _XVALUE_ (ARGV<PTR<TEMP<UNIT>>>::null ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
-		_CREATE_ (r1x ,_FORWARD_<_ARGS> (initval)...) ;
+		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		mSize++ ;
 	}
 
@@ -509,7 +509,7 @@ public:
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len) side_effects
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
+		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
@@ -524,7 +524,7 @@ public:
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len) side_effects
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _XVALUE_<PTR<ARR<TEMP<UNIT>>>> (address) ;
+		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
@@ -614,7 +614,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_<_ARGS> (initval)...) {}
+			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 	} ;
 
 private:
@@ -674,7 +674,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_<_ARGS> (initval)...) {}
+			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 	} ;
 
 private:
@@ -700,8 +700,8 @@ public:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_<const UNIT> (that.mPointer->mValue)) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_ (ARGV<const UNIT>::null ,that.mPointer->mValue)) ;
+		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
 		mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 	}
@@ -786,8 +786,8 @@ public:
 	template <class... _ARGS>
 	imports AutoRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
 		AutoRef ret = AutoRef (DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -814,7 +814,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_<_ARGS> (initval)...) ,mCounter (0) {}
+			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mCounter (0) {}
 	} ;
 
 private:
@@ -893,8 +893,8 @@ public:
 	template <class... _ARGS>
 	imports SharedRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_<PTR<TEMP<Holder>>> (rax)) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
 		SharedRef ret = SharedRef (DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1108,8 +1108,8 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		AnyRef ret = AnyRef (DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1136,7 +1136,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_<_ARGS> (initval)...) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	FLAG typemid () const override {
 		return _TYPEMID_ (ARGV<UNIT_>::null) ;
@@ -1185,9 +1185,9 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function_FUNC_HINT (_FORWARD_<_ARG2> (destructor)) ;
+		const auto r1x = Function_FUNC_HINT (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		constructor () ;
 		mPointer = DEPTR[r2x] ;
 		rax = NULL ;
@@ -1244,7 +1244,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	void release () override {
 		mFunctor () ;
@@ -1288,9 +1288,9 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function_FUNC_HINT (_FORWARD_<_ARG2> (destructor)) ;
+		const auto r1x = Function_FUNC_HINT (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		constructor (r2x.mValue) ;
 		mPointer = DEPTR[r2x] ;
 		rax = NULL ;
@@ -1357,9 +1357,9 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function_FUNC_HINT ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		r2x.mValue = UNIT (_FORWARD_<_ARGS> (initval)...) ;
-		const auto r3x = DEPTR[_XVALUE_<Holder> (r2x)] ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		r2x.mValue = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		const auto r3x = DEPTR[_XVALUE_ (ARGV<Holder>::null ,r2x)] ;
 		UniqueRef ret = UniqueRef (r3x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1387,7 +1387,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	const UNIT &deref () const leftvalue override {
 		return mValue ;
@@ -1475,7 +1475,7 @@ public:
 	imports PhanRef make (const PhanRef<_ARG1> &val) {
 		if (!val.exist ())
 			return PhanRef () ;
-		return make (_XVALUE_<UNIT> (val.self)) ;
+		return make (_XVALUE_ (ARGV<UNIT>::null ,val.self)) ;
 	}
 } ;
 
@@ -1537,8 +1537,8 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_<_ARG1> (that)) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		mPointer = DEPTR[r1x] ;
 		mFunctor = U::OPERATOR_FUNCTOR::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x.mFunctor) ;
 		rax = NULL ;
@@ -1596,12 +1596,12 @@ public:
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		if (mFunctor != NULL)
-			return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
-		return mPointer->invoke (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+			return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return mPointer->invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
-		return invoke (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 public:
@@ -1611,8 +1611,8 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,functor ,parameter...) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_<PTR<TEMP<ImplHolder>>> (rax)) ;
-		const auto r2x = DEPTR[_XVALUE_<Holder> (r1x)] ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		const auto r2x = DEPTR[_XVALUE_ (ARGV<Holder>::null ,r1x)] ;
 		Function ret = Function (r2x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1641,21 +1641,15 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
-namespace U {
-//@error: fuck vs2017
-template <class _ARG1 ,class... _ARGS>
-using MEMBER_FUNCTION_HINT = DEF<DEF<_ARG1 (_ARGS...)> NONE::*> ;
-} ;
-
 template <class UNIT1 ,class... UNITS>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>> final {
+class Function<MEMPTR<UNIT1 (UNITS...)>> final {
 #pragma push_macro ("fake")
 #undef fake
 #define fake m_fake ()
@@ -1674,7 +1668,7 @@ private:
 		:public Holder {
 	private:
 		PTR<NONE> mContext ;
-		DEF<DEF<UNIT1 (UNITS...)> NONE::*> mFunctor ;
+		MEMPTR<UNIT1 (UNITS...)> mFunctor ;
 
 	public:
 		FakeHolder () = delete ;
@@ -1687,7 +1681,7 @@ private:
 	struct Private {
 		class PureHolder ;
 
-		template <class>
+		template <class ,class>
 		class ImplHolder ;
 	} ;
 
@@ -1708,18 +1702,26 @@ public:
 	}
 
 	template <class _ARG1>
-	explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...)> _ARG1::*> &functor)
+	explicit Function (const PhanRef<_ARG1> &context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP1)>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
 	}
 
 	template <class _ARG1>
-	explicit Function (const PhanRef<const _ARG1> &context_ ,const DEF<DEF<UNIT1 (UNITS...) const> _ARG1::*> &functor)
+	explicit Function (const PhanRef<const _ARG1> &context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<const _ARG1> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP2)>> ;
+		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<!stl::is_function<_ARG2>::value>>
+	explicit Function (const PhanRef<_ARG1> &context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
+		:Function (ARGVP0) {
+		struct Dependent ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP3)>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
 	}
 
@@ -1727,7 +1729,7 @@ public:
 	explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<UNIT1 (_ARG1 & ,UNITS...)> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<_ARG1>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP4)>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
 	}
 
@@ -1759,7 +1761,7 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = _CAST_ (ARGV<FLAG>::null ,_XVALUE_<Interface> (fake)) ;
+		const auto r1x = _CAST_ (ARGV<FLAG>::null ,_XVALUE_ (ARGV<Interface>::null ,fake)) ;
 		if (r1x == VAR_ZERO)
 			return FALSE ;
 		return TRUE ;
@@ -1767,11 +1769,11 @@ public:
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return fake.invoke (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return fake.invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
-		return invoke (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 private:
@@ -1793,17 +1795,17 @@ private:
 	imports void static_create (const ARGVF<_ARG1> & ,const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) {
 		_STATIC_ASSERT_ (stl::is_constructible<_ARG1 ,_ARGS &&...>::value) ;
 		auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null ,address) ;
-		auto &r2x = _XVALUE_<Holder> (_CAST_ (ARGV<_ARG1>::null ,r1x)) ;
-		auto &r3x = _XVALUE_<Holder> (_CAST_ (ARGV<FakeHolder>::null ,DEREF[address])) ;
+		auto &r2x = _XVALUE_ (ARGV<Holder>::null ,_CAST_ (ARGV<_ARG1>::null ,r1x)) ;
+		auto &r3x = _XVALUE_ (ARGV<Holder>::null ,_CAST_ (ARGV<FakeHolder>::null ,DEREF[address])) ;
 		_DYNAMIC_ASSERT_ (DEPTR[r2x] == DEPTR[r3x]) ;
-		_CREATE_ (DEPTR[r1x] ,_FORWARD_<_ARGS> (funcval)...) ;
+		_CREATE_ (DEPTR[r1x] ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)...) ;
 	}
 
 #pragma pop_macro ("fake")
 } ;
 
 template <class UNIT1 ,class... UNITS>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::PureHolder
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::PureHolder
 	:public Holder {
 private:
 	Function<UNIT1 (UNITS...)> mFunctor ;
@@ -1811,64 +1813,88 @@ private:
 public:
 	template <class... _ARGS>
 	explicit PureHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		static_create (ARGV<PureHolder>::null ,address ,mFunctor) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP1)>>
 	:public Holder {
 private:
-	DEF<DEF<UNIT1 (UNITS...)> UNIT_::*> mFunctor ;
+	MEMPTR<DEF<UNIT1 (UNITS...)> ,UNIT_> mFunctor ;
 	PTR<UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) ,mContext (context_) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (DEREF[mContext].*mFunctor) (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return (DEREF[mContext].*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder<const UNIT_>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP2)>>
 	:public Holder {
 private:
-	DEF<DEF<UNIT1 (UNITS...) const> UNIT_::*> mFunctor ;
+	MEMPTR<DEF<UNIT1 (UNITS...) const> ,UNIT_> mFunctor ;
 	PTR<const UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const PTR<const UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) ,mContext (context_) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (DEREF[mContext].*mFunctor) (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return (DEREF[mContext].*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<U::MEMBER_FUNCTION_HINT<UNIT1 ,UNITS...>>::Private::ImplHolder<PTR<UNIT_>>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP3)>>
+	:public Holder {
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 0) ;
+
+private:
+	MEMPTR<REMOVE_REFERENCE_TYPE<UNIT1> ,UNIT_> mFunctor ;
+	PTR<UNIT_> mContext ;
+
+public:
+	template <class... _ARGS>
+	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
+
+	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
+		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
+	}
+
+	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
+		return (DEREF[mContext].*mFunctor) ;
+	}
+} ;
+
+template <class UNIT1 ,class... UNITS>
+template <class UNIT_>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP4)>>
 	:public Holder {
 private:
 	Function<UNIT1 (UNIT_ & ,UNITS...)> mFunctor ;
@@ -1877,14 +1903,14 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_<_ARGS> (initval)...) ,mContext (context_) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return mFunctor (mContext ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return mFunctor (mContext ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
@@ -2043,7 +2069,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2069,7 +2095,7 @@ public:
 
 	ARR<UNIT> &to () leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2081,7 +2107,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2214,7 +2240,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2281,7 +2307,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2305,7 +2331,7 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_<PTR<ARR<TEMP<UNIT>>>> (rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = that.mSize ;
 		rax = NULL ;
@@ -2363,7 +2389,7 @@ public:
 
 	ARR<UNIT> &to () leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2375,7 +2401,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2520,7 +2546,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
 		return DEREF[r1x] ;
 	}
@@ -2699,7 +2725,7 @@ public:
 
 	ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_<ARR<UNIT>> () ;
+			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
 		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
 		return DEREF[r1x] ;
 	}
@@ -3255,7 +3281,7 @@ public:
 				discard ;
 			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
 			ret = mSize ;
-			_CREATE_ (DEPTR[tmp[ret].mValue] ,_FORWARD_<_ARGS> (initval)...) ;
+			_CREATE_ (DEPTR[tmp[ret].mValue] ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
 				_CREATE_ (DEPTR[tmp[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
 				tmp[i].mNext = VAR_USED ;
@@ -3265,7 +3291,7 @@ public:
 		}
 		if switch_once (fax) {
 			ret = mFree ;
-			_CREATE_ (DEPTR[mAllocator[ret].mValue] ,_FORWARD_<_ARGS> (initval)...) ;
+			_CREATE_ (DEPTR[mAllocator[ret].mValue] ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		}
 		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;

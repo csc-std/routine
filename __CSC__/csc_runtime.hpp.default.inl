@@ -257,10 +257,6 @@ inline exports Duration Duration::sub (const Duration &that) const {
 
 class TimePoint::Private::Implement {
 private:
-	using DurationImplement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<Duration> ().native ())>> ;
-	using TimePointImplement = Implement ;
-
-private:
 	api::chrono::system_clock::time_point mTimePoint ;
 
 public:
@@ -336,17 +332,17 @@ public:
 	}
 #endif
 
-	TimePoint add (const DurationImplement &that) const {
+	TimePoint add (const Duration::Implement &that) const {
 		const auto r1x = mTimePoint + that.native () ;
 		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<TimePointImplement>::make (r2x) ;
+		auto tmp = StrongRef<Implement>::make (r2x) ;
 		return TimePoint (_MOVE_ (tmp)) ;
 	}
 
-	Duration sub (const TimePointImplement &that) const {
+	Duration sub (const Implement &that) const {
 		const auto r1x = mTimePoint - that.native () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<DurationImplement>::make (r2x) ;
+		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
 		return Duration (_MOVE_ (tmp)) ;
 	}
 } ;
@@ -615,17 +611,15 @@ inline exports void Thread::join () {
 }
 
 inline exports TimePoint GlobalRuntime::clock_now () {
-	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::now () ;
-	auto tmp = StrongRef<Implement>::make (r1x) ;
+	auto tmp = StrongRef<TimePoint::Implement>::make (r1x) ;
 	return TimePoint (_MOVE_ (tmp)) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
-	using Implement = REMOVE_CVR_TYPE<DEF<decltype (_NULL_<TimePoint> ().native ())>> ;
 	const auto r1x = api::chrono::system_clock::duration::zero () ;
 	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
-	auto tmp = StrongRef<Implement>::make (r2x) ;
+	auto tmp = StrongRef<TimePoint::Implement>::make (r2x) ;
 	return TimePoint (_MOVE_ (tmp)) ;
 }
 

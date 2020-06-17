@@ -411,10 +411,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
 		api::glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
 		api::glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -439,10 +439,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
 		api::glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
 		api::glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -455,13 +455,13 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[0]] ;
 		api::glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[3]] ;
 		api::glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glEnableVertexAttribArray (LAYOUT_NORMAL) ;
-		const auto r4x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[5]] ;
+		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[5]] ;
 		api::glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -486,10 +486,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
 		api::glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_<ARRAY5<VAL32>> ()[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
 		api::glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -502,13 +502,13 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,self_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(self_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[0]] ;
 		api::glVertexAttribPointer (LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[3]] ;
 		api::glVertexAttribPointer (LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glEnableVertexAttribArray (LAYOUT_NORMAL) ;
-		const auto r4x = DEPTR[_NULL_<ARRAY8<VAL32>> ()[5]] ;
+		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[5]] ;
 		api::glVertexAttribPointer (LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		api::glBindVertexArray (0) ;
 	}

@@ -79,7 +79,7 @@ private:
 	public:
 		template <class... _ARGS>
 		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_<_ARGS> (initval)...) {}
+			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 	} ;
 
 private:
@@ -610,7 +610,7 @@ public:
 	}
 
 	template <class _ARG1>
-	void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) const {
+	void apply (const Function<MEMPTR<void (_ARG1 &)>> &proc) const {
 		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
 		if (mState != STATE_SIGNALED)
 			return ;
@@ -631,33 +631,33 @@ public:
 private:
 	template <class... _ARGS>
 	explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mValue (_FORWARD_<_ARGS> (initval)...) ,mState (STATE_CACHED) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mState (STATE_CACHED) {}
 } ;
 
 namespace U {
 struct CONSTEXPR_MAX_SIZEOF {
-	imports constexpr LENGTH compile (const ARGVF<ARGVS<>> &) {
+	imports constexpr LENGTH invoke (const ARGVF<ARGVS<>> &) {
 		return 1 ;
 	}
 
 	template <class _ARG1>
-	imports constexpr LENGTH compile (const ARGVF<_ARG1> &) {
+	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,compile (ARGV<REST_HINT>::null)) ;
+		return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,invoke (ARGV<REST_HINT>::null)) ;
 	}
 } ;
 
 struct CONSTEXPR_MAX_ALIGNOF {
-	imports constexpr LENGTH compile (const ARGVF<ARGVS<>> &) {
+	imports constexpr LENGTH invoke (const ARGVF<ARGVS<>> &) {
 		return 1 ;
 	}
 
 	template <class _ARG1>
-	imports constexpr LENGTH compile (const ARGVF<_ARG1> &) {
+	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,compile (ARGV<REST_HINT>::null)) ;
+		return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,invoke (ARGV<REST_HINT>::null)) ;
 	}
 } ;
 } ;
@@ -668,8 +668,8 @@ class Variant final {
 	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 
 private:
-	static constexpr auto VARIANT_ALIGN = U::CONSTEXPR_MAX_ALIGNOF::compile (ARGV<ARGVS<UNITS...>>::null) ;
-	static constexpr auto VARIANT_SIZE = U::CONSTEXPR_MAX_SIZEOF::compile (ARGV<ARGVS<UNITS...>>::null) ;
+	static constexpr auto VARIANT_ALIGN = U::CONSTEXPR_MAX_ALIGNOF::invoke (ARGV<ARGVS<UNITS...>>::null) ;
+	static constexpr auto VARIANT_SIZE = U::CONSTEXPR_MAX_SIZEOF::invoke (ARGV<ARGVS<UNITS...>>::null) ;
 
 	//@error: fuck g++4.8
 	template <LENGTH ALIGN = VARIANT_ALIGN>
@@ -698,10 +698,9 @@ public:
 		:Variant (ARGVP0) {
 		using INDEX_HINT = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		_STATIC_ASSERT_ (INDEX_HINT::value != VAR_NONE) ;
-		_STATIC_ASSERT_ (!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,DEF<decltype (ARGVP0)>>::value) ;
 		auto &r1x = ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>::null ;
 		auto &r2x = _LOAD_ (ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>::null ,DEPTR[mVariant]) ;
-		template_create (r1x ,DEPTR[r2x] ,_FORWARD_<_ARG1> (that)) ;
+		template_create (r1x ,DEPTR[r2x] ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		mIndex = INDEX_HINT::value ;
 	}
 
@@ -795,7 +794,7 @@ public:
 	}
 
 	template <class _ARG1>
-	void apply (const Function<U::MEMBER_FUNCTION_HINT<void ,_ARG1 &>> &proc) {
+	void apply (const Function<MEMPTR<void (_ARG1 &)>> &proc) {
 		if (!available (ARGV<_ARG1>::null))
 			return ;
 		auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null ,DEPTR[mVariant]) ;
@@ -926,7 +925,7 @@ private:
 
 	template <class _ARG1 ,class... _ARGS>
 	imports void template_create (const ARGVF<ARGC<TRUE>> & ,const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
-		_CREATE_ (address ,_FORWARD_<_ARGS> (initval)...) ;
+		_CREATE_ (address ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1024,7 +1023,7 @@ public:
 	Tuple () = default ;
 
 	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
-		:Tuple<UNITS...> (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (rest_)...) ,mValue (_FORWARD_<FORWARD_TRAITS_TYPE<UNIT1>> (one_)) {}
+		:Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,rest_)...) ,mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1>>::null ,one_)) {}
 
 	LENGTH capacity () const {
 		return _CAPACITYOF_ (ARGVS<UNIT1 ,UNITS...>) ;
@@ -1133,20 +1132,20 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval)
-		:mParameter (_FORWARD_<_ARGS> (initval)...) ,mFunctor (functor) {}
+		:mParameter (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mFunctor (functor) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter ,_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval)...) ;
+		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunctor (_FORWARD_<FORWARD_TRAITS_TYPE<UNITS>> (funcval1)... ,funcval2...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const {
-		return template_invoke (parameter.rest () ,_FORWARD_<_ARGS> (funcval)... ,parameter.one ()) ;
+		return template_invoke (parameter.rest () ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,parameter.one ()) ;
 	}
 } ;
 
@@ -1597,7 +1596,7 @@ public:
 
 	BOOL equal (const WeakRef<UNIT> &that) const {
 		struct Dependent ;
-		auto &r1x = _XVALUE_<DEPENDENT_TYPE<WeakRef<UNIT> ,Dependent>> (that) ;
+		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<WeakRef<UNIT> ,Dependent>>::null ,that) ;
 		return r1x.equal (DEREF[this]) ;
 	}
 
@@ -1613,7 +1612,7 @@ public:
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
 		auto tmp = SharedRef<SELF_PACK>::make () ;
-		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_<_ARGS> (initval)...) ;
+		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		tmp->mCounter = 0 ;
 		auto &r1x = tmp->mHolder.rebind (ARGV<UNIT>::null).self ;
 		return StrongRef (_MOVE_ (tmp) ,DEPTR[r1x]) ;
@@ -1801,7 +1800,7 @@ public:
 		return IntrusiveRef (r1x) ;
 	}
 
-	template <class _RET = DEF<typename Private::WatchProxy>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::WatchProxy>>
 	_RET watch () side_effects {
 		struct Dependent ;
 		using WatchProxy = typename DEPENDENT_TYPE<Private ,Dependent>::WatchProxy ;
@@ -1818,8 +1817,8 @@ public:
 	imports IntrusiveRef make (_ARGS &&...initval) {
 		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null) ;
-		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_<_ARGS> (initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<UNIT>::null ,_XVALUE_<PTR<TEMP<UNIT>>> (rax)) ;
+		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r1x = _LOAD_ (ARGV<UNIT>::null ,_XVALUE_ (ARGV<PTR<TEMP<UNIT>>>::null ,rax)) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
 		_STATIC_UNUSED_ (r2x) ;
@@ -2088,7 +2087,7 @@ public:
 		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
 		const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null ,r2x) ;
-		const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+		const auto r3x = _ADDRESS_ (_XVALUE_ (ARGV<PTR<ARR<BYTE>>>::null ,rax)) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
 		auto &r5x = _LOAD_UNSAFE_ (ARGV<CHUNK>::null ,r4x) ;
 		r5x.mOrigin = rax ;
@@ -2208,7 +2207,7 @@ public:
 		const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
 		const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null ,r2x) ;
-		const auto r3x = _ADDRESS_ (_XVALUE_<PTR<ARR<BYTE>>> (rax)) ;
+		const auto r3x = _ADDRESS_ (_XVALUE_ (ARGV<PTR<ARR<BYTE>>>::null ,rax)) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
 		auto &r5x = _LOAD_UNSAFE_ (ARGV<FBLOCK>::null ,r4x) ;
 		r5x.mOrigin = rax ;
@@ -2393,7 +2392,7 @@ public:
 		mHolder = StrongRef<ImplHolder>::make (ARGV<ARGVS<_ARGS...>>::null) ;
 	}
 
-	template <class _RET = DEF<typename Private::Member>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
 	inline _RET operator() (CONT &context_) const side_effects {
 		struct Dependent ;
 		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;

@@ -141,19 +141,19 @@ public:
 	template <class _ARG1>
 	imports String<_ARG1> build_ipv4s (const ARGVF<_ARG1> & ,const PACK<WORD ,CHAR> &stru) ;
 
-	template <class _ARG1 ,class _RET = TimePoint>
+	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<TimePoint>>
 	imports _RET parse_dates (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
 	imports String<_ARG1> build_dates (const ARGVF<_ARG1> & ,const TimePoint &stru) ;
 
-	template <class _ARG1 ,class _RET = TimePoint>
+	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<TimePoint>>
 	imports _RET parse_hours (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
 	imports String<_ARG1> build_hours (const ARGVF<_ARG1> & ,const TimePoint &stru) ;
 
-	template <class _ARG1 ,class _RET = TimePoint>
+	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<TimePoint>>
 	imports _RET parse_times (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
@@ -161,180 +161,104 @@ public:
 } ;
 
 namespace U {
-template <class ,class>
-struct OPERATOR_STRING ;
-
-template <>
-struct OPERATOR_STRING<STRU8 ,STRU8> {
-	imports String<STRU8> invoke (const String<STRU8> &val) {
+struct OPERATOR_STRING {
+	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRU8> &val) {
 		return _COPY_ (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU16 ,STRU16> {
-	imports String<STRU16> invoke (const String<STRU16> &val) {
+	imports String<STRU16> invoke (const ARGVF<String<STRU16>> & ,const String<STRU16> &val) {
 		return _COPY_ (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU32 ,STRU32> {
-	imports String<STRU32> invoke (const String<STRU32> &val) {
+	imports String<STRU32> invoke (const ARGVF<String<STRU32>> & ,const String<STRU32> &val) {
 		return _COPY_ (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRA ,STRA> {
-	imports String<STRA> invoke (const String<STRA> &val) {
+	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRA> &val) {
 		return _COPY_ (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRW ,STRW> {
-	imports String<STRW> invoke (const String<STRW> &val) {
+	imports String<STRW> invoke (const ARGVF<String<STRW>> & ,const String<STRW> &val) {
 		return _COPY_ (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU8 ,STRU16> {
-	imports String<STRU8> invoke (const String<STRU16> &val) {
+	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRU16> &val) {
 		return StringProc::cvt_u16s_u8s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU16 ,STRU8> {
-	imports String<STRU16> invoke (const String<STRU8> &val) {
+	imports String<STRU16> invoke (const ARGVF<String<STRU16>> & ,const String<STRU8> &val) {
 		return StringProc::cvt_u8s_u16s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU8 ,STRU32> {
-	imports String<STRU8> invoke (const String<STRU32> &val) {
+	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRU32> &val) {
 		return StringProc::cvt_u32s_u8s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU32 ,STRU8> {
-	imports String<STRU32> invoke (const String<STRU8> &val) {
+	imports String<STRU32> invoke (const ARGVF<String<STRU32>> & ,const String<STRU8> &val) {
 		return StringProc::cvt_u8s_u32s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU16 ,STRU32> {
-	imports String<STRU16> invoke (const String<STRU32> &val) {
+	imports String<STRU16> invoke (const ARGVF<String<STRU16>> & ,const String<STRU32> &val) {
 		return StringProc::cvt_u32s_u16s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU32 ,STRU16> {
-	imports String<STRU32> invoke (const String<STRU16> &val) {
+	imports String<STRU32> invoke (const ARGVF<String<STRU32>> & ,const String<STRU16> &val) {
 		return StringProc::cvt_u16s_u32s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU8 ,STRW> {
-	imports String<STRU8> invoke (const String<STRW> &val) {
+	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRW> &val) {
 		return StringProc::cvt_ws_u8s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRW ,STRU8> {
-	imports String<STRW> invoke (const String<STRU8> &val) {
+	imports String<STRW> invoke (const ARGVF<String<STRW>> & ,const String<STRU8> &val) {
 		return StringProc::cvt_u8s_ws (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU16 ,STRW> {
-	imports String<STRU16> invoke (const String<STRW> &val) {
+	imports String<STRU16> invoke (const ARGVF<String<STRU16>> & ,const String<STRW> &val) {
 		return StringProc::cvt_ws_u16s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRW ,STRU16> {
-	imports String<STRW> invoke (const String<STRU16> &val) {
+	imports String<STRW> invoke (const ARGVF<String<STRW>> & ,const String<STRU16> &val) {
 		return StringProc::cvt_u16s_ws (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU32 ,STRW> {
-	imports String<STRU32> invoke (const String<STRW> &val) {
+	imports String<STRU32> invoke (const ARGVF<String<STRU32>> & ,const String<STRW> &val) {
 		return StringProc::cvt_ws_u32s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRW ,STRU32> {
-	imports String<STRW> invoke (const String<STRU32> &val) {
+	imports String<STRW> invoke (const ARGVF<String<STRW>> & ,const String<STRU32> &val) {
 		return StringProc::cvt_u32s_ws (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRW ,STRA> {
-	imports String<STRW> invoke (const String<STRA> &val) {
+	imports String<STRW> invoke (const ARGVF<String<STRW>> & ,const String<STRA> &val) {
 		return StringProc::cvt_as_ws (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRA ,STRW> {
-	imports String<STRA> invoke (const String<STRW> &val) {
+	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRW> &val) {
 		return StringProc::cvt_ws_as (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU8 ,STRA> {
-	imports String<STRU8> invoke (const String<STRA> &val) {
+	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRA> &val) {
 		return StringProc::cvt_as_u8s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRA ,STRU8> {
-	imports String<STRA> invoke (const String<STRU8> &val) {
+	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRU8> &val) {
 		return StringProc::cvt_u8s_as (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU16 ,STRA> {
-	imports String<STRU16> invoke (const String<STRA> &val) {
+	imports String<STRU16> invoke (const ARGVF<String<STRU16>> & ,const String<STRA> &val) {
 		return StringProc::cvt_as_u16s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRA ,STRU16> {
-	imports String<STRA> invoke (const String<STRU16> &val) {
+	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRU16> &val) {
 		return StringProc::cvt_u16s_as (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRU32 ,STRA> {
-	imports String<STRU32> invoke (const String<STRA> &val) {
+	imports String<STRU32> invoke (const ARGVF<String<STRU32>> & ,const String<STRA> &val) {
 		return StringProc::cvt_as_u32s (val) ;
 	}
-} ;
 
-template <>
-struct OPERATOR_STRING<STRA ,STRU32> {
-	imports String<STRA> invoke (const String<STRU32> &val) {
+	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRU32> &val) {
 		return StringProc::cvt_u32s_as (val) ;
 	}
 } ;
@@ -795,29 +719,29 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 }
 
 inline exports String<STRU8> StringProc::cvt_ws_u8s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU8 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return U::OPERATOR_STRING::invoke (ARGV<String<STRU8>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u8s_ws (const String<STRU8> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU8>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
 inline exports String<STRU16> StringProc::cvt_ws_u16s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU16 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return U::OPERATOR_STRING::invoke (ARGV<String<STRU16>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u16s_ws (const String<STRU16> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU16>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
 inline exports String<STRU32> StringProc::cvt_ws_u32s (const String<STRW> &val) {
-	return U::OPERATOR_STRING<STRU32 ,STRUW>::invoke (_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return U::OPERATOR_STRING::invoke (ARGV<String<STRU32>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u32s_ws (const String<STRU32> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING<STRUW ,STRU32>::invoke (val) ;
+	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
@@ -1147,12 +1071,12 @@ inline exports String<_ARG1> StringProc::build_vals (const ARGVF<_ARG1> & ,const
 
 template <class _ARG1>
 inline exports String<STR> StringProc::parse_strs (const String<_ARG1> &stri) {
-	return U::OPERATOR_STRING<STR ,REMOVE_CVR_TYPE<_ARG1>>::invoke (stri) ;
+	return U::OPERATOR_STRING::invoke (ARGV<String<STR>>::null ,stri) ;
 }
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_strs (const ARGVF<_ARG1> & ,const String<STR> &stru) {
-	return U::OPERATOR_STRING<REMOVE_CVR_TYPE<_ARG1> ,STR>::invoke (stru) ;
+	return U::OPERATOR_STRING::invoke (ARGV<String<_ARG1>>::null ,stru) ;
 }
 
 #ifdef __CSC_EXTEND__
@@ -1537,7 +1461,7 @@ inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru) ;
+	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
@@ -1586,7 +1510,7 @@ inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru) ;
+	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	if (r2x[5] < 10)
 		rax << STR ('0') ;
@@ -1652,7 +1576,7 @@ inline exports String<_ARG1> StringProc::build_times (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_<DEPENDENT_TYPE<TimePoint ,Dependent>> (stru) ;
+	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;

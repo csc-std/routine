@@ -7,12 +7,7 @@
 namespace CSC {
 namespace U {
 template <class _ARG1 ,class _ARG2>
-struct COMPILE_RETURN {
-	using TYPE = REMOVE_CVR_TYPE<RESULT_OF_TYPE<DEF<decltype (&_ARG1::compile)> ,ARGVS<_ARG2 &>>> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using COMPILE_RETURN_TYPE = typename COMPILE_RETURN<_ARG1 ,_ARG2>::TYPE ;
+using COMPILE_RETURN_TYPE = typename RESULT_OF_TYPE<decltype (_ARG1::compile) ,ARGVS<_ARG2 &>>::TYPE ;
 } ;
 
 template <class...>
@@ -307,32 +302,13 @@ struct FUN_cross<IN_lhs ,IN_rhs> {
 	using TYPE = CON_return ;
 } ;
 
-template <class... IN_lhs>
-struct FUN_tuple {
-	struct CON_return {
-		using TYPE = ARGVS<IN_lhs...> ;
-	} ;
-
-	using TYPE = CON_return ;
-} ;
-
-template <class...>
-struct FUN_tuple_pick ;
-
-template <class IN_tuple ,class IN_id>
-struct FUN_tuple_pick<IN_tuple ,IN_id> {
-	using tuple_argvs = typename IN_tuple::TYPE ;
-
-	using TYPE = INDEX_TO_TYPE<IN_id ,tuple_argvs> ;
-} ;
-
 template <class...>
 struct FUN_get ;
 
 template <class IN_lhs ,class IN_rhs>
 struct FUN_get<IN_lhs ,IN_rhs> {
 	struct CON_return {
-		template <class _ARG1 ,class _RET = DEF<decltype (_NULL_<U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1>> ()[_NULL_<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>> ()])>>
+		template <class _ARG1 ,class _RET = DEF<decltype (_NULL_ (ARGV<U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1>>::null)[_NULL_ (ARGV<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>>::null)])>>
 		imports _RET compile (_ARG1 &me) {
 			return IN_lhs::compile (me)[IN_rhs::compile (me)] ;
 		}
@@ -363,7 +339,7 @@ struct FUN_call ;
 template <class IN_lhs ,class... IN_rhs>
 struct FUN_call<IN_lhs ,IN_rhs...> {
 	struct CON_return {
-		template <class _ARG1 ,class _RET = RESULT_OF_TYPE<DEF<decltype (&U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1>::operator())> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>...>>>
+		template <class _ARG1 ,class _RET = RESULT_OF_TYPE<U::COMPILE_RETURN_TYPE<IN_lhs ,_ARG1> ,ARGVS<U::COMPILE_RETURN_TYPE<IN_rhs ,_ARG1>...>>>
 		imports _RET compile (_ARG1 &me) {
 			return IN_lhs::compile (me) (IN_rhs::compile (me)...) ;
 		}
@@ -400,6 +376,15 @@ struct FUN_switch<IN_lhs ,IN_rhs1 ,IN_rhs2> {
 				return IN_rhs1::compile (me) ;
 			return IN_rhs2::compile (me) ;
 		}
+	} ;
+
+	using TYPE = CON_return ;
+} ;
+
+template <class... IN_lhs>
+struct FUN_tuple {
+	struct CON_return {
+		using TYPE = ARGVS<IN_lhs...> ;
 	} ;
 
 	using TYPE = CON_return ;

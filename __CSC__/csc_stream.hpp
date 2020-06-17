@@ -107,7 +107,7 @@ public:
 		reset () ;
 	}
 
-	template <class _RET = DEF<typename Private::template Attribute<ByteReader>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<ByteReader>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteReader> ;
@@ -483,7 +483,7 @@ public:
 		reset () ;
 	}
 
-	template <class _RET = DEF<typename Private::template Attribute<ByteWriter>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<ByteWriter>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteWriter> ;
@@ -845,7 +845,7 @@ public:
 		reset () ;
 	}
 
-	template <class _RET = DEF<typename Private::template Attribute<TextReader>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<TextReader>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextReader> ;
@@ -1594,7 +1594,7 @@ public:
 		reset () ;
 	}
 
-	template <class _RET = DEF<typename Private::template Attribute<TextWriter>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<TextWriter>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
 		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextWriter> ;

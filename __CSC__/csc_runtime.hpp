@@ -15,6 +15,7 @@
 
 namespace CSC {
 class TimePoint ;
+class GlobalRuntime ;
 
 class Duration
 	:private Proxy {
@@ -26,6 +27,7 @@ private:
 	using Implement = typename Private::Implement ;
 
 private:
+	friend TimePoint ;
 	StrongRef<Implement> mThis ;
 
 public:
@@ -76,6 +78,7 @@ private:
 	using Implement = typename Private::Implement ;
 
 private:
+	friend GlobalRuntime ;
 	StrongRef<Implement> mThis ;
 
 public:
@@ -223,7 +226,7 @@ public:
 		return mThis ;
 	}
 
-	template <class _RET = UniqueLock>
+	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
 	_RET watch (Mutex &mutex_) side_effects {
 		struct Dependent ;
 		using UniqueLock = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
@@ -682,7 +685,7 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _XVALUE_<SELF_PACK> (r1x) ;
+				auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
 				auto &r3x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r2x]) ;
 				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
@@ -853,7 +856,7 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _XVALUE_<SELF_PACK> (r4x) ;
+				auto &r5x = _XVALUE_ (ARGV<SELF_PACK>::null ,r4x) ;
 				auto &r6x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r5x]) ;
 				rax->mValue = DEPTR[r6x] ;
 			}
@@ -861,7 +864,7 @@ public:
 			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r7x]) ;
 			return rcx.watch () ;
 		}) ;
-		auto &r8x = _XVALUE_<SELF_PACK> (r1x) ;
+		auto &r8x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
 		return r8x.mValue ;
 	}
 

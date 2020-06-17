@@ -39,7 +39,7 @@ public:
 
 	String<STRU8> peer_sock_name () const ;
 
-	template <class _RET = TCPListener>
+	template <class _RET = REMOVE_CVR_TYPE<TCPListener>>
 	_RET listener () side_effects {
 		struct Dependent ;
 		using TCPListener = DEPENDENT_TYPE<TCPListener ,Dependent> ;

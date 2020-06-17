@@ -284,21 +284,24 @@ struct NONE ;
 #endif
 #define NULL nullptr
 
-template <class TYPE>
-using DEF = TYPE ;
+template <class UNIT>
+using DEF = UNIT ;
 
-template <class TYPE>
-using PTR = DEF<TYPE *> ;
+template <class UNIT>
+using PTR = DEF<UNIT *> ;
+
+template <class UNIT1 ,class UNIT2 = NONE>
+using MEMPTR = DEF<UNIT1 UNIT2::*> ;
 
 #ifndef __CSC_COMPILER_GNUC__
-template <class TYPE>
-using ARR = DEF<TYPE[]> ;
+template <class UNIT>
+using ARR = DEF<UNIT[]> ;
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
-template <class TYPE>
-using ARR = DEF<TYPE[0]> ;
+template <class UNIT>
+using ARR = DEF<UNIT[0]> ;
 #endif
 
 using BYTE = stl::uint8_t ;
@@ -357,7 +360,7 @@ using INCREASE = ARGC<_ARG1::value + 1> ;
 template <class _ARG1>
 using DECREASE = ARGC<_ARG1::value - 1> ;
 
-template <class>
+template <class UNIT>
 struct ARGV {
 	imports DEF<void (const ARGV &)> null ;
 } ;
@@ -581,8 +584,10 @@ using REMOVE_TEMP_TYPE = typename REMOVE_TEMP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
-template <class>
-struct REMOVE_FUNCATTR ;
+template <class _ARG1>
+struct REMOVE_FUNCATTR {
+	using TYPE = _ARG1 ;
+} ;
 
 //@warn: exclude reference attribute of function
 template <class _ARG1 ,class... _ARGS>
@@ -633,11 +638,13 @@ using REMOVE_FUNCATTR_TYPE = typename REMOVE_FUNCATTR<_ARG1>::TYPE ;
 } ;
 
 namespace U {
-template <class>
-struct REMOVE_MEMPTR ;
+template <class _ARG1>
+struct REMOVE_MEMPTR {
+	using TYPE = _ARG1 ;
+} ;
 
 template <class _ARG1 ,class _ARG2>
-struct REMOVE_MEMPTR<_ARG1 _ARG2::*> {
+struct REMOVE_MEMPTR<MEMPTR<_ARG1 ,_ARG2>> {
 	using TYPE = _ARG1 ;
 } ;
 
@@ -650,7 +657,7 @@ template <class>
 struct MEMPTR_CLASS ;
 
 template <class _ARG1 ,class _ARG2>
-struct MEMPTR_CLASS<_ARG1 _ARG2::*> {
+struct MEMPTR_CLASS<MEMPTR<_ARG1 ,_ARG2>> {
 	using TYPE = _ARG2 ;
 } ;
 
@@ -807,22 +814,49 @@ using INVOKE_PARAMS_TYPE = typename INVOKE_PARAMS<REMOVE_FUNCATTR_TYPE<_ARG1>>::
 } ;
 
 namespace U {
+template <class ,class>
+struct REBIND_INVOKE ;
+
+template <class _ARG1 ,class... _ARGS>
+struct REBIND_INVOKE<_ARG1 ,ARGVS<_ARGS...>> {
+	using TYPE = DEF<_ARG1 (_ARGS...)> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using REBIND_INVOKE_TYPE = typename REBIND_INVOKE<_ARG1 ,_ARG2>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct FUNCTION_OF ;
+
+template <class _ARG1>
+struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<stl::is_function<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
+	using TYPE = REMOVE_POINTER_TYPE<_ARG1> ;
+} ;
+
+template <class _ARG1>
+struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
+	using TYPE = REMOVE_POINTER_TYPE<REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())>>> ;
+} ;
+
+template <class _ARG1>
+using FUNCTION_OF_TYPE = typename FUNCTION_OF<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+} ;
+
+namespace U {
 template <class ,class ,class>
 struct RESULT_OF ;
 
 template <class _ARG1 ,class _ARG2>
-struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<!stl::is_class<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
-	using TYPE = INVOKE_RESULT_TYPE<REMOVE_POINTER_TYPE<_ARG1>> ;
+struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<stl::is_same<_ARG2 ,INVOKE_PARAMS_TYPE<_ARG1>>::value>> {
+	using TYPE = INVOKE_RESULT_TYPE<_ARG1> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
-	using TYPE = typename RESULT_OF<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())> ,_ARG2 ,VOID>::TYPE ;
+using RESULT_OF_TYPE = typename RESULT_OF<FUNCTION_OF_TYPE<_ARG1> ,_ARG2 ,VOID>::TYPE ;
 } ;
 
-template <class _ARG1 ,class _ARG2>
-using RESULT_OF_TYPE = typename RESULT_OF<REMOVE_CVR_TYPE<_ARG1> ,_ARG2 ,VOID>::TYPE ;
-} ;
 
 namespace U {
 template <class ,class ,class>
@@ -1332,6 +1366,8 @@ using U::FORWARD_TRAITS_TYPE ;
 using U::CAST_TRAITS_TYPE ;
 using U::INVOKE_RESULT_TYPE ;
 using U::INVOKE_PARAMS_TYPE ;
+using U::REBIND_INVOKE_TYPE ;
+using U::FUNCTION_OF_TYPE ;
 using U::RESULT_OF_TYPE ;
 using U::REPEAT_PARAMS_TYPE ;
 using U::SEQUENCE_PARAMS_TYPE ;
@@ -1384,9 +1420,9 @@ struct OPERATOR_DEPTR {
 static constexpr auto DEREF = U::OPERATOR_DEREF {} ;
 static constexpr auto DEPTR = U::OPERATOR_DEPTR {} ;
 
-template <class _RET>
-inline constexpr _RET &_NULL_ () {
-	return DEREF[PTR<REMOVE_REFERENCE_TYPE<_RET>> (NULL)] ;
+template <class _ARG1>
+inline constexpr _ARG1 &_NULL_ (const ARGVF<_ARG1> &) {
+	return DEREF[PTR<REMOVE_REFERENCE_TYPE<_ARG1>> (NULL)] ;
 }
 
 template <class _ARG1>
@@ -1443,31 +1479,31 @@ inline constexpr REMOVE_REFERENCE_TYPE<_ARG1> &&_MOVE_ (_ARG1 &&object) {
 	return static_cast<REMOVE_REFERENCE_TYPE<_ARG1> &&> (object) ;
 }
 
-template <class _RET>
-inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &object) {
-	return static_cast<_RET &&> (object) ;
+template <class _ARG1>
+inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_REFERENCE_TYPE<_ARG1> &object) {
+	return static_cast<_ARG1 &&> (object) ;
 }
 
-template <class _RET>
-inline constexpr _RET &&_FORWARD_ (REMOVE_REFERENCE_TYPE<_RET> &&object) {
-	_STATIC_ASSERT_ (!stl::is_lvalue_reference<_RET>::value) ;
-	return static_cast<_RET &&> (object) ;
+template <class _ARG1>
+inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_REFERENCE_TYPE<_ARG1> &&object) {
+	_STATIC_ASSERT_ (!stl::is_lvalue_reference<_ARG1>::value) ;
+	return static_cast<_ARG1 &&> (object) ;
 }
 
-template <class _RET>
-inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &object) {
+template <class _ARG1>
+inline constexpr _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &object) {
 	return object ;
 }
 
-template <class _RET>
-inline constexpr const _RET &_XVALUE_ (const REMOVE_CVR_TYPE<_RET> &object) {
+template <class _ARG1>
+inline constexpr const _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_TYPE<_ARG1> &object) {
 	return object ;
 }
 
 #ifndef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
-template <class _RET>
-inline constexpr _RET &_XVALUE_ (REMOVE_CVR_TYPE<_RET> &&) = delete ;
+template <class _ARG1>
+inline constexpr _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&) = delete ;
 #endif
 
 template <class _ARG1>
@@ -1517,15 +1553,15 @@ template <class _ARG1>
 inline _ARG1 &_LOAD_UNSAFE_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
 	const auto r1x = _BITWISE_CAST_ (ARGV<PTR<VOID>>::null ,address) ;
 	if (r1x == NULL)
-		return _NULL_<_ARG1> () ;
+		return _NULL_ (ARGV<_ARG1>::null) ;
 	return _LOAD_ (ARGV<_ARG1>::null ,r1x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const DEF<_ARG1 _ARG2::*> &mptr ,_ARG3 &mref) {
+inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const MEMPTR<_ARG1 ,_ARG2> &mptr ,_ARG3 &mref) {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
-	auto &r1x = (_NULL_<_ARG2> ().*mptr) ;
-	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (DEPTR[r1x]) ;
+	const auto r1x = _ADDRESS_ (DEPTR[(_NULL_ (ARGV<_ARG2>::null).*mptr)]) ;
+	const auto r2x = _ADDRESS_ (DEPTR[mref]) - r1x ;
 	return _LOAD_UNSAFE_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::null ,r2x) ;
 }
 
@@ -1534,7 +1570,7 @@ inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_array<_ARG1>::value) ;
 	auto &r1x = _LOAD_ (ARGV<_ARG1>::null ,address) ;
-	new (DEPTR[r1x]) _ARG1 (_FORWARD_<_ARGS> (initval)...) ;
+	new (DEPTR[r1x]) _ARG1 (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 }
 
 template <class _ARG1>
@@ -1736,14 +1772,14 @@ public:
 		mIEnd = iend_ ;
 	}
 
-	template <class _RET = DEF<typename Private::Iterator>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		return Iterator (DEREF[this] ,mIBegin) ;
 	}
 
-	template <class _RET = DEF<typename Private::Iterator>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
@@ -1791,15 +1827,15 @@ inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &proc) side_ef
 
 namespace U {
 struct CONSTEXPR_CACHE_STRING_SIZE {
-	imports constexpr LENGTH compile (const ARGVF<ARGVS<>> &) {
+	imports constexpr LENGTH invoke (const ARGVF<ARGVS<>> &) {
 		return 1 ;
 	}
 
 	template <class _ARG1>
-	imports constexpr LENGTH compile (const ARGVF<_ARG1> &) {
+	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
 		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
 		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _COUNTOF_ (ONE_HINT) - 1 + compile (ARGV<REST_HINT>::null) ;
+		return _COUNTOF_ (ONE_HINT) - 1 + invoke (ARGV<REST_HINT>::null) ;
 	}
 } ;
 } ;
@@ -1862,10 +1898,10 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class... _ARGS ,class _RET = DEF<const DEF<REAL[U::CONSTEXPR_CACHE_STRING_SIZE::compile (ARGV<ARGVS<_ARGS...>>::null)]> &>>
-	imports _RET cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
+	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<REAL[U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null)]>>
+	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
-		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<U::CONSTEXPR_CACHE_STRING_SIZE::compile (ARGV<ARGVS<_ARGS...>>::null)>> ;
+		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null)>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
