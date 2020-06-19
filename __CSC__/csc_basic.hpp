@@ -453,7 +453,7 @@ template <class UNIT>
 class ScopedBuild final
 	:private Proxy {
 private:
-	PTR<const volatile PTR<TEMP<UNIT>>> mPointer ;
+	PTR<const PTR<TEMP<UNIT>>> mPointer ;
 	LENGTH mSize ;
 
 public:
@@ -500,7 +500,7 @@ template <class UNIT>
 class ScopedBuild<ARR<UNIT>> final
 	:private Proxy {
 private:
-	PTR<const volatile PTR<ARR<TEMP<UNIT>>>> mPointer ;
+	PTR<const PTR<ARR<TEMP<UNIT>>>> mPointer ;
 	LENGTH mSize ;
 
 public:

@@ -32,7 +32,7 @@ public:
 	imports void done (const ARGVF<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
 		using WatchInterface = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
-		imports volatile WatchInterface mInstance ;
+		imports WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
 		mInstance.mTypeMID = _TYPEMID_ (ARGV<_ARG2>::null) ;
@@ -1132,7 +1132,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval)
-		:mParameter (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mFunctor (functor) {}
+		:mFunctor (functor) ,mParameter (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;

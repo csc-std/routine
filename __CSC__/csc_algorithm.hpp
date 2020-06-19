@@ -272,8 +272,8 @@ class DijstraAlgorithm<REAL>::Private::InitializeLambda
 private:
 	DijstraAlgorithm &mContext ;
 	const Bitmap<REAL> &mAdjacency ;
+	const INDEX &mRoot ;
 
-	INDEX mRoot ;
 	Array<INDEX> mPrev ;
 	Array<REAL> mDistance ;
 	Priority<REAL ,INDEX> mPriority ;
@@ -1395,9 +1395,9 @@ class MaxFlowAlgorithm<REAL>::Private::InitializeLambda
 private:
 	MaxFlowAlgorithm &mContext ;
 	const Bitmap<REAL> &mAdjacency ;
+	const INDEX &mSource ;
+	const INDEX &mSink ;
 
-	INDEX mSource ;
-	INDEX mSink ;
 	REAL mSingleFlow ;
 	Bitmap<REAL> mCurrentFlow ;
 	Array<INDEX> mBFSPath ;
