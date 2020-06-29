@@ -321,7 +321,7 @@ using STRU16 = char16_t ;
 using STRU32 = char32_t ;
 
 //@error: fuck std
-#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (ARGV<STRU8[_COUNTOF_ (decltype (_CAT_ (u8 ,arg)))]>::null ,_CAT_ (u8 ,arg)))
+#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (ARGV<STRU8[_COUNTOF_ (DEF<decltype (_CAT_ (u8 ,arg))>)]>::null ,_CAT_ (u8 ,arg)))
 #define _PCSTRU16_(arg) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg))
 #define _PCSTRU32_(arg) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg))
 
@@ -355,10 +355,10 @@ struct ARGC {
 using ZERO = ARGC<0> ;
 
 template <class _ARG1>
-using INCREASE = ARGC<_ARG1::value + 1> ;
+using INCREASE = ARGC<(_ARG1::value + 1)> ;
 
 template <class _ARG1>
-using DECREASE = ARGC<_ARG1::value - 1> ;
+using DECREASE = ARGC<(_ARG1::value - 1)> ;
 
 template <class UNIT>
 struct ARGV {
@@ -694,7 +694,7 @@ struct CAPACITY_OF<ARGVS<>> {
 
 template <class... _ARGS>
 struct CAPACITY_OF<ARGVS<_ARGS...>> {
-	using TYPE = ARGC<sizeof... (_ARGS)> ;
+	using TYPE = ARGC<(sizeof... (_ARGS))> ;
 } ;
 
 template <class _ARG1>
@@ -831,12 +831,12 @@ template <class ,class>
 struct FUNCTION_OF ;
 
 template <class _ARG1>
-struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<stl::is_function<REMOVE_POINTER_TYPE<_ARG1>>::value>> {
+struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<(stl::is_function<REMOVE_POINTER_TYPE<_ARG1>>::value)>> {
 	using TYPE = REMOVE_POINTER_TYPE<_ARG1> ;
 } ;
 
 template <class _ARG1>
-struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (decltype (&_ARG1::operator())) > 0)>> {
+struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (DEF<decltype (&_ARG1::operator())>) > 0)>> {
 	using TYPE = REMOVE_POINTER_TYPE<REMOVE_FUNCATTR_TYPE<REMOVE_MEMPTR_TYPE<decltype (&_ARG1::operator())>>> ;
 } ;
 
@@ -849,7 +849,7 @@ template <class ,class ,class>
 struct RESULT_OF ;
 
 template <class _ARG1 ,class _ARG2>
-struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<stl::is_same<_ARG2 ,INVOKE_PARAMS_TYPE<_ARG1>>::value>> {
+struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(stl::is_same<_ARG2 ,INVOKE_PARAMS_TYPE<_ARG1>>::value)>> {
 	using TYPE = INVOKE_RESULT_TYPE<_ARG1> ;
 } ;
 
@@ -942,7 +942,7 @@ struct IS_BOUNDED_ARRAY_OF {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_BOUNDED_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<std::is_same<_ARG1 ,REMOVE_ARRAY_TYPE<_ARG2>>::value> ,ENABLE_TYPE<(_COUNTOF_ (_ARG2) > 0)>> {
+struct IS_BOUNDED_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(std::is_same<_ARG1 ,REMOVE_ARRAY_TYPE<_ARG2>>::value)> ,ENABLE_TYPE<(_COUNTOF_ (_ARG2) > 0)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -967,12 +967,12 @@ struct IS_VAR_XYZ<VAR64 ,VOID> {
 } ;
 
 template <class _ARG1>
-struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value>> {
+struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VARX>::value && !stl::is_same<_ARG1 ,VAR32>::value && !stl::is_same<_ARG1 ,VAR64>::value)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value>> {
+struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VARY>::value && !stl::is_same<_ARG1 ,CHAR>::value && !stl::is_same<_ARG1 ,DATA>::value)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -997,7 +997,7 @@ struct IS_VAL_XYZ<VAL64 ,VOID> {
 } ;
 
 template <class _ARG1>
-struct IS_VAL_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value>> {
+struct IS_VAL_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VALX>::value && !stl::is_same<_ARG1 ,VAL32>::value && !stl::is_same<_ARG1 ,VAL64>::value)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1072,7 +1072,7 @@ struct IS_STR_XYZ<STRW ,VOID> {
 } ;
 
 template <class _ARG1>
-struct IS_STR_XYZ<_ARG1 ,ENABLE_TYPE<stl::is_same<_ARG1 ,STRX>::value && !stl::is_same<_ARG1 ,STRA>::value && !stl::is_same<_ARG1 ,STRW>::value>> {
+struct IS_STR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,STRX>::value && !stl::is_same<_ARG1 ,STRA>::value && !stl::is_same<_ARG1 ,STRW>::value)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1112,12 +1112,12 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,NONE ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+struct IS_SAFE_ALIASING<_ARG1 ,NONE ,ENABLE_TYPE<(stl::is_class<_ARG1>::value)> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<NONE ,_ARG1 ,ENABLE_TYPE<stl::is_class<_ARG1>::value> ,ARGC<2>> {
+struct IS_SAFE_ALIASING<NONE ,_ARG1 ,ENABLE_TYPE<(stl::is_class<_ARG1>::value)> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1132,12 +1132,12 @@ struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<BOOL> ,VOID ,ARGC<3>> {
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_VAR_XYZ_HELP<_ARG1>::value> ,ARGC<3>> {
+struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_VAR_XYZ_HELP<_ARG1>::value)> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_VAL_XYZ_HELP<_ARG1>::value> ,ARGC<3>> {
+struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_VAL_XYZ_HELP<_ARG1>::value)> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1163,7 +1163,7 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<(_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0)> ,ARGC<4>> {
+struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<((_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0))> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1173,7 +1173,7 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,VOID ,ENABLE_TYPE<!stl::is_pointer<_ARG1>::value> ,ARGC<5>> {
+struct IS_SAFE_ALIASING<_ARG1 ,VOID ,ENABLE_TYPE<(!stl::is_pointer<_ARG1>::value)> ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1248,8 +1248,8 @@ struct IS_INTERFACE {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2)>> {
-	using TYPE = ARGC<stl::is_base_of<_ARG2 ,_ARG1>::value> ;
+struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2) && _ALIGNOF_ (_ARG1) == _ALIGNOF_ (_ARG2))>> {
+	using TYPE = ARGC<(stl::is_base_of<_ARG2 ,_ARG1>::value)> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1264,7 +1264,7 @@ struct IS_ALWAYS_BASE_OF {
 
 template <class _ARG1 ,class _ARG2>
 struct IS_ALWAYS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZEOF_ (_ARG2) > 0)>> {
-	using TYPE = ARGC<stl::is_base_of<_ARG1 ,_ARG2>::value> ;
+	using TYPE = ARGC<(stl::is_base_of<_ARG1 ,_ARG2>::value)> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1314,7 +1314,7 @@ struct IS_ANY_SAME<_ARG1 ,_ARG1 ,_ARGS...> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct IS_ANY_SAME<_ARG1 ,_ARG2 ,_ARGS...> {
-	using TYPE = ARGC<IS_ANY_SAME<_ARG1 ,_ARGS...>::value && IS_ANY_SAME<_ARG2 ,_ARGS...>::value> ;
+	using TYPE = ARGC<(IS_ANY_SAME<_ARG1 ,_ARGS...>::value && IS_ANY_SAME<_ARG2 ,_ARGS...>::value)> ;
 } ;
 
 template <class... _ARGS>
@@ -1657,14 +1657,14 @@ struct OPERATOR_ONCE {
 
 class Interface {
 public:
-	inline Interface () = default ;
+	implicit Interface () = default ;
 
-	inline virtual ~Interface () = default ;
+	implicit virtual ~Interface () = default ;
 
-	inline Interface (const Interface &) = delete ;
+	implicit Interface (const Interface &) = delete ;
 	inline Interface &operator= (const Interface &) = delete ;
 
-	inline Interface (Interface &&) = delete ;
+	implicit Interface (Interface &&) = delete ;
 	inline Interface &operator= (Interface &&) = delete ;
 } ;
 
@@ -1706,45 +1706,45 @@ protected:
 	UNIT mSelf ;
 
 public:
-	inline Wrapped () = delete ;
+	implicit Wrapped () = delete ;
 
-	inline ~Wrapped () = delete ;
+	implicit ~Wrapped () = delete ;
 
-	inline Wrapped (const Wrapped &) = delete ;
+	implicit Wrapped (const Wrapped &) = delete ;
 	inline Wrapped &operator= (const Wrapped &) = delete ;
 
-	inline Wrapped (Wrapped &&) = delete ;
+	implicit Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
 template <>
 class Wrapped<void> {
 public:
-	inline Wrapped () = delete ;
+	implicit Wrapped () = delete ;
 
-	inline ~Wrapped () = delete ;
+	implicit ~Wrapped () = delete ;
 
-	inline Wrapped (const Wrapped &) = delete ;
+	implicit Wrapped (const Wrapped &) = delete ;
 	inline Wrapped &operator= (const Wrapped &) = delete ;
 
-	inline Wrapped (Wrapped &&) = delete ;
+	implicit Wrapped (Wrapped &&) = delete ;
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
 class Proxy {
 public:
-	inline Proxy () = default ;
+	implicit Proxy () = default ;
 
-	inline Proxy (const Proxy &) = delete ;
+	implicit Proxy (const Proxy &) = delete ;
 	inline Proxy &operator= (const Proxy &) = delete ;
 
 #ifdef __CSC_CXX_LATEST__
-	inline Proxy (Proxy &&) = delete ;
+	implicit Proxy (Proxy &&) = delete ;
 	inline Proxy &operator= (Proxy &&) = delete ;
 #endif
 
 #ifndef __CSC_CXX_LATEST__
-	inline Proxy (Proxy &&) = default ;
+	implicit Proxy (Proxy &&) = default ;
 	inline Proxy &operator= (Proxy &&) = delete ;
 #endif
 } ;
@@ -1765,7 +1765,7 @@ private:
 	INDEX mIEnd ;
 
 public:
-	ArrayRange () = delete ;
+	implicit ArrayRange () = delete ;
 
 	explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_) {
 		mIBegin = ibegin_ ;
@@ -1795,7 +1795,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	Iterator () = delete ;
+	implicit Iterator () = delete ;
 
 	explicit Iterator (const ArrayRange &base ,const INDEX &index)
 		: mBase (base) ,mIndex (index) {}
@@ -1847,7 +1847,7 @@ struct OPERATOR_PTRTOARR {
 		return DEREF[PTR<ARR<_ARG1>> (that)] ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value)>>
 	inline constexpr ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const {
 		return DEREF[PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (DEPTR[that])] ;
 	}
@@ -1872,9 +1872,9 @@ private:
 	LENGTH mSize ;
 
 public:
-	Plain () = delete ;
+	implicit Plain () = delete ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value)>>
 	constexpr implicit Plain (_ARG1 &that)
 		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
@@ -1901,7 +1901,7 @@ private:
 	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<REAL[U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null)]>>
 	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
-		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null)>> ;
+		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<(U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
@@ -1920,7 +1920,7 @@ private:
 	DEF<REAL[SIZE::value]> mString ;
 
 public:
-	PlainString () = delete ;
+	implicit PlainString () = delete ;
 
 	template <class... _ARGS>
 	explicit PlainString (const _ARGS &...text) {
@@ -1940,7 +1940,7 @@ private:
 		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
 			mString[i + _ARG1::value] = REAL (text_one[i]) ;
-		auto &r1x = ARGV<ARGC<_ARG1::value + _COUNTOF_ (_ARG2) - 1>>::null ;
+		auto &r1x = ARGV<ARGC<(_ARG1::value + _COUNTOF_ (_ARG2) - 1)>>::null ;
 		template_write (r1x ,text_rest...) ;
 	}
 } ;
@@ -1950,7 +1950,7 @@ private:
 	PTR<const ARR<STR>> mWhat ;
 
 public:
-	Exception () = delete ;
+	implicit Exception () = delete ;
 
 	explicit Exception (const Plain<STR> &what_) {
 		mWhat = DEPTR[what_.self] ;

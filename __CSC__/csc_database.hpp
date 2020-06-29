@@ -34,7 +34,7 @@ private:
 	SharedRef<SELF_PACK> mThis ;
 
 public:
-	AbstractDatabase () = default ;
+	implicit AbstractDatabase () = default ;
 
 	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;

@@ -18,7 +18,7 @@ private:
 	BitSet<> mPrimeSet ;
 
 public:
-	PrimeSieveAlgorithm () = delete ;
+	implicit PrimeSieveAlgorithm () = delete ;
 
 	explicit PrimeSieveAlgorithm (const LENGTH &len) {
 		initialize (len) ;
@@ -62,7 +62,7 @@ private:
 	Array<NODE> mTable ;
 
 public:
-	DisjointTable () = delete ;
+	implicit DisjointTable () = delete ;
 
 	explicit DisjointTable (const LENGTH &len) {
 		mTable = Array<NODE> (len) ;
@@ -144,7 +144,7 @@ private:
 	Array<REAL> mPattern ;
 
 public:
-	KMPAlgorithm () = delete ;
+	implicit KMPAlgorithm () = delete ;
 
 	explicit KMPAlgorithm (const PhanBuffer<const REAL> &pattern) {
 		initialize (pattern) ;
@@ -227,7 +227,7 @@ private:
 	INDEX mRoot ;
 
 public:
-	DijstraAlgorithm () = delete ;
+	implicit DijstraAlgorithm () = delete ;
 
 	explicit DijstraAlgorithm (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;
@@ -351,7 +351,7 @@ private:
 	Deque<BitSet<>> mClusterList ;
 
 public:
-	KMeansAlgorithm () = delete ;
+	implicit KMeansAlgorithm () = delete ;
 
 	explicit KMeansAlgorithm (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		_DEBUG_ASSERT_ (dataset.length () >= 2) ;
@@ -515,7 +515,7 @@ private:
 	Array<ARRAY2<INDEX>> mMatch ;
 
 public:
-	KMHungarianAlgorithm () = delete ;
+	implicit KMHungarianAlgorithm () = delete ;
 
 	explicit KMHungarianAlgorithm (const Bitmap<REAL> &adjacency) {
 		initialize (adjacency) ;
@@ -864,7 +864,7 @@ private:
 	REAL mDXLoss ;
 
 public:
-	BFGSAlgorithm () = delete ;
+	implicit BFGSAlgorithm () = delete ;
 
 	explicit BFGSAlgorithm (const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) {
 		initialize (loss ,gradient ,fdx) ;
@@ -1094,7 +1094,7 @@ private:
 	INDEX mRoot ;
 
 public:
-	KDTreeAlgorithm () = delete ;
+	implicit KDTreeAlgorithm () = delete ;
 
 	explicit KDTreeAlgorithm (const Array<ARRAY3<REAL>> &vertex) {
 		_DEBUG_ASSERT_ (vertex.length () > 0) ;
@@ -1365,7 +1365,7 @@ private:
 	REAL mMaxFlow ;
 
 public:
-	MaxFlowAlgorithm () = delete ;
+	implicit MaxFlowAlgorithm () = delete ;
 
 	explicit MaxFlowAlgorithm (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
 		_DEBUG_ASSERT_ (adjacency.cx () == adjacency.cy ()) ;

@@ -25,7 +25,7 @@ private:
 	Array<Bitmap<COLOR_BGR>> mTexture ;
 
 public:
-	Mesh () = default ;
+	implicit Mesh () = default ;
 
 	const Set<ARRAY3<VAL32>> &vertex () const leftvalue {
 		return mVertexSet ;
@@ -67,7 +67,7 @@ private:
 	Matrix<REAL> mProjectionMatrix ;
 
 public:
-	Camera () {
+	implicit Camera () {
 		const auto r1x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)} ;
 		const auto r2x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
 		const auto r3x = Vector<REAL> {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
@@ -257,7 +257,7 @@ private:
 	Set<String<STR>> mUniformMappingSet ;
 
 public:
-	AbstractShader () = default ;
+	implicit AbstractShader () = default ;
 
 	explicit AbstractShader (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
@@ -394,7 +394,7 @@ private:
 	AnyRef<void> mHolder ;
 
 public:
-	AbstractSprite () = delete ;
+	implicit AbstractSprite () = delete ;
 
 	explicit AbstractSprite (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;

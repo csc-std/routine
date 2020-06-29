@@ -41,7 +41,7 @@ private:
 	IntrusiveRef<SELF_PACK ,CalcThread> mThis ;
 
 public:
-	CalcThread () {
+ 	implicit CalcThread () {
 		mThis = IntrusiveRef<SELF_PACK ,CalcThread>::make () ;
 	}
 
@@ -287,7 +287,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	ThreadBinder () = delete ;
+	implicit ThreadBinder () = delete ;
 
 	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_ ,const INDEX &index) {
 		mThis = _MOVE_ (this_) ;
@@ -347,7 +347,7 @@ private:
 	IntrusiveRef<SELF_PACK ,WorkThread> mThis ;
 
 public:
-	WorkThread () {
+ 	implicit WorkThread () {
 		mThis = IntrusiveRef<SELF_PACK ,WorkThread>::make () ;
 	}
 
@@ -611,7 +611,7 @@ private:
 	PhanRef<SELF_PACK> mThis ;
 
 public:
-	ThreadBinder () = delete ;
+	implicit ThreadBinder () = delete ;
 
 	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_) {
 		mThis = _MOVE_ (this_) ;
@@ -684,7 +684,7 @@ private:
 	IntrusiveRef<SELF_PACK ,Promise> mThis ;
 
 public:
-	Promise () {
+ 	implicit Promise () {
 		mThis = IntrusiveRef<SELF_PACK ,Promise>::make () ;
 	}
 
@@ -876,7 +876,7 @@ private:
 	PhanRef<SELF_PACK> mThis ;
 
 public:
-	ThreadBinder () = delete ;
+	implicit ThreadBinder () = delete ;
 
 	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_) {
 		mThis = _MOVE_ (this_) ;
@@ -915,7 +915,7 @@ private:
 	IntrusiveRef<SELF_PACK ,Promise<ITEM>> mThis ;
 
 public:
-	Future () = delete ;
+	implicit Future () = delete ;
 
 	explicit Future (IntrusiveRef<SELF_PACK ,Promise<ITEM>> &&this_)
 		: mThis (_MOVE_ (this_)) {}

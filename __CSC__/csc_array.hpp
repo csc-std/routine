@@ -18,7 +18,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	ArrayIterator () = delete ;
+	implicit ArrayIterator () = delete ;
 
 	explicit ArrayIterator (BASE &base ,const INDEX &index)
 		:mBase (base) ,mIndex (index) {}
@@ -129,7 +129,7 @@ private:
 	Buffer<ITEM ,SIZE> mArray ;
 
 public:
-	Array () = default ;
+	implicit Array () = default ;
 
 	explicit Array (const LENGTH &len)
 		:Array (ARGVP0 ,len) {
@@ -289,10 +289,10 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mString ;
+	Buffer<ITEM ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mString ;
 
 public:
-	String () {
+	implicit String () {
 		clear () ;
 	}
 
@@ -591,12 +591,12 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	Buffer<ITEM ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mDeque ;
+	Buffer<ITEM ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
-	Deque () {
+	implicit Deque () {
 		clear () ;
 	}
 
@@ -963,12 +963,12 @@ private:
 	} ;
 
 private:
-	Buffer<NODE ,ARGC<U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value)>> mPriority ;
+	Buffer<NODE ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
 public:
-	Priority () {
+	implicit Priority () {
 		clear () ;
 	}
 
@@ -1324,7 +1324,7 @@ public:
 	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 public:
-	Pair () = delete ;
+	implicit Pair () = delete ;
 
 	explicit Pair (BASE &base ,const INDEX &index)
 		: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
@@ -1359,7 +1359,7 @@ private:
 	INDEX mLast ;
 
 public:
-	List () {
+	implicit List () {
 		clear () ;
 	}
 
@@ -1774,7 +1774,7 @@ private:
 	INDEX mWrite ;
 
 public:
-	SoftList () {
+	implicit SoftList () {
 		clear () ;
 	}
 
@@ -2228,11 +2228,11 @@ private:
 	} ;
 
 private:
-	Buffer<BYTE ,ARGC<U::CONSTEXPR_CEIL8_SIZE::invoke (SIZE::value)>> mSet ;
+	Buffer<BYTE ,ARGC<(U::CONSTEXPR_CEIL8_SIZE::invoke (SIZE::value))>> mSet ;
 	LENGTH mWidth ;
 
 public:
-	BitSet ()
+	implicit BitSet ()
 		:BitSet (ARGVP0) {
 		clear () ;
 	}
@@ -2576,7 +2576,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	Bit () = delete ;
+	implicit Bit () = delete ;
 
 	explicit Bit (BASE &base ,const INDEX &index)
 		: mBase (base) ,mIndex (index) {}
@@ -2596,7 +2596,7 @@ public:
 
 	inline explicit operator VAR64 () const leftvalue {
 		return VAR64 (mIndex) ;
-}
+	}
 #endif
 
 #ifdef __CSC_CONFIG_VAR64__
@@ -2656,7 +2656,7 @@ private:
 	INDEX mTop ;
 
 public:
-	Set () {
+	implicit Set () {
 		clear () ;
 	}
 
@@ -3255,7 +3255,7 @@ public:
 	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 public:
-	Pair () = delete ;
+	implicit Pair () = delete ;
 
 	explicit Pair (BASE &base ,const INDEX &index)
 		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
@@ -3296,7 +3296,7 @@ private:
 	INDEX mTop ;
 
 public:
-	HashSet () {
+	implicit HashSet () {
 		clear () ;
 	}
 
@@ -3570,7 +3570,7 @@ public:
 	CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
 
 public:
-	Pair () = delete ;
+	implicit Pair () = delete ;
 
 	explicit Pair (BASE &base ,const INDEX &index)
 		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
@@ -3621,7 +3621,7 @@ private:
 	INDEX mTop ;
 
 public:
-	SoftSet () {
+	implicit SoftSet () {
 		mLength = 0 ;
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
@@ -4036,7 +4036,7 @@ public:
 	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
 
 public:
-	Pair () = delete ;
+	implicit Pair () = delete ;
 
 	explicit Pair (BASE &base ,const INDEX &index)
 		: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}

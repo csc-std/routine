@@ -78,9 +78,9 @@ private:
 	using NATIVE_THIS = UniqueRef<api::MYSQL> ;
 
 public:
-	AbstractDatabase_Engine_MYSQL () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractDatabase_Engine_MYSQL () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder) const override {

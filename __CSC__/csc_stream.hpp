@@ -97,7 +97,7 @@ private:
 	INDEX mWrite ;
 
 public:
-	ByteReader () {
+ 	implicit ByteReader () {
 		reset () ;
 	}
 
@@ -182,7 +182,7 @@ public:
 		const auto r1x = WORD (0X0001) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			read (r3x[r2x[i]]) ;
 	}
 
@@ -195,7 +195,7 @@ public:
 		const auto r1x = CHAR (0X00010203) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			read (r3x[r2x[i]]) ;
 	}
 
@@ -208,7 +208,7 @@ public:
 		const auto r1x = DATA (0X0001020304050607) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			read (r3x[r2x[i]]) ;
 	}
 
@@ -411,7 +411,7 @@ private:
 	BASE &mBase ;
 
 public:
-	Attribute () = delete ;
+	implicit Attribute () = delete ;
 
 	explicit Attribute (BASE &base)
 		:mBase (base) {}
@@ -466,7 +466,7 @@ private:
 	INDEX mWrite ;
 
 public:
-	ByteWriter () {
+ 	implicit ByteWriter () {
 		reset () ;
 	}
 
@@ -543,7 +543,7 @@ public:
 		const auto r1x = WORD (0X0001) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			write (r3x[r2x[i]]) ;
 	}
 
@@ -556,7 +556,7 @@ public:
 		const auto r1x = CHAR (0X00010203) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			write (r3x[r2x[i]]) ;
 	}
 
@@ -569,7 +569,7 @@ public:
 		const auto r1x = DATA (0X0001020304050607) ;
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::null ,r1x) ;
 		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::null ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (r3x))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
 			write (r3x[r2x[i]]) ;
 	}
 
@@ -769,7 +769,7 @@ private:
 	BASE &mBase ;
 
 public:
-	Attribute () = delete ;
+	implicit Attribute () = delete ;
 
 	explicit Attribute (BASE &base)
 		:mBase (base) {}
@@ -832,7 +832,7 @@ private:
 	INDEX mWrite ;
 
 public:
-	TextReader () {
+ 	implicit TextReader () {
 		reset () ;
 	}
 
@@ -1407,7 +1407,7 @@ private:
 	BASE &mBase ;
 
 public:
-	Attribute () = delete ;
+	implicit Attribute () = delete ;
 
 	explicit Attribute (BASE &base)
 		:mBase (base) {}
@@ -1573,7 +1573,7 @@ private:
 	INDEX mWrite ;
 
 public:
-	TextWriter () {
+ 	implicit TextWriter () {
 		reset () ;
 	}
 
@@ -2135,7 +2135,7 @@ private:
 	BASE &mBase ;
 
 public:
-	Attribute () = delete ;
+	implicit Attribute () = delete ;
 
 	explicit Attribute (BASE &base)
 		:mBase (base) {}
@@ -2252,7 +2252,7 @@ private:
 	LENGTH mHintNextTextSize ;
 
 public:
-	RegularReader () {
+ 	implicit RegularReader () {
 		mPeek = 0 ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;

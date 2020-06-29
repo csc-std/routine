@@ -181,7 +181,7 @@ private:
 	SharedRef<SELF_PACK> mThis ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
 		mThis = SharedRef<SELF_PACK>::make () ;
@@ -393,7 +393,7 @@ private:
 	UniqueRef<SOCKET> mLinker ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const StrongRef<TCPSocket::Implement> &socket_) {
 		mThis = socket_->mThis ;
@@ -450,7 +450,7 @@ private:
 	SharedRef<SELF_PACK> mThis ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {

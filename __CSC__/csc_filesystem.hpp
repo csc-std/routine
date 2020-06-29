@@ -81,7 +81,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	StreamLoader () = delete ;
+	implicit StreamLoader () = delete ;
 
 	explicit StreamLoader (const String<STR> &file) ;
 
@@ -114,7 +114,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	BufferLoader () = delete ;
+	implicit BufferLoader () = delete ;
 
 	explicit BufferLoader (const String<STR> &file) ;
 

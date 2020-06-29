@@ -560,7 +560,7 @@ private:
 	UniqueRef<VAR32> mWriteFile ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
@@ -618,7 +618,7 @@ inline exports void StreamLoader::flush () {
 
 class BufferLoader::Private::Implement {
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
 		_STATIC_WARNING_ ("unimplemented") ;

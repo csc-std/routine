@@ -171,9 +171,9 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
-	AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractImage_Engine_OPENCV () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
@@ -247,9 +247,9 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
-	AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractImage_Engine_OPENCV () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
@@ -323,9 +323,9 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
-	AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractImage_Engine_OPENCV () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
@@ -399,9 +399,9 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
-	AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractImage_Engine_OPENCV () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
@@ -475,9 +475,9 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
-	AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractImage_Engine_OPENCV () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {

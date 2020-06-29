@@ -51,7 +51,7 @@ private:
 	Function<void (UNIT &)> mWatch ;
 
 public:
-	WatchInterface () {
+	implicit WatchInterface () {
 		mName = NULL ;
 		mAddress = NULL ;
 		mTypeMID = 0 ;
@@ -87,7 +87,7 @@ private:
 	AutoRef<Holder> mHolder ;
 
 private:
-	Singleton () {
+	implicit Singleton () {
 		mHolder = AutoRef<Holder>::make () ;
 	}
 
@@ -134,7 +134,7 @@ private:
 	MEGA mValue ;
 
 public:
-	VAR128 () = default ;
+	implicit VAR128 () = default ;
 
 	implicit VAR128 (const VAR64 &that) {
 		const auto r1x = _EBOOL_ (that < 0) * DATA (-1) ;
@@ -578,7 +578,7 @@ private:
 	mutable EFLAG mState ;
 
 public:
-	Mutable () {
+	implicit Mutable () {
 		mState = STATE_SIGNALED ;
 	}
 
@@ -686,32 +686,32 @@ private:
 	INDEX mIndex ;
 
 public:
-	Variant ()
+	implicit Variant ()
 		:Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (ARGV<ZERO>::null ,ARGV<ARGVS<UNITS...>>::null) ;
 		template_construct (r1x ,ARGV<ARGVS<UNITS...>>::null) ;
 		mIndex = r1x ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value)>>
 	implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
 		using INDEX_HINT = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		_STATIC_ASSERT_ (INDEX_HINT::value != VAR_NONE) ;
-		auto &r1x = ARGV<ARGC<stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value>>::null ;
+		auto &r1x = ARGV<ARGC<(stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value)>>::null ;
 		auto &r2x = _LOAD_ (ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>::null ,DEPTR[mVariant]) ;
 		template_create (r1x ,DEPTR[r2x] ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		mIndex = INDEX_HINT::value ;
 	}
 
-	inline ~Variant () noexcept {
+	implicit ~Variant () noexcept {
 		if (mIndex == VAR_NONE)
 			return ;
 		template_destruct (mIndex ,ARGV<ARGVS<UNITS...>>::null) ;
 		mIndex = VAR_NONE ;
 	}
 
-	inline Variant (const Variant &that)
+	implicit Variant (const Variant &that)
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
@@ -729,7 +729,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline Variant (Variant &&that) noexcept
+	implicit Variant (Variant &&that) noexcept
 		:Variant (ARGVP0) {
 		if (that.mIndex == VAR_NONE)
 			return ;
@@ -831,7 +831,7 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = ARGV<ARGC<stl::is_default_constructible<ONE_HINT>::value>>::null ;
+			auto &r2x = ARGV<ARGC<(stl::is_default_constructible<ONE_HINT>::value)>>::null ;
 			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
 			template_create (r2x ,DEPTR[r3x]) ;
 		}
@@ -875,7 +875,7 @@ private:
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = ARGV<ARGC<stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value>>::null ;
+			auto &r2x = ARGV<ARGC<(stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value)>>::null ;
 			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
 			auto &r4x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[that.mVariant]) ;
 			template_create (r2x ,DEPTR[r3x] ,_MOVE_ (_CAST_ (ARGV<ONE_HINT>::null ,r4x))) ;
@@ -943,14 +943,14 @@ private:
 	SharedRef<UNIT> mValue ;
 
 public:
-	Monostate () {
+	implicit Monostate () {
 		mValue = SharedRef<UNIT>::make () ;
 	}
 
-	inline Monostate (const Monostate &) = delete ;
+	implicit Monostate (const Monostate &) = delete ;
 	inline Monostate &operator= (const Monostate &) = delete ;
 
-	inline Monostate (Monostate &&) = delete ;
+	implicit Monostate (Monostate &&) = delete ;
 	inline Monostate &operator= (Monostate &&) = delete ;
 
 	UNIT &to () const leftvalue {
@@ -972,7 +972,7 @@ class Tuple ;
 template <>
 class Tuple<> {
 public:
-	Tuple () = default ;
+	implicit Tuple () = default ;
 
 	LENGTH capacity () const {
 		return _CAPACITYOF_ (ARGVS<>) ;
@@ -1020,7 +1020,7 @@ private:
 	UNIT1 mValue ;
 
 public:
-	Tuple () = default ;
+	implicit Tuple () = default ;
 
 	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
 		:Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,rest_)...) ,mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1>>::null ,one_)) {}
@@ -1046,12 +1046,12 @@ public:
 	}
 
 	template <class _ARG1>
-	INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGVF<ARGVP<_ARG1>> &) leftvalue {
+	INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) leftvalue {
 		return template_pick (ARGV<DECREASE<_ARG1>>::null) ;
 	}
 
 	template <class _ARG1>
-	const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGVF<ARGVP<_ARG1>> &) const leftvalue {
+	const INDEX_TO_TYPE<DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const leftvalue {
 		return template_pick (ARGV<DECREASE<_ARG1>>::null) ;
 	}
 
@@ -1168,7 +1168,7 @@ private:
 	TupleBinder<const UNITS...> mBinder ;
 
 public:
-	AllOfTuple () = delete ;
+	implicit AllOfTuple () = delete ;
 
 	implicit AllOfTuple (const UNITS &...initval)
 		:mBinder (initval...) {}
@@ -1303,7 +1303,7 @@ private:
 	TupleBinder<const UNITS...> mBinder ;
 
 public:
-	AnyOfTuple () = delete ;
+	implicit AnyOfTuple () = delete ;
 
 	implicit AnyOfTuple (const UNITS &...initval)
 		:mBinder (initval...) {}
@@ -1449,12 +1449,12 @@ private:
 
 namespace U {
 struct OPERATOR_RECAST {
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_always_base_of<_ARG2 ,_ARG1>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
 		return static_cast<PTR<_ARG2>> (address) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
 		//@warn: RTTI might be different across DLL
 		return dynamic_cast<PTR<_ARG2>> (address) ;
@@ -1486,19 +1486,19 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	StrongRef ()
+	implicit StrongRef ()
 		:StrongRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	//@warn: circular reference ruins StrongRef
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_always_base_of<UNIT ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_always_base_of<UNIT ,_ARG1>::value)>>
 	implicit StrongRef (const StrongRef<_ARG1> &that)
 		: StrongRef (that.recast (ARGV<UNIT>::null)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~StrongRef () noexcept {
+	implicit ~StrongRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		_STATIC_WARNING_ ("mark") ;
@@ -1511,7 +1511,7 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline StrongRef (const StrongRef &that)
+	implicit StrongRef (const StrongRef &that)
 		:StrongRef (_COPY_ (that.mThis) ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1526,7 +1526,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline StrongRef (StrongRef &&that) noexcept
+	implicit StrongRef (StrongRef &&that) noexcept
 		:StrongRef (ARGVP0) {
 		mThis = _MOVE_ (that.mThis) ;
 		mPointer = _EXCHANGE_ (that.mPointer) ;
@@ -1644,7 +1644,7 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	WeakRef () {
+	implicit WeakRef () {
 		mPointer = NULL ;
 	}
 
@@ -1719,7 +1719,7 @@ public:
 template <class UNIT>
 class SoftRef final {
 public:
-	SoftRef () {
+	implicit SoftRef () {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
@@ -1740,13 +1740,13 @@ private:
 	stl::atomic<LENGTH> mLatch ;
 
 public:
-	IntrusiveRef ()
+	implicit IntrusiveRef ()
 		:IntrusiveRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	//@warn: address must be from 'IntrusiveRef::make'
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<_ARG1 ,PTR<UNIT>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<_ARG1 ,PTR<UNIT>>::value)>>
 	explicit IntrusiveRef (const _ARG1 &address)
 		: IntrusiveRef (ARGVP0) {
 		acquire (address ,FALSE) ;
@@ -1755,7 +1755,7 @@ public:
 		_DEBUG_ASSERT_ (r1x == NULL) ;
 	}
 
-	inline ~IntrusiveRef () noexcept {
+	implicit ~IntrusiveRef () noexcept {
 		const auto r1x = safe_exchange (NULL) ;
 		_CALL_TRY_ ([&] () {
 			release (r1x) ;
@@ -1764,10 +1764,10 @@ public:
 		}) ;
 	}
 
-	inline IntrusiveRef (const IntrusiveRef &) = delete ;
+	implicit IntrusiveRef (const IntrusiveRef &) = delete ;
 	inline IntrusiveRef &operator= (const IntrusiveRef &) = delete ;
 
-	inline IntrusiveRef (IntrusiveRef &&that) noexcept
+	implicit IntrusiveRef (IntrusiveRef &&that) noexcept
 		:IntrusiveRef (ARGVP0) {
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
@@ -1881,7 +1881,7 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	WatchProxy () = delete ;
+	implicit WatchProxy () = delete ;
 
 	explicit WatchProxy (IntrusiveRef &&base ,const PTR<UNIT> &pointer) {
 		mBase = UniqueRef<IntrusiveRef> ([&] (IntrusiveRef &me) {
@@ -1950,7 +1950,7 @@ private:
 	UniqueRef<SELF_PACK> mThis ;
 
 public:
-	MemoryPool () {
+	implicit MemoryPool () {
 		initialize () ;
 	}
 
@@ -2053,7 +2053,7 @@ private:
 	LENGTH mLength ;
 
 public:
-	ImplHolder () {
+	implicit ImplHolder () {
 		mRoot = NULL ;
 		mFree = NULL ;
 		mSize = 0 ;
@@ -2177,7 +2177,7 @@ private:
 	LENGTH mLength ;
 
 public:
-	HugeHolder () {
+	implicit HugeHolder () {
 		mRoot = NULL ;
 		mSize = 0 ;
 		mLength = 0 ;
@@ -2310,7 +2310,7 @@ private:
 	WeakRef<Object> mWeakOfThis ;
 
 public:
-	Object () = default ;
+	implicit Object () = default ;
 
 	WeakRef<Object> weak_of_this () const override {
 		return mWeakOfThis ;
@@ -2334,7 +2334,7 @@ private:
 	Function<void (PTR<NONE>)> mDestructor ;
 
 private:
-	Metadata () = delete ;
+	implicit Metadata () = delete ;
 
 	template <class _ARG1>
 	explicit Metadata (const ARGVF<_ARG1> &) {
@@ -2357,7 +2357,7 @@ template <class UNIT>
 class VirtualObject
 	:public virtual Object {
 public:
-	VirtualObject () {
+	implicit VirtualObject () {
 		_STATIC_WARNING_ ("noop") ;
 	}
 } ;
@@ -2382,7 +2382,7 @@ private:
 	StrongRef<Holder> mHolder ;
 
 public:
-	Serializer () = delete ;
+	implicit Serializer () = delete ;
 
 	template <class... _ARGS>
 	explicit Serializer (const ARGVF<ARGVS<_ARGS...>> &) {
@@ -2409,7 +2409,7 @@ private:
 	CONT &mContext ;
 
 public:
-	Member () = delete ;
+	implicit Member () = delete ;
 
 	explicit Member (const Serializer &base ,CONT &context_)
 		: mBase (base) ,mContext (context_) {}
@@ -2424,7 +2424,7 @@ template <class... UNITS_>
 class Serializer<UNIT ,CONT>::Private::ImplHolder
 	:public Holder {
 public:
-	ImplHolder () = delete ;
+	implicit ImplHolder () = delete ;
 
 	explicit ImplHolder (const ARGVF<ARGVS<UNITS_...>> &) {
 		_STATIC_WARNING_ ("noop") ;

@@ -515,7 +515,7 @@ private:
 	UniqueRef<api::HANDLE> mWriteFile ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
 		mWriteFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
@@ -598,7 +598,7 @@ private:
 	UniqueRef<SELF_PACK> mThis ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
 		UniqueRef<PhanRef<Implement>> ANONYMOUS ([&] (PhanRef<Implement> &me) {

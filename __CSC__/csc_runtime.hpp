@@ -31,7 +31,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	Duration () = default ;
+	implicit Duration () = default ;
 
 	explicit Duration (const LENGTH &milliseconds_) ;
 
@@ -82,7 +82,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	TimePoint () = default ;
+	implicit TimePoint () = default ;
 
 	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
 
@@ -247,7 +247,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	UniqueLock () = delete ;
+	implicit UniqueLock () = delete ;
 
 	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
 
@@ -284,7 +284,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	Thread () = delete ;
+	implicit Thread () = delete ;
 
 	explicit Thread (StrongRef<Binder> &&runnable) ;
 
@@ -300,7 +300,7 @@ private:
 	PhanRef<Binder> mBinder ;
 
 public:
-	Runnable () = delete ;
+	implicit Runnable () = delete ;
 
 	explicit Runnable (PhanRef<Binder> &&binder) {
 		mBinder = _MOVE_ (binder) ;
@@ -399,17 +399,17 @@ struct OPERATOR_TYPENAME {
 	}
 #endif
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value && stl::is_volatile<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_const<_ARG1>::value && stl::is_volatile<_ARG1>::value)>>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP4)> &) {
 		writer << _PCSTR_ ("const volatile ") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_const<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_const<_ARG1>::value)>>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("const ") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_volatile<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_volatile<_ARG1>::value)>>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ ("volatile ") ;
 	}
@@ -419,12 +419,12 @@ struct OPERATOR_TYPENAME {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_lvalue_reference<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_lvalue_reference<_ARG1>::value)>>
 	imports void template_write_typename_ref (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ (" &") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_rvalue_reference<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_rvalue_reference<_ARG1>::value)>>
 	imports void template_write_typename_ref (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ (" &&") ;
 	}
@@ -434,14 +434,14 @@ struct OPERATOR_TYPENAME {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_pointer<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pointer<_ARG1>::value)>>
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP8)> &) {
 		writer << _PCSTR_ ("PTR<") ;
 		template_write_typename_x (writer ,ARGV<REMOVE_POINTER_TYPE<_ARG1>>::null) ;
 		writer << _PCSTR_ (">") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_member_pointer<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_member_pointer<_ARG1>::value)>>
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP7)> &) {
 		writer << _PCSTR_ ("DEF<") ;
 		template_write_typename_x (writer ,ARGV<REMOVE_MEMPTR_TYPE<_ARG1>>::null) ;
@@ -450,14 +450,14 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ ("::*>") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<_ARG1 ,ARR<REMOVE_ARRAY_TYPE<_ARG1>>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<_ARG1 ,ARR<REMOVE_ARRAY_TYPE<_ARG1>>>::value)>>
 	imports void template_write_typename_arr (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ ("ARR<") ;
 		template_write_typename_x (writer ,ARGV<REMOVE_ARRAY_TYPE<_ARG1>>::null) ;
 		writer << _PCSTR_ (">") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>::value)>>
 	imports void template_write_typename_arr (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP1)> &) {
 		writer << _PCSTR_ ("DEF<") ;
 		template_write_typename_x (writer ,ARGV<REMOVE_ARRAY_TYPE<_ARG1>>::null) ;
@@ -466,7 +466,7 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ ("]>") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_array<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_array<_ARG1>::value)>>
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP6)> &) {
 		template_write_typename_arr (writer ,ARGV<_ARG1>::null ,ARGVPX) ;
 	}
@@ -480,12 +480,12 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ (")>") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_function<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_function<_ARG1>::value)>>
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP5)> &) {
 		template_write_typename_func (writer ,ARGV<REMOVE_FUNCATTR_TYPE<_ARG1>>::null ,ARGVPX) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_template<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_template<_ARG1>::value)>>
 	imports void template_write_typename_claz (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP2)> &) {
 		const auto r1x = typeid_name_from_func<_ARG1> () ;
 		writer << _PCSTR_ ("class '") ;
@@ -493,7 +493,7 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ ("'") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_template<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_template<_ARG1>::value)>>
 	imports void template_write_typename_claz (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP1)> &) {
 		const auto r1x = typeid_name_from_func<_ARG1> () ;
 		writer << _PCSTR_ ("template '") ;
@@ -503,7 +503,7 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ (">") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_class<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_class<_ARG1>::value)>>
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP4)> &) {
 		template_write_typename_claz (writer ,ARGV<_ARG1>::null ,ARGVPX) ;
 	}
@@ -894,7 +894,7 @@ private:
 template <class CONT>
 class Coroutine {
 public:
-	Coroutine () {
+	implicit Coroutine () {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}

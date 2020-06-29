@@ -195,7 +195,7 @@ private:
 	AutoRef<api::regex> mRegex ;
 
 public:
-	Implement () = delete ;
+	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &reg) {
 		const auto r1x = StringProc::cvt_u8s_uas (reg) ;

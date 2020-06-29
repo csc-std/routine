@@ -1092,7 +1092,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	RegexMatcher () = delete ;
+	implicit RegexMatcher () = delete ;
 
 	explicit RegexMatcher (const String<STRU8> &reg) ;
 

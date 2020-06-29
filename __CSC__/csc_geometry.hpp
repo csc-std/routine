@@ -22,7 +22,7 @@ private:
 	Buffer<REAL ,ARGC<4>> mVector ;
 
 public:
-	Vector () = default ;
+	implicit Vector () = default ;
 
 	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w)
 		:Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {
@@ -338,7 +338,7 @@ private:
 	Buffer<REAL ,ARGC<16>> mMatrix ;
 
 public:
-	Matrix () = default ;
+	implicit Matrix () = default ;
 
 	implicit Matrix (const ARRAY4<REAL> &hx ,const ARRAY4<REAL> &hy ,const ARRAY4<REAL> &hz ,const ARRAY4<REAL> &hw) {
 		for (auto &&i : _RANGE_ (0 ,4)) {
@@ -349,7 +349,7 @@ public:
 		}
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<_ARG1 ,REAL>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<_ARG1 ,REAL>::value)>>
 	implicit Matrix (const Vector<_ARG1> &vx ,const Vector<_ARG1> &vy ,const Vector<_ARG1> &vz ,const Vector<_ARG1> &vw) {
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			get (i ,0) = vx[i] ;
@@ -1063,7 +1063,7 @@ private:
 	INDEX mY ;
 
 public:
-	Row () = delete ;
+	implicit Row () = delete ;
 
 	explicit Row (BASE &base ,const INDEX &y)
 		: mBase (base) ,mY (y) {}

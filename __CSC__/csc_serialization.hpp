@@ -56,7 +56,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	XmlParser () {
+ 	implicit XmlParser () {
 		mIndex = VAR_NONE ;
 	}
 
@@ -996,7 +996,7 @@ private:
 	INDEX mIndex ;
 
 public:
-	JsonParser () {
+ 	implicit JsonParser () {
 		mIndex = VAR_NONE ;
 	}
 
@@ -1740,7 +1740,7 @@ private:
 	Array<String<STRU8>> mCommand ;
 
 public:
-	CommandParser () = delete ;
+	implicit CommandParser () = delete ;
 
 	explicit CommandParser (const PhanBuffer<const STRU8> &data) {
 		initialize (data) ;

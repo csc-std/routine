@@ -105,7 +105,7 @@ private:
 	BOOL mTempState ;
 
 public:
-	Implement () {
+ 	implicit Implement () {
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;

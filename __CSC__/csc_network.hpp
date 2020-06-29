@@ -31,7 +31,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	TCPSocket () = delete ;
+	implicit TCPSocket () = delete ;
 
 	explicit TCPSocket (const String<STRU8> &ip_addr) ;
 
@@ -99,7 +99,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	TCPListener () = delete ;
+	implicit TCPListener () = delete ;
 
 	explicit TCPListener (const StrongRef<TCPSocket::Implement> &socket_) ;
 
@@ -120,7 +120,7 @@ private:
 	StrongRef<Implement> mThis ;
 
 public:
-	UDPSocket () = delete ;
+	implicit UDPSocket () = delete ;
 
 	explicit UDPSocket (const String<STRU8> &ip_addr) ;
 

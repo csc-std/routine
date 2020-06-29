@@ -157,9 +157,9 @@ private:
 	using SPRITE_NATIVE_THIS = SELF_PACK ;
 
 public:
-	AbstractShader_Engine_OPENGL () {
-		_STATIC_ASSERT_ (_SIZEOF_ (decltype (DEREF[this])) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (decltype (DEREF[this])) == _ALIGNOF_ (Interface)) ;
+ 	implicit AbstractShader_Engine_OPENGL () {
+		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
 	void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {

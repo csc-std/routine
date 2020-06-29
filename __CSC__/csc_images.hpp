@@ -25,7 +25,7 @@ private:
 	Array<LENGTH ,SIZE> mRange ;
 
 public:
-	ArrayRange () = delete ;
+	implicit ArrayRange () = delete ;
 
 	explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) {
 		mRange = range_ ;
@@ -72,7 +72,7 @@ private:
 	Array<LENGTH ,SIZE> mItem ;
 
 public:
-	Iterator () = delete ;
+	implicit Iterator () = delete ;
 
 	explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
 		: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
@@ -129,7 +129,7 @@ private:
 	LENGTH mCK ;
 
 public:
-	Bitmap () {
+	implicit Bitmap () {
 		reset () ;
 	}
 
@@ -603,7 +603,7 @@ private:
 	INDEX mY ;
 
 public:
-	Row () = delete ;
+	implicit Row () = delete ;
 
 	explicit Row (BASE &base ,const INDEX &y)
 		: mBase (base) ,mY (y) {}
@@ -617,7 +617,7 @@ public:
 template <class ITEM>
 class Graph {
 public:
-	Graph () {
+	implicit Graph () {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
@@ -678,7 +678,7 @@ private:
 	SharedRef<SELF_PACK> mThis ;
 
 public:
-	AbstractImage () = default ;
+	implicit AbstractImage () = default ;
 
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
@@ -866,7 +866,7 @@ private:
 	INDEX mY ;
 
 public:
-	Row () = delete ;
+	implicit Row () = delete ;
 
 	explicit Row (BASE &base ,const INDEX &y)
 		: mBase (base) ,mY (y) {}
@@ -884,7 +884,7 @@ private:
 	UniqueRef<AbstractImage> mBase ;
 
 public:
-	NativeProxy () = delete ;
+	implicit NativeProxy () = delete ;
 
 	explicit NativeProxy (AbstractImage &&base) {
 		mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {

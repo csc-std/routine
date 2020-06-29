@@ -65,29 +65,29 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 
 namespace U {
 struct OPERATOR_COMPR {
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value>>
-	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
-		if (lhs < rhs)
-			return FLAG (-1) ;
-		if (rhs < lhs)
-			return FLAG (+1) ;
-		return FLAG (0) ;
-	}
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
+		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
+			if (lhs < rhs)
+				return FLAG (-1) ;
+			if (rhs < lhs)
+				return FLAG (+1) ;
+			return FLAG (0) ;
+		}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_pod<_ARG1>::value>>
-	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
-		return BasicProc::mem_compr (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs)] ,PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs)] ,_SIZEOF_ (_ARG1)) ;
-	}
+		template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
+		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
+			return BasicProc::mem_compr (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs)] ,PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs)] ,_SIZEOF_ (_ARG1)) ;
+		}
 
-	template <class _ARG1>
-	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
-		return template_compr (lhs ,rhs ,ARGVPX) ;
-	}
+		template <class _ARG1>
+		imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
+			return template_compr (lhs ,rhs ,ARGVPX) ;
+		}
 } ;
 } ;
 
@@ -113,17 +113,17 @@ inline exports FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG
 
 namespace U {
 struct OPERATOR_HASH {
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_integral<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_integral<_ARG1>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP2)> &) {
 		return FLAG (self_) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_pod<_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP1)> &) {
 		return BasicProc::mem_hash (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_)] ,_SIZEOF_ (_ARG1)) ;
 	}
@@ -207,7 +207,7 @@ inline exports CHAR CRC32StaticProc::static_mem_crc32_table_each (const CHAR &va
 inline exports const PACK<CHAR[256]> &CRC32StaticProc::static_mem_crc32_table () {
 	return _CACHE_ ([&] () {
 		PACK<CHAR[256]> ret ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (decltype (ret.mP1))))
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (ret.mP1)>)))
 			ret.mP1[i] = CRC32StaticProc::static_mem_crc32_table_each (CHAR (i)) ;
 		return _MOVE_ (ret) ;
 	}) ;
@@ -376,24 +376,24 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	ScopedPtr () = delete ;
+	implicit ScopedPtr () = delete ;
 
 	explicit ScopedPtr (const PTR<UNIT> &pointer)
 		:ScopedPtr (ARGVP0) {
 		mPointer = pointer ;
 	}
 
-	inline ~ScopedPtr () noexcept {
+	implicit ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
 		CONT::free (mPointer) ;
 		mPointer = NULL ;
 	}
 
-	inline ScopedPtr (const ScopedPtr &) = default ;
+	implicit ScopedPtr (const ScopedPtr &) = default ;
 	inline ScopedPtr &operator= (const ScopedPtr &) = default ;
 
-	inline ScopedPtr (ScopedPtr &&) = default ;
+	implicit ScopedPtr (ScopedPtr &&) = default ;
 	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
 
 	inline implicit operator const PTR<UNIT> & () const leftvalue {
@@ -417,7 +417,7 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	ScopedGuard () = delete ;
+	implicit ScopedGuard () = delete ;
 
 	template <class _ARG1>
 	explicit ScopedGuard (_ARG1 &address) side_effects
@@ -427,7 +427,7 @@ public:
 		mPointer = DEPTR[r1x] ;
 	}
 
-	inline ~ScopedGuard () noexcept {
+	implicit ~ScopedGuard () noexcept {
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
@@ -438,10 +438,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline ScopedGuard (const ScopedGuard &) = default ;
+	implicit ScopedGuard (const ScopedGuard &) = default ;
 	inline ScopedGuard &operator= (const ScopedGuard &) = default ;
 
-	inline ScopedGuard (ScopedGuard &&) = default ;
+	implicit ScopedGuard (ScopedGuard &&) = default ;
 	inline ScopedGuard &operator= (ScopedGuard &&) = default ;
 
 private:
@@ -457,7 +457,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	ScopedBuild () = delete ;
+	implicit ScopedBuild () = delete ;
 
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval) side_effects
@@ -470,7 +470,7 @@ public:
 		mSize++ ;
 	}
 
-	inline ~ScopedBuild () noexcept {
+	implicit ~ScopedBuild () noexcept {
 		if (mPointer == NULL)
 			return ;
 		const auto r1x = _COPY_ (DEREF[mPointer]) ;
@@ -485,10 +485,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline ScopedBuild (const ScopedBuild &) = default ;
+	implicit ScopedBuild (const ScopedBuild &) = default ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
 
-	inline ScopedBuild (ScopedBuild &&) = default ;
+	implicit ScopedBuild (ScopedBuild &&) = default ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
@@ -504,7 +504,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	ScopedBuild () = delete ;
+	implicit ScopedBuild () = delete ;
 
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len) side_effects
@@ -536,7 +536,7 @@ public:
 		}
 	}
 
-	inline ~ScopedBuild () noexcept {
+	implicit ~ScopedBuild () noexcept {
 		if (mPointer == NULL)
 			return ;
 		const auto r1x = _COPY_ (DEREF[mPointer]) ;
@@ -551,10 +551,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline ScopedBuild (const ScopedBuild &) = default ;
+	implicit ScopedBuild (const ScopedBuild &) = default ;
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
 
-	inline ScopedBuild (ScopedBuild &&) = default ;
+	implicit ScopedBuild (ScopedBuild &&) = default ;
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
@@ -622,12 +622,12 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	AutoRef ()
+	implicit AutoRef ()
 		:AutoRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~AutoRef () noexcept {
+	implicit ~AutoRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		mPointer->~Holder () ;
@@ -635,10 +635,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AutoRef (const AutoRef &) = delete ;
+	implicit AutoRef (const AutoRef &) = delete ;
 	inline AutoRef &operator= (const AutoRef &) = delete ;
 
-	inline AutoRef (AutoRef &&that) noexcept
+	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -682,12 +682,12 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	AutoRef ()
+	implicit AutoRef ()
 		:AutoRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~AutoRef () noexcept {
+	implicit ~AutoRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		mPointer->~Holder () ;
@@ -695,7 +695,7 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AutoRef (const AutoRef &that)
+	implicit AutoRef (const AutoRef &that)
 		:AutoRef (ARGVP0) {
 		if (that.mPointer == NULL)
 			return ;
@@ -716,7 +716,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline AutoRef (AutoRef &&that) noexcept
+	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -748,7 +748,7 @@ private:
 	using SPECIALIZATION_BASE::mPointer ;
 
 public:
-	AutoRef () = default ;
+	implicit AutoRef () = default ;
 
 	BOOL exist () const {
 		if (mPointer == NULL)
@@ -821,12 +821,12 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	SharedRef ()
+	implicit SharedRef ()
 		:SharedRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~SharedRef () noexcept {
+	implicit ~SharedRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		if switch_once (TRUE) {
@@ -839,7 +839,7 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline SharedRef (const SharedRef &that)
+	implicit SharedRef (const SharedRef &that)
 		:SharedRef (that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -854,7 +854,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline SharedRef (SharedRef &&that) noexcept
+	implicit SharedRef (SharedRef &&that) noexcept
 		:SharedRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -933,7 +933,7 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	AnyRef ()
+	implicit AnyRef ()
 		:AnyRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -944,7 +944,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~AnyRef () noexcept {
+	implicit ~AnyRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		mPointer->~Holder () ;
@@ -952,10 +952,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AnyRef (const AnyRef &) = delete ;
+	implicit AnyRef (const AnyRef &) = delete ;
 	inline AnyRef &operator= (const AnyRef &) = delete ;
 
-	inline AnyRef (AnyRef &&that) noexcept
+	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1012,7 +1012,7 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	AnyRef ()
+	implicit AnyRef ()
 		:AnyRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1023,7 +1023,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~AnyRef () noexcept {
+	implicit ~AnyRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		mPointer->~Holder () ;
@@ -1031,10 +1031,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline AnyRef (const AnyRef &) = delete ;
+	implicit AnyRef (const AnyRef &) = delete ;
 	inline AnyRef &operator= (const AnyRef &) = delete ;
 
-	inline AnyRef (AnyRef &&that) noexcept
+	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1169,7 +1169,7 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	UniqueRef ()
+	implicit UniqueRef ()
 		:UniqueRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1193,7 +1193,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~UniqueRef () noexcept {
+	implicit ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
@@ -1206,10 +1206,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline UniqueRef (const UniqueRef &) = delete ;
+	implicit UniqueRef (const UniqueRef &) = delete ;
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
 
-	inline UniqueRef (UniqueRef &&that) noexcept
+	implicit UniqueRef (UniqueRef &&that) noexcept
 		:UniqueRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1272,7 +1272,7 @@ private:
 	PTR<Holder> mPointer ;
 
 public:
-	UniqueRef ()
+	implicit UniqueRef ()
 		:UniqueRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1296,7 +1296,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~UniqueRef () noexcept {
+	implicit ~UniqueRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
@@ -1309,10 +1309,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline UniqueRef (const UniqueRef &) = delete ;
+	implicit UniqueRef (const UniqueRef &) = delete ;
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
 
-	inline UniqueRef (UniqueRef &&that) noexcept
+	implicit UniqueRef (UniqueRef &&that) noexcept
 		: UniqueRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1406,21 +1406,21 @@ private:
 	PTR<UNIT> mPointer ;
 
 public:
-	PhanRef ()
+	implicit PhanRef ()
 		:PhanRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	inline ~PhanRef () noexcept {
+	implicit ~PhanRef () noexcept {
 		if (mPointer == NULL)
 			return ;
 		mPointer = NULL ;
 	}
 
-	inline PhanRef (const PhanRef &) = delete ;
+	implicit PhanRef (const PhanRef &) = delete ;
 	inline PhanRef &operator= (const PhanRef &) = delete ;
 
-	inline PhanRef (PhanRef &&that) noexcept
+	implicit PhanRef (PhanRef &&that) noexcept
 		:PhanRef (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
@@ -1466,7 +1466,7 @@ private:
 
 public:
 	//@warn: phantom means deliver pointer without holder
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
 	imports PhanRef make (_ARG1 &val) side_effects {
 		return PhanRef (DEPTR[val]) ;
 	}
@@ -1484,7 +1484,7 @@ class Function ;
 
 namespace U {
 struct OPERATOR_FUNCTOR {
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_convertible<_ARG2 ,PTR<_ARG1>>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_convertible<_ARG2 ,PTR<_ARG1>>::value)>>
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
 		return static_cast<PTR<_ARG1>> (functor) ;
 	}
@@ -1520,7 +1520,7 @@ private:
 	PTR<UNIT1 (UNITS...)> mFunctor ;
 
 public:
-	Function ()
+	implicit Function ()
 		:Function (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1530,7 +1530,7 @@ public:
 		mFunctor = DEPTR[that] ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value)>>
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
@@ -1544,7 +1544,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~Function () noexcept {
+	implicit ~Function () noexcept {
 		if (mPointer == NULL)
 			if (mFunctor == NULL)
 				return ;
@@ -1558,10 +1558,10 @@ public:
 		mPointer = NULL ;
 	}
 
-	inline Function (const Function &) = delete ;
+	implicit Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
-	inline Function (Function &&that) noexcept
+	implicit Function (Function &&that) noexcept
 		:Function (ARGVP0) {
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 		mFunctor = _EXCHANGE_ (that.mFunctor) ;
@@ -1584,7 +1584,7 @@ public:
 		return TRUE ;
 	}
 
-	inline const DEF<UNIT1 (UNITS...)> &to () const leftvalue {
+	const DEF<UNIT1 (UNITS...)> &to () const leftvalue {
 		_DEBUG_ASSERT_ (mFunctor != NULL) ;
 		return DEREF[mFunctor] ;
 	}
@@ -1671,7 +1671,7 @@ private:
 		MEMPTR<UNIT1 (UNITS...)> mFunctor ;
 
 	public:
-		FakeHolder () = delete ;
+		implicit FakeHolder () = delete ;
 
 		void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override ;
 
@@ -1689,7 +1689,7 @@ private:
 	TEMP<FakeHolder> mVariant ;
 
 public:
-	Function ()
+	implicit Function ()
 		:Function (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -1717,7 +1717,7 @@ public:
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<!stl::is_function<_ARG2>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_function<_ARG2>::value)>>
 	explicit Function (const PhanRef<_ARG1> &context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
@@ -1733,17 +1733,17 @@ public:
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
 	}
 
-	inline ~Function () noexcept {
+	implicit ~Function () noexcept {
 		if (!exist ())
 			return ;
 		fake.~Holder () ;
 		_ZERO_ (mVariant) ;
 	}
 
-	inline Function (const Function &) = delete ;
+	implicit Function (const Function &) = delete ;
 	inline Function &operator= (const Function &) = delete ;
 
-	inline Function (Function &&that) noexcept
+	implicit Function (Function &&that) noexcept
 		:Function (ARGVP0) {
 		if (!that.exist ())
 			return ;
@@ -1918,10 +1918,10 @@ template <class ,class>
 class Buffer ;
 
 using SFLEX = ZERO ;
-using SFIXED = ARGC<-1> ;
-using SAUTO = ARGC<-2> ;
-using SCPHAN = ARGC<-4> ;
-using SMPHAN = ARGC<-5> ;
+using SFIXED = ARGC<(-1)> ;
+using SAUTO = ARGC<(-2)> ;
+using SCPHAN = ARGC<(-4)> ;
+using SMPHAN = ARGC<(-5)> ;
 
 template <class UNIT ,class SIZE>
 class Buffer {
@@ -1937,7 +1937,7 @@ private:
 	DEF<UNIT[SIZE::value]> mBuffer ;
 
 public:
-	Buffer () = default ;
+	implicit Buffer () = default ;
 
 	explicit Buffer (const LENGTH &len) {
 		_DEBUG_ASSERT_ (len >= 0 && len <= SIZE::value) ;
@@ -2057,7 +2057,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	Buffer ()
+	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -2075,7 +2075,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~Buffer () noexcept {
+	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
@@ -2087,10 +2087,10 @@ public:
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &) = delete ;
+	implicit Buffer (const Buffer &) = delete ;
 	inline Buffer &operator= (const Buffer &) = delete ;
 
-	inline Buffer (Buffer &&) = delete ;
+	implicit Buffer (Buffer &&) = delete ;
 	inline Buffer &operator= (Buffer &&) = delete ;
 
 	ARR<UNIT> &to () leftvalue {
@@ -2228,7 +2228,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	Buffer ()
+	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -2246,7 +2246,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~Buffer () noexcept {
+	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
@@ -2258,10 +2258,10 @@ public:
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &) = delete ;
+	implicit Buffer (const Buffer &) = delete ;
 	inline Buffer &operator= (const Buffer &) = delete ;
 
-	inline Buffer (Buffer &&that) noexcept
+	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
 		mBuffer = _EXCHANGE_ (that.mBuffer) ;
 		mSize = _EXCHANGE_ (that.mSize) ;
@@ -2295,7 +2295,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	Buffer ()
+	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -2313,7 +2313,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline ~Buffer () noexcept {
+	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
@@ -2325,7 +2325,7 @@ public:
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &that)
+	implicit Buffer (const Buffer &that)
 		:Buffer (ARGVP0) {
 		if (that.mBuffer == NULL)
 			return ;
@@ -2347,7 +2347,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline Buffer (Buffer &&that) noexcept
+	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
 		mBuffer = _EXCHANGE_ (that.mBuffer) ;
 		mSize = _EXCHANGE_ (that.mSize) ;
@@ -2380,7 +2380,7 @@ private:
 	using SPECIALIZATION_BASE::mSize ;
 
 public:
-	Buffer () = default ;
+	implicit Buffer () = default ;
 
 	explicit Buffer (const LENGTH &len)
 		:SPECIALIZATION_BASE (len) {
@@ -2508,7 +2508,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	Buffer ()
+	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -2518,17 +2518,17 @@ public:
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
 
-	inline ~Buffer () noexcept {
+	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
 		mBuffer = NULL ;
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &) = delete ;
+	implicit Buffer (const Buffer &) = delete ;
 	inline Buffer &operator= (const Buffer &) = delete ;
 
-	inline Buffer (Buffer &&that) noexcept
+	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
 		mBuffer = _EXCHANGE_ (that.mBuffer) ;
 		mSize = _EXCHANGE_ (that.mSize) ;
@@ -2658,7 +2658,7 @@ public:
 		return Buffer (DEPTR[src] ,len) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
 	imports Buffer make (_ARG1 &val) side_effects {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
@@ -2668,7 +2668,7 @@ public:
 		return make (val ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
@@ -2687,7 +2687,7 @@ private:
 	LENGTH mSize ;
 
 public:
-	Buffer ()
+	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -2697,17 +2697,17 @@ public:
 		_DEBUG_ASSERT_ (len == 0) ;
 	}
 
-	inline ~Buffer () noexcept {
+	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
 		mBuffer = NULL ;
 		mSize = 0 ;
 	}
 
-	inline Buffer (const Buffer &) = delete ;
+	implicit Buffer (const Buffer &) = delete ;
 	inline Buffer &operator= (const Buffer &) = delete ;
 
-	inline Buffer (Buffer &&that) noexcept
+	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
 		mBuffer = _EXCHANGE_ (that.mBuffer) ;
 		mSize = _EXCHANGE_ (that.mSize) ;
@@ -2837,7 +2837,7 @@ public:
 		return Buffer (DEPTR[src] ,len) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_bounded_array_of<UNIT ,_ARG1>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
 	imports Buffer make (_ARG1 &val) side_effects {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
@@ -2851,7 +2851,7 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) side_effects {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
@@ -2860,7 +2860,7 @@ public:
 		return make (r1x ,(val.size () * _SIZEOF_ (_ARG1))) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		if (val.size () == 0)
@@ -2899,7 +2899,7 @@ private:
 	INDEX mFree ;
 
 public:
-	Allocator ()
+	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -2909,7 +2909,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline ~Allocator () noexcept {
+	implicit ~Allocator () noexcept {
 		if (mAllocator.size () == 0)
 			return ;
 		while (TRUE) {
@@ -2927,10 +2927,10 @@ public:
 		mFree = VAR_NONE ;
 	}
 
-	inline Allocator (const Allocator &) = delete ;
+	implicit Allocator (const Allocator &) = delete ;
 	inline Allocator &operator= (const Allocator &) = delete ;
 
-	inline Allocator (Allocator &&) = delete ;
+	implicit Allocator (Allocator &&) = delete ;
 	inline Allocator &operator= (Allocator &&) = delete ;
 
 private:
@@ -2972,7 +2972,7 @@ private:
 	INDEX mFree ;
 
 public:
-	Allocator ()
+	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -2982,7 +2982,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline ~Allocator () noexcept {
+	implicit ~Allocator () noexcept {
 		if (mAllocator.size () == 0)
 			return ;
 		while (TRUE) {
@@ -3000,10 +3000,10 @@ public:
 		mFree = VAR_NONE ;
 	}
 
-	inline Allocator (const Allocator &) = delete ;
+	implicit Allocator (const Allocator &) = delete ;
 	inline Allocator &operator= (const Allocator &) = delete ;
 
-	inline Allocator (Allocator &&that) noexcept
+	implicit Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
@@ -3077,7 +3077,7 @@ private:
 	INDEX mFree ;
 
 public:
-	Allocator ()
+	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
 	}
@@ -3087,7 +3087,7 @@ public:
 		spec.update_reserve (mSize ,mFree) ;
 	}
 
-	inline ~Allocator () noexcept {
+	implicit ~Allocator () noexcept {
 		if (mAllocator.size () == 0)
 			return ;
 		while (TRUE) {
@@ -3105,7 +3105,7 @@ public:
 		mFree = VAR_NONE ;
 	}
 
-	inline Allocator (const Allocator &that)
+	implicit Allocator (const Allocator &that)
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = that.mSize ;
@@ -3137,7 +3137,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline Allocator (Allocator &&that) noexcept
+	implicit Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		if (mAllocator.size () != that.mAllocator.size ())
 			mSize = _EXCHANGE_ (that.mSize) ;
@@ -3209,7 +3209,7 @@ private:
 	using SPECIALIZATION_BASE::mFree ;
 
 public:
-	Allocator () = default ;
+	implicit Allocator () = default ;
 
 	explicit Allocator (const LENGTH &len)
 		:SPECIALIZATION_BASE (len) {

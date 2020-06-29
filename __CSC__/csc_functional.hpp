@@ -42,9 +42,9 @@ private:
 	SharedRef<SELF_PACK> mThis ;
 
 public:
-	Operand () = default ;
+	implicit Operand () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value)>>
 	explicit Operand (_ARG1 &&that) {
 		mThis = SharedRef<SELF_PACK>::make () ;
 		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
@@ -86,7 +86,7 @@ public:
 
 public:
 	template <class _ARG1>
-	imports const Operand &nth (const ARGVF<ARGVP<_ARG1>> &) {
+	imports const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
 			return Operand (ARGV<ARGVP<_ARG1>>::null) ;
 		}) ;
@@ -135,9 +135,9 @@ private:
 	StrongRef<Holder> mHolder ;
 
 public:
-	Operator () = default ;
+	implicit Operator () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value)>>
 	explicit Operator (_ARG1 &&that) {
 		struct Dependent ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
@@ -170,7 +170,7 @@ template <>
 class Operator::Private::ImplHolder<void ,void>
 	:public Holder {
 public:
-	ImplHolder () = default ;
+	implicit ImplHolder () = default ;
 
 	LENGTH rank () const override {
 		return VAR_NONE ;
@@ -317,7 +317,7 @@ struct RETR_FUNC<ARGC<1>> {
 } ;
 
 template <class _ARG1>
-using RETR_FUNC_TYPE = typename U::RETR_FUNC<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>>::TYPE ;
+using RETR_FUNC_TYPE = typename U::RETR_FUNC<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>>::TYPE ;
 } ;
 
 class LexicalNode
@@ -332,7 +332,7 @@ private:
 	LENGTH mDepth ;
 
 public:
-	LexicalNode () {
+	implicit LexicalNode () {
 		mRank = VAR_NONE ;
 		mDepth = 0 ;
 	}
@@ -367,7 +367,7 @@ private:
 	StrongRef<LexicalNode> mThis ;
 
 public:
-	Expression ()
+	implicit Expression ()
 		:Expression (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -406,10 +406,10 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null)>> ,RETR>>>
-	_RET flips (const ARGVF<ARGVP<_ARGS>> &...) const {
+	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ,RETR>>>
+	_RET flips (const ARGV<ARGVP<_ARGS>> &...) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null)>> ;
+		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
 		return template_flips (ARGV<FLIP_RANK_HINT>::null ,ARGV<ARGVS<_ARGS...>>::null ,ARGV<INVOKE_PARAMS_TYPE<FLIP_RANK_HINT>>::null) ;
 	}
 
@@ -427,9 +427,9 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
 	_RET concat (const Expression<_ARG1 ,_ARG2> &that) const {
-		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>> ;
+		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ;
 		return template_concat (ARGV<CONCAT_RANK_HINT>::null ,that ,ARGV<INVOKE_PARAMS_TYPE<CONCAT_RANK_HINT>>::null) ;
 	}
 
@@ -527,7 +527,7 @@ private:
 	using SPECIALIZATION_BASE::mThis ;
 
 public:
-	Expression () = default ;
+	implicit Expression () = default ;
 
 	implicit Expression (const Operand &that) {
 		_DYNAMIC_ASSERT_ (that.exist ()) ;
@@ -559,7 +559,7 @@ private:
 	using SPECIALIZATION_BASE::mThis ;
 
 public:
-	Expression () = default ;
+	implicit Expression () = default ;
 
 	implicit Expression (const Operator &that)
 		:SPECIALIZATION_BASE (that) {
@@ -585,7 +585,7 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK1>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK1>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return concat (that) ;
 	}
@@ -603,7 +603,7 @@ private:
 	using SPECIALIZATION_BASE::mThis ;
 
 public:
-	Expression () = default ;
+	implicit Expression () = default ;
 
 	implicit Expression (const Operator &that)
 		:SPECIALIZATION_BASE (that) {
@@ -640,7 +640,7 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return concat (that) ;
 	}
