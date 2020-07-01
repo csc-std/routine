@@ -408,13 +408,14 @@ template <class BASE>
 class ByteReader<REAL>::Private::Attribute
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (BASE &base)
-		:mBase (base) {}
+	explicit Attribute (BASE &base) {
+		mBase = PhanRef<BASE>::make (base) ;
+	}
 
 	REAL varify_ending_item () const {
 		return REAL (0X00) ;
@@ -766,13 +767,14 @@ template <class BASE>
 class ByteWriter<REAL>::Private::Attribute
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (BASE &base)
-		:mBase (base) {}
+	explicit Attribute (BASE &base) {
+		mBase = PhanRef<BASE>::make (base) ;
+	}
 
 	REAL varify_ending_item () const {
 		return REAL (0X00) ;
@@ -1404,13 +1406,14 @@ template <class BASE>
 class TextReader<REAL>::Private::Attribute
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (BASE &base)
-		:mBase (base) {}
+	explicit Attribute (BASE &base) {
+		mBase = PhanRef<BASE>::make (base) ;
+	}
 
 	REAL varify_ending_item () const {
 		return REAL ('\0') ;
@@ -1418,11 +1421,11 @@ public:
 
 	void enable_endian (const BOOL &flag) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-		mBase.mHeap->mEndianFlag = flag ;
+		mBase->mHeap->mEndianFlag = flag ;
 	}
 
 	REAL convert_endian (const REAL &item) const {
-		if (!mBase.mHeap->mEndianFlag)
+		if (!mBase->mHeap->mEndianFlag)
 			return item ;
 		U::BYTE_BASE_TYPE<REAL> ret ;
 		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (REAL)]>::null ,item) ;
@@ -1455,7 +1458,7 @@ public:
 
 	void enable_escape (const BOOL &flag) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
-		mBase.mHeap->mEscapeFlag = flag ;
+		mBase->mHeap->mEscapeFlag = flag ;
 	}
 
 	REAL varify_escape_item () const {
@@ -1463,7 +1466,7 @@ public:
 	}
 
 	BOOL varify_escape_r (const REAL &item) const {
-		if (!mBase.mHeap->mEscapeFlag)
+		if (!mBase->mHeap->mEscapeFlag)
 			return FALSE ;
 		if (item != varify_escape_item ())
 			return FALSE ;
@@ -1473,31 +1476,31 @@ public:
 	void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 		_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase.mHeap->mEscapeList.insert () ;
-		mBase.mHeap->mEscapeMappingSet.add (str_a ,ix) ;
-		mBase.mHeap->mEscapeList[ix] = str_e ;
+		ix = mBase->mHeap->mEscapeList.insert () ;
+		mBase->mHeap->mEscapeMappingSet.add (str_a ,ix) ;
+		mBase->mHeap->mEscapeList[ix] = str_e ;
 	}
 
 	REAL convert_escape_r (const REAL &str_a) const {
-		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_a) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-		return mBase.mHeap->mEscapeList[ix] ;
+		return mBase->mHeap->mEscapeList[ix] ;
 	}
 
 	BOOL varify_space (const REAL &item) const {
-		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL varify_space (const REAL &item ,const VAR32 &group) const {
-		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
-		if (mBase.mHeap->mSpaceList[ix].mP2 != group)
+		if (mBase->mHeap->mSpaceList[ix].mP2 != group)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1505,12 +1508,12 @@ public:
 	void modify_space (const REAL &item ,const VAR32 &group) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 		_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-		INDEX ix = mBase.mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase.mHeap->mSpaceList.insert () ;
-		mBase.mHeap->mSpaceMappingSet.add (item ,ix) ;
-		mBase.mHeap->mSpaceList[ix].mP1 = item ;
-		mBase.mHeap->mSpaceList[ix].mP2 = group ;
+		ix = mBase->mHeap->mSpaceList.insert () ;
+		mBase->mHeap->mSpaceMappingSet.add (item ,ix) ;
+		mBase->mHeap->mSpaceList[ix].mP1 = item ;
+		mBase->mHeap->mSpaceList[ix].mP2 = group ;
 	}
 
 	BOOL varify_control (const REAL &item) const {
@@ -2132,13 +2135,14 @@ template <class BASE>
 class TextWriter<REAL>::Private::Attribute
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (BASE &base)
-		:mBase (base) {}
+	explicit Attribute (BASE &base) {
+		mBase = PhanRef<BASE>::make (base) ;
+	}
 
 	REAL varify_ending_item () const {
 		return REAL ('\0') ;
@@ -2168,7 +2172,7 @@ public:
 	}
 
 	void enable_escape (const BOOL &flag) const {
-		mBase.mHeap->mEscapeFlag = flag ;
+		mBase->mHeap->mEscapeFlag = flag ;
 	}
 
 	REAL varify_escape_item () const {
@@ -2176,26 +2180,26 @@ public:
 	}
 
 	BOOL varify_escape_w (const REAL &key) const {
-		if (!mBase.mHeap->mEscapeFlag)
+		if (!mBase->mHeap->mEscapeFlag)
 			return FALSE ;
-		if (mBase.mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
+		if (mBase->mHeap->mEscapeMappingSet.find (key) == VAR_NONE)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
 		_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase.mHeap->mEscapeList.insert () ;
-		mBase.mHeap->mEscapeMappingSet.add (str_e ,ix) ;
-		mBase.mHeap->mEscapeList[ix] = str_a ;
+		ix = mBase->mHeap->mEscapeList.insert () ;
+		mBase->mHeap->mEscapeMappingSet.add (str_e ,ix) ;
+		mBase->mHeap->mEscapeList[ix] = str_a ;
 	}
 
 	REAL convert_escape_w (const REAL &str_e) const {
-		INDEX ix = mBase.mHeap->mEscapeMappingSet.map (str_e) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-		return mBase.mHeap->mEscapeList[ix] ;
+		return mBase->mHeap->mEscapeList[ix] ;
 	}
 
 	BOOL varify_space (const REAL &item) const {

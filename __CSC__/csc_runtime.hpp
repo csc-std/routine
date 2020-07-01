@@ -354,15 +354,19 @@ struct OPERATOR_TYPENAME {
 #ifdef __CSC_COMPILER_MSVC__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		static constexpr auto M_PREFIX = _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
-		static constexpr auto M_SUFFIX = _PCSTR_ (">(void)") ;
+		auto &r1x = _CACHE_ ([&] () {
+			return _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
+		}) ;
+		auto &r2x = _CACHE_ ([&] () {
+			return _PCSTR_ (">(void)") ;
+		}) ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-		const auto r1x = M_PREFIX.size () ;
-		const auto r2x = M_SUFFIX.size () ;
-		const auto r3x = ret.mName.length () - r1x - r2x ;
-		_DYNAMIC_ASSERT_ (r3x > 0) ;
-		ret.mName = ret.mName.segment (r1x ,r3x) ;
+		const auto r3x = r1x.size () ;
+		const auto r4x = r2x.size () ;
+		const auto r5x = ret.mName.length () - r3x - r4x ;
+		_DYNAMIC_ASSERT_ (r5x > 0) ;
+		ret.mName = ret.mName.segment (r3x ,r5x) ;
 		return _MOVE_ (ret) ;
 	}
 #endif
@@ -370,15 +374,19 @@ struct OPERATOR_TYPENAME {
 #ifdef __CSC_COMPILER_GNUC__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [with _RET = ") ;
-		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		auto &r1x = _CACHE_ ([&] () {
+			return _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [with _RET = ") ;
+		}) ;
+		auto &r2x = _CACHE_ ([&] () {
+			return _PCSTR_ ("]") ;
+		}) ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-		const auto r1x = M_PREFIX.size () ;
-		const auto r2x = M_SUFFIX.size () ;
-		const auto r3x = ret.mName.length () - r1x - r2x ;
-		_DYNAMIC_ASSERT_ (r3x > 0) ;
-		ret.mName = ret.mName.segment (r1x ,r3x) ;
+		const auto r3x = r1x.size () ;
+		const auto r4x = r2x.size () ;
+		const auto r5x = ret.mName.length () - r3x - r4x ;
+		_DYNAMIC_ASSERT_ (r5x > 0) ;
+		ret.mName = ret.mName.segment (r3x ,r5x) ;
 		return _MOVE_ (ret) ;
 	}
 #endif
@@ -386,15 +394,19 @@ struct OPERATOR_TYPENAME {
 #ifdef __CSC_COMPILER_CLANG__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		static constexpr auto M_PREFIX = _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [_RET = ") ;
-		static constexpr auto M_SUFFIX = _PCSTR_ ("]") ;
+		auto &r1x = _CACHE_ ([&] () {
+			return _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [_RET = ") ;
+		}) ;
+		auto &r2x = _CACHE_ ([&] () {
+			return _PCSTR_ ("]") ;
+		}) ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
-		const auto r1x = M_PREFIX.size () ;
-		const auto r2x = M_SUFFIX.size () ;
-		const auto r3x = ret.mName.length () - r1x - r2x ;
-		_DYNAMIC_ASSERT_ (r3x > 0) ;
-		ret.mName = ret.mName.segment (r1x ,r3x) ;
+		const auto r3x = r1x.size () ;
+		const auto r4x = r2x.size () ;
+		const auto r5x = ret.mName.length () - r3x - r4x ;
+		_DYNAMIC_ASSERT_ (r5x > 0) ;
+		ret.mName = ret.mName.segment (r3x ,r5x) ;
 		return _MOVE_ (ret) ;
 	}
 #endif
@@ -992,28 +1004,30 @@ public:
 	}
 
 	String<STR> random_uuid () side_effects {
-		static constexpr auto M_UUID = _PCSTR_ ("00000000-0000-0000-000000000000") ;
-		String<STR> ret = String<STR> (M_UUID.size ()) ;
+		auto &r1x = _CACHE_ ([&] () {
+			return _PCSTR_ ("00000000-0000-0000-000000000000") ;
+		}) ;
+		String<STR> ret = String<STR> (r1x.size ()) ;
 		INDEX iw = 0 ;
-		const auto r1x = random_value (0 ,36 ,28) ;
+		const auto r2x = random_value (0 ,36 ,28) ;
 		for (auto &&i : _RANGE_ (0 ,8)) {
 			INDEX ix = 0 + i ;
-			ret[iw++] = index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r2x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 8 + i ;
-			ret[iw++] = index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r2x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			INDEX ix = 12 + i ;
-			ret[iw++] = index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r2x[ix]) ;
 		}
 		ret[iw++] = STRU8 ('-') ;
 		for (auto &&i : _RANGE_ (0 ,12)) {
 			INDEX ix = 16 + i ;
-			ret[iw++] = index_to_hex_str (r1x[ix]) ;
+			ret[iw++] = index_to_hex_str (r2x[ix]) ;
 		}
 		if (iw < ret.size ())
 			ret[iw] = 0 ;

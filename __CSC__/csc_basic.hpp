@@ -1660,7 +1660,7 @@ private:
 	class Holder
 		:public Interface {
 	public:
-		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const = 0 ;
+		virtual void friend_move (const PTR<TEMP<FakeHolder>> &address) = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;
 
@@ -1673,7 +1673,7 @@ private:
 	public:
 		implicit FakeHolder () = delete ;
 
-		void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override ;
+		void friend_move (const PTR<TEMP<FakeHolder>> &address) override ;
 
 		UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override ;
 	} ;
@@ -1702,35 +1702,35 @@ public:
 	}
 
 	template <class _ARG1>
-	explicit Function (const PhanRef<_ARG1> &context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
+	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP1)>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
+		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1>
-	explicit Function (const PhanRef<const _ARG1> &context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
+	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP2)>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
+		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_function<_ARG2>::value)>>
-	explicit Function (const PhanRef<_ARG1> &context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
+	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP3)>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
+		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1>
-	explicit Function (const PhanRef<_ARG1> &context_ ,const DEF<UNIT1 (_ARG1 & ,UNITS...)> &functor)
+	explicit Function (PhanRef<_ARG1> &&context_ ,const DEF<UNIT1 (_ARG1 & ,UNITS...)> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP4)>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,DEPTR[context_.self] ,functor) ;
+		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	implicit ~Function () noexcept {
@@ -1747,7 +1747,7 @@ public:
 		:Function (ARGVP0) {
 		if (!that.exist ())
 			return ;
-		that.fake.friend_copy (DEPTR[mVariant]) ;
+		that.fake.friend_move (DEPTR[mVariant]) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -1815,8 +1815,8 @@ public:
 	explicit PureHolder (_ARGS &&...initval)
 		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
-	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		static_create (ARGV<PureHolder>::null ,address ,mFunctor) ;
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
+		static_create (ARGV<PureHolder>::null ,address ,_MOVE_ (mFunctor)) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
@@ -1830,19 +1830,19 @@ class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltyp
 	:public Holder {
 private:
 	MEMPTR<DEF<UNIT1 (UNITS...)> ,UNIT_> mFunctor ;
-	PTR<UNIT_> mContext ;
+	PhanRef<UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
-	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
+	explicit ImplHolder (PhanRef<UNIT_> &&context_ ,_ARGS &&...initval)
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
-	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
+		static_create (ARGV<ImplHolder>::null ,address ,_MOVE_ (mContext) ,_MOVE_ (mFunctor)) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (DEREF[mContext].*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return (mContext.self.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
@@ -1852,19 +1852,19 @@ class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltyp
 	:public Holder {
 private:
 	MEMPTR<DEF<UNIT1 (UNITS...) const> ,UNIT_> mFunctor ;
-	PTR<const UNIT_> mContext ;
+	PhanRef<const UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
-	explicit ImplHolder (const PTR<const UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
+	explicit ImplHolder (PhanRef<const UNIT_> &&context_ ,_ARGS &&...initval)
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
-	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) const override {
+		static_create (ARGV<ImplHolder>::null ,address ,_MOVE_ (mContext) ,_MOVE_ (mFunctor)) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (DEREF[mContext].*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return (mContext.self.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
@@ -1876,19 +1876,19 @@ class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltyp
 
 private:
 	MEMPTR<REMOVE_REFERENCE_TYPE<UNIT1> ,UNIT_> mFunctor ;
-	PTR<UNIT_> mContext ;
+	PhanRef<UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
-	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
+	explicit ImplHolder (PhanRef<UNIT_> &&context_ ,_ARGS &&...initval)
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
-	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
+		static_create (ARGV<ImplHolder>::null ,address ,_MOVE_ (mContext) ,_MOVE_ (mFunctor)) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (DEREF[mContext].*mFunctor) ;
+		return (mContext.self.*mFunctor) ;
 	}
 } ;
 
@@ -1898,19 +1898,19 @@ class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltyp
 	:public Holder {
 private:
 	Function<UNIT1 (UNIT_ & ,UNITS...)> mFunctor ;
-	PTR<UNIT_> mContext ;
+	PhanRef<UNIT_> mContext ;
 
 public:
 	template <class... _ARGS>
-	explicit ImplHolder (const PTR<UNIT_> &context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (context_) {}
+	explicit ImplHolder (PhanRef<UNIT_> &&context_ ,_ARGS &&...initval)
+		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
-	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		static_create (ARGV<ImplHolder>::null ,address ,mContext ,mFunctor) ;
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
+		static_create (ARGV<ImplHolder>::null ,address ,_MOVE_ (mContext) ,_MOVE_ (mFunctor)) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return mFunctor (mContext ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return mFunctor (mContext.self ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 

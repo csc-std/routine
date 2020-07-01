@@ -1059,17 +1059,19 @@ template <class BASE>
 class Matrix<REAL>::Private::Row
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 	INDEX mY ;
 
 public:
 	implicit Row () = delete ;
 
-	explicit Row (BASE &base ,const INDEX &y)
-		: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y) {
+		mBase = PhanRef<BASE>::make (base) ;
+		mY = y ;
+	}
 
 	inline CAST_TRAITS_TYPE<REAL ,BASE> &operator[] (const INDEX &x) rightvalue {
-		return mBase.get (mY ,x) ;
+		return mBase->get (mY ,x) ;
 	}
 } ;
 } ;

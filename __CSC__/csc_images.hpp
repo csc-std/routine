@@ -67,15 +67,18 @@ template <class SIZE>
 class ArrayRange<SIZE>::Private::Iterator
 	:private Proxy {
 private:
-	const ArrayRange &mBase ;
+	PhanRef<const ArrayRange> mBase ;
 	INDEX mIndex ;
 	Array<LENGTH ,SIZE> mItem ;
 
 public:
 	implicit Iterator () = delete ;
 
-	explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item)
-		: mBase (base) ,mIndex (index) ,mItem (_MOVE_ (item)) {}
+	explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item) {
+		mBase = PhanRef<const ArrayRange>::make (base) ;
+		mIndex = index ;
+		mItem = _MOVE_ (item) ;
+	}
 
 	inline BOOL operator!= (const Iterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
@@ -92,7 +95,7 @@ public:
 
 private:
 	void template_incrase (const ARGVF<ZERO> &) {
-		_DEBUG_ASSERT_ (mItem[0] < mBase.mRange[0]) ;
+		_DEBUG_ASSERT_ (mItem[0] < mBase->mRange[0]) ;
 		mItem[0]++ ;
 	}
 
@@ -100,7 +103,7 @@ private:
 	void template_incrase (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 		mItem[_ARG1::value]++ ;
-		if (mItem[_ARG1::value] < mBase.mRange[_ARG1::value])
+		if (mItem[_ARG1::value] < mBase->mRange[_ARG1::value])
 			return ;
 		mItem[_ARG1::value] = 0 ;
 		template_incrase (ARGV<DECREASE<_ARG1>>::null) ;
@@ -599,17 +602,19 @@ template <class BASE>
 class Bitmap<UNIT>::Private::Row
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 	INDEX mY ;
 
 public:
 	implicit Row () = delete ;
 
-	explicit Row (BASE &base ,const INDEX &y)
-		: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y) {
+		mBase = PhanRef<BASE>::make (base) ;
+		mY = y ;
+	}
 
 	inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
-		return mBase.get (mY ,x) ;
+		return mBase->get (mY ,x) ;
 	}
 } ;
 
@@ -862,17 +867,19 @@ template <class BASE>
 class AbstractImage<UNIT>::Private::Row
 	:private Proxy {
 private:
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 	INDEX mY ;
 
 public:
 	implicit Row () = delete ;
 
-	explicit Row (BASE &base ,const INDEX &y)
-		: mBase (base) ,mY (y) {}
+	explicit Row (BASE &base ,const INDEX &y) {
+		mBase = PhanRef<BASE>::make (base) ;
+		mY = y ;
+	}
 
 	inline CAST_TRAITS_TYPE<UNIT ,BASE> &operator[] (const INDEX &x) rightvalue {
-		return mBase.get (mY ,x) ;
+		return mBase->get (mY ,x) ;
 	}
 } ;
 

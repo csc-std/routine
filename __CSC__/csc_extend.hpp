@@ -32,10 +32,9 @@ public:
 	imports void done (const ARGVF<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
 		using WatchInterface = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
-		imports WatchInterface mInstance ;
+		static WatchInterface mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
-		mInstance.mTypeMID = _TYPEMID_ (ARGV<_ARG2>::null) ;
 		mInstance.mWatch (data) ;
 	}
 } ;
@@ -54,7 +53,7 @@ public:
 	implicit WatchInterface () {
 		mName = NULL ;
 		mAddress = NULL ;
-		mTypeMID = 0 ;
+		mTypeMID = _TYPEMID_ (ARGV<UNIT>::null) ;
 		mWatch = Function<void (UNIT &)> ([] (UNIT &) {}) ;
 	} ;
 } ;
@@ -564,74 +563,6 @@ private:
 #pragma pop_macro ("v4i1")
 #pragma pop_macro ("v4i0")
 #pragma endregion
-} ;
-
-template <class UNIT>
-class Mutable {
-private:
-	static constexpr auto STATE_CACHED = EFLAG (1) ;
-	static constexpr auto STATE_SIGNALED = EFLAG (2) ;
-	static constexpr auto STATE_FINISHED = EFLAG (3) ;
-
-private:
-	mutable UNIT mValue ;
-	mutable EFLAG mState ;
-
-public:
-	implicit Mutable () {
-		mState = STATE_SIGNALED ;
-	}
-
-	implicit Mutable (const REMOVE_CVR_TYPE<UNIT> &that)
-		:Mutable (ARGVP0 ,_MOVE_ (that)) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	implicit Mutable (REMOVE_CVR_TYPE<UNIT> &&that)
-		: Mutable (ARGVP0 ,_MOVE_ (that)) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	const UNIT &to () const leftvalue {
-		return mValue ;
-	}
-
-	inline implicit operator const UNIT & () const leftvalue {
-		return to () ;
-	}
-
-	template <class _ARG1>
-	void apply (const Function<void (_ARG1 &)> &proc) const {
-		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mState != STATE_SIGNALED)
-			return ;
-		proc (mValue) ;
-		mState = STATE_CACHED ;
-	}
-
-	template <class _ARG1>
-	void apply (const Function<MEMPTR<void (_ARG1 &)>> &proc) const {
-		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,UNIT>::value) ;
-		if (mState != STATE_SIGNALED)
-			return ;
-		proc (mValue) ;
-		mState = STATE_CACHED ;
-	}
-
-	void signal () const {
-		if (mState != STATE_CACHED)
-			return ;
-		mState = STATE_SIGNALED ;
-	}
-
-	void finish () const {
-		mState = STATE_FINISHED ;
-	}
-
-private:
-	template <class... _ARGS>
-	explicit Mutable (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mState (STATE_CACHED) {}
 } ;
 
 namespace U {
@@ -2405,17 +2336,19 @@ template <class UNIT ,class CONT>
 class Serializer<UNIT ,CONT>::Private::Member
 	:private Proxy {
 private:
-	const Serializer &mBase ;
-	CONT &mContext ;
+	PhanRef<const Serializer> mBase ;
+	PhanRef<CONT> mContext ;
 
 public:
 	implicit Member () = delete ;
 
-	explicit Member (const Serializer &base ,CONT &context_)
-		: mBase (base) ,mContext (context_) {}
+	explicit Member (const Serializer &base ,CONT &context_) {
+		mBase = PhanRef<const Serializer>::make (base) ;
+		mContext = PhanRef<CONT>::make (context_) ;
+	}
 
 	void friend_visit (UNIT &visitor) {
-		mBase.mHolder->compute_visit (visitor ,mContext) ;
+		mBase->mHolder->compute_visit (visitor ,mContext) ;
 	}
 } ;
 

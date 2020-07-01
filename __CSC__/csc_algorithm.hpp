@@ -1118,7 +1118,7 @@ public:
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,const LENGTH &count) const {
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		const auto r1x = first_count_vertex (point ,count) ;
-		const auto r2x = r1x.range_sort () ;
+		const auto r2x = r1x.range_order () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 			ret[i].mP1 = r2x[i] ;
@@ -1256,7 +1256,7 @@ private:
 		mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
 		for (auto &&i : _RANGE_ (0 ,mOrder.length ())) {
 			const auto r1x = stack_of_order (i) ;
-			mOrder[i] = r1x.range_sort () ;
+			mOrder[i] = r1x.range_order () ;
 		}
 		mKDTree = List<NODE> (mVertex.length ()) ;
 		mRoot = VAR_NONE ;
@@ -1330,7 +1330,7 @@ private:
 		}
 	}
 
-	void compute_order (Array<INDEX> &tmp_order ,ARRAY3<Array<INDEX>> &order ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &seg_len) const {
+	void compute_order (Array<INDEX> &tmp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &seg_len) const {
 		if (tmp_order.size () != mVertex.size ())
 			tmp_order = Array<INDEX> (mVertex.size ()) ;
 		INDEX iw = 0 ;
@@ -1340,7 +1340,7 @@ private:
 			tmp_order[iw++] = mOrder[n_rot][i] ;
 		const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
 		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1]))
-			order[n_rot][seg_a + i] = tmp_order[i] ;
+			order_[n_rot][seg_a + i] = tmp_order[i] ;
 		_DEBUG_ASSERT_ (iw == seg_len) ;
 	}
 

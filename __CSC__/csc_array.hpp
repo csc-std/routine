@@ -14,14 +14,16 @@ class ArrayIterator
 	:private Proxy {
 private:
 	friend BASE ;
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
 
 public:
 	implicit ArrayIterator () = delete ;
 
-	explicit ArrayIterator (BASE &base ,const INDEX &index)
-		:mBase (base) ,mIndex (index) {}
+	explicit ArrayIterator (BASE &base ,const INDEX &index) {
+		mBase = PhanRef<BASE>::make (base) ;
+		mIndex = index ;
+	}
 
 	inline BOOL operator!= (const ArrayIterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
@@ -29,11 +31,11 @@ public:
 
 	template <class _RET = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))>>
 	inline _RET operator* () const leftvalue {
-		return mBase.get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
+		return mBase->get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 
 	inline void operator++ () {
-		mIndex = mBase.inext (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
+		mIndex = mBase->inext (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 } ;
 
@@ -703,7 +705,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -820,44 +822,6 @@ public:
 		if (mDeque.size () == 0)
 			reserve (mDeque.expand_size ()) ;
 		INDEX ret = mWrite ;
-		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_resize () ;
-		return _MOVE_ (ret) ;
-	}
-
-	INDEX insert_sort (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
-		_DEBUG_ASSERT_ (mRead == 0) ;
-		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
-		INDEX ret = mWrite ;
-		while (TRUE) {
-			if (ret - 1 < 0)
-				break ;
-			if (mDeque[ret - 1] >= item)
-				break ;
-			mDeque[ret] = _MOVE_ (mDeque[ret - 1]) ;
-			ret-- ;
-		}
-		mDeque[ret] = _MOVE_ (item) ;
-		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_resize () ;
-		return _MOVE_ (ret) ;
-	}
-
-	INDEX insert_sort (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
-		_DEBUG_ASSERT_ (mRead == 0) ;
-		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
-		INDEX ret = mWrite ;
-		while (TRUE) {
-			if (ret - 1 < 0)
-				break ;
-			if (mDeque[ret - 1] >= item)
-				break ;
-			mDeque[ret] = _MOVE_ (mDeque[ret - 1]) ;
-			ret-- ;
-		}
-		mDeque[ret] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
 		update_resize () ;
 		return _MOVE_ (ret) ;
@@ -1088,7 +1052,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = range () ;
 		INDEX ix = ret.length () ;
 		INDEX iy = ix - 1 ;
@@ -1096,7 +1060,7 @@ public:
 			if (iy < 1)
 				break ;
 			_SWAP_ (ret[0] ,ret[iy]) ;
-			compute_esort (ret ,iy) ;
+			compute_order (ret ,iy) ;
 			ix = iy ;
 			iy-- ;
 		}
@@ -1285,7 +1249,7 @@ private:
 		mTop = ix ;
 	}
 
-	void compute_esort (Array<INDEX> &out ,const LENGTH &len) const {
+	void compute_order (Array<INDEX> &out ,const LENGTH &len) const {
 		INDEX ix = 0 ;
 		const auto r1x = out[ix] ;
 		while (TRUE) {
@@ -1447,7 +1411,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -1706,23 +1670,23 @@ public:
 		return VAR_NONE ;
 	}
 
-	void sort (const Array<INDEX> &order) {
-		_DEBUG_ASSERT_ (order.length () == length ()) ;
-		if (order.length () < 2)
+	void sort (const Array<INDEX> &order_) {
+		_DEBUG_ASSERT_ (order_.length () == length ()) ;
+		if (order_.length () < 2)
 			return ;
 		for (auto &&i : _RANGE_ (0 ,1)) {
-			mList[order[i]].mLeft = VAR_NONE ;
-			mList[order[i]].mRight = order[i + 1] ;
-			mFirst = order[i] ;
+			mList[order_[i]].mLeft = VAR_NONE ;
+			mList[order_[i]].mRight = order_[i + 1] ;
+			mFirst = order_[i] ;
 		}
-		for (auto &&i : _RANGE_ (1 ,order.length () - 1)) {
-			mList[order[i]].mLeft = order[i - 1] ;
-			mList[order[i]].mRight = order[i + 1] ;
+		for (auto &&i : _RANGE_ (1 ,order_.length () - 1)) {
+			mList[order_[i]].mLeft = order_[i - 1] ;
+			mList[order_[i]].mRight = order_[i + 1] ;
 		}
-		for (auto &&i : _RANGE_ (order.length () - 1 ,order.length ())) {
-			mList[order[i]].mLeft = order[i - 1] ;
-			mList[order[i]].mRight = VAR_NONE ;
-			mLast = order[i] ;
+		for (auto &&i : _RANGE_ (order_.length () - 1 ,order_.length ())) {
+			mList[order_[i]].mLeft = order_[i - 1] ;
+			mList[order_[i]].mRight = VAR_NONE ;
+			mLast = order_[i] ;
 		}
 	}
 
@@ -1883,7 +1847,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -2024,16 +1988,16 @@ public:
 		return VAR_NONE ;
 	}
 
-	void sort (const Array<INDEX> &order) {
-		_DEBUG_ASSERT_ (order.length () == length ()) ;
-		if (order.length () < 2)
+	void sort (const Array<INDEX> &order_) {
+		_DEBUG_ASSERT_ (order_.length () == length ()) ;
+		if (order_.length () < 2)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,order.length ()))
-			sequence_rewrite (i ,order[i]) ;
-		for (auto &&i : _RANGE_ (order.length () ,mHead.size ()))
+		for (auto &&i : _RANGE_ (0 ,order_.length ()))
+			sequence_rewrite (i ,order_[i]) ;
+		for (auto &&i : _RANGE_ (order_.length () ,mHead.size ()))
 			sequence_remove (i) ;
 		mRead = 0 ;
-		mWrite = order.length () - 1 ;
+		mWrite = order_.length () - 1 ;
 	}
 
 private:
@@ -2572,18 +2536,20 @@ class BitSet<SIZE>::Private::Bit
 	:private Proxy {
 private:
 	friend BitSet ;
-	BASE &mBase ;
+	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
 
 public:
 	implicit Bit () = delete ;
 
-	explicit Bit (BASE &base ,const INDEX &index)
-		: mBase (base) ,mIndex (index) {}
+	explicit Bit (BASE &base ,const INDEX &index) {
+		mBase = PhanRef<BASE>::make (base) ;
+		mIndex = index ;
+	}
 
 	inline implicit operator BOOL () rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
-		const auto r2x = BYTE (mBase.mSet[mIndex / 8] & r1x) ;
+		const auto r2x = BYTE (mBase->mSet[mIndex / 8] & r1x) ;
 		if (r2x == 0)
 			return FALSE ;
 		return TRUE ;
@@ -2615,10 +2581,10 @@ public:
 		if switch_once (fax) {
 			if (!that)
 				discard ;
-			mBase.mSet[mIndex / 8] |= r1x ;
+			mBase->mSet[mIndex / 8] |= r1x ;
 		}
 		if switch_once (fax) {
-			mBase.mSet[mIndex / 8] &= ~r1x ;
+			mBase->mSet[mIndex / 8] &= ~r1x ;
 		}
 	}
 } ;
@@ -2641,8 +2607,13 @@ private:
 
 	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+		explicit Node (_ARGS &&...initval) :
+			mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,
+			mMap (VAR_NONE) ,
+			mRed (FALSE) ,
+			mUp (VAR_NONE) ,
+			mLeft (VAR_NONE) ,
+			mRight (VAR_NONE) {}
 	} ;
 
 	struct Private {
@@ -2660,8 +2631,8 @@ public:
 		clear () ;
 	}
 
-	explicit Set (const LENGTH &len)
-		:Set (ARGVP0 ,len) {
+	explicit Set (const LENGTH &len) :
+		Set (ARGVP0 ,len) {
 		clear () ;
 	}
 
@@ -2772,10 +2743,10 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		compute_esort (mRoot ,ret ,iw) ;
+		compute_order (mRoot ,ret ,iw) ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
@@ -3235,13 +3206,13 @@ private:
 		_SWAP_ (mSet[index1].mRight ,mSet[index2].mRight) ;
 	}
 
-	void compute_esort (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
 		if (curr == VAR_NONE)
 			return ;
 		INDEX iw = out_i ;
-		compute_esort (mSet[curr].mLeft ,out ,iw) ;
+		compute_order (mSet[curr].mLeft ,out ,iw) ;
 		out[iw++] = curr ;
-		compute_esort (mSet[curr].mRight ,out ,iw) ;
+		compute_order (mSet[curr].mRight ,out ,iw) ;
 		out_i = iw ;
 	}
 } ;
@@ -3748,10 +3719,10 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_sort () const {
+	Array<INDEX> range_order () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		compute_esort (mRoot ,ret ,iw) ;
+		compute_order (mRoot ,ret ,iw) ;
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
@@ -4016,13 +3987,13 @@ private:
 		return mSet.self[curr].mWeight ;
 	}
 
-	void compute_esort (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
 		if (curr == VAR_NONE)
 			return ;
 		INDEX iw = out_i ;
-		compute_esort (mSet[curr].mLeft ,out ,iw) ;
+		compute_order (mSet[curr].mLeft ,out ,iw) ;
 		out[iw++] = curr ;
-		compute_esort (mSet[curr].mRight ,out ,iw) ;
+		compute_order (mSet[curr].mRight ,out ,iw) ;
 		out_i = iw ;
 	}
 } ;

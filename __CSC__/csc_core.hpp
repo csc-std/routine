@@ -1776,7 +1776,7 @@ public:
 	_RET begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (DEREF[this] ,mIBegin) ;
+		return Iterator (mIBegin) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
@@ -1784,21 +1784,21 @@ public:
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
 		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return Iterator (DEREF[this] ,r1x) ;
+		return Iterator (r1x) ;
 	}
 } ;
 
 class ArrayRange<ZERO>::Private::Iterator
 	:private Proxy {
 private:
-	const ArrayRange &mBase ;
 	INDEX mIndex ;
 
 public:
 	implicit Iterator () = delete ;
 
-	explicit Iterator (const ArrayRange &base ,const INDEX &index)
-		: mBase (base) ,mIndex (index) {}
+	explicit Iterator (const INDEX &index) {
+		mIndex = index ;
+	}
 
 	inline BOOL operator!= (const Iterator &that) const {
 		return BOOL (mIndex != that.mIndex) ;
@@ -1875,7 +1875,7 @@ public:
 	implicit Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_const<_ARG1>::value && stl::is_bounded_array_of<REAL ,_ARG1>::value)>>
-	constexpr implicit Plain (_ARG1 &that)
+	implicit Plain (_ARG1 &that)
 		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1884,16 +1884,16 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	constexpr LENGTH size () const {
+	LENGTH size () const {
 		return mSize ;
 	}
 
-	constexpr const ARR<REAL> &to () const leftvalue {
+	const ARR<REAL> &to () const leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		return PTRTOARR[mPlain] ;
 	}
 
-	inline constexpr implicit operator const ARR<REAL> & () const leftvalue {
+	inline implicit operator const ARR<REAL> & () const leftvalue {
 		return to () ;
 	}
 
