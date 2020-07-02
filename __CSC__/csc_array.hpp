@@ -20,8 +20,8 @@ private:
 public:
 	implicit ArrayIterator () = delete ;
 
-	explicit ArrayIterator (BASE &base ,const INDEX &index) {
-		mBase = PhanRef<BASE>::make (base) ;
+	explicit ArrayIterator (PhanRef<BASE> &&base ,const INDEX &index) {
+		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 	}
 
@@ -178,19 +178,19 @@ public:
 	}
 
 	ArrayIterator<Array> begin () leftvalue {
-		return ArrayIterator<Array> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<Array> (PhanRef<Array>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Array> begin () const leftvalue {
-		return ArrayIterator<const Array> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const Array> (PhanRef<const Array>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Array> end () leftvalue {
-		return ArrayIterator<Array> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<Array> (PhanRef<Array>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Array> end () const leftvalue {
-		return ArrayIterator<const Array> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const Array> (PhanRef<const Array>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ITEM &get (const INDEX &index) leftvalue {
@@ -364,19 +364,19 @@ public:
 	}
 
 	ArrayIterator<String> begin () leftvalue {
-		return ArrayIterator<String> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<String> (PhanRef<String>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const String> begin () const leftvalue {
-		return ArrayIterator<const String> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const String> (PhanRef<const String>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<String> end () leftvalue {
-		return ArrayIterator<String> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<String> (PhanRef<String>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const String> end () const leftvalue {
-		return ArrayIterator<const String> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const String> (PhanRef<const String>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ITEM &get (const INDEX &index) leftvalue {
@@ -647,19 +647,19 @@ public:
 	}
 
 	ArrayIterator<Deque> begin () leftvalue {
-		return ArrayIterator<Deque> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<Deque> (PhanRef<Deque>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Deque> begin () const leftvalue {
-		return ArrayIterator<const Deque> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const Deque> (PhanRef<const Deque>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Deque> end () leftvalue {
-		return ArrayIterator<Deque> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<Deque> (PhanRef<Deque>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Deque> end () const leftvalue {
-		return ArrayIterator<const Deque> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const Deque> (PhanRef<const Deque>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	//@warn: index would be no longer valid once resized
@@ -697,9 +697,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -786,10 +790,8 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i]) ;
-		}
+		for (auto &&i : val)
+			add (i) ;
 	}
 
 	void take () {
@@ -977,19 +979,19 @@ public:
 	}
 
 	ArrayIterator<Priority> begin () leftvalue {
-		return ArrayIterator<Priority> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<Priority> (PhanRef<Priority>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Priority> begin () const leftvalue {
-		return ArrayIterator<const Priority> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const Priority> (PhanRef<const Priority>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Priority> end () leftvalue {
-		return ArrayIterator<Priority> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<Priority> (PhanRef<Priority>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Priority> end () const leftvalue {
-		return ArrayIterator<const Priority> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const Priority> (PhanRef<const Priority>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	//@warn: index would be no longer valid every time revised
@@ -998,7 +1000,7 @@ public:
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<Priority>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Priority>>>
@@ -1012,7 +1014,7 @@ public:
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<const Priority>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Priority>>>
@@ -1044,9 +1046,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -1124,10 +1130,8 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
+		for (auto &&i : val)
+			add (i.key ,i.sid) ;
 	}
 
 	void take () {
@@ -1290,8 +1294,8 @@ public:
 public:
 	implicit Pair () = delete ;
 
-	explicit Pair (BASE &base ,const INDEX &index)
-		: key (base.mPriority[index].mItem) ,sid (base.mPriority[index].mMap) {}
+	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
+		: key (base->mPriority[index].mItem) ,sid (base->mPriority[index].mMap) {}
 
 	inline implicit operator const ITEM & () rightvalue {
 		return key ;
@@ -1365,19 +1369,19 @@ public:
 	}
 
 	ArrayIterator<List> begin () leftvalue {
-		return ArrayIterator<List> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<List> (PhanRef<List>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const List> begin () const leftvalue {
-		return ArrayIterator<const List> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const List> (PhanRef<const List>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<List> end () leftvalue {
-		return ArrayIterator<List> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<List> (PhanRef<List>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const List> end () const leftvalue {
-		return ArrayIterator<const List> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const List> (PhanRef<const List>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ITEM &get (const INDEX &index) leftvalue {
@@ -1403,9 +1407,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -1494,10 +1502,8 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mList.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i]) ;
-		}
+		for (auto &&i : val)
+			add (i) ;
 	}
 
 	void take () {
@@ -1661,15 +1667,6 @@ public:
 		mList.free (index) ;
 	}
 
-	INDEX find (const ITEM &item) const {
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			if (get (i) == item)
-				return i ;
-		}
-		return VAR_NONE ;
-	}
-
 	void sort (const Array<INDEX> &order_) {
 		_DEBUG_ASSERT_ (order_.length () == length ()) ;
 		if (order_.length () < 2)
@@ -1790,19 +1787,19 @@ public:
 	}
 
 	ArrayIterator<SoftList> begin () leftvalue {
-		return ArrayIterator<SoftList> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<SoftList> (PhanRef<SoftList>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const SoftList> begin () const leftvalue {
-		return ArrayIterator<const SoftList> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const SoftList> (PhanRef<const SoftList>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<SoftList> end () leftvalue {
-		return ArrayIterator<SoftList> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<SoftList> (PhanRef<SoftList>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const SoftList> end () const leftvalue {
-		return ArrayIterator<const SoftList> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const SoftList> (PhanRef<const SoftList>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ITEM &get (const INDEX &index) leftvalue {
@@ -1839,9 +1836,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -1910,10 +1911,8 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mList.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i]) ;
-		}
+		for (auto &&i : val)
+			add (i) ;
 	}
 
 	INDEX insert () side_effects {
@@ -1977,15 +1976,6 @@ public:
 	void remove (const INDEX &index) {
 		sequence_remove (mList[index].mSeq) ;
 		mList.free (index) ;
-	}
-
-	INDEX find (const ITEM &item) const {
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			if (get (i) == item)
-				return i ;
-		}
-		return VAR_NONE ;
 	}
 
 	void sort (const Array<INDEX> &order_) {
@@ -2266,19 +2256,19 @@ public:
 	}
 
 	ArrayIterator<BitSet> begin () leftvalue {
-		return ArrayIterator<BitSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<BitSet> (PhanRef<BitSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const BitSet> begin () const leftvalue {
-		return ArrayIterator<const BitSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const BitSet> (PhanRef<const BitSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<BitSet> end () leftvalue {
-		return ArrayIterator<BitSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<BitSet> (PhanRef<BitSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const BitSet> end () const leftvalue {
-		return ArrayIterator<const BitSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const BitSet> (PhanRef<const BitSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
@@ -2287,7 +2277,7 @@ public:
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit (DEREF[this] ,index) ;
+		return Bit (PhanRef<BitSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<BitSet>>>
@@ -2301,7 +2291,7 @@ public:
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
-		return Bit (DEREF[this] ,index) ;
+		return Bit (PhanRef<const BitSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<const BitSet>>>
@@ -2330,9 +2320,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -2369,8 +2363,9 @@ public:
 		const auto r1x = BasicProc::mem_compr (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r2x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
-		const auto r3x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
+		const auto r4x = BYTE (mWidth % 8 - 1) ;
+		const auto r2x = BYTE (mSet[ix] & r4x) ;
+		const auto r3x = BYTE (that.mSet[ix] & r4x) ;
 		return U::OPERATOR_COMPR::invoke (r2x ,r3x) ;
 	}
 
@@ -2542,8 +2537,8 @@ private:
 public:
 	implicit Bit () = delete ;
 
-	explicit Bit (BASE &base ,const INDEX &index) {
-		mBase = PhanRef<BASE>::make (base) ;
+	explicit Bit (PhanRef<BASE> &&base ,const INDEX &index) {
+		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 	}
 
@@ -2607,13 +2602,8 @@ private:
 
 	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval) :
-			mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,
-			mMap (VAR_NONE) ,
-			mRed (FALSE) ,
-			mUp (VAR_NONE) ,
-			mLeft (VAR_NONE) ,
-			mRight (VAR_NONE) {}
+		explicit Node (_ARGS &&...initval)
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 	struct Private {
@@ -2631,8 +2621,8 @@ public:
 		clear () ;
 	}
 
-	explicit Set (const LENGTH &len) :
-		Set (ARGVP0 ,len) {
+	explicit Set (const LENGTH &len)
+		:Set (ARGVP0 ,len) {
 		clear () ;
 	}
 
@@ -2675,26 +2665,26 @@ public:
 	}
 
 	ArrayIterator<Set> begin () leftvalue {
-		return ArrayIterator<Set> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<Set> (PhanRef<Set>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const Set> begin () const leftvalue {
-		return ArrayIterator<const Set> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const Set> (PhanRef<const Set>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<Set> end () leftvalue {
-		return ArrayIterator<Set> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<Set> (PhanRef<Set>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Set> end () const leftvalue {
-		return ArrayIterator<const Set> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const Set> (PhanRef<const Set>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<Set>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
@@ -2706,7 +2696,7 @@ public:
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<const Set>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Set>>>
@@ -2735,9 +2725,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -2802,28 +2796,34 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
+		for (auto &&i : val)
+			add (i.key ,i.sid) ;
 	}
 
 	INDEX head () const {
-		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
-			it = mSet[i].mLeft ;
-			if (it == VAR_NONE)
-				return i ;
+		INDEX ret = mRoot ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			INDEX ix = mSet[ret].mLeft ;
+			if (ix == VAR_NONE)
+				break ;
+			ret = ix ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX tail () const {
-		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
-			it = mSet[i].mRight ;
-			if (it == VAR_NONE)
-				return i ;
+		INDEX ret = mRoot ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			INDEX ix = mSet[ret].mRight ;
+			if (ix == VAR_NONE)
+				break ;
+			ret = ix ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
@@ -3168,10 +3168,14 @@ private:
 	}
 
 	INDEX find_successor (const INDEX &index) const {
-		for (INDEX i = mSet[index].mRight ,it ; i != VAR_NONE ; i = it) {
-			it = mSet[i].mLeft ;
-			if (it == VAR_NONE)
-				return i ;
+		INDEX ret = mSet[index].mRight ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			INDEX ix = mSet[ret].mLeft ;
+			if (ix == VAR_NONE)
+				break ;
+			ret = ix ;
 		}
 		return VAR_NONE ;
 	}
@@ -3228,8 +3232,8 @@ public:
 public:
 	implicit Pair () = delete ;
 
-	explicit Pair (BASE &base ,const INDEX &index)
-		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
+		: key (base->mSet[index].mItem) ,sid (base->mSet[index].mMap) {}
 
 	inline implicit operator const ITEM & () rightvalue {
 		return key ;
@@ -3315,26 +3319,26 @@ public:
 	}
 
 	ArrayIterator<HashSet> begin () leftvalue {
-		return ArrayIterator<HashSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<HashSet> (PhanRef<HashSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const HashSet> begin () const leftvalue {
-		return ArrayIterator<const HashSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const HashSet> (PhanRef<const HashSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<HashSet> end () leftvalue {
-		return ArrayIterator<HashSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<HashSet> (PhanRef<HashSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const HashSet> end () const leftvalue {
-		return ArrayIterator<const HashSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const HashSet> (PhanRef<const HashSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
 	_RET get (const INDEX &index) leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<HashSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
@@ -3346,7 +3350,7 @@ public:
 	_RET get (const INDEX &index) const leftvalue {
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<const HashSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const HashSet>>>
@@ -3375,9 +3379,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -3432,10 +3440,8 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
+		for (auto &&i : val)
+			add (i.key ,i.sid) ;
 	}
 
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
@@ -3543,8 +3549,8 @@ public:
 public:
 	implicit Pair () = delete ;
 
-	explicit Pair (BASE &base ,const INDEX &index)
-		: key (base.mSet[index].mItem) ,sid (base.mSet[index].mMap) {}
+	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
+		: key (base->mSet[index].mItem) ,sid (base->mSet[index].mMap) {}
 
 	inline implicit operator const ITEM & () rightvalue {
 		return key ;
@@ -3623,7 +3629,7 @@ public:
 		return mLength ;
 	}
 
-	SoftSet share () side_effects {
+	SoftSet share () leftvalue {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
 		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer.self) ;
@@ -3649,19 +3655,19 @@ public:
 	}
 
 	ArrayIterator<SoftSet> begin () leftvalue {
-		return ArrayIterator<SoftSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<SoftSet> (PhanRef<SoftSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<const SoftSet> begin () const leftvalue {
-		return ArrayIterator<const SoftSet> (DEREF[this] ,ibegin ()) ;
+		return ArrayIterator<const SoftSet> (PhanRef<const SoftSet>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
 	ArrayIterator<SoftSet> end () leftvalue {
-		return ArrayIterator<SoftSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<SoftSet> (PhanRef<SoftSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const SoftSet> end () const leftvalue {
-		return ArrayIterator<const SoftSet> (DEREF[this] ,iend ()) ;
+		return ArrayIterator<const SoftSet> (PhanRef<const SoftSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
@@ -3669,7 +3675,7 @@ public:
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<SoftSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
@@ -3682,7 +3688,7 @@ public:
 		struct Dependent ;
 		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair (DEREF[this] ,index) ;
+		return Pair (PhanRef<const SoftSet>::make (DEREF[this]) ,index) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const SoftSet>>>
@@ -3711,9 +3717,13 @@ public:
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
-		for (INDEX i = ibegin () ,it ,ie = iend () ; i != ie ; i = it) {
-			it = inext (i) ;
-			ret[iw++] = i ;
+		INDEX ix = ibegin () ;
+		INDEX iy = iend () ;
+		while (TRUE) {
+			if (ix == iy)
+				break ;
+			ret[iw++] = ix ;
+			ix = inext (ix) ;
 		}
 		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -3791,32 +3801,38 @@ public:
 	void appand (const _ARG1 &val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (val.length ()) ;
-		for (INDEX i = val.ibegin () ,it ,ie = val.iend () ; i != ie ; i = it) {
-			it = val.inext (i) ;
-			add (val[i].key ,val[i].sid) ;
-		}
+		for (auto &&i : val)
+			add (i.key ,i.sid) ;
 	}
 
 	INDEX head () const {
-		if (!mHeap.exist ())
-			return VAR_NONE ;
-		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
-			it = mSet.self[i].mLeft ;
-			if (it == VAR_NONE)
-				return i ;
+		INDEX ret = VAR_NONE ;
+		if (mHeap.exist ())
+			ret = mRoot ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			INDEX ix = mSet.self[ret].mLeft ;
+			if (ix == VAR_NONE)
+				break ;
+			ret = ix ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX tail () const {
-		if (!mHeap.exist ())
-			return VAR_NONE ;
-		for (INDEX i = mRoot ,it ; i != VAR_NONE ; i = it) {
-			it = mSet.self[i].mRight ;
-			if (it == VAR_NONE)
-				return i ;
+		INDEX ret = VAR_NONE ;
+		if (mHeap.exist ())
+			ret = mRoot ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			INDEX ix = mSet.self[ret].mRight ;
+			if (ix == VAR_NONE)
+				break ;
+			ret = ix ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
@@ -4009,8 +4025,8 @@ public:
 public:
 	implicit Pair () = delete ;
 
-	explicit Pair (BASE &base ,const INDEX &index)
-		: key (base.mSet.self[index].mItem) ,sid (base.mSet.self[index].mMap) {}
+	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
+		: key (base->mSet.self[index].mItem) ,sid (base->mSet.self[index].mMap) {}
 
 	inline implicit operator const ITEM & () rightvalue {
 		return key ;

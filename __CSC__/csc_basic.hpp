@@ -1859,7 +1859,7 @@ public:
 	explicit ImplHolder (PhanRef<const UNIT_> &&context_ ,_ARGS &&...initval)
 		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
-	void friend_move (const PTR<TEMP<FakeHolder>> &address) const override {
+	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
 		static_create (ARGV<ImplHolder>::null ,address ,_MOVE_ (mContext) ,_MOVE_ (mFunctor)) ;
 	}
 

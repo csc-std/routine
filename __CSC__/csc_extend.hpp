@@ -1639,11 +1639,6 @@ public:
 		mThis = that.mThis ;
 		mPointer = that.mPointer ;
 	}
-
-	void assign (StrongRef<UNIT> &&that) {
-		mThis = _MOVE_ (that.mThis) ;
-		mPointer = _MOVE_ (that.mPointer) ;
-	}
 } ;
 
 #ifdef __CSC_DEPRECATED__
@@ -1723,7 +1718,7 @@ public:
 		return TRUE ;
 	}
 
-	IntrusiveRef share () side_effects {
+	IntrusiveRef share () leftvalue {
 		struct Dependent ;
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
@@ -1994,11 +1989,13 @@ public:
 	void clear () noexcept override {
 		if (mRoot == NULL)
 			return ;
-		for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
-			it = i->mNext ;
-			GlobalHeap::free (i->mOrigin) ;
+		while (TRUE) {
+			if (mRoot == NULL)
+				break ;
+			const auto r1x = mRoot->mNext ;
+			GlobalHeap::free (mRoot->mOrigin) ;
+			mRoot = r1x ;
 		}
-		mRoot = NULL ;
 		mFree = NULL ;
 		mSize = 0 ;
 		mLength = 0 ;
@@ -2062,18 +2059,24 @@ public:
 	void clean () noexcept override {
 		if (mSize == mLength)
 			return ;
-		for (PTR<CHUNK> i = mRoot ,it ; i != NULL ; i = it) {
-			it = i->mNext ;
-			if (!empty_node (i))
-				continue ;
-			auto &r1x = _SWITCH_ (
-				(i->mPrev != NULL) ? i->mPrev->mNext :
-				mRoot) ;
-			r1x = i->mNext ;
-			if (i->mNext != NULL)
-				i->mNext->mPrev = i->mPrev ;
-			mSize -= i->mCount * SIZE::value ;
-			GlobalHeap::free (i->mOrigin) ;
+		auto rax = mRoot ;
+		while (TRUE) {
+			if (rax == NULL)
+				break ;
+			const auto r1x = rax->mNext ;
+			if switch_once (TRUE) {
+				if (!empty_node (rax))
+					discard ;
+				auto &r2x = _SWITCH_ (
+					(rax->mPrev != NULL) ? rax->mPrev->mNext :
+					mRoot) ;
+				r2x = rax->mNext ;
+				if (rax->mNext != NULL)
+					rax->mNext->mPrev = rax->mPrev ;
+				mSize -= rax->mCount * SIZE::value ;
+				GlobalHeap::free (rax->mOrigin) ;
+			}
+			rax = r1x ;
 		}
 	}
 
@@ -2117,11 +2120,13 @@ public:
 	void clear () noexcept override {
 		if (mRoot == NULL)
 			return ;
-		for (PTR<FBLOCK> i = mRoot ,it ; i != NULL ; i = it) {
-			it = i->mNext ;
-			GlobalHeap::free (i->mOrigin) ;
+		while (TRUE) {
+			if (mRoot == NULL)
+				break ;
+			const auto r1x = mRoot->mNext ;
+			GlobalHeap::free (mRoot->mOrigin) ;
+			mRoot = r1x ;
 		}
-		mRoot = NULL ;
 		mSize = 0 ;
 		mLength = 0 ;
 	}
@@ -2324,11 +2329,11 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
-	inline _RET operator() (CONT &context_) const side_effects {
+	inline _RET operator() (PhanRef<CONT> &&context_) const side_effects {
 		struct Dependent ;
 		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return Member (DEREF[this] ,context_) ;
+		return Member (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
 } ;
 
@@ -2342,9 +2347,9 @@ private:
 public:
 	implicit Member () = delete ;
 
-	explicit Member (const Serializer &base ,CONT &context_) {
-		mBase = PhanRef<const Serializer>::make (base) ;
-		mContext = PhanRef<CONT>::make (context_) ;
+	explicit Member (PhanRef<const Serializer> &&base ,PhanRef<CONT> &&context_) {
+		mBase = _MOVE_ (base) ;
+		mContext = _MOVE_ (context_) ;
 	}
 
 	void friend_visit (UNIT &visitor) {

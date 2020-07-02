@@ -83,12 +83,18 @@ public:
 				break ;
 			ret = mTable[ret].mUp ;
 		}
-		for (INDEX i = index ,it ,ie = ret ; i != ie ; i = it) {
-			it = mTable[i].mUp ;
-			mTable[i].mUp = ret ;
-			if (it == ret)
-				continue ;
-			mTable[it].mWidth -= mTable[i].mWidth ;
+		INDEX ix = index ;
+		while (TRUE) {
+			if (ix == ret)
+				break ;
+			INDEX iy = mTable[ix].mUp ;
+			mTable[ix].mUp = ret ;
+			if switch_once (TRUE) {
+				if (iy == ret)
+					discard ;
+				mTable[iy].mWidth -= mTable[ix].mWidth ;
+			}
+			ix = iy ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -180,12 +186,15 @@ private:
 	void initialize (const PhanBuffer<const REAL> &pattern) ;
 
 	INDEX find_next (const INDEX &slow ,const INDEX &fast) const {
-		for (INDEX i = fast ,it ; i != VAR_NONE ; i = it) {
-			it = mNext[i] ;
-			if (mPattern[i] != mPattern[slow])
-				return i ;
+		INDEX ret = fast ;
+		while (TRUE) {
+			if (ret == VAR_NONE)
+				break ;
+			if (mPattern[ret] != mPattern[slow])
+				break ;
+			ret = mNext[ret] ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 } ;
 
@@ -241,9 +250,12 @@ public:
 	Array<INDEX> query_path (const INDEX &index) const {
 		Array<INDEX> ret = Array<INDEX> (query_path_depth (index)) ;
 		INDEX iw = ret.length () ;
-		for (INDEX i = index ,it ; i != VAR_NONE ; i = it) {
-			it = mPrev[i] ;
-			ret[--iw] = i ;
+		INDEX ix = index ;
+		while (TRUE) {
+			if (ix == VAR_NONE)
+				break ;
+			ret[--iw] = ix ;
+			ix = mPrev[ix] ;
 		}
 		_DEBUG_ASSERT_ (iw == 0) ;
 		return _MOVE_ (ret) ;
@@ -258,9 +270,12 @@ private:
 
 	LENGTH query_path_depth (const INDEX &index) const {
 		LENGTH ret = 0 ;
-		for (INDEX i = index ,it ; i != VAR_NONE ; i = it) {
-			it = mPrev[i] ;
+		INDEX ix = index ;
+		while (TRUE) {
+			if (ix == VAR_NONE)
+				break ;
 			ret++ ;
+			ix = mPrev[ix] ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -603,15 +618,15 @@ private:
 	void update_lack_weight_e0 (const INDEX &y) {
 		//@info: $0
 		mLackWeight[0] = 0 ;
-		*mLackWeight[1] = +mInfinity ;
+		mLackWeight[1] = +mInfinity ;
 		//@info: $1
 		auto rax = FALSE ;
-		*update_lack_weight_e7 (0 ,y ,rax) ;
+		update_lack_weight_e7 (0 ,y ,rax) ;
 		//@info: $18
 		if (rax) {
 			//@info: $19
 			mLackWeight[0] = 0 ;
-			*mLackWeight[1] = +mInfinity ;
+			mLackWeight[1] = +mInfinity ;
 		}
 		//@info: $20
 	}
@@ -626,7 +641,7 @@ private:
 		}
 		//@info: $3
 		mYVisit[stack_y] = TRUE ;
-		*stack_x = 0 ;
+		stack_x = 0 ;
 		//@info: $4
 		while (stack_x < mAdjacency.cx ()) {
 			//@info: $5
@@ -642,7 +657,7 @@ private:
 					if (stack_ret) {
 						//@info: $11
 						mXYLink[stack_x] = stack_y ;
-						*stack_ret = TRUE ;
+						stack_ret = TRUE ;
 						//@info: $17
 						return ;
 					}
@@ -1438,11 +1453,14 @@ private:
 			if (mBFSPath[mSource] == VAR_NONE)
 				break ;
 			const auto r1x = augument_max_flow () ;
-			for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
-				it = mBFSPath[i] ;
-				const auto r2x = MathProc::minof (mCurrentFlow[it][i] ,r1x) ;
-				mCurrentFlow[it][i] -= r2x ;
-				mCurrentFlow[i][it] += r1x - r2x ;
+			INDEX ix = mSource ;
+			while (TRUE) {
+				if (ix == mSink)
+					break ;
+				INDEX iy = mBFSPath[ix] ;
+				const auto r2x = MathProc::minof (mCurrentFlow[iy][ix] ,r1x) ;
+				mCurrentFlow[iy][ix] -= r2x ;
+				mCurrentFlow[ix][iy] += r1x - r2x ;
 			}
 		}
 	}
@@ -1473,11 +1491,15 @@ private:
 
 	REAL augument_max_flow () const {
 		REAL ret = mSingleFlow ;
-		for (INDEX i = mSource ,it ,ie = mSink ; i != ie ; i = it) {
-			it = mBFSPath[i] ;
-			_DEBUG_ASSERT_ (i != it) ;
-			const auto r1x = mAdjacency[i][it] + mCurrentFlow[it][i] - mCurrentFlow[i][it] ;
+		INDEX ix = mSource ;
+		while (TRUE) {
+			if (ix == mSink)
+				break ;
+			INDEX iy = mBFSPath[ix] ;
+			_DEBUG_ASSERT_ (ix != iy) ;
+			const auto r1x = mAdjacency[ix][iy] + mCurrentFlow[iy][ix] - mCurrentFlow[ix][iy] ;
 			ret = MathProc::minof (ret ,r1x) ;
+			ix = iy ;
 		}
 		return _MOVE_ (ret) ;
 	}

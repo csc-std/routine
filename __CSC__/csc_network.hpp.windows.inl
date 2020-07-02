@@ -388,7 +388,10 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 
 class TCPListener::Private::Implement {
 private:
-	SharedRef<TCPSocket::Implement::SELF_PACK> mThis ;
+	using SELF_PACK = TCPSocket::Implement::SELF_PACK ;
+
+private:
+	SharedRef<SELF_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 

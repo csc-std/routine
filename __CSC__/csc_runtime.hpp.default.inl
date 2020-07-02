@@ -219,8 +219,8 @@ inline exports Duration::Duration (const ARRAY6<LENGTH> &time_) {
 	mThis = StrongRef<Implement>::make (time_) ;
 }
 
-inline exports Duration::Duration (StrongRef<Implement> &&this_) {
-	mThis = _MOVE_ (this_) ;
+inline exports Duration::Duration (const StrongRef<Implement> &this_) {
+	mThis = this_ ;
 }
 
 inline exports LENGTH Duration::hours () const {
@@ -351,8 +351,8 @@ inline exports TimePoint::TimePoint (const ARRAY8<LENGTH> &time_) {
 	mThis = StrongRef<Implement>::make (time_) ;
 }
 
-inline exports TimePoint::TimePoint (StrongRef<Implement> &&this_) {
-	mThis = _MOVE_ (this_) ;
+inline exports TimePoint::TimePoint (const StrongRef<Implement> &this_) {
+	mThis = this_ ;
 }
 
 inline exports ARRAY8<LENGTH> TimePoint::calendar () const {
@@ -525,43 +525,44 @@ inline exports ConditionLock::ConditionLock () {
 
 class UniqueLock::Private::Implement {
 private:
+	PhanRef<Mutex> mMutex ;
+	PhanRef<ConditionLock> mConditionLock ;
 	api::unique_lock<api::mutex> mUniqueLock ;
-	PhanRef<api::condition_variable> mConditionLock ;
 
 public:
 	implicit Implement () = delete ;
 
-	explicit Implement (Mutex &mutex_ ,ConditionLock &condition) {
-		mUniqueLock = api::unique_lock<api::mutex> (mutex_.native ().native ()) ;
-		mConditionLock = PhanRef<api::condition_variable>::make (condition.native ().native ()) ;
+	explicit Implement (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
+		mConditionLock = _MOVE_ (condition_lock) ;
+		mUniqueLock = api::unique_lock<api::mutex> (mMutex->native ().native ()) ;
 	}
 
 	void wait () {
-		mConditionLock->wait (mUniqueLock) ;
+		mConditionLock->native ().native ().wait (mUniqueLock) ;
 	}
 
 	void wait (const TimePoint &time_) {
 		auto &r1x = time_.native ().native () ;
-		mConditionLock->wait_until (mUniqueLock ,r1x) ;
+		mConditionLock->native ().native ().wait_until (mUniqueLock ,r1x) ;
 	}
 
 	void wait (const Duration &time_) {
 		auto &r1x = time_.native ().native () ;
-		mConditionLock->wait_for (mUniqueLock ,r1x) ;
+		mConditionLock->native ().native ().wait_for (mUniqueLock ,r1x) ;
 	}
 
 	void yield () {
 		const auto r1x = api::chrono::milliseconds (0) ;
-		mConditionLock->wait_for (mUniqueLock ,r1x) ;
+		mConditionLock->native ().native ().wait_for (mUniqueLock ,r1x) ;
 	}
 
 	void notify () {
-		mConditionLock->notify_all () ;
+		mConditionLock->native ().native ().notify_all () ;
 	}
 } ;
 
-inline exports UniqueLock::UniqueLock (Mutex &mutex_ ,ConditionLock &condition) {
-	mThis = StrongRef<Implement>::make (mutex_ ,condition) ;
+inline exports UniqueLock::UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
+	mThis = StrongRef<Implement>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
 }
 
 inline exports void UniqueLock::wait () const {
@@ -592,8 +593,8 @@ private:
 public:
 	implicit Implement () = delete ;
 
-	explicit Implement (StrongRef<Binder> &&runnable) {
-		mRunnable = _MOVE_ (runnable) ;
+	explicit Implement (const StrongRef<Binder> &runnable) {
+		mRunnable = runnable ;
 		mThread = api::thread (Private::Runnable (PhanRef<Binder>::make (mRunnable.self))) ;
 	}
 
@@ -602,8 +603,8 @@ public:
 	}
 } ;
 
-inline exports Thread::Thread (StrongRef<Binder> &&runnable) {
-	mThis = StrongRef<Implement>::make (_MOVE_ (runnable)) ;
+inline exports Thread::Thread (const StrongRef<Binder> &runnable) {
+	mThis = StrongRef<Implement>::make (runnable) ;
 }
 
 inline exports void Thread::join () {
@@ -699,7 +700,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto rax = ByteReader<BYTE> (info) ;
+	auto rax = ByteReader<BYTE> (PhanBuffer<const BYTE>::make (info)) ;
 	const auto r1x = rax.read (ARGV<VAR64>::null) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
@@ -734,7 +735,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
-	auto rax = ByteReader<BYTE> (info) ;
+	auto rax = ByteReader<BYTE> (PhanBuffer<const BYTE>::make (info)) ;
 	const auto r1x = rax.read (ARGV<VAR64>::null) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;

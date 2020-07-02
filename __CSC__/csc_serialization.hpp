@@ -70,33 +70,33 @@ public:
 
 	XmlParser root () const {
 		if (!exist ())
-			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return XmlParser (_COPY_ (mHeap) ,0) ;
+			return XmlParser (mHeap ,VAR_NONE) ;
+		return XmlParser (mHeap ,0) ;
 	}
 
 	XmlParser parent () const {
 		if (!exist ())
-			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mParent) ;
+			return XmlParser (mHeap ,VAR_NONE) ;
+		return XmlParser (mHeap ,mHeap.self[mIndex].mParent) ;
 	}
 
 	XmlParser brother () const {
 		if (!exist ())
-			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mBrother) ;
+			return XmlParser (mHeap ,VAR_NONE) ;
+		return XmlParser (mHeap ,mHeap.self[mIndex].mBrother) ;
 	}
 
 	XmlParser child () const {
 		if (!exist ())
-			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return XmlParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mChild) ;
+			return XmlParser (mHeap ,VAR_NONE) ;
+		return XmlParser (mHeap ,mHeap.self[mIndex].mChild) ;
 	}
 
 	XmlParser child (const String<STRU8> &name) const {
 		if (!exist ())
-			return XmlParser (_COPY_ (mHeap) ,VAR_NONE) ;
+			return XmlParser (mHeap ,VAR_NONE) ;
 		INDEX ix = mHeap.self[mIndex].mObjectSet.map (name) ;
-		return XmlParser (_COPY_ (mHeap) ,ix) ;
+		return XmlParser (mHeap ,ix) ;
 	}
 
 	Array<XmlParser> child_array () const {
@@ -107,7 +107,7 @@ public:
 			ret = Array<XmlParser> (mHeap.self[mIndex].mMemberSet.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : mHeap.self[mIndex].mMemberSet)
-				ret[iw++] = XmlParser (_COPY_ (mHeap) ,i.sid) ;
+				ret[iw++] = XmlParser (mHeap ,i.sid) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
 		return _MOVE_ (ret) ;
@@ -123,7 +123,7 @@ public:
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
 					continue ;
-				ret[ix] = XmlParser (_COPY_ (mHeap) ,i.sid) ;
+				ret[ix] = XmlParser (mHeap ,i.sid) ;
 			}
 		}
 		return _MOVE_ (ret) ;
@@ -316,8 +316,8 @@ public:
 	}
 
 private:
-	explicit XmlParser (SharedRef<FixedBuffer<NODE>> &&heap ,const INDEX &index) {
-		mHeap = _MOVE_ (heap) ;
+	explicit XmlParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+		mHeap = heap ;
 		mIndex = index ;
 	}
 
@@ -359,8 +359,8 @@ private:
 	INDEX mRoot ;
 
 public:
-	explicit InitializeLambda (XmlParser &context_ ,const PhanBuffer<const STRU8> &data)
-		: mContext (context_) ,mTextReader (data) {}
+	explicit InitializeLambda (XmlParser &context_ ,PhanBuffer<const STRU8> &&data)
+		: mContext (context_) ,mTextReader (_MOVE_ (data)) {}
 
 	inline void operator() () {
 		prepare () ;
@@ -720,28 +720,33 @@ private:
 	}
 
 	void update_found_table_node (const XmlParser &node) {
-		for (XmlParser i = node ,it ; i.exist () ; i = it) {
-			it = i.brother () ;
+		auto rax = node ;
+		while (TRUE) {
+			if (!rax.exist ())
+				break ;
 			INDEX ix = mFoundNodeList.insert () ;
-			mFoundNodeList[ix].mName = i.name () ;
-			mFoundNodeList[ix].mClazz = node_type (i) ;
+			mFoundNodeList[ix].mName = rax.name () ;
+			mFoundNodeList[ix].mClazz = node_type (rax) ;
 			mFoundNodeList[ix].mAttributeList = Deque<String<STRU8>> () ;
 			mFoundNodeList[ix].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-			mFoundNodeList[ix].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-			mFoundNodeList[ix].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+			mFoundNodeList[ix].mAttributeList.appand (rax.mHeap.self[rax.mIndex].mAttributeList) ;
+			mFoundNodeList[ix].mAttributeMappingSet.appand (rax.mHeap.self[rax.mIndex].mAttributeMappingSet) ;
 			if (mFoundNodeBaseNodeQueue.empty ())
 				mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
 			mFoundNodeBaseNodeQueue.take (mFoundNodeList[ix].mBaseNodeList) ;
 			mFoundNodeList[ix].mBaseNodeList.clear () ;
-			mFoundNodeList[ix].mBaseNodeList.add (i.child ()) ;
+			mFoundNodeList[ix].mBaseNodeList.add (rax.child ()) ;
+			rax = rax.brother () ;
 		}
 	}
 
 	void update_found_object_node (const XmlParser &node) {
-		for (XmlParser i = node ,it ; i.exist () ; i = it) {
-			it = i.brother () ;
-			const auto r1x = i.name () ;
-			const auto r2x = node_type (i) ;
+		auto rax = node ;
+		while (TRUE) {
+			if (!rax.exist ())
+				break ;
+			const auto r1x = rax.name () ;
+			const auto r2x = node_type (rax) ;
 			INDEX ix = mFoundNodeMappingSet.map (r1x) ;
 			if switch_once (TRUE) {
 				if (ix == VAR_NONE)
@@ -764,25 +769,28 @@ private:
 				mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
 				mFoundNodeList[iy].mBaseNodeList.clear () ;
 			}
-			for (auto &&j : i.mHeap.self[i.mIndex].mAttributeMappingSet) {
+			for (auto &&j : rax.mHeap.self[rax.mIndex].mAttributeMappingSet) {
 				INDEX jx = mFoundNodeList[iy].mAttributeMappingSet.map (j.key) ;
 				if switch_once (TRUE) {
 					if (jx != VAR_NONE)
 						discard ;
 					jx = mFoundNodeList[iy].mAttributeList.insert () ;
 					mFoundNodeList[iy].mAttributeMappingSet.add (j.key ,jx) ;
-					mFoundNodeList[iy].mAttributeList[jx] = i.mHeap.self[i.mIndex].mAttributeList[j.sid] ;
+					mFoundNodeList[iy].mAttributeList[jx] = rax.mHeap.self[rax.mIndex].mAttributeList[j.sid] ;
 				}
 			}
-			mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
+			mFoundNodeList[iy].mBaseNodeList.add (rax.child ()) ;
+			rax = rax.brother () ;
 		}
 	}
 
 	void update_found_array_node (const XmlParser &node) {
-		for (XmlParser i = node ,it ; i.exist () ; i = it) {
-			it = i.brother () ;
-			const auto r1x = i.name () ;
-			const auto r2x = node_type (i) ;
+		auto rax = node ;
+		while (TRUE) {
+			if (!rax.exist ())
+				break ;
+			const auto r1x = rax.name () ;
+			const auto r2x = node_type (rax) ;
 			INDEX ix = mFoundNodeList.head () ;
 			if switch_once (TRUE) {
 				if (ix == VAR_NONE)
@@ -796,13 +804,14 @@ private:
 			mFoundNodeList[iy].mClazz = r2x ;
 			mFoundNodeList[iy].mAttributeList = Deque<String<STRU8>> () ;
 			mFoundNodeList[iy].mAttributeMappingSet = mAttributeMappingSoftSet.share () ;
-			mFoundNodeList[iy].mAttributeList.appand (i.mHeap.self[i.mIndex].mAttributeList) ;
-			mFoundNodeList[iy].mAttributeMappingSet.appand (i.mHeap.self[i.mIndex].mAttributeMappingSet) ;
+			mFoundNodeList[iy].mAttributeList.appand (rax.mHeap.self[rax.mIndex].mAttributeList) ;
+			mFoundNodeList[iy].mAttributeMappingSet.appand (rax.mHeap.self[rax.mIndex].mAttributeMappingSet) ;
 			if (mFoundNodeBaseNodeQueue.empty ())
 				mFoundNodeBaseNodeQueue.add (Deque<XmlParser> ()) ;
 			mFoundNodeBaseNodeQueue.take (mFoundNodeList[iy].mBaseNodeList) ;
 			mFoundNodeList[iy].mBaseNodeList.clear () ;
-			mFoundNodeList[iy].mBaseNodeList.add (i.child ()) ;
+			mFoundNodeList[iy].mBaseNodeList.add (rax.child ()) ;
+			rax = rax.brother () ;
 		}
 	}
 
@@ -890,9 +899,12 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
 			writer << TextWriter<STRU8>::GAP ;
 			rbx.clear () ;
-			for (INDEX i = r2x.mChild ,it ; i != VAR_NONE ; i = it) {
-				it = mHeap.self[i].mBrother ;
-				rbx.add (PACK<INDEX ,EFLAG> {i ,M_NODE_X1}) ;
+			INDEX jx = r2x.mChild ;
+			while (TRUE) {
+				if (jx == VAR_NONE)
+					break ;
+				rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
+				jx = mHeap.self[jx].mBrother ;
 			}
 			while (TRUE) {
 				if (rbx.empty ())
@@ -935,9 +947,12 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
-			for (INDEX i = r4x.mChild ,it ; i != VAR_NONE ; i = it) {
-				it = mHeap.self[i].mBrother ;
-				rbx.add (PACK<INDEX ,EFLAG> {i ,M_NODE_X1}) ;
+			INDEX jx = r4x.mChild ;
+			while (TRUE) {
+				if (jx == VAR_NONE)
+					break ;
+				rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
+				jx = mHeap.self[jx].mBrother ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {r1x.mP1 ,M_NODE_X2}) ;
 			while (TRUE) {
@@ -961,7 +976,7 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
+	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
@@ -1030,36 +1045,36 @@ public:
 
 	JsonParser root () const {
 		if (!exist ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return JsonParser (_COPY_ (mHeap) ,0) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
+		return JsonParser (mHeap ,0) ;
 	}
 
 	JsonParser parent () const {
 		if (!exist ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mParent) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
+		return JsonParser (mHeap ,mHeap.self[mIndex].mParent) ;
 	}
 
 	JsonParser brother () const {
 		if (!exist ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mBrother) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
+		return JsonParser (mHeap ,mHeap.self[mIndex].mBrother) ;
 	}
 
 	JsonParser child () const {
 		if (!exist ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
-		return JsonParser (_COPY_ (mHeap) ,mHeap.self[mIndex].mChild) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
+		return JsonParser (mHeap ,mHeap.self[mIndex].mChild) ;
 	}
 
 	JsonParser child (const String<STRU8> &key) const {
 		if (!exist ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
 		if (!object_type ())
-			return JsonParser (_COPY_ (mHeap) ,VAR_NONE) ;
+			return JsonParser (mHeap ,VAR_NONE) ;
 		auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
 		INDEX ix = r1x.map (key) ;
-		return JsonParser (_COPY_ (mHeap) ,ix) ;
+		return JsonParser (mHeap ,ix) ;
 	}
 
 	Array<JsonParser> child_array () const {
@@ -1073,7 +1088,7 @@ public:
 			ret = Array<JsonParser> (r1x.length ()) ;
 			INDEX iw = 0 ;
 			for (auto &&i : r1x)
-				ret[iw++] = JsonParser (_COPY_ (mHeap) ,i.sid) ;
+				ret[iw++] = JsonParser (mHeap ,i.sid) ;
 			_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		}
 		return _MOVE_ (ret) ;
@@ -1092,7 +1107,7 @@ public:
 				INDEX ix = iw++ ;
 				if (ix >= ret.size ())
 					continue ;
-				ret[ix] = JsonParser (_COPY_ (mHeap) ,i.sid) ;
+				ret[ix] = JsonParser (mHeap ,i.sid) ;
 			}
 		}
 		return _MOVE_ (ret) ;
@@ -1200,8 +1215,8 @@ public:
 	}
 
 private:
-	explicit JsonParser (SharedRef<FixedBuffer<NODE>> &&heap ,const INDEX &index) {
-		mHeap = _MOVE_ (heap) ;
+	explicit JsonParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+		mHeap = heap ;
 		mIndex = index ;
 	}
 
@@ -1252,8 +1267,8 @@ private:
 	INDEX mRoot ;
 
 public:
-	explicit InitializeLambda (JsonParser &context_ ,const PhanBuffer<const STRU8> &data)
-		: mContext (context_) ,mTextReader (data) {}
+	explicit InitializeLambda (JsonParser &context_ ,PhanBuffer<const STRU8> &&data)
+		: mContext (context_) ,mTextReader (_MOVE_ (data)) {}
 
 	inline void operator() () {
 		prepare () ;
@@ -1724,7 +1739,7 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
+	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 class CommandParser {
@@ -1861,8 +1876,8 @@ private:
 	Array<String<STRU8>> mCommand ;
 
 public:
-	explicit InitializeLambda (CommandParser &context_ ,const PhanBuffer<const STRU8> &data)
-		: mContext (context_) ,mTextReader (data) {}
+	explicit InitializeLambda (CommandParser &context_ ,PhanBuffer<const STRU8> &&data)
+		: mContext (context_) ,mTextReader (PhanBuffer<const STRU8>::make (data)) {}
 
 	inline void operator() () {
 		prepare () ;
@@ -2021,6 +2036,6 @@ private:
 inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,data)) ;
+	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
 }
 } ;

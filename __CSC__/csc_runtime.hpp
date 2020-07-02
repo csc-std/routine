@@ -37,7 +37,7 @@ public:
 
 	explicit Duration (const ARRAY6<LENGTH> &time_) ;
 
-	explicit Duration (StrongRef<Implement> &&this_) ;
+	explicit Duration (const StrongRef<Implement> &this_) ;
 
 	Implement &native () const leftvalue {
 		return mThis ;
@@ -86,7 +86,7 @@ public:
 
 	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
 
-	explicit TimePoint (StrongRef<Implement> &&this_) ;
+	explicit TimePoint (const StrongRef<Implement> &this_) ;
 
 	Implement &native () const leftvalue {
 		return mThis ;
@@ -227,10 +227,10 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
-	_RET watch (Mutex &mutex_) side_effects {
+	_RET watch (PhanRef<Mutex> &&mutex_) leftvalue {
 		struct Dependent ;
 		using UniqueLock = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
-		return UniqueLock (mutex_ ,DEREF[this]) ;
+		return UniqueLock (_MOVE_ (mutex_) ,PhanRef<ConditionLock>::make (DEREF[this])) ;
 	}
 } ;
 
@@ -249,7 +249,7 @@ private:
 public:
 	implicit UniqueLock () = delete ;
 
-	explicit UniqueLock (Mutex &mutex_ ,ConditionLock &condition) ;
+	explicit UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) ;
 
 	void wait () const ;
 
@@ -286,7 +286,7 @@ private:
 public:
 	implicit Thread () = delete ;
 
-	explicit Thread (StrongRef<Binder> &&runnable) ;
+	explicit Thread (const StrongRef<Binder> &runnable) ;
 
 	Implement &native () const leftvalue {
 		return mThis ;

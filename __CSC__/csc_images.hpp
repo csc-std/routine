@@ -35,14 +35,15 @@ public:
 	_RET begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (DEREF[this] ,0 ,first_item ()) ;
+		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,0 ,first_item ()) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (DEREF[this] ,total_length () ,Array<LENGTH ,SIZE> ()) ;
+		const auto r1x = total_length () ;
+		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,r1x ,Array<LENGTH ,SIZE> ()) ;
 	}
 
 private:
@@ -74,8 +75,8 @@ private:
 public:
 	implicit Iterator () = delete ;
 
-	explicit Iterator (const ArrayRange &base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item) {
-		mBase = PhanRef<const ArrayRange>::make (base) ;
+	explicit Iterator (PhanRef<const ArrayRange> &&base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item) {
+		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 		mItem = _MOVE_ (item) ;
 	}
@@ -158,20 +159,20 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (const PhanBuffer<UNIT> &image) {
+	explicit Bitmap (PhanBuffer<UNIT> &&image) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
 		mHeap->mWidth[3] = 0 ;
 		mHeap->mWidth[4] = mImage.size () ;
-		mImage = PhanBuffer<UNIT>::make (image) ;
+		mImage = _MOVE_ (image) ;
 		reset () ;
 	}
 
-	explicit Bitmap (SharedRef<FixedBuffer<UNIT>> &&image) {
+	explicit Bitmap (const SharedRef<FixedBuffer<UNIT>> &image) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
-		mHeap->mBuffer = _MOVE_ (image) ;
+		mHeap->mBuffer = image ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
@@ -238,7 +239,7 @@ public:
 		mCK = ck_ ;
 	}
 
-	Bitmap share () side_effects {
+	Bitmap share () leftvalue {
 		Bitmap ret ;
 		ret.mHeap = mHeap ;
 		ret.mImage = PhanBuffer<UNIT>::make (mImage) ;
@@ -286,7 +287,7 @@ public:
 	_RET get (const INDEX &y) leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Bitmap> ;
-		return Row (DEREF[this] ,y) ;
+		return Row (PhanRef<Bitmap>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Bitmap>>>
@@ -298,7 +299,7 @@ public:
 	_RET get (const INDEX &y) const leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Bitmap> ;
-		return Row (DEREF[this] ,y) ;
+		return Row (PhanRef<const Bitmap>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Bitmap>>>
@@ -608,8 +609,8 @@ private:
 public:
 	implicit Row () = delete ;
 
-	explicit Row (BASE &base ,const INDEX &y) {
-		mBase = PhanRef<BASE>::make (base) ;
+	explicit Row (PhanRef<BASE> &&base ,const INDEX &y) {
+		mBase = _MOVE_ (base) ;
 		mY = y ;
 	}
 
@@ -770,7 +771,7 @@ public:
 	_RET get (const INDEX &y) leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<AbstractImage> ;
-		return Row (DEREF[this] ,y) ;
+		return Row (PhanRef<AbstractImage>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<AbstractImage>>>
@@ -782,7 +783,7 @@ public:
 	_RET get (const INDEX &y) const leftvalue {
 		struct Dependent ;
 		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const AbstractImage> ;
-		return Row (DEREF[this] ,y) ;
+		return Row (PhanRef<const AbstractImage>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const AbstractImage>>>
@@ -873,8 +874,8 @@ private:
 public:
 	implicit Row () = delete ;
 
-	explicit Row (BASE &base ,const INDEX &y) {
-		mBase = PhanRef<BASE>::make (base) ;
+	explicit Row (PhanRef<BASE> &&base ,const INDEX &y) {
+		mBase = _MOVE_ (base) ;
 		mY = y ;
 	}
 
