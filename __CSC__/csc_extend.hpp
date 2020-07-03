@@ -1762,9 +1762,9 @@ private:
 		const auto r1x = mPointer.exchange (address) ;
 		if (r1x == NULL)
 			return r1x ;
-		INDEX ir = 0 ;
+		INDEX iw = 0 ;
 		while (TRUE) {
-			const auto r2x = ir++ ;
+			const auto r2x = iw++ ;
 			_STATIC_UNUSED_ (r2x) ;
 			_DEBUG_ASSERT_ (r2x <= DEFAULT_RECURSIVE_SIZE::value) ;
 			const auto r3x = mLatch.load () ;

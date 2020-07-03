@@ -533,6 +533,7 @@ public:
 	implicit Implement () = delete ;
 
 	explicit Implement (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
+		mMutex = _MOVE_ (mutex_) ;
 		mConditionLock = _MOVE_ (condition_lock) ;
 		mUniqueLock = api::unique_lock<api::mutex> (mMutex->native ().native ()) ;
 	}

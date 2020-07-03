@@ -1700,9 +1700,9 @@ public:
 
 	void write (const VAR64 &data) {
 		auto rax = Buffer<REAL ,ARGC<128>> () ;
-		INDEX ix = rax.size () ;
-		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,ix) ;
-		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
+		INDEX iw = rax.size () ;
+		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,iw) ;
+		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
 		write (r1x) ;
 	}
 
@@ -1741,10 +1741,10 @@ public:
 		}
 		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
-			INDEX ix = rax.size () ;
+			INDEX iw = rax.size () ;
 			const auto r2x = r1x.varify_val32_precision () ;
-			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
+			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,iw) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
 			write (r3x) ;
 		}
 	}
@@ -1784,10 +1784,10 @@ public:
 		}
 		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
-			INDEX ix = rax.size () ;
+			INDEX iw = rax.size () ;
 			const auto r2x = r1x.varify_val64_precision () ;
-			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,ix) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[ix]]] ,(rax.size () - ix)) ;
+			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,iw) ;
+			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
 			write (r3x) ;
 		}
 	}
@@ -1923,10 +1923,10 @@ public:
 	}
 
 private:
-	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
+	void compute_write_number (const VAR64 &data ,const PhanBuffer<REAL> &out ,INDEX &out_iw) {
 		const auto r1x = attr () ;
 		auto rax = data ;
-		INDEX iw = out_i ;
+		INDEX iw = out_iw ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(data > 0))
@@ -1954,12 +1954,12 @@ private:
 				discard ;
 			out[--iw] = r1x.convert_number_w (0) ;
 		}
-		out_i = iw ;
+		out_iw = iw ;
 	}
 
-	void compute_write_number (const VAL64 &data ,const LENGTH &precision ,const PhanBuffer<REAL> &out ,INDEX &out_i) {
+	void compute_write_number (const VAL64 &data ,const LENGTH &precision ,const PhanBuffer<REAL> &out ,INDEX &out_iw) {
 		const auto r1x = attr () ;
-		INDEX iw = out_i ;
+		INDEX iw = out_iw ;
 		const auto r2x = MathProc::ieee754_decode (data) ;
 		auto rax = MathProc::ieee754_e2_e10 (r2x) ;
 		const auto r3x = log_of_number (rax[0] ,r1x.varify_radix ()) ;
@@ -2079,7 +2079,7 @@ private:
 		}
 		if (rax[2] != 0)
 			out[--iw] = REAL ('-') ;
-		out_i = iw ;
+		out_iw = iw ;
 	}
 
 	LENGTH log_of_number (const VAR64 &val ,const LENGTH &radix) const {

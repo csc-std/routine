@@ -1631,11 +1631,11 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
 			rbx.clear () ;
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
-			INDEX ir = 0 ;
+			INDEX iw = 0 ;
 			for (auto &&i : r4x) {
-				if (ir > 0)
+				if (iw > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
-				ir++ ;
+				iw++ ;
 				rbx.add (PACK<INDEX ,EFLAG> {i.sid ,M_NODE_X1}) ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
@@ -1657,11 +1657,11 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			auto &r5x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
 			rbx.clear () ;
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
-			INDEX ir = 0 ;
+			INDEX iw = 0 ;
 			for (auto &&i : r5x) {
-				if (ir > 0)
+				if (iw > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
-				ir++ ;
+				iw++ ;
 				INDEX ix = r1x.find (DEPTR[i.key]) ;
 				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;

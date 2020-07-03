@@ -245,7 +245,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 			return file.raw () ;
 		return PhanBuffer<const STR> () ;
 	}) ;
-	auto rax = TextReader<STR> (r1x) ;
+	auto rax = TextReader<STR> (PhanBuffer<const STR>::make (r1x)) ;
 	const auto r2x = rax.attr () ;
 	r2x.modify_space (STR ('\\') ,0) ;
 	r2x.modify_space (STR ('/') ,0) ;

@@ -249,15 +249,16 @@ public:
 
 	Array<INDEX> query_path (const INDEX &index) const {
 		Array<INDEX> ret = Array<INDEX> (query_path_depth (index)) ;
-		INDEX iw = ret.length () ;
+		INDEX iw = 0 ;
 		INDEX ix = index ;
 		while (TRUE) {
 			if (ix == VAR_NONE)
 				break ;
-			ret[--iw] = ix ;
+			INDEX jx = ret.length () + ~iw++ ;
+			ret[jx] = ix ;
 			ix = mPrev[ix] ;
 		}
-		_DEBUG_ASSERT_ (iw == 0) ;
+		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1461,6 +1462,7 @@ private:
 				const auto r2x = MathProc::minof (mCurrentFlow[iy][ix] ,r1x) ;
 				mCurrentFlow[iy][ix] -= r2x ;
 				mCurrentFlow[ix][iy] += r1x - r2x ;
+				ix = iy ;
 			}
 		}
 	}

@@ -3177,7 +3177,7 @@ private:
 				break ;
 			ret = ix ;
 		}
-		return VAR_NONE ;
+		return _MOVE_ (ret) ;
 	}
 
 	void eswap (const INDEX &index1 ,const INDEX &index2) {
@@ -3210,14 +3210,14 @@ private:
 		_SWAP_ (mSet[index1].mRight ,mSet[index2].mRight) ;
 	}
 
-	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_iw) const {
 		if (curr == VAR_NONE)
 			return ;
-		INDEX iw = out_i ;
+		INDEX iw = out_iw ;
 		compute_order (mSet[curr].mLeft ,out ,iw) ;
 		out[iw++] = curr ;
 		compute_order (mSet[curr].mRight ,out ,iw) ;
-		out_i = iw ;
+		out_iw = iw ;
 	}
 } ;
 
@@ -4003,14 +4003,14 @@ private:
 		return mSet.self[curr].mWeight ;
 	}
 
-	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_i) const {
+	void compute_order (const INDEX &curr ,Array<INDEX> &out ,INDEX &out_iw) const {
 		if (curr == VAR_NONE)
 			return ;
-		INDEX iw = out_i ;
+		INDEX iw = out_iw ;
 		compute_order (mSet[curr].mLeft ,out ,iw) ;
 		out[iw++] = curr ;
 		compute_order (mSet[curr].mRight ,out ,iw) ;
-		out_i = iw ;
+		out_iw = iw ;
 	}
 } ;
 
