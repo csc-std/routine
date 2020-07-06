@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef __CSC_RUNTIME__
 #define __CSC_RUNTIME__

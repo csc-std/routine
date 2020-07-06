@@ -529,8 +529,8 @@ public:
 			api::CloseHandle (me) ;
 		}) ;
 		mReadFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
-			const auto r2x = VAR32 (FILE_SHARE_READ | FILE_SHARE_WRITE) ;
-			me = api::CreateFile (file.raw ().self ,GENERIC_READ ,r2x ,NULL ,OPEN_ALWAYS ,FILE_FLAG_SEQUENTIAL_SCAN ,NULL) ;
+			const auto r1x = VAR32 (FILE_SHARE_READ | FILE_SHARE_WRITE) ;
+			me = api::CreateFile (file.raw ().self ,GENERIC_READ ,r1x ,NULL ,OPEN_ALWAYS ,FILE_FLAG_SEQUENTIAL_SCAN ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
 				me = NULL ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
@@ -651,11 +651,11 @@ public:
 			api::CloseHandle (me) ;
 		}) ;
 		auto mBuildBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
-			const auto r2x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
-			const auto r3x = api::MapViewOfFile (mBuildMapping.self ,r2x ,0 ,0 ,file_len) ;
-			_DYNAMIC_ASSERT_ (r3x != NULL) ;
-			auto &r4x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r3x) ;
-			me = PhanBuffer<BYTE>::make (r4x ,file_len) ;
+			const auto r1x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
+			const auto r2x = api::MapViewOfFile (mBuildMapping.self ,r1x ,0 ,0 ,file_len) ;
+			_DYNAMIC_ASSERT_ (r2x != NULL) ;
+			auto &r3x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r2x) ;
+			me = PhanBuffer<BYTE>::make (r3x ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;

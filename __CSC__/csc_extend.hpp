@@ -2283,8 +2283,8 @@ private:
 			_CREATE_ (DEPTR[r1x]) ;
 		}) ;
 		mDestructor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
-			auto &r2x = _LOAD_ (ARGV<TEMP<_ARG1>>::null ,address) ;
-			_DESTROY_ (DEPTR[r2x]) ;
+			auto &r1x = _LOAD_ (ARGV<TEMP<_ARG1>>::null ,address) ;
+			_DESTROY_ (DEPTR[r1x]) ;
 		}) ;
 	}
 } ;

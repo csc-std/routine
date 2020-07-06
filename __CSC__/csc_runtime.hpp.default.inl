@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 
 #ifndef __CSC_RUNTIME__
-#error "¡Æ(¤Ã¡ã§¥¡ã ;)¤Ã : require 'csc_runtime.hpp'"
+#error "âˆ‘(ã£Â°Ğ”Â° ;)ã£ : require 'csc_runtime.hpp'"
 #endif
 
 #ifdef __CSC__
@@ -27,7 +27,7 @@
 
 #ifdef __CSC_SYSTEM_WINDOWS__
 #ifndef _INC_WINDOWS
-#error "¡Æ(¤Ã¡ã§¥¡ã ;)¤Ã : require 'Windows.h'"
+#error "âˆ‘(ã£Â°Ğ”Â° ;)ã£ : require 'Windows.h'"
 #endif
 #endif
 

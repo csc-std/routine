@@ -2363,10 +2363,10 @@ public:
 		const auto r1x = BasicProc::mem_compr (mSet ,that.mSet ,ix) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r4x = BYTE (mWidth % 8 - 1) ;
-		const auto r2x = BYTE (mSet[ix] & r4x) ;
-		const auto r3x = BYTE (that.mSet[ix] & r4x) ;
-		return U::OPERATOR_COMPR::invoke (r2x ,r3x) ;
+		const auto r2x = BYTE (mWidth % 8 - 1) ;
+		const auto r3x = BYTE (mSet[ix] & r2x) ;
+		const auto r4x = BYTE (that.mSet[ix] & r2x) ;
+		return U::OPERATOR_COMPR::invoke (r3x ,r4x) ;
 	}
 
 	inline BOOL operator< (const BitSet &that) const {
