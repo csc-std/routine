@@ -656,7 +656,7 @@ class GlobalStatic<void>
 public:
 	struct Public {
 		//@warn: this function should be implemented in a 'runtime.dll'
-		imports DEF<PTR<NONE> (const PTR<NONE> & ,const PTR<NONE> &) side_effects> unique_atomic_address ;
+		imports PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) side_effects ;
 	} ;
 
 private:

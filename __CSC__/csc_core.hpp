@@ -362,11 +362,11 @@ using DECREASE = ARGC<(_ARG1::value - 1)> ;
 
 template <class UNIT>
 struct ARGV {
-	imports DEF<void (const ARGV &)> null ;
+	static DEF<void (const ARGV &)> null ;
 } ;
 
 template <class UNIT>
-inline exports void ARGV<UNIT>::null (const ARGV &) {}
+inline void ARGV<UNIT>::null (const ARGV &) {}
 
 template <class _ARG1>
 using ARGVF = DEF<void (const ARGV<_ARG1> &)> ;
@@ -1821,7 +1821,7 @@ template <class _ARG1>
 inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &proc) side_effects {
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	_STATIC_ASSERT_ (!stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
-	imports const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = proc () ;
+	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = proc () ;
 	return mInstance ;
 }
 

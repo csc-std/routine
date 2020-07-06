@@ -364,7 +364,7 @@ private:
 	} ;
 
 private:
-	Deque<BitSet<>> mClusterList ;
+	Deque<BitSet<>> mCluster ;
 
 public:
 	implicit KMeansAlgorithm () = delete ;
@@ -376,7 +376,7 @@ public:
 	}
 
 	const Deque<BitSet<>> &query () const leftvalue {
-		return mClusterList ;
+		return mCluster ;
 	}
 
 private:
@@ -401,7 +401,7 @@ private:
 	SoftList<REAL> mCurrCenterList ;
 	SoftList<REAL> mNextCenterList ;
 	Set<INDEX> mCenterMoveSet ;
-	Deque<BitSet<>> mClusterList ;
+	Deque<BitSet<>> mCluster ;
 	Set<INDEX> mClusterMappingSet ;
 	ARRAY3<REAL> mConvergence ;
 
@@ -421,8 +421,8 @@ private:
 		mNextCenterList = SoftList<REAL> (mCenter.length ()) ;
 		mCurrCenterList.appand (mCenter) ;
 		mCenterMoveSet = Set<INDEX> (mCenter.length ()) ;
-		mClusterList = Deque<BitSet<>> () ;
-		mClusterMappingSet = Set<INDEX> () ;
+		mCluster = Deque<BitSet<>> () ;
+		mClusterMappingSet = Set<INDEX> (mCluster.size ()) ;
 		mConvergence.fill (mInfinity) ;
 	}
 
@@ -437,7 +437,7 @@ private:
 	}
 
 	void update_cluster_set () {
-		mClusterList.clear () ;
+		mCluster.clear () ;
 		mClusterMappingSet.clear () ;
 		for (auto &&i : mDataSet) {
 			INDEX ix = closest_center_of_point (i) ;
@@ -445,16 +445,16 @@ private:
 			if switch_once (TRUE) {
 				if (iy != VAR_NONE)
 					discard ;
-				iy = mClusterList.insert () ;
+				iy = mCluster.insert () ;
 				mClusterMappingSet.add (ix ,iy) ;
-				mClusterList[iy] = BitSet<> (mDataSet.size ()) ;
+				mCluster[iy] = BitSet<> (mDataSet.size ()) ;
 			}
 			INDEX jx = mDataSet.at (i) ;
-			mClusterList[iy][jx] = TRUE ;
+			mCluster[iy][jx] = TRUE ;
 		}
 		for (auto &&i : mClusterMappingSet) {
 			INDEX ix = mNextCenterList.insert () ;
-			mNextCenterList[ix] = average_center (mClusterList[i.sid]) ;
+			mNextCenterList[ix] = average_center (mCluster[i.sid]) ;
 			mCenterMoveSet.add (i.key ,ix) ;
 		}
 	}
@@ -515,7 +515,7 @@ private:
 	}
 
 	void refresh () {
-		mContext.mClusterList = _MOVE_ (mClusterList) ;
+		mContext.mCluster = _MOVE_ (mCluster) ;
 	}
 } ;
 

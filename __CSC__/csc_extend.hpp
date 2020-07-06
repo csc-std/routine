@@ -14,7 +14,7 @@ class GlobalWatch
 	:private Wrapped<void> {
 public:
 	struct Public {
-		imports DEF<void (const Exception &)> done ;
+		imports void done (const Exception &e) ;
 	} ;
 
 private:

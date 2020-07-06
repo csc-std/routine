@@ -76,9 +76,9 @@ public:
 		virtual void friend_read (ByteReader &reader) = 0 ;
 	} ;
 
-	imports DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
-	imports DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
-	imports DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
+	static DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
 
 private:
 	struct HEAP_PACK {
@@ -427,13 +427,13 @@ public:
 } ;
 
 template <class REAL>
-inline exports void ByteReader<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
+inline void ByteReader<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
 
 template <class REAL>
-inline exports void ByteReader<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
+inline void ByteReader<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
 
 template <class REAL>
-inline exports void ByteReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
+inline void ByteReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class ByteWriter {
@@ -446,9 +446,9 @@ public:
 		virtual void friend_write (ByteWriter &writer) const = 0 ;
 	} ;
 
-	imports DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
-	imports DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
-	imports DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
+	static DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
 
 private:
 	struct HEAP_PACK {
@@ -786,13 +786,13 @@ public:
 } ;
 
 template <class REAL>
-inline exports void ByteWriter<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
+inline void ByteWriter<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
 
 template <class REAL>
-inline exports void ByteWriter<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
+inline void ByteWriter<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
 
 template <class REAL>
-inline exports void ByteWriter<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
+inline void ByteWriter<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class TextReader {
@@ -805,10 +805,10 @@ public:
 		virtual void friend_read (TextReader &reader) = 0 ;
 	} ;
 
-	imports DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
-	imports DEF<void (const ARGVF<ARGC<2>> &)> BOM ;
-	imports DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
-	imports DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
+	static DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGVF<ARGC<2>> &)> BOM ;
+	static DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
 
 private:
 	struct HEAP_PACK {
@@ -1527,16 +1527,16 @@ public:
 } ;
 
 template <class REAL>
-inline exports void TextReader<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
+inline void TextReader<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
 
 template <class REAL>
-inline exports void TextReader<REAL>::BOM (const ARGVF<ARGC<2>> &) {}
+inline void TextReader<REAL>::BOM (const ARGVF<ARGC<2>> &) {}
 
 template <class REAL>
-inline exports void TextReader<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
+inline void TextReader<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
 
 template <class REAL>
-inline exports void TextReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
+inline void TextReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class TextWriter {
@@ -1549,10 +1549,10 @@ public:
 		virtual void friend_write (TextWriter &writer) const = 0 ;
 	} ;
 
-	imports DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
-	imports DEF<void (const ARGVF<ARGC<2>> &)> BOM ;
-	imports DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
-	imports DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
+	static DEF<void (const ARGVF<ARGC<1>> &)> CLS ;
+	static DEF<void (const ARGVF<ARGC<2>> &)> BOM ;
+	static DEF<void (const ARGVF<ARGC<3>> &)> GAP ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> EOS ;
 
 private:
 	struct HEAP_PACK {
@@ -2219,28 +2219,28 @@ public:
 } ;
 
 template <class REAL>
-inline exports void TextWriter<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
+inline void TextWriter<REAL>::CLS (const ARGVF<ARGC<1>> &) {}
 
 template <class REAL>
-inline exports void TextWriter<REAL>::BOM (const ARGVF<ARGC<2>> &) {}
+inline void TextWriter<REAL>::BOM (const ARGVF<ARGC<2>> &) {}
 
 template <class REAL>
-inline exports void TextWriter<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
+inline void TextWriter<REAL>::GAP (const ARGVF<ARGC<3>> &) {}
 
 template <class REAL>
-inline exports void TextWriter<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
+inline void TextWriter<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 class RegularReader {
 public:
-	imports DEF<void (const ARGVF<ARGC<1>> &)> HINT_IDENTIFIER ;
-	imports DEF<void (const ARGVF<ARGC<2>> &)> HINT_VALUE ;
-	imports DEF<void (const ARGVF<ARGC<3>> &)> HINT_STRING ;
-	imports DEF<void (const ARGVF<ARGC<4>> &)> HINT_NEWGAP ;
-	imports DEF<void (const ARGVF<ARGC<5>> &)> HINT_NEWLINE ;
-	imports DEF<void (const ARGVF<ARGC<6>> &)> SKIP_GAP ;
-	imports DEF<void (const ARGVF<ARGC<7>> &)> SKIP_GAP_SPACE ;
-	imports DEF<void (const ARGVF<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
-	imports DEF<void (const ARGVF<ARGC<9>> &)> SKIP_LINE ;
+	static DEF<void (const ARGVF<ARGC<1>> &)> HINT_IDENTIFIER ;
+	static DEF<void (const ARGVF<ARGC<2>> &)> HINT_VALUE ;
+	static DEF<void (const ARGVF<ARGC<3>> &)> HINT_STRING ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> HINT_NEWGAP ;
+	static DEF<void (const ARGVF<ARGC<5>> &)> HINT_NEWLINE ;
+	static DEF<void (const ARGVF<ARGC<6>> &)> SKIP_GAP ;
+	static DEF<void (const ARGVF<ARGC<7>> &)> SKIP_GAP_SPACE ;
+	static DEF<void (const ARGVF<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
+	static DEF<void (const ARGVF<ARGC<9>> &)> SKIP_LINE ;
 
 private:
 	struct HEAP_PACK {
@@ -2619,21 +2619,21 @@ public:
 	}
 } ;
 
-inline exports void RegularReader::HINT_IDENTIFIER (const ARGVF<ARGC<1>> &) {}
+inline void RegularReader::HINT_IDENTIFIER (const ARGVF<ARGC<1>> &) {}
 
-inline exports void RegularReader::HINT_VALUE (const ARGVF<ARGC<2>> &) {}
+inline void RegularReader::HINT_VALUE (const ARGVF<ARGC<2>> &) {}
 
-inline exports void RegularReader::HINT_STRING (const ARGVF<ARGC<3>> &) {}
+inline void RegularReader::HINT_STRING (const ARGVF<ARGC<3>> &) {}
 
-inline exports void RegularReader::HINT_NEWGAP (const ARGVF<ARGC<4>> &) {}
+inline void RegularReader::HINT_NEWGAP (const ARGVF<ARGC<4>> &) {}
 
-inline exports void RegularReader::HINT_NEWLINE (const ARGVF<ARGC<5>> &) {}
+inline void RegularReader::HINT_NEWLINE (const ARGVF<ARGC<5>> &) {}
 
-inline exports void RegularReader::SKIP_GAP (const ARGVF<ARGC<6>> &) {}
+inline void RegularReader::SKIP_GAP (const ARGVF<ARGC<6>> &) {}
 
-inline exports void RegularReader::SKIP_GAP_SPACE (const ARGVF<ARGC<7>> &) {}
+inline void RegularReader::SKIP_GAP_SPACE (const ARGVF<ARGC<7>> &) {}
 
-inline exports void RegularReader::SKIP_GAP_ENDLINE (const ARGVF<ARGC<8>> &) {}
+inline void RegularReader::SKIP_GAP_ENDLINE (const ARGVF<ARGC<8>> &) {}
 
-inline exports void RegularReader::SKIP_LINE (const ARGVF<ARGC<9>> &) {}
+inline void RegularReader::SKIP_LINE (const ARGVF<ARGC<9>> &) {}
 } ;
