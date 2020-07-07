@@ -1769,9 +1769,10 @@ public:
 	INDEX ibegin () const {
 		if (mHead.size () == 0)
 			return VAR_NONE ;
-		for (auto &&i : _RANGE_ (mRead ,mWrite + 1))
+		for (auto &&i : _RANGE_ (mRead ,mWrite + 1)) {
 			if (mHead[i].mIndex != VAR_NONE)
 				return mHead[i].mIndex ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -1780,9 +1781,10 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (mList[index].mSeq + 1 ,mWrite + 1))
+		for (auto &&i : _RANGE_ (mList[index].mSeq + 1 ,mWrite + 1)) {
 			if (mHead[i].mIndex != VAR_NONE)
 				return mHead[i].mIndex ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -2238,9 +2240,10 @@ public:
 	}
 
 	INDEX ibegin () const {
-		for (auto &&i : _RANGE_ (0 ,size ()))
+		for (auto &&i : _RANGE_ (0 ,size ())) {
 			if (get (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -2249,9 +2252,10 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ()))
+		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
 			if (get (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -2337,9 +2341,10 @@ public:
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return TRUE ;
-		for (auto &&i : _RANGE_ (0 ,ix))
+		for (auto &&i : _RANGE_ (0 ,ix)) {
 			if (mSet[i] != that.mSet[i])
 				return FALSE ;
+		}
 		const auto r1x = BYTE (mSet[ix] & (mWidth % 8 - 1)) ;
 		const auto r2x = BYTE (that.mSet[ix] & (mWidth % 8 - 1)) ;
 		if (r1x != r2x)
@@ -2647,9 +2652,10 @@ public:
 	}
 
 	INDEX ibegin () const {
-		for (auto &&i : _RANGE_ (0 ,size ()))
+		for (auto &&i : _RANGE_ (0 ,size ())) {
 			if (mSet.used (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -2658,9 +2664,10 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ()))
+		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
 			if (mSet.used (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -3301,9 +3308,10 @@ public:
 	}
 
 	INDEX ibegin () const {
-		for (auto &&i : _RANGE_ (0 ,size ()))
+		for (auto &&i : _RANGE_ (0 ,size ())) {
 			if (mSet.used (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 
@@ -3312,9 +3320,10 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ()))
+		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
 			if (mSet.used (i))
 				return i ;
+		}
 		return VAR_NONE ;
 	}
 

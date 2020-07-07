@@ -21,7 +21,7 @@ namespace CSC {
 class Mesh {
 private:
 	Set<ARRAY3<VAL32>> mVertexSet ;
-	SoftList<ARRAY3<INDEX>> mElementList ;
+	Deque<ARRAY3<INDEX>> mElement ;
 	Array<Bitmap<COLOR_BGR>> mTexture ;
 
 public:
@@ -31,8 +31,8 @@ public:
 		return mVertexSet ;
 	}
 
-	const SoftList<ARRAY3<INDEX>> &element () const leftvalue {
-		return mElementList ;
+	const Deque<ARRAY3<INDEX>> &element () const leftvalue {
+		return mElement ;
 	}
 
 	const Array<Bitmap<COLOR_BGR>> &texture () const leftvalue {
@@ -44,7 +44,7 @@ public:
 	}
 
 	void add_element (const Deque<ARRAY3<INDEX>> &element_) {
-		mElementList.appand (element_) ;
+		mElement.appand (element_) ;
 	}
 
 	void add_texture (Bitmap<COLOR_BGR> &&texture_) {

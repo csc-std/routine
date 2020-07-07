@@ -814,9 +814,9 @@ private:
 	struct HEAP_PACK {
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
-		Deque<REAL> mEscapeList ;
+		Deque<REAL> mEscape ;
 		HashSet<REAL> mEscapeMappingSet ;
-		Deque<PACK<REAL ,FLAG>> mSpaceList ;
+		Deque<PACK<REAL ,FLAG>> mSpace ;
 		HashSet<REAL> mSpaceMappingSet ;
 	} ;
 
@@ -1478,15 +1478,15 @@ public:
 		_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
 		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase->mHeap->mEscapeList.insert () ;
+		ix = mBase->mHeap->mEscape.insert () ;
 		mBase->mHeap->mEscapeMappingSet.add (str_a ,ix) ;
-		mBase->mHeap->mEscapeList[ix] = str_e ;
+		mBase->mHeap->mEscape[ix] = str_e ;
 	}
 
 	REAL convert_escape_r (const REAL &str_a) const {
 		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-		return mBase->mHeap->mEscapeList[ix] ;
+		return mBase->mHeap->mEscape[ix] ;
 	}
 
 	BOOL varify_space (const REAL &item) const {
@@ -1500,7 +1500,7 @@ public:
 		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
-		if (mBase->mHeap->mSpaceList[ix].mP2 != group)
+		if (mBase->mHeap->mSpace[ix].mP2 != group)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1510,10 +1510,10 @@ public:
 		_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
 		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase->mHeap->mSpaceList.insert () ;
+		ix = mBase->mHeap->mSpace.insert () ;
 		mBase->mHeap->mSpaceMappingSet.add (item ,ix) ;
-		mBase->mHeap->mSpaceList[ix].mP1 = item ;
-		mBase->mHeap->mSpaceList[ix].mP2 = group ;
+		mBase->mHeap->mSpace[ix].mP1 = item ;
+		mBase->mHeap->mSpace[ix].mP2 = group ;
 	}
 
 	BOOL varify_control (const REAL &item) const {
@@ -1558,7 +1558,7 @@ private:
 	struct HEAP_PACK {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 		BOOL mEscapeFlag ;
-		Deque<REAL> mEscapeList ;
+		Deque<REAL> mEscape ;
 		HashSet<REAL> mEscapeMappingSet ;
 	} ;
 
@@ -2191,15 +2191,15 @@ public:
 		_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
 		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
-		ix = mBase->mHeap->mEscapeList.insert () ;
+		ix = mBase->mHeap->mEscape.insert () ;
 		mBase->mHeap->mEscapeMappingSet.add (str_e ,ix) ;
-		mBase->mHeap->mEscapeList[ix] = str_a ;
+		mBase->mHeap->mEscape[ix] = str_a ;
 	}
 
 	REAL convert_escape_w (const REAL &str_e) const {
 		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
-		return mBase->mHeap->mEscapeList[ix] ;
+		return mBase->mHeap->mEscape[ix] ;
 	}
 
 	BOOL varify_space (const REAL &item) const {

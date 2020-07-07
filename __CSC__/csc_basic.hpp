@@ -54,9 +54,10 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 	_DEBUG_ASSERT_ (len >= 0) ;
 	if (src1 == src2)
 		return TRUE ;
-	for (auto &&i : _RANGE_ (0 ,len))
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		if (!(src1[i] == src2[i]))
 			return FALSE ;
+	}
 	return TRUE ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
@@ -240,9 +241,10 @@ inline exports INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,const LENGTH &le
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	_DEBUG_ASSERT_ (len >= 0) ;
-	for (auto &&i : _RANGE_ (0 ,len))
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		if (src[i] == val)
 			return i ;
+	}
 	return VAR_NONE ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
@@ -256,9 +258,10 @@ inline exports INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,const LENGTH &l
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 	_DEBUG_ASSERT_ (len >= 0) ;
-	for (auto &&i : _RANGE_ (0 ,len))
+	for (auto &&i : _RANGE_ (0 ,len)) {
 		if (src[len + ~i] == val)
 			return (len + ~i) ;
+	}
 	return VAR_NONE ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop

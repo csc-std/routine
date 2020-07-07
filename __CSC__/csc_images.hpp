@@ -312,9 +312,10 @@ public:
 			return FALSE ;
 		if (mCY != that.mCY)
 			return FALSE ;
-		for (auto &&i : range ())
+		for (auto &&i : range ()) {
 			if (get (i) != that.get (i))
 				return FALSE ;
+		}
 		return TRUE ;
 	}
 

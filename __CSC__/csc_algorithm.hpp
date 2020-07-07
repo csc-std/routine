@@ -248,17 +248,13 @@ public:
 	}
 
 	Array<INDEX> query_path (const INDEX &index) const {
-		Array<INDEX> ret = Array<INDEX> (query_path_depth (index)) ;
-		INDEX iw = 0 ;
-		INDEX ix = index ;
-		while (TRUE) {
-			if (ix == VAR_NONE)
-				break ;
-			INDEX jx = ret.length () + ~iw++ ;
-			ret[jx] = ix ;
-			ix = mPrev[ix] ;
+		const auto r1x = query_path_depth (index) ;
+		Array<INDEX> ret = Array<INDEX> (r1x.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,r1x.length ())) {
+			INDEX ix = r1x.access (i) ;
+			INDEX iy = ret.length () + ~i ;
+			ret[iy] = r1x[ix] ;
 		}
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -269,13 +265,13 @@ private:
 		_CALL_ (InitializeLambda (DEREF[this] ,adjacency ,root_)) ;
 	}
 
-	LENGTH query_path_depth (const INDEX &index) const {
-		LENGTH ret = 0 ;
+	Deque<INDEX> query_path_depth (const INDEX &index) const {
+		Deque<INDEX> ret = Deque<INDEX> (mPrev.length ()) ;
 		INDEX ix = index ;
 		while (TRUE) {
 			if (ix == VAR_NONE)
 				break ;
-			ret++ ;
+			ret.add (ix) ;
 			ix = mPrev[ix] ;
 		}
 		return _MOVE_ (ret) ;
@@ -499,9 +495,10 @@ private:
 
 	BOOL reach_convergence () const {
 		INDEX ix = mConvergence.length () - 1 ;
-		for (auto &&i : _RANGE_ (0 ,ix))
+		for (auto &&i : _RANGE_ (0 ,ix)) {
 			if (mConvergence[i] > mConvergence[i + 1])
 				return FALSE ;
+		}
 		if (MathProc::abs (mConvergence[0] - mConvergence[ix]) >= mTolerance)
 			return FALSE ;
 		return TRUE ;
@@ -847,23 +844,24 @@ private:
 	}
 
 	Array<ARRAY2<INDEX>> best_match () const {
-		Array<ARRAY2<INDEX>> ret = Array<ARRAY2<INDEX>> (best_match_depth ()) ;
-		INDEX iw = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mXYLink.length ())) {
-			if (mXYLink[i] == VAR_NONE)
-				continue ;
-			INDEX ix = iw++ ;
-			ret[ix][0] = mXYLink[i] ;
-			ret[ix][1] = i ;
+		const auto r1x = best_match_depth () ;
+		Array<ARRAY2<INDEX>> ret = Array<ARRAY2<INDEX>> (r1x.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,r1x.length ())) {
+			INDEX ix = r1x.access (i) ;
+			ret[i] = r1x[ix] ;
 		}
-		_DEBUG_ASSERT_ (iw == ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
-	LENGTH best_match_depth () const {
-		LENGTH ret = 0 ;
-		for (auto &&i : mXYLink)
-			ret += _EBOOL_ (i != VAR_NONE) ;
+	Deque<ARRAY2<INDEX>> best_match_depth () const {
+		Deque<ARRAY2<INDEX>> ret = Deque<ARRAY2<INDEX>> (mXYLink.length ()) ;
+		for (auto &&i : _RANGE_ (0 ,mXYLink.length ())) {
+			if (mXYLink[i] == VAR_NONE)
+				continue ;
+			INDEX ix = ret.insert () ;
+			ret[ix][0] = mXYLink[i] ;
+			ret[ix][1] = i ;
+		}
 		return _MOVE_ (ret) ;
 	}
 } ;

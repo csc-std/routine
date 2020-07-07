@@ -674,9 +674,9 @@ private:
 	struct SELF_PACK {
 		Atomic mCounter ;
 		Mutex mNodeMutex ;
-		Deque<VALUE_NODE> mValueList ;
+		Deque<VALUE_NODE> mValue ;
 		HashSet<FLAG> mValueMappingSet ;
-		Deque<CLASS_NODE> mClassList ;
+		Deque<CLASS_NODE> mClass ;
 		HashSet<FLAG> mClassMappingSet ;
 	} ;
 
@@ -714,11 +714,11 @@ private:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mValueList.insert () ;
+			ix = self_.mValue.insert () ;
 			self_.mValueMappingSet.add (r1x ,ix) ;
-			self_.mValueList[ix].mGUID = guid ;
+			self_.mValue[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mValueList[ix]] ;
+		return DEPTR[self_.mValue[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const FLAG &guid) {
@@ -730,7 +730,7 @@ private:
 		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mValueList[ix]] ;
+		return DEPTR[self_.mValue[ix]] ;
 	}
 
 	imports PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
@@ -739,11 +739,11 @@ private:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mClassList.insert () ;
+			ix = self_.mClass.insert () ;
 			self_.mClassMappingSet.add (r1x ,ix) ;
-			self_.mClassList[ix].mGUID = guid ;
+			self_.mClass[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mClassList[ix]] ;
+		return DEPTR[self_.mClass[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const String<STR> &guid) {
@@ -757,21 +757,21 @@ private:
 		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mClassList[ix]] ;
+		return DEPTR[self_.mClass[ix]] ;
 	}
 
 private:
 	imports void friend_create (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
 		self_.mCounter = 0 ;
-		self_.mValueList = Deque<VALUE_NODE> () ;
-		self_.mClassList = Deque<CLASS_NODE> () ;
+		self_.mValue = Deque<VALUE_NODE> () ;
+		self_.mClass = Deque<CLASS_NODE> () ;
 	}
 
 	imports void friend_destroy (SELF_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
-		self_.mValueList = Deque<VALUE_NODE> () ;
-		self_.mClassList = Deque<CLASS_NODE> () ;
+		self_.mValue = Deque<VALUE_NODE> () ;
+		self_.mClass = Deque<CLASS_NODE> () ;
 	}
 
 	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
