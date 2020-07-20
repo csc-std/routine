@@ -612,7 +612,6 @@ private:
 		}
 	}
 
-#if FALSE
 	void update_lack_weight_e0 (const INDEX &y) {
 		//@info: $0
 		mLackWeight[0] = 0 ;
@@ -672,13 +671,8 @@ private:
 		//@info: $17
 		return ;
 	}
-#endif
 
 	void update_lack_weight (const INDEX &y) {
-		/*
-		*	update_lack_weight_e0
-		*	update_lack_weight_e7
-		*/
 		static constexpr auto M_STATE = PACK<EFLAG[22]> ({
 			EFLAG (0) ,EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
 			EFLAG (5) ,EFLAG (6) ,EFLAG (7) ,EFLAG (8) ,EFLAG (9) ,

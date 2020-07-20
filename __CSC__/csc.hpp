@@ -79,6 +79,7 @@
 
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (disable :4068) //@info: warning C4068: unknown pragma
+#pragma warning (disable :4065) //@info: warning C4065: switch statement contains 'default' but no 'case' labels
 #pragma warning (disable :4619) //@info: warning C4619: #pragma warning: there is no warning number 'xxx'
 #pragma warning (disable :4100) //@info: warning C4100: 'xxx': unreferenced formal parameter
 #pragma warning (disable :4180) //@info: warning C4180: qualifier applied to function type has no meaning; ignored

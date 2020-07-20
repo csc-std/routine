@@ -2053,8 +2053,8 @@ private:
 	}
 
 	void update_compress_left (const INDEX &curr ,const INDEX &last) {
-		auto fax = TRUE ;
 		const auto r1x = mHead.size () - 1 ;
+		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(mHead[curr].mIndex == VAR_NONE))
 				discard ;
