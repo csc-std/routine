@@ -709,7 +709,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -763,10 +763,10 @@ public:
 
 	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
+			update_emplace () ;
 		mDeque[mWrite] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_resize () ;
+		update_emplace () ;
 	}
 
 	inline Deque &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
@@ -776,10 +776,10 @@ public:
 
 	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
+			update_emplace () ;
 		mDeque[mWrite] = _MOVE_ (item) ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_resize () ;
+		update_emplace () ;
 	}
 
 	inline Deque &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
@@ -822,29 +822,29 @@ public:
 
 	INDEX insert () side_effects {
 		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
+			update_emplace () ;
 		INDEX ret = mWrite ;
 		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_resize () ;
+		update_emplace () ;
 		return _MOVE_ (ret) ;
 	}
 
 	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
+			update_emplace () ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
 		mDeque[ix] = _MOVE_ (item) ;
 		mRead = ix ;
-		update_resize () ;
+		update_emplace () ;
 	}
 
 	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
-			reserve (mDeque.expand_size ()) ;
+			update_emplace () ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
 		mDeque[ix] = _MOVE_ (item) ;
 		mRead = ix ;
-		update_resize () ;
+		update_emplace () ;
 	}
 
 	void pop () {
@@ -882,8 +882,6 @@ private:
 			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[mRead]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mWrite - mRead)) ;
 		}
 		if switch_once (fax) {
-			if (!(mRead > mWrite))
-				discard ;
 			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
 			INDEX ix = mRead + tmp.size () - mDeque.size () ;
 			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
@@ -892,22 +890,23 @@ private:
 		mDeque.swap (tmp) ;
 	}
 
-	void update_resize () {
+	void update_emplace () {
 		if (mRead != mWrite)
 			return ;
 		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
-		BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
-		INDEX ix = 0 ;
-		INDEX iy = mDeque.size () ;
-		if switch_once (TRUE) {
-			if (mRead == 0)
+		auto fax = TRUE ;
+		if switch_once (fax) {
+			if (mRead != 0)
 				discard ;
-			ix = mRead + tmp.size () - mDeque.size () ;
-			iy = mWrite ;
+			BasicProc::mem_move (tmp.self ,mDeque.self ,mDeque.size ()) ;
+			mWrite = mDeque.size () ;
 		}
-		BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
-		mRead = ix ;
-		mWrite = iy ;
+		if switch_once (fax) {
+			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
+			INDEX ix = mRead + tmp.size () - mDeque.size () ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
+			mRead = ix ;
+		}
 		mDeque.swap (tmp) ;
 	}
 } ;
@@ -1058,7 +1057,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		INDEX ix = ret.length () ;
 		INDEX iy = ix - 1 ;
@@ -1098,12 +1097,12 @@ public:
 
 	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
-			reserve (mPriority.expand_size ()) ;
+			update_emplace () ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mItem = _MOVE_ (item) ;
 		mPriority[ix].mMap = map_ ;
 		mWrite++ ;
-		update_resize () ;
+		update_emplace () ;
 		update_insert (ix) ;
 	}
 
@@ -1118,12 +1117,12 @@ public:
 
 	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
-			reserve (mPriority.expand_size ()) ;
+			update_emplace () ;
 		INDEX ix = mWrite ;
 		mPriority[ix].mItem = _MOVE_ (item) ;
 		mPriority[ix].mMap = map_ ;
 		mWrite++ ;
-		update_resize () ;
+		update_emplace () ;
 		update_insert (ix) ;
 	}
 
@@ -1136,16 +1135,18 @@ public:
 
 	void take () {
 		_DEBUG_ASSERT_ (!empty ()) ;
-		mPriority[0] = _MOVE_ (mPriority[mWrite - 1]) ;
-		mWrite-- ;
+		INDEX ix = mWrite - 1 ;
+		mPriority[0] = _MOVE_ (mPriority[ix]) ;
+		mWrite = ix ;
 		update_insert (0) ;
 	}
 
 	void take (ITEM &item) {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		item = _MOVE_ (mPriority[0]) ;
-		mPriority[0] = _MOVE_ (mPriority[mWrite - 1]) ;
-		mWrite-- ;
+		INDEX ix = mWrite - 1 ;
+		mPriority[0] = _MOVE_ (mPriority[ix]) ;
+		mWrite = ix ;
 		update_insert (0) ;
 	}
 
@@ -1171,8 +1172,9 @@ public:
 
 	void remove (const INDEX &index) {
 		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		mPriority[index] = _MOVE_ (mPriority[mWrite - 1]) ;
-		mWrite-- ;
+		INDEX ix = mWrite - 1 ;
+		mPriority[index] = _MOVE_ (mPriority[ix]) ;
+		mWrite = ix ;
 		update_insert (index) ;
 	}
 
@@ -1192,7 +1194,7 @@ private:
 		mPriority.swap (tmp) ;
 	}
 
-	void update_resize () {
+	void update_emplace () {
 		if (mWrite < mPriority.size ())
 			return ;
 		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
@@ -1419,7 +1421,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
@@ -1706,46 +1708,40 @@ private:
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
-class SoftList ;
+class ArrayList ;
 
 template <class ITEM ,class SIZE>
-class SoftList {
+class ArrayList {
 private:
 	class Node {
 	private:
-		friend SoftList ;
+		friend ArrayList ;
 		ITEM mItem ;
-		INDEX mSeq ;
+		INDEX mIndex ;
 
 	public:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mSeq (VAR_NONE) {}
-	} ;
-
-	struct TREE_NODE {
-		INDEX mIndex ;
-		LENGTH mCount ;
+			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mIndex (VAR_NONE) {}
 	} ;
 
 private:
 	Allocator<Node ,SIZE> mList ;
-	Buffer<TREE_NODE ,SIZE> mHead ;
-	INDEX mRead ;
+	Buffer<INDEX ,SIZE> mRange ;
 	INDEX mWrite ;
 
 public:
-	implicit SoftList () {
+	implicit ArrayList () {
 		clear () ;
 	}
 
-	explicit SoftList (const LENGTH &len)
-		:SoftList (ARGVP0 ,len) {
+	explicit ArrayList (LENGTH len)
+		:ArrayList (ARGVP0 ,len) {
 		clear () ;
 	}
 
-	implicit SoftList (const stl::initializer_list<ITEM> &that)
-		: SoftList (that.size ()) {
+	implicit ArrayList (const stl::initializer_list<ITEM> &that)
+		: ArrayList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
 	}
@@ -1760,18 +1756,14 @@ public:
 
 	void clear () {
 		mList.clear () ;
-		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		BasicProc::mem_fill (mHead.self ,mHead.size () ,r1x) ;
-		mRead = 0 ;
+		BasicProc::mem_fill (mRange.self ,mRange.size () ,VAR_NONE) ;
 		mWrite = 0 ;
 	}
 
 	INDEX ibegin () const {
-		if (mHead.size () == 0)
-			return VAR_NONE ;
-		for (auto &&i : _RANGE_ (mRead ,mWrite + 1)) {
-			if (mHead[i].mIndex != VAR_NONE)
-				return mHead[i].mIndex ;
+		for (auto &&i : _RANGE_ (0 ,mWrite)) {
+			if (mRange[i] != VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
@@ -1781,58 +1773,51 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (mList[index].mSeq + 1 ,mWrite + 1)) {
-			if (mHead[i].mIndex != VAR_NONE)
-				return mHead[i].mIndex ;
+		const auto r1x = index + 1 ;
+		for (auto &&i : _RANGE_ (r1x ,mWrite)) {
+			if (mRange[i] != VAR_NONE)
+				return i ;
 		}
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<SoftList> begin () leftvalue {
-		return ArrayIterator<SoftList> (PhanRef<SoftList>::make (DEREF[this]) ,ibegin ()) ;
+	ArrayIterator<ArrayList> begin () leftvalue {
+		return ArrayIterator<ArrayList> (PhanRef<ArrayList>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
-	ArrayIterator<const SoftList> begin () const leftvalue {
-		return ArrayIterator<const SoftList> (PhanRef<const SoftList>::make (DEREF[this]) ,ibegin ()) ;
+	ArrayIterator<const ArrayList> begin () const leftvalue {
+		return ArrayIterator<const ArrayList> (PhanRef<const ArrayList>::make (DEREF[this]) ,ibegin ()) ;
 	}
 
-	ArrayIterator<SoftList> end () leftvalue {
-		return ArrayIterator<SoftList> (PhanRef<SoftList>::make (DEREF[this]) ,iend ()) ;
+	ArrayIterator<ArrayList> end () leftvalue {
+		return ArrayIterator<ArrayList> (PhanRef<ArrayList>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	ArrayIterator<const SoftList> end () const leftvalue {
-		return ArrayIterator<const SoftList> (PhanRef<const SoftList>::make (DEREF[this]) ,iend ()) ;
+	ArrayIterator<const ArrayList> end () const leftvalue {
+		return ArrayIterator<const ArrayList> (PhanRef<const ArrayList>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	ITEM &get (const INDEX &index) leftvalue {
-		return mList[index].mItem ;
+	ITEM &get (INDEX index) leftvalue {
+		return mList[mRange[index]].mItem ;
 	}
 
-	inline ITEM &operator[] (const INDEX &index) leftvalue {
+	inline ITEM &operator[] (INDEX index) leftvalue {
 		return get (index) ;
 	}
 
-	const ITEM &get (const INDEX &index) const leftvalue {
-		return mList[index].mItem ;
+	const ITEM &get (INDEX index) const leftvalue {
+		return mList[mRange[index]].mItem ;
 	}
 
-	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
+	inline const ITEM &operator[] (INDEX index) const leftvalue {
 		return get (index) ;
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
-	}
-
-	INDEX access (const INDEX &pos) const {
-		_DEBUG_ASSERT_ (pos >= 0 && pos < length ()) ;
-		if (mWrite - mRead + 1 == mList.length ())
-			return mHead[mRead + pos].mIndex ;
-		if (mWrite - mRead == mList.length ())
-			if (mHead[mWrite].mIndex == VAR_NONE)
-				return mHead[mRead + pos].mIndex ;
-		INDEX ix = access (pos ,mRead ,mWrite) ;
-		return mHead[ix].mIndex ;
+		INDEX ret = mList.at (_OFFSET_ (&Node::mItem ,item)) ;
+		if (ret != VAR_NONE)
+			ret = mList[ret].mIndex ;
+		return _MOVE_ (ret) ;
 	}
 
 	Array<INDEX> range () const {
@@ -1850,13 +1835,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
-		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
-		return _MOVE_ (ret) ;
-	}
-
-	BOOL equal (const SoftList &that) const {
+	BOOL equal (const ArrayList &that) const {
 		if (length () != that.length ())
 			return FALSE ;
 		INDEX ix = ibegin () ;
@@ -1880,32 +1859,40 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (const SoftList &that) const {
+	inline BOOL operator== (const ArrayList &that) const {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (const SoftList &that) const {
+	inline BOOL operator!= (const ArrayList &that) const {
 		return !equal (that) ;
 	}
 
 	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
-		update_resize (ix) ;
-		update_compress_left (mWrite ,ix) ;
+		update_range (ix) ;
+		mList[ix].mIndex = min_free_one () ;
+		mRange[mList[ix].mIndex] = ix ;
+		const auto r1x = mWrite ;
+		const auto r2x = mList[ix].mIndex + 1 ;
+		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
-	inline SoftList &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline ArrayList &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
 	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
-		update_resize (ix) ;
-		update_compress_left (mWrite ,ix) ;
+		update_range (ix) ;
+		mList[ix].mIndex = min_free_one () ;
+		mRange[mList[ix].mIndex] = ix ;
+		const auto r1x = mWrite ;
+		const auto r2x = mList[ix].mIndex + 1 ;
+		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
-	inline SoftList &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline ArrayList &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -1918,234 +1905,106 @@ public:
 	}
 
 	INDEX insert () side_effects {
-		INDEX ret = mList.alloc () ;
-		update_resize (ret) ;
-		update_compress_left (mWrite ,ret) ;
-		return _MOVE_ (ret) ;
+		INDEX ix = mList.alloc () ;
+		update_range (ix) ;
+		mList[ix].mIndex = min_free_one () ;
+		mRange[mList[ix].mIndex] = ix ;
+		const auto r1x = mWrite ;
+		const auto r2x = mList[ix].mIndex + 1 ;
+		mWrite = _MAX_ (r1x ,r2x) ;
+		return mList[ix].mIndex ;
 	}
 
-	INDEX insert_before (const INDEX &index) side_effects {
-		INDEX ret = mList.alloc () ;
-		update_resize (ret) ;
-		const auto r1x = _CALL_ ([&] () {
-			if (index != VAR_NONE)
-				return mList[index].mSeq ;
-			return mWrite ;
-		}) ;
-		update_compress_left (r1x ,ret) ;
-		return _MOVE_ (ret) ;
-	}
-
-	INDEX insert_after (const INDEX &index) side_effects {
-		INDEX ret = mList.alloc () ;
-		update_resize (ret) ;
-		const auto r1x = _CALL_ ([&] () {
-			if (index != VAR_NONE)
-				return mList[index].mSeq + 1 ;
-			return mRead ;
-		}) ;
-		update_compress_left (r1x ,ret) ;
-		return _MOVE_ (ret) ;
+	INDEX insert (const INDEX &index) side_effects {
+		if switch_once (TRUE) {
+			if (mRange[index] != VAR_NONE)
+				discard ;
+			INDEX ix = mList.alloc () ;
+			update_range (ix) ;
+			mList[ix].mIndex = index ;
+			mRange[mList[ix].mIndex] = ix ;
+			const auto r1x = mWrite ;
+			const auto r2x = mList[ix].mIndex + 1 ;
+			mWrite = _MAX_ (r1x ,r2x) ;
+		}
+		return mList[mRange[index]].mIndex ;
 	}
 
 	void eswap (const INDEX &index1 ,const INDEX &index2) {
 		if (index1 == index2)
 			return ;
-		sequence_rewrite (mList[index1].mSeq ,index2) ;
-		sequence_rewrite (mList[index2].mSeq ,index1) ;
-	}
-
-	void splice_before (const INDEX &index ,const INDEX &last) {
-		sequence_remove (mList[last].mSeq) ;
-		const auto r1x = _CALL_ ([&] () {
-			if (index != VAR_NONE)
-				return mList[index].mSeq ;
-			return mWrite ;
-		}) ;
-		update_compress_left (r1x ,last) ;
-	}
-
-	void splice_after (const INDEX &index ,const INDEX &last) {
-		sequence_remove (mList[last].mSeq) ;
-		const auto r1x = _CALL_ ([&] () {
-			if (index != VAR_NONE)
-				return mList[index].mSeq + 1 ;
-			return mRead ;
-		}) ;
-		update_compress_left (r1x ,last) ;
+		_SWAP_ (mRange[index1] ,mRange[index2]) ;
+		mList[mRange[index1]].mIndex = index1 ;
+		mList[mRange[index2]].mIndex = index2 ;
 	}
 
 	void remove (const INDEX &index) {
-		sequence_remove (mList[index].mSeq) ;
-		mList.free (index) ;
+		mList.free (mRange[index]) ;
+		mRange[index] = VAR_NONE ;
 	}
 
-	void sort (const Array<INDEX> &order_) {
-		_DEBUG_ASSERT_ (order_.length () == length ()) ;
-		if (order_.length () < 2)
+	INDEX map (const INDEX &index) const {
+		if (!(index >= 0 && index < mRange.size ()))
+			return VAR_NONE ;
+		if (mRange[index] == VAR_NONE)
+			return VAR_NONE ;
+		return mList[mRange[index]].mIndex ;
+	}
+
+	void remap () {
+		if (mWrite == mList.length ())
 			return ;
-		for (auto &&i : _RANGE_ (0 ,order_.length ()))
-			sequence_rewrite (i ,order_[i]) ;
-		for (auto &&i : _RANGE_ (order_.length () ,mHead.size ()))
-			sequence_remove (i) ;
-		mRead = 0 ;
-		mWrite = order_.length () - 1 ;
+		INDEX ix = 0 ;
+		while (TRUE) {
+			_DEBUG_ASSERT_ (ix < mWrite) ;
+			if (mRange[ix] != VAR_NONE)
+				break ;
+			ix++ ;
+		}
+		for (auto &&i : _RANGE_ (ix + 1 ,mWrite)) {
+			if (mRange[i] == VAR_NONE)
+				continue ;
+			mRange[ix] = mRange[i] ;
+			mList[mRange[ix]].mIndex = ix ;
+			mRange[i] = VAR_NONE ;
+			ix++ ;
+		}
+		_DEBUG_ASSERT_ (ix == mList.length ()) ;
+		mWrite = ix ;
+	}
+
+	void clean () {
+		for (auto &&i : _RANGE_ (0 ,mWrite))
+			_DYNAMIC_ASSERT_ (mRange[i] >= 0 && mRange[i] < mWrite) ;
+		mList.clean () ;
+		update_range (VAR_NONE) ;
 	}
 
 private:
-	explicit SoftList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
-		:mList (len) ,mHead (len) {}
+	explicit ArrayList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
+		:mList (len) ,mRange (len) {}
 
 private:
-	INDEX access (const INDEX &pos ,const INDEX &seg_a ,const LENGTH &seg_b) const {
-		INDEX ret = VAR_NONE ;
-		INDEX ix = seg_a ;
-		INDEX iy = seg_b ;
-		while (TRUE) {
-			if (ix > iy)
-				break ;
-			ret = ix + (iy - ix) / 2 ;
-			INDEX jx = position_before (ret) ;
-			if (jx == pos)
-				if (mHead[ret].mIndex != VAR_NONE)
-					break ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(jx < pos))
-					discard ;
-				ix = ret + 1 ;
-			}
-			if switch_once (fax) {
-				iy = ret - 1 ;
-			}
+	INDEX min_free_one () const {
+		for (auto &&i : _RANGE_ (0 ,mRange.size ())) {
+			if (mRange[i] == VAR_NONE)
+				return i ;
 		}
-		_DEBUG_ASSERT_ (ret != VAR_NONE) ;
-		return _MOVE_ (ret) ;
+		return VAR_NONE ;
 	}
 
-	INDEX position_before (const INDEX &curr) const {
-		INDEX ret = 0 ;
-		INDEX ix = curr ;
-		while (TRUE) {
-			if (ix < 0)
-				break ;
-			ret += mHead[ix].mCount ;
-			ix -= (ix + 1) & -(ix + 1) ;
-		}
-		ret-- ;
-		return _MOVE_ (ret) ;
-	}
-
-	void update_resize (const INDEX &curr) {
-		if (mHead.size () == mList.size ())
+	void update_range (const INDEX &curr) {
+		if (mRange.size () == mList.size ())
 			return ;
-		auto tmp = mHead.expand (mList.size ()) ;
-		const auto r1x = TREE_NODE {VAR_NONE ,VAR_ZERO} ;
-		BasicProc::mem_fill (tmp.self ,tmp.size () ,r1x) ;
-		mHead.swap (tmp) ;
+		auto tmp = mRange.expand (mList.size ()) ;
+		BasicProc::mem_fill (tmp.self ,tmp.size () ,VAR_NONE) ;
+		mRange.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
 				continue ;
 			if (!mList.used (i))
 				continue ;
-			sequence_rewrite (mList[i].mSeq ,i) ;
-		}
-	}
-
-	void update_compress_left (const INDEX &curr ,const INDEX &last) {
-		const auto r1x = mHead.size () - 1 ;
-		auto fax = TRUE ;
-		if switch_once (fax) {
-			if (!(mHead[curr].mIndex == VAR_NONE))
-				discard ;
-			sequence_rewrite (curr ,last) ;
-			const auto r2x = curr + 1 ;
-			mWrite = _MIN_ (r2x ,r1x) ;
-		}
-		if switch_once (fax) {
-			INDEX ix = curr + 1 ;
-			if (!(ix < mHead.size ()))
-				discard ;
-			if (!(mHead[ix].mIndex == VAR_NONE))
-				discard ;
-			sequence_rewrite (ix ,last) ;
-			const auto r3x = ix + 1 ;
-			mWrite = _MIN_ (r3x ,r1x) ;
-		}
-		if switch_once (fax) {
-			update_compress_left_force (curr ,last) ;
-		}
-	}
-
-	void update_compress_left_force (const INDEX &curr ,const INDEX &last) {
-		INDEX ix = curr ;
-		INDEX iy = last ;
-		for (auto &&i : _RANGE_ (0 ,mList.length ())) {
-			while (TRUE) {
-				if (mRead == ix)
-					break ;
-				if (mHead[mRead].mIndex != VAR_NONE)
-					break ;
-				mRead++ ;
-			}
-			const auto r1x = mHead[i].mIndex ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(mRead == ix))
-					discard ;
-				if (!(r1x == VAR_NONE))
-					discard ;
-				sequence_rewrite (i ,iy) ;
-				iy = r1x ;
-				ix = VAR_NONE ;
-			}
-			if switch_once (fax) {
-				if (!(mRead == ix))
-					discard ;
-				if (!(r1x != VAR_NONE))
-					discard ;
-				sequence_rewrite (i ,iy) ;
-				iy = r1x ;
-				ix++ ;
-			}
-			if switch_once (fax) {
-				if (!(mRead != i))
-					discard ;
-				sequence_rewrite (i ,mHead[mRead].mIndex) ;
-				sequence_remove (mRead) ;
-			}
-			mRead++ ;
-		}
-		mRead = 0 ;
-		const auto r2x = mList.length () ;
-		const auto r3x = mHead.size () - 1 ;
-		mWrite = _MIN_ (r2x ,r3x) ;
-	}
-
-	void sequence_rewrite (const INDEX &curr ,const INDEX &index) {
-		_DEBUG_ASSERT_ (index != VAR_NONE) ;
-		INDEX ix = curr ;
-		const auto r1x = mHead[curr].mIndex ;
-		mHead[ix].mIndex = index ;
-		mList[index].mSeq = ix ;
-		if (r1x != VAR_NONE)
-			return ;
-		while (TRUE) {
-			if (ix >= mHead.size ())
-				break ;
-			mHead[ix].mCount++ ;
-			ix += (ix + 1) & -(ix + 1) ;
-		}
-	}
-
-	void sequence_remove (const INDEX &curr) {
-		INDEX ix = curr ;
-		mHead[ix].mIndex = VAR_NONE ;
-		while (TRUE) {
-			if (ix >= mHead.size ())
-				break ;
-			mHead[ix].mCount-- ;
-			ix += (ix + 1) & -(ix + 1) ;
+			mRange[mList[i].mIndex] = i ;
 		}
 	}
 } ;
@@ -2252,7 +2111,8 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
+		const auto r1x = index + 1 ;
+		for (auto &&i : _RANGE_ (r1x ,size ())) {
 			if (get (i))
 				return i ;
 		}
@@ -2664,7 +2524,8 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
+		const auto r1x = index + 1 ;
+		for (auto &&i : _RANGE_ (r1x ,size ())) {
 			if (mSet.used (i))
 				return i ;
 		}
@@ -2744,7 +2605,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		compute_order (mRoot ,ret ,iw) ;
@@ -2906,8 +2767,6 @@ private:
 			mTop = last ;
 		}
 		if switch_once (fax) {
-			if (!(curr != VAR_NONE))
-				discard ;
 			mSet[last].mUp = curr ;
 			auto &r1x = _SWITCH_ (
 				(mSet[last].mItem < mSet[curr].mItem) ? mSet[curr].mLeft :
@@ -3274,7 +3133,7 @@ private:
 
 private:
 	Allocator<Node ,SIZE> mSet ;
-	Buffer<INDEX ,SIZE> mHead ;
+	Buffer<INDEX ,SIZE> mRange ;
 	INDEX mTop ;
 
 public:
@@ -3303,7 +3162,7 @@ public:
 
 	void clear () {
 		mSet.clear () ;
-		BasicProc::mem_fill (mHead.self ,mHead.size () ,VAR_NONE) ;
+		BasicProc::mem_fill (mRange.self ,mRange.size () ,VAR_NONE) ;
 		mTop = VAR_NONE ;
 	}
 
@@ -3320,7 +3179,8 @@ public:
 	}
 
 	INDEX inext (const INDEX &index) const {
-		for (auto &&i : _RANGE_ (index + 1 ,size ())) {
+		const auto r1x = index + 1 ;
+		for (auto &&i : _RANGE_ (r1x ,size ())) {
 			if (mSet.used (i))
 				return i ;
 		}
@@ -3415,9 +3275,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (_MOVE_ (item)) ;
+			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mHash = U::OPERATOR_HASH::invoke (item) ;
-			update_resize (ix) ;
 			update_insert (ix) ;
 		}
 		mTop = ix ;
@@ -3438,9 +3298,9 @@ public:
 			if (ix != VAR_NONE)
 				discard ;
 			ix = mSet.alloc (_MOVE_ (item)) ;
+			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mHash = U::OPERATOR_HASH::invoke (item) ;
-			update_resize (ix) ;
 			update_insert (ix) ;
 		}
 		mTop = ix ;
@@ -3475,7 +3335,7 @@ public:
 				discard ;
 			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
-			ret = mHead[r1x % mHead.size ()] ;
+			ret = mRange[r1x % mRange.size ()] ;
 			while (TRUE) {
 				if (ret == VAR_NONE)
 					break ;
@@ -3504,37 +3364,37 @@ public:
 
 private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
-		:mSet (len) ,mHead (len) {}
+		:mSet (len) ,mRange (len) {}
 
 private:
-	void update_resize (const INDEX &curr) {
-		if (mHead.size () == mSet.size ())
+	void update_range (const INDEX &curr) {
+		if (mRange.size () == mSet.size ())
 			return ;
-		auto tmp = mHead.expand (mSet.size ()) ;
+		auto tmp = mRange.expand (mSet.size ()) ;
 		BasicProc::mem_fill (tmp.self ,tmp.size () ,VAR_NONE) ;
-		mHead.swap (tmp) ;
+		mRange.swap (tmp) ;
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)
 				continue ;
 			if (!mSet.used (i))
 				continue ;
-			INDEX ix = mSet[i].mHash % mHead.size () ;
-			mSet[i].mNext = mHead[ix] ;
-			mHead[ix] = i ;
+			INDEX ix = mSet[i].mHash % mRange.size () ;
+			mSet[i].mNext = mRange[ix] ;
+			mRange[ix] = i ;
 		}
 	}
 
 	void update_insert (const INDEX &curr) {
-		INDEX ix = mSet[curr].mHash % mHead.size () ;
-		mSet[curr].mNext = mHead[ix] ;
-		mHead[ix] = curr ;
+		INDEX ix = mSet[curr].mHash % mRange.size () ;
+		mSet[curr].mNext = mRange[ix] ;
+		mRange[ix] = curr ;
 	}
 
 	INDEX &prev_next (const INDEX &curr) leftvalue {
-		INDEX ix = mSet[curr].mHash % mHead.size () ;
-		if (mHead[ix] == curr)
-			return mHead[ix] ;
-		ix = mHead[ix] ;
+		INDEX ix = mSet[curr].mHash % mRange.size () ;
+		if (mRange[ix] == curr)
+			return mRange[ix] ;
+		ix = mRange[ix] ;
 		while (TRUE) {
 			if (mSet[ix].mNext == VAR_NONE)
 				break ;
@@ -3738,7 +3598,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<INDEX> range_order () const {
+	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
 		compute_order (mRoot ,ret ,iw) ;
@@ -3770,7 +3630,7 @@ public:
 			r1x = ix ;
 			mLast = ix ;
 			mLength++ ;
-			update_insert (mRoot) ;
+			update_insert (mRoot ,ix) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -3800,7 +3660,7 @@ public:
 			r1x = ix ;
 			mLast = ix ;
 			mLength++ ;
-			update_insert (mRoot) ;
+			update_insert (mRoot ,ix) ;
 			mRoot = mTop ;
 		}
 		mTop = ix ;
@@ -3887,26 +3747,24 @@ public:
 	}
 
 private:
-	void update_insert (const INDEX &curr) {
+	void update_insert (const INDEX &curr ,const INDEX &last) {
 		INDEX ix = curr ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(ix != VAR_NONE))
 				discard ;
 			mSet.self[ix].mWeight++ ;
-			const auto r1x = BOOL (mSet.self[mLast].mItem < mSet.self[ix].mItem) ;
+			const auto r1x = BOOL (mSet.self[last].mItem < mSet.self[ix].mItem) ;
 			auto fbx = TRUE ;
 			if switch_once (fbx) {
 				if (!r1x)
 					discard ;
-				update_insert (mSet.self[ix].mLeft) ;
+				update_insert (mSet.self[ix].mLeft ,last) ;
 				mSet.self[ix].mLeft = mTop ;
 				update_insert_left (ix) ;
 			}
 			if switch_once (fbx) {
-				if (r1x)
-					discard ;
-				update_insert (mSet.self[ix].mRight) ;
+				update_insert (mSet.self[ix].mRight ,last) ;
 				mSet.self[ix].mRight = mTop ;
 				update_insert_right (ix) ;
 			}
@@ -3914,7 +3772,7 @@ private:
 			mTop = ix ;
 		}
 		if switch_once (fax) {
-			mTop = mLast ;
+			mTop = last ;
 		}
 	}
 

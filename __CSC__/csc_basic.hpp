@@ -294,15 +294,13 @@ inline exports void BasicProc::mem_rcopy (ARR<_ARG1> &dst ,const ARR<_ARG1> &src
 	_DEBUG_ASSERT_ (len >= 0) ;
 	auto fax = TRUE ;
 	if switch_once (fax) {
-		if (!(dst != src))
+		if (dst == src)
 			discard ;
 		_DEBUG_ASSERT_ (_ABS_ (dst - src) >= len) ;
 		for (auto &&i : _RANGE_ (0 ,len))
 			dst[i] = src[len + ~i] ;
 	}
 	if switch_once (fax) {
-		if (!(dst == src))
-			discard ;
 		for (auto &&i : _RANGE_ (0 ,len / 2)) {
 			const auto r1x = dst[i] ;
 			dst[i] = dst[len + ~i] ;
@@ -325,14 +323,12 @@ inline exports void BasicProc::mem_move (ARR<_ARG1> &dst1 ,ARR<_ARG1> &dst2 ,con
 		return ;
 	auto fax = TRUE ;
 	if switch_once (fax) {
-		if (!(dst1 < dst2))
+		if (!(dst1 <= dst2))
 			discard ;
 		for (auto &&i : _RANGE_ (0 ,len))
 			dst1[i] = _MOVE_ (dst2[i]) ;
 	}
 	if switch_once (fax) {
-		if (!(dst1 > dst2))
-			discard ;
 		for (auto &&i : _RANGE_ (0 ,len))
 			dst1[len + ~i] = _MOVE_ (dst2[len + ~i]) ;
 	}
@@ -3012,7 +3008,7 @@ public:
 			mSize = _EXCHANGE_ (that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (r1x ,r2x) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3114,7 +3110,7 @@ public:
 			mSize = that.mSize ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (r1x ,r2x) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3146,7 +3142,7 @@ public:
 			mSize = _EXCHANGE_ (that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _EBOOL_ (stl::is_pod<UNIT>::value) * _MAX_ (r1x ,r2x) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;

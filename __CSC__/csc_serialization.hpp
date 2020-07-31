@@ -1745,7 +1745,7 @@ private:
 	Set<String<STRU8>> mOptionSet ;
 	Deque<String<STRU8>> mAttribute ;
 	Set<String<STRU8>> mAttributeMappingSet ;
-	Array<String<STRU8>> mCommand ;
+	ArrayList<String<STRU8>> mCommand ;
 
 public:
 	implicit CommandParser () = delete ;
@@ -1845,7 +1845,7 @@ public:
 		return attribute (tag ,def ,r1x) ;
 	}
 
-	const Array<String<STRU8>> &command () const leftvalue {
+	const ArrayList<String<STRU8>> &command () const leftvalue {
 		return mCommand ;
 	}
 
@@ -1865,8 +1865,7 @@ private:
 	Set<String<STRU8>> mOptionSet ;
 	Deque<String<STRU8>> mAttribute ;
 	Set<String<STRU8>> mAttributeMappingSet ;
-	SoftList<String<STRU8>> mCommandList ;
-	Array<String<STRU8>> mCommand ;
+	ArrayList<String<STRU8>> mCommand ;
 
 public:
 	explicit InitializeLambda (CommandParser &context_ ,PhanBuffer<const STRU8> &&data)
@@ -1884,7 +1883,7 @@ private:
 		mOptionSet = Set<String<STRU8>> () ;
 		mAttribute = Deque<String<STRU8>> () ;
 		mAttributeMappingSet = Set<String<STRU8>> () ;
-		mCommandList = SoftList<String<STRU8>> () ;
+		mCommand = ArrayList<String<STRU8>> () ;
 	}
 
 	void generate () {
@@ -1901,7 +1900,6 @@ private:
 		*	$9->${end}
 		*/
 		update_shift_e0 () ;
-		update_command () ;
 	}
 
 	//@info: $0->$8 $7 $9
@@ -1976,7 +1974,7 @@ private:
 		if switch_once (fax) {
 			update_shift_e3 () ;
 		}
-		mCommandList.add (_MOVE_ (mLatestString)) ;
+		mCommand.add (_MOVE_ (mLatestString)) ;
 	}
 
 	//@info: $7->${eps}|$4 $7|$5 $7|$6 $7
@@ -2012,19 +2010,12 @@ private:
 		_DYNAMIC_ASSERT_ (mRis[0] == STRU8 ('\0')) ;
 	}
 
-	void update_command () {
-		mCommand = Array<String<STRU8>> (mCommandList.length ()) ;
-		for (auto &&i : _RANGE_ (0 ,mCommandList.length ())) {
-			INDEX ix = mCommandList.access (i) ;
-			mCommand[i] = _MOVE_ (mCommandList[ix]) ;
-		}
-	}
-
 	void refresh () {
 		mContext.mOptionSet = _MOVE_ (mOptionSet) ;
 		mContext.mAttribute = _MOVE_ (mAttribute) ;
 		mContext.mAttributeMappingSet = _MOVE_ (mAttributeMappingSet) ;
 		mContext.mCommand = _MOVE_ (mCommand) ;
+		mContext.mCommand.clean () ;
 	}
 } ;
 

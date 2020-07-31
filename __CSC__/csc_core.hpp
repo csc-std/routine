@@ -153,16 +153,6 @@ using std::atomic ;
 
 #ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
-#define _UNITTEST_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::GlobalWatch::done (CSC::Exception (_PCSTR_ ("unittest_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE))) ; } while (FALSE)
-#endif
-#endif
-
-#ifndef _UNITTEST_ASSERT_
-#define _UNITTEST_ASSERT_(...) do {} while (FALSE)
-#endif
-
-#ifdef __CSC_UNITTEST__
-#ifdef __CSC_COMPILER_MSVC__
 #define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::ARGV<ARGVPL>::null ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
 #endif
 #endif
@@ -1635,10 +1625,10 @@ struct CONSTEXPR_EBOOL_SWITCH {
 } ;
 } ;
 
-inline constexpr VAR32 _EBOOL_ (const BOOL &flag) {
+inline constexpr INDEX _EBOOL_ (const BOOL &flag) {
 	return _SWITCH_ (
-		flag ? U::CONSTEXPR_EBOOL_SWITCH<VAR32>::case1 :
-		U::CONSTEXPR_EBOOL_SWITCH<VAR32>::case2)
+		flag ? U::CONSTEXPR_EBOOL_SWITCH<INDEX>::case1 :
+		U::CONSTEXPR_EBOOL_SWITCH<INDEX>::case2)
 		() ;
 }
 
@@ -1815,6 +1805,16 @@ public:
 
 inline ArrayRange<ZERO> _RANGE_ (const INDEX &ibegin_ ,const INDEX &iend_) {
 	return ArrayRange<ZERO> (ibegin_ ,iend_) ;
+}
+
+template <class ,class>
+class Array ;
+
+template <class _ARG1>
+inline ArrayRange<_ARG1> _RANGE_ (const Array<LENGTH ,_ARG1> &range_) {
+	struct Depentent ;
+	using ArrayRange_SIZE = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Depentent> ;
+	return ArrayRange_SIZE (range_) ;
 }
 
 template <class _ARG1>

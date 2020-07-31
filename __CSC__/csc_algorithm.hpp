@@ -394,11 +394,9 @@ private:
 	const REAL mTolerance ;
 	const REAL mInfinity ;
 
-	SoftList<REAL> mCurrCenterList ;
-	SoftList<REAL> mNextCenterList ;
-	Set<INDEX> mCenterMoveSet ;
-	Deque<BitSet<>> mCluster ;
-	Set<INDEX> mClusterMappingSet ;
+	ArrayList<REAL> mCurrCenter ;
+	ArrayList<REAL> mNextCenter ;
+	ArrayList<BitSet<>> mCluster ;
 	ARRAY3<REAL> mConvergence ;
 
 public:
@@ -413,12 +411,10 @@ public:
 
 private:
 	void prepare () {
-		mCurrCenterList = SoftList<REAL> (mCenter.length ()) ;
-		mNextCenterList = SoftList<REAL> (mCenter.length ()) ;
-		mCurrCenterList.appand (mCenter) ;
-		mCenterMoveSet = Set<INDEX> (mCenter.length ()) ;
-		mCluster = Deque<BitSet<>> () ;
-		mClusterMappingSet = Set<INDEX> (mCluster.size ()) ;
+		mCurrCenter = ArrayList<REAL> (mCenter.size ()) ;
+		mNextCenter = ArrayList<REAL> (mCenter.size ()) ;
+		mCurrCenter.appand (mCenter) ;
+		mCluster = ArrayList<BitSet<>> (mCenter.size ()) ;
 		mConvergence.fill (mInfinity) ;
 	}
 
@@ -434,36 +430,34 @@ private:
 
 	void update_cluster_set () {
 		mCluster.clear () ;
-		mClusterMappingSet.clear () ;
 		for (auto &&i : mDataSet) {
-			INDEX ix = closest_center_of_point (i) ;
-			INDEX iy = mClusterMappingSet.map (ix) ;
+			INDEX ix = mDataSet.at (i) ;
+			INDEX jx = closest_center_of_point (i) ;
+			INDEX jy = mCluster.map (jx) ;
 			if switch_once (TRUE) {
-				if (iy != VAR_NONE)
+				if (jy != VAR_NONE)
 					discard ;
-				iy = mCluster.insert () ;
-				mClusterMappingSet.add (ix ,iy) ;
-				mCluster[iy] = BitSet<> (mDataSet.size ()) ;
+				jy = mCluster.insert (jx) ;
+				mCluster[jy] = BitSet<> (mDataSet.size ()) ;
 			}
-			INDEX jx = mDataSet.at (i) ;
-			mCluster[iy][jx] = TRUE ;
+			mCluster[jx][ix] = TRUE ;
 		}
-		for (auto &&i : mClusterMappingSet) {
-			INDEX ix = mNextCenterList.insert () ;
-			mNextCenterList[ix] = average_center (mCluster[i.sid]) ;
-			mCenterMoveSet.add (i.key ,ix) ;
+		for (auto &&i : mCluster) {
+			INDEX ix = mCluster.at (i) ;
+			INDEX jx = mNextCenter.insert (ix) ;
+			mNextCenter[jx] = average_center (mCluster[ix]) ;
 		}
 	}
 
 	INDEX closest_center_of_point (const REAL &point) const {
 		INDEX ret = VAR_NONE ;
 		auto rax = REAL () ;
-		for (auto &&i : mCurrCenterList) {
+		for (auto &&i : mCurrCenter) {
 			const auto r1x = mDistanceFunc (point ,i) ;
 			if (ret != VAR_NONE)
 				if (rax <= r1x)
 					continue ;
-			ret = mCurrCenterList.at (i) ;
+			ret = mCurrCenter.at (i) ;
 			rax = r1x ;
 		}
 		return _MOVE_ (ret) ;
@@ -484,11 +478,12 @@ private:
 		for (auto &&i : _RANGE_ (0 ,ix))
 			mConvergence[i] = mConvergence[i + 1] ;
 		mConvergence[ix] = +mInfinity ;
-		if (mCurrCenterList.length () != mNextCenterList.length ())
+		if (mCurrCenter.length () != mNextCenter.length ())
 			return ;
 		mConvergence[ix] = REAL (0) ;
-		for (auto &&i : mCenterMoveSet) {
-			const auto r1x = mDistanceFunc (mCurrCenterList[i.key] ,mNextCenterList[i.sid]) ;
+		for (auto &&i : mCluster) {
+			INDEX jx = mCluster.at (i) ;
+			const auto r1x = mDistanceFunc (mCurrCenter[jx] ,mNextCenter[jx]) ;
 			mConvergence[ix] = MathProc::maxof (mConvergence[ix] ,r1x) ;
 		}
 	}
@@ -505,10 +500,8 @@ private:
 	}
 
 	void update_center_list () {
-		mCurrCenterList.clear () ;
-		mCurrCenterList.appand (mNextCenterList) ;
-		mNextCenterList.clear () ;
-		mCenterMoveSet.clear () ;
+		_SWAP_ (mCurrCenter ,mNextCenter) ;
+		mNextCenter.clear () ;
 	}
 
 	void refresh () {
@@ -618,7 +611,7 @@ private:
 		mLackWeight[1] = +mInfinity ;
 		//@info: $1
 		auto rax = FALSE ;
-		update_lack_weight_e7 (0 ,y ,rax) ;
+		update_lack_weight_e7 (y ,rax) ;
 		//@info: $18
 		if (rax) {
 			//@info: $19
@@ -628,7 +621,7 @@ private:
 		//@info: $20
 	}
 
-	void update_lack_weight_e7 (const INDEX &stack_x ,const INDEX &stack_y ,BOOL &stack_ret) {
+	void update_lack_weight_e7 (const INDEX &stack_y ,BOOL &stack_ret) {
 		//@info: $7
 		if (stack_y == VAR_NONE) {
 			//@info: $2
@@ -638,7 +631,7 @@ private:
 		}
 		//@info: $3
 		mYVisit[stack_y] = TRUE ;
-		stack_x = 0 ;
+		auto stack_x = VAR_ZERO ;
 		//@info: $4
 		while (stack_x < mAdjacency.cx ()) {
 			//@info: $5
@@ -649,7 +642,7 @@ private:
 				if (mLackWeight[0] < mTolerance) {
 					//@info: $8
 					mXVisit[stack_x] = TRUE ;
-					update_lack_weight_e7 (0 ,mXYLink[stack_x] ,stack_ret) ;
+					update_lack_weight_e7 (mXYLink[stack_x] ,stack_ret) ;
 					//@info: $10
 					if (stack_ret) {
 						//@info: $11
@@ -1126,7 +1119,7 @@ public:
 	Array<PACK<INDEX ,REAL>> query_nearst (const ARRAY3<REAL> &point ,const LENGTH &count) const {
 		_DEBUG_ASSERT_ (count >= 1 && count <= mVertex.length ()) ;
 		const auto r1x = first_count_vertex (point ,count) ;
-		const auto r2x = r1x.range_order () ;
+		const auto r2x = r1x.range_sort () ;
 		Array<PACK<INDEX ,REAL>> ret = Array<PACK<INDEX ,REAL>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 			ret[i].mP1 = r2x[i] ;
@@ -1152,7 +1145,7 @@ private:
 	void compute_search_range (const ARRAY3<REAL> &point ,const REAL &width ,const INDEX &curr ,const INDEX &rot ,ARRAY3<ARRAY2<REAL>> &bound ,Deque<INDEX> &out) const {
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!(mKDTree[curr].mLeaf != VAR_NONE))
+			if (mKDTree[curr].mLeaf == VAR_NONE)
 				discard ;
 			if switch_once (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
@@ -1163,8 +1156,6 @@ private:
 			}
 		}
 		if switch_once (fax) {
-			if (!(mKDTree[curr].mLeaf == VAR_NONE))
-				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
 			if switch_once (TRUE) {
 				if (r2x < bound[rot][0])
@@ -1198,7 +1189,7 @@ private:
 	void compute_search_range (const ARRAY3<REAL> &point ,const INDEX &curr ,const INDEX &rot ,Array<PACK<INDEX ,REAL>> &out) const {
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!(mKDTree[curr].mLeaf != VAR_NONE))
+			if (mKDTree[curr].mLeaf == VAR_NONE)
 				discard ;
 			if switch_once (TRUE) {
 				INDEX ix = mKDTree[curr].mLeaf ;
@@ -1222,8 +1213,6 @@ private:
 			}
 		}
 		if switch_once (fax) {
-			if (!(mKDTree[curr].mLeaf == VAR_NONE))
-				discard ;
 			const auto r2x = mKDTree[curr].mKey ;
 			if (r2x >= point[rot] - out[out.length () - 1].mP2)
 				compute_search_range (point ,mKDTree[curr].mLeft ,mNextRot[rot] ,out) ;
@@ -1264,7 +1253,7 @@ private:
 		mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
 		for (auto &&i : _RANGE_ (0 ,mOrder.length ())) {
 			const auto r1x = stack_of_order (i) ;
-			mOrder[i] = r1x.range_order () ;
+			mOrder[i] = r1x.range_sort () ;
 		}
 		mKDTree = List<NODE> (mVertex.length ()) ;
 		mRoot = VAR_NONE ;
@@ -1306,7 +1295,7 @@ private:
 		_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!(seg_len == 1))
+			if (seg_len > 1)
 				discard ;
 			INDEX jx = mKDTree.insert () ;
 			mKDTree[jx].mKey = REAL (0) ;
@@ -1316,8 +1305,6 @@ private:
 			mLatestIndex = jx ;
 		}
 		if switch_once (fax) {
-			if (!(seg_len > 1))
-				discard ;
 			INDEX ix = seg + seg_len / 2 ;
 			for (auto &&i : _RANGE_ (seg ,seg + seg_len - 1)) {
 				_STATIC_UNUSED_ (i) ;

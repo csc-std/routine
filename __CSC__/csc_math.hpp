@@ -523,8 +523,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 		ret[0] = ret[0] >> 1 ;
 		ret[1]++ ;
 	}
-	const auto r3x = _EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0) * DATA (-1) ;
-	ret[2] = r3x ;
+	ret[2] = DATA (-_EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0)) ;
 	return _MOVE_ (_CAST_ (ARGV<ARRAY3<VAR64>>::null ,ret)) ;
 }
 

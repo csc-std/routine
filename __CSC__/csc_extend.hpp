@@ -136,9 +136,8 @@ public:
 	implicit VAR128 () = default ;
 
 	implicit VAR128 (const VAR64 &that) {
-		const auto r1x = _EBOOL_ (that < 0) * DATA (-1) ;
 		v2i1 = DATA (that) ;
-		v2i0 = r1x ;
+		v2i0 = DATA (-_EBOOL_ (that < 0)) ;
 	}
 
 	inline explicit operator VAR32 () const {

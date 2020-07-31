@@ -203,9 +203,11 @@ public:
 	}
 
 	REAL mul (const Vector &that) const {
-		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
-		_DEBUG_ASSERT_ (that.mVector[3] == REAL (0)) ;
-		return mVector[0] * that.mVector[0] + mVector[1] * that.mVector[1] + mVector[2] * that.mVector[2] ;
+		const auto r1x = mVector[0] * that.mVector[0] ;
+		const auto r2x = mVector[1] * that.mVector[1] ;
+		const auto r3x = mVector[2] * that.mVector[2] ;
+		const auto r4x = mVector[3] * that.mVector[3] ;
+		return r1x + r2x + r3x + r4x ;
 	}
 
 	inline REAL operator* (const Vector &that) const {
@@ -265,8 +267,10 @@ public:
 
 	REAL magnitude () const {
 		_DEBUG_ASSERT_ (mVector[3] == REAL (0)) ;
-		const auto r1x = MathProc::square (mVector[0]) + MathProc::square (mVector[1]) + MathProc::square (mVector[2]) ;
-		return MathProc::sqrt (r1x) ;
+		const auto r1x = MathProc::square (mVector[0]) ;
+		const auto r2x = MathProc::square (mVector[1]) ;
+		const auto r3x = MathProc::square (mVector[2]) ;
+		return MathProc::sqrt (r1x + r2x + r3x) ;
 	}
 
 	Vector normalize () const {

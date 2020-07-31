@@ -265,14 +265,14 @@ public:
 	explicit Implement (const ARRAY8<LENGTH> &time_) {
 		auto rax = api::tm () ;
 		_ZERO_ (rax) ;
-		const auto r1x = _EBOOL_ (time_[0] > 0) * (time_[0] - 1900) ;
+		const auto r1x = (time_[0] - 1900) * _EBOOL_ (time_[0] > 0) ;
 		rax.tm_year = VAR32 (r1x) ;
-		const auto r2x = _EBOOL_ (time_[1] > 0) * (time_[1] - 1) ;
+		const auto r2x = (time_[1] - 1) * _EBOOL_ (time_[1] > 0) ;
 		rax.tm_mon = VAR32 (r2x) ;
 		rax.tm_mday = VAR32 (time_[2]) ;
-		const auto r3x = _EBOOL_ (time_[3] > 0) * (time_[3] - 1) ;
+		const auto r3x = (time_[3] - 1) * _EBOOL_ (time_[3] > 0) ;
 		rax.tm_wday = VAR32 (r3x) ;
-		const auto r4x = _EBOOL_ (time_[4] > 0) * (time_[4] - 1) ;
+		const auto r4x = (time_[4] - 1) * _EBOOL_ (time_[4] > 0) ;
 		rax.tm_yday = VAR32 (r4x) ;
 		rax.tm_hour = VAR32 (time_[5]) ;
 		rax.tm_min = VAR32 (time_[6]) ;
