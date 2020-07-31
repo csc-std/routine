@@ -71,9 +71,9 @@ public:
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
-		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (_MOVE_ (r2x.mItemQueue.self)) ;
-		r2x.mItemQueue = _MOVE_ (tmp) ;
+		auto rax = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
+		rax->appand (_MOVE_ (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = _MOVE_ (rax) ;
 	}
 
 	ITEM poll () side_effects {
@@ -135,8 +135,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x) ,i) ;
-			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
+			const auto r3x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x) ,i) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
 		}
 	}
 
@@ -377,9 +377,9 @@ public:
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
 				return ;
-		auto tmp = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
-		tmp->appand (_MOVE_ (r2x.mItemQueue.self)) ;
-		r2x.mItemQueue = _MOVE_ (tmp) ;
+		auto rax = AutoRef<List<ITEM ,SFIXED>>::make (post_len) ;
+		rax->appand (_MOVE_ (r2x.mItemQueue.self)) ;
+		r2x.mItemQueue = _MOVE_ (rax) ;
 	}
 
 	void post (const REMOVE_CVR_TYPE<ITEM> &item) {
@@ -475,8 +475,8 @@ public:
 		r2x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r2x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
-			r2x.mThreadPool[i] = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
+			const auto r3x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
+			r2x.mThreadPool[i] = AutoRef<Thread>::make (r3x) ;
 		}
 	}
 
@@ -741,8 +741,8 @@ public:
 		r2x.mItem = AutoRef<ITEM> () ;
 		r2x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		auto tmp = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
-		r2x.mThreadPool = AutoRef<Thread>::make (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r2x)) ;
+		r2x.mThreadPool = AutoRef<Thread>::make (r3x) ;
 	}
 
 	void signal () {

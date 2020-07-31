@@ -1516,9 +1516,9 @@ template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<_ARG1>::value) ;
 	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<_ARG1>::value) ;
-	auto tmp = _MOVE_ (lhs) ;
+	auto rax = _MOVE_ (lhs) ;
 	lhs = _MOVE_ (rhs) ;
-	rhs = _MOVE_ (tmp) ;
+	rhs = _MOVE_ (rax) ;
 }
 
 template <class _ARG1 ,class _ARG2>
@@ -1978,8 +1978,14 @@ inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_LOAD_ (const ARGVF<_ARG1> & ,const PTR<_
 	return DEREF[r3x] ;
 }
 
+template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value>>
+inline void _CALL_ (_ARG1 &&proc) {
+	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
+	return proc () ;
+}
+
 template <class _ARG1>
-inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (_ARG1 &&proc) side_effects {
+inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (const _ARG1 &proc) side_effects {
 	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return proc () ;

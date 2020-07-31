@@ -199,15 +199,15 @@ public:
 	Duration add (const Implement &that) const {
 		const auto r1x = mDuration + that.mDuration ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (r3x) ;
 	}
 
 	Duration sub (const Implement &that) const {
 		const auto r1x = mDuration - that.mDuration ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (r3x) ;
 	}
 } ;
 
@@ -335,15 +335,15 @@ public:
 	TimePoint add (const Duration::Implement &that) const {
 		const auto r1x = mTimePoint + that.native () ;
 		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<Implement>::make (r2x) ;
-		return TimePoint (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<Implement>::make (r2x) ;
+		return TimePoint (r3x) ;
 	}
 
 	Duration sub (const Implement &that) const {
 		const auto r1x = mTimePoint - that.native () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		auto tmp = StrongRef<Duration::Implement>::make (r2x) ;
-		return Duration (_MOVE_ (tmp)) ;
+		const auto r3x = StrongRef<Duration::Implement>::make (r2x) ;
+		return Duration (r3x) ;
 	}
 } ;
 
@@ -614,15 +614,15 @@ inline exports void Thread::join () {
 
 inline exports TimePoint GlobalRuntime::clock_now () {
 	const auto r1x = api::chrono::system_clock::now () ;
-	auto tmp = StrongRef<TimePoint::Implement>::make (r1x) ;
-	return TimePoint (_MOVE_ (tmp)) ;
+	const auto r2x = StrongRef<TimePoint::Implement>::make (r1x) ;
+	return TimePoint (r2x) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
 	const auto r1x = api::chrono::system_clock::duration::zero () ;
 	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
-	auto tmp = StrongRef<TimePoint::Implement>::make (r2x) ;
-	return TimePoint (_MOVE_ (tmp)) ;
+	const auto r3x = StrongRef<TimePoint::Implement>::make (r2x) ;
+	return TimePoint (r3x) ;
 }
 
 #ifdef __CSC_SYSTEM_WINDOWS__

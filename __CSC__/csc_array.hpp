@@ -46,17 +46,17 @@ struct OPERATOR_SORT {
 		for (auto &&i : _RANGE_ (seg_a ,seg_b)) {
 			INDEX ix = i + 1 ;
 			INDEX iy = i ;
-			auto tmp = _MOVE_ (out[ix]) ;
+			auto rax = _MOVE_ (out[ix]) ;
 			while (TRUE) {
 				if (iy < seg_a)
 					break ;
-				if (array_[tmp] >= array_[out[iy]])
+				if (array_[rax] >= array_[out[iy]])
 					break ;
 				out[ix] = _MOVE_ (out[iy]) ;
 				ix = iy ;
 				iy-- ;
 			}
-			out[ix] = _MOVE_ (tmp) ;
+			out[ix] = _MOVE_ (rax) ;
 		}
 	}
 
@@ -64,12 +64,12 @@ struct OPERATOR_SORT {
 	imports void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b ,INDEX &mid_one) {
 		INDEX ix = seg_a ;
 		INDEX iy = seg_b ;
-		auto tmp = _MOVE_ (out[ix]) ;
+		auto rax = _MOVE_ (out[ix]) ;
 		while (TRUE) {
 			while (TRUE) {
 				if (ix >= iy)
 					break ;
-				if (array_[out[iy]] <= array_[tmp])
+				if (array_[out[iy]] <= array_[rax])
 					break ;
 				iy-- ;
 			}
@@ -79,7 +79,7 @@ struct OPERATOR_SORT {
 			while (TRUE) {
 				if (ix >= iy)
 					break ;
-				if (array_[out[ix]] >= array_[tmp])
+				if (array_[out[ix]] >= array_[rax])
 					break ;
 				ix++ ;
 			}
@@ -87,7 +87,7 @@ struct OPERATOR_SORT {
 				break ;
 			out[iy--] = _MOVE_ (out[ix]) ;
 		}
-		out[ix] = _MOVE_ (tmp) ;
+		out[ix] = _MOVE_ (rax) ;
 		mid_one = ix ;
 	}
 
@@ -874,40 +874,40 @@ private:
 		const auto r3x = _MAX_ (r1x ,r2x) ;
 		if (r3x == 0)
 			return ;
-		auto tmp = mDeque.expand (mDeque.size () + r3x) ;
+		auto rax = mDeque.expand (mDeque.size () + r3x) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(mRead <= mWrite))
 				discard ;
-			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[mRead]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mWrite - mRead)) ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[rax.self[mRead]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mWrite - mRead)) ;
 		}
 		if switch_once (fax) {
-			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
-			INDEX ix = mRead + tmp.size () - mDeque.size () ;
-			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
+			BasicProc::mem_move (rax.self ,mDeque.self ,mWrite) ;
+			INDEX ix = mRead + rax.size () - mDeque.size () ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[rax.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
-		mDeque.swap (tmp) ;
+		mDeque.swap (rax) ;
 	}
 
 	void update_emplace () {
 		if (mRead != mWrite)
 			return ;
-		auto tmp = mDeque.expand (mDeque.expand_size ()) ;
+		auto rax = mDeque.expand (mDeque.expand_size ()) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (mRead != 0)
 				discard ;
-			BasicProc::mem_move (tmp.self ,mDeque.self ,mDeque.size ()) ;
+			BasicProc::mem_move (rax.self ,mDeque.self ,mDeque.size ()) ;
 			mWrite = mDeque.size () ;
 		}
 		if switch_once (fax) {
-			BasicProc::mem_move (tmp.self ,mDeque.self ,mWrite) ;
-			INDEX ix = mRead + tmp.size () - mDeque.size () ;
-			BasicProc::mem_move (PTRTOARR[DEPTR[tmp.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
+			BasicProc::mem_move (rax.self ,mDeque.self ,mWrite) ;
+			INDEX ix = mRead + rax.size () - mDeque.size () ;
+			BasicProc::mem_move (PTRTOARR[DEPTR[rax.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
-		mDeque.swap (tmp) ;
+		mDeque.swap (rax) ;
 	}
 } ;
 
@@ -1189,17 +1189,17 @@ private:
 		const auto r3x = _MAX_ (r1x ,r2x) ;
 		if (r3x == 0)
 			return ;
-		auto tmp = mPriority.expand (mPriority.size () + r3x) ;
-		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (tmp) ;
+		auto rax = mPriority.expand (mPriority.size () + r3x) ;
+		BasicProc::mem_move (rax.self ,mPriority.self ,mPriority.size ()) ;
+		mPriority.swap (rax) ;
 	}
 
 	void update_emplace () {
 		if (mWrite < mPriority.size ())
 			return ;
-		auto tmp = mPriority.expand (mPriority.expand_size ()) ;
-		BasicProc::mem_move (tmp.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (tmp) ;
+		auto rax = mPriority.expand (mPriority.expand_size ()) ;
+		BasicProc::mem_move (rax.self ,mPriority.self ,mPriority.size ()) ;
+		mPriority.swap (rax) ;
 	}
 
 	INDEX parent (INDEX curr) const {
@@ -1218,12 +1218,12 @@ private:
 
 	void update_insert (const INDEX &curr) {
 		INDEX ix = curr ;
-		auto tmp = _MOVE_ (mPriority[ix]) ;
+		auto rax = _MOVE_ (mPriority[ix]) ;
 		while (TRUE) {
 			INDEX iy = parent (ix) ;
 			if (iy < 0)
 				break ;
-			if (tmp.mItem >= mPriority[iy].mItem)
+			if (rax.mItem >= mPriority[iy].mItem)
 				break ;
 			mPriority[ix] = _MOVE_ (mPriority[iy]) ;
 			ix = iy ;
@@ -1233,12 +1233,12 @@ private:
 			if (iy >= mWrite)
 				break ;
 			INDEX jx = ix ;
-			if (tmp.mItem > mPriority[iy].mItem)
+			if (rax.mItem > mPriority[iy].mItem)
 				jx = iy ;
 			INDEX iz = right_child (ix) ;
 			auto &r1x = _SWITCH_ (
 				(jx != ix) ? mPriority[jx].mItem :
-				tmp.mItem) ;
+				rax.mItem) ;
 			if switch_once (TRUE) {
 				if (iz >= mWrite)
 					discard ;
@@ -1251,7 +1251,7 @@ private:
 			mPriority[ix] = _MOVE_ (mPriority[jx]) ;
 			ix = jx ;
 		}
-		mPriority[ix] = _MOVE_ (tmp) ;
+		mPriority[ix] = _MOVE_ (rax) ;
 		mTop = ix ;
 	}
 
@@ -1943,14 +1943,6 @@ public:
 		mRange[index] = VAR_NONE ;
 	}
 
-	INDEX map (const INDEX &index) const {
-		if (!(index >= 0 && index < mRange.size ()))
-			return VAR_NONE ;
-		if (mRange[index] == VAR_NONE)
-			return VAR_NONE ;
-		return mList[mRange[index]].mIndex ;
-	}
-
 	void remap () {
 		if (mWrite == mList.length ())
 			return ;
@@ -1996,9 +1988,11 @@ private:
 	void update_range (const INDEX &curr) {
 		if (mRange.size () == mList.size ())
 			return ;
-		auto tmp = mRange.expand (mList.size ()) ;
-		BasicProc::mem_fill (tmp.self ,tmp.size () ,VAR_NONE) ;
-		mRange.swap (tmp) ;
+		if switch_once (TRUE) {
+			auto rax = mRange.expand (mList.size ()) ;
+			BasicProc::mem_fill (rax.self ,rax.size () ,VAR_NONE) ;
+			mRange.swap (rax) ;
+		}
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
 				continue ;
@@ -3370,9 +3364,11 @@ private:
 	void update_range (const INDEX &curr) {
 		if (mRange.size () == mSet.size ())
 			return ;
-		auto tmp = mRange.expand (mSet.size ()) ;
-		BasicProc::mem_fill (tmp.self ,tmp.size () ,VAR_NONE) ;
-		mRange.swap (tmp) ;
+		if switch_once (TRUE) {
+			auto rax = mRange.expand (mSet.size ()) ;
+			BasicProc::mem_fill (rax.self ,rax.size () ,VAR_NONE) ;
+			mRange.swap (rax) ;
+		}
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)
 				continue ;

@@ -396,7 +396,8 @@ private:
 
 	ArrayList<REAL> mCurrCenter ;
 	ArrayList<REAL> mNextCenter ;
-	ArrayList<BitSet<>> mCluster ;
+	Deque<BitSet<>> mCluster ;
+	Set<INDEX> mClusterMappingSet ;
 	ARRAY3<REAL> mConvergence ;
 
 public:
@@ -414,7 +415,7 @@ private:
 		mCurrCenter = ArrayList<REAL> (mCenter.size ()) ;
 		mNextCenter = ArrayList<REAL> (mCenter.size ()) ;
 		mCurrCenter.appand (mCenter) ;
-		mCluster = ArrayList<BitSet<>> (mCenter.size ()) ;
+		mCluster = Deque<BitSet<>> (mCenter.size ()) ;
 		mConvergence.fill (mInfinity) ;
 	}
 
@@ -431,21 +432,21 @@ private:
 	void update_cluster_set () {
 		mCluster.clear () ;
 		for (auto &&i : mDataSet) {
-			INDEX ix = mDataSet.at (i) ;
+			const auto r1x = mDataSet.at (i) ;
 			INDEX jx = closest_center_of_point (i) ;
-			INDEX jy = mCluster.map (jx) ;
+			INDEX jy = mClusterMappingSet.map (jx) ;
 			if switch_once (TRUE) {
 				if (jy != VAR_NONE)
 					discard ;
-				jy = mCluster.insert (jx) ;
+				jy = mCluster.insert () ;
+				mClusterMappingSet.add (jx ,jy) ;
 				mCluster[jy] = BitSet<> (mDataSet.size ()) ;
 			}
-			mCluster[jx][ix] = TRUE ;
+			mCluster[jx][r1x] = TRUE ;
 		}
-		for (auto &&i : mCluster) {
-			INDEX ix = mCluster.at (i) ;
-			INDEX jx = mNextCenter.insert (ix) ;
-			mNextCenter[jx] = average_center (mCluster[ix]) ;
+		for (auto &&i : mClusterMappingSet) {
+			INDEX jx = mNextCenter.insert (i.key) ;
+			mNextCenter[jx] = average_center (mCluster[i.sid]) ;
 		}
 	}
 
@@ -481,9 +482,8 @@ private:
 		if (mCurrCenter.length () != mNextCenter.length ())
 			return ;
 		mConvergence[ix] = REAL (0) ;
-		for (auto &&i : mCluster) {
-			INDEX jx = mCluster.at (i) ;
-			const auto r1x = mDistanceFunc (mCurrCenter[jx] ,mNextCenter[jx]) ;
+		for (auto &&i : mClusterMappingSet) {
+			const auto r1x = mDistanceFunc (mCurrCenter[i.key] ,mNextCenter[i.key]) ;
 			mConvergence[ix] = MathProc::maxof (mConvergence[ix] ,r1x) ;
 		}
 	}
@@ -1325,17 +1325,17 @@ private:
 		}
 	}
 
-	void compute_order (Array<INDEX> &tmp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &seg_len) const {
-		if (tmp_order.size () != mVertex.size ())
-			tmp_order = Array<INDEX> (mVertex.size ()) ;
+	void compute_order (Array<INDEX> &temp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &seg_len) const {
+		if (temp_order.size () != mVertex.size ())
+			temp_order = Array<INDEX> (mVertex.size ()) ;
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (seg_a ,seg_b))
-			tmp_order[iw++] = mOrder[n_rot][i] ;
+			temp_order[iw++] = mOrder[n_rot][i] ;
 		for (auto &&i : _RANGE_ (seg_b ,seg_a + seg_len))
-			tmp_order[iw++] = mOrder[n_rot][i] ;
+			temp_order[iw++] = mOrder[n_rot][i] ;
 		const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
 		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1]))
-			order_[n_rot][seg_a + i] = tmp_order[i] ;
+			order_[n_rot][seg_a + i] = temp_order[i] ;
 		_DEBUG_ASSERT_ (iw == seg_len) ;
 	}
 

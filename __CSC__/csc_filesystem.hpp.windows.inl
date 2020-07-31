@@ -304,9 +304,9 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 				discard ;
 		const auto r1x = FileSystemProc::working_path () ;
 		if switch_once (TRUE) {
-			auto tmp = FileSystemProc::decouple_path_name (r1x) ;
-			tmp.appand (_MOVE_ (rax)) ;
-			rax = _MOVE_ (tmp) ;
+			auto rbx = FileSystemProc::decouple_path_name (r1x) ;
+			rbx.appand (_MOVE_ (rax)) ;
+			rax = _MOVE_ (rbx) ;
 		}
 		if (r1x.size () < 0)
 			discard ;

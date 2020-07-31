@@ -3278,14 +3278,14 @@ public:
 		if switch_once (fax) {
 			if (mFree != VAR_NONE)
 				discard ;
-			auto tmp = mAllocator.expand (mAllocator.expand_size ()) ;
+			auto rax = mAllocator.expand (mAllocator.expand_size ()) ;
 			ret = mSize ;
-			_CREATE_ (DEPTR[tmp[ret].mValue] ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+			_CREATE_ (DEPTR[rax[ret].mValue] ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
-				_CREATE_ (DEPTR[tmp[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
-				tmp[i].mNext = VAR_USED ;
+				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
+				rax[i].mNext = VAR_USED ;
 			}
-			mAllocator.swap (tmp) ;
+			mAllocator.swap (rax) ;
 			update_reserve (mSize ,mFree) ;
 		}
 		if switch_once (fax) {
@@ -3314,13 +3314,13 @@ public:
 		if (r3x == 0)
 			return ;
 		_DEBUG_ASSERT_ (mSize + r3x > mSize) ;
-		auto tmp = mAllocator.expand (mSize + r3x) ;
+		auto rax = mAllocator.expand (mSize + r3x) ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (DEPTR[tmp[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
-			tmp[i].mNext = mAllocator[i].mNext ;
+				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
+			rax[i].mNext = mAllocator[i].mNext ;
 		}
-		mAllocator.swap (tmp) ;
+		mAllocator.swap (rax) ;
 		update_reserve (mSize ,mFree) ;
 	}
 
@@ -3329,13 +3329,13 @@ public:
 		if (r1x == mSize)
 			return ;
 		_DYNAMIC_ASSERT_ (r1x == mLength) ;
-		auto tmp = mAllocator.expand (r1x) ;
-		for (auto &&i : _RANGE_ (0 ,tmp.size ())) {
+		auto rax = mAllocator.expand (r1x) ;
+		for (auto &&i : _RANGE_ (0 ,rax.size ())) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
-			_CREATE_ (DEPTR[tmp[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
-			tmp[i].mNext = VAR_USED ;
+			_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::null ,mAllocator[i].mValue))) ;
+			rax[i].mNext = VAR_USED ;
 		}
-		mAllocator.swap (tmp) ;
+		mAllocator.swap (rax) ;
 		update_reserve (r1x ,VAR_NONE) ;
 	}
 
