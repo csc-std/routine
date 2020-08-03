@@ -118,10 +118,11 @@ public:
 			if (!exist ())
 				discard ;
 			for (auto &&i : mHeap.self[mIndex].mMemberSet) {
+				const auto r1x = mHeap.self[mIndex].mMemberSet.at (i) ;
 				if (rax.length () >= rax.size ())
 					continue ;
 				INDEX ix = rax.insert () ;
-				rax[ix] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map_at (i)) ;
+				rax[ix] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map (r1x)) ;
 			}
 		}
 		Array<XmlParser> ret = Array<XmlParser> (rax.length ()) ;
@@ -770,13 +771,14 @@ private:
 				mFoundNode[iy].mBaseNode.clear () ;
 			}
 			for (auto &&j : rax.mHeap.self[rax.mIndex].mAttributeMappingSet) {
+				const auto r3x = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.at (j) ;
 				INDEX jx = mFoundNode[iy].mAttributeMappingSet.map_find (j) ;
 				if switch_once (TRUE) {
 					if (jx != VAR_NONE)
 						discard ;
 					jx = mFoundNode[iy].mAttribute.insert () ;
 					mFoundNode[iy].mAttributeMappingSet.add (j ,jx) ;
-					INDEX kx = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.map_at (j) ;
+					INDEX kx = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.map (r3x) ;
 					mFoundNode[iy].mAttribute[jx] = rax.mHeap.self[rax.mIndex].mAttribute[kx] ;
 				}
 			}
@@ -921,9 +923,10 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 			auto &r3x = mHeap.self[r1x.mP1] ;
 			writer << _PCSTRU8_ ("<") << r3x.mName << _PCSTRU8_ (" ") ;
 			for (auto &&i : r3x.mAttributeMappingSet) {
+				const auto r4x = r3x.mAttributeMappingSet.at (i) ;
 				writer << i ;
 				writer << _PCSTRU8_ ("=\"") ;
-				INDEX jx = r3x.mAttributeMappingSet.map_at (i) ;
+				INDEX jx = r3x.mAttributeMappingSet.map (r4x) ;
 				writer << r3x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ ("/>") ;
@@ -936,17 +939,18 @@ inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r1x.mP2 == M_NODE_X1))
 				discard ;
-			auto &r4x = mHeap.self[r1x.mP1] ;
-			writer << _PCSTRU8_ ("<") << r4x.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r4x.mAttributeMappingSet) {
+			auto &r5x = mHeap.self[r1x.mP1] ;
+			writer << _PCSTRU8_ ("<") << r5x.mName << _PCSTRU8_ (" ") ;
+			for (auto &&i : r5x.mAttributeMappingSet) {
+				const auto r6x = r5x.mAttributeMappingSet.at (i) ;
 				writer << i ;
 				writer << _PCSTRU8_ ("=\"") ;
-				INDEX jx = r4x.mAttributeMappingSet.map_at (i) ;
-				writer << r4x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
+				INDEX jx = r5x.mAttributeMappingSet.map (r6x) ;
+				writer << r5x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
 			}
 			writer << _PCSTRU8_ (">") ;
 			rbx.clear () ;
-			INDEX jx = r4x.mChild ;
+			INDEX jx = r5x.mChild ;
 			while (TRUE) {
 				if (jx == VAR_NONE)
 					break ;
@@ -1099,10 +1103,11 @@ public:
 				discard ;
 			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
 			for (auto &&i : r1x) {
+				const auto r2x = r1x.at (i) ;
 				if (rax.length () >= rax.size ())
 					continue ;
 				INDEX ix = rax.insert () ;
-				rax[ix] = JsonParser (mHeap ,r1x.map_at (i)) ;
+				rax[ix] = JsonParser (mHeap ,r1x.map (r2x)) ;
 			}
 		}
 		Array<JsonParser> ret = Array<JsonParser> (rax.length ()) ;
@@ -1629,10 +1634,11 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
 			INDEX iw = 0 ;
 			for (auto &&i : r4x) {
+				const auto r5x = r4x.at (i) ;
 				if (iw > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
 				iw++ ;
-				rbx.add (PACK<INDEX ,EFLAG> {r4x.map_at (i) ,M_NODE_X1}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {r4x.map (r5x) ,M_NODE_X1}) ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
 			while (TRUE) {
@@ -1650,18 +1656,19 @@ inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
 				discard ;
 			if (!(r2x.mP2 == M_NODE_X1))
 				discard ;
-			auto &r5x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+			auto &r6x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
 			rbx.clear () ;
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
 			INDEX iw = 0 ;
-			for (auto &&i : r5x) {
+			for (auto &&i : r6x) {
+				const auto r7x = r6x.at (i) ;
 				if (iw > 0)
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
 				iw++ ;
 				INDEX ix = r1x.find (DEPTR[i]) ;
 				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
-				rbx.add (PACK<INDEX ,EFLAG> {r5x.map_at (i) ,M_NODE_X1}) ;
+				rbx.add (PACK<INDEX ,EFLAG> {r6x.map (r7x) ,M_NODE_X1}) ;
 			}
 			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
 			while (TRUE) {

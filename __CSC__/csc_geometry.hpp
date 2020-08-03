@@ -544,7 +544,7 @@ public:
 	Matrix mul (const Matrix &that) const {
 		Matrix ret ;
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
-		for (auto &&i : ArrayRange<ARGC<2>> (r1x)) {
+		for (auto &&i : _RANGE_ (r1x)) {
 			const auto r2x = get (i[0] ,0) * that.get (0 ,i[1]) ;
 			const auto r3x = get (i[0] ,1) * that.get (1 ,i[1]) ;
 			const auto r4x = get (i[0] ,2) * that.get (2 ,i[1]) ;
@@ -586,7 +586,7 @@ public:
 	Matrix transpose () const {
 		Matrix ret ;
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
-		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
+		for (auto &&i : _RANGE_ (r1x))
 			ret.get (i[1] ,i[0]) = get (i[0] ,i[1]) ;
 		return _MOVE_ (ret) ;
 	}
@@ -1019,7 +1019,7 @@ public:
 	imports Matrix make_symmetry (const Vector<REAL> &first ,const Vector<REAL> &second) {
 		Matrix ret ;
 		const auto r1x = ARRAY2<LENGTH> {4 ,4} ;
-		for (auto &&i : ArrayRange<ARGC<2>> (r1x))
+		for (auto &&i : _RANGE_ (r1x))
 			ret[i[0]][i[1]] = first[i[0]] * second[i[1]] ;
 		return _MOVE_ (ret) ;
 	}

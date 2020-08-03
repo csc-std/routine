@@ -1960,7 +1960,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<UNIT> () = delete ;
+	inline implicit operator PTR<UNIT> () leftvalue = delete ;
 
 	const ARR<UNIT> &to () const leftvalue {
 		return PTRTOARR[mBuffer] ;
@@ -1970,7 +1970,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<const UNIT> () = delete ;
+	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
 
 	LENGTH size () const {
 		return SIZE::value ;
@@ -2102,7 +2102,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<UNIT> () = delete ;
+	inline implicit operator PTR<UNIT> () leftvalue = delete ;
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
@@ -2114,7 +2114,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<const UNIT> () = delete ;
+	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
 
 	LENGTH size () const {
 		return mSize ;
@@ -2396,7 +2396,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<UNIT> () = delete ;
+	inline implicit operator PTR<UNIT> () leftvalue = delete ;
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
@@ -2408,7 +2408,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<const UNIT> () = delete ;
+	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
 
 	LENGTH size () const {
 		return mSize ;
@@ -2554,7 +2554,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<const UNIT> () = delete ;
+	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
 
 	LENGTH size () const {
 		return mSize ;
@@ -2733,7 +2733,7 @@ public:
 		return to () ;
 	}
 
-	inline implicit operator PTR<UNIT> () = delete ;
+	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
 
 	LENGTH size () const {
 		return mSize ;

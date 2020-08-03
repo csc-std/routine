@@ -447,7 +447,7 @@ private:
 		for (auto &&i : mClusterMappingSet) {
 			const auto r2x = mClusterMappingSet.at (i) ;
 			INDEX jx = mNextCenter.insert (i) ;
-			INDEX kx = mClusterMappingSet.map_at (i) ;
+			INDEX kx = mClusterMappingSet.map (r2x) ;
 			mNextCenter[jx] = average_center (mCluster[kx]) ;
 		}
 	}

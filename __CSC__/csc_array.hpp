@@ -13,6 +13,9 @@ template <class BASE>
 class ArrayIterator
 	:private Proxy {
 private:
+	using ITEM_TYPE = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
+
+private:
 	friend BASE ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
@@ -29,8 +32,7 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	template <class _RET = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))>>
-	inline _RET operator* () const leftvalue {
+	inline ITEM_TYPE operator* () const leftvalue {
 		return mBase->get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 
@@ -1001,10 +1003,6 @@ public:
 		return mPriority[index].mMap ;
 	}
 
-	INDEX map_at (const ITEM &item) const {
-		return map (at (item)) ;
-	}
-
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
@@ -1092,8 +1090,10 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		reserve (val.length ()) ;
-		for (auto &&i : val)
-			add (i ,val.map_at (i)) ;
+		for (auto &&i : val) {
+			const auto r1x = val.at (i) ;
+			add (i ,val.map (r1x)) ;
+		}
 	}
 
 	void take () {
@@ -2491,10 +2491,6 @@ public:
 		return mSet[index].mMap ;
 	}
 
-	INDEX map_at (const ITEM &item) const {
-		return map (at (item)) ;
-	}
-
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
@@ -2569,8 +2565,10 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
-		for (auto &&i : val)
-			add (i ,val.map_at (i)) ;
+		for (auto &&i : val) {
+			const auto r1x = val.at (i) ;
+			add (i ,val.map (r1x)) ;
+		}
 	}
 
 	INDEX head () const {
@@ -3091,10 +3089,6 @@ public:
 		return mSet[index].mMap ;
 	}
 
-	INDEX map_at (const ITEM &item) const {
-		return map (at (item)) ;
-	}
-
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
@@ -3159,8 +3153,10 @@ public:
 	template <class _ARG1>
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
-		for (auto &&i : val)
-			add (i ,val.map_at (i)) ;
+		for (auto &&i : val) {
+			const auto r1x = val.at (i) ;
+			add (i ,val.map (r1x)) ;
+		}
 	}
 
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
@@ -3374,10 +3370,6 @@ public:
 		return mSet.self[index].mMap ;
 	}
 
-	INDEX map_at (const ITEM &item) const {
-		return map (at (item)) ;
-	}
-
 	Array<INDEX> range () const {
 		Array<INDEX> ret = Array<INDEX> (length ()) ;
 		INDEX iw = 0 ;
@@ -3465,8 +3457,10 @@ public:
 	void appand (const _ARG1 &val) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (val.length ()) ;
-		for (auto &&i : val)
-			add (i ,val.map_at (i)) ;
+		for (auto &&i : val) {
+			const auto r1x = val.at (i) ;
+			add (i ,val.map (r1x)) ;
+		}
 	}
 
 	INDEX head () const {

@@ -89,7 +89,7 @@ inline exports void FileSystemProc::load_file (const String<STR> &file ,const Ph
 	_DYNAMIC_ASSERT_ (r2x > 0 && r2x <= data.size ()) ;
 	auto rax = VARY () ;
 	rax = VARY (0) ;
-	const auto r3x = api::ReadFile (r1x.self ,data ,VARY (r2x) ,DEPTR[rax] ,NULL) ;
+	const auto r3x = api::ReadFile (r1x.self ,data.self ,VARY (r2x) ,DEPTR[rax] ,NULL) ;
 	_DYNAMIC_ASSERT_ (r3x) ;
 	BasicProc::mem_fill (PTRTOARR[DEPTR[data.self[r2x]]] ,(data.size () - r2x) ,BYTE (0X00)) ;
 }

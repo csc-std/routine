@@ -250,9 +250,10 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	ArrayRange<ARGC<2>> range () const {
+	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::null)))>>
+	_RET array_range () const {
 		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
-		return ArrayRange<ARGC<2>> (r1x) ;
+		return _RANGE_ (r1x) ;
 	}
 
 	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
@@ -312,7 +313,7 @@ public:
 			return FALSE ;
 		if (mCY != that.mCY)
 			return FALSE ;
-		for (auto &&i : range ()) {
+		for (auto &&i : array_range ()) {
 			if (get (i) != that.get (i))
 				return FALSE ;
 		}
@@ -331,7 +332,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) + that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -343,7 +344,7 @@ public:
 	void addto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) += that.get (i) ;
 	}
 
@@ -356,7 +357,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) - that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -368,7 +369,7 @@ public:
 	void subto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) -= that.get (i) ;
 	}
 
@@ -381,7 +382,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) * that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -393,7 +394,7 @@ public:
 	void multo (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) *= that.get (i) ;
 	}
 
@@ -406,7 +407,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) / that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -418,7 +419,7 @@ public:
 	void divto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) /= that.get (i) ;
 	}
 
@@ -431,7 +432,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) % that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -443,7 +444,7 @@ public:
 	void modto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) %= that.get (i) ;
 	}
 
@@ -454,7 +455,7 @@ public:
 
 	Bitmap plus () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = +get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -465,7 +466,7 @@ public:
 
 	Bitmap minus () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = -get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -478,7 +479,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) & that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -490,7 +491,7 @@ public:
 	void bandto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) &= that.get (i) ;
 	}
 
@@ -503,7 +504,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) | that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -515,7 +516,7 @@ public:
 	void borto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) |= that.get (i) ;
 	}
 
@@ -528,7 +529,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) ^ that.get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -540,7 +541,7 @@ public:
 	void bxorto (const Bitmap &that) {
 		_DEBUG_ASSERT_ (mCX == that.mCX) ;
 		_DEBUG_ASSERT_ (mCY == that.mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) ^= that.get (i) ;
 	}
 
@@ -551,7 +552,7 @@ public:
 
 	Bitmap bnot () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = ~get (i) ;
 		return _MOVE_ (ret) ;
 	}
@@ -564,7 +565,7 @@ public:
 		_DEBUG_ASSERT_ (mCX == that.mCY) ;
 		Bitmap ret = Bitmap (that.mCX ,mCY) ;
 		const auto r1x = ARRAY2<LENGTH> {mCY ,that.mCX} ;
-		for (auto &&i : ArrayRange<ARGC<2>> (r1x)) {
+		for (auto &&i : _RANGE_ (r1x)) {
 			ret.get (i) = UNIT (0) ;
 			for (auto &&j : _RANGE_ (0 ,mCX))
 				ret.get (i) += get (i[0] ,j) * that.get (j ,i[1]) ;
@@ -574,27 +575,27 @@ public:
 
 	Bitmap transpose () const {
 		Bitmap ret = Bitmap (mCY ,mCX) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i[1] ,i[0]) = get (i) ;
 		return _MOVE_ (ret) ;
 	}
 
 	Bitmap horizontal_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i[0] ,(mCX + ~i[1])) ;
 		return _MOVE_ (ret) ;
 	}
 
 	Bitmap vertical_reverse () const {
 		Bitmap ret = Bitmap (mCX ,mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get ((mCY + ~i[0]) ,i[1]) ;
 		return _MOVE_ (ret) ;
 	}
 
 	void fill (const UNIT &val) {
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			get (i) = val ;
 	}
 } ;
@@ -730,10 +731,11 @@ public:
 		return mThis->mCK ;
 	}
 
-	ArrayRange<ARGC<2>> range () const {
+	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::null)))>>
+	_RET array_range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = ARRAY2<LENGTH> {mThis->mCY ,mThis->mCX} ;
-		return ArrayRange<ARGC<2>> (r1x) ;
+		return _RANGE_ (r1x) ;
 	}
 
 	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
@@ -807,7 +809,7 @@ public:
 	Bitmap<UNIT> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		Bitmap<UNIT> ret = Bitmap<UNIT> (mThis->mCX ,mThis->mCY) ;
-		for (auto &&i : range ())
+		for (auto &&i : array_range ())
 			ret.get (i) = get (i) ;
 		return _MOVE_ (ret) ;
 	}

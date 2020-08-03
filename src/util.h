@@ -114,10 +114,6 @@ using namespace CSC ;
 #include <csc_math.hpp.default.inl>
 #endif
 
-#ifdef __CSC_FUNCTIONAL__
-#include <csc_functional.hpp.op.inl>
-#endif
-
 #ifdef __CSC_STRING__
 #include <csc_string.hpp.default.inl>
 #include <csc_string.hpp.gbk.inl>
