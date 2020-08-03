@@ -140,10 +140,11 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value)>>
 	explicit Operator (_ARG1 &&that) {
 		struct Dependent ;
+		using HINT_T1 = FUNCTION_OF_TYPE<_ARG1> ;
+		using HINT_T2 = REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<HINT_T1>)> ,const Operand &> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
-		using FUNCTION_HINT = FUNCTION_OF_TYPE<_ARG1> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<FUNCTION_HINT ,REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<FUNCTION_HINT>)> ,const Operand &>> ;
-		const auto r1x = Function<FUNCTION_HINT> (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<HINT_T1 ,HINT_T2> ;
+		const auto r1x = Function<HINT_T1> (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		mHolder = StrongRef<ImplHolder>::make (r1x) ;
 	}
 
@@ -257,10 +258,10 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
-		auto &r1x = parameter.one ().as (ARGV<ONE_HINT>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<REST_HINT>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
+		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -294,10 +295,10 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
-		auto &r1x = parameter.one ().as (ARGV<ONE_HINT>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<REST_HINT>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
+		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -347,9 +348,9 @@ struct CONSTEXPR_MAXOF_VALUE {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (ONE_HINT::value ,invoke (ARGV<REST_HINT>::null)) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		return _MAX_<const LENGTH> (HINT_T1::value ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
 } ;
@@ -408,19 +409,19 @@ public:
 
 	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ,RETR>>>
 	_RET flips (const ARGV<ARGVP<_ARGS>> &...) const {
+		using HINT_T1 = U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		using FLIP_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
-		return template_flips (ARGV<FLIP_RANK_HINT>::null ,ARGV<ARGVS<_ARGS...>>::null ,ARGV<INVOKE_PARAMS_TYPE<FLIP_RANK_HINT>>::null) ;
+		return template_flips (ARGV<HINT_T1>::null ,ARGV<ARGVS<_ARGS...>>::null ,ARGV<INVOKE_PARAMS_TYPE<HINT_T1>>::null) ;
 	}
 
 	Expression<RANK1 ,RETR> fold () const {
 		struct Dependent ;
+		using HINT_T1 = SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>> ;
 		Expression<RANK1 ,RETR> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::null ,node.mChild[0]) ;
 			auto &r2x = in1.as (ARGV<Expression<RANK1 ,RETR>>::null) ;
-			auto &r3x = ARGV<SEQUENCE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>>>::null ;
-			return r1x.template_fold_invoke (r2x ,r3x) ;
+			return r1x.template_fold_invoke (r2x ,ARGV<HINT_T1>::null) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
@@ -429,8 +430,8 @@ public:
 
 	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
 	_RET concat (const Expression<_ARG1 ,_ARG2> &that) const {
-		using CONCAT_RANK_HINT = U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ;
-		return template_concat (ARGV<CONCAT_RANK_HINT>::null ,that ,ARGV<INVOKE_PARAMS_TYPE<CONCAT_RANK_HINT>>::null) ;
+		using HINT_T1 = U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>))>> ;
+		return template_concat (ARGV<HINT_T1>::null ,that ,ARGV<INVOKE_PARAMS_TYPE<HINT_T1>>::null) ;
 	}
 
 private:
@@ -477,7 +478,9 @@ private:
 
 	template <class _ARG1 ,class... _ARGS>
 	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
-		return template_flip_invoke (patch_ ,ARGV<ARGVS_REST_TYPE<_ARG1>>::null ,placeholder... ,_NULL_ (ARGV<ARGVP<ARGVS_ONE_TYPE<_ARG1>>>::null)) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		return template_flip_invoke (patch_ ,ARGV<HINT_T2>::null ,placeholder... ,_NULL_ (ARGV<ARGVP<HINT_T1>>::null)) ;
 	}
 
 	template <class... _ARGS>
@@ -624,8 +627,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>>>>
 	_RET curry () const {
 		struct Dependent ;
-		using Expression_RANK1 = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,Dependent> ;
-		Expression_RANK1 ret ;
+		using ExpressionX1 = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,Dependent> ;
+		ExpressionX1 ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::null ,node.mChild[0]) ;
 			auto tmp = r1x.concat (in1).curry () ;

@@ -13,7 +13,7 @@ template <class BASE>
 class ArrayIterator
 	:private Proxy {
 private:
-	using ITEM_TYPE = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
+	using HINT_ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
 
 private:
 	friend BASE ;
@@ -32,7 +32,7 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline ITEM_TYPE operator* () const leftvalue {
+	inline HINT_ITEM operator* () const leftvalue {
 		return mBase->get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
 	}
 
@@ -567,12 +567,12 @@ public:
 	template <class... _ARGS>
 	imports String make (const _ARGS &...initval) {
 		struct Dependent ;
-		using TextWriter_ITEM = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
+		using TextWriter = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<SIZE ,SAUTO>::value) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
-		auto rax = TextWriter_ITEM (ret.raw ()) ;
+		auto rax = TextWriter (ret.raw ()) ;
 		rax.prints (initval...) ;
-		rax << TextWriter_ITEM::EOS ;
+		rax << TextWriter::EOS ;
 		return _MOVE_ (ret) ;
 	}
 

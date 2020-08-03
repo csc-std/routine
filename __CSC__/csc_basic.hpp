@@ -1177,14 +1177,14 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using FUNC_HINT = DEF<void ()> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<FUNC_HINT>> ;
-		using Function_FUNC_HINT = DEPENDENT_TYPE<Function<FUNC_HINT> ,Dependent> ;
+		using HINT_T1 = DEF<void ()> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
+		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<>> ,void>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function_FUNC_HINT (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
+		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		constructor () ;
@@ -1280,14 +1280,14 @@ public:
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
-		using FUNC_HINT = DEF<void (UNIT &)> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<FUNC_HINT>> ;
-		using Function_FUNC_HINT = DEPENDENT_TYPE<Function<FUNC_HINT> ,Dependent> ;
+		using HINT_T1 = DEF<void (UNIT &)> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
+		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>> ,void>::value) ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>> ,void>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function_FUNC_HINT (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
+		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		constructor (r2x.mValue) ;
@@ -1350,11 +1350,11 @@ public:
 	template <class... _ARGS>
 	imports UniqueRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using FUNC_HINT = DEF<void (UNIT &)> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<FUNC_HINT>> ;
-		using Function_FUNC_HINT = DEPENDENT_TYPE<Function<FUNC_HINT> ,Dependent> ;
+		using HINT_T1 = DEF<void (UNIT &)> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
+		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function_FUNC_HINT ([] (UNIT &) {}) ;
+		const auto r1x = Function ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
 		r2x.mValue = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;

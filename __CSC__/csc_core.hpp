@@ -1523,14 +1523,13 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 
 template <class _ARG1 ,class _ARG2>
 inline _ARG1 _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 &object) {
+	using HINT_T1 = TEMP<BYTE[_SIZEOF_ (_ARG1)]> ;
 	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 	_STATIC_ASSERT_ (stl::is_pod<_ARG2>::value) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
 	TEMP<_ARG1> ret ;
 	_ZERO_ (ret) ;
-	auto &r1x = ARGV<TEMP<BYTE[_SIZEOF_ (_ARG1)]>>::null ;
-	auto &r2x = ARGV<TEMP<BYTE[_SIZEOF_ (_ARG2)]>>::null ;
-	_CAST_ (r1x ,ret) = _CAST_ (r2x ,object) ;
+	_CAST_ (ARGV<HINT_T1>::null ,ret) = _CAST_ (ARGV<HINT_T1>::null ,object) ;
 	return _MOVE_ (_CAST_ (ARGV<_ARG1>::null ,ret)) ;
 }
 
@@ -1812,9 +1811,9 @@ class Array ;
 
 template <class _ARG1>
 inline ArrayRange<_ARG1> _RANGE_ (const Array<LENGTH ,_ARG1> &range_) {
-	struct Depentent ;
-	using ArrayRange_SIZE = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Depentent> ;
-	return ArrayRange_SIZE (range_) ;
+	struct Dependent ;
+	using ArrayRange = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Dependent> ;
+	return ArrayRange (range_) ;
 }
 
 template <class _ARG1>
@@ -1833,9 +1832,9 @@ struct CONSTEXPR_CACHE_STRING_SIZE {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _COUNTOF_ (ONE_HINT) - 1 + invoke (ARGV<REST_HINT>::null) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		return _COUNTOF_ (HINT_T1) - 1 + invoke (ARGV<HINT_T2>::null) ;
 	}
 } ;
 } ;
@@ -1901,7 +1900,8 @@ private:
 	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<REAL[U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null)]>>
 	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
-		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<ARGC<(U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
+		using HINT_T1 = ARGC<(U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null))> ;
+		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<HINT_T1> ;
 		const auto r1x = PlainString (text...) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return r1x ;
@@ -1936,12 +1936,12 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	void template_write (const ARGVF<_ARG1> & ,const _ARG2 &text_one ,const _ARGS &...text_rest) {
+		using HINT_T1 = ARGC<(_ARG1::value + _COUNTOF_ (_ARG2) - 1)> ;
 		_STATIC_ASSERT_ (_ARG1::value >= 0 && _ARG1::value < LENGTH (SIZE::value)) ;
 		_STATIC_ASSERT_ (stl::is_bounded_array_of<STRX ,_ARG2>::value || stl::is_bounded_array_of<STRA ,_ARG2>::value || stl::is_bounded_array_of<STRW ,_ARG2>::value) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
 			mString[i + _ARG1::value] = REAL (text_one[i]) ;
-		auto &r1x = ARGV<ARGC<(_ARG1::value + _COUNTOF_ (_ARG2) - 1)>>::null ;
-		template_write (r1x ,text_rest...) ;
+		template_write (ARGV<HINT_T1>::null ,text_rest...) ;
 	}
 } ;
 

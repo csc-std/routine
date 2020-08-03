@@ -630,11 +630,11 @@ struct OPERATOR_TYPENAME {
 
 	template <class _ARG1>
 	imports void template_write_typename_y (TextWriter<STR> &writer ,const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		template_write_typename_x (writer ,ARGV<ONE_HINT>::null) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		template_write_typename_x (writer ,ARGV<HINT_T1>::null) ;
 		writer << _PCSTR_ (" ,") ;
-		template_write_typename_y (writer ,ARGV<REST_HINT>::null) ;
+		template_write_typename_y (writer ,ARGV<HINT_T2>::null) ;
 	}
 
 	template <class _ARG1>

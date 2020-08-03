@@ -103,8 +103,8 @@ public:
 	//@warn: static instance across DLL ruins Singleton
 	imports UNIT &instance () {
 		struct Dependent ;
-		using GlobalStatic_Singleton_UNIT = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
-		return GlobalStatic_Singleton_UNIT::unique () ;
+		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
+		return GlobalStatic::unique () ;
 	}
 } ;
 
@@ -572,9 +572,9 @@ struct CONSTEXPR_MAX_SIZEOF {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (_SIZEOF_ (ONE_HINT) ,invoke (ARGV<REST_HINT>::null)) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		return _MAX_<const LENGTH> (_SIZEOF_ (HINT_T1) ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
 
@@ -585,9 +585,9 @@ struct CONSTEXPR_MAX_ALIGNOF {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (_ALIGNOF_ (ONE_HINT) ,invoke (ARGV<REST_HINT>::null)) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		return _MAX_<const LENGTH> (_ALIGNOF_ (HINT_T1) ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
 } ;
@@ -607,12 +607,10 @@ private:
 		alignas (ALIGN) DEF<BYTE[VARIANT_SIZE]> unused ;
 	} ;
 
-	using VARIANT = ALIGNED_UNION<> ;
-
-	using OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
+	using HINT_OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
-	TEMP<VARIANT> mVariant ;
+	TEMP<ALIGNED_UNION<>> mVariant ;
 	INDEX mIndex ;
 
 public:
@@ -626,12 +624,12 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value)>>
 	implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
-		using INDEX_HINT = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
-		_STATIC_ASSERT_ (INDEX_HINT::value != VAR_NONE) ;
-		auto &r1x = ARGV<ARGC<(stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value)>>::null ;
-		auto &r2x = _LOAD_ (ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>::null ,DEPTR[mVariant]) ;
-		template_create (r1x ,DEPTR[r2x] ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
-		mIndex = INDEX_HINT::value ;
+		using HINT_T1 = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
+		using HINT_T2 = ARGC<(stl::is_constructible<REMOVE_CVR_TYPE<_ARG1> ,_ARG1 &&>::value)> ;
+		_STATIC_ASSERT_ (HINT_T1::value != VAR_NONE) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<REMOVE_CVR_TYPE<_ARG1>>>::null ,DEPTR[mVariant]) ;
+		template_create (ARGV<HINT_T2>::null ,DEPTR[r1x] ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		mIndex = HINT_T1::value ;
 	}
 
 	implicit ~Variant () noexcept {
@@ -685,33 +683,33 @@ public:
 
 	template <class _ARG1>
 	BOOL available (const ARGVF<_ARG1> &) const {
-		using INDEX_HINT = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
+		using HINT_T1 = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		if (!exist ())
 			return FALSE ;
-		if (mIndex != INDEX_HINT::value)
+		if (mIndex != HINT_T1::value)
 			return FALSE ;
 		return TRUE ;
 	}
 
-	OPTIONAL &to () leftvalue {
+	HINT_OPTIONAL &to () leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1x = _LOAD_ (ARGV<TEMP<OPTIONAL>>::null ,DEPTR[mVariant]) ;
-		return _CAST_ (ARGV<OPTIONAL>::null ,r1x) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<HINT_OPTIONAL>>::null ,DEPTR[mVariant]) ;
+		return _CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
 	}
 
-	inline implicit operator OPTIONAL & () leftvalue {
+	inline implicit operator HINT_OPTIONAL & () leftvalue {
 		return to () ;
 	}
 
-	const OPTIONAL &to () const leftvalue {
+	const HINT_OPTIONAL &to () const leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		auto &r1x = _LOAD_ (ARGV<TEMP<OPTIONAL>>::null ,DEPTR[mVariant]) ;
-		return _CAST_ (ARGV<OPTIONAL>::null ,r1x) ;
+		auto &r1x = _LOAD_ (ARGV<TEMP<HINT_OPTIONAL>>::null ,DEPTR[mVariant]) ;
+		return _CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
 	}
 
-	inline implicit operator const OPTIONAL & () const leftvalue {
+	inline implicit operator const HINT_OPTIONAL & () const leftvalue {
 		return to () ;
 	}
 
@@ -753,21 +751,21 @@ private:
 
 	template <class _ARG1>
 	void template_construct (const INDEX &index ,const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T3 = ARGC<(stl::is_default_constructible<HINT_T1>::value)> ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<HINT_T1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = ARGV<ARGC<(stl::is_default_constructible<ONE_HINT>::value)>>::null ;
-			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
-			template_create (r2x ,DEPTR[r3x]) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[mVariant]) ;
+			template_create (ARGV<HINT_T3>::null ,DEPTR[r2x]) ;
 		}
 		if (r1x)
 			return ;
-		template_construct ((index - 1) ,ARGV<REST_HINT>::null) ;
+		template_construct ((index - 1) ,ARGV<HINT_T2>::null) ;
 	}
 
 	void template_destruct (const INDEX &index ,const ARGVF<ARGVS<>> &) {
@@ -776,21 +774,21 @@ private:
 
 	template <class _ARG1>
 	void template_destruct (const INDEX &index ,const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (stl::is_nothrow_destructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		_STATIC_ASSERT_ (stl::is_nothrow_destructible<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<HINT_T1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[mVariant]) ;
 			_DESTROY_ (DEPTR[r2x]) ;
 		}
 		if (r1x)
 			return ;
-		template_destruct ((index - 1) ,ARGV<REST_HINT>::null) ;
+		template_destruct ((index - 1) ,ARGV<HINT_T2>::null) ;
 	}
 
 	void template_copy_construct (const Variant &that ,const INDEX &index ,const ARGVF<ARGVS<>> &) {
@@ -799,20 +797,20 @@ private:
 
 	template <class _ARG1>
 	void template_copy_construct (const Variant &that ,const INDEX &index ,const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T3 = ARGC<(stl::is_copy_constructible<HINT_T1>::value && stl::is_nothrow_move_constructible<HINT_T1>::value)> ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = ARGV<ARGC<(stl::is_copy_constructible<ONE_HINT>::value && stl::is_nothrow_move_constructible<ONE_HINT>::value)>>::null ;
-			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
-			auto &r4x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[that.mVariant]) ;
-			template_create (r2x ,DEPTR[r3x] ,_MOVE_ (_CAST_ (ARGV<ONE_HINT>::null ,r4x))) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[mVariant]) ;
+			auto &r3x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[that.mVariant]) ;
+			template_create (ARGV<HINT_T3>::null ,DEPTR[r2x] ,_MOVE_ (_CAST_ (ARGV<HINT_T1>::null ,r3x))) ;
 		}
 		if (r1x)
 			return ;
-		template_copy_construct (that ,(index - 1) ,ARGV<REST_HINT>::null) ;
+		template_copy_construct (that ,(index - 1) ,ARGV<HINT_T2>::null) ;
 	}
 
 	void template_move_construct (Variant &that ,const INDEX &index ,const ARGVF<ARGVS<>> &) {
@@ -821,21 +819,21 @@ private:
 
 	template <class _ARG1>
 	void template_move_construct (Variant &that ,const INDEX &index ,const ARGVF<_ARG1> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<ONE_HINT>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<ONE_HINT>::value) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<HINT_T1>::value) ;
 		const auto r1x = BOOL (index == 0) ;
 		if switch_once (TRUE) {
 			if (!r1x)
 				discard ;
-			auto &r2x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[mVariant]) ;
-			auto &r3x = _LOAD_ (ARGV<TEMP<ONE_HINT>>::null ,DEPTR[that.mVariant]) ;
-			template_create (ARGV<ARGC<TRUE>>::null ,DEPTR[r2x] ,_MOVE_ (_CAST_ (ARGV<ONE_HINT>::null ,r3x))) ;
+			auto &r2x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[mVariant]) ;
+			auto &r3x = _LOAD_ (ARGV<TEMP<HINT_T1>>::null ,DEPTR[that.mVariant]) ;
+			template_create (ARGV<ARGC<TRUE>>::null ,DEPTR[r2x] ,_MOVE_ (_CAST_ (ARGV<HINT_T1>::null ,r3x))) ;
 		}
 		if (r1x)
 			return ;
-		template_move_construct (that ,(index - 1) ,ARGV<REST_HINT>::null) ;
+		template_move_construct (that ,(index - 1) ,ARGV<HINT_T2>::null) ;
 	}
 
 private:
@@ -846,11 +844,11 @@ private:
 
 	template <class _ARG1 ,class _ARG2>
 	imports INDEX default_constructible_index (const ARGVF<_ARG1> & ,const ARGVF<_ARG2> &) {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG2> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG2> ;
-		if (stl::is_default_constructible<ONE_HINT>::value)
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		if (stl::is_default_constructible<HINT_T1>::value)
 			return _ARG1::value ;
-		return default_constructible_index (ARGV<INCREASE<_ARG1>>::null ,ARGV<REST_HINT>::null) ;
+		return default_constructible_index (ARGV<INCREASE<_ARG1>>::null ,ARGV<HINT_T2>::null) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1092,7 +1090,7 @@ class AllOfTuple
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 
 private:
-	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
+	using HINT_WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	TupleBinder<const UNITS...> mBinder ;
@@ -1107,60 +1105,60 @@ public:
 		return template_boolean (mBinder) ;
 	}
 
-	inline BOOL operator== (const WRAPPED &that) const {
+	inline BOOL operator== (const HINT_WRAPPED &that) const {
 		return template_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator== (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) == that ;
 	}
 
-	inline BOOL operator!= (const WRAPPED &that) const {
+	inline BOOL operator!= (const HINT_WRAPPED &that) const {
 		return template_not_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator!= (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) != that ;
 	}
 
-	inline BOOL operator< (const WRAPPED &that) const {
+	inline BOOL operator< (const HINT_WRAPPED &that) const {
 		return template_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator< (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) > that ;
 	}
 
-	inline BOOL operator>= (const WRAPPED &that) const {
+	inline BOOL operator>= (const HINT_WRAPPED &that) const {
 		return template_not_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator>= (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) <= that ;
 	}
 
-	inline BOOL operator> (const WRAPPED &that) const {
+	inline BOOL operator> (const HINT_WRAPPED &that) const {
 		return template_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator> (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) < that ;
 	}
 
-	inline BOOL operator<= (const WRAPPED &that) const {
+	inline BOOL operator<= (const HINT_WRAPPED &that) const {
 		return template_not_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &self_) {
+	inline friend BOOL operator<= (const HINT_WRAPPED &that ,const AllOfTuple &self_) {
 		return _MOVE_ (self_) >= that ;
 	}
 
 private:
-	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_equal (const HINT_WRAPPED &lhs ,const HINT_WRAPPED &rhs) {
 		return BOOL (lhs == rhs) ;
 	}
 
-	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_less (const HINT_WRAPPED &lhs ,const HINT_WRAPPED &rhs) {
 		return BOOL (lhs < rhs) ;
 	}
 
@@ -1175,45 +1173,45 @@ private:
 		return template_boolean (self_.rest ()) ;
 	}
 
-	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (!operator_equal (self_.one () ,that))
 			return FALSE ;
 		return template_equal (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (operator_equal (self_.one () ,that))
 			return FALSE ;
 		return template_not_equal (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (!operator_less (self_.one () ,that))
 			return FALSE ;
 		return template_less (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (operator_less (self_.one () ,that))
 			return FALSE ;
 		return template_not_less (self_.rest () ,that) ;
@@ -1227,7 +1225,7 @@ class AnyOfTuple
 	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
 
 private:
-	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
+	using HINT_WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	TupleBinder<const UNITS...> mBinder ;
@@ -1242,60 +1240,60 @@ public:
 		return template_boolean (mBinder) ;
 	}
 
-	inline BOOL operator== (const WRAPPED &that) const {
+	inline BOOL operator== (const HINT_WRAPPED &that) const {
 		return template_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator== (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) == that ;
 	}
 
-	inline BOOL operator!= (const WRAPPED &that) const {
+	inline BOOL operator!= (const HINT_WRAPPED &that) const {
 		return template_not_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator!= (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) != that ;
 	}
 
-	inline BOOL operator< (const WRAPPED &that) const {
+	inline BOOL operator< (const HINT_WRAPPED &that) const {
 		return template_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator< (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) > that ;
 	}
 
-	inline BOOL operator>= (const WRAPPED &that) const {
+	inline BOOL operator>= (const HINT_WRAPPED &that) const {
 		return template_not_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator>= (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) <= that ;
 	}
 
-	inline BOOL operator> (const WRAPPED &that) const {
+	inline BOOL operator> (const HINT_WRAPPED &that) const {
 		return template_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator> (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) < that ;
 	}
 
-	inline BOOL operator<= (const WRAPPED &that) const {
+	inline BOOL operator<= (const HINT_WRAPPED &that) const {
 		return template_not_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &self_) {
+	inline friend BOOL operator<= (const HINT_WRAPPED &that ,const AnyOfTuple &self_) {
 		return _MOVE_ (self_) >= that ;
 	}
 
 private:
-	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_equal (const HINT_WRAPPED &lhs ,const HINT_WRAPPED &rhs) {
 		return BOOL (lhs == rhs) ;
 	}
 
-	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
+	imports BOOL operator_less (const HINT_WRAPPED &lhs ,const HINT_WRAPPED &rhs) {
 		return BOOL (lhs < rhs) ;
 	}
 
@@ -1310,45 +1308,45 @@ private:
 		return template_boolean (self_.rest ()) ;
 	}
 
-	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (operator_equal (self_.one () ,that))
 			return TRUE ;
 		return template_equal (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (!operator_equal (self_.one () ,that))
 			return TRUE ;
 		return template_not_equal (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (operator_less (self_.one () ,that))
 			return TRUE ;
 		return template_less (self_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &self_ ,const HINT_WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const _ARG1 &self_ ,const HINT_WRAPPED &that) {
 		if (!operator_less (self_.one () ,that))
 			return TRUE ;
 		return template_not_less (self_.rest () ,that) ;
@@ -2179,41 +2177,41 @@ public:
 
 inline exports void MemoryPool::initialize () {
 	struct Dependent ;
-	using ImplHolder8 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
-	using ImplHolder16 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
-	using ImplHolder24 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
-	using ImplHolder32 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
-	using ImplHolder40 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
-	using ImplHolder48 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
-	using ImplHolder56 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
-	using ImplHolder64 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
-	using ImplHolder72 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
-	using ImplHolder80 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
-	using ImplHolder88 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
-	using ImplHolder96 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
-	using ImplHolder104 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
-	using ImplHolder112 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
-	using ImplHolder120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
-	using ImplHolder128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using ImplHolderX8 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
+	using ImplHolderX16 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
+	using ImplHolderX24 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
+	using ImplHolderX32 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
+	using ImplHolderX40 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
+	using ImplHolderX48 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
+	using ImplHolderX56 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
+	using ImplHolderX64 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
+	using ImplHolderX72 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
+	using ImplHolderX80 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
+	using ImplHolderX88 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
+	using ImplHolderX96 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
+	using ImplHolderX104 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
+	using ImplHolderX112 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
+	using ImplHolderX120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
+	using ImplHolderX128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
 	using HugeHolder = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
 	mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
 		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
-		me.mPool[0] = StrongRef<ImplHolder8>::make () ;
-		me.mPool[1] = StrongRef<ImplHolder16>::make () ;
-		me.mPool[2] = StrongRef<ImplHolder24>::make () ;
-		me.mPool[3] = StrongRef<ImplHolder32>::make () ;
-		me.mPool[4] = StrongRef<ImplHolder40>::make () ;
-		me.mPool[5] = StrongRef<ImplHolder48>::make () ;
-		me.mPool[6] = StrongRef<ImplHolder56>::make () ;
-		me.mPool[7] = StrongRef<ImplHolder64>::make () ;
-		me.mPool[8] = StrongRef<ImplHolder72>::make () ;
-		me.mPool[9] = StrongRef<ImplHolder80>::make () ;
-		me.mPool[10] = StrongRef<ImplHolder88>::make () ;
-		me.mPool[11] = StrongRef<ImplHolder96>::make () ;
-		me.mPool[12] = StrongRef<ImplHolder104>::make () ;
-		me.mPool[13] = StrongRef<ImplHolder112>::make () ;
-		me.mPool[14] = StrongRef<ImplHolder120>::make () ;
-		me.mPool[15] = StrongRef<ImplHolder128>::make () ;
+		me.mPool[0] = StrongRef<ImplHolderX8>::make () ;
+		me.mPool[1] = StrongRef<ImplHolderX16>::make () ;
+		me.mPool[2] = StrongRef<ImplHolderX24>::make () ;
+		me.mPool[3] = StrongRef<ImplHolderX32>::make () ;
+		me.mPool[4] = StrongRef<ImplHolderX40>::make () ;
+		me.mPool[5] = StrongRef<ImplHolderX48>::make () ;
+		me.mPool[6] = StrongRef<ImplHolderX56>::make () ;
+		me.mPool[7] = StrongRef<ImplHolderX64>::make () ;
+		me.mPool[8] = StrongRef<ImplHolderX72>::make () ;
+		me.mPool[9] = StrongRef<ImplHolderX80>::make () ;
+		me.mPool[10] = StrongRef<ImplHolderX88>::make () ;
+		me.mPool[11] = StrongRef<ImplHolderX96>::make () ;
+		me.mPool[12] = StrongRef<ImplHolderX104>::make () ;
+		me.mPool[13] = StrongRef<ImplHolderX112>::make () ;
+		me.mPool[14] = StrongRef<ImplHolderX120>::make () ;
+		me.mPool[15] = StrongRef<ImplHolderX128>::make () ;
 		me.mPool[16] = StrongRef<HugeHolder>::make () ;
 	} ,[] (SELF_PACK &me) {
 		for (auto &&i : _RANGE_ (0 ,me.mPool.size ()))
@@ -2378,11 +2376,11 @@ private:
 
 	template <class _ARG1>
 	void template_visit (UNIT &visitor ,CONT &context_ ,const ARGVF<_ARG1> &) const {
-		using ONE_HINT = ARGVS_ONE_TYPE<_ARG1> ;
-		using REST_HINT = ARGVS_REST_TYPE<_ARG1> ;
-		auto &r1x = ONE_HINT::compile (context_) ;
+		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		auto &r1x = HINT_T1::compile (context_) ;
 		visitor.visit (r1x) ;
-		template_visit (visitor ,context_ ,ARGV<REST_HINT>::null) ;
+		template_visit (visitor ,context_ ,ARGV<HINT_T2>::null) ;
 	}
 } ;
 } ;

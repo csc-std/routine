@@ -691,8 +691,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>
 	_RET future () side_effects {
 		struct Dependent ;
-		using Future_ITEM = DEPENDENT_TYPE<Future<ITEM> ,Dependent> ;
-		return Future_ITEM (mThis.share ()) ;
+		using Future = DEPENDENT_TYPE<Future<ITEM> ,Dependent> ;
+		return Future (mThis.share ()) ;
 	}
 
 	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
