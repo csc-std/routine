@@ -281,7 +281,7 @@ public:
 
 	void uniform (const String<STR> &name ,const VAR32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -293,7 +293,7 @@ public:
 
 	void uniform (const String<STR> &name ,const VAR64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -305,7 +305,7 @@ public:
 
 	void uniform (const String<STR> &name ,const VAL32 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -317,7 +317,7 @@ public:
 
 	void uniform (const String<STR> &name ,const VAL64 &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -329,7 +329,7 @@ public:
 
 	void uniform (const String<STR> &name ,const Vector<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -341,7 +341,7 @@ public:
 
 	void uniform (const String<STR> &name ,const Vector<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -353,7 +353,7 @@ public:
 
 	void uniform (const String<STR> &name ,const Matrix<VAL32> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -365,7 +365,7 @@ public:
 
 	void uniform (const String<STR> &name ,const Matrix<VAL64> &data) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		INDEX ix = mUniformMappingSet.map (name) ;
+		INDEX ix = mUniformMappingSet.map_find (name) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;

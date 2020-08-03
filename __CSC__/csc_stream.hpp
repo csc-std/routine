@@ -1476,7 +1476,7 @@ public:
 	void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 		_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
-		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map_find (str_a) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
 		ix = mBase->mHeap->mEscape.insert () ;
 		mBase->mHeap->mEscapeMappingSet.add (str_a ,ix) ;
@@ -1484,20 +1484,20 @@ public:
 	}
 
 	REAL convert_escape_r (const REAL &str_a) const {
-		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map_find (str_a) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
 		return mBase->mHeap->mEscape[ix] ;
 	}
 
 	BOOL varify_space (const REAL &item) const {
-		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map_find (item) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL varify_space (const REAL &item ,const VAR32 &group) const {
-		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map_find (item) ;
 		if (ix == VAR_NONE)
 			return FALSE ;
 		if (mBase->mHeap->mSpace[ix].mP2 != group)
@@ -1508,7 +1508,7 @@ public:
 	void modify_space (const REAL &item ,const VAR32 &group) const {
 		_STATIC_ASSERT_ (!stl::is_const<BASE>::value) ;
 		_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
-		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
+		INDEX ix = mBase->mHeap->mSpaceMappingSet.map_find (item) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
 		ix = mBase->mHeap->mSpace.insert () ;
 		mBase->mHeap->mSpaceMappingSet.add (item ,ix) ;
@@ -2189,7 +2189,7 @@ public:
 
 	void modify_escape_w (const REAL &str_a ,const REAL &str_e) const {
 		_DEBUG_ASSERT_ (str_a != varify_ending_item ()) ;
-		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map_find (str_e) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
 		ix = mBase->mHeap->mEscape.insert () ;
 		mBase->mHeap->mEscapeMappingSet.add (str_e ,ix) ;
@@ -2197,7 +2197,7 @@ public:
 	}
 
 	REAL convert_escape_w (const REAL &str_e) const {
-		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_e) ;
+		INDEX ix = mBase->mHeap->mEscapeMappingSet.map_find (str_e) ;
 		_DYNAMIC_ASSERT_ (ix != VAR_NONE) ;
 		return mBase->mHeap->mEscape[ix] ;
 	}

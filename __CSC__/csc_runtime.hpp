@@ -710,7 +710,7 @@ private:
 
 	imports PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map (r1x) ;
+		INDEX ix = self_.mValueMappingSet.map_find (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -727,7 +727,7 @@ private:
 
 	imports PTR<VALUE_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map (r1x) ;
+		INDEX ix = self_.mValueMappingSet.map_find (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
 		return DEPTR[self_.mValue[ix]] ;
@@ -735,7 +735,7 @@ private:
 
 	imports PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map_find (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -754,7 +754,7 @@ private:
 
 	imports PTR<CLASS_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map_find (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
 		return DEPTR[self_.mClass[ix]] ;

@@ -922,11 +922,6 @@ private:
 		INDEX mMap ;
 	} ;
 
-	struct Private {
-		template <class>
-		class Pair ;
-	} ;
-
 private:
 	Buffer<NODE ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mPriority ;
 	INDEX mWrite ;
@@ -977,47 +972,19 @@ public:
 		return index + 1 ;
 	}
 
-	ArrayIterator<Priority> begin () leftvalue {
-		return ArrayIterator<Priority> (PhanRef<Priority>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
 	ArrayIterator<const Priority> begin () const leftvalue {
 		return ArrayIterator<const Priority> (PhanRef<const Priority>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
-	ArrayIterator<Priority> end () leftvalue {
-		return ArrayIterator<Priority> (PhanRef<Priority>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Priority> end () const leftvalue {
 		return ArrayIterator<const Priority> (PhanRef<const Priority>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	//@warn: index would be no longer valid every time revised
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Priority>>>
-	_RET get (const INDEX &index) leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
-		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair (PhanRef<Priority>::make (DEREF[this]) ,index) ;
+	const ITEM &get (const INDEX &index) const leftvalue {
+		return mPriority[index].mItem ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Priority>>>
-	inline _RET operator[] (const INDEX &index) leftvalue {
-		return get (index) ;
-	}
-
-	//@warn: index would be no longer valid every time revised
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Priority>>>
-	_RET get (const INDEX &index) const leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
-		_DEBUG_ASSERT_ (index >= 0 && index < mWrite) ;
-		return Pair (PhanRef<const Priority>::make (DEREF[this]) ,index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Priority>>>
-	inline _RET operator[] (const INDEX &index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -1028,18 +995,14 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<Priority>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Priority> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map (const INDEX &index) const {
+		if (index == VAR_NONE)
+			return VAR_NONE ;
+		return mPriority[index].mMap ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<const Priority>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Priority> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map_at (const ITEM &item) const {
+		return map (at (item)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -1130,7 +1093,7 @@ public:
 	void appand (const _ARG1 &val) {
 		reserve (val.length ()) ;
 		for (auto &&i : val)
-			add (i.key ,i.sid) ;
+			add (i ,val.map_at (i)) ;
 	}
 
 	void take () {
@@ -1282,25 +1245,6 @@ private:
 			ix = jx ;
 		}
 		out[ix] = r1x ;
-	}
-} ;
-
-template <class ITEM ,class SIZE>
-template <class BASE>
-class Priority<ITEM ,SIZE>::Private::Pair
-	:private Proxy {
-public:
-	const ITEM &key ;
-	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
-
-public:
-	implicit Pair () = delete ;
-
-	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
-		: key (base->mPriority[index].mItem) ,sid (base->mPriority[index].mMap) {}
-
-	inline implicit operator const ITEM & () rightvalue {
-		return key ;
 	}
 } ;
 
@@ -2465,11 +2409,6 @@ private:
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
-	struct Private {
-		template <class>
-		class Pair ;
-	} ;
-
 private:
 	Allocator<Node ,SIZE> mSet ;
 	INDEX mRoot ;
@@ -2526,62 +2465,34 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<Set> begin () leftvalue {
-		return ArrayIterator<Set> (PhanRef<Set>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
 	ArrayIterator<const Set> begin () const leftvalue {
 		return ArrayIterator<const Set> (PhanRef<const Set>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
-	ArrayIterator<Set> end () leftvalue {
-		return ArrayIterator<Set> (PhanRef<Set>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const Set> end () const leftvalue {
 		return ArrayIterator<const Set> (PhanRef<const Set>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
-	_RET get (const INDEX &index) leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
-		return Pair (PhanRef<Set>::make (DEREF[this]) ,index) ;
+	const ITEM &get (const INDEX &index) const leftvalue {
+		return mSet[index].mItem ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<Set>>>
-	inline _RET operator[] (const INDEX &index) leftvalue {
-		return get (index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Set>>>
-	_RET get (const INDEX &index) const leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
-		return Pair (PhanRef<const Set>::make (DEREF[this]) ,index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const Set>>>
-	inline _RET operator[] (const INDEX &index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
 	INDEX at (const ITEM &item) const {
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
-
-	INDEX at (const DEF<typename Private::template Pair<Set>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<Set> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	
+	INDEX map (const INDEX &index) const {
+		if (index == VAR_NONE)
+			return VAR_NONE ;
+		return mSet[index].mMap ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<const Set>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const Set> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map_at (const ITEM &item) const {
+		return map (at (item)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -2659,7 +2570,7 @@ public:
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
 		for (auto &&i : val)
-			add (i.key ,i.sid) ;
+			add (i ,val.map_at (i)) ;
 	}
 
 	INDEX head () const {
@@ -2734,11 +2645,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map (const ITEM &item) const {
-		INDEX ix = find (item) ;
-		if (ix == VAR_NONE)
-			return VAR_NONE ;
-		return mSet[ix].mMap ;
+	INDEX map_find (const ITEM &item) const {
+		return map (find (item)) ;
 	}
 
 	void erase (const ITEM &item) {
@@ -3081,25 +2989,6 @@ private:
 	}
 } ;
 
-template <class ITEM ,class SIZE>
-template <class BASE>
-class Set<ITEM ,SIZE>::Private::Pair
-	:private Proxy {
-public:
-	const ITEM &key ;
-	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
-
-public:
-	implicit Pair () = delete ;
-
-	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
-		: key (base->mSet[index].mItem) ,sid (base->mSet[index].mMap) {}
-
-	inline implicit operator const ITEM & () rightvalue {
-		return key ;
-	}
-} ;
-
 template <class ITEM ,class SIZE = SAUTO>
 class HashSet ;
 
@@ -3118,11 +3007,6 @@ private:
 		template <class... _ARGS>
 		explicit Node (_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
-	} ;
-
-	struct Private {
-		template <class>
-		class Pair ;
 	} ;
 
 private:
@@ -3181,43 +3065,19 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<HashSet> begin () leftvalue {
-		return ArrayIterator<HashSet> (PhanRef<HashSet>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
 	ArrayIterator<const HashSet> begin () const leftvalue {
 		return ArrayIterator<const HashSet> (PhanRef<const HashSet>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
-	ArrayIterator<HashSet> end () leftvalue {
-		return ArrayIterator<HashSet> (PhanRef<HashSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const HashSet> end () const leftvalue {
 		return ArrayIterator<const HashSet> (PhanRef<const HashSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
-	_RET get (const INDEX &index) leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
-		return Pair (PhanRef<HashSet>::make (DEREF[this]) ,index) ;
+	const ITEM &get (const INDEX &index) const leftvalue {
+		return mSet[index].mItem ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<HashSet>>>
-	inline _RET operator[] (const INDEX &index) leftvalue {
-		return get (index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const HashSet>>>
-	_RET get (const INDEX &index) const leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
-		return Pair (PhanRef<const HashSet>::make (DEREF[this]) ,index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const HashSet>>>
-	inline _RET operator[] (const INDEX &index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
@@ -3225,18 +3085,14 @@ public:
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<HashSet>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<HashSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map (const INDEX &index) const {
+		if (index == VAR_NONE)
+			return VAR_NONE ;
+		return mSet[index].mMap ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<const HashSet>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const HashSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map_at (const ITEM &item) const {
+		return map (at (item)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3304,7 +3160,7 @@ public:
 	void appand (const _ARG1 &val) {
 		mSet.reserve (val.length ()) ;
 		for (auto &&i : val)
-			add (i.key ,i.sid) ;
+			add (i ,val.map_at (i)) ;
 	}
 
 	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
@@ -3342,11 +3198,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map (const ITEM &item) const {
-		INDEX ix = find (item) ;
-		if (ix == VAR_NONE)
-			return VAR_NONE ;
-		return mSet[ix].mMap ;
+	INDEX map_find (const ITEM &item) const {
+		return map (find (item)) ;
 	}
 
 	void erase (const ITEM &item) {
@@ -3403,25 +3256,6 @@ private:
 	}
 } ;
 
-template <class ITEM ,class SIZE>
-template <class BASE>
-class HashSet<ITEM ,SIZE>::Private::Pair
-	:private Proxy {
-public:
-	const ITEM &key ;
-	CAST_TRAITS_TYPE<ITEM ,BASE> &sid ;
-
-public:
-	implicit Pair () = delete ;
-
-	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
-		: key (base->mSet[index].mItem) ,sid (base->mSet[index].mMap) {}
-
-	inline implicit operator const ITEM & () rightvalue {
-		return key ;
-	}
-} ;
-
 template <class ITEM ,class SIZE = SAUTO>
 class SoftSet ;
 
@@ -3446,11 +3280,6 @@ private:
 
 	struct HEAP_PACK {
 		AutoRef<Allocator<Node ,SIZE>> mBuffer ;
-	} ;
-
-	struct Private {
-		template <class>
-		class Pair ;
 	} ;
 
 private:
@@ -3519,64 +3348,34 @@ public:
 		return mSet.self[index].mNext ;
 	}
 
-	ArrayIterator<SoftSet> begin () leftvalue {
-		return ArrayIterator<SoftSet> (PhanRef<SoftSet>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
 	ArrayIterator<const SoftSet> begin () const leftvalue {
 		return ArrayIterator<const SoftSet> (PhanRef<const SoftSet>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
-	ArrayIterator<SoftSet> end () leftvalue {
-		return ArrayIterator<SoftSet> (PhanRef<SoftSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
 	ArrayIterator<const SoftSet> end () const leftvalue {
 		return ArrayIterator<const SoftSet> (PhanRef<const SoftSet>::make (DEREF[this]) ,iend ()) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
-	_RET get (const INDEX &index) leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair (PhanRef<SoftSet>::make (DEREF[this]) ,index) ;
+	const ITEM &get (const INDEX &index) const leftvalue {
+		return mSet.self[index].mItem ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<SoftSet>>>
-	inline _RET operator[] (const INDEX &index) leftvalue {
-		return get (index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const SoftSet>>>
-	_RET get (const INDEX &index) const leftvalue {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
-		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		return Pair (PhanRef<const SoftSet>::make (DEREF[this]) ,index) ;
-	}
-
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Pair<const SoftSet>>>
-	inline _RET operator[] (const INDEX &index) const leftvalue {
+	inline const ITEM &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+		return mSet->at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<SoftSet>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<SoftSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map (const INDEX &index) const {
+		if (index == VAR_NONE)
+			return VAR_NONE ;
+		return mSet.self[index].mMap ;
 	}
 
-	INDEX at (const DEF<typename Private::template Pair<const SoftSet>> &item) const {
-		struct Dependent ;
-		using Pair = typename DEPENDENT_TYPE<Private ,Dependent>::template Pair<const SoftSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Pair>::null ,item) ;
-		return at (r1x.key) ;
+	INDEX map_at (const ITEM &item) const {
+		return map (at (item)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -3667,7 +3466,7 @@ public:
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		mSet->reserve (val.length ()) ;
 		for (auto &&i : val)
-			add (i.key ,i.sid) ;
+			add (i ,val.map_at (i)) ;
 	}
 
 	INDEX head () const {
@@ -3729,11 +3528,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map (const ITEM &item) const {
-		INDEX ix = find (item) ;
-		if (ix == VAR_NONE)
-			return VAR_NONE ;
-		return mSet.self[ix].mMap ;
+	INDEX map_find (const ITEM &item) const {
+		return map (find (item)) ;
 	}
 
 	void clean () {
@@ -3874,25 +3670,6 @@ private:
 		out[iw++] = curr ;
 		compute_order (mSet[curr].mRight ,out ,iw) ;
 		out_iw = iw ;
-	}
-} ;
-
-template <class ITEM ,class SIZE>
-template <class BASE>
-class SoftSet<ITEM ,SIZE>::Private::Pair
-	:private Proxy {
-public:
-	const ITEM &key ;
-	CAST_TRAITS_TYPE<INDEX ,BASE> &sid ;
-
-public:
-	implicit Pair () = delete ;
-
-	explicit Pair (PhanRef<BASE> &&base ,const INDEX &index)
-		: key (base->mSet.self[index].mItem) ,sid (base->mSet.self[index].mMap) {}
-
-	inline implicit operator const ITEM & () rightvalue {
-		return key ;
 	}
 } ;
 } ;

@@ -117,7 +117,7 @@ public:
 			if (mTable[i].mUp == VAR_NONE)
 				continue ;
 			INDEX ix = lead (i) ;
-			INDEX iy = r1x.map (ix) ;
+			INDEX iy = r1x.map_find (ix) ;
 			ret[iy][i] = TRUE ;
 		}
 		return _MOVE_ (ret) ;
@@ -319,7 +319,7 @@ private:
 		while (TRUE) {
 			if (mPriority.empty ())
 				break ;
-			const auto r1x = mPriority[mPriority.head ()].sid ;
+			const auto r1x = mPriority.map (mPriority.head ()) ;
 			mPriority.take () ;
 			update_distance (r1x) ;
 		}
@@ -434,7 +434,7 @@ private:
 		for (auto &&i : mDataSet) {
 			const auto r1x = mDataSet.at (i) ;
 			INDEX jx = closest_center_of_point (i) ;
-			INDEX jy = mClusterMappingSet.map (jx) ;
+			INDEX jy = mClusterMappingSet.map_find (jx) ;
 			if switch_once (TRUE) {
 				if (jy != VAR_NONE)
 					discard ;
@@ -445,8 +445,10 @@ private:
 			mCluster[jx][r1x] = TRUE ;
 		}
 		for (auto &&i : mClusterMappingSet) {
-			INDEX jx = mNextCenter.insert (i.key) ;
-			mNextCenter[jx] = average_center (mCluster[i.sid]) ;
+			const auto r2x = mClusterMappingSet.at (i) ;
+			INDEX jx = mNextCenter.insert (i) ;
+			INDEX kx = mClusterMappingSet.map_at (i) ;
+			mNextCenter[jx] = average_center (mCluster[kx]) ;
 		}
 	}
 
@@ -483,7 +485,7 @@ private:
 			return ;
 		mConvergence[ix] = REAL (0) ;
 		for (auto &&i : mClusterMappingSet) {
-			const auto r1x = mDistanceFunc (mCurrCenter[i.key] ,mNextCenter[i.key]) ;
+			const auto r1x = mDistanceFunc (mCurrCenter[i] ,mNextCenter[i]) ;
 			mConvergence[ix] = MathProc::maxof (mConvergence[ix] ,r1x) ;
 		}
 	}

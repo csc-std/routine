@@ -859,7 +859,7 @@ inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 		}
 		if (rax < 10)
 			continue ;
-		INDEX ix = r1x.mP2.map (rbx) ;
+		INDEX ix = r1x.mP2.map_find (rbx) ;
 		auto fbx = TRUE ;
 		if switch_once (fbx) {
 			if (!(rax == 10))
@@ -923,7 +923,7 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 	for (auto &&i : val) {
 		if (rax == VAR_NONE)
 			continue ;
-		INDEX ix = r1x.mP2.map (STRUW (i)) ;
+		INDEX ix = r1x.mP2.map_find (STRUW (i)) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(rax == 0))
