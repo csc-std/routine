@@ -116,7 +116,8 @@ class Bitmap {
 private:
 	struct HEAP_PACK {
 		SharedRef<FixedBuffer<UNIT>> mBuffer ;
-		ARRAY5<LENGTH> mWidth ;
+		ARRAY4<LENGTH> mWidth ;
+		LENGTH mFullSize ;
 	} ;
 
 	struct Private {
@@ -154,7 +155,7 @@ public:
 		mHeap->mWidth[1] = cy_ ;
 		mHeap->mWidth[2] = cw_ ;
 		mHeap->mWidth[3] = ck_ ;
-		mHeap->mWidth[4] = r1x ;
+		mHeap->mFullSize = r1x ;
 		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
@@ -165,7 +166,7 @@ public:
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
 		mHeap->mWidth[3] = 0 ;
-		mHeap->mWidth[4] = mImage.size () ;
+		mHeap->mFullSize = mImage.size () ;
 		mImage = _MOVE_ (image) ;
 		reset () ;
 	}
@@ -177,7 +178,7 @@ public:
 		mHeap->mWidth[1] = 1 ;
 		mHeap->mWidth[2] = mHeap->mWidth[0] ;
 		mHeap->mWidth[3] = 0 ;
-		mHeap->mWidth[4] = mImage.size () ;
+		mHeap->mFullSize = mImage.size () ;
 		mImage = PhanBuffer<UNIT>::make (mHeap->mBuffer.self) ;
 		reset () ;
 	}
@@ -216,7 +217,7 @@ public:
 	}
 
 	void reset () {
-		const auto r1x = ARRAY5<LENGTH> {0 ,0 ,0 ,0 ,0} ;
+		const auto r1x = ARRAY4<LENGTH> {0 ,0 ,0 ,0} ;
 		auto &r2x = _SWITCH_ (
 			(mHeap.exist ()) ? mHeap->mWidth :
 			r1x) ;
@@ -232,7 +233,7 @@ public:
 		_DEBUG_ASSERT_ (cx_ <= cw_) ;
 		_DEBUG_ASSERT_ (ck_ >= 0) ;
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
-		_DEBUG_ASSERT_ (cy_ * cw_ + ck_ <= mHeap->mWidth[4]) ;
+		_DEBUG_ASSERT_ (cy_ * cw_ + ck_ <= mHeap->mFullSize) ;
 		mCX = cx_ ;
 		mCY = cy_ ;
 		mCW = cw_ ;
@@ -664,15 +665,6 @@ public:
 	} ;
 
 private:
-	struct SELF_PACK {
-		AnyRef<void> mHolder ;
-		PhanBuffer<UNIT> mImage ;
-		LENGTH mCX ;
-		LENGTH mCY ;
-		LENGTH mCW ;
-		LENGTH mCK ;
-	} ;
-
 	struct Private {
 		template <class>
 		class Row ;
@@ -683,22 +675,28 @@ private:
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	StrongRef<SELF_PACK> mThis ;
+	AnyRef<void> mHolder ;
+	PhanBuffer<UNIT> mImage ;
+	LENGTH mCX ;
+	LENGTH mCY ;
+	LENGTH mCW ;
+	LENGTH mCK ;
 
 public:
 	implicit AbstractImage () = default ;
 
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
-		mThis = StrongRef<SELF_PACK>::make () ;
+		mCX = 0 ;
+		mCY = 0 ;
+		mCW = 0 ;
+		mCK = 0 ;
 	}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
 			return FALSE ;
-		if (!mThis.exist ())
-			return FALSE ;
-		if (!mThis->mHolder.exist ())
+		if (!mHolder.exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -706,52 +704,52 @@ public:
 	ARRAY2<LENGTH> width () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		ARRAY2<LENGTH> ret ;
-		ret[0] = mThis->mCX ;
-		ret[1] = mThis->mCY ;
+		ret[0] = mCX ;
+		ret[1] = mCY ;
 		return _MOVE_ (ret) ;
 	}
 
 	LENGTH cx () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mThis->mCX ;
+		return mCX ;
 	}
 
 	LENGTH cy () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mThis->mCY ;
+		return mCY ;
 	}
 
 	LENGTH cw () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mThis->mCW ;
+		return mCW ;
 	}
 
 	LENGTH ck () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mThis->mCK ;
+		return mCK ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::null)))>>
 	_RET array_range () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = ARRAY2<LENGTH> {mThis->mCY ,mThis->mCX} ;
+		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
 		return _RANGE_ (r1x) ;
 	}
 
 	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
-		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
-		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
+		_DEBUG_ASSERT_ (mImage.size () > 0) ;
+		return mImage[y * mCW + x + mCK] ;
 	}
 
 	const UNIT &get (const INDEX &y ,const INDEX &x) const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (x >= 0 && x < mThis->mCX) ;
-		_DEBUG_ASSERT_ (y >= 0 && y < mThis->mCY) ;
-		_DEBUG_ASSERT_ (mThis->mImage.size () > 0) ;
-		return mThis->mImage[y * mThis->mCW + x + mThis->mCK] ;
+		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
+		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
+		_DEBUG_ASSERT_ (mImage.size () > 0) ;
+		return mImage[y * mCW + x + mCK] ;
 	}
 
 	UNIT &get (const ARRAY2<INDEX> &index) leftvalue {
@@ -798,17 +796,12 @@ public:
 	_RET native (const ARGVF<_ARG1> &) side_effects {
 		struct Dependent ;
 		using NativeProxy = typename DEPENDENT_TYPE<Private ,Dependent>::template NativeProxy<_ARG1> ;
-		_DYNAMIC_ASSERT_ (exist ()) ;
-		mThis->mImage = PhanBuffer<UNIT> () ;
-		auto tmp = AbstractImage () ;
-		tmp.mAbstract = PhanRef<const Abstract>::make (mAbstract) ;
-		tmp.mThis = _COPY_ (mThis) ;
-		return NativeProxy (_MOVE_ (tmp) ,PhanRef<AnyRef<void>>::make (mThis->mHolder)) ;
+		return NativeProxy (PhanRef<AbstractImage>::make (DEREF[this])) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		Bitmap<UNIT> ret = Bitmap<UNIT> (mThis->mCX ,mThis->mCY) ;
+		Bitmap<UNIT> ret = Bitmap<UNIT> (mCX ,mCY) ;
 		for (auto &&i : array_range ())
 			ret.get (i) = get (i) ;
 		return _MOVE_ (ret) ;
@@ -819,50 +812,47 @@ public:
 		_DEBUG_ASSERT_ (cy_ >= 0 && cy_ < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cx_ * cy_ > 0) ;
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->compute_load_data (mThis->mHolder ,cx_ ,cy_) ;
+		mAbstract->compute_load_data (mHolder ,cx_ ,cy_) ;
 		update_layout () ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		mAbstract->compute_load_data (mThis->mHolder ,data) ;
+		mAbstract->compute_load_data (mHolder ,data) ;
 		update_layout () ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_load_data (mThis->mHolder ,data ,option) ;
+		mAbstract->compute_load_data (mHolder ,data ,option) ;
 		update_layout () ;
 	}
 
 	void load_data_file (const String<STR> &file) {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		mAbstract->compute_load_data_file (mThis->mHolder ,file) ;
+		mAbstract->compute_load_data_file (mHolder ,file) ;
 		update_layout () ;
 	}
 
 	void save_data_file (const String<STR> &file ,const AnyRef<void> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_save_data_file (mThis->mHolder ,file ,option) ;
+		mAbstract->compute_save_data_file (mHolder ,file ,option) ;
 		update_layout () ;
 	}
 
 private:
 	void update_layout () {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		_DEBUG_ASSERT_ (mThis->mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mHolder.exist ()) ;
 		auto rax = LAYOUT () ;
 		_ZERO_ (rax) ;
-		mAbstract->compute_layout (mThis->mHolder ,rax) ;
+		mAbstract->compute_layout (mHolder ,rax) ;
 		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-		mThis->mImage = PhanBuffer<UNIT>::make (DEREF[rax.mImage] ,r1x) ;
-		mThis->mCX = rax.mCX ;
-		mThis->mCY = rax.mCY ;
-		mThis->mCW = rax.mCW ;
-		mThis->mCK = rax.mCK ;
+		mImage = PhanBuffer<UNIT>::make (DEREF[rax.mImage] ,r1x) ;
+		mCX = rax.mCX ;
+		mCY = rax.mCY ;
+		mCW = rax.mCW ;
+		mCK = rax.mCK ;
 	}
 } ;
 
@@ -892,24 +882,22 @@ template <class UNIT_>
 class AbstractImage<UNIT>::Private::NativeProxy
 	:private Proxy {
 private:
-	UniqueRef<AbstractImage> mBase ;
-	PhanRef<AnyRef<void>> mRef ;
+	UniqueRef<PhanRef<AbstractImage>> mBase ;
 
 public:
 	implicit NativeProxy () = delete ;
 
-	explicit NativeProxy (AbstractImage &&base ,PhanRef<AnyRef<void>> &&ref_) {
-		mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
+	explicit NativeProxy (PhanRef<AbstractImage> &&base) {
+		mBase = UniqueRef<PhanRef<AbstractImage>> ([&] (PhanRef<AbstractImage> &me) {
 			me = _MOVE_ (base) ;
-		} ,[] (AbstractImage &me) {
-			me.update_layout () ;
+		} ,[] (PhanRef<AbstractImage> &me) {
+			me->update_layout () ;
 		}) ;
-		mRef = _MOVE_ (ref_) ;
 	}
 
 	UNIT_ &to () const leftvalue {
 		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		return mRef->rebind (ARGV<UNIT_>::null).self ;
+		return mBase->self.mHolder.rebind (ARGV<UNIT_>::null).self ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {

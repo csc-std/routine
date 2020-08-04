@@ -252,7 +252,8 @@ public:
 } ;
 
 inline exports RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
-	mThis = StrongRef<Private::Implement>::make (reg) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (reg) ;
 }
 #endif
 } ;

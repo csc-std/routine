@@ -569,7 +569,8 @@ public:
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	mThis = StrongRef<Private::Implement>::make (file) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (file) ;
 }
 
 class BufferLoader::Private::Implement
@@ -737,19 +738,23 @@ public:
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	mThis = StrongRef<Private::Implement>::make (file) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	mThis = StrongRef<Private::Implement>::make (file ,file_len) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	mThis = StrongRef<Private::Implement>::make (file ,cache) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	mThis = StrongRef<Private::Implement>::make (file ,file_len ,cache) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
 }
 
 class FileSystemService::Private::Implement
@@ -765,6 +770,7 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

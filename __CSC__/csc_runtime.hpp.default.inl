@@ -213,11 +213,13 @@ public:
 } ;
 
 inline exports Duration::Duration (const LENGTH &milliseconds_) {
-	mThis = StrongRef<Private::Implement>::make (milliseconds_) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (milliseconds_) ;
 }
 
 inline exports Duration::Duration (const ARRAY6<LENGTH> &time_) {
-	mThis = StrongRef<Private::Implement>::make (time_) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (time_) ;
 }
 
 class TimePoint::Private::Implement
@@ -314,7 +316,8 @@ public:
 } ;
 
 inline exports TimePoint::TimePoint (const ARRAY8<LENGTH> &time_) {
-	mThis = StrongRef<Private::Implement>::make (time_) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (time_) ;
 }
 
 class Atomic::Private::Implement
@@ -355,7 +358,8 @@ public:
 } ;
 
 inline exports Atomic::Atomic () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class Mutex::Private::Implement
@@ -384,7 +388,8 @@ public:
 } ;
 
 inline exports Mutex::Mutex () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class RecursiveMutex::Private::Implement
@@ -413,7 +418,8 @@ public:
 } ;
 
 inline exports RecursiveMutex::RecursiveMutex () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class ConditionLock::Private::Implement
@@ -430,7 +436,8 @@ public:
 } ;
 
 inline exports ConditionLock::ConditionLock () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class UniqueLock::Private::Implement
@@ -474,7 +481,8 @@ public:
 } ;
 
 inline exports UniqueLock::UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
-	mThis = StrongRef<Private::Implement>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
 }
 
 class Thread::Private::Implement
@@ -497,7 +505,8 @@ public:
 } ;
 
 inline exports Thread::Thread (const StrongRef<Binder> &runnable) {
-	mThis = StrongRef<Private::Implement>::make (runnable) ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make (runnable) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_now () {
@@ -688,6 +697,7 @@ public:
 } ;
 
 inline exports RandomService::RandomService () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

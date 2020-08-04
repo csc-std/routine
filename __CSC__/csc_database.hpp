@@ -25,28 +25,21 @@ private:
 		virtual void compute_load_data (AnyRef<void> &holder) const = 0 ;
 	} ;
 
-	struct SELF_PACK {
-		AnyRef<void> mHolder ;
-	} ;
-
 private:
 	PhanRef<const Abstract> mAbstract ;
-	StrongRef<SELF_PACK> mThis ;
+	AnyRef<void> mHolder ;
 
 public:
 	implicit AbstractDatabase () = default ;
 
 	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
-		mThis = StrongRef<SELF_PACK>::make () ;
 	}
 
 	BOOL exist () const {
 		if (!mAbstract.exist ())
 			return FALSE ;
-		if (!mThis.exist ())
-			return FALSE ;
-		if (!mThis->mHolder.exist ())
+		if (!mHolder.exist ())
 			return FALSE ;
 		return TRUE ;
 	}

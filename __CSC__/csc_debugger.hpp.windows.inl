@@ -388,7 +388,8 @@ private:
 } ;
 
 inline exports ConsoleService::ConsoleService () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 
 class DebuggerService::Private::Implement
@@ -495,6 +496,7 @@ private:
 } ;
 
 inline exports DebuggerService::DebuggerService () {
-	mThis = StrongRef<Private::Implement>::make () ;
+	using Implement = typename Private::Implement ;
+	mThis = StrongRef<Implement>::make () ;
 }
 } ;

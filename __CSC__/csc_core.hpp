@@ -1651,9 +1651,11 @@ public:
 	implicit virtual ~Interface () = default ;
 
 	implicit Interface (const Interface &) = delete ;
+
 	inline Interface &operator= (const Interface &) = delete ;
 
 	implicit Interface (Interface &&) = delete ;
+
 	inline Interface &operator= (Interface &&) = delete ;
 } ;
 
@@ -1700,9 +1702,11 @@ public:
 	implicit ~Wrapped () = delete ;
 
 	implicit Wrapped (const Wrapped &) = delete ;
+
 	inline Wrapped &operator= (const Wrapped &) = delete ;
 
 	implicit Wrapped (Wrapped &&) = delete ;
+
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
@@ -1714,9 +1718,11 @@ public:
 	implicit ~Wrapped () = delete ;
 
 	implicit Wrapped (const Wrapped &) = delete ;
+
 	inline Wrapped &operator= (const Wrapped &) = delete ;
 
 	implicit Wrapped (Wrapped &&) = delete ;
+
 	inline Wrapped &operator= (Wrapped &&) = delete ;
 } ;
 
@@ -1725,15 +1731,18 @@ public:
 	implicit Proxy () = default ;
 
 	implicit Proxy (const Proxy &) = delete ;
+
 	inline Proxy &operator= (const Proxy &) = delete ;
 
 #ifdef __CSC_CXX_LATEST__
 	implicit Proxy (Proxy &&) = delete ;
+
 	inline Proxy &operator= (Proxy &&) = delete ;
 #endif
 
 #ifndef __CSC_CXX_LATEST__
 	implicit Proxy (Proxy &&) = default ;
+
 	inline Proxy &operator= (Proxy &&) = delete ;
 #endif
 } ;

@@ -876,9 +876,11 @@ public:
 	}
 
 	implicit Monostate (const Monostate &) = delete ;
+
 	inline Monostate &operator= (const Monostate &) = delete ;
 
 	implicit Monostate (Monostate &&) = delete ;
+
 	inline Monostate &operator= (Monostate &&) = delete ;
 
 	UNIT &to () const leftvalue {
@@ -1489,8 +1491,7 @@ public:
 
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-		return DEREF[r1x] ;
+		return DEREF[mPointer] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
@@ -1503,8 +1504,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-		return DEREF[r1x] ;
+		return DEREF[mPointer] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1702,6 +1702,7 @@ public:
 	}
 
 	implicit IntrusiveRef (const IntrusiveRef &) = delete ;
+
 	inline IntrusiveRef &operator= (const IntrusiveRef &) = delete ;
 
 	implicit IntrusiveRef (IntrusiveRef &&that) noexcept

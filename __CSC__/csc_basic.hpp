@@ -390,9 +390,11 @@ public:
 	}
 
 	implicit ScopedPtr (const ScopedPtr &) = default ;
+
 	inline ScopedPtr &operator= (const ScopedPtr &) = default ;
 
 	implicit ScopedPtr (ScopedPtr &&) = default ;
+
 	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
 
 	const PTR<UNIT> &to () const leftvalue {
@@ -442,9 +444,11 @@ public:
 	}
 
 	implicit ScopedGuard (const ScopedGuard &) = default ;
+
 	inline ScopedGuard &operator= (const ScopedGuard &) = default ;
 
 	implicit ScopedGuard (ScopedGuard &&) = default ;
+
 	inline ScopedGuard &operator= (ScopedGuard &&) = default ;
 
 private:
@@ -489,9 +493,11 @@ public:
 	}
 
 	implicit ScopedBuild (const ScopedBuild &) = default ;
+
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
 
 	implicit ScopedBuild (ScopedBuild &&) = default ;
+
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
@@ -555,9 +561,11 @@ public:
 	}
 
 	implicit ScopedBuild (const ScopedBuild &) = default ;
+
 	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
 
 	implicit ScopedBuild (ScopedBuild &&) = default ;
+
 	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
 
 private:
@@ -639,6 +647,7 @@ public:
 	}
 
 	implicit AutoRef (const AutoRef &) = delete ;
+
 	inline AutoRef &operator= (const AutoRef &) = delete ;
 
 	implicit AutoRef (AutoRef &&that) noexcept
@@ -881,8 +890,7 @@ public:
 
 	UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<Holder>> (mPointer) ;
-		return r1x->mValue ;
+		return mPointer->mValue ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -957,6 +965,7 @@ public:
 	}
 
 	implicit AnyRef (const AnyRef &) = delete ;
+
 	inline AnyRef &operator= (const AnyRef &) = delete ;
 
 	implicit AnyRef (AnyRef &&that) noexcept
@@ -1036,6 +1045,7 @@ public:
 	}
 
 	implicit AnyRef (const AnyRef &) = delete ;
+
 	inline AnyRef &operator= (const AnyRef &) = delete ;
 
 	implicit AnyRef (AnyRef &&that) noexcept
@@ -1211,6 +1221,7 @@ public:
 	}
 
 	implicit UniqueRef (const UniqueRef &) = delete ;
+
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
@@ -1314,6 +1325,7 @@ public:
 	}
 
 	implicit UniqueRef (const UniqueRef &) = delete ;
+
 	inline UniqueRef &operator= (const UniqueRef &) = delete ;
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
@@ -1339,8 +1351,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<Holder>> (mPointer) ;
-		return r1x->deref () ;
+		return mPointer->deref () ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1422,6 +1433,7 @@ public:
 	}
 
 	implicit PhanRef (const PhanRef &) = delete ;
+
 	inline PhanRef &operator= (const PhanRef &) = delete ;
 
 	implicit PhanRef (PhanRef &&that) noexcept
@@ -1447,8 +1459,7 @@ public:
 
 	UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-		return DEREF[r1x] ;
+		return DEREF[mPointer] ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -1564,6 +1575,7 @@ public:
 	}
 
 	implicit Function (const Function &) = delete ;
+
 	inline Function &operator= (const Function &) = delete ;
 
 	implicit Function (Function &&that) noexcept
@@ -1746,6 +1758,7 @@ public:
 	}
 
 	implicit Function (const Function &) = delete ;
+
 	inline Function &operator= (const Function &) = delete ;
 
 	implicit Function (Function &&that) noexcept
@@ -2094,9 +2107,11 @@ public:
 	}
 
 	implicit Buffer (const Buffer &) = delete ;
+
 	inline Buffer &operator= (const Buffer &) = delete ;
 
 	implicit Buffer (Buffer &&) = delete ;
+
 	inline Buffer &operator= (Buffer &&) = delete ;
 
 	ARR<UNIT> &to () leftvalue {
@@ -2265,6 +2280,7 @@ public:
 	}
 
 	implicit Buffer (const Buffer &) = delete ;
+
 	inline Buffer &operator= (const Buffer &) = delete ;
 
 	implicit Buffer (Buffer &&that) noexcept
@@ -2532,6 +2548,7 @@ public:
 	}
 
 	implicit Buffer (const Buffer &) = delete ;
+
 	inline Buffer &operator= (const Buffer &) = delete ;
 
 	implicit Buffer (Buffer &&that) noexcept
@@ -2553,8 +2570,7 @@ public:
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
 			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
-		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
-		return DEREF[r1x] ;
+		return DEREF[mBuffer] ;
 	}
 
 	inline implicit operator const ARR<UNIT> & () const leftvalue {
@@ -2573,8 +2589,7 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		const auto r1x = static_cast<PTR<const ARR<UNIT>>> (mBuffer) ;
-		return DEREF[r1x][index] ;
+		return DEREF[mBuffer][index] ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -2711,6 +2726,7 @@ public:
 	}
 
 	implicit Buffer (const Buffer &) = delete ;
+
 	inline Buffer &operator= (const Buffer &) = delete ;
 
 	implicit Buffer (Buffer &&that) noexcept
@@ -2732,8 +2748,7 @@ public:
 	ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
 			return _NULL_ (ARGV<ARR<UNIT>>::null) ;
-		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
-		return DEREF[r1x] ;
+		return DEREF[mBuffer] ;
 	}
 
 	inline implicit operator ARR<UNIT> & () const leftvalue {
@@ -2752,8 +2767,7 @@ public:
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 		_DEBUG_ASSERT_ (index >= 0 && index < size ()) ;
-		const auto r1x = static_cast<PTR<ARR<UNIT>>> (mBuffer) ;
-		return DEREF[r1x][index] ;
+		return DEREF[mBuffer][index] ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -2934,9 +2948,11 @@ public:
 	}
 
 	implicit Allocator (const Allocator &) = delete ;
+
 	inline Allocator &operator= (const Allocator &) = delete ;
 
 	implicit Allocator (Allocator &&) = delete ;
+
 	inline Allocator &operator= (Allocator &&) = delete ;
 
 private:
@@ -3007,6 +3023,7 @@ public:
 	}
 
 	implicit Allocator (const Allocator &) = delete ;
+
 	inline Allocator &operator= (const Allocator &) = delete ;
 
 	implicit Allocator (Allocator &&that) noexcept

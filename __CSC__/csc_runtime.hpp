@@ -51,9 +51,12 @@ public:
 		mThis = that ;
 	}
 
-	const Private::Implement &native () const leftvalue {
-		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
-		return rax.self ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const {
+		struct Dependent ;
+		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
+		const auto r1x = static_cast<PTR<const Implement>> (DEPTR[mThis.self]) ;
+		return DEREF[r1x] ;
 	}
 
 	LENGTH hours () const {
@@ -124,9 +127,12 @@ public:
 		mThis = that ;
 	}
 
-	const Private::Implement &native () const leftvalue {
-		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
-		return rax.self ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const {
+		struct Dependent ;
+		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
+		const auto r1x = static_cast<PTR<const Implement>> (DEPTR[mThis.self]) ;
+		return DEREF[r1x] ;
 	}
 
 	ARRAY8<LENGTH> calendar () const {
@@ -229,9 +235,12 @@ private:
 public:
 	Mutex () ;
 
-	Private::Implement &native () leftvalue {
-		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
-		return rax.self ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () {
+		struct Dependent ;
+		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
+		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
+		return DEREF[r1x] ;
 	}
 
 	void lock () {
@@ -267,9 +276,12 @@ private:
 public:
 	RecursiveMutex () ;
 
-	Private::Implement &native () leftvalue {
-		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
-		return rax.self ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () {
+		struct Dependent ;
+		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
+		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
+		return DEREF[r1x] ;
 	}
 
 	void lock () {
@@ -304,9 +316,12 @@ private:
 public:
 	ConditionLock () ;
 
-	Private::Implement &native () leftvalue {
-		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
-		return rax.self ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () {
+		struct Dependent ;
+		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
+		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
+		return DEREF[r1x] ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
