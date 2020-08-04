@@ -31,14 +31,14 @@ private:
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 
 public:
 	implicit AbstractDatabase () = default ;
 
 	explicit AbstractDatabase (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
-		mThis = SharedRef<SELF_PACK>::make () ;
+		mThis = StrongRef<SELF_PACK>::make () ;
 	}
 
 	BOOL exist () const {

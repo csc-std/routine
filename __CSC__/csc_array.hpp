@@ -33,11 +33,13 @@ public:
 	}
 
 	inline HINT_ITEM operator* () const leftvalue {
-		return mBase->get (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
+		auto &r1x = _XVALUE_ (ARGV<const INDEX>::null ,mIndex) ;
+		return mBase->get (r1x) ;
 	}
 
 	inline void operator++ () {
-		mIndex = mBase->inext (_XVALUE_ (ARGV<const INDEX>::null ,mIndex)) ;
+		auto &r1x = _XVALUE_ (ARGV<const INDEX>::null ,mIndex) ;
+		mIndex = mBase->inext (r1x) ;
 	}
 } ;
 
@@ -763,7 +765,7 @@ public:
 		return TRUE ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
 			update_emplace () ;
 		mDeque[mWrite] = _MOVE_ (item) ;
@@ -771,12 +773,12 @@ public:
 		update_emplace () ;
 	}
 
-	inline Deque &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline Deque &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
 			update_emplace () ;
 		mDeque[mWrite] = _MOVE_ (item) ;
@@ -784,7 +786,7 @@ public:
 		update_emplace () ;
 	}
 
-	inline Deque &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline Deque &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -831,7 +833,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
 			update_emplace () ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
@@ -840,7 +842,7 @@ public:
 		update_emplace () ;
 	}
 
-	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void push (REMOVE_CONST_TYPE<ITEM> &&item) {
 		if (mDeque.size () == 0)
 			update_emplace () ;
 		INDEX ix = (mRead - 1 + mDeque.size ()) % mDeque.size () ;
@@ -1056,7 +1058,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
 			update_emplace () ;
 		INDEX ix = mWrite ;
@@ -1067,16 +1069,16 @@ public:
 		update_insert (ix) ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Priority &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline Priority &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item ,const INDEX &map_) {
 		if (mPriority.size () == 0)
 			update_emplace () ;
 		INDEX ix = mWrite ;
@@ -1123,12 +1125,12 @@ public:
 		return 0 ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -1415,7 +1417,7 @@ public:
 		return TRUE ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		mList[ix].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
@@ -1425,12 +1427,12 @@ public:
 		mLast = ix ;
 	}
 
-	inline List &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline List &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		mList[ix].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
@@ -1440,7 +1442,7 @@ public:
 		mLast = ix ;
 	}
 
-	inline List &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline List &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -1531,7 +1533,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		mList[ix].mRight = mFirst ;
 		auto &r1x = _SWITCH_ (
@@ -1541,7 +1543,7 @@ public:
 		mFirst = ix ;
 	}
 
-	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void push (REMOVE_CONST_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		mList[ix].mRight = mFirst ;
 		auto &r1x = _SWITCH_ (
@@ -1811,7 +1813,7 @@ public:
 		return !equal (that) ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
@@ -1821,12 +1823,12 @@ public:
 		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
-	inline ArrayList &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline ArrayList &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (_MOVE_ (item)) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
@@ -1836,7 +1838,7 @@ public:
 		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
-	inline ArrayList &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline ArrayList &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -2484,7 +2486,7 @@ public:
 	INDEX at (const ITEM &item) const {
 		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
 	}
-	
+
 	INDEX map (const INDEX &index) const {
 		if (index == VAR_NONE)
 			return VAR_NONE ;
@@ -2514,16 +2516,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Set &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline Set &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
@@ -2538,16 +2540,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Set &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline Set &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
@@ -2597,12 +2599,12 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3104,16 +3106,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline HashSet &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline HashSet &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
@@ -3127,16 +3129,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline HashSet &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline HashSet &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item ,const INDEX &map_) {
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
@@ -3159,12 +3161,12 @@ public:
 		}
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3393,16 +3395,16 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline SoftSet &operator<< (const REMOVE_CVR_TYPE<ITEM> &item) {
+	inline SoftSet &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (const REMOVE_CVR_TYPE<ITEM> &item ,const INDEX &map_) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
@@ -3423,16 +3425,16 @@ public:
 		mTop = ix ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline SoftSet &operator<< (REMOVE_CVR_TYPE<ITEM> &&item) {
+	inline SoftSet &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
 
-	void add (REMOVE_CVR_TYPE<ITEM> &&item ,const INDEX &map_) {
+	void add (REMOVE_CONST_TYPE<ITEM> &&item ,const INDEX &map_) {
 		_DEBUG_ASSERT_ (mHeap.exist ()) ;
 		INDEX ix = find (item) ;
 		if switch_once (TRUE) {
@@ -3493,12 +3495,12 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert (const REMOVE_CVR_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CVR_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}

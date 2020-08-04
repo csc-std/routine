@@ -24,20 +24,35 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual String<STRU8> sock_name () const = 0 ;
+		virtual String<STRU8> peer_sock_name () const = 0 ;
+		virtual void link (const String<STRU8> &ip_addr) = 0 ;
+		virtual void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) = 0 ;
+		virtual void modify_timeout (const LENGTH &timeout) = 0 ;
+		virtual void read (const PhanBuffer<BYTE> &data) = 0 ;
+		virtual void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) = 0 ;
+		virtual void write (const PhanBuffer<const BYTE> &data) = 0 ;
+	} ;
 
 private:
 	friend TCPListener ;
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit TCPSocket () = delete ;
 
 	explicit TCPSocket (const String<STRU8> &ip_addr) ;
 
-	String<STRU8> sock_name () const ;
+	String<STRU8> sock_name () const {
+		return mThis->sock_name () ;
+	}
 
-	String<STRU8> peer_sock_name () const ;
+	String<STRU8> peer_sock_name () const {
+		return mThis->peer_sock_name () ;
+	}
 
 	template <class _RET = REMOVE_CVR_TYPE<TCPListener>>
 	_RET listener () side_effects {
@@ -47,13 +62,21 @@ public:
 		return TCPListener (mThis) ;
 	}
 
-	void link (const String<STRU8> &ip_addr) ;
+	void link (const String<STRU8> &ip_addr) {
+		return mThis->link (ip_addr) ;
+	}
 
-	void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) ;
+	void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) {
+		return mThis->modify_buffer (rcv_len ,snd_len) ;
+	}
 
-	void modify_timeout (const LENGTH &timeout) ;
+	void modify_timeout (const LENGTH &timeout) {
+		return mThis->modify_timeout (timeout) ;
+	}
 
-	void read (const PhanBuffer<BYTE> &data) ;
+	void read (const PhanBuffer<BYTE> &data) {
+		return mThis->read (data) ;
+	}
 
 	template <class _ARG1>
 	void read (Buffer<BYTE ,_ARG1> &data) {
@@ -66,9 +89,13 @@ public:
 		return DEREF[this] ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) {
+		return mThis->read (data ,out_iw ,timeout) ;
+	}
 
-	void write (const PhanBuffer<const BYTE> &data) ;
+	void write (const PhanBuffer<const BYTE> &data) {
+		return mThis->write (data) ;
+	}
 
 	template <class _ARG1>
 	void write (const Buffer<BYTE ,_ARG1> &data) {
@@ -93,19 +120,28 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void wait_linker () = 0 ;
+		virtual void accept () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit TCPListener () = delete ;
 
-	explicit TCPListener (const StrongRef<TCPSocket::Implement> &socket_) ;
+	explicit TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) ;
 
-	void wait_linker () ;
+	void wait_linker () {
+		return mThis->wait_linker () ;
+	}
 
-	void accept () ;
+	void accept () {
+		return mThis->accept () ;
+	}
 } ;
 
 class UDPSocket {
@@ -114,25 +150,45 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual String<STRU8> sock_name () const = 0 ;
+		virtual String<STRU8> peer_sock_name () const = 0 ;
+		virtual void link (const String<STRU8> &ip_addr) = 0 ;
+		virtual void modify_timeout (const LENGTH &timeout) = 0 ;
+		virtual void read (const PhanBuffer<BYTE> &data) = 0 ;
+		virtual void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) = 0 ;
+		virtual void write (const PhanBuffer<const BYTE> &data) = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit UDPSocket () = delete ;
 
 	explicit UDPSocket (const String<STRU8> &ip_addr) ;
 
-	String<STRU8> sock_name () const ;
+	String<STRU8> sock_name () const {
+		return mThis->sock_name () ;
+	}
 
-	String<STRU8> peer_sock_name () const ;
+	String<STRU8> peer_sock_name () const {
+		return mThis->peer_sock_name () ;
+	}
 
-	void link (const String<STRU8> &ip_addr) ;
+	void link (const String<STRU8> &ip_addr) {
+		return mThis->link (ip_addr) ;
+	}
 
-	void modify_timeout (const LENGTH &timeout) ;
+	void modify_timeout (const LENGTH &timeout) {
+		return mThis->modify_timeout (timeout) ;
+	}
 
-	void read (const PhanBuffer<BYTE> &data) ;
+	void read (const PhanBuffer<BYTE> &data) {
+		return mThis->read (data) ;
+	}
 
 	template <class _ARG1>
 	void read (Buffer<BYTE ,_ARG1> &data) {
@@ -145,9 +201,13 @@ public:
 		return DEREF[this] ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) {
+		return mThis->read (data ,out_iw ,timeout) ;
+	}
 
-	void write (const PhanBuffer<const BYTE> &data) ;
+	void write (const PhanBuffer<const BYTE> &data) {
+		return mThis->write (data) ;
+	}
 
 	template <class _ARG1>
 	void write (const Buffer<BYTE ,_ARG1> &data) {
@@ -164,6 +224,10 @@ public:
 class NetworkService
 	:private Proxy {
 private:
+	struct Private {
+		class Implement ;
+	} ;
+
 	class Abstract
 		:public Interface {
 	public:
@@ -175,12 +239,6 @@ private:
 		virtual LENGTH pref_timeout () const = 0 ;
 	} ;
 
-	struct Private {
-		class Implement ;
-	} ;
-
-	using Implement = typename Private::Implement ;
-
 private:
 	friend Singleton<NetworkService> ;
 	Monostate<RecursiveMutex> mMutex ;
@@ -189,12 +247,12 @@ private:
 public:
 	void startup () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		mThis->startup () ;
+		return mThis->startup () ;
 	}
 
 	void shutdown () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		mThis->shutdown () ;
+		return mThis->shutdown () ;
 	}
 
 	String<STRU8> localhost_name () const {

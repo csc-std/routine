@@ -17,18 +17,28 @@ namespace CSC {
 class TimePoint ;
 class GlobalRuntime ;
 
-class Duration
-	:private Proxy {
+class Duration {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual LENGTH hours () const = 0 ;
+		virtual LENGTH minutes () const = 0 ;
+		virtual LENGTH seconds () const = 0 ;
+		virtual LENGTH miliseconds () const = 0 ;
+		virtual LENGTH microseconds () const = 0 ;
+		virtual LENGTH nanoseconds () const = 0 ;
+		virtual Duration add (const Duration &that) const = 0 ;
+		virtual Duration sub (const Duration &that) const = 0 ;
+	} ;
 
 private:
 	friend TimePoint ;
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit Duration () = default ;
@@ -37,193 +47,266 @@ public:
 
 	explicit Duration (const ARRAY6<LENGTH> &time_) ;
 
-	explicit Duration (const StrongRef<Implement> &this_) ;
-
-	Implement &native () const leftvalue {
-		return mThis ;
+	explicit Duration (const StrongRef<Abstract> &that) {
+		mThis = that ;
 	}
 
-	LENGTH hours () const ;
+	const Private::Implement &native () const leftvalue {
+		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
+		return rax.self ;
+	}
 
-	LENGTH minutes () const ;
+	LENGTH hours () const {
+		return mThis->hours () ;
+	}
 
-	LENGTH seconds () const ;
+	LENGTH minutes () const {
+		return mThis->minutes () ;
+	}
 
-	LENGTH miliseconds () const ;
+	LENGTH seconds () const {
+		return mThis->seconds () ;
+	}
 
-	LENGTH microseconds () const ;
+	LENGTH miliseconds () const {
+		return mThis->miliseconds () ;
+	}
 
-	LENGTH nanoseconds () const ;
+	LENGTH microseconds () const {
+		return mThis->microseconds () ;
+	}
 
-	Duration add (const Duration &that) const ;
+	LENGTH nanoseconds () const {
+		return mThis->nanoseconds () ;
+	}
+
+	Duration add (const Duration &that) const {
+		return mThis->add (that) ;
+	}
 
 	inline Duration operator+ (const Duration &that) const {
 		return add (that) ;
 	}
 
-	Duration sub (const Duration &that) const ;
+	Duration sub (const Duration &that) const {
+		return mThis->sub (that) ;
+	}
 
 	inline Duration operator- (const Duration &that) const {
 		return sub (that) ;
 	}
 } ;
 
-class TimePoint
-	:private Proxy {
+class TimePoint {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual ARRAY8<LENGTH> calendar () const = 0 ;
+		virtual TimePoint add (const Duration &that) const = 0 ;
+		virtual Duration sub (const TimePoint &that) const = 0 ;
+	} ;
 
 private:
 	friend GlobalRuntime ;
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit TimePoint () = default ;
 
 	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
 
-	explicit TimePoint (const StrongRef<Implement> &this_) ;
-
-	Implement &native () const leftvalue {
-		return mThis ;
+	explicit TimePoint (const StrongRef<Abstract> &that) {
+		mThis = that ;
 	}
 
-	ARRAY8<LENGTH> calendar () const ;
+	const Private::Implement &native () const leftvalue {
+		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
+		return rax.self ;
+	}
 
-	TimePoint add (const Duration &that) const ;
+	ARRAY8<LENGTH> calendar () const {
+		return mThis->calendar () ;
+	}
+
+	TimePoint add (const Duration &that) const {
+		return mThis->add (that) ;
+	}
 
 	inline TimePoint operator+ (const Duration &that) const {
 		return add (that) ;
 	}
 
-	Duration sub (const TimePoint &that) const ;
+	Duration sub (const TimePoint &that) const {
+		return mThis->sub (that) ;
+	}
 
 	inline Duration operator- (const TimePoint &that) const {
 		return sub (that) ;
 	}
 } ;
 
-class Atomic
-	:private Proxy {
+class Atomic {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual VAR fetch () const = 0 ;
+		virtual VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects = 0 ;
+		virtual void store (const VAR &data) = 0 ;
+		virtual VAR increase () side_effects = 0 ;
+		virtual VAR decrease () side_effects = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	Atomic () ;
 
-	Implement &native () const leftvalue {
-		return mThis ;
+	VAR fetch () const {
+		return mThis->fetch () ;
 	}
-
-	VAR fetch () const ;
 
 	inline implicit operator VAR () const {
 		return fetch () ;
 	}
 
-	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects ;
+	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
+		return mThis->compare_exchange (expect ,data) ;
+	}
 
-	void store (const VAR &data) ;
+	void store (const VAR &data) {
+		return mThis->store (data) ;
+	}
 
 	inline void operator= (const VAR &data) {
 		store (data) ;
 	}
 
-	VAR increase () side_effects ;
+	VAR increase () side_effects {
+		return mThis->increase () ;
+	}
 
 	inline VAR operator++ () side_effects {
 		return increase () ;
 	}
 
-	VAR decrease () side_effects ;
+	VAR decrease () side_effects {
+		return mThis->decrease () ;
+	}
 
 	inline VAR operator-- () side_effects {
 		return decrease () ;
 	}
 } ;
 
-class Mutex
-	:private Proxy {
+class Mutex {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void lock () = 0 ;
+		virtual BOOL try_lock () side_effects = 0 ;
+		virtual void unlock () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	Mutex () ;
 
-	Implement &native () const leftvalue {
-		return mThis ;
+	Private::Implement &native () leftvalue {
+		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
+		return rax.self ;
 	}
 
-	void lock () ;
+	void lock () {
+		return mThis->lock () ;
+	}
 
-	BOOL try_lock () side_effects ;
+	BOOL try_lock () side_effects {
+		return mThis->try_lock () ;
+	}
 
-	void unlock () ;
+	void unlock () {
+		return mThis->unlock () ;
+	}
 } ;
 
-class RecursiveMutex
-	:private Proxy {
+class RecursiveMutex {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void lock () = 0 ;
+		virtual BOOL try_lock () side_effects = 0 ;
+		virtual void unlock () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	RecursiveMutex () ;
 
-	Implement &native () const leftvalue {
-		return mThis ;
+	Private::Implement &native () leftvalue {
+		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
+		return rax.self ;
 	}
 
-	void lock () ;
+	void lock () {
+		return mThis->lock () ;
+	}
 
-	BOOL try_lock () side_effects ;
+	BOOL try_lock () side_effects {
+		return mThis->try_lock () ;
+	}
 
-	void unlock () ;
+	void unlock () {
+		return mThis->unlock () ;
+	}
 } ;
 
 class UniqueLock ;
 
-class ConditionLock
-	:private Proxy {
+class ConditionLock {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	ConditionLock () ;
 
-	Implement &native () const leftvalue {
-		return mThis ;
+	Private::Implement &native () leftvalue {
+		auto rax = mThis.recast (ARGV<Private::Implement>::null) ;
+		return rax.self ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
@@ -234,36 +317,52 @@ public:
 	}
 } ;
 
-class UniqueLock
-	:private Proxy {
+class UniqueLock {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void wait () = 0 ;
+		virtual void wait (const Duration &time_) = 0 ;
+		virtual void wait (const TimePoint &time_) = 0 ;
+		virtual void yield () = 0 ;
+		virtual void notify () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit UniqueLock () = delete ;
 
 	explicit UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) ;
 
-	void wait () const ;
+	void wait () {
+		return mThis->wait () ;
+	}
 
-	void wait (const Duration &time_) const ;
+	void wait (const Duration &time_) {
+		return mThis->wait (time_) ;
+	}
 
-	void wait (const TimePoint &time_) const ;
+	void wait (const TimePoint &time_) {
+		return mThis->wait (time_) ;
+	}
 
-	void yield () const ;
+	void yield () {
+		return mThis->yield () ;
+	}
 
-	void notify () const ;
+	void notify () {
+		return mThis->notify () ;
+	}
 } ;
 
-class Thread
-	:private Proxy {
+class Thread {
 public:
 	class Binder
 		:public Interface {
@@ -278,21 +377,23 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void join () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit Thread () = delete ;
 
 	explicit Thread (const StrongRef<Binder> &runnable) ;
 
-	Implement &native () const leftvalue {
-		return mThis ;
+	void join () {
+		return mThis->join () ;
 	}
-
-	void join () ;
 } ;
 
 class Thread::Private::Runnable {
@@ -697,8 +798,7 @@ private:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r1x = rbx.watch () ;
-				auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-				auto &r3x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r2x]) ;
+				auto &r3x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r1x.self]) ;
 				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -868,16 +968,14 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
 				const auto r4x = rbx.watch () ;
-				auto &r5x = _XVALUE_ (ARGV<SELF_PACK>::null ,r4x) ;
-				auto &r6x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r5x]) ;
+				auto &r6x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r4x.self]) ;
 				rax->mValue = DEPTR[r6x] ;
 			}
 			auto &r7x = _LOAD_ (ARGV<SELF_PACK>::null ,rax->mValue) ;
 			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r7x]) ;
 			return rcx.watch () ;
 		}) ;
-		auto &r8x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		return r8x.mValue ;
+		return r1x.self.mValue ;
 	}
 
 private:
@@ -916,6 +1014,10 @@ public:
 class RandomService
 	:private Proxy {
 private:
+	struct Private {
+		class Implement ;
+	} ;
+
 	class Abstract
 		:public Interface {
 	public:
@@ -924,12 +1026,6 @@ private:
 		virtual VAR random_value () side_effects = 0 ;
 		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
-
-	struct Private {
-		class Implement ;
-	} ;
-
-	using Implement = typename Private::Implement ;
 
 private:
 	friend Singleton<RandomService> ;
@@ -944,7 +1040,7 @@ public:
 
 	void reset_seed (const VAR &seed_) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		mThis->reset_seed (seed_) ;
+		return mThis->reset_seed (seed_) ;
 	}
 
 	VAR random_value (const VAR &min_ ,const VAR &max_) side_effects {

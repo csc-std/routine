@@ -75,31 +75,43 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual void read (const PhanBuffer<BYTE> &data) = 0 ;
+		virtual void write (const PhanBuffer<const BYTE> &data) = 0 ;
+		virtual void flush () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit StreamLoader () = delete ;
 
 	explicit StreamLoader (const String<STR> &file) ;
 
-	void read (const PhanBuffer<BYTE> &data) ;
+	void read (const PhanBuffer<BYTE> &data) {
+		return mThis->read (data) ;
+	}
 
 	template <class _ARG1>
 	void read (Buffer<BYTE ,_ARG1> &data) {
 		read (PhanBuffer<BYTE>::make (data)) ;
 	}
 
-	void write (const PhanBuffer<const BYTE> &data) ;
+	void write (const PhanBuffer<const BYTE> &data) {
+		return mThis->write (data) ;
+	}
 
 	template <class _ARG1>
 	void write (const Buffer<BYTE ,_ARG1> &data) {
 		write (PhanBuffer<const BYTE>::make (data)) ;
 	}
 
-	void flush () ;
+	void flush () {
+		return mThis->flush () ;
+	}
 } ;
 
 class BufferLoader {
@@ -108,10 +120,16 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual PhanBuffer<BYTE> watch () leftvalue = 0 ;
+		virtual PhanBuffer<const BYTE> watch () const leftvalue = 0 ;
+		virtual void flush () = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit BufferLoader () = delete ;
@@ -124,28 +142,32 @@ public:
 
 	explicit BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) ;
 
-	PhanBuffer<BYTE> watch () leftvalue ;
+	PhanBuffer<BYTE> watch () leftvalue {
+		return mThis->watch () ;
+	}
 
-	PhanBuffer<const BYTE> watch () const leftvalue ;
+	PhanBuffer<const BYTE> watch () const leftvalue {
+		return mThis->watch () ;
+	}
 
-	void flush () ;
+	void flush () {
+		return mThis->flush () ;
+	}
 } ;
 
 class FileSystemService
 	:private Proxy {
 private:
+	struct Private {
+		class Implement ;
+	} ;
+
 	class Abstract
 		:public Interface {
 	public:
 		virtual void startup () = 0 ;
 		virtual void shutdown () = 0 ;
 	} ;
-
-	struct Private {
-		class Implement ;
-	} ;
-
-	using Implement = typename Private::Implement ;
 
 private:
 	friend Singleton<FileSystemService> ;
@@ -155,12 +177,12 @@ private:
 public:
 	void startup () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		mThis->startup () ;
+		return mThis->startup () ;
 	}
 
 	void shutdown () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		mThis->shutdown () ;
+		return mThis->shutdown () ;
 	}
 
 private:

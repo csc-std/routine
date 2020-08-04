@@ -105,7 +105,7 @@ private:
 	BOOL mTempState ;
 
 public:
- 	implicit Implement () {
+	implicit Implement () {
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
 		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
@@ -388,7 +388,7 @@ private:
 } ;
 
 inline exports ConsoleService::ConsoleService () {
-	mThis = StrongRef<Implement>::make () ;
+	mThis = StrongRef<Private::Implement>::make () ;
 }
 
 class DebuggerService::Private::Implement
@@ -495,6 +495,6 @@ private:
 } ;
 
 inline exports DebuggerService::DebuggerService () {
-	mThis = StrongRef<Implement>::make () ;
+	mThis = StrongRef<Private::Implement>::make () ;
 }
 } ;

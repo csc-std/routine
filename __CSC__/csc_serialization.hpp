@@ -46,9 +46,9 @@ private:
 	struct Private {
 		class RecursiveCounter ;
 
-		class InitializeLambda ;
+		class InitializeX1Lambda ;
 
-		class InitializeLambda2 ;
+		class InitializeX2Lambda ;
 	} ;
 
 private:
@@ -56,8 +56,13 @@ private:
 	INDEX mIndex ;
 
 public:
- 	implicit XmlParser () {
+	implicit XmlParser () {
 		mIndex = VAR_NONE ;
+	}
+
+	explicit XmlParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+		mHeap = heap ;
+		mIndex = index ;
 	}
 
 	BOOL exist () const {
@@ -304,31 +309,125 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	void friend_write (TextWriter<STRU8> &writer) const ;
+	void friend_write (TextWriter<STRU8> &writer) const {
+		static constexpr auto M_NODE_X1 = EFLAG (1) ;
+		static constexpr auto M_NODE_X2 = EFLAG (2) ;
+		auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
+		auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
+		rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
+		while (TRUE) {
+			if (rax.empty ())
+				break ;
+			const auto r1x = rax[rax.tail ()] ;
+			rax.pop () ;
+			auto fax = TRUE ;
+			if switch_once (fax) {
+				//@info: case '<?xml ...>'
+				if (!(r1x.mP1 != VAR_NONE))
+					discard ;
+				if (!mHeap.self[r1x.mP1].mName.empty ())
+					discard ;
+				if (!(r1x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r2x = mHeap.self[r1x.mP1] ;
+				writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
+				writer << TextWriter<STRU8>::GAP ;
+				rbx.clear () ;
+				INDEX jx = r2x.mChild ;
+				while (TRUE) {
+					if (jx == VAR_NONE)
+						break ;
+					rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
+					jx = mHeap.self[jx].mBrother ;
+				}
+				while (TRUE) {
+					if (rbx.empty ())
+						break ;
+					rax.add (rbx[rbx.tail ()]) ;
+					rbx.pop () ;
+				}
+			}
+			if switch_once (fax) {
+				//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
+				if (!(r1x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r1x.mP1].mChild == VAR_NONE))
+					discard ;
+				if (!(r1x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r3x = mHeap.self[r1x.mP1] ;
+				writer << _PCSTRU8_ ("<") << r3x.mName << _PCSTRU8_ (" ") ;
+				for (auto &&i : r3x.mAttributeMappingSet) {
+					const auto r4x = r3x.mAttributeMappingSet.at (i) ;
+					writer << i ;
+					writer << _PCSTRU8_ ("=\"") ;
+					INDEX jx = r3x.mAttributeMappingSet.map (r4x) ;
+					writer << r3x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
+				}
+				writer << _PCSTRU8_ ("/>") ;
+			}
+			if switch_once (fax) {
+				//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?>'
+				if (!(r1x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r1x.mP1].mChild != VAR_NONE))
+					discard ;
+				if (!(r1x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r5x = mHeap.self[r1x.mP1] ;
+				writer << _PCSTRU8_ ("<") << r5x.mName << _PCSTRU8_ (" ") ;
+				for (auto &&i : r5x.mAttributeMappingSet) {
+					const auto r6x = r5x.mAttributeMappingSet.at (i) ;
+					writer << i ;
+					writer << _PCSTRU8_ ("=\"") ;
+					INDEX jx = r5x.mAttributeMappingSet.map (r6x) ;
+					writer << r5x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
+				}
+				writer << _PCSTRU8_ (">") ;
+				rbx.clear () ;
+				INDEX jx = r5x.mChild ;
+				while (TRUE) {
+					if (jx == VAR_NONE)
+						break ;
+					rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
+					jx = mHeap.self[jx].mBrother ;
+				}
+				rbx.add (PACK<INDEX ,EFLAG> {r1x.mP1 ,M_NODE_X2}) ;
+				while (TRUE) {
+					if (rbx.empty ())
+						break ;
+					rax.add (rbx[rbx.tail ()]) ;
+					rbx.pop () ;
+				}
+			}
+			if switch_once (fax) {
+				//@info: case '</xxx>'
+				if (!(r1x.mP1 != VAR_NONE))
+					discard ;
+				if (!(r1x.mP2 == M_NODE_X2))
+					discard ;
+				writer << _PCSTRU8_ ("</") << mHeap.self[r1x.mP1].mName << _PCSTRU8_ (">") ;
+			}
+		}
+	}
 
 public:
 	imports XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
-		ret.initialize (data) ;
+		initialize (ret ,data) ;
 		return _MOVE_ (ret) ;
 	}
 
 	imports XmlParser make (const Array<XmlParser> &sequence) {
 		XmlParser ret ;
-		ret.initialize (sequence) ;
+		initialize (ret ,sequence) ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
-	explicit XmlParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
-		mHeap = heap ;
-		mIndex = index ;
-	}
+	imports void initialize (XmlParser &self_ ,const PhanBuffer<const STRU8> &data) ;
 
-private:
-	void initialize (const PhanBuffer<const STRU8> &data) ;
-
-	void initialize (const Array<XmlParser> &sequence) ;
+	imports void initialize (XmlParser &self_ ,const Array<XmlParser> &sequence) ;
 } ;
 
 class XmlParser::Private::RecursiveCounter
@@ -344,7 +443,7 @@ public:
 	}
 } ;
 
-class XmlParser::Private::InitializeLambda
+class XmlParser::Private::InitializeX1Lambda
 	:private Proxy {
 private:
 	XmlParser &mContext ;
@@ -363,7 +462,7 @@ private:
 	INDEX mRoot ;
 
 public:
-	explicit InitializeLambda (XmlParser &context_ ,PhanBuffer<const STRU8> &&data)
+	explicit InitializeX1Lambda (XmlParser &context_ ,PhanBuffer<const STRU8> &&data)
 		: mContext (context_) ,mTextReader (_MOVE_ (data)) {}
 
 	inline void operator() () {
@@ -590,7 +689,7 @@ private:
 	}
 } ;
 
-class XmlParser::Private::InitializeLambda2
+class XmlParser::Private::InitializeX2Lambda
 	:private Proxy {
 private:
 	struct FOUND_NODE {
@@ -632,7 +731,7 @@ private:
 	STACK_NODE mTempNode ;
 
 public:
-	explicit InitializeLambda2 (XmlParser &context_ ,const Array<XmlParser> &sequence)
+	explicit InitializeX2Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence)
 		: mContext (context_) ,mSequence (sequence) ,mClazzString (_PCSTRU8_ ("type")) ,mTableClazzString (_PCSTRU8_ ("table")) ,mObjectClazzString (_PCSTRU8_ ("object")) ,mArrayClazzString (_PCSTRU8_ ("array")) ,mFinalClazzString (_PCSTRU8_ ("final")) {}
 
 	inline void operator() () {
@@ -650,9 +749,9 @@ private:
 		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
 		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
 		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
-		mFoundNodeProc[0] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_table_node) ;
-		mFoundNodeProc[1] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_object_node) ;
-		mFoundNodeProc[2] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeLambda2>::make (DEREF[this]) ,&InitializeLambda2::update_found_array_node) ;
+		mFoundNodeProc[0] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_table_node) ;
+		mFoundNodeProc[1] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_object_node) ;
+		mFoundNodeProc[2] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_array_node) ;
 		mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 		mMemberSoftSet = SoftSet<INDEX> (0) ;
 		mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
@@ -874,118 +973,16 @@ private:
 	}
 } ;
 
-inline exports void XmlParser::friend_write (TextWriter<STRU8> &writer) const {
-	static constexpr auto M_NODE_X1 = EFLAG (1) ;
-	static constexpr auto M_NODE_X2 = EFLAG (2) ;
-	auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
-	auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
-	rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
-	while (TRUE) {
-		if (rax.empty ())
-			break ;
-		const auto r1x = rax[rax.tail ()] ;
-		rax.pop () ;
-		auto fax = TRUE ;
-		if switch_once (fax) {
-			//@info: case '<?xml ...>'
-			if (!(r1x.mP1 != VAR_NONE))
-				discard ;
-			if (!mHeap.self[r1x.mP1].mName.empty ())
-				discard ;
-			if (!(r1x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r2x = mHeap.self[r1x.mP1] ;
-			writer << _PCSTRU8_ ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>") ;
-			writer << TextWriter<STRU8>::GAP ;
-			rbx.clear () ;
-			INDEX jx = r2x.mChild ;
-			while (TRUE) {
-				if (jx == VAR_NONE)
-					break ;
-				rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
-				jx = mHeap.self[jx].mBrother ;
-			}
-			while (TRUE) {
-				if (rbx.empty ())
-					break ;
-				rax.add (rbx[rbx.tail ()]) ;
-				rbx.pop () ;
-			}
-		}
-		if switch_once (fax) {
-			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?/>'
-			if (!(r1x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r1x.mP1].mChild == VAR_NONE))
-				discard ;
-			if (!(r1x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r3x = mHeap.self[r1x.mP1] ;
-			writer << _PCSTRU8_ ("<") << r3x.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r3x.mAttributeMappingSet) {
-				const auto r4x = r3x.mAttributeMappingSet.at (i) ;
-				writer << i ;
-				writer << _PCSTRU8_ ("=\"") ;
-				INDEX jx = r3x.mAttributeMappingSet.map (r4x) ;
-				writer << r3x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
-			}
-			writer << _PCSTRU8_ ("/>") ;
-		}
-		if switch_once (fax) {
-			//@info: case '<xxx ("xxx"="xxx"( "xxx"="xxx")?)?>'
-			if (!(r1x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r1x.mP1].mChild != VAR_NONE))
-				discard ;
-			if (!(r1x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r5x = mHeap.self[r1x.mP1] ;
-			writer << _PCSTRU8_ ("<") << r5x.mName << _PCSTRU8_ (" ") ;
-			for (auto &&i : r5x.mAttributeMappingSet) {
-				const auto r6x = r5x.mAttributeMappingSet.at (i) ;
-				writer << i ;
-				writer << _PCSTRU8_ ("=\"") ;
-				INDEX jx = r5x.mAttributeMappingSet.map (r6x) ;
-				writer << r5x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
-			}
-			writer << _PCSTRU8_ (">") ;
-			rbx.clear () ;
-			INDEX jx = r5x.mChild ;
-			while (TRUE) {
-				if (jx == VAR_NONE)
-					break ;
-				rbx.add (PACK<INDEX ,EFLAG> {jx ,M_NODE_X1}) ;
-				jx = mHeap.self[jx].mBrother ;
-			}
-			rbx.add (PACK<INDEX ,EFLAG> {r1x.mP1 ,M_NODE_X2}) ;
-			while (TRUE) {
-				if (rbx.empty ())
-					break ;
-				rax.add (rbx[rbx.tail ()]) ;
-				rbx.pop () ;
-			}
-		}
-		if switch_once (fax) {
-			//@info: case '</xxx>'
-			if (!(r1x.mP1 != VAR_NONE))
-				discard ;
-			if (!(r1x.mP2 == M_NODE_X2))
-				discard ;
-			writer << _PCSTRU8_ ("</") << mHeap.self[r1x.mP1].mName << _PCSTRU8_ (">") ;
-		}
-	}
+inline exports void XmlParser::initialize (XmlParser &self_ ,const PhanBuffer<const STRU8> &data) {
+	struct Dependent ;
+	using InitializeX1Lambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX1Lambda ;
+	_CALL_ (InitializeX1Lambda (self_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
-inline exports void XmlParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void XmlParser::initialize (XmlParser &self_ ,const Array<XmlParser> &sequence) {
 	struct Dependent ;
-	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
-}
-
-inline exports void XmlParser::initialize (const Array<XmlParser> &sequence) {
-	struct Dependent ;
-	using InitializeLambda2 = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda2 ;
-	_CALL_ (InitializeLambda2 (DEREF[this] ,sequence)) ;
+	using InitializeX2Lambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX2Lambda ;
+	_CALL_ (InitializeX2Lambda (self_ ,sequence)) ;
 }
 
 class JsonParser {
@@ -1014,8 +1011,13 @@ private:
 	INDEX mIndex ;
 
 public:
- 	implicit JsonParser () {
+	implicit JsonParser () {
 		mIndex = VAR_NONE ;
+	}
+
+	explicit JsonParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+		mHeap = heap ;
+		mIndex = index ;
 	}
 
 	BOOL exist () const {
@@ -1210,24 +1212,175 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	void friend_write (TextWriter<STRU8> &writer) const ;
+	void friend_write (TextWriter<STRU8> &writer) const {
+		static constexpr auto M_NODE_X1 = EFLAG (1) ;
+		static constexpr auto M_NODE_X2 = EFLAG (2) ;
+		static constexpr auto M_NODE_X3 = EFLAG (3) ;
+		static constexpr auto M_NODE_X4 = EFLAG (4) ;
+		static constexpr auto M_NODE_X5 = EFLAG (5) ;
+		static constexpr auto M_NODE_X6 = EFLAG (6) ;
+		static constexpr auto M_NODE_X7 = EFLAG (7) ;
+		static constexpr auto M_NODE_X8 = EFLAG (8) ;
+		static constexpr auto M_NODE_X9 = EFLAG (9) ;
+		auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
+		auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
+		rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
+		const auto r1x = object_key_adress_set () ;
+		while (TRUE) {
+			if (rax.empty ())
+				break ;
+			const auto r2x = rax[rax.tail ()] ;
+			rax.pop () ;
+			auto fax = TRUE ;
+			if switch_once (fax) {
+				//@info: case 'null'
+				if (!(r2x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_NULL))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X1))
+					discard ;
+				writer << _PCSTRU8_ ("null") ;
+			}
+			if switch_once (fax) {
+				//@info: case '"xxx"'
+				if (!(r2x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_STRING))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<String<STRU8>>::null).self ;
+				writer << _PCSTRU8_ ("\"") ;
+				writer << r3x ;
+				writer << _PCSTRU8_ ("\"") ;
+			}
+			if switch_once (fax) {
+				//@info: case '[(yyy(,yyy)*)?]'
+				if (!(r2x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_ARRAY))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
+				rbx.clear () ;
+				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
+				INDEX iw = 0 ;
+				for (auto &&i : r4x) {
+					const auto r5x = r4x.at (i) ;
+					if (iw > 0)
+						rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
+					iw++ ;
+					rbx.add (PACK<INDEX ,EFLAG> {r4x.map (r5x) ,M_NODE_X1}) ;
+				}
+				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
+				while (TRUE) {
+					if (rbx.empty ())
+						break ;
+					rax.add (rbx[rbx.tail ()]) ;
+					rbx.pop () ;
+				}
+			}
+			if switch_once (fax) {
+				//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
+				if (!(r2x.mP1 != VAR_NONE))
+					discard ;
+				if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_OBJECT))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X1))
+					discard ;
+				auto &r6x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+				rbx.clear () ;
+				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
+				INDEX iw = 0 ;
+				for (auto &&i : r6x) {
+					const auto r7x = r6x.at (i) ;
+					if (iw > 0)
+						rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
+					iw++ ;
+					INDEX ix = r1x.find (DEPTR[i]) ;
+					rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {r6x.map (r7x) ,M_NODE_X1}) ;
+				}
+				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
+				while (TRUE) {
+					if (rbx.empty ())
+						break ;
+					rax.add (rbx[rbx.tail ()]) ;
+					rbx.pop () ;
+				}
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 != VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X2))
+					discard ;
+				writer << _PCSTRU8_ ("\"") ;
+				writer << DEREF[r1x[r2x.mP1]] ;
+				writer << _PCSTRU8_ ("\"") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X3))
+					discard ;
+				writer << _PCSTRU8_ ("[") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X4))
+					discard ;
+				writer << _PCSTRU8_ (",") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X5))
+					discard ;
+				writer << _PCSTRU8_ ("]") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X6))
+					discard ;
+				writer << _PCSTRU8_ ("{") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X7))
+					discard ;
+				writer << _PCSTRU8_ (",") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X8))
+					discard ;
+				writer << _PCSTRU8_ (":") ;
+			}
+			if switch_once (fax) {
+				if (!(r2x.mP1 == VAR_NONE))
+					discard ;
+				if (!(r2x.mP2 == M_NODE_X9))
+					discard ;
+				writer << _PCSTRU8_ ("}") ;
+			}
+		}
+	}
 
 public:
 	imports JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
-		ret.initialize (data) ;
+		initialize (ret ,data) ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
-	explicit JsonParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
-		mHeap = heap ;
-		mIndex = index ;
-	}
-
-private:
-	void initialize (const PhanBuffer<const STRU8> &data) ;
-
 	Set<PTR<const String<STRU8>>> object_key_adress_set () const {
 		Set<PTR<const String<STRU8>>> ret = Set<PTR<const String<STRU8>>> (mHeap->size ()) ;
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
@@ -1239,6 +1392,9 @@ private:
 		}
 		return _MOVE_ (ret) ;
 	}
+
+private:
+	imports void initialize (JsonParser &self_ ,const PhanBuffer<const STRU8> &data) ;
 } ;
 
 class JsonParser::Private::RecursiveCounter
@@ -1578,171 +1734,10 @@ private:
 	}
 } ;
 
-inline exports void JsonParser::friend_write (TextWriter<STRU8> &writer) const {
-	static constexpr auto M_NODE_X1 = EFLAG (1) ;
-	static constexpr auto M_NODE_X2 = EFLAG (2) ;
-	static constexpr auto M_NODE_X3 = EFLAG (3) ;
-	static constexpr auto M_NODE_X4 = EFLAG (4) ;
-	static constexpr auto M_NODE_X5 = EFLAG (5) ;
-	static constexpr auto M_NODE_X6 = EFLAG (6) ;
-	static constexpr auto M_NODE_X7 = EFLAG (7) ;
-	static constexpr auto M_NODE_X8 = EFLAG (8) ;
-	static constexpr auto M_NODE_X9 = EFLAG (9) ;
-	auto rax = Deque<PACK<INDEX ,EFLAG>> () ;
-	auto rbx = Deque<PACK<INDEX ,EFLAG>> () ;
-	rax.add (PACK<INDEX ,EFLAG> {mIndex ,M_NODE_X1}) ;
-	const auto r1x = object_key_adress_set () ;
-	while (TRUE) {
-		if (rax.empty ())
-			break ;
-		const auto r2x = rax[rax.tail ()] ;
-		rax.pop () ;
-		auto fax = TRUE ;
-		if switch_once (fax) {
-			//@info: case 'null'
-			if (!(r2x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_NULL))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X1))
-				discard ;
-			writer << _PCSTRU8_ ("null") ;
-		}
-		if switch_once (fax) {
-			//@info: case '"xxx"'
-			if (!(r2x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_STRING))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<String<STRU8>>::null).self ;
-			writer << _PCSTRU8_ ("\"") ;
-			writer << r3x ;
-			writer << _PCSTRU8_ ("\"") ;
-		}
-		if switch_once (fax) {
-			//@info: case '[(yyy(,yyy)*)?]'
-			if (!(r2x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_ARRAY))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
-			rbx.clear () ;
-			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
-			INDEX iw = 0 ;
-			for (auto &&i : r4x) {
-				const auto r5x = r4x.at (i) ;
-				if (iw > 0)
-					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
-				iw++ ;
-				rbx.add (PACK<INDEX ,EFLAG> {r4x.map (r5x) ,M_NODE_X1}) ;
-			}
-			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
-			while (TRUE) {
-				if (rbx.empty ())
-					break ;
-				rax.add (rbx[rbx.tail ()]) ;
-				rbx.pop () ;
-			}
-		}
-		if switch_once (fax) {
-			//@info: case '{("xxx":yyy(,"xxx":yyy)*)?}'
-			if (!(r2x.mP1 != VAR_NONE))
-				discard ;
-			if (!(mHeap.self[r2x.mP1].mClazz == NODE_CLAZZ_OBJECT))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X1))
-				discard ;
-			auto &r6x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
-			rbx.clear () ;
-			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
-			INDEX iw = 0 ;
-			for (auto &&i : r6x) {
-				const auto r7x = r6x.at (i) ;
-				if (iw > 0)
-					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X7}) ;
-				iw++ ;
-				INDEX ix = r1x.find (DEPTR[i]) ;
-				rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
-				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
-				rbx.add (PACK<INDEX ,EFLAG> {r6x.map (r7x) ,M_NODE_X1}) ;
-			}
-			rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
-			while (TRUE) {
-				if (rbx.empty ())
-					break ;
-				rax.add (rbx[rbx.tail ()]) ;
-				rbx.pop () ;
-			}
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 != VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X2))
-				discard ;
-			writer << _PCSTRU8_ ("\"") ;
-			writer << DEREF[r1x[r2x.mP1]] ;
-			writer << _PCSTRU8_ ("\"") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X3))
-				discard ;
-			writer << _PCSTRU8_ ("[") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X4))
-				discard ;
-			writer << _PCSTRU8_ (",") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X5))
-				discard ;
-			writer << _PCSTRU8_ ("]") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X6))
-				discard ;
-			writer << _PCSTRU8_ ("{") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X7))
-				discard ;
-			writer << _PCSTRU8_ (",") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X8))
-				discard ;
-			writer << _PCSTRU8_ (":") ;
-		}
-		if switch_once (fax) {
-			if (!(r2x.mP1 == VAR_NONE))
-				discard ;
-			if (!(r2x.mP2 == M_NODE_X9))
-				discard ;
-			writer << _PCSTRU8_ ("}") ;
-		}
-	}
-}
-
-inline exports void JsonParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void JsonParser::initialize (JsonParser &self_ ,const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_ (InitializeLambda (self_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 class CommandParser {
@@ -1761,7 +1756,7 @@ public:
 	implicit CommandParser () = delete ;
 
 	explicit CommandParser (const PhanBuffer<const STRU8> &data) {
-		initialize (data) ;
+		initialize (DEREF[this] ,data) ;
 	}
 
 	explicit CommandParser (const VAR32 &argc ,const PTR<const PTR<STRA>> &argv) {
@@ -1775,7 +1770,7 @@ public:
 			rax << TextWriter<STRU8>::EOS ;
 			return _MOVE_ (ret) ;
 		}) ;
-		initialize (r1x.raw ()) ;
+		initialize (DEREF[this] ,r1x.raw ()) ;
 	}
 
 	BOOL option (const String<STRU8> &tag) const {
@@ -1860,7 +1855,7 @@ public:
 	}
 
 private:
-	void initialize (const PhanBuffer<const STRU8> &data) ;
+	imports void initialize (CommandParser &self_ ,const PhanBuffer<const STRU8> &data) ;
 } ;
 
 class CommandParser::Private::InitializeLambda
@@ -2029,9 +2024,9 @@ private:
 	}
 } ;
 
-inline exports void CommandParser::initialize (const PhanBuffer<const STRU8> &data) {
+inline exports void CommandParser::initialize (CommandParser &self_ ,const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_ (InitializeLambda (DEREF[this] ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_ (InitializeLambda (self_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 } ;

@@ -509,7 +509,8 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	}
 }
 
-class StreamLoader::Private::Implement {
+class StreamLoader::Private::Implement
+	:public Abstract {
 private:
 	UniqueRef<api::HANDLE> mReadFile ;
 	UniqueRef<api::HANDLE> mWriteFile ;
@@ -539,7 +540,7 @@ public:
 		}) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) {
+	void read (const PhanBuffer<BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -552,7 +553,7 @@ public:
 		BasicProc::mem_fill (PTRTOARR[DEPTR[data[r2x]]] ,(data.size () - r2x) ,BYTE (0X00)) ;
 	}
 
-	void write (const PhanBuffer<const BYTE> &data) {
+	void write (const PhanBuffer<const BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		auto rax = VARY () ;
 		rax = VARY (0) ;
@@ -562,28 +563,17 @@ public:
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
-	void flush () {
+	void flush () override {
 		FlushFileBuffers (mWriteFile) ;
 	}
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	mThis = StrongRef<Implement>::make (file) ;
+	mThis = StrongRef<Private::Implement>::make (file) ;
 }
 
-inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
-	mThis->read (data) ;
-}
-
-inline exports void StreamLoader::write (const PhanBuffer<const BYTE> &data) {
-	mThis->write (data) ;
-}
-
-inline exports void StreamLoader::flush () {
-	mThis->flush () ;
-}
-
-class BufferLoader::Private::Implement {
+class BufferLoader::Private::Implement
+	:public Abstract {
 private:
 	struct SELF_PACK {
 		UniqueRef<api::HANDLE> mFile ;
@@ -592,13 +582,20 @@ private:
 	} ;
 
 private:
-	UniqueRef<SELF_PACK> mThis ;
+	UniqueRef<SharedRef<SELF_PACK>> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
-		auto tmp_File = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+			me = SharedRef<SELF_PACK>::make () ;
+		} ,[] (SharedRef<SELF_PACK> &me) {
+			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
+			me->mMapping = UniqueRef<api::HANDLE> () ;
+			me->mFile = UniqueRef<api::HANDLE> () ;
+		}) ;
+		mThis.self->mFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = api::CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
 				me = NULL ;
@@ -606,36 +603,34 @@ public:
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		const auto r1x = LENGTH (api::GetFileSize (tmp_File.self ,NULL)) ;
+		const auto r1x = LENGTH (api::GetFileSize (mThis.self->mFile.self ,NULL)) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		auto tmp_Mapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
-			me = api::CreateFileMapping (tmp_File.self ,NULL ,PAGE_READONLY ,0 ,VARY (r1x) ,NULL) ;
+		mThis.self->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+			me = api::CreateFileMapping (mThis.self->mFile.self ,NULL ,PAGE_READONLY ,0 ,VARY (r1x) ,NULL) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		auto tmp_Buffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
-			const auto r2x = api::MapViewOfFile (tmp_Mapping.self ,FILE_MAP_READ ,0 ,0 ,r1x) ;
+		mThis.self->mBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
+			const auto r2x = api::MapViewOfFile (mThis.self->mMapping.self ,FILE_MAP_READ ,0 ,0 ,r1x) ;
 			_DYNAMIC_ASSERT_ (r2x != NULL) ;
 			auto &r3x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r2x) ;
 			me = PhanBuffer<BYTE>::make (r3x ,r1x) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
-			me.mFile = _MOVE_ (tmp_File) ;
-			me.mMapping = _MOVE_ (tmp_Mapping) ;
-			me.mBuffer = _MOVE_ (tmp_Buffer) ;
-		} ,[] (SELF_PACK &me) {
-			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
-			me.mMapping = UniqueRef<api::HANDLE> () ;
-			me.mFile = UniqueRef<api::HANDLE> () ;
-		}) ;
 	}
 
 	explicit Implement (const String<STR> &file ,const LENGTH &file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
-		auto tmp_File = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+			me = SharedRef<SELF_PACK>::make () ;
+		} ,[] (SharedRef<SELF_PACK> &me) {
+			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
+			me->mMapping = UniqueRef<api::HANDLE> () ;
+			me->mFile = UniqueRef<api::HANDLE> () ;
+		}) ;
+		mThis.self->mFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			const auto r1x = CSC::CHAR (GENERIC_READ | GENERIC_WRITE) ;
 			me = api::CreateFile (file.raw ().self ,r1x ,0 ,NULL ,CREATE_ALWAYS ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
@@ -644,43 +639,41 @@ public:
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		auto tmp_Mapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
-			me = api::CreateFileMapping (tmp_File.self ,NULL ,PAGE_READWRITE ,0 ,VARY (file_len) ,NULL) ;
+		mThis.self->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+			me = api::CreateFileMapping (mThis.self->mFile.self ,NULL ,PAGE_READWRITE ,0 ,VARY (file_len) ,NULL) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		auto tmp_Buffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
+		mThis.self->mBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r1x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
-			const auto r2x = api::MapViewOfFile (tmp_Mapping.self ,r1x ,0 ,0 ,file_len) ;
+			const auto r2x = api::MapViewOfFile (mThis.self->mMapping.self ,r1x ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r2x != NULL) ;
 			auto &r3x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r2x) ;
 			me = PhanBuffer<BYTE>::make (r3x ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
-			me.mFile = _MOVE_ (tmp_File) ;
-			me.mMapping = _MOVE_ (tmp_Mapping) ;
-			me.mBuffer = _MOVE_ (tmp_Buffer) ;
-		} ,[] (SELF_PACK &me) {
-			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
-			me.mMapping = UniqueRef<api::HANDLE> () ;
-			me.mFile = UniqueRef<api::HANDLE> () ;
-		}) ;
 	}
 
 	explicit Implement (const String<STR> &file ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (cache) ;
-		auto tmp_Mapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+			me = SharedRef<SELF_PACK>::make () ;
+		} ,[] (SharedRef<SELF_PACK> &me) {
+			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
+			me->mMapping = UniqueRef<api::HANDLE> () ;
+			me->mFile = UniqueRef<api::HANDLE> () ;
+		}) ;
+		mThis.self->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = OpenFileMapping (FILE_MAP_READ ,FALSE ,file.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		auto tmp_Buffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
+		mThis.self->mBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r1x = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
-				const auto r2x = api::MapViewOfFile (tmp_Mapping.self ,FILE_MAP_READ ,0 ,0 ,0) ;
+				const auto r2x = api::MapViewOfFile (mThis.self->mMapping.self ,FILE_MAP_READ ,0 ,0 ,0) ;
 				_DYNAMIC_ASSERT_ (r2x != NULL) ;
 				auto &r3x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r2x) ;
 				me = PhanBuffer<BYTE>::make (r3x ,1) ;
@@ -691,93 +684,72 @@ public:
 			_ZERO_ (rax) ;
 			const auto r4x = VirtualQuery (r1x->self ,DEPTR[rax] ,_SIZEOF_ (api::MEMORY_BASIC_INFORMATION)) ;
 			_DYNAMIC_ASSERT_ (r4x == _SIZEOF_ (api::MEMORY_BASIC_INFORMATION)) ;
-			const auto r5x = api::MapViewOfFile (tmp_Mapping.self ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
+			const auto r5x = api::MapViewOfFile (mThis.self->mMapping.self ,FILE_MAP_READ ,0 ,0 ,rax.RegionSize) ;
 			_DYNAMIC_ASSERT_ (r5x != NULL) ;
 			auto &r6x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r5x) ;
 			me = PhanBuffer<BYTE>::make (r6x ,LENGTH (rax.RegionSize)) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
-			me.mMapping = _MOVE_ (tmp_Mapping) ;
-			me.mBuffer = _MOVE_ (tmp_Buffer) ;
-		} ,[] (SELF_PACK &me) {
-			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
-			me.mMapping = UniqueRef<api::HANDLE> () ;
-			me.mFile = UniqueRef<api::HANDLE> () ;
-		}) ;
 	}
 
 	explicit Implement (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
-		auto tmp_Mapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
+		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+			me = SharedRef<SELF_PACK>::make () ;
+		} ,[] (SharedRef<SELF_PACK> &me) {
+			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
+			me->mMapping = UniqueRef<api::HANDLE> () ;
+			me->mFile = UniqueRef<api::HANDLE> () ;
+		}) ;
+		mThis.self->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = api::CreateFileMapping (INVALID_HANDLE_VALUE ,NULL ,PAGE_READWRITE ,0 ,VARY (file_len) ,file.raw ().self) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (api::HANDLE &me) {
 			api::CloseHandle (me) ;
 		}) ;
-		auto tmp_Buffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
+		mThis.self->mBuffer = UniqueRef<PhanBuffer<BYTE>> ([&] (PhanBuffer<BYTE> &me) {
 			const auto r1x = VAR32 (FILE_MAP_READ | FILE_MAP_WRITE) ;
-			const auto r2x = api::MapViewOfFile (tmp_Mapping.self ,r1x ,0 ,0 ,file_len) ;
+			const auto r2x = api::MapViewOfFile (mThis.self->mMapping.self ,r1x ,0 ,0 ,file_len) ;
 			_DYNAMIC_ASSERT_ (r2x != NULL) ;
 			auto &r3x = _LOAD_ (ARGV<ARR<BYTE>>::null ,r2x) ;
 			me = PhanBuffer<BYTE>::make (r3x ,file_len) ;
 		} ,[] (PhanBuffer<BYTE> &me) {
 			api::UnmapViewOfFile (me.self) ;
 		}) ;
-		mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
-			me.mMapping = _MOVE_ (tmp_Mapping) ;
-			me.mBuffer = _MOVE_ (tmp_Buffer) ;
-		} ,[] (SELF_PACK &me) {
-			me.mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
-			me.mMapping = UniqueRef<api::HANDLE> () ;
-			me.mFile = UniqueRef<api::HANDLE> () ;
-		}) ;
 	}
 
-	PhanBuffer<BYTE> watch () leftvalue {
+	PhanBuffer<BYTE> watch () leftvalue override {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return PhanBuffer<BYTE>::make (mThis->mBuffer.self) ;
+		return PhanBuffer<BYTE>::make (mThis.self->mBuffer.self) ;
 	}
 
-	PhanBuffer<const BYTE> watch () const leftvalue {
+	PhanBuffer<const BYTE> watch () const leftvalue override {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return PhanBuffer<const BYTE>::make (mThis->mBuffer.self) ;
+		return PhanBuffer<const BYTE>::make (mThis.self->mBuffer.self) ;
 	}
 
-	void flush () {
+	void flush () override {
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		FlushViewOfFile (mThis->mBuffer->self ,mThis->mBuffer->size ()) ;
+		FlushViewOfFile (mThis.self->mBuffer->self ,mThis.self->mBuffer->size ()) ;
 	}
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	mThis = StrongRef<Implement>::make (file) ;
+	mThis = StrongRef<Private::Implement>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	mThis = StrongRef<Implement>::make (file ,file_len) ;
+	mThis = StrongRef<Private::Implement>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	mThis = StrongRef<Implement>::make (file ,cache) ;
+	mThis = StrongRef<Private::Implement>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
-}
-
-inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
-	return _XVALUE_ (ARGV<Implement>::null ,mThis).watch () ;
-}
-
-inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
-	return _XVALUE_ (ARGV<const Implement>::null ,mThis).watch () ;
-}
-
-inline exports void BufferLoader::flush () {
-	mThis->flush () ;
+	mThis = StrongRef<Private::Implement>::make (file ,file_len ,cache) ;
 }
 
 class FileSystemService::Private::Implement
@@ -793,6 +765,6 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService () {
-	mThis = StrongRef<Implement>::make () ;
+	mThis = StrongRef<Private::Implement>::make () ;
 }
 } ;

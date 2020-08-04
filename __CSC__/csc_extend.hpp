@@ -1372,7 +1372,7 @@ private:
 	friend class StrongRef ;
 	template <class>
 	friend class WeakRef ;
-	SharedRef<SELF_PACK> mThis ;
+	SharedRef<SELF_PACK> mValue ;
 } ;
 
 namespace U {
@@ -1410,7 +1410,7 @@ private:
 	friend class StrongRef ;
 	template <class>
 	friend class WeakRef ;
-	SharedRef<SELF_PACK> mThis ;
+	SharedRef<SELF_PACK> mValue ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1431,16 +1431,16 @@ public:
 			return ;
 		_STATIC_WARNING_ ("mark") ;
 		if switch_once (TRUE) {
-			const auto r1x = --mThis->mCounter ;
+			const auto r1x = --mValue->mCounter ;
 			if (r1x != 0)
 				discard ;
-			mThis->mHolder = AnyRef<void> () ;
+			mValue->mHolder = AnyRef<void> () ;
 		}
 		mPointer = NULL ;
 	}
 
 	implicit StrongRef (const StrongRef &that)
-		:StrongRef (_COPY_ (that.mThis) ,that.mPointer) {
+		:StrongRef (ARGVP0 ,_COPY_ (that.mValue) ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1456,7 +1456,7 @@ public:
 
 	implicit StrongRef (StrongRef &&that) noexcept
 		:StrongRef (ARGVP0) {
-		mThis = _MOVE_ (that.mThis) ;
+		mValue = _MOVE_ (that.mValue) ;
 		mPointer = _EXCHANGE_ (that.mPointer) ;
 	}
 
@@ -1473,9 +1473,9 @@ public:
 	BOOL exist () const {
 		if (mPointer == NULL)
 			return FALSE ;
-		if (!mThis.exist ())
+		if (!mValue.exist ())
 			return FALSE ;
-		if (!mThis->mHolder.exist ())
+		if (!mValue->mHolder.exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1484,32 +1484,46 @@ public:
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
 		const auto r1x = U::OPERATOR_RECAST::invoke (ARGV<_ARG1>::null ,mPointer) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r1x != NULL) == _EBOOL_ (mPointer != NULL)) ;
-		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (_COPY_ (mThis) ,r1x) ;
+		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (ARGVP0 ,_COPY_ (mValue) ,r1x) ;
 	}
 
-	UNIT &to () const leftvalue {
+	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
 		return DEREF[r1x] ;
 	}
 
-	inline implicit operator UNIT & () const leftvalue {
+	inline implicit operator UNIT & () leftvalue {
 		return to () ;
 	}
 
-	inline PTR<UNIT> operator-> () const leftvalue {
+	inline PTR<UNIT> operator-> () leftvalue {
+		return DEPTR[to ()] ;
+	}
+
+	const UNIT &to () const leftvalue {
+		_DEBUG_ASSERT_ (exist ()) ;
+		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
+		return DEREF[r1x] ;
+	}
+
+	inline implicit operator const UNIT & () const leftvalue {
+		return to () ;
+	}
+
+	inline PTR<const UNIT> operator-> () const leftvalue {
 		return DEPTR[to ()] ;
 	}
 
 	BOOL equal (const StrongRef &that) const {
-		if (!mThis.exist ())
-			if (!that.mThis.exist ())
+		if (!mValue.exist ())
+			if (!that.mValue.exist ())
 				return TRUE ;
-		if (!mThis.exist ())
+		if (!mValue.exist ())
 			return FALSE ;
-		if (!that.mThis.exist ())
+		if (!that.mValue.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
+		if (DEPTR[mValue.self] != DEPTR[that.mValue.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1543,21 +1557,21 @@ public:
 		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		tmp->mCounter = 0 ;
 		auto &r1x = tmp->mHolder.rebind (ARGV<UNIT>::null).self ;
-		return StrongRef (_MOVE_ (tmp) ,DEPTR[r1x]) ;
+		return StrongRef (ARGVP0 ,_MOVE_ (tmp) ,DEPTR[r1x]) ;
 	}
 
 private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	explicit StrongRef (SharedRef<SELF_PACK> &&this_ ,const PTR<UNIT> &pointer) noexcept
+	explicit StrongRef (const DEF<decltype (ARGVP0)> & ,SharedRef<SELF_PACK> &&this_ ,const PTR<UNIT> &pointer) noexcept
 		:StrongRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
 		const auto r1x = ++this_->mCounter ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
-		mThis = _MOVE_ (this_) ;
+		mValue = _MOVE_ (this_) ;
 		mPointer = pointer ;
 	}
 } ;
@@ -1568,7 +1582,7 @@ private:
 	using SELF_PACK = typename WeakRef<void>::SELF_PACK ;
 
 private:
-	SharedRef<SELF_PACK> mThis ;
+	SharedRef<SELF_PACK> mValue ;
 	PTR<UNIT> mPointer ;
 
 public:
@@ -1577,9 +1591,9 @@ public:
 	}
 
 	BOOL exist () const {
-		if (!mThis.exist ())
+		if (!mValue.exist ())
 			return FALSE ;
-		if (!mThis->mHolder.exist ())
+		if (!mValue->mHolder.exist ())
 			return FALSE ;
 		if (mPointer == NULL)
 			return FALSE ;
@@ -1587,14 +1601,14 @@ public:
 	}
 
 	BOOL equal (const WeakRef &that) const {
-		if (!mThis.exist ())
-			if (!that.mThis.exist ())
+		if (!mValue.exist ())
+			if (!that.mValue.exist ())
 				return TRUE ;
-		if (!mThis.exist ())
+		if (!mValue.exist ())
 			return FALSE ;
-		if (!that.mThis.exist ())
+		if (!that.mValue.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
+		if (DEPTR[mValue.self] != DEPTR[that.mValue.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1608,14 +1622,14 @@ public:
 	}
 
 	BOOL equal (const StrongRef<UNIT> &that) const {
-		if (!mThis.exist ())
-			if (!that.mThis.exist ())
+		if (!mValue.exist ())
+			if (!that.mValue.exist ())
 				return TRUE ;
-		if (!mThis.exist ())
+		if (!mValue.exist ())
 			return FALSE ;
-		if (!that.mThis.exist ())
+		if (!that.mValue.exist ())
 			return FALSE ;
-		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
+		if (DEPTR[mValue.self] != DEPTR[that.mValue.self])
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1629,11 +1643,11 @@ public:
 	}
 
 	StrongRef<UNIT> watch () const {
-		return StrongRef<UNIT> (mThis ,mPointer) ;
+		return StrongRef<UNIT> (mValue ,mPointer) ;
 	}
 
 	void assign (const StrongRef<UNIT> &that) {
-		mThis = that.mThis ;
+		mValue = that.mValue ;
 		mPointer = that.mPointer ;
 	}
 } ;
@@ -1732,7 +1746,7 @@ public:
 		const auto r1x = mPointer.load () ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		auto tmp = IntrusiveRef (r1x) ;
-		return WatchProxy (_MOVE_ (tmp) ,r1x) ;
+		return WatchProxy (_MOVE_ (tmp) ,PhanRef<UNIT>::make (DEREF[r1x])) ;
 	}
 
 public:
@@ -1741,7 +1755,7 @@ public:
 		IntrusiveRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null) ;
 		ScopedBuild<UNIT> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<UNIT>::null ,_XVALUE_ (ARGV<PTR<TEMP<UNIT>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<UNIT>::null ,rax.self) ;
 		acquire (DEPTR[r1x] ,TRUE) ;
 		const auto r2x = ret.safe_exchange (DEPTR[r1x]) ;
 		_STATIC_UNUSED_ (r2x) ;
@@ -1801,23 +1815,27 @@ class IntrusiveRef<UNIT ,CONT>::Private::WatchProxy
 	:private Proxy {
 private:
 	UniqueRef<IntrusiveRef> mBase ;
-	PTR<UNIT> mPointer ;
+	PhanRef<UNIT> mRef ;
 
 public:
 	implicit WatchProxy () = delete ;
 
-	explicit WatchProxy (IntrusiveRef &&base ,const PTR<UNIT> &pointer) {
+	explicit WatchProxy (IntrusiveRef &&base ,PhanRef<UNIT> &&ref_) {
 		mBase = UniqueRef<IntrusiveRef> ([&] (IntrusiveRef &me) {
 			me = _MOVE_ (base) ;
 		} ,[] (IntrusiveRef &me) {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
-		mPointer = pointer ;
+		mRef = _MOVE_ (ref_) ;
+	}
+
+	UNIT &to () const leftvalue {
+		_DEBUG_ASSERT_ (mBase.exist ()) ;
+		return mRef.self ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
-		const auto r1x = static_cast<PTR<UNIT>> (mPointer) ;
-		return DEREF[r1x] ;
+		return to () ;
 	}
 } ;
 
@@ -1870,24 +1888,22 @@ private:
 	} ;
 
 private:
-	UniqueRef<SELF_PACK> mThis ;
+	UniqueRef<SharedRef<SELF_PACK>> mThis ;
 
 public:
-	implicit MemoryPool () {
-		initialize () ;
-	}
+	implicit MemoryPool () ;
 
 	LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
-			ret += mThis->mPool[i]->size () ;
+		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
+			ret += mThis.self->mPool[i]->size () ;
 		return _MOVE_ (ret) ;
 	}
 
 	LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
-			ret += mThis->mPool[i]->length () ;
+		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
+			ret += mThis.self->mPool[i]->length () ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1901,11 +1917,11 @@ public:
 		const auto r4x = (r3x - 1) / 8 ;
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
-		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
+		const auto r6x = mThis.self->mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
 		auto &r9x = _LOAD_UNSAFE_ (ARGV<HEADER>::null ,r8x) ;
-		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r9x.mFrom = DEPTR[mThis.self->mPool[ix].self] ;
 		r9x.mCurr = r6x ;
 		auto &r10x = _LOAD_UNSAFE_ (ARGV<_ARG1>::null ,r7x) ;
 		return DEPTR[r10x] ;
@@ -1922,11 +1938,11 @@ public:
 		const auto r4x = (r3x - 1) / 8 ;
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
-		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
+		const auto r6x = mThis.self->mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
 		auto &r9x = _LOAD_UNSAFE_ (ARGV<HEADER>::null ,r8x) ;
-		r9x.mFrom = DEPTR[mThis->mPool[ix].self] ;
+		r9x.mFrom = DEPTR[mThis.self->mPool[ix].self] ;
 		r9x.mCurr = r6x ;
 		auto &r10x = _LOAD_UNSAFE_ (ARGV<ARR<_ARG1>>::null ,r7x) ;
 		return DEPTR[r10x] ;
@@ -1937,17 +1953,14 @@ public:
 		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		auto &r2x = _LOAD_UNSAFE_ (ARGV<HEADER>::null ,r1x) ;
-		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,r2x.mFrom) ;
-		mThis->mPool[ix]->free (r2x.mCurr) ;
+		INDEX ix = BasicProc::mem_chr (mThis.self->mPool.self ,mThis.self->mPool.size () ,r2x.mFrom) ;
+		mThis.self->mPool[ix]->free (r2x.mCurr) ;
 	}
 
 	void clean () {
-		for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ()))
-			mThis->mPool[i]->clean () ;
+		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
+			mThis.self->mPool[i]->clean () ;
 	}
-
-private:
-	void initialize () ;
 } ;
 
 template <class SIZE ,class RESE>
@@ -1957,21 +1970,21 @@ class MemoryPool::Private::ImplHolder
 	_STATIC_ASSERT_ (RESE::value > 0) ;
 
 private:
-	struct BLOCK {
-		PTR<struct BLOCK> mNext ;
+	struct BLOCK_NODE {
+		PTR<struct BLOCK_NODE> mNext ;
 		HEADER mFlexData ;
 	} ;
 
-	struct CHUNK {
+	struct CHUNK_NODE {
 		PTR<ARR<BYTE>> mOrigin ;
-		PTR<struct CHUNK> mPrev ;
-		PTR<struct CHUNK> mNext ;
+		PTR<struct CHUNK_NODE> mPrev ;
+		PTR<struct CHUNK_NODE> mNext ;
 		LENGTH mCount ;
 	} ;
 
 private:
-	PTR<CHUNK> mRoot ;
-	PTR<BLOCK> mFree ;
+	PTR<CHUNK_NODE> mRoot ;
+	PTR<BLOCK_NODE> mFree ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 
@@ -2009,12 +2022,12 @@ public:
 	void reserve () {
 		if (mFree != NULL)
 			return ;
-		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
-		const auto r2x = _ALIGNOF_ (CHUNK) - 1 + _SIZEOF_ (CHUNK) + _ALIGNOF_ (BLOCK) - 1 + RESE::value * r1x ;
+		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK_NODE) + SIZE::value ,_ALIGNOF_ (BLOCK_NODE)) ;
+		const auto r2x = _ALIGNOF_ (CHUNK_NODE) - 1 + _SIZEOF_ (CHUNK_NODE) + _ALIGNOF_ (BLOCK_NODE) - 1 + RESE::value * r1x ;
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null ,r2x) ;
-		const auto r3x = _ADDRESS_ (_XVALUE_ (ARGV<PTR<ARR<BYTE>>>::null ,rax)) ;
-		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK)) ;
-		auto &r5x = _LOAD_UNSAFE_ (ARGV<CHUNK>::null ,r4x) ;
+		const auto r3x = _ADDRESS_ (rax.self) ;
+		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK_NODE)) ;
+		auto &r5x = _LOAD_UNSAFE_ (ARGV<CHUNK_NODE>::null ,r4x) ;
 		r5x.mOrigin = rax ;
 		r5x.mPrev = NULL ;
 		r5x.mNext = mRoot ;
@@ -2023,10 +2036,10 @@ public:
 			mRoot->mPrev = DEPTR[r5x] ;
 		mRoot = DEPTR[r5x] ;
 		mSize += RESE::value * SIZE::value ;
-		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
+		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
 			const auto r7x = r6x + i * r1x ;
-			auto &r8x = _LOAD_UNSAFE_ (ARGV<BLOCK>::null ,r7x) ;
+			auto &r8x = _LOAD_UNSAFE_ (ARGV<BLOCK_NODE>::null ,r7x) ;
 			r8x.mNext = mFree ;
 			mFree = DEPTR[r8x] ;
 		}
@@ -2040,13 +2053,13 @@ public:
 		mFree = r1x->mNext ;
 		mLength += SIZE::value ;
 		const auto r2x = VAR_USED ;
-		r1x->mNext = _BITWISE_CAST_ (ARGV<PTR<BLOCK>>::null ,r2x) ;
+		r1x->mNext = _BITWISE_CAST_ (ARGV<PTR<BLOCK_NODE>>::null ,r2x) ;
 		return DEPTR[r1x->mFlexData] ;
 	}
 
 	void free (const PTR<HEADER> &address) noexcept override {
 		_DEBUG_ASSERT_ (address != NULL) ;
-		auto &r1x = _OFFSET_ (&BLOCK::mFlexData ,DEREF[address]) ;
+		auto &r1x = _OFFSET_ (&BLOCK_NODE::mFlexData ,DEREF[address]) ;
 		_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
 		r1x.mNext = mFree ;
 		mFree = DEPTR[r1x] ;
@@ -2078,12 +2091,12 @@ public:
 	}
 
 private:
-	BOOL empty_node (const PTR<const CHUNK> &node) const {
-		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK) + SIZE::value ,_ALIGNOF_ (BLOCK)) ;
-		const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK) ,_ALIGNOF_ (BLOCK)) ;
+	BOOL empty_node (const PTR<const CHUNK_NODE> &node) const {
+		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK_NODE) + SIZE::value ,_ALIGNOF_ (BLOCK_NODE)) ;
+		const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,node->mCount)) {
 			const auto r3x = r2x + i * r1x ;
-			auto &r4x = _LOAD_UNSAFE_ (ARGV<BLOCK>::null ,r3x) ;
+			auto &r4x = _LOAD_UNSAFE_ (ARGV<BLOCK_NODE>::null ,r3x) ;
 			if (_ADDRESS_ (r4x.mNext) == VAR_USED)
 				return FALSE ;
 		}
@@ -2094,16 +2107,16 @@ private:
 class MemoryPool::Private::HugeHolder
 	:public Holder {
 private:
-	struct FBLOCK {
+	struct FBLOCK_NODE {
 		PTR<ARR<BYTE>> mOrigin ;
-		PTR<struct FBLOCK> mPrev ;
-		PTR<struct FBLOCK> mNext ;
+		PTR<struct FBLOCK_NODE> mPrev ;
+		PTR<struct FBLOCK_NODE> mNext ;
 		LENGTH mCount ;
 		HEADER mFlexData ;
 	} ;
 
 private:
-	PTR<FBLOCK> mRoot ;
+	PTR<FBLOCK_NODE> mRoot ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 
@@ -2137,12 +2150,12 @@ public:
 	}
 
 	PTR<HEADER> alloc (const LENGTH &len) side_effects override {
-		const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK)) ;
-		const auto r2x = _ALIGNOF_ (FBLOCK) - 1 + _SIZEOF_ (FBLOCK) + r1x ;
+		const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK_NODE)) ;
+		const auto r2x = _ALIGNOF_ (FBLOCK_NODE) - 1 + _SIZEOF_ (FBLOCK_NODE) + r1x ;
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null ,r2x) ;
-		const auto r3x = _ADDRESS_ (_XVALUE_ (ARGV<PTR<ARR<BYTE>>>::null ,rax)) ;
-		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK)) ;
-		auto &r5x = _LOAD_UNSAFE_ (ARGV<FBLOCK>::null ,r4x) ;
+		const auto r3x = _ADDRESS_ (rax.self) ;
+		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK_NODE)) ;
+		auto &r5x = _LOAD_UNSAFE_ (ARGV<FBLOCK_NODE>::null ,r4x) ;
 		r5x.mOrigin = rax ;
 		r5x.mPrev = NULL ;
 		r5x.mNext = mRoot ;
@@ -2158,7 +2171,7 @@ public:
 
 	void free (const PTR<HEADER> &address) noexcept override {
 		_DEBUG_ASSERT_ (address != NULL) ;
-		auto &r1x = _OFFSET_ (&FBLOCK::mFlexData ,DEREF[address]) ;
+		auto &r1x = _OFFSET_ (&FBLOCK_NODE::mFlexData ,DEREF[address]) ;
 		auto &r2x = _SWITCH_ (
 			(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
 			mRoot) ;
@@ -2175,7 +2188,7 @@ public:
 	}
 } ;
 
-inline exports void MemoryPool::initialize () {
+inline exports MemoryPool::MemoryPool () {
 	struct Dependent ;
 	using ImplHolderX8 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
 	using ImplHolderX16 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
@@ -2194,29 +2207,31 @@ inline exports void MemoryPool::initialize () {
 	using ImplHolderX120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
 	using ImplHolderX128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
 	using HugeHolder = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
-	mThis = UniqueRef<SELF_PACK> ([&] (SELF_PACK &me) {
-		me.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
-		me.mPool[0] = StrongRef<ImplHolderX8>::make () ;
-		me.mPool[1] = StrongRef<ImplHolderX16>::make () ;
-		me.mPool[2] = StrongRef<ImplHolderX24>::make () ;
-		me.mPool[3] = StrongRef<ImplHolderX32>::make () ;
-		me.mPool[4] = StrongRef<ImplHolderX40>::make () ;
-		me.mPool[5] = StrongRef<ImplHolderX48>::make () ;
-		me.mPool[6] = StrongRef<ImplHolderX56>::make () ;
-		me.mPool[7] = StrongRef<ImplHolderX64>::make () ;
-		me.mPool[8] = StrongRef<ImplHolderX72>::make () ;
-		me.mPool[9] = StrongRef<ImplHolderX80>::make () ;
-		me.mPool[10] = StrongRef<ImplHolderX88>::make () ;
-		me.mPool[11] = StrongRef<ImplHolderX96>::make () ;
-		me.mPool[12] = StrongRef<ImplHolderX104>::make () ;
-		me.mPool[13] = StrongRef<ImplHolderX112>::make () ;
-		me.mPool[14] = StrongRef<ImplHolderX120>::make () ;
-		me.mPool[15] = StrongRef<ImplHolderX128>::make () ;
-		me.mPool[16] = StrongRef<HugeHolder>::make () ;
-	} ,[] (SELF_PACK &me) {
-		for (auto &&i : _RANGE_ (0 ,me.mPool.size ()))
-			me.mPool[i]->clear () ;
+	mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+		me = SharedRef<SELF_PACK>::make () ;
+	} ,[] (SharedRef<SELF_PACK> &me) {
+		for (auto &&i : _RANGE_ (0 ,me->mPool.size ()))
+			me->mPool[i]->clear () ;
+		me->mPool = AutoBuffer<StrongRef<Holder>> () ;
 	}) ;
+	mThis.self->mPool = AutoBuffer<StrongRef<Holder>> (17) ;
+	mThis.self->mPool[0] = StrongRef<ImplHolderX8>::make () ;
+	mThis.self->mPool[1] = StrongRef<ImplHolderX16>::make () ;
+	mThis.self->mPool[2] = StrongRef<ImplHolderX24>::make () ;
+	mThis.self->mPool[3] = StrongRef<ImplHolderX32>::make () ;
+	mThis.self->mPool[4] = StrongRef<ImplHolderX40>::make () ;
+	mThis.self->mPool[5] = StrongRef<ImplHolderX48>::make () ;
+	mThis.self->mPool[6] = StrongRef<ImplHolderX56>::make () ;
+	mThis.self->mPool[7] = StrongRef<ImplHolderX64>::make () ;
+	mThis.self->mPool[8] = StrongRef<ImplHolderX72>::make () ;
+	mThis.self->mPool[9] = StrongRef<ImplHolderX80>::make () ;
+	mThis.self->mPool[10] = StrongRef<ImplHolderX88>::make () ;
+	mThis.self->mPool[11] = StrongRef<ImplHolderX96>::make () ;
+	mThis.self->mPool[12] = StrongRef<ImplHolderX104>::make () ;
+	mThis.self->mPool[13] = StrongRef<ImplHolderX112>::make () ;
+	mThis.self->mPool[14] = StrongRef<ImplHolderX120>::make () ;
+	mThis.self->mPool[15] = StrongRef<ImplHolderX128>::make () ;
+	mThis.self->mPool[16] = StrongRef<HugeHolder>::make () ;
 }
 
 class Object ;
@@ -2266,7 +2281,7 @@ private:
 	Function<void (PTR<NONE>)> mConstrutor ;
 	Function<void (PTR<NONE>)> mDestructor ;
 
-private:
+public:
 	implicit Metadata () = delete ;
 
 	template <class _ARG1>

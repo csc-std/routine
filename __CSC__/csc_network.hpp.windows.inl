@@ -167,7 +167,8 @@ inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const
 #pragma warning (pop)
 }
 
-class TCPSocket::Private::Implement {
+class TCPSocket::Private::Implement
+	:public Abstract {
 private:
 	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -177,13 +178,13 @@ private:
 
 private:
 	friend TCPListener ;
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		mThis = SharedRef<SELF_PACK>::make () ;
+		mThis = StrongRef<SELF_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -196,7 +197,7 @@ public:
 		mThis->mTimeout = 30000 ;
 	}
 
-	String<STRU8> sock_name () const {
+	String<STRU8> sock_name () const override {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.mP1) ;
 		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
@@ -206,11 +207,11 @@ public:
 		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
 	}
 
-	String<STRU8> peer_sock_name () const {
+	String<STRU8> peer_sock_name () const override {
 		return SocketStaticProc::static_make_ipv4s (mThis->mPeer) ;
 	}
 
-	void link (const String<STRU8> &ip_addr) {
+	void link (const String<STRU8> &ip_addr) override {
 		mThis->mPeer = SocketStaticProc::static_make_socket_addr (ip_addr) ;
 		auto rax = ULONG () ;
 		rax = ULONG (1) ;
@@ -232,7 +233,7 @@ public:
 		link_confirm () ;
 	}
 
-	void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) {
+	void modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) override {
 		_DEBUG_ASSERT_ (rcv_len >= 0 && rcv_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (snd_len >= 0 && snd_len < VAR32_MAX) ;
 		const auto r1x = VAR32 (rcv_len) ;
@@ -241,11 +242,11 @@ public:
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDBUF ,_CAST_ (ARGV<STRA[_SIZEOF_ (VAR32)]>::null ,r2x) ,VAR32 (_SIZEOF_ (VAR32))) ;
 	}
 
-	void modify_timeout (const LENGTH &timeout) {
+	void modify_timeout (const LENGTH &timeout) override {
 		mThis->mTimeout = timeout ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) {
+	void read (const PhanBuffer<BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::null ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
@@ -264,8 +265,8 @@ public:
 		_DYNAMIC_ASSERT_ (r2x == data.size ()) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
-		out_i = VAR_NONE ;
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) override {
+		out_iw = VAR_NONE ;
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (timeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::null ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
@@ -281,10 +282,10 @@ public:
 				discard ;
 			_DYNAMIC_ASSERT_ (r4x == EINPROGRESS || r4x == EWOULDBLOCK) ;
 		}
-		out_i = r2x ;
+		out_iw = r2x ;
 	}
 
-	void write (const PhanBuffer<const BYTE> &data) {
+	void write (const PhanBuffer<const BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
 		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::null ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
@@ -320,39 +321,7 @@ private:
 } ;
 
 inline exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
-	mThis = StrongRef<Implement>::make (ip_addr) ;
-}
-
-inline exports String<STRU8> TCPSocket::sock_name () const {
-	return mThis->sock_name () ;
-}
-
-inline exports String<STRU8> TCPSocket::peer_sock_name () const {
-	return mThis->peer_sock_name () ;
-}
-
-inline exports void TCPSocket::link (const String<STRU8> &ip_addr) {
-	mThis->link (ip_addr) ;
-}
-
-inline exports void TCPSocket::modify_buffer (const LENGTH &rcv_len ,const LENGTH &snd_len) {
-	mThis->modify_buffer (rcv_len ,snd_len) ;
-}
-
-inline exports void TCPSocket::modify_timeout (const LENGTH &timeout) {
-	mThis->modify_timeout (timeout) ;
-}
-
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data) {
-	mThis->read (data) ;
-}
-
-inline exports void TCPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
-	mThis->read (data ,out_i ,timeout) ;
-}
-
-inline exports void TCPSocket::write (const PhanBuffer<const BYTE> &data) {
-	mThis->write (data) ;
+	mThis = StrongRef<Private::Implement>::make (ip_addr) ;
 }
 
 inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) side_effects {
@@ -385,26 +354,27 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 	return _MOVE_ (ret) ;
 }
 
-class TCPListener::Private::Implement {
+class TCPListener::Private::Implement
+	:public Abstract {
 private:
-	using SELF_PACK = TCPSocket::Implement::SELF_PACK ;
+	using SELF_PACK = TCPSocket::Private::Implement::SELF_PACK ;
 
 private:
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 
 public:
 	implicit Implement () = delete ;
 
-	explicit Implement (const StrongRef<TCPSocket::Implement> &socket_) {
+	explicit Implement (const StrongRef<TCPSocket::Private::Implement> &socket_) {
 		mThis = socket_->mThis ;
 		mListener = _MOVE_ (mThis->mSocket) ;
 		const auto r1x = api::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;
 	}
 
-	void wait_linker () {
+	void wait_linker () override {
 		const auto r1x = SocketStaticProc::static_socket_select (mListener ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mListener ,DEPTR[r1x[0]]) ;
@@ -417,7 +387,7 @@ public:
 		}) ;
 	}
 
-	void accept () {
+	void accept () override {
 		mThis->mSocket = _MOVE_ (mLinker) ;
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.mP1) ;
@@ -428,19 +398,12 @@ public:
 	}
 } ;
 
-inline exports void TCPListener::wait_linker () {
-	mThis->wait_linker () ;
+inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) {
+	mThis = StrongRef<Private::Implement>::make (socket_) ;
 }
 
-inline exports void TCPListener::accept () {
-	mThis->accept () ;
-}
-
-inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Implement> &socket_) {
-	mThis = StrongRef<Implement>::make (socket_) ;
-}
-
-class UDPSocket::Private::Implement {
+class UDPSocket::Private::Implement
+	:public Abstract {
 private:
 	struct SELF_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -449,12 +412,13 @@ private:
 	} ;
 
 private:
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
+		mThis = StrongRef<SELF_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_DGRAM ,IPPROTO_UDP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -470,7 +434,7 @@ public:
 		mThis->mTimeout = 30000 ;
 	}
 
-	String<STRU8> sock_name () const {
+	String<STRU8> sock_name () const override {
 		auto rax = PACK<SOCKADDR ,VAR32> () ;
 		_ZERO_ (rax.mP1) ;
 		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
@@ -480,19 +444,19 @@ public:
 		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
 	}
 
-	String<STRU8> peer_sock_name () const {
+	String<STRU8> peer_sock_name () const override {
 		return SocketStaticProc::static_make_ipv4s (mThis->mPeer) ;
 	}
 
-	void link (const String<STRU8> &ip_addr) {
+	void link (const String<STRU8> &ip_addr) override {
 		mThis->mPeer = SocketStaticProc::static_make_socket_addr (ip_addr) ;
 	}
 
-	void modify_timeout (const LENGTH &timeout) {
+	void modify_timeout (const LENGTH &timeout) override {
 		mThis->mTimeout = timeout ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) {
+	void read (const PhanBuffer<BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
@@ -508,9 +472,9 @@ public:
 		mThis->mPeer = rax.mP1 ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
+	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
-		out_i = VAR_NONE ;
+		out_iw = VAR_NONE ;
 		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,timeout) ;
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
@@ -522,10 +486,10 @@ public:
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
 		mThis->mPeer = rax.mP1 ;
-		out_i = r3x ;
+		out_iw = r3x ;
 	}
 
-	void write (const PhanBuffer<const BYTE> &data) {
+	void write (const PhanBuffer<const BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_socket_select (mThis->mSocket ,mThis->mTimeout) ;
 		//@info: state of 'this' has been changed
@@ -538,35 +502,7 @@ public:
 } ;
 
 inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
-	mThis = StrongRef<Implement>::make (ip_addr) ;
-}
-
-inline exports String<STRU8> UDPSocket::sock_name () const {
-	return mThis->sock_name () ;
-}
-
-inline exports String<STRU8> UDPSocket::peer_sock_name () const {
-	return mThis->peer_sock_name () ;
-}
-
-inline exports void UDPSocket::link (const String<STRU8> &ip_addr) {
-	mThis->link (ip_addr) ;
-}
-
-inline exports void UDPSocket::modify_timeout (const LENGTH &timeout) {
-	mThis->modify_timeout (timeout) ;
-}
-
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data) {
-	mThis->read (data) ;
-}
-
-inline exports void UDPSocket::read (const PhanBuffer<BYTE> &data ,INDEX &out_i ,const LENGTH &timeout) {
-	mThis->read (data ,out_i ,timeout) ;
-}
-
-inline exports void UDPSocket::write (const PhanBuffer<const BYTE> &data) {
-	mThis->write (data) ;
+	mThis = StrongRef<Private::Implement>::make (ip_addr) ;
 }
 
 class NetworkService::Private::Implement
@@ -613,6 +549,6 @@ public:
 } ;
 
 inline exports NetworkService::NetworkService () {
-	mThis = StrongRef<Implement>::make () ;
+	mThis = StrongRef<Private::Implement>::make () ;
 }
 } ;

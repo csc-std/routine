@@ -554,7 +554,8 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	}
 }
 
-class StreamLoader::Private::Implement {
+class StreamLoader::Private::Implement
+	:public Abstract {
 private:
 	UniqueRef<VAR32> mReadFile ;
 	UniqueRef<VAR32> mWriteFile ;
@@ -580,7 +581,7 @@ public:
 		}) ;
 	}
 
-	void read (const PhanBuffer<BYTE> &data) {
+	void read (const PhanBuffer<BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = LENGTH (api::read (mReadFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed
@@ -588,35 +589,24 @@ public:
 		BasicProc::mem_fill (PTRTOARR[DEPTR[data.self[r1x]]] ,(data.size () - r1x) ,BYTE (0X00)) ;
 	}
 
-	void write (const PhanBuffer<const BYTE> &data) {
+	void write (const PhanBuffer<const BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = LENGTH (api::write (mWriteFile ,data.self ,VAR32 (data.size ()))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r1x == data.size ()) ;
 	}
 
-	void flush () {
+	void flush () override {
 		_STATIC_WARNING_ ("noop") ;
 	}
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	mThis = StrongRef<Implement>::make (file) ;
+	mThis = StrongRef<Private::Implement>::make (file) ;
 }
 
-inline exports void StreamLoader::read (const PhanBuffer<BYTE> &data) {
-	mThis->read (data) ;
-}
-
-inline exports void StreamLoader::write (const PhanBuffer<const BYTE> &data) {
-	mThis->write (data) ;
-}
-
-inline exports void StreamLoader::flush () {
-	mThis->flush () ;
-}
-
-class BufferLoader::Private::Implement {
+class BufferLoader::Private::Implement
+	:public Abstract {
 public:
 	implicit Implement () = delete ;
 
@@ -644,50 +634,38 @@ public:
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
-	PhanBuffer<BYTE> watch () leftvalue {
+	PhanBuffer<BYTE> watch () leftvalue override {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<BYTE> () ;
 	}
 
-	PhanBuffer<const BYTE> watch () const leftvalue {
+	PhanBuffer<const BYTE> watch () const leftvalue override {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return PhanBuffer<const BYTE> () ;
 	}
 
-	void flush () {
+	void flush () override {
 		_STATIC_WARNING_ ("unimplemented") ;
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	mThis = StrongRef<Implement>::make (file) ;
+	mThis = StrongRef<Private::Implement>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	mThis = StrongRef<Implement>::make (file ,file_len) ;
+	mThis = StrongRef<Private::Implement>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	mThis = StrongRef<Implement>::make (file ,cache) ;
+	mThis = StrongRef<Private::Implement>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
-}
-
-inline exports PhanBuffer<BYTE> BufferLoader::watch () leftvalue {
-	return _XVALUE_ (ARGV<Implement>::null ,mThis).watch () ;
-}
-
-inline exports PhanBuffer<const BYTE> BufferLoader::watch () const leftvalue {
-	return _XVALUE_ (ARGV<const Implement>::null ,mThis).watch () ;
-}
-
-inline exports void BufferLoader::flush () {
-	mThis->flush () ;
+	mThis = StrongRef<Private::Implement>::make (file ,file_len ,cache) ;
 }
 
 class FileSystemService::Private::Implement
@@ -703,6 +681,6 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService () {
-	mThis = StrongRef<Implement>::make () ;
+	mThis = StrongRef<Private::Implement>::make () ;
 }
 } ;

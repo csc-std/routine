@@ -1493,7 +1493,7 @@ inline constexpr const _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_T
 #ifndef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
 template <class _ARG1>
-inline constexpr _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&) = delete ;
+inline constexpr _ARG1 &&_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&) = delete ;
 #endif
 
 template <class _ARG1>

@@ -395,9 +395,13 @@ public:
 	implicit ScopedPtr (ScopedPtr &&) = default ;
 	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
 
-	inline implicit operator const PTR<UNIT> & () const leftvalue {
+	const PTR<UNIT> &to () const leftvalue {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
 		return mPointer ;
+	}
+
+	inline implicit operator const PTR<UNIT> & () const leftvalue {
+		return to () ;
 	}
 
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
@@ -699,9 +703,10 @@ public:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_XVALUE_ (ARGV<const UNIT>::null ,that.mPointer->mValue)) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
-		mPointer = DEPTR[r1x] ;
+		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,that.mPointer->mValue) ;
+		ScopedBuild<Holder> ANONYMOUS (rax ,r1x) ;
+		auto &r2x = _LOAD_ (ARGV<Holder>::null ,rax.self) ;
+		mPointer = DEPTR[r2x] ;
 		rax = NULL ;
 	}
 
@@ -786,14 +791,14 @@ public:
 	imports AutoRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
-		AutoRef ret = AutoRef (DEPTR[r1x]) ;
+		auto &r1x = _LOAD_ (ARGV<Holder>::null ,rax.self) ;
+		AutoRef ret = AutoRef (ARGVP0 ,DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
-	explicit AutoRef (const PTR<Holder> &pointer)
+	explicit AutoRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
 		:SPECIALIZATION_BASE (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -839,7 +844,7 @@ public:
 	}
 
 	implicit SharedRef (const SharedRef &that)
-		:SharedRef (that.mPointer) {
+		:SharedRef (ARGVP0 ,that.mPointer) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -893,8 +898,8 @@ public:
 	imports SharedRef make (_ARGS &&...initval) {
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
 		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<Holder>::null ,_XVALUE_ (ARGV<PTR<TEMP<Holder>>>::null ,rax)) ;
-		SharedRef ret = SharedRef (DEPTR[r1x]) ;
+		auto &r1x = _LOAD_ (ARGV<Holder>::null ,rax.self) ;
+		SharedRef ret = SharedRef (ARGVP0 ,DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -903,7 +908,7 @@ private:
 	explicit SharedRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	explicit SharedRef (const PTR<Holder> &pointer) noexcept
+	explicit SharedRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer) noexcept
 		:SharedRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
@@ -1108,8 +1113,8 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
-		AnyRef ret = AnyRef (DEPTR[r1x]) ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
+		AnyRef ret = AnyRef (ARGVP0 ,DEPTR[r1x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1118,7 +1123,7 @@ private:
 	explicit AnyRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	explicit AnyRef (const PTR<Holder> &pointer)
+	explicit AnyRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
 		:AnyRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1186,7 +1191,7 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor () ;
 		mPointer = DEPTR[r2x] ;
 		rax = NULL ;
@@ -1289,7 +1294,7 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor (r2x.mValue) ;
 		mPointer = DEPTR[r2x] ;
 		rax = NULL ;
@@ -1356,10 +1361,10 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
-		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		auto &r2x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
 		r2x.mValue = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		const auto r3x = DEPTR[_XVALUE_ (ARGV<Holder>::null ,r2x)] ;
-		UniqueRef ret = UniqueRef (r3x) ;
+		auto &r3x = _XVALUE_ (ARGV<Holder>::null ,r2x) ;
+		UniqueRef ret = UniqueRef (ARGVP0 ,DEPTR[r3x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1368,7 +1373,7 @@ private:
 	explicit UniqueRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	explicit UniqueRef (const PTR<Holder> &pointer)
+	explicit UniqueRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
 		:UniqueRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1458,7 +1463,7 @@ private:
 	explicit PhanRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
 
-	explicit PhanRef (const PTR<UNIT> &pointer)
+	explicit PhanRef (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer)
 		:PhanRef (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1467,14 +1472,15 @@ public:
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
 	imports PhanRef make (_ARG1 &val) side_effects {
-		return PhanRef (DEPTR[val]) ;
+		return PhanRef (ARGVP0 ,DEPTR[val]) ;
 	}
 
 	template <class _ARG1>
 	imports PhanRef make (const PhanRef<_ARG1> &val) {
 		if (!val.exist ())
 			return PhanRef () ;
-		return make (_XVALUE_ (ARGV<UNIT>::null ,val.self)) ;
+		auto &r1x = _XVALUE_ (ARGV<UNIT>::null ,val.self) ;
+		return make (r1x) ;
 	}
 } ;
 
@@ -1537,7 +1543,7 @@ public:
 		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
 		mPointer = DEPTR[r1x] ;
 		mFunctor = U::OPERATOR_FUNCTOR::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x.mFunctor) ;
 		rax = NULL ;
@@ -1610,9 +1616,9 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,functor ,parameter...) ;
-		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,_XVALUE_ (ARGV<PTR<TEMP<ImplHolder>>>::null ,rax)) ;
-		const auto r2x = DEPTR[_XVALUE_ (ARGV<Holder>::null ,r1x)] ;
-		Function ret = Function (r2x) ;
+		auto &r1x = _LOAD_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto &r2x = _XVALUE_ (ARGV<Holder>::null ,r1x) ;
+		Function ret = Function (ARGVP0 ,DEPTR[r2x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1621,7 +1627,7 @@ private:
 	explicit Function (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) ,mFunctor (NULL) {}
 
-	explicit Function (const PTR<Holder> &pointer)
+	explicit Function (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
 		:Function (ARGVP0) {
 		mPointer = pointer ;
 	}
@@ -1760,8 +1766,9 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = _CAST_ (ARGV<FLAG>::null ,_XVALUE_ (ARGV<Interface>::null ,fake)) ;
-		if (r1x == VAR_ZERO)
+		auto &r1x = _XVALUE_ (ARGV<Interface>::null ,fake) ;
+		const auto r2x = _CAST_ (ARGV<FLAG>::null ,r1x) ;
+		if (r2x == VAR_ZERO)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2068,7 +2075,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2239,7 +2246,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2306,7 +2313,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rax = NULL ;
@@ -2330,7 +2337,7 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
-		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,_XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,rax)) ;
+		auto &r1x = _LOAD_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = DEPTR[r1x] ;
 		mSize = that.mSize ;
 		rax = NULL ;
@@ -2642,7 +2649,7 @@ private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		: mBuffer (NULL) ,mSize (0) {}
 
-	explicit Buffer (const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
+	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
 		if (size_ == 0)
 			return ;
@@ -2654,7 +2661,7 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	imports Buffer make (const ARR<UNIT> &src ,const LENGTH &len) side_effects {
-		return Buffer (DEPTR[src] ,len) ;
+		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
@@ -2821,7 +2828,7 @@ private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		: mBuffer (NULL) ,mSize (0) {}
 
-	explicit Buffer (const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
+	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
 		if (size_ == 0)
 			return ;
@@ -2833,7 +2840,7 @@ private:
 public:
 	//@warn: phantom means deliver pointer without holder
 	imports Buffer make (ARR<UNIT> &src ,const LENGTH &len) side_effects {
-		return Buffer (DEPTR[src] ,len) ;
+		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>

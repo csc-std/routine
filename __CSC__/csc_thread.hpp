@@ -47,7 +47,7 @@ public:
 
 	LENGTH size () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -56,7 +56,7 @@ public:
 
 	LENGTH length () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -66,7 +66,7 @@ public:
 	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
@@ -78,14 +78,14 @@ public:
 
 	ITEM poll () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			r3x.wait () ;
+			rax.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -95,16 +95,16 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->empty ())
 				break ;
-			const auto r4x = predicate () ;
-			_DYNAMIC_ASSERT_ (r4x) ;
-			r3x.wait (interval) ;
+			const auto r3x = predicate () ;
+			_DYNAMIC_ASSERT_ (r3x) ;
+			rax.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		ITEM ret = _MOVE_ (r2x.mItemQueue.self[r2x.mItemQueue->head ()]) ;
@@ -117,7 +117,7 @@ public:
 		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -142,8 +142,8 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
@@ -151,15 +151,15 @@ public:
 				break ;
 			if (r2x.mItemQueue->full ())
 				break ;
-			const auto r4x = predicate () ;
-			if (!r4x)
+			const auto r3x = predicate () ;
+			if (!r3x)
 				break ;
-			r3x.wait (interval) ;
+			rax.wait (interval) ;
 		}
-		const auto r5x = _MOVE_ (r2x.mException) ;
-		if (!r5x.exist ())
+		const auto r4x = _MOVE_ (r2x.mException) ;
+		if (!r4x.exist ())
 			return ;
-		r5x->raise () ;
+		r4x->raise () ;
 	}
 
 	void stop () {
@@ -190,38 +190,38 @@ private:
 		}
 	}
 
-	imports void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+	imports void static_push (SELF_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 		if switch_once (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
-			r1x.yield () ;
+			rax.yield () ;
 			if (!self_.mItemQueue->full ())
 				discard ;
 			self_.mItemQueue->take () ;
 		}
 		self_.mItemQueue->add (_MOVE_ (item)) ;
-		r1x.notify () ;
+		rax.notify () ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+	imports void static_push (SELF_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		_DYNAMIC_ASSERT_ (self_.mItemQueue->size () > 0) ;
 		if switch_once (TRUE) {
 			if (!self_.mItemQueue->full ())
 				discard ;
-			r1x.yield () ;
+			rax.yield () ;
 			if (!self_.mItemQueue->full ())
 				discard ;
 			self_.mItemQueue->take () ;
 		}
 		self_.mItemQueue->add (_MOVE_ (item)) ;
-		r1x.notify () ;
+		rax.notify () ;
 	}
 
 	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
@@ -242,17 +242,17 @@ private:
 	}
 
 	imports void friend_destroy (SELF_PACK &self_) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		r1x.notify () ;
+		rax.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			r1x.yield () ;
+			rax.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -353,7 +353,7 @@ public:
 
 	LENGTH size () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -362,7 +362,7 @@ public:
 
 	LENGTH length () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mItemQueue.exist ())
 			return 0 ;
@@ -372,7 +372,7 @@ public:
 	void reserve (const LENGTH &post_len) {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (r2x.mItemQueue.exist ())
 			if (r2x.mItemQueue->length () + post_len <= r2x.mItemQueue->size ())
@@ -382,76 +382,76 @@ public:
 		r2x.mItemQueue = _MOVE_ (rax) ;
 	}
 
-	void post (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void post (const REMOVE_CONST_TYPE<ITEM> &item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r3x.wait () ;
+			rax.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r3x.notify () ;
+		rax.notify () ;
 	}
 
-	void post (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void post (REMOVE_CONST_TYPE<ITEM> &&item) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			r3x.wait () ;
+			rax.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r3x.notify () ;
+		rax.notify () ;
 	}
 
-	void post (const REMOVE_CVR_TYPE<ITEM> &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
+	void post (const REMOVE_CONST_TYPE<ITEM> &item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			const auto r4x = predicate () ;
-			_DYNAMIC_ASSERT_ (r4x) ;
-			r3x.wait (interval) ;
+			const auto r3x = predicate () ;
+			_DYNAMIC_ASSERT_ (r3x) ;
+			rax.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r3x.notify () ;
+		rax.notify () ;
 	}
 
-	void post (REMOVE_CVR_TYPE<ITEM> &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
+	void post (REMOVE_CONST_TYPE<ITEM> &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r2x.mItemQueue->size () > 0) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mItemQueue->full ())
 				break ;
-			const auto r4x = predicate () ;
-			_DYNAMIC_ASSERT_ (r4x) ;
-			r3x.wait (interval) ;
+			const auto r3x = predicate () ;
+			_DYNAMIC_ASSERT_ (r3x) ;
+			rax.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		r2x.mItemQueue->add (_MOVE_ (item)) ;
-		r3x.notify () ;
+		rax.notify () ;
 	}
 
 	void start (const LENGTH &count ,Function<MEMPTR<void (const ITEM &)>> &&proc) {
@@ -460,7 +460,7 @@ public:
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -482,8 +482,8 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 			if (r2x.mException.exist ())
@@ -491,15 +491,15 @@ public:
 			if (r2x.mThreadWaitCounter >= r2x.mThreadPool.length ())
 				if (r2x.mItemQueue->empty ())
 					break ;
-			const auto r4x = predicate () ;
-			if (!r4x)
+			const auto r3x = predicate () ;
+			if (!r3x)
 				break ;
-			r3x.wait (interval) ;
+			rax.wait (interval) ;
 		}
-		const auto r5x = _MOVE_ (r2x.mException) ;
-		if (!r5x.exist ())
+		const auto r4x = _MOVE_ (r2x.mException) ;
+		if (!r4x.exist ())
 			return ;
-		r5x->raise () ;
+		r4x->raise () ;
 	}
 
 	void stop () {
@@ -532,7 +532,7 @@ private:
 	imports void static_poll (SELF_PACK &self_ ,Optional<ITEM> &item) {
 		struct Dependent ;
 		using Counter = typename DEPENDENT_TYPE<Private ,Dependent>::Counter ;
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		ScopedGuard<Counter> ANONYMOUS (_CAST_ (ARGV<Counter>::null ,self_.mThreadWaitCounter)) ;
 		while (TRUE) {
@@ -540,7 +540,7 @@ private:
 				break ;
 			if (!self_.mItemQueue->empty ())
 				break ;
-			r1x.wait () ;
+			rax.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
 		item = _MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()]) ;
@@ -566,17 +566,17 @@ private:
 	}
 
 	imports void friend_destroy (SELF_PACK &self_) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		r1x.notify () ;
+		rax.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			r1x.yield () ;
+			rax.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		for (auto &&i : self_.mThreadPool) {
@@ -695,12 +695,12 @@ public:
 		return Future (mThis.share ()) ;
 	}
 
-	void push (const REMOVE_CVR_TYPE<ITEM> &item) {
+	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
 		const auto r1x = mThis.watch () ;
 		static_push (r1x) ;
 	}
 
-	void push (REMOVE_CVR_TYPE<ITEM> &&item) {
+	void push (REMOVE_CONST_TYPE<ITEM> &&item) {
 		const auto r1x = mThis.watch () ;
 		static_push (r1x) ;
 	}
@@ -712,7 +712,7 @@ public:
 
 	void start () {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -730,7 +730,7 @@ public:
 		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r2x.mThreadCounter == 0) ;
@@ -784,7 +784,7 @@ private:
 		static_signal (self_) ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,const REMOVE_CVR_TYPE<ITEM> &item) {
+	imports void static_push (SELF_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -792,7 +792,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,REMOVE_CVR_TYPE<ITEM> &&item) {
+	imports void static_push (SELF_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -809,10 +809,10 @@ private:
 	}
 
 	imports void static_signal (SELF_PACK &self_) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
-		r1x.notify () ;
+		rax.notify () ;
 		if switch_once (TRUE) {
 			if (!self_.mItem.exist ())
 				discard ;
@@ -834,17 +834,17 @@ private:
 	}
 
 	imports void friend_destroy (SELF_PACK &self_) {
-		const auto r1x = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
+		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
 		self_.mThreadFlag.self = FALSE ;
-		r1x.notify () ;
+		rax.notify () ;
 		while (TRUE) {
 			if (!self_.mThreadFlag.exist ())
 				break ;
 			if (self_.mThreadCounter == 0)
 				break ;
-			r1x.yield () ;
+			rax.yield () ;
 		}
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mThreadPool.exist ())
@@ -922,7 +922,7 @@ public:
 
 	BOOL ready () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return TRUE ;
@@ -933,14 +933,14 @@ public:
 
 	ITEM poll () side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			r3x.wait () ;
+			rax.wait () ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -952,16 +952,16 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
-		const auto r3x = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
+		auto &r2x = r1x.self ;
+		auto rax = r2x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r2x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r2x.mThreadFlag.exist ())
 				break ;
 			if (!r2x.mThreadFlag.self)
 				break ;
-			const auto r4x = predicate () ;
-			_DYNAMIC_ASSERT_ (r4x) ;
-			r3x.wait (interval) ;
+			const auto r3x = predicate () ;
+			_DYNAMIC_ASSERT_ (r3x) ;
+			rax.wait (interval) ;
 		}
 		if (r2x.mException.exist ())
 			r2x.mException->raise () ;
@@ -973,7 +973,7 @@ public:
 
 	ITEM value (const ITEM &def) side_effects {
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		if (!r2x.mThreadFlag.exist ())
 			return def ;
@@ -987,7 +987,7 @@ public:
 	void then (Function<MEMPTR<void (ITEM &)>> &&proc) {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		const auto r1x = mThis.watch () ;
-		auto &r2x = _XVALUE_ (ARGV<SELF_PACK>::null ,r1x) ;
+		auto &r2x = r1x.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r2x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r2x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r2x.mCallbackProc.exist ()) ;

@@ -21,35 +21,28 @@ public:
 	implicit PrimeSieveAlgorithm () = delete ;
 
 	explicit PrimeSieveAlgorithm (const LENGTH &len) {
-		initialize (len) ;
+		mPrimeSet = BitSet<> (len) ;
+		mPrimeSet.fill (BYTE (0XAA)) ;
+		mPrimeSet[1] = FALSE ;
+		mPrimeSet[2] = TRUE ;
+		const auto r1x = (MathProc::sqrt (mPrimeSet.size ()) - 2) / 2 + 1 ;
+		for (auto &&i : _RANGE_ (0 ,r1x)) {
+			INDEX ix = i * 2 + 3 ;
+			const auto r2x = ix * 2 ;
+			_DEBUG_ASSERT_ (r2x > 0) ;
+			const auto r3x = MathProc::square (ix) ;
+			const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
+			for (auto &&j : _RANGE_ (0 ,r4x)) {
+				INDEX jx = j * r2x + r3x ;
+				mPrimeSet[jx] = FALSE ;
+			}
+		}
 	}
 
 	const BitSet<> &query () const leftvalue {
 		return mPrimeSet ;
 	}
-
-private:
-	void initialize (const LENGTH &len) ;
 } ;
-
-inline exports void PrimeSieveAlgorithm::initialize (const LENGTH &len) {
-	mPrimeSet = BitSet<> (len) ;
-	mPrimeSet.fill (BYTE (0XAA)) ;
-	mPrimeSet[1] = FALSE ;
-	mPrimeSet[2] = TRUE ;
-	const auto r1x = (MathProc::sqrt (mPrimeSet.size ()) - 2) / 2 + 1 ;
-	for (auto &&i : _RANGE_ (0 ,r1x)) {
-		INDEX ix = i * 2 + 3 ;
-		const auto r2x = ix * 2 ;
-		_DEBUG_ASSERT_ (r2x > 0) ;
-		const auto r3x = MathProc::square (ix) ;
-		const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
-		for (auto &&j : _RANGE_ (0 ,r4x)) {
-			INDEX jx = j * r2x + r3x ;
-			mPrimeSet[jx] = FALSE ;
-		}
-	}
-}
 
 class DisjointTable {
 private:
@@ -153,7 +146,27 @@ public:
 	implicit KMPAlgorithm () = delete ;
 
 	explicit KMPAlgorithm (const PhanBuffer<const REAL> &pattern) {
-		initialize (pattern) ;
+		mNext = Array<INDEX> (pattern.size ()) ;
+		mPattern = Array<REAL> (pattern.size ()) ;
+		INDEX ix = 0 ;
+		INDEX iy = VAR_NONE ;
+		mNext[ix] = VAR_NONE ;
+		mPattern[ix] = pattern[ix] ;
+		while (TRUE) {
+			if (ix >= pattern.size () - 1)
+				break ;
+			while (TRUE) {
+				if (iy == VAR_NONE)
+					break ;
+				if (pattern[ix] == pattern[iy])
+					break ;
+				iy = mNext[iy] ;
+			}
+			ix++ ;
+			iy++ ;
+			mNext[ix] = find_next (ix ,iy) ;
+			mPattern[ix] = pattern[ix] ;
+		}
 	}
 
 	INDEX query (const PhanBuffer<const REAL> &target ,const INDEX &seg) const {
@@ -183,8 +196,6 @@ public:
 	}
 
 private:
-	void initialize (const PhanBuffer<const REAL> &pattern) ;
-
 	INDEX find_next (const INDEX &slow ,const INDEX &fast) const {
 		INDEX ret = fast ;
 		while (TRUE) {
@@ -197,31 +208,6 @@ private:
 		return _MOVE_ (ret) ;
 	}
 } ;
-
-template <class REAL>
-inline exports void KMPAlgorithm<REAL>::initialize (const PhanBuffer<const REAL> &pattern) {
-	mNext = Array<INDEX> (pattern.size ()) ;
-	mPattern = Array<REAL> (pattern.size ()) ;
-	INDEX ix = 0 ;
-	INDEX iy = VAR_NONE ;
-	mNext[ix] = VAR_NONE ;
-	mPattern[ix] = pattern[ix] ;
-	while (TRUE) {
-		if (ix >= pattern.size () - 1)
-			break ;
-		while (TRUE) {
-			if (iy == VAR_NONE)
-				break ;
-			if (pattern[ix] == pattern[iy])
-				break ;
-			iy = mNext[iy] ;
-		}
-		ix++ ;
-		iy++ ;
-		mNext[ix] = find_next (ix ,iy) ;
-		mPattern[ix] = pattern[ix] ;
-	}
-}
 
 template <class REAL>
 class DijstraAlgorithm {

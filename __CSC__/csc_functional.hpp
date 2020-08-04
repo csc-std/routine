@@ -39,14 +39,14 @@ private:
 	} ;
 
 private:
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 
 public:
 	implicit Operand () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value)>>
 	explicit Operand (_ARG1 &&that) {
-		mThis = SharedRef<SELF_PACK>::make () ;
+		mThis = StrongRef<SELF_PACK>::make () ;
 		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 	}
 

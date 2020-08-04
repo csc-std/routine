@@ -683,14 +683,14 @@ private:
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	SharedRef<SELF_PACK> mThis ;
+	StrongRef<SELF_PACK> mThis ;
 
 public:
 	implicit AbstractImage () = default ;
 
 	explicit AbstractImage (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;
-		mThis = SharedRef<SELF_PACK>::make () ;
+		mThis = StrongRef<SELF_PACK>::make () ;
 	}
 
 	BOOL exist () const {
@@ -803,7 +803,7 @@ public:
 		auto tmp = AbstractImage () ;
 		tmp.mAbstract = PhanRef<const Abstract>::make (mAbstract) ;
 		tmp.mThis = _COPY_ (mThis) ;
-		return NativeProxy (_MOVE_ (tmp)) ;
+		return NativeProxy (_MOVE_ (tmp) ,PhanRef<AnyRef<void>>::make (mThis->mHolder)) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
@@ -893,23 +893,27 @@ class AbstractImage<UNIT>::Private::NativeProxy
 	:private Proxy {
 private:
 	UniqueRef<AbstractImage> mBase ;
+	PhanRef<AnyRef<void>> mRef ;
 
 public:
 	implicit NativeProxy () = delete ;
 
-	explicit NativeProxy (AbstractImage &&base) {
+	explicit NativeProxy (AbstractImage &&base ,PhanRef<AnyRef<void>> &&ref_) {
 		mBase = UniqueRef<AbstractImage> ([&] (AbstractImage &me) {
 			me = _MOVE_ (base) ;
 		} ,[] (AbstractImage &me) {
 			me.update_layout () ;
 		}) ;
+		mRef = _MOVE_ (ref_) ;
+	}
+
+	UNIT_ &to () const leftvalue {
+		_DEBUG_ASSERT_ (mBase.exist ()) ;
+		return mRef->rebind (ARGV<UNIT_>::null).self ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {
-		_DEBUG_ASSERT_ (mBase->mAbstract.exist ()) ;
-		_DEBUG_ASSERT_ (mBase->mThis.exist ()) ;
-		_DEBUG_ASSERT_ (mBase->mThis->mHolder.exist ()) ;
-		return mBase->mThis->mHolder.rebind (ARGV<UNIT_>::null).self ;
+		return to () ;
 	}
 } ;
 } ;

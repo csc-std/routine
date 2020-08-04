@@ -1086,21 +1086,33 @@ private:
 		class Implement ;
 	} ;
 
-	using Implement = typename Private::Implement ;
+	class Abstract
+		:public Interface {
+	public:
+		virtual BOOL match (const String<STRU8> &expr) const = 0 ;
+		virtual Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const = 0 ;
+		virtual String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const = 0 ;
+	} ;
 
 private:
-	StrongRef<Implement> mThis ;
+	StrongRef<Abstract> mThis ;
 
 public:
 	implicit RegexMatcher () = delete ;
 
 	explicit RegexMatcher (const String<STRU8> &reg) ;
 
-	BOOL match (const String<STRU8> &expr) const ;
+	BOOL match (const String<STRU8> &expr) const {
+		return mThis->match (expr) ;
+	}
 
-	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const ;
+	Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const {
+		return mThis->search (expr) ;
+	}
 
-	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const ;
+	String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const {
+		return mThis->replace (expr ,rep) ;
+	}
 } ;
 #endif
 
