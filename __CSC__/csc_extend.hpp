@@ -621,7 +621,7 @@ public:
 		mIndex = r1x ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
 		using HINT_T1 = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
@@ -866,7 +866,8 @@ template <class UNIT>
 using Optional = Variant<UNIT> ;
 
 template <class UNIT>
-class Monostate {
+class Monostate
+	:private Proxy {
 private:
 	SharedRef<UNIT> mValue ;
 
@@ -874,14 +875,6 @@ public:
 	implicit Monostate () {
 		mValue = SharedRef<UNIT>::make () ;
 	}
-
-	implicit Monostate (const Monostate &) = delete ;
-
-	inline Monostate &operator= (const Monostate &) = delete ;
-
-	implicit Monostate (Monostate &&) = delete ;
-
-	inline Monostate &operator= (Monostate &&) = delete ;
 
 	UNIT &to () const leftvalue {
 		return mValue.self ;

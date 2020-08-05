@@ -1987,7 +1987,7 @@ inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_LOAD_ (const ARGVF<_ARG1> & ,const PTR<_
 	return DEREF[r3x] ;
 }
 
-template <class _ARG1 ,class = ENABLE_TYPE<std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value>>
+template <class _ARG1 ,class = ENABLE_TYPE<(std::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<>> ,void>::value)>>
 inline void _CALL_ (_ARG1 &&proc) {
 	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 	return proc () ;
