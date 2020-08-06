@@ -20,7 +20,7 @@ using DEFAULT_FILEPATH_SIZE = ARGC<1023> ;
 using DEFAULT_DIRECTORY_SIZE = ARGC<65536> ;
 
 class FileSystemProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports AutoBuffer<BYTE> load_file (const String<STR> &file) side_effects ;
 

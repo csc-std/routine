@@ -14,7 +14,7 @@
 
 namespace CSC {
 class SerializationStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports const String<STRU8> &static_empty_string () ;
 } ;
@@ -993,7 +993,7 @@ private:
 	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (4) ;
 
 	struct NODE {
-		AnyRef<void> mValue ;
+		AnyRef<> mValue ;
 		EFLAG mClazz ;
 		INDEX mParent ;
 		INDEX mBrother ;

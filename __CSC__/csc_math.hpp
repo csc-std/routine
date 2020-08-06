@@ -11,7 +11,7 @@
 
 namespace CSC {
 class MathProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	template <class _ARG1>
 	imports REMOVE_CVR_TYPE<_ARG1> square (const _ARG1 &val) ;
@@ -413,7 +413,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one ,co
 }
 
 class MathStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports ARRAY3<DATA> static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) ;
 

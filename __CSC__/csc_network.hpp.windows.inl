@@ -89,7 +89,7 @@ using ::gethostname ;
 } ;
 
 class SocketStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports TIMEVAL static_make_timeval (const LENGTH &val) ;
 
@@ -511,13 +511,13 @@ inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
 class NetworkService::Private::Implement
 	:public NetworkService::Abstract {
 private:
-	UniqueRef<void> mService ;
+	UniqueRef<> mService ;
 
 public:
 	void startup () override {
 		if (mService.exist ())
 			return ;
-		mService = UniqueRef<void> ([&] () {
+		mService = UniqueRef<> ([&] () {
 			auto rax = WSADATA () ;
 			_ZERO_ (rax) ;
 			const auto r1x = WORD ((WORD (2) << 8) | WORD (2)) ;
@@ -529,7 +529,7 @@ public:
 	}
 
 	void shutdown () override {
-		mService = UniqueRef<void> () ;
+		mService = UniqueRef<> () ;
 	}
 
 	String<STRU8> localhost_name () const override {

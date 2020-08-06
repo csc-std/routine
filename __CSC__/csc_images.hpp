@@ -656,12 +656,12 @@ public:
 	class Abstract
 		:public Interface {
 	public:
-		virtual void compute_layout (AnyRef<void> &holder ,LAYOUT &layout) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
-		virtual void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const = 0 ;
-		virtual void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const = 0 ;
+		virtual void compute_layout (AnyRef<> &holder ,LAYOUT &layout) const = 0 ;
+		virtual void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
+		virtual void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
+		virtual void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
+		virtual void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const = 0 ;
+		virtual void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const = 0 ;
 	} ;
 
 private:
@@ -675,7 +675,7 @@ private:
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	AnyRef<void> mHolder ;
+	AnyRef<> mHolder ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -822,7 +822,7 @@ public:
 		update_layout () ;
 	}
 
-	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<void> &option) {
+	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_load_data (mHolder ,data ,option) ;
 		update_layout () ;
@@ -834,7 +834,7 @@ public:
 		update_layout () ;
 	}
 
-	void save_data_file (const String<STR> &file ,const AnyRef<void> &option) {
+	void save_data_file (const String<STR> &file ,const AnyRef<> &option) {
 		_DEBUG_ASSERT_ (exist ()) ;
 		mAbstract->compute_save_data_file (mHolder ,file ,option) ;
 		update_layout () ;

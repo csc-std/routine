@@ -227,4 +227,148 @@ namespace CSC {
 *	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *	SOFTWARE.
 */
+
+#define M_DATE __DATE__
+#define M_HOUR __TIME__
+#define M_FILE __FILE__
+#define M_LINE _STR_ (__LINE__)
+
+#ifdef __CSC_COMPILER_MSVC__
+#define M_FUNC __FUNCSIG__
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+#define M_FUNC __PRETTY_FUNCTION__
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+#define M_FUNC __PRETTY_FUNCTION__
+#endif
+
+#ifdef __CSC_COMPILER_MSVC__
+#define DLLABI_IMPORT __declspec (dllimport)
+#define DLLABI_EXPORT __declspec (dllexport)
+#define DLLABI_API __stdcall
+#define DLLABI_NATIVE extern "C"
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+#define DLLABI_IMPORT
+#define DLLABI_EXPORT __attribute__ ((visibility ("default")))
+#define DLLABI_API
+#define DLLABI_NATIVE extern "C"
+#endif
+
+#define _UNWIND_IMPL_(...) __VA_ARGS__
+#define _UNW_(...) _UNWIND_IMPL_(__VA_ARGS__)
+#define _STRINGIZE_IMPL_(...) #__VA_ARGS__
+#define _STR_(...) _STRINGIZE_IMPL_(__VA_ARGS__)
+#define _CONCAT_IMPL_(arg ,arg_) arg##arg_
+#define _CAT_(arg ,arg_) _CONCAT_IMPL_(arg ,arg_)
+
+#define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
+
+#define _STATIC_WARNING_(...)
+
+#define _STATIC_UNUSED_(...) (void) _UNW_ (__VA_ARGS__) ;
+
+#ifdef __CSC_COMPILER_MSVC__
+#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_DEBUG__
+#ifdef __CSC_COMPILER_MSVC__
+#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __debugbreak () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_COMPILER_GNUC__
+#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __builtin_trap () ; } while (FALSE)
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) assert (FALSE) ; } while (FALSE)
+#endif
+#endif
+
+#ifndef __CSC_DEBUG__
+#ifdef __CSC_UNITTEST__
+#define _DEBUG_ASSERT_ _DYNAMIC_ASSERT_
+#endif
+#endif
+
+#ifndef _DEBUG_ASSERT_
+#define _DEBUG_ASSERT_(...) do {} while (FALSE)
+#endif
+
+#ifdef __CSC_UNITTEST__
+#ifdef __CSC_COMPILER_MSVC__
+#define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::ARGV<ARGVPL>::null ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
+#endif
+#endif
+
+#ifndef _UNITTEST_WATCH_
+#define _UNITTEST_WATCH_(...) do {} while (FALSE)
+#endif
+
+#define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
+
+#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (arg)) ANONYMOUS:
+
+#ifdef FALSE
+#undef FALSE
+#endif
+#define FALSE false
+
+#ifdef TRUE
+#undef TRUE
+#endif
+#define TRUE true
+
+#define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
+#define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
+#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNT_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
+#define _CAPACITYOF_(...) CSC::LENGTH (CSC::U::CAPACITY_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
+
+#ifdef VOID
+#undef VOID
+#endif
+
+#ifdef NONE
+#undef NONE
+#endif
+
+#ifdef NULL
+#undef NULL
+#endif
+#define NULL nullptr
+
+//@error: fuck std
+#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (ARGV<STRU8[_COUNTOF_ (DEF<decltype (_CAT_ (u8 ,arg))>)]>::null ,_CAT_ (u8 ,arg)))
+#define _PCSTRU16_(arg) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg))
+#define _PCSTRU32_(arg) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg))
+#define _PCSTRA_(arg) CSC::Plain<CSC::STRA> (_UNW_ (arg))
+#define _PCSTRW_(arg) CSC::Plain<CSC::STRW> (_CAT_ (L ,arg))
+
+#ifdef __CSC_CONFIG_STRA__
+#define _PCSTR_ _PCSTRA_
+#endif
+
+#ifdef __CSC_CONFIG_STRW__
+#define _PCSTR_ _PCSTRW_
+#endif
 } ;

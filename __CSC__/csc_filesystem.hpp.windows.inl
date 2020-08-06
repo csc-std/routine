@@ -255,7 +255,7 @@ inline exports String<STR> FileSystemProc::working_path () {
 }
 
 class FileSystemStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) ;
 } ;

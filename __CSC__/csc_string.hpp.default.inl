@@ -73,7 +73,7 @@ using ::_wcstombs_s_l ;
 } ;
 
 class LocaleStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 #ifdef __CSC_COMPILER_MSVC__
 	imports const UniqueRef<_locale_t> &static_locale_page () ;

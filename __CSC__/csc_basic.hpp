@@ -9,7 +9,7 @@
 
 namespace CSC {
 class BasicProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	template <class _ARG1>
 	imports BOOL mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) ;
@@ -185,7 +185,7 @@ inline exports FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &le
 #endif
 
 class CRC32StaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports CHAR static_mem_crc32_table_each (const CHAR &val) ;
 
@@ -574,7 +574,7 @@ private:
 } ;
 
 class GlobalHeap
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	template <class _ARG1>
 	imports ScopedPtr<_ARG1 ,GlobalHeap> alloc (const ARGVF<_ARG1> &) side_effects {
@@ -927,11 +927,11 @@ private:
 	}
 } ;
 
-template <class>
+template <class UNIT = VOID>
 class AnyRef ;
 
 template <>
-class AnyRef<void> final {
+class AnyRef<VOID> final {
 private:
 	class Holder
 		:public Interface {
@@ -952,7 +952,7 @@ public:
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that)
-		: AnyRef (_MOVE_ (that.rebind (ARGV<void>::null))) {
+		: AnyRef (_MOVE_ (that.rebind (ARGV<VOID>::null))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1014,7 +1014,7 @@ class AnyRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using Holder = typename AnyRef<void>::Holder ;
+	using Holder = typename AnyRef<VOID>::Holder ;
 
 	struct Private {
 		template <class>
@@ -1160,11 +1160,11 @@ public:
 template <class>
 class Function ;
 
-template <class>
+template <class UNIT = VOID>
 class UniqueRef ;
 
 template <>
-class UniqueRef<void> final {
+class UniqueRef<VOID> final {
 private:
 	class Holder
 		:public Interface {
@@ -1251,7 +1251,7 @@ private:
 } ;
 
 template <class UNIT_>
-class UniqueRef<void>::Private::ImplHolder
+class UniqueRef<>::Private::ImplHolder
 	:public Holder {
 private:
 	UNIT_ mFunctor ;

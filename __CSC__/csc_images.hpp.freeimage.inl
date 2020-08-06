@@ -103,7 +103,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
 		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r2x)) ;
@@ -114,7 +114,7 @@ public:
 		layout.mCK = 0 ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
+	void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
 		const auto r1x = cx_ * cy_ * 3 ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
@@ -129,7 +129,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
+	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
@@ -150,7 +150,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
@@ -177,7 +177,7 @@ public:
 		BasicProc::mem_move (data.self ,PTRTOARR[rax.mP1] ,data.size ()) ;
 	}
 
-	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
+	void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const override {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
@@ -200,7 +200,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
+	void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
@@ -222,7 +222,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<void> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
 		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r2x)) ;
@@ -233,7 +233,7 @@ public:
 		layout.mCK = 0 ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
+	void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const override {
 		const auto r1x = cx_ * cy_ * 4 ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
@@ -248,7 +248,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,const AutoBuffer<BYTE> &data) const override {
+	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
@@ -269,7 +269,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_save_data (const AnyRef<void> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<void> &option) const override {
+	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
@@ -296,7 +296,7 @@ public:
 		BasicProc::mem_move (data.self ,PTRTOARR[rax.mP1] ,data.size ()) ;
 	}
 
-	void compute_load_data_file (AnyRef<void> &holder ,const String<STR> &file) const override {
+	void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const override {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
 		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
@@ -319,7 +319,7 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_save_data_file (const AnyRef<void> &holder ,const String<STR> &file ,const AnyRef<void> &option) const override {
+	void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const override {
 		_DEBUG_ASSERT_ (!option.exist ()) ;
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::null ,file) ;

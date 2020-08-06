@@ -35,7 +35,7 @@ class LexicalNode ;
 class Operand {
 private:
 	struct SELF_PACK {
-		AnyRef<void> mHolder ;
+		AnyRef<> mHolder ;
 	} ;
 
 private:
@@ -127,6 +127,8 @@ private:
 	} ;
 
 	struct Private {
+		class DefHolder ;
+
 		template <class ,class>
 		class ImplHolder ;
 	} ;
@@ -167,11 +169,10 @@ public:
 	}
 } ;
 
-template <>
-class Operator::Private::ImplHolder<void ,void>
+class Operator::Private::DefHolder
 	:public Holder {
 public:
-	implicit ImplHolder () = default ;
+	implicit DefHolder () = default ;
 
 	LENGTH rank () const override {
 		return VAR_NONE ;
@@ -230,7 +231,7 @@ public:
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
 class Operator::Private::ImplHolder<DEF<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
-	:public ImplHolder<void ,void> {
+	:public DefHolder {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
@@ -267,7 +268,7 @@ private:
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
 class Operator::Private::ImplHolder<DEF<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
-	:public ImplHolder<void ,void> {
+	:public DefHolder {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:

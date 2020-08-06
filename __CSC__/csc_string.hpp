@@ -15,7 +15,7 @@ namespace CSC {
 class TimePoint ;
 
 class StringProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports String<STRU16> cvt_u8s_u16s (const String<STRU8> &val) ;
 
@@ -810,7 +810,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 }
 
 class GBKSStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
 

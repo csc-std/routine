@@ -139,7 +139,7 @@ inline exports BOOL FileSystemProc::find_file (const String<STR> &file) side_eff
 }
 
 class FileSystemStaticProc
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports BOOL static_find_juntion (const String<STRA> &dire) side_effects ;
 

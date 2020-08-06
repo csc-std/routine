@@ -428,7 +428,7 @@ public:
 } ;
 
 class GlobalRuntime
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	imports TimePoint clock_now () ;
 
@@ -766,9 +766,8 @@ struct OPERATOR_TYPENAME {
 template <class>
 class GlobalStatic ;
 
-template <>
-class GlobalStatic<void>
-	:private Wrapped<void> {
+class GlobalStaticEngine
+	:private Wrapped<> {
 public:
 	struct Public {
 		//@warn: this function should be implemented in a 'runtime.dll'
@@ -799,26 +798,26 @@ private:
 private:
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<SELF_PACK ,GlobalStatic> ;
+	friend IntrusiveRef<SELF_PACK ,GlobalStaticEngine> ;
 
 private:
 	imports SELF_PACK &static_unique () side_effects {
 		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
+			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
+				rbx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine>::make () ;
 				const auto r1x = rbx.watch () ;
 				auto &r3x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r1x.self]) ;
 				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			auto &r4x = _LOAD_ (ARGV<SELF_PACK>::null ,rax) ;
-			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r4x]) ;
+			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine> (DEPTR[r4x]) ;
 			return rcx.watch () ;
 		}) ;
 	}
@@ -904,34 +903,34 @@ private:
 
 template <class GUID>
 class GlobalStatic
-	:private Wrapped<void> {
+	:private Wrapped<> {
 	_STATIC_ASSERT_ (GUID::value > 0) ;
 
 public:
 	imports void init (const VAR &data) {
-		auto &r1x = GlobalStatic<void>::static_unique () ;
+		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
+		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		if (r2x != NULL)
 			return ;
-		const auto r3x = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
+		const auto r3x = GlobalStaticEngine::static_new_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
 		r3x->mReadOnly = TRUE ;
 		r3x->mValue = data ;
 	}
 
 	imports VAR fetch () side_effects {
-		auto &r1x = GlobalStatic<void>::static_unique () ;
+		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
+		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		return r2x->mValue ;
 	}
 
 	imports VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
-		auto &r1x = GlobalStatic<void>::static_unique () ;
+		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		const auto r2x = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
+		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
 		if (r2x->mValue == expect)
@@ -940,13 +939,13 @@ public:
 	}
 
 	imports void store (const VAR &data) {
-		auto &r1x = GlobalStatic<void>::static_unique () ;
+		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
-		auto rax = GlobalStatic<void>::static_find_node (r1x ,GUID::value) ;
+		auto rax = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		if switch_once (TRUE) {
 			if (rax != NULL)
 				discard ;
-			rax = GlobalStatic<void>::static_new_node (r1x ,GUID::value) ;
+			rax = GlobalStaticEngine::static_new_node (r1x ,GUID::value) ;
 			rax->mReadOnly = FALSE ;
 		}
 		_DYNAMIC_ASSERT_ (rax != NULL) ;
@@ -957,7 +956,7 @@ public:
 
 template <class UNIT>
 class GlobalStatic<Singleton<UNIT>>
-	:private Wrapped<void> {
+	:private Wrapped<> {
 private:
 	struct SELF_PACK {
 		Atomic mCounter ;
@@ -970,15 +969,15 @@ private:
 public:
 	imports Singleton<UNIT> &unique () side_effects {
 		auto &r1x = _CACHE_ ([&] () {
-			auto &r2x = GlobalStatic<void>::static_unique () ;
+			auto &r2x = GlobalStaticEngine::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke (ARGV<Singleton<UNIT>>::null) ;
-			auto rax = GlobalStatic<void>::static_find_node (r2x ,r3x) ;
+			auto rax = GlobalStaticEngine::static_find_node (r2x ,r3x) ;
 			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
-				rax = GlobalStatic<void>::static_new_node (r2x ,r3x) ;
+				rax = GlobalStaticEngine::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;

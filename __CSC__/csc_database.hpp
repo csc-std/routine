@@ -22,12 +22,12 @@ private:
 	class Abstract
 		:public Interface {
 	public:
-		virtual void compute_load_data (AnyRef<void> &holder) const = 0 ;
+		virtual void compute_load_data (AnyRef<> &holder) const = 0 ;
 	} ;
 
 private:
 	PhanRef<const Abstract> mAbstract ;
-	AnyRef<void> mHolder ;
+	AnyRef<> mHolder ;
 
 public:
 	implicit AbstractDatabase () = default ;

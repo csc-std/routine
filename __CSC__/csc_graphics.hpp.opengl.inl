@@ -162,7 +162,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
+	void compute_load_data (AnyRef<> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const override {
 		_DEBUG_ASSERT_ (vs.size () < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (fs.size () < VAR32_MAX) ;
 		auto tmp = UniqueRef<CHAR> ([&] (CHAR &me) {
@@ -190,51 +190,51 @@ public:
 		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_active_pipeline (AnyRef<void> &holder) const override {
+	void compute_active_pipeline (AnyRef<> &holder) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		api::glUseProgram (r1x) ;
 	}
 
-	void compute_uniform_find (AnyRef<void> &holder ,const String<STR> &name ,INDEX &index) const override {
+	void compute_uniform_find (AnyRef<> &holder ,const String<STR> &name ,INDEX &index) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (api::glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAR32 &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const VAR32 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		api::glUniform1i (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAR64 &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const VAR64 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		api::glUniform1i64NV (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAL32 &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const VAL32 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		api::glUniform1f (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const VAL64 &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const VAL64 &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		api::glUniform1d (VAR32 (index) ,data) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Vector<VAL32> &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const Vector<VAL32> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL32> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		api::glUniform4fv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Vector<VAL64> &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const Vector<VAL64> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = ARRAY4<VAL64> {data[0] ,data[1] ,data[2] ,data[3]} ;
 		api::glUniform4dv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL32> &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const Matrix<VAL32> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = Array<VAL32 ,ARGC<16>> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
@@ -244,7 +244,7 @@ public:
 		api::glUniformMatrix4fv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
-	void compute_uniform_write (AnyRef<void> &holder ,const INDEX &index ,const Matrix<VAL64> &data) const override {
+	void compute_uniform_write (AnyRef<> &holder ,const INDEX &index ,const Matrix<VAL64> &data) const override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 		const auto r1x = Array<VAL64 ,ARGC<16>> ({
 			data[0][0] ,data[0][1] ,data[0][2] ,data[0][3] ,
@@ -254,7 +254,7 @@ public:
 		api::glUniformMatrix4dv (VAR32 (index) ,1 ,GL_TRUE ,r1x.raw ().self) ;
 	}
 
-	void compute_sprite_load_data (AnyRef<void> &holder ,const Mesh &mesh) const override {
+	void compute_sprite_load_data (AnyRef<> &holder ,const Mesh &mesh) const override {
 		auto tmp = SELF_PACK () ;
 		tmp.mVAO = UniqueRef<CHAR> ([&] (CHAR &me) {
 			api::glGenVertexArrays (1 ,DEPTR[me]) ;
@@ -280,13 +280,13 @@ public:
 		holder = AnyRef<SPRITE_NATIVE_THIS>::make (_MOVE_ (tmp)) ;
 	}
 
-	void compute_sprite_active_texture (AnyRef<void> &holder ,const INDEX &texture) const override {
+	void compute_sprite_active_texture (AnyRef<> &holder ,const INDEX &texture) const override {
 		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
-	void compute_sprite_draw (AnyRef<void> &holder) const override {
+	void compute_sprite_draw (AnyRef<> &holder) const override {
 		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
 		api::glBindVertexArray (r1x.mVAO) ;
 		if switch_once (TRUE) {

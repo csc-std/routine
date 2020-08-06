@@ -83,7 +83,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_load_data (AnyRef<void> &holder) const override {
+	void compute_load_data (AnyRef<> &holder) const override {
 		auto tmp = UniqueRef<api::MYSQL> ([&] (api::MYSQL &me) {
 			api::mysql_init (DEPTR[me]) ;
 		} ,[] (api::MYSQL &me) {

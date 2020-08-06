@@ -11,7 +11,7 @@
 namespace CSC {
 #ifdef __CSC_UNITTEST__
 class GlobalWatch
-	:private Wrapped<void> {
+	:private Wrapped<> {
 public:
 	struct Public {
 		imports void done (const Exception &e) ;
@@ -1350,31 +1350,25 @@ private:
 	class Holder
 		:public Interface {
 	public:
-		virtual void lock () = 0 ;
-		virtual void unlock () = 0 ;
+		virtual AnyRef<void> &holder () = 0 ;
+		virtual const AnyRef<void> &holder () const = 0 ;
+		virtual void attach_weak (stl::atomic<PTR<Holder>> &that) = 0 ;
+		virtual void detach_weak () = 0 ;
+		virtual void attach_strong (stl::atomic<PTR<Holder>> &that) = 0 ;
+		virtual void detach_strong () = 0 ;
 	} ;
 
-	class WeakHolder
-		:public Holder {
-	public:
-		AnyRef<void> mHolder ;
-		LENGTH mCounter ;
+	struct Private {
+		class WeakHolder ;
 
-	public:
-		void lock () override {
-			_STATIC_WARNING_ ("noop") ;
-		}
-
-		void unlock () override {
-			_STATIC_WARNING_ ("noop") ;
-		}
+		class LatchCounter ;
 	} ;
 
 private:
 	template <class>
 	friend class StrongRef ;
-	stl::atomic<PTR<Holder>> mThisMutex ;
-	SharedRef<WeakHolder> mThis ;
+	stl::atomic<PTR<Holder>> mPointer ;
+	mutable stl::atomic<LENGTH> mLatch ;
 
 public:
 	implicit WeakRef ()
@@ -1382,25 +1376,22 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1>
-	implicit WeakRef (const StrongRef<_ARG1> &that)
-		: WeakRef (ARGVP0) {
-		struct Dependent ;
-		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
-		const auto r2x = r1x.mThisMutex.load () ;
-		if (r2x == NULL)
+	explicit WeakRef (const PTR<Holder> &that)
+		:WeakRef (ARGVP0) {
+		if (that == NULL)
 			return ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r2x]) ;
-		mThisMutex.store (r2x) ;
-		mThis = r1x.mThis ;
+		that->attach_weak (mPointer) ;
 	}
 
+	template <class _ARG1>
+	implicit WeakRef (const StrongRef<_ARG1> &that)
+		: WeakRef (that.weak ()) {}
+
 	implicit ~WeakRef () noexcept {
-		const auto r1x = mThisMutex.exchange (NULL) ;
-		if (r1x != NULL)
+		const auto r1x = safe_exchange (NULL) ;
+		if (r1x == NULL)
 			return ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		mThis = SharedRef<WeakHolder> () ;
+		r1x->detach_weak () ;
 	}
 
 	implicit WeakRef (const WeakRef &) = delete ;
@@ -1409,12 +1400,14 @@ public:
 
 	implicit WeakRef (WeakRef &&that) noexcept
 		:WeakRef (ARGVP0) {
-		const auto r1x = that.mThisMutex.load () ;
-		if (r1x == NULL)
+		const auto r1x = that.safe_exchange (NULL) ;
+		const auto r2x = safe_exchange (r1x) ;
+		if (r2x == NULL)
 			return ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		mThisMutex.store (r1x) ;
-		_SWAP_ (mThis ,that.mThis) ;
+		const auto r3x = that.safe_exchange (r2x) ;
+		if (r3x == NULL)
+			return ;
+		r3x->detach_weak () ;
 	}
 
 	inline WeakRef &operator= (WeakRef &&that) noexcept {
@@ -1428,22 +1421,15 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = mThisMutex.load () ;
+		const auto r1x = mPointer.load () ;
 		if (r1x == NULL)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	BOOL equal (const WeakRef &that) const {
-		const auto r1x = mThisMutex.load () ;
-		const auto r2x = that.mThisMutex.load () ;
-		if (r1x == NULL)
-			if (r2x == NULL)
-				return TRUE ;
-		if (r1x == NULL)
-			return FALSE ;
-		if (r2x == NULL)
-			return FALSE ;
+		const auto r1x = mPointer.load () ;
+		const auto r2x = that.mPointer.load () ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -1461,15 +1447,8 @@ public:
 	BOOL equal (const StrongRef<_ARG1> &that) const {
 		struct Dependent ;
 		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
-		const auto r2x = mThisMutex.load () ;
-		const auto r3x = r1x.mThisMutex.load () ;
-		if (r2x == NULL)
-			if (r3x == NULL)
-				return TRUE ;
-		if (r2x == NULL)
-			return FALSE ;
-		if (r3x == NULL)
-			return FALSE ;
+		const auto r2x = mPointer.load () ;
+		const auto r3x = r1x.mPointer.load () ;
 		if (r2x != r3x)
 			return FALSE ;
 		return TRUE ;
@@ -1485,34 +1464,127 @@ public:
 		return !equal (that) ;
 	}
 
-	WeakRef share () const {
-		const auto r1x = mThisMutex.load () ;
-		if (r1x == NULL)
-			return WeakRef () ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		return WeakRef (ARGVP0 ,_COPY_ (mThis)) ;
+	template <class _RET = REMOVE_CVR_TYPE<WeakRef>>
+	_RET share () const {
+		struct Dependent ;
+		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		return WeakRef (r1x) ;
 	}
 
 	template <class _ARG1>
-	StrongRef<_ARG1> watch (const ARGVF<_ARG1> &) const {
+	StrongRef<_ARG1> strong (const ARGVF<_ARG1> &) const {
 		struct Dependent ;
 		using StrongRef = DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent> ;
-		const auto r1x = mThisMutex.load () ;
-		if (r1x == NULL)
-			return StrongRef () ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		auto &r2x = mThis->mHolder.rebind (ARGV<_ARG1>::null).self ;
-		return StrongRef (ARGVP0 ,_COPY_ (mThis) ,DEPTR[r2x]) ;
+		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		auto &r2x = r1x->holder ().rebind (ARGV<_ARG1>::null) ;
+		_DYNAMIC_ASSERT_ (r2x.typemid () == _TYPEMID_ (ARGV<_ARG1>::null)) ;
+		return StrongRef (r1x ,DEPTR[r2x.self]) ;
 	}
 
 private:
 	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mThisMutex (NULL) {}
+		:mPointer (NULL) ,mLatch (0) {}
 
-	explicit WeakRef (const DEF<decltype (ARGVP0)> & ,SharedRef<WeakHolder> &&this_) noexcept
-		:WeakRef (ARGVP0) {
-		mThisMutex.store (DEPTR[this_.self]) ;
-		mThis = _MOVE_ (this_) ;
+	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
+		const auto r1x = mPointer.exchange (address) ;
+		if (r1x == NULL)
+			return r1x ;
+		while (TRUE) {
+			const auto r2x = mLatch.load () ;
+			if (r2x == 0)
+				break ;
+			//???
+		}
+		return r1x ;
+	}
+} ;
+
+class WeakRef::Private::WeakHolder
+	:public Holder {
+public:
+	AnyRef<> mHolder ;
+	stl::atomic<LENGTH> mWeakCounter ;
+	stl::atomic<LENGTH> mStrongCounter ;
+
+public:
+	implicit WeakHolder () {
+		mWeakCounter = 0 ;
+		mStrongCounter = 0 ;
+	}
+
+	AnyRef<void> &holder () override {
+		return mHolder ;
+	}
+
+	const AnyRef<void> &holder () const override {
+		return mHolder ;
+	}
+
+	void attach_weak (stl::atomic<PTR<Holder>> &that) override {
+		const auto r1x = that.exchange (this) ;
+		if (r1x == this)
+			return ;
+		++mWeakCounter ;
+		if (r1x == NULL)
+			return ;
+		r1x->detach_weak () ;
+	}
+
+	void detach_weak () override {
+		if switch_once (TRUE) {
+			const auto r1x = --mWeakCounter ;
+			if (r1x > 0)
+				discard ;
+			DEREF[this].~WeakHolder () ;
+			GlobalHeap::free (this) ;
+		}
+	}
+
+	void attach_strong (stl::atomic<PTR<Holder>> &that) override {
+		const auto r1x = that.exchange (this) ;
+		if (r1x == this)
+			return ;
+		++mWeakCounter ;
+		++mStrongCounter ;
+		if (r1x == NULL)
+			return ;
+		r1x->detach_strong () ;
+	}
+
+	void detach_strong () override {
+		if switch_once (TRUE) {
+			const auto r1x = --mStrongCounter ;
+			if (r1x > 0)
+				discard ;
+			mHolder = AnyRef<> () ;
+		}
+		if switch_once (TRUE) {
+			const auto r2x = --mWeakCounter ;
+			if (r2x > 0)
+				discard ;
+			DEREF[this].~WeakHolder () ;
+			GlobalHeap::free (this) ;
+		}
+	}
+} ;
+
+class WeakRef::Private::LatchCounter
+	:private Wrapped<stl::atomic<LENGTH>> {
+public:
+	void lock () {
+		const auto r1x = ++LatchCounter::mSelf ;
+		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x >= 1) ;
+	}
+
+	void unlock () {
+		const auto r1x = --LatchCounter::mSelf ;
+		_STATIC_UNUSED_ (r1x) ;
+		_DEBUG_ASSERT_ (r1x >= 0) ;
 	}
 } ;
 
@@ -1545,15 +1617,16 @@ template <class UNIT>
 class StrongRef final {
 private:
 	using Holder = typename WeakRef::Holder ;
-	using WeakHolder = typename WeakRef::WeakHolder ;
+	using WeakHolder = typename WeakRef::Private::WeakHolder ;
+	using LatchCounter = typename WeakRef::Private::LatchCounter ;
 
 private:
 	template <class>
 	friend class StrongRef ;
 	friend WeakRef ;
-	stl::atomic<PTR<Holder>> mThisMutex ;
-	SharedRef<WeakHolder> mThis ;
-	PTR<UNIT> mPointer ;
+	stl::atomic<PTR<Holder>> mPointer ;
+	mutable stl::atomic<LENGTH> mLatch ;
+	PTR<UNIT> mFastPointer ;
 
 public:
 	implicit StrongRef ()
@@ -1568,19 +1641,16 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
+	implicit StrongRef (const WeakRef &that)
+		: StrongRef (that.strong (ARGV<UNIT>::null)) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
 	implicit ~StrongRef () noexcept {
-		const auto r1x = mThisMutex.exchange (NULL) ;
+		const auto r1x = safe_exchange (NULL) ;
 		if (r1x == NULL)
 			return ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		_STATIC_WARNING_ ("mark") ;
-		if switch_once (TRUE) {
-			const auto r2x = --mThis->mCounter ;
-			if (r2x != 0)
-				discard ;
-			mThis->mHolder = AnyRef<void> () ;
-		}
-		mThis = SharedRef<WeakHolder> () ;
+		r1x->detach_strong ();
 	}
 
 	implicit StrongRef (const StrongRef &) = delete ;
@@ -1589,13 +1659,15 @@ public:
 
 	implicit StrongRef (StrongRef &&that) noexcept
 		:StrongRef (ARGVP0) {
-		const auto r1x = that.mThisMutex.load () ;
-		if (r1x == NULL)
+		_SWAP_ (mFastPointer ,that.mFastPointer) ;
+		const auto r1x = that.safe_exchange (NULL) ;
+		const auto r2x = safe_exchange (r1x) ;
+		if (r2x == NULL)
 			return ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		mThisMutex.store (r1x) ;
-		_SWAP_ (mThis ,that.mThis) ;
-		_SWAP_ (mPointer ,that.mPointer) ;
+		const auto r3x = that.safe_exchange (r2x) ;
+		if (r3x == NULL)
+			return ;
+		r3x->detach_strong () ;
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
@@ -1609,34 +1681,36 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = mThisMutex.load () ;
+		const auto r1x = mPointer.load () ;
 		if (r1x == NULL)
 			return FALSE ;
 		return TRUE ;
 	}
 
 	StrongRef share () const {
-		const auto r1x = mThisMutex.load () ;
-		if (r1x == NULL)
-			return StrongRef () ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		return StrongRef (ARGVP0 ,_COPY_ (mThis) ,mPointer) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		return StrongRef (r1x ,mFastPointer) ;
 	}
 
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
-		const auto r1x = mThisMutex.load () ;
-		if (r1x == NULL)
-			return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> () ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		const auto r2x = U::OPERATOR_RECAST::invoke (ARGV<_ARG1>::null ,mPointer) ;
-		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (mPointer != NULL)) ;
-		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (ARGVP0 ,_COPY_ (mThis) ,r2x) ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		const auto r3x = U::OPERATOR_RECAST::invoke (ARGV<_ARG1>::null ,mFastPointer) ;
+		_DYNAMIC_ASSERT_ (_EBOOL_ (r3x != NULL) == _EBOOL_ (mFastPointer != NULL)) ;
+		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (r1x ,r3x) ;
+	}
+
+	WeakRef weak () const {
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		return WeakRef (r1x) ;
 	}
 
 	UNIT &to () leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer] ;
+		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
+		return DEREF[mFastPointer] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
@@ -1648,8 +1722,8 @@ public:
 	}
 
 	const UNIT &to () const leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer] ;
+		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
+		return DEREF[mFastPointer] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1661,19 +1735,9 @@ public:
 	}
 
 	BOOL equal (const StrongRef &that) const {
-		const auto r1x = mThisMutex.load () ;
-		const auto r2x = that.mThisMutex.load () ;
-		if (r1x == NULL)
-			if (r2x == NULL)
-				return TRUE ;
-		if (r1x == NULL)
-			return FALSE ;
-		if (r2x == NULL)
-			return FALSE ;
+		const auto r1x = mPointer.load () ;
+		const auto r2x = that.mPointer.load () ;
 		if (r1x != r2x)
-			return FALSE ;
-		ScopedGuard<Holder> ANONYMOUS (DEREF[r1x]) ;
-		if (mPointer != that.mPointer)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1701,27 +1765,39 @@ public:
 public:
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
-		auto tmp = SharedRef<WeakHolder>::make () ;
-		tmp->mHolder = AnyRef<REMOVE_CVR_TYPE<UNIT>>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		tmp->mCounter = 0 ;
-		auto &r1x = tmp->mHolder.rebind (ARGV<UNIT>::null).self ;
-		return StrongRef (ARGVP0 ,_MOVE_ (tmp) ,DEPTR[r1x]) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<WeakHolder>>::null) ;
+		ScopedBuild<WeakHolder> ANONYMOUS (rax) ;
+		auto &r1x = _LOAD_ (ARGV<WeakHolder>::null ,rax.self) ;
+		r1x.mHolder = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r2x = r1x.mHolder.rebind (ARGV<UNIT>::null).self ;
+		StrongRef ret = StrongRef (DEPTR[r1x] ,DEPTR[r2x]) ;
+		rax = NULL ;
+		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mPointer (NULL) ,mLatch (0) ,mFastPointer (NULL) {}
 
-	explicit StrongRef (const DEF<decltype (ARGVP0)> & ,SharedRef<WeakHolder> &&this_ ,const PTR<UNIT> &pointer) noexcept
+	explicit StrongRef (const PTR<Holder> &pointer ,const PTR<UNIT> &fast_pointer)
 		:StrongRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
-		mThisMutex.store (DEPTR[this_.self]) ;
-		const auto r1x = ++this_->mCounter ;
-		_STATIC_UNUSED_ (r1x) ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		mThis = _MOVE_ (this_) ;
-		mPointer = pointer ;
+		pointer->attach_strong (mPointer) ;
+		mFastPointer = fast_pointer ;
+	}
+
+	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
+		const auto r1x = mPointer.exchange (address) ;
+		if (r1x == NULL)
+			return r1x ;
+		while (TRUE) {
+			const auto r2x = mLatch.load () ;
+			if (r2x == 0)
+				break ;
+			//???
+		}
+		return r1x ;
 	}
 } ;
 
