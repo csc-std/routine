@@ -48,7 +48,7 @@ public:
 	explicit Duration (const ARRAY6<LENGTH> &time_) ;
 
 	explicit Duration (const StrongRef<Abstract> &that) {
-		mThis = that ;
+		mThis = that.share () ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
@@ -124,7 +124,7 @@ public:
 	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
 
 	explicit TimePoint (const StrongRef<Abstract> &that) {
-		mThis = that ;
+		mThis = that.share () ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>

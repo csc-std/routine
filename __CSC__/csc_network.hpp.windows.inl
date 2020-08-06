@@ -369,7 +369,7 @@ public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const StrongRef<TCPSocket::Private::Implement> &socket_) {
-		mThis = socket_->mThis ;
+		mThis = socket_->mThis.share () ;
 		mListener = _MOVE_ (mThis->mSocket) ;
 		const auto r1x = api::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;

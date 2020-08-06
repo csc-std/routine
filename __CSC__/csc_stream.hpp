@@ -2574,8 +2574,10 @@ public:
 
 	void read (String<STRU8> &data) {
 		const auto r1x = mReader->attr () ;
-		const auto r2x = _EXCHANGE_ (mHintStringTextFlag ,FALSE) ;
-		const auto r3x = _EXCHANGE_ (mHintNextTextSize ,VAR_ZERO) ;
+		const auto r2x = mHintStringTextFlag ;
+		const auto r3x = mHintNextTextSize ;
+		mHintStringTextFlag = FALSE ;
+		mHintNextTextSize = 0 ;
 		if (data.size () < r3x)
 			data = String<STRU8> (r3x) ;
 		data.clear () ;

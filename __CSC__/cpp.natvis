@@ -44,7 +44,7 @@
 
   <Type Name="CSC::UniqueRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->deref ()</ExpandedItem>
+      <ExpandedItem>mPointer->to ()</ExpandedItem>
     </Expand>
   </Type>
 

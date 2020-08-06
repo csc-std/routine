@@ -620,7 +620,7 @@ private:
 	private:
 		friend AutoRef ;
 		friend SPECIALIZATION_THIS ;
-		UNIT mValue ;
+		REMOVE_CVR_TYPE<UNIT> mValue ;
 
 	public:
 		template <class... _ARGS>
@@ -652,7 +652,7 @@ public:
 
 	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
@@ -681,7 +681,7 @@ private:
 	private:
 		friend AutoRef ;
 		friend SPECIALIZATION_THIS ;
-		UNIT mValue ;
+		REMOVE_CVR_TYPE<UNIT> mValue ;
 
 	public:
 		template <class... _ARGS>
@@ -731,7 +731,7 @@ public:
 
 	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline AutoRef &operator= (AutoRef &&that) noexcept {
@@ -821,7 +821,7 @@ private:
 	class Holder {
 	private:
 		friend SharedRef ;
-		UNIT mValue ;
+		REMOVE_CVR_TYPE<UNIT> mValue ;
 		LENGTH mCounter ;
 
 	public:
@@ -869,7 +869,7 @@ public:
 
 	implicit SharedRef (SharedRef &&that) noexcept
 		:SharedRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline SharedRef &operator= (SharedRef &&that) noexcept {
@@ -970,7 +970,7 @@ public:
 
 	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
@@ -1050,7 +1050,7 @@ public:
 
 	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline AnyRef &operator= (AnyRef &&that) noexcept {
@@ -1226,7 +1226,7 @@ public:
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
 		:UniqueRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
@@ -1274,7 +1274,7 @@ private:
 	class Holder
 		:public Interface {
 	public:
-		virtual const UNIT &deref () const leftvalue = 0 ;
+		virtual const UNIT &to () const leftvalue = 0 ;
 		virtual void release () = 0 ;
 	} ;
 
@@ -1330,7 +1330,7 @@ public:
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
 		: UniqueRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
@@ -1351,7 +1351,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->deref () ;
+		return mPointer->to () ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1404,7 +1404,7 @@ public:
 	explicit ImplHolder (_ARGS &&...initval)
 		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
-	const UNIT &deref () const leftvalue override {
+	const UNIT &to () const leftvalue override {
 		return mValue ;
 	}
 
@@ -1438,7 +1438,7 @@ public:
 
 	implicit PhanRef (PhanRef &&that) noexcept
 		:PhanRef (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
 	inline PhanRef &operator= (PhanRef &&that) noexcept {
@@ -1580,8 +1580,8 @@ public:
 
 	implicit Function (Function &&that) noexcept
 		:Function (ARGVP0) {
-		mPointer = _EXCHANGE_ (that.mPointer) ;
-		mFunctor = _EXCHANGE_ (that.mFunctor) ;
+		_SWAP_ (mPointer ,that.mPointer) ;
+		_SWAP_ (mFunctor ,that.mFunctor) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -2285,8 +2285,8 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
-		mBuffer = _EXCHANGE_ (that.mBuffer) ;
-		mSize = _EXCHANGE_ (that.mSize) ;
+		_SWAP_ (mBuffer ,that.mBuffer) ;
+		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
@@ -2371,8 +2371,8 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
-		mBuffer = _EXCHANGE_ (that.mBuffer) ;
-		mSize = _EXCHANGE_ (that.mSize) ;
+		_SWAP_ (mBuffer ,that.mBuffer) ;
+		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
@@ -2553,8 +2553,8 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
-		mBuffer = _EXCHANGE_ (that.mBuffer) ;
-		mSize = _EXCHANGE_ (that.mSize) ;
+		_SWAP_ (mBuffer ,that.mBuffer) ;
+		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
@@ -2731,8 +2731,8 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
-		mBuffer = _EXCHANGE_ (that.mBuffer) ;
-		mSize = _EXCHANGE_ (that.mSize) ;
+		_SWAP_ (mBuffer ,that.mBuffer) ;
+		_SWAP_ (mSize ,that.mSize) ;
 	}
 
 	inline Buffer &operator= (Buffer &&that) noexcept {
@@ -3029,7 +3029,7 @@ public:
 	implicit Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		if (mAllocator.size () != that.mAllocator.size ())
-			mSize = _EXCHANGE_ (that.mSize) ;
+			_SWAP_ (mSize ,that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
 		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
@@ -3044,8 +3044,8 @@ public:
 			}
 			mSize++ ;
 		}
-		mLength = _EXCHANGE_ (that.mLength) ;
-		mFree = _EXCHANGE_ (that.mFree ,VAR_NONE) ;
+		_SWAP_ (mLength ,that.mLength) ;
+		_SWAP_ (mFree ,that.mFree) ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {
@@ -3163,7 +3163,7 @@ public:
 	implicit Allocator (Allocator &&that) noexcept
 		:Allocator (ARGVP0 ,_MOVE_ (that.mAllocator)) {
 		if (mAllocator.size () != that.mAllocator.size ())
-			mSize = _EXCHANGE_ (that.mSize) ;
+			_SWAP_ (mSize ,that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
 		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
@@ -3178,8 +3178,8 @@ public:
 			}
 			mSize++ ;
 		}
-		mLength = _EXCHANGE_ (that.mLength) ;
-		mFree = _EXCHANGE_ (that.mFree ,VAR_NONE) ;
+		_SWAP_ (mLength ,that.mLength) ;
+		_SWAP_ (mFree ,that.mFree) ;
 	}
 
 	inline Allocator &operator= (Allocator &&that) noexcept {

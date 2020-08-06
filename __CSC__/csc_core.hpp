@@ -6,6 +6,51 @@
 
 #include "csc.hpp"
 
+#ifdef __CSC__
+#pragma push_macro ("self")
+#pragma push_macro ("implicit")
+#pragma push_macro ("side_effects")
+#pragma push_macro ("leftvalue")
+#pragma push_macro ("rightvalue")
+#pragma push_macro ("imports")
+#pragma push_macro ("exports")
+#pragma push_macro ("switch_once")
+#pragma push_macro ("discard")
+#undef self
+#undef implicit
+#undef side_effects
+#undef leftvalue
+#undef rightvalue
+#undef imports
+#undef exports
+#undef switch_once
+#undef discard
+#endif
+
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
+#include <limits>
+#include <type_traits>
+#include <initializer_list>
+#include <new>
+#include <exception>
+#include <typeinfo>
+#include <utility>
+#include <atomic>
+
+#ifdef __CSC__
+#pragma pop_macro ("self")
+#pragma pop_macro ("implicit")
+#pragma pop_macro ("side_effects")
+#pragma pop_macro ("leftvalue")
+#pragma pop_macro ("rightvalue")
+#pragma pop_macro ("imports")
+#pragma pop_macro ("exports")
+#pragma pop_macro ("switch_once")
+#pragma pop_macro ("discard")
+#endif
+
 namespace CSC {
 namespace stl {
 using std::int32_t ;
@@ -1495,22 +1540,6 @@ inline constexpr const _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_T
 template <class _ARG1>
 inline constexpr _ARG1 &&_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&) = delete ;
 #endif
-
-template <class _ARG1>
-inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle) side_effects {
-	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
-	_ZERO_ (handle) ;
-	return _MOVE_ (ret) ;
-}
-
-template <class _ARG1>
-inline REMOVE_CVR_TYPE<_ARG1> _EXCHANGE_ (_ARG1 &handle ,const REMOVE_CVR_TYPE<_ARG1> &val) side_effects {
-	_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-	REMOVE_CVR_TYPE<_ARG1> ret = handle ;
-	handle = val ;
-	return _MOVE_ (ret) ;
-}
 
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
