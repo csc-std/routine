@@ -464,8 +464,8 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<VOID>> ret = Array<PTR<VOID>> (list.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				auto &r2x = _LOAD_UNSAFE_ (ARGV<NONE>::null ,list[i]) ;
-				ret[i] = DEPTR[r2x] ;
+				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,list[i]) ;
+				ret[i] = r2x ;
 			}
 			return _MOVE_ (ret) ;
 		}) ;

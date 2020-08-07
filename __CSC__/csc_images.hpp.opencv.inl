@@ -176,10 +176,10 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
-		auto &r2x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r1x.data)) ;
-		layout.mImage = DEPTR[r2x] ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r1x.data)) ;
+		layout.mImage = r2x ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -252,10 +252,10 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
-		auto &r2x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r1x.data)) ;
-		layout.mImage = DEPTR[r2x] ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r1x.data)) ;
+		layout.mImage = r2x ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -328,10 +328,10 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
-		auto &r2x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_GRAY>>::null ,_ADDRESS_ (r1x.data)) ;
-		layout.mImage = DEPTR[r2x] ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY>>::null ,_ADDRESS_ (r1x.data)) ;
+		layout.mImage = r2x ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -404,10 +404,10 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY32>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY32>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
-		auto &r2x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_GRAY32>>::null ,_ADDRESS_ (r1x.data)) ;
-		layout.mImage = DEPTR[r2x] ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY32>>::null ,_ADDRESS_ (r1x.data)) ;
+		layout.mImage = r2x ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;
@@ -480,10 +480,10 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY64>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY64>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
-		auto &r2x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_GRAY64>>::null ,_ADDRESS_ (r1x.data)) ;
-		layout.mImage = DEPTR[r2x] ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY64>>::null ,_ADDRESS_ (r1x.data)) ;
+		layout.mImage = r2x ;
 		layout.mCX = LENGTH (r1x.cols) ;
 		layout.mCY = LENGTH (r1x.rows) ;
 		_DEBUG_ASSERT_ (r1x.step.p != NULL) ;

@@ -645,7 +645,7 @@ using COLOR_XYZ64 = ARRAY3<VAL64> ;
 template <class UNIT>
 class AbstractImage {
 public:
-	struct LAYOUT {
+	struct LAYOUT_PACK {
 		PTR<ARR<UNIT>> mImage ;
 		LENGTH mCX ;
 		LENGTH mCY ;
@@ -656,7 +656,7 @@ public:
 	class Abstract
 		:public Interface {
 	public:
-		virtual void compute_layout (AnyRef<> &holder ,LAYOUT &layout) const = 0 ;
+		virtual void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
 		virtual void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
 		virtual void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
@@ -844,7 +844,7 @@ private:
 	void update_layout () {
 		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
 		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		auto rax = LAYOUT () ;
+		auto rax = LAYOUT_PACK () ;
 		_ZERO_ (rax) ;
 		mAbstract->compute_layout (mHolder ,rax) ;
 		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;

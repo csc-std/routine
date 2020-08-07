@@ -103,11 +103,11 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r2x)) ;
-		layout.mImage = DEPTR[r3x] ;
+		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::null ,_ADDRESS_ (r2x)) ;
+		layout.mImage = r3x ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;
@@ -222,11 +222,11 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT &layout) const override {
+	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
-		auto &r3x = _LOAD_UNSAFE_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r2x)) ;
-		layout.mImage = DEPTR[r3x] ;
+		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::null ,_ADDRESS_ (r2x)) ;
+		layout.mImage = r3x ;
 		layout.mCX = LENGTH (api::FreeImage_GetWidth (r1x)) ;
 		layout.mCY = LENGTH (api::FreeImage_GetHeight (r1x)) ;
 		layout.mCW = layout.mCX ;

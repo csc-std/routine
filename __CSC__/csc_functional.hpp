@@ -84,7 +84,6 @@ public:
 		return template_as (ARGV<REMOVE_CVR_TYPE<_ARG1>>::null) ;
 	}
 
-public:
 	template <class _ARG1>
 	imports const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
@@ -173,10 +172,6 @@ class Operator::Private::DefHolder
 	:public Holder {
 public:
 	implicit DefHolder () = default ;
-
-	LENGTH rank () const override {
-		return VAR_NONE ;
-	}
 
 	Operand invoke (const LexicalNode &node) const override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
@@ -442,7 +437,6 @@ private:
 		mThis->mRank = _CAPACITYOF_ (INVOKE_PARAMS_TYPE<RANK>) ;
 	}
 
-private:
 	template <class... _ARGS>
 	const RETR &template_flip_invoke (const ARGVF<ARGVS<>> & ,const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;

@@ -455,13 +455,13 @@ public:
 			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ALIGNAS_ (_ADDRESS_ (DEPTR[rax.self]) ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			auto &r3x = _LOAD_UNSAFE_ (ARGV<api::SYMBOL_INFO>::null ,r2x) ;
-			r3x.SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
-			r3x.MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
+			const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::null ,r2x) ;
+			r3x->SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
+			r3x->MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
-				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,DEPTR[r3x]) ;
-				const auto r4x = StringProc::build_hex16s (ARGV<STR>::null ,DATA (r3x.Address)) ;
-				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r3x.Name])) ;
+				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r3x) ;
+				const auto r4x = StringProc::build_hex16s (ARGV<STR>::null ,DATA (r3x->Address)) ;
+				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r3x->Name])) ;
 				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}

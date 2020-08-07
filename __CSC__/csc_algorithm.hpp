@@ -46,19 +46,19 @@ public:
 
 class DisjointTable {
 private:
-	struct NODE {
+	struct NODE_PACK {
 		INDEX mUp ;
 		LENGTH mWidth ;
 	} ;
 
 private:
-	Array<NODE> mTable ;
+	Array<NODE_PACK> mTable ;
 
 public:
 	implicit DisjointTable () = delete ;
 
 	explicit DisjointTable (const LENGTH &len) {
-		mTable = Array<NODE> (len) ;
+		mTable = Array<NODE_PACK> (len) ;
 		const auto r1x = empty_node () ;
 		mTable.fill (r1x) ;
 	}
@@ -117,8 +117,8 @@ public:
 	}
 
 private:
-	NODE empty_node () const {
-		NODE ret ;
+	NODE_PACK empty_node () const {
+		NODE_PACK ret ;
 		ret.mUp = VAR_NONE ;
 		ret.mWidth = 0 ;
 		return _MOVE_ (ret) ;
@@ -1064,7 +1064,7 @@ private:
 template <class REAL>
 class KDTreeAlgorithm {
 private:
-	struct NODE {
+	struct NODE_PACK {
 		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
@@ -1079,7 +1079,7 @@ private:
 	Array<ARRAY3<REAL>> mVertex ;
 	ARRAY3<INDEX> mNextRot ;
 	ARRAY3<ARRAY2<REAL>> mBound ;
-	List<NODE> mKDTree ;
+	List<NODE_PACK> mKDTree ;
 	INDEX mRoot ;
 
 public:
@@ -1220,7 +1220,7 @@ private:
 	ARRAY3<INDEX> mNextRot ;
 	ARRAY3<Array<INDEX>> mOrder ;
 	ARRAY3<ARRAY2<REAL>> mBound ;
-	List<NODE> mKDTree ;
+	List<NODE_PACK> mKDTree ;
 	INDEX mRoot ;
 	INDEX mLatestIndex ;
 
@@ -1243,7 +1243,7 @@ private:
 			const auto r1x = stack_of_order (i) ;
 			mOrder[i] = r1x.range_sort () ;
 		}
-		mKDTree = List<NODE> (mVertex.length ()) ;
+		mKDTree = List<NODE_PACK> (mVertex.length ()) ;
 		mRoot = VAR_NONE ;
 	}
 

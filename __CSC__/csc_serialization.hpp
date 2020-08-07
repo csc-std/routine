@@ -32,7 +32,7 @@ private:
 	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
 	static constexpr auto NODE_CLAZZ_FINAL = EFLAG (4) ;
 
-	struct NODE {
+	struct NODE_PACK {
 		String<STRU8> mName ;
 		Deque<String<STRU8>> mAttribute ;
 		SoftSet<String<STRU8>> mAttributeMappingSet ;
@@ -52,7 +52,7 @@ private:
 	} ;
 
 private:
-	SharedRef<FixedBuffer<NODE>> mHeap ;
+	SharedRef<FixedBuffer<NODE_PACK>> mHeap ;
 	INDEX mIndex ;
 
 public:
@@ -60,7 +60,7 @@ public:
 		mIndex = VAR_NONE ;
 	}
 
-	explicit XmlParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+	explicit XmlParser (const SharedRef<FixedBuffer<NODE_PACK>> &heap ,const INDEX &index) {
 		mHeap = heap ;
 		mIndex = index ;
 	}
@@ -411,7 +411,6 @@ public:
 		}
 	}
 
-public:
 	imports XmlParser make (const PhanBuffer<const STRU8> &data) {
 		XmlParser ret ;
 		initialize (ret ,data) ;
@@ -457,8 +456,8 @@ private:
 	SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
 	SoftSet<INDEX> mMemberSoftSet ;
 	SoftSet<String<STRU8>> mObjectSoftSet ;
-	List<NODE> mNodeTree ;
-	SharedRef<FixedBuffer<NODE>> mHeap ;
+	List<NODE_PACK> mNodeTree ;
+	SharedRef<FixedBuffer<NODE_PACK>> mHeap ;
 	INDEX mRoot ;
 
 public:
@@ -478,8 +477,8 @@ private:
 		mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 		mMemberSoftSet = SoftSet<INDEX> (0) ;
 		mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-		mNodeTree = List<NODE> () ;
-		mHeap = SharedRef<FixedBuffer<NODE>> () ;
+		mNodeTree = List<NODE_PACK> () ;
+		mHeap = SharedRef<FixedBuffer<NODE_PACK>> () ;
 		mRoot = VAR_NONE ;
 	}
 
@@ -678,7 +677,7 @@ private:
 		mAttributeMappingSoftSet.clean () ;
 		mObjectSoftSet.clean () ;
 		const auto r1x = mNodeTree.range () ;
-		mHeap = SharedRef<FixedBuffer<NODE>>::make (r1x.length ()) ;
+		mHeap = SharedRef<FixedBuffer<NODE_PACK>>::make (r1x.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.length ()))
 			mHeap.self[i] = _MOVE_ (mNodeTree[r1x[i]]) ;
 	}
@@ -721,10 +720,10 @@ private:
 	SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
 	SoftSet<INDEX> mMemberSoftSet ;
 	SoftSet<String<STRU8>> mObjectSoftSet ;
-	List<NODE> mNodeTree ;
+	List<NODE_PACK> mNodeTree ;
 	Deque<FOUND_NODE> mFoundNode ;
 	Set<String<STRU8>> mFoundNodeMappingSet ;
-	SharedRef<FixedBuffer<NODE>> mHeap ;
+	SharedRef<FixedBuffer<NODE_PACK>> mHeap ;
 	INDEX mRoot ;
 
 	Deque<Deque<XmlParser>> mFoundNodeBaseNodeQueue ;
@@ -755,7 +754,7 @@ private:
 		mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 		mMemberSoftSet = SoftSet<INDEX> (0) ;
 		mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-		mNodeTree = List<NODE> () ;
+		mNodeTree = List<NODE_PACK> () ;
 		mRoot = mNodeTree.insert () ;
 		mNodeTree[mRoot].mMemberSet = mMemberSoftSet.share () ;
 		mNodeTree[mRoot].mObjectSet = mObjectSoftSet.share () ;
@@ -962,7 +961,7 @@ private:
 		mAttributeMappingSoftSet.clean () ;
 		mObjectSoftSet.clean () ;
 		const auto r1x = mNodeTree.range () ;
-		mHeap = SharedRef<FixedBuffer<NODE>>::make (r1x.length ()) ;
+		mHeap = SharedRef<FixedBuffer<NODE_PACK>>::make (r1x.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.length ()))
 			mHeap.self[i] = _MOVE_ (mNodeTree[r1x[i]]) ;
 	}
@@ -992,7 +991,7 @@ private:
 	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
 	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (4) ;
 
-	struct NODE {
+	struct NODE_PACK {
 		AnyRef<> mValue ;
 		EFLAG mClazz ;
 		INDEX mParent ;
@@ -1007,7 +1006,7 @@ private:
 	} ;
 
 private:
-	SharedRef<FixedBuffer<NODE>> mHeap ;
+	SharedRef<FixedBuffer<NODE_PACK>> mHeap ;
 	INDEX mIndex ;
 
 public:
@@ -1015,7 +1014,7 @@ public:
 		mIndex = VAR_NONE ;
 	}
 
-	explicit JsonParser (const SharedRef<FixedBuffer<NODE>> &heap ,const INDEX &index) {
+	explicit JsonParser (const SharedRef<FixedBuffer<NODE_PACK>> &heap ,const INDEX &index) {
 		mHeap = heap ;
 		mIndex = index ;
 	}
@@ -1373,7 +1372,6 @@ public:
 		}
 	}
 
-public:
 	imports JsonParser make (const PhanBuffer<const STRU8> &data) {
 		JsonParser ret ;
 		initialize (ret ,data) ;
@@ -1423,8 +1421,8 @@ private:
 
 	SoftSet<INDEX> mArraySoftSet ;
 	SoftSet<String<STRU8>> mObjectSoftSet ;
-	List<NODE> mNodeTree ;
-	SharedRef<FixedBuffer<NODE>> mHeap ;
+	List<NODE_PACK> mNodeTree ;
+	SharedRef<FixedBuffer<NODE_PACK>> mHeap ;
 	INDEX mRoot ;
 
 public:
@@ -1443,8 +1441,8 @@ private:
 		mRecursiveCounter = 0 ;
 		mArraySoftSet = SoftSet<INDEX> (0) ;
 		mObjectSoftSet = SoftSet<String<STRU8>> (0) ;
-		mNodeTree = List<NODE> () ;
-		mHeap = SharedRef<FixedBuffer<NODE>> () ;
+		mNodeTree = List<NODE_PACK> () ;
+		mHeap = SharedRef<FixedBuffer<NODE_PACK>> () ;
 		mRoot = VAR_NONE ;
 	}
 
@@ -1723,7 +1721,7 @@ private:
 		mArraySoftSet.clean () ;
 		mObjectSoftSet.clean () ;
 		const auto r1x = mNodeTree.range () ;
-		mHeap = SharedRef<FixedBuffer<NODE>>::make (r1x.length ()) ;
+		mHeap = SharedRef<FixedBuffer<NODE_PACK>>::make (r1x.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.length ()))
 			mHeap.self[i] = _MOVE_ (mNodeTree[r1x[i]]) ;
 	}

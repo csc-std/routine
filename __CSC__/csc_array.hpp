@@ -565,7 +565,6 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-public:
 	template <class... _ARGS>
 	imports String make (const _ARGS &...initval) {
 		struct Dependent ;
@@ -582,7 +581,6 @@ private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mString (len) {}
 
-private:
 	imports LENGTH plain_string_length (const ARR<ITEM> &val) {
 		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
 		LENGTH ret = BasicProc::mem_chr (val ,r1x ,ITEM (0)) ;
@@ -860,7 +858,6 @@ private:
 	explicit Deque (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mDeque (len) {}
 
-private:
 	BOOL ensure_index (const INDEX &index) const {
 		if (mRead <= mWrite)
 			if (!(index >= mRead && index < mWrite))
@@ -921,13 +918,13 @@ class Priority ;
 template <class ITEM ,class SIZE>
 class Priority {
 private:
-	struct NODE {
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mMap ;
 	} ;
 
 private:
-	Buffer<NODE ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mPriority ;
+	Buffer<NODE_PACK ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -993,7 +990,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		INDEX ret = mPriority.at (_OFFSET_ (&NODE::mItem ,item)) ;
+		INDEX ret = mPriority.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 		if (!(ret >= 0 && ret < mWrite))
 			ret = VAR_NONE ;
 		return _MOVE_ (ret) ;
@@ -1147,7 +1144,6 @@ private:
 	explicit Priority (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mPriority (len) {}
 
-private:
 	void reserve (const LENGTH &len) {
 		const auto r1x = len - (size () - length ()) ;
 		const auto r2x = VAR_ZERO ;
@@ -1639,7 +1635,6 @@ private:
 	explicit List (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) {}
 
-private:
 	INDEX &prev_next (const INDEX &curr) leftvalue {
 		if (mList[curr].mLeft == VAR_NONE)
 			return mFirst ;
@@ -1922,7 +1917,6 @@ private:
 	explicit ArrayList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) ,mRange (len) {}
 
-private:
 	INDEX min_free_one () const {
 		for (auto &&i : _RANGE_ (0 ,mRange.size ())) {
 			if (mRange[i] == VAR_NONE)
@@ -2323,7 +2317,6 @@ private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len ,const LENGTH &width)
 		:mSet (len) ,mWidth (width) {}
 
-private:
 	imports LENGTH forward_width (const LENGTH &width) {
 		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;
 		return width ;
@@ -2660,7 +2653,6 @@ private:
 	explicit Set (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mSet (len) {}
 
-private:
 	void update_emplace (const INDEX &curr ,const INDEX &last) {
 		auto fax = TRUE ;
 		if switch_once (fax) {
@@ -3211,7 +3203,6 @@ private:
 	explicit HashSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mSet (len) ,mRange (len) {}
 
-private:
 	void update_range (const INDEX &curr) {
 		if (mRange.size () == mSet.size ())
 			return ;

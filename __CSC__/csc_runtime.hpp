@@ -787,7 +787,6 @@ private:
 	} ;
 
 	struct SELF_PACK {
-		Atomic mCounter ;
 		Mutex mNodeMutex ;
 		Deque<VALUE_NODE> mValue ;
 		HashSet<FLAG> mValueMappingSet ;
@@ -798,28 +797,28 @@ private:
 private:
 	template <class>
 	friend class GlobalStatic ;
-	friend IntrusiveRef<SELF_PACK ,GlobalStaticEngine> ;
 
 private:
 	imports SELF_PACK &static_unique () side_effects {
-		return _CACHE_ ([&] () {
+		auto &r1x = _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
-			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine> () ;
+			auto rbx = StrongRef<SELF_PACK> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine>::make () ;
-				const auto r1x = rbx.watch () ;
-				auto &r3x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r1x.self]) ;
-				rax = Public::unique_atomic_address (NULL ,DEPTR[r3x]) ;
+				rbx = StrongRef<SELF_PACK>::make () ;
+				const auto r2x = rbx.weak () ;
+				const auto r3x = r2x.intrusive () ;
+				rax = Public::unique_atomic_address (NULL ,r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			auto &r4x = _LOAD_ (ARGV<SELF_PACK>::null ,rax) ;
-			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStaticEngine> (DEPTR[r4x]) ;
-			return rcx.watch () ;
+			const auto r4x = WeakRef (rax) ;
+			return r4x.strong (ARGV<SELF_PACK>::null) ;
 		}) ;
+		auto rcx = r1x.share () ;
+		return rcx.self ;
 	}
 
 	imports PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
@@ -872,32 +871,6 @@ private:
 		if (ix == VAR_NONE)
 			return NULL ;
 		return DEPTR[self_.mClass[ix]] ;
-	}
-
-private:
-	imports void friend_create (SELF_PACK &self_) {
-		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
-		self_.mCounter = 0 ;
-		self_.mValue = Deque<VALUE_NODE> () ;
-		self_.mClass = Deque<CLASS_NODE> () ;
-	}
-
-	imports void friend_destroy (SELF_PACK &self_) {
-		ScopedGuard<Mutex> ANONYMOUS (self_.mNodeMutex) ;
-		self_.mValue = Deque<VALUE_NODE> () ;
-		self_.mClass = Deque<CLASS_NODE> () ;
-	}
-
-	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
-		return ++self_.mCounter ;
-	}
-
-	imports LENGTH friend_detach (SELF_PACK &self_) side_effects {
-		return --self_.mCounter ;
-	}
-
-	imports void friend_latch (SELF_PACK &self_) {
-		GlobalRuntime::thread_yield () ;
 	}
 } ;
 
@@ -959,12 +932,8 @@ class GlobalStatic<Singleton<UNIT>>
 	:private Wrapped<> {
 private:
 	struct SELF_PACK {
-		Atomic mCounter ;
 		Singleton<UNIT> mValue ;
 	} ;
-
-private:
-	friend IntrusiveRef<SELF_PACK ,GlobalStatic> ;
 
 public:
 	imports Singleton<UNIT> &unique () side_effects {
@@ -973,44 +942,22 @@ public:
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = U::OPERATOR_TYPENAME::invoke (ARGV<Singleton<UNIT>>::null) ;
 			auto rax = GlobalStaticEngine::static_find_node (r2x ,r3x) ;
-			auto rbx = IntrusiveRef<SELF_PACK ,GlobalStatic> () ;
+			auto rbx = StrongRef<SELF_PACK> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStaticEngine::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = IntrusiveRef<SELF_PACK ,GlobalStatic>::make () ;
-				const auto r4x = rbx.watch () ;
-				auto &r6x = _LOAD_ (ARGV<NONE>::null ,DEPTR[r4x.self]) ;
-				rax->mValue = DEPTR[r6x] ;
+				rbx = StrongRef<SELF_PACK>::make () ;
+				const auto r4x = rbx.weak () ;
+				rax->mValue = r4x.intrusive () ;
 			}
-			auto &r7x = _LOAD_ (ARGV<SELF_PACK>::null ,rax->mValue) ;
-			auto rcx = IntrusiveRef<SELF_PACK ,GlobalStatic> (DEPTR[r7x]) ;
-			return rcx.watch () ;
+			const auto r5x = WeakRef (rax->mValue) ;
+			return r5x.strong (ARGV<SELF_PACK>::null) ;
 		}) ;
-		return r1x.self.mValue ;
-	}
-
-private:
-	imports void friend_create (SELF_PACK &self_) {
-		self_.mCounter = 0 ;
-	}
-
-	imports void friend_destroy (SELF_PACK &self_) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	imports LENGTH friend_attach (SELF_PACK &self_) side_effects {
-		return ++self_.mCounter ;
-	}
-
-	imports LENGTH friend_detach (SELF_PACK &self_) side_effects {
-		return --self_.mCounter ;
-	}
-
-	imports void friend_latch (SELF_PACK &self_) {
-		GlobalRuntime::thread_yield () ;
+		auto rcx = r1x.share () ;
+		return rcx->mValue ;
 	}
 } ;
 

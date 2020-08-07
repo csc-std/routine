@@ -302,7 +302,6 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-public:
 	imports const Vector &axis_x () {
 		return _CACHE_ ([&] () {
 			return Vector {REAL (1) ,REAL (0) ,REAL (0) ,REAL (0)} ;
@@ -709,7 +708,6 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-public:
 	imports const Matrix &identity () {
 		return _CACHE_ ([&] () {
 			return Matrix ({
