@@ -59,55 +59,6 @@ public:
 } ;
 #endif
 
-template <class>
-class GlobalStatic ;
-
-template <class UNIT>
-class Singleton
-	:private Proxy {
-	_STATIC_ASSERT_ (stl::is_class<UNIT>::value) ;
-	_STATIC_ASSERT_ (!stl::is_default_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (stl::is_nothrow_destructible<UNIT>::value) ;
-
-private:
-	class Holder {
-	private:
-		friend Singleton ;
-		REMOVE_CVR_TYPE<UNIT> mValue ;
-
-	public:
-		template <class... _ARGS>
-		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
-	} ;
-
-private:
-	friend GlobalStatic<Singleton> ;
-	AutoRef<Holder> mHolder ;
-
-private:
-	implicit Singleton () {
-		mHolder = AutoRef<Holder>::make () ;
-	}
-
-	UNIT &to () leftvalue {
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		return mHolder->mValue ;
-	}
-
-	inline implicit operator UNIT & () leftvalue {
-		return to () ;
-	}
-
-public:
-	//@warn: static instance across DLL ruins Singleton
-	imports UNIT &instance () {
-		struct Dependent ;
-		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
-		return GlobalStatic::unique () ;
-	}
-} ;
-
 class VAR128 {
 #pragma region
 #pragma push_macro ("v2i0")
@@ -448,10 +399,10 @@ private:
 	FLAG compr (const VAR128 &that) const {
 		const auto r1x = _CAST_ (ARGV<VAR64>::null ,v2i0) ;
 		const auto r2x = _CAST_ (ARGV<VAR64>::null ,that.v2i0) ;
-		const auto r3x = U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
+		const auto r3x = ComprInvokeProc::invoke (r1x ,r2x) ;
 		if (r3x != 0)
 			return r3x ;
-		return U::OPERATOR_COMPR::invoke (v2i1 ,that.v2i1) ;
+		return ComprInvokeProc::invoke (v2i1 ,that.v2i1) ;
 	}
 
 	DATA &m_v2i0 () leftvalue {
@@ -993,7 +944,7 @@ public:
 	}
 
 	FLAG compr (const Tuple &that) const {
-		const auto r1x = U::OPERATOR_COMPR::invoke (one () ,that.one ()) ;
+		const auto r1x = ComprInvokeProc::invoke (one () ,that.one ()) ;
 		if (r1x != 0)
 			return r1x ;
 		auto &r2x = rest () ;
@@ -1361,6 +1312,7 @@ private:
 		virtual void detach_weak () = 0 ;
 		virtual void attach_strong (stl::atomic<PTR<Holder>> &that) = 0 ;
 		virtual void detach_strong () = 0 ;
+		virtual void destroy () = 0 ;
 	} ;
 
 	struct Private {
@@ -1529,7 +1481,9 @@ private:
 
 class WeakRef::Private::DefHolder
 	:public Holder {
-protected:
+private:
+	template <class>
+	friend class ImplHolder ;
 	AnyRef<> mHolder ;
 	stl::atomic<LENGTH> mWeakCounter ;
 	stl::atomic<LENGTH> mStrongCounter ;
@@ -1559,8 +1513,7 @@ public:
 			const auto r1x = --mWeakCounter ;
 			if (r1x > 0)
 				discard ;
-			DEREF[this].~DefHolder () ;
-			GlobalHeap::free (this) ;
+			destroy () ;
 		}
 	}
 
@@ -1586,9 +1539,13 @@ public:
 			const auto r2x = --mWeakCounter ;
 			if (r2x > 0)
 				discard ;
-			DEREF[this].~DefHolder () ;
-			GlobalHeap::free (this) ;
+			destroy () ;
 		}
+	}
+
+	void destroy () override {
+		DEREF[this].~DefHolder () ;
+		GlobalHeap::free (this) ;
 	}
 } ;
 
@@ -1605,6 +1562,11 @@ public:
 
 	PACK<LENGTH ,LENGTH> type_algin_size () const override {
 		return PACK<LENGTH ,LENGTH> {_ALIGNOF_ (UNIT) ,_SIZEOF_ (UNIT)} ;
+	}
+
+	void destroy () override {
+		DEREF[this].~ImplHolder () ;
+		GlobalHeap::free (this) ;
 	}
 } ;
 
@@ -1624,8 +1586,15 @@ public:
 	}
 } ;
 
-namespace U {
-struct OPERATOR_RECAST {
+class RecastInvokeProc
+	:private Wrapped<> {
+public:
+	template <class _ARG1 ,class _ARG2>
+	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &address) {
+		return template_recast (address ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::null ,ARGVPX) ;
+	}
+
+private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
 		return static_cast<PTR<_ARG2>> (address) ;
@@ -1641,19 +1610,12 @@ struct OPERATOR_RECAST {
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP1)> &) {
 		return NULL ;
 	}
-
-	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &address) {
-		return template_recast (address ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::null ,ARGVPX) ;
-	}
-} ;
 } ;
 
 template <class UNIT>
 class StrongRef final {
 private:
 	using Holder = typename WeakRef::Holder ;
-	using LatchCounter = typename WeakRef::Private::LatchCounter ;
 
 private:
 	template <class>
@@ -1722,27 +1684,6 @@ public:
 		return TRUE ;
 	}
 
-	StrongRef share () const {
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
-		return StrongRef (r1x ,mFastPointer) ;
-	}
-
-	template <class _ARG1>
-	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
-		const auto r2x = U::OPERATOR_RECAST::invoke (ARGV<_ARG1>::null ,mFastPointer) ;
-		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (mFastPointer != NULL)) ;
-		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (r1x ,r2x) ;
-	}
-
-	WeakRef weak () const {
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
-		return WeakRef (r1x) ;
-	}
-
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
 		return DEREF[mFastPointer] ;
@@ -1795,6 +1736,30 @@ public:
 
 	inline BOOL operator!= (const WeakRef &that) const {
 		return !equal (that) ;
+	}
+
+	StrongRef share () const {
+		using LatchCounter = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		return StrongRef (r1x ,mFastPointer) ;
+	}
+
+	template <class _ARG1>
+	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
+		using LatchCounter = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		const auto r2x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,mFastPointer) ;
+		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (mFastPointer != NULL)) ;
+		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (r1x ,r2x) ;
+	}
+
+	WeakRef weak () const {
+		using LatchCounter = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		const auto r1x = mPointer.load () ;
+		return WeakRef (r1x) ;
 	}
 
 	template <class... _ARGS>
@@ -2307,7 +2272,7 @@ private:
 	} ;
 
 private:
-	StrongRef<Holder> mHolder ;
+	StrongRef<Holder> mThis ;
 
 public:
 	implicit Serializer () = delete ;
@@ -2317,14 +2282,14 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		mHolder = StrongRef<ImplHolder>::make (ARGV<ARGVS<_ARGS...>>::null) ;
+		mThis = StrongRef<ImplHolder>::make (ARGV<ARGVS<_ARGS...>>::null) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
 	inline _RET operator() (PhanRef<CONT> &&context_) const side_effects {
 		struct Dependent ;
 		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return Member (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
 } ;
@@ -2345,7 +2310,7 @@ public:
 	}
 
 	void friend_visit (UNIT &visitor) {
-		mBase->mHolder->compute_visit (visitor ,mContext) ;
+		mBase->mThis->compute_visit (visitor ,mContext) ;
 	}
 } ;
 
@@ -2376,6 +2341,48 @@ private:
 		auto &r1x = HINT_T1::compile (context_) ;
 		visitor.visit (r1x) ;
 		template_visit (visitor ,context_ ,ARGV<HINT_T2>::null) ;
+	}
+} ;
+
+template <class>
+class GlobalStatic ;
+
+template <class UNIT>
+class Singleton
+	:private Proxy {
+	_STATIC_ASSERT_ (stl::is_class<UNIT>::value) ;
+	_STATIC_ASSERT_ (!stl::is_default_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (stl::is_nothrow_destructible<UNIT>::value) ;
+
+private:
+	struct SELF_PACK {
+		UNIT mValue ;
+	} ;
+
+private:
+	friend GlobalStatic<Singleton> ;
+	StrongRef<SELF_PACK> mThis ;
+
+private:
+	implicit Singleton () {
+		mThis = StrongRef<SELF_PACK>::make () ;
+	}
+
+	UNIT &to () leftvalue {
+		_DEBUG_ASSERT_ (mThis.exist ()) ;
+		return mThis->mValue ;
+	}
+
+	inline implicit operator UNIT & () leftvalue {
+		return to () ;
+	}
+
+public:
+	//@warn: static instance across DLL ruins Singleton
+	imports UNIT &instance () {
+		struct Dependent ;
+		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
+		return GlobalStatic::unique () ;
 	}
 } ;
 } ;

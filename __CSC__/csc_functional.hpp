@@ -133,7 +133,7 @@ private:
 	} ;
 
 private:
-	StrongRef<Holder> mHolder ;
+	StrongRef<Holder> mThis ;
 
 public:
 	implicit Operator () = default ;
@@ -146,20 +146,20 @@ public:
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<HINT_T1 ,HINT_T2> ;
 		const auto r1x = Function<HINT_T1> (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
-		mHolder = StrongRef<ImplHolder>::make (r1x) ;
+		mThis = StrongRef<ImplHolder>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
-		if (!mHolder.exist ())
+		if (!mThis.exist ())
 			return VAR_NONE ;
-		return mHolder->rank () ;
+		return mThis->rank () ;
 	}
 
 	template <class... _ARGS>
 	Operand invoke (const LexicalNode &node ,const _ARGS &...funcval) const {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) <= 9) ;
-		_DYNAMIC_ASSERT_ (mHolder.exist ()) ;
-		return mHolder->invoke (node ,funcval...) ;
+		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
+		return mThis->invoke (node ,funcval...) ;
 	}
 
 	template <class... _ARGS>

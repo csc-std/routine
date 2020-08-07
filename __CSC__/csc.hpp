@@ -370,7 +370,7 @@ namespace CSC {
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::U::OPERATOR_ONCE::invoke (arg)) ANONYMOUS:
+#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::FOR_ONCE (arg)) ANONYMOUS:
 
 #ifdef FALSE
 #undef FALSE

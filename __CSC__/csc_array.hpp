@@ -43,8 +43,17 @@ public:
 	}
 } ;
 
-namespace U {
-struct OPERATOR_SORT {
+class SortInvokeProc
+	:private Wrapped<> {
+public:
+	template <class _ARG1 ,class _ARG2>
+	imports void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg ,const LENGTH &seg_len) {
+		_DEBUG_ASSERT_ (seg_len > 0) ;
+		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
+		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
+	}
+
+private:
 	template <class _ARG1 ,class _ARG2>
 	imports void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_a ,const INDEX &seg_b) {
 		for (auto &&i : _RANGE_ (seg_a ,seg_b)) {
@@ -116,14 +125,6 @@ struct OPERATOR_SORT {
 			return ;
 		insert_sort (array_ ,out ,ix ,iy) ;
 	}
-
-	template <class _ARG1 ,class _ARG2>
-	imports void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg ,const LENGTH &seg_len) {
-		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (seg >= 0 && seg <= out.size () - seg_len) ;
-		quick_sort (array_ ,out ,seg ,(seg + seg_len - 1) ,seg_len) ;
-	}
-} ;
 } ;
 
 template <class ITEM ,class SIZE = SAUTO>
@@ -457,9 +458,9 @@ public:
 		const auto r1x = size () ;
 		const auto r2x = that.size () ;
 		if (r1x == 0)
-			return U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
+			return ComprInvokeProc::invoke (r1x ,r2x) ;
 		if (r2x == 0)
-			return U::OPERATOR_COMPR::invoke (r1x ,r2x) ;
+			return ComprInvokeProc::invoke (r1x ,r2x) ;
 		INDEX ix = 0 ;
 		while (TRUE) {
 			if (mString[ix] == ITEM (0))
@@ -468,7 +469,7 @@ public:
 				break ;
 			ix++ ;
 		}
-		return U::OPERATOR_COMPR::invoke (mString[ix] ,that.mString[ix]) ;
+		return ComprInvokeProc::invoke (mString[ix] ,that.mString[ix]) ;
 	}
 
 	inline BOOL operator< (const String &that) const {
@@ -713,7 +714,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
+		SortInvokeProc::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1365,7 +1366,7 @@ public:
 
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
-		U::OPERATOR_SORT::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
+		SortInvokeProc::invoke (DEREF[this] ,ret ,0 ,ret.length ()) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1945,12 +1946,15 @@ private:
 
 namespace U {
 template <class UNIT>
-struct CONSTEXPR_CEIL8_SIZE_SWITCH {
-	imports constexpr UNIT case1 (const UNIT &len) {
+struct CONSTEXPR_CEIL8_SIZE_SWITCH_CASE1 {
+	imports constexpr UNIT invoke (const UNIT &len) {
 		return len ;
 	}
+} ;
 
-	imports constexpr UNIT case2 (const UNIT &len) {
+template <class UNIT>
+struct CONSTEXPR_CEIL8_SIZE_SWITCH_CASE2 {
+	imports constexpr UNIT invoke (const UNIT &len) {
 		return (len + 7) / 8 ;
 	}
 } ;
@@ -1958,8 +1962,8 @@ struct CONSTEXPR_CEIL8_SIZE_SWITCH {
 struct CONSTEXPR_CEIL8_SIZE {
 	imports constexpr LENGTH invoke (const LENGTH &len) {
 		return _SWITCH_ (
-			(len <= 0) ? CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case1 :
-			CONSTEXPR_CEIL8_SIZE_SWITCH<LENGTH>::case2)
+			(len <= 0) ? CONSTEXPR_CEIL8_SIZE_SWITCH_CASE1<LENGTH>::invoke :
+			CONSTEXPR_CEIL8_SIZE_SWITCH_CASE2<LENGTH>::invoke)
 			(len) ;
 	}
 } ;
@@ -2165,7 +2169,7 @@ public:
 		const auto r2x = BYTE (mWidth % 8 - 1) ;
 		const auto r3x = BYTE (mSet[ix] & r2x) ;
 		const auto r4x = BYTE (that.mSet[ix] & r2x) ;
-		return U::OPERATOR_COMPR::invoke (r3x ,r4x) ;
+		return ComprInvokeProc::invoke (r3x ,r4x) ;
 	}
 
 	inline BOOL operator< (const BitSet &that) const {
@@ -2355,7 +2359,7 @@ public:
 
 	inline explicit operator VAR64 () const leftvalue {
 		return VAR64 (mIndex) ;
-	}
+}
 #endif
 
 #ifdef __CSC_CONFIG_VAR64__
@@ -3115,7 +3119,7 @@ public:
 			ix = mSet.alloc (_MOVE_ (item)) ;
 			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
-			mSet[ix].mHash = U::OPERATOR_HASH::invoke (item) ;
+			mSet[ix].mHash = HashInvokeProc::invoke (item) ;
 			update_insert (ix) ;
 		}
 		mTop = ix ;
@@ -3138,7 +3142,7 @@ public:
 			ix = mSet.alloc (_MOVE_ (item)) ;
 			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
-			mSet[ix].mHash = U::OPERATOR_HASH::invoke (item) ;
+			mSet[ix].mHash = HashInvokeProc::invoke (item) ;
 			update_insert (ix) ;
 		}
 		mTop = ix ;
@@ -3173,7 +3177,7 @@ public:
 		if switch_once (TRUE) {
 			if (size () == 0)
 				discard ;
-			const auto r1x = U::OPERATOR_HASH::invoke (item) ;
+			const auto r1x = HashInvokeProc::invoke (item) ;
 			_DEBUG_ASSERT_ (r1x >= 0) ;
 			ret = mRange[r1x % mRange.size ()] ;
 			while (TRUE) {

@@ -1460,12 +1460,15 @@ inline constexpr _ARG1 &_SWITCH_ (_ARG1 &expr) {
 
 namespace U {
 template <class UNIT>
-struct CONSTEXPR_ABS_SWITCH {
-	imports constexpr UNIT case1 (const UNIT &val) {
+struct CONSTEXPR_ABS_SWITCH_CASE1 {
+	imports constexpr UNIT invoke (const UNIT &val) {
 		return -val ;
 	}
+} ;
 
-	imports constexpr UNIT case2 (const UNIT &val) {
+template <class UNIT>
+struct CONSTEXPR_ABS_SWITCH_CASE2 {
+	imports constexpr UNIT invoke (const UNIT &val) {
 		return +val ;
 	}
 } ;
@@ -1474,8 +1477,8 @@ struct CONSTEXPR_ABS_SWITCH {
 template <class _ARG1>
 inline constexpr REMOVE_CVR_TYPE<_ARG1> _ABS_ (const _ARG1 &val) {
 	return _SWITCH_ (
-		(val < _ARG1 (0)) ? U::CONSTEXPR_ABS_SWITCH<_ARG1>::case1 :
-		U::CONSTEXPR_ABS_SWITCH<_ARG1>::case2)
+		(val < _ARG1 (0)) ? U::CONSTEXPR_ABS_SWITCH_CASE1<_ARG1>::invoke :
+		U::CONSTEXPR_ABS_SWITCH_CASE2<_ARG1>::invoke)
 		(val) ;
 }
 
@@ -1495,12 +1498,15 @@ inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 
 namespace U {
 template <class UNIT>
-struct CONSTEXPR_EBOOL_SWITCH {
-	imports constexpr UNIT case1 () {
+struct CONSTEXPR_EBOOL_SWITCH_CASE1 {
+	imports constexpr UNIT invoke () {
 		return UNIT (1) ;
 	}
+} ;
 
-	imports constexpr UNIT case2 () {
+template <class UNIT>
+struct CONSTEXPR_EBOOL_SWITCH_CASE2 {
+	imports constexpr UNIT invoke () {
 		return UNIT (0) ;
 	}
 } ;
@@ -1508,23 +1514,25 @@ struct CONSTEXPR_EBOOL_SWITCH {
 
 inline constexpr INDEX _EBOOL_ (const BOOL &flag) {
 	return _SWITCH_ (
-		flag ? U::CONSTEXPR_EBOOL_SWITCH<INDEX>::case1 :
-		U::CONSTEXPR_EBOOL_SWITCH<INDEX>::case2)
+		flag ? U::CONSTEXPR_EBOOL_SWITCH_CASE1<INDEX>::invoke :
+		U::CONSTEXPR_EBOOL_SWITCH_CASE2<INDEX>::invoke)
 		() ;
 }
 
 namespace U {
-struct OPERATOR_ONCE {
-	imports BOOL invoke (const BOOL &) {
+struct OPERATOR_FOR_ONCE {
+	inline BOOL operator() (const BOOL &) const {
 		return FALSE ;
 	}
 
-	imports BOOL invoke (BOOL &flag) side_effects {
+	inline BOOL operator() (BOOL &flag) const side_effects {
 		flag = FALSE ;
 		return FALSE ;
 	}
 } ;
 } ;
+
+static constexpr auto FOR_ONCE = U::OPERATOR_FOR_ONCE {} ;
 
 class Interface {
 public:

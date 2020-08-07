@@ -461,17 +461,28 @@ public:
 	imports FLAG system_exec (const String<STR> &cmd) side_effects ;
 } ;
 
-namespace U {
-struct OPERATOR_TYPENAME {
+class TypeNameInvokeProc
+	:private Wrapped<> {
+private:
 	struct TYPENAME {
 		String<STR> mName ;
 	} ;
 
+public:
+	template <class _ARG1>
+	imports String<STR> invoke (const ARGVF<_ARG1> &) {
+		const auto r1x = Function<void (TextWriter<STR> &)> ([] (TextWriter<STR> &writer) {
+			template_write_typename_x (writer ,ARGV<_ARG1>::null) ;
+		}) ;
+		return String<STR>::make (r1x) ;
+	}
+
+private:
 #ifdef __CSC_COMPILER_MSVC__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
 		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("struct CSC::U::OPERATOR_TYPENAME::TYPENAME __cdecl CSC::U::OPERATOR_TYPENAME::typeid_name_from_func<") ;
+			return _PCSTR_ ("struct CSC::TypeNameInvokeProc::TYPENAME __cdecl CSC::TypeNameInvokeProc::typeid_name_from_func<") ;
 		}) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return _PCSTR_ (">(void)") ;
@@ -491,7 +502,7 @@ struct OPERATOR_TYPENAME {
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
 		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [with _RET = ") ;
+			return _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [with _RET = ") ;
 		}) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return _PCSTR_ ("]") ;
@@ -504,14 +515,14 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r5x > 0) ;
 		ret.mName = ret.mName.segment (r3x ,r5x) ;
 		return _MOVE_ (ret) ;
-	}
+}
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
 		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("static CSC::U::OPERATOR_TYPENAME::TYPENAME CSC::U::OPERATOR_TYPENAME::typeid_name_from_func() [_RET = ") ;
+			return _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [_RET = ") ;
 		}) ;
 		auto &r2x = _CACHE_ ([&] () {
 			return _PCSTR_ ("]") ;
@@ -524,7 +535,7 @@ struct OPERATOR_TYPENAME {
 		_DYNAMIC_ASSERT_ (r5x > 0) ;
 		ret.mName = ret.mName.segment (r3x ,r5x) ;
 		return _MOVE_ (ret) ;
-	}
+}
 #endif
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_const<_ARG1>::value && stl::is_volatile<_ARG1>::value)>>
@@ -752,15 +763,6 @@ struct OPERATOR_TYPENAME {
 		writer << _PCSTR_ (" ,") ;
 		template_write_typename_y (writer ,ARGV<HINT_T2>::null) ;
 	}
-
-	template <class _ARG1>
-	imports String<STR> invoke (const ARGVF<_ARG1> &) {
-		const auto r1x = Function<void (TextWriter<STR> &)> ([] (TextWriter<STR> &writer) {
-			template_write_typename_x (writer ,ARGV<_ARG1>::null) ;
-		}) ;
-		return String<STR>::make (r1x) ;
-	}
-} ;
 } ;
 
 template <class>
@@ -940,7 +942,7 @@ public:
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStaticEngine::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
-			const auto r3x = U::OPERATOR_TYPENAME::invoke (ARGV<Singleton<UNIT>>::null) ;
+			const auto r3x = TypeNameInvokeProc::invoke (ARGV<Singleton<UNIT>>::null) ;
 			auto rax = GlobalStaticEngine::static_find_node (r2x ,r3x) ;
 			auto rbx = StrongRef<SELF_PACK> () ;
 			if switch_once (TRUE) {

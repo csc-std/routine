@@ -64,8 +64,15 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 #endif
 }
 
-namespace U {
-struct OPERATOR_COMPR {
+class ComprInvokeProc
+	:private Wrapped<> {
+public:
+	template <class _ARG1>
+	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
+		return template_compr (lhs ,rhs ,ARGVPX) ;
+	}
+
+private:
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
@@ -85,11 +92,6 @@ struct OPERATOR_COMPR {
 			return BasicProc::mem_compr (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs)] ,PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs)] ,_SIZEOF_ (_ARG1)) ;
 		}
 
-		template <class _ARG1>
-		imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
-			return template_compr (lhs ,rhs ,ARGVPX) ;
-		}
-} ;
 } ;
 
 template <class _ARG1>
@@ -102,7 +104,7 @@ inline exports FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG
 	if (src1 == src2)
 		return FLAG (0) ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		const auto r1x = U::OPERATOR_COMPR::invoke (src1[i] ,src2[i]) ;
+		const auto r1x = ComprInvokeProc::invoke (src1[i] ,src2[i]) ;
 		if (r1x != 0)
 			return r1x ;
 	}
@@ -112,8 +114,17 @@ inline exports FLAG BasicProc::mem_compr (const ARR<_ARG1> &src1 ,const ARR<_ARG
 #endif
 }
 
-namespace U {
-struct OPERATOR_HASH {
+class HashInvokeProc
+	:private Wrapped<> {
+public:
+	template <class _ARG1>
+	imports FLAG invoke (const _ARG1 &self_) {
+		FLAG ret = template_hash (self_ ,ARGVPX) ;
+		ret &= VAR_MAX ;
+		return _MOVE_ (ret) ;
+	}
+
+private:
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
@@ -128,14 +139,6 @@ struct OPERATOR_HASH {
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP1)> &) {
 		return BasicProc::mem_hash (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_)] ,_SIZEOF_ (_ARG1)) ;
 	}
-
-	template <class _ARG1>
-	imports FLAG invoke (const _ARG1 &self_) {
-		FLAG ret = template_hash (self_ ,ARGVPX) ;
-		ret &= VAR_MAX ;
-		return _MOVE_ (ret) ;
-	}
-} ;
 } ;
 
 #ifdef __CSC_CONFIG_VAR32__
@@ -150,7 +153,7 @@ inline exports FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &le
 	_DEBUG_ASSERT_ (len >= 0) ;
 	FLAG ret = M_MAGIC_N1 ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		ret ^= U::OPERATOR_HASH::invoke (src[i]) ;
+		ret ^= HashInvokeProc::invoke (src[i]) ;
 		ret *= M_MAGIC_N2 ;
 	}
 	ret &= VAR_MAX ;
@@ -173,7 +176,7 @@ inline exports FLAG BasicProc::mem_hash (const ARR<_ARG1> &src ,const LENGTH &le
 	_DEBUG_ASSERT_ (len >= 0) ;
 	FLAG ret = M_MAGIC_N1 ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		ret ^= U::OPERATOR_HASH::invoke (src[i]) ;
+		ret ^= HashInvokeProc::invoke (src[i]) ;
 		ret *= M_MAGIC_N2 ;
 	}
 	ret &= VAR_MAX ;
@@ -618,16 +621,14 @@ class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
 private:
 	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
 
-	class Holder {
-	private:
-		friend AutoRef ;
-		friend SPECIALIZATION_THIS ;
-		REMOVE_CVR_TYPE<UNIT> mValue ;
-
+	class Holder
+		:public Interface {
 	public:
-		template <class... _ARGS>
-		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		virtual UNIT &deref () leftvalue = 0 ;
+	} ;
+
+	struct Private {
+		class PureHolder ;
 	} ;
 
 private:
@@ -673,22 +674,36 @@ private:
 } ;
 
 template <class UNIT>
+class AutoRef<SPECIALIZATION<UNIT ,FALSE>>::Private::PureHolder
+	:public Holder {
+private:
+	REMOVE_CVR_TYPE<UNIT> mValue ;
+
+public:
+	template <class... _ARGS>
+	explicit PureHolder (_ARGS &&...initval)
+		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+
+	UNIT &deref () leftvalue override {
+		return mValue ;
+	}
+} ;
+
+template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
 	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
 
-	class Holder {
-	private:
-		friend AutoRef ;
-		friend SPECIALIZATION_THIS ;
-		REMOVE_CVR_TYPE<UNIT> mValue ;
-
+	class Holder
+		:public Interface {
 	public:
-		template <class... _ARGS>
-		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		virtual UNIT &deref () leftvalue = 0 ;
+	} ;
+
+	struct Private {
+		class PureHolder ;
 	} ;
 
 private:
@@ -711,12 +726,14 @@ public:
 
 	implicit AutoRef (const AutoRef &that)
 		:AutoRef (ARGVP0) {
+		struct Dependent ;
+		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		if (that.mPointer == NULL)
 			return ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
 		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,that.mPointer->mValue) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,r1x) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,rax.self) ;
+		ScopedBuild<PureHolder> ANONYMOUS (rax ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -752,6 +769,22 @@ private:
 } ;
 
 template <class UNIT>
+class AutoRef<SPECIALIZATION<UNIT ,TRUE>>::Private::PureHolder
+	:public Holder {
+private:
+	REMOVE_CVR_TYPE<UNIT> mValue ;
+
+public:
+	template <class... _ARGS>
+	explicit PureHolder (_ARGS &&...initval)
+		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+
+	UNIT &deref () leftvalue override {
+		return mValue ;
+	}
+} ;
+
+template <class UNIT>
 class AutoRef final
 	:private AutoRef<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)>> {
 private:
@@ -773,7 +806,7 @@ public:
 
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mValue ;
+		return mPointer->deref () ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
@@ -786,7 +819,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mValue ;
+		return mPointer->deref () ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -799,9 +832,10 @@ public:
 
 	template <class... _ARGS>
 	imports AutoRef make (_ARGS &&...initval) {
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,rax.self) ;
+		using PureHolder = typename SPECIALIZATION_BASE::Private::PureHolder ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
+		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
 		AutoRef ret = AutoRef (ARGVP0 ,r1x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -819,16 +853,16 @@ class SharedRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	class Holder {
-	private:
-		friend SharedRef ;
-		REMOVE_CVR_TYPE<UNIT> mValue ;
-		LENGTH mCounter ;
-
+	class Holder
+		:public Interface {
 	public:
-		template <class... _ARGS>
-		explicit Holder (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mCounter (0) {}
+		virtual UNIT &deref () leftvalue = 0 ;
+		virtual LENGTH increase () side_effects = 0 ;
+		virtual LENGTH decrease () side_effects = 0 ;
+	} ;
+
+	struct Private {
+		class PureHolder ;
 	} ;
 
 private:
@@ -844,7 +878,7 @@ public:
 		if (mPointer == NULL)
 			return ;
 		if switch_once (TRUE) {
-			const auto r1x = --mPointer->mCounter ;
+			const auto r1x = mPointer->decrease () ;
 			if (r1x != 0)
 				discard ;
 			mPointer->~Holder () ;
@@ -891,7 +925,7 @@ public:
 
 	UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->mValue ;
+		return mPointer->deref () ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -904,9 +938,11 @@ public:
 
 	template <class... _ARGS>
 	imports SharedRef make (_ARGS &&...initval) {
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<Holder>>::null) ;
-		ScopedBuild<Holder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,rax.self) ;
+		struct Dependent ;
+		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
+		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
 		SharedRef ret = SharedRef (ARGVP0 ,r1x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -920,10 +956,36 @@ private:
 		:SharedRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
-		const auto r1x = ++pointer->mCounter ;
+		const auto r1x = pointer->increase () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		mPointer = pointer ;
+	}
+} ;
+
+template <class UNIT>
+class SharedRef<UNIT>::Private::PureHolder
+	:public Holder {
+private:
+	friend SharedRef ;
+	REMOVE_CVR_TYPE<UNIT> mValue ;
+	LENGTH mCounter ;
+
+public:
+	template <class... _ARGS>
+	explicit PureHolder (_ARGS &&...initval)
+		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mCounter (0) {}
+
+	UNIT &deref () leftvalue override {
+		return mValue ;
+	}
+
+	LENGTH increase () side_effects override {
+		return ++mCounter ;
+	}
+
+	LENGTH decrease () side_effects override {
+		return --mCounter ;
 	}
 } ;
 
@@ -1495,8 +1557,15 @@ public:
 template <class>
 class Function ;
 
-namespace U {
-struct OPERATOR_FUNCTOR {
+class FunctorInvokeProc
+	:public Wrapped<> {
+public:
+	template <class _ARG1 ,class _ARG2>
+	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,_ARG2 &functor) {
+		return template_functor (ARGV<_ARG1>::null ,functor ,ARGVPX) ;
+	}
+
+private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_convertible<_ARG2 ,PTR<_ARG1>>::value)>>
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
 		return static_cast<PTR<_ARG1>> (functor) ;
@@ -1506,12 +1575,6 @@ struct OPERATOR_FUNCTOR {
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP1)> &) {
 		return NULL ;
 	}
-
-	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,_ARG2 &functor) {
-		return template_functor (ARGV<_ARG1>::null ,functor ,ARGVPX) ;
-	}
-} ;
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -1553,7 +1616,7 @@ public:
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		mPointer = r1x ;
-		mFunctor = U::OPERATOR_FUNCTOR::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x->mFunctor) ;
+		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x->mFunctor) ;
 		rax = NULL ;
 	}
 
@@ -1681,13 +1744,6 @@ private:
 	private:
 		PTR<NONE> mContext ;
 		MEMPTR<UNIT1 (UNITS...)> mFunctor ;
-
-	public:
-		implicit FakeHolder () = delete ;
-
-		void friend_move (const PTR<TEMP<FakeHolder>> &address) override ;
-
-		UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override ;
 	} ;
 
 	struct Private {
@@ -2181,7 +2237,7 @@ public:
 		const auto r2x = BasicProc::mem_compr (DEREF[mBuffer] ,DEREF[that.mBuffer] ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return U::OPERATOR_COMPR::invoke (mSize ,that.mSize) ;
+		return ComprInvokeProc::invoke (mSize ,that.mSize) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2476,7 +2532,7 @@ public:
 		const auto r2x = BasicProc::mem_compr (DEREF[mBuffer] ,DEREF[that.mBuffer] ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return U::OPERATOR_COMPR::invoke (mSize ,that.mSize) ;
+		return ComprInvokeProc::invoke (mSize ,that.mSize) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2586,7 +2642,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2620,7 +2676,7 @@ public:
 		const auto r2x = BasicProc::mem_compr (DEREF[mBuffer] ,DEREF[that.mBuffer] ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return U::OPERATOR_COMPR::invoke (mSize ,that.mSize) ;
+		return ComprInvokeProc::invoke (mSize ,that.mSize) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {
@@ -2763,7 +2819,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2797,7 +2853,7 @@ public:
 		const auto r2x = BasicProc::mem_compr (DEREF[mBuffer] ,DEREF[that.mBuffer] ,r1x) ;
 		if (r2x != 0)
 			return r2x ;
-		return U::OPERATOR_COMPR::invoke (mSize ,that.mSize) ;
+		return ComprInvokeProc::invoke (mSize ,that.mSize) ;
 	}
 
 	inline BOOL operator< (const Buffer &that) const {

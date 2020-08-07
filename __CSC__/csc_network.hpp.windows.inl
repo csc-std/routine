@@ -179,13 +179,13 @@ private:
 
 private:
 	friend TCPListener ;
-	StrongRef<SELF_PACK> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		mThis = StrongRef<SELF_PACK>::make () ;
+		mThis = SharedRef<SELF_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -365,7 +365,7 @@ private:
 	using SELF_PACK = TCPSocket::Private::Implement::SELF_PACK ;
 
 private:
-	StrongRef<SELF_PACK> mThis ;
+	SharedRef<SELF_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 
@@ -373,7 +373,7 @@ public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const StrongRef<TCPSocket::Private::Implement> &socket_) {
-		mThis = socket_->mThis.share () ;
+		mThis = socket_->mThis ;
 		mListener = _MOVE_ (mThis->mSocket) ;
 		const auto r1x = api::listen (mListener ,5) ;
 		_DYNAMIC_ASSERT_ (r1x != SOCKET_ERROR) ;

@@ -160,8 +160,9 @@ public:
 	imports String<_ARG1> build_times (const ARGVF<_ARG1> & ,const TimePoint &stru) ;
 } ;
 
-namespace U {
-struct OPERATOR_STRING {
+class StringConvertInvokeProc
+	:private Wrapped<> {
+public:
 	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRU8> &val) {
 		return _COPY_ (val) ;
 	}
@@ -261,7 +262,6 @@ struct OPERATOR_STRING {
 	imports String<STRA> invoke (const ARGVF<String<STRA>> & ,const String<STRU32> &val) {
 		return StringProc::cvt_u32s_as (val) ;
 	}
-} ;
 } ;
 
 inline exports String<STRU16> StringProc::cvt_u8s_u16s (const String<STRU8> &val) {
@@ -719,29 +719,29 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 }
 
 inline exports String<STRU8> StringProc::cvt_ws_u8s (const String<STRW> &val) {
-	return U::OPERATOR_STRING::invoke (ARGV<String<STRU8>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU8>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u8s_ws (const String<STRU8> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
 inline exports String<STRU16> StringProc::cvt_ws_u16s (const String<STRW> &val) {
-	return U::OPERATOR_STRING::invoke (ARGV<String<STRU16>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU16>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u16s_ws (const String<STRU16> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
 inline exports String<STRU32> StringProc::cvt_ws_u32s (const String<STRW> &val) {
-	return U::OPERATOR_STRING::invoke (ARGV<String<STRU32>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU32>>::null ,_CAST_ (ARGV<String<STRUW>>::null ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u32s_ws (const String<STRU32> &val) {
-	String<STRUW> ret = U::OPERATOR_STRING::invoke (ARGV<String<STRUW>>::null ,val) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::null ,val) ;
 	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::null ,ret)) ;
 }
 
@@ -1071,12 +1071,12 @@ inline exports String<_ARG1> StringProc::build_vals (const ARGVF<_ARG1> & ,const
 
 template <class _ARG1>
 inline exports String<STR> StringProc::parse_strs (const String<_ARG1> &stri) {
-	return U::OPERATOR_STRING::invoke (ARGV<String<STR>>::null ,stri) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STR>>::null ,stri) ;
 }
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_strs (const ARGVF<_ARG1> & ,const String<STR> &stru) {
-	return U::OPERATOR_STRING::invoke (ARGV<String<_ARG1>>::null ,stru) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<_ARG1>>::null ,stru) ;
 }
 
 #ifdef __CSC_EXTEND__
@@ -1086,9 +1086,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
+	struct Abstract
 		:public Interface {
-	public:
 		virtual BOOL match (const String<STRU8> &expr) const = 0 ;
 		virtual Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const = 0 ;
 		virtual String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const = 0 ;
