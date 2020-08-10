@@ -387,7 +387,7 @@ private:
 	}
 } ;
 
-inline exports ConsoleService::ConsoleService () {
+inline exports ConsoleService::ConsoleService (const ARGVF<Singleton<ConsoleService>> &) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make () ;
 }
@@ -398,6 +398,8 @@ private:
 	UniqueRef<HANDLE> mSymbolFromAddress ;
 
 public:
+	implicit Implement () = default ;
+
 	void abort_once_invoked_exit (const BOOL &flag) override {
 #pragma region
 #pragma warning (push)
@@ -495,7 +497,7 @@ private:
 	}
 } ;
 
-inline exports DebuggerService::DebuggerService () {
+inline exports DebuggerService::DebuggerService (const ARGVF<Singleton<DebuggerService>> &) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make () ;
 }

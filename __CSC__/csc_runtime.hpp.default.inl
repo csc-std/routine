@@ -200,15 +200,13 @@ public:
 	Duration add (const Duration &that) const override {
 		const auto r1x = mDuration + that.native ().get_mDuration () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Private::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		return Duration (r2x) ;
 	}
 
 	Duration sub (const Duration &that) const override {
 		const auto r1x = mDuration - that.native ().get_mDuration () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Private::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		return Duration (r2x) ;
 	}
 } ;
 
@@ -217,9 +215,10 @@ inline exports Duration::Duration (const LENGTH &milliseconds_) {
 	mThis = StrongRef<Implement>::make (milliseconds_) ;
 }
 
-inline exports Duration::Duration (const ARRAY6<LENGTH> &time_) {
+template <class _ARG1 ,class>
+inline exports Duration::Duration (_ARG1 &&that) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (time_) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 }
 
 class TimePoint::Private::Implement
@@ -303,21 +302,20 @@ public:
 	TimePoint add (const Duration &that) const override {
 		const auto r1x = mTimePoint + that.native ().get_mDuration () ;
 		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<TimePoint::Private::Implement>::make (r2x) ;
-		return TimePoint (r3x) ;
+		return TimePoint (r2x) ;
 	}
 
 	Duration sub (const TimePoint &that) const override {
 		const auto r1x = mTimePoint - that.native ().get_mTimePoint () ;
 		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
-		const auto r3x = StrongRef<Duration::Private::Implement>::make (r2x) ;
-		return Duration (r3x) ;
+		return Duration (r2x) ;
 	}
 } ;
 
-inline exports TimePoint::TimePoint (const ARRAY8<LENGTH> &time_) {
+template <class _ARG1 ,class>
+inline exports TimePoint::TimePoint (_ARG1 &&that) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (time_) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 }
 
 class Atomic::Private::Implement
@@ -511,15 +509,13 @@ inline exports Thread::Thread (const StrongRef<Binder> &runnable) {
 
 inline exports TimePoint GlobalRuntime::clock_now () {
 	const auto r1x = api::chrono::system_clock::now () ;
-	const auto r2x = StrongRef<TimePoint::Private::Implement>::make (r1x) ;
-	return TimePoint (r2x) ;
+	return TimePoint (r1x) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
 	const auto r1x = api::chrono::system_clock::duration::zero () ;
 	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
-	const auto r3x = StrongRef<TimePoint::Private::Implement>::make (r2x) ;
-	return TimePoint (r3x) ;
+	return TimePoint (r2x) ;
 }
 
 #ifdef __CSC_SYSTEM_WINDOWS__
@@ -696,7 +692,7 @@ public:
 	}
 } ;
 
-inline exports RandomService::RandomService () {
+inline exports RandomService::RandomService (const ARGVF<Singleton<RandomService>> &) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make () ;
 }

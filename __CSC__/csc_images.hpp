@@ -901,7 +901,7 @@ public:
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 } ;
 } ;

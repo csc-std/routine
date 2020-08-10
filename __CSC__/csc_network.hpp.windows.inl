@@ -521,6 +521,8 @@ private:
 	UniqueRef<> mService ;
 
 public:
+	implicit Implement () = default ;
+
 	void startup () override {
 		if (mService.exist ())
 			return ;
@@ -558,7 +560,7 @@ public:
 	}
 } ;
 
-inline exports NetworkService::NetworkService () {
+inline exports NetworkService::NetworkService (const ARGVF<Singleton<NetworkService>> &) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make () ;
 }

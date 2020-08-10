@@ -675,7 +675,7 @@ public:
 	}
 
 	inline implicit operator HINT_OPTIONAL & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	const HINT_OPTIONAL &to () const leftvalue {
@@ -687,7 +687,7 @@ public:
 	}
 
 	inline implicit operator const HINT_OPTIONAL & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	template <class _ARG1>
@@ -830,7 +830,7 @@ public:
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	void swap (Monostate &that) {
@@ -1307,17 +1307,15 @@ private:
 	public:
 		virtual LENGTH type_address () const = 0 ;
 		virtual PACK<LENGTH ,LENGTH> type_algin_size () const = 0 ;
-		virtual void set_holder (AnyRef<> &&holder) = 0 ;
-		virtual void attach_weak (stl::atomic<PTR<Holder>> &that) = 0 ;
+		virtual void init_holder (AnyRef<> &&holder) = 0 ;
+		virtual void attach_weak () = 0 ;
 		virtual void detach_weak () = 0 ;
-		virtual void attach_strong (stl::atomic<PTR<Holder>> &that) = 0 ;
+		virtual void attach_strong () = 0 ;
 		virtual void detach_strong () = 0 ;
 		virtual void destroy () = 0 ;
 	} ;
 
 	struct Private {
-		class DefHolder ;
-
 		template <class>
 		class ImplHolder ;
 
@@ -1341,14 +1339,22 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,that) ;
 		if (r1x == NULL)
 			return ;
-		r1x->attach_weak (mPointer) ;
+		r1x->attach_weak () ;
+		const auto r2x = safe_exchange (r1x) ;
+		if (r2x == NULL)
+			return ;
+		r2x->detach_weak () ;
 	}
 
 	explicit WeakRef (const PTR<Holder> &that)
 		:WeakRef (ARGVP0) {
 		if (that == NULL)
 			return ;
-		that->attach_weak (mPointer) ;
+		that->attach_weak () ;
+		const auto r2x = safe_exchange (that) ;
+		if (r2x == NULL)
+			return ;
+		r2x->detach_weak () ;
 	}
 
 	template <class _ARG1>
@@ -1474,38 +1480,44 @@ private:
 			const auto r2x = mLatch.load () ;
 			if (r2x == 0)
 				break ;
+			_DEBUG_ASSERT_ (FALSE) ;
 		}
 		return r1x ;
 	}
 } ;
 
-class WeakRef::Private::DefHolder
+template <class UNIT>
+class WeakRef::Private::ImplHolder
 	:public Holder {
 private:
-	template <class>
-	friend class ImplHolder ;
 	AnyRef<> mHolder ;
 	stl::atomic<LENGTH> mWeakCounter ;
 	stl::atomic<LENGTH> mStrongCounter ;
 
 public:
-	implicit DefHolder () {
+	implicit ImplHolder () {
 		mWeakCounter = 0 ;
 		mStrongCounter = 0 ;
 	}
 
-	void set_holder (AnyRef<> &&holder) override {
+	LENGTH type_address () const override {
+		const auto r1x = DEPTR[mHolder.rebind (ARGV<UNIT>::null).self] ;
+		return _ADDRESS_ (r1x) ;
+	}
+
+	PACK<LENGTH ,LENGTH> type_algin_size () const override {
+		return PACK<LENGTH ,LENGTH> {_ALIGNOF_ (UNIT) ,_SIZEOF_ (UNIT)} ;
+	}
+
+	void init_holder (AnyRef<> &&holder) override {
+		_DEBUG_ASSERT_ (mWeakCounter.load () == 0) ;
+		_DEBUG_ASSERT_ (mStrongCounter.load () == 0) ;
+		_DEBUG_ASSERT_ (!mHolder.exist ()) ;
 		mHolder = _MOVE_ (holder) ;
 	}
 
-	void attach_weak (stl::atomic<PTR<Holder>> &that) override {
-		const auto r1x = that.exchange (this) ;
-		if (r1x == this)
-			return ;
+	void attach_weak () override {
 		++mWeakCounter ;
-		if (r1x == NULL)
-			return ;
-		r1x->detach_weak () ;
 	}
 
 	void detach_weak () override {
@@ -1517,15 +1529,9 @@ public:
 		}
 	}
 
-	void attach_strong (stl::atomic<PTR<Holder>> &that) override {
-		const auto r1x = that.exchange (this) ;
-		if (r1x == this)
-			return ;
+	void attach_strong () override {
 		++mWeakCounter ;
 		++mStrongCounter ;
-		if (r1x == NULL)
-			return ;
-		r1x->detach_strong () ;
 	}
 
 	void detach_strong () override {
@@ -1541,27 +1547,6 @@ public:
 				discard ;
 			destroy () ;
 		}
-	}
-
-	void destroy () override {
-		DEREF[this].~DefHolder () ;
-		GlobalHeap::free (this) ;
-	}
-} ;
-
-template <class UNIT>
-class WeakRef::Private::ImplHolder
-	:public DefHolder {
-public:
-	implicit ImplHolder () = default ;
-
-	LENGTH type_address () const override {
-		const auto r1x = DEPTR[mHolder.rebind (ARGV<UNIT>::null).self] ;
-		return _ADDRESS_ (r1x) ;
-	}
-
-	PACK<LENGTH ,LENGTH> type_algin_size () const override {
-		return PACK<LENGTH ,LENGTH> {_ALIGNOF_ (UNIT) ,_SIZEOF_ (UNIT)} ;
 	}
 
 	void destroy () override {
@@ -1618,9 +1603,6 @@ private:
 	using Holder = typename WeakRef::Holder ;
 
 private:
-	template <class>
-	friend class StrongRef ;
-	friend WeakRef ;
 	stl::atomic<PTR<Holder>> mPointer ;
 	mutable stl::atomic<LENGTH> mLatch ;
 	PTR<UNIT> mFastPointer ;
@@ -1629,6 +1611,20 @@ public:
 	implicit StrongRef ()
 		:StrongRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
+	}
+
+	explicit StrongRef (const PTR<Holder> &pointer ,const PTR<UNIT> &fast_pointer)
+		:StrongRef (ARGVP0) {
+		if (pointer == NULL)
+			return ;
+		if (fast_pointer == NULL)
+			return ;
+		mFastPointer = fast_pointer ;
+		pointer->attach_strong () ;
+		const auto r1x = safe_exchange (pointer) ;
+		if (r1x == NULL)
+			return ;
+		r1x->detach_strong () ;
 	}
 
 	//@warn: circular reference ruins StrongRef
@@ -1685,12 +1681,13 @@ public:
 	}
 
 	UNIT &to () leftvalue {
+		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
 		return DEREF[mFastPointer] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -1698,12 +1695,13 @@ public:
 	}
 
 	const UNIT &to () const leftvalue {
+		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
 		return DEREF[mFastPointer] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1770,7 +1768,7 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		auto tmp = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		auto &r2x = tmp.rebind (ARGV<UNIT>::null).self ;
-		r1x->set_holder (_MOVE_ (tmp)) ;
+		r1x->init_holder (_MOVE_ (tmp)) ;
 		StrongRef ret = StrongRef (r1x ,DEPTR[r2x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1780,14 +1778,6 @@ private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) ,mLatch (0) ,mFastPointer (NULL) {}
 
-	explicit StrongRef (const PTR<Holder> &pointer ,const PTR<UNIT> &fast_pointer)
-		:StrongRef (ARGVP0) {
-		if (pointer == NULL)
-			return ;
-		pointer->attach_strong (mPointer) ;
-		mFastPointer = fast_pointer ;
-	}
-
 	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
 		const auto r1x = mPointer.exchange (address) ;
 		if (r1x == NULL)
@@ -1796,6 +1786,7 @@ private:
 			const auto r2x = mLatch.load () ;
 			if (r2x == 0)
 				break ;
+			_DEBUG_ASSERT_ (FALSE) ;
 		}
 		return r1x ;
 	}
@@ -2357,15 +2348,27 @@ class Singleton
 private:
 	struct SELF_PACK {
 		UNIT mValue ;
+
+		template <class... _ARGS>
+		explicit SELF_PACK (_ARGS &&...initval)
+			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 	} ;
 
 private:
 	friend GlobalStatic<Singleton> ;
 	StrongRef<SELF_PACK> mThis ;
 
+public:
+	//@warn: static instance across DLL ruins Singleton
+	imports UNIT &instance () {
+		struct Dependent ;
+		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
+		return GlobalStatic::unique () ;
+	}
+
 private:
 	implicit Singleton () {
-		mThis = StrongRef<SELF_PACK>::make () ;
+		mThis = StrongRef<SELF_PACK>::make (ARGV<Singleton>::null) ;
 	}
 
 	UNIT &to () leftvalue {
@@ -2374,15 +2377,7 @@ private:
 	}
 
 	inline implicit operator UNIT & () leftvalue {
-		return to () ;
-	}
-
-public:
-	//@warn: static instance across DLL ruins Singleton
-	imports UNIT &instance () {
-		struct Dependent ;
-		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
-		return GlobalStatic::unique () ;
+		return self ;
 	}
 } ;
 } ;

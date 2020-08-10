@@ -245,6 +245,8 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	implicit NetworkService () = delete ;
+
 	void startup () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->startup () ;
@@ -276,6 +278,6 @@ public:
 	}
 
 private:
-	NetworkService () ;
+	explicit NetworkService (const ARGVF<Singleton<NetworkService>> &) ;
 } ;
 } ;

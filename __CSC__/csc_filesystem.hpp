@@ -175,6 +175,8 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	implicit FileSystemService () = delete ;
+
 	void startup () {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->startup () ;
@@ -186,6 +188,6 @@ public:
 	}
 
 private:
-	FileSystemService () ;
+	explicit FileSystemService (const ARGVF<Singleton<FileSystemService>> &) ;
 } ;
 } ;

@@ -97,7 +97,7 @@ private:
 	INDEX mWrite ;
 
 public:
- 	implicit ByteReader () {
+	implicit ByteReader () {
 		reset () ;
 	}
 
@@ -467,7 +467,7 @@ private:
 	INDEX mWrite ;
 
 public:
- 	implicit ByteWriter () {
+	implicit ByteWriter () {
 		reset () ;
 	}
 
@@ -826,15 +826,13 @@ private:
 	} ;
 
 private:
-	template <class>
-	friend class TextReader ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
- 	implicit TextReader () {
+	implicit TextReader () {
 		reset () ;
 	}
 
@@ -1568,15 +1566,13 @@ private:
 	} ;
 
 private:
-	template <class>
-	friend class TextWriter ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
 public:
- 	implicit TextWriter () {
+	implicit TextWriter () {
 		reset () ;
 	}
 
@@ -2256,7 +2252,7 @@ private:
 	LENGTH mHintNextTextSize ;
 
 public:
- 	implicit RegularReader () {
+	implicit RegularReader () {
 		mPeek = 0 ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;

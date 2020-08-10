@@ -39,7 +39,7 @@ private:
 	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
 
 public:
- 	implicit CalcThread () {
+	implicit CalcThread () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 			static_create (me.self) ;
@@ -337,7 +337,7 @@ private:
 	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
 
 public:
- 	implicit WorkThread () {
+	implicit WorkThread () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 			static_create (me.self) ;
@@ -666,7 +666,7 @@ private:
 	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
 
 public:
- 	implicit Promise () {
+	implicit Promise () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 			static_create (me.self) ;

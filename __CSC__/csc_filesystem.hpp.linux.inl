@@ -676,6 +676,8 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 class FileSystemService::Private::Implement
 	:public FileSystemService::Abstract {
 public:
+	implicit Implement () = default ;
+
 	void startup () override {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -685,7 +687,7 @@ public:
 	}
 } ;
 
-inline exports FileSystemService::FileSystemService () {
+inline exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make () ;
 }

@@ -16,7 +16,6 @@ private:
 	using HINT_ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
 
 private:
-	friend BASE ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
 
@@ -1253,21 +1252,18 @@ class List ;
 template <class ITEM ,class SIZE>
 class List {
 private:
-	class Node {
-	private:
-		friend List ;
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mLeft ;
 		INDEX mRight ;
 
-	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
+		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
-	Allocator<Node ,SIZE> mList ;
+	Allocator<NODE_PACK ,SIZE> mList ;
 	INDEX mFirst ;
 	INDEX mLast ;
 
@@ -1346,7 +1342,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mList.at (_OFFSET_ (&Node::mItem ,item)) ;
+		return mList.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
 	Array<INDEX> range () const {
@@ -1415,7 +1411,7 @@ public:
 	}
 
 	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		mList[ix].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1430,7 +1426,7 @@ public:
 	}
 
 	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		mList[ix].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1490,7 +1486,7 @@ public:
 	}
 
 	INDEX insert () side_effects {
-		INDEX ret = mList.alloc () ;
+		INDEX ret = mList.alloc (ARGVP0) ;
 		mList[ret].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
 			(mLast != VAR_NONE) ? mList[mLast].mRight :
@@ -1504,7 +1500,7 @@ public:
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mLeft :
 			mLast) ;
-		INDEX ret = mList.alloc () ;
+		INDEX ret = mList.alloc (ARGVP0) ;
 		mList[ret].mLeft = r1x ;
 		mList[ret].mRight = index ;
 		auto &r2x = _SWITCH_ (
@@ -1519,7 +1515,7 @@ public:
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mRight :
 			mFirst) ;
-		INDEX ret = mList.alloc () ;
+		INDEX ret = mList.alloc (ARGVP0) ;
 		mList[ret].mLeft = r1x ;
 		mList[ret].mRight = index ;
 		auto &r2x = _SWITCH_ (
@@ -1531,7 +1527,7 @@ public:
 	}
 
 	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		mList[ix].mRight = mFirst ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
@@ -1541,7 +1537,7 @@ public:
 	}
 
 	void push (REMOVE_CONST_TYPE<ITEM> &&item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		mList[ix].mRight = mFirst ;
 		auto &r1x = _SWITCH_ (
 			(mFirst != VAR_NONE) ? mList[mFirst].mLeft :
@@ -1655,20 +1651,17 @@ class ArrayList ;
 template <class ITEM ,class SIZE>
 class ArrayList {
 private:
-	class Node {
-	private:
-		friend ArrayList ;
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mIndex ;
 
-	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
+		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mIndex (VAR_NONE) {}
 	} ;
 
 private:
-	Allocator<Node ,SIZE> mList ;
+	Allocator<NODE_PACK ,SIZE> mList ;
 	Buffer<INDEX ,SIZE> mRange ;
 	INDEX mWrite ;
 
@@ -1756,7 +1749,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		INDEX ret = mList.at (_OFFSET_ (&Node::mItem ,item)) ;
+		INDEX ret = mList.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 		if (ret != VAR_NONE)
 			ret = mList[ret].mIndex ;
 		return _MOVE_ (ret) ;
@@ -1810,7 +1803,7 @@ public:
 	}
 
 	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
@@ -1825,7 +1818,7 @@ public:
 	}
 
 	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
-		INDEX ix = mList.alloc (_MOVE_ (item)) ;
+		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
@@ -1847,7 +1840,7 @@ public:
 	}
 
 	INDEX insert () side_effects {
-		INDEX ix = mList.alloc () ;
+		INDEX ix = mList.alloc (ARGVP0) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
@@ -1861,7 +1854,7 @@ public:
 		if switch_once (TRUE) {
 			if (mRange[index] != VAR_NONE)
 				discard ;
-			INDEX ix = mList.alloc () ;
+			INDEX ix = mList.alloc (ARGVP0) ;
 			update_range (ix) ;
 			mList[ix].mIndex = index ;
 			mRange[mList[ix].mIndex] = ix ;
@@ -2105,8 +2098,6 @@ public:
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
 		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
-		if (this != DEPTR[r1x.mBase])
-			return VAR_NONE ;
 		return r1x ;
 	}
 
@@ -2114,8 +2105,6 @@ public:
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
 		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
-		if (this != DEPTR[r1x.mBase])
-			return VAR_NONE ;
 		return r1x ;
 	}
 
@@ -2332,7 +2321,6 @@ template <class BASE>
 class BitSet<SIZE>::Private::Bit
 	:private Proxy {
 private:
-	friend BitSet ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
 
@@ -2359,7 +2347,7 @@ public:
 
 	inline explicit operator VAR64 () const leftvalue {
 		return VAR64 (mIndex) ;
-}
+	}
 #endif
 
 #ifdef __CSC_CONFIG_VAR64__
@@ -2392,9 +2380,7 @@ class Set ;
 template <class ITEM ,class SIZE>
 class Set {
 private:
-	class Node {
-	private:
-		friend Set ;
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mMap ;
 		BOOL mRed ;
@@ -2402,14 +2388,13 @@ private:
 		INDEX mLeft ;
 		INDEX mRight ;
 
-	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
+		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
-	Allocator<Node ,SIZE> mSet ;
+	Allocator<NODE_PACK ,SIZE> mSet ;
 	INDEX mRoot ;
 	INDEX mTop ;
 
@@ -2481,7 +2466,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+		return mSet.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
 	INDEX map (const INDEX &index) const {
@@ -2527,7 +2512,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (_MOVE_ (item)) ;
+			ix = mSet.alloc (ARGVP0 ,_MOVE_ (item)) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mRed = TRUE ;
 			update_emplace (mRoot ,ix) ;
@@ -2551,7 +2536,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (_MOVE_ (item)) ;
+			ix = mSet.alloc (ARGVP0 ,_MOVE_ (item)) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mRed = TRUE ;
 			update_emplace (mRoot ,ix) ;
@@ -2991,22 +2976,19 @@ class HashSet ;
 template <class ITEM ,class SIZE>
 class HashSet {
 private:
-	class Node {
-	private:
-		friend HashSet ;
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mMap ;
 		FLAG mHash ;
 		INDEX mNext ;
 
-	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
+		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
 	} ;
 
 private:
-	Allocator<Node ,SIZE> mSet ;
+	Allocator<NODE_PACK ,SIZE> mSet ;
 	Buffer<INDEX ,SIZE> mRange ;
 	INDEX mTop ;
 
@@ -3078,7 +3060,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mSet.at (_OFFSET_ (&Node::mItem ,item)) ;
+		return mSet.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
 	INDEX map (const INDEX &index) const {
@@ -3116,7 +3098,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (_MOVE_ (item)) ;
+			ix = mSet.alloc (ARGVP0 ,_MOVE_ (item)) ;
 			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mHash = HashInvokeProc::invoke (item) ;
@@ -3139,7 +3121,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet.alloc (_MOVE_ (item)) ;
+			ix = mSet.alloc (ARGVP0 ,_MOVE_ (item)) ;
 			update_range (ix) ;
 			mSet[ix].mMap = map_ ;
 			mSet[ix].mHash = HashInvokeProc::invoke (item) ;
@@ -3255,9 +3237,7 @@ class SoftSet ;
 template <class ITEM ,class SIZE>
 class SoftSet {
 private:
-	class Node {
-	private:
-		friend SoftSet ;
+	struct NODE_PACK {
 		ITEM mItem ;
 		INDEX mMap ;
 		LENGTH mWeight ;
@@ -3265,19 +3245,18 @@ private:
 		INDEX mRight ;
 		INDEX mNext ;
 
-	public:
 		template <class... _ARGS>
-		explicit Node (_ARGS &&...initval)
+		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
 			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
 	} ;
 
 	struct HEAP_PACK {
-		AutoRef<Allocator<Node ,SIZE>> mBuffer ;
+		AutoRef<Allocator<NODE_PACK ,SIZE>> mBuffer ;
 	} ;
 
 private:
 	SharedRef<HEAP_PACK> mHeap ;
-	PhanRef<Allocator<Node ,SIZE>> mSet ;
+	PhanRef<Allocator<NODE_PACK ,SIZE>> mSet ;
 	LENGTH mLength ;
 	INDEX mFirst ;
 	INDEX mLast ;
@@ -3295,8 +3274,8 @@ public:
 
 	explicit SoftSet (const LENGTH &len) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
-		mHeap->mBuffer = AutoRef<Allocator<Node ,SIZE>>::make (len) ;
-		mSet = PhanRef<Allocator<Node ,SIZE>>::make (mHeap->mBuffer.self) ;
+		mHeap->mBuffer = AutoRef<Allocator<NODE_PACK ,SIZE>>::make (len) ;
+		mSet = PhanRef<Allocator<NODE_PACK ,SIZE>>::make (mHeap->mBuffer.self) ;
 		mLength = 0 ;
 		mFirst = VAR_NONE ;
 		mLast = VAR_NONE ;
@@ -3319,7 +3298,7 @@ public:
 	SoftSet share () leftvalue {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
-		ret.mSet = PhanRef<Allocator<Node ,SIZE>>::make (ret.mHeap->mBuffer.self) ;
+		ret.mSet = PhanRef<Allocator<NODE_PACK ,SIZE>>::make (ret.mHeap->mBuffer.self) ;
 		ret.mLength = 0 ;
 		ret.mFirst = VAR_NONE ;
 		ret.mLast = VAR_NONE ;
@@ -3358,7 +3337,7 @@ public:
 	}
 
 	INDEX at (const ITEM &item) const {
-		return mSet->at (_OFFSET_ (&Node::mItem ,item)) ;
+		return mSet->at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
 	INDEX map (const INDEX &index) const {
@@ -3405,7 +3384,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet->alloc (_MOVE_ (item)) ;
+			ix = mSet->alloc (ARGVP0 ,_MOVE_ (item)) ;
 			mSet.self[ix].mMap = map_ ;
 			mSet.self[ix].mWeight = 1 ;
 			auto &r1x = _SWITCH_ (
@@ -3435,7 +3414,7 @@ public:
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = mSet->alloc (_MOVE_ (item)) ;
+			ix = mSet->alloc (ARGVP0 ,_MOVE_ (item)) ;
 			mSet.self[ix].mMap = map_ ;
 			mSet.self[ix].mWeight = 1 ;
 			auto &r1x = _SWITCH_ (

@@ -37,7 +37,6 @@ private:
 	} ;
 
 private:
-	friend TimePoint ;
 	StrongRef<Abstract> mThis ;
 
 public:
@@ -45,11 +44,8 @@ public:
 
 	explicit Duration (const LENGTH &milliseconds_) ;
 
-	explicit Duration (const ARRAY6<LENGTH> &time_) ;
-
-	explicit Duration (const StrongRef<Abstract> &that) {
-		mThis = that.share () ;
-	}
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Duration>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	explicit Duration (_ARG1 &&that) ;
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const {
@@ -115,17 +111,13 @@ private:
 	} ;
 
 private:
-	friend GlobalRuntime ;
 	StrongRef<Abstract> mThis ;
 
 public:
 	implicit TimePoint () = default ;
 
-	explicit TimePoint (const ARRAY8<LENGTH> &time_) ;
-
-	explicit TimePoint (const StrongRef<Abstract> &that) {
-		mThis = that.share () ;
-	}
+	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	explicit TimePoint (_ARG1 &&that) ;
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const {
@@ -176,7 +168,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	Atomic () ;
+	implicit Atomic () ;
 
 	VAR fetch () const {
 		return mThis->fetch () ;
@@ -233,7 +225,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	Mutex () ;
+	implicit Mutex () ;
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () {
@@ -274,7 +266,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	RecursiveMutex () ;
+	implicit RecursiveMutex () ;
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () {
@@ -314,7 +306,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	ConditionLock () ;
+	implicit ConditionLock () ;
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () {
@@ -996,6 +988,8 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	implicit RandomService () = delete ;
+
 	VAR entropy () const {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->entropy () ;
@@ -1099,7 +1093,7 @@ public:
 	}
 
 private:
-	RandomService () ;
+	explicit RandomService (const ARGVF<Singleton<RandomService>> &) ;
 
 private:
 	imports STRU8 index_to_hex_str (const INDEX &index) {

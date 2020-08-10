@@ -157,7 +157,7 @@ private:
 	using SPRITE_NATIVE_THIS = SELF_PACK ;
 
 public:
- 	implicit AbstractShader_Engine_OPENGL () {
+	implicit AbstractShader_Engine_OPENGL () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}

@@ -1795,7 +1795,7 @@ public:
 	}
 
 	inline implicit operator const ARR<REAL> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 private:
@@ -1805,10 +1805,9 @@ private:
 		using HINT_T1 = ARGC<(U::CONSTEXPR_CACHE_STRING_SIZE::invoke (ARGV<ARGVS<_ARGS...>>::null))> ;
 		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<HINT_T1> ;
 		const auto r1x = PlainString (text...) ;
-		auto &r2x = _CACHE_ ([&] () {
+		return _CACHE_ ([&] () {
 			return r1x ;
 		}) ;
-		return r2x.mString ;
 	}
 } ;
 
@@ -1818,7 +1817,6 @@ class Plain<REAL>::Private::PlainString {
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
 
 private:
-	friend Plain ;
 	DEF<REAL[SIZE::value]> mString ;
 
 public:
@@ -1827,6 +1825,14 @@ public:
 	template <class... _ARGS>
 	explicit PlainString (const _ARGS &...text) {
 		template_write (ARGV<ZERO>::null ,text...) ;
+	}
+
+	const DEF<REAL[SIZE::value]> &to () const {
+		return mString ;
+	}
+
+	implicit operator const DEF<REAL[SIZE::value]> & () const {
+		return self ;
 	}
 
 private:

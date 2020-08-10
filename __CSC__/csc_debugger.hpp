@@ -73,6 +73,8 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	implicit ConsoleService () = delete ;
+
 	LENGTH buffer_size () const {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->buffer_size () ;
@@ -178,7 +180,7 @@ public:
 	}
 
 private:
-	ConsoleService () ;
+	explicit ConsoleService (const ARGVF<Singleton<ConsoleService>> &) ;
 } ;
 
 template <class... UNITS>
@@ -229,6 +231,8 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
+	implicit DebuggerService () = delete ;
+
 	void abort_once_invoked_exit (const BOOL &flag) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		return mThis->abort_once_invoked_exit (flag) ;
@@ -250,6 +254,6 @@ public:
 	}
 
 private:
-	DebuggerService () ;
+	explicit DebuggerService (const ARGVF<Singleton<DebuggerService>> &) ;
 } ;
 } ;

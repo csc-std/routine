@@ -93,12 +93,12 @@ class AbstractImage_Engine_FREEIMAGE ;
 template <>
 class AbstractImage_Engine_FREEIMAGE<COLOR_BGR>
 	:public AbstractImage<COLOR_BGR>::Abstract {
-public:
+private:
 	using HFIBITMAP = PTR<FIBITMAP> ;
 	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
 
 public:
- 	implicit AbstractImage_Engine_FREEIMAGE () {
+	implicit AbstractImage_Engine_FREEIMAGE () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
@@ -212,12 +212,12 @@ public:
 template <>
 class AbstractImage_Engine_FREEIMAGE<COLOR_BGRA>
 	:public AbstractImage<COLOR_BGRA>::Abstract {
-public:
+private:
 	using HFIBITMAP = PTR<FIBITMAP> ;
 	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
 
 public:
- 	implicit AbstractImage_Engine_FREEIMAGE () {
+	implicit AbstractImage_Engine_FREEIMAGE () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}

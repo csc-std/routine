@@ -171,7 +171,7 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
- 	implicit AbstractImage_Engine_OPENCV () {
+	implicit AbstractImage_Engine_OPENCV () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
@@ -247,7 +247,7 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
- 	implicit AbstractImage_Engine_OPENCV () {
+	implicit AbstractImage_Engine_OPENCV () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
@@ -323,7 +323,7 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
- 	implicit AbstractImage_Engine_OPENCV () {
+	implicit AbstractImage_Engine_OPENCV () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
@@ -399,7 +399,7 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
- 	implicit AbstractImage_Engine_OPENCV () {
+	implicit AbstractImage_Engine_OPENCV () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}
@@ -475,7 +475,7 @@ private:
 	using NATIVE_THIS = api::Mat ;
 
 public:
- 	implicit AbstractImage_Engine_OPENCV () {
+	implicit AbstractImage_Engine_OPENCV () {
 		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
 	}

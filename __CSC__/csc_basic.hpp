@@ -408,7 +408,7 @@ public:
 	}
 
 	inline implicit operator const PTR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
@@ -810,7 +810,7 @@ public:
 	}
 
 	inline implicit operator UNIT & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -823,7 +823,7 @@ public:
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -929,7 +929,7 @@ public:
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<UNIT> operator-> () const leftvalue {
@@ -967,7 +967,6 @@ template <class UNIT>
 class SharedRef<UNIT>::Private::PureHolder
 	:public Holder {
 private:
-	friend SharedRef ;
 	REMOVE_CVR_TYPE<UNIT> mValue ;
 	LENGTH mCounter ;
 
@@ -998,6 +997,7 @@ private:
 	class Holder
 		:public Interface {
 	public:
+		virtual LENGTH type_address () const = 0 ;
 		virtual FLAG typemid () const = 0 ;
 	} ;
 
@@ -1150,12 +1150,13 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
-		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
-		return r1x->mValue ;
+		const auto r1x = mPointer->type_address () ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
+		return DEREF[r2x] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -1166,12 +1167,13 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
-		const auto r1x = static_cast<PTR<ImplHolder>> (mPointer) ;
-		return r1x->mValue ;
+		const auto r1x = mPointer->type_address () ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
+		return DEREF[r2x] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1205,13 +1207,16 @@ template <class UNIT_>
 class AnyRef<UNIT>::Private::ImplHolder
 	:public Holder {
 private:
-	friend AnyRef ;
 	UNIT_ mValue ;
 
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
 		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+
+	LENGTH type_address () const override {
+		return _ADDRESS_ (DEPTR[mValue]) ;
+	}
 
 	FLAG typemid () const override {
 		return _TYPEMID_ (ARGV<UNIT_>::null) ;
@@ -1239,8 +1244,6 @@ private:
 	} ;
 
 private:
-	template <class>
-	friend class UniqueRef ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1335,7 +1338,7 @@ private:
 	class Holder
 		:public Interface {
 	public:
-		virtual const UNIT &deref () const leftvalue = 0 ;
+		virtual UNIT &deref () leftvalue = 0 ;
 		virtual void release () = 0 ;
 	} ;
 
@@ -1367,7 +1370,7 @@ public:
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		constructor (r2x->mValue) ;
+		constructor (r2x->deref ()) ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -1416,7 +1419,7 @@ public:
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1433,7 +1436,8 @@ public:
 		const auto r1x = Function ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		r2x->mValue = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r3x = r2x->deref () ;
+		r3x = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		UniqueRef ret = UniqueRef (ARGVP0 ,r2x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1454,7 +1458,6 @@ template <class UNIT_>
 class UniqueRef<UNIT>::Private::ImplHolder
 	:public Holder {
 private:
-	friend UniqueRef ;
 	REMOVE_CVR_TYPE<UNIT> mValue ;
 	UNIT_ mFunctor ;
 
@@ -1463,7 +1466,7 @@ public:
 	explicit ImplHolder (_ARGS &&...initval)
 		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
-	const UNIT &deref () const leftvalue override {
+	UNIT &deref () leftvalue override {
 		return mValue ;
 	}
 
@@ -1522,23 +1525,13 @@ public:
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline PTR<UNIT> operator-> () const leftvalue {
 		return DEPTR[to ()] ;
 	}
 
-private:
-	explicit PhanRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
-
-	explicit PhanRef (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer)
-		:PhanRef (ARGVP0) {
-		mPointer = pointer ;
-	}
-
-public:
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
 	imports PhanRef make (_ARG1 &val) side_effects {
@@ -1551,6 +1544,15 @@ public:
 			return PhanRef () ;
 		auto &r1x = _XVALUE_ (ARGV<UNIT>::null ,val.self) ;
 		return make (r1x) ;
+	}
+
+private:
+	explicit PhanRef (const DEF<decltype (ARGVP0)> &) noexcept
+		:mPointer (NULL) {}
+
+	explicit PhanRef (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer)
+		:PhanRef (ARGVP0) {
+		mPointer = pointer ;
 	}
 } ;
 
@@ -1616,7 +1618,7 @@ public:
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		mPointer = r1x ;
-		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x->mFunctor) ;
+		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x->deref ()) ;
 		rax = NULL ;
 	}
 
@@ -1667,7 +1669,7 @@ public:
 	}
 
 	inline implicit operator const DEF<UNIT1 (UNITS...)> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
@@ -1710,13 +1712,16 @@ class Function<UNIT1 (UNITS...)>::Private::ImplHolder
 	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<UNIT_ ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 
 private:
-	friend Function ;
 	UNIT_ mFunctor ;
 
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
 		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+
+	UNIT_ &deref () leftvalue {
+		return mFunctor ;
+	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
@@ -2026,7 +2031,7 @@ public:
 	}
 
 	inline implicit operator ARR<UNIT> & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<UNIT> () leftvalue = delete ;
@@ -2036,7 +2041,7 @@ public:
 	}
 
 	inline implicit operator const ARR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
@@ -2170,7 +2175,7 @@ public:
 	}
 
 	inline implicit operator ARR<UNIT> & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<UNIT> () leftvalue = delete ;
@@ -2182,7 +2187,7 @@ public:
 	}
 
 	inline implicit operator const ARR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
@@ -2465,7 +2470,7 @@ public:
 	}
 
 	inline implicit operator ARR<UNIT> & () leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<UNIT> () leftvalue = delete ;
@@ -2477,7 +2482,7 @@ public:
 	}
 
 	inline implicit operator const ARR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
@@ -2623,7 +2628,7 @@ public:
 	}
 
 	inline implicit operator const ARR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
@@ -2642,7 +2647,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2709,20 +2714,6 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-private:
-	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
-
-	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
-		: Buffer (ARGVP0) {
-		if (size_ == 0)
-			return ;
-		_DEBUG_ASSERT_ (size_ > 0) ;
-		mBuffer = buffer ;
-		mSize = size_ ;
-	}
-
-public:
 	//@warn: phantom means deliver pointer without holder
 	imports Buffer make (const ARR<UNIT> &src ,const LENGTH &len) side_effects {
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
@@ -2744,6 +2735,19 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r1x] ,r2x) ;
+	}
+
+private:
+	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
+		: mBuffer (NULL) ,mSize (0) {}
+
+	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
+		: Buffer (ARGVP0) {
+		if (size_ == 0)
+			return ;
+		_DEBUG_ASSERT_ (size_ > 0) ;
+		mBuffer = buffer ;
+		mSize = size_ ;
 	}
 } ;
 
@@ -2800,7 +2804,7 @@ public:
 	}
 
 	inline implicit operator ARR<UNIT> & () const leftvalue {
-		return to () ;
+		return self ;
 	}
 
 	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
@@ -2819,7 +2823,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2886,20 +2890,6 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-private:
-	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
-
-	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
-		: Buffer (ARGVP0) {
-		if (size_ == 0)
-			return ;
-		_DEBUG_ASSERT_ (size_ > 0) ;
-		mBuffer = buffer ;
-		mSize = size_ ;
-	}
-
-public:
 	//@warn: phantom means deliver pointer without holder
 	imports Buffer make (ARR<UNIT> &src ,const LENGTH &len) side_effects {
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
@@ -2933,6 +2923,19 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r1x] ,r2x) ;
+	}
+
+private:
+	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
+		: mBuffer (NULL) ,mSize (0) {}
+
+	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
+		: Buffer (ARGVP0) {
+		if (size_ == 0)
+			return ;
+		_DEBUG_ASSERT_ (size_ > 0) ;
+		mBuffer = buffer ;
+		mSize = size_ ;
 	}
 } ;
 
