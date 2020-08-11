@@ -882,8 +882,8 @@ public:
 			return ;
 		const auto r3x = GlobalStaticEngine::static_new_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
-		r3x->mReadOnly = TRUE ;
-		r3x->mValue = data ;
+		DEREF[r3x].mReadOnly = TRUE ;
+		DEREF[r3x].mValue = data ;
 	}
 
 	imports VAR fetch () side_effects {
@@ -891,7 +891,7 @@ public:
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		return r2x->mValue ;
+		return DEREF[r2x].mValue ;
 	}
 
 	imports VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
@@ -899,10 +899,10 @@ public:
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		_DYNAMIC_ASSERT_ (!r2x->mReadOnly) ;
-		if (r2x->mValue == expect)
-			r2x->mValue = data ;
-		return r2x->mValue ;
+		_DYNAMIC_ASSERT_ (!DEREF[r2x].mReadOnly) ;
+		if (DEREF[r2x].mValue == expect)
+			DEREF[r2x].mValue = data ;
+		return DEREF[r2x].mValue ;
 	}
 
 	imports void store (const VAR &data) {
@@ -945,9 +945,9 @@ public:
 				//@warn: sure 'GlobalHeap' can be used across DLL
 				rbx = StrongRef<SELF_PACK>::make () ;
 				const auto r4x = rbx.weak () ;
-				rax->mValue = r4x.intrusive () ;
+				DEREF[rax].mValue = r4x.intrusive () ;
 			}
-			const auto r5x = WeakRef (rax->mValue) ;
+			const auto r5x = WeakRef (DEREF[rax].mValue) ;
 			return r5x.strong (ARGV<SELF_PACK>::null) ;
 		}) ;
 		auto rcx = r1x.share () ;

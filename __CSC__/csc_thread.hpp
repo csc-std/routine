@@ -42,16 +42,16 @@ public:
 	implicit CalcThread () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
-			static_create (me.self) ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
+		static_create (tmp->self) ;
 		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
 	}
 
 	LENGTH size () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mItemQueue.exist ())
 			return 0 ;
@@ -60,7 +60,7 @@ public:
 
 	LENGTH length () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mItemQueue.exist ())
 			return 0 ;
@@ -70,7 +70,7 @@ public:
 	void reserve (const LENGTH &post_len) const {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (r1x.mItemQueue.exist ())
 			if (r1x.mItemQueue->length () + post_len <= r1x.mItemQueue->size ())
@@ -82,7 +82,7 @@ public:
 
 	ITEM poll () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r1x.mThreadFlag.exist ())
@@ -99,7 +99,7 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r1x.mThreadFlag.exist ())
@@ -121,7 +121,7 @@ public:
 		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1x.mThreadCounter == 0) ;
@@ -146,7 +146,7 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r1x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -168,7 +168,7 @@ public:
 
 	void stop () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_destroy (r1x) ;
 	}
 
@@ -340,16 +340,16 @@ public:
 	implicit WorkThread () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
-			static_create (me.self) ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
+		static_create (tmp->self) ;
 		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
 	}
 
 	LENGTH size () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mItemQueue.exist ())
 			return 0 ;
@@ -358,7 +358,7 @@ public:
 
 	LENGTH length () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mItemQueue.exist ())
 			return 0 ;
@@ -368,7 +368,7 @@ public:
 	void reserve (const LENGTH &post_len) const {
 		_DEBUG_ASSERT_ (post_len >= 0) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (r1x.mItemQueue.exist ())
 			if (r1x.mItemQueue->length () + post_len <= r1x.mItemQueue->size ())
@@ -380,7 +380,7 @@ public:
 
 	void post (const REMOVE_CONST_TYPE<ITEM> &item) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r1x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -397,7 +397,7 @@ public:
 
 	void post (REMOVE_CONST_TYPE<ITEM> &&item) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r1x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -414,7 +414,7 @@ public:
 
 	void post (const REMOVE_CONST_TYPE<ITEM> &item ,const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r1x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -433,7 +433,7 @@ public:
 
 	void post (REMOVE_CONST_TYPE<ITEM> &&item ,const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		_DYNAMIC_ASSERT_ (r1x.mItemQueue->size () > 0) ;
 		while (TRUE) {
@@ -456,7 +456,7 @@ public:
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		_DEBUG_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1x.mThreadCounter == 0) ;
@@ -478,7 +478,7 @@ public:
 
 	void join (const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		while (TRUE) {
 			_DYNAMIC_ASSERT_ (r1x.mThreadFlag.exist ()) ;
@@ -500,7 +500,7 @@ public:
 
 	void stop () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_destroy (r1x) ;
 	}
 
@@ -669,10 +669,10 @@ public:
 	implicit Promise () {
 		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
-			static_create (me.self) ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
+		static_create (tmp->self) ;
 		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
 	}
 
@@ -685,25 +685,25 @@ public:
 
 	void push (const REMOVE_CONST_TYPE<ITEM> &item) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_push (r1x ,_MOVE_ (item)) ;
 	}
 
 	void push (REMOVE_CONST_TYPE<ITEM> &&item) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_push (r1x ,_MOVE_ (item)) ;
 	}
 
 	void rethrow (const Exception &e) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_rethrow (r1x) ;
 	}
 
 	void start () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1x.mThreadCounter == 0) ;
@@ -721,7 +721,7 @@ public:
 		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (r1x.mThreadCounter == 0) ;
@@ -738,13 +738,13 @@ public:
 
 	void signal () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_signal (r1x) ;
 	}
 
 	void stop () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_destroy (r1x) ;
 	}
 
@@ -902,7 +902,7 @@ public:
 
 	BOOL ready () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mThreadFlag.exist ())
 			return TRUE ;
@@ -913,7 +913,7 @@ public:
 
 	ITEM poll () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r1x.mThreadFlag.exist ())
@@ -932,7 +932,7 @@ public:
 
 	ITEM poll (const Duration &interval ,const Function<BOOL ()> &predicate) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		auto rbx = r1x.mThreadConditionLock.watch (PhanRef<Mutex>::make (r1x.mThreadMutex)) ;
 		while (TRUE) {
 			if (!r1x.mThreadFlag.exist ())
@@ -953,7 +953,7 @@ public:
 
 	ITEM value (const ITEM &def) const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		if (!r1x.mThreadFlag.exist ())
 			return def ;
@@ -967,7 +967,7 @@ public:
 	void then (Function<MEMPTR<void (ITEM &)>> &&proc) const {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mThreadMutex) ;
 		_DYNAMIC_ASSERT_ (r1x.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!r1x.mCallbackProc.exist ()) ;
@@ -982,7 +982,7 @@ public:
 
 	void stop () const {
 		auto rax = mThis.share () ;
-		auto &r1x = rax.self->self ;
+		auto &r1x = rax->self.self ;
 		static_destroy (r1x) ;
 	}
 } ;

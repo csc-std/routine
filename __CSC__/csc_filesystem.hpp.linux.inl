@@ -502,7 +502,7 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 		const auto r4x = api::readdir (r3x.self) ;
 		if (r4x == NULL)
 			break ;
-		const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[r4x->d_name])) ;
+		const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[DEREF[r4x].d_name])) ;
 		if switch_once (TRUE) {
 			if (r5x == _PCSTR_ ("."))
 				discard ;

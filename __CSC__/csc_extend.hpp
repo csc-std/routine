@@ -46,14 +46,12 @@ private:
 	friend GlobalWatch ;
 	PTR<const STR> mName ;
 	PTR<UNIT> mAddress ;
-	FLAG mTypeMID ;
 	Function<void (UNIT &)> mWatch ;
 
 public:
 	implicit WatchInterface () {
 		mName = NULL ;
 		mAddress = NULL ;
-		mTypeMID = _TYPEMID_ (ARGV<UNIT>::null) ;
 		mWatch = Function<void (UNIT &)> ([] (UNIT &) {}) ;
 	} ;
 } ;
@@ -1339,22 +1337,22 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,that) ;
 		if (r1x == NULL)
 			return ;
-		r1x->attach_weak () ;
+		DEREF[r1x].attach_weak () ;
 		const auto r2x = safe_exchange (r1x) ;
 		if (r2x == NULL)
 			return ;
-		r2x->detach_weak () ;
+		DEREF[r2x].detach_weak () ;
 	}
 
 	explicit WeakRef (const PTR<Holder> &that)
 		:WeakRef (ARGVP0) {
 		if (that == NULL)
 			return ;
-		that->attach_weak () ;
+		DEREF[that].attach_weak () ;
 		const auto r2x = safe_exchange (that) ;
 		if (r2x == NULL)
 			return ;
-		r2x->detach_weak () ;
+		DEREF[r2x].detach_weak () ;
 	}
 
 	template <class _ARG1>
@@ -1365,7 +1363,7 @@ public:
 		const auto r1x = safe_exchange (NULL) ;
 		if (r1x == NULL)
 			return ;
-		r1x->detach_weak () ;
+		DEREF[r1x].detach_weak () ;
 	}
 
 	implicit WeakRef (const WeakRef &) = delete ;
@@ -1381,7 +1379,7 @@ public:
 		const auto r3x = that.safe_exchange (r2x) ;
 		if (r3x == NULL)
 			return ;
-		r3x->detach_weak () ;
+		DEREF[r3x].detach_weak () ;
 	}
 
 	inline WeakRef &operator= (WeakRef &&that) noexcept {
@@ -1454,8 +1452,8 @@ public:
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.load () ;
-		const auto r2x = r1x->type_address () ;
-		const auto r3x = r1x->type_algin_size () ;
+		const auto r2x = DEREF[r1x].type_address () ;
+		const auto r3x = DEREF[r1x].type_algin_size () ;
 		_DYNAMIC_ASSERT_ (r3x.mP1 == _ALIGNOF_ (_ARG1)) ;
 		_DYNAMIC_ASSERT_ (r3x.mP2 == _SIZEOF_ (_ARG1)) ;
 		const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r2x) ;
@@ -1620,11 +1618,11 @@ public:
 		if (fast_pointer == NULL)
 			return ;
 		mFastPointer = fast_pointer ;
-		pointer->attach_strong () ;
+		DEREF[pointer].attach_strong () ;
 		const auto r1x = safe_exchange (pointer) ;
 		if (r1x == NULL)
 			return ;
-		r1x->detach_strong () ;
+		DEREF[r1x].detach_strong () ;
 	}
 
 	//@warn: circular reference ruins StrongRef
@@ -1643,7 +1641,7 @@ public:
 		const auto r1x = safe_exchange (NULL) ;
 		if (r1x == NULL)
 			return ;
-		r1x->detach_strong ();
+		DEREF[r1x].detach_strong ();
 	}
 
 	implicit StrongRef (const StrongRef &) = delete ;
@@ -1660,7 +1658,7 @@ public:
 		const auto r3x = that.safe_exchange (r2x) ;
 		if (r3x == NULL)
 			return ;
-		r3x->detach_strong () ;
+		DEREF[r3x].detach_strong () ;
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
@@ -1768,7 +1766,7 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		auto tmp = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		auto &r2x = tmp.rebind (ARGV<UNIT>::null).self ;
-		r1x->init_holder (_MOVE_ (tmp)) ;
+		DEREF[r1x].init_holder (_MOVE_ (tmp)) ;
 		StrongRef ret = StrongRef (r1x ,DEPTR[r2x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1831,15 +1829,15 @@ public:
 
 	LENGTH size () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
-			ret += mThis.self->mPool[i]->size () ;
+		for (auto &&i : _RANGE_ (0 ,mThis->self.mPool.size ()))
+			ret += mThis->self.mPool[i]->size () ;
 		return _MOVE_ (ret) ;
 	}
 
 	LENGTH length () const {
 		LENGTH ret = 0 ;
-		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
-			ret += mThis.self->mPool[i]->length () ;
+		for (auto &&i : _RANGE_ (0 ,mThis->self.mPool.size ()))
+			ret += mThis->self.mPool[i]->length () ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -1853,12 +1851,12 @@ public:
 		const auto r4x = (r3x - 1) / 8 ;
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
-		const auto r6x = mThis.self->mPool[ix]->alloc (r3x) ;
+		const auto r6x = mThis->self.mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
 		const auto r9x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r8x) ;
-		r9x->mFrom = DEPTR[mThis.self->mPool[ix].self] ;
-		r9x->mCurr = r6x ;
+		DEREF[r9x].mFrom = DEPTR[mThis->self.mPool[ix].self] ;
+		DEREF[r9x].mCurr = r6x ;
 		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r7x) ;
 		return r10x ;
 	}
@@ -1874,12 +1872,12 @@ public:
 		const auto r4x = (r3x - 1) / 8 ;
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
-		const auto r6x = mThis.self->mPool[ix]->alloc (r3x) ;
+		const auto r6x = mThis->self.mPool[ix]->alloc (r3x) ;
 		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r8x = r7x - r5x ;
 		const auto r9x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r8x) ;
-		r9x->mFrom = DEPTR[mThis.self->mPool[ix].self] ;
-		r9x->mCurr = r6x ;
+		DEREF[r9x].mFrom = DEPTR[mThis->self.mPool[ix].self] ;
+		DEREF[r9x].mCurr = r6x ;
 		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,r7x) ;
 		return r10x ;
 	}
@@ -1889,13 +1887,13 @@ public:
 		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r1x) ;
-		INDEX ix = BasicProc::mem_chr (mThis.self->mPool.self ,mThis.self->mPool.size () ,r2x->mFrom) ;
-		mThis.self->mPool[ix]->free (r2x->mCurr) ;
+		INDEX ix = BasicProc::mem_chr (mThis->self.mPool.self ,mThis->self.mPool.size () ,DEREF[r2x].mFrom) ;
+		mThis->self.mPool[ix]->free (DEREF[r2x].mCurr) ;
 	}
 
 	void clean () {
-		for (auto &&i : _RANGE_ (0 ,mThis.self->mPool.size ()))
-			mThis.self->mPool[i]->clean () ;
+		for (auto &&i : _RANGE_ (0 ,mThis->self.mPool.size ()))
+			mThis->self.mPool[i]->clean () ;
 	}
 } ;
 
@@ -1938,8 +1936,8 @@ public:
 		while (TRUE) {
 			if (mRoot == NULL)
 				break ;
-			const auto r1x = mRoot->mNext ;
-			GlobalHeap::free (mRoot->mOrigin) ;
+			const auto r1x = DEREF[mRoot].mNext ;
+			GlobalHeap::free (DEREF[mRoot].mOrigin) ;
 			mRoot = r1x ;
 		}
 		mFree = NULL ;
@@ -1964,19 +1962,19 @@ public:
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK_NODE)) ;
 		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<CHUNK_NODE>::null ,r4x) ;
-		r5x->mOrigin = rax ;
-		r5x->mPrev = NULL ;
-		r5x->mNext = mRoot ;
-		r5x->mCount = RESE::value ;
+		DEREF[r5x].mOrigin = rax ;
+		DEREF[r5x].mPrev = NULL ;
+		DEREF[r5x].mNext = mRoot ;
+		DEREF[r5x].mCount = RESE::value ;
 		if (mRoot != NULL)
-			mRoot->mPrev = r5x ;
+			DEREF[mRoot].mPrev = r5x ;
 		mRoot = r5x ;
 		mSize += RESE::value * SIZE::value ;
 		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
-		for (auto &&i : _RANGE_ (0 ,mRoot->mCount)) {
+		for (auto &&i : _RANGE_ (0 ,DEREF[mRoot].mCount)) {
 			const auto r7x = r6x + i * r1x ;
 			const auto r8x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,r7x) ;
-			r8x->mNext = mFree ;
+			DEREF[r8x].mNext = mFree ;
 			mFree = r8x ;
 		}
 		rax = NULL ;
@@ -1986,11 +1984,11 @@ public:
 		_DEBUG_ASSERT_ (len <= SIZE::value) ;
 		reserve () ;
 		const auto r1x = mFree ;
-		mFree = r1x->mNext ;
+		mFree = DEREF[r1x].mNext ;
 		mLength += SIZE::value ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,VAR_USED) ;
-		r1x->mNext = r2x ;
-		return DEPTR[r1x->mFlexData] ;
+		DEREF[r1x].mNext = r2x ;
+		return DEPTR[DEREF[r1x].mFlexData] ;
 	}
 
 	void free (const PTR<HEADER> &address) noexcept override {
@@ -2009,18 +2007,18 @@ public:
 		while (TRUE) {
 			if (rax == NULL)
 				break ;
-			const auto r1x = rax->mNext ;
+			const auto r1x = DEREF[rax].mNext ;
 			if switch_once (TRUE) {
 				if (!empty_node (rax))
 					discard ;
 				auto &r2x = _SWITCH_ (
-					(rax->mPrev != NULL) ? rax->mPrev->mNext :
+					(DEREF[rax].mPrev != NULL) ? DEREF[DEREF[rax].mPrev].mNext :
 					mRoot) ;
-				r2x = rax->mNext ;
-				if (rax->mNext != NULL)
-					rax->mNext->mPrev = rax->mPrev ;
-				mSize -= rax->mCount * SIZE::value ;
-				GlobalHeap::free (rax->mOrigin) ;
+				r2x = DEREF[rax].mNext ;
+				if (DEREF[rax].mNext != NULL)
+					DEREF[DEREF[rax].mNext].mPrev = DEREF[rax].mPrev ;
+				mSize -= DEREF[rax].mCount * SIZE::value ;
+				GlobalHeap::free (DEREF[rax].mOrigin) ;
 			}
 			rax = r1x ;
 		}
@@ -2030,10 +2028,10 @@ private:
 	BOOL empty_node (const PTR<const CHUNK_NODE> &node) const {
 		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK_NODE) + SIZE::value ,_ALIGNOF_ (BLOCK_NODE)) ;
 		const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
-		for (auto &&i : _RANGE_ (0 ,node->mCount)) {
+		for (auto &&i : _RANGE_ (0 ,DEREF[node].mCount)) {
 			const auto r3x = r2x + i * r1x ;
 			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,r3x) ;
-			if (_ADDRESS_ (r4x->mNext) == VAR_USED)
+			if (_ADDRESS_ (DEREF[r4x].mNext) == VAR_USED)
 				return FALSE ;
 		}
 		return TRUE ;
@@ -2069,8 +2067,8 @@ public:
 		while (TRUE) {
 			if (mRoot == NULL)
 				break ;
-			const auto r1x = mRoot->mNext ;
-			GlobalHeap::free (mRoot->mOrigin) ;
+			const auto r1x = DEREF[mRoot].mNext ;
+			GlobalHeap::free (DEREF[mRoot].mOrigin) ;
 			mRoot = r1x ;
 		}
 		mSize = 0 ;
@@ -2092,28 +2090,28 @@ public:
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK_NODE)) ;
 		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<FBLOCK_NODE>::null ,r4x) ;
-		r5x->mOrigin = rax ;
-		r5x->mPrev = NULL ;
-		r5x->mNext = mRoot ;
-		r5x->mCount = r1x ;
+		DEREF[r5x].mOrigin = rax ;
+		DEREF[r5x].mPrev = NULL ;
+		DEREF[r5x].mNext = mRoot ;
+		DEREF[r5x].mCount = r1x ;
 		if (mRoot != NULL)
-			mRoot->mPrev = r5x ;
+			DEREF[mRoot].mPrev = r5x ;
 		mRoot = r5x ;
-		mSize += r5x->mCount ;
-		mLength += r5x->mCount ;
+		mSize += DEREF[r5x].mCount ;
+		mLength += DEREF[r5x].mCount ;
 		rax = NULL ;
-		return DEPTR[r5x->mFlexData] ;
+		return DEPTR[DEREF[r5x].mFlexData] ;
 	}
 
 	void free (const PTR<HEADER> &address) noexcept override {
 		_DEBUG_ASSERT_ (address != NULL) ;
 		auto &r1x = _OFFSET_ (&FBLOCK_NODE::mFlexData ,DEREF[address]) ;
 		auto &r2x = _SWITCH_ (
-			(r1x.mPrev != NULL) ? r1x.mPrev->mNext :
+			(r1x.mPrev != NULL) ? DEREF[r1x.mPrev].mNext :
 			mRoot) ;
 		r2x = r1x.mNext ;
 		if (r1x.mNext != NULL)
-			r1x.mNext->mPrev = r1x.mPrev ;
+			DEREF[r1x.mNext].mPrev = r1x.mPrev ;
 		mSize -= r1x.mCount ;
 		mLength -= r1x.mCount ;
 		GlobalHeap::free (r1x.mOrigin) ;
@@ -2150,24 +2148,24 @@ inline exports MemoryPool::MemoryPool () {
 			me->mPool[i]->clear () ;
 		me->mPool = AutoBuffer<StrongRef<Holder>> () ;
 	}) ;
-	mThis.self->mPool = AutoBuffer<StrongRef<Holder>> (17) ;
-	mThis.self->mPool[0] = StrongRef<ImplHolderX8>::make () ;
-	mThis.self->mPool[1] = StrongRef<ImplHolderX16>::make () ;
-	mThis.self->mPool[2] = StrongRef<ImplHolderX24>::make () ;
-	mThis.self->mPool[3] = StrongRef<ImplHolderX32>::make () ;
-	mThis.self->mPool[4] = StrongRef<ImplHolderX40>::make () ;
-	mThis.self->mPool[5] = StrongRef<ImplHolderX48>::make () ;
-	mThis.self->mPool[6] = StrongRef<ImplHolderX56>::make () ;
-	mThis.self->mPool[7] = StrongRef<ImplHolderX64>::make () ;
-	mThis.self->mPool[8] = StrongRef<ImplHolderX72>::make () ;
-	mThis.self->mPool[9] = StrongRef<ImplHolderX80>::make () ;
-	mThis.self->mPool[10] = StrongRef<ImplHolderX88>::make () ;
-	mThis.self->mPool[11] = StrongRef<ImplHolderX96>::make () ;
-	mThis.self->mPool[12] = StrongRef<ImplHolderX104>::make () ;
-	mThis.self->mPool[13] = StrongRef<ImplHolderX112>::make () ;
-	mThis.self->mPool[14] = StrongRef<ImplHolderX120>::make () ;
-	mThis.self->mPool[15] = StrongRef<ImplHolderX128>::make () ;
-	mThis.self->mPool[16] = StrongRef<HugeHolder>::make () ;
+	mThis->self.mPool = AutoBuffer<StrongRef<Holder>> (17) ;
+	mThis->self.mPool[0] = StrongRef<ImplHolderX8>::make () ;
+	mThis->self.mPool[1] = StrongRef<ImplHolderX16>::make () ;
+	mThis->self.mPool[2] = StrongRef<ImplHolderX24>::make () ;
+	mThis->self.mPool[3] = StrongRef<ImplHolderX32>::make () ;
+	mThis->self.mPool[4] = StrongRef<ImplHolderX40>::make () ;
+	mThis->self.mPool[5] = StrongRef<ImplHolderX48>::make () ;
+	mThis->self.mPool[6] = StrongRef<ImplHolderX56>::make () ;
+	mThis->self.mPool[7] = StrongRef<ImplHolderX64>::make () ;
+	mThis->self.mPool[8] = StrongRef<ImplHolderX72>::make () ;
+	mThis->self.mPool[9] = StrongRef<ImplHolderX80>::make () ;
+	mThis->self.mPool[10] = StrongRef<ImplHolderX88>::make () ;
+	mThis->self.mPool[11] = StrongRef<ImplHolderX96>::make () ;
+	mThis->self.mPool[12] = StrongRef<ImplHolderX104>::make () ;
+	mThis->self.mPool[13] = StrongRef<ImplHolderX112>::make () ;
+	mThis->self.mPool[14] = StrongRef<ImplHolderX120>::make () ;
+	mThis->self.mPool[15] = StrongRef<ImplHolderX128>::make () ;
+	mThis->self.mPool[16] = StrongRef<HugeHolder>::make () ;
 }
 
 class Object ;

@@ -1450,7 +1450,7 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::null ,address) ;
 	if (r1x == NULL)
 		return ;
-	r1x->~_ARG1 () ;
+	DEREF[r1x].~_ARG1 () ;
 }
 
 template <class _ARG1>

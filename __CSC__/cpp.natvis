@@ -23,35 +23,35 @@
 
   <Type Name="CSC::AutoRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->mValue</ExpandedItem>
+      <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::SharedRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->mValue</ExpandedItem>
+      <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::AnyRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>((CSC::AnyRef&lt;$T1&gt;::ImplHolder&lt;$T1&gt;*)mPointer)->mValue</ExpandedItem>
+      <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::UniqueRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer->to ()</ExpandedItem>
+      <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
 
   <Type Name="CSC::PhanRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>mPointer</ExpandedItem>
+      <ExpandedItem>*mPointer</ExpandedItem>
     </Expand>
   </Type>
 
@@ -172,14 +172,7 @@
 
   <Type Name="CSC::StrongRef&lt;*&gt;">
     <Expand>
-      <ExpandedItem>*mPointer</ExpandedItem>
-    </Expand>
-  </Type>
-
-
-  <Type Name="CSC::IntrusiveRef&lt;*,*&gt;">
-    <Expand>
-      <ExpandedItem>*mPointer.load()</ExpandedItem>
+      <ExpandedItem>*mFastPointer</ExpandedItem>
     </Expand>
   </Type>
 

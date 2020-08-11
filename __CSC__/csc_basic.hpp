@@ -441,7 +441,7 @@ public:
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
-			mPointer->unlock () ;
+			DEREF[mPointer].unlock () ;
 		} ,[&] () {
 			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
@@ -644,7 +644,7 @@ public:
 	implicit ~AutoRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -719,7 +719,7 @@ public:
 	implicit ~AutoRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -731,7 +731,7 @@ public:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
-		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,that.mPointer->mValue) ;
+		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,that.DEREF[mPointer].deref ()) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
 		mPointer = r2x ;
@@ -806,7 +806,7 @@ public:
 
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->deref () ;
+		return DEREF[mPointer].deref () ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
@@ -819,7 +819,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->deref () ;
+		return DEREF[mPointer].deref () ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -878,10 +878,10 @@ public:
 		if (mPointer == NULL)
 			return ;
 		if switch_once (TRUE) {
-			const auto r1x = mPointer->decrease () ;
+			const auto r1x = DEREF[mPointer].decrease () ;
 			if (r1x != 0)
 				discard ;
-			mPointer->~Holder () ;
+			DEREF[mPointer].~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
 		mPointer = NULL ;
@@ -925,7 +925,7 @@ public:
 
 	UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->deref () ;
+		return DEREF[mPointer].deref () ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -956,7 +956,7 @@ private:
 		:SharedRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
-		const auto r1x = pointer->increase () ;
+		const auto r1x = DEREF[pointer].increase () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		mPointer = pointer ;
@@ -1021,7 +1021,7 @@ public:
 	implicit ~AnyRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -1063,7 +1063,7 @@ public:
 
 	FLAG typemid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->typemid () ;
+		return DEREF[mPointer].typemid () ;
 	}
 
 private:
@@ -1101,7 +1101,7 @@ public:
 	implicit ~AnyRef () noexcept {
 		if (mPointer == NULL)
 			return ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -1143,14 +1143,14 @@ public:
 
 	FLAG typemid () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->typemid () ;
+		return DEREF[mPointer].typemid () ;
 	}
 
 	UNIT &to () leftvalue {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
-		const auto r1x = mPointer->type_address () ;
+		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -1167,7 +1167,7 @@ public:
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
-		const auto r1x = mPointer->type_address () ;
+		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -1275,11 +1275,11 @@ public:
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
-			mPointer->release () ;
+			DEREF[mPointer].release () ;
 		} ,[&] () {
 			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -1370,7 +1370,7 @@ public:
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		constructor (r2x->deref ()) ;
+		constructor (DEREF[r2x].deref ()) ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -1379,11 +1379,11 @@ public:
 		if (mPointer == NULL)
 			return ;
 		_CALL_TRY_ ([&] () {
-			mPointer->release () ;
+			DEREF[mPointer].release () ;
 		} ,[&] () {
 			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
-		mPointer->~Holder () ;
+		DEREF[mPointer].~Holder () ;
 		GlobalHeap::free (mPointer) ;
 		mPointer = NULL ;
 	}
@@ -1415,7 +1415,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return mPointer->deref () ;
+		return DEREF[mPointer].deref () ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1436,7 +1436,7 @@ public:
 		const auto r1x = Function ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		auto &r3x = r2x->deref () ;
+		auto &r3x = DEREF[r2x].deref () ;
 		r3x = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		UniqueRef ret = UniqueRef (ARGVP0 ,r2x) ;
 		rax = NULL ;
@@ -1618,7 +1618,7 @@ public:
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		mPointer = r1x ;
-		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,r1x->deref ()) ;
+		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,DEREF[r1x].deref ()) ;
 		rax = NULL ;
 	}
 
@@ -1629,7 +1629,7 @@ public:
 		if switch_once (TRUE) {
 			if (mPointer == NULL)
 				discard ;
-			mPointer->~Holder () ;
+			DEREF[mPointer].~Holder () ;
 			GlobalHeap::free (mPointer) ;
 		}
 		mFunctor = NULL ;
@@ -1676,7 +1676,7 @@ public:
 		_DEBUG_ASSERT_ (exist ()) ;
 		if (mFunctor != NULL)
 			return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
-		return mPointer->invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return DEREF[mPointer].invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
@@ -1915,7 +1915,8 @@ public:
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (mContext.self.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		auto &r1x = mContext.self ;
+		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
@@ -1937,7 +1938,8 @@ public:
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (mContext.self.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		auto &r1x = mContext.self ;
+		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
 	}
 } ;
 
@@ -1961,7 +1963,8 @@ public:
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return (mContext.self.*mFunctor) ;
+		auto &r1x = mContext.self ;
+		return (r1x.*mFunctor) ;
 	}
 } ;
 
