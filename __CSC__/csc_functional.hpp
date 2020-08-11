@@ -243,8 +243,8 @@ public:
 
 	Operand invoke (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS2> &&...funcval) const {
 		const auto r1x = TupleBinder<const UNITS2...> (funcval...) ;
-		auto tmp = template_invoke (r1x ,ARGV<ARGVS<UNITS1...>>::null) ;
-		return Operand (_MOVE_ (tmp)) ;
+		auto rax = template_invoke (r1x ,ARGV<ARGVS<UNITS1...>>::null) ;
+		return Operand (_MOVE_ (rax)) ;
 	}
 
 private:
@@ -280,8 +280,8 @@ public:
 
 	Operand invoke (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS2> &&...funcval) const override {
 		const auto r1x = TupleBinder<const UNITS2...> (funcval...) ;
-		auto tmp = template_invoke (r1x ,ARGV<ARGVS<UNITS1...>>::null ,node) ;
-		return Operand (_MOVE_ (tmp)) ;
+		auto rax = template_invoke (r1x ,ARGV<ARGVS<UNITS1...>>::null ,node) ;
+		return Operand (_MOVE_ (rax)) ;
 	}
 
 private:
@@ -626,8 +626,8 @@ public:
 		ExpressionX1 ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::null ,node.mChild[0]) ;
-			auto tmp = r1x.concat (in1).curry () ;
-			return Operand (_MOVE_ (tmp)) ;
+			auto rax = r1x.concat (in1).curry () ;
+			return Operand (_MOVE_ (rax)) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;

@@ -1778,7 +1778,7 @@ public:
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP1)>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<1>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
@@ -1786,7 +1786,7 @@ public:
 	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP2)>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<2>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
@@ -1794,7 +1794,7 @@ public:
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP3)>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<3>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
@@ -1802,7 +1802,7 @@ public:
 	explicit Function (PhanRef<_ARG1> &&context_ ,const DEF<UNIT1 (_ARG1 & ,UNITS...)> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,DEF<decltype (ARGVP4)>> ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<4>> ;
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
@@ -1899,7 +1899,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP1)>>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,ARGC<1>>
 	:public Holder {
 private:
 	MEMPTR<DEF<UNIT1 (UNITS...)> ,UNIT_> mFunctor ;
@@ -1922,7 +1922,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP2)>>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,ARGC<2>>
 	:public Holder {
 private:
 	MEMPTR<DEF<UNIT1 (UNITS...) const> ,UNIT_> mFunctor ;
@@ -1945,7 +1945,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP3)>>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,ARGC<3>>
 	:public Holder {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 0) ;
 
@@ -1970,7 +1970,7 @@ public:
 
 template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
-class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,DEF<decltype (ARGVP4)>>
+class Function<MEMPTR<UNIT1 (UNITS...)>>::Private::ImplHolder<UNIT_ ,ARGC<4>>
 	:public Holder {
 private:
 	Function<UNIT1 (UNIT_ & ,UNITS...)> mFunctor ;

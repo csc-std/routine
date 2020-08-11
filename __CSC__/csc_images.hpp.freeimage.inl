@@ -118,20 +118,20 @@ public:
 		const auto r1x = cx_ * cy_ * 3 ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = api::FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,24) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
 		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
-		api::FreeImage_FillBackground (tmp.self ,DEPTR[r2x] ,0) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		api::FreeImage_FillBackground (rax.self ,DEPTR[r2x] ,0) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				me.mP2 = data ;
 				me.mP1 = api::FreeImage_OpenMemory (me.mP2.self ,VARY (me.mP2.size ())) ;
@@ -147,7 +147,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
@@ -179,7 +179,7 @@ public:
 
 	void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const override {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
 			me = api::FreeImage_Load (r2x ,r1x.raw ().self) ;
@@ -188,16 +188,16 @@ public:
 			api::FreeImage_Unload (me) ;
 		}) ;
 		if switch_once (TRUE) {
-			if (api::FreeImage_GetBPP (tmp.self) == 24)
+			if (api::FreeImage_GetBPP (rax.self) == 24)
 				discard ;
-			tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
-				me = api::FreeImage_ConvertTo24Bits (tmp.self) ;
+			rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+				me = api::FreeImage_ConvertTo24Bits (rax.self) ;
 				_DYNAMIC_ASSERT_ (me != NULL) ;
 			} ,[] (HFIBITMAP &me) {
 				api::FreeImage_Unload (me) ;
 			}) ;
 		}
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const override {
@@ -237,20 +237,20 @@ public:
 		const auto r1x = cx_ * cy_ * 4 ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			me = api::FreeImage_Allocate (VAR32 (cx_) ,VAR32 (cy_) ,32) ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
 		const auto r2x = COLOR_BGRA {0 ,0 ,0 ,0} ;
-		api::FreeImage_FillBackground (tmp.self ,DEPTR[r2x] ,0) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		api::FreeImage_FillBackground (rax.self ,DEPTR[r2x] ,0) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
 		using HFIMEMORY = PTR<api::FIMEMORY> ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
 				me.mP2 = data ;
 				me.mP1 = api::FreeImage_OpenMemory (me.mP2.self ,VARY (me.mP2.size ())) ;
@@ -266,7 +266,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
@@ -298,7 +298,7 @@ public:
 
 	void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const override {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,file) ;
-		auto tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
 			const auto r2x = api::FreeImage_GetFileType (r1x.raw ().self) ;
 			_DYNAMIC_ASSERT_ (r2x != FIF_UNKNOWN) ;
 			me = api::FreeImage_Load (r2x ,r1x.raw ().self) ;
@@ -307,16 +307,16 @@ public:
 			api::FreeImage_Unload (me) ;
 		}) ;
 		if switch_once (TRUE) {
-			if (api::FreeImage_GetBPP (tmp.self) == 32)
+			if (api::FreeImage_GetBPP (rax.self) == 32)
 				discard ;
-			tmp = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
-				me = api::FreeImage_ConvertTo32Bits (tmp.self) ;
+			rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
+				me = api::FreeImage_ConvertTo32Bits (rax.self) ;
 				_DYNAMIC_ASSERT_ (me != NULL) ;
 			} ,[] (HFIBITMAP &me) {
 				api::FreeImage_Unload (me) ;
 			}) ;
 		}
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 	void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const override {

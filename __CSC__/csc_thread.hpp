@@ -40,13 +40,13 @@ private:
 
 public:
 	implicit CalcThread () {
-		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
-		static_create (tmp->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
+		static_create (rax->self) ;
+		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	LENGTH size () const {
@@ -338,13 +338,13 @@ private:
 
 public:
 	implicit WorkThread () {
-		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
-		static_create (tmp->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
+		static_create (rax->self) ;
+		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	LENGTH size () const {
@@ -667,13 +667,13 @@ private:
 
 public:
 	implicit Promise () {
-		auto tmp = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
 			me = SharedRef<SELF_PACK>::make () ;
 		} ,[] (SharedRef<SELF_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
-		static_create (tmp->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (tmp)) ;
+		static_create (rax->self) ;
+		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>

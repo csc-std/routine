@@ -1764,9 +1764,9 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		auto tmp = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r2x = tmp.rebind (ARGV<UNIT>::null).self ;
-		DEREF[r1x].init_holder (_MOVE_ (tmp)) ;
+		auto rbx = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		auto &r2x = rbx.rebind (ARGV<UNIT>::null).self ;
+		DEREF[r1x].init_holder (_MOVE_ (rbx)) ;
 		StrongRef ret = StrongRef (r1x ,DEPTR[r2x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;

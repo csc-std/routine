@@ -1988,6 +1988,12 @@ public:
 		clear () ;
 	}
 
+	explicit BitSet (const Array<INDEX> &range_ ,const LENGTH &len)
+		:BitSet (len) {
+		for (auto &&i : range_)
+			add (i) ;
+	}
+
 	LENGTH size () const {
 		if (mSet.size () == 0)
 			return 0 ;

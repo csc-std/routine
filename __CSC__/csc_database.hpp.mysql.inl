@@ -84,12 +84,12 @@ public:
 	}
 
 	void compute_load_data (AnyRef<> &holder) const override {
-		auto tmp = UniqueRef<api::MYSQL> ([&] (api::MYSQL &me) {
+		auto rax = UniqueRef<api::MYSQL> ([&] (api::MYSQL &me) {
 			api::mysql_init (DEPTR[me]) ;
 		} ,[] (api::MYSQL &me) {
 			api::mysql_close (DEPTR[me]) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (tmp)) ;
+		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
 	}
 
 private:
