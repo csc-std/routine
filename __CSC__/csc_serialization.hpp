@@ -139,13 +139,10 @@ public:
 	}
 
 	BOOL equal (const XmlParser &that) const {
-		if (!exist ())
-			if (!that.exist ())
-				return TRUE ;
-		if (!exist ())
+		if (_EBOOL_ (exist ()) != _EBOOL_ (that.exist ()))
 			return FALSE ;
-		if (!that.exist ())
-			return FALSE ;
+		if (!exist ())
+			return TRUE ;
 		if (DEPTR[mHeap.self] != DEPTR[that.mHeap.self])
 			return FALSE ;
 		if (mIndex != that.mIndex)
@@ -918,9 +915,8 @@ private:
 
 	void update_merge_found_node (const INDEX &curr) {
 		INDEX ix = VAR_NONE ;
-		INDEX iy = VAR_NONE ;
 		for (auto &&i : mFoundNode) {
-			iy = ix ;
+			INDEX iy = ix ;
 			ix = mNodeTree.insert () ;
 			mNodeTree[ix].mName = _MOVE_ (i.mName) ;
 			mNodeTree[ix].mAttribute = _MOVE_ (i.mAttribute) ;
@@ -1120,13 +1116,10 @@ public:
 	}
 
 	BOOL equal (const JsonParser &that) const {
-		if (!exist ())
-			if (!that.exist ())
-				return TRUE ;
-		if (!exist ())
+		if (_EBOOL_ (exist ()) != _EBOOL_ (that.exist ()))
 			return FALSE ;
-		if (!that.exist ())
-			return FALSE ;
+		if (!exist ())
+			return TRUE ;
 		if (DEPTR[mHeap.self] != DEPTR[that.mHeap.self])
 			return FALSE ;
 		if (mIndex != that.mIndex)

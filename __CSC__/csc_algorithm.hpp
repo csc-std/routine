@@ -78,16 +78,12 @@ public:
 		}
 		INDEX ix = index ;
 		while (TRUE) {
+			INDEX iy = ix ;
+			ix = mTable[iy].mUp ;
 			if (ix == ret)
 				break ;
-			INDEX iy = mTable[ix].mUp ;
-			mTable[ix].mUp = ret ;
-			if switch_once (TRUE) {
-				if (iy == ret)
-					discard ;
-				mTable[iy].mWidth -= mTable[ix].mWidth ;
-			}
-			ix = iy ;
+			mTable[iy].mUp = ret ;
+			mTable[ix].mWidth -= mTable[iy].mWidth ;
 		}
 		return _MOVE_ (ret) ;
 	}

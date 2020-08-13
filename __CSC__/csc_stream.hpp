@@ -1002,7 +1002,8 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
-		if (rax == REAL ('+') || r1x)
+		const auto r2x = BOOL (rax == REAL ('+')) ;
+		if (_ANYOF_ (r1x ,r2x))
 			read (rax) ;
 		compute_read_number (data ,rax) ;
 		if (!r1x)
@@ -1037,8 +1038,12 @@ public:
 		auto rax = REAL () ;
 		read (rax) ;
 		const auto r2x = BOOL (rax == REAL ('-')) ;
-		if (rax == REAL ('+') || r2x)
+		if switch_once (TRUE) {
+			if (!r2x)
+				if (rax != REAL ('+'))
+					discard ;
 			read (rax) ;
+		}
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(rax == REAL ('i')))

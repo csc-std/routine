@@ -59,13 +59,10 @@ public:
 	}
 
 	BOOL equal (const Operand &that) const {
-		if (!mThis.exist ())
-			if (!that.mThis.exist ())
-				return TRUE ;
-		if (!mThis.exist ())
+		if (_EBOOL_ (mThis.exist ()) != _EBOOL_ (that.mThis.exist ()))
 			return FALSE ;
-		if (!that.mThis.exist ())
-			return FALSE ;
+		if (!mThis.exist ())
+			return TRUE ;
 		if (DEPTR[mThis.self] != DEPTR[that.mThis.self])
 			return FALSE ;
 		return TRUE ;

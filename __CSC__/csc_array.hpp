@@ -409,13 +409,10 @@ public:
 	}
 
 	BOOL equal (const String &that) const {
-		if (empty ())
-			if (that.empty ())
-				return TRUE ;
-		if (empty ())
+		if (_EBOOL_ (empty ()) != _EBOOL_ (that.empty ()))
 			return FALSE ;
-		if (that.empty ())
-			return FALSE ;
+		if (empty ())
+			return TRUE ;
 		INDEX ix = 0 ;
 		while (TRUE) {
 			if (mString[ix] == ITEM (0))
@@ -1020,14 +1017,12 @@ public:
 	Array<INDEX> range_sort () const {
 		Array<INDEX> ret = range () ;
 		INDEX ix = ret.length () ;
-		INDEX iy = ix - 1 ;
 		while (TRUE) {
-			if (iy < 1)
+			ix-- ;
+			if (ix < 1)
 				break ;
-			_SWAP_ (ret[0] ,ret[iy]) ;
-			compute_order (ret ,iy) ;
-			ix = iy ;
-			iy-- ;
+			_SWAP_ (ret[0] ,ret[ix]) ;
+			compute_order (ret ,ix) ;
 		}
 		if (ret.size () > 0)
 			BasicProc::mem_rcopy (ret.raw ().self ,ret.raw ().self ,ret.size ()) ;

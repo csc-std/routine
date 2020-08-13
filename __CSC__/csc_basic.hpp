@@ -3300,9 +3300,8 @@ public:
 
 	void clear () {
 		INDEX ix = VAR_NONE ;
-		INDEX iy = VAR_NONE ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			iy = ix ;
+			INDEX iy = ix ;
 			ix = mSize + ~i ;
 			if (mAllocator[ix].mNext == VAR_USED)
 				_DESTROY_ (DEPTR[mAllocator[ix].mValue]) ;
@@ -3415,9 +3414,8 @@ public:
 private:
 	void update_reserve (const INDEX &size_ ,const INDEX &free_) noexcept {
 		INDEX ix = free_ ;
-		INDEX iy = VAR_NONE ;
 		for (auto &&i : _RANGE_ (size_ ,mAllocator.size ())) {
-			iy = ix ;
+			INDEX iy = ix ;
 			ix = mAllocator.size () + ~(i - size_) ;
 			mAllocator[ix].mNext = iy ;
 		}
