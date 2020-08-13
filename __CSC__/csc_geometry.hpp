@@ -638,19 +638,13 @@ public:
 		const auto r1x = MathProc::inverse (det ()) ;
 		_DYNAMIC_ASSERT_ (r1x != REAL (0)) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
-			INDEX ix = 0 ;
-			ix += _EBOOL_ (ix == i) ;
-			INDEX iy = ix + 1 ;
-			iy += _EBOOL_ (iy == i) ;
-			INDEX iz = iy + 1 ;
-			iz += _EBOOL_ (iz == i) ;
+			INDEX ix = _EBOOL_ (i == 0) ;
+			INDEX iy = ix + 1 + _EBOOL_ (i == 1) ;
+			INDEX iz = iy + 1 + _EBOOL_ (i == 2) ;
 			for (auto &&j : _RANGE_ (0 ,4)) {
-				INDEX jx = 0 ;
-				jx += _EBOOL_ (jx == j) ;
-				INDEX jy = jx + 1 ;
-				jy += _EBOOL_ (jy == j) ;
-				INDEX jz = jy + 1 ;
-				jz += _EBOOL_ (jz == j) ;
+				INDEX jx = _EBOOL_ (j == 0) ;
+				INDEX jy = jx + 1 + _EBOOL_ (j == 1) ;
+				INDEX jz = jy + 1 + _EBOOL_ (j == 2) ;
 				const auto r2x = get (ix ,jx) * (get (iy ,jy) * get (iz ,jz) - get (iz ,jy) * get (iy ,jz)) ;
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;

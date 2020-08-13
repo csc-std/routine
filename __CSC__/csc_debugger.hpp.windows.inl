@@ -7,7 +7,6 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -16,7 +15,6 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -59,7 +57,6 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -437,7 +434,7 @@ public:
 		_STATIC_UNUSED_ (r3x) ;
 	}
 
-	Array<LENGTH> captrue_stack_trace () side_effects override {
+	Array<LENGTH> captrue_stack_trace () override {
 		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
@@ -446,7 +443,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) side_effects override {
+	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) override {
 		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		attach_symbol_info () ;
 		Array<String<STR>> ret = Array<String<STR>> (list.size ()) ;

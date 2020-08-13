@@ -30,7 +30,7 @@ imports void main_shutdown () {
 }
 
 #ifdef __CSC_TARGET_EXE__
-exports int main () noexcept side_effects {
+exports int main () noexcept {
 	using namespace UNITTEST ;
 	UniqueRef<> ANONYMOUS (DEPTR[main_startup] ,DEPTR[main_shutdown]) ;
 	UNITTEST_MAIN ().TEST_MAIN () ;

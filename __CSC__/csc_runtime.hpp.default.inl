@@ -7,7 +7,6 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -16,7 +15,6 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -62,7 +60,6 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -332,7 +329,7 @@ public:
 		return mAtomic.load (api::memory_order::memory_order_seq_cst) ;
 	}
 
-	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects override {
+	VAR compare_exchange (const VAR &expect ,const VAR &data) override {
 		VAR ret = expect ;
 		const auto r1x = mAtomic.compare_exchange_strong (ret ,data ,api::memory_order::memory_order_seq_cst) ;
 		if (r1x)
@@ -344,12 +341,12 @@ public:
 		mAtomic.store (data ,api::memory_order::memory_order_seq_cst) ;
 	}
 
-	VAR increase () side_effects override {
+	VAR increase () override {
 		const auto r1x = mAtomic.fetch_add (1 ,api::memory_order::memory_order_seq_cst) ;
 		return r1x + 1 ;
 	}
 
-	VAR decrease () side_effects override {
+	VAR decrease () override {
 		const auto r1x = mAtomic.fetch_sub (1 ,api::memory_order::memory_order_seq_cst) ;
 		return r1x - 1 ;
 	}
@@ -376,7 +373,7 @@ public:
 		mMutex.lock () ;
 	}
 
-	BOOL try_lock () side_effects override {
+	BOOL try_lock () override {
 		return mMutex.try_lock () ;
 	}
 
@@ -406,7 +403,7 @@ public:
 		mMutex.lock () ;
 	}
 
-	BOOL try_lock () side_effects override {
+	BOOL try_lock () override {
 		return mMutex.try_lock () ;
 	}
 
@@ -654,7 +651,7 @@ inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 }
 
 
-inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) side_effects {
+inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,cmd) ;
 	const auto r2x = api::system (r1x.raw ().self) ;
 	return FLAG (r2x) ;
@@ -680,7 +677,7 @@ public:
 		mRandomDevice = AutoRef<api::mt19937>::make (CHAR (seed_)) ;
 	}
 
-	VAR random_value () side_effects override {
+	VAR random_value () override {
 		return VAR (mRandomDevice.self ()) ;
 	}
 

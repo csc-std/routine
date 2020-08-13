@@ -430,7 +430,7 @@ public:
 	implicit ScopedGuard () = delete ;
 
 	template <class _ARG1>
-	explicit ScopedGuard (_ARG1 &address) side_effects
+	explicit ScopedGuard (_ARG1 &address)
 		:ScopedGuard (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<UNIT>::null ,address) ;
 		r1x.lock () ;
@@ -472,7 +472,7 @@ public:
 	implicit ScopedBuild () = delete ;
 
 	template <class _ARG1 ,class... _ARGS>
-	explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval) side_effects
+	explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval)
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<PTR<TEMP<UNIT>>>::null ,address) ;
 		if (r1x == NULL)
@@ -521,7 +521,7 @@ public:
 	implicit ScopedBuild () = delete ;
 
 	template <class _ARG1 ,class... _ARGS>
-	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len) side_effects
+	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
 		if (r1x == NULL)
@@ -536,7 +536,7 @@ public:
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len) side_effects
+	explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
 		if (r1x == NULL)
@@ -582,7 +582,7 @@ class GlobalHeap
 	:private Wrapped<> {
 public:
 	template <class _ARG1>
-	imports ScopedPtr<_ARG1 ,GlobalHeap> alloc (const ARGVF<_ARG1> &) side_effects {
+	imports ScopedPtr<_ARG1 ,GlobalHeap> alloc (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_ARG1) ,stl::nothrow) ;
@@ -592,7 +592,7 @@ public:
 	}
 
 	template <class _ARG1>
-	imports ScopedPtr<ARR<_ARG1> ,GlobalHeap> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) side_effects {
+	imports ScopedPtr<ARR<_ARG1> ,GlobalHeap> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) {
 		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (stl::max_align_t)) ;
 		_DEBUG_ASSERT_ (len > 0) ;
@@ -857,8 +857,8 @@ private:
 		:public Interface {
 	public:
 		virtual UNIT &deref () leftvalue = 0 ;
-		virtual LENGTH increase () side_effects = 0 ;
-		virtual LENGTH decrease () side_effects = 0 ;
+		virtual LENGTH increase () = 0 ;
+		virtual LENGTH decrease () = 0 ;
 	} ;
 
 	struct Private {
@@ -979,11 +979,11 @@ public:
 		return mValue ;
 	}
 
-	LENGTH increase () side_effects override {
+	LENGTH increase () override {
 		return ++mCounter ;
 	}
 
-	LENGTH decrease () side_effects override {
+	LENGTH decrease () override {
 		return --mCounter ;
 	}
 } ;
@@ -1253,7 +1253,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
+	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using HINT_T1 = DEF<void ()> ;
@@ -1357,7 +1357,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) side_effects
+	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using HINT_T1 = DEF<void (UNIT &)> ;
@@ -1534,7 +1534,7 @@ public:
 
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
-	imports PhanRef make (_ARG1 &val) side_effects {
+	imports PhanRef make (_ARG1 &val) {
 		return PhanRef (ARGVP0 ,DEPTR[val]) ;
 	}
 
@@ -2718,18 +2718,18 @@ public:
 	}
 
 	//@warn: phantom means deliver pointer without holder
-	imports Buffer make (const ARR<UNIT> &src ,const LENGTH &len) side_effects {
+	imports Buffer make (const ARR<UNIT> &src ,const LENGTH &len) {
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
-	imports Buffer make (_ARG1 &val) side_effects {
+	imports Buffer make (_ARG1 &val) {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
 	imports Buffer make (const Buffer<UNIT ,_ARG1> &val) {
-		return make (val ,val.size ()) ;
+		return make (val.self ,val.size ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
@@ -2894,17 +2894,17 @@ public:
 	}
 
 	//@warn: phantom means deliver pointer without holder
-	imports Buffer make (ARR<UNIT> &src ,const LENGTH &len) side_effects {
+	imports Buffer make (ARR<UNIT> &src ,const LENGTH &len) {
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
-	imports Buffer make (_ARG1 &val) side_effects {
+	imports Buffer make (_ARG1 &val) {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
 
 	template <class _ARG1>
-	imports Buffer make (Buffer<UNIT ,_ARG1> &val) side_effects {
+	imports Buffer make (Buffer<UNIT ,_ARG1> &val) {
 		return make (val.self ,val.size ()) ;
 	}
 
@@ -2913,7 +2913,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
-	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) side_effects {
+	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
@@ -3344,7 +3344,7 @@ public:
 	}
 
 	template <class... _ARGS>
-	INDEX alloc (_ARGS &&...initval) side_effects {
+	INDEX alloc (_ARGS &&...initval) {
 		INDEX ret = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_once (fax) {

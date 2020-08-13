@@ -63,7 +63,7 @@ public:
 		mTable.fill (r1x) ;
 	}
 
-	INDEX lead (const INDEX &index) side_effects {
+	INDEX lead (const INDEX &index) {
 		INDEX ret = index ;
 		if switch_once (TRUE) {
 			if (mTable[ret].mUp != VAR_NONE)
@@ -76,15 +76,7 @@ public:
 				break ;
 			ret = mTable[ret].mUp ;
 		}
-		INDEX ix = index ;
-		while (TRUE) {
-			INDEX iy = ix ;
-			ix = mTable[iy].mUp ;
-			if (ix == ret)
-				break ;
-			mTable[iy].mUp = ret ;
-			mTable[ix].mWidth -= mTable[iy].mWidth ;
-		}
+		compress (index ,ret) ;
 		return _MOVE_ (ret) ;
 	}
 
@@ -97,7 +89,7 @@ public:
 		mTable[ix].mWidth += mTable[iy].mWidth ;
 	}
 
-	Array<BitSet<>> closure () side_effects {
+	Array<BitSet<>> closure () {
 		const auto r1x = map_of_closure () ;
 		Array<BitSet<>> ret = Array<BitSet<>> (r1x.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
@@ -106,7 +98,7 @@ public:
 			if (mTable[i].mUp == VAR_NONE)
 				continue ;
 			INDEX ix = lead (i) ;
-			INDEX iy = r1x.map_find (ix) ;
+			INDEX iy = r1x.map (ix) ;
 			ret[iy][i] = TRUE ;
 		}
 		return _MOVE_ (ret) ;
@@ -129,6 +121,18 @@ private:
 			ret.add (i ,r1x) ;
 		}
 		return _MOVE_ (ret) ;
+	}
+
+	void compress (const INDEX &index ,const INDEX &root) {
+		INDEX ix = index ;
+		while (TRUE) {
+			INDEX iy = ix ;
+			ix = mTable[iy].mUp ;
+			if (ix == root)
+				break ;
+			mTable[iy].mUp = root ;
+			mTable[ix].mWidth -= mTable[iy].mWidth ;
+		}
 	}
 } ;
 
@@ -301,7 +305,7 @@ private:
 		while (TRUE) {
 			if (mPriority.empty ())
 				break ;
-			const auto r1x = mPriority.map (mPriority.head ()) ;
+			const auto r1x = mPriority.map_get (mPriority.head ()) ;
 			mPriority.take () ;
 			update_distance (r1x) ;
 		}
@@ -416,7 +420,7 @@ private:
 		for (auto &&i : mDataSet) {
 			const auto r1x = mDataSet.at (i) ;
 			INDEX jx = closest_center_of_point (i) ;
-			INDEX jy = mClusterMappingSet.map_find (jx) ;
+			INDEX jy = mClusterMappingSet.map (jx) ;
 			if switch_once (TRUE) {
 				if (jy != VAR_NONE)
 					discard ;
@@ -429,7 +433,7 @@ private:
 		for (auto &&i : mClusterMappingSet) {
 			const auto r2x = mClusterMappingSet.at (i) ;
 			INDEX jx = mNextCenter.insert (i) ;
-			INDEX kx = mClusterMappingSet.map (r2x) ;
+			INDEX kx = mClusterMappingSet.map_get (r2x) ;
 			mNextCenter[jx] = average_center (mCluster[kx]) ;
 		}
 	}

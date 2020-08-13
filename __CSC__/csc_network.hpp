@@ -55,7 +55,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<TCPListener>>
-	_RET listener () side_effects {
+	_RET listener () {
 		struct Dependent ;
 		using TCPListener = DEPENDENT_TYPE<TCPListener ,Dependent> ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
@@ -109,9 +109,9 @@ public:
 	}
 
 public:
-	imports String<STRU8> http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) side_effects ;
+	imports String<STRU8> http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) ;
 
-	imports String<STRU8> http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) side_effects ;
+	imports String<STRU8> http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) ;
 } ;
 
 class TCPListener {

@@ -7,7 +7,6 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
-#pragma push_macro ("side_effects")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -16,7 +15,6 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
-#undef side_effects
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -32,7 +30,6 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
-#pragma pop_macro ("side_effects")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -57,7 +54,7 @@ using ::MapViewOfFile ;
 using ::UnmapViewOfFile ;
 } ;
 
-inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) side_effects {
+inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) {
 	const auto r1x = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 		me = api::CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 		if (me == INVALID_HANDLE_VALUE)
@@ -110,7 +107,7 @@ inline exports void FileSystemProc::save_file (const String<STR> &file ,const Ph
 	_DYNAMIC_ASSERT_ (r2x) ;
 }
 
-inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) side_effects {
+inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) {
 	const auto r1x = FindResource (NULL ,MAKEINTRESOURCE (resource) ,_PCSTR_ ("BIN")) ;
 	_DYNAMIC_ASSERT_ (r1x != NULL) ;
 	const auto r2x = LoadResource (NULL ,r1x) ;
@@ -123,7 +120,7 @@ inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FL
 	return PhanBuffer<const BYTE>::make (DEREF[r5x] ,r4x) ;
 }
 
-inline exports BOOL FileSystemProc::find_file (const String<STR> &file) side_effects {
+inline exports BOOL FileSystemProc::find_file (const String<STR> &file) {
 	const auto r1x = GetFileAttributes (file.raw ().self) ;
 	if (r1x == INVALID_FILE_ATTRIBUTES)
 		return FALSE ;
@@ -154,7 +151,7 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 	CreateHardLink (dst_file.raw ().self ,src_file.raw ().self ,NULL) ;
 }
 
-inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) side_effects {
+inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) {
 	auto rax = ARRAY2<BY_HANDLE_FILE_INFORMATION> () ;
 	const auto r1x = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 		me = api::CreateFile (file1.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
@@ -335,7 +332,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 	return _MOVE_ (ret) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_path () side_effects {
+inline exports const String<STR> &FileSystemProc::module_file_path () {
 	return _CACHE_ ([&] () {
 		String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
@@ -345,7 +342,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () side_effec
 	}) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_name () side_effects {
+inline exports const String<STR> &FileSystemProc::module_file_name () {
 	return _CACHE_ ([&] () {
 		String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
 		GetModuleFileName (NULL ,ret.raw ().self ,VARY (ret.size ())) ;
@@ -354,7 +351,7 @@ inline exports const String<STR> &FileSystemProc::module_file_name () side_effec
 	}) ;
 }
 
-inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) side_effects {
+inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
 	const auto r1x = GetFileAttributes (dire.raw ().self) ;
 	if (r1x == INVALID_FILE_ATTRIBUTES)
 		return FALSE ;
@@ -363,7 +360,7 @@ inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) sid
 	return TRUE ;
 }
 
-inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) side_effects {
+inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("\\") ,_PCSTR_ (".lockdirectory")) ;
 	const auto r2x = GlobalRuntime::process_pid () ;

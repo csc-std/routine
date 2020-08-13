@@ -158,10 +158,10 @@ private:
 		:public Interface {
 	public:
 		virtual VAR fetch () const = 0 ;
-		virtual VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects = 0 ;
+		virtual VAR compare_exchange (const VAR &expect ,const VAR &data) = 0 ;
 		virtual void store (const VAR &data) = 0 ;
-		virtual VAR increase () side_effects = 0 ;
-		virtual VAR decrease () side_effects = 0 ;
+		virtual VAR increase () = 0 ;
+		virtual VAR decrease () = 0 ;
 	} ;
 
 private:
@@ -178,7 +178,7 @@ public:
 		return fetch () ;
 	}
 
-	VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
+	VAR compare_exchange (const VAR &expect ,const VAR &data) {
 		return mThis->compare_exchange (expect ,data) ;
 	}
 
@@ -190,19 +190,19 @@ public:
 		store (data) ;
 	}
 
-	VAR increase () side_effects {
+	VAR increase () {
 		return mThis->increase () ;
 	}
 
-	inline VAR operator++ () side_effects {
+	inline VAR operator++ () {
 		return increase () ;
 	}
 
-	VAR decrease () side_effects {
+	VAR decrease () {
 		return mThis->decrease () ;
 	}
 
-	inline VAR operator-- () side_effects {
+	inline VAR operator-- () {
 		return decrease () ;
 	}
 } ;
@@ -217,7 +217,7 @@ private:
 		:public Interface {
 	public:
 		virtual void lock () = 0 ;
-		virtual BOOL try_lock () side_effects = 0 ;
+		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
 	} ;
 
@@ -239,7 +239,7 @@ public:
 		return mThis->lock () ;
 	}
 
-	BOOL try_lock () side_effects {
+	BOOL try_lock () {
 		return mThis->try_lock () ;
 	}
 
@@ -258,7 +258,7 @@ private:
 		:public Interface {
 	public:
 		virtual void lock () = 0 ;
-		virtual BOOL try_lock () side_effects = 0 ;
+		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
 	} ;
 
@@ -280,7 +280,7 @@ public:
 		return mThis->lock () ;
 	}
 
-	BOOL try_lock () side_effects {
+	BOOL try_lock () {
 		return mThis->try_lock () ;
 	}
 
@@ -450,7 +450,7 @@ public:
 
 	imports void process_abort[[noreturn]] () ;
 
-	imports FLAG system_exec (const String<STR> &cmd) side_effects ;
+	imports FLAG system_exec (const String<STR> &cmd) ;
 } ;
 
 class TypeNameInvokeProc
@@ -765,7 +765,7 @@ class GlobalStaticEngine
 public:
 	struct Public {
 		//@warn: this function should be implemented in a 'runtime.dll'
-		imports PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) side_effects ;
+		imports PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) ;
 	} ;
 
 private:
@@ -793,7 +793,7 @@ private:
 	friend class GlobalStatic ;
 
 private:
-	imports SELF_PACK &static_unique () side_effects {
+	imports SELF_PACK &static_unique () {
 		auto &r1x = _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
@@ -815,9 +815,9 @@ private:
 		return rcx.self ;
 	}
 
-	imports PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
+	imports PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map_find (r1x) ;
+		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -832,17 +832,17 @@ private:
 		return guid ;
 	}
 
-	imports PTR<VALUE_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) side_effects {
+	imports PTR<VALUE_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map_find (r1x) ;
+		INDEX ix = self_.mValueMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
 		return DEPTR[self_.mValue[ix]] ;
 	}
 
-	imports PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
+	imports PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map_find (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
@@ -859,9 +859,9 @@ private:
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	imports PTR<CLASS_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) side_effects {
+	imports PTR<CLASS_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map_find (r1x) ;
+		INDEX ix = self_.mClassMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
 		return DEPTR[self_.mClass[ix]] ;
@@ -886,7 +886,7 @@ public:
 		DEREF[r3x].mValue = data ;
 	}
 
-	imports VAR fetch () side_effects {
+	imports VAR fetch () {
 		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
@@ -894,7 +894,7 @@ public:
 		return DEREF[r2x].mValue ;
 	}
 
-	imports VAR compare_exchange (const VAR &expect ,const VAR &data) side_effects {
+	imports VAR compare_exchange (const VAR &expect ,const VAR &data) {
 		auto &r1x = GlobalStaticEngine::static_unique () ;
 		ScopedGuard<Mutex> ANONYMOUS (r1x.mNodeMutex) ;
 		const auto r2x = GlobalStaticEngine::static_find_node (r1x ,GUID::value) ;
@@ -930,7 +930,7 @@ private:
 	} ;
 
 public:
-	imports Singleton<UNIT> &unique () side_effects {
+	imports Singleton<UNIT> &unique () {
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStaticEngine::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
@@ -978,7 +978,7 @@ private:
 	public:
 		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (const VAR &seed_) = 0 ;
-		virtual VAR random_value () side_effects = 0 ;
+		virtual VAR random_value () = 0 ;
 		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
 
@@ -1000,7 +1000,7 @@ public:
 		return mThis->reset_seed (seed_) ;
 	}
 
-	VAR random_value (const VAR &min_ ,const VAR &max_) side_effects {
+	VAR random_value (const VAR &min_ ,const VAR &max_) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		const auto r1x = max_ - min_ + 1 ;
@@ -1008,7 +1008,7 @@ public:
 		return r2x % r1x + min_ ;
 	}
 
-	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) side_effects {
+	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (min_ <= max_) ;
 		Array<VAR> ret = Array<VAR> (len) ;
@@ -1020,11 +1020,11 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_) side_effects {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_) {
 		return random_shuffle (count ,range_ ,BitSet<> (range_)) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) side_effects {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
 		BitSet<> ret = _MOVE_ (res) ;
@@ -1038,7 +1038,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const BitSet<> &range_) side_effects {
+	BitSet<> random_shuffle (const LENGTH &count ,const BitSet<> &range_) {
 		BitSet<> ret = BitSet<> (range_.size ()) ;
 		compute_random_shuffle (count ,range_ ,ret) ;
 		return _MOVE_ (ret) ;
@@ -1056,7 +1056,7 @@ public:
 		}
 	}
 
-	String<STR> random_uuid () side_effects {
+	String<STR> random_uuid () {
 		auto &r1x = _CACHE_ ([&] () {
 			return _PCSTR_ ("00000000-0000-0000-000000000000") ;
 		}) ;

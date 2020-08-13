@@ -1298,7 +1298,7 @@ inline constexpr _ARG1 &_NULL_ (const ARGVF<_ARG1> &) {
 }
 
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) side_effects {
+inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" :: "rm" (address) : "memory") ;
@@ -1306,7 +1306,7 @@ inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) side_effects {
 	return LENGTH (address) ;
 }
 
-inline LENGTH _ADDRESS_ (const PTR<VOID> &address) side_effects {
+inline LENGTH _ADDRESS_ (const PTR<VOID> &address) {
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" ::: "memory") ;
 #endif
@@ -1314,7 +1314,7 @@ inline LENGTH _ADDRESS_ (const PTR<VOID> &address) side_effects {
 }
 
 template <class _ARG1>
-inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) side_effects {
+inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 	return LENGTH (address) ;
 }
@@ -1544,7 +1544,7 @@ struct OPERATOR_FOR_ONCE {
 		return FALSE ;
 	}
 
-	inline BOOL operator() (BOOL &flag) const side_effects {
+	inline BOOL operator() (BOOL &flag) const {
 		flag = FALSE ;
 		return FALSE ;
 	}
@@ -1738,7 +1738,7 @@ inline ArrayRange<_ARG1> _RANGE_ (const Array<LENGTH ,_ARG1> &range_) {
 }
 
 template <class _ARG1>
-inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &proc) side_effects {
+inline const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> &_CACHE_ (const _ARG1 &proc) {
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	_STATIC_ASSERT_ (!stl::is_void<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	static const RESULT_OF_TYPE<_ARG1 ,ARGVS<>> mInstance = proc () ;
@@ -1899,7 +1899,7 @@ inline void _CALL_ (_ARG1 &&proc) {
 }
 
 template <class _ARG1>
-inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (const _ARG1 &proc) side_effects {
+inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (const _ARG1 &proc) {
 	_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_reference<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
 	return proc () ;

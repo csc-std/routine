@@ -793,7 +793,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<typename Private::template NativeProxy<_ARG1>>>
-	_RET native (const ARGVF<_ARG1> &) side_effects {
+	_RET native (const ARGVF<_ARG1> &) {
 		struct Dependent ;
 		using NativeProxy = typename DEPENDENT_TYPE<Private ,Dependent>::template NativeProxy<_ARG1> ;
 		return NativeProxy (PhanRef<AbstractImage>::make (DEREF[this])) ;

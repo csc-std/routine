@@ -819,7 +819,7 @@ public:
 		return (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
 	}
 
-	INDEX insert () side_effects {
+	INDEX insert () {
 		if (mDeque.size () == 0)
 			update_emplace () ;
 		INDEX ret = mWrite ;
@@ -993,7 +993,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map (const INDEX &index) const {
+	INDEX map_get (const INDEX &index) const {
 		if (index == VAR_NONE)
 			return VAR_NONE ;
 		return mPriority[index].mMap ;
@@ -1086,7 +1086,7 @@ public:
 		reserve (val.length ()) ;
 		for (auto &&i : val) {
 			const auto r1x = val.at (i) ;
-			add (i ,val.map (r1x)) ;
+			add (i ,val.map_get (r1x)) ;
 		}
 	}
 
@@ -1117,12 +1117,12 @@ public:
 		return 0 ;
 	}
 
-	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -1480,7 +1480,7 @@ public:
 		return mLast ;
 	}
 
-	INDEX insert () side_effects {
+	INDEX insert () {
 		INDEX ret = mList.alloc (ARGVP0) ;
 		mList[ret].mLeft = mLast ;
 		auto &r1x = _SWITCH_ (
@@ -1491,7 +1491,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_before (const INDEX &index) side_effects {
+	INDEX insert_before (const INDEX &index) {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mLeft :
 			mLast) ;
@@ -1506,7 +1506,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert_after (const INDEX &index) side_effects {
+	INDEX insert_after (const INDEX &index) {
 		auto &r1x = _SWITCH_ (
 			(index != VAR_NONE) ? mList[index].mRight :
 			mFirst) ;
@@ -1834,7 +1834,7 @@ public:
 			add (i) ;
 	}
 
-	INDEX insert () side_effects {
+	INDEX insert () {
 		INDEX ix = mList.alloc (ARGVP0) ;
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
@@ -1845,7 +1845,7 @@ public:
 		return mList[ix].mIndex ;
 	}
 
-	INDEX insert (const INDEX &index) side_effects {
+	INDEX insert (const INDEX &index) {
 		if switch_once (TRUE) {
 			if (mRange[index] != VAR_NONE)
 				discard ;
@@ -2470,7 +2470,7 @@ public:
 		return mSet.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
-	INDEX map (const INDEX &index) const {
+	INDEX map_get (const INDEX &index) const {
 		if (index == VAR_NONE)
 			return VAR_NONE ;
 		return mSet[index].mMap ;
@@ -2552,7 +2552,7 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (auto &&i : val) {
 			const auto r1x = val.at (i) ;
-			add (i ,val.map (r1x)) ;
+			add (i ,val.map_get (r1x)) ;
 		}
 	}
 
@@ -2582,12 +2582,12 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -2628,8 +2628,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map_find (const ITEM &item) const {
-		return map (find (item)) ;
+	INDEX map (const ITEM &item) const {
+		return map_get (find (item)) ;
 	}
 
 	void erase (const ITEM &item) {
@@ -3064,7 +3064,7 @@ public:
 		return mSet.at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
-	INDEX map (const INDEX &index) const {
+	INDEX map_get (const INDEX &index) const {
 		if (index == VAR_NONE)
 			return VAR_NONE ;
 		return mSet[index].mMap ;
@@ -3136,16 +3136,16 @@ public:
 		mSet.reserve (val.length ()) ;
 		for (auto &&i : val) {
 			const auto r1x = val.at (i) ;
-			add (i ,val.map (r1x)) ;
+			add (i ,val.map_get (r1x)) ;
 		}
 	}
 
-	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3175,8 +3175,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map_find (const ITEM &item) const {
-		return map (find (item)) ;
+	INDEX map (const ITEM &item) const {
+		return map_get (find (item)) ;
 	}
 
 	void erase (const ITEM &item) {
@@ -3341,7 +3341,7 @@ public:
 		return mSet->at (_OFFSET_ (&NODE_PACK::mItem ,item)) ;
 	}
 
-	INDEX map (const INDEX &index) const {
+	INDEX map_get (const INDEX &index) const {
 		if (index == VAR_NONE)
 			return VAR_NONE ;
 		return mSet.self[index].mMap ;
@@ -3436,7 +3436,7 @@ public:
 		mSet->reserve (val.length ()) ;
 		for (auto &&i : val) {
 			const auto r1x = val.at (i) ;
-			add (i ,val.map (r1x)) ;
+			add (i ,val.map_get (r1x)) ;
 		}
 	}
 
@@ -3470,12 +3470,12 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) side_effects {
+	INDEX insert (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
 
-	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) side_effects {
+	INDEX insert (REMOVE_CONST_TYPE<ITEM> &&item) {
 		add (_MOVE_ (item)) ;
 		return mTop ;
 	}
@@ -3499,8 +3499,8 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	INDEX map_find (const ITEM &item) const {
-		return map (find (item)) ;
+	INDEX map (const ITEM &item) const {
+		return map_get (find (item)) ;
 	}
 
 	void clean () {

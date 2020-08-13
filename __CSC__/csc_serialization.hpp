@@ -100,7 +100,7 @@ public:
 	XmlParser child (const String<STRU8> &name) const {
 		if (!exist ())
 			return XmlParser (mHeap ,VAR_NONE) ;
-		INDEX ix = mHeap.self[mIndex].mObjectSet.map_find (name) ;
+		INDEX ix = mHeap.self[mIndex].mObjectSet.map (name) ;
 		return XmlParser (mHeap ,ix) ;
 	}
 
@@ -112,7 +112,7 @@ public:
 			const auto r1x = mHeap.self[mIndex].mMemberSet.range () ;
 			ret = Array<XmlParser> (r1x.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,r1x.length ()))
-				ret[i] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map (r1x[i])) ;
+				ret[i] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map_get (r1x[i])) ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -127,7 +127,7 @@ public:
 				if (rax.length () >= rax.size ())
 					continue ;
 				INDEX ix = rax.insert () ;
-				rax[ix] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map (r1x)) ;
+				rax[ix] = XmlParser (mHeap ,mHeap.self[mIndex].mMemberSet.map_get (r1x)) ;
 			}
 		}
 		Array<XmlParser> ret = Array<XmlParser> (rax.length ()) ;
@@ -166,7 +166,7 @@ public:
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
 		if (!exist ())
 			return SerializationStaticProc::static_empty_string () ;
-		INDEX ix = mHeap.self[mIndex].mAttributeMappingSet.map_find (tag) ;
+		INDEX ix = mHeap.self[mIndex].mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
 			return SerializationStaticProc::static_empty_string () ;
 		return mHeap.self[mIndex].mAttribute[ix] ;
@@ -358,7 +358,7 @@ public:
 					const auto r4x = r3x.mAttributeMappingSet.at (i) ;
 					writer << i ;
 					writer << _PCSTRU8_ ("=\"") ;
-					INDEX jx = r3x.mAttributeMappingSet.map (r4x) ;
+					INDEX jx = r3x.mAttributeMappingSet.map_get (r4x) ;
 					writer << r3x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
 				}
 				writer << _PCSTRU8_ ("/>") ;
@@ -377,7 +377,7 @@ public:
 					const auto r6x = r5x.mAttributeMappingSet.at (i) ;
 					writer << i ;
 					writer << _PCSTRU8_ ("=\"") ;
-					INDEX jx = r5x.mAttributeMappingSet.map (r6x) ;
+					INDEX jx = r5x.mAttributeMappingSet.map_get (r6x) ;
 					writer << r5x.mAttribute[jx] << _PCSTRU8_ ("\" ") ;
 				}
 				writer << _PCSTRU8_ (">") ;
@@ -527,7 +527,7 @@ private:
 	//@info: $3->$1 = $2
 	void update_shift_e3 (const INDEX &curr) {
 		update_shift_e1 () ;
-		INDEX ix = mNodeTree[curr].mAttributeMappingSet.map_find (mLatestString) ;
+		INDEX ix = mNodeTree[curr].mAttributeMappingSet.map (mLatestString) ;
 		_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 		ix = mNodeTree[curr].mAttribute.insert () ;
 		mNodeTree[curr].mAttributeMappingSet.add (_MOVE_ (mLatestString) ,ix) ;
@@ -783,7 +783,7 @@ private:
 			mTempNode = _MOVE_ (mNodeStack[mNodeStack.tail ()]) ;
 			mNodeStack.pop () ;
 			for (auto &&i : mTempNode.mBaseNode) {
-				INDEX ix = mFoundNodeProcMappingSet.map_find (mTempNode.mClazz) ;
+				INDEX ix = mFoundNodeProcMappingSet.map (mTempNode.mClazz) ;
 				mFoundNodeProc[ix] (i) ;
 			}
 			update_merge_found_node (mTempNode.mParent) ;
@@ -843,7 +843,7 @@ private:
 				break ;
 			const auto r1x = rax.name () ;
 			const auto r2x = node_type (rax) ;
-			INDEX ix = mFoundNodeMappingSet.map_find (r1x) ;
+			INDEX ix = mFoundNodeMappingSet.map (r1x) ;
 			if switch_once (TRUE) {
 				if (ix == VAR_NONE)
 					discard ;
@@ -867,13 +867,13 @@ private:
 			}
 			for (auto &&j : rax.mHeap.self[rax.mIndex].mAttributeMappingSet) {
 				const auto r3x = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.at (j) ;
-				INDEX jx = mFoundNode[iy].mAttributeMappingSet.map_find (j) ;
+				INDEX jx = mFoundNode[iy].mAttributeMappingSet.map (j) ;
 				if switch_once (TRUE) {
 					if (jx != VAR_NONE)
 						discard ;
 					jx = mFoundNode[iy].mAttribute.insert () ;
 					mFoundNode[iy].mAttributeMappingSet.add (j ,jx) ;
-					INDEX kx = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.map (r3x) ;
+					INDEX kx = rax.mHeap.self[rax.mIndex].mAttributeMappingSet.map_get (r3x) ;
 					mFoundNode[iy].mAttribute[jx] = rax.mHeap.self[rax.mIndex].mAttribute[kx] ;
 				}
 			}
@@ -1073,7 +1073,7 @@ public:
 		if (!object_type ())
 			return JsonParser (mHeap ,VAR_NONE) ;
 		auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
-		INDEX ix = r1x.map_find (key) ;
+		INDEX ix = r1x.map (key) ;
 		return JsonParser (mHeap ,ix) ;
 	}
 
@@ -1088,7 +1088,7 @@ public:
 			const auto r2x = r1x.range () ;
 			ret = Array<JsonParser> (r2x.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,r2x.length ()))
-				ret[i] = JsonParser (mHeap ,r1x.map (r2x[i])) ;
+				ret[i] = JsonParser (mHeap ,r1x.map_get (r2x[i])) ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -1104,7 +1104,7 @@ public:
 				if (rax.length () >= rax.size ())
 					continue ;
 				INDEX ix = rax.insert () ;
-				rax[ix] = JsonParser (mHeap ,r1x.map (r2x)) ;
+				rax[ix] = JsonParser (mHeap ,r1x.map_get (r2x)) ;
 			}
 		}
 		Array<JsonParser> ret = Array<JsonParser> (rax.length ()) ;
@@ -1264,7 +1264,7 @@ public:
 					if (iw > 0)
 						rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X4}) ;
 					iw++ ;
-					rbx.add (PACK<INDEX ,EFLAG> {r4x.map (r5x) ,M_NODE_X1}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {r4x.map_get (r5x) ,M_NODE_X1}) ;
 				}
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X5}) ;
 				while (TRUE) {
@@ -1294,7 +1294,7 @@ public:
 					INDEX ix = r1x.find (DEPTR[i]) ;
 					rbx.add (PACK<INDEX ,EFLAG> {ix ,M_NODE_X2}) ;
 					rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X8}) ;
-					rbx.add (PACK<INDEX ,EFLAG> {r6x.map (r7x) ,M_NODE_X1}) ;
+					rbx.add (PACK<INDEX ,EFLAG> {r6x.map_get (r7x) ,M_NODE_X1}) ;
 				}
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X9}) ;
 				while (TRUE) {
@@ -1772,7 +1772,7 @@ public:
 	}
 
 	const String<STRU8> &attribute (const String<STRU8> &tag) const leftvalue {
-		INDEX ix = mAttributeMappingSet.map_find (tag) ;
+		INDEX ix = mAttributeMappingSet.map (tag) ;
 		if (ix == VAR_NONE)
 			return SerializationStaticProc::static_empty_string () ;
 		return mAttribute[ix] ;
@@ -1933,7 +1933,7 @@ private:
 	void update_shift_e5 () {
 		mRis >> _PCSTRU8_ ("-") ;
 		update_shift_e1 () ;
-		INDEX ix = mAttributeMappingSet.map_find (mLatestString) ;
+		INDEX ix = mAttributeMappingSet.map (mLatestString) ;
 		_DYNAMIC_ASSERT_ (ix == VAR_NONE) ;
 		ix = mAttribute.insert () ;
 		mAttributeMappingSet.add (_MOVE_ (mLatestString) ,ix) ;

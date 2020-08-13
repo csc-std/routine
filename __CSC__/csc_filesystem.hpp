@@ -22,15 +22,15 @@ using DEFAULT_DIRECTORY_SIZE = ARGC<65536> ;
 class FileSystemProc
 	:private Wrapped<> {
 public:
-	imports AutoBuffer<BYTE> load_file (const String<STR> &file) side_effects ;
+	imports AutoBuffer<BYTE> load_file (const String<STR> &file) ;
 
 	imports void load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) ;
 
 	imports void save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) ;
 
-	imports PhanBuffer<const BYTE> load_assert_file (const FLAG &resource) side_effects ;
+	imports PhanBuffer<const BYTE> load_assert_file (const FLAG &resource) ;
 
-	imports BOOL find_file (const String<STR> &file) side_effects ;
+	imports BOOL find_file (const String<STR> &file) ;
 
 	imports void erase_file (const String<STR> &file) ;
 
@@ -40,7 +40,7 @@ public:
 
 	imports void link_file (const String<STR> &dst_file ,const String<STR> &src_file) ;
 
-	imports BOOL identical_file (const String<STR> &file1 ,const String<STR> &file2) side_effects ;
+	imports BOOL identical_file (const String<STR> &file1 ,const String<STR> &file2) ;
 
 	imports String<STR> parse_path_name (const String<STR> &file) ;
 
@@ -52,13 +52,13 @@ public:
 
 	imports String<STR> absolute_path (const String<STR> &path) ;
 
-	imports const String<STR> &module_file_path () side_effects ;
+	imports const String<STR> &module_file_path () ;
 
-	imports const String<STR> &module_file_name () side_effects ;
+	imports const String<STR> &module_file_name () ;
 
-	imports BOOL find_directory (const String<STR> &dire) side_effects ;
+	imports BOOL find_directory (const String<STR> &dire) ;
 
-	imports BOOL lock_directory (const String<STR> &dire) side_effects ;
+	imports BOOL lock_directory (const String<STR> &dire) ;
 
 	imports void build_directory (const String<STR> &dire) ;
 

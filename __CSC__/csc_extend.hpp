@@ -367,7 +367,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline VAR128 operator++ (VAR32) side_effects {
+	inline VAR128 operator++ (VAR32) {
 		VAR128 ret = DEREF[this] ;
 		++DEREF[this] ;
 		return _MOVE_ (ret) ;
@@ -379,7 +379,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	inline VAR128 operator-- (VAR32) side_effects {
+	inline VAR128 operator-- (VAR32) {
 		VAR128 ret = DEREF[this] ;
 		--DEREF[this] ;
 		return _MOVE_ (ret) ;
@@ -735,15 +735,13 @@ private:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<HINT_T1>> ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<HINT_T1>::value) ;
 		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<HINT_T1>::value) ;
-		const auto r1x = BOOL (index == 0) ;
 		if switch_once (TRUE) {
-			if (!r1x)
+			if (!(index == 0))
 				discard ;
 			const auto r2x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
 			template_create (r2x ,ARGVPX) ;
-		}
-		if (r1x)
 			return ;
+		}
 		template_construct ((index - 1) ,ARGV<HINT_T2>::null) ;
 	}
 
@@ -1515,7 +1513,7 @@ public:
 	}
 
 	void attach_weak () override {
-		++mWeakCounter ;
+		mWeakCounter++ ;
 	}
 
 	void detach_weak () override {
@@ -1528,8 +1526,8 @@ public:
 	}
 
 	void attach_strong () override {
-		++mWeakCounter ;
-		++mStrongCounter ;
+		mWeakCounter++ ;
+		mStrongCounter++ ;
 	}
 
 	void detach_strong () override {
@@ -1800,7 +1798,7 @@ private:
 		virtual void clear () noexcept = 0 ;
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH length () const = 0 ;
-		virtual PTR<HEADER> alloc (const LENGTH &len) side_effects = 0 ;
+		virtual PTR<HEADER> alloc (const LENGTH &len) = 0 ;
 		virtual void free (const PTR<HEADER> &address) noexcept = 0 ;
 		virtual void clean () noexcept = 0 ;
 	} ;
@@ -1843,7 +1841,7 @@ public:
 
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _ARG1>
-	PTR<_ARG1> alloc (const ARGVF<_ARG1> &) side_effects {
+	PTR<_ARG1> alloc (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 		const auto r1x = _ALIGNOF_ (_ARG1) - _ALIGNOF_ (HEADER) ;
 		const auto r2x = VAR_ZERO ;
@@ -1863,7 +1861,7 @@ public:
 
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _ARG1>
-	PTR<ARR<_ARG1>> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) side_effects {
+	PTR<ARR<_ARG1>> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) {
 		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
 		const auto r1x = _ALIGNOF_ (_ARG1) - _ALIGNOF_ (HEADER) ;
 		const auto r2x = VAR_ZERO ;
@@ -1980,7 +1978,7 @@ public:
 		rax = NULL ;
 	}
 
-	PTR<HEADER> alloc (const LENGTH &len) side_effects override {
+	PTR<HEADER> alloc (const LENGTH &len) override {
 		_DEBUG_ASSERT_ (len <= SIZE::value) ;
 		reserve () ;
 		const auto r1x = mFree ;
@@ -2083,7 +2081,7 @@ public:
 		return mLength ;
 	}
 
-	PTR<HEADER> alloc (const LENGTH &len) side_effects override {
+	PTR<HEADER> alloc (const LENGTH &len) override {
 		const auto r1x = _ALIGNAS_ (len ,_ALIGNOF_ (FBLOCK_NODE)) ;
 		const auto r2x = _ALIGNOF_ (FBLOCK_NODE) - 1 + _SIZEOF_ (FBLOCK_NODE) + r1x ;
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::null ,r2x) ;
@@ -2275,7 +2273,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
-	inline _RET operator() (PhanRef<CONT> &&context_) const side_effects {
+	inline _RET operator() (PhanRef<CONT> &&context_) const {
 		struct Dependent ;
 		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;

@@ -72,7 +72,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework ;
 
 #if defined (__CSC_TARGET_EXE__) || defined (__CSC_TARGET_DLL__)
 namespace CSC {
-inline exports PTR<NONE> GlobalStaticEngine::Public::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) side_effects {
+inline exports PTR<NONE> GlobalStaticEngine::Public::unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) {
 	PTR<NONE> ret = NULL ;
 	_CALL_TRY_ ([&] () {
 		auto &r1x = _CACHE_ ([&] () {
