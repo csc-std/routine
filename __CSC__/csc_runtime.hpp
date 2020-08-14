@@ -148,65 +148,6 @@ public:
 	}
 } ;
 
-class Atomic {
-private:
-	struct Private {
-		class Implement ;
-	} ;
-
-	class Abstract
-		:public Interface {
-	public:
-		virtual VAR fetch () const = 0 ;
-		virtual VAR compare_exchange (const VAR &expect ,const VAR &data) = 0 ;
-		virtual void store (const VAR &data) = 0 ;
-		virtual VAR increase () = 0 ;
-		virtual VAR decrease () = 0 ;
-	} ;
-
-private:
-	StrongRef<Abstract> mThis ;
-
-public:
-	implicit Atomic () ;
-
-	VAR fetch () const {
-		return mThis->fetch () ;
-	}
-
-	inline implicit operator VAR () const {
-		return fetch () ;
-	}
-
-	VAR compare_exchange (const VAR &expect ,const VAR &data) {
-		return mThis->compare_exchange (expect ,data) ;
-	}
-
-	void store (const VAR &data) {
-		return mThis->store (data) ;
-	}
-
-	inline void operator= (const VAR &data) {
-		store (data) ;
-	}
-
-	VAR increase () {
-		return mThis->increase () ;
-	}
-
-	inline VAR operator++ () {
-		return increase () ;
-	}
-
-	VAR decrease () {
-		return mThis->decrease () ;
-	}
-
-	inline VAR operator-- () {
-		return decrease () ;
-	}
-} ;
-
 class Mutex {
 private:
 	struct Private {
@@ -659,10 +600,6 @@ private:
 		writer << _PCSTR_ ("VAL64") ;
 	}
 
-	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<VOID> & ,const DEF<decltype (ARGVP3)> &) {
-		writer << _PCSTR_ ("VOID") ;
-	}
-
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<NONE> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("NONE") ;
 	}
@@ -769,23 +706,23 @@ public:
 	} ;
 
 private:
-	struct VALUE_NODE {
+	struct VARXX_NODE {
 		FLAG mGUID ;
 		BOOL mReadOnly ;
 		VAR mValue ;
 	} ;
 
-	struct CLASS_NODE {
+	struct CLAZZ_NODE {
 		String<STR> mGUID ;
 		PTR<NONE> mValue ;
 	} ;
 
 	struct SELF_PACK {
 		Mutex mNodeMutex ;
-		Deque<VALUE_NODE> mValue ;
-		HashSet<FLAG> mValueMappingSet ;
-		Deque<CLASS_NODE> mClass ;
-		HashSet<FLAG> mClassMappingSet ;
+		Deque<VARXX_NODE> mVarxx ;
+		HashSet<FLAG> mVarxxMappingSet ;
+		Deque<CLAZZ_NODE> mClazz ;
+		HashSet<FLAG> mClazzMappingSet ;
 	} ;
 
 private:
@@ -815,42 +752,42 @@ private:
 		return rcx.self ;
 	}
 
-	imports PTR<VALUE_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map (r1x) ;
+		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mValue.insert () ;
-			self_.mValueMappingSet.add (r1x ,ix) ;
-			self_.mValue[ix].mGUID = guid ;
+			ix = self_.mVarxx.insert () ;
+			self_.mVarxxMappingSet.add (r1x ,ix) ;
+			self_.mVarxx[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mValue[ix]] ;
+		return DEPTR[self_.mVarxx[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const FLAG &guid) {
 		return guid ;
 	}
 
-	imports PTR<VALUE_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mValueMappingSet.map (r1x) ;
+		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mValue[ix]] ;
+		return DEPTR[self_.mVarxx[ix]] ;
 	}
 
-	imports PTR<CLASS_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map (r1x) ;
+		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mClass.insert () ;
-			self_.mClassMappingSet.add (r1x ,ix) ;
-			self_.mClass[ix].mGUID = guid ;
+			ix = self_.mClazz.insert () ;
+			self_.mClazzMappingSet.add (r1x ,ix) ;
+			self_.mClazz[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mClass[ix]] ;
+		return DEPTR[self_.mClazz[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const String<STR> &guid) {
@@ -859,12 +796,12 @@ private:
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	imports PTR<CLASS_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClassMappingSet.map (r1x) ;
+		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mClass[ix]] ;
+		return DEPTR[self_.mClazz[ix]] ;
 	}
 } ;
 

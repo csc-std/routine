@@ -379,13 +379,10 @@ namespace CSC {
 #define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNT_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
 #define _CAPACITYOF_(...) CSC::LENGTH (CSC::U::CAPACITY_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
 
-#ifdef VOID
-#undef VOID
-#endif
-
 #ifdef NONE
 #undef NONE
 #endif
+using NONE = void ;
 
 #ifdef NULL
 #undef NULL

@@ -233,7 +233,7 @@ public:
 		return attribute (tag ,def ,r1x) ;
 	}
 
-	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
+	PTR<const NONE> attribute (const String<STRU8> & ,const PTR<const NONE> &) const = delete ;
 
 	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
@@ -259,7 +259,7 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
+	PTR<const NONE> value (const PTR<const NONE> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
 		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
@@ -1157,7 +1157,7 @@ public:
 		return value (def ,r1x) ;
 	}
 
-	PTR<const VOID> value (const PTR<const VOID> &) const = delete ;
+	PTR<const NONE> value (const PTR<const NONE> &) const = delete ;
 
 	VAR32 value (const VAR32 &def) const {
 		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;
@@ -1794,7 +1794,7 @@ public:
 		return attribute (tag ,def ,r1x) ;
 	}
 
-	PTR<const VOID> attribute (const String<STRU8> & ,const PTR<const VOID> &) const = delete ;
+	PTR<const NONE> attribute (const String<STRU8> & ,const PTR<const NONE> &) const = delete ;
 
 	VAR32 attribute (const String<STRU8> &tag ,const VAR32 &def) const {
 		const auto r1x = Function<VAR32 (const String<STRU8> &)> (StringProc::parse_var32s<STRU8>) ;

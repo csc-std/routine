@@ -450,7 +450,7 @@ public:
 	}
 
 	Array<LENGTH> captrue_stack_trace () override {
-		auto rax = AutoBuffer<PTR<VOID>> (DEFAULT_RECURSIVE_SIZE::value) ;
+		auto rax = AutoBuffer<PTR<NONE>> (DEFAULT_RECURSIVE_SIZE::value) ;
 		const auto r1x = api::backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
@@ -461,7 +461,7 @@ public:
 	Array<String<STR>> symbol_from_address (const Array<LENGTH> &list) override {
 		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		const auto r1x = _CALL_ ([&] () {
-			Array<PTR<VOID>> ret = Array<PTR<VOID>> (list.length ()) ;
+			Array<PTR<NONE>> ret = Array<PTR<NONE>> (list.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
 				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,list[i]) ;
 				ret[i] = r2x ;

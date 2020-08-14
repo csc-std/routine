@@ -589,9 +589,9 @@ public:
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<const VOID> &) = delete ;
+	void write (const PTR<const NONE> &) = delete ;
 
-	inline ByteWriter &operator<< (const PTR<const VOID> &) = delete ;
+	inline ByteWriter &operator<< (const PTR<const NONE> &) = delete ;
 
 	void write (const VAR32 &data) {
 		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR32>>::null ,data) ;
@@ -1690,9 +1690,9 @@ public:
 		return DEREF[this] ;
 	}
 
-	void write (const PTR<const VOID> &) = delete ;
+	void write (const PTR<const NONE> &) = delete ;
 
-	inline TextWriter &operator<< (const PTR<const VOID> &) = delete ;
+	inline TextWriter &operator<< (const PTR<const NONE> &) = delete ;
 
 	void write (const VAR32 &data) {
 		write (VAR64 (data)) ;

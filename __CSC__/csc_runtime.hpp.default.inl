@@ -73,7 +73,6 @@ namespace api {
 using std::mutex ;
 using std::recursive_mutex ;
 using std::memory_order ;
-using std::atomic ;
 using std::unique_lock ;
 using std::condition_variable ;
 using std::thread ;
@@ -313,48 +312,6 @@ template <class _ARG1 ,class>
 inline exports TimePoint::TimePoint (_ARG1 &&that) {
 	using Implement = typename Private::Implement ;
 	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
-}
-
-class Atomic::Private::Implement
-	:public Abstract {
-private:
-	api::atomic<VAR> mAtomic ;
-
-public:
-	implicit Implement () {
-		mAtomic = 0 ;
-	}
-
-	VAR fetch () const override {
-		return mAtomic.load (api::memory_order::memory_order_seq_cst) ;
-	}
-
-	VAR compare_exchange (const VAR &expect ,const VAR &data) override {
-		VAR ret = expect ;
-		const auto r1x = mAtomic.compare_exchange_strong (ret ,data ,api::memory_order::memory_order_seq_cst) ;
-		if (r1x)
-			ret = data ;
-		return _MOVE_ (ret) ;
-	}
-
-	void store (const VAR &data) override {
-		mAtomic.store (data ,api::memory_order::memory_order_seq_cst) ;
-	}
-
-	VAR increase () override {
-		const auto r1x = mAtomic.fetch_add (1 ,api::memory_order::memory_order_seq_cst) ;
-		return r1x + 1 ;
-	}
-
-	VAR decrease () override {
-		const auto r1x = mAtomic.fetch_sub (1 ,api::memory_order::memory_order_seq_cst) ;
-		return r1x - 1 ;
-	}
-} ;
-
-inline exports Atomic::Atomic () {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
 }
 
 class Mutex::Private::Implement

@@ -143,17 +143,15 @@ static constexpr auto MATH_SQRT2 = VALX (1.41421356237309504880) ;
 static constexpr auto MATH_LN2 = VALX (0.693147180559945309417) ;
 static constexpr auto MATH_LN10 = VALX (2.30258509299404568402) ;
 
-using VOID = void ;
-
-struct NONE ;
-
 template <class UNIT>
 using DEF = UNIT ;
 
 template <class UNIT>
 using PTR = DEF<UNIT *> ;
 
-template <class UNIT1 ,class UNIT2 = NONE>
+struct MEMCLASS ;
+
+template <class UNIT1 ,class UNIT2 = MEMCLASS>
 using MEMPTR = DEF<UNIT1 UNIT2::*> ;
 
 #ifndef __CSC_COMPILER_GNUC__
@@ -293,7 +291,7 @@ struct ENABLE ;
 
 template <>
 struct ENABLE<ARGC<TRUE>> {
-	using TYPE = VOID ;
+	using TYPE = NONE ;
 } ;
 
 template <BOOL _ARGC>
@@ -691,7 +689,7 @@ struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (DEF<decltype (&_ARG1::operator(
 } ;
 
 template <class _ARG1>
-using FUNCTION_OF_TYPE = typename FUNCTION_OF<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using FUNCTION_OF_TYPE = typename FUNCTION_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -704,7 +702,7 @@ struct RESULT_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(stl::is_same<_ARG2 ,INVOKE_PARAMS_TY
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using RESULT_OF_TYPE = typename RESULT_OF<FUNCTION_OF_TYPE<_ARG1> ,_ARG2 ,VOID>::TYPE ;
+using RESULT_OF_TYPE = typename RESULT_OF<FUNCTION_OF_TYPE<_ARG1> ,_ARG2 ,NONE>::TYPE ;
 } ;
 
 
@@ -797,7 +795,7 @@ struct IS_BOUNDED_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,REMOVE
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,VOID>::TYPE ;
+using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -807,12 +805,12 @@ struct IS_VAR_XYZ {
 } ;
 
 template <>
-struct IS_VAR_XYZ<VAR32 ,VOID> {
+struct IS_VAR_XYZ<VAR32 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_VAR_XYZ<VAR64 ,VOID> {
+struct IS_VAR_XYZ<VAR64 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -827,7 +825,7 @@ struct IS_VAR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VARY>::value && !stl::
 } ;
 
 template <class _ARG1>
-using IS_VAR_XYZ_HELP = typename IS_VAR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_VAR_XYZ_HELP = typename IS_VAR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -837,12 +835,12 @@ struct IS_VAL_XYZ {
 } ;
 
 template <>
-struct IS_VAL_XYZ<VAL32 ,VOID> {
+struct IS_VAL_XYZ<VAL32 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_VAL_XYZ<VAL64 ,VOID> {
+struct IS_VAL_XYZ<VAL64 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -852,7 +850,7 @@ struct IS_VAL_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VALX>::value && !stl::
 } ;
 
 template <class _ARG1>
-using IS_VAL_XYZ_HELP = typename IS_VAL_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_VAL_XYZ_HELP = typename IS_VAL_XYZ<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -861,7 +859,7 @@ struct IS_VOID {
 	using TYPE = ARGC<FALSE> ;
 } ;
 template <>
-struct IS_VOID<VOID> {
+struct IS_VOID<NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -911,27 +909,27 @@ struct IS_STR_XYZ {
 } ;
 
 template <>
-struct IS_STR_XYZ<STRU8 ,VOID> {
+struct IS_STR_XYZ<STRU8 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_STR_XYZ<STRU16 ,VOID> {
+struct IS_STR_XYZ<STRU16 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_STR_XYZ<STRU32 ,VOID> {
+struct IS_STR_XYZ<STRU32 ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_STR_XYZ<STRA ,VOID> {
+struct IS_STR_XYZ<STRA ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_STR_XYZ<STRW ,VOID> {
+struct IS_STR_XYZ<STRW ,NONE> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -941,7 +939,7 @@ struct IS_STR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,STRX>::value && !stl::
 } ;
 
 template <class _ARG1>
-using IS_STR_XYZ_HELP = typename IS_STR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_STR_XYZ_HELP = typename IS_STR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -951,22 +949,22 @@ struct IS_SAFE_ALIASING {
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,TEMP<_ARG1> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING<_ARG1 ,TEMP<_ARG1> ,NONE ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,_ARG1 ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING<TEMP<_ARG1> ,_ARG1 ,NONE ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,NONE ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,VOID ,ARGC<1>> {
+struct IS_SAFE_ALIASING<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,NONE ,ARGC<1>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -980,18 +978,13 @@ struct IS_SAFE_ALIASING<_ARG1 ,NONE ,ENABLE_TYPE<(stl::is_class<_ARG1>::value)> 
 	using TYPE = ARGC<TRUE> ;
 } ;
 
-template <class _ARG1>
-struct IS_SAFE_ALIASING<NONE ,_ARG1 ,ENABLE_TYPE<(stl::is_class<_ARG1>::value)> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
 } ;
 
 template <>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<BOOL> ,VOID ,ARGC<3>> {
+struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<BOOL> ,NONE ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1017,7 +1010,7 @@ struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_STR_XYZ_HELP<_ARG
 
 //@info: compatible for old c api
 template <>
-struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,VOID ,ARGC<3>> {
+struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1037,17 +1030,17 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
 } ;
 
 template <>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,VOID ,VOID ,ARGC<5>> {
+struct IS_SAFE_ALIASING<ARR<BYTE> ,NONE ,NONE ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <>
-struct IS_SAFE_ALIASING<NONE ,VOID ,VOID ,ARGC<5>> {
+struct IS_SAFE_ALIASING<NONE ,NONE ,NONE ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_SAFE_ALIASING_HELP = typename IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID ,ARGC<1>>::TYPE ;
+using IS_SAFE_ALIASING_HELP = typename IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE ,ARGC<1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1107,7 +1100,7 @@ struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0)>> {
 } ;
 
 template <class _ARG1>
-using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,VOID>::TYPE ;
+using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1122,7 +1115,7 @@ struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) == _SIZEOF_ (_AR
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1137,7 +1130,7 @@ struct IS_ALWAYS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(_SIZEOF_ (_ARG1) > 0 && _SIZ
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_ALWAYS_BASE_OF_HELP = typename IS_ALWAYS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,VOID>::TYPE ;
+using IS_ALWAYS_BASE_OF_HELP = typename IS_ALWAYS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1300,13 +1293,6 @@ inline constexpr _ARG1 &_NULL_ (const ARGVF<_ARG1> &) {
 template <class _ARG1>
 inline LENGTH _ADDRESS_ (const PTR<_ARG1> &address) {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
-#ifdef __CSC_COMPILER_GNUC__
-	asm volatile ("" :: "rm" (address) : "memory") ;
-#endif
-	return LENGTH (address) ;
-}
-
-inline LENGTH _ADDRESS_ (const PTR<VOID> &address) {
 #ifdef __CSC_COMPILER_GNUC__
 	asm volatile ("" ::: "memory") ;
 #endif
@@ -1580,11 +1566,11 @@ struct TEMP {
 	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
 } ;
 
-template <class UNIT = VOID>
+template <class UNIT = NONE>
 class Wrapped ;
 
 template <>
-class Wrapped<VOID> {
+class Wrapped<NONE> {
 public:
 	implicit Wrapped () = delete ;
 

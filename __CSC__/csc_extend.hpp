@@ -738,8 +738,8 @@ private:
 		if switch_once (TRUE) {
 			if (!(index == 0))
 				discard ;
-			const auto r2x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
-			template_create (r2x ,ARGVPX) ;
+			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
+			template_create (r1x ,ARGVPX) ;
 			return ;
 		}
 		template_construct ((index - 1) ,ARGV<HINT_T2>::null) ;
@@ -1293,11 +1293,69 @@ private:
 	}
 } ;
 
+class Atomic {
+private:
+	stl::atomic<VAR> mValue ;
+
+public:
+	implicit Atomic ()
+		:mValue (0) {}
+
+	implicit Atomic (const VAR &that)
+		:mValue (that) {}
+
+	VAR fetch () const {
+		return mValue.load () ;
+	}
+
+	inline implicit operator VAR () const {
+		return fetch () ;
+	}
+
+	VAR exchange (const VAR &data) {
+		return mValue.exchange (data) ;
+	}
+
+	VAR compare_exchange (const VAR &expect ,const VAR &data) {
+		VAR ret = expect ;
+		const auto r1x = mValue.compare_exchange_strong (ret ,data) ;
+		if (r1x)
+			ret = data ;
+		return _MOVE_ (ret) ;
+	}
+
+	void store (const VAR &data) {
+		mValue.store (data) ;
+	}
+
+	inline void operator= (const VAR &data) {
+		store (data) ;
+	}
+
+	VAR increase () {
+		const auto r1x = mValue.fetch_add (1) ;
+		return r1x + 1 ;
+	}
+
+	inline VAR operator++ () {
+		return increase () ;
+	}
+
+	VAR decrease () {
+		const auto r1x = mValue.fetch_sub (1) ;
+		return r1x - 1 ;
+	}
+
+	inline VAR operator-- () {
+		return decrease () ;
+	}
+} ;
+
 template <class>
 class StrongRef ;
 
 class WeakRef final {
-private:
+public:
 	class Holder
 		:public Interface {
 	public:
@@ -1321,8 +1379,8 @@ private:
 private:
 	template <class>
 	friend class StrongRef ;
-	stl::atomic<PTR<Holder>> mPointer ;
-	mutable stl::atomic<LENGTH> mLatch ;
+	Atomic mPointer ;
+	mutable Atomic mLatch ;
 
 public:
 	implicit WeakRef ()
@@ -1347,10 +1405,10 @@ public:
 		if (that == NULL)
 			return ;
 		DEREF[that].attach_weak () ;
-		const auto r2x = safe_exchange (that) ;
-		if (r2x == NULL)
+		const auto r1x = safe_exchange (that) ;
+		if (r1x == NULL)
 			return ;
-		DEREF[r2x].detach_weak () ;
+		DEREF[r1x].detach_weak () ;
 	}
 
 	template <class _ARG1>
@@ -1391,15 +1449,21 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		if (r1x == NULL)
 			return FALSE ;
 		return TRUE ;
 	}
 
+	PTR<NONE> intrusive () const leftvalue {
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,r1x) ;
+		return r2x ;
+	}
+
 	BOOL equal (const WeakRef &that) const {
-		const auto r1x = mPointer.load () ;
-		const auto r2x = that.mPointer.load () ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = that.mPointer.fetch () ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -1417,8 +1481,8 @@ public:
 	BOOL equal (const StrongRef<_ARG1> &that) const {
 		struct Dependent ;
 		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
-		const auto r2x = mPointer.load () ;
-		const auto r3x = r1x.mPointer.load () ;
+		const auto r2x = mPointer.fetch () ;
+		const auto r3x = r1x.mPointer.fetch () ;
 		if (r2x != r3x)
 			return FALSE ;
 		return TRUE ;
@@ -1439,7 +1503,7 @@ public:
 		struct Dependent ;
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		return WeakRef (r1x) ;
 	}
 
@@ -1449,7 +1513,7 @@ public:
 		using StrongRef = DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent> ;
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		const auto r2x = DEREF[r1x].type_address () ;
 		const auto r3x = DEREF[r1x].type_algin_size () ;
 		_DYNAMIC_ASSERT_ (r3x.mP1 == _ALIGNOF_ (_ARG1)) ;
@@ -1458,27 +1522,28 @@ public:
 		return StrongRef (r1x ,r4x) ;
 	}
 
-	PTR<NONE> intrusive () const leftvalue {
-		const auto r1x = mPointer.load () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<NONE>::null ,r1x) ;
-		return r2x ;
-	}
-
 private:
 	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) ,mLatch (0) {}
+		:mPointer (0) ,mLatch (0) {}
+
+	PTR<Holder> safe_load () const {
+		const auto r1x = mPointer.fetch () ;
+		return _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
+	}
 
 	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
-		const auto r1x = mPointer.exchange (address) ;
-		if (r1x == NULL)
-			return r1x ;
+		const auto r1x = _ADDRESS_ (address) ;
+		const auto r2x = mPointer.exchange (r1x) ;
+		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r2x) ;
+		if (r3x == NULL)
+			return r3x ;
 		while (TRUE) {
-			const auto r2x = mLatch.load () ;
-			if (r2x == 0)
+			const auto r4x = mLatch.fetch () ;
+			if (r4x == 0)
 				break ;
 			_DEBUG_ASSERT_ (FALSE) ;
 		}
-		return r1x ;
+		return r3x ;
 	}
 } ;
 
@@ -1487,8 +1552,8 @@ class WeakRef::Private::ImplHolder
 	:public Holder {
 private:
 	AnyRef<> mHolder ;
-	stl::atomic<LENGTH> mWeakCounter ;
-	stl::atomic<LENGTH> mStrongCounter ;
+	Atomic mWeakCounter ;
+	Atomic mStrongCounter ;
 
 public:
 	implicit ImplHolder () {
@@ -1506,14 +1571,14 @@ public:
 	}
 
 	void init_holder (AnyRef<> &&holder) override {
-		_DEBUG_ASSERT_ (mWeakCounter.load () == 0) ;
-		_DEBUG_ASSERT_ (mStrongCounter.load () == 0) ;
+		_DEBUG_ASSERT_ (mWeakCounter.fetch () == 0) ;
+		_DEBUG_ASSERT_ (mStrongCounter.fetch () == 0) ;
 		_DEBUG_ASSERT_ (!mHolder.exist ()) ;
 		mHolder = _MOVE_ (holder) ;
 	}
 
 	void attach_weak () override {
-		mWeakCounter++ ;
+		++mWeakCounter ;
 	}
 
 	void detach_weak () override {
@@ -1526,8 +1591,8 @@ public:
 	}
 
 	void attach_strong () override {
-		mWeakCounter++ ;
-		mStrongCounter++ ;
+		++mWeakCounter ;
+		++mStrongCounter ;
 	}
 
 	void detach_strong () override {
@@ -1552,7 +1617,7 @@ public:
 } ;
 
 class WeakRef::Private::LatchCounter
-	:private Wrapped<stl::atomic<LENGTH>> {
+	:private Wrapped<Atomic> {
 public:
 	void lock () {
 		const auto r1x = ++LatchCounter::mSelf ;
@@ -1599,8 +1664,8 @@ private:
 	using Holder = typename WeakRef::Holder ;
 
 private:
-	stl::atomic<PTR<Holder>> mPointer ;
-	mutable stl::atomic<LENGTH> mLatch ;
+	Atomic mPointer ;
+	mutable Atomic mLatch ;
 	PTR<UNIT> mFastPointer ;
 
 public:
@@ -1670,7 +1735,7 @@ public:
 	}
 
 	BOOL exist () const {
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		if (r1x == NULL)
 			return FALSE ;
 		return TRUE ;
@@ -1705,8 +1770,8 @@ public:
 	}
 
 	BOOL equal (const StrongRef &that) const {
-		const auto r1x = mPointer.load () ;
-		const auto r2x = that.mPointer.load () ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = that.mPointer.fetch () ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -1735,7 +1800,7 @@ public:
 	StrongRef share () const {
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		return StrongRef (r1x ,mFastPointer) ;
 	}
 
@@ -1743,7 +1808,7 @@ public:
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		const auto r2x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,mFastPointer) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (mFastPointer != NULL)) ;
 		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (r1x ,r2x) ;
@@ -1752,7 +1817,7 @@ public:
 	WeakRef weak () const {
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
-		const auto r1x = mPointer.load () ;
+		const auto r1x = safe_load () ;
 		return WeakRef (r1x) ;
 	}
 
@@ -1772,19 +1837,26 @@ public:
 
 private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) ,mLatch (0) ,mFastPointer (NULL) {}
+		:mPointer (0) ,mLatch (0) ,mFastPointer (NULL) {}
+
+	PTR<Holder> safe_load () const {
+		const auto r1x = mPointer.fetch () ;
+		return _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
+	}
 
 	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
-		const auto r1x = mPointer.exchange (address) ;
-		if (r1x == NULL)
-			return r1x ;
+		const auto r1x = _ADDRESS_ (address) ;
+		const auto r2x = mPointer.exchange (r1x) ;
+		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r2x) ;
+		if (r3x == NULL)
+			return r3x ;
 		while (TRUE) {
-			const auto r2x = mLatch.load () ;
-			if (r2x == 0)
+			const auto r4x = mLatch.fetch () ;
+			if (r4x == 0)
 				break ;
 			_DEBUG_ASSERT_ (FALSE) ;
 		}
-		return r1x ;
+		return r3x ;
 	}
 } ;
 

@@ -988,11 +988,11 @@ public:
 	}
 } ;
 
-template <class UNIT = VOID>
+template <class UNIT = NONE>
 class AnyRef ;
 
 template <>
-class AnyRef<VOID> final {
+class AnyRef<NONE> final {
 private:
 	class Holder
 		:public Interface {
@@ -1014,7 +1014,7 @@ public:
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that)
-		: AnyRef (_MOVE_ (that.rebind (ARGV<VOID>::null))) {
+		: AnyRef (_MOVE_ (that.rebind (ARGV<NONE>::null))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1076,7 +1076,7 @@ class AnyRef final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
-	using Holder = typename AnyRef<VOID>::Holder ;
+	using Holder = typename AnyRef<NONE>::Holder ;
 
 	struct Private {
 		template <class>
@@ -1226,11 +1226,11 @@ public:
 template <class>
 class Function ;
 
-template <class UNIT = VOID>
+template <class UNIT = NONE>
 class UniqueRef ;
 
 template <>
-class UniqueRef<VOID> final {
+class UniqueRef<NONE> final {
 private:
 	class Holder
 		:public Interface {
