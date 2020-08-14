@@ -1003,8 +1003,12 @@ public:
 		read (rax) ;
 		const auto r1x = BOOL (rax == REAL ('-')) ;
 		const auto r2x = BOOL (rax == REAL ('+')) ;
-		if (_ANYOF_ (r1x ,r2x))
+		if switch_once (TRUE) {
+			if (!r1x)
+				if (!r2x)
+					discard ;
 			read (rax) ;
+		}
 		compute_read_number (data ,rax) ;
 		if (!r1x)
 			return ;

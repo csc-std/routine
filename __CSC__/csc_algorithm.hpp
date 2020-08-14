@@ -13,34 +13,34 @@
 #include "csc_geometry.hpp"
 
 namespace CSC {
-class PrimeSieveAlgorithm {
+class PrimeBitSet {
 private:
-	BitSet<> mPrimeSet ;
+	BitSet<> mPrimeBitSet ;
 
 public:
-	implicit PrimeSieveAlgorithm () = delete ;
+	implicit PrimeBitSet () = default ;
 
-	explicit PrimeSieveAlgorithm (const LENGTH &len) {
-		mPrimeSet = BitSet<> (len) ;
-		mPrimeSet.fill (BYTE (0XAA)) ;
-		mPrimeSet[1] = FALSE ;
-		mPrimeSet[2] = TRUE ;
-		const auto r1x = (MathProc::sqrt (mPrimeSet.size ()) - 2) / 2 + 1 ;
+	explicit PrimeBitSet (const LENGTH &len) {
+		mPrimeBitSet = BitSet<> (len) ;
+		mPrimeBitSet.fill (BYTE (0XAA)) ;
+		mPrimeBitSet[1] = FALSE ;
+		mPrimeBitSet[2] = TRUE ;
+		const auto r1x = (MathProc::sqrt (mPrimeBitSet.size ()) - 2) / 2 + 1 ;
 		for (auto &&i : _RANGE_ (0 ,r1x)) {
 			INDEX ix = i * 2 + 3 ;
 			const auto r2x = ix * 2 ;
 			_DEBUG_ASSERT_ (r2x > 0) ;
 			const auto r3x = MathProc::square (ix) ;
-			const auto r4x = (mPrimeSet.size () - r3x) / r2x + 1 ;
+			const auto r4x = (mPrimeBitSet.size () - r3x) / r2x + 1 ;
 			for (auto &&j : _RANGE_ (0 ,r4x)) {
 				INDEX jx = j * r2x + r3x ;
-				mPrimeSet[jx] = FALSE ;
+				mPrimeBitSet[jx] = FALSE ;
 			}
 		}
 	}
 
 	const BitSet<> &query () const leftvalue {
-		return mPrimeSet ;
+		return mPrimeBitSet ;
 	}
 } ;
 
@@ -55,7 +55,7 @@ private:
 	Array<NODE_PACK> mTable ;
 
 public:
-	implicit DisjointTable () = delete ;
+	implicit DisjointTable () = default ;
 
 	explicit DisjointTable (const LENGTH &len) {
 		mTable = Array<NODE_PACK> (len) ;
@@ -132,6 +132,112 @@ private:
 				break ;
 			mTable[iy].mUp = root ;
 			mTable[ix].mWidth -= mTable[iy].mWidth ;
+		}
+	}
+} ;
+
+template <class REAL>
+class SegmentTable {
+private:
+	AutoRef<REAL> mTolerance ;
+	Set<REAL> mSegmentSet ;
+	Array<INDEX> mSegmentSetRange ;
+	Array<INDEX> mSegmentSetOrder ;
+	BitSet<> mRealLeft ;
+	BitSet<> mRealRight ;
+	BitSet<> mReal ;
+
+public:
+	implicit SegmentTable () = default ;
+
+	explicit SegmentTable (const REAL &tolerance) {
+		mTolerance = AutoRef<REAL>::make (tolerance) ;
+	}
+
+	void add (const REAL &lb ,const REAL &rb) {
+		INDEX ix = insert (lb) ;
+		INDEX iy = insert (rb) ;
+		const auto r1x = MathProc::sort (mSegmentSetOrder[ix] ,mSegmentSetOrder[iy]) ;
+		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1])) {
+			mReal[i] = TRUE ;
+			mRealLeft[mSegmentSetRange[i]] = TRUE ;
+			mRealRight[mSegmentSetRange[i + 1]] = TRUE ;
+		}
+	}
+
+	void erase (const REAL &lb ,const REAL &rb) {
+		INDEX ix = insert (lb) ;
+		INDEX iy = insert (rb) ;
+		const auto r1x = MathProc::sort (mSegmentSetOrder[ix] ,mSegmentSetOrder[iy]) ;
+		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1])) {
+			mReal[i] = FALSE ;
+			mRealLeft[mSegmentSetRange[i]] = FALSE ;
+			mRealRight[mSegmentSetRange[i + 1]] = FALSE ;
+		}
+	}
+
+	REAL percent (const REAL &lb ,const REAL &rb) {
+		INDEX ix = insert (lb) ;
+		INDEX iy = insert (rb) ;
+		REAL ret = REAL (0) ;
+		const auto r1x = MathProc::sort (mSegmentSetOrder[ix] ,mSegmentSetOrder[iy]) ;
+		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1])) {
+			if (!mReal[i])
+				continue ;
+			ret += mSegmentSet[mSegmentSetRange[i]] - mSegmentSet[mSegmentSetRange[i + 1]] ;
+		}
+		const auto r2x = mSegmentSet[ix] - mSegmentSet[iy] ;
+		ret *= MathProc::inverse (r2x ,mTolerance.self) ;
+		return _MOVE_ (ret) ;
+	}
+
+private:
+	INDEX insert (const REAL &point) {
+		const auto r1x = MathProc::round (point ,mTolerance.self) ;
+		INDEX ret = mSegmentSet.find (point) ;
+		if switch_once (TRUE) {
+			if (ret != VAR_NONE)
+				break ;
+			ret = mSegmentSet.insert (point) ;
+			update_range () ;
+		}
+		return _MOVE_ (ret) ;
+	}
+
+	void update_range () {
+		if switch_once (TRUE) {
+			if (mSegmentSetOrder.size () == mSegmentSet.size ())
+				discard ;
+			mSegmentSetOrder = Array<INDEX> (mSegmentSet.size ()) ;
+			mSegmentSetOrder.fill (VAR_NONE) ;
+		}
+		mSegmentSetRange = mSegmentSet.range_sort () ;
+		for (auto &&i : _RANGE_ (0 ,mSegmentSetRange.length ()))
+			mSegmentSetOrder[mSegmentSetRange[i]] = i ;
+		if switch_once (TRUE) {
+			if (mRealLeft.size () == mSegmentSet.size ())
+				discard ;
+			const auto r1x = _MOVE_ (mRealLeft) ;
+			mRealLeft = BitSet<> (mSegmentSet.size ()) ;
+			for (auto &&i : r1x)
+				mRealLeft[i] = TRUE ;
+		}
+		if switch_once (TRUE) {
+			if (mRealRight.size () == mSegmentSet.size ())
+				discard ;
+			const auto r2x = _MOVE_ (mRealRight) ;
+			mRealRight = BitSet<> (mSegmentSet.size ()) ;
+			for (auto &&i : r2x)
+				mRealRight[i] = TRUE ;
+		}
+		mReal = BitSet<> (mSegmentSetRange.size ()) ;
+		for (auto &&i : _RANGE_ (0 ,mSegmentSetRange.length () - 1)) {
+			if (!mRealLeft[mSegmentSetRange[i]])
+				if (!mRealRight[mSegmentSetRange[i + 1]])
+					continue ;
+			mReal[i] = TRUE ;
+			mRealLeft[mSegmentSetRange[i]] = TRUE ;
+			mRealRight[mSegmentSetRange[i + 1]] = TRUE ;
 		}
 	}
 } ;

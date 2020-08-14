@@ -809,25 +809,6 @@ public:
 		return DEREF[this] ;
 	}
 
-	INDEX head () const {
-		_DEBUG_ASSERT_ (!empty ()) ;
-		return mRead ;
-	}
-
-	INDEX tail () const {
-		_DEBUG_ASSERT_ (!empty ()) ;
-		return (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
-	}
-
-	INDEX insert () {
-		if (mDeque.size () == 0)
-			update_emplace () ;
-		INDEX ret = mWrite ;
-		mWrite = (mWrite + 1) % mDeque.size () ;
-		update_emplace () ;
-		return _MOVE_ (ret) ;
-	}
-
 	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
 		if (mDeque.size () == 0)
 			update_emplace () ;
@@ -849,6 +830,25 @@ public:
 	void pop () {
 		_DEBUG_ASSERT_ (!empty ()) ;
 		mWrite = (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
+	}
+
+	INDEX head () const {
+		_DEBUG_ASSERT_ (!empty ()) ;
+		return mRead ;
+	}
+
+	INDEX tail () const {
+		_DEBUG_ASSERT_ (!empty ()) ;
+		return (mWrite - 1 + mDeque.size ()) % mDeque.size () ;
+	}
+
+	INDEX insert () {
+		if (mDeque.size () == 0)
+			update_emplace () ;
+		INDEX ret = mWrite ;
+		mWrite = (mWrite + 1) % mDeque.size () ;
+		update_emplace () ;
+		return _MOVE_ (ret) ;
 	}
 
 private:
@@ -1470,57 +1470,6 @@ public:
 		return DEREF[this] ;
 	}
 
-	INDEX head () const {
-		_DEBUG_ASSERT_ (!empty ()) ;
-		return mFirst ;
-	}
-
-	INDEX tail () const {
-		_DEBUG_ASSERT_ (!empty ()) ;
-		return mLast ;
-	}
-
-	INDEX insert () {
-		INDEX ret = mList.alloc (ARGVP0) ;
-		mList[ret].mLeft = mLast ;
-		auto &r1x = _SWITCH_ (
-			(mLast != VAR_NONE) ? mList[mLast].mRight :
-			mFirst) ;
-		r1x = ret ;
-		mLast = ret ;
-		return _MOVE_ (ret) ;
-	}
-
-	INDEX insert_before (const INDEX &index) {
-		auto &r1x = _SWITCH_ (
-			(index != VAR_NONE) ? mList[index].mLeft :
-			mLast) ;
-		INDEX ret = mList.alloc (ARGVP0) ;
-		mList[ret].mLeft = r1x ;
-		mList[ret].mRight = index ;
-		auto &r2x = _SWITCH_ (
-			(r1x != VAR_NONE) ? mList[r1x].mRight :
-			mFirst) ;
-		r2x = ret ;
-		r1x = ret ;
-		return _MOVE_ (ret) ;
-	}
-
-	INDEX insert_after (const INDEX &index) {
-		auto &r1x = _SWITCH_ (
-			(index != VAR_NONE) ? mList[index].mRight :
-			mFirst) ;
-		INDEX ret = mList.alloc (ARGVP0) ;
-		mList[ret].mLeft = r1x ;
-		mList[ret].mRight = index ;
-		auto &r2x = _SWITCH_ (
-			(r1x != VAR_NONE) ? mList[r1x].mLeft :
-			mLast) ;
-		r2x = ret ;
-		r1x = ret ;
-		return _MOVE_ (ret) ;
-	}
-
 	void push (const REMOVE_CONST_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		mList[ix].mRight = mFirst ;
@@ -1550,6 +1499,33 @@ public:
 			mFirst) ;
 		r1x = VAR_NONE ;
 		mList.free (ix) ;
+	}
+
+	INDEX head () const {
+		_DEBUG_ASSERT_ (!empty ()) ;
+		return mFirst ;
+	}
+
+	INDEX tail () const {
+		_DEBUG_ASSERT_ (!empty ()) ;
+		return mLast ;
+	}
+
+	INDEX insert () {
+		INDEX ret = mList.alloc (ARGVP0) ;
+		mList[ret].mLeft = mLast ;
+		auto &r1x = _SWITCH_ (
+			(mLast != VAR_NONE) ? mList[mLast].mRight :
+			mFirst) ;
+		r1x = ret ;
+		mLast = ret ;
+		return _MOVE_ (ret) ;
+	}
+
+	void remove (const INDEX &index) {
+		prev_next (index) = mList[index].mRight ;
+		next_prev (index) = mList[index].mLeft ;
+		mList.free (index) ;
 	}
 
 	void eswap (const INDEX &index1 ,const INDEX &index2) {
@@ -1597,16 +1573,21 @@ public:
 		r1x = last ;
 	}
 
-	void remove (const INDEX &index) {
-		prev_next (index) = mList[index].mRight ;
-		next_prev (index) = mList[index].mLeft ;
-		mList.free (index) ;
-	}
-
-	void sort (const Array<INDEX> &order_) {
+	void esort (const Array<INDEX> &order_) {
 		_DEBUG_ASSERT_ (order_.length () == length ()) ;
 		if (order_.length () < 2)
 			return ;
+		for (auto &&i : order_) {
+			if switch_once (TRUE) {
+				if (mList[i].mLeft != VAR_NONE)
+					discard ;
+				if (mList[i].mRight != VAR_NONE)
+					discard ;
+				_DEBUG_ASSERT_ (FALSE) ;
+			}
+			mList[i].mLeft = VAR_NONE ;
+			mList[i].mRight = VAR_NONE ;
+		}
 		for (auto &&i : _RANGE_ (0 ,1)) {
 			mList[order_[i]].mLeft = VAR_NONE ;
 			mList[order_[i]].mRight = order_[i + 1] ;
@@ -1677,7 +1658,7 @@ public:
 	}
 
 	LENGTH size () const {
-		return mList.size () ;
+		return mRange.size () ;
 	}
 
 	LENGTH length () const {
@@ -1687,11 +1668,10 @@ public:
 	void clear () {
 		mList.clear () ;
 		BasicProc::mem_fill (mRange.self ,mRange.size () ,VAR_NONE) ;
-		mWrite = 0 ;
 	}
 
 	INDEX ibegin () const {
-		for (auto &&i : _RANGE_ (0 ,mWrite)) {
+		for (auto &&i : _RANGE_ (0 ,mRange.size ())) {
 			if (mRange[i] != VAR_NONE)
 				return i ;
 		}
@@ -1704,7 +1684,7 @@ public:
 
 	INDEX inext (const INDEX &index) const {
 		const auto r1x = index + 1 ;
-		for (auto &&i : _RANGE_ (r1x ,mWrite)) {
+		for (auto &&i : _RANGE_ (r1x ,mRange.size ())) {
 			if (mRange[i] != VAR_NONE)
 				return i ;
 		}
@@ -1802,9 +1782,6 @@ public:
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
-		const auto r1x = mWrite ;
-		const auto r2x = mList[ix].mIndex + 1 ;
-		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
 	inline ArrayList &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
@@ -1817,9 +1794,6 @@ public:
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
-		const auto r1x = mWrite ;
-		const auto r2x = mList[ix].mIndex + 1 ;
-		mWrite = _MAX_ (r1x ,r2x) ;
 	}
 
 	inline ArrayList &operator<< (REMOVE_CONST_TYPE<ITEM> &&item) {
@@ -1839,9 +1813,6 @@ public:
 		update_range (ix) ;
 		mList[ix].mIndex = min_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
-		const auto r1x = mWrite ;
-		const auto r2x = mList[ix].mIndex + 1 ;
-		mWrite = _MAX_ (r1x ,r2x) ;
 		return mList[ix].mIndex ;
 	}
 
@@ -1853,11 +1824,13 @@ public:
 			update_range (ix) ;
 			mList[ix].mIndex = index ;
 			mRange[mList[ix].mIndex] = ix ;
-			const auto r1x = mWrite ;
-			const auto r2x = mList[ix].mIndex + 1 ;
-			mWrite = _MAX_ (r1x ,r2x) ;
 		}
 		return mList[mRange[index]].mIndex ;
+	}
+
+	void remove (const INDEX &index) {
+		mList.free (mRange[index]) ;
+		mRange[index] = VAR_NONE ;
 	}
 
 	void eswap (const INDEX &index1 ,const INDEX &index2) {
@@ -1868,38 +1841,37 @@ public:
 		mList[mRange[index2]].mIndex = index2 ;
 	}
 
-	void remove (const INDEX &index) {
-		mList.free (mRange[index]) ;
-		mRange[index] = VAR_NONE ;
+	void esort (const Array<INDEX> &order_) {
+		_DEBUG_ASSERT_ (order_.length () == length ()) ;
+		if (order_.length () < 2)
+			return ;
+		for (auto &&i : _RANGE_ (0 ,order_.length ())) {
+			mList[mRange[order_[i]]].mIndex = i ;
+			mRange[order_[i]] = VAR_NONE ;
+		}
+		BasicProc::mem_fill (mRange.self ,mRange.size () ,VAR_NONE) ;
+		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
+			if (!mList.used (i))
+				continue ;
+			mRange[mList[i].mIndex] = i ;
+		}
 	}
 
 	void remap () {
-		if (mWrite == mList.length ())
+		if (mRange.size () == mList.length ())
 			return ;
-		INDEX ix = 0 ;
-		while (TRUE) {
-			_DEBUG_ASSERT_ (ix < mWrite) ;
-			if (mRange[ix] != VAR_NONE)
-				break ;
-			ix++ ;
-		}
-		for (auto &&i : _RANGE_ (ix + 1 ,mWrite)) {
+		auto rax = mRange.expand (mList.length ()) ;
+		INDEX iw = 0 ;
+		for (auto &&i : _RANGE_ (0 ,mRange.size ())) {
 			if (mRange[i] == VAR_NONE)
 				continue ;
-			mRange[ix] = mRange[i] ;
-			mList[mRange[ix]].mIndex = ix ;
+			INDEX ix = iw++ ;
+			rax[ix] = mRange[i] ;
+			mList[rax[ix]].mIndex = ix ;
 			mRange[i] = VAR_NONE ;
-			ix++ ;
 		}
-		_DEBUG_ASSERT_ (ix == mList.length ()) ;
-		mWrite = ix ;
-	}
-
-	void clean () {
-		for (auto &&i : _RANGE_ (0 ,mWrite))
-			_DYNAMIC_ASSERT_ (mRange[i] >= 0 && mRange[i] < mWrite) ;
-		mList.clean () ;
-		update_range (VAR_NONE) ;
+		_DEBUG_ASSERT_ (iw == rax.size ()) ;
+		mRange.swap (rax) ;
 	}
 
 private:

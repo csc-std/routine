@@ -2011,7 +2011,7 @@ private:
 		mContext.mAttribute = _MOVE_ (mAttribute) ;
 		mContext.mAttributeMappingSet = _MOVE_ (mAttributeMappingSet) ;
 		mContext.mCommand = _MOVE_ (mCommand) ;
-		mContext.mCommand.clean () ;
+		mContext.mCommand.remap () ;
 	}
 } ;
 

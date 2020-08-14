@@ -161,6 +161,12 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	imports REMOVE_CVR_TYPE<_ARG1> maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) ;
 
+	template <class _ARG1>
+	imports ARRAY2<_ARG1> sort (const _ARG1 &list_one ,const _ARG1 &list_two) ;
+
+	template <class _ARG1>
+	imports ARRAY3<_ARG1> sort (const _ARG1 &list_one ,const _ARG1 &list_two ,const _ARG1 &list_three) ;
+
 	imports BOOL is_nan (const VAL32 &x) ;
 
 	imports BOOL is_nan (const VAL64 &x) ;
@@ -410,6 +416,26 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one ,co
 	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
 	auto &r1x = _MAX_ (list_one ,list_two) ;
 	return MathProc::maxof (r1x ,list_rest...) ;
+}
+
+template <class _ARG1>
+inline exports ARRAY2<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 &list_two) {
+	ARRAY2<_ARG1> ret = ARRAY2<_ARG1> {list_one ,list_two} ;
+	if (!(ret[0] <= ret[1]))
+		_SWAP_ (ret[0] ,ret[1]) ;
+	return _MOVE_ (ret) ;
+}
+
+template <class _ARG1>
+inline exports ARRAY3<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 &list_two ,const _ARG1 &list_three) {
+	ARRAY3<_ARG1> ret = ARRAY3<_ARG1> {list_one ,list_two ,list_three} ;
+	if (!(ret[0] <= ret[1]))
+		_SWAP_ (ret[0] ,ret[1]) ;
+	if (!(ret[0] <= ret[2]))
+		_SWAP_ (ret[0] ,ret[2]) ;
+	if (!(ret[1] <= ret[2]))
+		_SWAP_ (ret[1] ,ret[2]) ;
+	return _MOVE_ (ret) ;
 }
 
 class MathStaticProc

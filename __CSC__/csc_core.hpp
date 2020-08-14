@@ -1495,26 +1495,6 @@ inline constexpr _ARG1 &_MAX_ (_ARG1 &lhs ,_ARG1 &rhs) {
 		rhs) ;
 }
 
-inline constexpr CSC::BOOL _ANYOF_ () {
-	return FALSE ;
-}
-
-template <class _ARG1 ,class... _ARGS>
-inline constexpr CSC::BOOL _ANYOF_ (const _ARG1 &expr_one ,const _ARGS &...expr_rest) {
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,CSC::BOOL>::value) ;
-	return CSC::BOOL (expr_one || _ANYOF_ (expr_rest...)) ;
-}
-
-inline constexpr CSC::BOOL _ALLOF_ () {
-	return TRUE ;
-}
-
-template <class _ARG1 ,class... _ARGS>
-inline constexpr CSC::BOOL _ALLOF_ (const _ARG1 &expr_one ,const _ARGS &...expr_rest) {
-	_STATIC_ASSERT_ (std::is_same<_ARG1 ,CSC::BOOL>::value) ;
-	return CSC::BOOL (expr_one && _ALLOF_ (expr_rest...)) ;
-}
-
 namespace U {
 template <class UNIT>
 struct CONSTEXPR_EBOOL_SWITCH_CASE1 {
