@@ -34,17 +34,17 @@ using std::is_lvalue_reference ;
 using std::is_rvalue_reference ;
 using std::is_const ;
 using std::is_volatile ;
-using std::is_class ;
 using std::is_pointer ;
 using std::is_member_pointer ;
 using std::is_array ;
 using std::is_function ;
+using std::is_class ;
 using std::is_pod ;
+using std::is_integral ;
 
 #ifndef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
 using std::is_trivial ;
-using std::is_final ;
 #endif
 
 using std::is_same ;
@@ -58,7 +58,6 @@ using std::is_copy_assignable ;
 using std::is_nothrow_move_constructible ;
 using std::is_nothrow_move_assignable ;
 using std::is_convertible ;
-using std::is_integral ;
 
 using std::exception ;
 using std::atomic ;
@@ -1034,8 +1033,8 @@ struct IS_SAFE_ALIASING<ARR<BYTE> ,NONE ,NONE ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
-template <>
-struct IS_SAFE_ALIASING<NONE ,NONE ,NONE ,ARGC<5>> {
+template <class _ARG1>
+struct IS_SAFE_ALIASING<NONE ,_ARG1 ,NONE ,ARGC<5>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1425,6 +1424,7 @@ inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::null ,address) ;
 	if (r1x == NULL)
 		return ;
+	_ZERO_ (DEREF[address]) ;
 	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 }
 
@@ -1534,18 +1534,6 @@ public:
 	inline Interface &operator= (Interface &&) = delete ;
 } ;
 
-template <class UNIT>
-class TypeInterface
-	:private Interface {
-	_STATIC_ASSERT_ (stl::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
-} ;
-
-template <class _ARG1>
-inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
-	TypeInterface<REMOVE_CVR_TYPE<_ARG1>> ret ;
-	return _MOVE_ (_CAST_ (ARGV<FLAG>::null ,ret)) ;
-}
-
 namespace stl {
 template <class _ARG1>
 using is_template = U::IS_TEMPLATE_HELP<_ARG1> ;
@@ -1559,6 +1547,50 @@ using is_interface = U::IS_INTERFACE_HELP<_ARG1 ,Interface> ;
 template <class _ARG1 ,class _ARG2>
 using is_always_base_of = U::IS_ALWAYS_BASE_OF_HELP<_ARG1 ,_ARG2> ;
 } ;
+
+struct TYPEABI {
+	LENGTH mAlign ;
+	LENGTH mSize ;
+	CSC::BOOL mF1 ;
+	CSC::BOOL mF2 ;
+	CSC::BOOL mF3 ;
+	CSC::BOOL mF4 ;
+	CSC::BOOL mF5 ;
+	CSC::BOOL mF6 ;
+	CSC::BOOL mF7 ;
+	CSC::BOOL mF8 ;
+	CSC::BOOL mF9 ;
+} ;
+
+template <class _ARG1>
+inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
+	TYPEABI ret ;
+	_ZERO_ (ret) ;
+	ret.mAlign = _ALIGNOF_ (_ARG1) ;
+	ret.mSize = _SIZEOF_ (_ARG1) ;
+	ret.mF1 = stl::is_pointer<_ARG1>::value ;
+	ret.mF2 = stl::is_member_pointer<_ARG1>::value ;
+	ret.mF3 = stl::is_array<_ARG1>::value ;
+	ret.mF4 = stl::is_function<_ARG1>::value ;
+	ret.mF5 = stl::is_class<_ARG1>::value ;
+	ret.mF6 = stl::is_template<_ARG1>::value ;
+	ret.mF7 = stl::is_interface<_ARG1>::value ;
+	ret.mF8 = stl::is_pod<_ARG1>::value ;
+	ret.mF9 = stl::is_integral<_ARG1>::value ;
+	return _MOVE_ (ret) ;
+}
+
+template <class UNIT>
+class TypeInterface
+	:private Interface {
+	_STATIC_ASSERT_ (stl::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
+} ;
+
+template <class _ARG1>
+inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
+	TypeInterface<REMOVE_CVR_TYPE<_ARG1>> ret ;
+	return _MOVE_ (_CAST_ (ARGV<FLAG>::null ,ret)) ;
+}
 
 template <class UNIT>
 struct TEMP {

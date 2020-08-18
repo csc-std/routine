@@ -89,7 +89,10 @@ private:
 
 		template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
 		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
-			return BasicProc::mem_compr (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs)] ,PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs)] ,_SIZEOF_ (_ARG1)) ;
+			//@error: not strict equal because of alignment
+			auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs) ;
+			auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs) ;
+			return BasicProc::mem_compr (PTRTOARR[r1x] ,PTRTOARR[r2x] ,_SIZEOF_ (_ARG1)) ;
 		}
 
 } ;
@@ -137,7 +140,9 @@ private:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP1)> &) {
-		return BasicProc::mem_hash (PTRTOARR[_CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_)] ,_SIZEOF_ (_ARG1)) ;
+		//@error: not strict equal because of alignment
+		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_) ;
+		return BasicProc::mem_hash (PTRTOARR[r1x] ,_SIZEOF_ (_ARG1)) ;
 	}
 } ;
 
@@ -731,7 +736,7 @@ public:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
-		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,that.DEREF[mPointer].deref ()) ;
+		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,DEREF[that.mPointer].deref ()) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
 		mPointer = r2x ;
@@ -997,8 +1002,9 @@ private:
 	class Holder
 		:public Interface {
 	public:
+		virtual TYPEABI type_abi () const = 0 ;
+		virtual FLAG type_mid () const = 0 ;
 		virtual LENGTH type_address () const = 0 ;
-		virtual FLAG typemid () const = 0 ;
 	} ;
 
 private:
@@ -1061,9 +1067,19 @@ public:
 		return TRUE ;
 	}
 
-	FLAG typemid () const {
+	TYPEABI type_abi () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].typemid () ;
+		return DEREF[mPointer].type_abi () ;
+	}
+
+	FLAG type_mid () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_mid () ;
+	}
+
+	LENGTH type_address () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_address () ;
 	}
 
 private:
@@ -1141,15 +1157,24 @@ public:
 		return TRUE ;
 	}
 
-	FLAG typemid () const {
+	LENGTH type_abi () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].typemid () ;
+		return DEREF[mPointer].type_abi () ;
+	}
+
+	FLAG type_mid () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_mid () ;
+	}
+
+	LENGTH type_address () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_address () ;
 	}
 
 	UNIT &to () leftvalue {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
-		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
+		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
@@ -1165,8 +1190,7 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
-		_DEBUG_ASSERT_ (typemid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
+		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
@@ -1214,12 +1238,16 @@ public:
 	explicit ImplHolder (_ARGS &&...initval)
 		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 
-	LENGTH type_address () const override {
-		return _ADDRESS_ (DEPTR[mValue]) ;
+	TYPEABI type_abi () const override {
+		return _TYPEABI_ (ARGV<UNIT_>::null) ;
 	}
 
-	FLAG typemid () const override {
+	FLAG type_mid () const override {
 		return _TYPEMID_ (ARGV<UNIT_>::null) ;
+	}
+
+	LENGTH type_address () const override {
+		return _ADDRESS_ (DEPTR[mValue]) ;
 	}
 } ;
 

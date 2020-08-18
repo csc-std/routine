@@ -1302,7 +1302,7 @@ public:
 		:mValue (0) {}
 
 	implicit Atomic (const VAR &that)
-		:mValue (that) {}
+		: mValue (that) {}
 
 	VAR fetch () const {
 		return mValue.load () ;
@@ -1359,8 +1359,7 @@ public:
 	class Holder
 		:public Interface {
 	public:
-		virtual LENGTH type_address () const = 0 ;
-		virtual PACK<LENGTH ,LENGTH> type_algin_size () const = 0 ;
+		virtual const AnyRef<> &holder () const = 0 ;
 		virtual void init_holder (AnyRef<> &&holder) = 0 ;
 		virtual void attach_weak () = 0 ;
 		virtual void detach_weak () = 0 ;
@@ -1514,12 +1513,12 @@ public:
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = safe_load () ;
-		const auto r2x = DEREF[r1x].type_address () ;
-		const auto r3x = DEREF[r1x].type_algin_size () ;
-		_DYNAMIC_ASSERT_ (r3x.mP1 == _ALIGNOF_ (_ARG1)) ;
-		_DYNAMIC_ASSERT_ (r3x.mP2 == _SIZEOF_ (_ARG1)) ;
-		const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r2x) ;
-		return StrongRef (r1x ,r4x) ;
+		const auto r2x = DEREF[r1x].holder ().type_abi () ;
+		const auto r3x = _TYPEABI_ (ARGV<_ARG1>::null) ;
+		_DYNAMIC_ASSERT_ (ComprInvokeProc::invoke (r2x ,r3x) == 0) ;
+		const auto r4x = DEREF[r1x].holder ().type_address () ;
+		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r4x) ;
+		return StrongRef (r1x ,r5x) ;
 	}
 
 private:
@@ -1561,13 +1560,8 @@ public:
 		mStrongCounter = 0 ;
 	}
 
-	LENGTH type_address () const override {
-		const auto r1x = DEPTR[mHolder.rebind (ARGV<UNIT>::null).self] ;
-		return _ADDRESS_ (r1x) ;
-	}
-
-	PACK<LENGTH ,LENGTH> type_algin_size () const override {
-		return PACK<LENGTH ,LENGTH> {_ALIGNOF_ (UNIT) ,_SIZEOF_ (UNIT)} ;
+	const AnyRef<> &holder () const override {
+		return mHolder ;
 	}
 
 	void init_holder (AnyRef<> &&holder) override {
@@ -2279,9 +2273,8 @@ public:
 
 class Object::Private::Metadata {
 private:
-	LENGTH mObjectSize ;
-	LENGTH mObjectAlign ;
-	FLAG mObjectTypeMID ;
+	TYPEABI mTypeABI ;
+	FLAG mTypeMID ;
 	Function<void (PTR<NONE>)> mConstrutor ;
 	Function<void (PTR<NONE>)> mDestructor ;
 
@@ -2291,9 +2284,8 @@ public:
 	template <class _ARG1>
 	explicit Metadata (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
-		mObjectSize = _SIZEOF_ (_ARG1) ;
-		mObjectAlign = _ALIGNOF_ (_ARG1) ;
-		mObjectTypeMID = _TYPEMID_ (ARGV<_ARG1>::null) ;
+		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::null) ;
+		mTypeMID = _TYPEMID_ (ARGV<_ARG1>::null) ;
 		mConstrutor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
 			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::null ,address) ;
 			_CREATE_ (r1x) ;

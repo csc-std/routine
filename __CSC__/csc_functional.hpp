@@ -93,7 +93,7 @@ private:
 	const _ARG1 &template_as (const ARGVF<_ARG1> &) const leftvalue {
 		const auto r1x = exist () ;
 		_DYNAMIC_ASSERT_ (r1x) ;
-		const auto r2x = mThis->mHolder.typemid () ;
+		const auto r2x = mThis->mHolder.type_mid () ;
 		const auto r3x = _TYPEMID_ (ARGV<_ARG1>::null) ;
 		_DYNAMIC_ASSERT_ (r2x == r3x) ;
 		return mThis->mHolder.rebind (ARGV<REMOVE_CVR_TYPE<_ARG1>>::null).self ;

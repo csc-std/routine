@@ -826,6 +826,8 @@ private:
 	} ;
 
 private:
+	template <class>
+	friend class TextReader ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<const REAL> mStream ;
 	INDEX mRead ;
@@ -1575,6 +1577,8 @@ private:
 	} ;
 
 private:
+	template <class>
+	friend class TextWriter ;
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanBuffer<REAL> mStream ;
 	INDEX mRead ;
