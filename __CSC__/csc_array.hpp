@@ -254,6 +254,17 @@ public:
 			mArray[i] = item ;
 	}
 
+	template <class... _ARGS>
+	imports Array make (const _ARGS &...args) {
+		const auto r1x = _RANGE_ (args...) ;
+		Array ret = Array (r1x.size ()) ;
+		INDEX iw = 0 ;
+		for (auto &&i : r1x)
+			ret[iw++] = i ;
+		_DEBUG_ASSERT_ (iw == ret.size ()) ;
+		return _MOVE_ (ret) ;
+	}
+
 private:
 	explicit Array (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mArray (len) {}

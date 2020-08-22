@@ -23,27 +23,34 @@ private:
 
 private:
 	Array<LENGTH ,SIZE> mRange ;
+	LENGTH mSize ;
 
 public:
 	implicit ArrayRange () = delete ;
 
 	explicit ArrayRange (const Array<LENGTH ,SIZE> &range_) {
 		mRange = range_ ;
+		mSize = total_length () ;
+	}
+
+	LENGTH size () const {
+		return mSize ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET begin () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,0 ,first_item ()) ;
+		const auto r1x = first_item () ;
+		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,0 ,r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		const auto r1x = total_length () ;
-		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,r1x ,Array<LENGTH ,SIZE> ()) ;
+		const auto r1x = first_item () ;
+		return Iterator (PhanRef<const ArrayRange>::make (DEREF[this]) ,mSize ,r1x) ;
 	}
 
 private:
@@ -75,10 +82,10 @@ private:
 public:
 	implicit Iterator () = delete ;
 
-	explicit Iterator (PhanRef<const ArrayRange> &&base ,const INDEX &index ,Array<LENGTH ,SIZE> &&item) {
+	explicit Iterator (PhanRef<const ArrayRange> &&base ,const INDEX &index ,const Array<LENGTH ,SIZE> &item) {
 		mBase = _MOVE_ (base) ;
 		mIndex = index ;
-		mItem = _MOVE_ (item) ;
+		mItem = item ;
 	}
 
 	inline BOOL operator!= (const Iterator &that) const {

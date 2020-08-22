@@ -1677,7 +1677,11 @@ public:
 
 	explicit ArrayRange (const INDEX &ibegin_ ,const INDEX &iend_) {
 		mIBegin = ibegin_ ;
-		mIEnd = iend_ ;
+		mIEnd = _MAX_ (ibegin_ ,iend_) ;
+	}
+
+	LENGTH size () const {
+		return mIEnd - mIBegin ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
@@ -1691,8 +1695,7 @@ public:
 	_RET end () const {
 		struct Dependent ;
 		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		const auto r1x = _MAX_ (mIBegin ,mIEnd) ;
-		return Iterator (r1x) ;
+		return Iterator (mIEnd) ;
 	}
 } ;
 

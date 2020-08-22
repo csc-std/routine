@@ -217,18 +217,14 @@ private:
 		if switch_once (TRUE) {
 			if (mRealLeft.size () == mSegmentSet.size ())
 				discard ;
-			const auto r1x = _MOVE_ (mRealLeft) ;
-			mRealLeft = BitSet<> (mSegmentSet.size ()) ;
-			for (auto &&i : r1x)
-				mRealLeft[i] = TRUE ;
+			const auto r1x = mRealLeft.range () ;
+			mRealLeft = BitSet<> (r1x ,mSegmentSet.size ()) ;
 		}
 		if switch_once (TRUE) {
 			if (mRealRight.size () == mSegmentSet.size ())
 				discard ;
-			const auto r2x = _MOVE_ (mRealRight) ;
-			mRealRight = BitSet<> (mSegmentSet.size ()) ;
-			for (auto &&i : r2x)
-				mRealRight[i] = TRUE ;
+			const auto r2x = mRealRight.range () ;
+			mRealRight = BitSet<> (r2x ,mSegmentSet.size ()) ;
 		}
 		mReal = BitSet<> (mSegmentSetRange.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,mSegmentSetRange.length () - 1)) {
