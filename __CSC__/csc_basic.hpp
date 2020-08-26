@@ -45,6 +45,35 @@ public:
 	imports void mem_fill (ARR<_ARG1> &dst ,const LENGTH &len ,const _ARG1 &val) ;
 } ;
 
+class EqualInvokeProc
+	:private Wrapped<> {
+public:
+	template <class _ARG1>
+	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
+		return template_equal (lhs ,rhs ,ARGVPX) ;
+}
+
+private:
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,BOOL>::value)>>
+	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
+		return lhs.equal (rhs) ;
+	}
+
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
+	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
+		return BOOL (lhs == rhs) ;
+	}
+
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
+	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
+		//@error: not strict good because of alignment
+		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs) ;
+		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs) ;
+		return BasicProc::mem_equal (PTRTOARR[r1x] ,PTRTOARR[r2x] ,_SIZEOF_ (_ARG1)) ;
+	}
+
+} ;
+
 template <class _ARG1>
 inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG1> &src2 ,const LENGTH &len) {
 #ifdef __CSC_COMPILER_GNUC__
@@ -55,7 +84,7 @@ inline exports BOOL BasicProc::mem_equal (const ARR<_ARG1> &src1 ,const ARR<_ARG
 	if (src1 == src2)
 		return TRUE ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		if (!(src1[i] == src2[i]))
+		if (!EqualInvokeProc::invoke (src1[i] ,src2[i]))
 			return FALSE ;
 	}
 	return TRUE ;
@@ -70,7 +99,7 @@ public:
 	template <class _ARG1>
 	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
 		return template_compr (lhs ,rhs ,ARGVPX) ;
-	}
+}
 
 private:
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
@@ -89,7 +118,7 @@ private:
 
 		template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
 		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
-			//@error: not strict equal because of alignment
+			//@error: not strict good because of alignment
 			auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs) ;
 			auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs) ;
 			return BasicProc::mem_compr (PTRTOARR[r1x] ,PTRTOARR[r2x] ,_SIZEOF_ (_ARG1)) ;
@@ -133,14 +162,14 @@ private:
 		return self_.hash () ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_integral<_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,BYTE>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP2)> &) {
 		return FLAG (self_) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP1)> &) {
-		//@error: not strict equal because of alignment
+		//@error: not strict good because of alignment
 		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_) ;
 		return BasicProc::mem_hash (PTRTOARR[r1x] ,_SIZEOF_ (_ARG1)) ;
 	}
@@ -250,7 +279,7 @@ inline exports INDEX BasicProc::mem_chr (const ARR<_ARG1> &src ,const LENGTH &le
 #endif
 	_DEBUG_ASSERT_ (len >= 0) ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		if (src[i] == val)
+		if (EqualInvokeProc::invoke (src[i] ,val))
 			return i ;
 	}
 	return VAR_NONE ;
@@ -267,8 +296,9 @@ inline exports INDEX BasicProc::mem_rchr (const ARR<_ARG1> &src ,const LENGTH &l
 #endif
 	_DEBUG_ASSERT_ (len >= 0) ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
-		if (src[len + ~i] == val)
-			return (len + ~i) ;
+		INDEX ix = len + ~i ;
+		if (EqualInvokeProc::invoke (src[ix] ,val))
+			return ix ;
 	}
 	return VAR_NONE ;
 #ifdef __CSC_COMPILER_GNUC__
@@ -3039,12 +3069,12 @@ private:
 	explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	SPECIALIZATION_THIS &m_spec () leftvalue {
-		return DEREF[static_cast<PTR<SPECIALIZATION_THIS>> (this)] ;
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
+		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
-	const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return DEREF[static_cast<PTR<const SPECIALIZATION_THIS>> (this)] ;
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
+		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
 #pragma pop_macro ("spec")
@@ -3144,12 +3174,12 @@ private:
 	explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE_PACK ,SIZE> &&allocator_)
 		:mAllocator (_MOVE_ (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	SPECIALIZATION_THIS &m_spec () leftvalue {
-		return DEREF[static_cast<PTR<SPECIALIZATION_THIS>> (this)] ;
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
+		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
-	const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return DEREF[static_cast<PTR<const SPECIALIZATION_THIS>> (this)] ;
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
+		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
 #pragma pop_macro ("spec")
@@ -3280,12 +3310,12 @@ private:
 	explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE_PACK ,SIZE> &&allocator_)
 		:mAllocator (_MOVE_ (allocator_)) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
-	SPECIALIZATION_THIS &m_spec () leftvalue {
-		return DEREF[static_cast<PTR<SPECIALIZATION_THIS>> (this)] ;
+	inline SPECIALIZATION_THIS &m_spec () leftvalue {
+		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
-	const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return DEREF[static_cast<PTR<const SPECIALIZATION_THIS>> (this)] ;
+	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
+		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
 	}
 
 #pragma pop_macro ("spec")

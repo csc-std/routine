@@ -40,7 +40,6 @@ using std::is_array ;
 using std::is_function ;
 using std::is_class ;
 using std::is_pod ;
-using std::is_integral ;
 
 #ifndef __CSC_COMPILER_GNUC__
 //@error: fuck g++4.8
@@ -798,6 +797,11 @@ using IS_BOUNDED_ARRAY_OF_HELP = typename IS_BOUNDED_ARRAY_OF<REMOVE_CVR_TYPE<_A
 } ;
 
 namespace U {
+template <class _ARG1>
+using IS_VOID_HELP = ARGC<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,NONE>::value> ;
+} ;
+
+namespace U {
 template <class ,class>
 struct IS_VAR_XYZ {
 	using TYPE = ARGC<FALSE> ;
@@ -850,20 +854,6 @@ struct IS_VAL_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,VALX>::value && !stl::
 
 template <class _ARG1>
 using IS_VAL_XYZ_HELP = typename IS_VAL_XYZ<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct IS_VOID {
-	using TYPE = ARGC<FALSE> ;
-} ;
-template <>
-struct IS_VOID<NONE> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-using IS_VOID_HELP = typename IS_VOID<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -939,6 +929,17 @@ struct IS_STR_XYZ<_ARG1 ,ENABLE_TYPE<(stl::is_same<_ARG1 ,STRX>::value && !stl::
 
 template <class _ARG1>
 using IS_STR_XYZ_HELP = typename IS_STR_XYZ<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class _ARG1>
+using IS_BOOL_HELP = ARGC<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,BOOL>::value> ;
+
+template <class _ARG1>
+using IS_EFLAG_HELP = ARGC<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,EFLAG>::value> ;
+
+template <class _ARG1>
+using IS_XYZ_HELP = ARGC<(IS_VOID_HELP<_ARG1>::value || IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value || IS_BYTE_XYZ_HELP<_ARG1>::value || IS_STR_XYZ_HELP<_ARG1>::value || IS_BOOL_HELP<_ARG1>::value || IS_EFLAG_HELP<_ARG1>::value)> ;
 } ;
 
 namespace U {
@@ -1255,6 +1256,9 @@ using is_byte_xyz = U::IS_BYTE_XYZ_HELP<_ARG1> ;
 template <class _ARG1>
 using is_str_xyz = U::IS_STR_XYZ_HELP<_ARG1> ;
 
+template <class _ARG1>
+using is_xyz = U::IS_XYZ_HELP<_ARG1> ;
+
 template <class _ARG1 ,class _ARG2>
 using is_bounded_array_of = U::IS_BOUNDED_ARRAY_OF_HELP<_ARG1 ,_ARG2> ;
 
@@ -1308,7 +1312,7 @@ inline constexpr INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
 	return base + (align_ - base % align_) % align_ ;
 }
 
-//@warn: not type-safe; be careful about strict-aliasing
+//@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1 ,class _ARG2>
 inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_CAST_ (const ARGVF<_ARG1> & ,_ARG2 &object) {
 	_STATIC_ASSERT_ (!(stl::is_pointer<_ARG1>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG2> ,TEMP<_ARG1>>::value)) ;
@@ -1373,7 +1377,7 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 }
 
 template <class _ARG1 ,class _ARG2>
-inline _ARG1 _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 &object) {
+inline REMOVE_CVR_TYPE<_ARG1> _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 &object) {
 	using HINT_T1 = TEMP<BYTE[_SIZEOF_ (_ARG1)]> ;
 	_STATIC_ASSERT_ (!stl::is_pointer<_ARG1>::value) ;
 	_STATIC_ASSERT_ (!stl::is_pointer<_ARG2>::value) ;
@@ -1386,25 +1390,25 @@ inline _ARG1 _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 &object) {
 	return _MOVE_ (_CAST_ (ARGV<_ARG1>::null ,ret)) ;
 }
 
-//@warn: not type-safe; be careful about strict-aliasing
+//@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1 ,class _ARG2>
-inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & ,const PTR<_ARG2> &address) {
+inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
 	using HINT_T1 = PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> ;
-	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2>>::value) ;
-	if (address == NULL)
+	_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2>::value) ;
+	if (pointer == NULL)
 		return NULL ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,NONE>::value) ,BYTE ,_ARG1>) ;
-	const auto r2x = _ADDRESS_ (address) ;
+	const auto r2x = _ADDRESS_ (pointer) ;
 	if (r2x % r1x != 0)
 		return NULL ;
 	const auto r3x = _BITWISE_CAST_ (ARGV<TEMP<HINT_T1>>::null ,r2x) ;
 	return _CAST_ (ARGV<HINT_T1>::null ,r3x) ;
 }
 
-//@warn: not type-safe; be careful about strict-aliasing
+//@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1>
-inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
-	const auto r1x = _BITWISE_CAST_ (ARGV<TEMP<PTR<_ARG1>>>::null ,address) ;
+inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &pointer) {
+	const auto r1x = _BITWISE_CAST_ (ARGV<TEMP<PTR<_ARG1>>>::null ,pointer) ;
 	return _CAST_ (ARGV<PTR<_ARG1>>::null ,r1x) ;
 }
 
@@ -1576,14 +1580,14 @@ inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
 	ret.mF6 = stl::is_template<_ARG1>::value ;
 	ret.mF7 = stl::is_interface<_ARG1>::value ;
 	ret.mF8 = stl::is_pod<_ARG1>::value ;
-	ret.mF9 = stl::is_integral<_ARG1>::value ;
+	ret.mF9 = stl::is_xyz<_ARG1>::value ;
 	return _MOVE_ (ret) ;
 }
 
 template <class UNIT>
 class TypeInterface
 	:private Interface {
-	_STATIC_ASSERT_ (stl::is_same<UNIT ,REMOVE_CVR_TYPE<UNIT>>::value) ;
+	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<UNIT> ,UNIT>::value) ;
 } ;
 
 template <class _ARG1>
@@ -1847,11 +1851,11 @@ public:
 		template_write (ARGV<ZERO>::null ,text...) ;
 	}
 
-	const DEF<REAL[SIZE::value]> &to () const {
+	const DEF<REAL[SIZE::value]> &to () const leftvalue {
 		return mString ;
 	}
 
-	implicit operator const DEF<REAL[SIZE::value]> & () const {
+	implicit operator const DEF<REAL[SIZE::value]> & () const leftvalue {
 		return self ;
 	}
 

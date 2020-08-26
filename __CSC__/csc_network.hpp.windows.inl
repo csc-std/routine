@@ -168,7 +168,7 @@ inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const
 class TCPSocket::Private::Implement
 	:public Abstract {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		UniqueRef<SOCKET> mSocket ;
 		SOCKADDR mPeer ;
 		LENGTH mTimeout ;
@@ -176,13 +176,13 @@ private:
 
 private:
 	friend TCPListener ;
-	SharedRef<SELF_PACK> mThis ;
+	SharedRef<THIS_PACK> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		mThis = SharedRef<SELF_PACK>::make () ;
+		mThis = SharedRef<THIS_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_STREAM ,IPPROTO_TCP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
@@ -359,10 +359,10 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 class TCPListener::Private::Implement
 	:public Abstract {
 private:
-	using SELF_PACK = TCPSocket::Private::Implement::SELF_PACK ;
+	using THIS_PACK = TCPSocket::Private::Implement::THIS_PACK ;
 
 private:
-	SharedRef<SELF_PACK> mThis ;
+	SharedRef<THIS_PACK> mThis ;
 	UniqueRef<SOCKET> mListener ;
 	UniqueRef<SOCKET> mLinker ;
 
@@ -408,20 +408,20 @@ inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Imp
 class UDPSocket::Private::Implement
 	:public Abstract {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		UniqueRef<SOCKET> mSocket ;
 		SOCKADDR mPeer ;
 		LENGTH mTimeout ;
 	} ;
 
 private:
-	StrongRef<SELF_PACK> mThis ;
+	StrongRef<THIS_PACK> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
-		mThis = StrongRef<SELF_PACK>::make () ;
+		mThis = StrongRef<THIS_PACK>::make () ;
 		mThis->mSocket = UniqueRef<SOCKET> ([&] (SOCKET &me) {
 			me = api::socket (AF_INET ,SOCK_DGRAM ,IPPROTO_UDP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;

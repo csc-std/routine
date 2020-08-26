@@ -573,22 +573,22 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 class BufferLoader::Private::Implement
 	:public Abstract {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		UniqueRef<api::HANDLE> mFile ;
 		UniqueRef<api::HANDLE> mMapping ;
 		UniqueRef<PhanBuffer<BYTE>> mBuffer ;
 	} ;
 
 private:
-	UniqueRef<SharedRef<SELF_PACK>> mThis ;
+	UniqueRef<SharedRef<THIS_PACK>> mThis ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const String<STR> &file) {
-		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		mThis = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mMapping = UniqueRef<api::HANDLE> () ;
 			me->mFile = UniqueRef<api::HANDLE> () ;
@@ -621,9 +621,9 @@ public:
 
 	explicit Implement (const String<STR> &file ,const LENGTH &file_len) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
-		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		mThis = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mMapping = UniqueRef<api::HANDLE> () ;
 			me->mFile = UniqueRef<api::HANDLE> () ;
@@ -656,9 +656,9 @@ public:
 
 	explicit Implement (const String<STR> &file ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (cache) ;
-		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		mThis = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mMapping = UniqueRef<api::HANDLE> () ;
 			me->mFile = UniqueRef<api::HANDLE> () ;
@@ -694,9 +694,9 @@ public:
 	explicit Implement (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
-		mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		mThis = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			me->mBuffer = UniqueRef<PhanBuffer<BYTE>> () ;
 			me->mMapping = UniqueRef<api::HANDLE> () ;
 			me->mFile = UniqueRef<api::HANDLE> () ;

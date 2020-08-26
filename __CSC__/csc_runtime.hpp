@@ -26,6 +26,7 @@ private:
 	class Abstract
 		:public Interface {
 	public:
+		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual LENGTH hours () const = 0 ;
 		virtual LENGTH minutes () const = 0 ;
 		virtual LENGTH seconds () const = 0 ;
@@ -45,14 +46,10 @@ public:
 	explicit Duration (const LENGTH &milliseconds_) ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Duration>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit Duration (_ARG1 &&that) ;
+	explicit Duration (_ARG1 &&time_) ;
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
-	const _RET &native () const {
-		struct Dependent ;
-		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
-		const auto r1x = static_cast<PTR<const Implement>> (DEPTR[mThis.self]) ;
-		return DEREF[r1x] ;
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	LENGTH hours () const {
@@ -105,6 +102,7 @@ private:
 	class Abstract
 		:public Interface {
 	public:
+		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual ARRAY8<LENGTH> calendar () const = 0 ;
 		virtual TimePoint add (const Duration &that) const = 0 ;
 		virtual Duration sub (const TimePoint &that) const = 0 ;
@@ -117,14 +115,10 @@ public:
 	implicit TimePoint () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit TimePoint (_ARG1 &&that) ;
+	explicit TimePoint (_ARG1 &&time_) ;
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
-	const _RET &native () const {
-		struct Dependent ;
-		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
-		const auto r1x = static_cast<PTR<const Implement>> (DEPTR[mThis.self]) ;
-		return DEREF[r1x] ;
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	ARRAY8<LENGTH> calendar () const {
@@ -157,6 +151,8 @@ private:
 	class Abstract
 		:public Interface {
 	public:
+		virtual DEF<typename Private::Implement> &native () = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -168,12 +164,12 @@ private:
 public:
 	implicit Mutex () ;
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
-	_RET &native () {
-		struct Dependent ;
-		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
-		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
-		return DEREF[r1x] ;
+	DEF<typename Private::Implement> &native () leftvalue {
+		return mThis->native () ;
+	}
+
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	void lock () {
@@ -198,6 +194,8 @@ private:
 	class Abstract
 		:public Interface {
 	public:
+		virtual DEF<typename Private::Implement> &native () = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -209,12 +207,12 @@ private:
 public:
 	implicit RecursiveMutex () ;
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
-	_RET &native () {
-		struct Dependent ;
-		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
-		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
-		return DEREF[r1x] ;
+	DEF<typename Private::Implement> &native () leftvalue {
+		return mThis->native () ;
+	}
+
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	void lock () {
@@ -241,6 +239,8 @@ private:
 	class Abstract
 		:public Interface {
 	public:
+		virtual DEF<typename Private::Implement> &native () = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 	} ;
 
 private:
@@ -249,12 +249,12 @@ private:
 public:
 	implicit ConditionLock () ;
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
-	_RET &native () {
-		struct Dependent ;
-		using Implement = typename DEPENDENT_TYPE<Private ,Dependent>::Implement ;
-		const auto r1x = static_cast<PTR<Implement>> (DEPTR[mThis.self]) ;
-		return DEREF[r1x] ;
+	DEF<typename Private::Implement> &native () leftvalue {
+		return mThis->native () ;
+	}
+
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
@@ -717,7 +717,7 @@ private:
 		PTR<NONE> mValue ;
 	} ;
 
-	struct SELF_PACK {
+	struct THIS_PACK {
 		Mutex mNodeMutex ;
 		Deque<VARXX_NODE> mVarxx ;
 		HashSet<FLAG> mVarxxMappingSet ;
@@ -730,29 +730,29 @@ private:
 	friend class GlobalStatic ;
 
 private:
-	imports SELF_PACK &static_unique () {
+	imports THIS_PACK &static_unique () {
 		auto &r1x = _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
-			auto rbx = StrongRef<SELF_PACK> () ;
+			auto rbx = StrongRef<THIS_PACK> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = StrongRef<SELF_PACK>::make () ;
+				rbx = StrongRef<THIS_PACK>::make () ;
 				const auto r2x = rbx.weak () ;
 				const auto r3x = r2x.intrusive () ;
 				rax = Public::unique_atomic_address (NULL ,r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			const auto r4x = WeakRef (rax) ;
-			return r4x.strong (ARGV<SELF_PACK>::null) ;
+			return r4x.strong (ARGV<THIS_PACK>::null) ;
 		}) ;
 		auto rcx = r1x.share () ;
 		return rcx.self ;
 	}
 
-	imports PTR<VARXX_NODE> static_new_node (SELF_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_new_node (THIS_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
@@ -769,7 +769,7 @@ private:
 		return guid ;
 	}
 
-	imports PTR<VARXX_NODE> static_find_node (SELF_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_find_node (THIS_PACK &self_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -777,7 +777,7 @@ private:
 		return DEPTR[self_.mVarxx[ix]] ;
 	}
 
-	imports PTR<CLAZZ_NODE> static_new_node (SELF_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_new_node (THIS_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
@@ -796,7 +796,7 @@ private:
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	imports PTR<CLAZZ_NODE> static_find_node (SELF_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_find_node (THIS_PACK &self_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
 		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
@@ -862,7 +862,7 @@ template <class UNIT>
 class GlobalStatic<Singleton<UNIT>>
 	:private Wrapped<> {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		Singleton<UNIT> mValue ;
 	} ;
 
@@ -873,19 +873,19 @@ public:
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = TypeNameInvokeProc::invoke (ARGV<Singleton<UNIT>>::null) ;
 			auto rax = GlobalStaticEngine::static_find_node (r2x ,r3x) ;
-			auto rbx = StrongRef<SELF_PACK> () ;
+			auto rbx = StrongRef<THIS_PACK> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
 					discard ;
 				rax = GlobalStaticEngine::static_new_node (r2x ,r3x) ;
 				_DYNAMIC_ASSERT_ (rax != NULL) ;
 				//@warn: sure 'GlobalHeap' can be used across DLL
-				rbx = StrongRef<SELF_PACK>::make () ;
+				rbx = StrongRef<THIS_PACK>::make () ;
 				const auto r4x = rbx.weak () ;
 				DEREF[rax].mValue = r4x.intrusive () ;
 			}
 			const auto r5x = WeakRef (DEREF[rax].mValue) ;
-			return r5x.strong (ARGV<SELF_PACK>::null) ;
+			return r5x.strong (ARGV<THIS_PACK>::null) ;
 		}) ;
 		auto rcx = r1x.share () ;
 		return rcx->mValue ;

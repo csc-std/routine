@@ -118,16 +118,19 @@ public:
 	imports String<_ARG1> build_strs (const ARGVF<_ARG1> & ,const String<STR> &stru) ;
 
 	template <class _ARG1>
-	imports CHAR parse_hex8s (const String<_ARG1> &stri) ;
+	imports DATA parse_hexs (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
-	imports String<_ARG1> build_hex8s (const ARGVF<_ARG1> & ,const CHAR &stru) ;
+	imports String<_ARG1> build_hexs (const ARGVF<_ARG1> & ,const BYTE &stru) ;
 
 	template <class _ARG1>
-	imports DATA parse_hex16s (const String<_ARG1> &stri) ;
+	imports String<_ARG1> build_hexs (const ARGVF<_ARG1> & ,const WORD &stru) ;
 
 	template <class _ARG1>
-	imports String<_ARG1> build_hex16s (const ARGVF<_ARG1> & ,const DATA &stru) ;
+	imports String<_ARG1> build_hexs (const ARGVF<_ARG1> & ,const CHAR &stru) ;
+
+	template <class _ARG1>
+	imports String<_ARG1> build_hexs (const ARGVF<_ARG1> & ,const DATA &stru) ;
 
 	template <class _ARG1>
 	imports String<STRU8> parse_base64u8s (const String<_ARG1> &stri) ;
@@ -1116,60 +1119,21 @@ public:
 #endif
 
 template <class _ARG1>
-inline exports CHAR StringProc::parse_hex8s (const String<_ARG1> &stri) {
-	CHAR ret = 0 ;
-	auto rax = TextReader<_ARG1> (stri.raw ()) ;
-	auto rbx = _ARG1 () ;
-	rax >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('&')) ;
-	rax >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('H')) ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
-	for (auto &&i : _RANGE_ (0 ,8)) {
-		_STATIC_UNUSED_ (i) ;
-		rax >> rbx ;
-		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
-		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
-		_DYNAMIC_ASSERT_ (r2x || r3x) ;
-		auto &r4x = _SWITCH_ (
-			r2x ? r1x[0] :
-			r1x[1]) ;
-		ret = (ret << 4) | CHAR (rbx - r4x) ;
-	}
-	rax >> TextReader<_ARG1>::EOS ;
-	return _MOVE_ (ret) ;
-}
-
-template <class _ARG1>
-inline exports String<_ARG1> StringProc::build_hex8s (const ARGVF<_ARG1> & ,const CHAR &stru) {
-	String<_ARG1> ret = String<_ARG1> (15) ;
-	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
-	rax << _ARG1 ('&') ;
-	rax << _ARG1 ('H') ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
-	for (auto &&i : _RANGE_ (0 ,8)) {
-		const auto r2x = CHAR (CHAR (stru >> (28 - i * 4)) & CHAR (0X0F)) ;
-		auto &r3x = _SWITCH_ (
-			(r2x < DATA (10)) ? r1x[0] :
-			r1x[1]) ;
-		rax << _ARG1 (r3x + r2x) ;
-	}
-	rax << TextWriter<_ARG1>::EOS ;
-	return _MOVE_ (ret) ;
-}
-
-template <class _ARG1>
-inline exports DATA StringProc::parse_hex16s (const String<_ARG1> &stri) {
+inline exports DATA StringProc::parse_hexs (const String<_ARG1> &stri) {
 	DATA ret = 0 ;
 	auto rax = TextReader<_ARG1> (stri.raw ()) ;
 	auto rbx = _ARG1 () ;
 	rax >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('&')) ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('0')) ;
 	rax >> rbx ;
-	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('H')) ;
+	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('X')) ;
 	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
-	for (auto &&i : _RANGE_ (0 ,16)) {
+	auto rcx = VAR_ZERO ;
+	while (TRUE) {
 		rax >> rbx ;
+		if (rbx == 0)
+			break ;
+		rcx++ ;
 		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
 		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
@@ -1178,23 +1142,82 @@ inline exports DATA StringProc::parse_hex16s (const String<_ARG1> &stri) {
 			r1x[1]) ;
 		ret = (ret << 4) | DATA (rbx - r4x) ;
 	}
+	_DYNAMIC_ASSERT_ (rcx == 2 || rcx == 4 || rcx == 8 || rcx == 16) ;
 	rax >> TextReader<_ARG1>::EOS ;
 	return _MOVE_ (ret) ;
 }
 
 template <class _ARG1>
-inline exports String<_ARG1> StringProc::build_hex16s (const ARGVF<_ARG1> & ,const DATA &stru) {
+inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const BYTE &stru) {
 	String<_ARG1> ret = String<_ARG1> (31) ;
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
-	rax << _ARG1 ('&') ;
-	rax << _ARG1 ('H') ;
+	rax << _ARG1 ('0') ;
+	rax << _ARG1 ('X') ;
 	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
-	for (auto &&i : _RANGE_ (0 ,16)) {
-		const auto r2x = DATA (DATA (stru >> (60 - i * 4)) & DATA (0X0F)) ;
-		auto &r3x = _SWITCH_ (
-			(r2x < DATA (10)) ? r1x[0] :
+	const auto r2x = _SIZEOF_ (BYTE) * 8 - 4 ;
+	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (BYTE) * 2)) {
+		const auto r3x = BYTE (BYTE (stru >> (r2x - i * 4)) & BYTE (0X0F)) ;
+		auto &r4x = _SWITCH_ (
+			(r3x < DATA (10)) ? r1x[0] :
 			r1x[1]) ;
-		rax << _ARG1 (r3x + r2x) ;
+		rax << _ARG1 (r4x + r3x) ;
+	}
+	rax << TextWriter<_ARG1>::EOS ;
+	return _MOVE_ (ret) ;
+}
+
+template <class _ARG1>
+inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const WORD &stru) {
+	String<_ARG1> ret = String<_ARG1> (31) ;
+	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
+	rax << _ARG1 ('0') ;
+	rax << _ARG1 ('X') ;
+	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r2x = _SIZEOF_ (WORD) * 8 - 4 ;
+	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (WORD) * 2)) {
+		const auto r3x = WORD (WORD (stru >> (r2x - i * 4)) & WORD (0X0F)) ;
+		auto &r4x = _SWITCH_ (
+			(r3x < DATA (10)) ? r1x[0] :
+			r1x[1]) ;
+		rax << _ARG1 (r4x + r3x) ;
+	}
+	rax << TextWriter<_ARG1>::EOS ;
+	return _MOVE_ (ret) ;
+}
+
+template <class _ARG1>
+inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const CHAR &stru) {
+	String<_ARG1> ret = String<_ARG1> (31) ;
+	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
+	rax << _ARG1 ('0') ;
+	rax << _ARG1 ('X') ;
+	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r2x = _SIZEOF_ (CHAR) * 8 - 4 ;
+	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (CHAR) * 2)) {
+		const auto r3x = CHAR (CHAR (stru >> (r2x - i * 4)) & CHAR (0X0F)) ;
+		auto &r4x = _SWITCH_ (
+			(r3x < DATA (10)) ? r1x[0] :
+			r1x[1]) ;
+		rax << _ARG1 (r4x + r3x) ;
+	}
+	rax << TextWriter<_ARG1>::EOS ;
+	return _MOVE_ (ret) ;
+}
+
+template <class _ARG1>
+inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const DATA &stru) {
+	String<_ARG1> ret = String<_ARG1> (31) ;
+	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
+	rax << _ARG1 ('0') ;
+	rax << _ARG1 ('X') ;
+	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r2x = _SIZEOF_ (DATA) * 8 - 4 ;
+	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (DATA) * 2)) {
+		const auto r3x = DATA (DATA (stru >> (r2x - i * 4)) & DATA (0X0F)) ;
+		auto &r4x = _SWITCH_ (
+			(r3x < DATA (10)) ? r1x[0] :
+			r1x[1]) ;
+		rax << _ARG1 (r4x + r3x) ;
 	}
 	rax << TextWriter<_ARG1>::EOS ;
 	return _MOVE_ (ret) ;

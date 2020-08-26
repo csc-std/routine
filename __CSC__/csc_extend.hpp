@@ -1355,24 +1355,25 @@ template <class>
 class StrongRef ;
 
 class WeakRef final {
-public:
+private:
+	struct THIS_PACK {
+		AnyRef<> mHolder ;
+		Atomic mStrongCounter ;
+	} ;
+
 	class Holder
 		:public Interface {
 	public:
-		virtual const AnyRef<> &holder () const = 0 ;
-		virtual void init_holder (AnyRef<> &&holder) = 0 ;
-		virtual void attach_weak () = 0 ;
-		virtual void detach_weak () = 0 ;
-		virtual void attach_strong () = 0 ;
-		virtual void detach_strong () = 0 ;
-		virtual void destroy () = 0 ;
+		virtual LENGTH &weak_pointer () leftvalue = 0 ;
+		virtual LENGTH release () = 0 ;
+
 	} ;
 
 	struct Private {
+		class LatchCounter ;
+
 		template <class>
 		class ImplHolder ;
-
-		class LatchCounter ;
 	} ;
 
 private:
@@ -1387,27 +1388,27 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	explicit WeakRef (const PTR<NONE> &that)
+	explicit WeakRef (const PTR<NONE> &pointer)
 		:WeakRef (ARGVP0) {
-		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,that) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,pointer) ;
 		if (r1x == NULL)
 			return ;
-		DEREF[r1x].attach_weak () ;
+		aquire (r1x) ;
 		const auto r2x = safe_exchange (r1x) ;
 		if (r2x == NULL)
 			return ;
-		DEREF[r2x].detach_weak () ;
+		release (r2x) ;
 	}
 
-	explicit WeakRef (const PTR<Holder> &that)
+	explicit WeakRef (const PTR<Holder> &pointer)
 		:WeakRef (ARGVP0) {
-		if (that == NULL)
+		if (pointer == NULL)
 			return ;
-		DEREF[that].attach_weak () ;
-		const auto r1x = safe_exchange (that) ;
+		aquire (pointer) ;
+		const auto r1x = safe_exchange (pointer) ;
 		if (r1x == NULL)
 			return ;
-		DEREF[r1x].detach_weak () ;
+		release (r1x) ;
 	}
 
 	template <class _ARG1>
@@ -1418,7 +1419,7 @@ public:
 		const auto r1x = safe_exchange (NULL) ;
 		if (r1x == NULL)
 			return ;
-		DEREF[r1x].detach_weak () ;
+		release (r1x) ;
 	}
 
 	implicit WeakRef (const WeakRef &) = delete ;
@@ -1434,7 +1435,7 @@ public:
 		const auto r3x = that.safe_exchange (r2x) ;
 		if (r3x == NULL)
 			return ;
-		DEREF[r3x].detach_weak () ;
+		release (r3x) ;
 	}
 
 	inline WeakRef &operator= (WeakRef &&that) noexcept {
@@ -1455,14 +1456,12 @@ public:
 	}
 
 	PTR<NONE> intrusive () const leftvalue {
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,r1x) ;
-		return r2x ;
+		return safe_load () ;
 	}
 
 	BOOL equal (const WeakRef &that) const {
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = that.mPointer.fetch () ;
+		const auto r1x = safe_load () ;
+		const auto r2x = that.safe_load () ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -1480,8 +1479,8 @@ public:
 	BOOL equal (const StrongRef<_ARG1> &that) const {
 		struct Dependent ;
 		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
-		const auto r2x = mPointer.fetch () ;
-		const auto r3x = r1x.mPointer.fetch () ;
+		const auto r2x = safe_load () ;
+		const auto r3x = r1x.safe_load () ;
 		if (r2x != r3x)
 			return FALSE ;
 		return TRUE ;
@@ -1513,10 +1512,10 @@ public:
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = safe_load () ;
-		const auto r2x = DEREF[r1x].holder ().type_abi () ;
+		const auto r2x = DEREF[r1x].mHolder.type_abi () ;
 		const auto r3x = _TYPEABI_ (ARGV<_ARG1>::null) ;
-		_DYNAMIC_ASSERT_ (ComprInvokeProc::invoke (r2x ,r3x) == 0) ;
-		const auto r4x = DEREF[r1x].holder ().type_address () ;
+		_DYNAMIC_ASSERT_ (EqualInvokeProc::invoke (r2x ,r3x)) ;
+		const auto r4x = DEREF[r1x].mHolder.type_address () ;
 		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r4x) ;
 		return StrongRef (r1x ,r5x) ;
 	}
@@ -1525,13 +1524,31 @@ private:
 	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (0) ,mLatch (0) {}
 
+	imports void aquire (const PTR<Holder> &pointer) {
+		_DEBUG_ASSERT_ (pointer != NULL) ;
+	}
+
+	imports void release (const PTR<Holder> &pointer) {
+		_DEBUG_ASSERT_ (pointer != NULL) ;
+		const auto r1x = DEREF[pointer].release () ;
+		if (r1x > 0)
+			return ;
+		if switch_once (TRUE) {
+			const auto r2x = DEREF[pointer].exchange (NULL) ;
+			if (r2x == NULL)
+				discard ;
+			r2x
+		}
+		GlobalHeap::free (pointer) ;
+	}
+
 	PTR<Holder> safe_load () const {
 		const auto r1x = mPointer.fetch () ;
 		return _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 	}
 
-	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
-		const auto r1x = _ADDRESS_ (address) ;
+	PTR<Holder> safe_exchange (const PTR<Holder> &pointer) {
+		const auto r1x = _ADDRESS_ (pointer) ;
 		const auto r2x = mPointer.exchange (r1x) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r2x) ;
 		if (r3x == NULL)
@@ -1543,70 +1560,6 @@ private:
 			_DEBUG_ASSERT_ (FALSE) ;
 		}
 		return r3x ;
-	}
-} ;
-
-template <class UNIT>
-class WeakRef::Private::ImplHolder
-	:public Holder {
-private:
-	AnyRef<> mHolder ;
-	Atomic mWeakCounter ;
-	Atomic mStrongCounter ;
-
-public:
-	implicit ImplHolder () {
-		mWeakCounter = 0 ;
-		mStrongCounter = 0 ;
-	}
-
-	const AnyRef<> &holder () const override {
-		return mHolder ;
-	}
-
-	void init_holder (AnyRef<> &&holder) override {
-		_DEBUG_ASSERT_ (mWeakCounter.fetch () == 0) ;
-		_DEBUG_ASSERT_ (mStrongCounter.fetch () == 0) ;
-		_DEBUG_ASSERT_ (!mHolder.exist ()) ;
-		mHolder = _MOVE_ (holder) ;
-	}
-
-	void attach_weak () override {
-		++mWeakCounter ;
-	}
-
-	void detach_weak () override {
-		if switch_once (TRUE) {
-			const auto r1x = --mWeakCounter ;
-			if (r1x > 0)
-				discard ;
-			destroy () ;
-		}
-	}
-
-	void attach_strong () override {
-		++mWeakCounter ;
-		++mStrongCounter ;
-	}
-
-	void detach_strong () override {
-		if switch_once (TRUE) {
-			const auto r1x = --mStrongCounter ;
-			if (r1x > 0)
-				discard ;
-			mHolder = AnyRef<> () ;
-		}
-		if switch_once (TRUE) {
-			const auto r2x = --mWeakCounter ;
-			if (r2x > 0)
-				discard ;
-			destroy () ;
-		}
-	}
-
-	void destroy () override {
-		DEREF[this].~ImplHolder () ;
-		GlobalHeap::free (this) ;
 	}
 } ;
 
@@ -1626,24 +1579,38 @@ public:
 	}
 } ;
 
+template <class UNIT>
+class WeakRef::Private::ImplHolder
+	:private Wrapped<Atomic> {
+private:
+	Atomic mWeakPointer ;
+	Atomic mWeakCounter ;
+	PTR<UNIT> mFaskPointer ;
+
+public:
+	LENGTH release () override {
+		return mWeakCounter.decrease () ;
+	}
+} ;
+
 class RecastInvokeProc
 	:private Wrapped<> {
 public:
 	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &address) {
-		return template_recast (address ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::null ,ARGVPX) ;
+	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
+		return template_recast (pointer ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::null ,ARGVPX) ;
 	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
-	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
-		return static_cast<PTR<_ARG2>> (address) ;
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
+		return static_cast<PTR<_ARG2>> (pointer) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value)>>
-	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
 		//@warn: RTTI might be different across DLL
-		return dynamic_cast<PTR<_ARG2>> (address) ;
+		return dynamic_cast<PTR<_ARG2>> (pointer) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1655,12 +1622,13 @@ private:
 template <class UNIT>
 class StrongRef final {
 private:
+	using THIS_PACK = typename WeakRef::THIS_PACK ;
+
 	using Holder = typename WeakRef::Holder ;
 
 private:
 	Atomic mPointer ;
 	mutable Atomic mLatch ;
-	PTR<UNIT> mFastPointer ;
 
 public:
 	implicit StrongRef ()
@@ -1668,18 +1636,15 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	explicit StrongRef (const PTR<Holder> &pointer ,const PTR<UNIT> &fast_pointer)
+	explicit StrongRef (const PTR<Holder> &pointer)
 		:StrongRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
-		if (fast_pointer == NULL)
-			return ;
-		mFastPointer = fast_pointer ;
-		DEREF[pointer].attach_strong () ;
+		aquire (pointer) ;
 		const auto r1x = safe_exchange (pointer) ;
 		if (r1x == NULL)
 			return ;
-		DEREF[r1x].detach_strong () ;
+		release (pointer) ;
 	}
 
 	//@warn: circular reference ruins StrongRef
@@ -1698,7 +1663,7 @@ public:
 		const auto r1x = safe_exchange (NULL) ;
 		if (r1x == NULL)
 			return ;
-		DEREF[r1x].detach_strong ();
+		release (r1x) ;
 	}
 
 	implicit StrongRef (const StrongRef &) = delete ;
@@ -1707,7 +1672,6 @@ public:
 
 	implicit StrongRef (StrongRef &&that) noexcept
 		:StrongRef (ARGVP0) {
-		_SWAP_ (mFastPointer ,that.mFastPointer) ;
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
 		if (r2x == NULL)
@@ -1715,7 +1679,7 @@ public:
 		const auto r3x = that.safe_exchange (r2x) ;
 		if (r3x == NULL)
 			return ;
-		DEREF[r3x].detach_strong () ;
+		release (r3x) ;
 	}
 
 	inline StrongRef &operator= (StrongRef &&that) noexcept {
@@ -1736,9 +1700,9 @@ public:
 	}
 
 	UNIT &to () leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
-		return DEREF[mFastPointer] ;
+		const auto r1x = safe_load () ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x].mFastPointer ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
@@ -1750,9 +1714,9 @@ public:
 	}
 
 	const UNIT &to () const leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
-		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
-		return DEREF[mFastPointer] ;
+		const auto r1x = safe_load () ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x].mFastPointer ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
@@ -1764,8 +1728,8 @@ public:
 	}
 
 	BOOL equal (const StrongRef &that) const {
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = that.mPointer.fetch () ;
+		const auto r1x = safe_load () ;
+		const auto r2x = that.safe_load () ;
 		if (r1x != r2x)
 			return FALSE ;
 		return TRUE ;
@@ -1795,7 +1759,7 @@ public:
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = safe_load () ;
-		return StrongRef (r1x ,mFastPointer) ;
+		return StrongRef (r1x) ;
 	}
 
 	template <class _ARG1>
@@ -1803,8 +1767,10 @@ public:
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = safe_load () ;
-		const auto r2x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,mFastPointer) ;
-		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (mFastPointer != NULL)) ;
+		if (r1x == NULL)
+			return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> () ;
+		const auto r2x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,DEREF[r1x].mFastPointer) ;
+		_DYNAMIC_ASSERT_ (_EBOOL_ (r2x != NULL) == _EBOOL_ (DEREF[r1x].mFastPointer != NULL)) ;
 		return StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> (r1x ,r2x) ;
 	}
 
@@ -1817,29 +1783,41 @@ public:
 
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
-		using ImplHolder = typename WeakRef::Private::template ImplHolder<UNIT> ;
+		struct Dependent ;
+		using ImplHolder = typename DEPENDENT_TYPE<DEF<typename WeakRef::Private> ,Dependent>::template ImplHolder<UNIT> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		auto rbx = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		auto &r2x = rbx.rebind (ARGV<UNIT>::null).self ;
-		DEREF[r1x].init_holder (_MOVE_ (rbx)) ;
-		StrongRef ret = StrongRef (r1x ,DEPTR[r2x]) ;
+
+		StrongRef ret = StrongRef (r1x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (0) ,mLatch (0) ,mFastPointer (NULL) {}
+		:mPointer (0) ,mLatch (0) {}
+
+	imports void aquire (const PTR<Holder> &pointer) {
+		_DEBUG_ASSERT_ (pointer != NULL) ;
+		auto &r1x = DEREF[pointer].deref () ;
+		++r1x.mWeakCounter ;
+		++r1x.mStrongCounter ;
+	}
+
+	imports void release (const PTR<Holder> &pointer) {
+		_DEBUG_ASSERT_ (pointer != NULL) ;
+		auto &r1x = DEREF[pointer].deref () ;
+		const auto r2x = --r1x.mStrongCounter ;
+	}
 
 	PTR<Holder> safe_load () const {
 		const auto r1x = mPointer.fetch () ;
 		return _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 	}
 
-	PTR<Holder> safe_exchange (const PTR<Holder> &address) {
-		const auto r1x = _ADDRESS_ (address) ;
+	PTR<Holder> safe_exchange (const PTR<Holder> &pointer) {
+		const auto r1x = _ADDRESS_ (pointer) ;
 		const auto r2x = mPointer.exchange (r1x) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,r2x) ;
 		if (r3x == NULL)
@@ -1874,7 +1852,7 @@ private:
 		alignas (8) PTR<struct HEADER> mCurr ;
 	} ;
 
-	struct SELF_PACK {
+	struct THIS_PACK {
 		AutoBuffer<StrongRef<Holder>> mPool ;
 	} ;
 
@@ -1886,7 +1864,7 @@ private:
 	} ;
 
 private:
-	UniqueRef<SharedRef<SELF_PACK>> mThis ;
+	UniqueRef<SharedRef<THIS_PACK>> mThis ;
 
 public:
 	implicit MemoryPool () ;
@@ -2205,9 +2183,9 @@ inline exports MemoryPool::MemoryPool () {
 	using ImplHolderX120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
 	using ImplHolderX128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
 	using HugeHolder = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
-	mThis = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-		me = SharedRef<SELF_PACK>::make () ;
-	} ,[] (SharedRef<SELF_PACK> &me) {
+	mThis = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+		me = SharedRef<THIS_PACK>::make () ;
+	} ,[] (SharedRef<THIS_PACK> &me) {
 		for (auto &&i : _RANGE_ (0 ,me->mPool.size ()))
 			me->mPool[i]->clear () ;
 		me->mPool = AutoBuffer<StrongRef<Holder>> () ;
@@ -2406,17 +2384,17 @@ class Singleton
 	_STATIC_ASSERT_ (stl::is_nothrow_destructible<UNIT>::value) ;
 
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		UNIT mValue ;
 
 		template <class... _ARGS>
-		explicit SELF_PACK (_ARGS &&...initval)
+		explicit THIS_PACK (_ARGS &&...initval)
 			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
 	} ;
 
 private:
 	friend GlobalStatic<Singleton> ;
-	StrongRef<SELF_PACK> mThis ;
+	StrongRef<THIS_PACK> mThis ;
 
 public:
 	//@warn: static instance across DLL ruins Singleton
@@ -2428,7 +2406,7 @@ public:
 
 private:
 	implicit Singleton () {
-		mThis = StrongRef<SELF_PACK>::make (ARGV<Singleton>::null) ;
+		mThis = StrongRef<THIS_PACK>::make (ARGV<Singleton>::null) ;
 	}
 
 	UNIT &to () leftvalue {

@@ -18,7 +18,7 @@ namespace CSC {
 template <class ITEM>
 class CalcThread {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
 		AutoRef<BOOL> mThreadFlag ;
@@ -36,17 +36,17 @@ private:
 	} ;
 
 private:
-	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
+	StrongRef<UniqueRef<SharedRef<THIS_PACK>>> mThis ;
 
 public:
 	implicit CalcThread () {
-		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
 		static_create (rax->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
+		mThis = StrongRef<UniqueRef<SharedRef<THIS_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	LENGTH size () const {
@@ -139,7 +139,7 @@ public:
 		r1x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r1x) ,i) ;
+			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
 			r1x.mThreadPool[i] = AutoRef<Thread>::make (r2x) ;
 		}
 	}
@@ -173,7 +173,7 @@ public:
 	}
 
 private:
-	imports void static_create (SELF_PACK &self_) {
+	imports void static_create (THIS_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
@@ -181,7 +181,7 @@ private:
 		self_.mThreadProc = Array<Function<MEMPTR<ITEM ()>>> () ;
 	}
 
-	imports void static_destroy (SELF_PACK &self_) {
+	imports void static_destroy (THIS_PACK &self_) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -206,7 +206,7 @@ private:
 		self_.mThreadProc = Array<Function<MEMPTR<ITEM ()>>> () ;
 	}
 
-	imports void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
+	imports void static_execute (THIS_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
@@ -228,7 +228,7 @@ private:
 		}
 	}
 
-	imports void static_push (SELF_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
+	imports void static_push (THIS_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -245,7 +245,7 @@ private:
 		rax.notify () ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
+	imports void static_push (THIS_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -262,7 +262,7 @@ private:
 		rax.notify () ;
 	}
 
-	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (THIS_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -275,13 +275,13 @@ template <class ITEM>
 class CalcThread<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
-	PhanRef<SELF_PACK> mThis ;
+	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
 
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_ ,const INDEX &tid) {
+	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
 	}
@@ -297,7 +297,7 @@ public:
 
 template <class ITEM>
 class CalcThread<ITEM>::Private::ThreadCounter
-	:private Wrapped<SELF_PACK> {
+	:private Wrapped<THIS_PACK> {
 public:
 	void lock () {
 		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
@@ -313,7 +313,7 @@ public:
 template <class ITEM>
 class WorkThread {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
@@ -332,17 +332,17 @@ private:
 	} ;
 
 private:
-	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
+	StrongRef<UniqueRef<SharedRef<THIS_PACK>>> mThis ;
 
 public:
 	implicit WorkThread () {
-		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
 		static_create (rax->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
+		mThis = StrongRef<UniqueRef<SharedRef<THIS_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	LENGTH size () const {
@@ -470,7 +470,7 @@ public:
 		r1x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r1x) ,i) ;
+			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
 			r1x.mThreadPool[i] = AutoRef<Thread>::make (r2x) ;
 		}
 	}
@@ -504,7 +504,7 @@ public:
 	}
 
 private:
-	imports void static_create (SELF_PACK &self_) {
+	imports void static_create (THIS_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
@@ -513,7 +513,7 @@ private:
 		self_.mThreadPendingSet = Set<INDEX> () ;
 	}
 
-	imports void static_destroy (SELF_PACK &self_) {
+	imports void static_destroy (THIS_PACK &self_) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -539,7 +539,7 @@ private:
 		self_.mThreadPendingSet = Set<INDEX> () ;
 	}
 
-	imports void static_execute (SELF_PACK &self_ ,const INDEX &tid) {
+	imports void static_execute (THIS_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
@@ -562,7 +562,7 @@ private:
 		}
 	}
 
-	imports void static_poll (SELF_PACK &self_ ,const INDEX &tid ,List<ITEM> &list) {
+	imports void static_poll (THIS_PACK &self_ ,const INDEX &tid ,List<ITEM> &list) {
 		struct Dependent ;
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
@@ -585,7 +585,7 @@ private:
 		self_.mThreadPendingSet.erase (tid) ;
 	}
 
-	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (THIS_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		if (self_.mException.exist ())
@@ -598,13 +598,13 @@ template <class ITEM>
 class WorkThread<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
-	PhanRef<SELF_PACK> mThis ;
+	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
 
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_ ,const INDEX &tid) {
+	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
 	}
@@ -620,7 +620,7 @@ public:
 
 template <class ITEM>
 class WorkThread<ITEM>::Private::ThreadCounter
-	:private Wrapped<SELF_PACK> {
+	:private Wrapped<THIS_PACK> {
 public:
 	void lock () {
 		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
@@ -639,7 +639,7 @@ class Future ;
 template <class ITEM>
 class Promise {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
@@ -658,17 +658,17 @@ private:
 	} ;
 
 private:
-	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
+	StrongRef<UniqueRef<SharedRef<THIS_PACK>>> mThis ;
 
 public:
 	implicit Promise () {
-		auto rax = UniqueRef<SharedRef<SELF_PACK>> ([&] (SharedRef<SELF_PACK> &me) {
-			me = SharedRef<SELF_PACK>::make () ;
-		} ,[] (SharedRef<SELF_PACK> &me) {
+		auto rax = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
 			static_destroy (me.self) ;
 		}) ;
 		static_create (rax->self) ;
-		mThis = StrongRef<UniqueRef<SharedRef<SELF_PACK>>>::make (_MOVE_ (rax)) ;
+		mThis = StrongRef<UniqueRef<SharedRef<THIS_PACK>>>::make (_MOVE_ (rax)) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>
@@ -727,7 +727,7 @@ public:
 		r1x.mItem = AutoRef<ITEM> () ;
 		r1x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<SELF_PACK>::make (r1x)) ;
+		const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x)) ;
 		r1x.mThreadPool = AutoRef<Thread>::make (r2x) ;
 	}
 
@@ -751,7 +751,7 @@ public:
 	}
 
 private:
-	imports void static_create (SELF_PACK &self_) {
+	imports void static_create (THIS_PACK &self_) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		self_.mThreadFlag = AutoRef<BOOL> () ;
 		self_.mThreadCounter = 0 ;
@@ -760,7 +760,7 @@ private:
 		self_.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
 	}
 
-	imports void static_destroy (SELF_PACK &self_) {
+	imports void static_destroy (THIS_PACK &self_) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		if (!self_.mThreadFlag.exist ())
 			return ;
@@ -783,7 +783,7 @@ private:
 		self_.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
 	}
 
-	imports void static_execute (SELF_PACK &self_) {
+	imports void static_execute (THIS_PACK &self_) {
 		struct Dependent ;
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
@@ -803,7 +803,7 @@ private:
 		static_signal (self_) ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
+	imports void static_push (THIS_PACK &self_ ,const REMOVE_CONST_TYPE<ITEM> &item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -811,7 +811,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	imports void static_push (SELF_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
+	imports void static_push (THIS_PACK &self_ ,REMOVE_CONST_TYPE<ITEM> &&item) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DYNAMIC_ASSERT_ (self_.mThreadFlag.self) ;
@@ -819,7 +819,7 @@ private:
 		self_.mItem = AutoRef<ITEM>::make (_MOVE_ (item)) ;
 	}
 
-	imports void static_rethrow (SELF_PACK &self_ ,const Exception &e) {
+	imports void static_rethrow (THIS_PACK &self_ ,const Exception &e) {
 		ScopedGuard<Mutex> ANONYMOUS (self_.mThreadMutex) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		_DEBUG_ASSERT_ (!self_.mException.exist ()) ;
@@ -827,7 +827,7 @@ private:
 		self_.mException = AutoRef<Exception>::make (e) ;
 	}
 
-	imports void static_signal (SELF_PACK &self_) {
+	imports void static_signal (THIS_PACK &self_) {
 		auto rax = self_.mThreadConditionLock.watch (PhanRef<Mutex>::make (self_.mThreadMutex)) ;
 		_DEBUG_ASSERT_ (self_.mThreadFlag.exist ()) ;
 		self_.mThreadFlag.self = FALSE ;
@@ -847,12 +847,12 @@ template <class ITEM>
 class Promise<ITEM>::Private::ThreadBinder
 	:public Thread::Binder {
 private:
-	PhanRef<SELF_PACK> mThis ;
+	PhanRef<THIS_PACK> mThis ;
 
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<SELF_PACK> &&this_) {
+	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_) {
 		mThis = _MOVE_ (this_) ;
 	}
 
@@ -867,7 +867,7 @@ public:
 
 template <class ITEM>
 class Promise<ITEM>::Private::ThreadCounter
-	:private Wrapped<SELF_PACK> {
+	:private Wrapped<THIS_PACK> {
 public:
 	void lock () {
 		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
@@ -883,15 +883,15 @@ public:
 template <class ITEM>
 class Future {
 private:
-	using SELF_PACK = typename Promise<ITEM>::SELF_PACK ;
+	using THIS_PACK = typename Promise<ITEM>::THIS_PACK ;
 
 private:
-	StrongRef<UniqueRef<SharedRef<SELF_PACK>>> mThis ;
+	StrongRef<UniqueRef<SharedRef<THIS_PACK>>> mThis ;
 
 public:
 	implicit Future () = delete ;
 
-	explicit Future (const StrongRef<UniqueRef<SharedRef<SELF_PACK>>> &this_) {
+	explicit Future (const StrongRef<UniqueRef<SharedRef<THIS_PACK>>> &this_) {
 		mThis = this_.share () ;
 	}
 

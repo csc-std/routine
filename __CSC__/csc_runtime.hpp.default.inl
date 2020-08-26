@@ -163,6 +163,10 @@ public:
 		return mDuration ;
 	}
 
+	const Implement &native () const override {
+		return DEREF[this] ;
+	}
+
 	LENGTH hours () const override {
 		const auto r1x = api::chrono::duration_cast<api::chrono::hours> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
@@ -212,9 +216,9 @@ inline exports Duration::Duration (const LENGTH &milliseconds_) {
 }
 
 template <class _ARG1 ,class>
-inline exports Duration::Duration (_ARG1 &&that) {
+inline exports Duration::Duration (_ARG1 &&time_) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,time_)) ;
 }
 
 class TimePoint::Private::Implement
@@ -246,6 +250,10 @@ public:
 
 	explicit Implement (const api::chrono::system_clock::time_point &time_) {
 		mTimePoint = api::chrono::time_point_cast<api::chrono::system_clock::duration> (time_) ;
+	}
+
+	const Implement &native () const override {
+		return DEREF[this] ;
 	}
 
 	const api::chrono::system_clock::time_point &get_mTimePoint () const leftvalue {
@@ -309,9 +317,9 @@ public:
 } ;
 
 template <class _ARG1 ,class>
-inline exports TimePoint::TimePoint (_ARG1 &&that) {
+inline exports TimePoint::TimePoint (_ARG1 &&time_) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,time_)) ;
 }
 
 class Mutex::Private::Implement
@@ -321,6 +329,14 @@ private:
 
 public:
 	implicit Implement () = default ;
+
+	Implement &native () override {
+		return DEREF[this] ;
+	}
+
+	const Implement &native () const override {
+		return DEREF[this] ;
+	}
 
 	api::mutex &get_mMutex () leftvalue {
 		return mMutex ;
@@ -352,6 +368,14 @@ private:
 public:
 	implicit Implement () = default ;
 
+	Implement &native () override {
+		return DEREF[this] ;
+	}
+
+	const Implement &native () const override {
+		return DEREF[this] ;
+	}
+
 	api::recursive_mutex &get_mMutex () leftvalue {
 		return mMutex ;
 	}
@@ -381,6 +405,14 @@ private:
 
 public:
 	implicit Implement () = default ;
+
+	Implement &native () override {
+		return DEREF[this] ;
+	}
+
+	const Implement &native () const override {
+		return DEREF[this] ;
+	}
 
 	api::condition_variable &get_mConditionLock () leftvalue {
 		return mConditionLock ;

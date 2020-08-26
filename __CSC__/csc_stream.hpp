@@ -36,7 +36,7 @@ struct BYTE_BASE<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
 } ;
 
 template <class _ARG1>
-using BYTE_BASE_TYPE = typename U::BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+using BYTE_BASE_TYPE = typename BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 } ;
 
 namespace U {
@@ -59,7 +59,7 @@ struct TEXT_BASE<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
 } ;
 
 template <class _ARG1>
-using TEXT_BASE_TYPE = typename U::TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+using TEXT_BASE_TYPE = typename TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
 } ;
 
 using STRUA = U::TEXT_BASE_TYPE<STRA> ;
@@ -153,7 +153,7 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 read (const ARGVF<_ARG1> &) {
+	REMOVE_CVR_TYPE<_ARG1> read (const ARGVF<_ARG1> &) {
 		_ARG1 ret ;
 		read (ret) ;
 		return _MOVE_ (ret) ;
@@ -893,7 +893,7 @@ public:
 	}
 
 	template <class _ARG1>
-	_ARG1 read (const ARGVF<_ARG1> &) {
+	REMOVE_CVR_TYPE<_ARG1> read (const ARGVF<_ARG1> &) {
 		_ARG1 ret ;
 		read (ret) ;
 		return _MOVE_ (ret) ;

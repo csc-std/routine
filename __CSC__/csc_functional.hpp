@@ -34,19 +34,19 @@ class LexicalNode ;
 
 class Operand {
 private:
-	struct SELF_PACK {
+	struct THIS_PACK {
 		AnyRef<> mHolder ;
 	} ;
 
 private:
-	StrongRef<SELF_PACK> mThis ;
+	StrongRef<THIS_PACK> mThis ;
 
 public:
 	implicit Operand () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit Operand (_ARG1 &&that) {
-		mThis = StrongRef<SELF_PACK>::make () ;
+	implicit Operand (_ARG1 &&that) {
+		mThis = StrongRef<THIS_PACK>::make () ;
 		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 	}
 
@@ -136,7 +136,7 @@ public:
 	implicit Operator () = default ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
-	explicit Operator (_ARG1 &&that) {
+	implicit Operator (_ARG1 &&that) {
 		struct Dependent ;
 		using HINT_T1 = FUNCTION_OF_TYPE<_ARG1> ;
 		using HINT_T2 = REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<HINT_T1>)> ,const Operand &> ;
@@ -311,7 +311,7 @@ struct RETR_FUNC<ARGC<1>> {
 } ;
 
 template <class _ARG1>
-using RETR_FUNC_TYPE = typename U::RETR_FUNC<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>>::TYPE ;
+using RETR_FUNC_TYPE = typename RETR_FUNC<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<_ARG1>)>>::TYPE ;
 } ;
 
 class LexicalNode

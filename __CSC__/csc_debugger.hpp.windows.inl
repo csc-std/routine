@@ -459,14 +459,14 @@ public:
 			DEREF[r3x].MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
 				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r3x) ;
-				const auto r4x = StringProc::build_hex16s (ARGV<STR>::null ,DATA (DEREF[r3x].Address)) ;
+				const auto r4x = StringProc::build_hexs (ARGV<STR>::null ,DATA (DEREF[r3x].Address)) ;
 				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[DEREF[r3x].Name])) ;
 				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 			}
 		}
 		if switch_once (fax) {
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
-				const auto r6x = StringProc::build_hex16s (ARGV<STR>::null ,DATA (list[i])) ;
+				const auto r6x = StringProc::build_hexs (ARGV<STR>::null ,DATA (list[i])) ;
 				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : null")) ;
 			}
 		}
