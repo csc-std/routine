@@ -1650,7 +1650,7 @@ private:
 private:
 	Allocator<NODE_PACK ,SIZE> mList ;
 	Buffer<INDEX ,SIZE> mRange ;
-	INDEX mWrite ;
+	INDEX mFree ;
 
 public:
 	implicit ArrayList () {
@@ -1679,6 +1679,7 @@ public:
 	void clear () {
 		mList.clear () ;
 		BasicProc::mem_fill (mRange.self ,mRange.size () ,VAR_NONE) ;
+		mFree = 0 ;
 	}
 
 	INDEX ibegin () const {
@@ -1889,11 +1890,29 @@ private:
 	explicit ArrayList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) ,mRange (len) {}
 
-	INDEX min_free_one () const {
-		for (auto &&i : _RANGE_ (0 ,mRange.size ())) {
-			if (mRange[i] == VAR_NONE)
-				return i ;
+	INDEX min_free_one () {
+		_DEBUG_ASSERT_ (mRange.size () > 0) ;
+		const auto r1x = mFree % mRange.size () ;
+		mFree = r1x ;
+		while (TRUE) {
+			if (mFree >= mRange.size ())
+				break ;
+			if (mRange[mFree] == VAR_NONE)
+				break ;
+			mFree++ ;
 		}
+		if (mFree < mRange.size ())
+			return mFree ;
+		mFree = 0 ;
+		while (TRUE) {
+			if (mFree >= r1x)
+				break ;
+			if (mRange[mFree] == VAR_NONE)
+				break ;
+			mFree++ ;
+		}
+		if (mFree < r1x)
+			return mFree ;
 		return VAR_NONE ;
 	}
 

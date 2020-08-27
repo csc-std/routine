@@ -60,7 +60,7 @@
     <Expand>
       <Item Name="[size]">sizeof(mBuffer)/sizeof(mBuffer[0])</Item>
       <ArrayItems>
-        <Size>sizeof(mBuffer)/sizeof(mBuffer[0])</Size>
+        <Size>sizeof(mBuffer)/sizeof(mBuffer[0])&lt;10?sizeof(mBuffer)/sizeof(mBuffer[0]):10</Size>
         <ValuePointer>&amp;mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -71,7 +71,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;*mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -82,7 +82,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;*mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -93,7 +93,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;*mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -104,7 +104,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;*mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -115,7 +115,7 @@
     <Expand>
       <Item Name="[size]">mSize</Item>
       <ArrayItems>
-        <Size>mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;*mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -127,7 +127,7 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>sizeof(mAllocator.mBuffer)/sizeof(mAllocator.mBuffer[0])</Size>
+        <Size>sizeof(mAllocator.mBuffer)/sizeof(mAllocator.mBuffer[0])&lt;10?sizeof(mAllocator.mBuffer)/sizeof(mAllocator.mBuffer[0]):10</Size>
         <ValuePointer>&amp;mAllocator.mBuffer[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -139,7 +139,7 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>mAllocator.mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;(*mAllocator.mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>
@@ -151,7 +151,7 @@
       <Item Name="[size]">mSize</Item>
       <Item Name="[length]">mLength</Item>
       <ArrayItems>
-        <Size>mAllocator.mSize</Size>
+        <Size>mSize&lt;10?mSize:10</Size>
         <ValuePointer>&amp;(*mAllocator.mBuffer)[0]</ValuePointer>
       </ArrayItems>
     </Expand>

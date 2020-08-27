@@ -51,7 +51,7 @@ public:
 	template <class _ARG1>
 	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
 		return template_equal (lhs ,rhs ,ARGVPX) ;
-}
+	}
 
 private:
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,BOOL>::value)>>
@@ -99,7 +99,7 @@ public:
 	template <class _ARG1>
 	imports FLAG invoke (const _ARG1 &lhs ,const _ARG1 &rhs) {
 		return template_compr (lhs ,rhs ,ARGVPX) ;
-}
+	}
 
 private:
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
@@ -234,7 +234,7 @@ inline exports CHAR CRC32StaticProc::static_mem_crc32_table_each (const CHAR &va
 	for (auto &&i : _RANGE_ (0 ,8)) {
 		_STATIC_UNUSED_ (i) ;
 		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
-		ret >>= 1 ;
+		ret = CHAR (ret >> 1) ;
 		if (r1x == 0)
 			continue ;
 		ret ^= CHAR (0XEDB88320) ;
@@ -641,6 +641,9 @@ public:
 
 	template <class _ARG1>
 	imports void free (const PTR<_ARG1> &address) noexcept {
+		if (address == NULL)
+			return ;
+		//@error: address may be different from what alloc returned
 		const auto r1x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,_ADDRESS_ (address)) ;
 		operator delete (r1x ,stl::nothrow) ;
 	}
@@ -668,6 +671,7 @@ private:
 
 private:
 	friend SPECIALIZATION_THIS ;
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -680,7 +684,8 @@ public:
 		if (mPointer == NULL)
 			return ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -690,6 +695,7 @@ public:
 
 	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -705,7 +711,7 @@ public:
 
 private:
 	explicit AutoRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT>
@@ -743,6 +749,7 @@ private:
 
 private:
 	friend SPECIALIZATION_THIS ;
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -755,7 +762,8 @@ public:
 		if (mPointer == NULL)
 			return ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -769,6 +777,7 @@ public:
 		auto &r1x = _XVALUE_ (ARGV<const UNIT>::null ,DEREF[that.mPointer].deref ()) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
+		mOrigin = rax.self ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -785,6 +794,7 @@ public:
 
 	implicit AutoRef (AutoRef &&that) noexcept
 		:AutoRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -800,7 +810,7 @@ public:
 
 private:
 	explicit AutoRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT>
@@ -828,6 +838,7 @@ private:
 
 private:
 	friend SPECIALIZATION_BASE ;
+	using SPECIALIZATION_BASE::mOrigin ;
 	using SPECIALIZATION_BASE::mPointer ;
 
 public:
@@ -868,18 +879,14 @@ public:
 	template <class... _ARGS>
 	imports AutoRef make (_ARGS &&...initval) {
 		using PureHolder = typename SPECIALIZATION_BASE::Private::PureHolder ;
+		AutoRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
-		AutoRef ret = AutoRef (ARGVP0 ,r1x) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r1x ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
-	}
-
-private:
-	explicit AutoRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
-		:SPECIALIZATION_BASE (ARGVP0) {
-		mPointer = pointer ;
 	}
 } ;
 
@@ -901,6 +908,7 @@ private:
 	} ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -914,17 +922,20 @@ public:
 			return ;
 		if switch_once (TRUE) {
 			const auto r1x = DEREF[mPointer].decrease () ;
-			if (r1x != 0)
+			if (r1x > 0)
 				discard ;
 			DEREF[mPointer].~Holder () ;
-			GlobalHeap::free (mPointer) ;
+			GlobalHeap::free (mOrigin) ;
 		}
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
 	implicit SharedRef (const SharedRef &that)
-		:SharedRef (ARGVP0 ,that.mPointer) {
-		_STATIC_WARNING_ ("noop") ;
+		:SharedRef (ARGVP0) {
+		aquire (that.mPointer) ;
+		mOrigin = that.mOrigin ;
+		mPointer = that.mPointer ;
 	}
 
 	inline SharedRef &operator= (const SharedRef &that) {
@@ -939,6 +950,7 @@ public:
 
 	implicit SharedRef (SharedRef &&that) noexcept
 		:SharedRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -975,26 +987,27 @@ public:
 	imports SharedRef make (_ARGS &&...initval) {
 		struct Dependent ;
 		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		SharedRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
-		SharedRef ret = SharedRef (ARGVP0 ,r1x) ;
+		aquire (r1x) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r1x ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit SharedRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 
-	explicit SharedRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer) noexcept
-		:SharedRef (ARGVP0) {
+	imports void aquire (const PTR<Holder> &pointer) {
 		if (pointer == NULL)
 			return ;
 		const auto r1x = DEREF[pointer].increase () ;
 		_STATIC_UNUSED_ (r1x) ;
-		_DEBUG_ASSERT_ (r1x > 0) ;
-		mPointer = pointer ;
+		_DEBUG_ASSERT_ (r1x >= 1) ;
 	}
 } ;
 
@@ -1040,6 +1053,7 @@ private:
 private:
 	template <class>
 	friend class AnyRef ;
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1058,7 +1072,8 @@ public:
 		if (mPointer == NULL)
 			return ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -1068,6 +1083,7 @@ public:
 
 	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -1114,7 +1130,7 @@ public:
 
 private:
 	explicit AnyRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT>
@@ -1130,6 +1146,7 @@ private:
 	} ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1148,7 +1165,8 @@ public:
 		if (mPointer == NULL)
 			return ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -1158,6 +1176,7 @@ public:
 
 	implicit AnyRef (AnyRef &&that) noexcept
 		:AnyRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -1238,22 +1257,19 @@ public:
 	imports AnyRef make (_ARGS &&...initval) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
+		AnyRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		AnyRef ret = AnyRef (ARGVP0 ,r1x) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r1x ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit AnyRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
-
-	explicit AnyRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
-		:AnyRef (ARGVP0) {
-		mPointer = pointer ;
-	}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT>
@@ -1302,6 +1318,7 @@ private:
 	} ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1325,6 +1342,7 @@ public:
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor () ;
+		mOrigin = rax.self ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -1338,7 +1356,8 @@ public:
 			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -1348,6 +1367,7 @@ public:
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
 		:UniqueRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -1369,7 +1389,7 @@ public:
 
 private:
 	explicit UniqueRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT_>
@@ -1406,6 +1426,7 @@ private:
 	} ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
 public:
@@ -1429,6 +1450,7 @@ public:
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor (DEREF[r2x].deref ()) ;
+		mOrigin = rax.self ;
 		mPointer = r2x ;
 		rax = NULL ;
 	}
@@ -1442,7 +1464,8 @@ public:
 			_DEBUG_ASSERT_ (FALSE) ;
 		}) ;
 		DEREF[mPointer].~Holder () ;
-		GlobalHeap::free (mPointer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -1452,6 +1475,7 @@ public:
 
 	implicit UniqueRef (UniqueRef &&that) noexcept
 		: UniqueRef (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -1490,25 +1514,22 @@ public:
 		using HINT_T1 = DEF<void (UNIT &)> ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
 		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
+		UniqueRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function ([] (UNIT &) {}) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		auto &r3x = DEREF[r2x].deref () ;
 		r3x = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
-		UniqueRef ret = UniqueRef (ARGVP0 ,r2x) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r2x ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit UniqueRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) {}
-
-	explicit UniqueRef (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
-		:UniqueRef (ARGVP0) {
-		mPointer = pointer ;
-	}
+		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
 
 template <class UNIT>
@@ -1652,6 +1673,7 @@ private:
 	} ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 	PTR<UNIT1 (UNITS...)> mFunctor ;
 
@@ -1675,6 +1697,7 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		mOrigin = rax.self ;
 		mPointer = r1x ;
 		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,DEREF[r1x].deref ()) ;
 		rax = NULL ;
@@ -1688,10 +1711,11 @@ public:
 			if (mPointer == NULL)
 				discard ;
 			DEREF[mPointer].~Holder () ;
-			GlobalHeap::free (mPointer) ;
+			GlobalHeap::free (mOrigin) ;
 		}
-		mFunctor = NULL ;
+		mOrigin = NULL ;
 		mPointer = NULL ;
+		mFunctor = NULL ;
 	}
 
 	implicit Function (const Function &) = delete ;
@@ -1700,6 +1724,7 @@ public:
 
 	implicit Function (Function &&that) noexcept
 		:Function (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 		_SWAP_ (mFunctor ,that.mFunctor) ;
 	}
@@ -1745,22 +1770,20 @@ public:
 	imports Function make (const DEF<UNIT1 (UNITS... ,_ARGS...)> &functor ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
+		Function ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,functor ,parameter...) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
-		Function ret = Function (ARGVP0 ,r1x) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r1x ;
+		ret.mFunctor = NULL ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 private:
 	explicit Function (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) ,mFunctor (NULL) {}
-
-	explicit Function (const DEF<decltype (ARGVP0)> & ,const PTR<Holder> &pointer)
-		:Function (ARGVP0) {
-		mPointer = pointer ;
-	}
+		:mOrigin (NULL) ,mPointer (NULL) ,mFunctor (NULL) {}
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -2187,6 +2210,7 @@ class Buffer<UNIT ,SFIXED> final {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
 private:
+	PTR<NONE> mOrigin ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2203,6 +2227,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
+		mOrigin = rax.self ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
@@ -2212,11 +2237,10 @@ public:
 	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			_STATIC_UNUSED_ (i) ;
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			DEREF[mBuffer][i].~UNIT () ;
-		}
-		GlobalHeap::free (mBuffer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mBuffer = NULL ;
 		mSize = 0 ;
 	}
@@ -2342,7 +2366,7 @@ public:
 
 private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		:mBuffer (NULL) ,mSize (0) {}
+		:mOrigin (NULL) ,mBuffer (NULL) ,mSize (0) {}
 } ;
 
 template <class UNIT>
@@ -2360,6 +2384,7 @@ private:
 
 private:
 	friend SPECIALIZATION_THIS ;
+	PTR<NONE> mOrigin ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2376,6 +2401,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
+		mOrigin = rax.self ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
@@ -2385,11 +2411,10 @@ public:
 	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			_STATIC_UNUSED_ (i) ;
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			DEREF[mBuffer][i].~UNIT () ;
-		}
-		GlobalHeap::free (mBuffer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mBuffer = NULL ;
 		mSize = 0 ;
 	}
@@ -2400,6 +2425,7 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
 	}
@@ -2416,7 +2442,7 @@ public:
 
 private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
+		:mOrigin (NULL) ,mBuffer (NULL) ,mSize (0) {}
 } ;
 
 template <class UNIT>
@@ -2428,6 +2454,7 @@ private:
 
 private:
 	friend SPECIALIZATION_THIS ;
+	PTR<NONE> mOrigin ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
@@ -2444,6 +2471,7 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
+		mOrigin = rax.self ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
@@ -2453,11 +2481,10 @@ public:
 	implicit ~Buffer () noexcept {
 		if (mBuffer == NULL)
 			return ;
-		for (auto &&i : _RANGE_ (0 ,mSize)) {
-			_STATIC_UNUSED_ (i) ;
+		for (auto &&i : _RANGE_ (0 ,mSize))
 			DEREF[mBuffer][i].~UNIT () ;
-		}
-		GlobalHeap::free (mBuffer) ;
+		GlobalHeap::free (mOrigin) ;
+		mOrigin = NULL ;
 		mBuffer = NULL ;
 		mSize = 0 ;
 	}
@@ -2468,6 +2495,7 @@ public:
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::null ,that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
+		mOrigin = rax.self ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::null ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = that.mSize ;
@@ -2486,6 +2514,7 @@ public:
 
 	implicit Buffer (Buffer &&that) noexcept
 		:Buffer (ARGVP0) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
 	}
@@ -2502,7 +2531,7 @@ public:
 
 private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
+		:mOrigin (NULL) ,mBuffer (NULL) ,mSize (0) {}
 } ;
 
 template <class UNIT>
@@ -2513,6 +2542,7 @@ private:
 
 private:
 	friend SPECIALIZATION_BASE ;
+	using SPECIALIZATION_BASE::mOrigin ;
 	using SPECIALIZATION_BASE::mBuffer ;
 	using SPECIALIZATION_BASE::mSize ;
 
@@ -2628,6 +2658,7 @@ public:
 	}
 
 	void swap (Buffer &that) {
+		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
 	}
@@ -2708,7 +2739,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2800,7 +2831,7 @@ public:
 
 private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
+		:mBuffer (NULL) ,mSize (0) {}
 
 	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<const ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
@@ -2884,7 +2915,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2988,7 +3019,7 @@ public:
 
 private:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
-		: mBuffer (NULL) ,mSize (0) {}
+		:mBuffer (NULL) ,mSize (0) {}
 
 	explicit Buffer (const DEF<decltype (ARGVP0)> & ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_)
 		: Buffer (ARGVP0) {
@@ -3329,7 +3360,6 @@ class Allocator final
 
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
-	using NODE_PACK = typename SPECIALIZATION_BASE::NODE_PACK ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3394,6 +3424,7 @@ public:
 	}
 
 	INDEX at (const UNIT &item) const {
+		using NODE_PACK = typename SPECIALIZATION_BASE::NODE_PACK ;
 		auto &r1x = _OFFSET_ (&NODE_PACK::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::null ,item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))

@@ -11,59 +11,8 @@
 #include "csc_math.hpp"
 
 namespace CSC {
-namespace U {
-template <class ,class>
-struct BYTE_BASE ;
-
-template <>
-struct BYTE_BASE<ARGC<_SIZEOF_ (BYTE)> ,ARGC<_ALIGNOF_ (BYTE)>> {
-	using TYPE = BYTE ;
-} ;
-
-template <>
-struct BYTE_BASE<ARGC<_SIZEOF_ (WORD)> ,ARGC<_ALIGNOF_ (WORD)>> {
-	using TYPE = WORD ;
-} ;
-
-template <>
-struct BYTE_BASE<ARGC<_SIZEOF_ (CHAR)> ,ARGC<_ALIGNOF_ (CHAR)>> {
-	using TYPE = CHAR ;
-} ;
-
-template <>
-struct BYTE_BASE<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
-	using TYPE = DATA ;
-} ;
-
-template <class _ARG1>
-using BYTE_BASE_TYPE = typename BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct TEXT_BASE ;
-
-template <>
-struct TEXT_BASE<ARGC<_SIZEOF_ (STRU8)> ,ARGC<_ALIGNOF_ (STRU8)>> {
-	using TYPE = STRU8 ;
-} ;
-
-template <>
-struct TEXT_BASE<ARGC<_SIZEOF_ (STRU16)> ,ARGC<_ALIGNOF_ (STRU16)>> {
-	using TYPE = STRU16 ;
-} ;
-
-template <>
-struct TEXT_BASE<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
-	using TYPE = STRU32 ;
-} ;
-
-template <class _ARG1>
-using TEXT_BASE_TYPE = typename TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
-} ;
-
-using STRUA = U::TEXT_BASE_TYPE<STRA> ;
-using STRUW = U::TEXT_BASE_TYPE<STRW> ;
+using STRUA = TEXT_BASE_TYPE<STRA> ;
+using STRUW = TEXT_BASE_TYPE<STRW> ;
 
 template <class REAL>
 class ByteReader {

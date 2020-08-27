@@ -943,6 +943,57 @@ using IS_XYZ_HELP = ARGC<(IS_VOID_HELP<_ARG1>::value || IS_VAR_XYZ_HELP<_ARG1>::
 } ;
 
 namespace U {
+template <class ,class>
+struct BYTE_BASE ;
+
+template <>
+struct BYTE_BASE<ARGC<_SIZEOF_ (BYTE)> ,ARGC<_ALIGNOF_ (BYTE)>> {
+	using TYPE = BYTE ;
+} ;
+
+template <>
+struct BYTE_BASE<ARGC<_SIZEOF_ (WORD)> ,ARGC<_ALIGNOF_ (WORD)>> {
+	using TYPE = WORD ;
+} ;
+
+template <>
+struct BYTE_BASE<ARGC<_SIZEOF_ (CHAR)> ,ARGC<_ALIGNOF_ (CHAR)>> {
+	using TYPE = CHAR ;
+} ;
+
+template <>
+struct BYTE_BASE<ARGC<_SIZEOF_ (DATA)> ,ARGC<_ALIGNOF_ (DATA)>> {
+	using TYPE = DATA ;
+} ;
+
+template <class _ARG1>
+using BYTE_BASE_TYPE = typename BYTE_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct TEXT_BASE ;
+
+template <>
+struct TEXT_BASE<ARGC<_SIZEOF_ (STRU8)> ,ARGC<_ALIGNOF_ (STRU8)>> {
+	using TYPE = STRU8 ;
+} ;
+
+template <>
+struct TEXT_BASE<ARGC<_SIZEOF_ (STRU16)> ,ARGC<_ALIGNOF_ (STRU16)>> {
+	using TYPE = STRU16 ;
+} ;
+
+template <>
+struct TEXT_BASE<ARGC<_SIZEOF_ (STRU32)> ,ARGC<_ALIGNOF_ (STRU32)>> {
+	using TYPE = STRU32 ;
+} ;
+
+template <class _ARG1>
+using TEXT_BASE_TYPE = typename TEXT_BASE<ARGC<_SIZEOF_ (_ARG1)> ,ARGC<_ALIGNOF_ (_ARG1)>>::TYPE ;
+} ;
+
+namespace U {
 template <class ,class ,class ,class>
 struct IS_SAFE_ALIASING {
 	using TYPE = ARGC<FALSE> ;
@@ -1027,16 +1078,6 @@ struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<((_SIZEOF_ (TEMP<_
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
-} ;
-
-template <>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,NONE ,NONE ,ARGC<5>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<NONE ,_ARG1 ,NONE ,ARGC<5>> {
-	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1236,6 +1277,8 @@ using U::SEQUENCE_PARAMS_TYPE ;
 using U::ARGVS_ONE_TYPE ;
 using U::ARGVS_REST_TYPE ;
 using U::ARGVS_CAT_TYPE ;
+using U::BYTE_BASE_TYPE ;
+using U::TEXT_BASE_TYPE ;
 using U::INDEX_OF_TYPE ;
 using U::INDEX_TO_TYPE ;
 using U::TEMPLATE_PARAMS_TYPE ;

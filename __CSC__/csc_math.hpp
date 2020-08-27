@@ -458,7 +458,7 @@ inline exports ARRAY3<DATA> MathStaticProc::static_ieee754_encode_part (const AR
 			break ;
 		if ((ret[0] & ~DATA (0X001FFFFFFFFFFFFF)) == 0)
 			break ;
-		ret[0] = ret[0] >> 1 ;
+		ret[0] = DATA (ret[0] >> 1) ;
 		ret[1]++ ;
 	}
 	while (TRUE) {
@@ -466,7 +466,7 @@ inline exports ARRAY3<DATA> MathStaticProc::static_ieee754_encode_part (const AR
 			break ;
 		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) != 0)
 			break ;
-		ret[0] = ret[0] << 1 ;
+		ret[0] = DATA (ret[0] << 1) ;
 		ret[1]-- ;
 	}
 	if switch_once (TRUE) {
@@ -477,7 +477,7 @@ inline exports ARRAY3<DATA> MathStaticProc::static_ieee754_encode_part (const AR
 		ret[1] = DATA (-1075) ;
 	}
 	ret[1] += 1075 ;
-	ret[1] = ret[1] << 52 ;
+	ret[1] = DATA (ret[1] << 52) ;
 	if (ret[0] == 0)
 		ret[1] = 0 ;
 	return _MOVE_ (ret) ;
@@ -537,7 +537,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 	const auto r2x = DATA (r1x & DATA (0X7FF0000000000000)) ;
 	if (r2x != 0)
 		ret[0] |= DATA (0X0010000000000000) ;
-	ret[1] = r2x >> 52 ;
+	ret[1] = DATA (r2x >> 52) ;
 	ret[1] -= DATA (1075 - _EBOOL_ (r2x == 0)) ;
 	if (ret[0] == 0)
 		ret[1] = 0 ;
@@ -546,7 +546,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_decode (const VAL64 &ieee754) {
 			break ;
 		if ((ret[0] & DATA (0X0000000000000001)) != 0)
 			break ;
-		ret[0] = ret[0] >> 1 ;
+		ret[0] = DATA (ret[0] >> 1) ;
 		ret[1]++ ;
 	}
 	ret[2] = DATA (-_EBOOL_ ((r1x & DATA (0X8000000000000000)) != 0)) ;
@@ -577,7 +577,7 @@ inline exports ARRAY3<VAR64> MathStaticProc::static_ieee754_e2_e10_part (const A
 			break ;
 		if ((ret[0] & ~DATA (0X000FFFFFFFFFFFFF)) == 0)
 			break ;
-		ret[0] = ret[0] >> 1 ;
+		ret[0] = DATA (ret[0] >> 1) ;
 		ret[1]++ ;
 	}
 	while (TRUE) {
@@ -650,7 +650,7 @@ inline exports ARRAY3<VAR64> MathProc::ieee754_e10_e2 (const ARRAY3<VAR64> &sne1
 			break ;
 		if ((ret[0] & DATA (0X0000000000000001)) != 0)
 			break ;
-		ret[0] = ret[0] >> 1 ;
+		ret[0] = DATA (ret[0] >> 1) ;
 		ret[1]++ ;
 	}
 	ret[2] = r1x[2] ;

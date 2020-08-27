@@ -699,12 +699,6 @@ class GlobalStatic ;
 
 class GlobalStaticEngine
 	:private Wrapped<> {
-public:
-	struct Public {
-		//@warn: this function should be implemented in a 'runtime.dll'
-		imports PTR<NONE> unique_atomic_address (const PTR<NONE> &expect ,const PTR<NONE> &data) ;
-	} ;
-
 private:
 	struct VARXX_NODE {
 		FLAG mGUID ;
@@ -729,11 +723,15 @@ private:
 	template <class>
 	friend class GlobalStatic ;
 
+public:
+	//@warn: this function should be implemented in a 'runtime.dll'
+	imports PTR<NONE> unique_compare_exchange (const PTR<NONE> &expect ,const PTR<NONE> &data) ;
+
 private:
 	imports THIS_PACK &static_unique () {
 		auto &r1x = _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
-			auto rax = Public::unique_atomic_address (NULL ,NULL) ;
+			auto rax = unique_compare_exchange (NULL ,NULL) ;
 			auto rbx = StrongRef<THIS_PACK> () ;
 			if switch_once (TRUE) {
 				if (rax != NULL)
@@ -742,7 +740,7 @@ private:
 				rbx = StrongRef<THIS_PACK>::make () ;
 				const auto r2x = rbx.weak () ;
 				const auto r3x = r2x.intrusive () ;
-				rax = Public::unique_atomic_address (NULL ,r3x) ;
+				rax = unique_compare_exchange (NULL ,r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
 			const auto r4x = WeakRef (rax) ;

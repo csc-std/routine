@@ -302,7 +302,8 @@ namespace U {
 template <class _ARG1>
 struct RETR_FUNC {
 	_STATIC_ASSERT_ (_ARG1::value > 1) ;
-	using TYPE = Expression<RANK1 ,DEF<typename RETR_FUNC<DECREASE<_ARG1>>::TYPE>> ;
+	using HINT_T1 = typename RETR_FUNC<DECREASE<_ARG1>>::TYPE ;
+	using TYPE = Expression<RANK1 ,HINT_T1> ;
 } ;
 
 template <>
