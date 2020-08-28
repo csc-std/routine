@@ -1574,7 +1574,7 @@ public:
 
 	PhanBuffer<const REAL> raw () const leftvalue {
 		_DYNAMIC_ASSERT_ (size () > 0) ;
-		return PhanBuffer<const REAL>::make (mStream ,length ()) ;
+		return PhanBuffer<const REAL>::make (mStream.self ,length ()) ;
 	}
 
 	void reset () {

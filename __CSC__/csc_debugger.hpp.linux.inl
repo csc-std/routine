@@ -463,7 +463,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<NONE>> ret = Array<PTR<NONE>> (list.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,list[i]) ;
+				const auto r2x = _POINTER_CAST_ (ARGV<NONE>::null ,list[i]) ;
 				ret[i] = r2x ;
 			}
 			return _MOVE_ (ret) ;

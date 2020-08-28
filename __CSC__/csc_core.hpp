@@ -782,6 +782,21 @@ using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
+template <class ,class ,class>
+struct IS_EXPLICIT_CONVERTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+struct IS_EXPLICIT_CONVERTIBLE<_ARG1 ,_ARG2 ,ENABLE_TYPE<(stl::is_constructible<_ARG2 ,_ARG1>::value && !stl::is_convertible<_ARG1 ,_ARG2>::value)>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using IS_EXPLICIT_CONVERTIBLE_HELP = typename IS_EXPLICIT_CONVERTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
+} ;
+
+namespace U {
 template <class ,class ,class ,class>
 struct IS_BOUNDED_ARRAY_OF {
 	using TYPE = ARGC<FALSE> ;
@@ -939,7 +954,7 @@ template <class _ARG1>
 using IS_EFLAG_HELP = ARGC<stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,EFLAG>::value> ;
 
 template <class _ARG1>
-using IS_XYZ_HELP = ARGC<(IS_VOID_HELP<_ARG1>::value || IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value || IS_BYTE_XYZ_HELP<_ARG1>::value || IS_STR_XYZ_HELP<_ARG1>::value || IS_BOOL_HELP<_ARG1>::value || IS_EFLAG_HELP<_ARG1>::value)> ;
+using IS_XYZ_HELP = ARGC<(IS_VOID_HELP<_ARG1>::value || IS_BOOL_HELP<_ARG1>::value || IS_EFLAG_HELP<_ARG1>::value || IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value || IS_BYTE_XYZ_HELP<_ARG1>::value || IS_STR_XYZ_HELP<_ARG1>::value)> ;
 } ;
 
 namespace U {
@@ -1024,8 +1039,8 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
 } ;
 
-template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,NONE ,ENABLE_TYPE<(stl::is_class<_ARG1>::value)> ,ARGC<2>> {
+template <class _ARG1 ,class _ARG2>
+struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<((_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0))> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1034,8 +1049,8 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
 } ;
 
-template <>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<BOOL> ,NONE ,ARGC<3>> {
+template <class _ARG1>
+struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_BOOL_HELP<_ARG1>::value)> ,ARGC<3>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1059,25 +1074,25 @@ struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<(IS_STR_XYZ_HELP<_ARG
 	using TYPE = ARGC<TRUE> ;
 } ;
 
-//@info: compatible for old c api
-template <>
-struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<3>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
 } ;
 
-template <class _ARG1 ,class _ARG2>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<((_SIZEOF_ (TEMP<_ARG2>) >= _SIZEOF_ (TEMP<_ARG1>) && _ALIGNOF_ (TEMP<_ARG2>) % _ALIGNOF_ (TEMP<_ARG1>) == 0))> ,ARGC<4>> {
+//@info: compatible for old c api
+template <>
+struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
+} ;
+
+template <class _ARG1>
+struct IS_SAFE_ALIASING<_ARG1 ,NONE ,NONE ,ARGC<5>> {
+	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1303,6 +1318,9 @@ template <class _ARG1>
 using is_xyz = U::IS_XYZ_HELP<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
+using is_explicit_convertible = U::IS_EXPLICIT_CONVERTIBLE_HELP<_ARG1 ,_ARG2> ;
+
+template <class _ARG1 ,class _ARG2>
 using is_bounded_array_of = U::IS_BOUNDED_ARRAY_OF_HELP<_ARG1 ,_ARG2> ;
 
 template <class... _ARGS>
@@ -1404,11 +1422,10 @@ inline constexpr const _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_T
 	return object ;
 }
 
-#ifndef __CSC_COMPILER_GNUC__
-//@error: fuck g++4.8
 template <class _ARG1>
-inline constexpr _ARG1 &&_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&) = delete ;
-#endif
+inline constexpr _ARG1 &&_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&object) {
+	return _MOVE_ (object) ;
+}
 
 template <class _ARG1>
 inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
@@ -1444,22 +1461,22 @@ inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & 
 	const auto r2x = _ADDRESS_ (pointer) ;
 	if (r2x % r1x != 0)
 		return NULL ;
-	const auto r3x = _BITWISE_CAST_ (ARGV<TEMP<HINT_T1>>::null ,r2x) ;
+	const auto r3x = _CAST_ (ARGV<TEMP<HINT_T1>>::null ,r2x) ;
 	return _CAST_ (ARGV<HINT_T1>::null ,r3x) ;
 }
 
-//@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1>
-inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &pointer) {
-	const auto r1x = _BITWISE_CAST_ (ARGV<TEMP<PTR<_ARG1>>>::null ,pointer) ;
-	return _CAST_ (ARGV<PTR<_ARG1>>::null ,r1x) ;
+inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
+	const auto r1x = DEPTR[_NULL_ (ARGV<BYTE>::null)] + address ;
+	const auto r2x = _XVALUE_ (ARGV<PTR<NONE>>::null ,r1x) ;
+	return _POINTER_CAST_ (ARGV<_ARG1>::null ,r2x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const MEMPTR<_ARG1 ,_ARG2> &mptr ,_ARG3 &mref) {
 	_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::value) ;
-	const auto r1x = _ADDRESS_ (DEPTR[(_NULL_ (ARGV<_ARG2>::null).*mptr)]) ;
-	const auto r2x = _ADDRESS_ (DEPTR[mref]) - r1x ;
+	const auto r1x = DEPTR[(_NULL_ (ARGV<_ARG2>::null).*mptr)] ;
+	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (r1x) ;
 	const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::null ,r2x) ;
 	return DEREF[r3x] ;
 }
@@ -1898,7 +1915,7 @@ public:
 		return mString ;
 	}
 
-	implicit operator const DEF<REAL[SIZE::value]> & () const leftvalue {
+	inline implicit operator const DEF<REAL[SIZE::value]> & () const leftvalue {
 		return self ;
 	}
 

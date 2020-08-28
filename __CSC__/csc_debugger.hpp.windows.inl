@@ -416,10 +416,10 @@ public:
 		const auto r4x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		api::atexit (r1x) ;
-		api::signal (SIGFPE ,r2x) ;
-		api::signal (SIGILL ,r3x) ;
-		api::signal (SIGSEGV ,r4x) ;
+		api::atexit (DEPTR[r1x.self]) ;
+		api::signal (SIGFPE ,DEPTR[r2x.self]) ;
+		api::signal (SIGILL ,DEPTR[r3x.self]) ;
+		api::signal (SIGSEGV ,DEPTR[r4x.self]) ;
 #pragma warning (pop)
 #pragma endregion
 	}
@@ -453,21 +453,22 @@ public:
 				discard ;
 			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::value ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
-			const auto r2x = _ALIGNAS_ (_ADDRESS_ (DEPTR[rax.self]) ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::null ,r2x) ;
-			DEREF[r3x].SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
-			DEREF[r3x].MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
+			const auto r2x = _ADDRESS_ (DEPTR[rax.self]) ;
+			const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
+			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::null ,r3x) ;
+			DEREF[r4x].SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
+			DEREF[r4x].MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
-				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r3x) ;
-				const auto r4x = StringProc::build_hexs (ARGV<STR>::null ,DATA (DEREF[r3x].Address)) ;
-				const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[DEREF[r3x].Name])) ;
-				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
+				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r4x) ;
+				const auto r5x = StringProc::build_hexs (ARGV<STR>::null ,DATA (DEREF[r4x].Address)) ;
+				const auto r6x = StringProc::parse_strs (String<STRA> (PTRTOARR[DEREF[r4x].Name])) ;
+				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 			}
 		}
 		if switch_once (fax) {
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
-				const auto r6x = StringProc::build_hexs (ARGV<STR>::null ,DATA (list[i])) ;
-				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r6x ,_PCSTR_ ("] : null")) ;
+				const auto r7x = StringProc::build_hexs (ARGV<STR>::null ,DATA (list[i])) ;
+				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r7x ,_PCSTR_ ("] : null")) ;
 			}
 		}
 		return _MOVE_ (ret) ;

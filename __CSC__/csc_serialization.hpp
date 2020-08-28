@@ -428,14 +428,17 @@ private:
 
 class XmlParser::Private::RecursiveCounter
 	:private Wrapped<LENGTH> {
+private:
+	using Wrapped<LENGTH>::mSelf ;
+
 public:
 	void lock () {
-		_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
-		RecursiveCounter::mSelf++ ;
+		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+		mSelf++ ;
 	}
 
 	void unlock () {
-		RecursiveCounter::mSelf-- ;
+		mSelf-- ;
 	}
 } ;
 
@@ -1390,14 +1393,17 @@ private:
 
 class JsonParser::Private::RecursiveCounter
 	:private Wrapped<LENGTH> {
+private:
+	using Wrapped<LENGTH>::mSelf ;
+
 public:
 	void lock () {
-		_DYNAMIC_ASSERT_ (RecursiveCounter::mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
-		RecursiveCounter::mSelf++ ;
+		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+		mSelf++ ;
 	}
 
 	void unlock () {
-		RecursiveCounter::mSelf-- ;
+		mSelf-- ;
 	}
 } ;
 

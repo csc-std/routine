@@ -359,7 +359,7 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 class TCPListener::Private::Implement
 	:public Abstract {
 private:
-	using THIS_PACK = TCPSocket::Private::Implement::THIS_PACK ;
+	using THIS_PACK = typename TCPSocket::Private::Implement::THIS_PACK ;
 
 private:
 	SharedRef<THIS_PACK> mThis ;

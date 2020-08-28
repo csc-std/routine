@@ -305,15 +305,18 @@ public:
 template <class ITEM>
 class CalcThread<ITEM>::Private::ThreadCounter
 	:private Wrapped<THIS_PACK> {
+private:
+	using Wrapped<THIS_PACK>::mSelf ;
+
 public:
 	void lock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter++ ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter++ ;
 	}
 
 	void unlock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter-- ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter-- ;
 	}
 } ;
 
@@ -635,15 +638,18 @@ public:
 template <class ITEM>
 class WorkThread<ITEM>::Private::ThreadCounter
 	:private Wrapped<THIS_PACK> {
+private:
+	using Wrapped<THIS_PACK>::mSelf ;
+
 public:
 	void lock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter++ ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter++ ;
 	}
 
 	void unlock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter-- ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter-- ;
 	}
 } ;
 
@@ -889,15 +895,18 @@ public:
 template <class ITEM>
 class Promise<ITEM>::Private::ThreadCounter
 	:private Wrapped<THIS_PACK> {
+private:
+	using Wrapped<THIS_PACK>::mSelf ;
+
 public:
 	void lock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter++ ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter++ ;
 	}
 
 	void unlock () {
-		ScopedGuard<Mutex> ANONYMOUS (ThreadCounter::mSelf.mThreadMutex) ;
-		ThreadCounter::mSelf.mThreadCounter-- ;
+		ScopedGuard<Mutex> ANONYMOUS (mSelf.mThreadMutex) ;
+		mSelf.mThreadCounter-- ;
 	}
 } ;
 

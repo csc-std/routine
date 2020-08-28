@@ -71,7 +71,6 @@ private:
 		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,rhs) ;
 		return BasicProc::mem_equal (PTRTOARR[r1x] ,PTRTOARR[r2x] ,_SIZEOF_ (_ARG1)) ;
 	}
-
 } ;
 
 template <class _ARG1>
@@ -446,6 +445,8 @@ public:
 		return self ;
 	}
 
+	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
+
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
 		mPointer = NULL ;
 	}
@@ -555,7 +556,7 @@ private:
 public:
 	implicit ScopedBuild () = delete ;
 
-	template <class _ARG1 ,class... _ARGS>
+	template <class _ARG1>
 	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
@@ -570,7 +571,7 @@ public:
 		}
 	}
 
-	template <class _ARG1 ,class... _ARGS>
+	template <class _ARG1>
 	explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
 		auto &r1x = _XVALUE_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::null ,address) ;
@@ -622,7 +623,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (stl::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_ARG1) ,stl::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
 		return ScopedPtr<_ARG1 ,GlobalHeap> (r2x) ;
 	}
 
@@ -635,7 +636,7 @@ public:
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		const auto r2x = operator new (r1x ,stl::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,_ADDRESS_ (r2x)) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,r2x) ;
 		return ScopedPtr<ARR<_ARG1> ,GlobalHeap> (r3x) ;
 	}
 
@@ -644,7 +645,7 @@ public:
 		if (address == NULL)
 			return ;
 		//@error: address may be different from what alloc returned
-		const auto r1x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,_ADDRESS_ (address)) ;
+		const auto r1x = _XVALUE_ (ARGV<PTR<NONE>>::null ,address) ;
 		operator delete (r1x ,stl::nothrow) ;
 	}
 } ;
@@ -656,9 +657,7 @@ template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
-private:
-	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
-
+protected:
 	class Holder
 		:public Interface {
 	public:
@@ -669,12 +668,11 @@ private:
 		class PureHolder ;
 	} ;
 
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
-public:
+protected:
 	implicit AutoRef ()
 		:AutoRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
@@ -709,7 +707,7 @@ public:
 		return DEREF[this] ;
 	}
 
-private:
+protected:
 	explicit AutoRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
@@ -734,9 +732,7 @@ template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
-private:
-	using SPECIALIZATION_THIS = AutoRef<UNIT> ;
-
+protected:
 	class Holder
 		:public Interface {
 	public:
@@ -747,12 +743,11 @@ private:
 		class PureHolder ;
 	} ;
 
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
 
-public:
+protected:
 	implicit AutoRef ()
 		:AutoRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
@@ -808,7 +803,7 @@ public:
 		return DEREF[this] ;
 	}
 
-private:
+protected:
 	explicit AutoRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mOrigin (NULL) ,mPointer (NULL) {}
 } ;
@@ -855,12 +850,12 @@ public:
 		return DEREF[mPointer].deref () ;
 	}
 
-	inline implicit operator UNIT & () leftvalue {
-		return self ;
+	inline PTR<UNIT> operator-> () leftvalue {
+		return DEPTR[self] ;
 	}
 
-	inline PTR<UNIT> operator-> () leftvalue {
-		return DEPTR[to ()] ;
+	inline implicit operator UNIT & () leftvalue {
+		return self ;
 	}
 
 	const UNIT &to () const leftvalue {
@@ -868,12 +863,12 @@ public:
 		return DEREF[mPointer].deref () ;
 	}
 
-	inline implicit operator const UNIT & () const leftvalue {
-		return self ;
+	inline PTR<const UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
-	inline PTR<const UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
+	inline implicit operator const UNIT & () const leftvalue {
+		return self ;
 	}
 
 	template <class... _ARGS>
@@ -975,12 +970,12 @@ public:
 		return DEREF[mPointer].deref () ;
 	}
 
-	inline implicit operator UNIT & () const leftvalue {
-		return self ;
+	inline PTR<UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
-	inline PTR<UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
+	inline implicit operator UNIT & () const leftvalue {
+		return self ;
 	}
 
 	template <class... _ARGS>
@@ -1047,7 +1042,8 @@ private:
 	public:
 		virtual TYPEABI type_abi () const = 0 ;
 		virtual FLAG type_mid () const = 0 ;
-		virtual LENGTH type_address () const = 0 ;
+		virtual PTR<NONE> type_address () = 0 ;
+		virtual PTR<const NONE> type_address () const = 0 ;
 	} ;
 
 private:
@@ -1123,7 +1119,12 @@ public:
 		return DEREF[mPointer].type_mid () ;
 	}
 
-	LENGTH type_address () const {
+	PTR<NONE> type_address () {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_address () ;
+	}
+
+	PTR<const NONE> type_address () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return DEREF[mPointer].type_address () ;
 	}
@@ -1216,7 +1217,12 @@ public:
 		return DEREF[mPointer].type_mid () ;
 	}
 
-	LENGTH type_address () const {
+	PTR<NONE> type_address () {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].type_address () ;
+	}
+
+	PTR<const NONE> type_address () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return DEREF[mPointer].type_address () ;
 	}
@@ -1225,32 +1231,32 @@ public:
 		struct Dependent ;
 		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
+	}
+
+	inline PTR<UNIT> operator-> () leftvalue {
+		return DEPTR[self] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
 		return self ;
 	}
 
-	inline PTR<UNIT> operator-> () leftvalue {
-		return DEPTR[to ()] ;
-	}
-
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
 		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::null)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::null ,r1x) ;
 		return DEREF[r2x] ;
+	}
+
+	inline PTR<const UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
 		return self ;
-	}
-
-	inline PTR<const UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
 	}
 
 	template <class... _ARGS>
@@ -1292,8 +1298,12 @@ public:
 		return _TYPEMID_ (ARGV<UNIT_>::null) ;
 	}
 
-	LENGTH type_address () const override {
-		return _ADDRESS_ (DEPTR[mValue]) ;
+	PTR<NONE> type_address () override {
+		return DEPTR[mValue] ;
+	}
+
+	PTR<const NONE> type_address () const override {
+		return DEPTR[mValue] ;
 	}
 } ;
 
@@ -1339,7 +1349,7 @@ public:
 		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor () ;
 		mOrigin = rax.self ;
@@ -1447,7 +1457,7 @@ public:
 		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2>::null ,destructor)) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		constructor (DEREF[r2x].deref ()) ;
 		mOrigin = rax.self ;
@@ -1500,12 +1510,12 @@ public:
 		return DEREF[mPointer].deref () ;
 	}
 
-	inline implicit operator const UNIT & () const leftvalue {
-		return self ;
+	inline PTR<const UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
-	inline PTR<const UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
+	inline implicit operator const UNIT & () const leftvalue {
+		return self ;
 	}
 
 	template <class... _ARGS>
@@ -1517,7 +1527,7 @@ public:
 		UniqueRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function ([] (UNIT &) {}) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,r1x) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
 		auto &r3x = DEREF[r2x].deref () ;
 		r3x = UNIT (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
@@ -1603,18 +1613,20 @@ public:
 		return DEREF[mPointer] ;
 	}
 
-	inline implicit operator UNIT & () const leftvalue {
-		return self ;
+	inline PTR<UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
-	inline PTR<UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
+	inline implicit operator UNIT & () const leftvalue {
+		return self ;
 	}
 
 	//@warn: phantom means deliver pointer without holder
 	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
 	imports PhanRef make (_ARG1 &val) {
-		return PhanRef (ARGVP0 ,DEPTR[val]) ;
+		PhanRef ret ;
+		ret.mPointer = DEPTR[val] ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _ARG1>
@@ -1628,11 +1640,6 @@ public:
 private:
 	explicit PhanRef (const DEF<decltype (ARGVP0)> &) noexcept
 		:mPointer (NULL) {}
-
-	explicit PhanRef (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer)
-		:PhanRef (ARGVP0) {
-		mPointer = pointer ;
-	}
 } ;
 
 template <class>
@@ -1649,7 +1656,7 @@ public:
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_convertible<_ARG2 ,PTR<_ARG1>>::value)>>
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
-		return static_cast<PTR<_ARG1>> (functor) ;
+		return _XVALUE_ (ARGV<PTR<_ARG1>>::null ,functor) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1754,6 +1761,8 @@ public:
 	inline implicit operator const DEF<UNIT1 (UNITS...)> & () const leftvalue {
 		return self ;
 	}
+
+	inline implicit operator PTR<UNIT1 (UNITS...)> () const leftvalue = delete ;
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
@@ -1937,11 +1946,11 @@ private:
 		_ZERO_ (mVariant) ;
 	}
 
-	Holder &m_fake () leftvalue {
+	inline Holder &m_fake () leftvalue {
 		return _CAST_ (ARGV<FakeHolder>::null ,mVariant) ;
 	}
 
-	const Holder &m_fake () const leftvalue {
+	inline const Holder &m_fake () const leftvalue {
 		return _CAST_ (ARGV<FakeHolder>::null ,mVariant) ;
 	}
 
@@ -2128,7 +2137,7 @@ public:
 		return self ;
 	}
 
-	inline implicit operator PTR<const UNIT> () const leftvalue = delete ;
+	inline implicit operator PTR<const UNIT> () leftvalue = delete ;
 
 	LENGTH size () const {
 		return SIZE::value ;
@@ -2379,16 +2388,12 @@ template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,FALSE> ,SAUTO> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
-private:
-	using SPECIALIZATION_THIS = Buffer<UNIT ,SAUTO> ;
-
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	PTR<NONE> mOrigin ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
-public:
+protected:
 	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
@@ -2440,7 +2445,7 @@ public:
 		return DEREF[this] ;
 	}
 
-private:
+protected:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		:mOrigin (NULL) ,mBuffer (NULL) ,mSize (0) {}
 } ;
@@ -2449,16 +2454,12 @@ template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,TRUE> ,SAUTO> {
 	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
 
-private:
-	using SPECIALIZATION_THIS = Buffer<UNIT ,SAUTO> ;
-
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	PTR<NONE> mOrigin ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
-public:
+protected:
 	implicit Buffer ()
 		:Buffer (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
@@ -2529,7 +2530,7 @@ public:
 		return DEREF[this] ;
 	}
 
-private:
+protected:
 	explicit Buffer (const DEF<decltype (ARGVP0)> &) noexcept
 		:mOrigin (NULL) ,mBuffer (NULL) ,mSize (0) {}
 } ;
@@ -3043,7 +3044,7 @@ class Allocator<SPECIALIZATION<UNIT ,FALSE ,FALSE> ,SIZE> {
 #undef spec
 #define spec m_spec ()
 
-private:
+protected:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
@@ -3052,14 +3053,13 @@ private:
 		INDEX mNext ;
 	} ;
 
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	Buffer<NODE_PACK ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
-public:
+protected:
 	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
@@ -3096,7 +3096,7 @@ public:
 
 	inline Allocator &operator= (Allocator &&) = delete ;
 
-private:
+protected:
 	explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 
@@ -3117,7 +3117,7 @@ class Allocator<SPECIALIZATION<UNIT ,FALSE ,TRUE> ,SIZE> {
 #undef spec
 #define spec m_spec ()
 
-private:
+protected:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
@@ -3126,14 +3126,13 @@ private:
 		INDEX mNext ;
 	} ;
 
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	Buffer<NODE_PACK ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
-public:
+protected:
 	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
@@ -3222,7 +3221,7 @@ class Allocator<SPECIALIZATION<UNIT ,TRUE ,TRUE> ,SIZE> {
 #undef spec
 #define spec m_spec ()
 
-private:
+protected:
 	using SPECIALIZATION_THIS = Allocator<UNIT ,SIZE> ;
 
 	//@warn: memory alignment reduce utilization ratio of memory
@@ -3231,14 +3230,13 @@ private:
 		INDEX mNext ;
 	} ;
 
-private:
-	friend SPECIALIZATION_THIS ;
+protected:
 	Buffer<NODE_PACK ,SIZE> mAllocator ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 	INDEX mFree ;
 
-public:
+protected:
 	implicit Allocator ()
 		:Allocator (ARGVP0 ,0) {
 		spec.update_reserve (mSize ,mFree) ;
@@ -3331,7 +3329,7 @@ public:
 		return DEREF[this] ;
 	}
 
-private:
+protected:
 	explicit Allocator (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mAllocator (len) ,mSize (0) ,mLength (0) ,mFree (VAR_NONE) {}
 

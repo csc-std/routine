@@ -558,7 +558,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 				return ;
 			api::CloseHandle (me) ;
 		}) ;
-		if (r1x == NULL)
+		if (r1x.self == NULL)
 			discard ;
 		rax << VAR64 (pid) ;
 		rax << ByteWriter<BYTE>::GAP ;

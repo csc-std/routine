@@ -1968,6 +1968,9 @@ private:
 	struct Private {
 		template <class>
 		class Bit ;
+
+		template <class>
+		class ArrayRange ;
 	} ;
 
 private:
@@ -2053,20 +2056,16 @@ public:
 		return VAR_NONE ;
 	}
 
-	ArrayIterator<BitSet> begin () leftvalue {
-		return ArrayIterator<BitSet> (PhanRef<BitSet>::make (DEREF[this]) ,ibegin ()) ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
+	ArrayIterator<const _RET> begin () const leftvalue {
+		auto &r1x = _CAST_ (ARGV<const _RET>::null ,DEREF[this]) ;
+		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,ibegin ()) ;
 	}
 
-	ArrayIterator<const BitSet> begin () const leftvalue {
-		return ArrayIterator<const BitSet> (PhanRef<const BitSet>::make (DEREF[this]) ,ibegin ()) ;
-	}
-
-	ArrayIterator<BitSet> end () leftvalue {
-		return ArrayIterator<BitSet> (PhanRef<BitSet>::make (DEREF[this]) ,iend ()) ;
-	}
-
-	ArrayIterator<const BitSet> end () const leftvalue {
-		return ArrayIterator<const BitSet> (PhanRef<const BitSet>::make (DEREF[this]) ,iend ()) ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
+	ArrayIterator<const _RET> end () const leftvalue {
+		auto &r1x = _CAST_ (ARGV<const _RET>::null ,DEREF[this]) ;
+		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,iend ()) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
@@ -2155,7 +2154,7 @@ public:
 		INDEX ix = mSet.size () - 1 ;
 		if (ix < 0)
 			return 0 ;
-		const auto r1x = BasicProc::mem_compr (mSet ,that.mSet ,ix) ;
+		const auto r1x = BasicProc::mem_compr (mSet.self ,that.mSet.self ,ix) ;
 		if (r1x != 0)
 			return r1x ;
 		const auto r2x = BYTE (mWidth % 8 - 1) ;
@@ -2343,25 +2342,7 @@ public:
 		return TRUE ;
 	}
 
-#ifdef __CSC_CONFIG_VAR32__
-	inline implicit operator VAR32 () const leftvalue {
-		return VAR32 (mIndex) ;
-	}
-
-	inline explicit operator VAR64 () const leftvalue {
-		return VAR64 (mIndex) ;
-	}
-#endif
-
-#ifdef __CSC_CONFIG_VAR64__
-	inline explicit operator VAR32 () const leftvalue {
-		return VAR32 (mIndex) ;
-	}
-
-	inline implicit operator VAR64 () const leftvalue {
-		return VAR64 (mIndex) ;
-	}
-#endif
+	inline implicit operator BOOL () const leftvalue = delete ;
 
 	inline void operator= (const BOOL &that) rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
@@ -2374,6 +2355,23 @@ public:
 		if switch_once (fax) {
 			mBase->mSet[mIndex / 8] &= ~r1x ;
 		}
+	}
+} ;
+
+template <class SIZE>
+template <class BASE>
+class BitSet<SIZE>::Private::ArrayRange
+	:private Wrapped<BASE> {
+private:
+	using Wrapped<BASE>::mSelf ;
+
+public:
+	INDEX inext (const INDEX &index) const {
+		return mSelf.inext (index) ;
+	}
+
+	const INDEX &get (const INDEX &index) const leftvalue {
+		return index ;
 	}
 } ;
 

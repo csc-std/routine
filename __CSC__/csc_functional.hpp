@@ -353,15 +353,13 @@ template <class RETR ,class... UNITS>
 class Expression<SPECIALIZATION<Operand (UNITS...)> ,RETR> {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 0 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
 
-private:
+protected:
 	using RANK = DEF<Operand (UNITS...)> ;
 
-private:
-	template <class ,class>
-	friend class Expression ;
+protected:
 	StrongRef<LexicalNode> mThis ;
 
-public:
+protected:
 	implicit Expression ()
 		:Expression (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
@@ -428,7 +426,7 @@ public:
 		return template_concat (ARGV<HINT_T1>::null ,that ,ARGV<INVOKE_PARAMS_TYPE<HINT_T1>>::null) ;
 	}
 
-private:
+protected:
 	explicit Expression (const DEF<decltype (ARGVP0)> &) {
 		mThis = StrongRef<LexicalNode>::make () ;
 		mThis->weak_of_this (mThis.recast (ARGV<Object>::null)) ;
@@ -473,7 +471,8 @@ private:
 	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
 		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
 		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
-		return template_flip_invoke (patch_ ,ARGV<HINT_T2>::null ,placeholder... ,_NULL_ (ARGV<ARGVP<HINT_T1>>::null)) ;
+		auto &r1x = _NULL_ (ARGV<ARGVP<HINT_T1>>::null) ;
+		return template_flip_invoke (patch_ ,ARGV<HINT_T2>::null ,placeholder... ,r1x) ;
 	}
 
 	template <class... _ARGS>

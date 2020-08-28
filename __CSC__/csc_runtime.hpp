@@ -407,7 +407,7 @@ public:
 		const auto r1x = Function<void (TextWriter<STR> &)> ([] (TextWriter<STR> &writer) {
 			template_write_typename_x (writer ,ARGV<_ARG1>::null) ;
 		}) ;
-		return String<STR>::make (r1x) ;
+		return String<STR>::make (r1x.self) ;
 	}
 
 private:
@@ -729,6 +729,7 @@ public:
 
 private:
 	imports THIS_PACK &static_unique () {
+		using HINT_T1 = REMOVE_POINTER_TYPE<decltype (_NULL_ (ARGV<WeakRef>::null).intrusive ())> ;
 		auto &r1x = _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_compare_exchange (NULL ,NULL) ;
@@ -743,10 +744,11 @@ private:
 				rax = unique_compare_exchange (NULL ,r3x) ;
 			}
 			_DYNAMIC_ASSERT_ (rax != NULL) ;
-			const auto r4x = WeakRef (rax) ;
-			return r4x.strong (ARGV<THIS_PACK>::null) ;
+			const auto r4x = _POINTER_CAST_ (ARGV<HINT_T1>::null ,rax) ;
+			return WeakRef (r4x).strong (ARGV<THIS_PACK>::null) ;
 		}) ;
 		auto rcx = r1x.share () ;
+		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx.self ;
 	}
 
@@ -866,6 +868,7 @@ private:
 
 public:
 	imports Singleton<UNIT> &unique () {
+		using HINT_T1 = REMOVE_POINTER_TYPE<decltype (_NULL_ (ARGV<WeakRef>::null).intrusive ())> ;
 		auto &r1x = _CACHE_ ([&] () {
 			auto &r2x = GlobalStaticEngine::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
@@ -882,10 +885,11 @@ public:
 				const auto r4x = rbx.weak () ;
 				DEREF[rax].mValue = r4x.intrusive () ;
 			}
-			const auto r5x = WeakRef (DEREF[rax].mValue) ;
-			return r5x.strong (ARGV<THIS_PACK>::null) ;
+			const auto r5x = _POINTER_CAST_ (ARGV<HINT_T1>::null ,DEREF[rax].mValue) ;
+			return WeakRef (r5x).strong (ARGV<THIS_PACK>::null) ;
 		}) ;
 		auto rcx = r1x.share () ;
+		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx->mValue ;
 	}
 } ;

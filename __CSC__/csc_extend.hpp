@@ -394,68 +394,68 @@ private:
 		return ComprInvokeProc::invoke (v2i1 ,that.v2i1) ;
 	}
 
-	DATA &m_v2i0 () leftvalue {
+	inline DATA &m_v2i0 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_ (ARGV<DATA[2]>::null ,mValue)[_CAST_ (ARGV<BYTE[2]>::null ,r1x)[0]] ;
 	}
 
-	const DATA &m_v2i0 () const leftvalue {
+	inline const DATA &m_v2i0 () const leftvalue {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_ (ARGV<DATA[2]>::null ,mValue)[_CAST_ (ARGV<BYTE[2]>::null ,r1x)[0]] ;
 	}
 
-	DATA &m_v2i1 () leftvalue {
+	inline DATA &m_v2i1 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_ (ARGV<DATA[2]>::null ,mValue)[_CAST_ (ARGV<BYTE[2]>::null ,r1x)[1]] ;
 	}
 
-	const DATA &m_v2i1 () const leftvalue {
+	inline const DATA &m_v2i1 () const leftvalue {
 		const auto r1x = WORD (0X0001) ;
 		return _CAST_ (ARGV<DATA[2]>::null ,mValue)[_CAST_ (ARGV<BYTE[2]>::null ,r1x)[1]] ;
 	}
 
-	CHAR &m_v4i0 () leftvalue {
+	inline CHAR &m_v4i0 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[0]] ;
 	}
 
-	const CHAR &m_v4i0 () const leftvalue {
+	inline const CHAR &m_v4i0 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[0]] ;
 	}
 
-	CHAR &m_v4i1 () leftvalue {
+	inline CHAR &m_v4i1 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[1]] ;
 	}
 
-	const CHAR &m_v4i1 () const leftvalue {
+	inline const CHAR &m_v4i1 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[1]] ;
 	}
 
-	CHAR &m_v4i2 () leftvalue {
+	inline CHAR &m_v4i2 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[2]] ;
 	}
 
-	const CHAR &m_v4i2 () const leftvalue {
+	inline const CHAR &m_v4i2 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[2]] ;
 	}
 
-	CHAR &m_v4i3 () leftvalue {
+	inline CHAR &m_v4i3 () leftvalue {
 		_STATIC_WARNING_ ("mark") ;
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[3]] ;
 	}
 
-	const CHAR &m_v4i3 () const leftvalue {
+	inline const CHAR &m_v4i3 () const leftvalue {
 		const auto r1x = CHAR (0X00010203) ;
 		return _CAST_ (ARGV<CHAR[4]>::null ,mValue)[_CAST_ (ARGV<BYTE[4]>::null ,r1x)[3]] ;
 	}
@@ -548,7 +548,8 @@ private:
 		:public Interface {
 	public:
 		virtual INDEX type_index () const = 0 ;
-		virtual LENGTH type_address () const = 0 ;
+		virtual PTR<NONE> type_address () = 0 ;
+		virtual PTR<const NONE> type_address () const = 0 ;
 		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const = 0 ;
 		virtual void friend_move (const PTR<TEMP<FakeHolder>> &address) = 0 ;
 	} ;
@@ -659,7 +660,7 @@ public:
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		const auto r1x = fake.type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
 		return DEREF[r2x] ;
 	}
 
@@ -671,7 +672,7 @@ public:
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		const auto r1x = fake.type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<HINT_OPTIONAL>::null ,r1x) ;
 		return DEREF[r2x] ;
 	}
 
@@ -684,7 +685,7 @@ public:
 		if (!available (ARGV<_ARG1>::null))
 			return ;
 		const auto r1x = fake.type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
 		proc (DEREF[r2x]) ;
 	}
 
@@ -693,7 +694,7 @@ public:
 		if (!available (ARGV<_ARG1>::null))
 			return ;
 		const auto r1x = fake.type_address () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
 		proc (DEREF[r2x]) ;
 	}
 
@@ -706,11 +707,11 @@ private:
 		_ZERO_ (mVariant) ;
 	}
 
-	Holder &m_fake () leftvalue {
+	inline Holder &m_fake () leftvalue {
 		return _CAST_ (ARGV<FakeHolder>::null ,mVariant) ;
 	}
 
-	const Holder &m_fake () const leftvalue {
+	inline const Holder &m_fake () const leftvalue {
 		return _CAST_ (ARGV<FakeHolder>::null ,mVariant) ;
 	}
 
@@ -783,8 +784,12 @@ public:
 		return INDEX_OF_TYPE<REMOVE_CVR_TYPE<UNIT_> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>>::value ;
 	}
 
-	LENGTH type_address () const override {
-		return _ADDRESS_ (DEPTR[mValue]) ;
+	PTR<NONE> type_address () override {
+		return DEPTR[mValue] ;
+	}
+
+	PTR<const NONE> type_address () const override {
+		return DEPTR[mValue] ;
 	}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
@@ -1036,6 +1041,8 @@ public:
 		return template_boolean (mBinder) ;
 	}
 
+	inline implicit operator BOOL () const leftvalue = delete ;
+
 	inline BOOL operator== (const HINT_WRAPPED &that) const {
 		return template_equal (mBinder ,that) ;
 	}
@@ -1171,6 +1178,8 @@ public:
 		return template_boolean (mBinder) ;
 	}
 
+	inline implicit operator BOOL () const leftvalue = delete ;
+
 	inline BOOL operator== (const HINT_WRAPPED &that) const {
 		return template_equal (mBinder ,that) ;
 	}
@@ -1300,10 +1309,6 @@ public:
 		return mValue.load () ;
 	}
 
-	inline implicit operator UNIT () const {
-		return fetch () ;
-	}
-
 	UNIT exchange (const UNIT &data) {
 		return mValue.exchange (data) ;
 	}
@@ -1320,26 +1325,14 @@ public:
 		mValue.store (data) ;
 	}
 
-	inline void operator= (const UNIT &data) {
-		store (data) ;
-	}
-
 	UNIT increase () {
 		const auto r1x = mValue.fetch_add (1) ;
 		return UNIT (r1x + 1) ;
 	}
 
-	inline UNIT operator++ () {
-		return increase () ;
-	}
-
 	UNIT decrease () {
 		const auto r1x = mValue.fetch_sub (1) ;
 		return UNIT (r1x - 1) ;
-	}
-
-	inline UNIT operator-- () {
-		return decrease () ;
 	}
 
 	UNIT addto (const UNIT &data) {
@@ -1390,10 +1383,6 @@ public:
 		return _CAST_ (ARGV<VAR>::null ,r1x) ;
 	}
 
-	inline implicit operator VAR () const {
-		return fetch () ;
-	}
-
 	VAR exchange (const VAR &data) {
 		const auto r1x = _CAST_ (ARGV<HINT_T1>::null ,data) ;
 		const auto r2x = mValue.exchange (r1x) ;
@@ -1412,26 +1401,14 @@ public:
 		mValue.store (r1x) ;
 	}
 
-	inline void operator= (const VAR &data) {
-		store (data) ;
-	}
-
 	VAR increase () {
 		const auto r1x = mValue.increase () ;
 		return _CAST_ (ARGV<VAR>::null ,r1x) ;
 	}
 
-	inline VAR operator++ () {
-		return increase () ;
-	}
-
 	VAR decrease () {
 		const auto r1x = mValue.decrease () ;
 		return _CAST_ (ARGV<VAR>::null ,r1x) ;
-	}
-
-	inline VAR operator-- () {
-		return decrease () ;
 	}
 
 	void wait (const VAR &data) const {
@@ -1463,10 +1440,6 @@ public:
 		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,r1x) ;
 	}
 
-	inline implicit operator PTR<NONE> () const {
-		return fetch () ;
-	}
-
 	PTR<NONE> exchange (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
 		const auto r2x = mValue.exchange (r1x) ;
@@ -1483,10 +1456,6 @@ public:
 	void store (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
 		mValue.store (r1x) ;
-	}
-
-	inline void operator= (const PTR<NONE> &data) {
-		store (data) ;
 	}
 } ;
 
@@ -1531,18 +1500,6 @@ public:
 	implicit WeakRef ()
 		:WeakRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
-	}
-
-	explicit WeakRef (const PTR<NONE> &pointer)
-		:WeakRef (ARGVP0) {
-		const auto r1x = _POINTER_CAST_ (ARGV<Holder>::null ,pointer) ;
-		if (r1x == NULL)
-			return ;
-		aquire (r1x) ;
-		const auto r2x = safe_exchange (r1x) ;
-		if (r2x == NULL)
-			return ;
-		release (r2x) ;
 	}
 
 	explicit WeakRef (const PTR<Holder> &pointer)
@@ -1600,8 +1557,10 @@ public:
 		return TRUE ;
 	}
 
-	PTR<NONE> intrusive () const leftvalue {
-		return mPointer.fetch () ;
+	PTR<Holder> intrusive () const leftvalue {
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
+		return r2x ;
 	}
 
 	BOOL equal (const WeakRef &that) const {
@@ -1647,7 +1606,7 @@ public:
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return WeakRef (r2x) ;
 	}
 
@@ -1658,7 +1617,7 @@ public:
 		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return StrongRef (r2x) ;
 	}
 
@@ -1678,7 +1637,7 @@ private:
 
 	PTR<Holder> safe_exchange (const PTR<Holder> &pointer) {
 		const auto r1x = mPointer.exchange (pointer) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		if (r2x == NULL)
 			return r2x ;
 		mLatch.wait (0) ;
@@ -1688,15 +1647,18 @@ private:
 
 class WeakRef::Private::LatchCounter
 	:private Wrapped<AtomicVar> {
+private:
+	using Wrapped<AtomicVar>::mSelf ;
+
 public:
 	void lock () {
-		const auto r1x = LatchCounter::mSelf.increase () ;
+		const auto r1x = mSelf.increase () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 	}
 
 	void unlock () {
-		const auto r1x = LatchCounter::mSelf.decrease () ;
+		const auto r1x = mSelf.decrease () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0) ;
 	}
@@ -1801,7 +1763,7 @@ public:
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
-		return static_cast<PTR<_ARG2>> (pointer) ;
+		return _XVALUE_ (ARGV<PTR<_ARG2>>::null ,pointer) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value)>>
@@ -1891,7 +1853,7 @@ public:
 		const auto r1x = mPointer.fetch () ;
 		if (r1x == NULL)
 			return FALSE ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		const auto r3x = DEREF[r2x].soft_pointer () ;
 		const auto r4x = DEREF[r3x].mStrongCounter.fetch () ;
 		if (r4x <= 0)
@@ -1902,35 +1864,35 @@ public:
 	UNIT &to () leftvalue {
 		const auto r1x = mPointer.fetch () ;
 		_DEBUG_ASSERT_ (r1x != NULL) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,_ADDRESS_ (r3x)) ;
+		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::null ,r3x) ;
 		return DEREF[r4x] ;
+	}
+
+	inline PTR<UNIT> operator-> () leftvalue {
+		return DEPTR[self] ;
 	}
 
 	inline implicit operator UNIT & () leftvalue {
 		return self ;
 	}
 
-	inline PTR<UNIT> operator-> () leftvalue {
-		return DEPTR[to ()] ;
-	}
-
 	const UNIT &to () const leftvalue {
 		const auto r1x = mPointer.fetch () ;
 		_DEBUG_ASSERT_ (r1x != NULL) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,_ADDRESS_ (r3x)) ;
+		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::null ,r3x) ;
 		return DEREF[r4x] ;
+	}
+
+	inline PTR<const UNIT> operator-> () const leftvalue {
+		return DEPTR[self] ;
 	}
 
 	inline implicit operator const UNIT & () const leftvalue {
 		return self ;
-	}
-
-	inline PTR<const UNIT> operator-> () const leftvalue {
-		return DEPTR[to ()] ;
 	}
 
 	BOOL equal (const StrongRef &that) const {
@@ -1965,7 +1927,7 @@ public:
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return StrongRef (r2x) ;
 	}
 
@@ -1978,11 +1940,11 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<HINT_T2> ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		if (r2x == NULL)
 			return StrongRef<HINT_T2> () ;
 		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<UNIT>::null ,_ADDRESS_ (r3x)) ;
+		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::null ,r3x) ;
 		const auto r5x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,r4x) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r5x != NULL) == _EBOOL_ (r4x != NULL)) ;
 		const auto r6x = DEREF[r2x].soft_pointer () ;
@@ -1998,7 +1960,8 @@ public:
 		using LatchCounter = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
-		return WeakRef (r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
+		return WeakRef (r2x) ;
 	}
 
 	template <class... _ARGS>
@@ -2040,7 +2003,7 @@ private:
 
 	PTR<Holder> safe_exchange (const PTR<Holder> &pointer) {
 		const auto r1x = mPointer.exchange (pointer) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<Holder>::null ,_ADDRESS_ (r1x)) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		if (r2x == NULL)
 			return r2x ;
 		mLatch.wait (0) ;
@@ -2111,13 +2074,14 @@ public:
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
 		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
-		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
-		const auto r8x = r7x - r5x ;
-		const auto r9x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r8x) ;
-		DEREF[r9x].mFrom = DEPTR[mThis->mPool[ix].self] ;
-		DEREF[r9x].mCurr = r6x ;
-		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<_ARG1>::null ,r7x) ;
-		return r10x ;
+		const auto r7x = _ADDRESS_ (r6x) + r5x ;
+		const auto r8x = _ALIGNAS_ (r7x ,_ALIGNOF_ (_ARG1)) ;
+		const auto r9x = r8x - r5x ;
+		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r9x) ;
+		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
+		DEREF[r10x].mCurr = r6x ;
+		const auto r11x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r8x) ;
+		return r11x ;
 	}
 
 	//@warn: held by RAII to avoid static-memory-leaks
@@ -2132,20 +2096,21 @@ public:
 		const auto r5x = _SIZEOF_ (HEADER) ;
 		INDEX ix = _MIN_ (r4x ,r5x) ;
 		const auto r6x = mThis->mPool[ix]->alloc (r3x) ;
-		const auto r7x = _ALIGNAS_ (_ADDRESS_ (r6x) + r5x ,_ALIGNOF_ (_ARG1)) ;
-		const auto r8x = r7x - r5x ;
-		const auto r9x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r8x) ;
-		DEREF[r9x].mFrom = DEPTR[mThis->mPool[ix].self] ;
-		DEREF[r9x].mCurr = r6x ;
-		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,r7x) ;
-		return r10x ;
+		const auto r7x = _ADDRESS_ (r6x) + r5x ;
+		const auto r8x = _ALIGNAS_ (r7x ,_ALIGNOF_ (_ARG1)) ;
+		const auto r9x = r8x - r5x ;
+		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r9x) ;
+		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
+		DEREF[r10x].mCurr = r6x ;
+		const auto r11x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,r8x) ;
+		return r11x ;
 	}
 
 	template <class _ARG1>
 	void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::null ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<HEADER>::null ,r1x) ;
 		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,DEREF[r2x].mFrom) ;
 		mThis->mPool[ix]->free (DEREF[r2x].mCurr) ;
 	}
@@ -2192,6 +2157,7 @@ private:
 	PTR<BLOCK_NODE> mFree ;
 	LENGTH mSize ;
 	LENGTH mLength ;
+	BLOCK_NODE mUsedNode ;
 
 public:
 	implicit ImplHolder () {
@@ -2233,7 +2199,7 @@ public:
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK_NODE)) ;
 		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<CHUNK_NODE>::null ,r4x) ;
-		DEREF[r5x].mOrigin = rax ;
+		DEREF[r5x].mOrigin = rax.self ;
 		DEREF[r5x].mPrev = NULL ;
 		DEREF[r5x].mNext = mRoot ;
 		DEREF[r5x].mCount = RESE::value ;
@@ -2257,15 +2223,14 @@ public:
 		const auto r1x = mFree ;
 		mFree = DEREF[r1x].mNext ;
 		mLength += SIZE::value ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,VAR_USED) ;
-		DEREF[r1x].mNext = r2x ;
+		DEREF[r1x].mNext = DEPTR[mUsedNode] ;
 		return DEPTR[DEREF[r1x].mFlexData] ;
 	}
 
 	void free (const PTR<HEADER> &address) noexcept override {
 		_DEBUG_ASSERT_ (address != NULL) ;
 		auto &r1x = _OFFSET_ (&BLOCK_NODE::mFlexData ,DEREF[address]) ;
-		_DEBUG_ASSERT_ (_ADDRESS_ (r1x.mNext) == VAR_USED) ;
+		_DEBUG_ASSERT_ (r1x.mNext == DEPTR[mUsedNode]) ;
 		r1x.mNext = mFree ;
 		mFree = DEPTR[r1x] ;
 		mLength -= SIZE::value ;
@@ -2299,11 +2264,12 @@ public:
 private:
 	BOOL empty_node (const PTR<const CHUNK_NODE> &node) const {
 		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK_NODE) + SIZE::value ,_ALIGNOF_ (BLOCK_NODE)) ;
-		const auto r2x = _ALIGNAS_ (_ADDRESS_ (node) + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
+		const auto r2x = _ADDRESS_ (node) + _SIZEOF_ (CHUNK_NODE) ;
+		const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,DEREF[node].mCount)) {
-			const auto r3x = r2x + i * r1x ;
-			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,r3x) ;
-			if (_ADDRESS_ (DEREF[r4x].mNext) == VAR_USED)
+			const auto r4x = r3x + i * r1x ;
+			const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::null ,r4x) ;
+			if (DEREF[r5x].mNext == DEPTR[mUsedNode])
 				return FALSE ;
 		}
 		return TRUE ;
@@ -2362,7 +2328,7 @@ public:
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK_NODE)) ;
 		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<FBLOCK_NODE>::null ,r4x) ;
-		DEREF[r5x].mOrigin = rax ;
+		DEREF[r5x].mOrigin = rax.self ;
 		DEREF[r5x].mPrev = NULL ;
 		DEREF[r5x].mNext = mRoot ;
 		DEREF[r5x].mCount = r1x ;
