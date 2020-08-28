@@ -271,11 +271,11 @@ public:
 		}
 	}
 
-	INDEX query (const PhanBuffer<const REAL> &target ,const INDEX &seg) const {
-		_DEBUG_ASSERT_ (seg >= 0 && seg < target.size ()) ;
-		INDEX ix = seg ;
+	INDEX query (const PhanBuffer<const REAL> &target ,const INDEX &index) const {
+		_DEBUG_ASSERT_ (index >= 0 && index < target.size ()) ;
+		INDEX ix = index ;
 		INDEX iy = 0 ;
-		if (target.size () - seg < mNext.length ())
+		if (target.size () - index < mNext.length ())
 			return VAR_NONE ;
 		while (TRUE) {
 			if (ix >= target.size ())
@@ -1358,7 +1358,7 @@ private:
 
 	void generate () {
 		update_bound () ;
-		update_build_tree (mRoot ,0 ,0 ,mVertex.length ()) ;
+		update_build_tree (mRoot ,0 ,0 ,mVertex.length () - 1) ;
 		mRoot = mLatestIndex ;
 	}
 
@@ -1380,53 +1380,49 @@ private:
 		}
 	}
 
-	void update_build_tree (const INDEX &curr ,const INDEX &rot ,const INDEX &seg ,const LENGTH &seg_len) {
-		_DEBUG_ASSERT_ (seg_len > 0) ;
-		_DEBUG_ASSERT_ (seg >= 0 && seg <= mVertex.size () - seg_len) ;
+	void update_build_tree (const INDEX &curr ,const INDEX &rot ,const INDEX &seg_lb ,const INDEX &seg_rb) {
+		const auto r1x = seg_rb - seg_lb + 1 ;
+		if (r1x <= 0)
+			return ;
+		_DEBUG_ASSERT_ (seg_lb >= 0 && seg_lb < mVertex.size ()) ;
+		_DEBUG_ASSERT_ (seg_rb >= 0 && seg_rb < mVertex.size ()) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (seg_len > 1)
+			if (r1x > 1)
 				discard ;
 			INDEX jx = mKDTree.insert () ;
 			mKDTree[jx].mKey = REAL (0) ;
-			mKDTree[jx].mLeaf = mOrder[rot][seg] ;
+			mKDTree[jx].mLeaf = mOrder[rot][seg_lb] ;
 			mKDTree[jx].mLeft = VAR_NONE ;
 			mKDTree[jx].mRight = VAR_NONE ;
 			mLatestIndex = jx ;
 		}
 		if switch_once (fax) {
-			INDEX ix = seg + seg_len / 2 ;
-			for (auto &&i : _RANGE_ (seg ,seg + seg_len - 1)) {
-				_STATIC_UNUSED_ (i) ;
-				_DEBUG_ASSERT_ (mVertex[mOrder[rot][i]][rot] <= mVertex[mOrder[rot][i + 1]][rot]) ;
-			}
-			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg ,ix ,seg_len) ;
-			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg ,ix ,seg_len) ;
+			INDEX ix = seg_lb + r1x / 2 ;
+			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg_lb ,seg_rb) ;
+			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg_lb ,seg_rb) ;
 			INDEX jx = mKDTree.insert () ;
 			mKDTree[jx].mKey = mVertex[mOrder[rot][ix]][rot] ;
 			mKDTree[jx].mLeaf = VAR_NONE ;
 			mKDTree[jx].mLeft = VAR_NONE ;
 			mKDTree[jx].mRight = VAR_NONE ;
-			update_build_tree (mKDTree[jx].mLeft ,mNextRot[rot] ,seg ,(ix - seg)) ;
+			update_build_tree (mKDTree[jx].mLeft ,mNextRot[rot] ,seg_lb ,ix - 1) ;
 			mKDTree[jx].mLeft = mLatestIndex ;
-			update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,(seg_len - (ix - seg))) ;
+			update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,seg_rb) ;
 			mKDTree[jx].mRight = mLatestIndex ;
 			mLatestIndex = curr ;
 		}
 	}
 
-	void compute_order (Array<INDEX> &temp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_a ,const INDEX &seg_b ,const LENGTH &seg_len) const {
+	void compute_order (Array<INDEX> &temp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_lb ,const INDEX &seg_rb) const {
 		if (temp_order.size () != mVertex.size ())
 			temp_order = Array<INDEX> (mVertex.size ()) ;
 		INDEX iw = 0 ;
-		for (auto &&i : _RANGE_ (seg_a ,seg_b))
-			temp_order[iw++] = mOrder[n_rot][i] ;
-		for (auto &&i : _RANGE_ (seg_b ,seg_a + seg_len))
+		for (auto &&i : _RANGE_ (seg_lb ,seg_rb + 1))
 			temp_order[iw++] = mOrder[n_rot][i] ;
 		const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
 		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1]))
-			order_[n_rot][seg_a + i] = temp_order[i] ;
-		_DEBUG_ASSERT_ (iw == seg_len) ;
+			order_[n_rot][seg_lb + i] = temp_order[i] ;
 	}
 
 	void refresh () {

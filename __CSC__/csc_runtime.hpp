@@ -423,10 +423,8 @@ private:
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
-		const auto r4x = r2x.size () ;
-		const auto r5x = ret.mName.length () - r3x - r4x ;
-		_DYNAMIC_ASSERT_ (r5x > 0) ;
-		ret.mName = ret.mName.segment (r3x ,r5x) ;
+		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
+		ret.mName = ret.mName.segment (r3x ,r4x) ;
 		return _MOVE_ (ret) ;
 	}
 #endif
@@ -443,10 +441,8 @@ private:
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
-		const auto r4x = r2x.size () ;
-		const auto r5x = ret.mName.length () - r3x - r4x ;
-		_DYNAMIC_ASSERT_ (r5x > 0) ;
-		ret.mName = ret.mName.segment (r3x ,r5x) ;
+		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
+		ret.mName = ret.mName.segment (r3x ,r4x) ;
 		return _MOVE_ (ret) ;
 }
 #endif
@@ -463,10 +459,8 @@ private:
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
-		const auto r4x = r2x.size () ;
-		const auto r5x = ret.mName.length () - r3x - r4x ;
-		_DYNAMIC_ASSERT_ (r5x > 0) ;
-		ret.mName = ret.mName.segment (r3x ,r5x) ;
+		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
+		ret.mName = ret.mName.segment (r3x ,r4x) ;
 		return _MOVE_ (ret) ;
 }
 #endif
