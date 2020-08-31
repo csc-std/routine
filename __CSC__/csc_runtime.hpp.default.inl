@@ -218,7 +218,7 @@ inline exports Duration::Duration (const LENGTH &milliseconds_) {
 template <class _ARG1 ,class>
 inline exports Duration::Duration (_ARG1 &&time_) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,time_)) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,time_)) ;
 }
 
 class TimePoint::Private::Implement
@@ -319,7 +319,7 @@ public:
 template <class _ARG1 ,class>
 inline exports TimePoint::TimePoint (_ARG1 &&time_) {
 	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1>::null ,time_)) ;
+	mThis = StrongRef<Implement>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,time_)) ;
 }
 
 class Mutex::Private::Implement

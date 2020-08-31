@@ -32,12 +32,12 @@ public:
 	}
 
 	inline HINT_ITEM operator* () const leftvalue {
-		auto &r1x = _XVALUE_ (ARGV<const INDEX>::null ,mIndex) ;
+		auto &r1x = _FORWARD_ (ARGV<const INDEX>::null ,mIndex) ;
 		return mBase->get (r1x) ;
 	}
 
 	inline void operator++ () {
-		auto &r1x = _XVALUE_ (ARGV<const INDEX>::null ,mIndex) ;
+		auto &r1x = _FORWARD_ (ARGV<const INDEX>::null ,mIndex) ;
 		mIndex = mBase->inext (r1x) ;
 	}
 } ;
@@ -1274,7 +1274,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
@@ -1653,7 +1653,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mIndex (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ,mIndex (VAR_NONE) {}
 	} ;
 
 private:
@@ -2108,14 +2108,14 @@ public:
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
+		auto &r1x = _FORWARD_ (ARGV<Bit>::null ,item) ;
 		return r1x ;
 	}
 
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		struct Dependent ;
 		using Bit = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
-		auto &r1x = _XVALUE_ (ARGV<Bit>::null ,item) ;
+		auto &r1x = _FORWARD_ (ARGV<Bit>::null ,item) ;
 		return r1x ;
 	}
 
@@ -2400,7 +2400,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
@@ -2994,7 +2994,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
 	} ;
 
 private:
@@ -3257,7 +3257,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
 	} ;
 
 	struct HEAP_PACK {

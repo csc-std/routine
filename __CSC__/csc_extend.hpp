@@ -558,15 +558,15 @@ private:
 	static constexpr auto VARIANT_SIZE = U::CONSTEXPR_MAX_SIZEOF::invoke (ARGV<ARGVS<UNITS...>>::null) ;
 
 	//@error: fuck g++4.8
-	template <LENGTH ALIGN = VARIANT_ALIGN>
+	template <LENGTH _ARG1 ,LENGTH _ARG2>
 	struct ALIGNED_UNION {
-		alignas (ALIGN) DEF<BYTE[VARIANT_SIZE]> unused ;
+		alignas (_ARG1) DEF<BYTE[_ARG2]> unused ;
 	} ;
 
 	class FakeHolder
 		:public Holder {
 	private:
-		TEMP<ALIGNED_UNION<>> mAlignedUnion ;
+		TEMP<ALIGNED_UNION<VARIANT_ALIGN ,VARIANT_SIZE>> mAlignedUnion ;
 	} ;
 
 	struct Private {
@@ -594,7 +594,7 @@ public:
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (HINT_T1::value != VAR_NONE) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
-		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 	}
 
 	implicit ~Variant () noexcept {
@@ -639,7 +639,7 @@ public:
 	}
 
 	BOOL exist () const {
-		auto &r1x = _XVALUE_ (ARGV<Interface>::null ,fake) ;
+		auto &r1x = _FORWARD_ (ARGV<Interface>::null ,fake) ;
 		const auto r2x = _CAST_ (ARGV<FLAG>::null ,r1x) ;
 		if (r2x == VAR_ZERO)
 			return FALSE ;
@@ -754,10 +754,10 @@ private:
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<(stl::is_constructible<_ARG1 ,_ARGS...>::value)>>
 	imports void template_create (const PTR<TEMP<_ARG1>> &address ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::null ,address) ;
-		auto &r2x = _XVALUE_ (ARGV<Holder>::null ,_CAST_ (ARGV<_ARG1>::null ,DEREF[r1x])) ;
-		auto &r3x = _XVALUE_ (ARGV<Holder>::null ,_CAST_ (ARGV<FakeHolder>::null ,DEREF[address])) ;
+		auto &r2x = _FORWARD_ (ARGV<Holder>::null ,_CAST_ (ARGV<_ARG1>::null ,DEREF[r1x])) ;
+		auto &r3x = _FORWARD_ (ARGV<Holder>::null ,_CAST_ (ARGV<FakeHolder>::null ,DEREF[address])) ;
 		_DYNAMIC_ASSERT_ (DEPTR[r2x] == DEPTR[r3x]) ;
-		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -778,7 +778,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) {}
 
 	INDEX type_index () const override {
 		return INDEX_OF_TYPE<REMOVE_CVR_TYPE<UNIT_> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>>::value ;
@@ -887,7 +887,7 @@ public:
 	implicit Tuple () = default ;
 
 	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
-		:Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,rest_)...) ,mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1>>::null ,one_)) {}
+		:Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::null ,rest_)...) ,mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1> &&>::null ,one_)) {}
 
 	LENGTH capacity () const {
 		return _CAPACITYOF_ (ARGVS<UNIT1 ,UNITS...>) ;
@@ -996,20 +996,20 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval)
-		:mFunctor (functor) ,mParameter (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		:mFunctor (functor) ,mParameter (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval)...) ;
+		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::null ,funcval)...) ;
 	}
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS>>::null ,funcval1)... ,funcval2...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::null ,funcval1)... ,funcval2...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const {
-		return template_invoke (parameter.rest () ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,parameter.one ()) ;
+		return template_invoke (parameter.rest () ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,parameter.one ()) ;
 	}
 } ;
 
@@ -1582,7 +1582,7 @@ public:
 	template <class _ARG1>
 	BOOL equal (const StrongRef<_ARG1> &that) const {
 		struct Dependent ;
-		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
+		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::null ,that) ;
 		const auto r2x = mPointer.fetch () ;
 		const auto r3x = r1x.mPointer.fetch () ;
 		if (r2x != r3x)
@@ -1746,7 +1746,7 @@ public:
 
 	void destroy () override {
 		const auto r1x = mOrigin ;
-		auto &r2x = _XVALUE_ (ARGV<Holder>::null ,DEREF[this]) ;
+		auto &r2x = _FORWARD_ (ARGV<Holder>::null ,DEREF[this]) ;
 		r2x.~Holder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1763,7 +1763,7 @@ public:
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
-		return _XVALUE_ (ARGV<PTR<_ARG2>>::null ,pointer) ;
+		return _FORWARD_ (ARGV<PTR<_ARG2>>::null ,pointer) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value)>>
@@ -1974,7 +1974,7 @@ public:
 		ScopedBuild<THIS_PACK> ANONYMOUS (rax) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<THIS_PACK>::null ,rax.self) ;
 		DEREF[r1x].mOrigin = rax.self ;
-		DEREF[r1x].mHolder = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+		DEREF[r1x].mHolder = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<UNIT>::null).self] ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rbx ,rbx.self ,r1x ,r2x) ;
@@ -2582,7 +2582,7 @@ private:
 
 		template <class... _ARGS>
 		explicit THIS_PACK (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+			:mValue (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) {}
 	} ;
 
 private:

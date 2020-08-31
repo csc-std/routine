@@ -47,7 +47,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	implicit Operand (_ARG1 &&that) {
 		mThis = StrongRef<THIS_PACK>::make () ;
-		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 	}
 
 	BOOL exist () const {
@@ -142,7 +142,7 @@ public:
 		using HINT_T2 = REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (INVOKE_PARAMS_TYPE<HINT_T1>)> ,const Operand &> ;
 		_STATIC_ASSERT_ (!stl::is_reference<_ARG1>::value) ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<HINT_T1 ,HINT_T2> ;
-		const auto r1x = Function<HINT_T1> (_FORWARD_ (ARGV<_ARG1>::null ,that)) ;
+		const auto r1x = Function<HINT_T1> (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 		mThis = StrongRef<ImplHolder>::make (r1x) ;
 	}
 
@@ -232,7 +232,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -246,7 +246,7 @@ public:
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGVF<ARGVS<>> & ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS1>>::null ,funcval)...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS1> &&>::null ,funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -254,7 +254,7 @@ private:
 		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
 		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
+		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -269,7 +269,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -283,7 +283,7 @@ public:
 
 private:
 	UNIT1 template_invoke (const Tuple<> &parameter ,const ARGVF<ARGVS<>> & ,const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS1> &&...funcval) const {
-		return mFunctor (node ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS1>>::null ,funcval)...) ;
+		return mFunctor (node ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS1> &&>::null ,funcval)...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -291,7 +291,7 @@ private:
 		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
 		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS>::null ,funcval)... ,r1x) ;
+		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -463,7 +463,7 @@ protected:
 	template <class... _ARGS>
 	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<ARGVS<>> & ,const _ARGS &...placeholder) const leftvalue {
 		struct Dependent ;
-		auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<Expression<RANK1 ,RETR> ,Dependent>>::null ,patch_) ;
+		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<Expression<RANK1 ,RETR> ,Dependent>>::null ,patch_) ;
 		return invoke (r1x.invoke (Operand::nth (placeholder))...) ;
 	}
 

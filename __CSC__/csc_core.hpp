@@ -191,20 +191,38 @@ using STR = STRW ;
 
 using STRX = signed char ;
 
-template <VAR _ARGC>
+template <VAR _ARG1>
 struct ARGC {
 	enum :VAR {
-		value = _ARGC
+		value = _ARG1
 	} ;
+
+	imports constexpr VAR compile () {
+		return value ;
+	}
 } ;
 
 using ZERO = ARGC<0> ;
 
 template <class _ARG1>
-using INCREASE = ARGC<(_ARG1::value + 1)> ;
+struct FP_increase {
+	imports constexpr VAR compile () {
+		return _ARG1::compile () + 1 ;
+	}
+} ;
 
 template <class _ARG1>
-using DECREASE = ARGC<(_ARG1::value - 1)> ;
+struct FP_decrease {
+	imports constexpr VAR compile () {
+		return _ARG1::compile () - 1 ;
+	}
+} ;
+
+template <class _ARG1>
+using INCREASE = ARGC<FP_increase<_ARG1>::compile ()> ;
+
+template <class _ARG1>
+using DECREASE = ARGC<FP_decrease<_ARG1>::compile ()> ;
 
 template <class UNIT>
 struct ARGV {
@@ -292,8 +310,8 @@ struct ENABLE<ARGC<TRUE>> {
 	using TYPE = NONE ;
 } ;
 
-template <BOOL _ARGC>
-using ENABLE_TYPE = typename ENABLE<ARGC<_ARGC>>::TYPE ;
+template <BOOL _ARG1>
+using ENABLE_TYPE = typename ENABLE<ARGC<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -320,8 +338,8 @@ struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 	using TYPE = _ARG2 ;
 } ;
 
-template <BOOL _ARGC ,class _ARG1 ,class _ARG2>
-using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_ARGC> ,_ARG1 ,_ARG2>::TYPE ;
+template <BOOL _ARG1 ,class _ARG2 ,class _ARG3>
+using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC<_ARG1> ,_ARG2 ,_ARG3>::TYPE ;
 } ;
 
 namespace U {
@@ -405,8 +423,8 @@ struct REMOVE_ARRAY<ARR<_ARG1>> {
 	using TYPE = _ARG1 ;
 } ;
 
-template <class _ARG1 ,LENGTH _ARGC>
-struct REMOVE_ARRAY<_ARG1[_ARGC]> {
+template <class _ARG1 ,LENGTH _ARG2>
+struct REMOVE_ARRAY<_ARG1[_ARG2]> {
 	using TYPE = _ARG1 ;
 } ;
 
@@ -520,9 +538,9 @@ struct COUNT_OF<ARR<_ARG1>> {
 	using TYPE = ZERO ;
 } ;
 
-template <class _ARG1 ,LENGTH _ARGC>
-struct COUNT_OF<_ARG1[_ARGC]> {
-	using TYPE = ARGC<_ARGC> ;
+template <class _ARG1 ,LENGTH _ARG2>
+struct COUNT_OF<_ARG1[_ARG2]> {
+	using TYPE = ARGC<_ARG2> ;
 } ;
 
 template <class _ARG1>
@@ -779,21 +797,6 @@ struct ARGVS_CAT<ARGVS<_ARGS1...> ,ARGVS<_ARGS2...>> {
 
 template <class _ARG1 ,class _ARG2>
 using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_EXPLICIT_CONVERTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct IS_EXPLICIT_CONVERTIBLE<_ARG1 ,_ARG2 ,ENABLE_TYPE<(stl::is_constructible<_ARG2 ,_ARG1>::value && !stl::is_convertible<_ARG1 ,_ARG2>::value)>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_EXPLICIT_CONVERTIBLE_HELP = typename IS_EXPLICIT_CONVERTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1318,9 +1321,6 @@ template <class _ARG1>
 using is_xyz = U::IS_XYZ_HELP<_ARG1> ;
 
 template <class _ARG1 ,class _ARG2>
-using is_explicit_convertible = U::IS_EXPLICIT_CONVERTIBLE_HELP<_ARG1 ,_ARG2> ;
-
-template <class _ARG1 ,class _ARG2>
 using is_bounded_array_of = U::IS_BOUNDED_ARRAY_OF_HELP<_ARG1 ,_ARG2> ;
 
 template <class... _ARGS>
@@ -1402,29 +1402,24 @@ inline constexpr REMOVE_REFERENCE_TYPE<_ARG1> &&_MOVE_ (_ARG1 &&object) {
 }
 
 template <class _ARG1>
-inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_REFERENCE_TYPE<_ARG1> &object) {
+inline constexpr _ARG1 &_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &object) {
+	return static_cast<_ARG1 &> (object) ;
+}
+
+template <class _ARG1>
+inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1 &&> & ,REMOVE_CVR_TYPE<_ARG1> &object) {
 	return static_cast<_ARG1 &&> (object) ;
 }
 
 template <class _ARG1>
-inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_REFERENCE_TYPE<_ARG1> &&object) {
+inline constexpr const _ARG1 &_FORWARD_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_TYPE<_ARG1> &object) {
+	return static_cast<const _ARG1 &> (object) ;
+}
+
+template <class _ARG1>
+inline constexpr _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&object) {
 	_STATIC_ASSERT_ (!stl::is_lvalue_reference<_ARG1>::value) ;
 	return static_cast<_ARG1 &&> (object) ;
-}
-
-template <class _ARG1>
-inline constexpr _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &object) {
-	return object ;
-}
-
-template <class _ARG1>
-inline constexpr const _ARG1 &_XVALUE_ (const ARGVF<_ARG1> & ,const REMOVE_CVR_TYPE<_ARG1> &object) {
-	return object ;
-}
-
-template <class _ARG1>
-inline constexpr _ARG1 &&_XVALUE_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&object) {
-	return _MOVE_ (object) ;
 }
 
 template <class _ARG1>
@@ -1468,7 +1463,7 @@ inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & 
 template <class _ARG1>
 inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
 	const auto r1x = DEPTR[_NULL_ (ARGV<BYTE>::null)] + address ;
-	const auto r2x = _XVALUE_ (ARGV<PTR<NONE>>::null ,r1x) ;
+	const auto r2x = _FORWARD_ (ARGV<PTR<NONE>>::null ,r1x) ;
 	return _POINTER_CAST_ (ARGV<_ARG1>::null ,r2x) ;
 }
 
@@ -1489,7 +1484,7 @@ inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	if (r1x == NULL)
 		return ;
 	_ZERO_ (DEREF[address]) ;
-	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS>::null ,initval)...) ;
+	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 }
 
 template <class _ARG1>

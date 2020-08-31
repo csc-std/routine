@@ -1495,7 +1495,7 @@ inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
@@ -1544,7 +1544,7 @@ inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	if (r2x[5] < 10)
 		rax << STR ('0') ;
@@ -1610,7 +1610,7 @@ inline exports String<_ARG1> StringProc::build_times (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _XVALUE_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::null ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
