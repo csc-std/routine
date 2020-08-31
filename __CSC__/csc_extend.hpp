@@ -539,7 +539,7 @@ class Variant final {
 #define fake m_fake ()
 
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (!stl::is_any_same<REMOVE_CVR_TYPE<UNITS>...>::value) ;
+	_STATIC_ASSERT_ (!IS_ANY_SAME_HELP<REMOVE_CVR_TYPE<UNITS>...>::value) ;
 
 private:
 	class FakeHolder ;
@@ -586,7 +586,7 @@ public:
 		template_construct (r1x ,ARGV<ARGVS<UNITS...>>::null) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
 		struct Dependent ;
@@ -725,8 +725,8 @@ private:
 		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
 		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<HINT_T1>> ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<HINT_T1>::value) ;
-		_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (api::is_nothrow_move_constructible<HINT_T1>::value) ;
+		_STATIC_ASSERT_ (api::is_nothrow_move_assignable<HINT_T1>::value) ;
 		if switch_once (TRUE) {
 			if (!(index == 0))
 				discard ;
@@ -746,12 +746,12 @@ private:
 	imports INDEX default_constructible_index (const ARGVF<_ARG1> & ,const ARGVF<_ARG2> &) {
 		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
 		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
-		if (stl::is_default_constructible<HINT_T1>::value)
+		if (IS_DEFAULT_CONSTRUCTIBLE_HELP<HINT_T1>::value)
 			return _ARG1::value ;
 		return default_constructible_index (ARGV<INCREASE<_ARG1>>::null ,ARGV<HINT_T2>::null) ;
 	}
 
-	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<(stl::is_constructible<_ARG1 ,_ARGS...>::value)>>
+	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<(IS_CONSTRUCTIBLE_HELP<_ARG1 ,_ARGS...>::value)>>
 	imports void template_create (const PTR<TEMP<_ARG1>> &address ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::null ,address) ;
 		auto &r2x = _FORWARD_ (ARGV<Holder>::null ,_CAST_ (ARGV<_ARG1>::null ,DEREF[r1x])) ;
@@ -878,7 +878,7 @@ public:
 template <class UNIT1 ,class... UNITS>
 class Tuple<UNIT1 ,UNITS...>
 	:private Tuple<UNITS...> {
-	_STATIC_ASSERT_ (!stl::is_rvalue_reference<UNIT1>::value) ;
+	_STATIC_ASSERT_ (!IS_RVALUE_REFERENCE_HELP<UNIT1>::value) ;
 
 private:
 	UNIT1 mValue ;
@@ -1023,7 +1023,7 @@ template <class... UNITS>
 class AllOfTuple
 	:private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
+	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::value) ;
 
 private:
 	using HINT_WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
@@ -1160,7 +1160,7 @@ template <class... UNITS>
 class AnyOfTuple
 	:private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (stl::is_all_same<UNITS...>::value) ;
+	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::value) ;
 
 private:
 	using HINT_WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
@@ -1295,10 +1295,10 @@ private:
 
 template <class UNIT>
 class Atomic {
-	_STATIC_ASSERT_ (stl::is_byte_xyz<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_BYTE_XYZ_HELP<UNIT>::value) ;
 
 private:
-	stl::atomic<UNIT> mValue ;
+	api::atomic<UNIT> mValue ;
 
 public:
 	implicit Atomic () {
@@ -1761,12 +1761,12 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<_ARG2 ,_ARG1>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(IS_BASE_OF_HELP<_ARG2 ,_ARG1>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
 		return _FORWARD_ (ARGV<PTR<_ARG2>>::null ,pointer) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_always_base_of<Interface ,_ARG1>::value && stl::is_always_base_of<Interface ,_ARG2>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(IS_BASE_OF_HELP<Interface ,_ARG1>::value && IS_BASE_OF_HELP<Interface ,_ARG2>::value)>>
 	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
 		//@warn: RTTI might be different across DLL
 		return dynamic_cast<PTR<_ARG2>> (pointer) ;
@@ -1805,7 +1805,7 @@ public:
 	}
 
 	//@warn: circular reference ruins StrongRef
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_always_base_of<UNIT ,_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_BASE_OF_HELP<UNIT ,_ARG1>::value)>>
 	implicit StrongRef (const StrongRef<_ARG1> &that)
 		: StrongRef (that.recast (ARGV<UNIT>::null)) {
 		_STATIC_WARNING_ ("noop") ;
@@ -2066,7 +2066,7 @@ public:
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _ARG1>
 	PTR<_ARG1> alloc (const ARGVF<_ARG1> &) {
-		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::value) ;
 		const auto r1x = _ALIGNOF_ (_ARG1) - _ALIGNOF_ (HEADER) ;
 		const auto r2x = VAR_ZERO ;
 		const auto r3x = _MAX_ (r1x ,r2x) + _SIZEOF_ (_ARG1) ;
@@ -2087,7 +2087,7 @@ public:
 	//@warn: held by RAII to avoid static-memory-leaks
 	template <class _ARG1>
 	PTR<ARR<_ARG1>> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) {
-		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::value) ;
 		const auto r1x = _ALIGNOF_ (_ARG1) - _ALIGNOF_ (HEADER) ;
 		const auto r2x = VAR_ZERO ;
 		const auto r3x = _MAX_ (r1x ,r2x) + len * _SIZEOF_ (_ARG1) ;
@@ -2108,7 +2108,7 @@ public:
 
 	template <class _ARG1>
 	void free (const PTR<_ARG1> &address) noexcept {
-		_STATIC_ASSERT_ (stl::is_pod<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<REMOVE_ARRAY_TYPE<_ARG1>>::value) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<HEADER>::null ,r1x) ;
 		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,DEREF[r2x].mFrom) ;
@@ -2454,7 +2454,7 @@ public:
 
 	template <class _ARG1>
 	explicit Metadata (const ARGVF<_ARG1> &) {
-		_STATIC_ASSERT_ (stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
+		_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::value) ;
 		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::null) ;
 		mTypeMID = _TYPEMID_ (ARGV<_ARG1>::null) ;
 		mConstrutor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
@@ -2572,9 +2572,9 @@ class GlobalStatic ;
 template <class UNIT>
 class Singleton
 	:private Proxy {
-	_STATIC_ASSERT_ (stl::is_class<UNIT>::value) ;
-	_STATIC_ASSERT_ (!stl::is_default_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (stl::is_nothrow_destructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_CLASS_HELP<UNIT>::value) ;
+	_STATIC_ASSERT_ (!IS_DEFAULT_CONSTRUCTIBLE_HELP<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_DESTRUCTIBLE_HELP<UNIT>::value) ;
 
 private:
 	struct THIS_PACK {

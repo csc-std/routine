@@ -191,7 +191,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::square (const _ARG1 &val) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::sqrt (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::sqrt (VAL64 (x))) ;
 }
 
@@ -202,67 +202,67 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::cube (const _ARG1 &val) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::cbrt (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::cbrt (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::pow (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::pow (VAL64 (x) ,VAL64 (y))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::exp (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::exp (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::log (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::log (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::sin (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::sin (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::cos (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::cos (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::tan (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::tan (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::arcsin (const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::arcsin (VAL64 (y))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::arccos (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::arccos (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::arctan (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::arctan (VAL64 (x))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::arctan (const _ARG1 &y ,const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::arctan (VAL64 (y) ,VAL64 (x))) ;
 }
 
@@ -277,7 +277,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::sign (const _ARG1 &x) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::inverse (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	if (MathProc::abs (x) < y)
 		return _ARG1 (0) ;
@@ -294,7 +294,7 @@ inline exports VAL64 MathProc::inverse (const VAL64 &x) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::npdf (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	const auto r1x = MathProc::inverse (MathProc::sqrt (VAL64 (2 * MATH_PI))) ;
 	const auto r2x = -MathProc::square (VAL64 (x)) / 2 ;
 	return MathProc::exp (r2x) * r1x ;
@@ -302,7 +302,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::npdf (const _ARG1 &x) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::ncdf (const _ARG1 &x) {
-	_STATIC_ASSERT_ (stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::ncdf (VAL64 (x))) ;
 }
 
@@ -330,7 +330,7 @@ inline exports VAL64 MathProc::floor (const VAL64 &x ,const VAL64 &y) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::floor (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::floor (VAL64 (x) ,VAL64 (y))) ;
 }
 
@@ -358,13 +358,13 @@ inline exports VAL64 MathProc::ceil (const VAL64 &x ,const VAL64 &y) {
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::ceil (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return _ARG1 (MathProc::ceil (VAL64 (x) ,VAL64 (y))) ;
 }
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::round (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	_DEBUG_ASSERT_ (y > _ARG1 (0)) ;
 	const auto r1x = VAL64 (x) + VAL64 (y) / 2 ;
 	return _ARG1 (MathProc::floor (r1x ,VAL64 (y))) ;
@@ -372,13 +372,13 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::round (const _ARG1 &x ,const _AR
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::trunc (const _ARG1 &x ,const _ARG1 &y) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	return MathProc::floor (MathProc::abs (x) ,y) * MathProc::sign (x) ;
 }
 
 template <class _ARG1 ,class _ARG2>
 inline exports REMOVE_CVR_TYPE<_ARG2> MathProc::clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	if (val < _ARG1 (min_))
 		return min_ ;
 	if (val > _ARG1 (max_))
@@ -388,7 +388,7 @@ inline exports REMOVE_CVR_TYPE<_ARG2> MathProc::clamp (const _ARG1 &val ,const _
 
 template <class _ARG1>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::abs (const _ARG1 &val) {
-	_STATIC_ASSERT_ (stl::is_var_xyz<_ARG1>::value || stl::is_val_xyz<_ARG1>::value) ;
+	_STATIC_ASSERT_ (IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value) ;
 	_ARG1 ret = _ABS_ (val) ;
 	_DEBUG_ASSERT_ (ret >= _ARG1 (0)) ;
 	return _MOVE_ (ret) ;
@@ -401,7 +401,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::minof (const _ARG1 &list_one) {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::minof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
-	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,_ARG2>::value) ;
 	auto &r1x = _MIN_ (list_one ,list_two) ;
 	return MathProc::minof (r1x ,list_rest...) ;
 }
@@ -413,7 +413,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one) {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one ,const _ARG2 &list_two ,const _ARGS &...list_rest) {
-	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,_ARG2>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,_ARG2>::value) ;
 	auto &r1x = _MAX_ (list_one ,list_two) ;
 	return MathProc::maxof (r1x ,list_rest...) ;
 }

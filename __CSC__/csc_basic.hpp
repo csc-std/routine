@@ -54,17 +54,17 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,BOOL>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,BOOL>::value)>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.equal (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
 		return BOOL (lhs == rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_TRIVIAL_HELP<_ARG1>::value)>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
 		//@error: not strict good because of alignment
 		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs) ;
@@ -101,12 +101,12 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null)))> ,FLAG>::value)>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
 		return lhs.compr (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null))> ,BOOL>::value)>>
 		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
 			if (lhs < rhs)
 				return FLAG (-1) ;
@@ -115,7 +115,7 @@ private:
 			return FLAG (0) ;
 		}
 
-		template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
+		template <class _ARG1 ,class = ENABLE_TYPE<(IS_TRIVIAL_HELP<_ARG1>::value)>>
 		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
 			//@error: not strict good because of alignment
 			auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,lhs) ;
@@ -156,17 +156,17 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::null).hash ())> ,FLAG>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP3)> &) {
 		return self_.hash () ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,BYTE>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,BYTE>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP2)> &) {
 		return FLAG (self_) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_pod<_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_TRIVIAL_HELP<_ARG1>::value)>>
 	imports FLAG template_hash (const _ARG1 &self_ ,const DEF<decltype (ARGVP1)> &) {
 		//@error: not strict good because of alignment
 		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (_ARG1)]>::null ,self_) ;
@@ -256,7 +256,7 @@ inline exports FLAG BasicProc::mem_crc32 (const ARR<_ARG1> &src ,const LENGTH &l
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-	_STATIC_ASSERT_ (stl::is_same<_ARG1 ,BYTE>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,BYTE>::value) ;
 	FLAG ret = FLAG (0XFFFFFFFF) ;
 	auto &r1x = CRC32StaticProc::static_mem_crc32_table () ;
 	for (auto &&i : _RANGE_ (0 ,len)) {
@@ -619,9 +619,9 @@ class GlobalHeap
 public:
 	template <class _ARG1>
 	imports ScopedPtr<_ARG1 ,GlobalHeap> alloc (const ARGVF<_ARG1> &) {
-		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (stl::max_align_t)) ;
-		const auto r1x = operator new (_SIZEOF_ (_ARG1) ,stl::nothrow) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (api::max_align_t)) ;
+		const auto r1x = operator new (_SIZEOF_ (_ARG1) ,api::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
 		_DYNAMIC_ASSERT_ (_ADDRESS_ (r2x) % _ALIGNOF_ (_ARG1) == 0) ;
@@ -630,12 +630,12 @@ public:
 
 	template <class _ARG1>
 	imports ScopedPtr<ARR<_ARG1> ,GlobalHeap> alloc (const ARGVF<_ARG1> & ,const LENGTH &len) {
-		_STATIC_ASSERT_ (stl::is_pod<_ARG1>::value) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (stl::max_align_t)) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::value) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (api::max_align_t)) ;
 		_DEBUG_ASSERT_ (len > 0) ;
 		const auto r1x = len * _SIZEOF_ (_ARG1) ;
 		_DEBUG_ASSERT_ (r1x > 0) ;
-		const auto r2x = operator new (r1x ,stl::nothrow) ;
+		const auto r2x = operator new (r1x ,api::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		const auto r3x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::null ,r2x) ;
 		_DYNAMIC_ASSERT_ (_ADDRESS_ (r3x) % _ALIGNOF_ (_ARG1) == 0) ;
@@ -648,7 +648,7 @@ public:
 			return ;
 		//@error: address may be different from what alloc returned
 		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::null ,address) ;
-		operator delete (r1x ,stl::nothrow) ;
+		operator delete (r1x ,api::nothrow) ;
 	}
 } ;
 
@@ -657,7 +657,7 @@ class AutoRef ;
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,FALSE>> {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 protected:
 	class Holder
@@ -732,7 +732,7 @@ public:
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,TRUE>> {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 protected:
 	class Holder
@@ -828,9 +828,9 @@ public:
 
 template <class UNIT>
 class AutoRef final
-	:private AutoRef<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)>> {
+	:private AutoRef<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<UNIT>::value && api::is_nothrow_move_constructible<UNIT>::value)>> {
 private:
-	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)>> ;
+	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<UNIT>::value && api::is_nothrow_move_constructible<UNIT>::value)>> ;
 	using Holder = typename SPECIALIZATION_BASE::Holder ;
 
 private:
@@ -889,7 +889,7 @@ public:
 
 template <class UNIT>
 class SharedRef final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	class Holder
@@ -1138,7 +1138,7 @@ private:
 
 template <class UNIT>
 class AnyRef final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	using Holder = typename AnyRef<NONE>::Holder ;
@@ -1339,16 +1339,16 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using HINT_T1 = DEF<void ()> ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
 		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
-		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
-		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
-		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::value) ;
+		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::value) ;
+		_STATIC_ASSERT_ (!IS_REFERENCE_HELP<_ARG2>::value) ;
+		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
@@ -1422,7 +1422,7 @@ public:
 
 template <class UNIT>
 class UniqueRef final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	class Holder
@@ -1447,16 +1447,16 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using HINT_T1 = DEF<void (UNIT &)> ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<HINT_T1>> ;
 		using Function = DEPENDENT_TYPE<Function<HINT_T1> ,Dependent> ;
-		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>>>::value) ;
-		_STATIC_ASSERT_ (!stl::is_reference<_ARG2>::value) ;
-		_STATIC_ASSERT_ (stl::is_void<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::value) ;
+		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>>>::value) ;
+		_STATIC_ASSERT_ (!IS_REFERENCE_HELP<_ARG2>::value) ;
+		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
@@ -1568,7 +1568,7 @@ public:
 
 template <class UNIT>
 class PhanRef final {
-	_STATIC_ASSERT_ (_SIZEOF_ (UNIT) > 0) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	PTR<UNIT> mPointer ;
@@ -1624,7 +1624,7 @@ public:
 	}
 
 	//@warn: phantom means deliver pointer without holder
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<UNIT>>::value)>>
 	imports PhanRef make (_ARG1 &val) {
 		PhanRef ret ;
 		ret.mPointer = DEPTR[val] ;
@@ -1656,7 +1656,7 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_convertible<_ARG2 ,PTR<_ARG1>>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(IS_IMPLICIT_CONVERTIBLE_HELP<_ARG2 ,PTR<_ARG1>>::value)>>
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
 		return _FORWARD_ (ARGV<PTR<_ARG1>>::null ,functor) ;
 	}
@@ -1697,12 +1697,12 @@ public:
 		mFunctor = DEPTR[that] ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && !stl::is_same<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
-		_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
+		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
 		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
@@ -1801,7 +1801,7 @@ template <class UNIT1 ,class... UNITS>
 template <class UNIT_>
 class Function<UNIT1 (UNITS...)>::Private::ImplHolder
 	:public Holder {
-	_STATIC_ASSERT_ (stl::is_same<RESULT_OF_TYPE<UNIT_ ,ARGVS<UNITS...>> ,UNIT1>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<UNIT_ ,ARGVS<UNITS...>> ,UNIT1>::value) ;
 
 private:
 	UNIT_ mFunctor ;
@@ -1882,7 +1882,7 @@ public:
 		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!stl::is_function<_ARG2>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_FUNCTION_HELP<_ARG2>::value)>>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
@@ -1958,7 +1958,7 @@ private:
 
 	template <class _ARG1 ,class... _ARGS>
 	imports void static_create (const ARGVF<_ARG1> & ,const PTR<TEMP<FakeHolder>> &address ,_ARGS &&...funcval) {
-		_STATIC_ASSERT_ (stl::is_constructible<_ARG1 ,_ARGS &&...>::value) ;
+		_STATIC_ASSERT_ (IS_CONSTRUCTIBLE_HELP<_ARG1 ,_ARGS &&...>::value) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::null ,address) ;
 		auto &r2x = _FORWARD_ (ARGV<Holder>::null ,_CAST_ (ARGV<_ARG1>::null ,DEREF[r1x])) ;
 		auto &r3x = _FORWARD_ (ARGV<Holder>::null ,_CAST_ (ARGV<FakeHolder>::null ,DEREF[address])) ;
@@ -2094,7 +2094,7 @@ using SMPHAN = ARGC<(-5)> ;
 template <class UNIT ,class SIZE>
 class Buffer {
 	_STATIC_ASSERT_ (SIZE::value > 0) ;
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 #ifdef __CSC_COMPILER_MSVC__
@@ -2218,7 +2218,7 @@ public:
 
 template <class UNIT>
 class Buffer<UNIT ,SFIXED> final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	PTR<NONE> mOrigin ;
@@ -2388,7 +2388,7 @@ class Buffer<UNIT ,SAUTO> ;
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,FALSE> ,SAUTO> {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 protected:
 	PTR<NONE> mOrigin ;
@@ -2454,7 +2454,7 @@ protected:
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,TRUE> ,SAUTO> {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 protected:
 	PTR<NONE> mOrigin ;
@@ -2539,9 +2539,9 @@ protected:
 
 template <class UNIT>
 class Buffer<UNIT ,SAUTO> final
-	:private Buffer<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> {
+	:private Buffer<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<UNIT>::value && api::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> {
 private:
-	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<UNIT>::value && stl::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> ;
+	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<UNIT>::value && api::is_nothrow_move_constructible<UNIT>::value)> ,SAUTO> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -2672,7 +2672,7 @@ using AutoBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SAUTO> ,UNIT> 
 
 template <class UNIT>
 class Buffer<UNIT ,SCPHAN> final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	PTR<const ARR<UNIT>> mBuffer ;
@@ -2814,7 +2814,7 @@ public:
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_ARRAY_OF_HELP<UNIT ,_ARG1>::value)>>
 	imports Buffer make (_ARG1 &val) {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
@@ -2824,7 +2824,7 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(IS_SAME_HELP<UNIT ,BYTE>::value && !IS_SAME_HELP<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
@@ -2848,7 +2848,7 @@ private:
 
 template <class UNIT>
 class Buffer<UNIT ,SMPHAN> final {
-	_STATIC_ASSERT_ (stl::is_complete<UNIT>::value) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::value) ;
 
 private:
 	PTR<ARR<UNIT>> mBuffer ;
@@ -2990,7 +2990,7 @@ public:
 		return Buffer (ARGVP0 ,DEPTR[src] ,len) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_bounded_array_of<UNIT ,_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_ARRAY_OF_HELP<UNIT ,_ARG1>::value)>>
 	imports Buffer make (_ARG1 &val) {
 		return make (PTRTOARR[val] ,_COUNTOF_ (_ARG1)) ;
 	}
@@ -3004,7 +3004,7 @@ public:
 		return make (val.self ,val.size ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(IS_SAME_HELP<UNIT ,BYTE>::value && !IS_SAME_HELP<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
@@ -3012,7 +3012,7 @@ public:
 		return make (DEREF[r1x] ,r2x) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(stl::is_same<UNIT ,BYTE>::value && !stl::is_same<_ARG1 ,BYTE>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<UNIT ,BYTE>::value && !IS_SAME_HELP<_ARG1 ,BYTE>::value)>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		_STATIC_ASSERT_ (U::IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::value) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::null ,DEPTR[val.self]) ;
@@ -3035,7 +3035,7 @@ private:
 } ;
 
 template <class UNIT>
-using PhanBuffer = Buffer<REMOVE_CONST_TYPE<UNIT> ,CONDITIONAL_TYPE<(stl::is_const<UNIT>::value) ,SCPHAN ,SMPHAN>> ;
+using PhanBuffer = Buffer<REMOVE_CONST_TYPE<UNIT> ,CONDITIONAL_TYPE<(IS_CONST_HELP<UNIT>::value) ,SCPHAN ,SMPHAN>> ;
 
 template <class ,class>
 class Allocator ;
@@ -3173,7 +3173,7 @@ protected:
 			_SWAP_ (mSize ,that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (IS_TRIVIAL_HELP<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3273,7 +3273,7 @@ protected:
 			mSize = that.mSize ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (IS_TRIVIAL_HELP<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3305,7 +3305,7 @@ protected:
 			_SWAP_ (mSize ,that.mSize) ;
 		const auto r1x = that.mSize - mSize ;
 		const auto r2x = VAR_ZERO ;
-		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (stl::is_pod<UNIT>::value) ;
+		mSize += _MAX_ (r1x ,r2x) * _EBOOL_ (IS_TRIVIAL_HELP<UNIT>::value) ;
 		while (TRUE) {
 			if (mSize >= that.mSize)
 				break ;
@@ -3354,12 +3354,12 @@ protected:
 
 template <class UNIT ,class SIZE>
 class Allocator final
-	:private Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
-	_STATIC_ASSERT_ (stl::is_nothrow_move_constructible<UNIT>::value) ;
-	_STATIC_ASSERT_ (stl::is_nothrow_move_assignable<UNIT>::value) ;
+	:private Allocator<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>::value && api::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,api::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> {
+	_STATIC_ASSERT_ (api::is_nothrow_move_constructible<UNIT>::value) ;
+	_STATIC_ASSERT_ (api::is_nothrow_move_assignable<UNIT>::value) ;
 
 private:
-	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(stl::is_copy_constructible<Buffer<UNIT ,SIZE>>::value && stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,stl::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
+	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,(IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>::value && api::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value) ,api::is_nothrow_move_constructible<Buffer<UNIT ,SIZE>>::value> ,SIZE> ;
 
 private:
 	friend SPECIALIZATION_BASE ;

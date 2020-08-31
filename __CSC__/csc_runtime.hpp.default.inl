@@ -78,8 +78,6 @@ using std::condition_variable ;
 using std::thread ;
 using std::random_device ;
 using std::mt19937 ;
-
-namespace chrono {
 using std::chrono::duration ;
 using std::chrono::time_point ;
 using std::chrono::hours ;
@@ -92,14 +90,9 @@ using std::chrono::system_clock ;
 
 using std::chrono::duration_cast ;
 using std::chrono::time_point_cast ;
-} ;
-
-namespace this_thread {
 using std::this_thread::sleep_for ;
 using std::this_thread::sleep_until ;
 using std::this_thread::yield ;
-} ;
-
 using std::atomic_thread_fence ;
 
 #ifndef __CSC_COMPILER_GNUC__
@@ -134,32 +127,32 @@ using ::getsid ;
 class Duration::Private::Implement
 	:public Abstract {
 private:
-	api::chrono::system_clock::duration mDuration ;
+	api::system_clock::duration mDuration ;
 
 public:
 	implicit Implement () = delete ;
 
 	explicit Implement (const LENGTH &milliseconds_) {
-		const auto r1x = api::chrono::milliseconds (milliseconds_) ;
-		mDuration = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
+		const auto r1x = api::milliseconds (milliseconds_) ;
+		mDuration = api::duration_cast<api::system_clock::duration> (r1x) ;
 	}
 
 	explicit Implement (const ARRAY6<LENGTH> &time_) {
-		const auto r1x = api::chrono::hours (time_[0]) ;
-		const auto r2x = api::chrono::minutes (time_[1]) ;
-		const auto r3x = api::chrono::seconds (time_[2]) ;
-		const auto r4x = api::chrono::milliseconds (time_[3]) ;
-		const auto r5x = api::chrono::microseconds (time_[4]) ;
-		const auto r6x = api::chrono::nanoseconds (time_[5]) ;
+		const auto r1x = api::hours (time_[0]) ;
+		const auto r2x = api::minutes (time_[1]) ;
+		const auto r3x = api::seconds (time_[2]) ;
+		const auto r4x = api::milliseconds (time_[3]) ;
+		const auto r5x = api::microseconds (time_[4]) ;
+		const auto r6x = api::nanoseconds (time_[5]) ;
 		const auto r7x = r1x + r2x + r3x + r4x + r5x + r6x ;
-		mDuration = api::chrono::duration_cast<api::chrono::system_clock::duration> (r7x) ;
+		mDuration = api::duration_cast<api::system_clock::duration> (r7x) ;
 	}
 
-	explicit Implement (const api::chrono::system_clock::duration &time_) {
-		mDuration = api::chrono::duration_cast<api::chrono::system_clock::duration> (time_) ;
+	explicit Implement (const api::system_clock::duration &time_) {
+		mDuration = api::duration_cast<api::system_clock::duration> (time_) ;
 	}
 
-	const api::chrono::system_clock::duration &get_mDuration () const leftvalue {
+	const api::system_clock::duration &get_mDuration () const leftvalue {
 		return mDuration ;
 	}
 
@@ -168,44 +161,44 @@ public:
 	}
 
 	LENGTH hours () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::hours> (mDuration) ;
+		const auto r1x = api::duration_cast<api::hours> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH minutes () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::minutes> (mDuration) ;
+		const auto r1x = api::duration_cast<api::minutes> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH seconds () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::seconds> (mDuration) ;
+		const auto r1x = api::duration_cast<api::seconds> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH miliseconds () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::seconds> (mDuration) ;
+		const auto r1x = api::duration_cast<api::seconds> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH microseconds () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::microseconds> (mDuration) ;
+		const auto r1x = api::duration_cast<api::microseconds> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	LENGTH nanoseconds () const override {
-		const auto r1x = api::chrono::duration_cast<api::chrono::nanoseconds> (mDuration) ;
+		const auto r1x = api::duration_cast<api::nanoseconds> (mDuration) ;
 		return LENGTH (r1x.count ()) ;
 	}
 
 	Duration add (const Duration &that) const override {
 		const auto r1x = mDuration + that.native ().get_mDuration () ;
-		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
+		const auto r2x = api::duration_cast<api::system_clock::duration> (r1x) ;
 		return Duration (r2x) ;
 	}
 
 	Duration sub (const Duration &that) const override {
 		const auto r1x = mDuration - that.native ().get_mDuration () ;
-		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
+		const auto r2x = api::duration_cast<api::system_clock::duration> (r1x) ;
 		return Duration (r2x) ;
 	}
 } ;
@@ -224,7 +217,7 @@ inline exports Duration::Duration (_ARG1 &&time_) {
 class TimePoint::Private::Implement
 	:public Abstract {
 private:
-	api::chrono::system_clock::time_point mTimePoint ;
+	api::system_clock::time_point mTimePoint ;
 
 public:
 	implicit Implement () = delete ;
@@ -245,18 +238,18 @@ public:
 		rax.tm_min = VAR32 (time_[6]) ;
 		rax.tm_sec = VAR32 (time_[7]) ;
 		const auto r5x = api::mktime (DEPTR[rax]) ;
-		mTimePoint = api::chrono::system_clock::from_time_t (r5x) ;
+		mTimePoint = api::system_clock::from_time_t (r5x) ;
 	}
 
-	explicit Implement (const api::chrono::system_clock::time_point &time_) {
-		mTimePoint = api::chrono::time_point_cast<api::chrono::system_clock::duration> (time_) ;
+	explicit Implement (const api::system_clock::time_point &time_) {
+		mTimePoint = api::time_point_cast<api::system_clock::duration> (time_) ;
 	}
 
 	const Implement &native () const override {
 		return DEREF[this] ;
 	}
 
-	const api::chrono::system_clock::time_point &get_mTimePoint () const leftvalue {
+	const api::system_clock::time_point &get_mTimePoint () const leftvalue {
 		return mTimePoint ;
 	}
 
@@ -264,7 +257,7 @@ public:
 	ARRAY8<LENGTH> calendar () const override {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
-		const auto r1x = api::time_t (api::chrono::system_clock::to_time_t (mTimePoint)) ;
+		const auto r1x = api::time_t (api::system_clock::to_time_t (mTimePoint)) ;
 		auto rax = api::tm () ;
 		_ZERO_ (rax) ;
 		api::localtime_s (DEPTR[rax] ,DEPTR[r1x]) ;
@@ -284,7 +277,7 @@ public:
 	ARRAY8<LENGTH> calendar () const override {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
-		const auto r1x = api::time_t (api::chrono::system_clock::to_time_t (mTimePoint)) ;
+		const auto r1x = api::time_t (api::system_clock::to_time_t (mTimePoint)) ;
 		auto rax = api::tm () ;
 		_ZERO_ (rax) ;
 		//@warn: not thread-safe due to internel storage
@@ -305,13 +298,13 @@ public:
 
 	TimePoint add (const Duration &that) const override {
 		const auto r1x = mTimePoint + that.native ().get_mDuration () ;
-		const auto r2x = api::chrono::time_point_cast<api::chrono::system_clock::duration> (r1x) ;
+		const auto r2x = api::time_point_cast<api::system_clock::duration> (r1x) ;
 		return TimePoint (r2x) ;
 	}
 
 	Duration sub (const TimePoint &that) const override {
 		const auto r1x = mTimePoint - that.native ().get_mTimePoint () ;
-		const auto r2x = api::chrono::duration_cast<api::chrono::system_clock::duration> (r1x) ;
+		const auto r2x = api::duration_cast<api::system_clock::duration> (r1x) ;
 		return Duration (r2x) ;
 	}
 } ;
@@ -455,7 +448,7 @@ public:
 	}
 
 	void yield () override {
-		const auto r1x = api::chrono::milliseconds (0) ;
+		const auto r1x = api::milliseconds (0) ;
 		mConditionLock->native ().get_mConditionLock ().wait_for (mUniqueLock ,r1x) ;
 	}
 
@@ -494,13 +487,13 @@ inline exports Thread::Thread (const StrongRef<Binder> &runnable) {
 }
 
 inline exports TimePoint GlobalRuntime::clock_now () {
-	const auto r1x = api::chrono::system_clock::now () ;
+	const auto r1x = api::system_clock::now () ;
 	return TimePoint (r1x) ;
 }
 
 inline exports TimePoint GlobalRuntime::clock_epoch () {
-	const auto r1x = api::chrono::system_clock::duration::zero () ;
-	const auto r2x = api::chrono::system_clock::time_point (r1x) ;
+	const auto r1x = api::system_clock::duration::zero () ;
+	const auto r2x = api::system_clock::time_point (r1x) ;
 	return TimePoint (r2x) ;
 }
 
@@ -518,16 +511,16 @@ inline exports FLAG GlobalRuntime::thread_tid () {
 
 inline exports void GlobalRuntime::thread_sleep (const Duration &time_) {
 	auto &r1x = time_.native ().get_mDuration () ;
-	api::this_thread::sleep_for (r1x) ;
+	api::sleep_for (r1x) ;
 }
 
 inline exports void GlobalRuntime::thread_sleep (const TimePoint &time_) {
 	auto &r1x = time_.native ().get_mTimePoint () ;
-	api::this_thread::sleep_until (r1x) ;
+	api::sleep_until (r1x) ;
 }
 
 inline exports void GlobalRuntime::thread_yield () {
-	api::this_thread::yield () ;
+	api::yield () ;
 }
 
 inline exports LENGTH GlobalRuntime::thread_concurrency () {

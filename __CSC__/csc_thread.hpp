@@ -219,16 +219,15 @@ private:
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
-			_CATCH_ ([&] () {
+			try {
 				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 				rax = self_.mThreadProc[tid] () ;
-			} ,[&] (const Exception &e) {
-				_CALL_TRY_ ([&] () {
-					static_rethrow (self_ ,e) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}) ;
+			} catch (const Exception &e) {
+				static_rethrow (self_ ,e) ;
+			} catch (...) {
+				const auto r1x = Exception (_PCSTR_ ("unknown C++ exception")) ;
+				static_rethrow (self_ ,r1x) ;
+			}
 			if (rax.exist ())
 				static_push (self_ ,_MOVE_ (rax.self)) ;
 			rax = Optional<ITEM>::nullopt () ;
@@ -565,16 +564,15 @@ private:
 			if (rax.empty ())
 				static_poll (self_ ,tid ,rax) ;
 			INDEX ix = rax.head () ;
-			_CATCH_ ([&] () {
+			try {
 				//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 				self_.mThreadProc (rax[ix]) ;
-			} ,[&] (const Exception &e) {
-				_CALL_TRY_ ([&] () {
-					static_rethrow (self_ ,e) ;
-				} ,[&] () {
-					_STATIC_WARNING_ ("noop") ;
-				}) ;
-			}) ;
+			} catch (const Exception &e) {
+				static_rethrow (self_ ,e) ;
+			} catch (...) {
+				const auto r1x = Exception (_PCSTR_ ("unknown C++ exception")) ;
+				static_rethrow (self_ ,r1x) ;
+			}
 			rax.remove (ix) ;
 		}
 	}
@@ -814,16 +812,15 @@ private:
 		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
 		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
-		_CATCH_ ([&] () {
+		try {
 			//@warn: 'mThreadProc' is not protected by 'mThreadMutex'
 			rax = self_.mThreadProc () ;
-		} ,[&] (const Exception &e) {
-			_CALL_TRY_ ([&] () {
-				static_rethrow (self_ ,e) ;
-			} ,[&] () {
-				_STATIC_WARNING_ ("noop") ;
-			}) ;
-		}) ;
+		} catch (const Exception &e) {
+			static_rethrow (self_ ,e) ;
+		} catch (...) {
+			const auto r1x = Exception (_PCSTR_ ("unknown C++ exception")) ;
+			static_rethrow (self_ ,r1x) ;
+		}
 		if (rax.exist ())
 			static_push (self_ ,_MOVE_ (rax.self)) ;
 		static_signal (self_) ;

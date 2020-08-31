@@ -145,7 +145,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Array (const stl::initializer_list<ITEM> &that)
+	implicit Array (const api::initializer_list<ITEM> &that)
 		: Array (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
@@ -321,7 +321,7 @@ public:
 		clear () ;
 	}
 
-	implicit String (const stl::initializer_list<ITEM> &that)
+	implicit String (const api::initializer_list<ITEM> &that)
 		: String (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
@@ -586,7 +586,7 @@ public:
 	imports String make (const _ARGS &...initval) {
 		struct Dependent ;
 		using TextWriter = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
-		_STATIC_ASSERT_ (stl::is_same<SIZE ,SAUTO>::value) ;
+		_STATIC_ASSERT_ (IS_SAME_HELP<SIZE ,SAUTO>::value) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
 		auto rax = TextWriter (ret.raw ()) ;
 		rax.prints (initval...) ;
@@ -626,7 +626,7 @@ public:
 		clear () ;
 	}
 
-	implicit Deque (const stl::initializer_list<ITEM> &that)
+	implicit Deque (const api::initializer_list<ITEM> &that)
 		: Deque (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -955,7 +955,7 @@ public:
 		clear () ;
 	}
 
-	implicit Priority (const stl::initializer_list<ITEM> &that)
+	implicit Priority (const api::initializer_list<ITEM> &that)
 		: Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1292,7 +1292,7 @@ public:
 		clear () ;
 	}
 
-	implicit List (const stl::initializer_list<ITEM> &that)
+	implicit List (const api::initializer_list<ITEM> &that)
 		: List (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1671,7 +1671,7 @@ public:
 		clear () ;
 	}
 
-	implicit ArrayList (const stl::initializer_list<ITEM> &that)
+	implicit ArrayList (const api::initializer_list<ITEM> &that)
 		: ArrayList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -2418,7 +2418,7 @@ public:
 		clear () ;
 	}
 
-	implicit Set (const stl::initializer_list<ITEM> &that)
+	implicit Set (const api::initializer_list<ITEM> &that)
 		: Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -3012,7 +3012,7 @@ public:
 		clear () ;
 	}
 
-	implicit HashSet (const stl::initializer_list<ITEM> &that)
+	implicit HashSet (const api::initializer_list<ITEM> &that)
 		: HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
