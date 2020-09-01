@@ -2193,12 +2193,11 @@ public:
 	static DEF<void (const ARGVF<ARGC<1>> &)> HINT_IDENTIFIER ;
 	static DEF<void (const ARGVF<ARGC<2>> &)> HINT_VALUE ;
 	static DEF<void (const ARGVF<ARGC<3>> &)> HINT_STRING ;
-	static DEF<void (const ARGVF<ARGC<4>> &)> HINT_NEWGAP ;
-	static DEF<void (const ARGVF<ARGC<5>> &)> HINT_NEWLINE ;
+	static DEF<void (const ARGVF<ARGC<4>> &)> HINT_WORD_GAP ;
+	static DEF<void (const ARGVF<ARGC<5>> &)> HINT_WORD_GAP_ENDLINE ;
 	static DEF<void (const ARGVF<ARGC<6>> &)> SKIP_GAP ;
 	static DEF<void (const ARGVF<ARGC<7>> &)> SKIP_GAP_SPACE ;
 	static DEF<void (const ARGVF<ARGC<8>> &)> SKIP_GAP_ENDLINE ;
-	static DEF<void (const ARGVF<ARGC<9>> &)> SKIP_LINE ;
 
 private:
 	struct HEAP_PACK {
@@ -2208,14 +2207,12 @@ private:
 private:
 	SharedRef<HEAP_PACK> mHeap ;
 	PhanRef<TextReader<STRU8>> mReader ;
-	Array<STRU8> mCache ;
-	INDEX mPeek ;
+	Deque<STRU8> mCache ;
 	BOOL mHintStringTextFlag ;
 	LENGTH mHintNextTextSize ;
 
 public:
 	implicit RegularReader () {
-		mPeek = 0 ;
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 	}
@@ -2226,25 +2223,32 @@ public:
 		r1x.modify_space (STRU8 (' ') ,1) ;
 		r1x.modify_space (STRU8 ('\t') ,1) ;
 		r1x.modify_space (STRU8 ('\v') ,1) ;
+		r1x.modify_space (STRU8 ('\b') ,1) ;
 		r1x.modify_space (STRU8 ('\r') ,2) ;
 		r1x.modify_space (STRU8 ('\n') ,2) ;
 		r1x.modify_space (STRU8 ('\f') ,2) ;
 		r1x.modify_escape_r (STRU8 ('t') ,STRU8 ('\t')) ;
 		r1x.modify_escape_r (STRU8 ('v') ,STRU8 ('\v')) ;
+		r1x.modify_escape_r (STRU8 ('b') ,STRU8 ('\b')) ;
 		r1x.modify_escape_r (STRU8 ('r') ,STRU8 ('\r')) ;
 		r1x.modify_escape_r (STRU8 ('n') ,STRU8 ('\n')) ;
 		r1x.modify_escape_r (STRU8 ('f') ,STRU8 ('\f')) ;
+		r1x.modify_escape_r (STRU8 ('\'') ,STRU8 ('\'')) ;
 		r1x.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
 		r1x.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
 		r1x.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
+		r1x.modify_escape_r (STRU8 ('u') ,STRU8 ('u')) ;
+		r1x.modify_escape_r (STRU8 ('x') ,STRU8 ('x')) ;
 		_STATIC_WARNING_ ("mark") ;
 		//@info: disable default escape-str convertion
 		r1x.enable_escape (FALSE) ;
 		mReader.self >> TextReader<STRU8>::BOM ;
-		mCache = Array<STRU8> (ll_len) ;
-		for (auto &&i : _RANGE_ (0 ,mCache.length ()))
-			mReader.self >> mCache[i] ;
-		mPeek = 0 ;
+		mCache = Deque<STRU8> (ll_len) ;
+		for (auto &&i : _RANGE_ (0 ,ll_len)) {
+			_STATIC_UNUSED_ (i) ;
+			INDEX ix = mCache.insert () ;
+			mReader.self >> mCache[ix] ;
+		}
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 	}
@@ -2255,7 +2259,6 @@ public:
 		ret.mHeap->mReader = mReader->share () ;
 		ret.mReader = PhanRef<TextReader<STRU8>>::make (ret.mHeap->mReader) ;
 		ret.mCache = mCache ;
-		ret.mPeek = mPeek ;
 		ret.mHintStringTextFlag = FALSE ;
 		ret.mHintNextTextSize = 0 ;
 		return _MOVE_ (ret) ;
@@ -2263,8 +2266,7 @@ public:
 
 	const STRU8 &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (index >= 0 && index < mCache.length ()) ;
-		_DEBUG_ASSERT_ (mPeek >= 0 && mPeek < mCache.length ()) ;
-		return mCache[(mPeek + index) % mCache.length ()] ;
+		return mCache[mCache.access (index)] ;
 	}
 
 	inline const STRU8 &operator[] (const INDEX &index) const leftvalue {
@@ -2272,8 +2274,9 @@ public:
 	}
 
 	void read () {
-		mReader.self >> mCache[mPeek] ;
-		mPeek = (mPeek + 1) % mCache.length () ;
+		mCache.take () ;
+		INDEX ix = mCache.insert () ;
+		mReader.self >> mCache[ix] ;
 	}
 
 	inline void operator++ (VAR32) {
@@ -2424,7 +2427,7 @@ public:
 		return DEREF[this] ;
 	}
 
-	void read (const DEF<decltype (HINT_NEWGAP)> &) {
+	void read (const DEF<decltype (HINT_WORD_GAP)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 		auto rax = share () ;
@@ -2440,12 +2443,12 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const DEF<decltype (HINT_NEWGAP)> &) {
-		read (HINT_NEWGAP) ;
+	inline RegularReader &operator>> (const DEF<decltype (HINT_WORD_GAP)> &) {
+		read (HINT_WORD_GAP) ;
 		return DEREF[this] ;
 	}
 
-	void read (const DEF<decltype (HINT_NEWLINE)> &) {
+	void read (const DEF<decltype (HINT_WORD_GAP_ENDLINE)> &) {
 		mHintStringTextFlag = FALSE ;
 		mHintNextTextSize = 0 ;
 		auto rax = share () ;
@@ -2461,8 +2464,8 @@ public:
 		}
 	}
 
-	inline RegularReader &operator>> (const DEF<decltype (HINT_NEWLINE)> &) {
-		read (HINT_NEWLINE) ;
+	inline RegularReader &operator>> (const DEF<decltype (HINT_WORD_GAP_ENDLINE)> &) {
+		read (HINT_WORD_GAP_ENDLINE) ;
 		return DEREF[this] ;
 	}
 
@@ -2483,6 +2486,8 @@ public:
 	void read (const DEF<decltype (SKIP_GAP_SPACE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
+			if (get (0) == r1x.varify_ending_item ())
+				break ;
 			if (!r1x.varify_space (get (0) ,1))
 				break ;
 			read () ;
@@ -2497,6 +2502,8 @@ public:
 	void read (const DEF<decltype (SKIP_GAP_ENDLINE)> &) {
 		const auto r1x = mReader->attr () ;
 		while (TRUE) {
+			if (get (0) == r1x.varify_ending_item ())
+				break ;
 			if (!r1x.varify_space (get (0) ,2))
 				break ;
 			read () ;
@@ -2505,28 +2512,6 @@ public:
 
 	inline RegularReader &operator>> (const DEF<decltype (SKIP_GAP_ENDLINE)> &) {
 		read (SKIP_GAP_ENDLINE) ;
-		return DEREF[this] ;
-	}
-
-	void read (const DEF<decltype (SKIP_LINE)> &) {
-		auto rax = STRU8 () ;
-		while (TRUE) {
-			rax = get (0) ;
-			const auto r1x = BOOL (rax == STRU8 ('\r') || rax == STRU8 ('\n') || rax == STRU8 ('\f')) ;
-			if (r1x)
-				break ;
-			read () ;
-		}
-		if (rax != STRU8 ('\r'))
-			return ;
-		const auto r2x = get (0) ;
-		if (r2x != STRU8 ('\n'))
-			return ;
-		read () ;
-	}
-
-	inline RegularReader &operator>> (const DEF<decltype (SKIP_LINE)> &) {
-		read (SKIP_LINE) ;
 		return DEREF[this] ;
 	}
 
@@ -2585,15 +2570,13 @@ inline void RegularReader::HINT_VALUE (const ARGVF<ARGC<2>> &) {}
 
 inline void RegularReader::HINT_STRING (const ARGVF<ARGC<3>> &) {}
 
-inline void RegularReader::HINT_NEWGAP (const ARGVF<ARGC<4>> &) {}
+inline void RegularReader::HINT_WORD_GAP (const ARGVF<ARGC<4>> &) {}
 
-inline void RegularReader::HINT_NEWLINE (const ARGVF<ARGC<5>> &) {}
+inline void RegularReader::HINT_WORD_GAP_ENDLINE (const ARGVF<ARGC<5>> &) {}
 
 inline void RegularReader::SKIP_GAP (const ARGVF<ARGC<6>> &) {}
 
 inline void RegularReader::SKIP_GAP_SPACE (const ARGVF<ARGC<7>> &) {}
 
 inline void RegularReader::SKIP_GAP_ENDLINE (const ARGVF<ARGC<8>> &) {}
-
-inline void RegularReader::SKIP_LINE (const ARGVF<ARGC<9>> &) {}
 } ;

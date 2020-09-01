@@ -1893,7 +1893,7 @@ private:
 		*	$0->$8 $7 $9
 		*	$1->${identity}
 		*	$2->"${string}"
-		*	$3->${newgap}
+		*	$3->${word_gap}
 		*	$4->/$1
 		*	$5->-$1|-$1=$2|-$1=$3
 		*	$6->$2|$3
@@ -1923,9 +1923,9 @@ private:
 		mRis >> RegularReader::HINT_STRING >> mLatestString ;
 	}
 
-	//@info: $3->${newgap}
+	//@info: $3->${word_gap}
 	void update_shift_e3 () {
-		mRis >> RegularReader::HINT_NEWGAP >> mLatestString ;
+		mRis >> RegularReader::HINT_WORD_GAP >> mLatestString ;
 	}
 
 	//@info: $4->/$1
