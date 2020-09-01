@@ -757,8 +757,8 @@ private:
 
 	void update_lack_weight (const INDEX &y) {
 		static constexpr auto M_STATE = PACK<EFLAG[22]> ({
-			EFLAG (0) ,EFLAG (1) ,EFLAG (2) ,EFLAG (3) ,EFLAG (4) ,
-			EFLAG (5) ,EFLAG (6) ,EFLAG (7) ,EFLAG (8) ,EFLAG (9) ,
+			EFLAG (+0) ,EFLAG (+1) ,EFLAG (+2) ,EFLAG (+3) ,EFLAG (+4) ,
+			EFLAG (+5) ,EFLAG (+6) ,EFLAG (+7) ,EFLAG (+8) ,EFLAG (+9) ,
 			EFLAG (10) ,EFLAG (11) ,EFLAG (12) ,EFLAG (13) ,EFLAG (14) ,
 			EFLAG (15) ,EFLAG (16) ,EFLAG (17) ,EFLAG (18) ,EFLAG (19) ,
 			EFLAG (20) ,EFLAG (21)}) ;

@@ -45,7 +45,7 @@ public:
 
 	explicit Duration (const LENGTH &milliseconds_) ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Duration>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Duration>::value)>>
 	explicit Duration (_ARG1 &&time_) ;
 
 	const DEF<typename Private::Implement> &native () const leftvalue {
@@ -114,7 +114,7 @@ private:
 public:
 	implicit TimePoint () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>::value)>>
 	explicit TimePoint (_ARG1 &&time_) ;
 
 	const DEF<typename Private::Implement> &native () const leftvalue {
@@ -465,7 +465,7 @@ private:
 }
 #endif
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(IS_CONST_HELP<_ARG1>::value && api::is_volatile<_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_CONST_HELP<_ARG1>::value && IS_VOLATILE_HELP<_ARG1>::value)>>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP4)> &) {
 		writer << _PCSTR_ ("const volatile ") ;
 	}
@@ -475,7 +475,7 @@ private:
 		writer << _PCSTR_ ("const ") ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(api::is_volatile<_ARG1>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(IS_VOLATILE_HELP<_ARG1>::value)>>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP2)> &) {
 		writer << _PCSTR_ ("volatile ") ;
 	}
@@ -680,8 +680,8 @@ private:
 
 	template <class _ARG1>
 	imports void template_write_typename_y (TextWriter<STR> &writer ,const ARGVF<_ARG1> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		template_write_typename_x (writer ,ARGV<HINT_T1>::null) ;
 		writer << _PCSTR_ (" ,") ;
 		template_write_typename_y (writer ,ARGV<HINT_T2>::null) ;

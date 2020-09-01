@@ -1801,7 +1801,7 @@ public:
 	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		update_range (ix) ;
-		mList[ix].mIndex = min_free_one () ;
+		mList[ix].mIndex = next_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
 	}
 
@@ -1813,7 +1813,7 @@ public:
 	void add (REMOVE_CONST_TYPE<ITEM> &&item) {
 		INDEX ix = mList.alloc (ARGVP0 ,_MOVE_ (item)) ;
 		update_range (ix) ;
-		mList[ix].mIndex = min_free_one () ;
+		mList[ix].mIndex = next_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
 	}
 
@@ -1832,7 +1832,7 @@ public:
 	INDEX insert () {
 		INDEX ix = mList.alloc (ARGVP0) ;
 		update_range (ix) ;
-		mList[ix].mIndex = min_free_one () ;
+		mList[ix].mIndex = next_free_one () ;
 		mRange[mList[ix].mIndex] = ix ;
 		return mList[ix].mIndex ;
 	}
@@ -1899,7 +1899,7 @@ private:
 	explicit ArrayList (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mList (len) ,mRange (len) {}
 
-	INDEX min_free_one () {
+	INDEX next_free_one () {
 		_DEBUG_ASSERT_ (mRange.size () > 0) ;
 		const auto r1x = mFree % mRange.size () ;
 		mFree = r1x ;

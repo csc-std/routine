@@ -512,8 +512,8 @@ struct CONSTEXPR_MAX_SIZEOF {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		return _MAX_<const LENGTH> (_SIZEOF_ (HINT_T1) ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
@@ -525,8 +525,8 @@ struct CONSTEXPR_MAX_ALIGNOF {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		return _MAX_<const LENGTH> (_ALIGNOF_ (HINT_T1) ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
@@ -586,7 +586,7 @@ public:
 		template_construct (r1x ,ARGV<ARGVS<UNITS...>>::null) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Variant>::value)>>
 	implicit Variant (_ARG1 &&that)
 		:Variant (ARGVP0) {
 		struct Dependent ;
@@ -722,8 +722,8 @@ private:
 	template <class _ARG1>
 	void template_construct (const INDEX &index ,const ARGVF<_ARG1> &) {
 		struct Dependent ;
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<HINT_T1>> ;
 		_STATIC_ASSERT_ (api::is_nothrow_move_constructible<HINT_T1>::value) ;
 		_STATIC_ASSERT_ (api::is_nothrow_move_assignable<HINT_T1>::value) ;
@@ -744,8 +744,8 @@ private:
 
 	template <class _ARG1 ,class _ARG2>
 	imports INDEX default_constructible_index (const ARGVF<_ARG1> & ,const ARGVF<_ARG2> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG2> ;
 		if (IS_DEFAULT_CONSTRUCTIBLE_HELP<HINT_T1>::value)
 			return _ARG1::value ;
 		return default_constructible_index (ARGV<INCREASE<_ARG1>>::null ,ARGV<HINT_T2>::null) ;
@@ -2558,8 +2558,8 @@ private:
 
 	template <class _ARG1>
 	void template_visit (UNIT &visitor ,CONT &context_ ,const ARGVF<_ARG1> &) const {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		auto &r1x = HINT_T1::compile (context_) ;
 		visitor.visit (r1x) ;
 		template_visit (visitor ,context_ ,ARGV<HINT_T2>::null) ;

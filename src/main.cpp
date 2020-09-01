@@ -29,7 +29,6 @@ imports void main_shutdown () {
 	Singleton<ConsoleService>::instance ().log (_PCSTR_ ("UNITTEST") ,_PCSTR_ ("main_shutdown")) ;
 }
 
-
 #ifdef __CSC_TARGET_EXE__
 exports int main () noexcept {
 	using namespace UNITTEST ;

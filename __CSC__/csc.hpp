@@ -316,28 +316,28 @@ namespace CSC {
 
 #ifdef __CSC_DEBUG__
 #ifdef __CSC_COMPILER_MSVC__
-#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __debugbreak () ; } while (FALSE)
+#define _DEBUG_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; __debugbreak () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
-#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) __builtin_trap () ; } while (FALSE)
+#define _DEBUG_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; __builtin_trap () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
-#define _DEBUG_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) assert (FALSE) ; } while (FALSE)
+#define _DEBUG_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; assert (FALSE) ; } while (FALSE)
 #endif
 #endif
 
 #ifdef __CSC_COMPILER_MSVC__
-#define _DYNAMIC_ASSERT_(...) do { if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (_PCSTR_ ("dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " M_FUNC " in " M_FILE " ," M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if (!(_UNW_ (__VA_ARGS__))) CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifndef __CSC_DEBUG__

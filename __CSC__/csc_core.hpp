@@ -520,18 +520,18 @@ using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
-template <class ,class ,class ,class>
+template <class ,class ,class>
 struct IS_ARRAY_OF {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(IS_SAME_HELP<_ARG1 ,REMOVE_ARRAY_TYPE<_ARG2>>::value)> ,ENABLE_TYPE<(_COUNTOF_ (_ARG2) > 0)>> {
+struct IS_ARRAY_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<(IS_ARRAY_HELP<_ARG2>::value && _COUNTOF_ (_ARG2) > 0)>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using IS_ARRAY_OF_HELP = typename IS_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE ,NONE>::TYPE ;
+using IS_ARRAY_OF_HELP = typename IS_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -590,6 +590,21 @@ struct REMOVE_TEMP<TEMP<_ARG1>> {
 
 template <class _ARG1>
 using REMOVE_TEMP_TYPE = typename REMOVE_TEMP<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct IS_PLACEHOLDER {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_PLACEHOLDER<ARGV<ARGVP<_ARG1>>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+using IS_PLACEHOLDER_HELP = typename IS_PLACEHOLDER<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -773,43 +788,42 @@ using RANGE_PARAMS_TYPE = typename RANGE_PARAMS<_ARG1 ,ARGC<1> ,ARGVS<>>::TYPE ;
 
 namespace U {
 template <class>
-struct ARGVS_ONE ;
+struct PARAMS_ONE ;
 
 template <class _ARG1 ,class... _ARGS>
-struct ARGVS_ONE<ARGVS<_ARG1 ,_ARGS...>> {
+struct PARAMS_ONE<ARGVS<_ARG1 ,_ARGS...>> {
 	using TYPE = _ARG1 ;
 } ;
 
 template <class _ARG1>
-using ARGVS_ONE_TYPE = typename ARGVS_ONE<_ARG1>::TYPE ;
+using PARAMS_ONE_TYPE = typename PARAMS_ONE<_ARG1>::TYPE ;
 } ;
 
 namespace U {
 template <class>
-struct ARGVS_REST ;
+struct PARAMS_REST ;
 
 template <class _ARG1 ,class... _ARGS>
-struct ARGVS_REST<ARGVS<_ARG1 ,_ARGS...>> {
+struct PARAMS_REST<ARGVS<_ARG1 ,_ARGS...>> {
 	using TYPE = ARGVS<_ARGS...> ;
 } ;
 
 template <class _ARG1>
-using ARGVS_REST_TYPE = typename ARGVS_REST<_ARG1>::TYPE ;
+using PARAMS_REST_TYPE = typename PARAMS_REST<_ARG1>::TYPE ;
 } ;
 
 namespace U {
 template <class ,class>
-struct ARGVS_CAT ;
+struct PARAMS_CAT ;
 
 template <class... _ARGS1 ,class... _ARGS2>
-struct ARGVS_CAT<ARGVS<_ARGS1...> ,ARGVS<_ARGS2...>> {
+struct PARAMS_CAT<ARGVS<_ARGS1...> ,ARGVS<_ARGS2...>> {
 	using TYPE = ARGVS<_ARGS1... ,_ARGS2...> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using ARGVS_CAT_TYPE = typename ARGVS_CAT<_ARG1 ,_ARG2>::TYPE ;
+using PARAMS_CAT_TYPE = typename PARAMS_CAT<_ARG1 ,_ARG2>::TYPE ;
 } ;
-
 
 namespace U {
 template <class ,class ,class>
@@ -1001,7 +1015,6 @@ using IS_EFLAG_HELP = IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,EFLAG> ;
 template <class _ARG1>
 using IS_XYZ_HELP = ARGC<IS_VOID_HELP<_ARG1>::value || IS_BOOL_HELP<_ARG1>::value || IS_EFLAG_HELP<_ARG1>::value || IS_VAR_XYZ_HELP<_ARG1>::value || IS_VAL_XYZ_HELP<_ARG1>::value || IS_BYTE_XYZ_HELP<_ARG1>::value || IS_STR_XYZ_HELP<_ARG1>::value> ;
 } ;
-
 
 namespace U {
 template <class _ARG1>
@@ -1441,6 +1454,7 @@ using U::REMOVE_MEMPTR_TYPE ;
 using U::MEMPTR_CLASS_TYPE ;
 using U::IS_MEMPTR_HELP ;
 using U::REMOVE_TEMP_TYPE ;
+using U::IS_PLACEHOLDER_HELP ;
 using U::REMOVE_FUNCATTR_TYPE ;
 using U::REMOVE_FUNCTION_TYPE ;
 using U::FUNCTION_PARAMS_TYPE ;
@@ -1450,9 +1464,9 @@ using U::FUNCTION_OF_TYPE ;
 using U::RESULT_OF_TYPE ;
 using U::REPEAT_PARAMS_TYPE ;
 using U::RANGE_PARAMS_TYPE ;
-using U::ARGVS_ONE_TYPE ;
-using U::ARGVS_REST_TYPE ;
-using U::ARGVS_CAT_TYPE ;
+using U::PARAMS_ONE_TYPE ;
+using U::PARAMS_REST_TYPE ;
+using U::PARAMS_CAT_TYPE ;
 using U::INDEX_OF_TYPE ;
 using U::INDEX_TO_TYPE ;
 using U::IS_VOID_HELP ;
@@ -1954,8 +1968,8 @@ struct CONSTEXPR_CACHE_STRING_SIZE {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		return _COUNTOF_ (HINT_T1) - 1 + invoke (ARGV<HINT_T2>::null) ;
 	}
 } ;

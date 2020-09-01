@@ -44,7 +44,7 @@ private:
 public:
 	implicit Operand () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value)>>
 	implicit Operand (_ARG1 &&that) {
 		mThis = StrongRef<THIS_PACK>::make () ;
 		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
@@ -135,7 +135,7 @@ private:
 public:
 	implicit Operator () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value)>>
 	implicit Operator (_ARG1 &&that) {
 		struct Dependent ;
 		using HINT_T1 = FUNCTION_OF_TYPE<_ARG1> ;
@@ -251,8 +251,8 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
 		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
@@ -288,8 +288,8 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG2> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG2> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG2> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG2> ;
 		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
 		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
@@ -342,8 +342,8 @@ struct CONSTEXPR_MAXOF_VALUE {
 
 	template <class _ARG1>
 	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		return _MAX_<const LENGTH> (HINT_T1::value ,invoke (ARGV<HINT_T2>::null)) ;
 	}
 } ;
@@ -439,8 +439,8 @@ protected:
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const RETR &template_flip_invoke (const ARGVF<_ARG1> & ,const ARGVS_ONE_TYPE<_ARG1> &funcval_one ,const _ARGS &...funcval_rest) const leftvalue {
-		return template_flip_invoke (ARGV<ARGVS_REST_TYPE<_ARG1>>::null ,funcval_rest... ,funcval_one) ;
+	const RETR &template_flip_invoke (const ARGVF<_ARG1> & ,const PARAMS_ONE_TYPE<_ARG1> &funcval_one ,const _ARGS &...funcval_rest) const leftvalue {
+		return template_flip_invoke (ARGV<PARAMS_REST_TYPE<_ARG1>>::null ,funcval_rest... ,funcval_one) ;
 	}
 	template <class _ARG1 ,class... _ARGS>
 	const RETR &template_flips_invoke (const _ARG1 &parameter ,const ARGVF<ARGVS<_ARGS...>> &) const leftvalue {
@@ -469,8 +469,8 @@ protected:
 
 	template <class _ARG1 ,class... _ARGS>
 	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
-		using HINT_T1 = ARGVS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = ARGVS_REST_TYPE<_ARG1> ;
+		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
+		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
 		auto &r1x = _NULL_ (ARGV<ARGVP<HINT_T1>>::null) ;
 		return template_flip_invoke (patch_ ,ARGV<HINT_T2>::null ,placeholder... ,r1x) ;
 	}
@@ -492,7 +492,7 @@ protected:
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4 ,class... _ARGS>
 	const RETR &template_concat_patch (const Expression<_ARG1 ,_ARG4> &patch_ ,const ARGVF<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const leftvalue {
-		return template_concat_patch (patch_ ,ARGV<ARGVS_REST_TYPE<_ARG2>>::null ,parameter.rest () ,funcval... ,parameter.one ()) ;
+		return template_concat_patch (patch_ ,ARGV<PARAMS_REST_TYPE<_ARG2>>::null ,parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>

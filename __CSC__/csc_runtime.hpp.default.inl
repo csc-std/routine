@@ -632,7 +632,6 @@ inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 	api::terminate () ;
 }
 
-
 inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,cmd) ;
 	const auto r2x = api::system (r1x.raw ().self) ;

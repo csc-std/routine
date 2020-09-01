@@ -1339,7 +1339,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value)>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
@@ -1447,7 +1447,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value)>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor)
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
@@ -1697,7 +1697,7 @@ public:
 		mFunctor = DEPTR[that] ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<decltype (ARGVP0)>>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>::value)>>
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
