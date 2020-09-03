@@ -16,7 +16,7 @@ class Matrix ;
 
 template <class REAL>
 class Vector {
-	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::compile ()) ;
 
 private:
 	Buffer<REAL ,ARGC<4>> mVector ;
@@ -329,7 +329,7 @@ public:
 
 template <class REAL>
 class Matrix {
-	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::value) ;
+	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::compile ()) ;
 
 private:
 	struct Private {
@@ -352,7 +352,7 @@ public:
 		}
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(IS_SAME_HELP<_ARG1 ,REAL>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<_ARG1 ,REAL>>>
 	implicit Matrix (const Vector<_ARG1> &vx ,const Vector<_ARG1> &vy ,const Vector<_ARG1> &vz ,const Vector<_ARG1> &vw) {
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			get (i ,0) = vx[i] ;

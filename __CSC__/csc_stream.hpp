@@ -16,7 +16,7 @@ using STRUW = TEXT_BASE_TYPE<STRW> ;
 
 template <class REAL>
 class ByteReader {
-	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
 
 public:
 	class Binder
@@ -251,7 +251,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void read (String<_ARG1 ,_ARG2> &data) {
-		_STATIC_ASSERT_ (IS_STR_XYZ_HELP<_ARG1>::value) ;
+		_STATIC_ASSERT_ (IS_STR_XYZ_HELP<_ARG1>::compile ()) ;
 		const auto r1x = LENGTH (read (ARGV<VAR32>::null)) ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		if (data.size () < r1x)
@@ -386,7 +386,7 @@ inline void ByteReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class ByteWriter {
-	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
 
 public:
 	class Binder
@@ -618,7 +618,7 @@ public:
 
 	template <class _ARG1 ,class _ARG2>
 	void write (const String<_ARG1 ,_ARG2> &data) {
-		_STATIC_ASSERT_ (IS_STR_XYZ_HELP<_ARG1>::value) ;
+		_STATIC_ASSERT_ (IS_STR_XYZ_HELP<_ARG1>::compile ()) ;
 		const auto r1x = data.length () ;
 		_DYNAMIC_ASSERT_ (r1x >= 0 && r1x < VAR32_MAX) ;
 		write (VAR32 (r1x)) ;
@@ -745,7 +745,7 @@ inline void ByteWriter<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class TextReader {
-	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::value) ;
+	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
 public:
 	class Binder
@@ -1378,7 +1378,7 @@ public:
 	}
 
 	void enable_endian (const BOOL &flag) const {
-		_STATIC_ASSERT_ (!IS_CONST_HELP<BASE>::value) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_CONST_HELP<BASE>>::compile ()) ;
 		mBase->mHeap->mEndianFlag = flag ;
 	}
 
@@ -1415,7 +1415,7 @@ public:
 	}
 
 	void enable_escape (const BOOL &flag) const {
-		_STATIC_ASSERT_ (!IS_CONST_HELP<BASE>::value) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_CONST_HELP<BASE>>::compile ()) ;
 		mBase->mHeap->mEscapeFlag = flag ;
 	}
 
@@ -1432,7 +1432,7 @@ public:
 	}
 
 	void modify_escape_r (const REAL &str_a ,const REAL &str_e) const {
-		_STATIC_ASSERT_ (!IS_CONST_HELP<BASE>::value) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_CONST_HELP<BASE>>::compile ()) ;
 		_DEBUG_ASSERT_ (str_e != varify_ending_item ()) ;
 		INDEX ix = mBase->mHeap->mEscapeMappingSet.map (str_a) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
@@ -1464,7 +1464,7 @@ public:
 	}
 
 	void modify_space (const REAL &item ,const VAR32 &group) const {
-		_STATIC_ASSERT_ (!IS_CONST_HELP<BASE>::value) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_CONST_HELP<BASE>>::compile ()) ;
 		_DEBUG_ASSERT_ (item != varify_ending_item ()) ;
 		INDEX ix = mBase->mHeap->mSpaceMappingSet.map (item) ;
 		_DEBUG_ASSERT_ (ix == VAR_NONE) ;
@@ -1498,7 +1498,7 @@ inline void TextReader<REAL>::EOS (const ARGVF<ARGC<4>> &) {}
 
 template <class REAL>
 class TextWriter {
-	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::value) ;
+	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
 public:
 	class Binder

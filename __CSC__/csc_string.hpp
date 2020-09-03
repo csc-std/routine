@@ -773,7 +773,7 @@ inline exports String<STRA> StringProc::cvt_u32s_as (const String<STRU32> &val) 
 }
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
-	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::null ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
@@ -783,7 +783,7 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 }
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
-	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::null ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
@@ -793,7 +793,7 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 }
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
-	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
@@ -803,7 +803,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 }
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
-	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::value) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;

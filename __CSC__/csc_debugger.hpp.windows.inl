@@ -103,10 +103,10 @@ private:
 
 public:
 	implicit Implement () {
-		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
-		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
-		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
-		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
+		using R1X = U::CONSTEXPR_INCREASE<DEFAULT_HUGESTRING_SIZE> ;
+		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (R1X::compile ())) ;
+		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (R1X::compile ())) ;
+		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::compile () ;
 		mOptionSet = Set<EFLAG> (128) ;
 		mLogPath = String<STR> () ;
 	}
@@ -435,7 +435,7 @@ public:
 	}
 
 	Array<LENGTH> captrue_stack_trace () override {
-		auto rax = AutoBuffer<PTR<NONE>> (DEFAULT_RECURSIVE_SIZE::value) ;
+		auto rax = AutoBuffer<PTR<NONE>> (DEFAULT_RECURSIVE_SIZE::compile ()) ;
 		const auto r1x = CaptureStackBackTrace (3 ,VARY (rax.size ()) ,rax.self ,NULL) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))
@@ -451,13 +451,13 @@ public:
 		if switch_once (fax) {
 			if (!mSymbolFromAddress.exist ())
 				discard ;
-			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::value ;
+			const auto r1x = _ALIGNOF_ (api::SYMBOL_INFO) - 1 + _SIZEOF_ (api::SYMBOL_INFO) + list.length () * DEFAULT_FILEPATH_SIZE::compile () ;
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ADDRESS_ (DEPTR[rax.self]) ;
 			const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
 			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::null ,r3x) ;
-			DEREF[r4x].SizeOfStruct = _SIZEOF_ (api::SYMBOL_INFO) ;
-			DEREF[r4x].MaxNameLen = DEFAULT_FILEPATH_SIZE::value ;
+			DEREF[r4x].SizeOfStruct = VARY (_SIZEOF_ (api::SYMBOL_INFO)) ;
+			DEREF[r4x].MaxNameLen = VARY (DEFAULT_FILEPATH_SIZE::compile ()) ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
 				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r4x) ;
 				const auto r5x = StringProc::build_hexs (ARGV<STR>::null ,DATA (DEREF[r4x].Address)) ;

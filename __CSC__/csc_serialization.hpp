@@ -433,7 +433,7 @@ private:
 
 public:
 	void lock () {
-		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::compile ()) ;
 		mSelf++ ;
 	}
 
@@ -1398,7 +1398,7 @@ private:
 
 public:
 	void lock () {
-		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::value) ;
+		_DYNAMIC_ASSERT_ (mSelf <= DEFAULT_RECURSIVE_SIZE::compile ()) ;
 		mSelf++ ;
 	}
 

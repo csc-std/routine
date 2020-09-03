@@ -372,10 +372,10 @@ namespace CSC {
 #endif
 #define TRUE true
 
-#define _SIZEOF_(...) CSC::LENGTH (sizeof (CSC::U::REMOVE_CVR_TYPE<_UNW_ (__VA_ARGS__)>))
-#define _ALIGNOF_(...) CSC::LENGTH (alignof (CSC::U::REMOVE_CVR_TYPE<CSC::U::REMOVE_ARRAY_TYPE<_UNW_ (__VA_ARGS__)>>))
-#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNT_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
-#define _CAPACITYOF_(...) CSC::LENGTH (CSC::U::CAPACITY_OF_TYPE<_UNW_ (__VA_ARGS__)>::value)
+#define _SIZEOF_(...) CSC::LENGTH (CSC::U::SIZE_OF_TYPE<_UNW_ (__VA_ARGS__)>::compile ())
+#define _ALIGNOF_(...) CSC::LENGTH (CSC::U::ALIGN_OF_TYPE<_UNW_ (__VA_ARGS__)>::compile ())
+#define _COUNTOF_(...) CSC::LENGTH (CSC::U::COUNT_OF_TYPE<_UNW_ (__VA_ARGS__)>::compile ())
+#define _CAPACITYOF_(...) CSC::LENGTH (CSC::U::CAPACITY_OF_TYPE<_UNW_ (__VA_ARGS__)>::compile ())
 
 #ifdef NONE
 #undef NONE

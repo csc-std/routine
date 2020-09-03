@@ -70,10 +70,10 @@ private:
 
 public:
 	implicit Implement () {
-		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
-		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
-		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (r1x)) ;
-		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::value ;
+		using R1X = U::CONSTEXPR_INCREASE<DEFAULT_HUGESTRING_SIZE> ;
+		mConWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (R1X::compile ())) ;
+		mLogWriter = TextWriter<STR> (SharedRef<FixedBuffer<STR>>::make (R1X::compile ())) ;
+		mBufferSize = mLogWriter.size () - DEFAULT_LONGSTRING_SIZE::compile () ;
 		mOptionSet = Set<EFLAG> (128) ;
 		mLogPath = String<STR> () ;
 	}
@@ -450,7 +450,7 @@ public:
 	}
 
 	Array<LENGTH> captrue_stack_trace () override {
-		auto rax = AutoBuffer<PTR<NONE>> (DEFAULT_RECURSIVE_SIZE::value) ;
+		auto rax = AutoBuffer<PTR<NONE>> (DEFAULT_RECURSIVE_SIZE::compile ()) ;
 		const auto r1x = api::backtrace (rax.self ,VAR32 (rax.size ())) ;
 		Array<LENGTH> ret = Array<LENGTH> (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ()))

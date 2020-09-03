@@ -44,7 +44,7 @@ private:
 public:
 	implicit Operand () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operand>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operand>>>>>
 	implicit Operand (_ARG1 &&that) {
 		mThis = StrongRef<THIS_PACK>::make () ;
 		mThis->mHolder = AnyRef<REMOVE_CVR_TYPE<_ARG1>>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
@@ -135,14 +135,14 @@ private:
 public:
 	implicit Operator () = default ;
 
-	template <class _ARG1 ,class = ENABLE_TYPE<(!IS_PLACEHOLDER_HELP<_ARG1>::value && !IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operator>::value)>>
+	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operator>>>>>
 	implicit Operator (_ARG1 &&that) {
 		struct Dependent ;
-		using HINT_T1 = FUNCTION_OF_TYPE<_ARG1> ;
-		using HINT_T2 = REPEAT_PARAMS_TYPE<ARGC<_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<HINT_T1>)> ,const Operand &> ;
-		_STATIC_ASSERT_ (!IS_REFERENCE_HELP<_ARG1>::value) ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<HINT_T1 ,HINT_T2> ;
-		const auto r1x = Function<HINT_T1> (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
+		using R1X = FUNCTION_OF_TYPE<_ARG1> ;
+		using R2X = REPEAT_PARAMS_TYPE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<R1X>> ,const Operand &> ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG1>>::compile ()) ;
+		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R1X ,R2X> ;
+		const auto r1x = Function<R1X> (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 		mThis = StrongRef<ImplHolder>::make (r1x) ;
 	}
 
@@ -251,10 +251,10 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using HINT_T1 = PARAMS_ONE_TYPE<_ARG2> ;
-		using HINT_T2 = PARAMS_REST_TYPE<_ARG2> ;
-		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
+		using R1X = PARAMS_ONE_TYPE<_ARG2> ;
+		using R2X = PARAMS_REST_TYPE<_ARG2> ;
+		auto &r1x = parameter.one ().as (ARGV<R1X>::null) ;
+		return template_invoke (parameter.rest () ,ARGV<R2X>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -288,10 +288,10 @@ private:
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 	UNIT1 template_invoke (const _ARG1 &parameter ,const ARGVF<_ARG2> & ,_ARGS &&...funcval) const {
-		using HINT_T1 = PARAMS_ONE_TYPE<_ARG2> ;
-		using HINT_T2 = PARAMS_REST_TYPE<_ARG2> ;
-		auto &r1x = parameter.one ().as (ARGV<HINT_T1>::null) ;
-		return template_invoke (parameter.rest () ,ARGV<HINT_T2>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
+		using R1X = PARAMS_ONE_TYPE<_ARG2> ;
+		using R2X = PARAMS_REST_TYPE<_ARG2> ;
+		auto &r1x = parameter.one ().as (ARGV<R1X>::null) ;
+		return template_invoke (parameter.rest () ,ARGV<R2X>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,funcval)... ,r1x) ;
 	}
 } ;
 
@@ -301,9 +301,9 @@ class Expression ;
 namespace U {
 template <class _ARG1>
 struct RETR_FUNC {
-	_STATIC_ASSERT_ (_ARG1::value > 1) ;
-	using HINT_T1 = typename RETR_FUNC<DECREASE<_ARG1>>::TYPE ;
-	using TYPE = Expression<RANK1 ,HINT_T1> ;
+	_STATIC_ASSERT_ (_ARG1::compile () > 1) ;
+	using R1X = typename RETR_FUNC<U::CONSTEXPR_DECREASE<_ARG1>>::TYPE ;
+	using TYPE = Expression<RANK1 ,R1X> ;
 } ;
 
 template <>
@@ -312,7 +312,7 @@ struct RETR_FUNC<ARGC<1>> {
 } ;
 
 template <class _ARG1>
-using RETR_FUNC_TYPE = typename RETR_FUNC<ARGC<_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<_ARG1>)>>::TYPE ;
+using RETR_FUNC_TYPE = typename RETR_FUNC<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>::TYPE ;
 } ;
 
 class LexicalNode
@@ -334,17 +334,23 @@ public:
 } ;
 
 namespace U {
-struct CONSTEXPR_MAXOF_VALUE {
-	template <class _ARG1>
-	imports constexpr LENGTH invoke (const ARGVF<ARGVS<_ARG1>> &) {
-		return _ARG1::value ;
-	}
+template <class>
+struct CONSTEXPR_MAXOF ;
 
-	template <class _ARG1>
-	imports constexpr LENGTH invoke (const ARGVF<_ARG1> &) {
-		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
-		return _MAX_<const LENGTH> (HINT_T1::value ,invoke (ARGV<HINT_T2>::null)) ;
+template <class _ARG1>
+struct CONSTEXPR_MAXOF<ARGVS<_ARG1>> {
+	imports constexpr VAR compile () {
+		return _ARG1::compile () ;
+	}
+} ;
+
+template <class _ARG1>
+struct CONSTEXPR_MAXOF {
+	imports constexpr VAR compile () {
+		using R1X = CONSTEXPR_MAXOF<PARAMS_ONE_TYPE<_ARG1>> ;
+		using R2X = CONSTEXPR_MAXOF<PARAMS_REST_TYPE<_ARG1>> ;
+		using R3X = CONSTEXPR_MAX<R1X ,R2X> ;
+		return R3X::compile () ;
 	}
 } ;
 } ;
@@ -399,31 +405,31 @@ protected:
 		return _MOVE_ (ret) ;
 	}
 
-	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ,RETR>>>
+	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<_ARGS...>> ,RETR>>>
 	_RET flips (const ARGV<ARGVP<_ARGS>> &...) const {
-		using HINT_T1 = U::RANK_FUNC_TYPE<ARGC<(U::CONSTEXPR_MAXOF_VALUE::invoke (ARGV<ARGVS<_ARGS...>>::null))>> ;
+		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<_ARGS...>> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-		return template_flips (ARGV<HINT_T1>::null ,ARGV<ARGVS<_ARGS...>>::null ,ARGV<FUNCTION_PARAMS_TYPE<HINT_T1>>::null) ;
+		return template_flips (ARGV<R1X>::null ,ARGV<ARGVS<_ARGS...>>::null ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::null) ;
 	}
 
 	Expression<RANK1 ,RETR> fold () const {
 		struct Dependent ;
-		using HINT_T1 = RANGE_PARAMS_TYPE<ARGC<_CAPACITYOF_ (ARGVS<UNITS...>)>> ;
+		using R1X = RANGE_PARAMS_TYPE<CAPACITY_OF_TYPE<ARGVS<UNITS...>>> ;
 		Expression<RANK1 ,RETR> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::null ,node.mChild[0]) ;
 			auto &r2x = in1.as (ARGV<Expression<RANK1 ,RETR>>::null) ;
-			return r1x.template_fold_invoke (r2x ,ARGV<HINT_T1>::null) ;
+			return r1x.template_fold_invoke (r2x ,ARGV<R1X>::null) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return _MOVE_ (ret) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	_RET concat (const Expression<_ARG1 ,_ARG2> &that) const {
-		using HINT_T1 = U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<_ARG1>))>> ;
-		return template_concat (ARGV<HINT_T1>::null ,that ,ARGV<FUNCTION_PARAMS_TYPE<HINT_T1>>::null) ;
+		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ;
+		return template_concat (ARGV<R1X>::null ,that ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::null) ;
 	}
 
 protected:
@@ -469,10 +475,10 @@ protected:
 
 	template <class _ARG1 ,class... _ARGS>
 	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
-		using HINT_T1 = PARAMS_ONE_TYPE<_ARG1> ;
-		using HINT_T2 = PARAMS_REST_TYPE<_ARG1> ;
-		auto &r1x = _NULL_ (ARGV<ARGVP<HINT_T1>>::null) ;
-		return template_flip_invoke (patch_ ,ARGV<HINT_T2>::null ,placeholder... ,r1x) ;
+		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
+		using R2X = PARAMS_REST_TYPE<_ARG1> ;
+		auto &r1x = _NULL_ (ARGV<ARGVP<R1X>>::null) ;
+		return template_flip_invoke (patch_ ,ARGV<R2X>::null ,placeholder... ,r1x) ;
 	}
 
 	template <class... _ARGS>
@@ -580,7 +586,7 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK1>) - 1 + _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK1>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return concat (that) ;
 	}
@@ -635,7 +641,7 @@ public:
 
 	using SPECIALIZATION_BASE::concat ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<ARGC<(_CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK>) - 1 + _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<_ARG1>))>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return concat (that) ;
 	}

@@ -14,7 +14,7 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange
 	:private Proxy {
-	_STATIC_ASSERT_ (SIZE::value > 0) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 
 private:
 	struct Private {
@@ -98,7 +98,7 @@ public:
 
 	inline void operator++ () {
 		mIndex++ ;
-		template_incrase (ARGV<DECREASE<SIZE>>::null) ;
+		template_incrase (ARGV<U::CONSTEXPR_DECREASE<SIZE>>::null) ;
 	}
 
 private:
@@ -109,12 +109,14 @@ private:
 
 	template <class _ARG1>
 	void template_incrase (const ARGVF<_ARG1> &) {
-		_STATIC_ASSERT_ (_ARG1::value > 0 && _ARG1::value < LENGTH (SIZE::value)) ;
-		mItem[_ARG1::value]++ ;
-		if (mItem[_ARG1::value] < mBase->mRange[_ARG1::value])
+		using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,SIZE>::compile ()) ;
+		const auto r1x = _ARG1::compile () ;
+		mItem[r1x]++ ;
+		if (mItem[r1x] < mBase->mRange[r1x])
 			return ;
-		mItem[_ARG1::value] = 0 ;
-		template_incrase (ARGV<DECREASE<_ARG1>>::null) ;
+		mItem[r1x] = 0 ;
+		template_incrase (ARGV<R1X>::null) ;
 	}
 } ;
 

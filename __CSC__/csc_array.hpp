@@ -13,7 +13,7 @@ template <class BASE>
 class ArrayIterator
 	:private Proxy {
 private:
-	using HINT_ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
+	using ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::null).get (_NULL_ (ARGV<const INDEX>::null)))> ;
 
 private:
 	PhanRef<BASE> mBase ;
@@ -31,7 +31,7 @@ public:
 		return BOOL (mIndex != that.mIndex) ;
 	}
 
-	inline HINT_ITEM operator* () const leftvalue {
+	inline ITEM operator* () const leftvalue {
 		auto &r1x = _FORWARD_ (ARGV<const INDEX>::null ,mIndex) ;
 		return mBase->get (r1x) ;
 	}
@@ -293,9 +293,13 @@ template <class ITEM>
 using ARRAY9 = Array<ITEM ,ARGC<9>> ;
 
 namespace U {
+template <class _ARG1>
 struct CONSTEXPR_RESERVE_SIZE {
-	imports constexpr LENGTH invoke (const LENGTH &len) {
-		return len + _EBOOL_ (len > 0) ;
+	imports constexpr VAR compile () {
+		using R1X = U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO> ;
+		using R2X = CONDITIONAL_TYPE<R1X ,ARGC<1> ,ZERO> ;
+		using R3X = CONSTEXPR_ADD<_ARG1 ,R2X> ;
+		return R3X::compile () ;
 	}
 } ;
 } ;
@@ -309,7 +313,10 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	Buffer<ITEM ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mString ;
+	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+
+private:
+	Buffer<ITEM ,RESERVE_SIZE> mString ;
 
 public:
 	implicit String () {
@@ -317,7 +324,7 @@ public:
 	}
 
 	explicit String (const LENGTH &len)
-		:String (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
+		:String (ARGVP0 ,reserve_size (len)) {
 		clear () ;
 	}
 
@@ -586,8 +593,8 @@ public:
 	imports String make (const _ARGS &...initval) {
 		struct Dependent ;
 		using TextWriter = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<SIZE ,SAUTO>::value) ;
-		String ret = String (DEFAULT_LONGSTRING_SIZE::value) ;
+		_STATIC_ASSERT_ (IS_SAME_HELP<SIZE ,SAUTO>::compile ()) ;
+		String ret = String (DEFAULT_LONGSTRING_SIZE::compile ()) ;
 		auto rax = TextWriter (ret.raw ()) ;
 		rax.prints (initval...) ;
 		rax << TextWriter::EOS ;
@@ -598,10 +605,14 @@ private:
 	explicit String (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mString (len) {}
 
+	imports LENGTH reserve_size (const LENGTH &len) {
+		return len + _EBOOL_ (len > 0) ;
+	}
+
 	imports LENGTH plain_string_length (const ARR<ITEM> &val) {
-		const auto r1x = DEFAULT_HUGESTRING_SIZE::value + 1 ;
-		LENGTH ret = BasicProc::mem_chr (val ,r1x ,ITEM (0)) ;
-		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::value) ;
+		using R1X = U::CONSTEXPR_INCREASE<DEFAULT_HUGESTRING_SIZE> ;
+		LENGTH ret = BasicProc::mem_chr (val ,R1X::compile () ,ITEM (0)) ;
+		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::compile ()) ;
 		return _MOVE_ (ret) ;
 	}
 } ;
@@ -612,7 +623,10 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	Buffer<ITEM ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mDeque ;
+	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+
+private:
+	Buffer<ITEM ,RESERVE_SIZE> mDeque ;
 	INDEX mRead ;
 	INDEX mWrite ;
 
@@ -622,7 +636,7 @@ public:
 	}
 
 	explicit Deque (const LENGTH &len)
-		:Deque (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
+		:Deque (ARGVP0 ,reserve_size (len)) {
 		clear () ;
 	}
 
@@ -875,6 +889,10 @@ private:
 	explicit Deque (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mDeque (len) {}
 
+	imports LENGTH reserve_size (const LENGTH &len) {
+		return len + _EBOOL_ (len > 0) ;
+	}
+
 	BOOL ensure_index (const INDEX &index) const {
 		if (mRead <= mWrite)
 			if (!(index >= mRead && index < mWrite))
@@ -940,8 +958,10 @@ private:
 		INDEX mMap ;
 	} ;
 
+	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+
 private:
-	Buffer<NODE_PACK ,ARGC<(U::CONSTEXPR_RESERVE_SIZE::invoke (SIZE::value))>> mPriority ;
+	Buffer<NODE_PACK ,RESERVE_SIZE> mPriority ;
 	INDEX mWrite ;
 	INDEX mTop ;
 
@@ -951,7 +971,7 @@ public:
 	}
 
 	explicit Priority (const LENGTH &len)
-		:Priority (ARGVP0 ,U::CONSTEXPR_RESERVE_SIZE::invoke (len)) {
+		:Priority (ARGVP0 ,reserve_size (len)) {
 		clear () ;
 	}
 
@@ -1158,6 +1178,10 @@ public:
 private:
 	explicit Priority (const DEF<decltype (ARGVP0)> & ,const LENGTH &len)
 		:mPriority (len) {}
+
+	imports LENGTH reserve_size (const LENGTH &len) {
+		return len + _EBOOL_ (len > 0) ;
+	}
 
 	void reserve (const LENGTH &len) {
 		const auto r1x = len - (size () - length ()) ;
@@ -1958,12 +1982,13 @@ struct CONSTEXPR_CEIL8_SIZE_SWITCH_CASE2 {
 	}
 } ;
 
+template <class _ARG1>
 struct CONSTEXPR_CEIL8_SIZE {
-	imports constexpr LENGTH invoke (const LENGTH &len) {
-		return _SWITCH_ (
-			(len <= 0) ? CONSTEXPR_CEIL8_SIZE_SWITCH_CASE1<LENGTH>::invoke :
-			CONSTEXPR_CEIL8_SIZE_SWITCH_CASE2<LENGTH>::invoke)
-			(len) ;
+	imports constexpr VAR compile () {
+		using R1X = U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO> ;
+		using R2X = CONSTEXPR_MOD<CONSTEXPR_ADD<_ARG1 ,ARGC<7>> ,ARGC<8>> ;
+		using R3X = CONDITIONAL_TYPE<R1X ,R2X ,_ARG1> ;
+		return R3X::compile () ;
 	}
 } ;
 } ;
@@ -1982,8 +2007,10 @@ private:
 		class ArrayRange ;
 	} ;
 
+	using CEIL8_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_CEIL8_SIZE<SIZE>> ;
+
 private:
-	Buffer<BYTE ,ARGC<(U::CONSTEXPR_CEIL8_SIZE::invoke (SIZE::value))>> mSet ;
+	Buffer<BYTE ,CEIL8_SIZE> mSet ;
 	LENGTH mWidth ;
 
 public:
@@ -1993,7 +2020,7 @@ public:
 	}
 
 	explicit BitSet (const LENGTH &len)
-		:BitSet (ARGVP0 ,U::CONSTEXPR_CEIL8_SIZE::invoke (len) ,forward_width (len)) {
+		:BitSet (ARGVP0 ,ceil8_size (len) ,forward_width (len)) {
 		clear () ;
 	}
 
@@ -2313,13 +2340,19 @@ public:
 
 private:
 	explicit BitSet (const DEF<decltype (ARGVP0)> &) {
-		const auto r1x = LENGTH (SIZE::value) ;
+		const auto r1x = SIZE::compile () ;
 		const auto r2x = VAR_ZERO ;
 		mWidth = _MAX_ (r1x ,r2x) ;
 	}
 
 	explicit BitSet (const DEF<decltype (ARGVP0)> & ,const LENGTH &len ,const LENGTH &width)
 		:mSet (len) ,mWidth (width) {}
+
+	imports LENGTH ceil8_size (const LENGTH &len) {
+		if (len < 0)
+			return len ;
+		return (len + 7) / 8 ;
+	}
 
 	imports LENGTH forward_width (const LENGTH &width) {
 		_DEBUG_ASSERT_ (width >= 0 && width < VAR32_MAX) ;

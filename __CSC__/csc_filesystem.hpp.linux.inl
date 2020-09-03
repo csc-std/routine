@@ -215,7 +215,7 @@ inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,co
 }
 
 inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &file) {
-	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('\\')) ;
@@ -226,7 +226,7 @@ inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &f
 }
 
 inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
-	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
 	const auto r3x = BasicProc::mem_rchr (r2x.self ,r1x ,STR ('\\')) ;
@@ -267,7 +267,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 }
 
 inline exports String<STR> FileSystemProc::working_path () {
-	auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
+	auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	if switch_once (TRUE) {
 		const auto r1x = api::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (r1x != NULL)
@@ -311,7 +311,7 @@ inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (con
 }
 
 inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
-	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
+	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	auto rax = FileSystemProc::decouple_path_name (path) ;
 	auto fax = TRUE ;
 	if switch_once (fax) {
@@ -364,7 +364,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 
 inline exports const String<STR> &FileSystemProc::module_file_path () {
 	return _CACHE_ ([&] () {
-		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
+		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
@@ -377,7 +377,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () {
 
 inline exports const String<STR> &FileSystemProc::module_file_name () {
 	return _CACHE_ ([&] () {
-		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::value) ;
+		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
 		if (!(r1x >= 0 && r1x < rax.size ()))
 			rax.clear () ;
@@ -440,7 +440,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	if (FileSystemProc::find_directory (dire))
 		return ;
-	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
+	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	const auto r1x = FileSystemProc::absolute_path (dire) ;
 	const auto r2x = FileSystemProc::decouple_path_name (r1x) ;
 	_DEBUG_ASSERT_ (r2x.length () >= 1) ;
@@ -481,7 +481,7 @@ inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 //@warn: recursive call with junction(const symbolic &link) may cause endless loop
 inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
 	using HDIR = PTR<api::DIR> ;
-	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::value) ;
+	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	rax += dire ;
 	rax += _PCSTR_ ("/") ;
 	const auto r1x = rax.length () ;
@@ -525,7 +525,7 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 		FileSystemProc::erase_file (i) ;
 	for (auto &&i : rbx[1])
 		rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
-	_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
+	_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::compile ()) ;
 	while (TRUE) {
 		if (rax.empty ())
 			break ;
@@ -545,7 +545,7 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 				FileSystemProc::erase_file (i) ;
 			for (auto &&i : rbx[1])
 				rax.add (PACK<String<STR> ,BOOL> {i ,FALSE}) ;
-			_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::value) ;
+			_DYNAMIC_ASSERT_ (rax.length () <= DEFAULT_DIRECTORY_SIZE::compile ()) ;
 			rax[ix].mP2 = TRUE ;
 		}
 	}
