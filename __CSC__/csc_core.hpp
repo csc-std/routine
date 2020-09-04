@@ -557,87 +557,6 @@ using ARRAY_BIND_TYPE = DEF<_ARG1[_ARG2::compile ()]> ;
 } ;
 
 namespace U {
-template <class ,class>
-struct SIZE_OF {
-	using TYPE = ZERO ;
-} ;
-
-template <class _ARG1>
-struct SIZE_OF<_ARG1 ,ENABLE_TYPE<ARGC<(sizeof (_ARG1) > 0)>>> {
-	using TYPE = ARGC<(sizeof (_ARG1))> ;
-} ;
-
-template <class _ARG1>
-using SIZE_OF_TYPE = typename SIZE_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct ALIGN_OF {
-	using TYPE = ZERO ;
-} ;
-
-template <class _ARG1>
-struct ALIGN_OF<_ARG1 ,ENABLE_TYPE<ARGC<(alignof (_ARG1) > 0)>>> {
-	using TYPE = ARGC<(alignof (_ARG1))> ;
-} ;
-
-template <class _ARG1>
-using ALIGN_OF_TYPE = typename ALIGN_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct COUNT_OF ;
-
-template <class _ARG1>
-struct COUNT_OF<ARR<_ARG1>> {
-	using TYPE = ZERO ;
-} ;
-
-template <class _ARG1 ,LENGTH _ARG2>
-struct COUNT_OF<_ARG1[_ARG2]> {
-	using TYPE = ARGC<_ARG2> ;
-} ;
-
-template <class _ARG1>
-using COUNT_OF_TYPE = typename COUNT_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct CAPACITY_OF ;
-
-template <>
-struct CAPACITY_OF<ARGVS<>> {
-	using TYPE = ZERO ;
-} ;
-
-template <class... _ARGS>
-struct CAPACITY_OF<ARGVS<_ARGS...>> {
-	using TYPE = ARGC<(sizeof... (_ARGS))> ;
-} ;
-
-template <class _ARG1>
-using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_ARRAY_OF {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_ARRAY_OF<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1 ,ENABLE_TYPE<U::CONSTEXPR_COMPR_GT<COUNT_OF_TYPE<_ARG1> ,ZERO>>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_ARRAY_OF_HELP = typename IS_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
-} ;
-
-namespace U {
 template <class _ARG1>
 struct REMOVE_MEMPTR {
 	using TYPE = _ARG1 ;
@@ -801,6 +720,162 @@ using FUNCTION_BIND_TYPE = typename FUNCTION_BIND<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
+template <class ,class>
+struct IS_CLASS {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_CLASS<_ARG1 ,NONE> {
+	using TYPE = ARGC<(api::is_class<_ARG1>::value)> ;
+} ;
+
+template <class _ARG1>
+using IS_CLASS_HELP = typename IS_CLASS<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_TRIVIAL {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_TRIVIAL<_ARG1 ,NONE> {
+#ifndef __CSC_CXX_LATEST__
+	using TYPE = ARGC<(api::is_pod<_ARG1>::value)> ;
+#endif
+
+#ifdef __CSC_CXX_LATEST__
+	using TYPE = ARGC<(api::is_trivial<_ARG1>::value)> ;
+#endif
+} ;
+
+template <class _ARG1>
+using IS_TRIVIAL_HELP = typename IS_TRIVIAL<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_COMPLETE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<ARGC<(sizeof (_ARG1) > 0)>>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct IS_TEMPLATE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <template <class...> class _ARGT ,class... _ARGS>
+struct IS_TEMPLATE<_ARGT<_ARGS...>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+using IS_TEMPLATE_HELP = typename IS_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct TEMPLATE_PARAMS ;
+
+template <template <class...> class _ARGT ,class... _ARGS>
+struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
+	using TYPE = ARGVS<_ARGS...> ;
+} ;
+
+template <class _ARG1>
+using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct SIZE_OF ;
+
+template <class _ARG1>
+struct SIZE_OF<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = ARGC<(sizeof (_ARG1))> ;
+} ;
+
+template <class _ARG1>
+using SIZE_OF_TYPE = typename SIZE_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct ALIGN_OF ;
+
+template <class _ARG1>
+struct ALIGN_OF<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = ARGC<(alignof (_ARG1))> ;
+} ;
+
+template <class _ARG1>
+using ALIGN_OF_TYPE = typename ALIGN_OF<REMOVE_ARRAY_TYPE<REMOVE_CVR_TYPE<_ARG1>> ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct COUNT_OF ;
+
+template <class _ARG1>
+struct COUNT_OF<ARR<_ARG1>> {
+	using TYPE = ZERO ;
+} ;
+
+template <class _ARG1 ,LENGTH _ARG2>
+struct COUNT_OF<_ARG1[_ARG2]> {
+	using TYPE = ARGC<_ARG2> ;
+} ;
+
+template <class _ARG1>
+using COUNT_OF_TYPE = typename COUNT_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class>
+struct CAPACITY_OF ;
+
+template <>
+struct CAPACITY_OF<ARGVS<>> {
+	using TYPE = ZERO ;
+} ;
+
+template <class... _ARGS>
+struct CAPACITY_OF<ARGVS<_ARGS...>> {
+	using TYPE = ARGC<(sizeof... (_ARGS))> ;
+} ;
+
+template <class _ARG1>
+using CAPACITY_OF_TYPE = typename CAPACITY_OF<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct IS_ARRAY_OF {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_ARRAY_OF<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1 ,ENABLE_TYPE<U::CONSTEXPR_COMPR_GT<COUNT_OF_TYPE<_ARG1> ,ZERO>>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using IS_ARRAY_OF_HELP = typename IS_ARRAY_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
+} ;
+
+namespace U {
 template <class ,class ,class>
 struct FUNCTION_OF ;
 
@@ -847,7 +922,7 @@ struct REPEAT_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
-	_STATIC_ASSERT_ (_ARG1::compile () > 0) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using TYPE = typename REPEAT_PARAMS<R1X ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
 } ;
@@ -867,7 +942,7 @@ struct RANGE_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct RANGE_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
-	_STATIC_ASSERT_ (_ARG1::compile () > 0) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using R2X = ARGC_VAR_TYPE<U::CONSTEXPR_INCREASE<_ARG2>> ;
 	using TYPE = typename RANGE_PARAMS<R1X ,R2X ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
@@ -954,92 +1029,13 @@ struct INDEX_TO<_ARG1 ,ARGVS<>> {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
-	_STATIC_ASSERT_ (_ARG1::compile () > 0) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using TYPE = typename INDEX_TO<R1X ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
 using INDEX_TO_TYPE = typename INDEX_TO<ARGC_VAR_TYPE<_ARG1> ,_ARG2>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_CLASS {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_CLASS<_ARG1 ,NONE> {
-	using TYPE = ARGC<(api::is_class<_ARG1>::value)> ;
-} ;
-
-template <class _ARG1>
-using IS_CLASS_HELP = typename IS_CLASS<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_TRIVIAL {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_TRIVIAL<_ARG1 ,NONE> {
-#ifndef __CSC_CXX_LATEST__
-	using TYPE = ARGC<(api::is_pod<_ARG1>::value)> ;
-#endif
-
-#ifdef __CSC_CXX_LATEST__
-	using TYPE = ARGC<(api::is_trivial<_ARG1>::value)> ;
-#endif
-} ;
-
-template <class _ARG1>
-using IS_TRIVIAL_HELP = typename IS_TRIVIAL<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_COMPLETE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<U::CONSTEXPR_COMPR_GT<SIZE_OF_TYPE<_ARG1> ,ZERO>>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct IS_TEMPLATE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <template <class...> class _ARGT ,class... _ARGS>
-struct IS_TEMPLATE<_ARGT<_ARGS...>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-using IS_TEMPLATE_HELP = typename IS_TEMPLATE<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
-} ;
-
-namespace U {
-template <class>
-struct TEMPLATE_PARAMS ;
-
-template <template <class...> class _ARGT ,class... _ARGS>
-struct TEMPLATE_PARAMS<_ARGT<_ARGS...>> {
-	using TYPE = ARGVS<_ARGS...> ;
-} ;
-
-template <class _ARG1>
-using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -1186,6 +1182,177 @@ using IS_EFLAG_HELP = IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,EFLAG> ;
 
 template <class _ARG1>
 using IS_XYZ_HELP = U::CONSTEXPR_OR<IS_VOID_HELP<_ARG1> ,IS_BOOL_HELP<_ARG1> ,IS_EFLAG_HELP<_ARG1> ,IS_VAR_XYZ_HELP<_ARG1> ,IS_VAL_XYZ_HELP<_ARG1> ,IS_BYTE_XYZ_HELP<_ARG1> ,IS_STR_XYZ_HELP<_ARG1>> ;
+} ;
+
+namespace U {
+template <class ,class>
+struct BYTE_BASE ;
+
+template <>
+struct BYTE_BASE<ALIGN_OF_TYPE<BYTE> ,SIZE_OF_TYPE<BYTE>> {
+	using TYPE = BYTE ;
+} ;
+
+template <>
+struct BYTE_BASE<ALIGN_OF_TYPE<WORD> ,SIZE_OF_TYPE<WORD>> {
+	using TYPE = WORD ;
+} ;
+
+template <>
+struct BYTE_BASE<ALIGN_OF_TYPE<CHAR> ,SIZE_OF_TYPE<CHAR>> {
+	using TYPE = CHAR ;
+} ;
+
+template <>
+struct BYTE_BASE<ALIGN_OF_TYPE<DATA> ,SIZE_OF_TYPE<DATA>> {
+	using TYPE = DATA ;
+} ;
+
+template <class _ARG1>
+using BYTE_BASE_TYPE = typename BYTE_BASE<ALIGN_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct TEXT_BASE ;
+
+template <>
+struct TEXT_BASE<ALIGN_OF_TYPE<STRU8> ,SIZE_OF_TYPE<STRU8>> {
+	using TYPE = STRU8 ;
+} ;
+
+template <>
+struct TEXT_BASE<ALIGN_OF_TYPE<STRU16> ,SIZE_OF_TYPE<STRU16>> {
+	using TYPE = STRU16 ;
+} ;
+
+template <>
+struct TEXT_BASE<ALIGN_OF_TYPE<STRU32> ,SIZE_OF_TYPE<STRU32>> {
+	using TYPE = STRU32 ;
+} ;
+
+template <class _ARG1>
+using TEXT_BASE_TYPE = typename TEXT_BASE<ALIGN_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG1>>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_DEFAULT_CONSTRUCTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = ARGC<(api::is_default_constructible<_ARG1>::value)> ;
+} ;
+
+template <class _ARG1>
+using IS_DEFAULT_CONSTRUCTIBLE_HELP = typename IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct IS_CONSTRUCTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class... _ARGS>
+struct IS_CONSTRUCTIBLE<_ARG1 ,ARGVS<_ARGS...> ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = ARGC<(api::is_constructible<_ARG1 ,_ARGS...>::value)> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using IS_CONSTRUCTIBLE_HELP = typename IS_CONSTRUCTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_DESTRUCTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_DESTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = ARGC<(api::is_nothrow_destructible<_ARG1>::value)> ;
+} ;
+
+template <class _ARG1>
+using IS_DESTRUCTIBLE_HELP = typename IS_DESTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_COPY_CONSTRUCTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_COPY_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_copy_constructible<_ARG1>::value)> ,ARGC<(api::is_copy_assignable<_ARG1>::value)>> ;
+} ;
+
+template <class _ARG1>
+using IS_COPY_CONSTRUCTIBLE_HELP = typename IS_COPY_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class>
+struct IS_MOVE_CONSTRUCTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1>
+struct IS_MOVE_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_nothrow_move_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_assignable<_ARG1>::value)>> ;
+} ;
+
+template <class _ARG1>
+using IS_MOVE_CONSTRUCTIBLE_HELP = typename IS_MOVE_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct IS_CONVERTIBLE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+struct IS_CONVERTIBLE<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
+	using TYPE = ARGC<(api::is_convertible<_ARG1 ,_ARG2>::value)> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using IS_CONVERTIBLE_HELP = typename IS_CONVERTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct IS_BASE_OF {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+struct IS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
+	using TYPE = ARGC<(api::is_base_of<_ARG1 ,_ARG2>::value)> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+using IS_BASE_OF_HELP = typename IS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
+} ;
+
+namespace U {
+template <class ,class ,class>
+struct IS_INTERFACE {
+	using TYPE = ARGC<FALSE> ;
+} ;
+
+template <class _ARG1 ,class _ARG2>
+struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_BASE_OF_HELP<_ARG2 ,_ARG1> ,U::CONSTEXPR_EQUAL<ALIGN_OF_TYPE<_ARG1> ,ALIGN_OF_TYPE<_ARG2>> ,U::CONSTEXPR_EQUAL<SIZE_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG2>>>>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
+template <class _ARG1>
+using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,Interface ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1346,177 +1513,6 @@ using IS_SAFE_ALIASING_HELP = typename IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,
 } ;
 
 namespace U {
-template <class ,class>
-struct IS_DEFAULT_CONSTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_default_constructible<_ARG1>::value)> ;
-} ;
-
-template <class _ARG1>
-using IS_DEFAULT_CONSTRUCTIBLE_HELP = typename IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_CONSTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct IS_CONSTRUCTIBLE<_ARG1 ,ARGVS<_ARGS...> ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_constructible<_ARG1 ,_ARGS...>::value)> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_CONSTRUCTIBLE_HELP = typename IS_CONSTRUCTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_DESTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_DESTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_nothrow_destructible<_ARG1>::value)> ;
-} ;
-
-template <class _ARG1>
-using IS_DESTRUCTIBLE_HELP = typename IS_DESTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_COPY_CONSTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_COPY_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_copy_constructible<_ARG1>::value)> ,ARGC<(api::is_copy_assignable<_ARG1>::value)>> ;
-} ;
-
-template <class _ARG1>
-using IS_COPY_CONSTRUCTIBLE_HELP = typename IS_COPY_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_MOVE_CONSTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_MOVE_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_nothrow_move_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_assignable<_ARG1>::value)>> ;
-} ;
-
-template <class _ARG1>
-using IS_MOVE_CONSTRUCTIBLE_HELP = typename IS_MOVE_CONSTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_CONVERTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct IS_CONVERTIBLE<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
-	using TYPE = ARGC<(api::is_convertible<_ARG1 ,_ARG2>::value)> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_CONVERTIBLE_HELP = typename IS_CONVERTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_BASE_OF {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct IS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
-	using TYPE = ARGC<(api::is_base_of<_ARG1 ,_ARG2>::value)> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_BASE_OF_HELP = typename IS_BASE_OF<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class ,class>
-struct IS_INTERFACE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct IS_INTERFACE<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_BASE_OF_HELP<_ARG2 ,_ARG1> ,U::CONSTEXPR_EQUAL<ALIGN_OF_TYPE<_ARG1> ,ALIGN_OF_TYPE<_ARG2>> ,U::CONSTEXPR_EQUAL<SIZE_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG2>>>>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-using IS_INTERFACE_HELP = typename IS_INTERFACE<REMOVE_CVR_TYPE<_ARG1> ,Interface ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct BYTE_BASE ;
-
-template <>
-struct BYTE_BASE<ALIGN_OF_TYPE<BYTE> ,SIZE_OF_TYPE<BYTE>> {
-	using TYPE = BYTE ;
-} ;
-
-template <>
-struct BYTE_BASE<ALIGN_OF_TYPE<WORD> ,SIZE_OF_TYPE<WORD>> {
-	using TYPE = WORD ;
-} ;
-
-template <>
-struct BYTE_BASE<ALIGN_OF_TYPE<CHAR> ,SIZE_OF_TYPE<CHAR>> {
-	using TYPE = CHAR ;
-} ;
-
-template <>
-struct BYTE_BASE<ALIGN_OF_TYPE<DATA> ,SIZE_OF_TYPE<DATA>> {
-	using TYPE = DATA ;
-} ;
-
-template <class _ARG1>
-using BYTE_BASE_TYPE = typename BYTE_BASE<ALIGN_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG1>>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct TEXT_BASE ;
-
-template <>
-struct TEXT_BASE<ALIGN_OF_TYPE<STRU8> ,SIZE_OF_TYPE<STRU8>> {
-	using TYPE = STRU8 ;
-} ;
-
-template <>
-struct TEXT_BASE<ALIGN_OF_TYPE<STRU16> ,SIZE_OF_TYPE<STRU16>> {
-	using TYPE = STRU16 ;
-} ;
-
-template <>
-struct TEXT_BASE<ALIGN_OF_TYPE<STRU32> ,SIZE_OF_TYPE<STRU32>> {
-	using TYPE = STRU32 ;
-} ;
-
-template <class _ARG1>
-using TEXT_BASE_TYPE = typename TEXT_BASE<ALIGN_OF_TYPE<_ARG1> ,SIZE_OF_TYPE<_ARG1>>::TYPE ;
-} ;
-
-namespace U {
 template <class...>
 struct IS_ALL_SAME {
 	using TYPE = ARGC<TRUE> ;
@@ -1564,9 +1560,9 @@ using U::DEPENDENT_TYPE ;
 using U::CONDITIONAL_TYPE ;
 using U::IS_SAME_HELP ;
 using U::REMOVE_REFERENCE_TYPE ;
+using U::IS_REFERENCE_HELP ;
 using U::IS_LVALUE_REFERENCE_HELP ;
 using U::IS_RVALUE_REFERENCE_HELP ;
-using U::IS_REFERENCE_HELP ;
 using U::REMOVE_CONST_TYPE ;
 using U::IS_CONST_HELP ;
 using U::REMOVE_VOLATILE_TYPE ;
@@ -1577,11 +1573,6 @@ using U::IS_POINTER_HELP ;
 using U::REMOVE_ARRAY_TYPE ;
 using U::ARRAY_BIND_TYPE ;
 using U::IS_ARRAY_HELP ;
-using U::SIZE_OF_TYPE ;
-using U::ALIGN_OF_TYPE ;
-using U::COUNT_OF_TYPE ;
-using U::CAPACITY_OF_TYPE ;
-using U::IS_ARRAY_OF_HELP ;
 using U::REMOVE_MEMPTR_TYPE ;
 using U::MEMPTR_CLASS_TYPE ;
 using U::IS_MEMPTR_HELP ;
@@ -1589,9 +1580,19 @@ using U::REMOVE_TEMP_TYPE ;
 using U::IS_PLACEHOLDER_HELP ;
 using U::REMOVE_FUNCATTR_TYPE ;
 using U::REMOVE_FUNCTION_TYPE ;
+using U::IS_FUNCTION_HELP ;
 using U::FUNCTION_PARAMS_TYPE ;
 using U::FUNCTION_BIND_TYPE ;
-using U::IS_FUNCTION_HELP ;
+using U::IS_CLASS_HELP ;
+using U::IS_TRIVIAL_HELP ;
+using U::IS_COMPLETE_HELP ;
+using U::IS_TEMPLATE_HELP ;
+using U::TEMPLATE_PARAMS_TYPE ;
+using U::SIZE_OF_TYPE ;
+using U::ALIGN_OF_TYPE ;
+using U::COUNT_OF_TYPE ;
+using U::CAPACITY_OF_TYPE ;
+using U::IS_ARRAY_OF_HELP ;
 using U::FUNCTION_OF_TYPE ;
 using U::RESULT_OF_TYPE ;
 using U::REPEAT_PARAMS_TYPE ;
@@ -1601,20 +1602,14 @@ using U::PARAMS_REST_TYPE ;
 using U::PARAMS_CAT_TYPE ;
 using U::INDEX_OF_TYPE ;
 using U::INDEX_TO_TYPE ;
-using U::IS_CLASS_HELP ;
-using U::IS_TRIVIAL_HELP ;
-using U::IS_COMPLETE_HELP ;
-using U::IS_TEMPLATE_HELP ;
-using U::TEMPLATE_PARAMS_TYPE ;
 using U::IS_VOID_HELP ;
 using U::IS_VAR_XYZ_HELP ;
 using U::IS_VAL_XYZ_HELP ;
 using U::IS_BYTE_XYZ_HELP ;
 using U::IS_STR_XYZ_HELP ;
 using U::IS_XYZ_HELP ;
-using U::FORWARD_TRAITS_TYPE ;
-using U::CAST_TRAITS_TYPE ;
-using U::IS_SAFE_ALIASING_HELP ;
+using U::BYTE_BASE_TYPE ;
+using U::TEXT_BASE_TYPE ;
 using U::IS_DEFAULT_CONSTRUCTIBLE_HELP ;
 using U::IS_CONSTRUCTIBLE_HELP ;
 using U::IS_DESTRUCTIBLE_HELP ;
@@ -1623,8 +1618,9 @@ using U::IS_MOVE_CONSTRUCTIBLE_HELP ;
 using U::IS_CONVERTIBLE_HELP ;
 using U::IS_BASE_OF_HELP ;
 using U::IS_INTERFACE_HELP ;
-using U::BYTE_BASE_TYPE ;
-using U::TEXT_BASE_TYPE ;
+using U::FORWARD_TRAITS_TYPE ;
+using U::CAST_TRAITS_TYPE ;
+using U::IS_SAFE_ALIASING_HELP ;
 using U::IS_ALL_SAME_HELP ;
 using U::IS_ANY_SAME_HELP ;
 
@@ -2162,19 +2158,28 @@ struct TYPEABI {
 
 template <class _ARG1>
 inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
+	using R1X = IS_POINTER_HELP<_ARG1> ;
+	using R2X = IS_ARRAY_HELP<_ARG1> ;
+	using R3X = IS_MEMPTR_HELP<_ARG1> ;
+	using R4X = IS_FUNCTION_HELP<_ARG1> ;
+	using R5X = IS_CLASS_HELP<_ARG1> ;
+	using R6X = IS_TRIVIAL_HELP<_ARG1> ;
+	using R7X = IS_TEMPLATE_HELP<_ARG1> ;
+	using R8X = IS_INTERFACE_HELP<_ARG1> ;
+	using R9X = IS_XYZ_HELP<_ARG1> ;
 	TYPEABI ret ;
 	_ZERO_ (ret) ;
 	ret.mAlign = _ALIGNOF_ (_ARG1) ;
 	ret.mSize = _SIZEOF_ (_ARG1) ;
-	ret.mSign.mP1[0] = IS_POINTER_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[1] = IS_ARRAY_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[2] = IS_MEMPTR_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[3] = IS_FUNCTION_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[4] = IS_CLASS_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[5] = IS_TEMPLATE_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[6] = IS_INTERFACE_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[7] = IS_TRIVIAL_HELP<_ARG1>::compile () ;
-	ret.mSign.mP1[8] = IS_XYZ_HELP<_ARG1>::compile () ;
+	ret.mSign.mP1[0] = R1X::compile () ;
+	ret.mSign.mP1[1] = R2X::compile () ;
+	ret.mSign.mP1[2] = R3X::compile () ;
+	ret.mSign.mP1[3] = R4X::compile () ;
+	ret.mSign.mP1[4] = R5X::compile () ;
+	ret.mSign.mP1[5] = R6X::compile () ;
+	ret.mSign.mP1[6] = R7X::compile () ;
+	ret.mSign.mP1[7] = R8X::compile () ;
+	ret.mSign.mP1[8] = R9X::compile () ;
 	return _MOVE_ (ret) ;
 }
 

@@ -111,11 +111,10 @@ private:
 	void template_incrase (const ARGVF<_ARG1> &) {
 		using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,SIZE>::compile ()) ;
-		const auto r1x = _ARG1::compile () ;
-		mItem[r1x]++ ;
-		if (mItem[r1x] < mBase->mRange[r1x])
+		mItem[_ARG1::compile ()]++ ;
+		if (mItem[_ARG1::compile ()] < mBase->mRange[_ARG1::compile ()])
 			return ;
-		mItem[r1x] = 0 ;
+		mItem[_ARG1::compile ()] = 0 ;
 		template_incrase (ARGV<R1X>::null) ;
 	}
 } ;

@@ -607,7 +607,7 @@ public:
 		struct Dependent ;
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
-		_STATIC_ASSERT_ (R1X::compile () != VAR_NONE) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<U::CONSTEXPR_EQUAL<R1X ,ARGC<VAR_NONE>>>::compile ()) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::null ,DEPTR[mVariant]) ;
 		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 	}

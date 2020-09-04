@@ -301,7 +301,7 @@ class Expression ;
 namespace U {
 template <class _ARG1>
 struct RETR_FUNC {
-	_STATIC_ASSERT_ (_ARG1::compile () > 1) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<U::CONSTEXPR_DECREASE<_ARG1> ,ZERO>::compile ()) ;
 	using R1X = typename RETR_FUNC<U::CONSTEXPR_DECREASE<_ARG1>>::TYPE ;
 	using TYPE = Expression<RANK1 ,R1X> ;
 } ;
