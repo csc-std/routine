@@ -125,7 +125,7 @@ public:
 
 	void start (Array<Function<MEMPTR<ITEM ()>>> &&proc) const {
 		struct Dependent ;
-		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.length () > 0) ;
 		auto rax = mThis.share () ;
 		auto &r1x = rax->mThis.self ;
@@ -146,7 +146,7 @@ public:
 		r1x.mThreadPool = Array<AutoRef<Thread>> (proc.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
+			const auto r2x = StrongRef<R1X>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
 			r1x.mThreadPool[i] = AutoRef<Thread>::make (r2x) ;
 		}
 	}
@@ -215,8 +215,8 @@ private:
 
 	imports void static_execute (THIS_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			try {
@@ -465,7 +465,7 @@ public:
 
 	void start (const LENGTH &count ,Function<MEMPTR<void (const ITEM &)>> &&proc) const {
 		struct Dependent ;
-		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
@@ -486,7 +486,7 @@ public:
 		r1x.mThreadPool = Array<AutoRef<Thread>> (count) ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ())) {
 			//@warn: forward object having captured context
-			const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
+			const auto r2x = StrongRef<R1X>::make (PhanRef<THIS_PACK>::make (r1x) ,i) ;
 			r1x.mThreadPool[i] = AutoRef<Thread>::make (r2x) ;
 		}
 	}
@@ -557,8 +557,8 @@ private:
 
 	imports void static_execute (THIS_PACK &self_ ,const INDEX &tid) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,self_)) ;
 		auto rax = List<ITEM> () ;
 		while (TRUE) {
 			if (rax.empty ())
@@ -698,8 +698,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>
 	_RET future () const {
 		struct Dependent ;
-		using Future = DEPENDENT_TYPE<Future<ITEM> ,Dependent> ;
-		return Future (mThis) ;
+		using R1X = DEPENDENT_TYPE<Future<ITEM> ,Dependent> ;
+		return R1X (mThis) ;
 	}
 
 	void push (const REMOVE_CONST_TYPE<ITEM> &item) const {
@@ -737,7 +737,7 @@ public:
 
 	void start (Function<MEMPTR<ITEM ()>> &&proc) const {
 		struct Dependent ;
-		using ThreadBinder = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
 		auto &r1x = rax->mThis.self ;
@@ -751,7 +751,7 @@ public:
 		r1x.mItem = AutoRef<ITEM> () ;
 		r1x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
-		const auto r2x = StrongRef<ThreadBinder>::make (PhanRef<THIS_PACK>::make (r1x)) ;
+		const auto r2x = StrongRef<R1X>::make (PhanRef<THIS_PACK>::make (r1x)) ;
 		r1x.mThreadPool = AutoRef<Thread>::make (r2x) ;
 	}
 
@@ -809,8 +809,8 @@ private:
 
 	imports void static_execute (THIS_PACK &self_) {
 		struct Dependent ;
-		using ThreadCounter = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<ThreadCounter> ANONYMOUS (_CAST_ (ARGV<ThreadCounter>::null ,self_)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,self_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		try {
 			//@warn: 'mThreadProc' is not protected by 'mThreadMutex'

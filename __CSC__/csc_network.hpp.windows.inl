@@ -322,8 +322,8 @@ private:
 } ;
 
 inline exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (ip_addr) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
 inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) {
@@ -401,8 +401,8 @@ public:
 } ;
 
 inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (socket_) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (socket_) ;
 }
 
 class UDPSocket::Private::Implement
@@ -508,8 +508,8 @@ public:
 } ;
 
 inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (ip_addr) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
 class NetworkService::Private::Implement
@@ -558,7 +558,7 @@ public:
 } ;
 
 inline exports NetworkService::NetworkService (const ARGVF<Singleton<NetworkService>> &) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
 }
 } ;

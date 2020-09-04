@@ -144,10 +144,10 @@ public:
 } ;
 
 inline exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA> &dire) {
-	using HDIR = PTR<api::DIR> ;
-	const auto r1x = UniqueRef<HDIR> ([&] (HDIR &me) {
+	using R1X = PTR<api::DIR> ;
+	const auto r1x = UniqueRef<R1X> ([&] (R1X &me) {
 		me = api::opendir (dire.raw ().self) ;
-	} ,[] (HDIR &me) {
+	} ,[] (R1X &me) {
 		if (me == NULL)
 			return ;
 		api::closedir (me) ;
@@ -387,11 +387,11 @@ inline exports const String<STR> &FileSystemProc::module_file_name () {
 }
 
 inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
-	using HDIR = PTR<api::DIR> ;
+	using R1X = PTR<api::DIR> ;
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,dire) ;
-	const auto r2x = UniqueRef<HDIR> ([&] (HDIR &me) {
+	const auto r2x = UniqueRef<R1X> ([&] (R1X &me) {
 		me = api::opendir (r1x.raw ().self) ;
-	} ,[] (HDIR &me) {
+	} ,[] (R1X &me) {
 		if (me == NULL)
 			return ;
 		api::closedir (me) ;
@@ -480,15 +480,15 @@ inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 
 //@warn: recursive call with junction(const symbolic &link) may cause endless loop
 inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
-	using HDIR = PTR<api::DIR> ;
+	using R1X = PTR<api::DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	rax += dire ;
 	rax += _PCSTR_ ("/") ;
 	const auto r1x = rax.length () ;
 	const auto r2x = StringProc::build_strs (ARGV<STRA>::null ,rax) ;
-	const auto r3x = UniqueRef<HDIR> ([&] (HDIR &me) {
+	const auto r3x = UniqueRef<R1X> ([&] (R1X &me) {
 		me = api::opendir (r2x.raw ().self) ;
-	} ,[] (HDIR &me) {
+	} ,[] (R1X &me) {
 		if (me == NULL)
 			return ;
 		api::closedir (me) ;
@@ -599,8 +599,8 @@ public:
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file) ;
 }
 
 class BufferLoader::Private::Implement
@@ -651,23 +651,23 @@ public:
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,file_len) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,cache) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
 
 class FileSystemService::Private::Implement
@@ -685,7 +685,7 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
 }
 } ;

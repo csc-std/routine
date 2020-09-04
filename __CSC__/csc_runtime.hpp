@@ -260,8 +260,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
 	_RET watch (PhanRef<Mutex> &&mutex_) leftvalue {
 		struct Dependent ;
-		using UniqueLock = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
-		return UniqueLock (_MOVE_ (mutex_) ,PhanRef<ConditionLock>::make (DEREF[this])) ;
+		using R1X = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
+		return R1X (_MOVE_ (mutex_) ,PhanRef<ConditionLock>::make (DEREF[this])) ;
 	}
 } ;
 

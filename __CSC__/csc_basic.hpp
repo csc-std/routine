@@ -759,13 +759,13 @@ protected:
 	implicit AutoRef (const AutoRef &that)
 		:AutoRef (ARGVP0) {
 		struct Dependent ;
-		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		if (that.mPointer == NULL)
 			return ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
 		auto &r1x = _FORWARD_ (ARGV<const UNIT>::null ,DEREF[that.mPointer].deref ()) ;
-		ScopedBuild<PureHolder> ANONYMOUS (rax ,r1x) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
 		rax = NULL ;
@@ -867,11 +867,11 @@ public:
 
 	template <class... _ARGS>
 	imports AutoRef make (_ARGS &&...initval) {
-		using PureHolder = typename SPECIALIZATION_BASE::Private::PureHolder ;
+		using R1X = typename SPECIALIZATION_BASE::Private::PureHolder ;
 		AutoRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
-		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		rax = NULL ;
@@ -975,11 +975,11 @@ public:
 	template <class... _ARGS>
 	imports SharedRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		SharedRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::null) ;
-		ScopedBuild<PureHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		aquire (r1x) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
@@ -1256,11 +1256,11 @@ public:
 	template <class... _ARGS>
 	imports AnyRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		AnyRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		rax = NULL ;
@@ -1336,15 +1336,15 @@ public:
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using R1X = DEF<void ()> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using Function = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
+		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::null) ;
+		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::null ,rax.self) ;
 		constructor () ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
@@ -1444,15 +1444,15 @@ public:
 		: UniqueRef (ARGVP0) {
 		struct Dependent ;
 		using R1X = DEF<void (UNIT &)> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using Function = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
+		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::null) ;
+		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::null ,destructor)) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::null ,rax.self) ;
 		constructor (DEREF[r2x].deref ()) ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
@@ -1516,13 +1516,13 @@ public:
 	imports UniqueRef make (_ARGS &&...initval) {
 		struct Dependent ;
 		using R1X = DEF<void (UNIT &)> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using Function = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
+		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
 		UniqueRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		const auto r1x = Function ([] (UNIT &) {}) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::null) ;
+		const auto r1x = R3X ([] (UNIT &) {}) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::null ,rax.self) ;
 		auto &r3x = DEREF[r2x].deref () ;
 		r3x = UNIT (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 		ret.mOrigin = rax.self ;
@@ -1693,11 +1693,11 @@ public:
 	implicit Function (_ARG1 &&that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
 		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::null ,DEREF[r1x].deref ()) ;
@@ -1772,11 +1772,11 @@ public:
 	template <class... _ARGS>
 	imports Function make (const DEF<UNIT1 (UNITS... ,_ARGS...)> &functor ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
 		Function ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,functor ,parameter...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,parameter...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		ret.mFunctor = NULL ;
@@ -1854,40 +1854,40 @@ public:
 	implicit Function (const DEF<UNIT1 (UNITS...)> &that)
 		: Function (ARGVP0) {
 		struct Dependent ;
-		using PureHolder = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
-		static_create (ARGV<PureHolder>::null ,DEPTR[mVariant] ,that) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		static_create (ARGV<R1X>::null ,DEPTR[mVariant] ,that) ;
 	}
 
 	template <class _ARG1>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<1>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<1>> ;
+		static_create (ARGV<R1X>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1>
 	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<2>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<2>> ;
+		static_create (ARGV<R1X>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_FUNCTION_HELP<_ARG2>>>>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<3>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<3>> ;
+		static_create (ARGV<R1X>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	template <class _ARG1>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const DEF<UNIT1 (_ARG1 & ,UNITS...)> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<4>> ;
-		static_create (ARGV<ImplHolder>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<4>> ;
+		static_create (ARGV<R1X>::null ,DEPTR[mVariant] ,_MOVE_ (context_) ,functor) ;
 	}
 
 	implicit ~Function () noexcept {
@@ -3423,8 +3423,8 @@ public:
 	}
 
 	INDEX at (const UNIT &item) const {
-		using NODE_PACK = typename SPECIALIZATION_BASE::NODE_PACK ;
-		auto &r1x = _OFFSET_ (&NODE_PACK::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::null ,item)) ;
+		using R1X = typename SPECIALIZATION_BASE::NODE_PACK ;
+		auto &r1x = _OFFSET_ (&R1X::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::null ,item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;

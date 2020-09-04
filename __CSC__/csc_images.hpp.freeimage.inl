@@ -128,13 +128,13 @@ public:
 	}
 
 	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
-		using HFIMEMORY = PTR<api::FIMEMORY> ;
+		using R1X = PTR<api::FIMEMORY> ;
 		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
-			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
+			const auto r1x = UniqueRef<PACK<R1X ,AutoBuffer<BYTE>>> ([&] (PACK<R1X ,AutoBuffer<BYTE>> &me) {
 				me.mP2 = data ;
 				me.mP1 = api::FreeImage_OpenMemory (me.mP2.self ,VARY (me.mP2.size ())) ;
 				_DYNAMIC_ASSERT_ (me.mP1 != NULL) ;
-			} ,[] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
+			} ,[] (PACK<R1X ,AutoBuffer<BYTE>> &me) {
 				api::FreeImage_CloseMemory (me.mP1) ;
 			}) ;
 			const auto r2x = api::FreeImage_GetFileTypeFromMemory (r1x->mP1) ;
@@ -149,12 +149,12 @@ public:
 	}
 
 	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
-		using HFIMEMORY = PTR<api::FIMEMORY> ;
+		using R1X = PTR<api::FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
+		const auto r1x = UniqueRef<R1X> ([&] (R1X &me) {
 			me = api::FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (HFIMEMORY &me) {
+		} ,[] (R1X &me) {
 			api::FreeImage_CloseMemory (me) ;
 		}) ;
 		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null)->self ;
@@ -248,13 +248,13 @@ public:
 	}
 
 	void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const override {
-		using HFIMEMORY = PTR<api::FIMEMORY> ;
+		using R1X = PTR<api::FIMEMORY> ;
 		auto rax = UniqueRef<HFIBITMAP> ([&] (HFIBITMAP &me) {
-			const auto r1x = UniqueRef<PACK<HFIMEMORY ,AutoBuffer<BYTE>>> ([&] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
+			const auto r1x = UniqueRef<PACK<R1X ,AutoBuffer<BYTE>>> ([&] (PACK<R1X ,AutoBuffer<BYTE>> &me) {
 				me.mP2 = data ;
 				me.mP1 = api::FreeImage_OpenMemory (me.mP2.self ,VARY (me.mP2.size ())) ;
 				_DYNAMIC_ASSERT_ (me.mP1 != NULL) ;
-			} ,[] (PACK<HFIMEMORY ,AutoBuffer<BYTE>> &me) {
+			} ,[] (PACK<R1X ,AutoBuffer<BYTE>> &me) {
 				api::FreeImage_CloseMemory (me.mP1) ;
 			}) ;
 			const auto r2x = api::FreeImage_GetFileTypeFromMemory (r1x->mP1) ;
@@ -269,12 +269,12 @@ public:
 	}
 
 	void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const override {
-		using HFIMEMORY = PTR<api::FIMEMORY> ;
+		using R1X = PTR<api::FIMEMORY> ;
 		_DEBUG_ASSERT_ (!option.exist ()) ;
-		const auto r1x = UniqueRef<HFIMEMORY> ([&] (HFIMEMORY &me) {
+		const auto r1x = UniqueRef<R1X> ([&] (R1X &me) {
 			me = api::FreeImage_OpenMemory () ;
 			_DYNAMIC_ASSERT_ (me != NULL) ;
-		} ,[] (HFIMEMORY &me) {
+		} ,[] (R1X &me) {
 			api::FreeImage_CloseMemory (me) ;
 		}) ;
 		const auto r2x = holder.rebind (ARGV<NATIVE_THIS>::null)->self ;

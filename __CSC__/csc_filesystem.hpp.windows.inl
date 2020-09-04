@@ -566,8 +566,8 @@ public:
 } ;
 
 inline exports StreamLoader::StreamLoader (const String<STR> &file) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file) ;
 }
 
 class BufferLoader::Private::Implement
@@ -724,23 +724,23 @@ private:
 } ;
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,file_len) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,file_len) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,cache) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,cache) ;
 }
 
 inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make (file ,file_len ,cache) ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
 
 class FileSystemService::Private::Implement
@@ -758,7 +758,7 @@ public:
 } ;
 
 inline exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
 }
 } ;

@@ -377,8 +377,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Matrix>>>
 	_RET get (const INDEX &y) leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Matrix> ;
-		return Row (PhanRef<Matrix>::make (DEREF[this]) ,y) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Matrix> ;
+		return R1X (PhanRef<Matrix>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Matrix>>>
@@ -389,8 +389,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Matrix>>>
 	_RET get (const INDEX &y) const leftvalue {
 		struct Dependent ;
-		using Row = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Matrix> ;
-		return Row (PhanRef<const Matrix>::make (DEREF[this]) ,y) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Matrix> ;
+		return R1X (PhanRef<const Matrix>::make (DEREF[this]) ,y) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Matrix>>>

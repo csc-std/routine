@@ -141,9 +141,9 @@ public:
 		using R1X = FUNCTION_OF_TYPE<_ARG1> ;
 		using R2X = REPEAT_PARAMS_TYPE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<R1X>> ,const Operand &> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG1>>::compile ()) ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R1X ,R2X> ;
+		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R1X ,R2X> ;
 		const auto r1x = Function<R1X> (_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
-		mThis = StrongRef<ImplHolder>::make (r1x) ;
+		mThis = StrongRef<R3X>::make (r1x) ;
 	}
 
 	LENGTH rank () const {
@@ -625,8 +625,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>>>>
 	_RET curry () const {
 		struct Dependent ;
-		using ExpressionX1 = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,Dependent> ;
-		ExpressionX1 ret ;
+		using R1X = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,Dependent> ;
+		R1X ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::null ,node.mChild[0]) ;
 			auto rax = r1x.concat (in1).curry () ;

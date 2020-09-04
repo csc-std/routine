@@ -1965,8 +1965,8 @@ struct PACK<UNIT1> {
 
 	BOOL equal (const PACK &that) const {
 		struct Dependent ;
-		using EqualInvokeProc = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
-		if (!EqualInvokeProc::invoke (mP1 ,that.mP1))
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1981,8 +1981,8 @@ struct PACK<UNIT1> {
 
 	FLAG compr (const PACK &that) const {
 		struct Dependent ;
-		using ComprInvokeProc = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
-		const auto r1x = ComprInvokeProc::invoke (mP1 ,that.mP1) ;
+		using R2X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		const auto r1x = R2X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
 		return FLAG (0) ;
@@ -2006,8 +2006,8 @@ struct PACK<UNIT1> {
 
 	FLAG hash () const {
 		struct Dependent ;
-		using HashInvokeProc = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
-		const auto r1x = HashInvokeProc::invoke (mP1) ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		const auto r1x = R1X::invoke (mP1) ;
 		return r1x ;
 	}
 } ;
@@ -2019,10 +2019,10 @@ struct PACK<UNIT1 ,UNIT2> {
 
 	BOOL equal (const PACK &that) const {
 		struct Dependent ;
-		using EqualInvokeProc = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
-		if (!EqualInvokeProc::invoke (mP1 ,that.mP1))
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
-		if (!EqualInvokeProc::invoke (mP2 ,that.mP2))
+		if (!R1X::invoke (mP2 ,that.mP2))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2037,11 +2037,11 @@ struct PACK<UNIT1 ,UNIT2> {
 
 	FLAG compr (const PACK &that) const {
 		struct Dependent ;
-		using ComprInvokeProc = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
-		const auto r1x = ComprInvokeProc::invoke (mP1 ,that.mP1) ;
+		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		const auto r1x = R1X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r2x = ComprInvokeProc::invoke (mP2 ,that.mP2) ;
+		const auto r2x = R1X::invoke (mP2 ,that.mP2) ;
 		if (r2x != 0)
 			return r2x ;
 		return FLAG (0) ;
@@ -2065,9 +2065,9 @@ struct PACK<UNIT1 ,UNIT2> {
 
 	FLAG hash () const {
 		struct Dependent ;
-		using HashInvokeProc = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
-		const auto r1x = HashInvokeProc::invoke (mP1) ;
-		const auto r2x = HashInvokeProc::invoke (mP2) ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		const auto r1x = R1X::invoke (mP1) ;
+		const auto r2x = R1X::invoke (mP2) ;
 		return r1x + r2x ;
 	}
 } ;
@@ -2080,12 +2080,12 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 
 	BOOL equal (const PACK &that) const {
 		struct Dependent ;
-		using EqualInvokeProc = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
-		if (!EqualInvokeProc::invoke (mP1 ,that.mP1))
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
-		if (!EqualInvokeProc::invoke (mP2 ,that.mP2))
+		if (!R1X::invoke (mP2 ,that.mP2))
 			return FALSE ;
-		if (!EqualInvokeProc::invoke (mP3 ,that.mP3))
+		if (!R1X::invoke (mP3 ,that.mP3))
 			return FALSE ;
 		return TRUE ;
 	}
@@ -2100,14 +2100,14 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 
 	FLAG compr (const PACK &that) const {
 		struct Dependent ;
-		using ComprInvokeProc = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
-		const auto r1x = ComprInvokeProc::invoke (mP1 ,that.mP1) ;
+		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		const auto r1x = R1X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
-		const auto r2x = ComprInvokeProc::invoke (mP2 ,that.mP2) ;
+		const auto r2x = R1X::invoke (mP2 ,that.mP2) ;
 		if (r2x != 0)
 			return r2x ;
-		const auto r3x = ComprInvokeProc::invoke (mP3 ,that.mP3) ;
+		const auto r3x = R1X::invoke (mP3 ,that.mP3) ;
 		if (r3x != 0)
 			return r3x ;
 		return FLAG (0) ;
@@ -2131,10 +2131,10 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 
 	FLAG hash () const {
 		struct Dependent ;
-		using HashInvokeProc = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
-		const auto r1x = HashInvokeProc::invoke (mP1) ;
-		const auto r2x = HashInvokeProc::invoke (mP2) ;
-		const auto r3x = HashInvokeProc::invoke (mP3) ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		const auto r1x = R1X::invoke (mP1) ;
+		const auto r2x = R1X::invoke (mP2) ;
+		const auto r3x = R1X::invoke (mP3) ;
 		return r1x + r2x + r3x ;
 	}
 } ;
@@ -2279,15 +2279,15 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET begin () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (mIBegin) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		return R1X (mIBegin) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
 		struct Dependent ;
-		using Iterator = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
-		return Iterator (mIEnd) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		return R1X (mIEnd) ;
 	}
 } ;
 
@@ -2326,8 +2326,8 @@ class Array ;
 template <class _ARG1>
 inline ArrayRange<_ARG1> _RANGE_ (const Array<LENGTH ,_ARG1> &range_) {
 	struct Dependent ;
-	using ArrayRange = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Dependent> ;
-	return ArrayRange (range_) ;
+	using R1X = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Dependent> ;
+	return R1X (range_) ;
 }
 
 template <class _ARG1>
@@ -2406,8 +2406,8 @@ private:
 	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
 		using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>> ;
-		using PlainString = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<R1X> ;
-		const auto r1x = PlainString (text...) ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<R1X> ;
+		const auto r1x = R2X (text...) ;
 		return _CACHE_ ([&] () {
 			return r1x ;
 		}) ;

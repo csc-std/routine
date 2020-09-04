@@ -22,8 +22,8 @@ public:
 	template <class _ARG1 ,class _ARG2>
 	imports void done (const ARGVF<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
 		struct Dependent ;
-		using WatchInterface = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
-		static WatchInterface mInstance ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
+		static R1X mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
 		mInstance.mWatch (data) ;
@@ -606,9 +606,9 @@ public:
 		:Variant (ARGVP0) {
 		struct Dependent ;
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (R1X::compile () != VAR_NONE) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::null ,DEPTR[mVariant]) ;
 		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::null ,that)) ;
 	}
 
@@ -739,12 +739,12 @@ private:
 		struct Dependent ;
 		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
 		using R2X = PARAMS_REST_TYPE<_ARG1> ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
+		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
 		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<R1X>::compile ()) ;
 		if switch_once (TRUE) {
 			if (!(index == 0))
 				discard ;
-			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder>>::null ,DEPTR[mVariant]) ;
+			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::null ,DEPTR[mVariant]) ;
 			template_create (r1x ,ARGVPX) ;
 			return ;
 		}
@@ -1620,8 +1620,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<WeakRef>>
 	_RET share () const {
 		struct Dependent ;
-		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return WeakRef (r2x) ;
@@ -1630,12 +1630,12 @@ public:
 	template <class _ARG1>
 	StrongRef<_ARG1> strong (const ARGVF<_ARG1> &) const {
 		struct Dependent ;
-		using StrongRef = DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent> ;
-		using LatchCounter = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
+		ScopedGuard<R2X> ANONYMOUS (_CAST_ (ARGV<R2X>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
-		return StrongRef (r2x) ;
+		return R1X (r2x) ;
 	}
 
 private:
@@ -1941,8 +1941,8 @@ public:
 	}
 
 	StrongRef share () const {
-		using LatchCounter = typename WeakRef::Private::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		using R1X = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return StrongRef (r2x) ;
@@ -1951,11 +1951,11 @@ public:
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
 		struct Dependent ;
-		using LatchCounter = typename WeakRef::Private::LatchCounter ;
+		using R1X = typename WeakRef::Private::LatchCounter ;
 		using R2X = CAST_TRAITS_TYPE<_ARG1 ,UNIT> ;
-		using Private = typename WeakRef::Private ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R2X> ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		using R3X = typename WeakRef::Private ;
+		using R4X = typename DEPENDENT_TYPE<R3X ,Dependent>::template ImplHolder<R2X> ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		if (r2x == NULL)
@@ -1965,17 +1965,17 @@ public:
 		const auto r5x = RecastInvokeProc::invoke (ARGV<_ARG1>::null ,r4x) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r5x != NULL) == _EBOOL_ (r4x != NULL)) ;
 		const auto r6x = DEREF[r2x].soft_pointer () ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rax ,rax.self ,r6x ,r5x) ;
-		const auto r7x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R4X>>::null) ;
+		ScopedBuild<R4X> ANONYMOUS (rax ,rax.self ,r6x ,r5x) ;
+		const auto r7x = _POINTER_CAST_ (ARGV<R4X>::null ,rax.self) ;
 		StrongRef<R2X> ret = StrongRef<R2X> (r7x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
 
 	WeakRef weak () const {
-		using LatchCounter = typename WeakRef::Private::LatchCounter ;
-		ScopedGuard<LatchCounter> ANONYMOUS (_CAST_ (ARGV<LatchCounter>::null ,mLatch)) ;
+		using R1X = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::null ,r1x) ;
 		return WeakRef (r2x) ;
@@ -1984,18 +1984,18 @@ public:
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
 		struct Dependent ;
-		using THIS_PACK = typename WeakRef::THIS_PACK ;
-		using Private = typename WeakRef::Private ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<THIS_PACK>>::null) ;
-		ScopedBuild<THIS_PACK> ANONYMOUS (rax) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<THIS_PACK>::null ,rax.self) ;
+		using R1X = typename WeakRef::THIS_PACK ;
+		using R2X = typename WeakRef::Private ;
+		using R3X = typename DEPENDENT_TYPE<R2X ,Dependent>::template ImplHolder<UNIT> ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
+		ScopedBuild<R1X> ANONYMOUS (rax) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
 		DEREF[r1x].mOrigin = rax.self ;
 		DEREF[r1x].mHolder = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<UNIT>::null).self] ;
-		auto rbx = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::null) ;
-		ScopedBuild<ImplHolder> ANONYMOUS (rbx ,rbx.self ,r1x ,r2x) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<ImplHolder>::null ,rbx.self) ;
+		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R3X>>::null) ;
+		ScopedBuild<R3X> ANONYMOUS (rbx ,rbx.self ,r1x ,r2x) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<R3X>::null ,rbx.self) ;
 		StrongRef ret = StrongRef (r3x) ;
 		rbx = NULL ;
 		rax = NULL ;
@@ -2383,41 +2383,41 @@ public:
 inline exports MemoryPool::MemoryPool ()
 	:MemoryPool (ARGVP0) {
 	struct Dependent ;
-	using ImplHolderX8 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
-	using ImplHolderX16 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
-	using ImplHolderX24 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
-	using ImplHolderX32 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
-	using ImplHolderX40 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
-	using ImplHolderX48 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
-	using ImplHolderX56 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
-	using ImplHolderX64 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
-	using ImplHolderX72 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
-	using ImplHolderX80 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
-	using ImplHolderX88 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
-	using ImplHolderX96 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
-	using ImplHolderX104 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
-	using ImplHolderX112 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
-	using ImplHolderX120 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
-	using ImplHolderX128 = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
-	using HugeHolder = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
+	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
+	using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
+	using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
+	using R4X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
+	using R5X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
+	using R6X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
+	using R7X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
+	using R8X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
+	using R9X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
+	using R10X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
+	using R11X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
+	using R12X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
+	using R13X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
+	using R14X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
+	using R15X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
+	using R16X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using R17X = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
 	mThis->mPool = AutoBuffer<StrongRef<Holder>> (17) ;
-	mThis->mPool[0] = StrongRef<ImplHolderX8>::make () ;
-	mThis->mPool[1] = StrongRef<ImplHolderX16>::make () ;
-	mThis->mPool[2] = StrongRef<ImplHolderX24>::make () ;
-	mThis->mPool[3] = StrongRef<ImplHolderX32>::make () ;
-	mThis->mPool[4] = StrongRef<ImplHolderX40>::make () ;
-	mThis->mPool[5] = StrongRef<ImplHolderX48>::make () ;
-	mThis->mPool[6] = StrongRef<ImplHolderX56>::make () ;
-	mThis->mPool[7] = StrongRef<ImplHolderX64>::make () ;
-	mThis->mPool[8] = StrongRef<ImplHolderX72>::make () ;
-	mThis->mPool[9] = StrongRef<ImplHolderX80>::make () ;
-	mThis->mPool[10] = StrongRef<ImplHolderX88>::make () ;
-	mThis->mPool[11] = StrongRef<ImplHolderX96>::make () ;
-	mThis->mPool[12] = StrongRef<ImplHolderX104>::make () ;
-	mThis->mPool[13] = StrongRef<ImplHolderX112>::make () ;
-	mThis->mPool[14] = StrongRef<ImplHolderX120>::make () ;
-	mThis->mPool[15] = StrongRef<ImplHolderX128>::make () ;
-	mThis->mPool[16] = StrongRef<HugeHolder>::make () ;
+	mThis->mPool[0] = StrongRef<R1X>::make () ;
+	mThis->mPool[1] = StrongRef<R2X>::make () ;
+	mThis->mPool[2] = StrongRef<R3X>::make () ;
+	mThis->mPool[3] = StrongRef<R4X>::make () ;
+	mThis->mPool[4] = StrongRef<R5X>::make () ;
+	mThis->mPool[5] = StrongRef<R6X>::make () ;
+	mThis->mPool[6] = StrongRef<R7X>::make () ;
+	mThis->mPool[7] = StrongRef<R8X>::make () ;
+	mThis->mPool[8] = StrongRef<R9X>::make () ;
+	mThis->mPool[9] = StrongRef<R10X>::make () ;
+	mThis->mPool[10] = StrongRef<R11X>::make () ;
+	mThis->mPool[11] = StrongRef<R12X>::make () ;
+	mThis->mPool[12] = StrongRef<R13X>::make () ;
+	mThis->mPool[13] = StrongRef<R14X>::make () ;
+	mThis->mPool[14] = StrongRef<R15X>::make () ;
+	mThis->mPool[15] = StrongRef<R16X>::make () ;
+	mThis->mPool[16] = StrongRef<R17X>::make () ;
 }
 
 class Object ;
@@ -2519,17 +2519,17 @@ public:
 	template <class... _ARGS>
 	explicit Serializer (const ARGVF<ARGVS<_ARGS...>> &) {
 		struct Dependent ;
-		using ImplHolder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
-		mThis = StrongRef<ImplHolder>::make (ARGV<ARGVS<_ARGS...>>::null) ;
+		mThis = StrongRef<R1X>::make (ARGV<ARGVS<_ARGS...>>::null) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
 	inline _RET operator() (PhanRef<CONT> &&context_) const {
 		struct Dependent ;
-		using Member = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
-		return Member (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
+		return R1X (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
 } ;
 
@@ -2610,8 +2610,8 @@ public:
 	//@warn: static instance across DLL ruins Singleton
 	imports UNIT &instance () {
 		struct Dependent ;
-		using GlobalStatic = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
-		return GlobalStatic::unique () ;
+		using R1X = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
+		return R1X::unique () ;
 	}
 
 private:

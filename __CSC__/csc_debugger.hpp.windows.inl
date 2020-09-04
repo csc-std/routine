@@ -259,9 +259,9 @@ public:
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		struct Dependent ;
-		using ImplBinder = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<PhanBuffer<const STR>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<PhanBuffer<const STR>> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
-		log (r1x ,ImplBinder (msg)) ;
+		log (r1x ,R1X (msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {
@@ -385,8 +385,8 @@ private:
 } ;
 
 inline exports ConsoleService::ConsoleService (const ARGVF<Singleton<ConsoleService>> &) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
 }
 
 class DebuggerService::Private::Implement
@@ -496,7 +496,7 @@ private:
 } ;
 
 inline exports DebuggerService::DebuggerService (const ARGVF<Singleton<DebuggerService>> &) {
-	using Implement = typename Private::Implement ;
-	mThis = StrongRef<Implement>::make () ;
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
 }
 } ;

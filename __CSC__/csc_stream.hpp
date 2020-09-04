@@ -59,8 +59,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<ByteReader>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteReader> ;
-		return Attribute (PhanRef<ByteReader>::make (DEREF[this])) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteReader> ;
+		return R1X (PhanRef<ByteReader>::make (DEREF[this])) ;
 	}
 
 	LENGTH size () const {
@@ -436,8 +436,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<ByteWriter>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteWriter> ;
-		return Attribute (PhanRef<ByteWriter>::make (DEREF[this])) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<ByteWriter> ;
+		return R1X (PhanRef<ByteWriter>::make (DEREF[this])) ;
 	}
 
 	LENGTH size () const {
@@ -799,8 +799,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<TextReader>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextReader> ;
-		return Attribute (PhanRef<TextReader>::make (DEREF[this])) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextReader> ;
+		return R1X (PhanRef<TextReader>::make (DEREF[this])) ;
 	}
 
 	LENGTH size () const {
@@ -1558,8 +1558,8 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Attribute<TextWriter>>>
 	_RET attr () leftvalue {
 		struct Dependent ;
-		using Attribute = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextWriter> ;
-		return Attribute (PhanRef<TextWriter>::make (DEREF[this])) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Attribute<TextWriter> ;
+		return R1X (PhanRef<TextWriter>::make (DEREF[this])) ;
 	}
 
 	LENGTH size () const {

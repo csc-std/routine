@@ -349,8 +349,8 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,adjacency ,root_)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,root_)) ;
 	}
 
 	Deque<INDEX> query_path_depth (const INDEX &index) const {
@@ -466,8 +466,8 @@ public:
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,dataset ,distance ,center)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,dataset ,distance ,center)) ;
 	}
 } ;
 
@@ -628,8 +628,8 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,adjacency)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,adjacency)) ;
 	}
 } ;
 
@@ -972,8 +972,8 @@ public:
 private:
 	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,loss ,fdx)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,loss ,fdx)) ;
 	}
 } ;
 
@@ -1222,8 +1222,8 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,vertex)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,vertex)) ;
 	}
 
 	REAL distance_of_point (const ARRAY3<REAL> &a ,const ARRAY3<REAL> &b) const {
@@ -1465,8 +1465,8 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
 		struct Dependent ;
-		using InitializeLambda = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-		_CALL_TRY_ (InitializeLambda (DEREF[this] ,adjacency ,source ,sink)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,source ,sink)) ;
 	}
 } ;
 

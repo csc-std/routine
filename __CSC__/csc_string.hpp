@@ -1468,7 +1468,7 @@ inline exports String<_ARG1> StringProc::build_ipv4s (const ARGVF<_ARG1> & ,cons
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_dates (const String<_ARG1> &stri) {
 	struct Dependent ;
-	using TimePoint = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
@@ -1491,7 +1491,7 @@ inline exports _RET StringProc::parse_dates (const String<_ARG1> &stri) {
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return TimePoint (r1x) ;
+	return R1X (r1x) ;
 }
 
 template <class _ARG1>
@@ -1517,7 +1517,7 @@ inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,cons
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_hours (const String<_ARG1> &stri) {
 	struct Dependent ;
-	using TimePoint = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
@@ -1540,7 +1540,7 @@ inline exports _RET StringProc::parse_hours (const String<_ARG1> &stri) {
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return TimePoint (r1x) ;
+	return R1X (r1x) ;
 }
 
 template <class _ARG1>
@@ -1568,7 +1568,7 @@ inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,cons
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_times (const String<_ARG1> &stri) {
 	struct Dependent ;
-	using TimePoint = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
@@ -1606,7 +1606,7 @@ inline exports _RET StringProc::parse_times (const String<_ARG1> &stri) {
 		rax >> TextReader<_ARG1>::EOS ;
 		return _MOVE_ (ret) ;
 	}) ;
-	return TimePoint (r1x) ;
+	return R1X (r1x) ;
 }
 
 template <class _ARG1>
