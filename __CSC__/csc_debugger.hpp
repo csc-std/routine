@@ -22,20 +22,19 @@
 #include "csc_database.hpp"
 
 namespace CSC {
+static constexpr auto OPTION_DEFAULT = EFLAG (0) ;
+static constexpr auto OPTION_NO_PRINT = EFLAG (1) ;
+static constexpr auto OPTION_NO_FATAL = EFLAG (2) ;
+static constexpr auto OPTION_NO_ERROR = EFLAG (3) ;
+static constexpr auto OPTION_NO_WARN = EFLAG (4) ;
+static constexpr auto OPTION_NO_INFO = EFLAG (5) ;
+static constexpr auto OPTION_NO_DEBUG = EFLAG (6) ;
+static constexpr auto OPTION_NO_VERBOSE = EFLAG (7) ;
+static constexpr auto OPTION_ALWAYS_FLUSH = EFLAG (8) ;
+static constexpr auto OPTION_TESTING = EFLAG (9) ;
+
 class ConsoleService
 	:private Proxy {
-public:
-	static constexpr auto OPTION_DEFAULT = EFLAG (0) ;
-	static constexpr auto OPTION_NO_PRINT = EFLAG (1) ;
-	static constexpr auto OPTION_NO_FATAL = EFLAG (2) ;
-	static constexpr auto OPTION_NO_ERROR = EFLAG (3) ;
-	static constexpr auto OPTION_NO_WARN = EFLAG (4) ;
-	static constexpr auto OPTION_NO_INFO = EFLAG (5) ;
-	static constexpr auto OPTION_NO_DEBUG = EFLAG (6) ;
-	static constexpr auto OPTION_NO_VERBOSE = EFLAG (7) ;
-	static constexpr auto OPTION_ALWAYS_FLUSH = EFLAG (8) ;
-	static constexpr auto OPTION_TESTING = EFLAG (9) ;
-
 private:
 	using Binder = typename TextWriter<STR>::Binder ;
 

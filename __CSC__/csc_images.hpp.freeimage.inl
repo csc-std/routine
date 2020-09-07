@@ -93,14 +93,12 @@ class AbstractImage_Engine_FREEIMAGE<COLOR_BGR>
 private:
 	using HFIBITMAP = PTR<FIBITMAP> ;
 	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_BGR>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_FREEIMAGE () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_FREEIMAGE () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
 		const auto r3x = _ADDRESS_ (r2x) ;
@@ -213,14 +211,12 @@ class AbstractImage_Engine_FREEIMAGE<COLOR_BGRA>
 private:
 	using HFIBITMAP = PTR<FIBITMAP> ;
 	using NATIVE_THIS = UniqueRef<HFIBITMAP> ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_BGRA>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_FREEIMAGE () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_FREEIMAGE () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = api::FreeImage_GetBits (r1x) ;
 		const auto r3x = _ADDRESS_ (r2x) ;

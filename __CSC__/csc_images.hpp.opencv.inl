@@ -166,14 +166,12 @@ class AbstractImage_Engine_OPENCV<COLOR_BGR>
 	:public AbstractImage<COLOR_BGR>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_BGR>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_OPENCV () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGR>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = _ADDRESS_ (r1x.data) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::null ,r2x) ;
@@ -243,14 +241,12 @@ class AbstractImage_Engine_OPENCV<COLOR_BGRA>
 	:public AbstractImage<COLOR_BGRA>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_BGRA>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_OPENCV () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_BGRA>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = _ADDRESS_ (r1x.data) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::null ,r2x) ;
@@ -320,14 +316,12 @@ class AbstractImage_Engine_OPENCV<COLOR_GRAY>
 	:public AbstractImage<COLOR_GRAY>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_OPENCV () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = _ADDRESS_ (r1x.data) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY>>::null ,r2x) ;
@@ -397,14 +391,12 @@ class AbstractImage_Engine_OPENCV<COLOR_GRAY32>
 	:public AbstractImage<COLOR_GRAY32>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY32>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_OPENCV () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY32>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = _ADDRESS_ (r1x.data) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY32>>::null ,r2x) ;
@@ -474,14 +466,12 @@ class AbstractImage_Engine_OPENCV<COLOR_GRAY64>
 	:public AbstractImage<COLOR_GRAY64>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
+	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY64>::LAYOUT_PACK ;
 
 public:
-	implicit AbstractImage_Engine_OPENCV () {
-		_STATIC_ASSERT_ (_SIZEOF_ (DEF<decltype (DEREF[this])>) == _SIZEOF_ (Interface)) ;
-		_STATIC_ASSERT_ (_ALIGNOF_ (DEF<decltype (DEREF[this])>) == _ALIGNOF_ (Interface)) ;
-	}
+	implicit AbstractImage_Engine_OPENCV () = default ;
 
-	void compute_layout (AnyRef<> &holder ,AbstractImage<COLOR_GRAY64>::LAYOUT_PACK &layout) const override {
+	void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const override {
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
 		const auto r2x = _ADDRESS_ (r1x.data) ;
 		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY64>>::null ,r2x) ;

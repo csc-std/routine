@@ -25,13 +25,15 @@ inline exports const String<STRU8> &SerializationStaticProc::static_empty_string
 	}) ;
 }
 
+static constexpr auto NODE_CLAZZ_NULL = EFLAG (1) ;
+static constexpr auto NODE_CLAZZ_STRING = EFLAG (2) ;
+static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
+static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (4) ;
+static constexpr auto NODE_CLAZZ_TABLE = EFLAG (5) ;
+static constexpr auto NODE_CLAZZ_FINAL = EFLAG (6) ;
+
 class XmlParser {
 private:
-	static constexpr auto NODE_CLAZZ_TABLE = EFLAG (1) ;
-	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (2) ;
-	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
-	static constexpr auto NODE_CLAZZ_FINAL = EFLAG (4) ;
-
 	struct NODE_PACK {
 		String<STRU8> mName ;
 		Deque<String<STRU8>> mAttribute ;
@@ -744,10 +746,10 @@ private:
 		mNodeStack = Deque<STACK_NODE> () ;
 		//@error: fuck g++4.8
 		mFoundNodeProc = Array<Function<MEMPTR<void (const XmlParser &)>>> (3) ;
-		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_TABLE) ,0) ;
-		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_OBJECT) ,1) ;
-		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_ARRAY) ,2) ;
-		mFoundNodeProcMappingSet.add (EFLAG (NODE_CLAZZ_FINAL) ,0) ;
+		mFoundNodeProcMappingSet.add (NODE_CLAZZ_TABLE ,0) ;
+		mFoundNodeProcMappingSet.add (NODE_CLAZZ_OBJECT ,1) ;
+		mFoundNodeProcMappingSet.add (NODE_CLAZZ_ARRAY ,2) ;
+		mFoundNodeProcMappingSet.add (NODE_CLAZZ_FINAL ,0) ;
 		mFoundNodeProc[0] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_table_node) ;
 		mFoundNodeProc[1] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_object_node) ;
 		mFoundNodeProc[2] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_array_node) ;
@@ -985,11 +987,6 @@ inline exports void XmlParser::initialize (XmlParser &self_ ,const Array<XmlPars
 
 class JsonParser {
 private:
-	static constexpr auto NODE_CLAZZ_NULL = EFLAG (1) ;
-	static constexpr auto NODE_CLAZZ_STRING = EFLAG (2) ;
-	static constexpr auto NODE_CLAZZ_ARRAY = EFLAG (3) ;
-	static constexpr auto NODE_CLAZZ_OBJECT = EFLAG (4) ;
-
 	struct NODE_PACK {
 		AnyRef<> mValue ;
 		EFLAG mClazz ;

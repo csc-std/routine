@@ -94,7 +94,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void print (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_PRINT)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_PRINT) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -108,7 +108,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void print (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_PRINT)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_PRINT) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -122,7 +122,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void fatal (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_FATAL)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_FATAL) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -136,7 +136,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void fatal (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_FATAL)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_FATAL) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -150,7 +150,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void error (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_ERROR)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_ERROR) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -164,7 +164,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void error (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_ERROR)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_ERROR) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -178,7 +178,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void warn (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_WARN)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_WARN) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -192,7 +192,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void warn (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_WARN)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_WARN) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -206,7 +206,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void info (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_INFO)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_INFO) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -220,7 +220,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void info (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_INFO)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_INFO) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -234,7 +234,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void debug (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_DEBUG)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_DEBUG) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -248,7 +248,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void debug (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_DEBUG)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_DEBUG) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -262,7 +262,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRA__
 	void verbose (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_VERBOSE)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_VERBOSE) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -276,7 +276,7 @@ public:
 
 #ifdef __CSC_CONFIG_STRW__
 	void verbose (const Binder &msg) override {
-		if (mOptionSet.find (EFLAG (OPTION_NO_VERBOSE)) != VAR_NONE)
+		if (mOptionSet.find (OPTION_NO_VERBOSE) != VAR_NONE)
 			return ;
 		write_con_buffer (msg) ;
 		attach_console () ;
@@ -395,7 +395,7 @@ private:
 			mLogFileStream = AutoRef<StreamLoader> () ;
 			mTempState = FALSE ;
 		}) ;
-		if (mOptionSet.find (EFLAG (OPTION_ALWAYS_FLUSH)) == VAR_NONE)
+		if (mOptionSet.find (OPTION_ALWAYS_FLUSH) == VAR_NONE)
 			return ;
 		if (!mLogFileStream.exist ())
 			return ;
@@ -437,10 +437,10 @@ public:
 		const auto r4x = Function<void (VAR32)> ([] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		api::atexit (r1x) ;
-		api::signal (SIGFPE ,r2x) ;
-		api::signal (SIGILL ,r3x) ;
-		api::signal (SIGSEGV ,r4x) ;
+		api::atexit (DEPTR[r1x.self]) ;
+		api::signal (SIGFPE ,DEPTR[r2x.self]) ;
+		api::signal (SIGILL ,DEPTR[r3x.self]) ;
+		api::signal (SIGSEGV ,DEPTR[r4x.self]) ;
 	}
 
 	void output_memory_leaks_report (const BOOL &flag) override {
