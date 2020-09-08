@@ -593,6 +593,7 @@ private:
 		const auto r1x = self_.mThreadPendingSet.length () + self_.mThreadPendingSet.size () ;
 		const auto r2x = (self_.mItemQueue->length () + r1x - 1) / r1x ;
 		for (auto &&i : _RANGE_ (0 ,r2x)) {
+			_STATIC_UNUSED_ (i) ;
 			list.add (_MOVE_ (self_.mItemQueue.self[self_.mItemQueue->head ()])) ;
 			self_.mItemQueue->take () ;
 		}

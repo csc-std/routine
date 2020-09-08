@@ -194,11 +194,11 @@ public:
 private:
 	INDEX insert (const REAL &point) {
 		const auto r1x = MathProc::round (point ,mTolerance.self) ;
-		INDEX ret = mSegmentSet.find (point) ;
+		INDEX ret = mSegmentSet.find (r1x) ;
 		if switch_once (TRUE) {
 			if (ret != VAR_NONE)
-				break ;
-			ret = mSegmentSet.insert (point) ;
+				discard ;
+			ret = mSegmentSet.insert (r1x) ;
 			update_range () ;
 		}
 		return _MOVE_ (ret) ;
