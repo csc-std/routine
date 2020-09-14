@@ -356,7 +356,7 @@ struct CONSTEXPR_DECREASE {
 } ;
 } ;
 
-#pragma region
+#ifdef __CSC__
 namespace U {
 template <class _ARG1>
 inline constexpr VAR _COMPILE_FORCE_ (const ARGVF<_ARG1> &) {
@@ -1551,7 +1551,7 @@ struct IS_ANY_SAME<_ARG1 ,_ARG2 ,_ARGS...> {
 template <class... _ARGS>
 using IS_ANY_SAME_HELP = typename IS_ANY_SAME<_ARGS...>::TYPE ;
 } ;
-#pragma endregion
+#endif
 
 using U::ARGC_BOOL_TYPE ;
 using U::ARGC_VAR_TYPE ;
@@ -2404,6 +2404,21 @@ public:
 
 	inline implicit operator const ARR<REAL> & () const leftvalue {
 		return self ;
+	}
+
+	const REAL &get (const INDEX &index) const leftvalue {
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+		return mPlain[index] ;
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic pop
+#endif
+	}
+
+	inline const REAL &operator[] (const INDEX &index) const leftvalue {
+		return get (index) ;
 	}
 
 private:

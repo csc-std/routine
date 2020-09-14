@@ -24,14 +24,14 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#pragma region
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :26477)
 #endif
 #include <freeimage.h>
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 #endif
 
 #ifndef FREEIMAGE_H

@@ -145,8 +145,8 @@ inline exports void SocketStaticProc::static_socket_bind (const SOCKET &socket_ 
 }
 
 inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :4548)
 #endif
 	ARRAY2<api::fd_set> ret ;
@@ -162,7 +162,9 @@ inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const
 	}
 	_ZERO_ (rax) ;
 	return _MOVE_ (ret) ;
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
+#endif
 }
 
 class TCPSocket::Private::Implement

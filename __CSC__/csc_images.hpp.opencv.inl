@@ -36,9 +36,8 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#pragma region
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :4265)
 #pragma warning (disable :4266)
 #pragma warning (disable :4435)
@@ -92,8 +91,9 @@
 #pragma warning (disable :26497)
 #endif
 #include <opencv2/opencv.hpp>
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 #endif
 
 #ifdef __CSC_DEPRECATED__

@@ -24,9 +24,8 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#pragma region
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :5039)
 #pragma warning (disable :26440)
 #endif
@@ -37,8 +36,9 @@
 #define FREEGLUT_LIB_PRAGMAS 0
 #include <GL/freeglut.h>
 #undef FREEGLUT_LIB_PRAGMAS
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 #endif
 
 #ifndef __GLEW_H__

@@ -28,16 +28,16 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#pragma region
 #include <crtdbg.h>
 #include <signal.h>
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :4091)
 #endif
 #include <DbgHelp.h>
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 #endif
 
 #ifndef _DBGHELP_
@@ -398,9 +398,8 @@ public:
 	implicit Implement () = default ;
 
 	void abort_once_invoked_exit (const BOOL &flag) override {
-#pragma region
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :5039)
 #endif
 		_DEBUG_ASSERT_ (flag) ;
@@ -420,8 +419,9 @@ public:
 		api::signal (SIGFPE ,DEPTR[r2x.self]) ;
 		api::signal (SIGILL ,DEPTR[r3x.self]) ;
 		api::signal (SIGSEGV ,DEPTR[r4x.self]) ;
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 	}
 
 	void output_memory_leaks_report (const BOOL &flag) override {

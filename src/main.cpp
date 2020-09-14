@@ -49,7 +49,7 @@ exports int main () noexcept {
 }
 #endif
 
-#pragma region
+#ifdef __CSC__
 #ifdef __CSC_MATH__
 #include <csc_math.hpp.default.inl>
 #endif
@@ -113,4 +113,4 @@ exports int main () noexcept {
 #include <csc_debugger.hpp.linux.inl>
 #endif
 #endif
-#pragma endregion
+#endif

@@ -49,7 +49,6 @@ public:
 #endif
 
 class VAR128 {
-#pragma region
 #pragma push_macro ("v2i0")
 #pragma push_macro ("v2i1")
 #pragma push_macro ("v4i0")
@@ -501,7 +500,6 @@ private:
 #pragma pop_macro ("v4i2")
 #pragma pop_macro ("v4i1")
 #pragma pop_macro ("v4i0")
-#pragma endregion
 } ;
 
 namespace U {

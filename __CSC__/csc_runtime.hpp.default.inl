@@ -37,9 +37,8 @@
 #endif
 
 #ifdef __CSC_DEPRECATED__
-#pragma region
-#pragma warning (push)
 #ifdef __CSC_COMPILER_MSVC__
+#pragma warning (push)
 #pragma warning (disable :5039)
 #endif
 #include <cstdlib>
@@ -53,8 +52,9 @@
 #include <random>
 
 #include <setjmp.h>
+#ifdef __CSC_COMPILER_MSVC__
 #pragma warning (pop)
-#pragma endregion
+#endif
 #endif
 
 #ifdef __CSC__
