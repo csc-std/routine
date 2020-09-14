@@ -1380,49 +1380,49 @@ private:
 		}
 	}
 
-	void update_build_tree (const INDEX &curr ,const INDEX &rot ,const INDEX &seg_lb ,const INDEX &seg_rb) {
-		const auto r1x = seg_rb - seg_lb + 1 ;
+	void update_build_tree (const INDEX &curr ,const INDEX &rot ,const INDEX &lb ,const INDEX &rb) {
+		const auto r1x = rb - lb + 1 ;
 		if (r1x <= 0)
 			return ;
-		_DEBUG_ASSERT_ (seg_lb >= 0 && seg_lb < mVertex.size ()) ;
-		_DEBUG_ASSERT_ (seg_rb >= 0 && seg_rb < mVertex.size ()) ;
+		_DEBUG_ASSERT_ (lb >= 0 && lb < mVertex.size ()) ;
+		_DEBUG_ASSERT_ (rb >= 0 && rb < mVertex.size ()) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (r1x > 1)
 				discard ;
 			INDEX jx = mKDTree.insert () ;
 			mKDTree[jx].mKey = REAL (0) ;
-			mKDTree[jx].mLeaf = mOrder[rot][seg_lb] ;
+			mKDTree[jx].mLeaf = mOrder[rot][lb] ;
 			mKDTree[jx].mLeft = VAR_NONE ;
 			mKDTree[jx].mRight = VAR_NONE ;
 			mLatestIndex = jx ;
 		}
 		if switch_once (fax) {
-			INDEX ix = seg_lb + r1x / 2 ;
-			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,seg_lb ,seg_rb) ;
-			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,seg_lb ,seg_rb) ;
+			INDEX ix = lb + r1x / 2 ;
+			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[rot] ,lb ,rb) ;
+			compute_order (mTempOrder ,mOrder ,rot ,mNextRot[mNextRot[rot]] ,lb ,rb) ;
 			INDEX jx = mKDTree.insert () ;
 			mKDTree[jx].mKey = mVertex[mOrder[rot][ix]][rot] ;
 			mKDTree[jx].mLeaf = VAR_NONE ;
 			mKDTree[jx].mLeft = VAR_NONE ;
 			mKDTree[jx].mRight = VAR_NONE ;
-			update_build_tree (mKDTree[jx].mLeft ,mNextRot[rot] ,seg_lb ,ix - 1) ;
+			update_build_tree (mKDTree[jx].mLeft ,mNextRot[rot] ,lb ,ix - 1) ;
 			mKDTree[jx].mLeft = mLatestIndex ;
-			update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,seg_rb) ;
+			update_build_tree (mKDTree[jx].mRight ,mNextRot[rot] ,ix ,rb) ;
 			mKDTree[jx].mRight = mLatestIndex ;
 			mLatestIndex = curr ;
 		}
 	}
 
-	void compute_order (Array<INDEX> &temp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &seg_lb ,const INDEX &seg_rb) const {
+	void compute_order (Array<INDEX> &temp_order ,ARRAY3<Array<INDEX>> &order_ ,const INDEX &rot ,const INDEX &n_rot ,const INDEX &lb ,const INDEX &rb) const {
 		if (temp_order.size () != mVertex.size ())
 			temp_order = Array<INDEX> (mVertex.size ()) ;
 		INDEX iw = 0 ;
-		for (auto &&i : _RANGE_ (seg_lb ,seg_rb + 1))
+		for (auto &&i : _RANGE_ (lb ,rb + 1))
 			temp_order[iw++] = mOrder[n_rot][i] ;
 		const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
 		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1]))
-			order_[n_rot][seg_lb + i] = temp_order[i] ;
+			order_[n_rot][lb + i] = temp_order[i] ;
 	}
 
 	void refresh () {

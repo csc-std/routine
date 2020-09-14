@@ -933,22 +933,24 @@ public:
 		return mThis->reset_seed (seed_) ;
 	}
 
-	VAR random_value (const VAR &min_ ,const VAR &max_) {
+	VAR random_value (const VAR &lb ,const VAR &rb) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (min_ <= max_) ;
-		const auto r1x = max_ - min_ + 1 ;
-		const auto r2x = mThis->random_value () ;
-		return r2x % r1x + min_ ;
+		_DEBUG_ASSERT_ (lb <= rb) ;
+		const auto r1x = rb - lb + 1 ;
+		const auto r2x = MathProc::maxof (r1x ,VAR (1)) ;
+		const auto r3x = mThis->random_value () ;
+		return r3x % r2x + lb ;
 	}
 
-	Array<VAR> random_value (const VAR &min_ ,const VAR &max_ ,const LENGTH &len) {
+	Array<VAR> random_value (const VAR &lb ,const VAR &rb ,const LENGTH &len) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (min_ <= max_) ;
+		_DEBUG_ASSERT_ (lb <= rb) ;
 		Array<VAR> ret = Array<VAR> (len) ;
-		const auto r1x = max_ - min_ + 1 ;
+		const auto r1x = rb - lb + 1 ;
+		const auto r2x = MathProc::maxof (r1x ,VAR (1)) ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			const auto r2x = mThis->random_value () ;
-			ret[i] = r2x % r1x + min_ ;
+			const auto r3x = mThis->random_value () ;
+			ret[i] = r3x % r2x + lb ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -995,7 +997,7 @@ public:
 		}) ;
 		String<STR> ret = String<STR> (r1x.size ()) ;
 		INDEX iw = 0 ;
-		const auto r2x = random_value (0 ,36 ,28) ;
+		const auto r2x = random_value (0 ,35 ,28) ;
 		for (auto &&i : _RANGE_ (0 ,8)) {
 			INDEX ix = 0 + i ;
 			ret[iw++] = index_to_hex_str (r2x[ix]) ;

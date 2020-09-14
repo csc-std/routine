@@ -144,7 +144,7 @@ public:
 	imports REMOVE_CVR_TYPE<_ARG1> trunc (const _ARG1 &x ,const _ARG1 &y) ;
 
 	template <class _ARG1 ,class _ARG2>
-	imports REMOVE_CVR_TYPE<_ARG2> clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) ;
+	imports REMOVE_CVR_TYPE<_ARG2> clamp (const _ARG1 &val ,const _ARG2 &lb ,const _ARG2 &rb) ;
 
 	template <class _ARG1>
 	imports REMOVE_CVR_TYPE<_ARG1> abs (const _ARG1 &val) ;
@@ -377,12 +377,12 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::trunc (const _ARG1 &x ,const _AR
 }
 
 template <class _ARG1 ,class _ARG2>
-inline exports REMOVE_CVR_TYPE<_ARG2> MathProc::clamp (const _ARG1 &val ,const _ARG2 &min_ ,const _ARG2 &max_) {
+inline exports REMOVE_CVR_TYPE<_ARG2> MathProc::clamp (const _ARG1 &val ,const _ARG2 &lb ,const _ARG2 &rb) {
 	_STATIC_ASSERT_ (U::CONSTEXPR_OR<IS_VAR_XYZ_HELP<_ARG1> ,IS_VAL_XYZ_HELP<_ARG1>>::compile ()) ;
-	if (val < _ARG1 (min_))
-		return min_ ;
-	if (val > _ARG1 (max_))
-		return max_ ;
+	if (val < _ARG1 (lb))
+		return lb ;
+	if (val > _ARG1 (rb))
+		return rb ;
 	return _ARG2 (val) ;
 }
 

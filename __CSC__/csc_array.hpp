@@ -46,24 +46,24 @@ class SortInvokeProc
 	:private Wrapped<> {
 public:
 	template <class _ARG1 ,class _ARG2>
-	imports void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_lb ,const INDEX &seg_rb) {
-		const auto r1x = seg_rb - seg_lb + 1 ;
+	imports void invoke (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &lb ,const INDEX &rb) {
+		const auto r1x = rb - lb + 1 ;
 		if (r1x <= 0)
 			return ;
-		_DEBUG_ASSERT_ (seg_lb >= 0 && seg_lb < out.size ()) ;
-		_DEBUG_ASSERT_ (seg_rb >= 0 && seg_rb < out.size ()) ;
-		quick_sort (array_ ,out ,seg_lb ,seg_rb ,r1x) ;
+		_DEBUG_ASSERT_ (lb >= 0 && lb < out.size ()) ;
+		_DEBUG_ASSERT_ (rb >= 0 && rb < out.size ()) ;
+		quick_sort (array_ ,out ,lb ,rb ,r1x) ;
 	}
 
 private:
 	template <class _ARG1 ,class _ARG2>
-	imports void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_lb ,const INDEX &seg_rb) {
-		for (auto &&i : _RANGE_ (seg_lb ,seg_rb)) {
+	imports void insert_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &lb ,const INDEX &rb) {
+		for (auto &&i : _RANGE_ (lb ,rb)) {
 			INDEX ix = i + 1 ;
 			INDEX iy = i ;
 			auto rax = _MOVE_ (out[ix]) ;
 			while (TRUE) {
-				if (iy < seg_lb)
+				if (iy < lb)
 					break ;
 				if (array_[rax] >= array_[out[iy]])
 					break ;
@@ -76,9 +76,9 @@ private:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	imports void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_lb ,const INDEX &seg_rb ,INDEX &mid_one) {
-		INDEX ix = seg_lb ;
-		INDEX iy = seg_rb ;
+	imports void quick_sort_partition (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &lb ,const INDEX &rb ,INDEX &mid_one) {
+		INDEX ix = lb ;
+		INDEX iy = rb ;
 		auto rax = _MOVE_ (out[ix]) ;
 		while (TRUE) {
 			while (TRUE) {
@@ -107,10 +107,10 @@ private:
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	imports void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &seg_lb ,const INDEX &seg_rb ,const LENGTH &ideal) {
+	imports void quick_sort (const _ARG1 &array_ ,_ARG2 &out ,const INDEX &lb ,const INDEX &rb ,const LENGTH &ideal) {
 		auto rax = ideal ;
-		INDEX ix = seg_lb ;
-		INDEX iy = seg_rb ;
+		INDEX ix = lb ;
+		INDEX iy = rb ;
 		while (TRUE) {
 			if (ix >= iy)
 				break ;
@@ -574,17 +574,17 @@ public:
 		return DEREF[this] ;
 	}
 
-	String segment (const INDEX &seg_lb ,const INDEX &seg_rb) const {
+	String segment (const INDEX &lb ,const INDEX &rb) const {
 		String ret ;
-		const auto r1x = seg_rb - seg_lb + 1 ;
+		const auto r1x = rb - lb + 1 ;
 		if switch_once (TRUE) {
 			if (r1x <= 0)
 				discard ;
-			_DEBUG_ASSERT_ (seg_lb >= 0 && seg_lb < size ()) ;
-			_DEBUG_ASSERT_ (seg_rb >= 0 && seg_rb < size ()) ;
+			_DEBUG_ASSERT_ (lb >= 0 && lb < size ()) ;
+			_DEBUG_ASSERT_ (rb >= 0 && rb < size ()) ;
 			ret = String (r1x) ;
 			for (auto &&i : _RANGE_ (0 ,r1x))
-				ret.get (i) = get (seg_lb + i) ;
+				ret.get (i) = get (lb + i) ;
 		}
 		return _MOVE_ (ret) ;
 	}
