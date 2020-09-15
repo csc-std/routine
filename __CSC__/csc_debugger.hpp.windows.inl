@@ -273,6 +273,9 @@ public:
 	}
 
 	void show () override {
+		if (mConsole.exist ())
+			if (mConsole.self != NULL)
+				return ;
 		mConsole = UniqueRef<HANDLE> ([&] (HANDLE &me) {
 			api::AllocConsole () ;
 			me = api::GetStdHandle (STD_OUTPUT_HANDLE) ;

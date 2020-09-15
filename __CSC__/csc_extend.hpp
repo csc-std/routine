@@ -1062,48 +1062,48 @@ public:
 		return template_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) == that ;
+	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) == that ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
 		return template_not_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) != that ;
+	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) != that ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
 		return template_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) > that ;
+	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) > that ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
 		return template_not_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) <= that ;
+	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) <= that ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
 		return template_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) < that ;
+	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) < that ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
 		return template_not_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &self_) {
-		return _MOVE_ (self_) >= that ;
+	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &this_) {
+		return _MOVE_ (this_) >= that ;
 	}
 
 private:
@@ -1115,59 +1115,59 @@ private:
 		return BOOL (lhs < rhs) ;
 	}
 
-	imports BOOL template_boolean (const Tuple<> &self_) {
+	imports BOOL template_boolean (const Tuple<> &this_) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_boolean (const _ARG1 &self_) {
-		if (!BOOL (self_.one ()))
+	imports BOOL template_boolean (const _ARG1 &this_) {
+		if (!BOOL (this_.one ()))
 			return FALSE ;
-		return template_boolean (self_.rest ()) ;
+		return template_boolean (this_.rest ()) ;
 	}
 
-	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &this_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (!operator_equal (self_.one () ,that))
+	imports BOOL template_equal (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (!operator_equal (this_.one () ,that))
 			return FALSE ;
-		return template_equal (self_.rest () ,that) ;
+		return template_equal (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &this_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (operator_equal (self_.one () ,that))
+	imports BOOL template_not_equal (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (operator_equal (this_.one () ,that))
 			return FALSE ;
-		return template_not_equal (self_.rest () ,that) ;
+		return template_not_equal (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &this_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (!operator_less (self_.one () ,that))
+	imports BOOL template_less (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (!operator_less (this_.one () ,that))
 			return FALSE ;
-		return template_less (self_.rest () ,that) ;
+		return template_less (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &this_ ,const WRAPPED &that) {
 		return TRUE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (operator_less (self_.one () ,that))
+	imports BOOL template_not_less (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (operator_less (this_.one () ,that))
 			return FALSE ;
-		return template_not_less (self_.rest () ,that) ;
+		return template_not_less (this_.rest () ,that) ;
 	}
 } ;
 
@@ -1199,48 +1199,48 @@ public:
 		return template_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) == that ;
+	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) == that ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
 		return template_not_equal (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) != that ;
+	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) != that ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
 		return template_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) > that ;
+	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) > that ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
 		return template_not_less (mBinder ,that) ;
 	}
 
-	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) <= that ;
+	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) <= that ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
 		return template_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) < that ;
+	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) < that ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
 		return template_not_less (that ,mBinder) ;
 	}
 
-	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &self_) {
-		return _MOVE_ (self_) >= that ;
+	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &this_) {
+		return _MOVE_ (this_) >= that ;
 	}
 
 private:
@@ -1252,59 +1252,59 @@ private:
 		return BOOL (lhs < rhs) ;
 	}
 
-	imports BOOL template_boolean (const Tuple<> &self_) {
+	imports BOOL template_boolean (const Tuple<> &this_) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_boolean (const _ARG1 &self_) {
-		if (BOOL (self_.one ()))
+	imports BOOL template_boolean (const _ARG1 &this_) {
+		if (BOOL (this_.one ()))
 			return TRUE ;
-		return template_boolean (self_.rest ()) ;
+		return template_boolean (this_.rest ()) ;
 	}
 
-	imports BOOL template_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_equal (const Tuple<> &this_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (operator_equal (self_.one () ,that))
+	imports BOOL template_equal (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (operator_equal (this_.one () ,that))
 			return TRUE ;
-		return template_equal (self_.rest () ,that) ;
+		return template_equal (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_equal (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_equal (const Tuple<> &this_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (!operator_equal (self_.one () ,that))
+	imports BOOL template_not_equal (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (!operator_equal (this_.one () ,that))
 			return TRUE ;
-		return template_not_equal (self_.rest () ,that) ;
+		return template_not_equal (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_less (const Tuple<> &this_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (operator_less (self_.one () ,that))
+	imports BOOL template_less (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (operator_less (this_.one () ,that))
 			return TRUE ;
-		return template_less (self_.rest () ,that) ;
+		return template_less (this_.rest () ,that) ;
 	}
 
-	imports BOOL template_not_less (const Tuple<> &self_ ,const WRAPPED &that) {
+	imports BOOL template_not_less (const Tuple<> &this_ ,const WRAPPED &that) {
 		return FALSE ;
 	}
 
 	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &self_ ,const WRAPPED &that) {
-		if (!operator_less (self_.one () ,that))
+	imports BOOL template_not_less (const _ARG1 &this_ ,const WRAPPED &that) {
+		if (!operator_less (this_.one () ,that))
 			return TRUE ;
-		return template_not_less (self_.rest () ,that) ;
+		return template_not_less (this_.rest () ,that) ;
 	}
 } ;
 

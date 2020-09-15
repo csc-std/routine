@@ -277,8 +277,8 @@ private:
 		virtual void wait () = 0 ;
 		virtual void wait (const Duration &time_) = 0 ;
 		virtual void wait (const TimePoint &time_) = 0 ;
-		virtual void yield () = 0 ;
 		virtual void notify () = 0 ;
+		virtual void yield () = 0 ;
 	} ;
 
 private:
@@ -301,12 +301,12 @@ public:
 		return mThis->wait (time_) ;
 	}
 
-	void yield () {
-		return mThis->yield () ;
-	}
-
 	void notify () {
 		return mThis->notify () ;
+	}
+
+	void yield () {
+		return mThis->yield () ;
 	}
 } ;
 
@@ -746,42 +746,42 @@ private:
 		return rcx.self ;
 	}
 
-	imports PTR<VARXX_NODE> static_new_node (THIS_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_new_node (THIS_PACK &this_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
+		INDEX ix = this_.mVarxxMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mVarxx.insert () ;
-			self_.mVarxxMappingSet.add (r1x ,ix) ;
-			self_.mVarxx[ix].mGUID = guid ;
+			ix = this_.mVarxx.insert () ;
+			this_.mVarxxMappingSet.add (r1x ,ix) ;
+			this_.mVarxx[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mVarxx[ix]] ;
+		return DEPTR[this_.mVarxx[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const FLAG &guid) {
 		return guid ;
 	}
 
-	imports PTR<VARXX_NODE> static_find_node (THIS_PACK &self_ ,const FLAG &guid) {
+	imports PTR<VARXX_NODE> static_find_node (THIS_PACK &this_ ,const FLAG &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mVarxxMappingSet.map (r1x) ;
+		INDEX ix = this_.mVarxxMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mVarxx[ix]] ;
+		return DEPTR[this_.mVarxx[ix]] ;
 	}
 
-	imports PTR<CLAZZ_NODE> static_new_node (THIS_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_new_node (THIS_PACK &this_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
+		INDEX ix = this_.mClazzMappingSet.map (r1x) ;
 		if switch_once (TRUE) {
 			if (ix != VAR_NONE)
 				discard ;
-			ix = self_.mClazz.insert () ;
-			self_.mClazzMappingSet.add (r1x ,ix) ;
-			self_.mClazz[ix].mGUID = guid ;
+			ix = this_.mClazz.insert () ;
+			this_.mClazzMappingSet.add (r1x ,ix) ;
+			this_.mClazz[ix].mGUID = guid ;
 		}
-		return DEPTR[self_.mClazz[ix]] ;
+		return DEPTR[this_.mClazz[ix]] ;
 	}
 
 	imports FLAG node_guid_hash (const String<STR> &guid) {
@@ -790,12 +790,12 @@ private:
 		return BasicProc::mem_hash (r2x.self ,r2x.size ()) ;
 	}
 
-	imports PTR<CLAZZ_NODE> static_find_node (THIS_PACK &self_ ,const String<STR> &guid) {
+	imports PTR<CLAZZ_NODE> static_find_node (THIS_PACK &this_ ,const String<STR> &guid) {
 		const auto r1x = node_guid_hash (guid) ;
-		INDEX ix = self_.mClazzMappingSet.map (r1x) ;
+		INDEX ix = this_.mClazzMappingSet.map (r1x) ;
 		if (ix == VAR_NONE)
 			return NULL ;
-		return DEPTR[self_.mClazz[ix]] ;
+		return DEPTR[this_.mClazz[ix]] ;
 	}
 } ;
 

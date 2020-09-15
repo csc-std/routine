@@ -317,6 +317,9 @@ public:
 	}
 
 	void show () override {
+		if (mConsole.exist ())
+			if (mConsole.self > 0)
+				return ;
 		mConsole = UniqueRef<VAR32>::make (1) ;
 	}
 

@@ -423,9 +423,9 @@ public:
 	}
 
 private:
-	imports void initialize (XmlParser &self_ ,const PhanBuffer<const STRU8> &data) ;
+	imports void initialize (XmlParser &this_ ,const PhanBuffer<const STRU8> &data) ;
 
-	imports void initialize (XmlParser &self_ ,const Array<XmlParser> &sequence) ;
+	imports void initialize (XmlParser &this_ ,const Array<XmlParser> &sequence) ;
 } ;
 
 class XmlParser::Private::RecursiveCounter
@@ -973,16 +973,16 @@ private:
 	}
 } ;
 
-inline exports void XmlParser::initialize (XmlParser &self_ ,const PhanBuffer<const STRU8> &data) {
+inline exports void XmlParser::initialize (XmlParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX1Lambda ;
-	_CALL_TRY_ (R1X (self_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
-inline exports void XmlParser::initialize (XmlParser &self_ ,const Array<XmlParser> &sequence) {
+inline exports void XmlParser::initialize (XmlParser &this_ ,const Array<XmlParser> &sequence) {
 	struct Dependent ;
 	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX2Lambda ;
-	_CALL_TRY_ (R1X (self_ ,sequence)) ;
+	_CALL_TRY_ (R1X (this_ ,sequence)) ;
 }
 
 class JsonParser {
@@ -1385,7 +1385,7 @@ private:
 	}
 
 private:
-	imports void initialize (JsonParser &self_ ,const PhanBuffer<const STRU8> &data) ;
+	imports void initialize (JsonParser &this_ ,const PhanBuffer<const STRU8> &data) ;
 } ;
 
 class JsonParser::Private::RecursiveCounter
@@ -1728,10 +1728,10 @@ private:
 	}
 } ;
 
-inline exports void JsonParser::initialize (JsonParser &self_ ,const PhanBuffer<const STRU8> &data) {
+inline exports void JsonParser::initialize (JsonParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_TRY_ (R1X (self_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 class CommandParser {
@@ -1849,7 +1849,7 @@ public:
 	}
 
 private:
-	imports void initialize (CommandParser &self_ ,const PhanBuffer<const STRU8> &data) ;
+	imports void initialize (CommandParser &this_ ,const PhanBuffer<const STRU8> &data) ;
 } ;
 
 class CommandParser::Private::InitializeLambda
@@ -2018,9 +2018,9 @@ private:
 	}
 } ;
 
-inline exports void CommandParser::initialize (CommandParser &self_ ,const PhanBuffer<const STRU8> &data) {
+inline exports void CommandParser::initialize (CommandParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	struct Dependent ;
 	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
-	_CALL_TRY_ (R1X (self_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 } ;

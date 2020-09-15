@@ -447,13 +447,14 @@ public:
 		mConditionLock->native ().get_mConditionLock ().wait_for (mUniqueLock ,r1x) ;
 	}
 
-	void yield () override {
-		const auto r1x = api::milliseconds (0) ;
-		mConditionLock->native ().get_mConditionLock ().wait_for (mUniqueLock ,r1x) ;
-	}
-
 	void notify () override {
 		mConditionLock->native ().get_mConditionLock ().notify_all () ;
+	}
+
+	void yield () override {
+		mConditionLock->native ().get_mConditionLock ().notify_all () ;
+		const auto r1x = api::milliseconds (0) ;
+		mConditionLock->native ().get_mConditionLock ().wait_for (mUniqueLock ,r1x) ;
 	}
 } ;
 

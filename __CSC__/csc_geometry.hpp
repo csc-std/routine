@@ -103,8 +103,8 @@ public:
 		return mul (scale) ;
 	}
 
-	inline friend Vector operator* (const REAL &scale ,const Vector &self_) {
-		return self_.mul (scale) ;
+	inline friend Vector operator* (const REAL &scale ,const Vector &this_) {
+		return this_.mul (scale) ;
 	}
 
 	void multo (const REAL &scale) {
@@ -125,8 +125,8 @@ public:
 		return div (scale) ;
 	}
 
-	inline friend Vector operator/ (const REAL &scale ,const Vector &self_) {
-		return self_.div (scale) ;
+	inline friend Vector operator/ (const REAL &scale ,const Vector &this_) {
+		return this_.div (scale) ;
 	}
 
 	void divto (const REAL &scale) {
@@ -441,8 +441,8 @@ public:
 		return mul (scale) ;
 	}
 
-	inline friend Matrix operator* (const REAL &scale ,const Matrix &self_) {
-		return self_.mul (scale) ;
+	inline friend Matrix operator* (const REAL &scale ,const Matrix &this_) {
+		return this_.mul (scale) ;
 	}
 
 	void multo (const REAL &scale) {
@@ -463,8 +463,8 @@ public:
 		return div (scale) ;
 	}
 
-	inline friend Matrix operator/ (const REAL &scale ,const Matrix &self_) {
-		return self_.div (scale) ;
+	inline friend Matrix operator/ (const REAL &scale ,const Matrix &this_) {
+		return this_.div (scale) ;
 	}
 
 	void divto (const REAL &scale) {
