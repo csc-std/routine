@@ -1714,13 +1714,13 @@ static constexpr auto DEPTR = U::OPERATOR_DEPTR {} ;
 namespace U {
 struct OPERATOR_PTRTOARR {
 	template <class _ARG1>
-	inline ARR<_ARG1> &operator[] (const PTR<_ARG1> &that) const {
-		return DEREF[PTR<ARR<_ARG1>> (that)] ;
+	inline ARR<_ARG1> &operator[] (const PTR<_ARG1> &address) const {
+		return DEREF[PTR<ARR<_ARG1>> (address)] ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_OF_HELP<REMOVE_ARRAY_TYPE<_ARG1> ,_ARG1>>>
-	inline ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &that) const {
-		return DEREF[PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (DEPTR[that])] ;
+	inline ARR<REMOVE_ARRAY_TYPE<_ARG1>> &operator[] (_ARG1 &object) const {
+		return DEREF[PTR<ARR<REMOVE_ARRAY_TYPE<_ARG1>>> (DEPTR[object])] ;
 	}
 } ;
 } ;
