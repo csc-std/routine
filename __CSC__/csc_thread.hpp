@@ -23,7 +23,7 @@ private:
 		ConditionLock mThreadConditionLock ;
 		AutoRef<BOOL> mThreadFlag ;
 		LENGTH mThreadCounter ;
-		Array<Function<MEMPTR<ITEM ()>>> mThreadProc ;
+		Array<Function<ITEM ()>> mThreadProc ;
 		Array<AutoRef<Thread>> mThreadPool ;
 		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
 		AutoRef<Exception> mException ;
@@ -114,7 +114,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void start (const LENGTH &count ,Array<Function<MEMPTR<ITEM ()>>> &&proc) const {
+	void start (const LENGTH &count ,Array<Function<ITEM ()>> &&proc) const {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (count > 0) ;
@@ -125,7 +125,7 @@ public:
 		_DEBUG_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		r1x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r1x.mThreadCounter = 0 ;
-		r1x.mThreadProc = Array<Function<MEMPTR<ITEM ()>>> (proc.length ()) ;
+		r1x.mThreadProc = Array<Function<ITEM ()>> (proc.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,proc.length ())) {
 			_DEBUG_ASSERT_ (proc[i].exist ()) ;
 			r1x.mThreadProc[i] = _MOVE_ (proc[i]) ;
@@ -177,7 +177,7 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = Array<AutoRef<Thread>> () ;
-		this_.mThreadProc = Array<Function<MEMPTR<ITEM ()>>> () ;
+		this_.mThreadProc = Array<Function<ITEM ()>> () ;
 	}
 
 	imports void static_destroy (THIS_PACK &this_) {
@@ -201,7 +201,7 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = Array<AutoRef<Thread>> () ;
-		this_.mThreadProc = Array<Function<MEMPTR<ITEM ()>>> () ;
+		this_.mThreadProc = Array<Function<ITEM ()>> () ;
 	}
 
 	imports void static_execute (THIS_PACK &this_ ,const INDEX &tid) {
@@ -318,7 +318,7 @@ private:
 		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
 		AutoRef<BOOL> mThreadFlag ;
-		Function<MEMPTR<void (const ITEM &)>> mThreadProc ;
+		Function<void (const ITEM &)> mThreadProc ;
 		Set<INDEX> mThreadPendingSet ;
 		Array<AutoRef<Thread>> mThreadPool ;
 		AutoRef<List<ITEM ,SFIXED>> mItemQueue ;
@@ -458,7 +458,7 @@ public:
 			r1x.mItemQueue->add (_MOVE_ (item[i])) ;
 	}
 
-	void start (const LENGTH &count ,Function<MEMPTR<void (const ITEM &)>> &&proc) const {
+	void start (const LENGTH &count ,Function<void (const ITEM &)> &&proc) const {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (count > 0) ;
@@ -520,7 +520,7 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = Array<AutoRef<Thread>> () ;
-		this_.mThreadProc = Function<MEMPTR<void (const ITEM &)>> () ;
+		this_.mThreadProc = Function<void (const ITEM &)> () ;
 		this_.mThreadPendingSet = Set<INDEX> () ;
 	}
 
@@ -545,7 +545,7 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = Array<AutoRef<Thread>> () ;
-		this_.mThreadProc = Function<MEMPTR<void (const ITEM &)>> () ;
+		this_.mThreadProc = Function<void (const ITEM &)> () ;
 		this_.mThreadPendingSet = Set<INDEX> () ;
 	}
 
@@ -657,8 +657,8 @@ private:
 		ConditionLock mThreadConditionLock ;
 		LENGTH mThreadCounter ;
 		AutoRef<BOOL> mThreadFlag ;
-		Function<MEMPTR<ITEM ()>> mThreadProc ;
-		Function<MEMPTR<void (ITEM &)>> mCallbackProc ;
+		Function<ITEM ()> mThreadProc ;
+		Function<void (ITEM &)> mCallbackProc ;
 		AutoRef<Thread> mThreadPool ;
 		AutoRef<ITEM> mItem ;
 		AutoRef<Exception> mException ;
@@ -723,14 +723,14 @@ public:
 		_DEBUG_ASSERT_ (!r1x.mThreadFlag.exist ()) ;
 		r1x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r1x.mThreadCounter = 0 ;
-		r1x.mThreadProc = Function<MEMPTR<ITEM ()>> () ;
-		r1x.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		r1x.mThreadProc = Function<ITEM ()> () ;
+		r1x.mCallbackProc = Function<void (ITEM &)> () ;
 		r1x.mItem = AutoRef<ITEM> () ;
 		r1x.mException = AutoRef<Exception> () ;
 		r1x.mThreadPool = AutoRef<Thread> () ;
 	}
 
-	void start (Function<MEMPTR<ITEM ()>> &&proc) const {
+	void start (Function<ITEM ()> &&proc) const {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
@@ -741,7 +741,7 @@ public:
 		r1x.mThreadFlag = AutoRef<BOOL>::make (TRUE) ;
 		r1x.mThreadCounter = 0 ;
 		r1x.mThreadProc = _MOVE_ (proc) ;
-		r1x.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		r1x.mCallbackProc = Function<void (ITEM &)> () ;
 		r1x.mItem = AutoRef<ITEM> () ;
 		r1x.mException = AutoRef<Exception> () ;
 		//@warn: forward object having captured context
@@ -762,7 +762,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>
-	imports _RET async (Function<MEMPTR<ITEM ()>> &&proc) {
+	imports _RET async (Function<ITEM ()> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (_MOVE_ (proc)) ;
 		return rax.future () ;
@@ -774,8 +774,8 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = AutoRef<Thread> () ;
-		this_.mThreadProc = Function<MEMPTR<ITEM ()>> () ;
-		this_.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		this_.mThreadProc = Function<ITEM ()> () ;
+		this_.mCallbackProc = Function<void (ITEM &)> () ;
 	}
 
 	imports void static_destroy (THIS_PACK &this_) {
@@ -796,8 +796,8 @@ private:
 		this_.mThreadFlag = AutoRef<BOOL> () ;
 		this_.mThreadCounter = 0 ;
 		this_.mThreadPool = AutoRef<Thread> () ;
-		this_.mThreadProc = Function<MEMPTR<ITEM ()>> () ;
-		this_.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		this_.mThreadProc = Function<ITEM ()> () ;
+		this_.mCallbackProc = Function<void (ITEM &)> () ;
 	}
 
 	imports void static_execute (THIS_PACK &this_) {
@@ -855,7 +855,7 @@ private:
 				discard ;
 			this_.mCallbackProc (this_.mItem) ;
 		}
-		this_.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		this_.mCallbackProc = Function<void (ITEM &)> () ;
 	}
 } ;
 
@@ -980,7 +980,7 @@ public:
 		return r1x.mItem.self ;
 	}
 
-	void then (Function<MEMPTR<void (ITEM &)>> &&proc) const {
+	void then (Function<void (ITEM &)> &&proc) const {
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
 		auto &r1x = rax->mThis.self ;
@@ -993,7 +993,7 @@ public:
 		if (!r1x.mItem.exist ())
 			return ;
 		r1x.mCallbackProc (r1x.mItem.self) ;
-		r1x.mCallbackProc = Function<MEMPTR<void (ITEM &)>> () ;
+		r1x.mCallbackProc = Function<void (ITEM &)> () ;
 	}
 
 	void stop () const {

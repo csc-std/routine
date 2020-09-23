@@ -702,15 +702,6 @@ public:
 		proc (DEREF[r2x]) ;
 	}
 
-	template <class _ARG1>
-	void apply (const Function<MEMPTR<void (_ARG1 &)>> &proc) {
-		if (!available (ARGV<_ARG1>::null))
-			return ;
-		const auto r1x = fake.type_address () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::null ,r1x) ;
-		proc (DEREF[r2x]) ;
-	}
-
 	imports Variant nullopt () {
 		return Variant (ARGVP0) ;
 	}

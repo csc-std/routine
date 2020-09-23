@@ -717,7 +717,7 @@ private:
 	const String<STRU8> mFinalClazzString ;
 
 	Deque<STACK_NODE> mNodeStack ;
-	Array<Function<MEMPTR<void (const XmlParser &)>>> mFoundNodeProc ;
+	Array<Function<void (const XmlParser &)>> mFoundNodeProc ;
 	Set<EFLAG> mFoundNodeProcMappingSet ;
 	SoftSet<String<STRU8>> mAttributeMappingSoftSet ;
 	SoftSet<INDEX> mMemberSoftSet ;
@@ -745,14 +745,20 @@ private:
 	void prepare () {
 		mNodeStack = Deque<STACK_NODE> () ;
 		//@error: fuck g++4.8
-		mFoundNodeProc = Array<Function<MEMPTR<void (const XmlParser &)>>> (3) ;
+		mFoundNodeProc = Array<Function<void (const XmlParser &)>> (3) ;
 		mFoundNodeProcMappingSet.add (NODE_CLAZZ_TABLE ,0) ;
 		mFoundNodeProcMappingSet.add (NODE_CLAZZ_OBJECT ,1) ;
 		mFoundNodeProcMappingSet.add (NODE_CLAZZ_ARRAY ,2) ;
 		mFoundNodeProcMappingSet.add (NODE_CLAZZ_FINAL ,0) ;
-		mFoundNodeProc[0] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_table_node) ;
-		mFoundNodeProc[1] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_object_node) ;
-		mFoundNodeProc[2] = Function<MEMPTR<void (const XmlParser &)>> (PhanRef<InitializeX2Lambda>::make (DEREF[this]) ,&InitializeX2Lambda::update_found_array_node) ;
+		mFoundNodeProc[0] = Function<void (const XmlParser &)> ([&] (const XmlParser &node) {
+			update_found_table_node (node) ;
+		}) ;
+		mFoundNodeProc[1] = Function<void (const XmlParser &)> ([&] (const XmlParser &node) {
+			update_found_object_node (node) ;
+		}) ;
+		mFoundNodeProc[2] = Function<void (const XmlParser &)> ([&] (const XmlParser &node) {
+			update_found_array_node (node) ;
+		}) ;
 		mAttributeMappingSoftSet = SoftSet<String<STRU8>> (0) ;
 		mMemberSoftSet = SoftSet<INDEX> (0) ;
 		mObjectSoftSet = SoftSet<String<STRU8>> (0) ;

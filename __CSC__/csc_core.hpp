@@ -134,9 +134,7 @@ using DEF = UNIT ;
 template <class UNIT>
 using PTR = DEF<UNIT *> ;
 
-struct MEMCLASS ;
-
-template <class UNIT1 ,class UNIT2 = MEMCLASS>
+template <class UNIT1 ,class UNIT2>
 using MEMPTR = DEF<UNIT1 UNIT2::*> ;
 
 #ifndef __CSC_COMPILER_GNUC__
