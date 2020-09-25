@@ -596,6 +596,8 @@ public:
 	implicit Variant ()
 		:Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (ARGV<ZERO>::null ,ARGV<ARGVS<UNITS...>>::null) ;
+		if (r1x == VAR_NONE)
+			return ;
 		template_construct (r1x ,ARGV<ARGVS<UNITS...>>::null) ;
 	}
 
@@ -719,27 +721,6 @@ private:
 		return _CAST_ (ARGV<FakeHolder>::null ,mVariant) ;
 	}
 
-	void template_construct (const INDEX &index ,const ARGVF<ARGVS<>> &) {
-		_STATIC_WARNING_ ("noop") ;
-	}
-
-	template <class _ARG1>
-	void template_construct (const INDEX &index ,const ARGVF<_ARG1> &) {
-		struct Dependent ;
-		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
-		using R2X = PARAMS_REST_TYPE<_ARG1> ;
-		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
-		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<R1X>::compile ()) ;
-		if switch_once (TRUE) {
-			if (!(index == 0))
-				discard ;
-			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::null ,DEPTR[mVariant]) ;
-			template_create (r1x ,ARGVPX) ;
-			return ;
-		}
-		template_construct ((index - 1) ,ARGV<R2X>::null) ;
-	}
-
 	template <class _ARG1>
 	imports INDEX default_constructible_index (const ARGVF<_ARG1> & ,const ARGVF<ARGVS<>> &) {
 		return VAR_NONE ;
@@ -752,6 +733,28 @@ private:
 		if (R1X::compile ())
 			return _ARG1::compile () ;
 		return default_constructible_index (ARGV<U::CONSTEXPR_INCREASE<_ARG1>>::null ,ARGV<R2X>::null) ;
+	}
+
+	template <class... _ARGS>
+	void template_construct (const INDEX &index ,const ARGVF<ARGVS<>> & ,_ARGS &&...initval) {
+		_STATIC_WARNING_ ("noop") ;
+	}
+
+	template <class _ARG1 ,class... _ARGS>
+	void template_construct (const INDEX &index ,const ARGVF<_ARG1> & ,_ARGS &&...initval) {
+		struct Dependent ;
+		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
+		using R2X = PARAMS_REST_TYPE<_ARG1> ;
+		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
+		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<R1X>::compile ()) ;
+		if switch_once (TRUE) {
+			if (!(index == 0))
+				discard ;
+			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::null ,DEPTR[mVariant]) ;
+			template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
+			return ;
+		}
+		template_construct ((index - 1) ,ARGV<R2X>::null ,_FORWARD_ (ARGV<_ARGS &&>::null ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS...>>>>
@@ -2579,8 +2582,6 @@ template <class UNIT>
 class Singleton
 	:private Proxy {
 	_STATIC_ASSERT_ (IS_CLASS_HELP<UNIT>::compile ()) ;
-	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_DEFAULT_CONSTRUCTIBLE_HELP<UNIT>>::compile ()) ;
-	_STATIC_ASSERT_ (IS_DESTRUCTIBLE_HELP<UNIT>::compile ()) ;
 
 private:
 	struct THIS_PACK {

@@ -820,9 +820,9 @@ public:
 
 template <class UNIT>
 class AutoRef final
-	:private AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<U::CONSTEXPR_AND<IS_COPY_CONSTRUCTIBLE_HELP<UNIT> ,IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>>>>> {
+	:private AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> {
 private:
-	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<U::CONSTEXPR_AND<IS_COPY_CONSTRUCTIBLE_HELP<UNIT> ,IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>>>>> ;
+	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> ;
 	using Holder = typename SPECIALIZATION_BASE::Holder ;
 
 private:
@@ -1711,7 +1711,7 @@ public:
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<1>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
@@ -1725,7 +1725,7 @@ public:
 	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<2>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
@@ -1739,7 +1739,7 @@ public:
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor)
 		:Function (ARGVP0) {
 		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARG1 ,ARGC<3>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::null) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::null ,rax.self) ;
@@ -3196,11 +3196,10 @@ protected:
 
 template <class UNIT ,class SIZE>
 class Allocator final
-	:private Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<U::CONSTEXPR_AND<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>> ,IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> {
-	_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>::compile ()) ;
+	:private Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> {
 
 private:
-	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<U::CONSTEXPR_AND<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>> ,IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> ;
+	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3275,6 +3274,7 @@ public:
 
 	template <class... _ARGS>
 	INDEX alloc (_ARGS &&...initval) {
+		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>::compile ()) ;
 		INDEX ret = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
@@ -3309,6 +3309,7 @@ public:
 	}
 
 	void reserve (const LENGTH &len) {
+		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>::compile ()) ;
 		_DEBUG_ASSERT_ (len >= 0) ;
 		const auto r1x = len - (mSize - mLength) ;
 		const auto r2x = VAR_ZERO ;
@@ -3327,6 +3328,7 @@ public:
 	}
 
 	void clean () {
+		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT>::compile ()) ;
 		const auto r1x = shrink_size () ;
 		if (r1x == mSize)
 			return ;

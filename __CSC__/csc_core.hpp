@@ -1241,7 +1241,7 @@ struct IS_DEFAULT_CONSTRUCTIBLE {
 
 template <class _ARG1>
 struct IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_default_constructible<_ARG1>::value)> ;
+	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_default_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_destructible<_ARG1>::value)>> ;
 } ;
 
 template <class _ARG1>
@@ -1256,26 +1256,11 @@ struct IS_CONSTRUCTIBLE {
 
 template <class _ARG1 ,class... _ARGS>
 struct IS_CONSTRUCTIBLE<_ARG1 ,ARGVS<_ARGS...> ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_constructible<_ARG1 ,_ARGS...>::value)> ;
+	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_constructible<_ARG1 ,_ARGS...>::value)> ,ARGC<(api::is_nothrow_destructible<_ARG1>::value)>> ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
 using IS_CONSTRUCTIBLE_HELP = typename IS_CONSTRUCTIBLE<_ARG1 ,_ARG2 ,NONE>::TYPE ;
-} ;
-
-namespace U {
-template <class ,class>
-struct IS_DESTRUCTIBLE {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_DESTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = ARGC<(api::is_nothrow_destructible<_ARG1>::value)> ;
-} ;
-
-template <class _ARG1>
-using IS_DESTRUCTIBLE_HELP = typename IS_DESTRUCTIBLE<_ARG1 ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -1286,7 +1271,7 @@ struct IS_COPY_CONSTRUCTIBLE {
 
 template <class _ARG1>
 struct IS_COPY_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
-	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_copy_constructible<_ARG1>::value)> ,ARGC<(api::is_copy_assignable<_ARG1>::value)>> ;
+	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_copy_constructible<_ARG1>::value)> ,ARGC<(api::is_copy_assignable<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_assignable<_ARG1>::value)>> ;
 } ;
 
 template <class _ARG1>
@@ -1610,7 +1595,6 @@ using U::BYTE_BASE_TYPE ;
 using U::TEXT_BASE_TYPE ;
 using U::IS_DEFAULT_CONSTRUCTIBLE_HELP ;
 using U::IS_CONSTRUCTIBLE_HELP ;
-using U::IS_DESTRUCTIBLE_HELP ;
 using U::IS_COPY_CONSTRUCTIBLE_HELP ;
 using U::IS_MOVE_CONSTRUCTIBLE_HELP ;
 using U::IS_CONVERTIBLE_HELP ;
@@ -1853,7 +1837,7 @@ inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const MEMPTR<_ARG1 ,_ARG2> &mpt
 
 template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
-	_STATIC_ASSERT_ (IS_DESTRUCTIBLE_HELP<_ARG1>::compile ()) ;
+	_STATIC_ASSERT_ (IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS &&...>>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
 	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::null ,address) ;
 	if (r1x == NULL)
@@ -1864,7 +1848,6 @@ inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 
 template <class _ARG1>
 inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
-	_STATIC_ASSERT_ (IS_DESTRUCTIBLE_HELP<_ARG1>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
 	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::null ,address) ;
 	if (r1x == NULL)
