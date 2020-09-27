@@ -90,7 +90,7 @@ public:
 		}
 		r1x.mThreadPendingSet.clear () ;
 		while (TRUE) {
-			if (!r1x.mThreadFlag.self ())
+			if (!r1x.mThreadFlag.self)
 				break ;
 			if (r1x.mItemQueue->length () >= count)
 				break ;
@@ -125,7 +125,7 @@ public:
 		}
 		r1x.mThreadPendingSet.clear () ;
 		while (TRUE) {
-			if (!r1x.mThreadFlag.self ())
+			if (!r1x.mThreadFlag.self)
 				break ;
 			if (r1x.mItemQueue->length () >= count)
 				break ;
