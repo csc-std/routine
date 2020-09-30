@@ -329,7 +329,7 @@ private:
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
 		const auto r1x = GlobalRuntime::clock_now () ;
-		mLogWriter << StringProc::build_hours (ARGV<STR>::id ,r1x) ;
+		mLogWriter << StringProc::build_hours (ARGV<STR>::ID ,r1x) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -458,19 +458,19 @@ public:
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ADDRESS_ (DEPTR[rax.self]) ;
 			const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::id ,r3x) ;
+			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::ID ,r3x) ;
 			DEREF[r4x].SizeOfStruct = VARY (_SIZEOF_ (api::SYMBOL_INFO)) ;
 			DEREF[r4x].MaxNameLen = VARY (DEFAULT_FILEPATH_SIZE::compile ()) ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
 				api::SymFromAddr (mSymbolFromAddress ,DATA (list[i]) ,NULL ,r4x) ;
-				const auto r5x = StringProc::build_hexs (ARGV<STR>::id ,DATA (DEREF[r4x].Address)) ;
+				const auto r5x = StringProc::build_hexs (ARGV<STR>::ID ,DATA (DEREF[r4x].Address)) ;
 				const auto r6x = StringProc::parse_strs (String<STRA> (PTRTOARR[DEREF[r4x].Name])) ;
 				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r5x ,_PCSTR_ ("] : ") ,r6x) ;
 			}
 		}
 		if switch_once (fax) {
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {
-				const auto r7x = StringProc::build_hexs (ARGV<STR>::id ,DATA (list[i])) ;
+				const auto r7x = StringProc::build_hexs (ARGV<STR>::ID ,DATA (list[i])) ;
 				ret[i] = String<STR>::make (_PCSTR_ ("[") ,r7x ,_PCSTR_ ("] : null")) ;
 			}
 		}

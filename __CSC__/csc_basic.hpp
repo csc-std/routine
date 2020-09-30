@@ -59,12 +59,12 @@ private:
 		return BasicProc::mem_equal (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,BOOL>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID)))> ,BOOL>>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
 		return lhs.equal (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id))> ,BOOL>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID))> ,BOOL>>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
 		return BOOL (lhs == rhs) ;
 	}
@@ -103,12 +103,12 @@ private:
 		return BasicProc::mem_compr (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,FLAG>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID)))> ,FLAG>>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
 		return lhs.compr (rhs) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id))> ,BOOL>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID))> ,BOOL>>>
 		imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP1)> &) {
 			if (lhs < rhs)
 				return FLAG (-1) ;
@@ -154,14 +154,14 @@ private:
 		return BasicProc::mem_hash (PTRTOARR[lhs] ,_SIZEOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).hash ())> ,FLAG>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::ID).hash ())> ,FLAG>>>
 	imports FLAG template_hash (const _ARG1 &lhs ,const DEF<decltype (ARGVP2)> &) {
 		return lhs.hash () ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_XYZ_HELP<_ARG1>>>
 	imports FLAG template_hash (const _ARG1 &lhs ,const DEF<decltype (ARGVP1)> &) {
-		auto &r1x = _CAST_ (ARGV<BYTE_BASE_TYPE<_ARG1>>::id ,lhs) ;
+		auto &r1x = _CAST_ (ARGV<BYTE_BASE_TYPE<_ARG1>>::ID ,lhs) ;
 		return FLAG (r1x) ;
 	}
 } ;
@@ -467,7 +467,7 @@ public:
 	template <class _ARG1>
 	explicit ScopedGuard (_ARG1 &address)
 		:ScopedGuard (ARGVP0) {
-		auto &r1x = _FORWARD_ (ARGV<UNIT>::id ,address) ;
+		auto &r1x = _FORWARD_ (ARGV<UNIT>::ID ,address) ;
 		r1x.lock () ;
 		mPointer = DEPTR[r1x] ;
 	}
@@ -509,11 +509,11 @@ public:
 	template <class _ARG1 ,class... _ARGS>
 	explicit ScopedBuild (_ARG1 &address ,_ARGS &&...initval)
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _FORWARD_ (ARGV<PTR<TEMP<UNIT>>>::id ,address) ;
+		auto &r1x = _FORWARD_ (ARGV<PTR<TEMP<UNIT>>>::ID ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
-		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
+		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		mSize++ ;
 	}
 
@@ -558,7 +558,7 @@ public:
 	template <class _ARG1>
 	explicit ScopedBuild (_ARG1 &address ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _FORWARD_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::id ,address) ;
+		auto &r1x = _FORWARD_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::ID ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
@@ -573,7 +573,7 @@ public:
 	template <class _ARG1>
 	explicit ScopedBuild (_ARG1 &address ,const ARR<UNIT> &src ,const LENGTH &len)
 		:ScopedBuild (ARGVP0) {
-		auto &r1x = _FORWARD_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::id ,address) ;
+		auto &r1x = _FORWARD_ (ARGV<PTR<ARR<TEMP<UNIT>>>>::ID ,address) ;
 		if (r1x == NULL)
 			return ;
 		mPointer = DEPTR[r1x] ;
@@ -622,7 +622,7 @@ public:
 		_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) <= _ALIGNOF_ (api::max_align_t)) ;
 		const auto r1x = operator new (_SIZEOF_ (_ARG1) ,api::nothrow) ;
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::id ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r1x) ;
 		_DYNAMIC_ASSERT_ (_ADDRESS_ (r2x) % _ALIGNOF_ (_ARG1) == 0) ;
 		return ScopedPtr<_ARG1 ,GlobalHeap> (r2x) ;
 	}
@@ -636,7 +636,7 @@ public:
 		_DEBUG_ASSERT_ (r1x > 0) ;
 		const auto r2x = operator new (r1x ,api::nothrow) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::id ,r2x) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::ID ,r2x) ;
 		_DYNAMIC_ASSERT_ (_ADDRESS_ (r3x) % _ALIGNOF_ (_ARG1) == 0) ;
 		return ScopedPtr<ARR<_ARG1> ,GlobalHeap> (r3x) ;
 	}
@@ -646,7 +646,7 @@ public:
 		if (address == NULL)
 			return ;
 		//@error: address may be different from what alloc returned
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::id ,address) ;
+		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,address) ;
 		operator delete (r1x ,api::nothrow) ;
 	}
 } ;
@@ -722,7 +722,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit PureHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	UNIT &deref () leftvalue override {
 		return mValue ;
@@ -769,10 +769,10 @@ protected:
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		if (that.mPointer == NULL)
 			return ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
-		auto &r1x = _FORWARD_ (ARGV<const UNIT>::id ,DEREF[that.mPointer].deref ()) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		auto &r1x = _FORWARD_ (ARGV<const UNIT>::ID ,DEREF[that.mPointer].deref ()) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,r1x) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
 		rax = NULL ;
@@ -818,7 +818,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit PureHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	UNIT &deref () leftvalue override {
 		return mValue ;
@@ -876,9 +876,9 @@ public:
 	imports AutoRef make (_ARGS &&...initval) {
 		using R1X = typename SPECIALIZATION_BASE::Private::PureHolder ;
 		AutoRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		rax = NULL ;
@@ -984,9 +984,9 @@ public:
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
 		SharedRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		aquire (r1x) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
@@ -1017,7 +1017,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit PureHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mCounter (0) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mCounter (0) {}
 
 	UNIT &deref () leftvalue override {
 		return mValue ;
@@ -1061,7 +1061,7 @@ public:
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that)
-		: AnyRef (_MOVE_ (that.rebind (ARGV<NONE>::id))) {
+		: AnyRef (_MOVE_ (that.rebind (ARGV<NONE>::ID))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1096,12 +1096,12 @@ public:
 
 	template <class _ARG1>
 	AnyRef<_ARG1> &rebind (const ARGVF<_ARG1> &) leftvalue {
-		return _CAST_ (ARGV<AnyRef<_ARG1>>::id ,DEREF[this]) ;
+		return _CAST_ (ARGV<AnyRef<_ARG1>>::ID ,DEREF[this]) ;
 	}
 
 	template <class _ARG1>
 	const AnyRef<_ARG1> &rebind (const ARGVF<_ARG1> &) const leftvalue {
-		return _CAST_ (ARGV<AnyRef<_ARG1>>::id ,DEREF[this]) ;
+		return _CAST_ (ARGV<AnyRef<_ARG1>>::ID ,DEREF[this]) ;
 	}
 
 	BOOL exist () const {
@@ -1159,7 +1159,7 @@ public:
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that)
-		: AnyRef (_MOVE_ (that.rebind (ARGV<UNIT>::id))) {
+		: AnyRef (_MOVE_ (that.rebind (ARGV<UNIT>::ID))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1194,12 +1194,12 @@ public:
 
 	template <class _ARG1>
 	AnyRef<_ARG1> &rebind (const ARGVF<_ARG1> &) leftvalue {
-		return _CAST_ (ARGV<AnyRef<_ARG1>>::id ,DEREF[this]) ;
+		return _CAST_ (ARGV<AnyRef<_ARG1>>::ID ,DEREF[this]) ;
 	}
 
 	template <class _ARG1>
 	const AnyRef<_ARG1> &rebind (const ARGVF<_ARG1> &) const leftvalue {
-		return _CAST_ (ARGV<AnyRef<_ARG1>>::id ,DEREF[this]) ;
+		return _CAST_ (ARGV<AnyRef<_ARG1>>::ID ,DEREF[this]) ;
 	}
 
 	BOOL exist () const {
@@ -1230,9 +1230,9 @@ public:
 
 	UNIT &to () leftvalue {
 		struct Dependent ;
-		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::id)) ;
+		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::id ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
 
@@ -1246,9 +1246,9 @@ public:
 
 	const UNIT &to () const leftvalue {
 		struct Dependent ;
-		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::id)) ;
+		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::id ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
 
@@ -1265,9 +1265,9 @@ public:
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
 		AnyRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		rax = NULL ;
@@ -1289,14 +1289,14 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	TYPEABI type_abi () const override {
-		return _TYPEABI_ (ARGV<UNIT_>::id) ;
+		return _TYPEABI_ (ARGV<UNIT_>::ID) ;
 	}
 
 	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<UNIT_>::id) ;
+		return _TYPEMID_ (ARGV<UNIT_>::ID) ;
 	}
 
 	PTR<NONE> type_address () override {
@@ -1348,10 +1348,10 @@ public:
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::id) ;
-		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::id ,destructor)) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
+		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::id ,rax.self) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		constructor () ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
@@ -1412,7 +1412,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	void release () override {
 		mFunctor () ;
@@ -1456,10 +1456,10 @@ public:
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::id) ;
-		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::id ,destructor)) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
+		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::id ,rax.self) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		constructor (DEREF[r2x].deref ()) ;
 		mOrigin = rax.self ;
 		mPointer = r2x ;
@@ -1526,12 +1526,12 @@ public:
 		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
 		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
 		UniqueRef ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::id) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
 		const auto r1x = R3X ([] (UNIT &) {}) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,DEPTR[r1x.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::id ,rax.self) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		auto &r3x = DEREF[r2x].deref () ;
-		r3x = UNIT (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
+		r3x = UNIT (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r2x ;
 		rax = NULL ;
@@ -1554,7 +1554,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	UNIT &deref () leftvalue override {
 		return mValue ;
@@ -1634,7 +1634,7 @@ public:
 	imports PhanRef make (const PhanRef<_ARG1> &val) {
 		if (!val.exist ())
 			return PhanRef () ;
-		auto &r1x = _FORWARD_ (ARGV<UNIT>::id ,val.self) ;
+		auto &r1x = _FORWARD_ (ARGV<UNIT>::ID ,val.self) ;
 		return make (r1x) ;
 	}
 
@@ -1651,13 +1651,13 @@ class FunctorInvokeProc
 public:
 	template <class _ARG1 ,class _ARG2>
 	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,_ARG2 &functor) {
-		return template_functor (ARGV<_ARG1>::id ,functor ,ARGVPX) ;
+		return template_functor (ARGV<_ARG1>::ID ,functor ,ARGVPX) ;
 	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<IS_CONVERTIBLE_HELP<_ARG2 ,PTR<_ARG1>>>>
 	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
-		return _FORWARD_ (ARGV<PTR<_ARG1>>::id ,functor) ;
+		return _FORWARD_ (ARGV<PTR<_ARG1>>::ID ,functor) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
@@ -1705,12 +1705,12 @@ public:
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::compile ()) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1 &&>::id ,that)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
-		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::id ,DEREF[r1x].deref ()) ;
+		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,DEREF[r1x].deref ()) ;
 		rax = NULL ;
 	}
 
@@ -1719,9 +1719,9 @@ public:
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
 		mFunctor = NULL ;
@@ -1733,9 +1733,9 @@ public:
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
 		mFunctor = NULL ;
@@ -1747,9 +1747,9 @@ public:
 		:Function (ARGVP0) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
 		mFunctor = NULL ;
@@ -1813,12 +1813,12 @@ public:
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		if (mFunctor != NULL)
-			return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
-		return DEREF[mPointer].invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
+			return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
+		return DEREF[mPointer].invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
-		return invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
+		return invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 
 	template <class... _ARGS>
@@ -1826,9 +1826,9 @@ public:
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
 		Function ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::id) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,parameter...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		ret.mOrigin = rax.self ;
 		ret.mPointer = r1x ;
 		ret.mFunctor = NULL ;
@@ -1853,14 +1853,14 @@ private:
 public:
 	template <class... _ARGS>
 	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	UNIT_ &deref () leftvalue {
 		return mFunctor ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
+		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 } ;
 
@@ -1875,11 +1875,11 @@ private:
 public:
 	template <class... _ARGS>
 	explicit MemPtrHolder (PhanRef<UNIT_> &&context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mContext (_MOVE_ (context_)) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		auto &r1x = mContext.self ;
-		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
+		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 } ;
 
@@ -1894,11 +1894,11 @@ private:
 public:
 	template <class... _ARGS>
 	explicit MemPtrHolder (PhanRef<const UNIT_> &&context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mContext (_MOVE_ (context_)) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		auto &r1x = mContext.self ;
-		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::id ,funcval)...) ;
+		return (r1x.*mFunctor) (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 } ;
 
@@ -1915,7 +1915,7 @@ private:
 public:
 	template <class... _ARGS>
 	explicit MemPtrHolder (PhanRef<UNIT_> &&context_ ,_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mContext (_MOVE_ (context_)) {}
+		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mContext (_MOVE_ (context_)) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		auto &r1x = mContext.self ;
@@ -1956,12 +1956,12 @@ public:
 	}
 
 	implicit Buffer (const BUFFER &that)
-		:Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::id ,that))) {
+		:Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::ID ,that))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
 	implicit Buffer (BUFFER &&that)
-		: Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::id ,that))) {
+		: Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::ID ,that))) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -2080,10 +2080,10 @@ public:
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::id ,len) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		mOrigin = rax.self ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
 		rax = NULL ;
@@ -2110,7 +2110,7 @@ public:
 
 	ARR<UNIT> &to () leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2122,7 +2122,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2250,10 +2250,10 @@ protected:
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::id ,len) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		mOrigin = rax.self ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
 		rax = NULL ;
@@ -2316,10 +2316,10 @@ protected:
 		if (len == 0)
 			return ;
 		_DEBUG_ASSERT_ (len > 0) ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::id ,len) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
 		mOrigin = rax.self ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = len ;
 		rax = NULL ;
@@ -2340,10 +2340,10 @@ protected:
 		:Buffer (ARGVP0) {
 		if (that.mBuffer == NULL)
 			return ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::id ,that.mSize) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
 		mOrigin = rax.self ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::id ,rax.self) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
 		mBuffer = r1x ;
 		mSize = that.mSize ;
 		rax = NULL ;
@@ -2403,7 +2403,7 @@ public:
 
 	ARR<UNIT> &to () leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2415,7 +2415,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2563,7 +2563,7 @@ public:
 
 	const ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2672,7 +2672,7 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::compile ()) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::id ,DEPTR[val.self]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r1x] ,r2x) ;
 	}
@@ -2740,7 +2740,7 @@ public:
 
 	ARR<UNIT> &to () const leftvalue {
 		if (mBuffer == NULL)
-			return _NULL_ (ARGV<ARR<UNIT>>::id) ;
+			return _NULL_ (ARGV<ARR<UNIT>>::ID) ;
 		return DEREF[mBuffer] ;
 	}
 
@@ -2853,7 +2853,7 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
 		_STATIC_ASSERT_ (IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::compile ()) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::id ,DEPTR[val.self]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r1x] ,r2x) ;
 	}
@@ -2861,7 +2861,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		_STATIC_ASSERT_ (IS_SAFE_ALIASING_HELP<ARR<BYTE> ,ARR<_ARG1>>::compile ()) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::id ,DEPTR[val.self]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,DEPTR[val.self]) ;
 		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r1x] ,r2x) ;
 	}
@@ -3028,7 +3028,7 @@ protected:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,that.mAllocator[ix].mValue))) ;
+				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -3129,7 +3129,7 @@ protected:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,that.mAllocator[ix].mValue))) ;
+				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -3162,7 +3162,7 @@ protected:
 				INDEX ix = mSize ;
 				if (mAllocator[ix].mNext != VAR_USED)
 					discard ;
-				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,that.mAllocator[ix].mValue))) ;
+				_CREATE_ (DEPTR[mAllocator[ix].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,that.mAllocator[ix].mValue))) ;
 			}
 			mSize++ ;
 		}
@@ -3254,7 +3254,7 @@ public:
 
 	UNIT &get (const INDEX &index) leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
-		return _CAST_ (ARGV<UNIT>::id ,mAllocator[index].mValue) ;
+		return _CAST_ (ARGV<UNIT>::ID ,mAllocator[index].mValue) ;
 	}
 
 	inline UNIT &operator[] (const INDEX &index) leftvalue {
@@ -3263,7 +3263,7 @@ public:
 
 	const UNIT &get (const INDEX &index) const leftvalue {
 		_DEBUG_ASSERT_ (used (index)) ;
-		return _CAST_ (ARGV<UNIT>::id ,mAllocator[index].mValue) ;
+		return _CAST_ (ARGV<UNIT>::ID ,mAllocator[index].mValue) ;
 	}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
@@ -3272,7 +3272,7 @@ public:
 
 	INDEX at (const UNIT &item) const {
 		using R1X = typename SPECIALIZATION_BASE::NODE_PACK ;
-		auto &r1x = _OFFSET_ (&R1X::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::id ,item)) ;
+		auto &r1x = _OFFSET_ (&R1X::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::ID ,item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
@@ -3289,9 +3289,9 @@ public:
 				discard ;
 			auto rax = mAllocator.expand (mAllocator.expand_size ()) ;
 			ret = mSize ;
-			_CREATE_ (DEPTR[rax[ret].mValue] ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
+			_CREATE_ (DEPTR[rax[ret].mValue] ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
-				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,mAllocator[i].mValue))) ;
+				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 				rax[i].mNext = VAR_USED ;
 			}
 			mAllocator.swap (rax) ;
@@ -3299,7 +3299,7 @@ public:
 		}
 		if switch_once (fax) {
 			ret = mFree ;
-			_CREATE_ (DEPTR[mAllocator[ret].mValue] ,_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
+			_CREATE_ (DEPTR[mAllocator[ret].mValue] ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		}
 		mFree = mAllocator[ret].mNext ;
 		mAllocator[ret].mNext = VAR_USED ;
@@ -3327,7 +3327,7 @@ public:
 		auto rax = mAllocator.expand (mSize + r3x) ;
 		for (auto &&i : _RANGE_ (0 ,mSize)) {
 			if (mAllocator[i].mNext == VAR_USED)
-				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,mAllocator[i].mValue))) ;
+				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 			rax[i].mNext = mAllocator[i].mNext ;
 		}
 		mAllocator.swap (rax) ;
@@ -3343,7 +3343,7 @@ public:
 		auto rax = mAllocator.expand (r1x) ;
 		for (auto &&i : _RANGE_ (0 ,rax.size ())) {
 			_DEBUG_ASSERT_ (mAllocator[i].mNext == VAR_USED) ;
-			_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::id ,mAllocator[i].mValue))) ;
+			_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 			rax[i].mNext = VAR_USED ;
 		}
 		mAllocator.swap (rax) ;

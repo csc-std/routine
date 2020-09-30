@@ -13,7 +13,7 @@ template <class BASE>
 class ArrayIterator
 	:private Proxy {
 private:
-	using ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::id).get (_NULL_ (ARGV<const INDEX>::id)))> ;
+	using ITEM = DEF<decltype (_NULL_ (ARGV<BASE>::ID).get (_NULL_ (ARGV<const INDEX>::ID)))> ;
 
 private:
 	PhanRef<BASE> mBase ;
@@ -32,12 +32,12 @@ public:
 	}
 
 	inline ITEM operator* () const leftvalue {
-		auto &r1x = _FORWARD_ (ARGV<const INDEX>::id ,mIndex) ;
+		auto &r1x = _FORWARD_ (ARGV<const INDEX>::ID ,mIndex) ;
 		return mBase->get (r1x) ;
 	}
 
 	inline void operator++ () {
-		auto &r1x = _FORWARD_ (ARGV<const INDEX>::id ,mIndex) ;
+		auto &r1x = _FORWARD_ (ARGV<const INDEX>::ID ,mIndex) ;
 		mIndex = mBase->inext (r1x) ;
 	}
 } ;
@@ -1298,7 +1298,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
@@ -1677,7 +1677,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mIndex (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mIndex (VAR_NONE) {}
 	} ;
 
 private:
@@ -2094,13 +2094,13 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
 	ArrayIterator<const _RET> begin () const leftvalue {
-		auto &r1x = _CAST_ (ARGV<const _RET>::id ,DEREF[this]) ;
+		auto &r1x = _CAST_ (ARGV<const _RET>::ID ,DEREF[this]) ;
 		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,ibegin ()) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
 	ArrayIterator<const _RET> end () const leftvalue {
-		auto &r1x = _CAST_ (ARGV<const _RET>::id ,DEREF[this]) ;
+		auto &r1x = _CAST_ (ARGV<const _RET>::ID ,DEREF[this]) ;
 		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,iend ()) ;
 	}
 
@@ -2135,14 +2135,14 @@ public:
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
-		auto &r1x = _FORWARD_ (ARGV<R1X>::id ,item) ;
+		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
 		return r1x ;
 	}
 
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
-		auto &r1x = _FORWARD_ (ARGV<R1X>::id ,item) ;
+		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
 		return r1x ;
 	}
 
@@ -2433,7 +2433,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mMap (VAR_NONE) ,mRed (FALSE) ,mUp (VAR_NONE) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) {}
 	} ;
 
 private:
@@ -3027,7 +3027,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mMap (VAR_NONE) ,mHash (0) ,mNext (VAR_NONE) {}
 	} ;
 
 private:
@@ -3290,7 +3290,7 @@ private:
 
 		template <class... _ARGS>
 		explicit NODE_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval)
-			:mItem (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
+			:mItem (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,mMap (VAR_NONE) ,mWeight (0) ,mLeft (VAR_NONE) ,mRight (VAR_NONE) ,mNext (VAR_NONE) {}
 	} ;
 
 	struct HEAP_PACK {

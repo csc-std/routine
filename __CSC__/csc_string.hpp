@@ -722,30 +722,30 @@ inline exports String<STRU16> StringProc::cvt_u32s_u16s (const String<STRU32> &v
 }
 
 inline exports String<STRU8> StringProc::cvt_ws_u8s (const String<STRW> &val) {
-	return StringConvertInvokeProc::invoke (ARGV<String<STRU8>>::id ,_CAST_ (ARGV<String<STRUW>>::id ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU8>>::ID ,_CAST_ (ARGV<String<STRUW>>::ID ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u8s_ws (const String<STRU8> &val) {
-	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::id ,val) ;
-	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::id ,ret)) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::ID ,val) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::ID ,ret)) ;
 }
 
 inline exports String<STRU16> StringProc::cvt_ws_u16s (const String<STRW> &val) {
-	return StringConvertInvokeProc::invoke (ARGV<String<STRU16>>::id ,_CAST_ (ARGV<String<STRUW>>::id ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU16>>::ID ,_CAST_ (ARGV<String<STRUW>>::ID ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u16s_ws (const String<STRU16> &val) {
-	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::id ,val) ;
-	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::id ,ret)) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::ID ,val) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::ID ,ret)) ;
 }
 
 inline exports String<STRU32> StringProc::cvt_ws_u32s (const String<STRW> &val) {
-	return StringConvertInvokeProc::invoke (ARGV<String<STRU32>>::id ,_CAST_ (ARGV<String<STRUW>>::id ,val)) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STRU32>>::ID ,_CAST_ (ARGV<String<STRUW>>::ID ,val)) ;
 }
 
 inline exports String<STRW> StringProc::cvt_u32s_ws (const String<STRU32> &val) {
-	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::id ,val) ;
-	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::id ,ret)) ;
+	String<STRUW> ret = StringConvertInvokeProc::invoke (ARGV<String<STRUW>>::ID ,val) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRW>>::ID ,ret)) ;
 }
 
 inline exports String<STRU8> StringProc::cvt_as_u8s (const String<STRA> &val) {
@@ -774,7 +774,7 @@ inline exports String<STRA> StringProc::cvt_u32s_as (const String<STRU32> &val) 
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
-	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::id ,val)) ;
+	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::ID ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
@@ -784,7 +784,7 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (const String<STRA> &val) {
 
 inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
-	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::id ,val)) ;
+	String<STRU8> ret = _MOVE_ (_CAST_ (ARGV<String<STRUA>>::ID ,val)) ;
 	for (auto &&i : ret) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
@@ -799,7 +799,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
-	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::id ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
 }
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
@@ -809,7 +809,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 		_STATIC_UNUSED_ (i) ;
 		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
 	}
-	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::id ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
 }
 
 class GBKSStaticProc
@@ -835,7 +835,7 @@ inline exports const PACK<PhanBuffer<const DEF<STRUW[2]>> ,HashSet<STRUW>> &GBKS
 
 inline exports String<STRW> StringProc::cvt_gbks_ws (const String<STRA> &val) {
 	auto &r1x = GBKSStaticProc::static_cvt_gbks_ws_table () ;
-	auto &r2x = _CAST_ (ARGV<String<STRUA>>::id ,val) ;
+	auto &r2x = _CAST_ (ARGV<String<STRUA>>::ID ,val) ;
 	String<STRW> ret = String<STRW> (r2x.length ()) ;
 	INDEX iw = 0 ;
 	auto rax = VAR_ZERO ;
@@ -957,7 +957,7 @@ inline exports String<STRA> StringProc::cvt_ws_gbks (const String<STRW> &val) {
 	}
 	if (iw < ret.size ())
 		ret[iw] = 0 ;
-	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::id ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
 }
 
 template <class _ARG1>
@@ -1074,12 +1074,12 @@ inline exports String<_ARG1> StringProc::build_vals (const ARGVF<_ARG1> & ,const
 
 template <class _ARG1>
 inline exports String<STR> StringProc::parse_strs (const String<_ARG1> &stri) {
-	return StringConvertInvokeProc::invoke (ARGV<String<STR>>::id ,stri) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<STR>>::ID ,stri) ;
 }
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_strs (const ARGVF<_ARG1> & ,const String<STR> &stru) {
-	return StringConvertInvokeProc::invoke (ARGV<String<_ARG1>>::id ,stru) ;
+	return StringConvertInvokeProc::invoke (ARGV<String<_ARG1>>::ID ,stru) ;
 }
 
 #ifdef __CSC_EXTEND__
@@ -1499,7 +1499,7 @@ inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::id ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
@@ -1548,7 +1548,7 @@ inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::id ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	if (r2x[5] < 10)
 		rax << STR ('0') ;
@@ -1614,7 +1614,7 @@ inline exports String<_ARG1> StringProc::build_times (const ARGVF<_ARG1> & ,cons
 	struct Dependent ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::id ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;

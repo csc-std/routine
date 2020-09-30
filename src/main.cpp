@@ -40,7 +40,7 @@ exports int main () noexcept {
 		Singleton<ConsoleService>::instance ().fatal (r1x) ;
 #ifdef __CSC_UNITTEST__
 #ifdef __CSC_COMPILER_MSVC__
-		const auto r2x = StringProc::build_strs (ARGV<STRW>::id ,r1x) ;
+		const auto r2x = StringProc::build_strs (ARGV<STRW>::ID ,r1x) ;
 		Assert::Fail (r2x.raw ().self) ;
 #endif
 #endif

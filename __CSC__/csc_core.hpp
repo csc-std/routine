@@ -187,11 +187,11 @@ using ZERO = ARGC<0> ;
 
 template <class UNIT>
 struct ARGV {
-	static DEF<void (const ARGV &)> id ;
+	static DEF<void (const ARGV &)> ID ;
 } ;
 
 template <class UNIT>
-inline void ARGV<UNIT>::id (const ARGV &) {}
+inline void ARGV<UNIT>::ID (const ARGV &) {}
 
 template <class _ARG1>
 using ARGVF = DEF<void (const ARGV<_ARG1> &)> ;
@@ -362,7 +362,7 @@ inline constexpr VAR _COMPILE_FORCE_ (const ARGVF<_ARG1> &) {
 }
 
 template <class _ARG1>
-using ARGC_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::id))> ;
+using ARGC_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::ID))> ;
 } ;
 
 namespace U {
@@ -1745,7 +1745,7 @@ inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_CAST_ (const ARGVF<_ARG1> & ,_ARG2 &obje
 template <class _ARG1>
 inline void _ZERO_ (_ARG1 &object) {
 	_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::compile ()) ;
-	_CAST_ (ARGV<TEMP<_ARG1>>::id ,object) = {0} ;
+	_CAST_ (ARGV<TEMP<_ARG1>>::ID ,object) = {0} ;
 }
 
 template <class _ARG1>
@@ -1797,8 +1797,8 @@ inline REMOVE_CVR_TYPE<_ARG1> _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 
 	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
 	TEMP<_ARG1> ret ;
 	_ZERO_ (ret) ;
-	_CAST_ (ARGV<R1X>::id ,ret) = _CAST_ (ARGV<R1X>::id ,object) ;
-	return _MOVE_ (_CAST_ (ARGV<_ARG1>::id ,ret)) ;
+	_CAST_ (ARGV<R1X>::ID ,ret) = _CAST_ (ARGV<R1X>::ID ,object) ;
+	return _MOVE_ (_CAST_ (ARGV<_ARG1>::ID ,ret)) ;
 }
 
 //@warn: not type-safe ,be careful about strict-aliasing
@@ -1812,23 +1812,23 @@ inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & 
 	const auto r2x = _ADDRESS_ (pointer) ;
 	if (r2x % r1x != 0)
 		return NULL ;
-	const auto r3x = _CAST_ (ARGV<TEMP<R1X>>::id ,r2x) ;
-	return _CAST_ (ARGV<R1X>::id ,r3x) ;
+	const auto r3x = _CAST_ (ARGV<TEMP<R1X>>::ID ,r2x) ;
+	return _CAST_ (ARGV<R1X>::ID ,r3x) ;
 }
 
 template <class _ARG1>
 inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
-	const auto r1x = DEPTR[_NULL_ (ARGV<BYTE>::id)] + address ;
-	const auto r2x = _FORWARD_ (ARGV<PTR<NONE>>::id ,r1x) ;
-	return _POINTER_CAST_ (ARGV<_ARG1>::id ,r2x) ;
+	const auto r1x = DEPTR[_NULL_ (ARGV<BYTE>::ID)] + address ;
+	const auto r2x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,r1x) ;
+	return _POINTER_CAST_ (ARGV<_ARG1>::ID ,r2x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const MEMPTR<_ARG1 ,_ARG2> &mptr ,_ARG3 &mref) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::compile ()) ;
-	const auto r1x = DEPTR[(_NULL_ (ARGV<_ARG2>::id).*mptr)] ;
+	const auto r1x = DEPTR[(_NULL_ (ARGV<_ARG2>::ID).*mptr)] ;
 	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (r1x) ;
-	const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::id ,r2x) ;
+	const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::ID ,r2x) ;
 	return DEREF[r3x] ;
 }
 
@@ -1836,17 +1836,17 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS &&...>>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
-	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::id ,address) ;
+	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,address) ;
 	if (r1x == NULL)
 		return ;
 	_ZERO_ (DEREF[address]) ;
-	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::id ,initval)...) ;
+	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 }
 
 template <class _ARG1>
 inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
-	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::id ,address) ;
+	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,address) ;
 	if (r1x == NULL)
 		return ;
 	DEREF[r1x].~_ARG1 () ;
@@ -2170,7 +2170,7 @@ class TypeInterface
 template <class _ARG1>
 inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
 	TypeInterface<REMOVE_CVR_TYPE<_ARG1>> ret ;
-	return _MOVE_ (_CAST_ (ARGV<FLAG>::id ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<FLAG>::ID ,ret)) ;
 }
 
 template <class UNIT = NONE>
@@ -2367,7 +2367,7 @@ public:
 
 	template <class _ARG1 ,class... _ARGS>
 	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text)
-		:Plain (cache_string (ARGV<_ARG1>::id ,text...)) {
+		:Plain (cache_string (ARGV<_ARG1>::ID ,text...)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -2428,7 +2428,7 @@ public:
 
 	template <class... _ARGS>
 	explicit PlainString (const _ARGS &...text) {
-		template_write (ARGV<ZERO>::id ,text...) ;
+		template_write (ARGV<ZERO>::ID ,text...) ;
 	}
 
 	const STRING &to () const leftvalue {
@@ -2453,7 +2453,7 @@ private:
 		_STATIC_ASSERT_ (U::CONSTEXPR_OR<IS_ARRAY_OF_HELP<STRX ,_ARG2> ,IS_ARRAY_OF_HELP<STRA ,_ARG2> ,IS_ARRAY_OF_HELP<STRW ,_ARG2>>::compile ()) ;
 		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (_ARG2) - 1))
 			mString[i + _ARG1::compile ()] = REAL (text_one[i]) ;
-		template_write (ARGV<R1X>::id ,text_rest...) ;
+		template_write (ARGV<R1X>::ID ,text_rest...) ;
 	}
 } ;
 
