@@ -398,8 +398,7 @@ inline exports void BasicProc::mem_fill (ARR<_ARG1> &dst ,const LENGTH &len ,con
 }
 
 template <class UNIT ,class CONT>
-class ScopedPtr final
-	:private Proxy {
+class ScopedPtr final {
 private:
 	PTR<UNIT> mPointer ;
 
@@ -411,8 +410,6 @@ public:
 		mPointer = pointer ;
 	}
 
-	implicit ScopedPtr (const DEF<decltype (NULL)> &) = delete ;
-
 	implicit ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
@@ -420,13 +417,23 @@ public:
 		mPointer = NULL ;
 	}
 
-	implicit ScopedPtr (const ScopedPtr &) = default ;
+	implicit ScopedPtr (const ScopedPtr &) = delete ;
 
-	inline ScopedPtr &operator= (const ScopedPtr &) = default ;
+	inline ScopedPtr &operator= (const ScopedPtr &) = delete ;
 
-	implicit ScopedPtr (ScopedPtr &&) = default ;
+	implicit ScopedPtr (ScopedPtr &&that) noexcept {
+		_SWAP_ (mPointer ,that.mPointer) ;
+	}
 
-	inline ScopedPtr &operator= (ScopedPtr &&) = default ;
+	inline ScopedPtr &operator= (ScopedPtr &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			DEREF[this].~ScopedPtr () ;
+			new (this) ScopedPtr (_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
 
 	const PTR<UNIT> &to () const leftvalue {
 		_DEBUG_ASSERT_ (mPointer != NULL) ;
@@ -476,13 +483,13 @@ public:
 		mPointer = NULL ;
 	}
 
-	implicit ScopedGuard (const ScopedGuard &) = default ;
+	implicit ScopedGuard (const ScopedGuard &) = delete ;
 
-	inline ScopedGuard &operator= (const ScopedGuard &) = default ;
+	inline ScopedGuard &operator= (const ScopedGuard &) = delete ;
 
-	implicit ScopedGuard (ScopedGuard &&) = default ;
+	implicit ScopedGuard (ScopedGuard &&) = delete ;
 
-	inline ScopedGuard &operator= (ScopedGuard &&) = default ;
+	inline ScopedGuard &operator= (ScopedGuard &&) = delete ;
 
 private:
 	explicit ScopedGuard (const DEF<decltype (ARGVP0)> &) noexcept
@@ -525,13 +532,13 @@ public:
 		mPointer = NULL ;
 	}
 
-	implicit ScopedBuild (const ScopedBuild &) = default ;
+	implicit ScopedBuild (const ScopedBuild &) = delete ;
 
-	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
 
-	implicit ScopedBuild (ScopedBuild &&) = default ;
+	implicit ScopedBuild (ScopedBuild &&) = delete ;
 
-	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
 	explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
@@ -593,13 +600,13 @@ public:
 		mPointer = NULL ;
 	}
 
-	implicit ScopedBuild (const ScopedBuild &) = default ;
+	implicit ScopedBuild (const ScopedBuild &) = delete ;
 
-	inline ScopedBuild &operator= (const ScopedBuild &) = default ;
+	inline ScopedBuild &operator= (const ScopedBuild &) = delete ;
 
-	implicit ScopedBuild (ScopedBuild &&) = default ;
+	implicit ScopedBuild (ScopedBuild &&) = delete ;
 
-	inline ScopedBuild &operator= (ScopedBuild &&) = default ;
+	inline ScopedBuild &operator= (ScopedBuild &&) = delete ;
 
 private:
 	explicit ScopedBuild (const DEF<decltype (ARGVP0)> &) noexcept
