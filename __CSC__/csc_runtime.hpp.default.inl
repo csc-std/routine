@@ -211,7 +211,7 @@ inline exports Duration::Duration (const LENGTH &milliseconds_) {
 template <class _ARG1 ,class>
 inline exports Duration::Duration (_ARG1 &&time_) {
 	using R1X = typename Private::Implement ;
-	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,time_)) ;
+	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::id ,time_)) ;
 }
 
 class TimePoint::Private::Implement
@@ -312,7 +312,7 @@ public:
 template <class _ARG1 ,class>
 inline exports TimePoint::TimePoint (_ARG1 &&time_) {
 	using R1X = typename Private::Implement ;
-	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::null ,time_)) ;
+	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::id ,time_)) ;
 }
 
 class Mutex::Private::Implement
@@ -575,7 +575,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto rax = ByteReader<BYTE> (PhanBuffer<const BYTE>::make (info)) ;
-	const auto r1x = rax.read (ARGV<VAR64>::null) ;
+	const auto r1x = rax.read (ARGV<VAR64>::id) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
@@ -610,7 +610,7 @@ inline exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &
 inline exports FLAG GlobalRuntime::process_info_pid (const PhanBuffer<const STRU8> &info) {
 	_DEBUG_ASSERT_ (info.size () == 128) ;
 	auto rax = ByteReader<BYTE> (PhanBuffer<const BYTE>::make (info)) ;
-	const auto r1x = rax.read (ARGV<VAR64>::null) ;
+	const auto r1x = rax.read (ARGV<VAR64>::id) ;
 	_DYNAMIC_ASSERT_ (r1x >= VAR32_MIN && r1x <= VAR32_MAX) ;
 	return FLAG (r1x) ;
 }
@@ -634,7 +634,7 @@ inline exports void GlobalRuntime::process_abort[[noreturn]] () {
 }
 
 inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) {
-	const auto r1x = StringProc::build_strs (ARGV<STRA>::null ,cmd) ;
+	const auto r1x = StringProc::build_strs (ARGV<STRA>::id ,cmd) ;
 	const auto r2x = api::system (r1x.raw ().self) ;
 	return FLAG (r2x) ;
 }

@@ -253,7 +253,7 @@ private:
 	imports void static_execute (THIS_PACK &this_ ,const INDEX &tid) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,this_)) ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::id ,this_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		while (TRUE) {
 			static_pend (this_ ,tid) ;
@@ -672,7 +672,7 @@ private:
 	imports void static_execute (THIS_PACK &this_ ,const INDEX &tid) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,this_)) ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::id ,this_)) ;
 		auto rax = List<ITEM> () ;
 		while (TRUE) {
 			if (rax.empty ())
@@ -925,7 +925,7 @@ private:
 	imports void static_execute (THIS_PACK &this_) {
 		struct Dependent ;
 		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::ThreadCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::null ,this_)) ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::id ,this_)) ;
 		auto rax = Optional<ITEM>::nullopt () ;
 		try {
 			//@warn: 'mThreadProc' is not protected by 'mThreadMutex'

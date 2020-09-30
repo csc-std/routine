@@ -163,7 +163,7 @@ public:
 			me = api::glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = api::glCreateShader (GL_VERTEX_SHADER) ;
-			const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::null ,DEPTR[vs.self]) ;
+			const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::id ,DEPTR[vs.self]) ;
 			const auto r3x = DEPTR[DEREF[r2x][0]] ;
 			const auto r4x = VAR32 (vs.size ()) ;
 			api::glShaderSource (r1x ,1 ,DEPTR[r3x] ,DEPTR[r4x]) ;
@@ -171,7 +171,7 @@ public:
 			compute_check_shaderiv (r1x) ;
 			api::glAttachShader (me ,r1x) ;
 			const auto r5x = api::glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r6x = _POINTER_CAST_ (ARGV<ARR<STRA>>::null ,DEPTR[fs.self]) ;
+			const auto r6x = _POINTER_CAST_ (ARGV<ARR<STRA>>::id ,DEPTR[fs.self]) ;
 			const auto r7x = DEPTR[DEREF[r6x][0]] ;
 			const auto r8x = VAR32 (fs.size ()) ;
 			api::glShaderSource (r5x ,1 ,DEPTR[r7x] ,DEPTR[r8x]) ;
@@ -187,12 +187,12 @@ public:
 	}
 
 	void compute_active_pipeline (AnyRef<> &holder) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::id).self ;
 		api::glUseProgram (r1x) ;
 	}
 
 	void compute_uniform_find (AnyRef<> &holder ,const String<STR> &name ,INDEX &index) const override {
-		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::null).self ;
+		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::id).self ;
 		const auto r2x = identity_name (name) ;
 		index = INDEX (api::glGetUniformLocation (r1x ,r2x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
@@ -277,13 +277,13 @@ public:
 	}
 
 	void compute_sprite_active_texture (AnyRef<> &holder ,const INDEX &texture) const override {
-		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
+		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::id).self ;
 		_DYNAMIC_ASSERT_ (texture >= 0 && texture < r1x.mVTO->size ()) ;
 		r1x.mTexture = texture ;
 	}
 
 	void compute_sprite_draw (AnyRef<> &holder) const override {
-		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::null).self ;
+		auto &r1x = holder.rebind (ARGV<SPRITE_NATIVE_THIS>::id).self ;
 		api::glBindVertexArray (r1x.mVAO) ;
 		if switch_once (TRUE) {
 			if (r1x.mTexture == VAR_NONE)
@@ -403,10 +403,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,this_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(this_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[0]] ;
 		api::glVertexAttribPointer (M_LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[3]] ;
 		api::glVertexAttribPointer (M_LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -434,10 +434,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,this_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(this_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[0]] ;
 		api::glVertexAttribPointer (M_LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[3]] ;
 		api::glVertexAttribPointer (M_LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -453,13 +453,13 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,this_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(this_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[0]] ;
 		api::glVertexAttribPointer (M_LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[3]] ;
 		api::glVertexAttribPointer (M_LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_NORMAL) ;
-		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[5]] ;
+		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[5]] ;
 		api::glVertexAttribPointer (M_LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -487,10 +487,10 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,this_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(this_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[0]] ;
 		api::glVertexAttribPointer (M_LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::null)[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY5<VAL32>>::id)[3]] ;
 		api::glVertexAttribPointer (M_LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glBindVertexArray (0) ;
 	}
@@ -506,13 +506,13 @@ private:
 		api::glBindBuffer (GL_ARRAY_BUFFER ,this_.mVBO.self[0]) ;
 		api::glBufferData (GL_ARRAY_BUFFER ,(this_.mSize * r1x) ,vbo[0][0].raw ().self ,GL_STATIC_DRAW) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_POSITION) ;
-		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[0]] ;
+		const auto r2x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[0]] ;
 		api::glVertexAttribPointer (M_LAYOUT_POSITION ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r2x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_TEXCOORD) ;
-		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[3]] ;
+		const auto r3x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[3]] ;
 		api::glVertexAttribPointer (M_LAYOUT_TEXCOORD ,2 ,GL_FLOAT ,GL_FALSE ,r1x ,r3x) ;
 		api::glEnableVertexAttribArray (M_LAYOUT_NORMAL) ;
-		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::null)[5]] ;
+		const auto r4x = DEPTR[_NULL_ (ARGV<ARRAY8<VAL32>>::id)[5]] ;
 		api::glVertexAttribPointer (M_LAYOUT_NORMAL ,3 ,GL_FLOAT ,GL_FALSE ,r1x ,r4x) ;
 		api::glBindVertexArray (0) ;
 	}

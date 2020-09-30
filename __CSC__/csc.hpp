@@ -333,11 +333,11 @@ namespace CSC {
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::id ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
-#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::null ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct ARGVPL ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<ARGVPL>::id ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifndef __CSC_DEBUG__
@@ -351,7 +351,7 @@ namespace CSC {
 #endif
 
 #ifdef __CSC_UNITTEST__
-#define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::ARGV<ARGVPL>::null ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
+#define _UNITTEST_WATCH_(...) do { struct ARGVPL ; CSC::GlobalWatch::done (CSC::ARGV<ARGVPL>::id ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
 #endif
 
 #ifndef _UNITTEST_WATCH_
@@ -388,7 +388,7 @@ using NONE = void ;
 #define NULL nullptr
 
 //@error: fuck std
-#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (ARGV<STRU8[_COUNTOF_ (DEF<decltype (_CAT_ (u8 ,arg))>)]>::null ,_CAT_ (u8 ,arg)))
+#define _PCSTRU8_(arg) CSC::Plain<CSC::STRU8> (_CAST_ (ARGV<STRU8[_COUNTOF_ (DEF<decltype (_CAT_ (u8 ,arg))>)]>::id ,_CAT_ (u8 ,arg)))
 #define _PCSTRU16_(arg) CSC::Plain<CSC::STRU16> (_CAT_ (u ,arg))
 #define _PCSTRU32_(arg) CSC::Plain<CSC::STRU32> (_CAT_ (U ,arg))
 #define _PCSTRA_(arg) CSC::Plain<CSC::STRA> (_UNW_ (arg))

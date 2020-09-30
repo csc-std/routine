@@ -557,7 +557,7 @@ private:
 
 	//@info: $5-><$1 $4 />|<$1 $4 > $7 </$1 >
 	void update_shift_e5 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::id ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("<") ;
 		INDEX ix = mNodeTree.insert () ;
 		update_shift_e1 () ;
@@ -609,7 +609,7 @@ private:
 
 	//@info: $7->${eps}|$5 $7|$6 $7
 	void update_shift_e7 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::id ,mRecursiveCounter)) ;
 		INDEX ix = VAR_NONE ;
 		INDEX iy = VAR_NONE ;
 		while (TRUE) {
@@ -1078,7 +1078,7 @@ public:
 			return JsonParser (mHeap ,VAR_NONE) ;
 		if (!object_type ())
 			return JsonParser (mHeap ,VAR_NONE) ;
-		auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+		auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::id).self ;
 		INDEX ix = r1x.map (key) ;
 		return JsonParser (mHeap ,ix) ;
 	}
@@ -1090,7 +1090,7 @@ public:
 				discard ;
 			if (!array_type ())
 				discard ;
-			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
+			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::id).self ;
 			const auto r2x = r1x.range () ;
 			ret = Array<JsonParser> (r2x.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,r2x.length ()))
@@ -1104,7 +1104,7 @@ public:
 		if switch_once (TRUE) {
 			if (!exist ())
 				discard ;
-			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
+			auto &r1x = mHeap.self[mIndex].mValue.rebind (ARGV<SoftSet<INDEX>>::id).self ;
 			for (auto &&i : r1x) {
 				const auto r2x = r1x.at (i) ;
 				if (rax.length () >= rax.size ())
@@ -1144,7 +1144,7 @@ public:
 	const String<STRU8> &value () const leftvalue {
 		_DYNAMIC_ASSERT_ (exist ()) ;
 		_DYNAMIC_ASSERT_ (string_type ()) ;
-		return mHeap.self[mIndex].mValue.rebind (ARGV<String<STRU8>>::null).self ;
+		return mHeap.self[mIndex].mValue.rebind (ARGV<String<STRU8>>::id).self ;
 	}
 
 	template <class _ARG1>
@@ -1248,7 +1248,7 @@ public:
 					discard ;
 				if (!(r2x.mP2 == M_NODE_X1))
 					discard ;
-				auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<String<STRU8>>::null).self ;
+				auto &r3x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<String<STRU8>>::id).self ;
 				writer << _PCSTRU8_ ("\"") ;
 				writer << r3x ;
 				writer << _PCSTRU8_ ("\"") ;
@@ -1261,7 +1261,7 @@ public:
 					discard ;
 				if (!(r2x.mP2 == M_NODE_X1))
 					discard ;
-				auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
+				auto &r4x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<INDEX>>::id).self ;
 				rbx.clear () ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X3}) ;
 				INDEX iw = 0 ;
@@ -1288,7 +1288,7 @@ public:
 					discard ;
 				if (!(r2x.mP2 == M_NODE_X1))
 					discard ;
-				auto &r6x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+				auto &r6x = mHeap.self[r2x.mP1].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::id).self ;
 				rbx.clear () ;
 				rbx.add (PACK<INDEX ,EFLAG> {VAR_NONE ,M_NODE_X6}) ;
 				INDEX iw = 0 ;
@@ -1383,7 +1383,7 @@ private:
 		for (auto &&i : _RANGE_ (0 ,mHeap->size ())) {
 			if (mHeap.self[i].mClazz != NODE_CLAZZ_OBJECT)
 				continue ;
-			auto &r1x = mHeap.self[i].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+			auto &r1x = mHeap.self[i].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::id).self ;
 			for (auto &&j : r1x)
 				ret.add (DEPTR[j]) ;
 		}
@@ -1532,7 +1532,7 @@ private:
 
 	//@info: $4->$1|$2|$2x|$3|$6|$9
 	void update_shift_e4 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::id ,mRecursiveCounter)) ;
 		INDEX ix = VAR_NONE ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
@@ -1604,7 +1604,7 @@ private:
 		INDEX iy = VAR_NONE ;
 		while (TRUE) {
 			update_shift_e4 (curr) ;
-			auto &r1x = mNodeTree[curr].mValue.rebind (ARGV<SoftSet<INDEX>>::null).self ;
+			auto &r1x = mNodeTree[curr].mValue.rebind (ARGV<SoftSet<INDEX>>::id).self ;
 			const auto r2x = r1x.length () ;
 			r1x.add (r2x ,mLatestIndex) ;
 			auto &r3x = _SWITCH_ (
@@ -1623,7 +1623,7 @@ private:
 
 	//@info: $6->[ ]|[ $5 ]
 	void update_shift_e6 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::id ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("[") ;
 		INDEX ix = mNodeTree.insert () ;
 		mNodeTree[ix].mValue = AnyRef<SoftSet<INDEX>>::make (mArraySoftSet.share ()) ;
@@ -1651,7 +1651,7 @@ private:
 		mRis >> _PCSTRU8_ (":") ;
 		mRis >> RegularReader::SKIP_GAP ;
 		update_shift_e4 (curr) ;
-		auto &r2x = mNodeTree[curr].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::null).self ;
+		auto &r2x = mNodeTree[curr].mValue.rebind (ARGV<SoftSet<String<STRU8>>>::id).self ;
 		r2x.add (r1x ,mLatestIndex) ;
 	}
 
@@ -1677,7 +1677,7 @@ private:
 
 	//@info: $9->{ }|{ $8 }
 	void update_shift_e9 (const INDEX &curr) {
-		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::null ,mRecursiveCounter)) ;
+		ScopedGuard<RecursiveCounter> ANONYMOUS (_CAST_ (ARGV<RecursiveCounter>::id ,mRecursiveCounter)) ;
 		mRis >> _PCSTRU8_ ("{") ;
 		INDEX ix = mNodeTree.insert () ;
 		mNodeTree[ix].mValue = AnyRef<SoftSet<String<STRU8>>>::make (mObjectSoftSet.share ()) ;

@@ -358,7 +358,7 @@ private:
 		mLogWriter << TextWriter<STR>::CLS ;
 		mLogWriter << _PCSTR_ ("[") ;
 		const auto r1x = GlobalRuntime::clock_now () ;
-		mLogWriter << StringProc::build_hours (ARGV<STR>::null ,r1x) ;
+		mLogWriter << StringProc::build_hours (ARGV<STR>::id ,r1x) ;
 		mLogWriter << _PCSTR_ ("][") ;
 		mLogWriter << tag ;
 		mLogWriter << _PCSTR_ ("] : ") ;
@@ -466,7 +466,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<NONE>> ret = Array<PTR<NONE>> (list.length ()) ;
 			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::null ,list[i]) ;
+				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::id ,list[i]) ;
 				ret[i] = r2x ;
 			}
 			return _MOVE_ (ret) ;
@@ -480,7 +480,7 @@ public:
 		}) ;
 		Array<String<STR>> ret = Array<String<STR>> (list.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,list.length ())) {
-			const auto r4x = StringProc::build_hexs (ARGV<STR>::null ,DATA (list[i])) ;
+			const auto r4x = StringProc::build_hexs (ARGV<STR>::id ,DATA (list[i])) ;
 			const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[PTRTOARR[r3x.self][i]])) ;
 			ret[i] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
 		}
