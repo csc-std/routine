@@ -109,7 +109,7 @@ private:
 
 	template <class _ARG1>
 	void template_incrase (const ARGVF<_ARG1> &) {
-		using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+		using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,SIZE>::compile ()) ;
 		mItem[_ARG1::compile ()]++ ;
 		if (mItem[_ARG1::compile ()] < mBase->mRange[_ARG1::compile ()])

@@ -362,10 +362,7 @@ inline constexpr VAR _COMPILE_FORCE_ (const ARGVF<_ARG1> &) {
 }
 
 template <class _ARG1>
-using ARGC_BOOL_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::id) != 0)> ;
-
-template <class _ARG1>
-using ARGC_VAR_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::id))> ;
+using ARGC_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::id))> ;
 } ;
 
 namespace U {
@@ -378,7 +375,7 @@ struct ENABLE<ARGC<TRUE>> {
 } ;
 
 template <class _ARG1>
-using ENABLE_TYPE = typename ENABLE<ARGC_BOOL_TYPE<_ARG1>>::TYPE ;
+using ENABLE_TYPE = typename ENABLE<ARGC_TYPE<_ARG1>>::TYPE ;
 } ;
 
 namespace U {
@@ -406,7 +403,7 @@ struct CONDITIONAL<ARGC<FALSE> ,_ARG1 ,_ARG2> {
 } ;
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
-using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC_BOOL_TYPE<_ARG1> ,_ARG2 ,_ARG3>::TYPE ;
+using CONDITIONAL_TYPE = typename CONDITIONAL<ARGC_TYPE<_ARG1> ,_ARG2 ,_ARG3>::TYPE ;
 } ;
 
 namespace U {
@@ -921,12 +918,12 @@ struct REPEAT_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
-	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using TYPE = typename REPEAT_PARAMS<R1X ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using REPEAT_PARAMS_TYPE = typename REPEAT_PARAMS<ARGC_VAR_TYPE<_ARG1> ,_ARG2 ,ARGVS<>>::TYPE ;
+using REPEAT_PARAMS_TYPE = typename REPEAT_PARAMS<ARGC_TYPE<_ARG1> ,_ARG2 ,ARGVS<>>::TYPE ;
 } ;
 
 namespace U {
@@ -941,13 +938,13 @@ struct RANGE_PARAMS<ZERO ,_ARG1 ,ARGVS<_ARGS...>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct RANGE_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
-	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
-	using R2X = ARGC_VAR_TYPE<U::CONSTEXPR_INCREASE<_ARG2>> ;
+	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+	using R2X = ARGC_TYPE<U::CONSTEXPR_INCREASE<_ARG2>> ;
 	using TYPE = typename RANGE_PARAMS<R1X ,R2X ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
 } ;
 
 template <class _ARG1>
-using RANGE_PARAMS_TYPE = typename RANGE_PARAMS<ARGC_VAR_TYPE<_ARG1> ,ARGC<1> ,ARGVS<>>::TYPE ;
+using RANGE_PARAMS_TYPE = typename RANGE_PARAMS<ARGC_TYPE<_ARG1> ,ARGC<1> ,ARGVS<>>::TYPE ;
 } ;
 
 namespace U {
@@ -1002,7 +999,7 @@ struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>> {
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
-	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_INCREASE<_ARG1>> ;
+	using R1X = ARGC_TYPE<U::CONSTEXPR_INCREASE<_ARG1>> ;
 	using TYPE = typename INDEX_OF<R1X ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
@@ -1028,12 +1025,12 @@ struct INDEX_TO<_ARG1 ,ARGVS<>> {
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
-	using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using TYPE = typename INDEX_TO<R1X ,ARGVS<_ARGS...>>::TYPE ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
-using INDEX_TO_TYPE = typename INDEX_TO<ARGC_VAR_TYPE<_ARG1> ,_ARG2>::TYPE ;
+using INDEX_TO_TYPE = typename INDEX_TO<ARGC_TYPE<_ARG1> ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
@@ -1536,8 +1533,8 @@ using IS_ANY_SAME_HELP = typename IS_ANY_SAME<_ARGS...>::TYPE ;
 } ;
 #endif
 
-using U::ARGC_BOOL_TYPE ;
-using U::ARGC_VAR_TYPE ;
+using U::ARGC_TYPE ;
+using U::ARGC_TYPE ;
 using U::ENABLE_TYPE ;
 using U::DEPENDENT_TYPE ;
 using U::CONDITIONAL_TYPE ;
@@ -1643,7 +1640,7 @@ struct ARGV<ARGVP<ZERO>> {
 
 template <class UNIT>
 struct ARGV<ARGVP<UNIT>>
-	:public ARGV<ARGVP<ARGC_VAR_TYPE<U::CONSTEXPR_DECREASE<UNIT>>>> {
+	:public ARGV<ARGVP<ARGC_TYPE<U::CONSTEXPR_DECREASE<UNIT>>>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<UNIT ,ZERO>::compile ()) ;
 } ;
 
@@ -2406,7 +2403,7 @@ private:
 	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<ARRAY_BIND_TYPE<REAL ,U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>>>>
 	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		struct Dependent ;
-		using R1X = ARGC_VAR_TYPE<U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>> ;
+		using R1X = ARGC_TYPE<U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>> ;
 		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<R1X> ;
 		const auto r1x = R2X (text...) ;
 		return _CACHE_ ([&] () {

@@ -313,7 +313,7 @@ class String ;
 template <class ITEM ,class SIZE>
 class String {
 private:
-	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+	using RESERVE_SIZE = ARGC_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
 
 private:
 	Buffer<ITEM ,RESERVE_SIZE> mString ;
@@ -623,7 +623,7 @@ class Deque ;
 template <class ITEM ,class SIZE>
 class Deque {
 private:
-	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+	using RESERVE_SIZE = ARGC_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
 
 private:
 	Buffer<ITEM ,RESERVE_SIZE> mDeque ;
@@ -958,7 +958,7 @@ private:
 		INDEX mMap ;
 	} ;
 
-	using RESERVE_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
+	using RESERVE_SIZE = ARGC_TYPE<U::CONSTEXPR_RESERVE_SIZE<SIZE>> ;
 
 private:
 	Buffer<NODE_PACK ,RESERVE_SIZE> mPriority ;
@@ -2007,7 +2007,7 @@ private:
 		class ArrayRange ;
 	} ;
 
-	using CEIL8_SIZE = ARGC_VAR_TYPE<U::CONSTEXPR_CEIL8_SIZE<SIZE>> ;
+	using CEIL8_SIZE = ARGC_TYPE<U::CONSTEXPR_CEIL8_SIZE<SIZE>> ;
 
 private:
 	Buffer<BYTE ,CEIL8_SIZE> mSet ;

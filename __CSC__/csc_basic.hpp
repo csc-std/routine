@@ -54,14 +54,14 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,BOOL>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
-		return lhs.equal (rhs) ;
+		return BasicProc::mem_equal (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).equal (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,BOOL>>>
 	imports FLAG template_equal (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
-		return BasicProc::mem_equal (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
+		return lhs.equal (rhs) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id) == _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id))> ,BOOL>>>
@@ -98,14 +98,14 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,FLAG>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP3)> &) {
-		return lhs.compr (rhs) ;
+		return BasicProc::mem_compr (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).compr (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id)))> ,FLAG>>>
 	imports FLAG template_compr (const _ARG1 &lhs ,const _ARG1 &rhs ,const DEF<decltype (ARGVP2)> &) {
-		return BasicProc::mem_compr (PTRTOARR[lhs] ,PTRTOARR[rhs] ,_COUNTOF_ (_ARG1)) ;
+		return lhs.compr (rhs) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id) < _NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id))> ,BOOL>>>
@@ -149,14 +149,14 @@ public:
 	}
 
 private:
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).hash ())> ,FLAG>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
 	imports FLAG template_hash (const _ARG1 &lhs ,const DEF<decltype (ARGVP3)> &) {
-		return lhs.hash () ;
+		return BasicProc::mem_hash (PTRTOARR[lhs] ,_SIZEOF_ (_ARG1)) ;
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<IS_ARRAY_HELP<_ARG1>>>
+	template <class _ARG1 ,class = ENABLE_TYPE<IS_SAME_HELP<DEF<decltype (_NULL_ (ARGV<const REMOVE_REFERENCE_TYPE<_ARG1>>::id).hash ())> ,FLAG>>>
 	imports FLAG template_hash (const _ARG1 &lhs ,const DEF<decltype (ARGVP2)> &) {
-		return BasicProc::mem_hash (PTRTOARR[lhs] ,_SIZEOF_ (_ARG1)) ;
+		return lhs.hash () ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_XYZ_HELP<_ARG1>>>
@@ -820,9 +820,9 @@ public:
 
 template <class UNIT>
 class AutoRef final
-	:private AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> {
+	:private AutoRef<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> {
 private:
-	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> ;
+	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> ;
 	using Holder = typename SPECIALIZATION_BASE::Holder ;
 
 private:
@@ -2376,9 +2376,9 @@ protected:
 
 template <class UNIT>
 class Buffer<UNIT ,SAUTO> final
-	:private Buffer<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>> ,SAUTO> {
+	:private Buffer<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>> ,SAUTO> {
 private:
-	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>> ,SAUTO> ;
+	using SPECIALIZATION_BASE = Buffer<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>> ,SAUTO> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3196,10 +3196,10 @@ protected:
 
 template <class UNIT ,class SIZE>
 class Allocator final
-	:private Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> {
+	:private Allocator<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> {
 
 private:
-	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,ARGC_BOOL_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_BOOL_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> ;
+	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> ;
 
 private:
 	friend SPECIALIZATION_BASE ;
