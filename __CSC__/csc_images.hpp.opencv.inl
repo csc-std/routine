@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -132,6 +134,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -162,8 +165,8 @@ template <class>
 class AbstractImage_Engine_OPENCV ;
 
 template <>
-class AbstractImage_Engine_OPENCV<COLOR_BGR>
-	:public AbstractImage<COLOR_BGR>::Abstract {
+class AbstractImage_Engine_OPENCV<COLOR_BGR> :
+	delegate public AbstractImage<COLOR_BGR>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
 	using LAYOUT_PACK = typename AbstractImage<COLOR_BGR>::LAYOUT_PACK ;
@@ -206,9 +209,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		auto rax = AutoRef<api::vector<uchar>>::make () ;
 		const auto r2x = api::vector<VAR32> () ;
-		auto &r3x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r2x) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r2x) ;
+		}).self ;
 		api::imencode (_PCSTRA_ ("bmp").self ,r1x ,rax.self ,r3x) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -228,17 +233,19 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 		const auto r3x = api::vector<VAR32> () ;
-		auto &r4x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r3x) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r3x) ;
+		}).self ;
 		const auto r5x = api::imwrite (r2x.raw ().self ,r1x ,r4x) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
 	}
 } ;
 
 template <>
-class AbstractImage_Engine_OPENCV<COLOR_BGRA>
-	:public AbstractImage<COLOR_BGRA>::Abstract {
+class AbstractImage_Engine_OPENCV<COLOR_BGRA> :
+	delegate public AbstractImage<COLOR_BGRA>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
 	using LAYOUT_PACK = typename AbstractImage<COLOR_BGRA>::LAYOUT_PACK ;
@@ -281,9 +288,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		auto rax = AutoRef<api::vector<uchar>>::make () ;
 		const auto r2x = api::vector<VAR32> () ;
-		auto &r3x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r2x) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r2x) ;
+		}).self ;
 		api::imencode (_PCSTRA_ ("bmp").self ,r1x ,rax.self ,r3x) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -303,17 +312,19 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 		const auto r3x = api::vector<VAR32> () ;
-		auto &r4x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r3x) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r3x) ;
+		}).self ;
 		const auto r5x = api::imwrite (r2x.raw ().self ,r1x ,r4x) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
 	}
 } ;
 
 template <>
-class AbstractImage_Engine_OPENCV<COLOR_GRAY>
-	:public AbstractImage<COLOR_GRAY>::Abstract {
+class AbstractImage_Engine_OPENCV<COLOR_GRAY> :
+	delegate public AbstractImage<COLOR_GRAY>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
 	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY>::LAYOUT_PACK ;
@@ -356,9 +367,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		auto rax = AutoRef<api::vector<uchar>>::make () ;
 		const auto r2x = api::vector<VAR32> () ;
-		auto &r3x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r2x) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r2x) ;
+		}).self ;
 		api::imencode (_PCSTRA_ ("bmp").self ,r1x ,rax.self ,r3x) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -378,17 +391,19 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 		const auto r3x = api::vector<VAR32> () ;
-		auto &r4x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r3x) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r3x) ;
+		}).self ;
 		const auto r5x = api::imwrite (r2x.raw ().self ,r1x ,r4x) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
 	}
 } ;
 
 template <>
-class AbstractImage_Engine_OPENCV<COLOR_GRAY32>
-	:public AbstractImage<COLOR_GRAY32>::Abstract {
+class AbstractImage_Engine_OPENCV<COLOR_GRAY32> :
+	delegate public AbstractImage<COLOR_GRAY32>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
 	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY32>::LAYOUT_PACK ;
@@ -431,9 +446,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		auto rax = AutoRef<api::vector<uchar>>::make () ;
 		const auto r2x = api::vector<VAR32> () ;
-		auto &r3x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r2x) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r2x) ;
+		}).self ;
 		api::imencode (_PCSTRA_ ("bmp").self ,r1x ,rax.self ,r3x) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -453,17 +470,19 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 		const auto r3x = api::vector<VAR32> () ;
-		auto &r4x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r3x) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r3x) ;
+		}).self ;
 		const auto r5x = api::imwrite (r2x.raw ().self ,r1x ,r4x) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
 	}
 } ;
 
 template <>
-class AbstractImage_Engine_OPENCV<COLOR_GRAY64>
-	:public AbstractImage<COLOR_GRAY64>::Abstract {
+class AbstractImage_Engine_OPENCV<COLOR_GRAY64> :
+	delegate public AbstractImage<COLOR_GRAY64>::Abstract {
 private:
 	using NATIVE_THIS = api::Mat ;
 	using LAYOUT_PACK = typename AbstractImage<COLOR_GRAY64>::LAYOUT_PACK ;
@@ -506,9 +525,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		auto rax = AutoRef<api::vector<uchar>>::make () ;
 		const auto r2x = api::vector<VAR32> () ;
-		auto &r3x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r2x) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r2x) ;
+		}).self ;
 		api::imencode (_PCSTRA_ ("bmp").self ,r1x ,rax.self ,r3x) ;
 		_DYNAMIC_ASSERT_ (rax->size () < VAR32_MAX) ;
 		data = AutoBuffer<BYTE> (rax->size ()) ;
@@ -528,9 +549,11 @@ public:
 		auto &r1x = holder.rebind (ARGV<NATIVE_THIS>::ID).self ;
 		const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 		const auto r3x = api::vector<VAR32> () ;
-		auto &r4x = _SWITCH_ (
-			(option.exist ()) ? option.rebind (ARGV<api::vector<VAR32>>::ID).self :
-			r3x) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (option.exist ())
+				return _BYREF_ (option.rebind (ARGV<api::vector<VAR32>>::ID).self) ;
+			return _BYREF_ (r3x) ;
+		}).self ;
 		const auto r5x = api::imwrite (r2x.raw ().self ,r1x ,r4x) ;
 		_DYNAMIC_ASSERT_ (r5x) ;
 	}

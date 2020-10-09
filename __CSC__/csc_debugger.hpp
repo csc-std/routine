@@ -33,8 +33,8 @@ static constexpr auto OPTION_NO_VERBOSE = EFLAG (7) ;
 static constexpr auto OPTION_ALWAYS_FLUSH = EFLAG (8) ;
 static constexpr auto OPTION_TESTING = EFLAG (9) ;
 
-class ConsoleService
-	:private Proxy {
+class ConsoleService :
+	delegate private Proxy {
 private:
 	using Binder = typename TextWriter<STR>::Binder ;
 
@@ -45,8 +45,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual LENGTH buffer_size () const = 0 ;
 		virtual void enable_option (const EFLAG &option) = 0 ;
@@ -183,14 +183,14 @@ private:
 } ;
 
 template <class... UNITS>
-class ConsoleService::Private::ImplBinder
-	:public Binder {
+class ConsoleService::Private::ImplBinder :
+	delegate public Binder {
 private:
 	TupleBinder<const UNITS...> mBinder ;
 
 public:
-	explicit ImplBinder (const UNITS &...initval)
-		:mBinder (initval...) {}
+	explicit ImplBinder (const UNITS &...initval) :
+		delegate mBinder (initval...) {}
 
 	void friend_write (TextWriter<STR> &writer) const override {
 		template_write (writer ,mBinder) ;
@@ -208,15 +208,15 @@ private:
 	}
 } ;
 
-class DebuggerService
-	:private Proxy {
+class DebuggerService :
+	delegate private Proxy {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void abort_once_invoked_exit (const BOOL &flag) = 0 ;
 		virtual void output_memory_leaks_report (const BOOL &flag) = 0 ;

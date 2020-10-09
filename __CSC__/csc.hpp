@@ -159,6 +159,11 @@
 #endif
 #define implicit
 
+#ifdef delegate
+#error "∑(っ°Д° ;)っ : defined 'delegate'"
+#endif
+#define delegate
+
 #ifdef leftvalue
 #error "∑(っ°Д° ;)っ : defined 'leftvalue'"
 #endif
@@ -193,6 +198,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -201,6 +207,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -224,6 +231,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")

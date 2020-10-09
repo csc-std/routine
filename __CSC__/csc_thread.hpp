@@ -331,8 +331,8 @@ private:
 } ;
 
 template <class ITEM>
-class CalcThread<ITEM>::Private::ThreadBinder
-	:public Thread::Binder {
+class CalcThread<ITEM>::Private::ThreadBinder :
+	delegate public Thread::Binder {
 private:
 	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
@@ -355,8 +355,8 @@ public:
 } ;
 
 template <class ITEM>
-class CalcThread<ITEM>::Private::ThreadCounter
-	:private Wrapped<THIS_PACK> {
+class CalcThread<ITEM>::Private::ThreadCounter :
+	delegate private Wrapped<THIS_PACK> {
 private:
 	using Wrapped<THIS_PACK>::mSelf ;
 
@@ -727,8 +727,8 @@ private:
 } ;
 
 template <class ITEM>
-class WorkThread<ITEM>::Private::ThreadBinder
-	:public Thread::Binder {
+class WorkThread<ITEM>::Private::ThreadBinder :
+	delegate public Thread::Binder {
 private:
 	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
@@ -751,8 +751,8 @@ public:
 } ;
 
 template <class ITEM>
-class WorkThread<ITEM>::Private::ThreadCounter
-	:private Wrapped<THIS_PACK> {
+class WorkThread<ITEM>::Private::ThreadCounter :
+	delegate private Wrapped<THIS_PACK> {
 private:
 	using Wrapped<THIS_PACK>::mSelf ;
 
@@ -986,8 +986,8 @@ private:
 } ;
 
 template <class ITEM>
-class Promise<ITEM>::Private::ThreadBinder
-	:public Thread::Binder {
+class Promise<ITEM>::Private::ThreadBinder :
+	delegate public Thread::Binder {
 private:
 	PhanRef<THIS_PACK> mThis ;
 
@@ -1008,8 +1008,8 @@ public:
 } ;
 
 template <class ITEM>
-class Promise<ITEM>::Private::ThreadCounter
-	:private Wrapped<THIS_PACK> {
+class Promise<ITEM>::Private::ThreadCounter :
+	delegate private Wrapped<THIS_PACK> {
 private:
 	using Wrapped<THIS_PACK>::mSelf ;
 
@@ -1034,7 +1034,7 @@ private:
 	StrongRef<THREAD_PACK> mThis ;
 
 public:
-	implicit Future () = delete ;
+	implicit Future () = default ;
 
 	explicit Future (const StrongRef<THREAD_PACK> &this_) {
 		mThis = this_.share () ;

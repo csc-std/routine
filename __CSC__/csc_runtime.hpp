@@ -23,8 +23,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual LENGTH hours () const = 0 ;
@@ -99,8 +99,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual const DEF<typename Private::Implement> &native () const = 0 ;
 		virtual ARRAY8<LENGTH> calendar () const = 0 ;
@@ -148,8 +148,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual DEF<typename Private::Implement> &native () = 0 ;
 		virtual const DEF<typename Private::Implement> &native () const = 0 ;
@@ -191,8 +191,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual DEF<typename Private::Implement> &native () = 0 ;
 		virtual const DEF<typename Private::Implement> &native () const = 0 ;
@@ -236,8 +236,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual DEF<typename Private::Implement> &native () = 0 ;
 		virtual const DEF<typename Private::Implement> &native () const = 0 ;
@@ -271,8 +271,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void wait () = 0 ;
 		virtual void wait (const Duration &time_) = 0 ;
@@ -285,7 +285,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	implicit UniqueLock () = delete ;
+	implicit UniqueLock () = default ;
 
 	explicit UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) ;
 
@@ -312,8 +312,8 @@ public:
 
 class Thread {
 public:
-	class Binder
-		:public Interface {
+	class Binder :
+		delegate public Interface {
 	public:
 		virtual void execute () = 0 ;
 	} ;
@@ -325,8 +325,8 @@ private:
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void join () = 0 ;
 	} ;
@@ -335,7 +335,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	implicit Thread () = delete ;
+	implicit Thread () = default ;
 
 	explicit Thread (const StrongRef<Binder> &runnable) ;
 
@@ -360,8 +360,8 @@ public:
 	}
 } ;
 
-class GlobalRuntime
-	:private Wrapped<> {
+class GlobalRuntime :
+	delegate private Wrapped<> {
 public:
 	imports TimePoint clock_now () ;
 
@@ -394,8 +394,8 @@ public:
 	imports FLAG system_exec (const String<STR> &cmd) ;
 } ;
 
-class TypeNameInvokeProc
-	:private Wrapped<> {
+class TypeNameInvokeProc :
+	delegate private Wrapped<> {
 private:
 	struct TYPENAME {
 		String<STR> mName ;
@@ -691,8 +691,8 @@ private:
 template <class>
 class GlobalStatic ;
 
-class GlobalStaticEngine
-	:private Wrapped<> {
+class GlobalStaticEngine :
+	delegate private Wrapped<> {
 private:
 	struct VARXX_NODE {
 		FLAG mGUID ;
@@ -800,8 +800,8 @@ private:
 } ;
 
 template <class GUID>
-class GlobalStatic
-	:private Wrapped<> {
+class GlobalStatic :
+	delegate private Wrapped<> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<GUID ,ZERO>::compile ()) ;
 
 public:
@@ -853,8 +853,8 @@ public:
 } ;
 
 template <class UNIT>
-class GlobalStatic<Singleton<UNIT>>
-	:private Wrapped<> {
+class GlobalStatic<Singleton<UNIT>> :
+	delegate private Wrapped<> {
 private:
 	struct THIS_PACK {
 		Singleton<UNIT> mValue ;
@@ -899,15 +899,15 @@ public:
 } ;
 #endif
 
-class RandomService
-	:private Proxy {
+class RandomService :
+	delegate private Proxy {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual VAR entropy () const = 0 ;
 		virtual void reset_seed (const VAR &seed_) = 0 ;

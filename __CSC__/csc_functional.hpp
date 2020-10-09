@@ -106,8 +106,8 @@ private:
 
 class Operator {
 private:
-	class Holder
-		:public Interface {
+	class Holder :
+		delegate public Interface {
 	public:
 		virtual LENGTH rank () const = 0 ;
 		virtual Operand invoke (const LexicalNode &node) const = 0 ;
@@ -143,7 +143,7 @@ public:
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG1>>::compile ()) ;
 		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R1X ,R2X> ;
 		const auto r1x = Function<R1X> (_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
-		mThis = StrongRef<R3X>::make (r1x) ;
+		mThis = StrongRef<R3X>::make (ARGVP0 ,r1x) ;
 	}
 
 	LENGTH rank () const {
@@ -165,8 +165,8 @@ public:
 	}
 } ;
 
-class Operator::Private::DefHolder
-	:public Holder {
+class Operator::Private::DefHolder :
+	delegate public Holder {
 public:
 	implicit DefHolder () = default ;
 
@@ -222,17 +222,19 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Private::ImplHolder<DEF<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>>
-	:public DefHolder {
+class Operator::Private::ImplHolder<DEF<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>> :
+	delegate public DefHolder {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
 	Function<UNIT1 (UNITS1...)> mFunctor ;
 
 public:
+	implicit ImplHolder () = delete ;
+
 	template <class... _ARGS>
-	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
+	explicit ImplHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
+		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -259,17 +261,19 @@ private:
 } ;
 
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
-class Operator::Private::ImplHolder<DEF<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>>
-	:public DefHolder {
+class Operator::Private::ImplHolder<DEF<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>> :
+	delegate public DefHolder {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
 	Function<UNIT1 (const LexicalNode & ,UNITS1...)> mFunctor ;
 
 public:
+	implicit ImplHolder () = delete ;
+
 	template <class... _ARGS>
-	explicit ImplHolder (_ARGS &&...initval)
-		:mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
+	explicit ImplHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
+		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	LENGTH rank () const override {
 		return _CAPACITYOF_ (ARGVS<UNITS2...>) ;
@@ -315,8 +319,8 @@ template <class _ARG1>
 using RETR_FUNC_TYPE = typename RETR_FUNC<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>::TYPE ;
 } ;
 
-class LexicalNode
-	:public VirtualObject<LexicalNode> {
+class LexicalNode :
+	delegate public VirtualObject<LexicalNode> {
 private:
 	template <class ,class>
 	friend class Expression ;
@@ -366,13 +370,13 @@ protected:
 	StrongRef<LexicalNode> mThis ;
 
 protected:
-	implicit Expression ()
-		:Expression (ARGVP0) {
+	implicit Expression () :
+		delegate Expression (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Expression (const Operator &that)
-		: Expression (ARGVP0) {
+	implicit Expression (const Operator &that) :
+		delegate Expression (ARGVP0) {
 		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		mThis->mOperator = that ;
 		mThis->mDepth = 1 ;
@@ -518,8 +522,8 @@ protected:
 } ;
 
 template <class RETR>
-class Expression<RANK0 ,RETR>
-	:private Expression<SPECIALIZATION<RANK0>> {
+class Expression<RANK0 ,RETR> :
+	delegate private Expression<SPECIALIZATION<RANK0>> {
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK0> ,RETR> ;
 
@@ -536,8 +540,8 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {
+	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -550,8 +554,8 @@ public:
 } ;
 
 template <class RETR>
-class Expression<RANK1 ,RETR>
-	:private Expression<SPECIALIZATION<RANK1> ,RETR> {
+class Expression<RANK1 ,RETR> :
+	delegate private Expression<SPECIALIZATION<RANK1> ,RETR> {
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1> ,RETR> ;
 
@@ -562,8 +566,8 @@ private:
 public:
 	implicit Expression () = default ;
 
-	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {
+	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -593,8 +597,8 @@ public:
 } ;
 
 template <class RANK ,class RETR>
-class Expression
-	:private Expression<SPECIALIZATION<RANK> ,RETR> {
+class Expression :
+	delegate private Expression<SPECIALIZATION<RANK> ,RETR> {
 
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
@@ -606,8 +610,8 @@ private:
 public:
 	implicit Expression () = default ;
 
-	implicit Expression (const Operator &that)
-		:SPECIALIZATION_BASE (that) {
+	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 

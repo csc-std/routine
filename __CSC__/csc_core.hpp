@@ -188,10 +188,19 @@ using ZERO = ARGC<0> ;
 template <class UNIT>
 struct ARGV {
 	static DEF<void (const ARGV &)> ID ;
+
+#ifndef __CSC_CXX_LATEST__
+	static DEF<void (const ARGV &)> null ;
+#endif
 } ;
 
 template <class UNIT>
 inline void ARGV<UNIT>::ID (const ARGV &) {}
+
+#ifndef __CSC_CXX_LATEST__
+template <class UNIT>
+inline void ARGV<UNIT>::null (const ARGV &) {}
+#endif
 
 template <class _ARG1>
 using ARGVF = DEF<void (const ARGV<_ARG1> &)> ;
@@ -1500,12 +1509,9 @@ struct IS_ALL_SAME {
 
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct IS_ALL_SAME<_ARG1 ,_ARG2 ,_ARGS...> {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1 ,class... _ARGS>
-struct IS_ALL_SAME<_ARG1 ,_ARG1 ,_ARGS...> {
-	using TYPE = typename IS_ALL_SAME<_ARG1 ,_ARGS...>::TYPE ;
+	using R1X = IS_SAME_HELP<_ARG1 ,_ARG2> ;
+	using R2X = typename IS_ALL_SAME<_ARG1 ,_ARGS...>::TYPE ;
+	using TYPE = CONSTEXPR_AND<R1X ,R2X> ;
 } ;
 
 template <class... _ARGS>
@@ -1518,14 +1524,12 @@ struct IS_ANY_SAME {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
-template <class _ARG1 ,class... _ARGS>
-struct IS_ANY_SAME<_ARG1 ,_ARG1 ,_ARGS...> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
 template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct IS_ANY_SAME<_ARG1 ,_ARG2 ,_ARGS...> {
-	using TYPE = U::CONSTEXPR_OR<IS_ANY_SAME<_ARG1 ,_ARGS...> ,IS_ANY_SAME<_ARG2 ,_ARGS...>> ;
+	using R1X = IS_SAME_HELP<_ARG1 ,_ARG2> ;
+	using R2X = typename IS_ANY_SAME<_ARG1 ,_ARGS...>::TYPE ;
+	using R3X = typename IS_ANY_SAME<_ARG2 ,_ARGS...>::TYPE ;
+	using TYPE = U::CONSTEXPR_OR<R1X ,R2X ,R3X> ;
 } ;
 
 template <class... _ARGS>
@@ -1533,7 +1537,6 @@ using IS_ANY_SAME_HELP = typename IS_ANY_SAME<_ARGS...>::TYPE ;
 } ;
 #endif
 
-using U::ARGC_TYPE ;
 using U::ARGC_TYPE ;
 using U::ENABLE_TYPE ;
 using U::DEPENDENT_TYPE ;
@@ -1639,8 +1642,8 @@ struct ARGV<ARGVP<ZERO>> {
 } ;
 
 template <class UNIT>
-struct ARGV<ARGVP<UNIT>>
-	:public ARGV<ARGVP<ARGC_TYPE<U::CONSTEXPR_DECREASE<UNIT>>>> {
+struct ARGV<ARGVP<UNIT>> :
+	delegate public ARGV<ARGVP<ARGC_TYPE<U::CONSTEXPR_DECREASE<UNIT>>>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<UNIT ,ZERO>::compile ()) ;
 } ;
 
@@ -1852,9 +1855,21 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	DEREF[r1x].~_ARG1 () ;
 }
 
+#ifndef __CSC_CXX_LATEST__
 template <class _ARG1>
 inline _ARG1 &_SWITCH_ (_ARG1 &expr) {
 	return expr ;
+}
+#endif
+
+template <class>
+class PhanRef ;
+
+template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<PhanRef<_ARG1>>>
+inline _RET _BYREF_ (_ARG1 &object) {
+	struct Dependent ;
+	using R1X = DEPENDENT_TYPE<PhanRef<_ARG1> ,Dependent> ;
+	return R1X::make (object) ;
 }
 
 template <class _ARG1>
@@ -2162,8 +2177,8 @@ inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
 }
 
 template <class UNIT>
-class TypeInterface
-	:private Interface {
+class TypeInterface :
+	delegate private Interface {
 	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<UNIT> ,UNIT>::compile ()) ;
 } ;
 
@@ -2236,8 +2251,8 @@ template <class SIZE>
 class ArrayRange ;
 
 template <>
-class ArrayRange<ZERO>
-	:private Proxy {
+class ArrayRange<ZERO> :
+	delegate private Proxy {
 private:
 	struct Private {
 		class Iterator ;
@@ -2274,8 +2289,8 @@ public:
 	}
 } ;
 
-class ArrayRange<ZERO>::Private::Iterator
-	:private Proxy {
+class ArrayRange<ZERO>::Private::Iterator :
+	delegate private Proxy {
 private:
 	INDEX mIndex ;
 
@@ -2344,8 +2359,8 @@ struct CONSTEXPR_CACHE_STRING_SIZE<_ARG1 ,_ARGS...> {
 } ;
 
 template <class REAL>
-class Plain
-	:private Proxy {
+class Plain :
+	delegate private Proxy {
 	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
 private:
@@ -2355,19 +2370,20 @@ private:
 	} ;
 
 private:
-	PTR<const REAL> mPlain ;
+	PTR<const ARR<REAL>> mPlain ;
 	LENGTH mSize ;
 
 public:
 	implicit Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_CONST_HELP<_ARG1> ,IS_ARRAY_OF_HELP<REAL ,_ARG1>>>>
-	implicit Plain (_ARG1 &that)
-		:mPlain (DEPTR[that[0]]) ,mSize (_COUNTOF_ (_ARG1) - 1) {}
+	implicit Plain (_ARG1 &that) :
+		delegate mPlain (DEPTR[PTRTOARR[that]]) ,
+		delegate mSize (_COUNTOF_ (_ARG1) - 1) {}
 
 	template <class _ARG1 ,class... _ARGS>
-	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text)
-		:Plain (cache_string (ARGV<_ARG1>::ID ,text...)) {
+	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text) :
+		delegate Plain (cache_string (ARGV<_ARG1>::ID ,text...)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -2377,7 +2393,7 @@ public:
 
 	const ARR<REAL> &to () const leftvalue {
 		_STATIC_WARNING_ ("mark") ;
-		return PTRTOARR[mPlain] ;
+		return DEREF[mPlain] ;
 	}
 
 	inline implicit operator const ARR<REAL> & () const leftvalue {
@@ -2389,7 +2405,7 @@ public:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-		return mPlain[index] ;
+		return DEREF[mPlain][index] ;
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -2467,6 +2483,14 @@ public:
 	explicit Exception (const Plain<STR> &what_) {
 		mWhat = DEPTR[what_.self] ;
 	}
+
+	implicit Exception (const Exception &) = default ;
+
+	inline Exception &operator= (const Exception &) = default ;
+
+	implicit Exception (Exception &&) = default ;
+
+	inline Exception &operator= (Exception &&) = default ;
 
 	const ARR<STR> &what () const leftvalue {
 		return DEREF[mWhat] ;

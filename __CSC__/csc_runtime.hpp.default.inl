@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -60,6 +62,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -124,13 +127,13 @@ using ::getsid ;
 #endif
 } ;
 
-class Duration::Private::Implement
-	:public Abstract {
+class Duration::Private::Implement :
+	delegate public Abstract {
 private:
 	api::system_clock::duration mDuration ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const LENGTH &milliseconds_) {
 		const auto r1x = api::milliseconds (milliseconds_) ;
@@ -214,13 +217,13 @@ inline exports Duration::Duration (_ARG1 &&time_) {
 	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::ID ,time_)) ;
 }
 
-class TimePoint::Private::Implement
-	:public Abstract {
+class TimePoint::Private::Implement :
+	delegate public Abstract {
 private:
 	api::system_clock::time_point mTimePoint ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const ARRAY8<LENGTH> &time_) {
 		auto rax = api::tm () ;
@@ -315,8 +318,8 @@ inline exports TimePoint::TimePoint (_ARG1 &&time_) {
 	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::ID ,time_)) ;
 }
 
-class Mutex::Private::Implement
-	:public Abstract {
+class Mutex::Private::Implement :
+	delegate public Abstract {
 private:
 	api::mutex mMutex ;
 
@@ -353,8 +356,8 @@ inline exports Mutex::Mutex () {
 	mThis = StrongRef<R1X>::make () ;
 }
 
-class RecursiveMutex::Private::Implement
-	:public Abstract {
+class RecursiveMutex::Private::Implement :
+	delegate public Abstract {
 private:
 	api::recursive_mutex mMutex ;
 
@@ -391,8 +394,8 @@ inline exports RecursiveMutex::RecursiveMutex () {
 	mThis = StrongRef<R1X>::make () ;
 }
 
-class ConditionLock::Private::Implement
-	:public Abstract {
+class ConditionLock::Private::Implement :
+	delegate public Abstract {
 private:
 	api::condition_variable mConditionLock ;
 
@@ -417,15 +420,15 @@ inline exports ConditionLock::ConditionLock () {
 	mThis = StrongRef<R1X>::make () ;
 }
 
-class UniqueLock::Private::Implement
-	:public Abstract {
+class UniqueLock::Private::Implement :
+	delegate public Abstract {
 private:
 	PhanRef<Mutex> mMutex ;
 	PhanRef<ConditionLock> mConditionLock ;
 	api::unique_lock<api::mutex> mUniqueLock ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
 		mMutex = _MOVE_ (mutex_) ;
@@ -463,14 +466,14 @@ inline exports UniqueLock::UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<Conditio
 	mThis = StrongRef<R1X>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
 }
 
-class Thread::Private::Implement
-	:public Abstract {
+class Thread::Private::Implement :
+	delegate public Abstract {
 private:
 	StrongRef<Binder> mRunnable ;
 	api::thread mThread ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const StrongRef<Binder> &runnable) {
 		mRunnable = runnable.share () ;
@@ -639,8 +642,8 @@ inline exports FLAG GlobalRuntime::system_exec (const String<STR> &cmd) {
 	return FLAG (r2x) ;
 }
 
-class RandomService::Private::Implement
-	:public RandomService::Abstract {
+class RandomService::Private::Implement :
+	delegate public RandomService::Abstract {
 private:
 	AutoRef<api::random_device> mRandomSeed ;
 	AutoRef<api::mt19937> mRandomDevice ;

@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -37,6 +39,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -135,8 +138,8 @@ inline exports BOOL FileSystemProc::find_file (const String<STR> &file) {
 	return TRUE ;
 }
 
-class FileSystemStaticProc
-	:private Wrapped<> {
+class FileSystemStaticProc :
+	delegate private Wrapped<> {
 public:
 	imports BOOL static_find_juntion (const String<STRA> &dire) ;
 
@@ -506,9 +509,11 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 			if (r5x == _PCSTR_ (".."))
 				discard ;
 			rax += r5x ;
-			auto &r6x = _SWITCH_ (
-				(FileSystemProc::find_directory (rax)) ? dire_list :
-				file_list) ;
+			auto &r6x = _CALL_ ([&] () {
+				if (FileSystemProc::find_directory (rax))
+					return _BYREF_ (dire_list) ;
+				return _BYREF_ (file_list) ;
+			}).self ;
 			r6x.add (rax) ;
 		}
 		rax[r1x] = 0 ;
@@ -551,14 +556,14 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	}
 }
 
-class StreamLoader::Private::Implement
-	:public Abstract {
+class StreamLoader::Private::Implement :
+	delegate public Abstract {
 private:
 	UniqueRef<VAR32> mReadFile ;
 	UniqueRef<VAR32> mWriteFile ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STR> &file) {
 		const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
@@ -603,10 +608,10 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 	mThis = StrongRef<R1X>::make (file) ;
 }
 
-class BufferLoader::Private::Implement
-	:public Abstract {
+class BufferLoader::Private::Implement :
+	delegate public Abstract {
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STR> &file) {
 		_STATIC_WARNING_ ("unimplemented") ;
@@ -670,8 +675,8 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
 
-class FileSystemService::Private::Implement
-	:public FileSystemService::Abstract {
+class FileSystemService::Private::Implement :
+	delegate public FileSystemService::Abstract {
 public:
 	implicit Implement () = default ;
 

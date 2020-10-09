@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -30,6 +32,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -251,8 +254,8 @@ inline exports String<STR> FileSystemProc::working_path () {
 	return _MOVE_ (ret) ;
 }
 
-class FileSystemStaticProc
-	:private Wrapped<> {
+class FileSystemStaticProc :
+	delegate private Wrapped<> {
 public:
 	imports Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) ;
 } ;
@@ -458,9 +461,11 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 				discard ;
 			if (r3x == _PCSTR_ (".."))
 				discard ;
-			auto &r4x = _SWITCH_ (
-				((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) ? dire_list :
-				file_list) ;
+			auto &r4x = _CALL_ ([&] () {
+				if ((rbx.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+					return _BYREF_ (dire_list) ;
+				return _BYREF_ (file_list) ;
+			}).self ;
 			rax += r3x ;
 			r4x.add (rax) ;
 		}
@@ -506,14 +511,14 @@ inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	}
 }
 
-class StreamLoader::Private::Implement
-	:public Abstract {
+class StreamLoader::Private::Implement :
+	delegate public Abstract {
 private:
 	UniqueRef<api::HANDLE> mReadFile ;
 	UniqueRef<api::HANDLE> mWriteFile ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STR> &file) {
 		mWriteFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
@@ -570,8 +575,8 @@ inline exports StreamLoader::StreamLoader (const String<STR> &file) {
 	mThis = StrongRef<R1X>::make (file) ;
 }
 
-class BufferLoader::Private::Implement
-	:public Abstract {
+class BufferLoader::Private::Implement :
+	delegate public Abstract {
 private:
 	struct THIS_PACK {
 		UniqueRef<api::HANDLE> mFile ;
@@ -584,10 +589,10 @@ private:
 	UniqueRef<SharedRef<THIS_PACK>> mKeep ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
-	explicit Implement (const String<STR> &file)
-		:Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file) :
+		delegate Implement (ARGVP0) {
 		mThis->mFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = api::CreateFile (file.raw ().self ,GENERIC_READ ,FILE_SHARE_READ ,NULL ,OPEN_EXISTING ,FILE_ATTRIBUTE_NORMAL ,NULL) ;
 			if (me == INVALID_HANDLE_VALUE)
@@ -614,8 +619,8 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,const LENGTH &file_len)
-		:Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,const LENGTH &file_len) :
+		delegate Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		mThis->mFile = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			const auto r1x = CSC::CHAR (GENERIC_READ | GENERIC_WRITE) ;
@@ -643,8 +648,8 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,const BOOL &cache)
-		:Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,const BOOL &cache) :
+		delegate Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (cache) ;
 		mThis->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
 			me = OpenFileMapping (FILE_MAP_READ ,FALSE ,file.raw ().self) ;
@@ -674,8 +679,8 @@ public:
 		}) ;
 	}
 
-	explicit Implement (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache)
-		:Implement (ARGVP0) {
+	explicit Implement (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) :
+		delegate Implement (ARGVP0) {
 		_DEBUG_ASSERT_ (file_len >= 0 && file_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cache) ;
 		mThis->mMapping = UniqueRef<api::HANDLE> ([&] (api::HANDLE &me) {
@@ -743,8 +748,8 @@ inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH
 	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
 
-class FileSystemService::Private::Implement
-	:public FileSystemService::Abstract {
+class FileSystemService::Private::Implement :
+	delegate public FileSystemService::Abstract {
 public:
 	implicit Implement () = default ;
 

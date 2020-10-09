@@ -19,8 +19,8 @@
 namespace CSC {
 class AbstractDatabase {
 private:
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void compute_load_data (AnyRef<> &holder) const = 0 ;
 	} ;

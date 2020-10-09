@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -54,6 +56,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -85,8 +88,8 @@ using ::getpeername ;
 using ::gethostname ;
 } ;
 
-class SocketStaticProc
-	:private Wrapped<> {
+class SocketStaticProc :
+	delegate private Wrapped<> {
 public:
 	imports TIMEVAL static_make_timeval (const LENGTH &val) ;
 
@@ -167,8 +170,8 @@ inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const
 #endif
 }
 
-class TCPSocket::Private::Implement
-	:public Abstract {
+class TCPSocket::Private::Implement :
+	delegate public Abstract {
 private:
 	struct THIS_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -181,7 +184,7 @@ private:
 	SharedRef<THIS_PACK> mThis ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
 		mThis = SharedRef<THIS_PACK>::make () ;
@@ -358,8 +361,8 @@ inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr 
 	return _MOVE_ (ret) ;
 }
 
-class TCPListener::Private::Implement
-	:public Abstract {
+class TCPListener::Private::Implement :
+	delegate public Abstract {
 private:
 	using THIS_PACK = typename TCPSocket::Private::Implement::THIS_PACK ;
 
@@ -369,7 +372,7 @@ private:
 	UniqueRef<SOCKET> mLinker ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const StrongRef<TCPSocket::Private::Implement> &socket_) {
 		mThis = socket_->mThis ;
@@ -407,8 +410,8 @@ inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Imp
 	mThis = StrongRef<R1X>::make (socket_) ;
 }
 
-class UDPSocket::Private::Implement
-	:public Abstract {
+class UDPSocket::Private::Implement :
+	delegate public Abstract {
 private:
 	struct THIS_PACK {
 		UniqueRef<SOCKET> mSocket ;
@@ -420,7 +423,7 @@ private:
 	StrongRef<THIS_PACK> mThis ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STRU8> &ip_addr) {
 		mThis = StrongRef<THIS_PACK>::make () ;
@@ -514,8 +517,8 @@ inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
 	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
-class NetworkService::Private::Implement
-	:public NetworkService::Abstract {
+class NetworkService::Private::Implement :
+	delegate public NetworkService::Abstract {
 private:
 	UniqueRef<> mService ;
 

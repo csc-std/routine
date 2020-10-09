@@ -14,8 +14,8 @@
 namespace CSC {
 class TimePoint ;
 
-class StringProc
-	:private Wrapped<> {
+class StringProc :
+	delegate private Wrapped<> {
 public:
 	imports String<STRU16> cvt_u8s_u16s (const String<STRU8> &val) ;
 
@@ -163,8 +163,8 @@ public:
 	imports String<_ARG1> build_times (const ARGVF<_ARG1> & ,const TimePoint &stru) ;
 } ;
 
-class StringConvertInvokeProc
-	:private Wrapped<> {
+class StringConvertInvokeProc :
+	delegate private Wrapped<> {
 public:
 	imports String<STRU8> invoke (const ARGVF<String<STRU8>> & ,const String<STRU8> &val) {
 		return _COPY_ (val) ;
@@ -812,8 +812,8 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
 	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
 }
 
-class GBKSStaticProc
-	:private Wrapped<> {
+class GBKSStaticProc :
+	delegate private Wrapped<> {
 public:
 	imports PhanBuffer<const DEF<STRUW[2]>> static_gbks_ws_table () ;
 
@@ -1089,8 +1089,8 @@ private:
 		class Implement ;
 	} ;
 
-	struct Abstract
-		:public Interface {
+	struct Abstract :
+		delegate public Interface {
 		virtual BOOL match (const String<STRU8> &expr) const = 0 ;
 		virtual Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const = 0 ;
 		virtual String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const = 0 ;
@@ -1100,7 +1100,7 @@ private:
 	StrongRef<Abstract> mThis ;
 
 public:
-	implicit RegexMatcher () = delete ;
+	implicit RegexMatcher () = default ;
 
 	explicit RegexMatcher (const String<STRU8> &reg) ;
 
@@ -1137,9 +1137,11 @@ inline exports DATA StringProc::parse_hexs (const String<_ARG1> &stri) {
 		const auto r2x = BOOL (rbx >= _ARG1 ('0') && rbx <= _ARG1 ('9')) ;
 		const auto r3x = BOOL (rbx >= _ARG1 ('A') && rbx <= _ARG1 ('F')) ;
 		_DYNAMIC_ASSERT_ (r2x || r3x) ;
-		auto &r4x = _SWITCH_ (
-			r2x ? r1x[0] :
-			r1x[1]) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (r2x)
+				return _BYREF_ (r1x[0]) ;
+			return _BYREF_ (r1x[1]) ;
+		}).self ;
 		ret = (ret << 4) | DATA (rbx - r4x) ;
 	}
 	_DYNAMIC_ASSERT_ (rcx == 2 || rcx == 4 || rcx == 8 || rcx == 16) ;
@@ -1157,9 +1159,11 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	const auto r2x = _SIZEOF_ (BYTE) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (BYTE) * 2)) {
 		const auto r3x = BYTE (BYTE (stru >> (r2x - i * 4)) & BYTE (0X0F)) ;
-		auto &r4x = _SWITCH_ (
-			(r3x < DATA (10)) ? r1x[0] :
-			r1x[1]) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (r3x < DATA (10))
+				return _BYREF_ (r1x[0]) ;
+			return _BYREF_ (r1x[1]) ;
+		}).self ;
 		rax << _ARG1 (r4x + r3x) ;
 	}
 	rax << TextWriter<_ARG1>::EOS ;
@@ -1176,9 +1180,11 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	const auto r2x = _SIZEOF_ (WORD) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (WORD) * 2)) {
 		const auto r3x = WORD (WORD (stru >> (r2x - i * 4)) & WORD (0X0F)) ;
-		auto &r4x = _SWITCH_ (
-			(r3x < DATA (10)) ? r1x[0] :
-			r1x[1]) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (r3x < DATA (10))
+				return _BYREF_ (r1x[0]) ;
+			return _BYREF_ (r1x[1]) ;
+		}).self ;
 		rax << _ARG1 (r4x + r3x) ;
 	}
 	rax << TextWriter<_ARG1>::EOS ;
@@ -1195,9 +1201,11 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	const auto r2x = _SIZEOF_ (CHAR) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (CHAR) * 2)) {
 		const auto r3x = CHAR (CHAR (stru >> (r2x - i * 4)) & CHAR (0X0F)) ;
-		auto &r4x = _SWITCH_ (
-			(r3x < DATA (10)) ? r1x[0] :
-			r1x[1]) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (r3x < DATA (10))
+				return _BYREF_ (r1x[0]) ;
+			return _BYREF_ (r1x[1]) ;
+		}).self ;
 		rax << _ARG1 (r4x + r3x) ;
 	}
 	rax << TextWriter<_ARG1>::EOS ;
@@ -1214,9 +1222,11 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	const auto r2x = _SIZEOF_ (DATA) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (DATA) * 2)) {
 		const auto r3x = DATA (DATA (stru >> (r2x - i * 4)) & DATA (0X0F)) ;
-		auto &r4x = _SWITCH_ (
-			(r3x < DATA (10)) ? r1x[0] :
-			r1x[1]) ;
+		auto &r4x = _CALL_ ([&] () {
+			if (r3x < DATA (10))
+				return _BYREF_ (r1x[0]) ;
+			return _BYREF_ (r1x[1]) ;
+		}).self ;
 		rax << _ARG1 (r4x + r3x) ;
 	}
 	rax << TextWriter<_ARG1>::EOS ;
@@ -1328,9 +1338,11 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 		if (rax == VAR_NONE)
 			continue ;
 		const auto r2x = LENGTH (i) - 32 ;
-		auto &r3x = _SWITCH_ (
-			(r2x >= 0 && r2x < _COUNTOF_ (DEF<decltype (M_BASE64.mP1)>)) ? M_BASE64.mP1[r2x] :
-			M_BASE64.mP1[0]) ;
+		auto &r3x = _CALL_ ([&] () {
+			if (r2x >= 0 && r2x < _COUNTOF_ (DEF<decltype (M_BASE64.mP1)>))
+				return _BYREF_ (M_BASE64.mP1[r2x]) ;
+			return _BYREF_ (M_BASE64.mP1[0]) ;
+		}).self ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (!(rax == 0))

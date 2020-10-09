@@ -10,8 +10,8 @@
 
 namespace CSC {
 #ifdef __CSC_UNITTEST__
-class GlobalWatch
-	:private Wrapped<> {
+class GlobalWatch :
+	delegate private Wrapped<> {
 private:
 	struct Private {
 		template <class>
@@ -31,8 +31,8 @@ public:
 } ;
 
 template <class UNIT>
-class GlobalWatch::Private::WatchInterface
-	:private Interface {
+class GlobalWatch::Private::WatchInterface :
+	delegate private Interface {
 private:
 	friend GlobalWatch ;
 	PTR<const STR> mName ;
@@ -43,7 +43,9 @@ public:
 	implicit WatchInterface () {
 		mName = NULL ;
 		mAddress = NULL ;
-		mWatch = Function<void (UNIT &)> ([] (UNIT &) {}) ;
+		mWatch = Function<void (UNIT &)> ([] (UNIT &) {
+			_STATIC_WARNING_ ("noop") ;
+		}) ;
 	} ;
 } ;
 #endif
@@ -556,8 +558,8 @@ class Variant final {
 private:
 	class FakeHolder ;
 
-	class Holder
-		:public Interface {
+	class Holder :
+		delegate public Interface {
 	public:
 		virtual INDEX type_index () const = 0 ;
 		virtual PTR<NONE> type_address () = 0 ;
@@ -572,8 +574,8 @@ private:
 		alignas (_ARG1) DEF<BYTE[_ARG2]> unused ;
 	} ;
 
-	class FakeHolder
-		:public Holder {
+	class FakeHolder :
+		delegate public Holder {
 	private:
 		using ALIGN = U::CONSTEXPR_MAX_ALIGNOF<UNITS...> ;
 		using SIZE = U::CONSTEXPR_MAX_SIZEOF<UNITS...> ;
@@ -593,8 +595,8 @@ private:
 	TEMP<FakeHolder> mVariant ;
 
 public:
-	implicit Variant ()
-		:Variant (ARGVP0) {
+	implicit Variant () :
+		delegate Variant (ARGVP0) {
 		const auto r1x = default_constructible_index (ARGV<ZERO>::ID ,ARGV<ARGVS<UNITS...>>::ID) ;
 		if (r1x == VAR_NONE)
 			return ;
@@ -602,14 +604,14 @@ public:
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Variant>>>>>
-	implicit Variant (_ARG1 &&that)
-		:Variant (ARGVP0) {
+	implicit Variant (_ARG1 &&that) :
+		delegate Variant (ARGVP0) {
 		struct Dependent ;
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<U::CONSTEXPR_EQUAL<R1X ,ARGC<VAR_NONE>>>::compile ()) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::ID ,DEPTR[mVariant]) ;
-		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
+		template_create (r1x ,ARGVPX ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
 	}
 
 	implicit ~Variant () noexcept {
@@ -619,8 +621,8 @@ public:
 		_ZERO_ (mVariant) ;
 	}
 
-	implicit Variant (const Variant &that)
-		:Variant (ARGVP0) {
+	implicit Variant (const Variant &that) :
+		delegate Variant (ARGVP0) {
 		if (!that.exist ())
 			return ;
 		that.fake.friend_copy (DEPTR[mVariant]) ;
@@ -636,8 +638,8 @@ public:
 		return DEREF[this] ;
 	}
 
-	implicit Variant (Variant &&that) noexcept
-		:Variant (ARGVP0) {
+	implicit Variant (Variant &&that) noexcept :
+		delegate Variant (ARGVP0) {
 		if (!that.exist ())
 			return ;
 		that.fake.friend_move (DEPTR[mVariant]) ;
@@ -751,7 +753,7 @@ private:
 			if (!(index == 0))
 				discard ;
 			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::ID ,DEPTR[mVariant]) ;
-			template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+			template_create (r1x ,ARGVPX ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 			return ;
 		}
 		template_construct ((index - 1) ,ARGV<R2X>::ID ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
@@ -776,15 +778,17 @@ private:
 
 template <class... UNITS>
 template <class UNIT_>
-class Variant<UNITS...>::Private::ImplHolder
-	:public Holder {
+class Variant<UNITS...>::Private::ImplHolder :
+	delegate public Holder {
 private:
 	REMOVE_CVR_TYPE<UNIT_> mValue ;
 
 public:
+	implicit ImplHolder () = delete ;
+
 	template <class... _ARGS>
-	explicit ImplHolder (_ARGS &&...initval)
-		:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
+	explicit ImplHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
+		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	INDEX type_index () const override {
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<UNIT_> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
@@ -814,8 +818,8 @@ template <class UNIT>
 using Optional = Variant<UNIT> ;
 
 template <class UNIT>
-class Monostate
-	:private Proxy {
+class Monostate :
+	delegate private Proxy {
 private:
 	SharedRef<UNIT> mValue ;
 
@@ -883,8 +887,8 @@ public:
 } ;
 
 template <class UNIT1 ,class... UNITS>
-class Tuple<UNIT1 ,UNITS...>
-	:private Tuple<UNITS...> {
+class Tuple<UNIT1 ,UNITS...> :
+	delegate private Tuple<UNITS...> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_RVALUE_REFERENCE_HELP<UNIT1>>::compile ()) ;
 
 private:
@@ -893,8 +897,9 @@ private:
 public:
 	implicit Tuple () = default ;
 
-	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_)
-		:Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,rest_)...) ,mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1> &&>::ID ,one_)) {}
+	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :
+		delegate Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,rest_)...) ,
+		delegate mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1> &&>::ID ,one_)) {}
 
 	LENGTH capacity () const {
 		return _CAPACITYOF_ (ARGVS<UNIT1 ,UNITS...>) ;
@@ -996,16 +1001,17 @@ using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT1 ,class... UNITS>
 template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::Private::ImplHolder<UNIT1 (UNITS... ,UNITS_...)>
-	:public Holder {
+class Function<UNIT1 (UNITS...)>::Private::ImplHolder<UNIT1 (UNITS... ,UNITS_...)> :
+	delegate public Holder {
 private:
 	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
 	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
 
 public:
 	template <class... _ARGS>
-	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval)
-		:mFunctor (functor) ,mParameter (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
+	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval) :
+		delegate mFunctor (functor) ,
+		delegate mParameter (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
 		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
@@ -1029,8 +1035,8 @@ template <class...>
 class AnyOfTuple ;
 
 template <class... UNITS>
-class AllOfTuple
-	:private Proxy {
+class AllOfTuple :
+	delegate private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
 
@@ -1043,8 +1049,8 @@ private:
 public:
 	implicit AllOfTuple () = delete ;
 
-	implicit AllOfTuple (const UNITS &...initval)
-		:mBinder (initval...) {}
+	implicit AllOfTuple (const UNITS &...initval) :
+		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
 		return template_boolean (mBinder) ;
@@ -1166,8 +1172,8 @@ private:
 } ;
 
 template <class... UNITS>
-class AnyOfTuple
-	:private Proxy {
+class AnyOfTuple :
+	delegate private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
 
@@ -1180,8 +1186,8 @@ private:
 public:
 	implicit AnyOfTuple () = delete ;
 
-	implicit AnyOfTuple (const UNITS &...initval)
-		:mBinder (initval...) {}
+	implicit AnyOfTuple (const UNITS &...initval) :
+		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
 		return template_boolean (mBinder) ;
@@ -1480,8 +1486,8 @@ private:
 		AtomicVar mSoftCounter ;
 	} ;
 
-	class Holder
-		:public Interface {
+	class Holder :
+		delegate public Interface {
 	public:
 		virtual PTR<THIS_PACK> soft_pointer () const = 0 ;
 		virtual PTR<NONE> fast_pointer () const leftvalue = 0 ;
@@ -1506,13 +1512,13 @@ private:
 	mutable AtomicVar mLatch ;
 
 public:
-	implicit WeakRef ()
-		:WeakRef (ARGVP0) {
+	implicit WeakRef () :
+		delegate WeakRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	explicit WeakRef (const PTR<Holder> &pointer)
-		:WeakRef (ARGVP0) {
+	explicit WeakRef (const PTR<Holder> &pointer) :
+		delegate WeakRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
 		aquire (pointer) ;
@@ -1523,8 +1529,8 @@ public:
 	}
 
 	template <class _ARG1>
-	implicit WeakRef (const StrongRef<_ARG1> &that)
-		: WeakRef (that.weak ()) {}
+	implicit WeakRef (const StrongRef<_ARG1> &that) :
+		delegate WeakRef (that.weak ()) {}
 
 	implicit ~WeakRef () noexcept {
 		const auto r1x = safe_exchange (NULL) ;
@@ -1537,8 +1543,8 @@ public:
 
 	inline WeakRef &operator= (const WeakRef &) = delete ;
 
-	implicit WeakRef (WeakRef &&that) noexcept
-		:WeakRef (ARGVP0) {
+	implicit WeakRef (WeakRef &&that) noexcept :
+		delegate WeakRef (ARGVP0) {
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
 		if (r2x == NULL)
@@ -1631,8 +1637,9 @@ public:
 	}
 
 private:
-	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) ,mLatch (0) {}
+	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept :
+		delegate mPointer (NULL) ,
+		delegate mLatch (0) {}
 
 	imports void aquire (const PTR<Holder> &pointer) {
 		_DEBUG_ASSERT_ (pointer != NULL) ;
@@ -1654,8 +1661,8 @@ private:
 	}
 } ;
 
-class WeakRef::Private::LatchCounter
-	:private Wrapped<AtomicVar> {
+class WeakRef::Private::LatchCounter :
+	delegate private Wrapped<AtomicVar> {
 private:
 	using Wrapped<AtomicVar>::mSelf ;
 
@@ -1674,8 +1681,8 @@ public:
 } ;
 
 template <class UNIT>
-class WeakRef::Private::ImplHolder
-	:public Holder {
+class WeakRef::Private::ImplHolder :
+	delegate public Holder {
 private:
 	PTR<NONE> mOrigin ;
 	PTR<THIS_PACK> mSoftPointer ;
@@ -1761,8 +1768,8 @@ public:
 	}
 } ;
 
-class RecastInvokeProc
-	:private Wrapped<> {
+class RecastInvokeProc :
+	delegate private Wrapped<> {
 public:
 	template <class _ARG1 ,class _ARG2>
 	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
@@ -1797,13 +1804,13 @@ private:
 	mutable AtomicVar mLatch ;
 
 public:
-	implicit StrongRef ()
-		:StrongRef (ARGVP0) {
+	implicit StrongRef () :
+		delegate StrongRef (ARGVP0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	explicit StrongRef (const PTR<Holder> &pointer)
-		:StrongRef (ARGVP0) {
+	explicit StrongRef (const PTR<Holder> &pointer) :
+		delegate StrongRef (ARGVP0) {
 		if (pointer == NULL)
 			return ;
 		aquire (pointer) ;
@@ -1815,13 +1822,13 @@ public:
 
 	//@warn: circular reference ruins StrongRef
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_BASE_OF_HELP<UNIT ,_ARG1>>>
-	implicit StrongRef (const StrongRef<_ARG1> &that)
-		: StrongRef (that.recast (ARGV<UNIT>::ID)) {
+	implicit StrongRef (const StrongRef<_ARG1> &that) :
+		delegate StrongRef (that.recast (ARGV<UNIT>::ID)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit StrongRef (const WeakRef &that)
-		: StrongRef (that.strong (ARGV<UNIT>::ID)) {
+	implicit StrongRef (const WeakRef &that) :
+		delegate StrongRef (that.strong (ARGV<UNIT>::ID)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -1836,8 +1843,8 @@ public:
 
 	inline StrongRef &operator= (const StrongRef &) = delete ;
 
-	implicit StrongRef (StrongRef &&that) noexcept
-		:StrongRef (ARGVP0) {
+	implicit StrongRef (StrongRef &&that) noexcept :
+		delegate StrongRef (ARGVP0) {
 		const auto r1x = that.safe_exchange (NULL) ;
 		const auto r2x = safe_exchange (r1x) ;
 		if (r2x == NULL)
@@ -1995,8 +2002,9 @@ public:
 	}
 
 private:
-	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept
-		:mPointer (NULL) ,mLatch (0) {}
+	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept :
+		delegate mPointer (NULL) ,
+		delegate mLatch (0) {}
 
 	imports void aquire (const PTR<Holder> &pointer) {
 		_DEBUG_ASSERT_ (pointer != NULL) ;
@@ -2024,8 +2032,8 @@ class MemoryPool {
 private:
 	struct HEADER ;
 
-	class Holder
-		:public Interface {
+	class Holder :
+		delegate public Interface {
 	public:
 		virtual void clear () noexcept = 0 ;
 		virtual LENGTH size () const = 0 ;
@@ -2143,8 +2151,8 @@ private:
 } ;
 
 template <class SIZE ,class RESE>
-class MemoryPool::Private::ImplHolder
-	:public Holder {
+class MemoryPool::Private::ImplHolder :
+	delegate public Holder {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<RESE ,ZERO>::compile ()) ;
 
@@ -2257,9 +2265,11 @@ public:
 			if switch_once (TRUE) {
 				if (!empty_node (rax))
 					discard ;
-				auto &r3x = _SWITCH_ (
-					(DEREF[rax].mPrev != NULL) ? DEREF[DEREF[rax].mPrev].mNext :
-					mRoot) ;
+				auto &r3x = _CALL_ ([&] () {
+					if (DEREF[rax].mPrev != NULL)
+						return _BYREF_ (DEREF[DEREF[rax].mPrev].mNext) ;
+					return _BYREF_ (mRoot) ;
+				}).self ;
 				r3x = DEREF[rax].mNext ;
 				if (DEREF[rax].mNext != NULL)
 					DEREF[DEREF[rax].mNext].mPrev = DEREF[rax].mPrev ;
@@ -2285,8 +2295,8 @@ private:
 	}
 } ;
 
-class MemoryPool::Private::HugeHolder
-	:public Holder {
+class MemoryPool::Private::HugeHolder :
+	delegate public Holder {
 private:
 	struct FBLOCK_NODE {
 		PTR<NONE> mOrigin ;
@@ -2355,9 +2365,11 @@ public:
 		auto &r1x = _OFFSET_ (&FBLOCK_NODE::mFlexData ,DEREF[address]) ;
 		const auto r2x = r1x.mOrigin ;
 		if switch_once (TRUE) {
-			auto &r3x = _SWITCH_ (
-				(r1x.mPrev != NULL) ? DEREF[r1x.mPrev].mNext :
-				mRoot) ;
+			auto &r3x = _CALL_ ([&] () {
+				if (r1x.mPrev != NULL)
+					return _BYREF_ (DEREF[r1x.mPrev].mNext) ;
+				return _BYREF_ (mRoot) ;
+			}).self ;
 			r3x = r1x.mNext ;
 			if (r1x.mNext != NULL)
 				DEREF[r1x.mNext].mPrev = r1x.mPrev ;
@@ -2372,8 +2384,8 @@ public:
 	}
 } ;
 
-inline exports MemoryPool::MemoryPool ()
-	:MemoryPool (ARGVP0) {
+inline exports MemoryPool::MemoryPool () :
+	delegate MemoryPool (ARGVP0) {
 	struct Dependent ;
 	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
 	using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
@@ -2417,16 +2429,16 @@ class Object ;
 template <class>
 class VirtualObject ;
 
-class Objective
-	:public Interface {
+class Objective :
+	delegate public Interface {
 public:
 	virtual WeakRef weak_of_this () const = 0 ;
 	virtual void weak_of_this (const StrongRef<Object> &that) = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
-class Object
-	:public Objective {
+class Object :
+	delegate public Objective {
 private:
 	struct Private {
 		class Metadata ;
@@ -2459,7 +2471,7 @@ private:
 	Function<void (PTR<NONE>)> mDestructor ;
 
 public:
-	implicit Metadata () = delete ;
+	implicit Metadata () = default ;
 
 	template <class _ARG1>
 	explicit Metadata (const ARGVF<_ARG1> &) {
@@ -2478,8 +2490,8 @@ public:
 } ;
 
 template <class UNIT>
-class VirtualObject
-	:public virtual Object {
+class VirtualObject :
+	delegate public virtual Object {
 public:
 	implicit VirtualObject () {
 		_STATIC_WARNING_ ("noop") ;
@@ -2489,8 +2501,8 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	class Holder
-		:public Interface {
+	class Holder :
+		delegate public Interface {
 	public:
 		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
@@ -2506,7 +2518,7 @@ private:
 	StrongRef<Holder> mThis ;
 
 public:
-	implicit Serializer () = delete ;
+	implicit Serializer () = default ;
 
 	template <class... _ARGS>
 	explicit Serializer (const ARGVF<ARGVS<_ARGS...>> &) {
@@ -2526,8 +2538,8 @@ public:
 } ;
 
 template <class UNIT ,class CONT>
-class Serializer<UNIT ,CONT>::Private::Member
-	:private Proxy {
+class Serializer<UNIT ,CONT>::Private::Member :
+	delegate private Proxy {
 private:
 	PhanRef<const Serializer> mBase ;
 	PhanRef<CONT> mContext ;
@@ -2547,8 +2559,8 @@ public:
 
 template <class UNIT ,class CONT>
 template <class... UNITS_>
-class Serializer<UNIT ,CONT>::Private::ImplHolder
-	:public Holder {
+class Serializer<UNIT ,CONT>::Private::ImplHolder :
+	delegate public Holder {
 public:
 	implicit ImplHolder () = delete ;
 
@@ -2579,8 +2591,8 @@ template <class>
 class GlobalStatic ;
 
 template <class UNIT>
-class Singleton
-	:private Proxy {
+class Singleton :
+	delegate private Proxy {
 	_STATIC_ASSERT_ (IS_CLASS_HELP<UNIT>::compile ()) ;
 
 private:
@@ -2588,8 +2600,8 @@ private:
 		UNIT mValue ;
 
 		template <class... _ARGS>
-		explicit THIS_PACK (_ARGS &&...initval)
-			:mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
+		explicit THIS_PACK (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
+			delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 	} ;
 
 private:
@@ -2606,7 +2618,7 @@ public:
 
 private:
 	implicit Singleton () {
-		mThis = StrongRef<THIS_PACK>::make (ARGV<Singleton>::ID) ;
+		mThis = StrongRef<THIS_PACK>::make (ARGVP0 ,ARGV<Singleton>::ID) ;
 	}
 
 	UNIT &to () leftvalue {

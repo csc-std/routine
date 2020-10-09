@@ -19,8 +19,8 @@ class ByteReader {
 	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
 
 public:
-	class Binder
-		:public Interface {
+	class Binder :
+		delegate public Interface {
 	public:
 		virtual void friend_read (ByteReader &reader) = 0 ;
 	} ;
@@ -347,8 +347,8 @@ public:
 
 template <class REAL>
 template <class BASE>
-class ByteReader<REAL>::Private::Attribute
-	:private Proxy {
+class ByteReader<REAL>::Private::Attribute :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 
@@ -382,8 +382,8 @@ class ByteWriter {
 	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
 
 public:
-	class Binder
-		:public Interface {
+	class Binder :
+		delegate public Interface {
 	public:
 		virtual void friend_write (ByteWriter &writer) const = 0 ;
 	} ;
@@ -699,8 +699,8 @@ public:
 
 template <class REAL>
 template <class BASE>
-class ByteWriter<REAL>::Private::Attribute
-	:private Proxy {
+class ByteWriter<REAL>::Private::Attribute :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 
@@ -734,8 +734,8 @@ class TextReader {
 	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
 public:
-	class Binder
-		:public Interface {
+	class Binder :
+		delegate public Interface {
 	public:
 		virtual void friend_read (TextReader &reader) = 0 ;
 	} ;
@@ -1340,8 +1340,8 @@ private:
 
 template <class REAL>
 template <class BASE>
-class TextReader<REAL>::Private::Attribute
-	:private Proxy {
+class TextReader<REAL>::Private::Attribute :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 
@@ -1480,8 +1480,8 @@ class TextWriter {
 	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
 public:
-	class Binder
-		:public Interface {
+	class Binder :
+		delegate public Interface {
 	public:
 		virtual void friend_write (TextWriter &writer) const = 0 ;
 	} ;
@@ -2062,8 +2062,8 @@ private:
 
 template <class REAL>
 template <class BASE>
-class TextWriter<REAL>::Private::Attribute
-	:private Proxy {
+class TextWriter<REAL>::Private::Attribute :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 

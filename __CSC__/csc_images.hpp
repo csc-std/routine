@@ -12,8 +12,8 @@
 
 namespace CSC {
 template <class SIZE>
-class ArrayRange
-	:private Proxy {
+class ArrayRange :
+	delegate private Proxy {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 
 private:
@@ -72,8 +72,8 @@ private:
 } ;
 
 template <class SIZE>
-class ArrayRange<SIZE>::Private::Iterator
-	:private Proxy {
+class ArrayRange<SIZE>::Private::Iterator :
+	delegate private Proxy {
 private:
 	PhanRef<const ArrayRange> mBase ;
 	INDEX mIndex ;
@@ -146,8 +146,8 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_)
-		:Bitmap (cx_ ,cy_ ,cx_ ,0) {
+	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_) :
+		delegate Bitmap (cx_ ,cy_ ,cx_ ,0) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -225,14 +225,15 @@ public:
 	}
 
 	void reset () {
-		const auto r1x = ARRAY4<LENGTH> {0 ,0 ,0 ,0} ;
-		auto &r2x = _SWITCH_ (
-			(mHeap.exist ()) ? mHeap->mWidth :
-			r1x) ;
-		mCX = r2x[0] ;
-		mCY = r2x[1] ;
-		mCW = r2x[2] ;
-		mCK = r2x[3] ;
+		const auto r1x = _CALL_ ([&] () {
+			if (mHeap.exist ())
+				return mHeap->mWidth ;
+			return ARRAY4<LENGTH> {0 ,0 ,0 ,0} ;
+		}) ;
+		mCX = r1x[0] ;
+		mCY = r1x[1] ;
+		mCW = r1x[2] ;
+		mCK = r1x[3] ;
 	}
 
 	void reset (const LENGTH &cx_ ,const LENGTH &cy_ ,const LENGTH &cw_ ,const LENGTH &ck_) {
@@ -611,8 +612,8 @@ public:
 
 template <class UNIT>
 template <class BASE>
-class Bitmap<UNIT>::Private::Row
-	:private Proxy {
+class Bitmap<UNIT>::Private::Row :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 	INDEX mY ;
@@ -661,8 +662,8 @@ public:
 		LENGTH mCK ;
 	} ;
 
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const = 0 ;
 		virtual void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
@@ -866,8 +867,8 @@ private:
 
 template <class UNIT>
 template <class BASE>
-class AbstractImage<UNIT>::Private::Row
-	:private Proxy {
+class AbstractImage<UNIT>::Private::Row :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 	INDEX mY ;
@@ -887,8 +888,8 @@ public:
 
 template <class UNIT>
 template <class UNIT_>
-class AbstractImage<UNIT>::Private::NativeProxy
-	:private Proxy {
+class AbstractImage<UNIT>::Private::NativeProxy :
+	delegate private Proxy {
 private:
 	UniqueRef<PhanRef<AbstractImage>> mBase ;
 

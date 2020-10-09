@@ -7,6 +7,7 @@
 #ifdef __CSC__
 #pragma push_macro ("self")
 #pragma push_macro ("implicit")
+#pragma push_macro ("delegate")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
 #pragma push_macro ("imports")
@@ -15,6 +16,7 @@
 #pragma push_macro ("discard")
 #undef self
 #undef implicit
+#undef delegate
 #undef leftvalue
 #undef rightvalue
 #undef imports
@@ -33,6 +35,7 @@
 #ifdef __CSC__
 #pragma pop_macro ("self")
 #pragma pop_macro ("implicit")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
 #pragma pop_macro ("imports")
@@ -69,8 +72,8 @@ using ::_wcstombs_s_l ;
 #endif
 } ;
 
-class LocaleStaticProc
-	:private Wrapped<> {
+class LocaleStaticProc :
+	delegate private Wrapped<> {
 public:
 #ifdef __CSC_COMPILER_MSVC__
 	imports const UniqueRef<_locale_t> &static_locale_page () ;
@@ -187,13 +190,13 @@ inline exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 }
 
 #ifdef __CSC_EXTEND__
-class RegexMatcher::Private::Implement
-	:public Abstract {
+class RegexMatcher::Private::Implement :
+	delegate public Abstract {
 private:
 	AutoRef<api::regex> mRegex ;
 
 public:
-	implicit Implement () = delete ;
+	implicit Implement () = default ;
 
 	explicit Implement (const String<STRU8> &reg) {
 		const auto r1x = StringProc::cvt_u8s_uas (reg) ;

@@ -230,8 +230,8 @@ class AbstractSprite ;
 
 class AbstractShader {
 public:
-	class Abstract
-		:public Interface {
+	class Abstract :
+		delegate public Interface {
 	public:
 		virtual void compute_load_data (AnyRef<> &holder ,const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) const = 0 ;
 		virtual void compute_active_pipeline (AnyRef<> &holder) const = 0 ;
@@ -392,7 +392,7 @@ private:
 	AnyRef<> mHolder ;
 
 public:
-	implicit AbstractSprite () = delete ;
+	implicit AbstractSprite () = default ;
 
 	explicit AbstractSprite (PhanRef<const Abstract> &&abstract_) {
 		mAbstract = _MOVE_ (abstract_) ;

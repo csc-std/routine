@@ -24,8 +24,8 @@ private:
 public:
 	implicit Vector () = default ;
 
-	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w)
-		:Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {
+	implicit Vector (const ARRAY3<REAL> &xyz_ ,const REAL &w) :
+		delegate Vector (xyz_[0] ,xyz_[1] ,xyz_[2] ,w) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -649,11 +649,12 @@ public:
 				const auto r3x = get (iy ,jx) * (get (ix ,jy) * get (iz ,jz) - get (iz ,jy) * get (ix ,jz)) ;
 				const auto r4x = get (iz ,jx) * (get (ix ,jy) * get (iy ,jz) - get (iy ,jy) * get (ix ,jz)) ;
 				const auto r5x = r2x - r3x + r4x ;
-				const auto r6x = -r5x ;
-				auto &r7x = _SWITCH_ (
-					((i + j) % 2 == 0) ? r5x :
-					r6x) ;
-				ret.get (j ,i) = r7x ;
+				const auto r6x = _CALL_ ([&] () {
+					if ((i + j) % 2 == 0)
+						return r5x ;
+					return -r5x ;
+				}) ;
+				ret.get (j ,i) = r6x ;
 			}
 		}
 		ret *= r1x ;
@@ -664,8 +665,8 @@ public:
 				discard ;
 			if (!ret.affine_matrix_like ())
 				discard ;
-			const auto r8x = MathProc::inverse (ret.get (3 ,3)) ;
-			ret *= r8x ;
+			const auto r7x = MathProc::inverse (ret.get (3 ,3)) ;
+			ret *= r7x ;
 			ret.get (3 ,3) = REAL (1) ;
 		}
 		return _MOVE_ (ret) ;
@@ -1052,8 +1053,8 @@ private:
 
 template <class REAL>
 template <class BASE>
-class Matrix<REAL>::Private::Row
-	:private Proxy {
+class Matrix<REAL>::Private::Row :
+	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
 	INDEX mY ;

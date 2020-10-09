@@ -10,8 +10,8 @@
 #include "csc_array.hpp"
 
 namespace CSC {
-class MathProc
-	:private Wrapped<> {
+class MathProc :
+	delegate private Wrapped<> {
 public:
 	template <class _ARG1>
 	imports REMOVE_CVR_TYPE<_ARG1> square (const _ARG1 &val) ;
@@ -438,8 +438,8 @@ inline exports ARRAY3<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 
 	return _MOVE_ (ret) ;
 }
 
-class MathStaticProc
-	:private Wrapped<> {
+class MathStaticProc :
+	delegate private Wrapped<> {
 public:
 	imports ARRAY3<DATA> static_ieee754_encode_part (const ARRAY3<VAR64> &sne2) ;
 
