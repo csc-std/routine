@@ -273,7 +273,7 @@ public:
 		} ,[] (AutoBuffer<CHAR> &me) {
 			api::glDeleteTextures (VAR32 (me.size ()) ,me.self) ;
 		}) ;
-		const auto r1x = bind_vertex (mesh.vertex () ,mesh.element ()) ;
+		const auto r1x = decompress_vertex (mesh.vertex () ,mesh.element ()) ;
 		compute_transfer_data (rax ,r1x) ;
 		compute_transfer_data (rax ,mesh.texture ()[0]) ;
 		holder = AnyRef<SPRITE_NATIVE_THIS>::make (_MOVE_ (rax)) ;
@@ -328,7 +328,7 @@ private:
 		_DYNAMIC_ASSERT_ (rbx.empty ()) ;
 	}
 
-	Array<ARRAY1<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY1<INDEX>> &element) const {
+	Array<ARRAY1<ARRAY3<VAL32>>> decompress_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY1<INDEX>> &element) const {
 		Array<ARRAY1<ARRAY3<VAL32>>> ret = Array<ARRAY1<ARRAY3<VAL32>>> (element.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,element.length ())) {
 			INDEX ix = element.access (i) ;
@@ -337,7 +337,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<ARRAY2<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY2<INDEX>> &element) const {
+	Array<ARRAY2<ARRAY3<VAL32>>> decompress_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY2<INDEX>> &element) const {
 		Array<ARRAY2<ARRAY3<VAL32>>> ret = Array<ARRAY2<ARRAY3<VAL32>>> (element.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,element.length ())) {
 			INDEX ix = element.access (i) ;
@@ -347,7 +347,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<ARRAY3<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY3<INDEX>> &element) const {
+	Array<ARRAY3<ARRAY3<VAL32>>> decompress_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY3<INDEX>> &element) const {
 		Array<ARRAY3<ARRAY3<VAL32>>> ret = Array<ARRAY3<ARRAY3<VAL32>>> (element.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,element.length ())) {
 			INDEX ix = element.access (i) ;
@@ -358,7 +358,7 @@ private:
 		return _MOVE_ (ret) ;
 	}
 
-	Array<ARRAY4<ARRAY3<VAL32>>> bind_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY4<INDEX>> &element) const {
+	Array<ARRAY4<ARRAY3<VAL32>>> decompress_vertex (const Set<ARRAY3<VAL32>> &vertex ,const Deque<ARRAY4<INDEX>> &element) const {
 		Array<ARRAY4<ARRAY3<VAL32>>> ret = Array<ARRAY4<ARRAY3<VAL32>>> (element.length ()) ;
 		for (auto &&i : _RANGE_ (0 ,element.length ())) {
 			INDEX ix = element.access (i) ;

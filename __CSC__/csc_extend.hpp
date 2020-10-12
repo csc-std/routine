@@ -21,8 +21,7 @@ private:
 public:
 	template <class _ARG1 ,class _ARG2>
 	imports void done (const ARGVF<_ARG1> & ,const Plain<STR> &name ,_ARG2 &data) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template WatchInterface<_ARG2> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template WatchInterface<_ARG2> ;
 		static R1X mInstance ;
 		mInstance.mName = name.self ;
 		mInstance.mAddress = DEPTR[data] ;
@@ -606,9 +605,8 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Variant>>>>>
 	implicit Variant (_ARG1 &&that) :
 		delegate Variant (ARGVP0) {
-		struct Dependent ;
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<U::CONSTEXPR_EQUAL<R1X ,ARGC<VAR_NONE>>>::compile ()) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::ID ,DEPTR[mVariant]) ;
 		template_create (r1x ,ARGVPX ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
@@ -744,10 +742,9 @@ private:
 
 	template <class _ARG1 ,class... _ARGS>
 	void template_construct (const INDEX &index ,const ARGVF<_ARG1> & ,_ARGS &&...initval) {
-		struct Dependent ;
 		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
 		using R2X = PARAMS_REST_TYPE<_ARG1> ;
-		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
+		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
 		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<R1X>::compile ()) ;
 		if switch_once (TRUE) {
 			if (!(index == 0))
@@ -805,12 +802,12 @@ public:
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
+		template_create (r1x ,ARGVPX ,ARGVP0 ,_MOVE_ (mValue)) ;
 	}
 
 	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
+		template_create (r1x ,ARGVPX ,ARGVP0 ,_MOVE_ (mValue)) ;
 	}
 } ;
 
@@ -923,12 +920,14 @@ public:
 
 	template <class _ARG1>
 	INDEX_TO_TYPE<U::CONSTEXPR_DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) leftvalue {
-		return template_pick (ARGV<U::CONSTEXPR_DECREASE<_ARG1>>::ID) ;
+		using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+		return template_pick (ARGV<R1X>::ID) ;
 	}
 
 	template <class _ARG1>
 	const INDEX_TO_TYPE<U::CONSTEXPR_DECREASE<_ARG1> ,ARGVS<UNIT1 ,UNITS...>> &pick (const ARGV<ARGVP<_ARG1>> &) const leftvalue {
-		return template_pick (ARGV<U::CONSTEXPR_DECREASE<_ARG1>>::ID) ;
+		using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+		return template_pick (ARGV<R1X>::ID) ;
 	}
 
 	BOOL equal (const Tuple &that) const {
@@ -998,35 +997,6 @@ private:
 
 template <class... UNITS>
 using TupleBinder = Tuple<UNITS &...> ;
-
-template <class UNIT1 ,class... UNITS>
-template <class... UNITS_>
-class Function<UNIT1 (UNITS...)>::Private::ImplHolder<UNIT1 (UNITS... ,UNITS_...)> :
-	delegate public Holder {
-private:
-	Function<UNIT1 (UNITS... ,UNITS_...)> mFunctor ;
-	Tuple<REMOVE_CVR_TYPE<UNITS_>...> mParameter ;
-
-public:
-	template <class... _ARGS>
-	explicit ImplHolder (const DEF<UNIT1 (UNITS... ,UNITS_...)> &functor ,_ARGS &&...initval) :
-		delegate mFunctor (functor) ,
-		delegate mParameter (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
-
-	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
-		return template_invoke (mParameter ,_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
-	}
-
-private:
-	UNIT1 template_invoke (const Tuple<> &parameter ,FORWARD_TRAITS_TYPE<UNITS> &&...funcval1 ,const REMOVE_CVR_TYPE<UNITS_> &...funcval2) const {
-		return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval1)... ,funcval2...) ;
-	}
-
-	template <class _ARG1 ,class... _ARGS>
-	UNIT1 template_invoke (const _ARG1 &parameter ,_ARGS &&...funcval) const {
-		return template_invoke (parameter.rest () ,_FORWARD_ (ARGV<_ARGS &&>::ID ,funcval)... ,parameter.one ()) ;
-	}
-} ;
 
 template <class...>
 class AllOfTuple ;
@@ -1539,9 +1509,18 @@ public:
 		release (r1x) ;
 	}
 
-	implicit WeakRef (const WeakRef &) = delete ;
+	implicit WeakRef (const WeakRef &that) :
+		delegate WeakRef (that.copy ()) {}
 
-	inline WeakRef &operator= (const WeakRef &) = delete ;
+	inline WeakRef &operator= (const WeakRef &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			DEREF[this].~WeakRef () ;
+			new (this) WeakRef (_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
 
 	implicit WeakRef (WeakRef &&that) noexcept :
 		delegate WeakRef (ARGVP0) {
@@ -1596,8 +1575,7 @@ public:
 
 	template <class _ARG1>
 	BOOL equal (const StrongRef<_ARG1> &that) const {
-		struct Dependent ;
-		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent>>::ID ,that) ;
+		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS>>::ID ,that) ;
 		const auto r2x = mPointer.fetch () ;
 		const auto r3x = r1x.mPointer.fetch () ;
 		if (r2x != r3x)
@@ -1615,21 +1593,10 @@ public:
 		return !equal (that) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<WeakRef>>
-	_RET share () const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return WeakRef (r2x) ;
-	}
-
 	template <class _ARG1>
 	StrongRef<_ARG1> strong (const ARGVF<_ARG1> &) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,Dependent> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::LatchCounter ;
+		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
 		ScopedGuard<R2X> ANONYMOUS (_CAST_ (ARGV<R2X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1658,6 +1625,14 @@ private:
 			return r2x ;
 		mLatch.wait (0) ;
 		return r2x ;
+	}
+
+	WeakRef copy () const {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
+		return WeakRef (r2x) ;
 	}
 } ;
 
@@ -1839,9 +1814,18 @@ public:
 		release (r1x) ;
 	}
 
-	implicit StrongRef (const StrongRef &) = delete ;
+	implicit StrongRef (const StrongRef &that) :
+		delegate StrongRef (that.copy ()) {}
 
-	inline StrongRef &operator= (const StrongRef &) = delete ;
+	inline StrongRef &operator= (const StrongRef &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			DEREF[this].~StrongRef () ;
+			new (this) StrongRef (_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
 
 	implicit StrongRef (StrongRef &&that) noexcept :
 		delegate StrongRef (ARGVP0) {
@@ -1939,21 +1923,20 @@ public:
 		return !equal (that) ;
 	}
 
-	StrongRef share () const {
+	WeakRef weak () const {
 		using R1X = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return StrongRef (r2x) ;
+		return WeakRef (r2x) ;
 	}
 
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
-		struct Dependent ;
 		using R1X = typename WeakRef::Private::LatchCounter ;
 		using R2X = CAST_TRAITS_TYPE<_ARG1 ,UNIT> ;
 		using R3X = typename WeakRef::Private ;
-		using R4X = typename DEPENDENT_TYPE<R3X ,Dependent>::template ImplHolder<R2X> ;
+		using R4X = typename DEPENDENT_TYPE<R3X ,struct ANONYMOUS>::template ImplHolder<R2X> ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1972,26 +1955,18 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	WeakRef weak () const {
-		using R1X = typename WeakRef::Private::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return WeakRef (r2x) ;
-	}
-
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
-		struct Dependent ;
 		using R1X = typename WeakRef::THIS_PACK ;
 		using R2X = typename WeakRef::Private ;
-		using R3X = typename DEPENDENT_TYPE<R2X ,Dependent>::template ImplHolder<UNIT> ;
+		using R4X = DEPENDENT_TYPE<UNIT ,struct ANONYMOUS> ;
+		using R3X = typename DEPENDENT_TYPE<R2X ,struct ANONYMOUS>::template ImplHolder<R4X> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		DEREF[r1x].mOrigin = rax.self ;
-		DEREF[r1x].mHolder = AnyRef<UNIT>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<UNIT>::ID).self] ;
+		DEREF[r1x].mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<R4X>::ID).self] ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R3X>>::ID) ;
 		ScopedBuild<R3X> ANONYMOUS (rbx ,rbx.self ,r1x ,r2x) ;
 		const auto r3x = _POINTER_CAST_ (ARGV<R3X>::ID ,rbx.self) ;
@@ -2025,6 +2000,14 @@ private:
 			return r2x ;
 		mLatch.wait (0) ;
 		return r2x ;
+	}
+
+	StrongRef copy () const {
+		using R1X = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
+		return StrongRef (r2x) ;
 	}
 } ;
 
@@ -2386,24 +2369,23 @@ public:
 
 inline exports MemoryPool::MemoryPool () :
 	delegate MemoryPool (ARGVP0) {
-	struct Dependent ;
-	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
-	using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
-	using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
-	using R4X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
-	using R5X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
-	using R6X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
-	using R7X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
-	using R8X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
-	using R9X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
-	using R10X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
-	using R11X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
-	using R12X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
-	using R13X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
-	using R14X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
-	using R15X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
-	using R16X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
-	using R17X = typename DEPENDENT_TYPE<Private ,Dependent>::HugeHolder ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
+	using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
+	using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
+	using R4X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
+	using R5X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
+	using R6X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
+	using R7X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
+	using R8X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
+	using R9X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
+	using R10X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
+	using R11X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
+	using R12X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
+	using R13X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
+	using R14X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
+	using R15X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
+	using R16X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using R17X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::HugeHolder ;
 	mThis->mPool = AutoBuffer<StrongRef<Holder>> (17) ;
 	mThis->mPool[0] = StrongRef<R1X>::make () ;
 	mThis->mPool[1] = StrongRef<R2X>::make () ;
@@ -2425,9 +2407,6 @@ inline exports MemoryPool::MemoryPool () :
 }
 
 class Object ;
-
-template <class>
-class VirtualObject ;
 
 class Objective :
 	delegate public Interface {
@@ -2451,10 +2430,11 @@ public:
 	implicit Object () = default ;
 
 	WeakRef weak_of_this () const override {
-		return mWeakOfThis.share () ;
+		return mWeakOfThis ;
 	}
 
 	void weak_of_this (const StrongRef<Object> &that) override {
+		_DYNAMIC_ASSERT_ (!mWeakOfThis.exist ()) ;
 		mWeakOfThis = that ;
 	}
 
@@ -2522,16 +2502,14 @@ public:
 
 	template <class... _ARGS>
 	explicit Serializer (const ARGVF<ARGVS<_ARGS...>> &) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<_ARGS...> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<_ARGS...> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) > 0) ;
 		mThis = StrongRef<R1X>::make (ARGV<ARGVS<_ARGS...>>::ID) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
 	inline _RET operator() (PhanRef<CONT> &&context_) const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Member ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Member ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return R1X (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
@@ -2611,8 +2589,7 @@ private:
 public:
 	//@warn: static instance across DLL ruins Singleton
 	imports UNIT &instance () {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<GlobalStatic<Singleton<UNIT>> ,struct ANONYMOUS> ;
 		return R1X::unique () ;
 	}
 

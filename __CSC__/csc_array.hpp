@@ -591,8 +591,7 @@ public:
 
 	template <class... _ARGS>
 	imports String make (const _ARGS &...initval) {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<TextWriter<ITEM> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<TextWriter<ITEM> ,struct ANONYMOUS> ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<SIZE ,SAUTO>::compile ()) ;
 		String ret = String (DEFAULT_LONGSTRING_SIZE::compile ()) ;
 		auto rax = R1X (ret.raw ()) ;
@@ -2125,8 +2124,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<BitSet>>>
 	_RET get (const INDEX &index) leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return R1X (PhanRef<BitSet>::make (DEREF[this]) ,index) ;
 	}
@@ -2139,8 +2137,7 @@ public:
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Bit<const BitSet>>>
 	_RET get (const INDEX &index) const leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<const BitSet> ;
 		_DEBUG_ASSERT_ (index >= 0 && index < mWidth) ;
 		return R1X (PhanRef<const BitSet>::make (DEREF[this]) ,index) ;
 	}
@@ -2151,15 +2148,13 @@ public:
 	}
 
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<BitSet> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<BitSet> ;
 		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
 		return r1x ;
 	}
 
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Bit<const BitSet> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<const BitSet> ;
 		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
 		return r1x ;
 	}

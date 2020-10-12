@@ -5,7 +5,17 @@
 using namespace std ;
 
 namespace UNITTEST {
+struct AA ;
 
+using T1 = IS_COMPLETE_HELP<AA ,struct ANONYMOUS> ;
+
+_STATIC_ASSERT_ (U::CONSTEXPR_NOT<T1>::compile ()) ;
+
+struct AA {} ;
+
+using T2 = IS_COMPLETE_HELP<AA ,struct ANONYMOUS> ;
+
+_STATIC_ASSERT_ (T2::compile ()) ;
 } ;
 
 TEST_CLASS (UNITTEST_MAIN) {

@@ -84,7 +84,7 @@ public:
 	template <class _ARG1>
 	imports const Operand &nth (const ARGV<ARGVP<_ARG1>> &) {
 		return _CACHE_ ([&] () {
-			return Operand (ARGV<ARGVP<_ARG1>>::ID) ;
+			return Operand (ARGV<ARGVP<_ARG1>> {}) ;
 		}) ;
 	}
 
@@ -137,13 +137,12 @@ public:
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operator>>>>>
 	implicit Operator (_ARG1 &&that) {
-		struct Dependent ;
 		using R1X = FUNCTION_OF_TYPE<_ARG1> ;
-		using R2X = REPEAT_PARAMS_TYPE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<R1X>> ,const Operand &> ;
+		using R2X = REPEAT_PARAMS_TYPE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<R1X>> ,Operand> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG1>>::compile ()) ;
-		using R3X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<R1X ,R2X> ;
-		const auto r1x = Function<R1X> (_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
-		mThis = StrongRef<R3X>::make (ARGVP0 ,r1x) ;
+		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R1X ,R2X> ;
+		auto rax = Function<R1X> (_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
+		mThis = StrongRef<R3X>::make (ARGVP0 ,_MOVE_ (rax)) ;
 	}
 
 	LENGTH rank () const {
@@ -306,8 +305,9 @@ namespace U {
 template <class _ARG1>
 struct RETR_FUNC {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<U::CONSTEXPR_DECREASE<_ARG1> ,ZERO>::compile ()) ;
-	using R1X = typename RETR_FUNC<U::CONSTEXPR_DECREASE<_ARG1>>::TYPE ;
-	using TYPE = Expression<RANK1 ,R1X> ;
+	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
+	using R2X = typename RETR_FUNC<R1X>::TYPE ;
+	using TYPE = Expression<RANK1 ,R2X> ;
 } ;
 
 template <>
@@ -319,8 +319,7 @@ template <class _ARG1>
 using RETR_FUNC_TYPE = typename RETR_FUNC<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>::TYPE ;
 } ;
 
-class LexicalNode :
-	delegate public VirtualObject<LexicalNode> {
+class LexicalNode {
 private:
 	template <class ,class>
 	friend class Expression ;
@@ -338,23 +337,20 @@ public:
 } ;
 
 namespace U {
-template <class>
-struct CONSTEXPR_MAXOF ;
+template <class _ARG1>
+struct CONSTEXPR_MAXOF {
+	imports constexpr VAR compile () {
+		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
+		using R2X = CONSTEXPR_MAXOF<PARAMS_REST_TYPE<_ARG1>> ;
+		using R3X = CONSTEXPR_MAX<R1X ,R2X> ;
+		return R3X::compile () ;
+	}
+} ;
 
 template <class _ARG1>
 struct CONSTEXPR_MAXOF<ARGVS<_ARG1>> {
 	imports constexpr VAR compile () {
 		return _ARG1::compile () ;
-	}
-} ;
-
-template <class _ARG1>
-struct CONSTEXPR_MAXOF {
-	imports constexpr VAR compile () {
-		using R1X = CONSTEXPR_MAXOF<PARAMS_ONE_TYPE<_ARG1>> ;
-		using R2X = CONSTEXPR_MAXOF<PARAMS_REST_TYPE<_ARG1>> ;
-		using R3X = CONSTEXPR_MAX<R1X ,R2X> ;
-		return R3X::compile () ;
 	}
 } ;
 } ;
@@ -367,6 +363,8 @@ protected:
 	using RANK = DEF<Operand (UNITS...)> ;
 
 protected:
+	template <class ,class>
+	friend class Expression ;
 	StrongRef<LexicalNode> mThis ;
 
 protected:
@@ -382,79 +380,65 @@ protected:
 		mThis->mDepth = 1 ;
 	}
 
-	const RETR &invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const leftvalue {
+	const RETR &invoke (const UNITS &...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
-		if switch_once (TRUE) {
-			if (mThis->mOperand.exist ())
-				discard ;
-			_DYNAMIC_ASSERT_ (mThis->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
-			const auto r1x = _MOVE_ (mThis->mOperator) ;
-			mThis->mOperand = r1x (mThis.self ,funcval...) ;
-			mThis->mChild[0] = StrongRef<LexicalNode> () ;
-			mThis->mChild[1] = StrongRef<LexicalNode> () ;
-			mThis->mChild[2] = StrongRef<LexicalNode> () ;
-
-		}
-		return mThis->mOperand.as (ARGV<RETR>::ID) ;
+		auto rax = mThis ;
+		_DYNAMIC_ASSERT_ (rax->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		rax->mOperand = rax->mOperator (rax.self ,funcval...) ;
+		return rax->mOperand.as (ARGV<RETR>::ID) ;
 	}
 
 	Expression<RANK ,RETR> flip () const {
 		Expression<RANK ,RETR> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,FORWARD_TRAITS_TYPE<UNITS> &&...ins) {
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...ins) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			return r1x.template_flip_invoke (ARGV<ARGVS<UNITS...>>::ID ,ins...) ;
+			const auto r2x = TupleBinder<const UNITS...> (ins...) ;
+			auto &r3x = r1x.template_flip_invoke (ARGV<ARGVS<const UNITS...>>::ID ,r2x) ;
+			_STATIC_UNUSED_ (r3x) ;
+			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
 		return _MOVE_ (ret) ;
 	}
 
-	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<_ARGS...>> ,RETR>>>
+	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<_ARGS...>>> ,RETR>>>
 	_RET flips (const ARGV<ARGVP<_ARGS>> &...) const {
-		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<_ARGS...>> ;
+		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<_ARGS...>>> ;
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		return template_flips (ARGV<R1X>::ID ,ARGV<ARGVS<_ARGS...>>::ID ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
 	}
 
-	Expression<RANK1 ,RETR> fold () const {
-		struct Dependent ;
-		using R1X = RANGE_PARAMS_TYPE<CAPACITY_OF_TYPE<ARGVS<UNITS...>>> ;
-		Expression<RANK1 ,RETR> ret ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			auto &r2x = in1.as (ARGV<Expression<RANK1 ,RETR>>::ID) ;
-			return r1x.template_fold_invoke (r2x ,ARGV<R1X>::ID) ;
-		}) ;
-		ret.mThis->mChild[0] = mThis ;
-		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return _MOVE_ (ret) ;
-	}
-
 	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
-	_RET concat (const Expression<_ARG1 ,_ARG2> &that) const {
+	_RET bind (const Expression<_ARG1 ,_ARG2> &that) const {
 		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ;
-		return template_concat (ARGV<R1X>::ID ,that ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
+		return template_bind (ARGV<R1X>::ID ,that ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
 	}
 
 protected:
 	explicit Expression (const DEF<decltype (ARGVP0)> &) {
 		mThis = StrongRef<LexicalNode>::make () ;
-		mThis->weak_of_this (mThis.recast (ARGV<Object>::ID)) ;
 		mThis->mRank = _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK>) ;
 	}
 
-	template <class... _ARGS>
-	const RETR &template_flip_invoke (const ARGVF<ARGVS<>> & ,const _ARGS &...funcval) const leftvalue {
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	const RETR &template_flip_invoke (const ARGVF<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	const RETR &template_flip_invoke (const ARGVF<_ARG1> & ,const PARAMS_ONE_TYPE<_ARG1> &funcval_one ,const _ARGS &...funcval_rest) const leftvalue {
-		return template_flip_invoke (ARGV<PARAMS_REST_TYPE<_ARG1>>::ID ,funcval_rest... ,funcval_one) ;
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	const RETR &template_flip_invoke (const ARGVF<ARGVS<_ARG1>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
+		return invoke (parameter.one () ,funcval...) ;
 	}
+
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
+	const RETR &template_flip_invoke (const ARGVF<_ARG1> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
+		return template_flip_invoke (ARGV<PARAMS_REST_TYPE<_ARG1>>::ID ,parameter.rest () ,funcval... ,parameter.one ()) ;
+	}
+
 	template <class _ARG1 ,class... _ARGS>
 	const RETR &template_flips_invoke (const _ARG1 &parameter ,const ARGVF<ARGVS<_ARGS...>> &) const leftvalue {
-		return invoke (parameter.pick (ARGV<ARGVP<_ARGS>>::ID)...) ;
+		return invoke (parameter.pick (ARGV<ARGVP<_ARGS>> {})...) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -463,7 +447,9 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
 			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
-			return r1x.template_flips_invoke (r2x ,ARGV<_ARG2>::ID) ;
+			auto &r3x = r1x.template_flips_invoke (r2x ,ARGV<_ARG2>::ID) ;
+			_STATIC_UNUSED_ (r3x) ;
+			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
@@ -471,48 +457,35 @@ protected:
 	}
 
 	template <class... _ARGS>
-	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<ARGVS<>> & ,const _ARGS &...placeholder) const leftvalue {
-		struct Dependent ;
-		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<Expression<RANK1 ,RETR> ,Dependent>>::ID ,patch_) ;
-		return invoke (r1x.invoke (Operand::nth (placeholder))...) ;
-	}
-
-	template <class _ARG1 ,class... _ARGS>
-	const RETR &template_fold_invoke (const Expression<RANK1 ,RETR> &patch_ ,const ARGVF<_ARG1> & ,const _ARGS &...placeholder) const leftvalue {
-		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
-		using R2X = PARAMS_REST_TYPE<_ARG1> ;
-		auto &r1x = _NULL_ (ARGV<ARGVP<R1X>>::ID) ;
-		return template_flip_invoke (patch_ ,ARGV<R2X>::ID ,placeholder... ,r1x) ;
-	}
-
-	template <class... _ARGS>
-	const RETR &template_concat_invoke (const Tuple<> &parameter ,const _ARGS &...funcval) const leftvalue {
+	const RETR &template_bind_invoke (const Tuple<> &parameter ,const _ARGS &...funcval) const leftvalue {
 		return invoke (funcval...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	const RETR &template_concat_invoke (const _ARG1 &parameter ,const _ARGS &...funcval) const leftvalue {
-		return template_concat_invoke (parameter.rest () ,funcval... ,parameter.one ()) ;
+	const RETR &template_bind_invoke (const _ARG1 &parameter ,const _ARGS &...funcval) const leftvalue {
+		return template_bind_invoke (parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	const RETR &template_concat_patch (const Expression<_ARG1 ,_ARG3> &patch_ ,const ARGVF<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
-		return template_concat_invoke (parameter ,patch_.invoke (funcval...)) ;
+	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG3> &patch_ ,const ARGVF<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
+		return template_bind_invoke (parameter ,patch_.invoke (funcval...)) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4 ,class... _ARGS>
-	const RETR &template_concat_patch (const Expression<_ARG1 ,_ARG4> &patch_ ,const ARGVF<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const leftvalue {
-		return template_concat_patch (patch_ ,ARGV<PARAMS_REST_TYPE<_ARG2>>::ID ,parameter.rest () ,funcval... ,parameter.one ()) ;
+	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG4> &patch_ ,const ARGVF<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const leftvalue {
+		return template_bind_patch (patch_ ,ARGV<PARAMS_REST_TYPE<_ARG2>>::ID ,parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	Expression<_ARG1 ,RETR> template_concat (const ARGVF<_ARG1> & ,const Expression<_ARG2 ,_ARG3> &that ,const ARGVF<ARGVS<_ARGS...>> &) const {
+	Expression<_ARG1 ,RETR> template_bind (const ARGVF<_ARG1> & ,const Expression<_ARG2 ,_ARG3> &that ,const ARGVF<ARGVS<_ARGS...>> &) const {
 		Expression<_ARG1 ,RETR> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
 			auto &r2x = _CAST_ (ARGV<Expression<_ARG2 ,_ARG3>>::ID ,node.mChild[1]) ;
 			const auto r3x = TupleBinder<const _ARGS...> (ins...) ;
-			return r1x.template_concat_patch (r2x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID ,r3x) ;
+			auto &r4x = r1x.template_bind_patch (r2x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID ,r3x) ;
+			_STATIC_UNUSED_ (r4x) ;
+			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
 		ret.mThis->mChild[1] = that.mThis ;
@@ -528,6 +501,8 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK0> ,RETR> ;
 
 private:
+	template <class ,class>
+	friend class Expression ;
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mThis ;
 
@@ -545,7 +520,21 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	using SPECIALIZATION_BASE::invoke ;
+	const RETR &invoke () const leftvalue {
+		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
+		if switch_once (TRUE) {
+			if (!mThis->mOperator.exist ())
+				discard ;
+			auto rax = mThis ;
+			_DYNAMIC_ASSERT_ (rax->mOperator.rank () == 0) ;
+			const auto r1x = _MOVE_ (rax->mOperator) ;
+			rax->mOperand = r1x (rax.self) ;
+			rax->mChild[0] = StrongRef<LexicalNode> () ;
+			rax->mChild[1] = StrongRef<LexicalNode> () ;
+			rax->mChild[2] = StrongRef<LexicalNode> () ;
+		}
+		return mThis->mOperand.as (ARGV<RETR>::ID) ;
+	}
 
 	template <class... _ARGS>
 	inline const RETR &operator() (const _ARGS &...funcval) const leftvalue {
@@ -560,6 +549,8 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1> ,RETR> ;
 
 private:
+	template <class ,class>
+	friend class Expression ;
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mThis ;
 
@@ -586,13 +577,11 @@ public:
 		return DEREF[this] ;
 	}
 
-	using SPECIALIZATION_BASE::fold ;
-
-	using SPECIALIZATION_BASE::concat ;
+	using SPECIALIZATION_BASE::bind ;
 
 	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK1>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
-		return concat (that) ;
+		return bind (that) ;
 	}
 } ;
 
@@ -604,6 +593,8 @@ private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
 
 private:
+	template <class ,class>
+	friend class Expression ;
 	friend SPECIALIZATION_BASE ;
 	using SPECIALIZATION_BASE::mThis ;
 
@@ -628,12 +619,11 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>>>>
 	_RET curry () const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<RANK>> ,struct ANONYMOUS> ;
 		R1X ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			auto rax = r1x.concat (in1).curry () ;
+			auto rax = r1x.bind (in1).curry () ;
 			return Operand (_MOVE_ (rax)) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis ;
@@ -641,13 +631,11 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	using SPECIALIZATION_BASE::fold ;
-
-	using SPECIALIZATION_BASE::concat ;
+	using SPECIALIZATION_BASE::bind ;
 
 	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
-		return concat (that) ;
+		return bind (that) ;
 	}
 } ;
 } ;

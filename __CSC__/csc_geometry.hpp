@@ -215,9 +215,8 @@ public:
 	}
 
 	Vector mul (const Matrix<REAL> &that) const {
-		struct Dependent ;
 		Vector<REAL> ret ;
-		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<Matrix<REAL> ,Dependent>>::ID ,that) ;
+		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<Matrix<REAL> ,struct ANONYMOUS>>::ID ,that) ;
 		for (auto &&i : _RANGE_ (0 ,4)) {
 			const auto r2x = get (0) * r1x.get (0 ,i) ;
 			const auto r3x = get (1) * r1x.get (1 ,i) ;
@@ -376,8 +375,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Matrix>>>
 	_RET get (const INDEX &y) leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Matrix> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<Matrix> ;
 		return R1X (PhanRef<Matrix>::make (DEREF[this]) ,y) ;
 	}
 
@@ -388,8 +386,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Matrix>>>
 	_RET get (const INDEX &y) const leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Matrix> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<const Matrix> ;
 		return R1X (PhanRef<const Matrix>::make (DEREF[this]) ,y) ;
 	}
 

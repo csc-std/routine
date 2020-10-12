@@ -520,7 +520,7 @@ public:
 	implicit ~ScopedBuild () noexcept {
 		if (mPointer == NULL)
 			return ;
-		const auto r1x = _COPY_ (DEREF[mPointer]) ;
+		const auto r1x = DEREF[mPointer] ;
 		if (r1x == NULL)
 			return ;
 		if switch_once (TRUE) {
@@ -589,7 +589,7 @@ public:
 	implicit ~ScopedBuild () noexcept {
 		if (mPointer == NULL)
 			return ;
-		const auto r1x = _COPY_ (DEREF[mPointer]) ;
+		const auto r1x = DEREF[mPointer] ;
 		if (r1x == NULL)
 			return ;
 		while (TRUE) {
@@ -658,7 +658,7 @@ class AutoRef ;
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,ARGC<FALSE>>> {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
 	class Holder :
@@ -736,7 +736,7 @@ public:
 
 template <class UNIT>
 class AutoRef<SPECIALIZATION<UNIT ,ARGC<TRUE>>> {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
 	class Holder :
@@ -770,8 +770,7 @@ protected:
 
 	implicit AutoRef (const AutoRef &that) :
 		delegate AutoRef (ARGVP0) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::PureHolder ;
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
@@ -896,7 +895,7 @@ public:
 
 template <class UNIT>
 class SharedRef final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	class Holder :
@@ -989,8 +988,7 @@ public:
 
 	template <class... _ARGS>
 	imports SharedRef make (_ARGS &&...initval) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::PureHolder ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::PureHolder ;
 		SharedRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
@@ -1150,7 +1148,7 @@ private:
 
 template <class UNIT>
 class AnyRef final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	using Holder = typename AnyRef<NONE>::Holder ;
@@ -1242,7 +1240,6 @@ public:
 	}
 
 	UNIT &to () leftvalue {
-		struct Dependent ;
 		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
@@ -1258,7 +1255,6 @@ public:
 	}
 
 	const UNIT &to () const leftvalue {
-		struct Dependent ;
 		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
@@ -1275,8 +1271,7 @@ public:
 
 	template <class... _ARGS>
 	imports AnyRef make (_ARGS &&...initval) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<UNIT> ;
 		AnyRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
@@ -1357,16 +1352,14 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) :
 		delegate UniqueRef (ARGVP0) {
-		struct Dependent ;
-		using R1X = DEF<void ()> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<Function<void ()> ,struct ANONYMOUS> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R1X> ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<>>>::compile ()) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
-		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
-		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,DEPTR[r1x.self]) ;
+		auto rbx = R1X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		constructor () ;
 		mOrigin = rax.self ;
@@ -1440,7 +1433,7 @@ public:
 
 template <class UNIT>
 class UniqueRef final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	class Holder :
@@ -1468,16 +1461,14 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
 	explicit UniqueRef (const _ARG1 &constructor ,_ARG2 &&destructor) :
 		delegate UniqueRef (ARGVP0) {
-		struct Dependent ;
-		using R1X = DEF<void (UNIT &)> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<Function<void (UNIT &)> ,struct ANONYMOUS> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R1X> ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNIT &>>>::compile ()) ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<_ARG2>>::compile ()) ;
 		_STATIC_ASSERT_ (IS_VOID_HELP<RESULT_OF_TYPE<_ARG2 ,ARGVS<UNIT &>>>::compile ()) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
-		const auto r1x = R3X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
-		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,DEPTR[r1x.self]) ;
+		auto rbx = R1X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		constructor (DEREF[r2x].deref ()) ;
 		mOrigin = rax.self ;
@@ -1540,16 +1531,14 @@ public:
 
 	template <class... _ARGS>
 	imports UniqueRef make (_ARGS &&...initval) {
-		struct Dependent ;
-		using R1X = DEF<void (UNIT &)> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<PTR<R1X>> ;
-		using R3X = DEPENDENT_TYPE<Function<R1X> ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<Function<void (UNIT &)> ,struct ANONYMOUS> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R1X> ;
 		UniqueRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
-		const auto r1x = R3X ([] (UNIT &) {
+		auto rbx = R1X ([] (UNIT &) {
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
-		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,DEPTR[r1x.self]) ;
+		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
 		auto &r3x = DEREF[r2x].deref () ;
 		r3x = UNIT (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
@@ -1591,7 +1580,7 @@ public:
 
 template <class UNIT>
 class PhanRef final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	PTR<UNIT> mPointer ;
@@ -1726,8 +1715,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>>>>>
 	implicit Function (_ARG1 &&that) :
 		delegate Function (ARGVP0) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::compile ()) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
@@ -1741,8 +1729,7 @@ public:
 	template <class _ARG1>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
@@ -1755,8 +1742,7 @@ public:
 	template <class _ARG1>
 	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
@@ -1769,8 +1755,7 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_FUNCTION_HELP<_ARG2>>>>
 	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,_MOVE_ (context_)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
@@ -1843,21 +1828,6 @@ public:
 
 	inline UNIT1 operator() (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		return invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
-	}
-
-	template <class... _ARGS>
-	imports Function make (const DEF<UNIT1 (UNITS... ,_ARGS...)> &functor ,const REMOVE_CVR_TYPE<_ARGS> &...parameter) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplHolder<UNIT1 (UNITS... ,_ARGS...)> ;
-		Function ret ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,functor ,parameter...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		ret.mOrigin = rax.self ;
-		ret.mPointer = r1x ;
-		ret.mFunctor = NULL ;
-		rax = NULL ;
-		return _MOVE_ (ret) ;
 	}
 
 private:
@@ -1972,7 +1942,7 @@ using SMPHAN = ARGC<(-5)> ;
 template <class UNIT ,class SIZE>
 class Buffer {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	using BUFFER = ARRAY_BIND_TYPE<REMOVE_CVR_TYPE<UNIT> ,SIZE> ;
@@ -2099,7 +2069,7 @@ public:
 
 template <class UNIT>
 class Buffer<UNIT ,SFIXED> final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	PTR<NONE> mOrigin ;
@@ -2271,7 +2241,7 @@ class Buffer<UNIT ,SAUTO> ;
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,ARGC<FALSE>> ,SAUTO> {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
 	PTR<NONE> mOrigin ;
@@ -2339,7 +2309,7 @@ protected:
 
 template <class UNIT>
 class Buffer<SPECIALIZATION<UNIT ,ARGC<TRUE>> ,SAUTO> {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
 	PTR<NONE> mOrigin ;
@@ -2559,7 +2529,7 @@ using AutoBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SAUTO> ,UNIT> 
 
 template <class UNIT>
 class Buffer<UNIT ,SCPHAN> final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	PTR<NONE> mOrigin ;
@@ -2738,7 +2708,7 @@ private:
 
 template <class UNIT>
 class Buffer<UNIT ,SMPHAN> final {
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT>::compile ()) ;
+	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
 	PTR<NONE> mOrigin ;

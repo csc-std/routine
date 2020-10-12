@@ -305,8 +305,7 @@ public:
 	}
 
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template ImplBinder<PhanBuffer<const STR>> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplBinder<PhanBuffer<const STR>> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
 		log (r1x ,R1X (msg)) ;
 	}
@@ -431,22 +430,18 @@ public:
 
 	void abort_once_invoked_exit (const BOOL &flag) override {
 		_DEBUG_ASSERT_ (flag) ;
-		const auto r1x = Function<void ()> ([] () noexcept {
+		api::atexit ([] () noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r2x = Function<void (VAR32)> ([] (VAR32) noexcept {
+		api::signal (SIGFPE ,[] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r3x = Function<void (VAR32)> ([] (VAR32) noexcept {
+		api::signal (SIGILL ,[] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		const auto r4x = Function<void (VAR32)> ([] (VAR32) noexcept {
+		api::signal (SIGSEGV ,[] (VAR32) noexcept {
 			GlobalRuntime::process_abort () ;
 		}) ;
-		api::atexit (DEPTR[r1x.self]) ;
-		api::signal (SIGFPE ,DEPTR[r2x.self]) ;
-		api::signal (SIGILL ,DEPTR[r3x.self]) ;
-		api::signal (SIGSEGV ,DEPTR[r4x.self]) ;
 	}
 
 	void output_memory_leaks_report (const BOOL &flag) override {

@@ -39,16 +39,14 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET begin () const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Iterator ;
 		const auto r1x = first_item () ;
 		return R1X (PhanRef<const ArrayRange>::make (DEREF[this]) ,0 ,r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Iterator ;
 		const auto r1x = first_item () ;
 		return R1X (PhanRef<const ArrayRange>::make (DEREF[this]) ,mSize ,r1x) ;
 	}
@@ -296,8 +294,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Bitmap>>>
 	_RET get (const INDEX &y) leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<Bitmap> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<Bitmap> ;
 		return R1X (PhanRef<Bitmap>::make (DEREF[this]) ,y) ;
 	}
 
@@ -308,8 +305,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Bitmap>>>
 	_RET get (const INDEX &y) const leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const Bitmap> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<const Bitmap> ;
 		return R1X (PhanRef<const Bitmap>::make (DEREF[this]) ,y) ;
 	}
 
@@ -779,8 +775,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<AbstractImage>>>
 	_RET get (const INDEX &y) leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<AbstractImage> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<AbstractImage> ;
 		return R1X (PhanRef<AbstractImage>::make (DEREF[this]) ,y) ;
 	}
 
@@ -791,8 +786,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const AbstractImage>>>
 	_RET get (const INDEX &y) const leftvalue {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template Row<const AbstractImage> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<const AbstractImage> ;
 		return R1X (PhanRef<const AbstractImage>::make (DEREF[this]) ,y) ;
 	}
 
@@ -803,8 +797,7 @@ public:
 
 	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<typename Private::template NativeProxy<_ARG1>>>
 	_RET native (const ARGVF<_ARG1> &) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::template NativeProxy<_ARG1> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template NativeProxy<_ARG1> ;
 		return R1X (PhanRef<AbstractImage>::make (DEREF[this])) ;
 	}
 

@@ -993,14 +993,12 @@ private:
 } ;
 
 inline exports void XmlParser::initialize (XmlParser &this_ ,const PhanBuffer<const STRU8> &data) {
-	struct Dependent ;
-	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX1Lambda ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeX1Lambda ;
 	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 inline exports void XmlParser::initialize (XmlParser &this_ ,const Array<XmlParser> &sequence) {
-	struct Dependent ;
-	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeX2Lambda ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeX2Lambda ;
 	_CALL_TRY_ (R1X (this_ ,sequence)) ;
 }
 
@@ -1755,8 +1753,7 @@ private:
 } ;
 
 inline exports void JsonParser::initialize (JsonParser &this_ ,const PhanBuffer<const STRU8> &data) {
-	struct Dependent ;
-	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
@@ -2048,8 +2045,7 @@ private:
 } ;
 
 inline exports void CommandParser::initialize (CommandParser &this_ ,const PhanBuffer<const STRU8> &data) {
-	struct Dependent ;
-	using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 } ;

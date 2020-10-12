@@ -348,8 +348,7 @@ public:
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,root_)) ;
 	}
 
@@ -469,8 +468,7 @@ public:
 
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,dataset ,distance ,center)) ;
 	}
 } ;
@@ -638,8 +636,7 @@ public:
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,adjacency)) ;
 	}
 } ;
@@ -1003,8 +1000,7 @@ public:
 
 private:
 	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,loss ,fdx)) ;
 	}
 } ;
@@ -1265,8 +1261,7 @@ public:
 
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,vertex)) ;
 	}
 
@@ -1511,8 +1506,7 @@ public:
 
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::InitializeLambda ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
 		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,source ,sink)) ;
 	}
 } ;

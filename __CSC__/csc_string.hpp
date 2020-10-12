@@ -1479,8 +1479,7 @@ inline exports String<_ARG1> StringProc::build_ipv4s (const ARGVF<_ARG1> & ,cons
 
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_dates (const String<_ARG1> &stri) {
-	struct Dependent ;
-	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
@@ -1508,10 +1507,9 @@ inline exports _RET StringProc::parse_dates (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,const TimePoint &stru) {
-	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
@@ -1528,8 +1526,7 @@ inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,cons
 
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_hours (const String<_ARG1> &stri) {
-	struct Dependent ;
-	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<LENGTH> ret ;
 		ret.fill (0) ;
@@ -1557,10 +1554,9 @@ inline exports _RET StringProc::parse_hours (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,const TimePoint &stru) {
-	struct Dependent ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	if (r2x[5] < 10)
 		rax << STR ('0') ;
@@ -1579,8 +1575,7 @@ inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,cons
 
 template <class _ARG1 ,class _RET>
 inline exports _RET StringProc::parse_times (const String<_ARG1> &stri) {
-	struct Dependent ;
-	using R1X = DEPENDENT_TYPE<TimePoint ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	const auto r1x = _CALL_ ([&] () {
 		ARRAY8<VAR32> ret ;
 		ret.fill (0) ;
@@ -1623,10 +1618,9 @@ inline exports _RET StringProc::parse_times (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_times (const ARGVF<_ARG1> & ,const TimePoint &stru) {
-	struct Dependent ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,Dependent>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;

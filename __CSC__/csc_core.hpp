@@ -189,17 +189,21 @@ template <class UNIT>
 struct ARGV {
 	static DEF<void (const ARGV &)> ID ;
 
+#ifdef __CSC_DEPRECATED__
 #ifndef __CSC_CXX_LATEST__
 	static DEF<void (const ARGV &)> null ;
+#endif
 #endif
 } ;
 
 template <class UNIT>
 inline void ARGV<UNIT>::ID (const ARGV &) {}
 
+#ifdef __CSC_DEPRECATED__
 #ifndef __CSC_CXX_LATEST__
 template <class UNIT>
 inline void ARGV<UNIT>::null (const ARGV &) {}
+#endif
 #endif
 
 template <class _ARG1>
@@ -760,18 +764,18 @@ using IS_TRIVIAL_HELP = typename IS_TRIVIAL<_ARG1 ,NONE>::TYPE ;
 } ;
 
 namespace U {
-template <class ,class>
+template <class ,class ,class>
 struct IS_COMPLETE {
 	using TYPE = ARGC<FALSE> ;
 } ;
 
-template <class _ARG1>
-struct IS_COMPLETE<_ARG1 ,ENABLE_TYPE<ARGC<(sizeof (_ARG1) > 0)>>> {
+template <class _ARG1 ,class _ARG2>
+struct IS_COMPLETE<_ARG1 ,_ARG2 ,ENABLE_TYPE<ARGC<(sizeof (_ARG1) > 0)>>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
-template <class _ARG1>
-using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
+template <class _ARG1 ,class _ARG2>
+using IS_COMPLETE_HELP = typename IS_COMPLETE<REMOVE_CVR_TYPE<_ARG1> ,_ARG2 ,NONE>::TYPE ;
 } ;
 
 namespace U {
@@ -804,10 +808,12 @@ using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::T
 
 namespace U {
 template <class ,class>
-struct SIZE_OF ;
+struct SIZE_OF {
+	using TYPE = ZERO ;
+} ;
 
 template <class _ARG1>
-struct SIZE_OF<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct SIZE_OF<_ARG1 ,NONE> {
 	using TYPE = ARGC<(sizeof (_ARG1))> ;
 } ;
 
@@ -817,10 +823,12 @@ using SIZE_OF_TYPE = typename SIZE_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct ALIGN_OF ;
+struct ALIGN_OF {
+	using TYPE = ZERO ;
+} ;
 
 template <class _ARG1>
-struct ALIGN_OF<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct ALIGN_OF<_ARG1 ,NONE> {
 	using TYPE = ARGC<(alignof (_ARG1))> ;
 } ;
 
@@ -1246,7 +1254,7 @@ struct IS_DEFAULT_CONSTRUCTIBLE {
 } ;
 
 template <class _ARG1>
-struct IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct IS_DEFAULT_CONSTRUCTIBLE<_ARG1 ,NONE> {
 	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_default_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_destructible<_ARG1>::value)>> ;
 } ;
 
@@ -1261,7 +1269,7 @@ struct IS_CONSTRUCTIBLE {
 } ;
 
 template <class _ARG1 ,class... _ARGS>
-struct IS_CONSTRUCTIBLE<_ARG1 ,ARGVS<_ARGS...> ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct IS_CONSTRUCTIBLE<_ARG1 ,ARGVS<_ARGS...> ,NONE> {
 	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_constructible<_ARG1 ,_ARGS...>::value)> ,ARGC<(api::is_nothrow_destructible<_ARG1>::value)>> ;
 } ;
 
@@ -1276,7 +1284,7 @@ struct IS_COPY_CONSTRUCTIBLE {
 } ;
 
 template <class _ARG1>
-struct IS_COPY_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct IS_COPY_CONSTRUCTIBLE<_ARG1 ,NONE> {
 	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_copy_constructible<_ARG1>::value)> ,ARGC<(api::is_copy_assignable<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_assignable<_ARG1>::value)>> ;
 } ;
 
@@ -1291,7 +1299,7 @@ struct IS_MOVE_CONSTRUCTIBLE {
 } ;
 
 template <class _ARG1>
-struct IS_MOVE_CONSTRUCTIBLE<_ARG1 ,ENABLE_TYPE<IS_COMPLETE_HELP<_ARG1>>> {
+struct IS_MOVE_CONSTRUCTIBLE<_ARG1 ,NONE> {
 	using TYPE = U::CONSTEXPR_AND<ARGC<(api::is_nothrow_move_constructible<_ARG1>::value)> ,ARGC<(api::is_nothrow_move_assignable<_ARG1>::value)>> ;
 } ;
 
@@ -1306,7 +1314,7 @@ struct IS_CONVERTIBLE {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_CONVERTIBLE<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
+struct IS_CONVERTIBLE<_ARG1 ,_ARG2 ,NONE> {
 	using TYPE = ARGC<(api::is_convertible<_ARG1 ,_ARG2>::value)> ;
 } ;
 
@@ -1321,7 +1329,7 @@ struct IS_BASE_OF {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_BASE_OF<_ARG1 ,_ARG2 ,ENABLE_TYPE<U::CONSTEXPR_AND<IS_COMPLETE_HELP<_ARG1> ,IS_COMPLETE_HELP<_ARG2>>>> {
+struct IS_BASE_OF<_ARG1 ,_ARG2 ,NONE> {
 	using TYPE = ARGC<(api::is_base_of<_ARG1 ,_ARG2>::value)> ;
 } ;
 
@@ -1855,11 +1863,13 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	DEREF[r1x].~_ARG1 () ;
 }
 
+#ifdef __CSC_DEPRECATED__
 #ifndef __CSC_CXX_LATEST__
 template <class _ARG1>
 inline _ARG1 &_SWITCH_ (_ARG1 &expr) {
 	return expr ;
 }
+#endif
 #endif
 
 template <class>
@@ -1867,8 +1877,7 @@ class PhanRef ;
 
 template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<PhanRef<_ARG1>>>
 inline _RET _BYREF_ (_ARG1 &object) {
-	struct Dependent ;
-	using R1X = DEPENDENT_TYPE<PhanRef<_ARG1> ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<PhanRef<_ARG1> ,struct ANONYMOUS> ;
 	return R1X::make (object) ;
 }
 
@@ -1953,8 +1962,7 @@ struct PACK<UNIT1> {
 	UNIT1 mP1 ;
 
 	BOOL equal (const PACK &that) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,struct ANONYMOUS> ;
 		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
 		return TRUE ;
@@ -1969,8 +1977,7 @@ struct PACK<UNIT1> {
 	}
 
 	FLAG compr (const PACK &that) const {
-		struct Dependent ;
-		using R2X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		using R2X = DEPENDENT_TYPE<ComprInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R2X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
@@ -1994,8 +2001,7 @@ struct PACK<UNIT1> {
 	}
 
 	FLAG hash () const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R1X::invoke (mP1) ;
 		return r1x ;
 	}
@@ -2007,8 +2013,7 @@ struct PACK<UNIT1 ,UNIT2> {
 	UNIT2 mP2 ;
 
 	BOOL equal (const PACK &that) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,struct ANONYMOUS> ;
 		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
 		if (!R1X::invoke (mP2 ,that.mP2))
@@ -2025,8 +2030,7 @@ struct PACK<UNIT1 ,UNIT2> {
 	}
 
 	FLAG compr (const PACK &that) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R1X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
@@ -2053,8 +2057,7 @@ struct PACK<UNIT1 ,UNIT2> {
 	}
 
 	FLAG hash () const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R1X::invoke (mP1) ;
 		const auto r2x = R1X::invoke (mP2) ;
 		return r1x + r2x ;
@@ -2068,8 +2071,7 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 	UNIT3 mP3 ;
 
 	BOOL equal (const PACK &that) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<EqualInvokeProc ,struct ANONYMOUS> ;
 		if (!R1X::invoke (mP1 ,that.mP1))
 			return FALSE ;
 		if (!R1X::invoke (mP2 ,that.mP2))
@@ -2088,8 +2090,7 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 	}
 
 	FLAG compr (const PACK &that) const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<ComprInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R1X::invoke (mP1 ,that.mP1) ;
 		if (r1x != 0)
 			return r1x ;
@@ -2119,8 +2120,7 @@ struct PACK<UNIT1 ,UNIT2 ,UNIT3> {
 	}
 
 	FLAG hash () const {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<HashInvokeProc ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<HashInvokeProc ,struct ANONYMOUS> ;
 		const auto r1x = R1X::invoke (mP1) ;
 		const auto r2x = R1X::invoke (mP2) ;
 		const auto r3x = R1X::invoke (mP3) ;
@@ -2276,15 +2276,13 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET begin () const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Iterator ;
 		return R1X (mIBegin) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Iterator>>
 	_RET end () const {
-		struct Dependent ;
-		using R1X = typename DEPENDENT_TYPE<Private ,Dependent>::Iterator ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Iterator ;
 		return R1X (mIEnd) ;
 	}
 } ;
@@ -2323,8 +2321,7 @@ class Array ;
 
 template <class _ARG1>
 inline ArrayRange<_ARG1> _RANGE_ (const Array<LENGTH ,_ARG1> &range_) {
-	struct Dependent ;
-	using R1X = DEPENDENT_TYPE<ArrayRange<_ARG1> ,Dependent> ;
+	using R1X = DEPENDENT_TYPE<ArrayRange<_ARG1> ,struct ANONYMOUS> ;
 	return R1X (range_) ;
 }
 
@@ -2418,9 +2415,8 @@ public:
 private:
 	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<ARRAY_BIND_TYPE<REAL ,U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>>>>
 	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
-		struct Dependent ;
 		using R1X = ARGC_TYPE<U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,Dependent>::template PlainString<R1X> ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template PlainString<R1X> ;
 		const auto r1x = R2X (text...) ;
 		return _CACHE_ ([&] () {
 			return r1x ;

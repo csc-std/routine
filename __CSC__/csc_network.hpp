@@ -56,8 +56,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<TCPListener>>
 	_RET listener () {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<TCPListener ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<TCPListener ,struct ANONYMOUS> ;
 		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return R1X (mThis) ;
 	}

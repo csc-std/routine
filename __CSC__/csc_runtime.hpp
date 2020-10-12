@@ -259,8 +259,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
 	_RET watch (PhanRef<Mutex> &&mutex_) leftvalue {
-		struct Dependent ;
-		using R1X = DEPENDENT_TYPE<UniqueLock ,Dependent> ;
+		using R1X = DEPENDENT_TYPE<UniqueLock ,struct ANONYMOUS> ;
 		return R1X (_MOVE_ (mutex_) ,PhanRef<ConditionLock>::make (DEREF[this])) ;
 	}
 } ;
@@ -741,7 +740,7 @@ private:
 			const auto r4x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax) ;
 			return WeakRef (r4x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x.share () ;
+		auto rcx = r1x ;
 		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx.self ;
 	}
@@ -882,7 +881,7 @@ public:
 			const auto r5x = _POINTER_CAST_ (ARGV<R1X>::ID ,DEREF[rax].mValue) ;
 			return WeakRef (r5x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x.share () ;
+		auto rcx = r1x ;
 		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx->mValue ;
 	}
