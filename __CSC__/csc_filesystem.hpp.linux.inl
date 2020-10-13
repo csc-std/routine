@@ -195,9 +195,10 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 }
 
 inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) {
+	using R1X = DEF<struct stat> ;
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file1) ;
 	const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file2) ;
-	auto rax = ARRAY2<DEF<struct stat>> () ;
+	auto rax = ARRAY2<R1X> () ;
 	_ZERO_ (rax[0]) ;
 	const auto r3x = api::stat (r1x.raw ().self ,DEPTR[rax[0]]) ;
 	if (r3x != 0)

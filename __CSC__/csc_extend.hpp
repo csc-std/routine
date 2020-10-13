@@ -818,15 +818,15 @@ template <class UNIT>
 class Monostate :
 	delegate private Proxy {
 private:
-	SharedRef<UNIT> mValue ;
+	SharedRef<UNIT> mThis ;
 
 public:
 	implicit Monostate () {
-		mValue = SharedRef<UNIT>::make () ;
+		mThis = SharedRef<UNIT>::make () ;
 	}
 
 	UNIT &to () const leftvalue {
-		return mValue.self ;
+		return mThis.self ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
@@ -834,7 +834,7 @@ public:
 	}
 
 	void swap (Monostate &that) {
-		_SWAP_ (mValue ,that.mValue) ;
+		_SWAP_ (mThis ,that.mThis) ;
 	}
 } ;
 
@@ -1348,16 +1348,16 @@ public:
 
 class AtomicVar {
 private:
-	using R1X = BYTE_BASE_TYPE<VAR> ;
+	using BASE_TYPE = BYTE_BASE_TYPE<VAR> ;
 
 private:
-	Atomic<R1X> mValue ;
+	Atomic<BASE_TYPE> mValue ;
 
 public:
 	implicit AtomicVar () = default ;
 
 	implicit AtomicVar (const VAR &that) {
-		const auto r1x = _CAST_ (ARGV<R1X>::ID ,that) ;
+		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,that) ;
 		const auto r2x = mValue.compare_exchange (0 ,r1x) ;
 		_STATIC_UNUSED_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x == r1x) ;
@@ -1369,20 +1369,20 @@ public:
 	}
 
 	VAR exchange (const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<R1X>::ID ,data) ;
+		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		const auto r2x = mValue.exchange (r1x) ;
 		return _CAST_ (ARGV<VAR>::ID ,r2x) ;
 	}
 
 	VAR compare_exchange (const VAR &expect ,const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<R1X>::ID ,expect) ;
-		const auto r2x = _CAST_ (ARGV<R1X>::ID ,data) ;
+		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,expect) ;
+		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		const auto r3x = mValue.compare_exchange (r1x ,r2x) ;
 		return _CAST_ (ARGV<VAR>::ID ,r3x) ;
 	}
 
 	void store (const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<R1X>::ID ,data) ;
+		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		mValue.store (r1x) ;
 	}
 
@@ -1408,39 +1408,50 @@ public:
 
 class AtomicPtr {
 private:
-	AtomicVar mValue ;
+	using BASE_TYPE = BYTE_BASE_TYPE<PTR<NONE>> ;
+
+private:
+	Atomic<BASE_TYPE> mValue ;
 
 public:
 	implicit AtomicPtr () = default ;
 
 	implicit AtomicPtr (const PTR<NONE> &that) {
 		const auto r1x = _ADDRESS_ (that) ;
-		const auto r2x = mValue.compare_exchange (0 ,r1x) ;
-		_STATIC_UNUSED_ (r2x) ;
-		_DEBUG_ASSERT_ (r2x == r1x) ;
+		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r3x = mValue.compare_exchange (0 ,r2x) ;
+		_STATIC_UNUSED_ (r3x) ;
+		_DEBUG_ASSERT_ (r3x == r2x) ;
 	}
 
 	PTR<NONE> fetch () const {
 		const auto r1x = mValue.fetch () ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r1x) ;
+		const auto r2x = _CAST_ (ARGV<VAR>::ID ,r1x) ;
+		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r2x) ;
 	}
 
 	PTR<NONE> exchange (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
-		const auto r2x = mValue.exchange (r1x) ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r2x) ;
+		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r3x = mValue.exchange (r2x) ;
+		const auto r4x = _CAST_ (ARGV<VAR>::ID ,r3x) ;
+		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r4x) ;
 	}
 
 	PTR<NONE> compare_exchange (const PTR<NONE> &expect ,const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (expect) ;
-		const auto r2x = _ADDRESS_ (data) ;
-		const auto r3x = mValue.compare_exchange (r1x ,r2x) ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r3x) ;
+		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r3x = _ADDRESS_ (data) ;
+		const auto r4x = _CAST_ (ARGV<BASE_TYPE>::ID ,r3x) ;
+		const auto r5x = mValue.compare_exchange (r2x ,r4x) ;
+		const auto r6x = _CAST_ (ARGV<VAR>::ID ,r5x) ;
+		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r6x) ;
 	}
 
 	void store (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
-		mValue.store (r1x) ;
+		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		mValue.store (r2x) ;
 	}
 } ;
 
