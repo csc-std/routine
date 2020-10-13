@@ -7,6 +7,7 @@
 #include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
+#include "csc_extend.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
 #include "csc_stream.hpp"
@@ -1082,15 +1083,15 @@ inline exports String<_ARG1> StringProc::build_strs (const ARGVF<_ARG1> & ,const
 	return StringConvertInvokeProc::invoke (ARGV<String<_ARG1>>::ID ,stru) ;
 }
 
-#ifdef __CSC_EXTEND__
 class RegexMatcher {
 private:
 	struct Private {
 		class Implement ;
 	} ;
 
-	struct Abstract :
+	class Abstract :
 		delegate public Interface {
+	public:
 		virtual BOOL match (const String<STRU8> &expr) const = 0 ;
 		virtual Deque<ARRAY2<INDEX>> search (const String<STRU8> &expr) const = 0 ;
 		virtual String<STRU8> replace (const String<STRU8> &expr ,const String<STRU8> &rep) const = 0 ;
@@ -1116,7 +1117,6 @@ public:
 		return mThis->replace (expr ,rep) ;
 	}
 } ;
-#endif
 
 template <class _ARG1>
 inline exports DATA StringProc::parse_hexs (const String<_ARG1> &stri) {

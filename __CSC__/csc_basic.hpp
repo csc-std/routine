@@ -935,11 +935,7 @@ public:
 	}
 
 	implicit SharedRef (const SharedRef &that) :
-		delegate SharedRef (ARGVP0) {
-		aquire (that.mPointer) ;
-		mOrigin = that.mOrigin ;
-		mPointer = that.mPointer ;
-	}
+		delegate SharedRef (that.share ()) {}
 
 	inline SharedRef &operator= (const SharedRef &that) {
 		if switch_once (TRUE) {
@@ -984,6 +980,14 @@ public:
 
 	inline implicit operator UNIT & () const leftvalue {
 		return self ;
+	}
+
+	SharedRef share () const {
+		SharedRef ret ;
+		aquire (mPointer) ;
+		ret.mOrigin = mOrigin ;
+		ret.mPointer = mPointer ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class... _ARGS>

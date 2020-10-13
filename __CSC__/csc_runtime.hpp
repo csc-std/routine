@@ -52,6 +52,12 @@ public:
 		return mThis->native () ;
 	}
 
+	Duration share () const {
+		Duration ret ;
+		ret.mThis = mThis.share () ;
+		return _MOVE_ (ret) ;
+	}
+
 	LENGTH hours () const {
 		return mThis->hours () ;
 	}
@@ -119,6 +125,12 @@ public:
 
 	const DEF<typename Private::Implement> &native () const leftvalue {
 		return mThis->native () ;
+	}
+
+	TimePoint share () const {
+		TimePoint ret ;
+		ret.mThis = mThis.share () ;
+		return _MOVE_ (ret) ;
 	}
 
 	ARRAY8<LENGTH> calendar () const {
@@ -740,7 +752,7 @@ private:
 			const auto r4x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax) ;
 			return WeakRef (r4x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x ;
+		auto rcx = r1x.share () ;
 		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx.self ;
 	}
@@ -881,7 +893,7 @@ public:
 			const auto r5x = _POINTER_CAST_ (ARGV<R1X>::ID ,DEREF[rax].mValue) ;
 			return WeakRef (r5x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x ;
+		auto rcx = r1x.share () ;
 		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
 		return rcx->mValue ;
 	}

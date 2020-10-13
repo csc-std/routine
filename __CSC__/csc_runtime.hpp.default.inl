@@ -476,7 +476,7 @@ public:
 	implicit Implement () = default ;
 
 	explicit Implement (const StrongRef<Binder> &runnable) {
-		mRunnable = runnable ;
+		mRunnable = runnable.share () ;
 		mThread = api::thread (Private::Runnable (PhanRef<Binder>::make (mRunnable.self))) ;
 	}
 

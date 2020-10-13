@@ -91,7 +91,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	ByteReader share () leftvalue {
+	ByteReader share () const {
 		ByteReader ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
@@ -460,7 +460,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	ByteWriter share () leftvalue {
+	ByteWriter share () const {
 		ByteWriter ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
@@ -815,7 +815,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	TextReader share () leftvalue {
+	TextReader share () const {
 		TextReader ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<const REAL>::make (mStream) ;
@@ -1566,7 +1566,7 @@ public:
 		mWrite = write_ ;
 	}
 
-	TextWriter share () leftvalue {
+	TextWriter share () const {
 		TextWriter ret ;
 		ret.mHeap = mHeap ;
 		ret.mStream = PhanBuffer<REAL>::make (mStream) ;
@@ -2221,7 +2221,7 @@ public:
 		mHintNextTextSize = 0 ;
 	}
 
-	RegularReader share () leftvalue {
+	RegularReader share () const {
 		RegularReader ret ;
 		ret.mHeap = SharedRef<HEAP_PACK>::make () ;
 		ret.mHeap->mReader = mReader->share () ;

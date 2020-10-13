@@ -3378,7 +3378,7 @@ public:
 		return mLength ;
 	}
 
-	SoftSet share () leftvalue {
+	SoftSet share () const {
 		SoftSet ret ;
 		ret.mHeap = mHeap ;
 		ret.mSet = PhanRef<Allocator<NODE_PACK ,SIZE>>::make (ret.mHeap->mBuffer.self) ;

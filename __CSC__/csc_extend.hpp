@@ -1521,7 +1521,7 @@ public:
 	}
 
 	implicit WeakRef (const WeakRef &that) :
-		delegate WeakRef (that.copy ()) {}
+		delegate WeakRef (that.share ()) {}
 
 	inline WeakRef &operator= (const WeakRef &that) {
 		if switch_once (TRUE) {
@@ -1604,6 +1604,14 @@ public:
 		return !equal (that) ;
 	}
 
+	WeakRef share () const {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
+		return WeakRef (r2x) ;
+	}
+
 	template <class _ARG1>
 	StrongRef<_ARG1> strong (const ARGVF<_ARG1> &) const {
 		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS> ;
@@ -1636,14 +1644,6 @@ private:
 			return r2x ;
 		mLatch.wait (0) ;
 		return r2x ;
-	}
-
-	WeakRef copy () const {
-		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return WeakRef (r2x) ;
 	}
 } ;
 
@@ -1825,18 +1825,9 @@ public:
 		release (r1x) ;
 	}
 
-	implicit StrongRef (const StrongRef &that) :
-		delegate StrongRef (that.copy ()) {}
+	implicit StrongRef (const StrongRef &) = delete ;
 
-	inline StrongRef &operator= (const StrongRef &that) {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			DEREF[this].~StrongRef () ;
-			new (this) StrongRef (_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
+	inline StrongRef &operator= (const StrongRef &) = delete ;
 
 	implicit StrongRef (StrongRef &&that) noexcept :
 		delegate StrongRef (ARGVP0) {
@@ -1934,12 +1925,12 @@ public:
 		return !equal (that) ;
 	}
 
-	WeakRef weak () const {
+	StrongRef share () const {
 		using R1X = typename WeakRef::Private::LatchCounter ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return WeakRef (r2x) ;
+		return StrongRef (r2x) ;
 	}
 
 	template <class _ARG1>
@@ -1964,6 +1955,14 @@ public:
 		StrongRef<R2X> ret = StrongRef<R2X> (r7x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
+	}
+
+	WeakRef weak () const {
+		using R1X = typename WeakRef::Private::LatchCounter ;
+		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		const auto r1x = mPointer.fetch () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
+		return WeakRef (r2x) ;
 	}
 
 	template <class... _ARGS>
@@ -2011,14 +2010,6 @@ private:
 			return r2x ;
 		mLatch.wait (0) ;
 		return r2x ;
-	}
-
-	StrongRef copy () const {
-		using R1X = typename WeakRef::Private::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
-		const auto r1x = mPointer.fetch () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		return StrongRef (r2x) ;
 	}
 } ;
 
@@ -2521,7 +2512,6 @@ public:
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
 	inline _RET operator() (PhanRef<CONT> &&context_) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Member ;
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return R1X (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
 } ;
@@ -2610,7 +2600,6 @@ private:
 	}
 
 	UNIT &to () leftvalue {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return mThis->mValue ;
 	}
 

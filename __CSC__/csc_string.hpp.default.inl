@@ -189,7 +189,6 @@ exports String<STRA> StringProc::cvt_ws_as (const String<STRW> &val) {
 	return LocaleStaticProc::static_locale_cvt_wstolas (val) ;
 }
 
-#ifdef __CSC_EXTEND__
 class RegexMatcher::Private::Implement :
 	delegate public Abstract {
 private:
@@ -255,5 +254,4 @@ exports RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (reg) ;
 }
-#endif
 } ;

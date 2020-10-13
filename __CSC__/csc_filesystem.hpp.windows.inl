@@ -701,17 +701,14 @@ public:
 	}
 
 	PhanBuffer<BYTE> watch () leftvalue override {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return PhanBuffer<BYTE>::make (mThis->mBuffer.self) ;
 	}
 
 	PhanBuffer<const BYTE> watch () const leftvalue override {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		return PhanBuffer<const BYTE>::make (mThis->mBuffer.self) ;
 	}
 
 	void flush () override {
-		_DEBUG_ASSERT_ (mThis.exist ()) ;
 		FlushViewOfFile (mThis->mBuffer->self ,mThis->mBuffer->size ()) ;
 	}
 

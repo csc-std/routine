@@ -72,21 +72,24 @@ using ::mysql_close ;
 using ::mysql_error ;
 } ;
 
-class AbstractDatabase_Engine_MYSQL :
-	delegate public AbstractDatabase::Abstract {
+class SQLDatabase::Private::Implement :
+	delegate public SQLDatabase::Abstract {
 private:
 	using NATIVE_THIS = UniqueRef<api::MYSQL> ;
 
-public:
-	implicit AbstractDatabase_Engine_MYSQL () = default ;
+private:
+	UniqueRef<api::MYSQL> mHolder ;
 
-	void compute_load_data (AnyRef<> &holder) const override {
+public:
+	implicit Implement () = default ;
+
+	void load_data () override {
 		auto rax = UniqueRef<api::MYSQL> ([&] (api::MYSQL &me) {
 			api::mysql_init (DEPTR[me]) ;
 		} ,[] (api::MYSQL &me) {
 			api::mysql_close (DEPTR[me]) ;
 		}) ;
-		holder = AnyRef<NATIVE_THIS>::make (_MOVE_ (rax)) ;
+		mHolder = _MOVE_ (rax) ;
 	}
 
 private:
@@ -95,4 +98,9 @@ private:
 		_DYNAMIC_ASSERT_ (r1x == NULL) ;
 	}
 } ;
+
+exports SQLDatabase::SQLDatabase () {
+	using R1X = typename Private::Implement ;
+	mThis = StrongRef<R1X>::make () ;
+}
 } ;

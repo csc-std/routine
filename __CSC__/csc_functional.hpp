@@ -382,7 +382,7 @@ protected:
 
 	const RETR &invoke (const UNITS &...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
-		auto rax = mThis ;
+		auto rax = mThis.share () ;
 		_DYNAMIC_ASSERT_ (rax->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
 		rax->mOperand = rax->mOperator (rax.self ,funcval...) ;
 		return rax->mOperand.as (ARGV<RETR>::ID) ;
@@ -525,7 +525,7 @@ public:
 		if switch_once (TRUE) {
 			if (!mThis->mOperator.exist ())
 				discard ;
-			auto rax = mThis ;
+			auto rax = mThis.share () ;
 			_DYNAMIC_ASSERT_ (rax->mOperator.rank () == 0) ;
 			const auto r1x = _MOVE_ (rax->mOperator) ;
 			rax->mOperand = r1x (rax.self) ;

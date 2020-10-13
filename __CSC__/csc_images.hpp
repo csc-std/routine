@@ -7,6 +7,7 @@
 #include "csc.hpp"
 #include "csc_core.hpp"
 #include "csc_basic.hpp"
+#include "csc_extend.hpp"
 #include "csc_array.hpp"
 #include "csc_math.hpp"
 
@@ -247,7 +248,7 @@ public:
 		mCK = ck_ ;
 	}
 
-	Bitmap share () leftvalue {
+	Bitmap share () const {
 		Bitmap ret ;
 		ret.mHeap = mHeap ;
 		ret.mImage = PhanBuffer<UNIT>::make (mImage) ;
@@ -638,18 +639,19 @@ public:
 } ;
 #endif
 
-using COLOR_GRAY = BYTE ;
-using COLOR_GRAY32 = VAL32 ;
-using COLOR_GRAY64 = VAL64 ;
-using COLOR_BGR = ARRAY3<BYTE> ;
-using COLOR_BGRA = ARRAY4<BYTE> ;
-using COLOR_LAB4 = CHAR ;
-using COLOR_XYZ32 = ARRAY3<VAL32> ;
-using COLOR_XYZ64 = ARRAY3<VAL64> ;
-
 template <class UNIT>
-class AbstractImage {
-public:
+class Image {
+private:
+	struct Private {
+		class Implement ;
+
+		template <class>
+		class Row ;
+
+		template <class>
+		class NativeProxy ;
+	} ;
+
 	struct LAYOUT_PACK {
 		PTR<ARR<UNIT>> mImage ;
 		LENGTH mCX ;
@@ -661,26 +663,18 @@ public:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual void compute_layout (AnyRef<> &holder ,LAYOUT_PACK &layout) const = 0 ;
-		virtual void compute_load_data (AnyRef<> &holder ,const LENGTH &cx_ ,const LENGTH &cy_) const = 0 ;
-		virtual void compute_load_data (AnyRef<> &holder ,const AutoBuffer<BYTE> &data) const = 0 ;
-		virtual void compute_save_data (const AnyRef<> &holder ,AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
-		virtual void compute_load_data_file (AnyRef<> &holder ,const String<STR> &file) const = 0 ;
-		virtual void compute_save_data_file (const AnyRef<> &holder ,const String<STR> &file ,const AnyRef<> &option) const = 0 ;
+		virtual LAYOUT_PACK layout () = 0 ;
+		virtual FLAG type_mid () const = 0 ;
+		virtual PTR<NONE> type_address () = 0 ;
+		virtual void load_data (const LENGTH &cx_ ,const LENGTH &cy_) = 0 ;
+		virtual void load_data (const AutoBuffer<BYTE> &data) = 0 ;
+		virtual void save_data (AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
+		virtual void load_data_file (const String<STR> &file) = 0 ;
+		virtual void save_data_file (const String<STR> &file ,const AnyRef<> &option) const = 0 ;
 	} ;
 
 private:
-	struct Private {
-		template <class>
-		class Row ;
-
-		template <class>
-		class NativeProxy ;
-	} ;
-
-private:
-	PhanRef<const Abstract> mAbstract ;
-	AnyRef<> mHolder ;
+	StrongRef<Abstract> mThis ;
 	PhanBuffer<UNIT> mImage ;
 	LENGTH mCX ;
 	LENGTH mCY ;
@@ -688,26 +682,9 @@ private:
 	LENGTH mCK ;
 
 public:
-	implicit AbstractImage () = default ;
-
-	explicit AbstractImage (PhanRef<const Abstract> &&abstract_) {
-		mAbstract = _MOVE_ (abstract_) ;
-		mCX = 0 ;
-		mCY = 0 ;
-		mCW = 0 ;
-		mCK = 0 ;
-	}
-
-	BOOL exist () const {
-		if (!mAbstract.exist ())
-			return FALSE ;
-		if (!mHolder.exist ())
-			return FALSE ;
-		return TRUE ;
-	}
+	implicit Image () ;
 
 	ARRAY2<LENGTH> width () const {
-		_DEBUG_ASSERT_ (exist ()) ;
 		ARRAY2<LENGTH> ret ;
 		ret[0] = mCX ;
 		ret[1] = mCY ;
@@ -715,34 +692,36 @@ public:
 	}
 
 	LENGTH cx () const {
-		_DEBUG_ASSERT_ (exist ()) ;
+		if (!mThis.exist ())
+			return 0 ;
 		return mCX ;
 	}
 
 	LENGTH cy () const {
-		_DEBUG_ASSERT_ (exist ()) ;
+		if (!mThis.exist ())
+			return 0 ;
 		return mCY ;
 	}
 
 	LENGTH cw () const {
-		_DEBUG_ASSERT_ (exist ()) ;
+		if (!mThis.exist ())
+			return 0 ;
 		return mCW ;
 	}
 
 	LENGTH ck () const {
-		_DEBUG_ASSERT_ (exist ()) ;
+		if (!mThis.exist ())
+			return 0 ;
 		return mCK ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::ID)))>>
 	_RET array_range () const {
-		_DEBUG_ASSERT_ (exist ()) ;
 		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
 		return _RANGE_ (r1x) ;
 	}
 
 	UNIT &get (const INDEX &y ,const INDEX &x) leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		_DEBUG_ASSERT_ (mImage.size () > 0) ;
@@ -750,7 +729,6 @@ public:
 	}
 
 	const UNIT &get (const INDEX &y ,const INDEX &x) const leftvalue {
-		_DEBUG_ASSERT_ (exist ()) ;
 		_DEBUG_ASSERT_ (x >= 0 && x < mCX) ;
 		_DEBUG_ASSERT_ (y >= 0 && y < mCY) ;
 		_DEBUG_ASSERT_ (mImage.size () > 0) ;
@@ -773,24 +751,24 @@ public:
 		return get (index) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<AbstractImage>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Image>>>
 	_RET get (const INDEX &y) leftvalue {
-		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<AbstractImage> ;
-		return R1X (PhanRef<AbstractImage>::make (DEREF[this]) ,y) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<Image> ;
+		return R1X (PhanRef<Image>::make (DEREF[this]) ,y) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<AbstractImage>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<Image>>>
 	inline _RET operator[] (const INDEX &y) leftvalue {
 		return get (y) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const AbstractImage>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Image>>>
 	_RET get (const INDEX &y) const leftvalue {
-		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<const AbstractImage> ;
-		return R1X (PhanRef<const AbstractImage>::make (DEREF[this]) ,y) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Row<const Image> ;
+		return R1X (PhanRef<const Image>::make (DEREF[this]) ,y) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const AbstractImage>>>
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::template Row<const Image>>>
 	inline _RET operator[] (const INDEX &y) const leftvalue {
 		return get (y) ;
 	}
@@ -798,11 +776,10 @@ public:
 	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<typename Private::template NativeProxy<_ARG1>>>
 	_RET native (const ARGVF<_ARG1> &) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template NativeProxy<_ARG1> ;
-		return R1X (PhanRef<AbstractImage>::make (DEREF[this])) ;
+		return R1X (PhanRef<Image>::make (DEREF[this])) ;
 	}
 
 	Bitmap<UNIT> standardize () const {
-		_DEBUG_ASSERT_ (exist ()) ;
 		Bitmap<UNIT> ret = Bitmap<UNIT> (mCX ,mCY) ;
 		for (auto &&i : array_range ())
 			ret.get (i) = get (i) ;
@@ -813,54 +790,45 @@ public:
 		_DEBUG_ASSERT_ (cx_ >= 0 && cx_ < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cy_ >= 0 && cy_ < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (cx_ * cy_ > 0) ;
-		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->compute_load_data (mHolder ,cx_ ,cy_) ;
+		mThis->load_data (cx_ ,cy_) ;
 		update_layout () ;
 	}
 
 	void load_data (const AutoBuffer<BYTE> &data) {
-		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->compute_load_data (mHolder ,data) ;
+		mThis->load_data (data) ;
 		update_layout () ;
 	}
 
 	void save_data (AutoBuffer<BYTE> &data ,const AnyRef<> &option) {
-		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_load_data (mHolder ,data ,option) ;
+		mThis->load_data (data ,option) ;
 		update_layout () ;
 	}
 
 	void load_data_file (const String<STR> &file) {
-		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		mAbstract->compute_load_data_file (mHolder ,file) ;
+		mThis->load_data_file (file) ;
 		update_layout () ;
 	}
 
 	void save_data_file (const String<STR> &file ,const AnyRef<> &option) {
-		_DEBUG_ASSERT_ (exist ()) ;
-		mAbstract->compute_save_data_file (mHolder ,file ,option) ;
+		mThis->save_data_file (file ,option) ;
 		update_layout () ;
 	}
 
 private:
 	void update_layout () {
-		_DEBUG_ASSERT_ (mAbstract.exist ()) ;
-		_DEBUG_ASSERT_ (mHolder.exist ()) ;
-		auto rax = LAYOUT_PACK () ;
-		_ZERO_ (rax) ;
-		mAbstract->compute_layout (mHolder ,rax) ;
-		const auto r1x = rax.mCY * rax.mCW + rax.mCK ;
-		mImage = PhanBuffer<UNIT>::make (DEREF[rax.mImage] ,r1x) ;
-		mCX = rax.mCX ;
-		mCY = rax.mCY ;
-		mCW = rax.mCW ;
-		mCK = rax.mCK ;
+		const auto r1x = mThis->layout () ;
+		const auto r2x = r1x.mCY * r1x.mCW + r1x.mCK ;
+		mImage = PhanBuffer<UNIT>::make (DEREF[r1x.mImage] ,r2x) ;
+		mCX = r1x.mCX ;
+		mCY = r1x.mCY ;
+		mCW = r1x.mCW ;
+		mCK = r1x.mCK ;
 	}
 } ;
 
 template <class UNIT>
 template <class BASE>
-class AbstractImage<UNIT>::Private::Row :
+class Image<UNIT>::Private::Row :
 	delegate private Proxy {
 private:
 	PhanRef<BASE> mBase ;
@@ -881,29 +849,69 @@ public:
 
 template <class UNIT>
 template <class UNIT_>
-class AbstractImage<UNIT>::Private::NativeProxy :
+class Image<UNIT>::Private::NativeProxy :
 	delegate private Proxy {
 private:
-	UniqueRef<PhanRef<AbstractImage>> mBase ;
+	UniqueRef<PhanRef<Image>> mBase ;
 
 public:
 	implicit NativeProxy () = delete ;
 
-	explicit NativeProxy (PhanRef<AbstractImage> &&base) {
-		mBase = UniqueRef<PhanRef<AbstractImage>> ([&] (PhanRef<AbstractImage> &me) {
+	explicit NativeProxy (PhanRef<Image> &&base) {
+		mBase = UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
 			me = _MOVE_ (base) ;
-		} ,[] (PhanRef<AbstractImage> &me) {
+		} ,[] (PhanRef<Image> &me) {
 			me->update_layout () ;
 		}) ;
 	}
 
 	UNIT_ &to () const leftvalue {
 		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		return mBase->self.mHolder.rebind (ARGV<UNIT_>::ID).self ;
+		_DEBUG_ASSERT_ (mBase->self.mThis->type_mid () == _TYPEMID_ (ARGV<UNIT_>::ID)) ;
+		const auto r1x = mBase->self.mThis->type_address () ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT_>::ID ,r1x) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		return DEREF[r2x] ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {
 		return self ;
 	}
 } ;
+
+using COLOR_BGR = ARRAY3<BYTE> ;
+using COLOR_BGRA = ARRAY4<BYTE> ;
+using COLOR_GRAY = BYTE ;
+using COLOR_GRAY32 = VAL32 ;
+using COLOR_GRAY64 = VAL64 ;
+
+template <>
+class Image<COLOR_BGR>::Private::Implement ;
+
+template <>
+exports Image<COLOR_BGR>::Image () ;
+
+template <>
+class Image<COLOR_BGRA>::Private::Implement ;
+
+template <>
+exports Image<COLOR_BGRA>::Image () ;
+
+template <>
+class Image<COLOR_GRAY>::Private::Implement ;
+
+template <>
+exports Image<COLOR_GRAY>::Image () ;
+
+template <>
+class Image<COLOR_GRAY32>::Private::Implement ;
+
+template <>
+exports Image<COLOR_GRAY32>::Image () ;
+
+template <>
+class Image<COLOR_GRAY64>::Private::Implement ;
+
+template <>
+exports Image<COLOR_GRAY64>::Image () ;
 } ;
