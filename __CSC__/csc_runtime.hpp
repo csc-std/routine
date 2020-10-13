@@ -908,9 +908,9 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual VAR entropy () const = 0 ;
-		virtual void reset_seed (const VAR &seed_) = 0 ;
-		virtual VAR random_value () = 0 ;
+		virtual VAR32 entropy () const = 0 ;
+		virtual void reset_seed (const VAR32 &seed_) = 0 ;
+		virtual VAR32 random_value () = 0 ;
 		virtual void random_skip (const LENGTH &len) = 0 ;
 	} ;
 
@@ -924,32 +924,33 @@ public:
 
 	VAR entropy () const {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		return mThis->entropy () ;
+		return VAR (mThis->entropy ()) ;
 	}
 
 	void reset_seed (const VAR &seed_) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		return mThis->reset_seed (seed_) ;
+		return mThis->reset_seed (VAR32 (seed_)) ;
 	}
 
 	VAR random_value (const VAR &lb ,const VAR &rb) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		_DEBUG_ASSERT_ (lb <= rb) ;
-		const auto r1x = rb - lb + 1 ;
-		const auto r2x = MathProc::maxof (r1x ,VAR (1)) ;
-		const auto r3x = mThis->random_value () ;
-		return r3x % r2x + lb ;
+		const auto r1x = VAR64 (rb) - VAR64 (lb) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x <= VAR64 (VAR32_MAX)) ;
+		const auto r2x = r1x + 1 ;
+		const auto r3x = VAR64 (mThis->random_value ()) ;
+		return VAR (r3x % r2x + lb) ;
 	}
 
 	Array<VAR> random_value (const VAR &lb ,const VAR &rb ,const LENGTH &len) {
 		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
 		_DEBUG_ASSERT_ (lb <= rb) ;
 		Array<VAR> ret = Array<VAR> (len) ;
-		const auto r1x = rb - lb + 1 ;
-		const auto r2x = MathProc::maxof (r1x ,VAR (1)) ;
+		const auto r1x = VAR64 (rb) - VAR64 (lb) ;
+		_DEBUG_ASSERT_ (r1x >= 0 && r1x <= VAR64 (VAR32_MAX)) ;
+		const auto r2x = r1x + 1 ;
 		for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-			const auto r3x = mThis->random_value () ;
-			ret[i] = r3x % r2x + lb ;
+			const auto r3x = VAR64 (mThis->random_value ()) ;
+			ret[i] = VAR (r3x % r2x + lb) ;
 		}
 		return _MOVE_ (ret) ;
 	}
@@ -990,6 +991,14 @@ public:
 		}
 	}
 
+	CSC::BOOL random_draw (const VAL &possibility) {
+		const auto r1x = random_value (0 ,10000) ;
+		const auto r2x = VAL (r1x) * MathProc::inverse (VAL (10000)) ;
+		if (r2x < possibility)
+			return TRUE ;
+		return FALSE ;
+	}
+
 	String<STR> random_uuid () {
 		auto &r1x = _CACHE_ ([&] () {
 			return _PCSTR_ ("00000000-0000-0000-000000000000") ;
@@ -1019,11 +1028,6 @@ public:
 		if (iw < ret.size ())
 			ret[iw] = 0 ;
 		return _MOVE_ (ret) ;
-	}
-
-	void random_skip (const LENGTH &len) {
-		ScopedGuard<RecursiveMutex> ANONYMOUS (mMutex) ;
-		return mThis->random_skip (len) ;
 	}
 
 private:

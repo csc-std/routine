@@ -188,23 +188,10 @@ using ZERO = ARGC<0> ;
 template <class UNIT>
 struct ARGV {
 	static DEF<void (const ARGV &)> ID ;
-
-#ifdef __CSC_DEPRECATED__
-#ifndef __CSC_CXX_LATEST__
-	static DEF<void (const ARGV &)> null ;
-#endif
-#endif
 } ;
 
 template <class UNIT>
 inline void ARGV<UNIT>::ID (const ARGV &) {}
-
-#ifdef __CSC_DEPRECATED__
-#ifndef __CSC_CXX_LATEST__
-template <class UNIT>
-inline void ARGV<UNIT>::null (const ARGV &) {}
-#endif
-#endif
 
 template <class _ARG1>
 using ARGVF = DEF<void (const ARGV<_ARG1> &)> ;
@@ -1862,15 +1849,6 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 		return ;
 	DEREF[r1x].~_ARG1 () ;
 }
-
-#ifdef __CSC_DEPRECATED__
-#ifndef __CSC_CXX_LATEST__
-template <class _ARG1>
-inline _ARG1 &_SWITCH_ (_ARG1 &expr) {
-	return expr ;
-}
-#endif
-#endif
 
 template <class>
 class PhanRef ;

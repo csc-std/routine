@@ -70,7 +70,7 @@ using ::mkdir ;
 using ::rmdir ;
 } ;
 
-inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) {
+exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &file) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
@@ -87,7 +87,7 @@ inline exports AutoBuffer<BYTE> FileSystemProc::load_file (const String<STR> &fi
 	return _MOVE_ (ret) ;
 }
 
-inline exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
+exports void FileSystemProc::load_file (const String<STR> &file ,const PhanBuffer<BYTE> &data) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
@@ -103,7 +103,7 @@ inline exports void FileSystemProc::load_file (const String<STR> &file ,const Ph
 	BasicProc::mem_fill (PTRTOARR[DEPTR[data.self[r3x]]] ,(data.size () - r3x) ,BYTE (0X00)) ;
 }
 
-inline exports void FileSystemProc::save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
+exports void FileSystemProc::save_file (const String<STR> &file ,const PhanBuffer<const BYTE> &data) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 	_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
@@ -118,13 +118,13 @@ inline exports void FileSystemProc::save_file (const String<STR> &file ,const Ph
 	_DYNAMIC_ASSERT_ (r5x == data.size ()) ;
 }
 
-inline exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) {
+exports PhanBuffer<const BYTE> FileSystemProc::load_assert_file (const FLAG &resource) {
 	_STATIC_WARNING_ ("unimplemented") ;
 	_DYNAMIC_ASSERT_ (FALSE) ;
 	return PhanBuffer<const BYTE> () ;
 }
 
-inline exports BOOL FileSystemProc::find_file (const String<STR> &file) {
+exports BOOL FileSystemProc::find_file (const String<STR> &file) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 	const auto r2x = UniqueRef<VAR32> ([&] (VAR32 &me) {
 		me = api::open (r1x.raw ().self ,O_RDONLY) ;
@@ -146,7 +146,7 @@ public:
 	imports Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) ;
 } ;
 
-inline exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA> &dire) {
+exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA> &dire) {
 	using R1X = PTR<api::DIR> ;
 	const auto r1x = UniqueRef<R1X> ([&] (R1X &me) {
 		me = api::opendir (dire.raw ().self) ;
@@ -160,7 +160,7 @@ inline exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA
 	return TRUE ;
 }
 
-inline exports void FileSystemProc::erase_file (const String<STR> &file) {
+exports void FileSystemProc::erase_file (const String<STR> &file) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file) ;
 	const auto r2x = FileSystemStaticProc::static_find_juntion (r1x) ;
 	if (r2x)
@@ -169,14 +169,14 @@ inline exports void FileSystemProc::erase_file (const String<STR> &file) {
 	_STATIC_UNUSED_ (r3x) ;
 }
 
-inline exports void FileSystemProc::copy_file (const String<STR> &dst_file ,const String<STR> &src_file) {
+exports void FileSystemProc::copy_file (const String<STR> &dst_file ,const String<STR> &src_file) {
 	const auto r1x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r1x) ;
 	const auto r2x = FileSystemProc::load_file (src_file) ;
 	FileSystemProc::save_file (dst_file ,PhanBuffer<const BYTE>::make (r2x)) ;
 }
 
-inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,const String<STR> &src_file) {
+exports void FileSystemProc::move_file (const String<STR> &dst_file ,const String<STR> &src_file) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,src_file) ;
 	const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
@@ -185,7 +185,7 @@ inline exports void FileSystemProc::move_file (const String<STR> &dst_file ,cons
 	_STATIC_UNUSED_ (r4x) ;
 }
 
-inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,const String<STR> &src_file) {
+exports void FileSystemProc::link_file (const String<STR> &dst_file ,const String<STR> &src_file) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,src_file) ;
 	const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,dst_file) ;
 	const auto r3x = FileSystemProc::find_file (dst_file) ;
@@ -194,7 +194,7 @@ inline exports void FileSystemProc::link_file (const String<STR> &dst_file ,cons
 	_STATIC_UNUSED_ (r4x) ;
 }
 
-inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) {
+exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,const String<STR> &file2) {
 	using R1X = DEF<struct stat> ;
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,file1) ;
 	const auto r2x = StringProc::build_strs (ARGV<STRA>::ID ,file2) ;
@@ -218,7 +218,7 @@ inline exports BOOL FileSystemProc::identical_file (const String<STR> &file1 ,co
 	return TRUE ;
 }
 
-inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &file) {
+exports String<STR> FileSystemProc::parse_path_name (const String<STR> &file) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
@@ -229,7 +229,7 @@ inline exports String<STR> FileSystemProc::parse_path_name (const String<STR> &f
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
+exports String<STR> FileSystemProc::parse_file_name (const String<STR> &file) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	const auto r1x = file.length () ;
 	const auto r2x = file.raw () ;
@@ -240,7 +240,7 @@ inline exports String<STR> FileSystemProc::parse_file_name (const String<STR> &f
 	return _MOVE_ (ret) ;
 }
 
-inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR> &file) {
+exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR> &file) {
 	Deque<String<STR>> ret ;
 	if switch_once (TRUE) {
 		if (file.empty ())
@@ -270,7 +270,7 @@ inline exports Deque<String<STR>> FileSystemProc::decouple_path_name (const Stri
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STR> FileSystemProc::working_path () {
+exports String<STR> FileSystemProc::working_path () {
 	auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	if switch_once (TRUE) {
 		const auto r1x = api::getcwd (rax.raw ().self ,VAR32 (rax.size ())) ;
@@ -291,7 +291,7 @@ inline exports String<STR> FileSystemProc::working_path () {
 	return StringProc::parse_strs (rax) ;
 }
 
-inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (const Deque<String<STR>> &path_name) {
+exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (const Deque<String<STR>> &path_name) {
 	Deque<INDEX> ret = Deque<INDEX> (path_name.length ()) ;
 	for (auto &&i : _RANGE_ (0 ,path_name.length ())) {
 		INDEX ix = path_name.access (i) ;
@@ -314,7 +314,7 @@ inline exports Deque<INDEX> FileSystemStaticProc::static_relative_path_name (con
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
+exports String<STR> FileSystemProc::absolute_path (const String<STR> &path) {
 	String<STR> ret = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	auto rax = FileSystemProc::decouple_path_name (path) ;
 	auto fax = TRUE ;
@@ -366,7 +366,7 @@ inline exports String<STR> FileSystemProc::absolute_path (const String<STR> &pat
 	return _MOVE_ (ret) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_path () {
+exports const String<STR> &FileSystemProc::module_file_path () {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
@@ -379,7 +379,7 @@ inline exports const String<STR> &FileSystemProc::module_file_path () {
 	}) ;
 }
 
-inline exports const String<STR> &FileSystemProc::module_file_name () {
+exports const String<STR> &FileSystemProc::module_file_name () {
 	return _CACHE_ ([&] () {
 		auto rax = String<STRA> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 		const auto r1x = api::readlink (_PCSTRA_ ("/proc/self/exe") ,rax.raw ().self ,VAR32 (rax.size ())) ;
@@ -390,7 +390,7 @@ inline exports const String<STR> &FileSystemProc::module_file_name () {
 	}) ;
 }
 
-inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
+exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
 	using R1X = PTR<api::DIR> ;
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,dire) ;
 	const auto r2x = UniqueRef<R1X> ([&] (R1X &me) {
@@ -405,7 +405,7 @@ inline exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
 	return TRUE ;
 }
 
-inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
+exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("/") ,_PCSTR_ (".lockdirectory")) ;
 	const auto r2x = GlobalRuntime::process_pid () ;
@@ -441,7 +441,7 @@ inline exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 	return _MOVE_ (ret) ;
 }
 
-inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
+exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	if (FileSystemProc::find_directory (dire))
 		return ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
@@ -471,7 +471,7 @@ inline exports void FileSystemProc::build_directory (const String<STR> &dire) {
 	}
 }
 
-inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
+exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	const auto r1x = StringProc::build_strs (ARGV<STRA>::ID ,dire) ;
 	const auto r2x = api::rmdir (r1x.raw ().self) ;
 	_STATIC_UNUSED_ (r2x) ;
@@ -483,7 +483,7 @@ inline exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 }
 
 //@warn: recursive call with junction(const symbolic &link) may cause endless loop
-inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
+exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
 	using R1X = PTR<api::DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;
 	rax += dire ;
@@ -521,7 +521,7 @@ inline exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deq
 	}
 }
 
-inline exports void FileSystemProc::clear_directory (const String<STR> &dire) {
+exports void FileSystemProc::clear_directory (const String<STR> &dire) {
 	auto rax = Deque<PACK<String<STR> ,BOOL>> () ;
 	auto rbx = ARRAY2<Deque<String<STR>>> () ;
 	rbx[0].clear () ;
@@ -604,7 +604,7 @@ public:
 	}
 } ;
 
-inline exports StreamLoader::StreamLoader (const String<STR> &file) {
+exports StreamLoader::StreamLoader (const String<STR> &file) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (file) ;
 }
@@ -656,22 +656,22 @@ public:
 	}
 } ;
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file) {
+exports BufferLoader::BufferLoader (const String<STR> &file) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (file) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
+exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (file ,file_len) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
+exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (file ,cache) ;
 }
 
-inline exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
+exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
@@ -690,7 +690,7 @@ public:
 	}
 } ;
 
-inline exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
+exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }

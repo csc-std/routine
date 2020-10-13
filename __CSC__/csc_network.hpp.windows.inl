@@ -102,7 +102,7 @@ public:
 	imports ARRAY2<api::fd_set> static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) ;
 } ;
 
-inline exports TIMEVAL SocketStaticProc::static_make_timeval (const LENGTH &val) {
+exports TIMEVAL SocketStaticProc::static_make_timeval (const LENGTH &val) {
 	_DEBUG_ASSERT_ (val >= 0) ;
 	TIMEVAL ret ;
 	ret.tv_sec = VAR32 (val / 1000) ;
@@ -110,7 +110,7 @@ inline exports TIMEVAL SocketStaticProc::static_make_timeval (const LENGTH &val)
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STRU8> SocketStaticProc::static_make_ipv4s (const SOCKADDR &val) {
+exports String<STRU8> SocketStaticProc::static_make_ipv4s (const SOCKADDR &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _BITWISE_CAST_ (ARGV<SOCKADDR_IN>::ID ,val) ;
 	const auto r2x = _CALL_ ([&] () {
@@ -124,7 +124,7 @@ inline exports String<STRU8> SocketStaticProc::static_make_ipv4s (const SOCKADDR
 	return StringProc::build_ipv4s (ARGV<STRU8>::ID ,r2x) ;
 }
 
-inline exports SOCKADDR SocketStaticProc::static_make_socket_addr (const String<STRU8> &val) {
+exports SOCKADDR SocketStaticProc::static_make_socket_addr (const String<STRU8> &val) {
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _CALL_ ([&] () {
 		SOCKADDR_IN ret ;
@@ -141,13 +141,13 @@ inline exports SOCKADDR SocketStaticProc::static_make_socket_addr (const String<
 	return r5x ;
 }
 
-inline exports void SocketStaticProc::static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) {
+exports void SocketStaticProc::static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) {
 	const auto r1x = static_make_socket_addr (ip_addr) ;
 	const auto r2x = api::bind (socket_ ,DEPTR[r1x] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 	_DYNAMIC_ASSERT_ (r2x != SOCKET_ERROR) ;
 }
 
-inline exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
+exports ARRAY2<api::fd_set> SocketStaticProc::static_socket_select (const SOCKET &socket_ ,const LENGTH &timeout) {
 #ifdef __CSC_COMPILER_MSVC__
 #pragma warning (push)
 #pragma warning (disable :4548)
@@ -326,12 +326,12 @@ private:
 	}
 } ;
 
-inline exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
+exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
-inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) {
+exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) {
 	String<STRU8> ret = String<STRU8> (buffer_len) ;
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
@@ -346,7 +346,7 @@ inline exports String<STRU8> TCPSocket::http_get (const String<STRU8> &ip_addr ,
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) {
+exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const String<STRU8> &site ,const String<STRU8> &msg ,const LENGTH &buffer_len ,const LENGTH &timeout) {
 	String<STRU8> ret = String<STRU8> (buffer_len) ;
 	INDEX iw = 0 ;
 	auto rax = TCPSocket (_PCSTRU8_ ("")) ;
@@ -405,7 +405,7 @@ public:
 	}
 } ;
 
-inline exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) {
+exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (socket_) ;
 }
@@ -512,7 +512,7 @@ public:
 	}
 } ;
 
-inline exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
+exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
@@ -562,7 +562,7 @@ public:
 	}
 } ;
 
-inline exports NetworkService::NetworkService (const ARGVF<Singleton<NetworkService>> &) {
+exports NetworkService::NetworkService (const ARGVF<Singleton<NetworkService>> &) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }

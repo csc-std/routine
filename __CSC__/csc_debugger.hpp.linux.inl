@@ -418,7 +418,7 @@ private:
 	}
 } ;
 
-inline exports ConsoleService::ConsoleService (const ARGVF<Singleton<ConsoleService>> &) {
+exports ConsoleService::ConsoleService (const ARGVF<Singleton<ConsoleService>> &) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
@@ -486,7 +486,7 @@ public:
 	}
 } ;
 
-inline exports DebuggerService::DebuggerService (const ARGVF<Singleton<DebuggerService>> &) {
+exports DebuggerService::DebuggerService (const ARGVF<Singleton<DebuggerService>> &) {
 	using R1X = typename Private::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
