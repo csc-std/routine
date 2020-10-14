@@ -173,12 +173,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<api::Mat>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -267,12 +267,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<api::Mat>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -361,12 +361,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<api::Mat>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -455,12 +455,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<api::Mat>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -549,12 +549,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<api::Mat>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {

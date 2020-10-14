@@ -664,8 +664,8 @@ private:
 		delegate public Interface {
 	public:
 		virtual LAYOUT_PACK layout () = 0 ;
-		virtual FLAG type_mid () const = 0 ;
-		virtual PTR<NONE> type_address () = 0 ;
+		virtual AnyRef<> native () = 0 ;
+		virtual AnyRef<> native () const = 0 ;
 		virtual void load_data (const LENGTH &cx_ ,const LENGTH &cy_) = 0 ;
 		virtual void load_data (const AutoBuffer<BYTE> &data) = 0 ;
 		virtual void save_data (AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
@@ -867,10 +867,9 @@ public:
 
 	UNIT_ &to () const leftvalue {
 		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		_DEBUG_ASSERT_ (mBase->self.mThis->type_mid () == _TYPEMID_ (ARGV<UNIT_>::ID)) ;
-		const auto r1x = mBase->self.mThis->type_address () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<UNIT_>::ID ,r1x) ;
-		_DYNAMIC_ASSERT_ (r2x != NULL) ;
+		const auto r1x = mBase->self.mThis->native () ;
+		const auto r2x = r1x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
+		_DEBUG_ASSERT_ (r2x != NULL) ;
 		return DEREF[r2x] ;
 	}
 
@@ -886,31 +885,16 @@ using COLOR_GRAY32 = VAL32 ;
 using COLOR_GRAY64 = VAL64 ;
 
 template <>
-class Image<COLOR_BGR>::Private::Implement ;
-
-template <>
 exports Image<COLOR_BGR>::Image () ;
-
-template <>
-class Image<COLOR_BGRA>::Private::Implement ;
 
 template <>
 exports Image<COLOR_BGRA>::Image () ;
 
 template <>
-class Image<COLOR_GRAY>::Private::Implement ;
-
-template <>
 exports Image<COLOR_GRAY>::Image () ;
 
 template <>
-class Image<COLOR_GRAY32>::Private::Implement ;
-
-template <>
 exports Image<COLOR_GRAY32>::Image () ;
-
-template <>
-class Image<COLOR_GRAY64>::Private::Implement ;
 
 template <>
 exports Image<COLOR_GRAY64>::Image () ;

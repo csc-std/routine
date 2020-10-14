@@ -101,12 +101,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<UniqueRef<HFIBITMAP>>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -229,12 +229,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<UniqueRef<HFIBITMAP>>::ID) ;
+	AnyRef<> native () override {
+		return AnyRef<PTR<UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
 	}
 
-	PTR<NONE> type_address () override {
-		return DEPTR[mHolder] ;
+	AnyRef<> native () const override {
+		return AnyRef<PTR<const UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
 	}
 
 	LAYOUT_PACK layout () override {

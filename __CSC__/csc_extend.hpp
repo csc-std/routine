@@ -583,12 +583,12 @@ private:
 		TEMP<ALIGNED_UNION<(ALIGN::compile ()) ,(SIZE::compile ())>> mUnused ;
 	} ;
 
+	using OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
+
 	struct Private {
 		template <class>
 		class ImplHolder ;
 	} ;
-
-	using OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
 	TEMP<FakeHolder> mVariant ;
@@ -609,7 +609,7 @@ public:
 		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<U::CONSTEXPR_EQUAL<R1X ,ARGC<VAR_NONE>>>::compile ()) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::ID ,DEPTR[mVariant]) ;
-		template_create (r1x ,ARGVPX ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
+		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
 	}
 
 	implicit ~Variant () noexcept {
@@ -745,28 +745,28 @@ private:
 		using R1X = PARAMS_ONE_TYPE<_ARG1> ;
 		using R2X = PARAMS_REST_TYPE<_ARG1> ;
 		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_CVR_TYPE<R1X>> ;
-		_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<R1X>::compile ()) ;
 		if switch_once (TRUE) {
 			if (!(index == 0))
 				discard ;
 			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::ID ,DEPTR[mVariant]) ;
-			template_create (r1x ,ARGVPX ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+			template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 			return ;
 		}
 		template_construct ((index - 1) ,ARGV<R2X>::ID ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS...>>>>
-	imports void template_create (const PTR<TEMP<_ARG1>> &address ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::ID ,address) ;
-		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<_ARG1>::ID ,DEREF[r1x])) ;
+	imports void template_create (const PTR<TEMP<typename Private::template ImplHolder<_ARG1>>> &address ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
+		using R1X = typename Private::template ImplHolder<_ARG1> ;
+		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,address) ;
+		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r1x])) ;
 		auto &r3x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<FakeHolder>::ID ,DEREF[address])) ;
 		_DYNAMIC_ASSERT_ (DEPTR[r2x] == DEPTR[r3x]) ;
-		_CREATE_ (r1x ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		_CREATE_ (r1x ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
-	imports void template_create (const PTR<TEMP<_ARG1>> &address ,const DEF<decltype (ARGVP1)> & ,_ARGS &&...initval) {
+	imports void template_create (const PTR<TEMP<typename Private::template ImplHolder<_ARG1>>> &address ,const DEF<decltype (ARGVP1)> & ,_ARGS &&...initval) {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
@@ -777,6 +777,8 @@ template <class... UNITS>
 template <class UNIT_>
 class Variant<UNITS...>::Private::ImplHolder :
 	delegate public Holder {
+	_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT_>::compile ()) ;
+
 private:
 	REMOVE_CVR_TYPE<UNIT_> mValue ;
 
@@ -802,12 +804,12 @@ public:
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,ARGVP0 ,_MOVE_ (mValue)) ;
+		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
 	}
 
 	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,ARGVP0 ,_MOVE_ (mValue)) ;
+		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
 	}
 } ;
 
@@ -1784,6 +1786,7 @@ template <class UNIT>
 class StrongRef final {
 private:
 	using Holder = typename WeakRef::Holder ;
+	using Private = typename WeakRef::Private ;
 
 private:
 	AtomicPtr mPointer ;
@@ -1926,7 +1929,7 @@ public:
 	}
 
 	StrongRef share () const {
-		using R1X = typename WeakRef::Private::LatchCounter ;
+		using R1X = typename Private::LatchCounter ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1935,10 +1938,9 @@ public:
 
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
-		using R1X = typename WeakRef::Private::LatchCounter ;
+		using R1X = typename Private::LatchCounter ;
 		using R2X = CAST_TRAITS_TYPE<_ARG1 ,UNIT> ;
-		using R3X = typename WeakRef::Private ;
-		using R4X = typename DEPENDENT_TYPE<R3X ,struct ANONYMOUS>::template ImplHolder<R2X> ;
+		using R4X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R2X> ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1958,7 +1960,7 @@ public:
 	}
 
 	WeakRef weak () const {
-		using R1X = typename WeakRef::Private::LatchCounter ;
+		using R1X = typename Private::LatchCounter ;
 		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1968,9 +1970,8 @@ public:
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
 		using R1X = typename WeakRef::THIS_PACK ;
-		using R2X = typename WeakRef::Private ;
 		using R4X = DEPENDENT_TYPE<UNIT ,struct ANONYMOUS> ;
-		using R3X = typename DEPENDENT_TYPE<R2X ,struct ANONYMOUS>::template ImplHolder<R4X> ;
+		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R4X> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;

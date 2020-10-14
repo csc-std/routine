@@ -413,7 +413,7 @@ public:
 	implicit ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
-		CONT::free (mPointer) ;
+		CONT::free (_FORWARD_ (ARGV<PTR<NONE>>::ID ,mPointer)) ;
 		mPointer = NULL ;
 	}
 
@@ -645,9 +645,10 @@ public:
 
 	template <class _ARG1>
 	imports void free (const PTR<_ARG1> &address) noexcept {
+		_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,NONE>::compile ()) ;
 		if (address == NULL)
 			return ;
-		//@error: address may be different from what alloc returned
+		//@error: 'operator delete' may be dismatch with 'operator new'
 		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,address) ;
 		operator delete (r1x ,api::nothrow) ;
 	}
@@ -1059,6 +1060,7 @@ private:
 		virtual FLAG type_mid () const = 0 ;
 		virtual PTR<NONE> type_address () = 0 ;
 		virtual PTR<const NONE> type_address () const = 0 ;
+		virtual AnyRef clone () const = 0 ;
 	} ;
 
 private:
@@ -1144,6 +1146,11 @@ public:
 		return DEREF[mPointer].type_address () ;
 	}
 
+	AnyRef clone () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].clone () ;
+	}
+
 private:
 	explicit AnyRef (const DEF<decltype (ARGVP0)> &) noexcept :
 		delegate mOrigin (NULL) ,
@@ -1158,7 +1165,6 @@ private:
 	using Holder = typename AnyRef<NONE>::Holder ;
 
 	struct Private {
-		template <class>
 		class ImplHolder ;
 	} ;
 
@@ -1243,6 +1249,11 @@ public:
 		return DEREF[mPointer].type_address () ;
 	}
 
+	AnyRef clone () const {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer].clone () ;
+	}
+
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
 		const auto r1x = DEREF[mPointer].type_address () ;
@@ -1275,7 +1286,7 @@ public:
 
 	template <class... _ARGS>
 	imports AnyRef make (_ARGS &&...initval) {
-		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<UNIT> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::ImplHolder ;
 		AnyRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
@@ -1293,11 +1304,10 @@ private:
 } ;
 
 template <class UNIT>
-template <class UNIT_>
 class AnyRef<UNIT>::Private::ImplHolder :
 	delegate public Holder {
 private:
-	UNIT_ mValue ;
+	UNIT mValue ;
 
 public:
 	implicit ImplHolder () = delete ;
@@ -1307,11 +1317,11 @@ public:
 		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
 	TYPEABI type_abi () const override {
-		return _TYPEABI_ (ARGV<UNIT_>::ID) ;
+		return _TYPEABI_ (ARGV<UNIT>::ID) ;
 	}
 
 	FLAG type_mid () const override {
-		return _TYPEMID_ (ARGV<UNIT_>::ID) ;
+		return _TYPEMID_ (ARGV<UNIT>::ID) ;
 	}
 
 	PTR<NONE> type_address () override {
@@ -1320,6 +1330,27 @@ public:
 
 	PTR<const NONE> type_address () const override {
 		return DEPTR[mValue] ;
+	}
+
+	AnyRef<> clone () const override {
+		using R1X = ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>> ;
+		return template_clone (ARGV<R1X>::ID) ;
+	}
+
+private:
+	AnyRef<> template_clone (const ARGVF<ARGC<TRUE>> &) const {
+		AnyRef ret ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<ImplHolder>>::ID) ;
+		ScopedBuild<ImplHolder> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<const UNIT &>::ID ,mValue)) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ImplHolder>::ID ,rax.self) ;
+		ret.mOrigin = rax.self ;
+		ret.mPointer = r1x ;
+		rax = NULL ;
+		return _MOVE_ (ret) ;
+	}
+
+	AnyRef<> template_clone (const ARGVF<ARGC<FALSE>> &) const {
+		return AnyRef () ;
 	}
 } ;
 
@@ -1663,22 +1694,22 @@ private:
 template <class>
 class Function ;
 
-class FunctorInvokeProc :
+class FunctorDecayProc :
 	delegate public Wrapped<> {
 public:
 	template <class _ARG1 ,class _ARG2>
 	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,_ARG2 &functor) {
-		return template_functor (ARGV<_ARG1>::ID ,functor ,ARGVPX) ;
+		return template_decay (ARGV<_ARG1>::ID ,functor ,ARGVPX) ;
 	}
 
 private:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<IS_CONVERTIBLE_HELP<_ARG2 ,PTR<_ARG1>>>>
-	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
+	imports PTR<_ARG1> template_decay (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP2)> &) {
 		return _FORWARD_ (ARGV<PTR<_ARG1>>::ID ,functor) ;
 	}
 
 	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG1> template_functor (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP1)> &) {
+	imports PTR<_ARG1> template_decay (const ARGVF<_ARG1> & ,_ARG2 &functor ,const DEF<decltype (ARGVP1)> &) {
 		return NULL ;
 	}
 } ;
@@ -1703,7 +1734,7 @@ private:
 private:
 	PTR<NONE> mOrigin ;
 	PTR<Holder> mPointer ;
-	PTR<UNIT1 (UNITS...)> mFunctor ;
+	PTR<UNIT1 (UNITS...)> mFastPointer ;
 
 public:
 	implicit Function () :
@@ -1713,7 +1744,7 @@ public:
 
 	implicit Function (const DEF<UNIT1 (UNITS...)> &that) :
 		delegate Function (ARGVP0) {
-		mFunctor = DEPTR[that] ;
+		mFastPointer = DEPTR[that] ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>>>>>
@@ -1726,7 +1757,7 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
-		mFunctor = FunctorInvokeProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,DEREF[r1x].deref ()) ;
+		mFastPointer = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,DEREF[r1x].deref ()) ;
 		rax = NULL ;
 	}
 
@@ -1739,7 +1770,7 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
-		mFunctor = NULL ;
+		mFastPointer = NULL ;
 		rax = NULL ;
 	}
 
@@ -1752,7 +1783,7 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
-		mFunctor = NULL ;
+		mFastPointer = NULL ;
 		rax = NULL ;
 	}
 
@@ -1765,13 +1796,13 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		mOrigin = rax.self ;
 		mPointer = r1x ;
-		mFunctor = NULL ;
+		mFastPointer = NULL ;
 		rax = NULL ;
 	}
 
 	implicit ~Function () noexcept {
 		if (mPointer == NULL)
-			if (mFunctor == NULL)
+			if (mFastPointer == NULL)
 				return ;
 		if switch_once (TRUE) {
 			if (mPointer == NULL)
@@ -1781,7 +1812,7 @@ public:
 		}
 		mOrigin = NULL ;
 		mPointer = NULL ;
-		mFunctor = NULL ;
+		mFastPointer = NULL ;
 	}
 
 	implicit Function (const Function &) = delete ;
@@ -1792,7 +1823,7 @@ public:
 		delegate Function (ARGVP0) {
 		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
-		_SWAP_ (mFunctor ,that.mFunctor) ;
+		_SWAP_ (mFastPointer ,that.mFastPointer) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -1807,14 +1838,14 @@ public:
 
 	BOOL exist () const {
 		if (mPointer == NULL)
-			if (mFunctor == NULL)
+			if (mFastPointer == NULL)
 				return FALSE ;
 		return TRUE ;
 	}
 
 	const DEF<UNIT1 (UNITS...)> &to () const leftvalue {
-		_DEBUG_ASSERT_ (mFunctor != NULL) ;
-		return DEREF[mFunctor] ;
+		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
+		return DEREF[mFastPointer] ;
 	}
 
 	inline implicit operator const DEF<UNIT1 (UNITS...)> & () const leftvalue {
@@ -1825,8 +1856,8 @@ public:
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		if (mFunctor != NULL)
-			return mFunctor (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
+		if (mFastPointer != NULL)
+			return mFastPointer (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 		return DEREF[mPointer].invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 
@@ -1838,7 +1869,7 @@ private:
 	explicit Function (const DEF<decltype (ARGVP0)> &) noexcept :
 		delegate mOrigin (NULL) ,
 		delegate mPointer (NULL) ,
-		delegate mFunctor (NULL) {}
+		delegate mFastPointer (NULL) {}
 } ;
 
 template <class UNIT1 ,class... UNITS>
