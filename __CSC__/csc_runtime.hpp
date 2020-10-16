@@ -62,7 +62,8 @@ public:
 		return DEREF[this] ;
 	}
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const leftvalue {
 		return mThis->native () ;
 	}
 
@@ -145,7 +146,8 @@ public:
 		return DEREF[this] ;
 	}
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const leftvalue {
 		return mThis->native () ;
 	}
 
@@ -192,11 +194,13 @@ private:
 public:
 	implicit Mutex () ;
 
-	DEF<typename Private::Implement> &native () leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () leftvalue {
 		return mThis->native () ;
 	}
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const leftvalue {
 		return mThis->native () ;
 	}
 
@@ -235,11 +239,13 @@ private:
 public:
 	implicit RecursiveMutex () ;
 
-	DEF<typename Private::Implement> &native () leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () leftvalue {
 		return mThis->native () ;
 	}
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const leftvalue {
 		return mThis->native () ;
 	}
 
@@ -277,11 +283,13 @@ private:
 public:
 	implicit ConditionLock () ;
 
-	DEF<typename Private::Implement> &native () leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	_RET &native () leftvalue {
 		return mThis->native () ;
 	}
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
+	const _RET &native () const leftvalue {
 		return mThis->native () ;
 	}
 

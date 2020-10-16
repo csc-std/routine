@@ -316,8 +316,6 @@ namespace CSC {
 #define _CONCAT_IMPL_(arg ,arg_) arg##arg_
 #define _CAT_(arg ,arg_) _CONCAT_IMPL_(arg ,arg_)
 
-#define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
-
 #define _STATIC_ASSERT_(...) static_assert ((_UNW_ (__VA_ARGS__)) ,"static_assert failed : " _STR_ (__VA_ARGS__))
 
 #define _STATIC_WARNING_(...)
@@ -343,11 +341,11 @@ namespace CSC {
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
-#define _DYNAMIC_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<struct ANONYMOUS>::ID ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct Dependent ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<Dependent>::ID ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifdef __CSC_COMPILER_CLANG__
-#define _DYNAMIC_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<struct ANONYMOUS>::ID ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
+#define _DYNAMIC_ASSERT_(...) do { struct Dependent ; if ((_UNW_ (__VA_ARGS__))) break ; CSC::Exception (CSC::Plain<CSC::STR> (CSC::ARGV<Dependent>::ID ,"dynamic_assert failed : " _STR_ (__VA_ARGS__) " : at " ,M_FUNC ," in " ,M_FILE ," ," ,M_LINE)).raise () ; } while (FALSE)
 #endif
 
 #ifndef __CSC_DEBUG__
@@ -361,12 +359,14 @@ namespace CSC {
 #endif
 
 #ifdef __CSC_UNITTEST__
-#define _UNITTEST_WATCH_(...) do { CSC::GlobalWatch::done (CSC::ARGV<struct ANONYMOUS>::ID ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
+#define _UNITTEST_WATCH_(...) do { struct Dependent ; CSC::GlobalWatch::done (CSC::ARGV<Dependent>::ID ,_PCSTR_ (_STR_ (__VA_ARGS__)) ,(_UNW_ (__VA_ARGS__))) ; } while (FALSE)
 #endif
 
 #ifndef _UNITTEST_WATCH_
 #define _UNITTEST_WATCH_(...) do {} while (FALSE)
 #endif
+
+#define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
 #define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::FOR_ONCE (arg)) ANONYMOUS:
 

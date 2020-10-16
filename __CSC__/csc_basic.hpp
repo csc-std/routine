@@ -901,11 +901,16 @@ class SharedRef final {
 private:
 	struct Private {
 		class PureHolder ;
+
+		class PhanHolder ;
+
+		class KeepProxy ;
 	} ;
 
 	class Holder :
 		delegate public Interface {
 	public:
+		virtual BOOL exist () const = 0 ;
 		virtual UNIT &deref () leftvalue = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
@@ -966,6 +971,8 @@ public:
 
 	BOOL exist () const {
 		if (mPointer == NULL)
+			return FALSE ;
+		if (mPointer->exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1034,8 +1041,47 @@ public:
 		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,
 		delegate mCounter (0) {}
 
+	BOOL exist () const override {
+		return TRUE ;
+	}
+
 	UNIT &deref () leftvalue override {
 		return mValue ;
+	}
+
+	LENGTH increase () override {
+		return ++mCounter ;
+	}
+
+	LENGTH decrease () override {
+		return --mCounter ;
+	}
+} ;
+
+template <class UNIT>
+class SharedRef<UNIT>::Private::PhanHolder :
+	delegate public Holder {
+private:
+	PTR<UNIT> mPointer ;
+	LENGTH mCounter ;
+
+public:
+	implicit PhanHolder () = delete ;
+
+	template <class... _ARGS>
+	explicit PhanHolder (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer) :
+		delegate mPointer (pointer) ,
+		delegate mCounter (0) {}
+
+	BOOL exist () const override {
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	UNIT &deref () leftvalue override {
+		_DEBUG_ASSERT_ (exist ()) ;
+		return DEREF[mPointer] ;
 	}
 
 	LENGTH increase () override {
@@ -2635,7 +2681,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2814,7 +2860,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-	}
+}
 
 	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;

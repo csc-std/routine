@@ -25,14 +25,14 @@
 #define _STR_
 #define _CAT_
 
-#define ANONYMOUS
-
 #define _STATIC_ASSERT_
 #define _STATIC_WARNING_
 #define _STATIC_UNUSED_
 #define _DEBUG_ASSERT_
 #define _DYNAMIC_ASSERT_
 #define _UNITTEST_WATCH_
+
+#define ANONYMOUS
 
 #define FALSE
 #define TRUE
