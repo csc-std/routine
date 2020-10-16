@@ -482,7 +482,7 @@ exports void FileSystemProc::erase_directory (const String<STR> &dire) {
 	_STATIC_UNUSED_ (r4x) ;
 }
 
-//@warn: recursive call with junction(const symbolic &link) may cause endless loop
+//@warn: recursive call with junction (symbolic and link) may cause endless loop
 exports void FileSystemProc::enum_directory (const String<STR> &dire ,Deque<String<STR>> &file_list ,Deque<String<STR>> &dire_list) {
 	using R1X = PTR<api::DIR> ;
 	auto rax = String<STR> (DEFAULT_FILEPATH_SIZE::compile ()) ;

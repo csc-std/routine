@@ -36,14 +36,14 @@ static constexpr auto OPTION_TESTING = EFLAG (9) ;
 class ConsoleService :
 	delegate private Proxy {
 private:
-	using Binder = typename TextWriter<STR>::Binder ;
-
 	struct Private {
 		template <class...>
 		class ImplBinder ;
 
 		class Implement ;
 	} ;
+
+	using Binder = typename TextWriter<STR>::Binder ;
 
 	class Abstract :
 		delegate public Interface {

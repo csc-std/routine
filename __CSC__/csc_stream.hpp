@@ -30,13 +30,13 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
-	struct HEAP_PACK {
-		BOOL mEndianFlag ;
-	} ;
-
 	struct Private {
 		template <class>
 		class Attribute ;
+	} ;
+
+	struct HEAP_PACK {
+		BOOL mEndianFlag ;
 	} ;
 
 private:
@@ -392,13 +392,13 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
-	struct HEAP_PACK {
-		SharedRef<FixedBuffer<REAL>> mBuffer ;
-	} ;
-
 	struct Private {
 		template <class>
 		class Attribute ;
+	} ;
+
+	struct HEAP_PACK {
+		SharedRef<FixedBuffer<REAL>> mBuffer ;
 	} ;
 
 private:
@@ -744,6 +744,11 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	struct Private {
+		template <class>
+		class Attribute ;
+	} ;
+
 	struct HEAP_PACK {
 		BOOL mEndianFlag ;
 		BOOL mEscapeFlag ;
@@ -751,11 +756,6 @@ private:
 		HashSet<REAL> mEscapeMappingSet ;
 		Deque<PACK<REAL ,FLAG>> mSpace ;
 		HashSet<REAL> mSpaceMappingSet ;
-	} ;
-
-	struct Private {
-		template <class>
-		class Attribute ;
 	} ;
 
 private:
@@ -1489,16 +1489,16 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	struct Private {
+		template <class>
+		class Attribute ;
+	} ;
+
 	struct HEAP_PACK {
 		SharedRef<FixedBuffer<REAL>> mBuffer ;
 		BOOL mEscapeFlag ;
 		Deque<REAL> mEscape ;
 		HashSet<REAL> mEscapeMappingSet ;
-	} ;
-
-	struct Private {
-		template <class>
-		class Attribute ;
 	} ;
 
 private:

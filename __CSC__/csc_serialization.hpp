@@ -35,6 +35,14 @@ static constexpr auto NODE_CLAZZ_FINAL = EFLAG (6) ;
 
 class XmlParser {
 private:
+	struct Private {
+		class RecursiveCounter ;
+
+		class InitializeX1Lambda ;
+
+		class InitializeX2Lambda ;
+	} ;
+
 	struct NODE_PACK {
 		String<STRU8> mName ;
 		Deque<String<STRU8>> mAttribute ;
@@ -44,14 +52,6 @@ private:
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
-	} ;
-
-	struct Private {
-		class RecursiveCounter ;
-
-		class InitializeX1Lambda ;
-
-		class InitializeX2Lambda ;
 	} ;
 
 private:
@@ -1005,18 +1005,18 @@ inline exports void XmlParser::initialize (XmlParser &this_ ,const Array<XmlPars
 
 class JsonParser {
 private:
+	struct Private {
+		class RecursiveCounter ;
+
+		class InitializeLambda ;
+	} ;
+
 	struct NODE_PACK {
 		AnyRef<> mValue ;
 		EFLAG mClazz ;
 		INDEX mParent ;
 		INDEX mBrother ;
 		INDEX mChild ;
-	} ;
-
-	struct Private {
-		class RecursiveCounter ;
-
-		class InitializeLambda ;
 	} ;
 
 private:

@@ -356,6 +356,12 @@ struct CONSTEXPR_DECREASE {
 
 #ifdef __CSC__
 namespace U {
+#ifndef __CSC_COMPILER_MSVC__
+template <class _ARG1>
+using ARGC_TYPE = ARGC<(_ARG1::compile ())> ;
+#endif
+
+#ifdef __CSC_COMPILER_MSVC__
 template <class _ARG1>
 inline constexpr VAR _COMPILE_FORCE_ (const ARGVF<_ARG1> &) {
 	return _ARG1::compile () ;
@@ -363,6 +369,7 @@ inline constexpr VAR _COMPILE_FORCE_ (const ARGVF<_ARG1> &) {
 
 template <class _ARG1>
 using ARGC_TYPE = ARGC<(_COMPILE_FORCE_ (ARGV<_ARG1>::ID))> ;
+#endif
 } ;
 
 namespace U {

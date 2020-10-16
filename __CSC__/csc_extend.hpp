@@ -555,6 +555,11 @@ class Variant final {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ANY_SAME_HELP<REMOVE_CVR_TYPE<UNITS>...>>::compile ()) ;
 
 private:
+	struct Private {
+		template <class>
+		class ImplHolder ;
+	} ;
+
 	class FakeHolder ;
 
 	class Holder :
@@ -584,11 +589,6 @@ private:
 	} ;
 
 	using OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
-
-	struct Private {
-		template <class>
-		class ImplHolder ;
-	} ;
 
 private:
 	TEMP<FakeHolder> mVariant ;
@@ -891,6 +891,8 @@ class Tuple<UNIT1 ,UNITS...> :
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_RVALUE_REFERENCE_HELP<UNIT1>>::compile ()) ;
 
 private:
+	template <class...>
+	friend class Tuple ;
 	UNIT1 mValue ;
 
 public:
@@ -1035,7 +1037,7 @@ public:
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) == that ;
+		return template_equal (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
@@ -1043,7 +1045,7 @@ public:
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) != that ;
+		return template_not_equal (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
@@ -1051,7 +1053,7 @@ public:
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) > that ;
+		return template_less (that ,this_.mBinder) ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
@@ -1059,7 +1061,7 @@ public:
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) <= that ;
+		return template_not_less (that ,this_.mBinder) ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
@@ -1067,7 +1069,7 @@ public:
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) < that ;
+		return template_less (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
@@ -1075,7 +1077,7 @@ public:
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return _MOVE_ (this_) >= that ;
+		return template_not_less (this_.mBinder ,that) ;
 	}
 
 private:
@@ -1172,7 +1174,7 @@ public:
 	}
 
 	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) == that ;
+		return template_equal (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator!= (const WRAPPED &that) const {
@@ -1180,7 +1182,7 @@ public:
 	}
 
 	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) != that ;
+		return template_not_equal (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator< (const WRAPPED &that) const {
@@ -1188,7 +1190,7 @@ public:
 	}
 
 	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) > that ;
+		return template_less (that ,this_.mBinder) ;
 	}
 
 	inline BOOL operator>= (const WRAPPED &that) const {
@@ -1196,7 +1198,7 @@ public:
 	}
 
 	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) <= that ;
+		return template_not_less (that ,this_.mBinder) ;
 	}
 
 	inline BOOL operator> (const WRAPPED &that) const {
@@ -1204,7 +1206,7 @@ public:
 	}
 
 	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) < that ;
+		return template_less (this_.mBinder ,that) ;
 	}
 
 	inline BOOL operator<= (const WRAPPED &that) const {
@@ -1212,7 +1214,7 @@ public:
 	}
 
 	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return _MOVE_ (this_) >= that ;
+		return template_not_less (this_.mBinder ,that) ;
 	}
 
 private:
@@ -1462,6 +1464,13 @@ class StrongRef ;
 
 class WeakRef final {
 private:
+	struct Private {
+		class LatchCounter ;
+
+		template <class>
+		class ImplHolder ;
+	} ;
+
 	struct THIS_PACK {
 		PTR<NONE> mOrigin ;
 		AnyRef<> mHolder ;
@@ -1479,13 +1488,6 @@ private:
 		virtual void strong_aquire () = 0 ;
 		virtual void strong_release () = 0 ;
 		virtual void destroy () = 0 ;
-	} ;
-
-	struct Private {
-		class LatchCounter ;
-
-		template <class>
-		class ImplHolder ;
 	} ;
 
 private:
@@ -2016,6 +2018,13 @@ private:
 
 class MemoryPool {
 private:
+	struct Private {
+		template <class ,class>
+		class ImplHolder ;
+
+		class HugeHolder ;
+	} ;
+
 	struct HEADER ;
 
 	class Holder :
@@ -2036,13 +2045,6 @@ private:
 
 	struct THIS_PACK {
 		AutoBuffer<StrongRef<Holder>> mPool ;
-	} ;
-
-	struct Private {
-		template <class ,class>
-		class ImplHolder ;
-
-		class HugeHolder ;
 	} ;
 
 private:
@@ -2484,17 +2486,17 @@ public:
 template <class UNIT ,class CONT>
 class Serializer {
 private:
-	class Holder :
-		delegate public Interface {
-	public:
-		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
-	} ;
-
 	struct Private {
 		class Member ;
 
 		template <class...>
 		class ImplHolder ;
+	} ;
+
+	class Holder :
+		delegate public Interface {
+	public:
+		virtual void compute_visit (UNIT &visitor ,CONT &context_) const = 0 ;
 	} ;
 
 private:

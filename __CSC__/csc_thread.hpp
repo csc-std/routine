@@ -18,6 +18,12 @@ namespace CSC {
 template <class ITEM>
 class CalcThread {
 private:
+	struct Private {
+		class ThreadBinder ;
+
+		class ThreadCounter ;
+	} ;
+
 	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
@@ -33,12 +39,6 @@ private:
 	struct THREAD_PACK {
 		SharedRef<THIS_PACK> mThis ;
 		UniqueRef<SharedRef<THIS_PACK>> mKeep ;
-	} ;
-
-	struct Private {
-		class ThreadBinder ;
-
-		class ThreadCounter ;
 	} ;
 
 private:
@@ -373,6 +373,12 @@ public:
 template <class ITEM>
 class WorkThread {
 private:
+	struct Private {
+		class ThreadBinder ;
+
+		class ThreadCounter ;
+	} ;
+
 	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
@@ -388,12 +394,6 @@ private:
 	struct THREAD_PACK {
 		SharedRef<THIS_PACK> mThis ;
 		UniqueRef<SharedRef<THIS_PACK>> mKeep ;
-	} ;
-
-	struct Private {
-		class ThreadBinder ;
-
-		class ThreadCounter ;
 	} ;
 
 private:
@@ -769,6 +769,12 @@ class Future ;
 template <class ITEM>
 class Promise {
 private:
+	struct Private {
+		class ThreadBinder ;
+
+		class ThreadCounter ;
+	} ;
+
 	struct THIS_PACK {
 		Mutex mThreadMutex ;
 		ConditionLock mThreadConditionLock ;
@@ -784,12 +790,6 @@ private:
 	struct THREAD_PACK {
 		SharedRef<THIS_PACK> mThis ;
 		UniqueRef<SharedRef<THIS_PACK>> mKeep ;
-	} ;
-
-	struct Private {
-		class ThreadBinder ;
-
-		class ThreadCounter ;
 	} ;
 
 private:

@@ -48,14 +48,22 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Duration>>>>>
 	explicit Duration (_ARG1 &&time_) ;
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
-		return mThis->native () ;
+	implicit Duration (const Duration &that) {
+		mThis = that.mThis.share () ;
 	}
 
-	Duration share () const {
-		Duration ret ;
-		ret.mThis = mThis.share () ;
-		return _MOVE_ (ret) ;
+	inline Duration &operator= (const Duration &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			DEREF[this].~Duration () ;
+			new (this) Duration (_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	LENGTH hours () const {
@@ -123,14 +131,22 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>>>>>
 	explicit TimePoint (_ARG1 &&time_) ;
 
-	const DEF<typename Private::Implement> &native () const leftvalue {
-		return mThis->native () ;
+	implicit TimePoint (const TimePoint &that) {
+		mThis = that.mThis.share () ;
 	}
 
-	TimePoint share () const {
-		TimePoint ret ;
-		ret.mThis = mThis.share () ;
-		return _MOVE_ (ret) ;
+	inline TimePoint &operator= (const TimePoint &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			DEREF[this].~TimePoint () ;
+			new (this) TimePoint (_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	const DEF<typename Private::Implement> &native () const leftvalue {
+		return mThis->native () ;
 	}
 
 	ARRAY8<LENGTH> calendar () const {

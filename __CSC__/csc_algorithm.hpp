@@ -1207,15 +1207,15 @@ private:
 template <class REAL>
 class KDTreeAlgorithm {
 private:
+	struct Private {
+		class InitializeLambda ;
+	} ;
+
 	struct NODE_PACK {
 		REAL mKey ;
 		INDEX mLeaf ;
 		INDEX mLeft ;
 		INDEX mRight ;
-	} ;
-
-	struct Private {
-		class InitializeLambda ;
 	} ;
 
 private:

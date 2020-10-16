@@ -121,15 +121,15 @@ private:
 template <class UNIT>
 class Bitmap {
 private:
+	struct Private {
+		template <class>
+		class Row ;
+	} ;
+
 	struct HEAP_PACK {
 		SharedRef<FixedBuffer<UNIT>> mBuffer ;
 		ARRAY4<LENGTH> mWidth ;
 		LENGTH mFullSize ;
-	} ;
-
-	struct Private {
-		template <class>
-		class Row ;
 	} ;
 
 private:

@@ -662,14 +662,14 @@ class AutoRef<SPECIALIZATION<UNIT ,ARGC<FALSE>>> {
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
+	struct Private {
+		class PureHolder ;
+	} ;
+
 	class Holder :
 		delegate public Interface {
 	public:
 		virtual UNIT &deref () leftvalue = 0 ;
-	} ;
-
-	struct Private {
-		class PureHolder ;
 	} ;
 
 protected:
@@ -740,14 +740,14 @@ class AutoRef<SPECIALIZATION<UNIT ,ARGC<TRUE>>> {
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 protected:
+	struct Private {
+		class PureHolder ;
+	} ;
+
 	class Holder :
 		delegate public Interface {
 	public:
 		virtual UNIT &deref () leftvalue = 0 ;
-	} ;
-
-	struct Private {
-		class PureHolder ;
 	} ;
 
 protected:
@@ -899,16 +899,16 @@ class SharedRef final {
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
+	struct Private {
+		class PureHolder ;
+	} ;
+
 	class Holder :
 		delegate public Interface {
 	public:
 		virtual UNIT &deref () leftvalue = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
-	} ;
-
-	struct Private {
-		class PureHolder ;
 	} ;
 
 private:
@@ -1162,11 +1162,11 @@ class AnyRef final {
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
-	using Holder = typename AnyRef<NONE>::Holder ;
-
 	struct Private {
 		class ImplHolder ;
 	} ;
+
+	using Holder = typename AnyRef<NONE>::Holder ;
 
 private:
 	PTR<NONE> mOrigin ;
@@ -1363,15 +1363,15 @@ class UniqueRef ;
 template <>
 class UniqueRef<NONE> final {
 private:
+	struct Private {
+		template <class>
+		class ImplHolder ;
+	} ;
+
 	class Holder :
 		delegate public Interface {
 	public:
 		virtual void release () = 0 ;
-	} ;
-
-	struct Private {
-		template <class>
-		class ImplHolder ;
 	} ;
 
 private:
@@ -1471,16 +1471,16 @@ class UniqueRef final {
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
 private:
+	struct Private {
+		template <class>
+		class ImplHolder ;
+	} ;
+
 	class Holder :
 		delegate public Interface {
 	public:
 		virtual UNIT &deref () leftvalue = 0 ;
 		virtual void release () = 0 ;
-	} ;
-
-	struct Private {
-		template <class>
-		class ImplHolder ;
 	} ;
 
 private:
@@ -1717,18 +1717,18 @@ private:
 template <class UNIT1 ,class... UNITS>
 class Function<UNIT1 (UNITS...)> final {
 private:
-	class Holder :
-		delegate public Interface {
-	public:
-		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
-	} ;
-
 	struct Private {
 		template <class>
 		class ImplHolder ;
 
 		template <class ,class>
 		class MemPtrHolder ;
+	} ;
+
+	class Holder :
+		delegate public Interface {
+	public:
+		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 	} ;
 
 private:
