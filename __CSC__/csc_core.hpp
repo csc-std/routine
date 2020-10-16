@@ -1478,14 +1478,19 @@ struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_XYZ_HELP<_ARG1>> ,
 	using TYPE = ARGC<TRUE> ;
 } ;
 
+//@info: compatible for old c api
+template <>
+struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<3>> {
+	using TYPE = ARGC<TRUE> ;
+} ;
+
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
 } ;
 
-//@info: compatible for old c api
-template <>
-struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<4>> {
+template <class _ARG1 ,class _ARG2>
+struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,ENABLE_TYPE<IS_BASE_OF_HELP<_ARG2 ,_ARG2>> ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1731,6 +1736,10 @@ inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) {
 	return LENGTH (address) ;
 }
 
+inline PTR<NONE> _UNSAFE_POINTER_ (const LENGTH &address) {
+	return PTR<NONE> (address) ;
+}
+
 inline INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
 	return base + (align_ - base % align_) % align_ ;
 }
@@ -1821,19 +1830,12 @@ inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & 
 	return _CAST_ (ARGV<R1X>::ID ,r3x) ;
 }
 
-template <class _ARG1>
-inline PTR<_ARG1> _UNSAFE_POINTER_CAST_ (const ARGVF<_ARG1> & ,const LENGTH &address) {
-	const auto r1x = DEPTR[_NULL_ (ARGV<BYTE>::ID)] + address ;
-	const auto r2x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,r1x) ;
-	return _POINTER_CAST_ (ARGV<_ARG1>::ID ,r2x) ;
-}
-
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 inline CAST_TRAITS_TYPE<_ARG2 ,_ARG3> &_OFFSET_ (const MEMPTR<_ARG1 ,_ARG2> &mptr ,_ARG3 &mref) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG3>>::compile ()) ;
 	const auto r1x = DEPTR[(_NULL_ (ARGV<_ARG2>::ID).*mptr)] ;
 	const auto r2x = _ADDRESS_ (DEPTR[mref]) - _ADDRESS_ (r1x) ;
-	const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::ID ,r2x) ;
+	const auto r3x = _POINTER_CAST_ (ARGV<CAST_TRAITS_TYPE<_ARG2 ,_ARG3>>::ID ,_UNSAFE_POINTER_ (r2x)) ;
 	return DEREF[r3x] ;
 }
 

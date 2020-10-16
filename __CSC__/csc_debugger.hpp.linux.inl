@@ -463,10 +463,8 @@ public:
 		_DEBUG_ASSERT_ (list.length () < VAR32_MAX) ;
 		const auto r1x = _CALL_ ([&] () {
 			Array<PTR<NONE>> ret = Array<PTR<NONE>> (list.length ()) ;
-			for (auto &&i : _RANGE_ (0 ,ret.length ())) {
-				const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,list[i]) ;
-				ret[i] = r2x ;
-			}
+			for (auto &&i : _RANGE_ (0 ,ret.length ()))
+				ret[i] = _UNSAFE_POINTER_ (list[i]) ;
 			return _MOVE_ (ret) ;
 		}) ;
 		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {

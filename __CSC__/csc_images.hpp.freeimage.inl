@@ -113,7 +113,7 @@ public:
 		LAYOUT_PACK ret ;
 		const auto r1x = api::FreeImage_GetBits (mHolder) ;
 		const auto r2x = _ADDRESS_ (r1x) ;
-		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::ID ,r2x) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::ID ,_UNSAFE_POINTER_ (r2x)) ;
 		ret.mImage = r3x ;
 		ret.mCX = LENGTH (api::FreeImage_GetWidth (mHolder)) ;
 		ret.mCY = LENGTH (api::FreeImage_GetHeight (mHolder)) ;
@@ -241,7 +241,7 @@ public:
 		LAYOUT_PACK ret ;
 		const auto r1x = api::FreeImage_GetBits (mHolder) ;
 		const auto r2x = _ADDRESS_ (r1x) ;
-		const auto r3x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::ID ,r2x) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::ID ,_UNSAFE_POINTER_ (r2x)) ;
 		ret.mImage = r3x ;
 		ret.mCX = LENGTH (api::FreeImage_GetWidth (mHolder)) ;
 		ret.mCY = LENGTH (api::FreeImage_GetHeight (mHolder)) ;

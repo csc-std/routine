@@ -456,7 +456,7 @@ public:
 			auto rax = AutoBuffer<BYTE> (r1x) ;
 			const auto r2x = _ADDRESS_ (DEPTR[rax.self]) ;
 			const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (api::SYMBOL_INFO)) ;
-			const auto r4x = _UNSAFE_POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::ID ,r3x) ;
+			const auto r4x = _POINTER_CAST_ (ARGV<api::SYMBOL_INFO>::ID ,_UNSAFE_POINTER_ (r3x)) ;
 			DEREF[r4x].SizeOfStruct = VARY (_SIZEOF_ (api::SYMBOL_INFO)) ;
 			DEREF[r4x].MaxNameLen = VARY (DEFAULT_FILEPATH_SIZE::compile ()) ;
 			for (auto &&i : _RANGE_ (0 ,list.length ())) {

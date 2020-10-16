@@ -1431,7 +1431,7 @@ public:
 	PTR<NONE> fetch () const {
 		const auto r1x = mValue.fetch () ;
 		const auto r2x = _CAST_ (ARGV<VAR>::ID ,r1x) ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r2x) ;
+		return _UNSAFE_POINTER_ (r2x) ;
 	}
 
 	PTR<NONE> exchange (const PTR<NONE> &data) {
@@ -1439,7 +1439,7 @@ public:
 		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = mValue.exchange (r2x) ;
 		const auto r4x = _CAST_ (ARGV<VAR>::ID ,r3x) ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r4x) ;
+		return _UNSAFE_POINTER_ (r4x) ;
 	}
 
 	PTR<NONE> compare_exchange (const PTR<NONE> &expect ,const PTR<NONE> &data) {
@@ -1449,7 +1449,7 @@ public:
 		const auto r4x = _CAST_ (ARGV<BASE_TYPE>::ID ,r3x) ;
 		const auto r5x = mValue.compare_exchange (r2x ,r4x) ;
 		const auto r6x = _CAST_ (ARGV<VAR>::ID ,r5x) ;
-		return _UNSAFE_POINTER_CAST_ (ARGV<NONE>::ID ,r6x) ;
+		return _UNSAFE_POINTER_ (r6x) ;
 	}
 
 	void store (const PTR<NONE> &data) {
@@ -2082,7 +2082,7 @@ public:
 		const auto r7x = _ADDRESS_ (r6x) + r5x ;
 		const auto r8x = _ALIGNAS_ (r7x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r9x = r8x - r5x ;
-		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::ID ,r9x) ;
+		const auto r10x = _POINTER_CAST_ (ARGV<HEADER>::ID ,_UNSAFE_POINTER_ (r9x)) ;
 		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
 		DEREF[r10x].mCurr = r6x ;
 		const auto r11x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r8x) ;
@@ -2104,7 +2104,7 @@ public:
 		const auto r7x = _ADDRESS_ (r6x) + r5x ;
 		const auto r8x = _ALIGNAS_ (r7x ,_ALIGNOF_ (_ARG1)) ;
 		const auto r9x = r8x - r5x ;
-		const auto r10x = _UNSAFE_POINTER_CAST_ (ARGV<HEADER>::ID ,r9x) ;
+		const auto r10x = _POINTER_CAST_ (ARGV<HEADER>::ID ,_UNSAFE_POINTER_ (r9x)) ;
 		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
 		DEREF[r10x].mCurr = r6x ;
 		const auto r11x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::ID ,r8x) ;
@@ -2116,8 +2116,15 @@ public:
 		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<REMOVE_ARRAY_TYPE<_ARG1>>::compile ()) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<HEADER>::ID ,r1x) ;
-		INDEX ix = BasicProc::mem_chr (mThis->mPool.self ,mThis->mPool.size () ,DEREF[r2x].mFrom) ;
-		mThis->mPool[ix]->free (DEREF[r2x].mCurr) ;
+		const auto r3x = _CALL_ ([&] () {
+			for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ())) {
+				if (DEPTR[mThis->mPool[i].self] == DEREF[r2x].mFrom)
+					return i ;
+			}
+			return VAR_NONE ;
+		}) ;
+		_DEBUG_ASSERT_ (r3x != VAR_NONE) ;
+		mThis->mPool[r3x]->free (DEREF[r2x].mCurr) ;
 	}
 
 	void clean () {
@@ -2203,7 +2210,7 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::ID ,r2x) ;
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK_NODE)) ;
-		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<CHUNK_NODE>::ID ,r4x) ;
+		const auto r5x = _POINTER_CAST_ (ARGV<CHUNK_NODE>::ID ,_UNSAFE_POINTER_ (r4x)) ;
 		DEREF[r5x].mOrigin = rax.self ;
 		DEREF[r5x].mPrev = NULL ;
 		DEREF[r5x].mNext = mRoot ;
@@ -2215,7 +2222,7 @@ public:
 		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,DEREF[mRoot].mCount)) {
 			const auto r7x = r6x + i * r1x ;
-			const auto r8x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,r7x) ;
+			const auto r8x = _POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,_UNSAFE_POINTER_ (r7x)) ;
 			DEREF[r8x].mNext = mFree ;
 			mFree = r8x ;
 		}
@@ -2275,7 +2282,7 @@ private:
 		const auto r3x = _ALIGNAS_ (r2x ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,DEREF[node].mCount)) {
 			const auto r4x = r3x + i * r1x ;
-			const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,r4x) ;
+			const auto r5x = _POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,_UNSAFE_POINTER_ (r4x)) ;
 			if (DEREF[r5x].mNext == DEPTR[mUsedNode])
 				return FALSE ;
 		}
@@ -2334,7 +2341,7 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<BYTE>::ID ,r2x) ;
 		const auto r3x = _ADDRESS_ (rax.self) ;
 		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (FBLOCK_NODE)) ;
-		const auto r5x = _UNSAFE_POINTER_CAST_ (ARGV<FBLOCK_NODE>::ID ,r4x) ;
+		const auto r5x = _POINTER_CAST_ (ARGV<FBLOCK_NODE>::ID ,_UNSAFE_POINTER_ (r4x)) ;
 		DEREF[r5x].mOrigin = rax.self ;
 		DEREF[r5x].mPrev = NULL ;
 		DEREF[r5x].mNext = mRoot ;

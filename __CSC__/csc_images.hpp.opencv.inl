@@ -184,7 +184,7 @@ public:
 	LAYOUT_PACK layout () override {
 		LAYOUT_PACK ret ;
 		const auto r1x = _ADDRESS_ (mHolder.data) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<COLOR_BGR>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		ret.mImage = r2x ;
 		ret.mCX = LENGTH (mHolder.cols) ;
 		ret.mCY = LENGTH (mHolder.rows) ;
@@ -278,7 +278,7 @@ public:
 	LAYOUT_PACK layout () override {
 		LAYOUT_PACK ret ;
 		const auto r1x = _ADDRESS_ (mHolder.data) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<COLOR_BGRA>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		ret.mImage = r2x ;
 		ret.mCX = LENGTH (mHolder.cols) ;
 		ret.mCY = LENGTH (mHolder.rows) ;
@@ -372,7 +372,7 @@ public:
 	LAYOUT_PACK layout () override {
 		LAYOUT_PACK ret ;
 		const auto r1x = _ADDRESS_ (mHolder.data) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<COLOR_GRAY>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		ret.mImage = r2x ;
 		ret.mCX = LENGTH (mHolder.cols) ;
 		ret.mCY = LENGTH (mHolder.rows) ;
@@ -466,7 +466,7 @@ public:
 	LAYOUT_PACK layout () override {
 		LAYOUT_PACK ret ;
 		const auto r1x = _ADDRESS_ (mHolder.data) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY32>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<COLOR_GRAY32>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		ret.mImage = r2x ;
 		ret.mCX = LENGTH (mHolder.cols) ;
 		ret.mCY = LENGTH (mHolder.rows) ;
@@ -560,7 +560,7 @@ public:
 	LAYOUT_PACK layout () override {
 		LAYOUT_PACK ret ;
 		const auto r1x = _ADDRESS_ (mHolder.data) ;
-		const auto r2x = _UNSAFE_POINTER_CAST_ (ARGV<ARR<COLOR_GRAY64>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<COLOR_GRAY64>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		ret.mImage = r2x ;
 		ret.mCX = LENGTH (mHolder.cols) ;
 		ret.mCY = LENGTH (mHolder.rows) ;

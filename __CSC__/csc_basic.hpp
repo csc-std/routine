@@ -413,7 +413,8 @@ public:
 	implicit ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
-		CONT::free (_FORWARD_ (ARGV<PTR<NONE>>::ID ,mPointer)) ;
+		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,mPointer) ;
+		CONT::free (r1x) ;
 		mPointer = NULL ;
 	}
 
@@ -649,8 +650,7 @@ public:
 		if (address == NULL)
 			return ;
 		//@error: 'operator delete' may be dismatch with 'operator new'
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,address) ;
-		operator delete (r1x ,api::nothrow) ;
+		operator delete (address ,api::nothrow) ;
 	}
 } ;
 
@@ -3004,11 +3004,15 @@ protected:
 		delegate mFree (VAR_NONE) {}
 
 	inline SPECIALIZATION_THIS &m_spec () leftvalue {
-		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 #pragma pop_macro ("spec")
@@ -3115,11 +3119,15 @@ private:
 		delegate mFree (VAR_NONE) {}
 
 	inline SPECIALIZATION_THIS &m_spec () leftvalue {
-		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 #pragma pop_macro ("spec")
@@ -3261,11 +3269,15 @@ protected:
 		delegate mFree (VAR_NONE) {}
 
 	inline SPECIALIZATION_THIS &m_spec () leftvalue {
-		return static_cast<SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 	inline const SPECIALIZATION_THIS &m_spec () const leftvalue {
-		return static_cast<const SPECIALIZATION_THIS &> (DEREF[this]) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<SPECIALIZATION_THIS>::ID ,this) ;
+		_DEBUG_ASSERT_ (r1x != NULL) ;
+		return DEREF[r1x] ;
 	}
 
 #pragma pop_macro ("spec")
