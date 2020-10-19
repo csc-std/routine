@@ -1012,7 +1012,7 @@ template <class... UNITS>
 class AllOfTuple :
 	delegate private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
+_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
 
 private:
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
@@ -1149,7 +1149,7 @@ template <class... UNITS>
 class AnyOfTuple :
 	delegate private Proxy {
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
+_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
 
 private:
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
@@ -2016,10 +2016,134 @@ private:
 	}
 } ;
 
+class GlobalRuntime ;
+
+template <class UNIT>
+class Later :
+	delegate private Proxy {
+private:
+	struct THIS_PACK {
+		FLAG mTag ;
+		Function<UNIT ()> mOperator ;
+		PTR<Later> mNode ;
+		PTR<THIS_PACK> mPrev ;
+		PTR<THIS_PACK> mNext ;
+	} ;
+
+private:
+	SharedRef<THIS_PACK> mThis ;
+	UniqueRef<SharedRef<THIS_PACK>> mKeep ;
+
+public:
+	implicit Later () = delete ;
+
+	explicit Later (const FLAG &tag) {
+		if switch_once (TRUE) {
+			const auto r1x = find (tag) ;
+			if (r1x == NULL)
+				discard ;
+			mThis = DEREF[r1x].mNode->mThis ;
+		}
+	}
+
+	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
+	explicit Later (const FLAG &tag ,_ARG1 &&that) {
+		mKeep = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
+			me = SharedRef<THIS_PACK>::make () ;
+			me->mNode = this ;
+			link (DEPTR[me.self]) ;
+		} ,[] (SharedRef<THIS_PACK> &me) {
+			me->mNode = NULL ;
+			unlink (DEPTR[me.self]) ;
+		}) ;
+		mThis = mKeep.self ;
+		mThis->mTag = tag ;
+		mThis->mOperator = Function<UNIT ()> (_FORWARD_ (ARGV<_ARG1>::ID ,that)) ;
+	}
+
+	UNIT invoke () const {
+		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
+		return mThis->mOperator () ;
+	}
+
+	inline UNIT operator() () const {
+		return invoke () ;
+	}
+
+private:
+	imports FLAG thread_tid () {
+		using R1X = DEPENDENT_TYPE<GlobalRuntime ,struct ANONYMOUS> ;
+		return _CACHE_ ([&] () {
+			return R1X::thread_tid () ;
+		}) ;
+	}
+
+	imports PTR<THIS_PACK> &first () {
+		using R1X = DEPENDENT_TYPE<GlobalRuntime ,struct ANONYMOUS> ;
+		auto &r1x = _CACHE_ ([&] () {
+			return SharedRef<PTR<THIS_PACK>>::make (NULL) ;
+		}) ;
+		_DYNAMIC_ASSERT_ (thread_tid () == R1X::thread_tid ()) ;
+		return r1x.self ;
+	}
+
+	imports PTR<THIS_PACK> &last () {
+		using R1X = DEPENDENT_TYPE<GlobalRuntime ,struct ANONYMOUS> ;
+		auto &r1x = _CACHE_ ([&] () {
+			return SharedRef<PTR<THIS_PACK>>::make (NULL) ;
+		}) ;
+		_DYNAMIC_ASSERT_ (thread_tid () == R1X::thread_tid ()) ;
+		return r1x.self ;
+	}
+
+	imports PTR<THIS_PACK> find (const FLAG &tag) {
+		PTR<THIS_PACK> ret = last () ;
+		while (TRUE) {
+			if (ret == NULL)
+				break ;
+			if (DEREF[ret].mTag == tag)
+				break ;
+			ret = DEREF[ret].mPrev ;
+		}
+		return _MOVE_ (ret) ;
+	}
+
+	imports void link (const PTR<THIS_PACK> &curr) {
+		DEREF[curr].mPrev = last () ;
+		DEREF[curr].mNext = NULL ;
+		auto &r1x = _CALL_ ([&] () {
+			if (DEREF[curr].mPrev != NULL)
+				return _BYREF_ (DEREF[DEREF[curr].mPrev].mNext) ;
+			return _BYREF_ (first ()) ;
+		}).self ;
+		r1x = curr ;
+		last () = curr ;
+	}
+
+	imports void unlink (const PTR<THIS_PACK> &curr) {
+		prev_next (curr) = DEREF[curr].mNext ;
+		next_prev (curr) = DEREF[curr].mPrev ;
+		DEREF[curr].mPrev = NULL ;
+		DEREF[curr].mNext = NULL ;
+	}
+
+	imports PTR<THIS_PACK> &prev_next (const PTR<THIS_PACK> &curr) {
+		if (DEREF[curr].mPrev == NULL)
+			return first () ;
+		return DEREF[DEREF[curr].mPrev].mNext ;
+	}
+
+	imports PTR<THIS_PACK> &next_prev (const PTR<THIS_PACK> &curr) {
+		if (DEREF[curr].mNext == NULL)
+			return last () ;
+		return DEREF[DEREF[curr].mNext].mPrev ;
+	}
+} ;
+
 class MemoryPool {
 private:
 	struct Private {
-		template <class ,class>
+		template <class>
 		class ImplHolder ;
 
 		class HugeHolder ;
@@ -2145,13 +2269,14 @@ private:
 	}
 } ;
 
-template <class SIZE ,class RESE>
+template <class SIZE>
 class MemoryPool::Private::ImplHolder :
 	delegate public Holder {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
-	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<RESE ,ZERO>::compile ()) ;
 
 private:
+	using DEFAULT_SMPAGE_SIZE = ARGC<4096> ;
+
 	struct BLOCK_NODE {
 		PTR<struct BLOCK_NODE> mNext ;
 		HEADER mFlexData ;
@@ -2206,25 +2331,26 @@ public:
 		if (mFree != NULL)
 			return ;
 		const auto r1x = _ALIGNAS_ (_SIZEOF_ (BLOCK_NODE) + SIZE::compile () ,_ALIGNOF_ (BLOCK_NODE)) ;
-		const auto r2x = _ALIGNOF_ (CHUNK_NODE) - 1 + _SIZEOF_ (CHUNK_NODE) + _ALIGNOF_ (BLOCK_NODE) - 1 + RESE::compile () * r1x ;
-		auto rax = GlobalHeap::alloc (ARGV<BYTE>::ID ,r2x) ;
-		const auto r3x = _ADDRESS_ (rax.self) ;
-		const auto r4x = _ALIGNAS_ (r3x ,_ALIGNOF_ (CHUNK_NODE)) ;
-		const auto r5x = _POINTER_CAST_ (ARGV<CHUNK_NODE>::ID ,_UNSAFE_POINTER_ (r4x)) ;
-		DEREF[r5x].mOrigin = rax.self ;
-		DEREF[r5x].mPrev = NULL ;
-		DEREF[r5x].mNext = mRoot ;
-		DEREF[r5x].mCount = RESE::compile () ;
+		const auto r2x = _ALIGNOF_ (CHUNK_NODE) - 1 + _SIZEOF_ (CHUNK_NODE) + _ALIGNOF_ (BLOCK_NODE) - 1 ;
+		const auto r3x = (DEFAULT_SMPAGE_SIZE::compile () - r2x) / r1x ;
+		auto rax = GlobalHeap::alloc (ARGV<BYTE>::ID ,DEFAULT_SMPAGE_SIZE::compile ()) ;
+		const auto r4x = _ADDRESS_ (rax.self) ;
+		const auto r5x = _ALIGNAS_ (r4x ,_ALIGNOF_ (CHUNK_NODE)) ;
+		const auto r6x = _POINTER_CAST_ (ARGV<CHUNK_NODE>::ID ,_UNSAFE_POINTER_ (r5x)) ;
+		DEREF[r6x].mOrigin = rax.self ;
+		DEREF[r6x].mPrev = NULL ;
+		DEREF[r6x].mNext = mRoot ;
+		DEREF[r6x].mCount = r3x ;
 		if (mRoot != NULL)
-			DEREF[mRoot].mPrev = r5x ;
-		mRoot = r5x ;
-		mSize += RESE::compile () * SIZE::compile () ;
-		const auto r6x = _ALIGNAS_ (r4x + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
+			DEREF[mRoot].mPrev = r6x ;
+		mRoot = r6x ;
+		mSize += r3x * SIZE::compile () ;
+		const auto r7x = _ALIGNAS_ (r5x + _SIZEOF_ (CHUNK_NODE) ,_ALIGNOF_ (BLOCK_NODE)) ;
 		for (auto &&i : _RANGE_ (0 ,DEREF[mRoot].mCount)) {
-			const auto r7x = r6x + i * r1x ;
-			const auto r8x = _POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,_UNSAFE_POINTER_ (r7x)) ;
-			DEREF[r8x].mNext = mFree ;
-			mFree = r8x ;
+			const auto r8x = r7x + i * r1x ;
+			const auto r9x = _POINTER_CAST_ (ARGV<BLOCK_NODE>::ID ,_UNSAFE_POINTER_ (r8x)) ;
+			DEREF[r9x].mNext = mFree ;
+			mFree = r9x ;
 		}
 		rax = NULL ;
 	}
@@ -2381,22 +2507,22 @@ public:
 
 inline exports MemoryPool::MemoryPool () :
 	delegate MemoryPool (ARGVP0) {
-	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<8> ,ARGC<32>> ;
-	using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<16> ,ARGC<32>> ;
-	using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<24> ,ARGC<32>> ;
-	using R4X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<32> ,ARGC<32>> ;
-	using R5X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<40> ,ARGC<16>> ;
-	using R6X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<48> ,ARGC<16>> ;
-	using R7X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<56> ,ARGC<16>> ;
-	using R8X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<64> ,ARGC<16>> ;
-	using R9X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<72> ,ARGC<8>> ;
-	using R10X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<80> ,ARGC<8>> ;
-	using R11X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<88> ,ARGC<8>> ;
-	using R12X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<96> ,ARGC<8>> ;
-	using R13X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<104> ,ARGC<4>> ;
-	using R14X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<112> ,ARGC<4>> ;
-	using R15X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<120> ,ARGC<4>> ;
-	using R16X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<128> ,ARGC<4>> ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<8>> ;
+	using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<16>> ;
+	using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<24>> ;
+	using R4X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<32>> ;
+	using R5X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<40>> ;
+	using R6X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<48>> ;
+	using R7X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<56>> ;
+	using R8X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<64>> ;
+	using R9X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<72>> ;
+	using R10X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<80>> ;
+	using R11X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<88>> ;
+	using R12X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<96>> ;
+	using R13X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<104>> ;
+	using R14X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<112>> ;
+	using R15X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<120>> ;
+	using R16X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<ARGC<128>> ;
 	using R17X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::HugeHolder ;
 	mThis->mPool = AutoBuffer<StrongRef<Holder>> (17) ;
 	mThis->mPool[0] = StrongRef<R1X>::make () ;

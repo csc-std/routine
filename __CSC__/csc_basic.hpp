@@ -902,7 +902,7 @@ private:
 	struct Private {
 		class PureHolder ;
 
-		class PhanHolder ;
+		class KeepHolder ;
 
 		class KeepProxy ;
 	} ;
@@ -914,6 +914,7 @@ private:
 		virtual UNIT &deref () leftvalue = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
+		virtual void reset () = 0 ;
 	} ;
 
 private:
@@ -941,7 +942,11 @@ public:
 	}
 
 	implicit SharedRef (const SharedRef &that) :
-		delegate SharedRef (that.share ()) {}
+		delegate SharedRef (ARGVP0) {
+		aquire (that.mPointer) ;
+		mOrigin = that.mOrigin ;
+		mPointer = that.mPointer ;
+	}
 
 	inline SharedRef &operator= (const SharedRef &that) {
 		if switch_once (TRUE) {
@@ -972,7 +977,7 @@ public:
 	BOOL exist () const {
 		if (mPointer == NULL)
 			return FALSE ;
-		if (mPointer->exist ())
+		if (!DEREF[mPointer].exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -990,12 +995,10 @@ public:
 		return self ;
 	}
 
-	SharedRef share () const {
-		SharedRef ret ;
-		aquire (mPointer) ;
-		ret.mOrigin = mOrigin ;
-		ret.mPointer = mPointer ;
-		return _MOVE_ (ret) ;
+	template <class _RET = REMOVE_CVR_TYPE<typename Private::KeepProxy>>
+	imports _RET keep (UNIT &me) {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::KeepProxy ;
+		return R1X (DEPTR[me]) ;
 	}
 
 	template <class... _ARGS>
@@ -1056,20 +1059,24 @@ public:
 	LENGTH decrease () override {
 		return --mCounter ;
 	}
+
+	void reset () override {
+		_DEBUG_ASSERT_ (FALSE) ;
+	}
 } ;
 
 template <class UNIT>
-class SharedRef<UNIT>::Private::PhanHolder :
+class SharedRef<UNIT>::Private::KeepHolder :
 	delegate public Holder {
 private:
 	PTR<UNIT> mPointer ;
 	LENGTH mCounter ;
 
 public:
-	implicit PhanHolder () = delete ;
+	implicit KeepHolder () = delete ;
 
 	template <class... _ARGS>
-	explicit PhanHolder (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer) :
+	explicit KeepHolder (const DEF<decltype (ARGVP0)> & ,const PTR<UNIT> &pointer) :
 		delegate mPointer (pointer) ,
 		delegate mCounter (0) {}
 
@@ -1080,7 +1087,6 @@ public:
 	}
 
 	UNIT &deref () leftvalue override {
-		_DEBUG_ASSERT_ (exist ()) ;
 		return DEREF[mPointer] ;
 	}
 
@@ -1090,6 +1096,52 @@ public:
 
 	LENGTH decrease () override {
 		return --mCounter ;
+	}
+
+	void reset () override {
+		mPointer = NULL ;
+	}
+} ;
+
+template <class UNIT>
+class SharedRef<UNIT>::Private::KeepProxy final :
+delegate private Proxy {
+private:
+	using KeepHolder = typename Private::KeepHolder ;
+
+private:
+	SharedRef mBase ;
+
+public:
+	implicit KeepProxy () = delete ;
+
+	explicit KeepProxy (const PTR<UNIT> &pointer) {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::KeepHolder ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,pointer) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
+		aquire (r1x) ;
+		mBase.mOrigin = rax.self ;
+		mBase.mPointer = r1x ;
+		rax = NULL ;
+	}
+
+	implicit KeepProxy (KeepProxy &&that) noexcept {
+		mBase = _MOVE_ (that.mBase) ;
+	}
+
+	implicit ~KeepProxy () noexcept {
+		if (!mBase.exist ())
+			return ;
+		DEREF[mBase.mPointer].reset () ;
+	}
+
+	const SharedRef &to () const leftvalue {
+		return mBase ;
+	}
+
+	inline implicit operator const SharedRef & () const leftvalue {
+		return self ;
 	}
 } ;
 
@@ -2681,7 +2733,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline const UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;
@@ -2860,7 +2912,7 @@ public:
 #ifdef __CSC_COMPILER_GNUC__
 #pragma GCC diagnostic pop
 #endif
-}
+	}
 
 	inline UNIT &operator[] (const INDEX &index) const leftvalue {
 		return get (index) ;

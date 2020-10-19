@@ -1634,9 +1634,10 @@ public:
 	void write (const VAR64 &data) {
 		auto rax = Buffer<REAL ,ARGC<128>> () ;
 		INDEX iw = rax.size () ;
-		compute_write_number (data ,PhanBuffer<REAL>::make (rax) ,iw) ;
-		const auto r1x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
-		write (r1x) ;
+		const auto r1x = PhanBuffer<REAL>::make (rax) ;
+		compute_write_number (data ,r1x ,iw) ;
+		const auto r2x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
+		write (r2x) ;
 	}
 
 	inline TextWriter &operator<< (const VAR64 &data) {
@@ -1676,9 +1677,10 @@ public:
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
 			const auto r2x = r1x.varify_val32_precision () ;
-			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,iw) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
-			write (r3x) ;
+			const auto r3x = PhanBuffer<REAL>::make (rax) ;
+			compute_write_number (data ,r2x ,r3x ,iw) ;
+			const auto r4x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
+			write (r4x) ;
 		}
 	}
 
@@ -1719,9 +1721,10 @@ public:
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
 			const auto r2x = r1x.varify_val64_precision () ;
-			compute_write_number (data ,r2x ,PhanBuffer<REAL>::make (rax) ,iw) ;
-			const auto r3x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
-			write (r3x) ;
+			const auto r3x = PhanBuffer<REAL>::make (rax) ;
+			compute_write_number (data ,r2x ,r3x ,iw) ;
+			const auto r4x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
+			write (r4x) ;
 		}
 	}
 

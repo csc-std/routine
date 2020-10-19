@@ -144,6 +144,8 @@ public:
 	imports BOOL static_find_juntion (const String<STRA> &dire) ;
 
 	imports Deque<INDEX> static_relative_path_name (const Deque<String<STR>> &path_name) ;
+
+	imports const UniqueRef<String<STR>> &static_lock_directory_file (const String<STR> &file ,const PhanBuffer<const CSC::BYTE> &data) ;
 } ;
 
 exports BOOL FileSystemStaticProc::static_find_juntion (const String<STRA> &dire) {
@@ -173,7 +175,8 @@ exports void FileSystemProc::copy_file (const String<STR> &dst_file ,const Strin
 	const auto r1x = FileSystemProc::find_file (dst_file) ;
 	_DYNAMIC_ASSERT_ (!r1x) ;
 	const auto r2x = FileSystemProc::load_file (src_file) ;
-	FileSystemProc::save_file (dst_file ,PhanBuffer<const BYTE>::make (r2x)) ;
+	const auto r3x = PhanBuffer<const BYTE>::make (r2x) ;
+	FileSystemProc::save_file (dst_file ,r3x) ;
 }
 
 exports void FileSystemProc::move_file (const String<STR> &dst_file ,const String<STR> &src_file) {
@@ -246,13 +249,13 @@ exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR>
 		if (file.empty ())
 			discard ;
 		auto rax = TextReader<STR> (file.raw ()) ;
-		const auto r2x = rax.attr () ;
-		r2x.modify_space (STR ('\\') ,0) ;
-		r2x.modify_space (STR ('/') ,0) ;
+		const auto r1x = rax.attr () ;
+		r1x.modify_space (STR ('\\') ,0) ;
+		r1x.modify_space (STR ('/') ,0) ;
 		auto rbx = STR () ;
 		INDEX ix = ret.insert () ;
 		rax.share () >> rbx ;
-		if (r2x.varify_space (rbx))
+		if (r1x.varify_space (rbx))
 			rax >> rbx ;
 		while (TRUE) {
 			rax >> ret[ix] ;
@@ -260,9 +263,9 @@ exports Deque<String<STR>> FileSystemProc::decouple_path_name (const String<STR>
 				break ;
 			ix = ret.insert () ;
 			rax >> rbx ;
-			if (rbx == r2x.varify_ending_item ())
+			if (rbx == r1x.varify_ending_item ())
 				break ;
-			_DYNAMIC_ASSERT_ (r2x.varify_space (rbx)) ;
+			_DYNAMIC_ASSERT_ (r1x.varify_space (rbx)) ;
 		}
 		ret.pop () ;
 		rax >> TextReader<STR>::EOS ;
@@ -405,6 +408,17 @@ exports BOOL FileSystemProc::find_directory (const String<STR> &dire) {
 	return TRUE ;
 }
 
+exports const UniqueRef<String<STR>> &FileSystemStaticProc::static_lock_directory_file (const String<STR> &file ,const PhanBuffer<const CSC::BYTE> &data) {
+	return _CACHE_ ([&] () {
+		return UniqueRef<String<STR>> ([&] (String<STR> &me) {
+			me = file ;
+			FileSystemProc::save_file (file ,data) ;
+		} ,[] (String<STR> &me) {
+			FileSystemProc::erase_file (me) ;
+		}) ;
+	}) ;
+}
+
 exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 	BOOL ret = FALSE ;
 	const auto r1x = String<STR>::make (dire ,_PCSTR_ ("/") ,_PCSTR_ (".lockdirectory")) ;
@@ -427,16 +441,9 @@ exports BOOL FileSystemProc::lock_directory (const String<STR> &dire) {
 		ret = CSC::BOOL (r2x == r6x) ;
 	}
 	if switch_once (fax) {
-		auto &r9x = _CACHE_ ([&] () {
-			return UniqueRef<String<STR>> ([&] (String<STR> &me) {
-				me = r1x ;
-				FileSystemProc::save_file (r1x ,PhanBuffer<const CSC::BYTE>::make (r3x)) ;
-			} ,[] (String<STR> &me) {
-				FileSystemProc::erase_file (me) ;
-			}) ;
-		}) ;
-		_STATIC_UNUSED_ (r9x) ;
-		ret = TRUE ;
+		const auto r9x = PhanBuffer<const CSC::BYTE>::make (r3x) ;
+		auto &r10x = FileSystemStaticProc::static_lock_directory_file (r1x ,r9x) ;
+		ret = r10x.exist () ;
 	}
 	return _MOVE_ (ret) ;
 }

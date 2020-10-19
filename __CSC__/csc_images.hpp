@@ -849,25 +849,31 @@ public:
 
 template <class UNIT>
 template <class UNIT_>
-class Image<UNIT>::Private::NativeProxy :
-	delegate private Proxy {
+class Image<UNIT>::Private::NativeProxy final :
+delegate private Proxy {
 private:
-	UniqueRef<PhanRef<Image>> mBase ;
+	PhanRef<Image> mBase ;
 
 public:
 	implicit NativeProxy () = delete ;
 
 	explicit NativeProxy (PhanRef<Image> &&base) {
-		mBase = UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
-			me = _MOVE_ (base) ;
-		} ,[] (PhanRef<Image> &me) {
-			me->update_layout () ;
-		}) ;
+		mBase = _MOVE_ (base) ;
+	}
+
+	implicit NativeProxy (NativeProxy &&that) noexcept {
+		mBase = _MOVE_ (that.mBase) ;
+	}
+
+	implicit ~NativeProxy () noexcept {
+		if (!mBase.exist ())
+			return ;
+		mBase->update_layout () ;
 	}
 
 	UNIT_ &to () const leftvalue {
 		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		const auto r1x = mBase->self.mThis->native () ;
+		const auto r1x = mBase->mThis->native () ;
 		const auto r2x = r1x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
 		_DEBUG_ASSERT_ (r2x != NULL) ;
 		return DEREF[r2x] ;

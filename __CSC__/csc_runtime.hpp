@@ -15,6 +15,7 @@
 
 namespace CSC {
 class TimePoint ;
+
 class GlobalRuntime ;
 
 class Duration {
@@ -449,12 +450,8 @@ private:
 #ifdef __CSC_COMPILER_MSVC__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("struct CSC::TypeNameInvokeProc::TYPENAME __cdecl CSC::TypeNameInvokeProc::typeid_name_from_func<") ;
-		}) ;
-		auto &r2x = _CACHE_ ([&] () {
-			return _PCSTR_ (">(void)") ;
-		}) ;
+		const auto r1x = _PCSTR_ ("struct CSC::TypeNameInvokeProc::TYPENAME __cdecl CSC::TypeNameInvokeProc::typeid_name_from_func<") ;
+		const auto r2x = _PCSTR_ (">(void)") ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
@@ -467,12 +464,8 @@ private:
 #ifdef __CSC_COMPILER_GNUC__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [with _RET = ") ;
-		}) ;
-		auto &r2x = _CACHE_ ([&] () {
-			return _PCSTR_ ("]") ;
-		}) ;
+		const auto r1x = _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [with _RET = ") ;
+		const auto r2x = _PCSTR_ ("]") ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
@@ -485,12 +478,8 @@ private:
 #ifdef __CSC_COMPILER_CLANG__
 	template <class _RET>
 	imports TYPENAME typeid_name_from_func () {
-		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [_RET = ") ;
-		}) ;
-		auto &r2x = _CACHE_ ([&] () {
-			return _PCSTR_ ("]") ;
-		}) ;
+		const auto r1x = _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [_RET = ") ;
+		const auto r2x = _PCSTR_ ("]") ;
 		TYPENAME ret ;
 		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
 		const auto r3x = r1x.size () ;
@@ -757,9 +746,9 @@ public:
 	imports PTR<NONE> unique_compare_exchange (const PTR<NONE> &expect ,const PTR<NONE> &data) ;
 
 private:
-	imports THIS_PACK &static_unique () {
+	imports const StrongRef<THIS_PACK> &cache_unique () {
 		using R1X = REMOVE_POINTER_TYPE<decltype (_NULL_ (ARGV<WeakRef>::ID).intrusive ())> ;
-		auto &r1x = _CACHE_ ([&] () {
+		return _CACHE_ ([&] () {
 			_STATIC_WARNING_ ("mark") ;
 			auto rax = unique_compare_exchange (NULL ,NULL) ;
 			auto rbx = StrongRef<THIS_PACK> () ;
@@ -776,9 +765,12 @@ private:
 			const auto r4x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax) ;
 			return WeakRef (r4x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x.share () ;
-		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
-		return rcx.self ;
+	}
+
+	imports THIS_PACK &static_unique () {
+		auto rax = cache_unique ().share () ;
+		_DYNAMIC_ASSERT_ (rax.exist ()) ;
+		return rax.self ;
 	}
 
 	imports PTR<VARXX_NODE> static_new_node (THIS_PACK &this_ ,const FLAG &guid) {
@@ -897,8 +889,15 @@ private:
 
 public:
 	imports Singleton<UNIT> &unique () {
+		auto rax = cache_unique ().share () ;
+		_DYNAMIC_ASSERT_ (rax.exist ()) ;
+		return rax->mValue ;
+	}
+
+private:
+	imports const StrongRef<THIS_PACK> &cache_unique () {
 		using R1X = REMOVE_POINTER_TYPE<decltype (_NULL_ (ARGV<WeakRef>::ID).intrusive ())> ;
-		auto &r1x = _CACHE_ ([&] () {
+		return _CACHE_ ([&] () {
 			auto &r2x = GlobalStaticEngine::static_unique () ;
 			ScopedGuard<Mutex> ANONYMOUS (r2x.mNodeMutex) ;
 			const auto r3x = TypeNameInvokeProc::invoke (ARGV<Singleton<UNIT>>::ID) ;
@@ -917,9 +916,6 @@ public:
 			const auto r5x = _POINTER_CAST_ (ARGV<R1X>::ID ,DEREF[rax].mValue) ;
 			return WeakRef (r5x).strong (ARGV<THIS_PACK>::ID) ;
 		}) ;
-		auto rcx = r1x.share () ;
-		_DYNAMIC_ASSERT_ (rcx.exist ()) ;
-		return rcx->mValue ;
 	}
 } ;
 
@@ -1036,9 +1032,7 @@ public:
 	}
 
 	String<STR> random_uuid () {
-		auto &r1x = _CACHE_ ([&] () {
-			return _PCSTR_ ("00000000-0000-0000-000000000000") ;
-		}) ;
+		const auto r1x = _PCSTR_ ("00000000-0000-0000-000000000000") ;
 		String<STR> ret = String<STR> (r1x.size ()) ;
 		INDEX iw = 0 ;
 		const auto r2x = random_value (0 ,35 ,28) ;
