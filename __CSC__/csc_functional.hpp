@@ -393,6 +393,7 @@ class Expression<SPECIALIZATION<Operand (UNITS...)> ,RETR> {
 
 protected:
 	using RANK = DEF<Operand (UNITS...)> ;
+	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
 
 protected:
 	template <class ,class>
@@ -407,7 +408,7 @@ protected:
 
 	implicit Expression (const Operator &that) :
 		delegate Expression (ARGVP0) {
-		_DYNAMIC_ASSERT_ (that.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		_DYNAMIC_ASSERT_ (that.rank () == RANK_SIZE::compile ()) ;
 		mThis->mOperator = that ;
 		mThis->mDepth = 1 ;
 	}
@@ -429,39 +430,32 @@ protected:
 	const RETR &invoke (const UNITS &...funcval) const leftvalue {
 		_DYNAMIC_ASSERT_ (mThis.exist ()) ;
 		auto rax = mThis.share () ;
-		_DYNAMIC_ASSERT_ (rax->mOperator.rank () == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		_DYNAMIC_ASSERT_ (rax->mOperator.rank () == RANK_SIZE::compile ()) ;
 		rax->mOperand = rax->mOperator (rax.self ,funcval...) ;
 		return rax->mOperand.as (ARGV<RETR>::ID) ;
 	}
 
-	Expression<RANK ,RETR> flip () const {
-		Expression<RANK ,RETR> ret ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<RANK ,U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<UNITS...>>>>::compile ()) ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...ins) {
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			const auto r2x = TupleBinder<const UNITS...> (ins...) ;
-			auto &r3x = r1x.template_flip_invoke (ARGV<ARGVS<const UNITS...>>::ID ,r2x) ;
-			_STATIC_UNUSED_ (r3x) ;
-			return r1x.mThis->mOperand ;
-		}) ;
-		ret.mThis->mChild[0] = mThis.share () ;
-		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
-		return _MOVE_ (ret) ;
+	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK ,RETR>>>
+	_RET flip () const {
+		_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_LT_EQ<RANK_SIZE ,ARGC<2>>::compile ()) ;
+		return template_flip () ;
 	}
 
 	template <class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<_ARGS...>>> ,RETR>>>
 	_RET flips (const ARGV<ARGVP<_ARGS>> &...) const {
 		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<_ARGS...>>> ;
-		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<_ARGS...>) == _CAPACITYOF_ (ARGVS<UNITS...>)) ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_EQUAL<CAPACITY_OF_TYPE<ARGVS<_ARGS...>> ,RANK_SIZE>::compile ()) ;
 		return template_flips (ARGV<R1X>::ID ,ARGV<ARGVS<_ARGS...>>::ID ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
 	}
 
-	Expression<RANK0 ,Expression<RANK ,RETR>> fold () const {
+	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK0 ,Expression<RANK ,RETR>>>>
+	_RET fold () const {
 		Expression<RANK0 ,Expression<RANK ,RETR>> ret ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<RANK0 ,U::RANK_FUNC_TYPE<ZERO>>::compile ()) ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node) {
+			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<>>> ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<RANK0 ,R1X>::compile ()) ;
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;		
-			return Operand (r1x.share ()) ;
+			return Operand (r1x) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
@@ -473,16 +467,22 @@ protected:
 		return template_curry (ARGV<RANK>::ID) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<RANK_SIZE> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	_RET bind (const Expression<_ARG1 ,_ARG2> &that) const {
-		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ;
+		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<RANK_SIZE> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ;
 		return template_bind (ARGV<R1X>::ID ,that ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<U::CONSTEXPR_DECREASE<RANK_SIZE> ,ZERO>>> ,Expression<_ARG1 ,RETR>>>>
+	_RET link (const Expression<RANK0 ,Expression<_ARG1 ,_ARG2>> &that) const {
+		using R1X = U::RANK_FUNC_TYPE<U::CONSTEXPR_DECREASE<RANK_SIZE>> ;
+		return template_link (ARGV<R1X>::ID ,that ,ARGV<FUNCTION_PARAMS_TYPE<R1X>>::ID) ;
 	}
 
 protected:
 	explicit Expression (const DEF<decltype (ARGVP0)> &) {
 		mThis = StrongRef<LexicalNode>::make () ;
-		mThis->mRank = _CAPACITYOF_ (FUNCTION_PARAMS_TYPE<RANK>) ;
+		mThis->mRank = RANK_SIZE::compile () ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
@@ -500,19 +500,14 @@ protected:
 		return template_flip_invoke (ARGV<PARAMS_REST_TYPE<_ARG1>>::ID ,parameter.rest () ,funcval... ,parameter.one ()) ;
 	}
 
-	template <class _ARG1 ,class... _ARGS>
-	const RETR &template_flips_invoke (const _ARG1 &parameter ,const ARGVF<ARGVS<_ARGS...>> &) const leftvalue {
-		return invoke (parameter.pick (ARGV<ARGVP<_ARGS>> {})...) ;
-	}
-
-	template <class _ARG1 ,class _ARG2 ,class... _ARGS>
-	Expression<_ARG1 ,RETR> template_flips (const ARGVF<_ARG1> & ,const ARGVF<_ARG2> & ,const ARGVF<ARGVS<_ARGS...>> &) const {
-		Expression<_ARG1 ,RETR> ret ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>>>::compile ()) ;
-		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
+	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK ,RETR>>>
+	_RET template_flip () const {
+		Expression<RANK ,RETR> ret ;
+		_STATIC_ASSERT_ (IS_SAME_HELP<RANK ,U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<UNITS...>>>>::compile ()) ;
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...ins) {
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
-			auto &r3x = r1x.template_flips_invoke (r2x ,ARGV<_ARG2>::ID) ;
+			const auto r2x = TupleBinder<const UNITS...> (ins...) ;
+			auto &r3x = r1x.template_flip_invoke (ARGV<ARGVS<const UNITS...>>::ID ,r2x) ;
 			_STATIC_UNUSED_ (r3x) ;
 			return r1x.mThis->mOperand ;
 		}) ;
@@ -521,19 +516,43 @@ protected:
 		return _MOVE_ (ret) ;
 	}
 
-	Expression<RANK ,RETR> template_curry (const ARGVF<RANK1> &) const {
+	template <class _ARG1 ,class... _ARGS>
+	const RETR &template_flips_patch (const _ARG1 &parameter ,const ARGVF<ARGVS<_ARGS...>> &) const leftvalue {
+		return invoke (parameter.pick (ARGV<ARGVP<_ARGS>> {})...) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<_ARG1 ,RETR>>>
+	_RET template_flips (const ARGVF<_ARG1> & ,const ARGVF<_ARG2> & ,const ARGVF<ARGVS<_ARGS...>> &) const {
+		Expression<_ARG1 ,RETR> ret ;
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
+			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
+			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
+			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
+			auto &r3x = r1x.template_flips_patch (r2x ,ARGV<_ARG2>::ID) ;
+			_STATIC_UNUSED_ (r3x) ;
+			return r1x.mThis->mOperand ;
+		}) ;
+		ret.mThis->mChild[0] = mThis.share () ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
+		return _MOVE_ (ret) ;
+	}
+
+	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK ,RETR>>>
+	_RET template_curry (const ARGVF<RANK1> &) const {
 		return _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,DEREF[this]) ;
 	}
 
 	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<_ARG1>>>>
 	_RET template_curry (const ARGVF<_ARG1> &) const {
-		using R1X = DEPENDENT_TYPE<Expression<RANK1 ,U::RETR_FUNC_TYPE<_ARG1>> ,struct ANONYMOUS> ;
-		R1X ret ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<RANK1 ,U::RANK_FUNC_TYPE<ARGC<1>>>::compile ()) ;
+		Expression<RANK1 ,U::RETR_FUNC_TYPE<_ARG1>> ret ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
+			using R2X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<Operand>>> ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<RANK1 ,R2X>::compile ()) ;
 			auto &r1x = _CAST_ (ARGV<Expression<_ARG1 ,RETR>>::ID ,node.mChild[0]) ;
 			const auto r2x = Expression<RANK0> (in1) ;
-			return Operand (r1x.bind (r2x).curry ()) ;
+			const auto r3x = r1x.bind (r2x).curry () ;
+			return Operand (r3x) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth) + 1 ;
@@ -551,24 +570,25 @@ protected:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG3> &patch_ ,const ARGVF<ARGVS<>> & ,const _ARG2 &parameter ,const _ARGS &...funcval) const leftvalue {
+	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG2> &patch_ ,const _ARG3 &parameter ,const ARGVF<ARGVS<>> & ,const _ARGS &...funcval) const leftvalue {
 		return template_bind_invoke (parameter ,patch_.invoke (funcval...)) ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class _ARG4 ,class... _ARGS>
-	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG4> &patch_ ,const ARGVF<_ARG2> & ,const _ARG3 &parameter ,const _ARGS &...funcval) const leftvalue {
-		return template_bind_patch (patch_ ,ARGV<PARAMS_REST_TYPE<_ARG2>>::ID ,parameter.rest () ,funcval... ,parameter.one ()) ;
+	const RETR &template_bind_patch (const Expression<_ARG1 ,_ARG2> &patch_ ,const _ARG3 &parameter ,const ARGVF<_ARG4> & ,const _ARGS &...funcval) const leftvalue {
+		return template_bind_patch (patch_ ,parameter.rest () ,ARGV<PARAMS_REST_TYPE<_ARG4>>::ID ,funcval... ,parameter.one ()) ;
 	}
 
-	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
-	Expression<_ARG1 ,RETR> template_bind (const ARGVF<_ARG1> & ,const Expression<_ARG2 ,_ARG3> &that ,const ARGVF<ARGVS<_ARGS...>> &) const {
+	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<_ARG1 ,RETR>>>
+	_RET template_bind (const ARGVF<_ARG1> & ,const Expression<_ARG2 ,_ARG3> &that ,const ARGVF<ARGVS<_ARGS...>> &) const {
 		Expression<_ARG1 ,RETR> ret ;
-		_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>>>::compile ()) ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
+			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
 			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
 			auto &r2x = _CAST_ (ARGV<Expression<_ARG2 ,_ARG3>>::ID ,node.mChild[1]) ;
 			const auto r3x = TupleBinder<const _ARGS...> (ins...) ;
-			auto &r4x = r1x.template_bind_patch (r2x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID ,r3x) ;
+			auto &r4x = r1x.template_bind_patch (r2x ,r3x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID) ;
 			_STATIC_UNUSED_ (r4x) ;
 			return r1x.mThis->mOperand ;
 		}) ;
@@ -577,11 +597,44 @@ protected:
 		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth ,that.mThis->mDepth) + 1 ;
 		return _MOVE_ (ret) ;
 	}
+
+	template <class _RET = REMOVE_CVR_TYPE<Expression<RANK1 ,RETR>>>
+	_RET template_link_patch (const Expression<RANK1 ,RETR> &patch_) const {
+		return patch_ ;
+	}
+
+	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
+	_RET template_link_patch (const Expression<_ARG1 ,RETR> &patch_ ,const Expression<RANK0> &in1 ,const _ARGS &...ins) const {
+		using R1X = U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>> ;
+		using R2X = U::CONSTEXPR_INCREASE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_EQUAL<R1X ,R2X>::compile ()) ;
+		return template_link_patch (patch_.bind (in1) ,ins...) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<Expression<_ARG1 ,Expression<_ARG2 ,RETR>>>>
+	_RET template_link (const ARGVF<_ARG1> & ,const Expression<RANK0 ,Expression<_ARG2 ,_ARG3>> &that ,const ARGVF<ARGVS<_ARGS...>> &) const {
+		Expression<_ARG1 ,Expression<_ARG2 ,RETR>> ret ;
+		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
+			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
+			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
+			auto &r2x = _CAST_ (ARGV<Expression<RANK0 ,Expression<_ARG2 ,_ARG3>>>::ID ,node.mChild[1]) ;
+			const auto r3x = r1x.template_flip () ;
+			const auto r4x = r1x.template_link_patch (r3x ,Expression<RANK0> (ins)...) ;
+			const auto r5x = r4x.bind (r2x.invoke ()) ;
+			return Operand (r5x) ;
+		}) ;
+		ret.mThis->mChild[0] = mThis.share () ;
+		ret.mThis->mChild[1] = that.mThis.share () ;
+		ret.mThis->mDepth = MathProc::maxof (mThis->mDepth ,that.mThis->mDepth) + 1 ;
+		return _MOVE_ (ret) ;
+
+	}
 } ;
 
 template <class RETR>
 class Expression<RANK0 ,RETR> :
-	delegate private Expression<SPECIALIZATION<RANK0>> {
+	delegate private Expression<SPECIALIZATION<RANK0> ,RETR> {
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK0> ,RETR> ;
 
@@ -633,6 +686,9 @@ class Expression<RANK1 ,RETR> :
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1> ,RETR> ;
 
+	using RANK = RANK1 ;
+	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
+
 private:
 	template <class ,class>
 	friend class Expression ;
@@ -664,9 +720,16 @@ public:
 
 	using SPECIALIZATION_BASE::bind ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK1>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<RANK_SIZE> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return bind (that) ;
+	}
+
+	using SPECIALIZATION_BASE::link ;
+
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<U::CONSTEXPR_DECREASE<RANK_SIZE> ,ZERO>>> ,Expression<_ARG1 ,RETR>>>>
+	inline _RET operator- (const Expression<RANK0 ,Expression<_ARG1 ,_ARG2>> &that) const {
+		return link (that) ;
 	}
 } ;
 
@@ -677,6 +740,8 @@ class Expression :
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
 
+	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
+
 private:
 	template <class ,class>
 	friend class Expression ;
@@ -708,9 +773,16 @@ public:
 
 	using SPECIALIZATION_BASE::bind ;
 
-	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>>> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_ADD<U::CONSTEXPR_DECREASE<RANK_SIZE> ,CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<_ARG1>>>> ,RETR>>>
 	inline _RET operator+ (const Expression<_ARG1 ,_ARG2> &that) const {
 		return bind (that) ;
+	}
+
+	using SPECIALIZATION_BASE::link ;
+
+	template <class _ARG1 ,class _ARG2 ,class _RET = REMOVE_CVR_TYPE<Expression<U::RANK_FUNC_TYPE<U::CONSTEXPR_MAXOF<ARGVS<U::CONSTEXPR_DECREASE<RANK_SIZE> ,ZERO>>> ,Expression<_ARG1 ,RETR>>>>
+	inline _RET operator- (const Expression<RANK0 ,Expression<_ARG1 ,_ARG2>> &that) const {
+		return link (that) ;
 	}
 } ;
 } ;

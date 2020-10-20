@@ -1327,7 +1327,7 @@ public:
 		return TRUE ;
 	}
 
-	LENGTH type_abi () const {
+	TYPEABI type_abi () const {
 		_DEBUG_ASSERT_ (exist ()) ;
 		return DEREF[mPointer].type_abi () ;
 	}

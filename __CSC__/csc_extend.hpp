@@ -983,7 +983,8 @@ private:
 	template <class _ARG1>
 	INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGVF<_ARG1> &) leftvalue {
 		using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
-		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,CAPACITY_OF_TYPE<ARGVS<UNITS...>>>::compile ()) ;
+		using R2X = CAPACITY_OF_TYPE<ARGVS<UNITS...>> ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,R2X>::compile ()) ;
 		return rest ().template_pick (ARGV<R1X>::ID) ;
 	}
 
@@ -994,7 +995,8 @@ private:
 	template <class _ARG1>
 	const INDEX_TO_TYPE<_ARG1 ,ARGVS<UNIT1 ,UNITS...>> &template_pick (const ARGVF<_ARG1> &) const leftvalue {
 		using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
-		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,CAPACITY_OF_TYPE<ARGVS<UNITS...>>>::compile ()) ;
+		using R2X = CAPACITY_OF_TYPE<ARGVS<UNITS...>> ;
+		_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<R1X ,ZERO ,R2X>::compile ()) ;
 		return rest ().template_pick (ARGV<R1X>::ID) ;
 	}
 } ;

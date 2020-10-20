@@ -526,10 +526,6 @@ public:
 		return concat (that) ;
 	}
 
-	inline String operator- (const String &that) const {
-		return that.concat (DEREF[this]) ;
-	}
-
 	void concatto (const String &that) {
 		auto fax = TRUE ;
 		if switch_once (fax) {
@@ -2109,16 +2105,18 @@ public:
 		return VAR_NONE ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
-	ArrayIterator<const _RET> begin () const leftvalue {
-		auto &r1x = _CAST_ (ARGV<const _RET>::ID ,DEREF[this]) ;
-		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,ibegin ()) ;
+	template <class _RET = REMOVE_CVR_TYPE<ArrayIterator<const DEF<typename Private::template ArrayRange<const BitSet>>>>>
+	_RET begin () const leftvalue {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ArrayRange<const BitSet> ;
+		auto &r1x = _CAST_ (ARGV<const R1X>::ID ,DEREF[this]) ;
+		return ArrayIterator<const R1X> (PhanRef<const R1X>::make (r1x) ,ibegin ()) ;
 	}
 
-	template <class _RET = REMOVE_CVR_TYPE<typename Private::template ArrayRange<const BitSet>>>
-	ArrayIterator<const _RET> end () const leftvalue {
-		auto &r1x = _CAST_ (ARGV<const _RET>::ID ,DEREF[this]) ;
-		return ArrayIterator<const _RET> (PhanRef<const _RET>::make (r1x) ,iend ()) ;
+	template <class _RET = REMOVE_CVR_TYPE<ArrayIterator<const DEF<typename Private::template ArrayRange<const BitSet>>>>>
+	_RET end () const leftvalue {
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ArrayRange<const BitSet> ;
+		auto &r1x = _CAST_ (ARGV<const R1X>::ID ,DEREF[this]) ;
+		return ArrayIterator<const R1X> (PhanRef<const R1X>::make (r1x) ,iend ()) ;
 	}
 
 	//@info: 'Bit &&' convert to 'BOOL' implicitly while 'const Bit &' convert to 'VAR' implicitly

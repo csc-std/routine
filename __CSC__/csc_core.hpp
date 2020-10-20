@@ -278,7 +278,7 @@ struct CONSTEXPR_COMPR_LT {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct CONSTEXPR_COMPR_NLT {
+struct CONSTEXPR_COMPR_GT_EQ {
 	imports constexpr VAR compile () {
 		return VAR (_ARG1::compile () >= _ARG2::compile ()) ;
 	}
@@ -292,7 +292,7 @@ struct CONSTEXPR_COMPR_GT {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct CONSTEXPR_COMPR_NGT {
+struct CONSTEXPR_COMPR_LT_EQ {
 	imports constexpr VAR compile () {
 		return VAR (_ARG1::compile () <= _ARG2::compile ()) ;
 	}
@@ -1464,7 +1464,7 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
 } ;
 
 template <class _ARG1 ,class _ARG2>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_EQUAL<U::CONSTEXPR_MOD<ALIGN_OF_TYPE<TEMP<_ARG2>> ,ALIGN_OF_TYPE<TEMP<_ARG1>>> ,ZERO> ,U::CONSTEXPR_COMPR_NLT<SIZE_OF_TYPE<TEMP<_ARG2>> ,SIZE_OF_TYPE<TEMP<_ARG1>>>>> ,ARGC<2>> {
+struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_EQUAL<U::CONSTEXPR_MOD<ALIGN_OF_TYPE<TEMP<_ARG2>> ,ALIGN_OF_TYPE<TEMP<_ARG1>>> ,ZERO> ,U::CONSTEXPR_COMPR_GT_EQ<SIZE_OF_TYPE<TEMP<_ARG2>> ,SIZE_OF_TYPE<TEMP<_ARG1>>>>> ,ARGC<2>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1635,7 +1635,7 @@ struct CONSTEXPR_MIN {
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
 struct CONSTEXPR_RANGE_CHECK {
 	imports constexpr VAR compile () {
-		using R1X = CONSTEXPR_COMPR_NLT<_ARG1 ,_ARG2> ;
+		using R1X = CONSTEXPR_COMPR_GT_EQ<_ARG1 ,_ARG2> ;
 		using R2X = CONSTEXPR_COMPR_LT<_ARG1 ,_ARG3> ;
 		using R3X = CONSTEXPR_AND<R1X ,R2X> ;
 		return R3X::compile () ;
