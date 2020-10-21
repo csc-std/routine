@@ -829,6 +829,7 @@ private:
 template <class GUID>
 class GlobalStatic :
 	delegate private Wrapped<> {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<GUID ,ZERO>::compile ()) ;
 
 public:

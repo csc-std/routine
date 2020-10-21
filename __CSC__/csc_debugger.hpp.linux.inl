@@ -307,7 +307,7 @@ public:
 	void log (const Plain<STR> &tag ,const PhanBuffer<const STR> &msg) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplBinder<PhanBuffer<const STR>> ;
 		const auto r1x = PhanBuffer<const STR>::make (tag.self ,tag.size ()) ;
-		log (r1x ,R1X (msg)) ;
+		log (r1x ,R1X (ARGVP0 ,msg)) ;
 	}
 
 	void log (const PhanBuffer<const STR> &tag ,const Binder &msg) override {

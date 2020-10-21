@@ -13,7 +13,7 @@
 
   <Type Name="CSC::TEMP&lt;*&gt;">
     <Expand>
-      <ExpandedItem>*($T1*)&amp;unused</ExpandedItem>
+      <ExpandedItem>*($T1*)&amp;mUnused</ExpandedItem>
     </Expand>
   </Type>
 

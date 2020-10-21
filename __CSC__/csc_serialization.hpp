@@ -466,7 +466,7 @@ private:
 public:
 	implicit InitializeX1Lambda () = delete ;
 
-	explicit InitializeX1Lambda (XmlParser &context_ ,PhanBuffer<const STRU8> &&data) :
+	explicit InitializeX1Lambda (const DEF<decltype (ARGVP0)> & ,XmlParser &context_ ,PhanBuffer<const STRU8> &&data) :
 		delegate mContext (context_) ,
 		delegate mTextReader (_MOVE_ (data)) {}
 
@@ -740,7 +740,7 @@ private:
 public:
 	implicit InitializeX2Lambda () = delete ;
 
-	explicit InitializeX2Lambda (XmlParser &context_ ,const Array<XmlParser> &sequence) :
+	explicit InitializeX2Lambda (const DEF<decltype (ARGVP0)> & ,XmlParser &context_ ,const Array<XmlParser> &sequence) :
 		delegate mContext (context_) ,
 		delegate mSequence (sequence) ,
 		delegate mClazzString (_PCSTRU8_ ("type")) ,
@@ -995,12 +995,12 @@ private:
 
 inline exports void XmlParser::initialize (XmlParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeX1Lambda ;
-	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (ARGVP0 ,this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 inline exports void XmlParser::initialize (XmlParser &this_ ,const Array<XmlParser> &sequence) {
 	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeX2Lambda ;
-	_CALL_TRY_ (R1X (this_ ,sequence)) ;
+	_CALL_TRY_ (R1X (ARGVP0 ,this_ ,sequence)) ;
 }
 
 class JsonParser {
@@ -1442,7 +1442,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (JsonParser &context_ ,PhanBuffer<const STRU8> &&data) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,JsonParser &context_ ,PhanBuffer<const STRU8> &&data) :
 		delegate mContext (context_) ,
 		delegate mTextReader (_MOVE_ (data)) {}
 
@@ -1755,7 +1755,7 @@ private:
 
 inline exports void JsonParser::initialize (JsonParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (ARGVP0 ,this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 
 class CommandParser {
@@ -1893,7 +1893,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (CommandParser &context_ ,PhanBuffer<const STRU8> &&data) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,CommandParser &context_ ,PhanBuffer<const STRU8> &&data) :
 		delegate mContext (context_) ,
 		delegate mTextReader (PhanBuffer<const STRU8>::make (data)) {}
 
@@ -2047,6 +2047,6 @@ private:
 
 inline exports void CommandParser::initialize (CommandParser &this_ ,const PhanBuffer<const STRU8> &data) {
 	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-	_CALL_TRY_ (R1X (this_ ,PhanBuffer<const STRU8>::make (data))) ;
+	_CALL_TRY_ (R1X (ARGVP0 ,this_ ,PhanBuffer<const STRU8>::make (data))) ;
 }
 } ;

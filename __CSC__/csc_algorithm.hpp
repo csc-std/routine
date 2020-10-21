@@ -350,7 +350,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &root_) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,root_)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,adjacency ,root_)) ;
 	}
 
 	Deque<INDEX> query_path_depth (const INDEX &index) const {
@@ -383,7 +383,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,const INDEX &root_) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,DijstraAlgorithm &context_ ,const Bitmap<REAL> &adjancency ,const INDEX &root_) :
 		delegate mContext (context_) ,
 		delegate mAdjacency (adjancency) ,
 		delegate mRoot (root_) {}
@@ -470,7 +470,7 @@ public:
 private:
 	void initialize (const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,dataset ,distance ,center)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,dataset ,distance ,center)) ;
 	}
 } ;
 
@@ -494,7 +494,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,KMeansAlgorithm &context_ ,const Set<REAL> &dataset ,const Function<REAL (const REAL & ,const REAL &)> &distance ,const Array<REAL> &center) :
 		delegate mContext (context_) ,
 		delegate mDistanceFunc (distance) ,
 		delegate mDataSet (dataset) ,
@@ -638,7 +638,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,adjacency)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,adjacency)) ;
 	}
 } ;
 
@@ -665,7 +665,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,KMHungarianAlgorithm &context_ ,const Bitmap<REAL> &adjacency) :
 		delegate mContext (context_) ,
 		delegate mAdjacency (adjacency) ,
 		delegate mTolerance (1E-6) ,
@@ -1002,7 +1002,7 @@ public:
 private:
 	void initialize (const Function<REAL (const Array<REAL> &)> &loss ,const Array<REAL> &fdx) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,loss ,fdx)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,loss ,fdx)) ;
 	}
 } ;
 
@@ -1035,7 +1035,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,BFGSAlgorithm &context_ ,const Function<REAL (const Array<REAL> &)> &loss ,const Function<void (const Array<REAL> & ,Array<REAL> &)> &gradient ,const Array<REAL> &fdx) :
 		delegate mContext (context_) ,
 		delegate mLossFunc (loss) ,
 		delegate mGradientProc (gradient) ,
@@ -1263,7 +1263,7 @@ public:
 private:
 	void initialize (const Array<ARRAY3<REAL>> &vertex) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,vertex)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,vertex)) ;
 	}
 
 	REAL distance_of_point (const ARRAY3<REAL> &a ,const ARRAY3<REAL> &b) const {
@@ -1371,7 +1371,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,KDTreeAlgorithm &context_ ,const Array<ARRAY3<REAL>> &vertex) :
 		delegate mContext (context_) ,
 		delegate mVertex (vertex) {}
 
@@ -1508,7 +1508,7 @@ public:
 private:
 	void initialize (const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::InitializeLambda ;
-		_CALL_TRY_ (R1X (DEREF[this] ,adjacency ,source ,sink)) ;
+		_CALL_TRY_ (R1X (ARGVP0 ,DEREF[this] ,adjacency ,source ,sink)) ;
 	}
 } ;
 
@@ -1530,7 +1530,7 @@ private:
 public:
 	implicit InitializeLambda () = delete ;
 
-	explicit InitializeLambda (MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) :
+	explicit InitializeLambda (const DEF<decltype (ARGVP0)> & ,MaxFlowAlgorithm &context_ ,const Bitmap<REAL> &adjacency ,const INDEX &source ,const INDEX &sink) :
 		delegate mContext (context_) ,
 		delegate mAdjacency (adjacency) ,
 		delegate mSource (source) ,

@@ -250,6 +250,7 @@ public:
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
 class Operator::Private::ImplHolder<DEF<UNIT1 (UNITS1...)> ,ARGVS<UNITS2...>> :
 	delegate public DefHolder {
+private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
@@ -289,6 +290,7 @@ private:
 template <class UNIT1 ,class... UNITS1 ,class... UNITS2>
 class Operator::Private::ImplHolder<DEF<UNIT1 (const LexicalNode & ,UNITS1...)> ,ARGVS<Operand ,UNITS2...>> :
 	delegate public DefHolder {
+private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS1...>) == _CAPACITYOF_ (ARGVS<UNITS2...>)) ;
 
 private:
@@ -389,11 +391,11 @@ struct CONSTEXPR_MAXOF<ARGVS<_ARG1>> {
 
 template <class RETR ,class... UNITS>
 class Expression<SPECIALIZATION<Operand (UNITS...)> ,RETR> {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) >= 0 && _CAPACITYOF_ (ARGVS<UNITS...>) <= 9) ;
-
 protected:
 	using RANK = DEF<Operand (UNITS...)> ;
 	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
+
+	_STATIC_ASSERT_ (U::CONSTEXPR_RANGE_CHECK<RANK_SIZE ,ZERO ,ARGC<10>>::compile ()) ;
 
 protected:
 	template <class ,class>

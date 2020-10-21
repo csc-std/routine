@@ -15,9 +15,9 @@ namespace CSC {
 template <class SIZE>
 class ArrayRange :
 	delegate private Proxy {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 
-private:
 	struct Private {
 		class Iterator ;
 	} ;
@@ -873,10 +873,11 @@ public:
 
 	UNIT_ &to () const leftvalue {
 		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		const auto r1x = mBase->mThis->native () ;
-		const auto r2x = r1x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
-		_DEBUG_ASSERT_ (r2x != NULL) ;
-		return DEREF[r2x] ;
+		auto &r1x = _FORWARD_ (ARGV<CAST_TRAITS_TYPE<StrongRef<Abstract> ,UNIT_>>::ID ,mBase->mThis) ;
+		const auto r2x = r1x->native () ;
+		const auto r3x = r2x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
+		_DEBUG_ASSERT_ (r3x != NULL) ;
+		return DEREF[r3x] ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {

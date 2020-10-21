@@ -16,8 +16,6 @@ using STRUW = TEXT_BASE_TYPE<STRW> ;
 
 template <class REAL>
 class ByteReader {
-	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
-
 public:
 	class Binder :
 		delegate public Interface {
@@ -30,6 +28,8 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
+
 	struct Private {
 		template <class>
 		class Attribute ;
@@ -378,8 +378,6 @@ inline void ByteReader<REAL>::EOS (const ARGV<ARGVP<ARGC<4>>> &) {}
 
 template <class REAL>
 class ByteWriter {
-	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
-
 public:
 	class Binder :
 		delegate public Interface {
@@ -392,6 +390,8 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	_STATIC_ASSERT_ (IS_SAME_HELP<REAL ,BYTE>::compile ()) ;
+
 	struct Private {
 		template <class>
 		class Attribute ;
@@ -729,8 +729,6 @@ inline void ByteWriter<REAL>::EOS (const ARGV<ARGVP<ARGC<4>>> &) {}
 
 template <class REAL>
 class TextReader {
-	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
-
 public:
 	class Binder :
 		delegate public Interface {
@@ -744,6 +742,8 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
+
 	struct Private {
 		template <class>
 		class Attribute ;
@@ -1474,8 +1474,6 @@ inline void TextReader<REAL>::EOS (const ARGV<ARGVP<ARGC<4>>> &) {}
 
 template <class REAL>
 class TextWriter {
-	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
-
 public:
 	class Binder :
 		delegate public Interface {
@@ -1489,6 +1487,8 @@ public:
 	static DEF<void (const ARGV<ARGVP<ARGC<4>>> &)> EOS ;
 
 private:
+	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
+
 	struct Private {
 		template <class>
 		class Attribute ;

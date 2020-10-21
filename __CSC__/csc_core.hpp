@@ -153,9 +153,8 @@ using WORD = api::uint16_t ;
 using CHAR = api::uint32_t ;
 using DATA = api::uint64_t ;
 
-class __uint128_t {
-private:
-	alignas (16) DEF<BYTE[16]> unused ;
+struct __uint128_t {
+	alignas (16) DEF<BYTE[16]> mUnused ;
 } ;
 
 using MEGA = __uint128_t ;
@@ -186,7 +185,8 @@ struct ARGC {
 using ZERO = ARGC<0> ;
 
 template <class UNIT>
-struct ARGV {
+class ARGV {
+public:
 	static DEF<void (const ARGV &)> ID ;
 } ;
 
@@ -1644,13 +1644,14 @@ struct CONSTEXPR_RANGE_CHECK {
 } ;
 
 template <>
-struct ARGV<ARGVP<ZERO>> {
+class ARGV<ARGVP<ZERO>> {
 	_STATIC_WARNING_ ("noop") ;
 } ;
 
 template <class UNIT>
-struct ARGV<ARGVP<UNIT>> :
+class ARGV<ARGVP<UNIT>> :
 	delegate public ARGV<ARGVP<ARGC_TYPE<U::CONSTEXPR_DECREASE<UNIT>>>> {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<UNIT ,ZERO>::compile ()) ;
 } ;
 
@@ -1898,7 +1899,7 @@ inline VAR _EBOOL_ (const BOOL &flag) {
 template <class UNIT>
 struct TEMP {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<UNIT>>::compile ()) ;
-	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> unused ;
+	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> mUnused ;
 } ;
 
 class EqualInvokeProc ;
@@ -2133,46 +2134,43 @@ public:
 struct TYPEABI {
 	LENGTH mAlign ;
 	LENGTH mSize ;
-	PACK<BOOL[9]> mSign ;
 } ;
 
-template <class _ARG1>
-inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
-	using R1X = IS_POINTER_HELP<_ARG1> ;
-	using R2X = IS_ARRAY_HELP<_ARG1> ;
-	using R3X = IS_MEMPTR_HELP<_ARG1> ;
-	using R4X = IS_FUNCTION_HELP<_ARG1> ;
-	using R5X = IS_CLASS_HELP<_ARG1> ;
-	using R6X = IS_TRIVIAL_HELP<_ARG1> ;
-	using R7X = IS_TEMPLATE_HELP<_ARG1> ;
-	using R8X = IS_INTERFACE_HELP<_ARG1> ;
-	using R9X = IS_XYZ_HELP<_ARG1> ;
-	TYPEABI ret ;
-	_ZERO_ (ret) ;
-	ret.mAlign = _ALIGNOF_ (_ARG1) ;
-	ret.mSize = _SIZEOF_ (_ARG1) ;
-	ret.mSign.mP1[0] = R1X::compile () ;
-	ret.mSign.mP1[1] = R2X::compile () ;
-	ret.mSign.mP1[2] = R3X::compile () ;
-	ret.mSign.mP1[3] = R4X::compile () ;
-	ret.mSign.mP1[4] = R5X::compile () ;
-	ret.mSign.mP1[5] = R6X::compile () ;
-	ret.mSign.mP1[6] = R7X::compile () ;
-	ret.mSign.mP1[7] = R8X::compile () ;
-	ret.mSign.mP1[8] = R9X::compile () ;
-	return _MOVE_ (ret) ;
-}
+class TypeInfo :
+	delegate private Interface {
+public:
+	virtual FLAG type_mid () const = 0 ;
+	virtual TYPEABI type_abi () const = 0 ;
+} ;
 
 template <class UNIT>
-class TypeInterface :
-	delegate private Interface {
+class TypeInfoBase :
+	delegate private TypeInfo {
+private:
 	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<UNIT> ,UNIT>::compile ()) ;
+
+public:
+	FLAG type_mid () const override {
+		return _MOVE_ (_CAST_ (ARGV<FLAG>::ID ,DEREF[this])) ;
+	}
+
+	TYPEABI type_abi () const override {
+		TYPEABI ret ;
+		_ZERO_ (ret) ;
+		ret.mAlign = _ALIGNOF_ (UNIT) ;
+		ret.mSize = _SIZEOF_ (UNIT) ;
+		return _MOVE_ (ret) ;
+	}
 } ;
 
 template <class _ARG1>
 inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
-	TypeInterface<REMOVE_CVR_TYPE<_ARG1>> ret ;
-	return _MOVE_ (_CAST_ (ARGV<FLAG>::ID ,ret)) ;
+	return TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ().type_mid () ;
+}
+
+template <class _ARG1>
+inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
+	return TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ().type_abi () ;
 }
 
 template <class UNIT = NONE>
@@ -2199,7 +2197,7 @@ class Wrapped {
 protected:
 	UNIT mSelf ;
 
-public:
+protected:
 	implicit Wrapped () = delete ;
 
 	implicit ~Wrapped () = delete ;
@@ -2345,9 +2343,9 @@ struct CONSTEXPR_CACHE_STRING_SIZE<_ARG1 ,_ARGS...> {
 template <class REAL>
 class Plain :
 	delegate private Proxy {
+private:
 	_STATIC_ASSERT_ (IS_STR_XYZ_HELP<REAL>::compile ()) ;
 
-private:
 	struct Private {
 		template <class>
 		class PlainString ;
@@ -2361,9 +2359,10 @@ public:
 	implicit Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_CONST_HELP<_ARG1> ,IS_ARRAY_OF_HELP<REAL ,_ARG1>>>>
-	implicit Plain (_ARG1 &that) :
-		delegate mPlain (DEPTR[PTRTOARR[that]]) ,
-		delegate mSize (_COUNTOF_ (_ARG1) - 1) {}
+	implicit Plain (_ARG1 &that) {
+		mPlain = DEPTR[PTRTOARR[that]] ;
+		mSize = _COUNTOF_ (_ARG1) - 1 ;
+	}
 
 	template <class _ARG1 ,class... _ARGS>
 	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text) :
@@ -2414,9 +2413,9 @@ private:
 template <class REAL>
 template <class SIZE>
 class Plain<REAL>::Private::PlainString {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 
-private:
 	using STRING = ARRAY_BIND_TYPE<REAL ,SIZE> ;
 
 private:

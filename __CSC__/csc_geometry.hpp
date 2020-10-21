@@ -16,6 +16,7 @@ class Matrix ;
 
 template <class REAL>
 class Vector {
+private:
 	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::compile ()) ;
 
 private:
@@ -328,9 +329,9 @@ public:
 
 template <class REAL>
 class Matrix {
+private:
 	_STATIC_ASSERT_ (IS_VAL_XYZ_HELP<REAL>::compile ()) ;
 
-private:
 	struct Private {
 		template <class>
 		class Row ;

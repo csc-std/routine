@@ -551,10 +551,10 @@ class Variant final {
 #undef fake
 #define fake m_fake ()
 
+private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ANY_SAME_HELP<REMOVE_CVR_TYPE<UNITS>...>>::compile ()) ;
 
-private:
 	struct Private {
 		template <class>
 		class ImplHolder ;
@@ -566,8 +566,8 @@ private:
 		delegate public Interface {
 	public:
 		virtual INDEX type_index () const = 0 ;
-		virtual PTR<NONE> type_address () = 0 ;
-		virtual PTR<const NONE> type_address () const = 0 ;
+		virtual PTR<NONE> fast_pointer () = 0 ;
+		virtual PTR<const NONE> fast_pointer () const = 0 ;
 		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const = 0 ;
 		virtual void friend_move (const PTR<TEMP<FakeHolder>> &address) = 0 ;
 	} ;
@@ -575,7 +575,7 @@ private:
 	//@error: fuck g++4.8
 	template <LENGTH _ARG1 ,LENGTH _ARG2>
 	struct ALIGNED_UNION {
-		alignas (_ARG1) DEF<BYTE[_ARG2]> unused ;
+		alignas (_ARG1) DEF<BYTE[_ARG2]> mUnused ;
 	} ;
 
 	class FakeHolder :
@@ -615,7 +615,7 @@ public:
 	implicit ~Variant () noexcept {
 		if (!exist ())
 			return ;
-		fake.~Holder () ;
+		_DESTROY_ (mVariant) ;
 		_ZERO_ (mVariant) ;
 	}
 
@@ -674,7 +674,7 @@ public:
 	OPTIONAL &to () leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = fake.type_address () ;
+		const auto r1x = fake.fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -686,7 +686,7 @@ public:
 	const OPTIONAL &to () const leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = fake.type_address () ;
+		const auto r1x = fake.fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -699,7 +699,7 @@ public:
 	void apply (const Function<void (_ARG1 &)> &proc) {
 		if (!available (ARGV<_ARG1>::ID))
 			return ;
-		const auto r1x = fake.type_address () ;
+		const auto r1x = fake.fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r1x) ;
 		proc (DEREF[r2x]) ;
 	}
@@ -777,6 +777,7 @@ template <class... UNITS>
 template <class UNIT_>
 class Variant<UNITS...>::Private::ImplHolder :
 	delegate public Holder {
+private:
 	_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<UNIT_>::compile ()) ;
 
 private:
@@ -794,11 +795,11 @@ public:
 		return R1X::compile () ;
 	}
 
-	PTR<NONE> type_address () override {
+	PTR<NONE> fast_pointer () override {
 		return DEPTR[mValue] ;
 	}
 
-	PTR<const NONE> type_address () const override {
+	PTR<const NONE> fast_pointer () const override {
 		return DEPTR[mValue] ;
 	}
 
@@ -888,6 +889,7 @@ public:
 template <class UNIT1 ,class... UNITS>
 class Tuple<UNIT1 ,UNITS...> :
 	delegate private Tuple<UNITS...> {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_RVALUE_REFERENCE_HELP<UNIT1>>::compile ()) ;
 
 private:
@@ -1013,10 +1015,10 @@ class AnyOfTuple ;
 template <class... UNITS>
 class AllOfTuple :
 	delegate private Proxy {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
-
 private:
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
+	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
+
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
@@ -1025,7 +1027,7 @@ private:
 public:
 	implicit AllOfTuple () = delete ;
 
-	implicit AllOfTuple (const UNITS &...initval) :
+	implicit AllOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
 		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
@@ -1150,10 +1152,10 @@ private:
 template <class... UNITS>
 class AnyOfTuple :
 	delegate private Proxy {
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
-
 private:
+	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
+	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
+
 	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
 private:
@@ -1162,7 +1164,7 @@ private:
 public:
 	implicit AnyOfTuple () = delete ;
 
-	implicit AnyOfTuple (const UNITS &...initval) :
+	implicit AnyOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
 		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
@@ -1286,6 +1288,7 @@ private:
 
 template <class UNIT>
 class Atomic {
+private:
 	_STATIC_ASSERT_ (IS_BYTE_XYZ_HELP<UNIT>::compile ()) ;
 
 private:
@@ -1489,7 +1492,8 @@ private:
 		virtual void weak_release () = 0 ;
 		virtual void strong_aquire () = 0 ;
 		virtual void strong_release () = 0 ;
-		virtual void destroy () = 0 ;
+		virtual void soft_destroy () noexcept = 0 ;
+		virtual void destroy () noexcept = 0 ;
 	} ;
 
 private:
@@ -1624,6 +1628,7 @@ public:
 		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
 		ScopedGuard<R2X> ANONYMOUS (_CAST_ (ARGV<R2X>::ID ,mLatch)) ;
 		const auto r1x = mPointer.fetch () ;
+		//@error: cast without any check if 'Holder' is 'ImplHolder<_ARG1>'
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		return R1X (r2x) ;
 	}
@@ -1676,7 +1681,6 @@ template <class UNIT>
 class WeakRef::Private::ImplHolder :
 	delegate public Holder {
 private:
-	PTR<NONE> mOrigin ;
 	PTR<THIS_PACK> mSoftPointer ;
 	PTR<UNIT> mFaskPointer ;
 	AtomicVar mWeakCounter ;
@@ -1684,8 +1688,7 @@ private:
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (const PTR<NONE> &origin ,const PTR<THIS_PACK> &soft_ptr ,const PTR<UNIT> &fast_ptr) {
-		mOrigin = origin ;
+	explicit ImplHolder (const PTR<THIS_PACK> &soft_ptr ,const PTR<UNIT> &fast_ptr) {
 		mSoftPointer = soft_ptr ;
 		mFaskPointer = fast_ptr ;
 	}
@@ -1717,9 +1720,7 @@ public:
 			const auto r2x = DEREF[mSoftPointer].mSoftCounter.decrease () ;
 			if (r2x > 0)
 				discard ;
-			const auto r3x = DEREF[mSoftPointer].mOrigin ;
-			DEREF[mSoftPointer].~THIS_PACK () ;
-			GlobalHeap::free (r3x) ;
+			soft_destroy () ;
 		}
 		destroy () ;
 	}
@@ -1752,10 +1753,16 @@ public:
 		_DEBUG_ASSERT_ (!DEREF[mSoftPointer].mHolder.exist ()) ;
 	}
 
-	void destroy () override {
-		const auto r1x = mOrigin ;
-		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,DEREF[this]) ;
-		r2x.~Holder () ;
+	void soft_destroy () noexcept override {
+		const auto r1x = DEREF[mSoftPointer].mOrigin ;
+		DEREF[mSoftPointer].~THIS_PACK () ;
+		GlobalHeap::free (r1x) ;
+		mSoftPointer = NULL ;
+	}
+
+	void destroy () noexcept override {
+		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
 } ;
@@ -1956,7 +1963,7 @@ public:
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r5x != NULL) == _EBOOL_ (r4x != NULL)) ;
 		const auto r6x = DEREF[r2x].soft_pointer () ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R4X>>::ID) ;
-		ScopedBuild<R4X> ANONYMOUS (rax ,rax.self ,r6x ,r5x) ;
+		ScopedBuild<R4X> ANONYMOUS (rax ,r6x ,r5x) ;
 		const auto r7x = _POINTER_CAST_ (ARGV<R4X>::ID ,rax.self) ;
 		StrongRef<R2X> ret = StrongRef<R2X> (r7x) ;
 		rax = NULL ;
@@ -1983,7 +1990,7 @@ public:
 		DEREF[r1x].mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<R4X>::ID).self] ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R3X>>::ID) ;
-		ScopedBuild<R3X> ANONYMOUS (rbx ,rbx.self ,r1x ,r2x) ;
+		ScopedBuild<R3X> ANONYMOUS (rbx ,r1x ,r2x) ;
 		const auto r3x = _POINTER_CAST_ (ARGV<R3X>::ID ,rbx.self) ;
 		StrongRef ret = StrongRef (r3x) ;
 		rbx = NULL ;
@@ -2162,6 +2169,7 @@ private:
 		virtual PTR<HEADER> alloc (const LENGTH &len) = 0 ;
 		virtual void free (const PTR<HEADER> &address) noexcept = 0 ;
 		virtual void clean () noexcept = 0 ;
+		virtual void soft_destroy () noexcept = 0 ;
 	} ;
 
 	struct HEADER {
@@ -2274,9 +2282,9 @@ private:
 template <class SIZE>
 class MemoryPool::Private::ImplHolder :
 	delegate public Holder {
+private:
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<SIZE ,ZERO>::compile ()) ;
 
-private:
 	using DEFAULT_SMPAGE_SIZE = ARGC<4096> ;
 
 	struct BLOCK_NODE {
@@ -2289,10 +2297,12 @@ private:
 		PTR<struct CHUNK_NODE> mPrev ;
 		PTR<struct CHUNK_NODE> mNext ;
 		LENGTH mCount ;
+		HEADER mFlexData ;
 	} ;
 
 private:
 	PTR<CHUNK_NODE> mRoot ;
+	PTR<CHUNK_NODE> mRecycle ;
 	PTR<BLOCK_NODE> mFree ;
 	LENGTH mSize ;
 	LENGTH mLength ;
@@ -2301,6 +2311,7 @@ private:
 public:
 	implicit ImplHolder () {
 		mRoot = NULL ;
+		mRecycle = NULL ;
 		mFree = NULL ;
 		mSize = 0 ;
 		mLength = 0 ;
@@ -2312,9 +2323,9 @@ public:
 		while (TRUE) {
 			if (mRoot == NULL)
 				break ;
-			const auto r1x = DEREF[mRoot].mOrigin ;
+			mRecycle = mRoot ;
 			mRoot = DEREF[mRoot].mNext ;
-			GlobalHeap::free (r1x) ;
+			soft_destroy () ;
 		}
 		mFree = NULL ;
 		mSize = 0 ;
@@ -2383,24 +2394,31 @@ public:
 		while (TRUE) {
 			if (rax == NULL)
 				break ;
-			const auto r1x = DEREF[rax].mNext ;
-			const auto r2x = DEREF[rax].mOrigin ;
+			mRecycle = rax ;
+			rax = DEREF[rax].mNext ;
 			if switch_once (TRUE) {
-				if (!empty_node (rax))
+				if (!empty_node (mRecycle))
 					discard ;
-				auto &r3x = _CALL_ ([&] () {
-					if (DEREF[rax].mPrev != NULL)
-						return _BYREF_ (DEREF[DEREF[rax].mPrev].mNext) ;
+				auto &r1x = _CALL_ ([&] () {
+					if (DEREF[mRecycle].mPrev != NULL)
+						return _BYREF_ (DEREF[DEREF[mRecycle].mPrev].mNext) ;
 					return _BYREF_ (mRoot) ;
 				}).self ;
-				r3x = DEREF[rax].mNext ;
-				if (DEREF[rax].mNext != NULL)
-					DEREF[DEREF[rax].mNext].mPrev = DEREF[rax].mPrev ;
-				mSize -= DEREF[rax].mCount * SIZE::compile () ;
-				GlobalHeap::free (r2x) ;
+				r1x = DEREF[mRecycle].mNext ;
+				if (DEREF[mRecycle].mNext != NULL)
+					DEREF[DEREF[mRecycle].mNext].mPrev = DEREF[mRecycle].mPrev ;
+				mSize -= DEREF[mRecycle].mCount * SIZE::compile () ;
+				soft_destroy () ;
 			}
-			rax = r1x ;
 		}
+	}
+
+	void soft_destroy () noexcept override {
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<BLOCK_NODE>::compile ()) ;
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<CHUNK_NODE>::compile ()) ;
+		const auto r1x = DEREF[mRecycle].mOrigin ;
+		GlobalHeap::free (r1x) ;
+		mRecycle = NULL ;
 	}
 
 private:
@@ -2431,12 +2449,14 @@ private:
 
 private:
 	PTR<FBLOCK_NODE> mRoot ;
+	PTR<FBLOCK_NODE> mRecycle ;
 	LENGTH mSize ;
 	LENGTH mLength ;
 
 public:
 	implicit HugeHolder () {
 		mRoot = NULL ;
+		mRecycle = NULL ;
 		mSize = 0 ;
 		mLength = 0 ;
 	}
@@ -2447,9 +2467,9 @@ public:
 		while (TRUE) {
 			if (mRoot == NULL)
 				break ;
-			const auto r1x = DEREF[mRoot].mOrigin ;
-			GlobalHeap::free (r1x) ;
+			mRecycle = mRoot ;
 			mRoot = DEREF[mRoot].mNext ;
+			soft_destroy () ;
 		}
 		mSize = 0 ;
 		mLength = 0 ;
@@ -2486,24 +2506,31 @@ public:
 	void free (const PTR<HEADER> &address) noexcept override {
 		_DEBUG_ASSERT_ (address != NULL) ;
 		auto &r1x = _OFFSET_ (&FBLOCK_NODE::mFlexData ,DEREF[address]) ;
-		const auto r2x = r1x.mOrigin ;
+		mRecycle = DEPTR[r1x] ;
 		if switch_once (TRUE) {
-			auto &r3x = _CALL_ ([&] () {
+			auto &r2x = _CALL_ ([&] () {
 				if (r1x.mPrev != NULL)
 					return _BYREF_ (DEREF[r1x.mPrev].mNext) ;
 				return _BYREF_ (mRoot) ;
 			}).self ;
-			r3x = r1x.mNext ;
+			r2x = r1x.mNext ;
 			if (r1x.mNext != NULL)
 				DEREF[r1x.mNext].mPrev = r1x.mPrev ;
 			mSize -= r1x.mCount ;
 			mLength -= r1x.mCount ;
-			GlobalHeap::free (r2x) ;
+			soft_destroy () ;
 		}
 	}
 
 	void clean () noexcept override {
 		_STATIC_WARNING_ ("noop") ;
+	}
+
+	void soft_destroy () noexcept override {
+		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<FBLOCK_NODE>::compile ()) ;
+		const auto r1x = DEREF[mRecycle].mOrigin ;
+		GlobalHeap::free (r1x) ;
+		mRecycle = NULL ;
 	}
 } ;
 
@@ -2548,34 +2575,31 @@ inline exports MemoryPool::MemoryPool () :
 
 class Object ;
 
+class ObjectMetadata ;
+
 class Objective :
 	delegate public Interface {
 public:
-	virtual WeakRef weak_of_this () const = 0 ;
-	virtual void weak_of_this (const StrongRef<Object> &that) = 0 ;
+	virtual const ObjectMetadata &metadata () const = 0 ;
+	virtual const WeakRef &weak_of_this () const = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
 class Object :
 	delegate public Objective {
 private:
-	struct Private {
-		class Metadata ;
-	} ;
-
-private:
 	WeakRef mWeakOfThis ;
 
 public:
 	implicit Object () = default ;
 
-	WeakRef weak_of_this () const override {
-		return mWeakOfThis ;
+	const ObjectMetadata &metadata () const override {
+		_DYNAMIC_ASSERT_ (FALSE) ;
+		return _NULL_ (ARGV<ObjectMetadata>::ID) ;
 	}
 
-	void weak_of_this (const StrongRef<Object> &that) override {
-		_DYNAMIC_ASSERT_ (!mWeakOfThis.exist ()) ;
-		mWeakOfThis = that ;
+	const WeakRef &weak_of_this () const override {
+		return mWeakOfThis ;
 	}
 
 	StrongRef<Object> clone () const override {
@@ -2583,7 +2607,7 @@ public:
 	}
 } ;
 
-class Object::Private::Metadata {
+class ObjectMetadata {
 private:
 	TYPEABI mTypeABI ;
 	FLAG mTypeMID ;
@@ -2591,10 +2615,10 @@ private:
 	Function<void (PTR<NONE>)> mDestructor ;
 
 public:
-	implicit Metadata () = default ;
+	implicit ObjectMetadata () = default ;
 
 	template <class _ARG1>
-	explicit Metadata (const ARGVF<_ARG1> &) {
+	explicit ObjectMetadata (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::compile ()) ;
 		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::ID) ;
 		mTypeMID = _TYPEMID_ (ARGV<_ARG1>::ID) ;
@@ -2610,11 +2634,15 @@ public:
 } ;
 
 template <class UNIT>
-class VirtualObject :
+class ObjectVirtual :
 	delegate public virtual Object {
 public:
-	implicit VirtualObject () {
-		_STATIC_WARNING_ ("noop") ;
+	implicit ObjectVirtual () = default ;
+
+	const ObjectMetadata &metadata () const override {
+		return _CACHE_ ([&] () {
+			return ObjectMetadata (ARGV<REMOVE_CVR_TYPE<UNIT>>::ID) ;
+		}) ;
 	}
 } ;
 
@@ -2710,9 +2738,9 @@ class GlobalStatic ;
 template <class UNIT>
 class Singleton :
 	delegate private Proxy {
+private:
 	_STATIC_ASSERT_ (IS_CLASS_HELP<UNIT>::compile ()) ;
 
-private:
 	struct THIS_PACK {
 		UNIT mValue ;
 
