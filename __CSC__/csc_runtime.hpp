@@ -27,7 +27,7 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual const DEF<typename Private::Implement> &native () const = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
 		virtual LENGTH hours () const = 0 ;
 		virtual LENGTH minutes () const = 0 ;
 		virtual LENGTH seconds () const = 0 ;
@@ -118,7 +118,7 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual const DEF<typename Private::Implement> &native () const = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
 		virtual ARRAY8<LENGTH> calendar () const = 0 ;
 		virtual TimePoint add (const Duration &that) const = 0 ;
 		virtual Duration sub (const TimePoint &that) const = 0 ;
@@ -182,8 +182,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const = 0 ;
+		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -227,8 +227,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const = 0 ;
+		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -274,8 +274,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const = 0 ;
+		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
+		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
 	} ;
 
 private:

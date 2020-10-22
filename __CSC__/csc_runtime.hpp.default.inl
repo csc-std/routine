@@ -159,7 +159,7 @@ public:
 		return mDuration ;
 	}
 
-	const Implement &native () const override {
+	const Implement &native () const leftvalue override {
 		return DEREF[this] ;
 	}
 
@@ -248,7 +248,7 @@ public:
 		mTimePoint = api::time_point_cast<api::system_clock::duration> (time_) ;
 	}
 
-	const Implement &native () const override {
+	const Implement &native () const leftvalue override {
 		return DEREF[this] ;
 	}
 
@@ -326,11 +326,11 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () override {
+	Implement &native () leftvalue override {
 		return DEREF[this] ;
 	}
 
-	const Implement &native () const override {
+	const Implement &native () const leftvalue override {
 		return DEREF[this] ;
 	}
 
@@ -364,11 +364,11 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () override {
+	Implement &native () leftvalue override {
 		return DEREF[this] ;
 	}
 
-	const Implement &native () const override {
+	const Implement &native () const leftvalue override {
 		return DEREF[this] ;
 	}
 
@@ -402,11 +402,11 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () override {
+	Implement &native () leftvalue override {
 		return DEREF[this] ;
 	}
 
-	const Implement &native () const override {
+	const Implement &native () const leftvalue override {
 		return DEREF[this] ;
 	}
 

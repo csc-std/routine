@@ -184,8 +184,8 @@ public:
 	}
 
 	void uniform_find (const String<STR> &name ,INDEX &index) override {
-		const auto r2x = identity_name (name) ;
-		index = INDEX (api::glGetUniformLocation (mHolder ,r2x.raw ().self)) ;
+		const auto r1x = identity_name (name) ;
+		index = INDEX (api::glGetUniformLocation (mHolder ,r1x.raw ().self)) ;
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
 	}
 

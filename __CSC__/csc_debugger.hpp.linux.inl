@@ -467,7 +467,7 @@ public:
 				ret[i] = _UNSAFE_POINTER_ (list[i]) ;
 			return _MOVE_ (ret) ;
 		}) ;
-		const auto r3x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
+		const auto r2x = UniqueRef<PTR<PTR<STRA>>> ([&] (PTR<PTR<STRA>> &me) {
 			me = api::backtrace_symbols (r1x.raw ().self ,VAR32 (r1x.length ())) ;
 		} ,[&] (PTR<PTR<STRA>> &me) {
 			if (me == NULL)
@@ -476,9 +476,9 @@ public:
 		}) ;
 		Array<String<STR>> ret = Array<String<STR>> (list.size ()) ;
 		for (auto &&i : _RANGE_ (0 ,list.length ())) {
-			const auto r4x = StringProc::build_hexs (ARGV<STR>::ID ,DATA (list[i])) ;
-			const auto r5x = StringProc::parse_strs (String<STRA> (PTRTOARR[PTRTOARR[r3x.self][i]])) ;
-			ret[i] = String<STR>::make (_PCSTR_ ("[") ,r4x ,_PCSTR_ ("] : ") ,r5x) ;
+			const auto r3x = StringProc::build_hexs (ARGV<STR>::ID ,DATA (list[i])) ;
+			const auto r4x = StringProc::parse_strs (String<STRA> (PTRTOARR[PTRTOARR[r2x.self][i]])) ;
+			ret[i] = String<STR>::make (_PCSTR_ ("[") ,r3x ,_PCSTR_ ("] : ") ,r4x) ;
 		}
 		return _MOVE_ (ret) ;
 	}

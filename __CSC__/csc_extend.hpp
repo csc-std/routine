@@ -1486,7 +1486,7 @@ private:
 	class Holder :
 		delegate public Interface {
 	public:
-		virtual PTR<THIS_PACK> soft_pointer () const = 0 ;
+		virtual PTR<THIS_PACK> strong_pointer () const = 0 ;
 		virtual PTR<NONE> fast_pointer () const leftvalue = 0 ;
 		virtual void weak_aquire () = 0 ;
 		virtual void weak_release () = 0 ;
@@ -1681,20 +1681,20 @@ template <class UNIT>
 class WeakRef::Private::ImplHolder :
 	delegate public Holder {
 private:
-	PTR<THIS_PACK> mSoftPointer ;
+	PTR<THIS_PACK> mStrongPointer ;
 	PTR<UNIT> mFaskPointer ;
 	AtomicVar mWeakCounter ;
 
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (const PTR<THIS_PACK> &soft_ptr ,const PTR<UNIT> &fast_ptr) {
-		mSoftPointer = soft_ptr ;
-		mFaskPointer = fast_ptr ;
+	explicit ImplHolder (const PTR<THIS_PACK> &strong_pointer_ ,const PTR<UNIT> &fast_pointer_) {
+		mStrongPointer = strong_pointer_ ;
+		mFaskPointer = fast_pointer_ ;
 	}
 
-	PTR<THIS_PACK> soft_pointer () const override {
-		return mSoftPointer ;
+	PTR<THIS_PACK> strong_pointer () const override {
+		return mStrongPointer ;
 	}
 
 	PTR<NONE> fast_pointer () const leftvalue override {
@@ -1707,7 +1707,7 @@ public:
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 		if (r1x > 1)
 			return ;
-		const auto r2x = DEREF[mSoftPointer].mSoftCounter.increase () ;
+		const auto r2x = DEREF[mStrongPointer].mSoftCounter.increase () ;
 		_STATIC_UNUSED_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x >= 1) ;
 	}
@@ -1717,7 +1717,7 @@ public:
 		if (r1x > 0)
 			return ;
 		if switch_once (TRUE) {
-			const auto r2x = DEREF[mSoftPointer].mSoftCounter.decrease () ;
+			const auto r2x = DEREF[mStrongPointer].mSoftCounter.decrease () ;
 			if (r2x > 0)
 				discard ;
 			soft_destroy () ;
@@ -1727,37 +1727,37 @@ public:
 
 	void strong_aquire () override {
 		_DEBUG_ASSERT_ (mWeakCounter.fetch () > 0) ;
-		const auto r1x = DEREF[mSoftPointer].mStrongCounter.fetch () ;
+		const auto r1x = DEREF[mStrongPointer].mStrongCounter.fetch () ;
 		if (r1x < 0)
 			return ;
-		const auto r2x = DEREF[mSoftPointer].mStrongCounter.increase () ;
+		const auto r2x = DEREF[mStrongPointer].mStrongCounter.increase () ;
 		_STATIC_UNUSED_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x >= 1) ;
 		if (r2x > 1)
 			return ;
-		_DEBUG_ASSERT_ (DEREF[mSoftPointer].mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (DEREF[mStrongPointer].mHolder.exist ()) ;
 	}
 
 	void strong_release () override {
 		_DEBUG_ASSERT_ (mWeakCounter.fetch () > 0) ;
-		const auto r1x = DEREF[mSoftPointer].mStrongCounter.fetch () ;
+		const auto r1x = DEREF[mStrongPointer].mStrongCounter.fetch () ;
 		if (r1x < 0)
 			return ;
-		const auto r2x = DEREF[mSoftPointer].mStrongCounter.decrease () ;
+		const auto r2x = DEREF[mStrongPointer].mStrongCounter.decrease () ;
 		if (r2x > 0)
 			return ;
-		DEREF[mSoftPointer].mHolder = AnyRef<> () ;
-		const auto r3x = DEREF[mSoftPointer].mStrongCounter.exchange (VAR_NONE) ;
+		DEREF[mStrongPointer].mHolder = AnyRef<> () ;
+		const auto r3x = DEREF[mStrongPointer].mStrongCounter.exchange (VAR_NONE) ;
 		if (r3x <= 0)
 			return ;
-		_DEBUG_ASSERT_ (!DEREF[mSoftPointer].mHolder.exist ()) ;
+		_DEBUG_ASSERT_ (!DEREF[mStrongPointer].mHolder.exist ()) ;
 	}
 
 	void soft_destroy () noexcept override {
-		const auto r1x = DEREF[mSoftPointer].mOrigin ;
-		DEREF[mSoftPointer].~THIS_PACK () ;
+		const auto r1x = DEREF[mStrongPointer].mOrigin ;
+		DEREF[mStrongPointer].~THIS_PACK () ;
 		GlobalHeap::free (r1x) ;
-		mSoftPointer = NULL ;
+		mStrongPointer = NULL ;
 	}
 
 	void destroy () noexcept override {
@@ -1870,7 +1870,7 @@ public:
 		if (r1x == NULL)
 			return FALSE ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		const auto r3x = DEREF[r2x].soft_pointer () ;
+		const auto r3x = DEREF[r2x].strong_pointer () ;
 		const auto r4x = DEREF[r3x].mStrongCounter.fetch () ;
 		if (r4x <= 0)
 			return FALSE ;
@@ -1961,7 +1961,7 @@ public:
 		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r3x) ;
 		const auto r5x = RecastInvokeProc::invoke (ARGV<_ARG1>::ID ,r4x) ;
 		_DYNAMIC_ASSERT_ (_EBOOL_ (r5x != NULL) == _EBOOL_ (r4x != NULL)) ;
-		const auto r6x = DEREF[r2x].soft_pointer () ;
+		const auto r6x = DEREF[r2x].strong_pointer () ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R4X>>::ID) ;
 		ScopedBuild<R4X> ANONYMOUS (rax ,r6x ,r5x) ;
 		const auto r7x = _POINTER_CAST_ (ARGV<R4X>::ID ,rax.self) ;
@@ -2051,7 +2051,7 @@ public:
 			const auto r1x = find (tag) ;
 			if (r1x == NULL)
 				discard ;
-			mThis = DEREF[r1x].mNode->mThis ;
+			mThis = DEREF[DEREF[r1x].mNode].mThis ;
 		}
 	}
 
@@ -2580,8 +2580,8 @@ class ObjectMetadata ;
 class Objective :
 	delegate public Interface {
 public:
-	virtual const ObjectMetadata &metadata () const = 0 ;
-	virtual const WeakRef &weak_of_this () const = 0 ;
+	virtual const ObjectMetadata &metadata () const leftvalue = 0 ;
+	virtual const WeakRef &weak_of_this () const leftvalue = 0 ;
 	virtual StrongRef<Object> clone () const = 0 ;
 } ;
 
@@ -2593,12 +2593,12 @@ private:
 public:
 	implicit Object () = default ;
 
-	const ObjectMetadata &metadata () const override {
+	const ObjectMetadata &metadata () const leftvalue override {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return _NULL_ (ARGV<ObjectMetadata>::ID) ;
 	}
 
-	const WeakRef &weak_of_this () const override {
+	const WeakRef &weak_of_this () const leftvalue override {
 		return mWeakOfThis ;
 	}
 
@@ -2639,7 +2639,7 @@ class ObjectVirtual :
 public:
 	implicit ObjectVirtual () = default ;
 
-	const ObjectMetadata &metadata () const override {
+	const ObjectMetadata &metadata () const leftvalue override {
 		return _CACHE_ ([&] () {
 			return ObjectMetadata (ARGV<REMOVE_CVR_TYPE<UNIT>>::ID) ;
 		}) ;
