@@ -849,31 +849,27 @@ public:
 
 template <class UNIT>
 template <class UNIT_>
-class Image<UNIT>::Private::NativeProxy final :
-delegate private Proxy {
+class Image<UNIT>::Private::NativeProxy :
+	delegate private Proxy {
 private:
-	PhanRef<Image> mBase ;
+	UniqueRef<PhanRef<Image>> mKeep ;
 
 public:
 	implicit NativeProxy () = delete ;
 
 	explicit NativeProxy (PhanRef<Image> &&base) {
-		mBase = _MOVE_ (base) ;
-	}
-
-	implicit NativeProxy (NativeProxy &&that) noexcept {
-		mBase = _MOVE_ (that.mBase) ;
-	}
-
-	implicit ~NativeProxy () noexcept {
-		if (!mBase.exist ())
-			return ;
-		mBase->update_layout () ;
+		UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
+			me = _MOVE_ (base) ;
+		} ,[] (PhanRef<Image> &me) {
+			if (!me.exist ())
+				return ;
+			me->update_layout () ;
+		}) ;
 	}
 
 	UNIT_ &to () const leftvalue {
-		_DEBUG_ASSERT_ (mBase.exist ()) ;
-		auto &r1x = _FORWARD_ (ARGV<CAST_TRAITS_TYPE<StrongRef<Abstract> ,UNIT_>>::ID ,mBase->mThis) ;
+		_DEBUG_ASSERT_ (mKeep.exist ()) ;
+		auto &r1x = _FORWARD_ (ARGV<CAST_TRAITS_TYPE<StrongRef<Abstract> ,UNIT_>>::ID ,mKeep.self->mThis) ;
 		const auto r2x = r1x->native () ;
 		const auto r3x = r2x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
 		_DEBUG_ASSERT_ (r3x != NULL) ;

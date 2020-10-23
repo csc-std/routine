@@ -642,10 +642,6 @@ private:
 		writer << _PCSTR_ ("DATA") ;
 	}
 
-	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<MEGA> & ,const DEF<decltype (ARGVP3)> &) {
-		writer << _PCSTR_ ("MEGA") ;
-	}
-
 	imports void template_write_typename_id (TextWriter<STR> &writer ,const ARGVF<STRA> & ,const DEF<decltype (ARGVP3)> &) {
 		writer << _PCSTR_ ("STRA") ;
 	}

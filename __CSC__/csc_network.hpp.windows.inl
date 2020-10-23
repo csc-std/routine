@@ -114,11 +114,11 @@ exports String<STRU8> SocketStaticProc::static_make_ipv4s (const SOCKADDR &val) 
 	_STATIC_ASSERT_ (_SIZEOF_ (SOCKADDR) == _SIZEOF_ (SOCKADDR_IN)) ;
 	const auto r1x = _BITWISE_CAST_ (ARGV<SOCKADDR_IN>::ID ,val) ;
 	const auto r2x = _CALL_ ([&] () {
-		PACK<WORD ,CHAR> ret ;
-		auto &r3x = _CAST_ (ARGV<CSC::BYTE[_SIZEOF_ (WORD)]>::ID ,r1x.sin_port) ;
-		auto &r4x = _CAST_ (ARGV<CSC::BYTE[_SIZEOF_ (CHAR)]>::ID ,r1x.sin_addr.S_un.S_addr) ;
-		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x)) >> ret.mP1 ;
-		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x)) >> ret.mP2 ;
+		IPV4_ADDRESS ret ;
+		const auto r3x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<CSC::BYTE ,SIZE_OF_TYPE<WORD>>>>::ID ,r1x.sin_port) ;
+		const auto r4x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<CSC::BYTE ,SIZE_OF_TYPE<CHAR>>>>::ID ,r1x.sin_addr.S_un.S_addr) ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r3x.mP1)) >> ret.mP1 ;
+		ByteReader<BYTE> (PhanBuffer<const CSC::BYTE>::make (r4x.mP1)) >> ret.mP2 ;
 		return _MOVE_ (ret) ;
 	}) ;
 	return StringProc::build_ipv4s (ARGV<STRU8>::ID ,r2x) ;
@@ -131,14 +131,15 @@ exports SOCKADDR SocketStaticProc::static_make_socket_addr (const String<STRU8> 
 		_ZERO_ (ret) ;
 		ret.sin_family = AF_INET ;
 		const auto r2x = StringProc::parse_ipv4s (val) ;
-		auto &r3x = _CAST_ (ARGV<CSC::BYTE[_SIZEOF_ (WORD)]>::ID ,ret.sin_port) ;
-		auto &r4x = _CAST_ (ARGV<CSC::BYTE[_SIZEOF_ (CHAR)]>::ID ,ret.sin_addr.S_un.S_addr) ;
-		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r3x)) << r2x.mP1 ;
-		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (r4x)) << r2x.mP2 ;
+		auto rax = PACK<ARRAY_BIND_TYPE<CSC::BYTE ,SIZE_OF_TYPE<WORD>>> () ;
+		auto rbx = PACK<ARRAY_BIND_TYPE<CSC::BYTE ,SIZE_OF_TYPE<CHAR>>> () ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (rax.mP1)) << r2x.mP1 ;
+		ByteWriter<BYTE> (PhanBuffer<CSC::BYTE>::make (rbx.mP1)) << r2x.mP2 ;
+		ret.sin_port = _BITWISE_CAST_ (ARGV<WORD>::ID ,rax) ;
+		ret.sin_addr.S_un.S_addr = _BITWISE_CAST_ (ARGV<CHAR>::ID ,rbx) ;
 		return _MOVE_ (ret) ;
 	}) ;
-	const auto r5x = _BITWISE_CAST_ (ARGV<SOCKADDR>::ID ,r1x) ;
-	return r5x ;
+	return _BITWISE_CAST_ (ARGV<SOCKADDR>::ID ,r1x) ;
 }
 
 exports void SocketStaticProc::static_socket_bind (const SOCKET &socket_ ,const String<STRU8> &ip_addr) {
@@ -201,13 +202,13 @@ public:
 	}
 
 	String<STRU8> sock_name () const override {
-		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = SOCKADDR () ;
+		_ZERO_ (rax) ;
+		auto rbx = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getsockname (mThis->mSocket ,DEPTR[rax] ,DEPTR[rbx]) ;
 		//@info: ipv6 is not supported
-		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
+		_DYNAMIC_ASSERT_ (rbx == _SIZEOF_ (SOCKADDR)) ;
+		return SocketStaticProc::static_make_ipv4s (rax) ;
 	}
 
 	String<STRU8> peer_sock_name () const override {
@@ -240,9 +241,11 @@ public:
 		_DEBUG_ASSERT_ (rcv_len >= 0 && rcv_len < VAR32_MAX) ;
 		_DEBUG_ASSERT_ (snd_len >= 0 && snd_len < VAR32_MAX) ;
 		const auto r1x = VAR32 (rcv_len) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVBUF ,_CAST_ (ARGV<STRA[_SIZEOF_ (VAR32)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
-		const auto r2x = VAR32 (snd_len) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDBUF ,_CAST_ (ARGV<STRA[_SIZEOF_ (VAR32)]>::ID ,r2x) ,VAR32 (_SIZEOF_ (VAR32))) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<VAR32>>>>::ID ,r1x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVBUF ,r2x.mP1 ,VAR32 (_SIZEOF_ (VAR32))) ;
+		const auto r3x = VAR32 (snd_len) ;
+		const auto r4x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<VAR32>>>>::ID ,r3x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDBUF ,r4x.mP1 ,VAR32 (_SIZEOF_ (VAR32))) ;
 	}
 
 	void modify_timeout (const LENGTH &timeout) override {
@@ -252,62 +255,68 @@ public:
 	void read (const PhanBuffer<BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r3x = api::recv (mThis->mSocket ,DEREF[r2x] ,VAR32 (data.size ()) ,0) ;
-		const auto r4x = SocketStaticProc::static_make_timeval (0) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r1x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r2x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::recv (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0) ;
+		const auto r5x = SocketStaticProc::static_make_timeval (0) ;
+		const auto r6x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r5x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r6x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
-			if (r3x >= 0)
+			if (r4x >= 0)
 				discard ;
-			const auto r5x = errno ;
-			if (r5x == 0)
+			const auto r7x = errno ;
+			if (r7x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r7x == EINPROGRESS || r7x == EWOULDBLOCK) ;
 		}
-		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r4x == data.size ()) ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) override {
 		out_iw = VAR_NONE ;
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (timeout) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r3x = api::recv (mThis->mSocket ,DEREF[r2x] ,VAR32 (data.size ()) ,0) ;
-		const auto r4x = SocketStaticProc::static_make_timeval (0) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r1x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r2x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::recv (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0) ;
+		const auto r5x = SocketStaticProc::static_make_timeval (0) ;
+		const auto r6x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r5x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_RCVTIMEO ,r6x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
-			if (r3x >= 0)
+			if (r4x >= 0)
 				discard ;
-			const auto r5x = errno ;
-			if (r5x == 0)
+			const auto r7x = errno ;
+			if (r7x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r7x == EINPROGRESS || r7x == EWOULDBLOCK) ;
 		}
-		out_iw = r3x ;
+		out_iw = r4x ;
 	}
 
 	void write (const PhanBuffer<const BYTE> &data) override {
 		_DEBUG_ASSERT_ (data.size () < VAR32_MAX) ;
 		const auto r1x = SocketStaticProc::static_make_timeval (mThis->mTimeout) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r3x = api::send (mThis->mSocket ,DEREF[r2x] ,VAR32 (data.size ()) ,0) ;
-		const auto r4x = SocketStaticProc::static_make_timeval (0) ;
-		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,_CAST_ (ARGV<STRA[_SIZEOF_ (TIMEVAL)]>::ID ,r4x) ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r1x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,r2x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::send (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0) ;
+		const auto r5x = SocketStaticProc::static_make_timeval (0) ;
+		const auto r6x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<TIMEVAL>>>>::ID ,r5x) ;
+		api::setsockopt (mThis->mSocket ,SOL_SOCKET ,SO_SNDTIMEO ,r6x.mP1 ,VAR32 (_SIZEOF_ (TIMEVAL))) ;
 		//@info: state of 'this' has been changed
 		if switch_once (TRUE) {
-			if (r3x >= 0)
+			if (r4x >= 0)
 				discard ;
-			const auto r5x = errno ;
-			if (r5x == 0)
+			const auto r7x = errno ;
+			if (r7x == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (r5x == EINPROGRESS || r5x == EWOULDBLOCK) ;
+			_DYNAMIC_ASSERT_ (r7x == EINPROGRESS || r7x == EWOULDBLOCK) ;
 		}
-		_DYNAMIC_ASSERT_ (r3x == data.size ()) ;
+		_DYNAMIC_ASSERT_ (r4x == data.size ()) ;
 	}
 
 private:
@@ -316,10 +325,10 @@ private:
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
-		auto rax = PACK<STRA[_SIZEOF_ (VAR32)] ,VAR32> () ;
+		auto rax = PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<VAR32>>> () ;
 		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (VAR32)) ;
-		api::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rbx = VAR32 (_SIZEOF_ (VAR32)) ;
+		api::getsockopt (mThis->mSocket ,SOL_SOCKET ,SO_ERROR ,PTRTOARR[rax.mP1] ,DEPTR[rbx]) ;
 		const auto r3x = _BITWISE_CAST_ (ARGV<VAR32>::ID ,rax.mP1) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r3x == 0) ;
@@ -396,12 +405,12 @@ public:
 
 	void accept () override {
 		mThis->mSocket = _MOVE_ (mLinker) ;
-		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getpeername (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
-		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		mThis->mPeer = rax.mP1 ;
+		auto rax = SOCKADDR () ;
+		_ZERO_ (rax) ;
+		auto rbx = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getpeername (mThis->mSocket ,DEPTR[rax] ,DEPTR[rbx]) ;
+		_DYNAMIC_ASSERT_ (rbx == _SIZEOF_ (SOCKADDR)) ;
+		mThis->mPeer = rax ;
 	}
 } ;
 
@@ -431,8 +440,9 @@ public:
 			me = api::socket (AF_INET ,SOCK_DGRAM ,IPPROTO_UDP) ;
 			_DYNAMIC_ASSERT_ (me != INVALID_SOCKET) ;
 			const auto r1x = VAR32 (1) ;
-			api::setsockopt (me ,SOL_SOCKET ,SO_REUSEADDR ,_CAST_ (ARGV<STRA[_SIZEOF_ (VAR32)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
-			api::setsockopt (me ,SOL_SOCKET ,SO_BROADCAST ,_CAST_ (ARGV<STRA[_SIZEOF_ (VAR32)]>::ID ,r1x) ,VAR32 (_SIZEOF_ (VAR32))) ;
+			const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<STRA ,SIZE_OF_TYPE<VAR32>>>>::ID ,r1x) ;
+			api::setsockopt (me ,SOL_SOCKET ,SO_REUSEADDR ,r2x.mP1 ,VAR32 (_SIZEOF_ (VAR32))) ;
+			api::setsockopt (me ,SOL_SOCKET ,SO_BROADCAST ,r2x.mP1 ,VAR32 (_SIZEOF_ (VAR32))) ;
 		} ,[] (SOCKET &me) {
 			api::closesocket (me) ;
 		}) ;
@@ -443,13 +453,13 @@ public:
 	}
 
 	String<STRU8> sock_name () const override {
-		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		api::getsockname (mThis->mSocket ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = SOCKADDR () ;
+		_ZERO_ (rax) ;
+		auto rbx = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		api::getsockname (mThis->mSocket ,DEPTR[rax] ,DEPTR[rbx]) ;
 		//@info: ipv6 is not supported
-		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		return SocketStaticProc::static_make_ipv4s (rax.mP1) ;
+		_DYNAMIC_ASSERT_ (rbx == _SIZEOF_ (SOCKADDR)) ;
+		return SocketStaticProc::static_make_ipv4s (rax) ;
 	}
 
 	String<STRU8> peer_sock_name () const override {
@@ -470,15 +480,15 @@ public:
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
-		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r4x = api::recvfrom (mThis->mSocket ,DEREF[r3x] ,VAR32 (data.size ()) ,0 ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = SOCKADDR () ;
+		_ZERO_ (rax) ;
+		auto rbx = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::recvfrom (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0 ,DEPTR[rax] ,DEPTR[rbx]) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
+		_DYNAMIC_ASSERT_ (rbx == _SIZEOF_ (SOCKADDR)) ;
 		_DYNAMIC_ASSERT_ (r4x == data.size ()) ;
-		mThis->mPeer = rax.mP1 ;
+		mThis->mPeer = rax ;
 	}
 
 	void read (const PhanBuffer<BYTE> &data ,INDEX &out_iw ,const LENGTH &timeout) override {
@@ -488,14 +498,14 @@ public:
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[0]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
-		auto rax = PACK<SOCKADDR ,VAR32> () ;
-		_ZERO_ (rax.mP1) ;
-		rax.mP2 = VAR32 (_SIZEOF_ (SOCKADDR)) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r4x = api::recvfrom (mThis->mSocket ,DEREF[r3x] ,VAR32 (data.size ()) ,0 ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = SOCKADDR () ;
+		_ZERO_ (rax) ;
+		auto rbx = VAR32 (_SIZEOF_ (SOCKADDR)) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::recvfrom (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0 ,DEPTR[rax] ,DEPTR[rbx]) ;
 		//@info: state of 'this' has been changed
-		_DYNAMIC_ASSERT_ (rax.mP2 == _SIZEOF_ (SOCKADDR)) ;
-		mThis->mPeer = rax.mP1 ;
+		_DYNAMIC_ASSERT_ (rbx == _SIZEOF_ (SOCKADDR)) ;
+		mThis->mPeer = rax ;
 		out_iw = r4x ;
 	}
 
@@ -505,8 +515,8 @@ public:
 		//@info: state of 'this' has been changed
 		const auto r2x = FD_ISSET (mThis->mSocket ,DEPTR[r1x[1]]) ;
 		_DYNAMIC_ASSERT_ (r2x != 0) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[data.self]) ;
-		const auto r4x = api::sendto (mThis->mSocket ,DEREF[r3x] ,VAR32 (data.size ()) ,0 ,DEPTR[mThis->mPeer] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
+		auto &r3x = _CAST_ (ARGV<PhanBuffer<STRA>>::ID ,data) ;
+		const auto r4x = api::sendto (mThis->mSocket ,r3x.self ,VAR32 (data.size ()) ,0 ,DEPTR[mThis->mPeer] ,VAR32 (_SIZEOF_ (SOCKADDR))) ;
 		//@info: state of 'this' has been changed
 		_DYNAMIC_ASSERT_ (r4x == data.size ()) ;
 	}

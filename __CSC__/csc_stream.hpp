@@ -128,10 +128,11 @@ public:
 
 	void read (WORD &data) {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			read (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<WORD>>>>::ID ,r1x) ;
+		auto rax = PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<WORD>>> () ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (rax.mP1)>)))
+			read (rax.mP1[r2x.mP1[i]]) ;
+		data = _BITWISE_CAST_ (ARGV<WORD>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (WORD &data) {
@@ -141,10 +142,11 @@ public:
 
 	void read (CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			read (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>>>::ID ,r1x) ;
+		auto rax = PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>> () ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (rax.mP1)>)))
+			read (rax.mP1[r2x.mP1[i]]) ;
+		data = _BITWISE_CAST_ (ARGV<CHAR>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (CHAR &data) {
@@ -154,10 +156,11 @@ public:
 
 	void read (DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			read (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<DATA>>>>::ID ,r1x) ;
+		auto rax = PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<DATA>>> () ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (rax.mP1)>)))
+			read (rax.mP1[r2x.mP1[i]]) ;
+		data = _BITWISE_CAST_ (ARGV<DATA>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (DATA &data) {
@@ -166,7 +169,9 @@ public:
 	}
 
 	void read (BOOL &data) {
-		read (_CAST_ (ARGV<U::BYTE_BASE_TYPE<BOOL>>::ID ,data)) ;
+		auto rax = U::BYTE_BASE_TYPE<BOOL> () ;
+		read (rax) ;
+		data = _BITWISE_CAST_ (ARGV<BOOL>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (BOOL &data) {
@@ -175,7 +180,9 @@ public:
 	}
 
 	void read (VAR32 &data) {
-		read (_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR32>>::ID ,data)) ;
+		auto rax = U::BYTE_BASE_TYPE<VAR32> () ;
+		read (rax) ;
+		data = _BITWISE_CAST_ (ARGV<VAR32>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (VAR32 &data) {
@@ -184,7 +191,9 @@ public:
 	}
 
 	void read (VAR64 &data) {
-		read (_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR64>>::ID ,data)) ;
+		auto rax = U::BYTE_BASE_TYPE<VAR64> () ;
+		read (rax) ;
+		data = _BITWISE_CAST_ (ARGV<VAR64>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (VAR64 &data) {
@@ -193,7 +202,9 @@ public:
 	}
 
 	void read (VAL32 &data) {
-		read (_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL32>>::ID ,data)) ;
+		auto rax = U::BYTE_BASE_TYPE<VAL32> () ;
+		read (rax) ;
+		data = _BITWISE_CAST_ (ARGV<VAL32>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (VAL32 &data) {
@@ -202,7 +213,9 @@ public:
 	}
 
 	void read (VAL64 &data) {
-		read (_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL64>>::ID ,data)) ;
+		auto rax = U::BYTE_BASE_TYPE<VAL64> () ;
+		read (rax) ;
+		data = _BITWISE_CAST_ (ARGV<VAL64>::ID ,rax) ;
 	}
 
 	inline ByteReader &operator>> (VAL64 &data) {
@@ -482,10 +495,10 @@ public:
 
 	void write (const WORD &data) {
 		const auto r1x = WORD (0X0001) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (WORD)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			write (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<WORD>>>>::ID ,r1x) ;
+		const auto r3x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<WORD>>>>::ID ,data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x.mP1)>)))
+			write (r3x.mP1[r2x.mP1[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const WORD &data) {
@@ -495,10 +508,10 @@ public:
 
 	void write (const CHAR &data) {
 		const auto r1x = CHAR (0X00010203) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (CHAR)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			write (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>>>::ID ,r1x) ;
+		const auto r3x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>>>::ID ,data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x.mP1)>)))
+			write (r3x.mP1[r2x.mP1[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const CHAR &data) {
@@ -508,10 +521,10 @@ public:
 
 	void write (const DATA &data) {
 		const auto r1x = DATA (0X0001020304050607) ;
-		auto &r2x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::ID ,r1x) ;
-		auto &r3x = _CAST_ (ARGV<BYTE[_SIZEOF_ (DATA)]>::ID ,data) ;
-		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x)>)))
-			write (r3x[r2x[i]]) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<DATA>>>>::ID ,r1x) ;
+		const auto r3x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<DATA>>>>::ID ,data) ;
+		for (auto &&i : _RANGE_ (0 ,_COUNTOF_ (DEF<decltype (r3x.mP1)>)))
+			write (r3x.mP1[r2x.mP1[i]]) ;
 	}
 
 	inline ByteWriter &operator<< (const DATA &data) {
@@ -520,7 +533,7 @@ public:
 	}
 
 	void write (const BOOL &data) {
-		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<BOOL>>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<U::BYTE_BASE_TYPE<BOOL>>::ID ,data) ;
 		write (r1x) ;
 	}
 
@@ -534,7 +547,7 @@ public:
 	inline ByteWriter &operator<< (const PTR<const NONE> &) = delete ;
 
 	void write (const VAR32 &data) {
-		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR32>>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR32>>::ID ,data) ;
 		write (r1x) ;
 	}
 
@@ -544,7 +557,7 @@ public:
 	}
 
 	void write (const VAR64 &data) {
-		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR64>>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAR64>>::ID ,data) ;
 		write (r1x) ;
 	}
 
@@ -554,7 +567,7 @@ public:
 	}
 
 	void write (const VAL32 &data) {
-		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL32>>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL32>>::ID ,data) ;
 		write (r1x) ;
 	}
 
@@ -564,7 +577,7 @@ public:
 	}
 
 	void write (const VAL64 &data) {
-		const auto r1x = _CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL64>>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<U::BYTE_BASE_TYPE<VAL64>>::ID ,data) ;
 		write (r1x) ;
 	}
 
@@ -1362,8 +1375,8 @@ public:
 		if (!mBase->mHeap->mEndianFlag)
 			return item ;
 		U::BYTE_BASE_TYPE<REAL> ret ;
-		auto &r1x = _CAST_ (ARGV<BYTE[_SIZEOF_ (REAL)]>::ID ,item) ;
-		ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x)) >> ret ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<REAL>>>>::ID ,item) ;
+		ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r1x.mP1)) >> ret ;
 		return _MOVE_ (_CAST_ (ARGV<REAL>::ID ,ret)) ;
 	}
 

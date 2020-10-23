@@ -150,22 +150,22 @@ public:
 	implicit Implement () = default ;
 
 	void load_data (const PhanBuffer<const BYTE> &vs ,const PhanBuffer<const BYTE> &fs) override {
-		_DEBUG_ASSERT_ (vs.size () < VAR32_MAX) ;
-		_DEBUG_ASSERT_ (fs.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (vs.size () > 0 && vs.size () < VAR32_MAX) ;
+		_DEBUG_ASSERT_ (fs.size () > 0 && fs.size () < VAR32_MAX) ;
 		auto rax = UniqueRef<CHAR> ([&] (CHAR &me) {
 			me = api::glCreateProgram () ;
 			_DYNAMIC_ASSERT_ (me != 0) ;
 			const auto r1x = api::glCreateShader (GL_VERTEX_SHADER) ;
-			const auto r2x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[vs.self]) ;
-			const auto r3x = DEPTR[DEREF[r2x][0]] ;
+			auto &r2x = _CAST_ (ARGV<PhanBuffer<const STRA>>::ID ,vs) ;
+			const auto r3x = DEPTR[r2x[0]] ;
 			const auto r4x = VAR32 (vs.size ()) ;
 			api::glShaderSource (r1x ,1 ,DEPTR[r3x] ,DEPTR[r4x]) ;
 			api::glCompileShader (r1x) ;
 			check_shaderiv (r1x) ;
 			api::glAttachShader (me ,r1x) ;
 			const auto r5x = api::glCreateShader (GL_FRAGMENT_SHADER) ;
-			const auto r6x = _POINTER_CAST_ (ARGV<ARR<STRA>>::ID ,DEPTR[fs.self]) ;
-			const auto r7x = DEPTR[DEREF[r6x][0]] ;
+			auto &r6x = _CAST_ (ARGV<PhanBuffer<const STRA>>::ID ,fs) ;
+			const auto r7x = DEPTR[r6x[0]] ;
 			const auto r8x = VAR32 (fs.size ()) ;
 			api::glShaderSource (r5x ,1 ,DEPTR[r7x] ,DEPTR[r8x]) ;
 			api::glCompileShader (r5x) ;

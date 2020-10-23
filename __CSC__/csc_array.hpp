@@ -2148,13 +2148,17 @@ public:
 	INDEX at (const DEF<typename Private::template Bit<BitSet>> &item) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<BitSet> ;
 		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
-		return r1x ;
+		if (DEPTR[r1x.mBase.self] != this)
+			return VAR_NONE ;
+		return r1x.mIndex ;
 	}
 
 	INDEX at (const DEF<typename Private::template Bit<const BitSet>> &item) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template Bit<const BitSet> ;
 		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,item) ;
-		return r1x ;
+		if (DEPTR[r1x.mBase.self] != this)
+			return VAR_NONE ;
+		return r1x.mIndex ;
 	}
 
 	Array<INDEX> range () const {
@@ -2377,6 +2381,7 @@ template <class BASE>
 class BitSet<SIZE>::Private::Bit :
 	delegate private Proxy {
 private:
+	friend BitSet ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
 

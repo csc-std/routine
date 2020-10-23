@@ -49,459 +49,21 @@ public:
 } ;
 #endif
 
-class VAR128 {
-#pragma push_macro ("v2i0")
-#pragma push_macro ("v2i1")
-#pragma push_macro ("v4i0")
-#pragma push_macro ("v4i1")
-#pragma push_macro ("v4i2")
-#pragma push_macro ("v4i3")
-#undef v2i0
-#undef v2i1
-#undef v4i0
-#undef v4i1
-#undef v4i2
-#undef v4i3
-#define v2i0 m_v2i0 ()
-#define v2i1 m_v2i1 ()
-#define v4i0 m_v4i0 ()
-#define v4i1 m_v4i1 ()
-#define v4i2 m_v4i2 ()
-#define v4i3 m_v4i3 ()
+#ifdef __CSC_DEPRECATED__
+class Integer {
+private:
+	using VALUE_TYPE = ARRAY_BIND_TYPE<BYTE ,DEFAULT_RECURSIVE_SIZE> ;
 
 private:
-	MEGA mValue ;
+	VALUE_TYPE mValue ;
 
 public:
-	implicit VAR128 () = default ;
-
-	implicit VAR128 (const VAR64 &that) {
-		v2i1 = DATA (that) ;
-		v2i0 = DATA (-_EBOOL_ (that < 0)) ;
+	implicit Integer () {
+		_STATIC_WARNING_ ("unimplemented") ;
+		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
-
-	inline explicit operator VAR32 () const {
-		return VAR32 (v2i1) ;
-	}
-
-	inline explicit operator VAR64 () const {
-		return VAR64 (v2i1) ;
-	}
-
-	inline BOOL operator== (const VAR128 &that) const {
-		return equal (that) ;
-	}
-
-	inline BOOL operator!= (const VAR128 &that) const {
-		return !equal (that) ;
-	}
-
-	inline BOOL operator< (const VAR128 &that) const {
-		return BOOL (compr (that) < 0) ;
-	}
-
-	inline BOOL operator>= (const VAR128 &that) const {
-		return BOOL (compr (that) >= 0) ;
-	}
-
-	inline BOOL operator> (const VAR128 &that) const {
-		return BOOL (compr (that) > 0) ;
-	}
-
-	inline BOOL operator<= (const VAR128 &that) const {
-		return BOOL (compr (that) <= 0) ;
-	}
-
-	inline VAR128 operator& (const VAR128 &) const = delete ;
-
-	inline VAR128 &operator&= (const VAR128 &) = delete ;
-
-	inline VAR128 operator| (const VAR128 &) const = delete ;
-
-	inline VAR128 &operator|= (const VAR128 &) = delete ;
-
-	inline VAR128 operator^ (const VAR128 &) const = delete ;
-
-	inline VAR128 &operator^= (const VAR128 &) = delete ;
-
-	inline VAR128 operator~ () const = delete ;
-
-	inline VAR128 operator>> (VAR) const = delete ;
-
-	inline VAR128 &operator>>= (VAR) = delete ;
-
-	inline VAR128 operator<< (VAR) const = delete ;
-
-	inline VAR128 &operator<<= (VAR) = delete ;
-
-	inline VAR128 operator+ (const VAR128 &that) const {
-		VAR128 ret = 0 ;
-		ret.v2i0 = v2i0 + that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
-		ret.v2i1 = v2i1 + that.v2i1 ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator+= (const VAR128 &that) {
-		v2i0 += that.v2i0 + _EBOOL_ (v2i1 > ~that.v2i1) ;
-		v2i1 += that.v2i1 ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator- (const VAR128 &that) const {
-		VAR128 ret = 0 ;
-		ret.v2i0 = v2i0 - that.v2i0 - _EBOOL_ (v2i1 < that.v2i1) ;
-		ret.v2i1 = v2i1 - that.v2i1 ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator-= (const VAR128 &that) {
-		v2i0 -= that.v2i0 + _EBOOL_ (v2i1 < that.v2i1) ;
-		v2i1 -= that.v2i1 ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator* (const VAR128 &that) const {
-		VAR128 ret = 0 ;
-		auto rax = DATA (0) ;
-		rax = CHAR (rax >> (_SIZEOF_ (CHAR) * 8)) ;
-		rax += DATA (v4i3) * DATA (that.v4i3) ;
-		ret.v4i3 = CHAR (rax) ;
-		rax = CHAR (rax >> (_SIZEOF_ (CHAR) * 8)) ;
-		rax += DATA (v4i3) * DATA (that.v4i2) ;
-		rax += DATA (v4i2) * DATA (that.v4i3) ;
-		ret.v4i2 = CHAR (rax) ;
-		rax = CHAR (rax >> (_SIZEOF_ (CHAR) * 8)) ;
-		rax += DATA (v4i3) * DATA (that.v4i1) ;
-		rax += DATA (v4i2) * DATA (that.v4i2) ;
-		rax += DATA (v4i1) * DATA (that.v4i3) ;
-		ret.v4i1 = CHAR (rax) ;
-		rax = CHAR (rax >> (_SIZEOF_ (CHAR) * 8)) ;
-		rax += DATA (v4i3) * DATA (that.v4i0) ;
-		rax += DATA (v4i2) * DATA (that.v4i1) ;
-		rax += DATA (v4i1) * DATA (that.v4i2) ;
-		rax += DATA (v4i0) * DATA (that.v4i3) ;
-		ret.v4i0 = CHAR (rax) ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator*= (const VAR128 &that) {
-		DEREF[this] = DEREF[this] * that ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator/ (const VAR128 &that) const {
-		VAR128 ret = 0 ;
-		const auto r1x = _CAST_ (ARGV<VAR64>::ID ,v2i0) ;
-		const auto r2x = _CAST_ (ARGV<VAR64>::ID ,that.v2i0) ;
-		auto fax = TRUE ;
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(that.v4i0 == 0))
-				discard ;
-			if (!(that.v4i1 == 0))
-				discard ;
-			if (!(that.v4i2 == 0))
-				discard ;
-			auto rax = DATA (0) ;
-			const auto r3x = DATA (that.v4i3) ;
-			_DEBUG_ASSERT_ (r3x != 0) ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
-			ret.v4i0 = CHAR (rax / r3x) ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i1) ;
-			ret.v4i1 = CHAR (rax / r3x) ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i2) ;
-			ret.v4i2 = CHAR (rax / r3x) ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
-			ret.v4i3 = CHAR (rax / r3x) ;
-		}
-		if switch_once (fax) {
-			if (!(v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(v2i1 == 0))
-				discard ;
-			if (!(r2x >= 0))
-				discard ;
-			ret = -(-(DEREF[this] + that) / that + 1) ;
-		}
-		if switch_once (fax) {
-			if (!(v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(v2i1 == 0))
-				discard ;
-			if (!(r2x < 0))
-				discard ;
-			ret = -(-(DEREF[this] - that) / that - 1) ;
-		}
-		if switch_once (fax) {
-			if (!(r1x < 0))
-				discard ;
-			ret = -(-DEREF[this] / that) ;
-		}
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(that.v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(that.v2i1 == 0))
-				discard ;
-			ret = VAR128 (0) ;
-		}
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(r2x < 0))
-				discard ;
-			ret = DEREF[this] / (-that) ;
-		}
-		if switch_once (fax) {
-			ret = slow_divide (DEREF[this] ,that) ;
-		}
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator/= (const VAR128 &that) {
-		DEREF[this] = DEREF[this] / that ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator% (const VAR128 &that) const {
-		VAR128 ret = 0 ;
-		const auto r1x = _CAST_ (ARGV<VAR64>::ID ,v2i0) ;
-		const auto r2x = _CAST_ (ARGV<VAR64>::ID ,that.v2i0) ;
-		auto fax = TRUE ;
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(that.v4i0 == 0))
-				discard ;
-			if (!(that.v4i1 == 0))
-				discard ;
-			if (!(that.v4i2 == 0))
-				discard ;
-			auto rax = DATA (0) ;
-			const auto r3x = DATA (that.v4i3) ;
-			_DEBUG_ASSERT_ (r3x != 0) ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i0) ;
-			ret.v4i0 = 0 ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i1) ;
-			ret.v4i1 = 0 ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i2) ;
-			ret.v4i2 = 0 ;
-			rax = (DATA (rax % r3x) << (_SIZEOF_ (CHAR) * 8)) | DATA (v4i3) ;
-			ret.v4i3 = CHAR (rax % r3x) ;
-		}
-		if switch_once (fax) {
-			if (!(v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(v2i1 == 0))
-				discard ;
-			if (!(r2x >= 0))
-				discard ;
-			ret = -(-(DEREF[this] + that) % that) ;
-		}
-		if switch_once (fax) {
-			if (!(v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(v2i1 == 0))
-				discard ;
-			if (!(r2x < 0))
-				discard ;
-			ret = -(-(DEREF[this] - that) % that) ;
-		}
-		if switch_once (fax) {
-			if (!(r1x < 0))
-				discard ;
-			ret = -(-DEREF[this] % that) ;
-		}
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(that.v2i0 == DATA (VAR64_MIN)))
-				discard ;
-			if (!(that.v2i1 == 0))
-				discard ;
-			ret = DEREF[this] ;
-		}
-		if switch_once (fax) {
-			if (!(r1x >= 0))
-				discard ;
-			if (!(r2x < 0))
-				discard ;
-			ret = DEREF[this] % (-that) ;
-		}
-		if switch_once (fax) {
-			ret = that - slow_divide (DEREF[this] ,that) * that ;
-		}
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator%= (const VAR128 &that) {
-		DEREF[this] = DEREF[this] % that ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator+ () const {
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator- () const {
-		VAR128 ret = 0 ;
-		ret.v2i1 = ~v2i1 + 1 ;
-		ret.v2i0 = ~v2i0 + _EBOOL_ (ret.v2i1 == DATA (0)) ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator++ () {
-		v2i1++ ;
-		v2i0 += _EBOOL_ (v2i1 == DATA (0)) ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator++ (VAR32) {
-		VAR128 ret = DEREF[this] ;
-		++DEREF[this] ;
-		return _MOVE_ (ret) ;
-	}
-
-	inline VAR128 &operator-- () {
-		v2i1-- ;
-		v2i0 -= _EBOOL_ (v2i1 == DATA (-1)) ;
-		return DEREF[this] ;
-	}
-
-	inline VAR128 operator-- (VAR32) {
-		VAR128 ret = DEREF[this] ;
-		--DEREF[this] ;
-		return _MOVE_ (ret) ;
-	}
-
-private:
-	BOOL equal (const VAR128 &that) const {
-		if (v2i1 != that.v2i1)
-			return FALSE ;
-		if (v2i0 != that.v2i0)
-			return FALSE ;
-		return TRUE ;
-	}
-
-	FLAG compr (const VAR128 &that) const {
-		const auto r1x = _CAST_ (ARGV<VAR64>::ID ,v2i0) ;
-		const auto r2x = _CAST_ (ARGV<VAR64>::ID ,that.v2i0) ;
-		const auto r3x = ComprInvokeProc::invoke (r1x ,r2x) ;
-		if (r3x != 0)
-			return r3x ;
-		return ComprInvokeProc::invoke (v2i1 ,that.v2i1) ;
-	}
-
-	inline DATA &m_v2i0 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (ARGV<DATA[2]>::ID ,mValue)[_CAST_ (ARGV<BYTE[2]>::ID ,r1x)[0]] ;
-	}
-
-	inline const DATA &m_v2i0 () const leftvalue {
-		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (ARGV<DATA[2]>::ID ,mValue)[_CAST_ (ARGV<BYTE[2]>::ID ,r1x)[0]] ;
-	}
-
-	inline DATA &m_v2i1 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (ARGV<DATA[2]>::ID ,mValue)[_CAST_ (ARGV<BYTE[2]>::ID ,r1x)[1]] ;
-	}
-
-	inline const DATA &m_v2i1 () const leftvalue {
-		const auto r1x = WORD (0X0001) ;
-		return _CAST_ (ARGV<DATA[2]>::ID ,mValue)[_CAST_ (ARGV<BYTE[2]>::ID ,r1x)[1]] ;
-	}
-
-	inline CHAR &m_v4i0 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[0]] ;
-	}
-
-	inline const CHAR &m_v4i0 () const leftvalue {
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[0]] ;
-	}
-
-	inline CHAR &m_v4i1 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[1]] ;
-	}
-
-	inline const CHAR &m_v4i1 () const leftvalue {
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[1]] ;
-	}
-
-	inline CHAR &m_v4i2 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[2]] ;
-	}
-
-	inline const CHAR &m_v4i2 () const leftvalue {
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[2]] ;
-	}
-
-	inline CHAR &m_v4i3 () leftvalue {
-		_STATIC_WARNING_ ("mark") ;
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[3]] ;
-	}
-
-	inline const CHAR &m_v4i3 () const leftvalue {
-		const auto r1x = CHAR (0X00010203) ;
-		return _CAST_ (ARGV<CHAR[4]>::ID ,mValue)[_CAST_ (ARGV<BYTE[4]>::ID ,r1x)[3]] ;
-	}
-
-private:
-	imports VAR128 slow_divide (const VAR128 &y ,const VAR128 &x) {
-		_DEBUG_ASSERT_ (y >= 0) ;
-		_DEBUG_ASSERT_ (x > 0) ;
-		VAR128 ret = 0 ;
-		auto rax = Buffer<VAR128 ,ARGC<2>> () ;
-		rax[0] = 0 ;
-		rax[1] = y ;
-		while (TRUE) {
-			if (rax[0] > rax[1])
-				break ;
-			ret = rax[0] + (rax[1] - rax[0]) / 2 ;
-			const auto r1x = x * ret ;
-			if (r1x == y)
-				break ;
-			auto fax = TRUE ;
-			if switch_once (fax) {
-				if (!(r1x < y))
-					discard ;
-				rax[0] = ret + 1 ;
-			}
-			if switch_once (fax) {
-				rax[1] = ret - 1 ;
-			}
-		}
-		ret -= _EBOOL_ (x * ret > y) ;
-		return _MOVE_ (ret) ;
-	}
-
-#undef v2i0
-#undef v2i1
-#undef v4i0
-#undef v4i1
-#undef v4i2
-#undef v4i3
-#pragma pop_macro ("v2i1")
-#pragma pop_macro ("v2i0")
-#pragma pop_macro ("v4i3")
-#pragma pop_macro ("v4i2")
-#pragma pop_macro ("v4i1")
-#pragma pop_macro ("v4i0")
 } ;
+#endif
 
 namespace U {
 template <class...>
@@ -547,10 +109,6 @@ struct CONSTEXPR_MAX_ALIGNOF<_ARG1 ,_ARGS...> {
 
 template <class... UNITS>
 class Variant final {
-#pragma push_macro ("fake")
-#undef fake
-#define fake m_fake ()
-
 private:
 	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ANY_SAME_HELP<REMOVE_CVR_TYPE<UNITS>...>>::compile ()) ;
@@ -578,15 +136,11 @@ private:
 		alignas (_ARG1) DEF<BYTE[_ARG2]> mUnused ;
 	} ;
 
-	class FakeHolder :
-		delegate public Holder {
-	private:
-		using ALIGN = U::CONSTEXPR_MAX_ALIGNOF<UNITS...> ;
-		using SIZE = U::CONSTEXPR_MAX_SIZEOF<UNITS...> ;
+	using FakeStorage = TEMP<ALIGNED_UNION<(U::CONSTEXPR_MAX_ALIGNOF<UNITS...>::compile ()) ,(U::CONSTEXPR_MAX_SIZEOF<UNITS...>::compile ())>> ;
 
-	private:
-		TEMP<ALIGNED_UNION<(ALIGN::compile ()) ,(SIZE::compile ())>> mUnused ;
-	} ;
+	class FakeHolder :
+		delegate public Holder ,
+		delegate public FakeStorage {} ;
 
 	using OPTIONAL = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
 
@@ -608,14 +162,13 @@ public:
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_CVR_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<U::CONSTEXPR_EQUAL<R1X ,ARGC<VAR_NONE>>>::compile ()) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R2X>>::ID ,DEPTR[mVariant]) ;
-		template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
+		template_create (DEPTR[mVariant] ,ARGV<R2X>::ID ,ARGVPX ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
 	}
 
 	implicit ~Variant () noexcept {
 		if (!exist ())
 			return ;
-		_DESTROY_ (mVariant) ;
+		_DESTROY_ (DEPTR[mVariant]) ;
 		_ZERO_ (mVariant) ;
 	}
 
@@ -623,7 +176,7 @@ public:
 		delegate Variant (ARGVP0) {
 		if (!that.exist ())
 			return ;
-		that.fake.friend_copy (DEPTR[mVariant]) ;
+		that.m_fake ().friend_copy (DEPTR[mVariant]) ;
 	}
 
 	inline Variant &operator= (const Variant &that) {
@@ -640,7 +193,7 @@ public:
 		delegate Variant (ARGVP0) {
 		if (!that.exist ())
 			return ;
-		that.fake.friend_move (DEPTR[mVariant]) ;
+		that.m_fake ().friend_move (DEPTR[mVariant]) ;
 	}
 
 	inline Variant &operator= (Variant &&that) noexcept {
@@ -654,7 +207,7 @@ public:
 	}
 
 	BOOL exist () const {
-		auto &r1x = _FORWARD_ (ARGV<Interface>::ID ,fake) ;
+		auto &r1x = _FORWARD_ (ARGV<Interface>::ID ,m_fake ()) ;
 		const auto r2x = _CAST_ (ARGV<FLAG>::ID ,r1x) ;
 		if (r2x == VAR_ZERO)
 			return FALSE ;
@@ -666,7 +219,7 @@ public:
 		using R1X = INDEX_OF_TYPE<REMOVE_CVR_TYPE<_ARG1> ,ARGVS<REMOVE_CVR_TYPE<UNITS>...>> ;
 		if (!exist ())
 			return FALSE ;
-		if (fake.type_index () != R1X::compile ())
+		if (m_fake ().type_index () != R1X::compile ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -674,7 +227,7 @@ public:
 	OPTIONAL &to () leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = fake.fast_pointer () ;
+		const auto r1x = m_fake ().fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -686,7 +239,7 @@ public:
 	const OPTIONAL &to () const leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = fake.fast_pointer () ;
+		const auto r1x = m_fake ().fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
 		return DEREF[r2x] ;
 	}
@@ -699,7 +252,7 @@ public:
 	void apply (const Function<void (_ARG1 &)> &proc) {
 		if (!available (ARGV<_ARG1>::ID))
 			return ;
-		const auto r1x = fake.fast_pointer () ;
+		const auto r1x = m_fake ().fast_pointer () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r1x) ;
 		proc (DEREF[r2x]) ;
 	}
@@ -748,15 +301,14 @@ private:
 		if switch_once (TRUE) {
 			if (!(index == 0))
 				discard ;
-			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R3X>>::ID ,DEPTR[mVariant]) ;
-			template_create (r1x ,ARGVPX ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+			template_create (DEPTR[mVariant] ,ARGV<R3X>::ID ,ARGVPX ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 			return ;
 		}
 		template_construct ((index - 1) ,ARGV<R2X>::ID ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS...>>>>
-	imports void template_create (const PTR<TEMP<typename Private::template ImplHolder<_ARG1>>> &address ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
+	imports void template_create (const PTR<TEMP<FakeHolder>> &address ,const ARGVF<typename Private::template ImplHolder<_ARG1>> & ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
 		using R1X = typename Private::template ImplHolder<_ARG1> ;
 		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,address) ;
 		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r1x])) ;
@@ -769,8 +321,6 @@ private:
 	imports void template_create (const PTR<TEMP<typename Private::template ImplHolder<_ARG1>>> &address ,const DEF<decltype (ARGVP1)> & ,_ARGS &&...initval) {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
-
-#pragma pop_macro ("fake")
 } ;
 
 template <class... UNITS>
@@ -804,13 +354,11 @@ public:
 	}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
+		template_create (address ,ARGV<ImplHolder<UNIT_>>::ID ,ARGVPX ,_MOVE_ (mValue)) ;
 	}
 
 	void friend_move (const PTR<TEMP<FakeHolder>> &address) override {
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<ImplHolder<UNIT_>>>::ID ,address) ;
-		template_create (r1x ,ARGVPX ,_MOVE_ (mValue)) ;
+		template_create (address ,ARGV<ImplHolder<UNIT_>>::ID ,ARGVPX ,_MOVE_ (mValue)) ;
 	}
 } ;
 
@@ -1366,7 +914,7 @@ public:
 	implicit AtomicVar () = default ;
 
 	implicit AtomicVar (const VAR &that) {
-		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,that) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,that) ;
 		const auto r2x = mValue.compare_exchange (0 ,r1x) ;
 		_STATIC_UNUSED_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x == r1x) ;
@@ -1374,35 +922,35 @@ public:
 
 	VAR fetch () const {
 		const auto r1x = mValue.fetch () ;
-		return _CAST_ (ARGV<VAR>::ID ,r1x) ;
+		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r1x) ;
 	}
 
 	VAR exchange (const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		const auto r2x = mValue.exchange (r1x) ;
-		return _CAST_ (ARGV<VAR>::ID ,r2x) ;
+		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r2x) ;
 	}
 
 	VAR compare_exchange (const VAR &expect ,const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,expect) ;
-		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,expect) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		const auto r3x = mValue.compare_exchange (r1x ,r2x) ;
-		return _CAST_ (ARGV<VAR>::ID ,r3x) ;
+		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r3x) ;
 	}
 
 	void store (const VAR &data) {
-		const auto r1x = _CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
+		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,data) ;
 		mValue.store (r1x) ;
 	}
 
 	VAR increase () {
 		const auto r1x = mValue.increase () ;
-		return _CAST_ (ARGV<VAR>::ID ,r1x) ;
+		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r1x) ;
 	}
 
 	VAR decrease () {
 		const auto r1x = mValue.decrease () ;
-		return _CAST_ (ARGV<VAR>::ID ,r1x) ;
+		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r1x) ;
 	}
 
 	void wait (const VAR &data) const {
@@ -1427,7 +975,7 @@ public:
 
 	implicit AtomicPtr (const PTR<NONE> &that) {
 		const auto r1x = _ADDRESS_ (that) ;
-		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = mValue.compare_exchange (0 ,r2x) ;
 		_STATIC_UNUSED_ (r3x) ;
 		_DEBUG_ASSERT_ (r3x == r2x) ;
@@ -1435,31 +983,31 @@ public:
 
 	PTR<NONE> fetch () const {
 		const auto r1x = mValue.fetch () ;
-		const auto r2x = _CAST_ (ARGV<VAR>::ID ,r1x) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<VAR>::ID ,r1x) ;
 		return _UNSAFE_POINTER_ (r2x) ;
 	}
 
 	PTR<NONE> exchange (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
-		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = mValue.exchange (r2x) ;
-		const auto r4x = _CAST_ (ARGV<VAR>::ID ,r3x) ;
+		const auto r4x = _BITWISE_CAST_ (ARGV<VAR>::ID ,r3x) ;
 		return _UNSAFE_POINTER_ (r4x) ;
 	}
 
 	PTR<NONE> compare_exchange (const PTR<NONE> &expect ,const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (expect) ;
-		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = _ADDRESS_ (data) ;
-		const auto r4x = _CAST_ (ARGV<BASE_TYPE>::ID ,r3x) ;
+		const auto r4x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r3x) ;
 		const auto r5x = mValue.compare_exchange (r2x ,r4x) ;
-		const auto r6x = _CAST_ (ARGV<VAR>::ID ,r5x) ;
+		const auto r6x = _BITWISE_CAST_ (ARGV<VAR>::ID ,r5x) ;
 		return _UNSAFE_POINTER_ (r6x) ;
 	}
 
 	void store (const PTR<NONE> &data) {
 		const auto r1x = _ADDRESS_ (data) ;
-		const auto r2x = _CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
+		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		mValue.store (r2x) ;
 	}
 } ;
@@ -2219,7 +1767,7 @@ public:
 		const auto r10x = _POINTER_CAST_ (ARGV<HEADER>::ID ,_UNSAFE_POINTER_ (r9x)) ;
 		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
 		DEREF[r10x].mCurr = r6x ;
-		const auto r11x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r8x) ;
+		const auto r11x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,_UNSAFE_POINTER_ (r8x)) ;
 		return r11x ;
 	}
 
@@ -2241,7 +1789,7 @@ public:
 		const auto r10x = _POINTER_CAST_ (ARGV<HEADER>::ID ,_UNSAFE_POINTER_ (r9x)) ;
 		DEREF[r10x].mFrom = DEPTR[mThis->mPool[ix].self] ;
 		DEREF[r10x].mCurr = r6x ;
-		const auto r11x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::ID ,r8x) ;
+		const auto r11x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::ID ,_UNSAFE_POINTER_ (r8x)) ;
 		return r11x ;
 	}
 

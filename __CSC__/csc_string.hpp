@@ -15,6 +15,8 @@
 namespace CSC {
 class TimePoint ;
 
+using IPV4_ADDRESS = PACK<WORD ,CHAR> ;
+
 class StringProc :
 	delegate private Wrapped<> {
 public:
@@ -140,10 +142,10 @@ public:
 	imports String<_ARG1> build_base64u8s (const ARGVF<_ARG1> & ,const String<STRU8> &stru) ;
 
 	template <class _ARG1>
-	imports PACK<WORD ,CHAR> parse_ipv4s (const String<_ARG1> &stri) ;
+	imports IPV4_ADDRESS parse_ipv4s (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
-	imports String<_ARG1> build_ipv4s (const ARGVF<_ARG1> & ,const PACK<WORD ,CHAR> &stru) ;
+	imports String<_ARG1> build_ipv4s (const ARGVF<_ARG1> & ,const IPV4_ADDRESS &stru) ;
 
 	template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<TimePoint>>
 	imports _RET parse_dates (const String<_ARG1> &stri) ;
@@ -1415,8 +1417,8 @@ inline exports String<STRU8> StringProc::parse_base64u8s (const String<_ARG1> &s
 }
 
 template <class _ARG1>
-inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &stri) {
-	PACK<WORD ,CHAR> ret ;
+inline exports IPV4_ADDRESS StringProc::parse_ipv4s (const String<_ARG1> &stri) {
+	IPV4_ADDRESS ret ;
 	auto rax = TextReader<_ARG1> (stri.raw ()) ;
 	auto rbx = _ARG1 () ;
 	auto rcx = VAR () ;
@@ -1438,7 +1440,7 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 	rax >> rcx ;
 	_DYNAMIC_ASSERT_ (rcx >= 0 && rcx < 256) ;
 	const auto r4x = BYTE (rcx) ;
-	const auto r5x = PACK<BYTE[_SIZEOF_ (CHAR)]> {r1x ,r2x ,r3x ,r4x} ;
+	const auto r5x = PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>> {r1x ,r2x ,r3x ,r4x} ;
 	ByteReader<BYTE> (PhanBuffer<const BYTE>::make (r5x.mP1)) >> ret.mP2 ;
 	ret.mP1 = 0 ;
 	rax.share () >> rbx ;
@@ -1455,9 +1457,9 @@ inline exports PACK<WORD ,CHAR> StringProc::parse_ipv4s (const String<_ARG1> &st
 }
 
 template <class _ARG1>
-inline exports String<_ARG1> StringProc::build_ipv4s (const ARGVF<_ARG1> & ,const PACK<WORD ,CHAR> &stru) {
+inline exports String<_ARG1> StringProc::build_ipv4s (const ARGVF<_ARG1> & ,const IPV4_ADDRESS &stru) {
 	String<_ARG1> ret = String<_ARG1> (63) ;
-	auto rax = PACK<BYTE[_SIZEOF_ (CHAR)]> () ;
+	auto rax = PACK<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<CHAR>>> () ;
 	ByteWriter<BYTE> (PhanBuffer<BYTE>::make (rax.mP1)) << stru.mP2 ;
 	auto rbx = TextWriter<_ARG1> (ret.raw ()) ;
 	rbx << VAR (rax.mP1[0]) ;

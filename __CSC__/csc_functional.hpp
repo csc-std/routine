@@ -72,6 +72,18 @@ public:
 		return TRUE ;
 	}
 
+	template <class _ARG1>
+	BOOL available (const ARGVF<_ARG1> &) const {
+		_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Operand>>::compile ()) ;
+		if (!exist ())
+			return FALSE ;
+		const auto r1x = mThis->mHolder.type_mid () ;
+		const auto r2x = _TYPEMID_ (ARGV<_ARG1>::ID) ;
+		if (r1x != r2x)
+			return FALSE ;
+		return TRUE ;
+	}
+
 	BOOL equal (const Operand &that) const {
 		if (_EBOOL_ (mThis.exist ()) != _EBOOL_ (that.mThis.exist ()))
 			return FALSE ;
@@ -105,10 +117,7 @@ public:
 private:
 	template <class _ARG1>
 	const _ARG1 &template_as (const ARGVF<_ARG1> &) const leftvalue {
-		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = mThis->mHolder.type_mid () ;
-		const auto r2x = _TYPEMID_ (ARGV<_ARG1>::ID) ;
-		_DYNAMIC_ASSERT_ (r1x == r2x) ;
+		_DYNAMIC_ASSERT_ (available (ARGV<_ARG1>::ID)) ;
 		return mThis->mHolder.rebind (ARGV<REMOVE_CVR_TYPE<_ARG1>>::ID).self ;
 	}
 
@@ -408,11 +417,9 @@ protected:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Expression (const Operator &that) :
-		delegate Expression (ARGVP0) {
-		_DYNAMIC_ASSERT_ (that.rank () == RANK_SIZE::compile ()) ;
-		mThis->mOperator = that ;
-		mThis->mDepth = 1 ;
+	implicit Expression (const StrongRef<LexicalNode> &that) {
+		_DYNAMIC_ASSERT_ (that->mRank == RANK_SIZE::compile ()) ;
+		mThis = that ;
 	}
 
 	implicit Expression (const Expression &that) {
@@ -456,7 +463,8 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node) {
 			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<>>> ;
 			_STATIC_ASSERT_ (IS_SAME_HELP<RANK0 ,R1X>::compile ()) ;
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;		
+			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<DEF<decltype (r1x)> ,Expression<RANK ,RETR>>::compile ()) ;
 			return Operand (r1x) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -507,7 +515,7 @@ protected:
 		Expression<RANK ,RETR> ret ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<RANK ,U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<UNITS...>>>>::compile ()) ;
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const UNITS &...ins) {
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
+			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const UNITS...> (ins...) ;
 			auto &r3x = r1x.template_flip_invoke (ARGV<ARGVS<const UNITS...>>::ID ,r2x) ;
 			_STATIC_UNUSED_ (r3x) ;
@@ -529,7 +537,7 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
 			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
 			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
+			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
 			auto &r3x = r1x.template_flips_patch (r2x ,ARGV<_ARG2>::ID) ;
 			_STATIC_UNUSED_ (r3x) ;
@@ -551,9 +559,10 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const Operand &in1) {
 			using R2X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<Operand>>> ;
 			_STATIC_ASSERT_ (IS_SAME_HELP<RANK1 ,R2X>::compile ()) ;
-			auto &r1x = _CAST_ (ARGV<Expression<_ARG1 ,RETR>>::ID ,node.mChild[0]) ;
+			const auto r1x = Expression<_ARG1 ,RETR> (node.mChild[0]) ;
 			const auto r2x = Expression<RANK0> (in1) ;
 			const auto r3x = r1x.bind (r2x).curry () ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<DEF<decltype (r3x)> ,U::RETR_FUNC_TYPE<_ARG1>>::compile ()) ;
 			return Operand (r3x) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -587,8 +596,8 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
 			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
 			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			auto &r2x = _CAST_ (ARGV<Expression<_ARG2 ,_ARG3>>::ID ,node.mChild[1]) ;
+			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
+			const auto r2x = Expression<_ARG2 ,_ARG3> (node.mChild[1]) ;
 			const auto r3x = TupleBinder<const _ARGS...> (ins...) ;
 			auto &r4x = r1x.template_bind_patch (r2x ,r3x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID) ;
 			_STATIC_UNUSED_ (r4x) ;
@@ -619,11 +628,12 @@ protected:
 		ret.mThis->mOperator = Operator ([] (const LexicalNode &node ,const _ARGS &...ins) {
 			using R1X = U::RANK_FUNC_TYPE<CAPACITY_OF_TYPE<ARGVS<_ARGS...>>> ;
 			_STATIC_ASSERT_ (IS_SAME_HELP<_ARG1 ,R1X>::compile ()) ;
-			auto &r1x = _CAST_ (ARGV<Expression<RANK ,RETR>>::ID ,node.mChild[0]) ;
-			auto &r2x = _CAST_ (ARGV<Expression<RANK0 ,Expression<_ARG2 ,_ARG3>>>::ID ,node.mChild[1]) ;
+			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
+			const auto r2x = Expression<RANK0 ,Expression<_ARG2 ,_ARG3>> (node.mChild[1]) ;
 			const auto r3x = r1x.template_flip () ;
 			const auto r4x = r1x.template_link_patch (r3x ,Expression<RANK0> (ins)...) ;
 			const auto r5x = r4x.bind (r2x.invoke ()) ;
+			_STATIC_ASSERT_ (IS_SAME_HELP<DEF<decltype (r5x)> ,Expression<_ARG2 ,RETR>>::compile ()) ;
 			return Operand (r5x) ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -638,7 +648,9 @@ template <class RETR>
 class Expression<RANK0 ,RETR> :
 	delegate private Expression<SPECIALIZATION<RANK0> ,RETR> {
 private:
-	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK0> ,RETR> ;
+	using RANK = RANK0 ;
+	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
+	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
 
 private:
 	template <class ,class>
@@ -656,6 +668,13 @@ public:
 	}
 
 	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
+		_DYNAMIC_ASSERT_ (that.rank () == RANK_SIZE::compile ()) ;
+		mThis->mOperator = that ;
+		mThis->mDepth = 1 ;
+	}
+
+	explicit Expression (const StrongRef<LexicalNode> &that) :
 		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -686,9 +705,8 @@ template <class RETR>
 class Expression<RANK1 ,RETR> :
 	delegate private Expression<SPECIALIZATION<RANK1> ,RETR> {
 private:
-	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK1> ,RETR> ;
-
 	using RANK = RANK1 ;
+	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
 	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
 
 private:
@@ -701,6 +719,13 @@ public:
 	implicit Expression () = default ;
 
 	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
+		_DYNAMIC_ASSERT_ (that.rank () == RANK_SIZE::compile ()) ;
+		mThis->mOperator = that ;
+		mThis->mDepth = 1 ;
+	}
+
+	explicit Expression (const StrongRef<LexicalNode> &that) :
 		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}
@@ -741,7 +766,6 @@ class Expression :
 
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
-
 	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;
 
 private:
@@ -754,6 +778,13 @@ public:
 	implicit Expression () = default ;
 
 	implicit Expression (const Operator &that) :
+		delegate SPECIALIZATION_BASE (that) {
+		_DYNAMIC_ASSERT_ (that.rank () == RANK_SIZE::compile ()) ;
+		mThis->mOperator = that ;
+		mThis->mDepth = 1 ;
+	}
+
+	explicit Expression (const StrongRef<LexicalNode> &that) :
 		delegate SPECIALIZATION_BASE (that) {
 		_STATIC_WARNING_ ("noop") ;
 	}

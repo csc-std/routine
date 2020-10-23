@@ -153,12 +153,6 @@ using WORD = api::uint16_t ;
 using CHAR = api::uint32_t ;
 using DATA = api::uint64_t ;
 
-struct __uint128_t {
-	alignas (16) DEF<BYTE[16]> mUnused ;
-} ;
-
-using MEGA = __uint128_t ;
-
 using STRU8 = unsigned char ;
 using STRU16 = char16_t ;
 using STRU32 = char32_t ;
@@ -802,7 +796,10 @@ using TEMPLATE_PARAMS_TYPE = typename TEMPLATE_PARAMS<REMOVE_CVR_TYPE<_ARG1>>::T
 
 namespace U {
 template <class ,class>
-struct SIZE_OF {
+struct SIZE_OF ;
+
+template <class _ARG1>
+struct SIZE_OF<ARR<_ARG1> ,NONE> {
 	using TYPE = ZERO ;
 } ;
 
@@ -817,9 +814,7 @@ using SIZE_OF_TYPE = typename SIZE_OF<REMOVE_CVR_TYPE<_ARG1> ,NONE>::TYPE ;
 
 namespace U {
 template <class ,class>
-struct ALIGN_OF {
-	using TYPE = ZERO ;
-} ;
+struct ALIGN_OF ;
 
 template <class _ARG1>
 struct ALIGN_OF<_ARG1 ,NONE> {
@@ -1128,11 +1123,6 @@ struct IS_BYTE_XYZ<CHAR ,CHAR> {
 template <>
 struct IS_BYTE_XYZ<DATA ,DATA> {
 	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct IS_BYTE_XYZ<_ARG1 ,MEGA> {
-	using TYPE = U::CONSTEXPR_NOT<IS_CLASS_HELP<_ARG1>> ;
 } ;
 
 template <class _ARG1>
@@ -1474,13 +1464,8 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
 } ;
 
 template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<_ARG1> ,ENABLE_TYPE<IS_XYZ_HELP<_ARG1>> ,ARGC<3>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-//@info: compatible for old c api
-template <>
-struct IS_SAFE_ALIASING<ARR<STRA> ,ARR<BYTE> ,NONE ,ARGC<3>> {
+struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<TEMP<_ARG1>> ,ENABLE_TYPE<IS_XYZ_HELP<_ARG1>> ,ARGC<3>> {
+	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) == _SIZEOF_ (_ARG1)) ;
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1489,18 +1474,8 @@ struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
 	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
 } ;
 
-template <class _ARG1 ,class _ARG2>
-struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,ENABLE_TYPE<IS_BASE_OF_HELP<_ARG2 ,_ARG2>> ,ARGC<4>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<5>>::TYPE ;
-} ;
-
 template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,NONE ,NONE ,ARGC<5>> {
+struct IS_SAFE_ALIASING<_ARG1 ,NONE ,NONE ,ARGC<4>> {
 	using TYPE = ARGC<TRUE> ;
 } ;
 
@@ -1738,7 +1713,7 @@ inline LENGTH _ADDRESS_ (const PTR<const _ARG1> &address) {
 }
 
 inline PTR<NONE> _UNSAFE_POINTER_ (const LENGTH &address) {
-	return PTR<NONE> (address) ;
+	return reinterpret_cast<PTR<NONE>> (address) ;
 }
 
 inline INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
@@ -1748,12 +1723,24 @@ inline INDEX _ALIGNAS_ (const INDEX &base ,const LENGTH &align_) {
 //@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1 ,class _ARG2>
 inline CAST_TRAITS_TYPE<_ARG1 ,_ARG2> &_CAST_ (const ARGVF<_ARG1> & ,_ARG2 &object) {
-	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG1>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG2> ,TEMP<_ARG1>>>::compile ()) ;
-	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG2>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,TEMP<_ARG2>>>::compile ()) ;
-	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG2) % _ALIGNOF_ (_ARG1) == 0) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG1>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<REMOVE_TEMP_TYPE<_ARG2>> ,REMOVE_CVR_TYPE<_ARG1>>>::compile ()) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG2>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<REMOVE_TEMP_TYPE<_ARG1>> ,REMOVE_CVR_TYPE<_ARG2>>>::compile ()) ;
+	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG2) == _ALIGNOF_ (_ARG1)) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
 	const auto r1x = _ADDRESS_ (DEPTR[object]) ;
 	const auto r2x = reinterpret_cast<PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>> (r1x) ;
+	return DEREF[r2x] ;
+}
+
+//@warn: not type-safe ,be careful about strict-aliasing
+template <class _ARG1 ,class _ARG2>
+inline ARR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> &_CAST_ (const ARGVF<ARR<_ARG1>> & ,ARR<_ARG2> &object) {
+	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG1>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<REMOVE_TEMP_TYPE<_ARG2>> ,REMOVE_CVR_TYPE<_ARG1>>>::compile ()) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_OR<U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG2>> ,IS_SAME_HELP<REMOVE_CVR_TYPE<REMOVE_TEMP_TYPE<_ARG1>> ,REMOVE_CVR_TYPE<_ARG2>>>::compile ()) ;
+	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG2) == _ALIGNOF_ (_ARG1)) ;
+	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
+	const auto r1x = _ADDRESS_ (DEPTR[object]) ;
+	const auto r2x = reinterpret_cast<PTR<ARR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>>> (r1x) ;
 	return DEREF[r2x] ;
 }
 
@@ -1804,22 +1791,21 @@ inline void _SWAP_ (_ARG1 &lhs ,_ARG1 &rhs) {
 
 template <class _ARG1 ,class _ARG2>
 inline REMOVE_CVR_TYPE<_ARG1> _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 &object) {
-	using R1X = TEMP<BYTE[_SIZEOF_ (_ARG1)]> ;
+	using R1X = TEMP<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<_ARG1>>> ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG1>>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_POINTER_HELP<_ARG2>>::compile ()) ;
 	_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG1>::compile ()) ;
 	_STATIC_ASSERT_ (IS_TRIVIAL_HELP<_ARG2>::compile ()) ;
 	_STATIC_ASSERT_ (_SIZEOF_ (_ARG1) == _SIZEOF_ (_ARG2)) ;
 	TEMP<_ARG1> ret ;
-	_ZERO_ (ret) ;
-	_CAST_ (ARGV<R1X>::ID ,ret) = _CAST_ (ARGV<R1X>::ID ,object) ;
+	auto &r1x = _CAST_ (ARGV<TEMP<_ARG2>>::ID ,object) ;
+	_CAST_ (ARGV<R1X>::ID ,ret.mUnused) = _CAST_ (ARGV<R1X>::ID ,r1x.mUnused) ;
 	return _MOVE_ (_CAST_ (ARGV<_ARG1>::ID ,ret)) ;
 }
 
 //@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1 ,class _ARG2>
 inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
-	using R1X = PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> ;
 	_STATIC_ASSERT_ (IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2>::compile ()) ;
 	if (pointer == NULL)
 		return NULL ;
@@ -1827,8 +1813,7 @@ inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & 
 	const auto r2x = _ADDRESS_ (pointer) ;
 	if (r2x % r1x != 0)
 		return NULL ;
-	const auto r3x = _CAST_ (ARGV<TEMP<R1X>>::ID ,r2x) ;
-	return _CAST_ (ARGV<R1X>::ID ,r3x) ;
+	return reinterpret_cast<PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>> (r2x) ;
 }
 
 template <class _ARG1 ,class _ARG2 ,class _ARG3>
@@ -1899,7 +1884,7 @@ inline VAR _EBOOL_ (const BOOL &flag) {
 template <class UNIT>
 struct TEMP {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<UNIT>>::compile ()) ;
-	alignas (UNIT) DEF<BYTE[_SIZEOF_ (UNIT)]> mUnused ;
+	alignas (UNIT) DEF<ARRAY_BIND_TYPE<BYTE ,SIZE_OF_TYPE<UNIT>>> mUnused ;
 } ;
 
 class EqualInvokeProc ;
@@ -2151,7 +2136,7 @@ private:
 
 public:
 	FLAG type_mid () const override {
-		return _MOVE_ (_CAST_ (ARGV<FLAG>::ID ,DEREF[this])) ;
+		return _CAST_ (ARGV<FLAG>::ID ,DEREF[this]) ;
 	}
 
 	TYPEABI type_abi () const override {

@@ -169,19 +169,18 @@ public:
 		}) ;
 		const auto r2x = api::FreeImage_SaveToMemory (FIF_BMP ,mHolder ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r2x) ;
-		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		rax.mP1 = NULL ;
-		rax.mP2 = VARY (0) ;
-		const auto r3x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = PTR<BYTE> (NULL) ;
+		auto rbx = VARY (0) ;
+		const auto r3x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax] ,DEPTR[rbx]) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		if switch_once (TRUE) {
-			if (LENGTH (rax.mP2) == 0)
+			if (LENGTH (rbx) == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (rax.mP1 != NULL) ;
-			_DYNAMIC_ASSERT_ (LENGTH (rax.mP2) >= 0 && LENGTH (rax.mP2) < VAR32_MAX) ;
+			_DYNAMIC_ASSERT_ (rax != NULL) ;
+			_DYNAMIC_ASSERT_ (LENGTH (rbx) >= 0 && LENGTH (rbx) < VAR32_MAX) ;
 		}
-		data = AutoBuffer<BYTE> (LENGTH (rax.mP2)) ;
-		BasicProc::mem_move (data.self ,PTRTOARR[rax.mP1] ,data.size ()) ;
+		data = AutoBuffer<BYTE> (LENGTH (rbx)) ;
+		BasicProc::mem_move (data.self ,PTRTOARR[rax] ,data.size ()) ;
 	}
 
 	void load_data_file (const String<STR> &file) override {
@@ -297,19 +296,18 @@ public:
 		}) ;
 		const auto r2x = api::FreeImage_SaveToMemory (FIF_BMP ,mHolder ,r1x.self) ;
 		_DYNAMIC_ASSERT_ (r2x) ;
-		auto rax = PACK<PTR<BYTE> ,VARY> () ;
-		rax.mP1 = NULL ;
-		rax.mP2 = VARY (0) ;
-		const auto r3x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax.mP1] ,DEPTR[rax.mP2]) ;
+		auto rax = PTR<BYTE> (NULL) ;
+		auto rbx = VARY (0) ;
+		const auto r3x = api::FreeImage_AcquireMemory (r1x.self ,DEPTR[rax] ,DEPTR[rbx]) ;
 		_DYNAMIC_ASSERT_ (r3x) ;
 		if switch_once (TRUE) {
-			if (LENGTH (rax.mP2) == 0)
+			if (LENGTH (rbx) == 0)
 				discard ;
-			_DYNAMIC_ASSERT_ (rax.mP1 != NULL) ;
-			_DYNAMIC_ASSERT_ (LENGTH (rax.mP2) >= 0 && LENGTH (rax.mP2) < VAR32_MAX) ;
+			_DYNAMIC_ASSERT_ (rax != NULL) ;
+			_DYNAMIC_ASSERT_ (LENGTH (rbx) >= 0 && LENGTH (rbx) < VAR32_MAX) ;
 		}
-		data = AutoBuffer<BYTE> (LENGTH (rax.mP2)) ;
-		BasicProc::mem_move (data.self ,PTRTOARR[rax.mP1] ,data.size ()) ;
+		data = AutoBuffer<BYTE> (LENGTH (rbx)) ;
+		BasicProc::mem_move (data.self ,PTRTOARR[rax] ,data.size ()) ;
 	}
 
 	void load_data_file (const String<STR> &file) override {
