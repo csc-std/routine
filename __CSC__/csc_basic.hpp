@@ -673,7 +673,7 @@ protected:
 	class Holder :
 		delegate public Interface {
 	public:
-		virtual UNIT &deref () leftvalue = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
 
@@ -730,8 +730,8 @@ public:
 	explicit PureHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
 		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
-	UNIT &deref () leftvalue override {
-		return mValue ;
+	Reference reference () override {
+		return SafeReference<UNIT> (mValue) ;
 	}
 
 	void destroy () noexcept override {
@@ -753,7 +753,7 @@ protected:
 	class Holder :
 		delegate public Interface {
 	public:
-		virtual UNIT &deref () leftvalue = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
 
@@ -779,10 +779,11 @@ protected:
 		if (that.mPointer == NULL)
 			return ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		auto &r1x = _FORWARD_ (ARGV<const UNIT>::ID ,DEREF[that.mPointer].deref ()) ;
-		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,r1x) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		mPointer = r2x ;
+		const auto r1x = DEREF[that.mPointer].reference () ;
+		const auto r2x = SafeReference<const UNIT> (r1x) ;
+		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,r2x.self) ;
+		const auto r3x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
+		mPointer = r3x ;
 		rax = NULL ;
 	}
 
@@ -829,8 +830,8 @@ public:
 	explicit PureHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
 		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
-	UNIT &deref () leftvalue override {
-		return mValue ;
+	Reference reference () override {
+		return SafeReference<UNIT> (mValue) ;
 	}
 
 	void destroy () noexcept override {
@@ -863,7 +864,8 @@ public:
 
 	UNIT &to () leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].deref () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<UNIT> (r1x) ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -876,7 +878,8 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].deref () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<const UNIT> (r1x) ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -914,7 +917,7 @@ private:
 	class Holder :
 		delegate public Interface {
 	public:
-		virtual UNIT &deref () leftvalue = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
 		virtual void destroy () noexcept = 0 ;
@@ -980,7 +983,8 @@ public:
 
 	UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].deref () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<UNIT> (r1x) ;
 	}
 
 	inline PTR<UNIT> operator-> () const leftvalue {
@@ -1044,8 +1048,8 @@ public:
 		delegate mValue (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,
 		delegate mCounter (0) {}
 
-	UNIT &deref () leftvalue override {
-		return mValue ;
+	Reference reference () override {
+		return SafeReference<UNIT> (mValue) ;
 	}
 
 	LENGTH increase () override {
@@ -1078,8 +1082,9 @@ public:
 		delegate mPointer (pointer) ,
 		delegate mCounter (0) {}
 
-	UNIT &deref () leftvalue override {
-		return DEREF[mPointer] ;
+	Reference reference () override {
+		_DYNAMIC_ASSERT_ (mPointer != NULL) ;
+		return SafeReference<UNIT> (DEREF[mPointer]) ;
 	}
 
 	LENGTH increase () override {
@@ -1108,8 +1113,7 @@ private:
 	public:
 		virtual FLAG type_mid () const = 0 ;
 		virtual TYPEABI type_abi () const = 0 ;
-		virtual PTR<NONE> fast_pointer () = 0 ;
-		virtual PTR<const NONE> fast_pointer () const = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual AnyRef<> clone () const = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
@@ -1185,12 +1189,14 @@ public:
 
 	PTR<NONE> fast_pointer () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].fast_pointer () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return r1x.fast_pointer () ;
 	}
 
 	PTR<const NONE> fast_pointer () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].fast_pointer () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return r1x.fast_pointer () ;
 	}
 
 	AnyRef clone () const {
@@ -1286,19 +1292,20 @@ public:
 
 	PTR<NONE> fast_pointer () {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].fast_pointer () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return r1x.fast_pointer () ;
 	}
 
 	PTR<const NONE> fast_pointer () const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].fast_pointer () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return r1x.fast_pointer () ;
 	}
 
 	UNIT &to () leftvalue {
-		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
-		const auto r1x = DEREF[mPointer].fast_pointer () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
-		return DEREF[r2x] ;
+		_DEBUG_ASSERT_ (exist ()) ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<UNIT> (r1x) ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -1310,10 +1317,9 @@ public:
 	}
 
 	const UNIT &to () const leftvalue {
-		_DEBUG_ASSERT_ (type_mid () == _TYPEMID_ (ARGV<UNIT>::ID)) ;
-		const auto r1x = DEREF[mPointer].fast_pointer () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r1x) ;
-		return DEREF[r2x] ;
+		_DEBUG_ASSERT_ (exist ()) ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<const UNIT> (r1x) ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1353,7 +1359,7 @@ template <class UNIT>
 class AnyRef<UNIT>::Private::PureHolder :
 	delegate public Holder {
 private:
-	UNIT mValue ;
+	REMOVE_CVR_TYPE<UNIT> mValue ;
 
 public:
 	implicit PureHolder () = delete ;
@@ -1370,12 +1376,8 @@ public:
 		return _TYPEABI_ (ARGV<UNIT>::ID) ;
 	}
 
-	PTR<NONE> fast_pointer () override {
-		return DEPTR[mValue] ;
-	}
-
-	PTR<const NONE> fast_pointer () const override {
-		return DEPTR[mValue] ;
+	Reference reference () override {
+		return SafeReference<UNIT> (mValue) ;
 	}
 
 	AnyRef<> clone () const override {
@@ -1533,7 +1535,7 @@ private:
 	class Holder :
 		delegate public Interface {
 	public:
-		virtual UNIT &deref () leftvalue = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual void release () = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
@@ -1559,7 +1561,9 @@ public:
 		auto rbx = R1X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
-		constructor (DEREF[r1x].deref ()) ;
+		const auto r2x = DEREF[r1x].reference () ;
+		const auto r3x = SafeReference<UNIT> (r2x) ;
+		constructor (r3x) ;
 		mPointer = r1x ;
 		rax = NULL ;
 	}
@@ -1603,7 +1607,8 @@ public:
 
 	const UNIT &to () const leftvalue {
 		_DEBUG_ASSERT_ (exist ()) ;
-		return DEREF[mPointer].deref () ;
+		const auto r1x = DEREF[mPointer].reference () ;
+		return SafeReference<const UNIT> (r1x) ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1625,8 +1630,9 @@ public:
 		}) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
-		auto &r2x = DEREF[r1x].deref () ;
-		r2x = UNIT (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r2x = DEREF[r1x].reference () ;
+		const auto r3x = SafeReference<UNIT> (r2x) ;
+		r3x.self = UNIT (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		ret.mPointer = r1x ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1652,8 +1658,8 @@ public:
 	explicit ImplHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
 		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
-	UNIT &deref () leftvalue override {
-		return mValue ;
+	Reference reference () override {
+		return SafeReference<UNIT> (mValue) ;
 	}
 
 	void release () override {
@@ -1783,6 +1789,7 @@ private:
 	class Holder :
 		delegate public Interface {
 	public:
+		virtual Reference reference () = 0 ;
 		virtual UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
@@ -1810,8 +1817,10 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
+		const auto r2x = DEREF[r1x].reference () ;
+		const auto r3x = SafeReference<REMOVE_REFERENCE_TYPE<_ARG1>> (r2x) ;
 		mPointer = r1x ;
-		mFastPointer = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,DEREF[r1x].deref ()) ;
+		mFastPointer = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,r3x.self) ;
 		rax = NULL ;
 	}
 
@@ -1936,8 +1945,8 @@ public:
 	explicit ImplHolder (const DEF<decltype (ARGVP0)> & ,_ARGS &&...initval) :
 		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) {}
 
-	UNIT_ &deref () leftvalue {
-		return mFunctor ;
+	Reference reference () override {
+		return SafeReference<UNIT_> (mFunctor) ;
 	}
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const override {
@@ -2872,7 +2881,7 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}
@@ -3061,7 +3070,7 @@ public:
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}
@@ -3069,7 +3078,7 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
 		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<BYTE>>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}

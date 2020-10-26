@@ -1846,12 +1846,12 @@ inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 }
 
 template <class>
-class PhanRef ;
+class SafeReference ;
 
-template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<PhanRef<_ARG1>>>
+template <class _ARG1 ,class _RET = REMOVE_CVR_TYPE<SafeReference<_ARG1>>>
 inline _RET _BYREF_ (_ARG1 &object) {
-	using R1X = DEPENDENT_TYPE<PhanRef<_ARG1> ,struct ANONYMOUS> ;
-	return R1X::make (object) ;
+	using R1X = DEPENDENT_TYPE<SafeReference<_ARG1> ,struct ANONYMOUS> ;
+	return R1X (object) ;
 }
 
 template <class _ARG1>
@@ -2119,6 +2119,7 @@ public:
 struct TYPEABI {
 	LENGTH mAlign ;
 	LENGTH mSize ;
+	PTR<const ARR<STR>> mLink ;
 } ;
 
 class TypeInfo :
@@ -2128,34 +2129,19 @@ public:
 	virtual TYPEABI type_abi () const = 0 ;
 } ;
 
-template <class UNIT>
-class TypeInfoBase :
-	delegate private TypeInfo {
-private:
-	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<UNIT> ,UNIT>::compile ()) ;
-
-public:
-	FLAG type_mid () const override {
-		return _CAST_ (ARGV<FLAG>::ID ,DEREF[this]) ;
-	}
-
-	TYPEABI type_abi () const override {
-		TYPEABI ret ;
-		_ZERO_ (ret) ;
-		ret.mAlign = _ALIGNOF_ (UNIT) ;
-		ret.mSize = _SIZEOF_ (UNIT) ;
-		return _MOVE_ (ret) ;
-	}
-} ;
+template <class>
+class TypeInfoBase ;
 
 template <class _ARG1>
 inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
-	return TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ().type_mid () ;
+	using R1X = DEPENDENT_TYPE<TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
+	return R1X ().type_mid () ;
 }
 
 template <class _ARG1>
 inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
-	return TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ().type_abi () ;
+	using R1X = DEPENDENT_TYPE<TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
+	return R1X ().type_abi () ;
 }
 
 template <class UNIT = NONE>
@@ -2440,6 +2426,29 @@ private:
 	}
 } ;
 
+template <class UNIT>
+class TypeInfoBase :
+	delegate private TypeInfo {
+private:
+	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<UNIT> ,UNIT>::compile ()) ;
+
+public:
+	FLAG type_mid () const override {
+		return _CAST_ (ARGV<FLAG>::ID ,DEREF[this]) ;
+	}
+
+	TYPEABI type_abi () const override {
+		struct Dependent ;
+		TYPEABI ret ;
+		_ZERO_ (ret) ;
+		ret.mAlign = _ALIGNOF_ (UNIT) ;
+		ret.mSize = _SIZEOF_ (UNIT) ;
+		const auto r1x = Plain<STR> (ARGV<Dependent>::ID ,M_FUNC) ;
+		ret.mLink = DEPTR[r1x.self] ;
+		return _MOVE_ (ret) ;
+	}
+} ;
+
 class Exception final {
 private:
 	PTR<const ARR<STR>> mWhat ;
@@ -2494,4 +2503,89 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 	}
 	_CALL_TRY_ (proc_rest...) ;
 }
+
+template <class>
+class SafeReference ;
+
+class Reference {
+private:
+	template <class>
+	friend class SafeReference ;
+	CSC::BOOL mConst ;
+	PTR<NONE> mPointer ;
+	FLAG mTypeMID ;
+	TYPEABI mTypeABI ;
+
+public:
+	implicit Reference () {
+		mConst = FALSE ;
+		mPointer = NULL ;
+		mTypeMID = 0 ;
+		_ZERO_ (mTypeABI) ;
+	}
+
+	template <class _ARG1>
+	implicit Reference (const SafeReference<_ARG1> &that) {
+		mConst = IS_CONST_HELP<_ARG1>::compile () ;
+		mPointer = _UNSAFE_POINTER_ (_ADDRESS_ (that.mPointer)) ;
+		mTypeMID = _TYPEMID_ (ARGV<_ARG1>::ID) ;
+		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::ID) ;
+	}
+
+	BOOL exist () const {
+		if (mPointer == NULL)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	template <class _ARG1>
+	BOOL avaliable (const ARGVF<_ARG1> &) const {
+		if (!exist ())
+			return FALSE ;
+		if (!IS_CONST_HELP<_ARG1>::compile ())
+			if (mConst)
+				return FALSE ;
+		//@error: only basic abi competition check
+		const auto r1x = _TYPEABI_ (ARGV<_ARG1>::ID) ;
+		if (mTypeABI.mAlign != r1x.mAlign)
+			return FALSE ;
+		if (mTypeABI.mSize != r1x.mSize)
+			return FALSE ;
+		return TRUE ;
+	}
+
+	PTR<NONE> fast_pointer () const {
+		return mPointer ;
+	}
+} ;
+
+template <class UNIT>
+class SafeReference {
+private:
+	friend Reference ;
+	PTR<UNIT> mPointer ;
+
+public:
+	implicit SafeReference () = delete ;
+
+	explicit SafeReference (UNIT &object) {
+		mPointer = DEPTR[object] ;
+	}
+
+	implicit SafeReference (const Reference &that) {
+		const auto r1x = that.avaliable (ARGV<UNIT>::ID) ;
+		_DEBUG_ASSERT_ (r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,that.mPointer) ;
+		_DEBUG_ASSERT_ (r2x != NULL) ;
+		mPointer = r2x ;
+	}
+
+	UNIT &to () const leftvalue {
+		return DEREF[mPointer] ;
+	}
+
+	inline implicit operator UNIT & () const leftvalue {
+		return self ;
+	}
+} ;
 } ;

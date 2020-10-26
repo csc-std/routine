@@ -124,8 +124,8 @@ private:
 		delegate public Interface {
 	public:
 		virtual INDEX type_index () const = 0 ;
-		virtual PTR<NONE> fast_pointer () = 0 ;
-		virtual PTR<const NONE> fast_pointer () const = 0 ;
+		virtual Reference reference () = 0 ;
+		virtual Reference reference () const = 0 ;
 		virtual void friend_copy (const PTR<TEMP<FakeHolder>> &address) const = 0 ;
 		virtual void friend_move (const PTR<TEMP<FakeHolder>> &address) = 0 ;
 	} ;
@@ -227,9 +227,8 @@ public:
 	OPTIONAL &to () leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = m_fake ().fast_pointer () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
-		return DEREF[r2x] ;
+		const auto r1x = m_fake ().reference () ;
+		return SafeReference<OPTIONAL> (r1x) ;
 	}
 
 	inline implicit operator OPTIONAL & () leftvalue {
@@ -239,9 +238,8 @@ public:
 	const OPTIONAL &to () const leftvalue {
 		_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) == 1) ;
 		_DYNAMIC_ASSERT_ (exist ()) ;
-		const auto r1x = m_fake ().fast_pointer () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<OPTIONAL>::ID ,r1x) ;
-		return DEREF[r2x] ;
+		const auto r1x = m_fake ().reference () ;
+		return SafeReference<const OPTIONAL> (r1x) ;
 	}
 
 	inline implicit operator const OPTIONAL & () const leftvalue {
@@ -252,9 +250,9 @@ public:
 	void apply (const Function<void (_ARG1 &)> &proc) {
 		if (!available (ARGV<_ARG1>::ID))
 			return ;
-		const auto r1x = m_fake ().fast_pointer () ;
-		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r1x) ;
-		proc (DEREF[r2x]) ;
+		const auto r1x = m_fake ().reference () ;
+		const auto r2x = SafeReference<_ARG1> (r1x) ;
+		proc (r2x) ;
 	}
 
 	imports Variant nullopt () {
@@ -345,12 +343,12 @@ public:
 		return R1X::compile () ;
 	}
 
-	PTR<NONE> fast_pointer () override {
-		return DEPTR[mValue] ;
+	Reference reference () override {
+		return SafeReference<UNIT_> (mValue) ;
 	}
 
-	PTR<const NONE> fast_pointer () const override {
-		return DEPTR[mValue] ;
+	Reference reference () const override {
+		return SafeReference<const UNIT_> (mValue) ;
 	}
 
 	void friend_copy (const PTR<TEMP<FakeHolder>> &address) const override {
@@ -575,7 +573,7 @@ private:
 public:
 	implicit AllOfTuple () = delete ;
 
-	implicit AllOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
+	explicit AllOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
 		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
@@ -712,7 +710,7 @@ private:
 public:
 	implicit AnyOfTuple () = delete ;
 
-	implicit AnyOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
+	explicit AnyOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
 		delegate mBinder (initval...) {}
 
 	inline implicit operator BOOL () rightvalue {
@@ -1012,6 +1010,33 @@ public:
 	}
 } ;
 
+class RecastInvokeProc :
+	delegate private Wrapped<> {
+public:
+	template <class _ARG1 ,class _ARG2>
+	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
+		return template_recast (pointer ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::ID ,ARGVPX) ;
+	}
+
+private:
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<IS_BASE_OF_HELP<_ARG2 ,_ARG1>>>
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
+		return _FORWARD_ (ARGV<PTR<_ARG2>>::ID ,pointer) ;
+	}
+
+	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_BASE_OF_HELP<Interface ,_ARG1> ,IS_BASE_OF_HELP<Interface ,_ARG2>>>>
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
+		//@warn: RTTI might be different across DLL
+		return dynamic_cast<PTR<_ARG2>> (pointer) ;
+	}
+
+	template <class _ARG1 ,class _ARG2>
+	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP1)> &) {
+		return NULL ;
+	}
+} ;
+
+
 template <class>
 class StrongRef ;
 
@@ -1035,7 +1060,7 @@ private:
 		delegate public Interface {
 	public:
 		virtual PTR<THIS_PACK> strong_pointer () const = 0 ;
-		virtual PTR<NONE> fast_pointer () const leftvalue = 0 ;
+		virtual Reference reference () = 0 ;
 		virtual void weak_aquire () = 0 ;
 		virtual void weak_release () = 0 ;
 		virtual void strong_aquire () = 0 ;
@@ -1230,13 +1255,13 @@ class WeakRef::Private::ImplHolder :
 	delegate public Holder {
 private:
 	PTR<THIS_PACK> mStrongPointer ;
-	PTR<UNIT> mFaskPointer ;
+	Reference mFaskPointer ;
 	AtomicVar mWeakCounter ;
 
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (const PTR<THIS_PACK> &strong_pointer_ ,const PTR<UNIT> &fast_pointer_) {
+	explicit ImplHolder (const PTR<THIS_PACK> &strong_pointer_ ,const Reference &fast_pointer_) {
 		mStrongPointer = strong_pointer_ ;
 		mFaskPointer = fast_pointer_ ;
 	}
@@ -1245,7 +1270,9 @@ public:
 		return mStrongPointer ;
 	}
 
-	PTR<NONE> fast_pointer () const leftvalue override {
+	Reference reference () override {
+		if (DEREF[mStrongPointer].mStrongCounter.fetch () < 0)
+			return Reference () ;
 		return mFaskPointer ;
 	}
 
@@ -1312,32 +1339,6 @@ public:
 		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
 		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
-	}
-} ;
-
-class RecastInvokeProc :
-	delegate private Wrapped<> {
-public:
-	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG1> invoke (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
-		return template_recast (pointer ,ARGV<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>>::ID ,ARGVPX) ;
-	}
-
-private:
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<IS_BASE_OF_HELP<_ARG2 ,_ARG1>>>
-	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP3)> &) {
-		return _FORWARD_ (ARGV<PTR<_ARG2>>::ID ,pointer) ;
-	}
-
-	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_BASE_OF_HELP<Interface ,_ARG1> ,IS_BASE_OF_HELP<Interface ,_ARG2>>>>
-	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &pointer ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP2)> &) {
-		//@warn: RTTI might be different across DLL
-		return dynamic_cast<PTR<_ARG2>> (pointer) ;
-	}
-
-	template <class _ARG1 ,class _ARG2>
-	imports PTR<_ARG2> template_recast (const PTR<_ARG1> &address ,const ARGVF<_ARG2> & ,const DEF<decltype (ARGVP1)> &) {
-		return NULL ;
 	}
 } ;
 
@@ -1418,9 +1419,8 @@ public:
 		if (r1x == NULL)
 			return FALSE ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		const auto r3x = DEREF[r2x].strong_pointer () ;
-		const auto r4x = DEREF[r3x].mStrongCounter.fetch () ;
-		if (r4x <= 0)
+		const auto r3x = DEREF[r2x].reference () ;
+		if (!r3x.exist ())
 			return FALSE ;
 		return TRUE ;
 	}
@@ -1429,9 +1429,8 @@ public:
 		const auto r1x = mPointer.fetch () ;
 		_DEBUG_ASSERT_ (r1x != NULL) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r3x) ;
-		return DEREF[r4x] ;
+		const auto r3x = DEREF[r2x].reference () ;
+		return SafeReference<UNIT> (r3x) ;
 	}
 
 	inline PTR<UNIT> operator-> () leftvalue {
@@ -1446,9 +1445,8 @@ public:
 		const auto r1x = mPointer.fetch () ;
 		_DEBUG_ASSERT_ (r1x != NULL) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
-		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r3x) ;
-		return DEREF[r4x] ;
+		const auto r3x = DEREF[r2x].reference () ;
+		return SafeReference<UNIT> (r3x) ;
 	}
 
 	inline PTR<const UNIT> operator-> () const leftvalue {
@@ -1505,15 +1503,17 @@ public:
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		if (r2x == NULL)
 			return StrongRef<R2X> () ;
-		const auto r3x = DEREF[r2x].fast_pointer () ;
-		const auto r4x = _POINTER_CAST_ (ARGV<UNIT>::ID ,r3x) ;
-		const auto r5x = RecastInvokeProc::invoke (ARGV<_ARG1>::ID ,r4x) ;
-		_DYNAMIC_ASSERT_ (_EBOOL_ (r5x != NULL) == _EBOOL_ (r4x != NULL)) ;
-		const auto r6x = DEREF[r2x].strong_pointer () ;
+		const auto r3x = DEREF[r2x].reference () ;
+		const auto r4x = SafeReference<UNIT> (r3x) ;
+		const auto r5x = RecastInvokeProc::invoke (ARGV<_ARG1>::ID ,DEPTR[r4x.self]) ;
+		if (r5x == NULL)
+			return StrongRef<R2X> () ;
+		const auto r6x = SafeReference<_ARG1> (DEREF[r5x]) ;
+		const auto r7x = DEREF[r2x].strong_pointer () ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R4X>>::ID) ;
-		ScopedBuild<R4X> ANONYMOUS (rax ,r6x ,r5x) ;
-		const auto r7x = _POINTER_CAST_ (ARGV<R4X>::ID ,rax.self) ;
-		StrongRef<R2X> ret = StrongRef<R2X> (r7x) ;
+		ScopedBuild<R4X> ANONYMOUS (rax ,r7x ,r6x) ;
+		const auto r8x = _POINTER_CAST_ (ARGV<R4X>::ID ,rax.self) ;
+		StrongRef<R2X> ret = StrongRef<R2X> (r8x) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1536,11 +1536,12 @@ public:
 		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
 		DEREF[r1x].mOrigin = rax.self ;
 		DEREF[r1x].mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		const auto r2x = DEPTR[DEREF[r1x].mHolder.rebind (ARGV<R4X>::ID).self] ;
+		auto &r2x = DEREF[r1x].mHolder.rebind (ARGV<R4X>::ID).self ;
+		const auto r3x = SafeReference<R4X> (r2x) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R3X>>::ID) ;
-		ScopedBuild<R3X> ANONYMOUS (rbx ,r1x ,r2x) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<R3X>::ID ,rbx.self) ;
-		StrongRef ret = StrongRef (r3x) ;
+		ScopedBuild<R3X> ANONYMOUS (rbx ,r1x ,r3x) ;
+		const auto r4x = _POINTER_CAST_ (ARGV<R3X>::ID ,rbx.self) ;
+		StrongRef ret = StrongRef (r4x) ;
 		rbx = NULL ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1603,8 +1604,8 @@ public:
 		}
 	}
 
-	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
-	explicit Later (const FLAG &tag ,_ARG1 &&that) {
+	template <class _ARG1>
+	explicit Later (const FLAG &tag ,_ARG1 &&functor) {
 		mKeep = UniqueRef<SharedRef<THIS_PACK>> ([&] (SharedRef<THIS_PACK> &me) {
 			me = SharedRef<THIS_PACK>::make () ;
 			me->mNode = this ;
@@ -1615,7 +1616,7 @@ public:
 		}) ;
 		mThis = mKeep.self ;
 		mThis->mTag = tag ;
-		mThis->mOperator = Function<UNIT ()> (_FORWARD_ (ARGV<_ARG1>::ID ,that)) ;
+		mThis->mOperator = Function<UNIT ()> (_FORWARD_ (ARGV<_ARG1>::ID ,functor)) ;
 	}
 
 	UNIT invoke () const {
@@ -2157,8 +2158,8 @@ public:
 
 class ObjectMetadata {
 private:
-	TYPEABI mTypeABI ;
 	FLAG mTypeMID ;
+	TYPEABI mTypeABI ;
 	Function<void (PTR<NONE>)> mConstrutor ;
 	Function<void (PTR<NONE>)> mDestructor ;
 
@@ -2168,8 +2169,8 @@ public:
 	template <class _ARG1>
 	explicit ObjectMetadata (const ARGVF<_ARG1> &) {
 		_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,_ARG1>::compile ()) ;
-		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::ID) ;
 		mTypeMID = _TYPEMID_ (ARGV<_ARG1>::ID) ;
+		mTypeABI = _TYPEABI_ (ARGV<_ARG1>::ID) ;
 		mConstrutor = Function<void (PTR<NONE>)> ([] (const PTR<NONE> &address) {
 			const auto r1x = _POINTER_CAST_ (ARGV<TEMP<_ARG1>>::ID ,address) ;
 			_CREATE_ (r1x) ;

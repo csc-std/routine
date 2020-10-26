@@ -858,7 +858,7 @@ public:
 	implicit NativeProxy () = delete ;
 
 	explicit NativeProxy (PhanRef<Image> &&base) {
-		UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
+		mKeep = UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
 			me = _MOVE_ (base) ;
 		} ,[] (PhanRef<Image> &me) {
 			if (!me.exist ())
