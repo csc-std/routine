@@ -1423,67 +1423,6 @@ using CAST_TRAITS_TYPE = typename CAST_TRAITS<_ARG1 ,_ARG2>::TYPE ;
 } ;
 
 namespace U {
-template <class ,class ,class ,class>
-struct IS_SAFE_ALIASING {
-	using TYPE = ARGC<FALSE> ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,TEMP<_ARG1> ,NONE ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,_ARG1 ,NONE ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<_ARG1> ,ARR<TEMP<_ARG1>> ,NONE ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<TEMP<_ARG1>> ,ARR<_ARG1> ,NONE ,ARGC<1>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<1>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>>::TYPE ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-struct IS_SAFE_ALIASING<TEMP<_ARG1> ,TEMP<_ARG2> ,ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_EQUAL<U::CONSTEXPR_MOD<ALIGN_OF_TYPE<TEMP<_ARG2>> ,ALIGN_OF_TYPE<TEMP<_ARG1>>> ,ZERO> ,U::CONSTEXPR_COMPR_GT_EQ<SIZE_OF_TYPE<TEMP<_ARG2>> ,SIZE_OF_TYPE<TEMP<_ARG1>>>>> ,ARGC<2>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<2>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>>::TYPE ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<ARR<BYTE> ,ARR<TEMP<_ARG1>> ,ENABLE_TYPE<IS_XYZ_HELP<_ARG1>> ,ARGC<3>> {
-	_STATIC_ASSERT_ (_ALIGNOF_ (_ARG1) == _SIZEOF_ (_ARG1)) ;
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2 ,class _ARG3>
-struct IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<3>> {
-	using TYPE = typename IS_SAFE_ALIASING<_ARG1 ,_ARG2 ,_ARG3 ,ARGC<4>>::TYPE ;
-} ;
-
-template <class _ARG1>
-struct IS_SAFE_ALIASING<_ARG1 ,NONE ,NONE ,ARGC<4>> {
-	using TYPE = ARGC<TRUE> ;
-} ;
-
-template <class _ARG1 ,class _ARG2>
-using IS_SAFE_ALIASING_HELP = typename IS_SAFE_ALIASING<REMOVE_CVR_TYPE<_ARG1> ,REMOVE_CVR_TYPE<_ARG2> ,NONE ,ARGC<1>>::TYPE ;
-} ;
-
-namespace U {
 template <class...>
 struct IS_ALL_SAME {
 	using TYPE = ARGC<TRUE> ;
@@ -1584,7 +1523,6 @@ using U::IS_BASE_OF_HELP ;
 using U::IS_INTERFACE_HELP ;
 using U::FORWARD_TRAITS_TYPE ;
 using U::CAST_TRAITS_TYPE ;
-using U::IS_SAFE_ALIASING_HELP ;
 using U::IS_ALL_SAME_HELP ;
 using U::IS_ANY_SAME_HELP ;
 
@@ -1803,10 +1741,9 @@ inline REMOVE_CVR_TYPE<_ARG1> _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 
 	return _MOVE_ (_CAST_ (ARGV<_ARG1>::ID ,ret)) ;
 }
 
-//@warn: not type-safe ,be careful about strict-aliasing
 template <class _ARG1 ,class _ARG2>
 inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
-	_STATIC_ASSERT_ (IS_SAFE_ALIASING_HELP<_ARG1 ,_ARG2>::compile ()) ;
+	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG2> ,NONE>::compile ()) ;
 	if (pointer == NULL)
 		return NULL ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,NONE> ,BYTE ,_ARG1>) ;
@@ -1829,20 +1766,20 @@ template <class _ARG1 ,class... _ARGS>
 inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	_STATIC_ASSERT_ (IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS &&...>>::compile ()) ;
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
-	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,address) ;
-	if (r1x == NULL)
+	if (address == NULL)
 		return ;
 	_ZERO_ (DEREF[address]) ;
-	new (r1x) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+	auto &r1x = _CAST_ (ARGV<_ARG1>::ID ,DEREF[address]) ;
+	new (DEPTR[r1x]) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 }
 
 template <class _ARG1>
 inline void _DESTROY_ (const PTR<TEMP<_ARG1>> &address) {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
-	const auto r1x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,address) ;
-	if (r1x == NULL)
+	if (address == NULL)
 		return ;
-	DEREF[r1x].~_ARG1 () ;
+	auto &r1x = _CAST_ (ARGV<_ARG1>::ID ,DEREF[address]) ;
+	r1x.~_ARG1 () ;
 }
 
 template <class>
@@ -2574,9 +2511,9 @@ public:
 
 	implicit SafeReference (const Reference &that) {
 		const auto r1x = that.avaliable (ARGV<UNIT>::ID) ;
-		_DEBUG_ASSERT_ (r1x) ;
+		_DYNAMIC_ASSERT_ (r1x) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<UNIT>::ID ,that.mPointer) ;
-		_DEBUG_ASSERT_ (r2x != NULL) ;
+		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		mPointer = r2x ;
 	}
 

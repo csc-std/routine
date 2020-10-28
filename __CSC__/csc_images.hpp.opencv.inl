@@ -173,12 +173,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<api::Mat> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const api::Mat> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -267,12 +267,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<api::Mat> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const api::Mat> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -361,12 +361,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<api::Mat> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const api::Mat> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -455,12 +455,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<api::Mat> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const api::Mat> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -549,12 +549,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<api::Mat> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const api::Mat>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const api::Mat> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {

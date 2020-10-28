@@ -339,7 +339,7 @@ public:
 	}
 
 	implicit String (const ARR<ITEM> &that) :
-		delegate String (plain_string_length (that)) {
+		delegate String (plain_string_length (DEPTR[that])) {
 		BasicProc::mem_copy (mString.self ,that ,size ()) ;
 	}
 
@@ -604,9 +604,11 @@ private:
 		return len + _EBOOL_ (len > 0) ;
 	}
 
-	imports LENGTH plain_string_length (const ARR<ITEM> &val) {
+	imports LENGTH plain_string_length (const PTR<const ARR<ITEM>> &val) {
 		using R1X = U::CONSTEXPR_INCREASE<DEFAULT_HUGESTRING_SIZE> ;
-		LENGTH ret = BasicProc::mem_chr (val ,R1X::compile () ,ITEM (0)) ;
+		if (val == NULL)
+			return 0 ;
+		LENGTH ret = BasicProc::mem_chr (DEREF[val] ,R1X::compile () ,ITEM (0)) ;
 		_DYNAMIC_ASSERT_ (ret >= 0 && ret <= DEFAULT_HUGESTRING_SIZE::compile ()) ;
 		return _MOVE_ (ret) ;
 	}

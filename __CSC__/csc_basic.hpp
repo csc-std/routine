@@ -782,8 +782,8 @@ protected:
 		const auto r1x = DEREF[that.mPointer].reference () ;
 		const auto r2x = SafeReference<const UNIT> (r1x) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,r2x.self) ;
-		const auto r3x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		mPointer = r3x ;
+		auto &r3x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		mPointer = DEPTR[r3x] ;
 		rax = NULL ;
 	}
 
@@ -896,8 +896,8 @@ public:
 		AutoRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		ret.mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1000,9 +1000,9 @@ public:
 		SharedRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,DEPTR[me]) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		aquire (r1x) ;
-		ret.mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		aquire (DEPTR[r1x]) ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1013,9 +1013,9 @@ public:
 		SharedRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		aquire (r1x) ;
-		ret.mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		aquire (DEPTR[r1x]) ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1344,8 +1344,8 @@ public:
 		AnyRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		ret.mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1397,8 +1397,8 @@ private:
 		AnyRef<_ARG1> ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<PureHolder>>::ID) ;
 		ScopedBuild<PureHolder> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<const _ARG1 &>::ID ,mValue)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<PureHolder>::ID ,rax.self) ;
-		ret.mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<PureHolder>::ID ,DEREF[rax.self]) ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1450,9 +1450,9 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
 		auto rbx = R1X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
+		auto &r1x = _CAST_ (ARGV<R2X>::ID ,DEREF[rax.self]) ;
 		constructor () ;
-		mPointer = r1x ;
+		mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 	}
 
@@ -1560,11 +1560,11 @@ public:
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
 		auto rbx = R1X (_FORWARD_ (ARGV<_ARG2 &&>::ID ,destructor)) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
-		const auto r2x = DEREF[r1x].reference () ;
+		auto &r1x = _CAST_ (ARGV<R2X>::ID ,DEREF[rax.self]) ;
+		const auto r2x = r1x.reference () ;
 		const auto r3x = SafeReference<UNIT> (r2x) ;
 		constructor (r3x) ;
-		mPointer = r1x ;
+		mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 	}
 
@@ -1629,11 +1629,11 @@ public:
 			_STATIC_WARNING_ ("noop") ;
 		}) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R2X>::ID ,rax.self) ;
-		const auto r2x = DEREF[r1x].reference () ;
+		auto &r1x = _CAST_ (ARGV<R2X>::ID ,DEREF[rax.self]) ;
+		const auto r2x = r1x.reference () ;
 		const auto r3x = SafeReference<UNIT> (r2x) ;
 		r3x.self = UNIT (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		ret.mPointer = r1x ;
+		ret.mPointer = DEPTR[r1x] ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1816,10 +1816,10 @@ public:
 		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::compile ()) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,_FORWARD_ (ARGV<_ARG1 &&>::ID ,that)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		const auto r2x = DEREF[r1x].reference () ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		const auto r2x = r1x.reference () ;
 		const auto r3x = SafeReference<REMOVE_REFERENCE_TYPE<_ARG1>> (r2x) ;
-		mPointer = r1x ;
+		mPointer = DEPTR[r1x] ;
 		mFastPointer = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,r3x.self) ;
 		rax = NULL ;
 	}
@@ -1830,8 +1830,8 @@ public:
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		mPointer = DEPTR[r1x] ;
 		mFastPointer = NULL ;
 		rax = NULL ;
 	}
@@ -1842,8 +1842,8 @@ public:
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		mPointer = DEPTR[r1x] ;
 		mFastPointer = NULL ;
 		rax = NULL ;
 	}
@@ -1854,8 +1854,8 @@ public:
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		mPointer = r1x ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		mPointer = DEPTR[r1x] ;
 		mFastPointer = NULL ;
 		rax = NULL ;
 	}
@@ -2247,12 +2247,12 @@ public:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
+		auto &r1x = _CAST_ (ARGV<ARR<UNIT>>::ID ,DEREF[rax.self]) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,r1x ,len) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rbx.self) ;
-		mPointer = r2x ;
-		mBuffer = r1x ;
+		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,DEPTR[r1x] ,len) ;
+		auto &r2x = _CAST_ (ARGV<R1X>::ID ,DEREF[rbx.self]) ;
+		mPointer = DEPTR[r2x] ;
+		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rbx = NULL ;
 		rax = NULL ;
@@ -2426,12 +2426,12 @@ protected:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
+		auto &r1x = _CAST_ (ARGV<ARR<UNIT>>::ID ,DEREF[rax.self]) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,r1x ,len) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rbx.self) ;
-		mPointer = r2x ;
-		mBuffer = r1x ;
+		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,DEPTR[r1x] ,len) ;
+		auto &r2x = _CAST_ (ARGV<R1X>::ID ,DEREF[rbx.self]) ;
+		mPointer = DEPTR[r2x] ;
+		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rbx = NULL ;
 		rax = NULL ;
@@ -2506,12 +2506,12 @@ protected:
 		_DEBUG_ASSERT_ (len > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,len) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,len) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
+		auto &r1x = _CAST_ (ARGV<ARR<UNIT>>::ID ,DEREF[rax.self]) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,r1x ,len) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rbx.self) ;
-		mPointer = r2x ;
-		mBuffer = r1x ;
+		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,DEPTR[r1x] ,len) ;
+		auto &r2x = _CAST_ (ARGV<R1X>::ID ,DEREF[rbx.self]) ;
+		mPointer = DEPTR[r2x] ;
+		mBuffer = DEPTR[r1x] ;
 		mSize = len ;
 		rbx = NULL ;
 		rax = NULL ;
@@ -2539,12 +2539,12 @@ protected:
 		_DEBUG_ASSERT_ (that.mSize > 0) ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<UNIT>>::ID ,that.mSize) ;
 		ScopedBuild<ARR<UNIT>> ANONYMOUS (rax ,DEREF[that.mBuffer] ,that.mSize) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,rax.self) ;
+		auto &r1x = _CAST_ (ARGV<ARR<UNIT>>::ID ,DEREF[rax.self]) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,r1x ,that.mSize) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<R1X>::ID ,rbx.self) ;
-		mPointer = r2x ;
-		mBuffer = r1x ;
+		ScopedBuild<R1X> ANONYMOUS (rbx ,ARGVP0 ,rax.self ,DEPTR[r1x] ,that.mSize) ;
+		auto &r2x = _CAST_ (ARGV<R1X>::ID ,DEREF[rbx.self]) ;
+		mPointer = DEPTR[r2x] ;
+		mBuffer = DEPTR[r1x] ;
 		mSize = that.mSize ;
 		rbx = NULL ;
 		rax = NULL ;
@@ -2880,8 +2880,8 @@ public:
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
+		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}
@@ -3069,16 +3069,16 @@ public:
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
+		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
-		const auto r1x = _POINTER_CAST_ (ARGV<ARR<TEMP<_ARG1>>>::ID ,DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,r1x) ;
+		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
 		return make (DEREF[r2x] ,r3x) ;
 	}

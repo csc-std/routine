@@ -308,11 +308,14 @@ private:
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS...>>>>
 	imports void template_create (const PTR<TEMP<FakeHolder>> &address ,const ARGVF<typename Private::template ImplHolder<_ARG1>> & ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
 		using R1X = typename Private::template ImplHolder<_ARG1> ;
-		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,address) ;
-		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r1x])) ;
-		auto &r3x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<FakeHolder>::ID ,DEREF[address])) ;
-		_DYNAMIC_ASSERT_ (DEPTR[r2x] == DEPTR[r3x]) ;
-		_CREATE_ (r1x ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<R1X>)) ;
+		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<R1X>)) ;
+		const auto r1x = _ADDRESS_ (address) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
+		auto &r3x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r2x])) ;
+		auto &r4x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<FakeHolder>::ID ,DEREF[address])) ;
+		_DYNAMIC_ASSERT_ (DEPTR[r3x] == DEPTR[r4x]) ;
+		_CREATE_ (r2x ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1512,8 +1515,8 @@ public:
 		const auto r7x = DEREF[r2x].strong_pointer () ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R4X>>::ID) ;
 		ScopedBuild<R4X> ANONYMOUS (rax ,r7x ,r6x) ;
-		const auto r8x = _POINTER_CAST_ (ARGV<R4X>::ID ,rax.self) ;
-		StrongRef<R2X> ret = StrongRef<R2X> (r8x) ;
+		auto &r8x = _CAST_ (ARGV<R4X>::ID ,DEREF[rax.self]) ;
+		StrongRef<R2X> ret = StrongRef<R2X> (DEPTR[r8x]) ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
 	}
@@ -1533,15 +1536,15 @@ public:
 		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R4X> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
 		ScopedBuild<R1X> ANONYMOUS (rax) ;
-		const auto r1x = _POINTER_CAST_ (ARGV<R1X>::ID ,rax.self) ;
-		DEREF[r1x].mOrigin = rax.self ;
-		DEREF[r1x].mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
-		auto &r2x = DEREF[r1x].mHolder.rebind (ARGV<R4X>::ID).self ;
+		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		r1x.mOrigin = rax.self ;
+		r1x.mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		auto &r2x = r1x.mHolder.rebind (ARGV<R4X>::ID).self ;
 		const auto r3x = SafeReference<R4X> (r2x) ;
 		auto rbx = GlobalHeap::alloc (ARGV<TEMP<R3X>>::ID) ;
-		ScopedBuild<R3X> ANONYMOUS (rbx ,r1x ,r3x) ;
-		const auto r4x = _POINTER_CAST_ (ARGV<R3X>::ID ,rbx.self) ;
-		StrongRef ret = StrongRef (r4x) ;
+		ScopedBuild<R3X> ANONYMOUS (rbx ,DEPTR[r1x] ,r3x) ;
+		auto &r4x = _CAST_ (ARGV<R3X>::ID ,DEREF[rbx.self]) ;
+		StrongRef ret = StrongRef (DEPTR[r4x]) ;
 		rbx = NULL ;
 		rax = NULL ;
 		return _MOVE_ (ret) ;
@@ -1798,7 +1801,7 @@ public:
 	void free (const PTR<_ARG1> &address) noexcept {
 		_STATIC_ASSERT_ (IS_TRIVIAL_HELP<REMOVE_ARRAY_TYPE<_ARG1>>::compile ()) ;
 		const auto r1x = _ADDRESS_ (address) - _SIZEOF_ (HEADER) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<HEADER>::ID ,r1x) ;
+		const auto r2x = _POINTER_CAST_ (ARGV<HEADER>::ID ,_UNSAFE_POINTER_ (r1x)) ;
 		const auto r3x = _CALL_ ([&] () {
 			for (auto &&i : _RANGE_ (0 ,mThis->mPool.size ())) {
 				if (DEPTR[mThis->mPool[i].self] == DEREF[r2x].mFrom)

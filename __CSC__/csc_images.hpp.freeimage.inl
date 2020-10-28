@@ -101,12 +101,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<UniqueRef<HFIBITMAP>> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const UniqueRef<HFIBITMAP>> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {
@@ -228,12 +228,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	AnyRef<> native () override {
-		return AnyRef<PTR<UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
+	Reference native () override {
+		return SafeReference<UniqueRef<HFIBITMAP>> (mHolder) ;
 	}
 
-	AnyRef<> native () const override {
-		return AnyRef<PTR<const UniqueRef<HFIBITMAP>>>::make (DEPTR[mHolder]) ;
+	Reference native () const override {
+		return SafeReference<const UniqueRef<HFIBITMAP>> (mHolder) ;
 	}
 
 	LAYOUT_PACK layout () override {

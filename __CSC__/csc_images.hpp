@@ -664,8 +664,8 @@ private:
 		delegate public Interface {
 	public:
 		virtual LAYOUT_PACK layout () = 0 ;
-		virtual AnyRef<> native () = 0 ;
-		virtual AnyRef<> native () const = 0 ;
+		virtual Reference native () = 0 ;
+		virtual Reference native () const = 0 ;
 		virtual void load_data (const LENGTH &cx_ ,const LENGTH &cy_) = 0 ;
 		virtual void load_data (const AutoBuffer<BYTE> &data) = 0 ;
 		virtual void save_data (AutoBuffer<BYTE> &data ,const AnyRef<> &option) const = 0 ;
@@ -871,9 +871,8 @@ public:
 		_DEBUG_ASSERT_ (mKeep.exist ()) ;
 		auto &r1x = _FORWARD_ (ARGV<CAST_TRAITS_TYPE<StrongRef<Abstract> ,UNIT_>>::ID ,mKeep.self->mThis) ;
 		const auto r2x = r1x->native () ;
-		const auto r3x = r2x.rebind (ARGV<PTR<UNIT_>>::ID).self ;
-		_DEBUG_ASSERT_ (r3x != NULL) ;
-		return DEREF[r3x] ;
+		const auto r3x = SafeReference<UNIT_> (r2x) ;
+		return r3x.self ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {
