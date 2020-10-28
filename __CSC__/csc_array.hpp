@@ -920,13 +920,13 @@ private:
 			BasicProc::mem_move (PTRTOARR[DEPTR[rax.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
-		mDeque.swap (rax) ;
+		mDeque.expand_swap (rax) ;
 	}
 
 	void update_emplace () {
 		if (mRead != mWrite)
 			return ;
-		auto rax = mDeque.expand (mDeque.expand_size ()) ;
+		auto rax = mDeque.expand (expand_size ()) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
 			if (mRead != 0)
@@ -940,7 +940,13 @@ private:
 			BasicProc::mem_move (PTRTOARR[DEPTR[rax.self[ix]]] ,PTRTOARR[DEPTR[mDeque.self[mRead]]] ,(mDeque.size () - mRead)) ;
 			mRead = ix ;
 		}
-		mDeque.swap (rax) ;
+		mDeque.expand_swap (rax) ;
+	}
+
+	LENGTH expand_size () const {
+		const auto r1x = LENGTH (mDeque.size () * MATH_SQRT2) ;
+		const auto r2x = mDeque.size () + DEFAULT_RECURSIVE_SIZE::compile () ;
+		return _MAX_ (r1x ,r2x) ;
 	}
 } ;
 
@@ -1188,15 +1194,21 @@ private:
 			return ;
 		auto rax = mPriority.expand (mPriority.size () + r3x) ;
 		BasicProc::mem_move (rax.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (rax) ;
+		mPriority.expand_swap (rax) ;
 	}
 
 	void update_emplace () {
 		if (mWrite < mPriority.size ())
 			return ;
-		auto rax = mPriority.expand (mPriority.expand_size ()) ;
+		auto rax = mPriority.expand (expand_size ()) ;
 		BasicProc::mem_move (rax.self ,mPriority.self ,mPriority.size ()) ;
-		mPriority.swap (rax) ;
+		mPriority.expand_swap (rax) ;
+	}
+
+	LENGTH expand_size () const {
+		const auto r1x = LENGTH (mPriority.size () * MATH_SQRT2) ;
+		const auto r2x = mPriority.size () + DEFAULT_RECURSIVE_SIZE::compile () ;
+		return _MAX_ (r1x ,r2x) ;
 	}
 
 	INDEX parent (INDEX curr) const {
@@ -1944,7 +1956,7 @@ public:
 			mRange[i] = VAR_NONE ;
 		}
 		_DEBUG_ASSERT_ (iw == rax.size ()) ;
-		mRange.swap (rax) ;
+		mRange.expand_swap (rax) ;
 	}
 
 private:
@@ -1984,7 +1996,7 @@ private:
 		if switch_once (TRUE) {
 			auto rax = mRange.expand (mList.size ()) ;
 			BasicProc::mem_fill (rax.self ,rax.size () ,VAR_NONE) ;
-			mRange.swap (rax) ;
+			mRange.expand_swap (rax) ;
 		}
 		for (auto &&i : _RANGE_ (0 ,mList.size ())) {
 			if (i == curr)
@@ -3278,7 +3290,7 @@ private:
 		if switch_once (TRUE) {
 			auto rax = mRange.expand (mSet.size ()) ;
 			BasicProc::mem_fill (rax.self ,rax.size () ,VAR_NONE) ;
-			mRange.swap (rax) ;
+			mRange.expand_swap (rax) ;
 		}
 		for (auto &&i : _RANGE_ (0 ,mSet.size ())) {
 			if (i == curr)

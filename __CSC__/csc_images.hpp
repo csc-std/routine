@@ -871,8 +871,7 @@ public:
 		_DEBUG_ASSERT_ (mKeep.exist ()) ;
 		auto &r1x = _FORWARD_ (ARGV<CAST_TRAITS_TYPE<StrongRef<Abstract> ,UNIT_>>::ID ,mKeep.self->mThis) ;
 		const auto r2x = r1x->native () ;
-		const auto r3x = SafeReference<UNIT_> (r2x) ;
-		return r3x.self ;
+		return SafeReference<UNIT_> (r2x) ;
 	}
 
 	inline implicit operator UNIT_ & () const leftvalue {

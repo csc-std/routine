@@ -763,7 +763,6 @@ public:
 template <class RANK ,class RETR>
 class Expression :
 	delegate private Expression<SPECIALIZATION<RANK> ,RETR> {
-
 private:
 	using SPECIALIZATION_BASE = Expression<SPECIALIZATION<RANK> ,RETR> ;
 	using RANK_SIZE = CAPACITY_OF_TYPE<FUNCTION_PARAMS_TYPE<RANK>> ;

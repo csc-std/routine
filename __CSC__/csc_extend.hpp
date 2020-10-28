@@ -307,7 +307,7 @@ private:
 
 	template <class _ARG1 ,class... _ARGS ,class = ENABLE_TYPE<IS_CONSTRUCTIBLE_HELP<_ARG1 ,ARGVS<_ARGS...>>>>
 	imports void template_create (const PTR<TEMP<FakeHolder>> &address ,const ARGVF<typename Private::template ImplHolder<_ARG1>> & ,const DEF<decltype (ARGVP2)> & ,_ARGS &&...initval) {
-		using R1X = typename Private::template ImplHolder<_ARG1> ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<_ARG1> ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<R1X>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<R1X>)) ;
 		const auto r1x = _ADDRESS_ (address) ;
@@ -367,26 +367,20 @@ template <class UNIT>
 using Optional = Variant<UNIT> ;
 
 template <class UNIT>
-class Monostate :
+class Mutable :
 	delegate private Proxy {
 private:
-	SharedRef<UNIT> mThis ;
+	mutable UNIT mValue ;
 
 public:
-	implicit Monostate () {
-		mThis = SharedRef<UNIT>::make () ;
-	}
+	implicit Mutable () = default ;
 
 	UNIT &to () const leftvalue {
-		return mThis.self ;
+		return mValue ;
 	}
 
 	inline implicit operator UNIT & () const leftvalue {
 		return self ;
-	}
-
-	void swap (Monostate &that) {
-		_SWAP_ (mThis ,that.mThis) ;
 	}
 } ;
 
@@ -953,15 +947,6 @@ public:
 		const auto r1x = mValue.decrease () ;
 		return _BITWISE_CAST_ (ARGV<VAR>::ID ,r1x) ;
 	}
-
-	void wait (const VAR &data) const {
-		while (TRUE) {
-			const auto r1x = fetch () ;
-			if (r1x == data)
-				break ;
-			_STATIC_WARNING_ ("noop") ;
-		}
-	}
 } ;
 
 class AtomicPtr {
@@ -1039,14 +1024,13 @@ private:
 	}
 } ;
 
-
 template <class>
 class StrongRef ;
 
 class WeakRef final {
 private:
 	struct Private {
-		class LatchCounter ;
+		class MutexCounter ;
 
 		template <class>
 		class ImplHolder ;
@@ -1068,6 +1052,7 @@ private:
 		virtual void weak_release () = 0 ;
 		virtual void strong_aquire () = 0 ;
 		virtual void strong_release () = 0 ;
+		virtual void wait_yield () = 0 ;
 		virtual void soft_destroy () noexcept = 0 ;
 		virtual void destroy () noexcept = 0 ;
 	} ;
@@ -1075,8 +1060,8 @@ private:
 private:
 	template <class>
 	friend class StrongRef ;
+	Mutable<AtomicVar> mMutex ;
 	AtomicPtr mPointer ;
-	mutable AtomicVar mLatch ;
 
 public:
 	implicit WeakRef () :
@@ -1172,7 +1157,8 @@ public:
 
 	template <class _ARG1>
 	BOOL equal (const StrongRef<_ARG1> &that) const {
-		auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS>>::ID ,that) ;
+		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS> ;
+		auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,that) ;
 		const auto r2x = mPointer.fetch () ;
 		const auto r3x = r1x.mPointer.fetch () ;
 		if (r2x != r3x)
@@ -1191,8 +1177,8 @@ public:
 	}
 
 	WeakRef share () const {
-		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::MutexCounter ;
+		ScopedGuard<const R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mMutex)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		return WeakRef (r2x) ;
@@ -1201,8 +1187,8 @@ public:
 	template <class _ARG1>
 	StrongRef<_ARG1> strong (const ARGVF<_ARG1> &) const {
 		using R1X = DEPENDENT_TYPE<StrongRef<_ARG1> ,struct ANONYMOUS> ;
-		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::LatchCounter ;
-		ScopedGuard<R2X> ANONYMOUS (_CAST_ (ARGV<R2X>::ID ,mLatch)) ;
+		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::MutexCounter ;
+		ScopedGuard<const R2X> ANONYMOUS (_CAST_ (ARGV<R2X>::ID ,mMutex)) ;
 		const auto r1x = mPointer.fetch () ;
 		//@error: cast without any check if 'Holder' is 'ImplHolder<_ARG1>'
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
@@ -1211,8 +1197,7 @@ public:
 
 private:
 	explicit WeakRef (const DEF<decltype (ARGVP0)> &) noexcept :
-		delegate mPointer (NULL) ,
-		delegate mLatch (0) {}
+		delegate mPointer (NULL) {}
 
 	imports void aquire (const PTR<Holder> &pointer) {
 		_DEBUG_ASSERT_ (pointer != NULL) ;
@@ -1229,25 +1214,30 @@ private:
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		if (r2x == NULL)
 			return r2x ;
-		mLatch.wait (0) ;
+		while (TRUE) {
+			const auto r3x = mMutex.self.fetch () ;
+			if (r3x == 0)
+				break ;
+			DEREF[r2x].wait_yield () ;
+		}
 		return r2x ;
 	}
 } ;
 
-class WeakRef::Private::LatchCounter :
-	delegate private Wrapped<AtomicVar> {
+class WeakRef::Private::MutexCounter :
+	delegate private Wrapped<Mutable<AtomicVar>> {
 private:
-	using Wrapped<AtomicVar>::mSelf ;
+	using Wrapped<Mutable<AtomicVar>>::mSelf ;
 
 public:
-	void lock () {
-		const auto r1x = mSelf.increase () ;
+	void lock () const {
+		const auto r1x = mSelf.self.increase () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 	}
 
-	void unlock () {
-		const auto r1x = mSelf.decrease () ;
+	void unlock () const {
+		const auto r1x = mSelf.self.decrease () ;
 		_STATIC_UNUSED_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0) ;
 	}
@@ -1331,6 +1321,10 @@ public:
 		_DEBUG_ASSERT_ (!DEREF[mStrongPointer].mHolder.exist ()) ;
 	}
 
+	void wait_yield () override {
+		_STATIC_WARNING_ () ;
+	}
+
 	void soft_destroy () noexcept override {
 		const auto r1x = DEREF[mStrongPointer].mOrigin ;
 		DEREF[mStrongPointer].~THIS_PACK () ;
@@ -1349,11 +1343,12 @@ template <class UNIT>
 class StrongRef final {
 private:
 	using Holder = typename WeakRef::Holder ;
+	using THIS_PACK = typename WeakRef::THIS_PACK ;
 	using Private = typename WeakRef::Private ;
 
 private:
+	Mutable<AtomicVar> mMutex ;
 	AtomicPtr mPointer ;
-	mutable AtomicVar mLatch ;
 
 public:
 	implicit StrongRef () :
@@ -1489,8 +1484,8 @@ public:
 	}
 
 	StrongRef share () const {
-		using R1X = typename Private::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::MutexCounter ;
+		ScopedGuard<const R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mMutex)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		return StrongRef (r2x) ;
@@ -1498,10 +1493,10 @@ public:
 
 	template <class _ARG1>
 	StrongRef<CAST_TRAITS_TYPE<_ARG1 ,UNIT>> recast (const ARGVF<_ARG1> &) const {
-		using R1X = typename Private::LatchCounter ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::MutexCounter ;
 		using R2X = CAST_TRAITS_TYPE<_ARG1 ,UNIT> ;
 		using R4X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R2X> ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		ScopedGuard<const R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mMutex)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		if (r2x == NULL)
@@ -1522,8 +1517,8 @@ public:
 	}
 
 	WeakRef weak () const {
-		using R1X = typename Private::LatchCounter ;
-		ScopedGuard<R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mLatch)) ;
+		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::MutexCounter ;
+		ScopedGuard<const R1X> ANONYMOUS (_CAST_ (ARGV<R1X>::ID ,mMutex)) ;
 		const auto r1x = mPointer.fetch () ;
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		return WeakRef (r2x) ;
@@ -1531,12 +1526,11 @@ public:
 
 	template <class... _ARGS>
 	imports StrongRef make (_ARGS &&...initval) {
-		using R1X = typename WeakRef::THIS_PACK ;
 		using R4X = DEPENDENT_TYPE<UNIT ,struct ANONYMOUS> ;
 		using R3X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<R4X> ;
-		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
-		ScopedBuild<R1X> ANONYMOUS (rax) ;
-		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
+		auto rax = GlobalHeap::alloc (ARGV<TEMP<THIS_PACK>>::ID) ;
+		ScopedBuild<THIS_PACK> ANONYMOUS (rax) ;
+		auto &r1x = _CAST_ (ARGV<THIS_PACK>::ID ,DEREF[rax.self]) ;
 		r1x.mOrigin = rax.self ;
 		r1x.mHolder = AnyRef<R4X>::make (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 		auto &r2x = r1x.mHolder.rebind (ARGV<R4X>::ID).self ;
@@ -1552,8 +1546,7 @@ public:
 
 private:
 	explicit StrongRef (const DEF<decltype (ARGVP0)> &) noexcept :
-		delegate mPointer (NULL) ,
-		delegate mLatch (0) {}
+		delegate mPointer (NULL) {}
 
 	imports void aquire (const PTR<Holder> &pointer) {
 		_DEBUG_ASSERT_ (pointer != NULL) ;
@@ -1572,7 +1565,12 @@ private:
 		const auto r2x = _POINTER_CAST_ (ARGV<Holder>::ID ,r1x) ;
 		if (r2x == NULL)
 			return r2x ;
-		mLatch.wait (0) ;
+		while (TRUE) {
+			const auto r3x = mMutex.self.fetch () ;
+			if (r3x == 0)
+				break ;
+			DEREF[r2x].wait_yield () ;
+		}
 		return r2x ;
 	}
 } ;

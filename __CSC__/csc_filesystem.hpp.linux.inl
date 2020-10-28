@@ -612,7 +612,7 @@ public:
 } ;
 
 exports StreamLoader::StreamLoader (const String<STR> &file) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (file) ;
 }
 
@@ -664,22 +664,22 @@ public:
 } ;
 
 exports BufferLoader::BufferLoader (const String<STR> &file) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (file) ;
 }
 
 exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (file ,file_len) ;
 }
 
 exports BufferLoader::BufferLoader (const String<STR> &file ,const BOOL &cache) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (file ,cache) ;
 }
 
 exports BufferLoader::BufferLoader (const String<STR> &file ,const LENGTH &file_len ,const BOOL &cache) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (file ,file_len ,cache) ;
 }
 
@@ -698,7 +698,7 @@ public:
 } ;
 
 exports FileSystemService::FileSystemService (const ARGVF<Singleton<FileSystemService>> &) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 } ;

@@ -125,13 +125,15 @@ private:
 		virtual void accept () = 0 ;
 	} ;
 
+	using TCPSocketImplement = typename TCPSocket::Private::Implement ;
+
 private:
 	StrongRef<Abstract> mThis ;
 
 public:
 	implicit TCPListener () = default ;
 
-	explicit TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) ;
+	explicit TCPListener (const StrongRef<TCPSocketImplement> &socket_) ;
 
 	void wait_linker () {
 		return mThis->wait_linker () ;
@@ -239,7 +241,7 @@ private:
 
 private:
 	friend Singleton<NetworkService> ;
-	Monostate<RecursiveMutex> mMutex ;
+	Mutable<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:

@@ -251,7 +251,7 @@ public:
 } ;
 
 exports RegexMatcher::RegexMatcher (const String<STRU8> &reg) {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (reg) ;
 }
 } ;

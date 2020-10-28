@@ -171,7 +171,7 @@ private:
 
 private:
 	friend Singleton<FileSystemService> ;
-	Monostate<RecursiveMutex> mMutex ;
+	Mutable<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:

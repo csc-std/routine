@@ -846,7 +846,6 @@ class AutoRef final :
 	delegate private AutoRef<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> {
 private:
 	using SPECIALIZATION_BASE = AutoRef<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<UNIT>>>> ;
-	using Holder = typename SPECIALIZATION_BASE::Holder ;
 	using Private = typename SPECIALIZATION_BASE::Private ;
 
 private:
@@ -1796,7 +1795,7 @@ private:
 
 private:
 	PTR<Holder> mPointer ;
-	PTR<UNIT1 (UNITS...)> mFastPointer ;
+	PTR<UNIT1 (UNITS...)> mFunction ;
 
 public:
 	implicit Function () :
@@ -1806,7 +1805,7 @@ public:
 
 	implicit Function (const DEF<UNIT1 (UNITS...)> &that) :
 		delegate Function (ARGVP0) {
-		mFastPointer = DEPTR[that] ;
+		mFunction = DEPTR[that] ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>>>>>
@@ -1820,7 +1819,7 @@ public:
 		const auto r2x = r1x.reference () ;
 		const auto r3x = SafeReference<REMOVE_REFERENCE_TYPE<_ARG1>> (r2x) ;
 		mPointer = DEPTR[r1x] ;
-		mFastPointer = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,r3x.self) ;
+		mFunction = FunctorDecayProc::invoke (ARGV<UNIT1 (UNITS...)>::ID ,r3x.self) ;
 		rax = NULL ;
 	}
 
@@ -1832,7 +1831,7 @@ public:
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
 		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
 		mPointer = DEPTR[r1x] ;
-		mFastPointer = NULL ;
+		mFunction = NULL ;
 		rax = NULL ;
 	}
 
@@ -1844,7 +1843,7 @@ public:
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
 		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
 		mPointer = DEPTR[r1x] ;
-		mFastPointer = NULL ;
+		mFunction = NULL ;
 		rax = NULL ;
 	}
 
@@ -1856,13 +1855,13 @@ public:
 		ScopedBuild<R1X> ANONYMOUS (rax ,ARGVP0 ,functor ,_MOVE_ (context_)) ;
 		auto &r1x = _CAST_ (ARGV<R1X>::ID ,DEREF[rax.self]) ;
 		mPointer = DEPTR[r1x] ;
-		mFastPointer = NULL ;
+		mFunction = NULL ;
 		rax = NULL ;
 	}
 
 	implicit ~Function () noexcept {
 		if (mPointer == NULL)
-			if (mFastPointer == NULL)
+			if (mFunction == NULL)
 				return ;
 		if switch_once (TRUE) {
 			if (mPointer == NULL)
@@ -1870,7 +1869,7 @@ public:
 			DEREF[mPointer].destroy () ;
 		}
 		mPointer = NULL ;
-		mFastPointer = NULL ;
+		mFunction = NULL ;
 	}
 
 	implicit Function (const Function &) = delete ;
@@ -1880,7 +1879,7 @@ public:
 	implicit Function (Function &&that) noexcept :
 		delegate Function (ARGVP0) {
 		_SWAP_ (mPointer ,that.mPointer) ;
-		_SWAP_ (mFastPointer ,that.mFastPointer) ;
+		_SWAP_ (mFunction ,that.mFunction) ;
 	}
 
 	inline Function &operator= (Function &&that) noexcept {
@@ -1895,14 +1894,14 @@ public:
 
 	BOOL exist () const {
 		if (mPointer == NULL)
-			if (mFastPointer == NULL)
+			if (mFunction == NULL)
 				return FALSE ;
 		return TRUE ;
 	}
 
 	const DEF<UNIT1 (UNITS...)> &to () const leftvalue {
-		_DEBUG_ASSERT_ (mFastPointer != NULL) ;
-		return DEREF[mFastPointer] ;
+		_DEBUG_ASSERT_ (mFunction != NULL) ;
+		return DEREF[mFunction] ;
 	}
 
 	inline implicit operator const DEF<UNIT1 (UNITS...)> & () const leftvalue {
@@ -1913,8 +1912,8 @@ public:
 
 	UNIT1 invoke (FORWARD_TRAITS_TYPE<UNITS> &&...funcval) const {
 		_DEBUG_ASSERT_ (exist ()) ;
-		if (mFastPointer != NULL)
-			return mFastPointer (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
+		if (mFunction != NULL)
+			return mFunction (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 		return DEREF[mPointer].invoke (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,funcval)...) ;
 	}
 
@@ -1925,7 +1924,7 @@ public:
 private:
 	explicit Function (const DEF<decltype (ARGVP0)> &) noexcept :
 		delegate mPointer (NULL) ,
-		delegate mFastPointer (NULL) {}
+		delegate mFunction (NULL) {}
 } ;
 
 template <class UNIT1 ,class... UNITS>
@@ -2152,22 +2151,18 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	LENGTH expand_size () const {
-		return 0 ;
-	}
-
 	Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
 
-	void swap (Buffer &that) {
+	void expand_swap (Buffer &that) {
 		BasicProc::mem_swap (PTRTOARR[mBuffer] ,PTRTOARR[that.mBuffer] ,SIZE::compile ()) ;
 	}
 } ;
 
 template <class UNIT>
-class Buffer<UNIT ,SFLEX> {
+class Buffer<UNIT ,SFIXED> final {
 private:
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
@@ -2185,50 +2180,6 @@ private:
 private:
 	template <class ,class>
 	friend class Buffer ;
-} ;
-
-template <class UNIT>
-class Buffer<UNIT ,SFLEX>::Private::PureHolder :
-	delegate public Holder {
-private:
-	PTR<NONE> mOrigin ;
-	PTR<ARR<UNIT>> mBuffer ;
-	LENGTH mSize ;
-
-public:
-	implicit PureHolder () = delete ;
-
-	explicit PureHolder (const DEF<decltype (ARGVP0)> & ,const PTR<NONE> &origin ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_) :
-		delegate mOrigin (origin) ,
-		delegate mBuffer (buffer) ,
-		delegate mSize (size_) {}
-
-	void soft_destroy () noexcept override {
-		const auto r1x = mOrigin ;
-		for (auto &&i : _RANGE_ (0 ,mSize))
-			DEREF[mBuffer][i].~UNIT () ;
-		GlobalHeap::free (r1x) ;
-		mOrigin = NULL ;
-		mBuffer = NULL ;
-		mSize = 0 ;
-	}
-
-	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
-		DEREF[this].~PureHolder () ;
-		GlobalHeap::free (r1x) ;
-	}
-} ;
-
-template <class UNIT>
-class Buffer<UNIT ,SFIXED> final {
-private:
-	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
-
-	using Holder = typename Buffer<UNIT ,SFLEX>::Holder ;
-	using Private = typename Buffer<UNIT ,SFLEX>::Private ;
-
-private:
 	PTR<Holder> mPointer ;
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
@@ -2373,16 +2324,12 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	LENGTH expand_size () const {
-		return 0 ;
-	}
-
 	Buffer<UNIT ,SAUTO> expand (const LENGTH &len) const {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 		return Buffer<UNIT ,SAUTO> () ;
 	}
 
-	void swap (Buffer<UNIT ,SAUTO> &that) {
+	void expand_swap (Buffer<UNIT ,SAUTO> &that) {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
 
@@ -2397,6 +2344,39 @@ template <class UNIT>
 using FixedBuffer = CAST_TRAITS_TYPE<Buffer<REMOVE_CVR_TYPE<UNIT> ,SFIXED> ,UNIT> ;
 
 template <class UNIT>
+class Buffer<UNIT ,SFIXED>::Private::PureHolder :
+	delegate public Holder {
+private:
+	PTR<NONE> mOrigin ;
+	PTR<ARR<UNIT>> mBuffer ;
+	LENGTH mSize ;
+
+public:
+	implicit PureHolder () = delete ;
+
+	explicit PureHolder (const DEF<decltype (ARGVP0)> & ,const PTR<NONE> &origin ,const PTR<ARR<UNIT>> &buffer ,const LENGTH &size_) :
+		delegate mOrigin (origin) ,
+		delegate mBuffer (buffer) ,
+		delegate mSize (size_) {}
+
+	void soft_destroy () noexcept override {
+		const auto r1x = mOrigin ;
+		for (auto &&i : _RANGE_ (0 ,mSize))
+			DEREF[mBuffer][i].~UNIT () ;
+		GlobalHeap::free (r1x) ;
+		mOrigin = NULL ;
+		mBuffer = NULL ;
+		mSize = 0 ;
+	}
+
+	void destroy () noexcept override {
+		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		DEREF[this].~PureHolder () ;
+		GlobalHeap::free (r1x) ;
+	}
+} ;
+
+template <class UNIT>
 class Buffer<UNIT ,SAUTO> ;
 
 template <class UNIT>
@@ -2404,8 +2384,8 @@ class Buffer<SPECIALIZATION<UNIT ,ARGC<FALSE>> ,SAUTO> {
 protected:
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
-	using Holder = typename Buffer<UNIT ,SFLEX>::Holder ;
-	using Private = typename Buffer<UNIT ,SFLEX>::Private ;
+	using Holder = typename Buffer<UNIT ,SFIXED>::Holder ;
+	using Private = typename Buffer<UNIT ,SFIXED>::Private ;
 
 protected:
 	PTR<Holder> mPointer ;
@@ -2484,8 +2464,8 @@ class Buffer<SPECIALIZATION<UNIT ,ARGC<TRUE>> ,SAUTO> {
 protected:
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
-	using Holder = typename Buffer<UNIT ,SFLEX>::Holder ;
-	using Private = typename Buffer<UNIT ,SFLEX>::Private ;
+	using Holder = typename Buffer<UNIT ,SFIXED>::Holder ;
+	using Private = typename Buffer<UNIT ,SFIXED>::Private ;
 
 protected:
 	PTR<Holder> mPointer ;
@@ -2697,17 +2677,11 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	LENGTH expand_size () const {
-		const auto r1x = LENGTH (mSize * MATH_SQRT2) ;
-		const auto r2x = mSize + DEFAULT_RECURSIVE_SIZE::compile () ;
-		return _MAX_ (r1x ,r2x) ;
-	}
-
 	Buffer expand (const LENGTH &len) const {
 		return Buffer (len) ;
 	}
 
-	void swap (Buffer &that) {
+	void expand_swap (Buffer &that) {
 		_SWAP_ (mPointer ,that.mPointer) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
@@ -2722,7 +2696,7 @@ class Buffer<UNIT ,SCPHAN> final {
 private:
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
-	using Holder = typename Buffer<UNIT ,SFLEX>::Holder ;
+	using Holder = typename Buffer<UNIT ,SFIXED>::Holder ;
 
 private:
 	PTR<Holder> mPointer ;
@@ -2848,16 +2822,12 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	LENGTH expand_size () const {
-		return 0 ;
-	}
-
 	Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
 
-	void swap (Buffer &that) {
+	void expand_swap (Buffer &that) {
 		_SWAP_ (mPointer ,that.mPointer) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
@@ -2907,7 +2877,7 @@ class Buffer<UNIT ,SMPHAN> final {
 private:
 	_STATIC_ASSERT_ (IS_COMPLETE_HELP<UNIT ,struct ANONYMOUS>::compile ()) ;
 
-	using Holder = typename Buffer<UNIT ,SFLEX>::Holder ;
+	using Holder = typename Buffer<UNIT ,SFIXED>::Holder ;
 
 private:
 	PTR<Holder> mPointer ;
@@ -3033,16 +3003,12 @@ public:
 		return BOOL (compr (that) <= 0) ;
 	}
 
-	LENGTH expand_size () const {
-		return 0 ;
-	}
-
 	Buffer expand (const LENGTH &len) const {
 		_DEBUG_ASSERT_ (FALSE) ;
 		return Buffer () ;
 	}
 
-	void swap (Buffer &that) {
+	void expand_swap (Buffer &that) {
 		_SWAP_ (mPointer ,that.mPointer) ;
 		_SWAP_ (mBuffer ,that.mBuffer) ;
 		_SWAP_ (mSize ,that.mSize) ;
@@ -3423,9 +3389,9 @@ protected:
 template <class UNIT ,class SIZE>
 class Allocator final :
 	delegate private Allocator<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> {
-
 private:
 	using SPECIALIZATION_BASE = Allocator<SPECIALIZATION<UNIT ,ARGC_TYPE<IS_COPY_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>> ,ARGC_TYPE<IS_MOVE_CONSTRUCTIBLE_HELP<Buffer<UNIT ,SIZE>>>> ,SIZE> ;
+	using NODE_PACK = typename SPECIALIZATION_BASE::NODE_PACK ;
 
 private:
 	friend SPECIALIZATION_BASE ;
@@ -3490,8 +3456,7 @@ public:
 	}
 
 	INDEX at (const UNIT &item) const {
-		using R1X = typename SPECIALIZATION_BASE::NODE_PACK ;
-		auto &r1x = _OFFSET_ (&R1X::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::ID ,item)) ;
+		auto &r1x = _OFFSET_ (&NODE_PACK::mValue ,_CAST_ (ARGV<TEMP<UNIT>>::ID ,item)) ;
 		INDEX ret = mAllocator.at (r1x) ;
 		if (!used (ret))
 			ret = VAR_NONE ;
@@ -3506,14 +3471,14 @@ public:
 		if switch_once (fax) {
 			if (mFree != VAR_NONE)
 				discard ;
-			auto rax = mAllocator.expand (mAllocator.expand_size ()) ;
+			auto rax = mAllocator.expand (expand_size ()) ;
 			ret = mSize ;
 			_CREATE_ (DEPTR[rax[ret].mValue] ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 			for (auto &&i : _RANGE_ (0 ,mSize)) {
 				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 				rax[i].mNext = VAR_USED ;
 			}
-			mAllocator.swap (rax) ;
+			mAllocator.expand_swap (rax) ;
 			update_reserve (mSize ,mFree) ;
 		}
 		if switch_once (fax) {
@@ -3549,7 +3514,7 @@ public:
 				_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 			rax[i].mNext = mAllocator[i].mNext ;
 		}
-		mAllocator.swap (rax) ;
+		mAllocator.expand_swap (rax) ;
 		update_reserve (mSize ,mFree) ;
 	}
 
@@ -3565,7 +3530,7 @@ public:
 			_CREATE_ (DEPTR[rax[i].mValue] ,_MOVE_ (_CAST_ (ARGV<UNIT>::ID ,mAllocator[i].mValue))) ;
 			rax[i].mNext = VAR_USED ;
 		}
-		mAllocator.swap (rax) ;
+		mAllocator.expand_swap (rax) ;
 		update_reserve (r1x ,VAR_NONE) ;
 	}
 
@@ -3579,6 +3544,12 @@ private:
 		}
 		mSize = mAllocator.size () ;
 		mFree = ix ;
+	}
+
+	LENGTH expand_size () const {
+		const auto r1x = LENGTH (mSize * MATH_SQRT2) ;
+		const auto r2x = mSize + DEFAULT_RECURSIVE_SIZE::compile () ;
+		return _MAX_ (r1x ,r2x) ;
 	}
 
 	LENGTH shrink_size () const {

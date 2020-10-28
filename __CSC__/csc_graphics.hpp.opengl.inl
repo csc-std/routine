@@ -292,7 +292,7 @@ private:
 } ;
 
 exports GLShader::GLShader () {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 
@@ -563,7 +563,7 @@ private:
 } ;
 
 exports GLSprite::GLSprite () {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 } ;

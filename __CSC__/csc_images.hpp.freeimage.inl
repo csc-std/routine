@@ -87,13 +87,12 @@ using ::FreeImage_Save ;
 using ::FreeImage_ConvertTo32Bits ;
 } ;
 
-
 template <>
 class Image<COLOR_BGR>::Private::Implement :
 	delegate public Image<COLOR_BGR>::Abstract {
 private:
+	using LAYOUT_PACK = Image<COLOR_BGR>::LAYOUT_PACK ;
 	using HFIBITMAP = PTR<FIBITMAP> ;
-	using LAYOUT_PACK = typename Image<COLOR_BGR>::LAYOUT_PACK ;
 
 private:
 	UniqueRef<HFIBITMAP> mHolder ;
@@ -219,8 +218,8 @@ template <>
 class Image<COLOR_BGRA>::Private::Implement :
 	delegate public Image<COLOR_BGRA>::Abstract {
 private:
+	using LAYOUT_PACK = Image<COLOR_BGRA>::LAYOUT_PACK ;
 	using HFIBITMAP = PTR<FIBITMAP> ;
-	using LAYOUT_PACK = typename Image<COLOR_BGRA>::LAYOUT_PACK ;
 
 private:
 	UniqueRef<HFIBITMAP> mHolder ;

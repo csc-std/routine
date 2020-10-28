@@ -27,7 +27,7 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
+		virtual Reference native () const = 0 ;
 		virtual LENGTH hours () const = 0 ;
 		virtual LENGTH minutes () const = 0 ;
 		virtual LENGTH seconds () const = 0 ;
@@ -65,7 +65,8 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<const _RET> (r1x) ;
 	}
 
 	LENGTH hours () const {
@@ -118,7 +119,7 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
+		virtual Reference native () const = 0 ;
 		virtual ARRAY8<LENGTH> calendar () const = 0 ;
 		virtual TimePoint add (const Duration &that) const = 0 ;
 		virtual Duration sub (const TimePoint &that) const = 0 ;
@@ -149,7 +150,8 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<const _RET> (r1x) ;
 	}
 
 	ARRAY8<LENGTH> calendar () const {
@@ -182,8 +184,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
+		virtual Reference native () = 0 ;
+		virtual Reference native () const = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -197,12 +199,14 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<_RET> (r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<const _RET> (r1x) ;
 	}
 
 	void lock () {
@@ -227,8 +231,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
+		virtual Reference native () = 0 ;
+		virtual Reference native () const = 0 ;
 		virtual void lock () = 0 ;
 		virtual BOOL try_lock () = 0 ;
 		virtual void unlock () = 0 ;
@@ -242,12 +246,14 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<_RET> (r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<const _RET> (r1x) ;
 	}
 
 	void lock () {
@@ -274,8 +280,8 @@ private:
 	class Abstract :
 		delegate public Interface {
 	public:
-		virtual DEF<typename Private::Implement> &native () leftvalue = 0 ;
-		virtual const DEF<typename Private::Implement> &native () const leftvalue = 0 ;
+		virtual Reference native () = 0 ;
+		virtual Reference native () const = 0 ;
 	} ;
 
 private:
@@ -286,12 +292,14 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	_RET &native () leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<_RET> (r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
 	const _RET &native () const leftvalue {
-		return mThis->native () ;
+		const auto r1x = mThis->native () ;
+		return SafeReference<const _RET> (r1x) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
@@ -945,7 +953,7 @@ private:
 
 private:
 	friend Singleton<RandomService> ;
-	Monostate<RecursiveMutex> mMutex ;
+	Mutable<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:

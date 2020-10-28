@@ -159,8 +159,8 @@ public:
 		return mDuration ;
 	}
 
-	const Implement &native () const leftvalue override {
-		return DEREF[this] ;
+	Reference native () const override {
+		return SafeReference<const Implement> (DEREF[this]) ;
 	}
 
 	LENGTH hours () const override {
@@ -207,13 +207,13 @@ public:
 } ;
 
 exports Duration::Duration (const LENGTH &milliseconds_) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (milliseconds_) ;
 }
 
 template <class _ARG1 ,class>
 exports Duration::Duration (_ARG1 &&time_) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::ID ,time_)) ;
 }
 
@@ -248,8 +248,8 @@ public:
 		mTimePoint = api::time_point_cast<api::system_clock::duration> (time_) ;
 	}
 
-	const Implement &native () const leftvalue override {
-		return DEREF[this] ;
+	Reference native () const override {
+		return SafeReference<const Implement> (DEREF[this]) ;
 	}
 
 	const api::system_clock::time_point &get_mTimePoint () const leftvalue {
@@ -314,7 +314,7 @@ public:
 
 template <class _ARG1 ,class>
 exports TimePoint::TimePoint (_ARG1 &&time_) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (_FORWARD_ (ARGV<_ARG1 &&>::ID ,time_)) ;
 }
 
@@ -326,12 +326,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () leftvalue override {
-		return DEREF[this] ;
+	Reference native () override {
+		return SafeReference<Implement> (DEREF[this]) ;
 	}
 
-	const Implement &native () const leftvalue override {
-		return DEREF[this] ;
+	Reference native () const override {
+		return SafeReference<const Implement> (DEREF[this]) ;
 	}
 
 	api::mutex &get_mMutex () leftvalue {
@@ -352,7 +352,7 @@ public:
 } ;
 
 exports Mutex::Mutex () {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 
@@ -364,12 +364,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () leftvalue override {
-		return DEREF[this] ;
+	Reference native () override {
+		return SafeReference<Implement> (DEREF[this]) ;
 	}
 
-	const Implement &native () const leftvalue override {
-		return DEREF[this] ;
+	Reference native () const override {
+		return SafeReference<const Implement> (DEREF[this]) ;
 	}
 
 	api::recursive_mutex &get_mMutex () leftvalue {
@@ -390,7 +390,7 @@ public:
 } ;
 
 exports RecursiveMutex::RecursiveMutex () {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 
@@ -402,12 +402,12 @@ private:
 public:
 	implicit Implement () = default ;
 
-	Implement &native () leftvalue override {
-		return DEREF[this] ;
+	Reference native () override {
+		return SafeReference<Implement> (DEREF[this]) ;
 	}
 
-	const Implement &native () const leftvalue override {
-		return DEREF[this] ;
+	Reference native () const override {
+		return SafeReference<const Implement> (DEREF[this]) ;
 	}
 
 	api::condition_variable &get_mConditionLock () leftvalue {
@@ -416,7 +416,7 @@ public:
 } ;
 
 exports ConditionLock::ConditionLock () {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 
@@ -462,7 +462,7 @@ public:
 } ;
 
 exports UniqueLock::UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
 }
 
@@ -486,7 +486,7 @@ public:
 } ;
 
 exports Thread::Thread (const StrongRef<Binder> &runnable) {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (runnable) ;
 }
 
@@ -676,7 +676,7 @@ public:
 } ;
 
 exports RandomService::RandomService (const ARGVF<Singleton<RandomService>> &) {
-	using R1X = typename Private::Implement ;
+	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 } ;

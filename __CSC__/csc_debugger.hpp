@@ -68,7 +68,7 @@ private:
 
 private:
 	friend Singleton<ConsoleService> ;
-	Monostate<RecursiveMutex> mMutex ;
+	Mutable<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:
@@ -220,7 +220,7 @@ private:
 
 private:
 	friend Singleton<DebuggerService> ;
-	Monostate<RecursiveMutex> mMutex ;
+	Mutable<RecursiveMutex> mMutex ;
 	StrongRef<Abstract> mThis ;
 
 public:

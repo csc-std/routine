@@ -887,7 +887,8 @@ struct FUNCTION_OF<_ARG1 ,ENABLE_TYPE<IS_FUNCTION_HELP<REMOVE_POINTER_TYPE<_ARG1
 
 template <class _ARG1 ,class _ARG2>
 struct FUNCTION_OF<_ARG1 ,_ARG2 ,ARGC<1>> {
-	using TYPE = typename FUNCTION_OF<_ARG1 ,_ARG2 ,ARGC<2>>::TYPE ;
+	using R1X = typename FUNCTION_OF<_ARG1 ,_ARG2 ,ARGC<2>>::TYPE ;
+	using TYPE = R1X ;
 } ;
 
 template <class _ARG1>
@@ -925,7 +926,8 @@ template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct REPEAT_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
-	using TYPE = typename REPEAT_PARAMS<R1X ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
+	using R2X = typename REPEAT_PARAMS<R1X ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>>::TYPE ;
+	using TYPE = R2X ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -946,7 +948,8 @@ struct RANGE_PARAMS<_ARG1 ,_ARG2 ,ARGVS<_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
 	using R2X = ARGC_TYPE<U::CONSTEXPR_INCREASE<_ARG2>> ;
-	using TYPE = typename RANGE_PARAMS<R1X ,R2X ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
+	using R3X = typename RANGE_PARAMS<R1X ,R2X ,ARGVS<_ARGS... ,_ARG2>>::TYPE ;
+	using TYPE = R3X ;
 } ;
 
 template <class _ARG1>
@@ -1006,7 +1009,8 @@ struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG2 ,_ARGS...>> {
 template <class _ARG1 ,class _ARG2 ,class _ARG3 ,class... _ARGS>
 struct INDEX_OF<_ARG1 ,_ARG2 ,ARGVS<_ARG3 ,_ARGS...>> {
 	using R1X = ARGC_TYPE<U::CONSTEXPR_INCREASE<_ARG1>> ;
-	using TYPE = typename INDEX_OF<R1X ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
+	using R2X = typename INDEX_OF<R1X ,_ARG2 ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = R2X ;
 } ;
 
 template <class _ARG1 ,class _ARG2>
@@ -1032,7 +1036,8 @@ template <class _ARG1 ,class _ARG2 ,class... _ARGS>
 struct INDEX_TO<_ARG1 ,ARGVS<_ARG2 ,_ARGS...>> {
 	_STATIC_ASSERT_ (U::CONSTEXPR_COMPR_GT<_ARG1 ,ZERO>::compile ()) ;
 	using R1X = ARGC_TYPE<U::CONSTEXPR_DECREASE<_ARG1>> ;
-	using TYPE = typename INDEX_TO<R1X ,ARGVS<_ARGS...>>::TYPE ;
+	using R2X = typename INDEX_TO<R1X ,ARGVS<_ARGS...>>::TYPE ;
+	using TYPE = R2X ;
 } ;
 
 template <class _ARG1 ,class _ARG2>

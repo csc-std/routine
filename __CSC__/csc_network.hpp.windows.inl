@@ -336,7 +336,7 @@ private:
 } ;
 
 exports TCPSocket::TCPSocket (const String<STRU8> &ip_addr) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
@@ -373,7 +373,7 @@ exports String<STRU8> TCPSocket::http_post (const String<STRU8> &ip_addr ,const 
 class TCPListener::Private::Implement :
 	delegate public Abstract {
 private:
-	using THIS_PACK = typename TCPSocket::Private::Implement::THIS_PACK ;
+	using THIS_PACK = typename TCPSocketImplement::THIS_PACK ;
 
 private:
 	SharedRef<THIS_PACK> mThis ;
@@ -383,7 +383,7 @@ private:
 public:
 	implicit Implement () = default ;
 
-	explicit Implement (const StrongRef<TCPSocket::Private::Implement> &socket_) {
+	explicit Implement (const StrongRef<TCPSocketImplement> &socket_) {
 		mThis = socket_->mThis ;
 		mListener = _MOVE_ (mThis->mSocket) ;
 		const auto r1x = api::listen (mListener ,5) ;
@@ -414,8 +414,8 @@ public:
 	}
 } ;
 
-exports TCPListener::TCPListener (const StrongRef<TCPSocket::Private::Implement> &socket_) {
-	using R1X = typename Private::Implement ;
+exports TCPListener::TCPListener (const StrongRef<TCPSocketImplement> &socket_) {
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (socket_) ;
 }
 
@@ -523,7 +523,7 @@ public:
 } ;
 
 exports UDPSocket::UDPSocket (const String<STRU8> &ip_addr) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (ip_addr) ;
 }
 
@@ -573,7 +573,7 @@ public:
 } ;
 
 exports NetworkService::NetworkService (const ARGVF<Singleton<NetworkService>> &) {
-	using R1X = typename Private::Implement ;
+	using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make () ;
 }
 } ;

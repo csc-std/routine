@@ -1509,9 +1509,10 @@ inline exports _RET StringProc::parse_dates (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_dates (const ARGVF<_ARG1> & ,const TimePoint &stru) {
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
@@ -1556,9 +1557,10 @@ inline exports _RET StringProc::parse_hours (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_hours (const ARGVF<_ARG1> & ,const TimePoint &stru) {
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	String<STR> ret = String<STR> (31) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	if (r2x[5] < 10)
 		rax << STR ('0') ;
@@ -1620,9 +1622,10 @@ inline exports _RET StringProc::parse_times (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_times (const ARGVF<_ARG1> & ,const TimePoint &stru) {
+	using R1X = DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS> ;
 	String<STR> ret = String<STR> (63) ;
 	auto rax = TextWriter<STR> (ret.raw ()) ;
-	auto &r1x = _FORWARD_ (ARGV<DEPENDENT_TYPE<TimePoint ,struct ANONYMOUS>>::ID ,stru) ;
+	auto &r1x = _FORWARD_ (ARGV<R1X>::ID ,stru) ;
 	const auto r2x = r1x.calendar () ;
 	rax << r2x[0] ;
 	rax << STR ('-') ;
