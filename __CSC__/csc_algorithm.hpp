@@ -796,7 +796,7 @@ private:
 				if (!(mTempState == M_STATE.mP1[1]))
 					discard ;
 				mTempRet = FALSE ;
-				mTempStack.add (ARRAY2<INDEX> {0 ,y}) ;
+				mTempStack.add (ARRAY2<INDEX> ({0 ,y})) ;
 				mTempState = M_STATE.mP1[7] ;
 			}
 			if switch_once (fax) {
@@ -853,7 +853,7 @@ private:
 				if (!(mTempState == M_STATE.mP1[8]))
 					discard ;
 				mXVisit[mTempStack[ix][0]] = TRUE ;
-				mTempStack.add (ARRAY2<INDEX> {0 ,mXYLink[mTempStack[ix][0]]}) ;
+				mTempStack.add (ARRAY2<INDEX> ({0 ,mXYLink[mTempStack[ix][0]]})) ;
 				mTempState = M_STATE.mP1[7] ;
 			}
 			if switch_once (fax) {
@@ -1267,8 +1267,8 @@ private:
 	}
 
 	REAL distance_of_point (const ARRAY3<REAL> &a ,const ARRAY3<REAL> &b) const {
-		const auto r1x = Vector<REAL> {a ,REAL (0)} ;
-		const auto r2x = Vector<REAL> {b ,REAL (0)} ;
+		const auto r1x = Vector<REAL> (a ,REAL (0)) ;
+		const auto r2x = Vector<REAL> (b ,REAL (0)) ;
 		return (r1x - r2x).magnitude () ;
 	}
 
@@ -1383,7 +1383,7 @@ public:
 
 private:
 	void prepare () {
-		mNextRot = ARRAY3<INDEX> {1 ,2 ,0} ;
+		mNextRot = ARRAY3<INDEX> ({1 ,2 ,0}) ;
 		for (auto &&i : _RANGE_ (0 ,mOrder.length ())) {
 			const auto r1x = stack_of_order (i) ;
 			mOrder[i] = r1x.range_sort () ;
@@ -1463,7 +1463,7 @@ private:
 		INDEX iw = 0 ;
 		for (auto &&i : _RANGE_ (lb ,rb + 1))
 			temp_order[iw++] = mOrder[n_rot][i] ;
-		const auto r1x = ARRAY2<INDEX> {0 ,iw} ;
+		const auto r1x = ARRAY2<INDEX> ({0 ,iw}) ;
 		for (auto &&i : _RANGE_ (r1x[0] ,r1x[1]))
 			order_[n_rot][lb + i] = temp_order[i] ;
 	}

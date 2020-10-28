@@ -420,7 +420,7 @@ inline exports REMOVE_CVR_TYPE<_ARG1> MathProc::maxof (const _ARG1 &list_one ,co
 
 template <class _ARG1>
 inline exports ARRAY2<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 &list_two) {
-	ARRAY2<_ARG1> ret = ARRAY2<_ARG1> {list_one ,list_two} ;
+	ARRAY2<_ARG1> ret = ARRAY2<_ARG1> ({list_one ,list_two}) ;
 	if (!(ret[0] <= ret[1]))
 		_SWAP_ (ret[0] ,ret[1]) ;
 	return _MOVE_ (ret) ;
@@ -428,7 +428,7 @@ inline exports ARRAY2<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 
 
 template <class _ARG1>
 inline exports ARRAY3<_ARG1> MathProc::sort (const _ARG1 &list_one ,const _ARG1 &list_two ,const _ARG1 &list_three) {
-	ARRAY3<_ARG1> ret = ARRAY3<_ARG1> {list_one ,list_two ,list_three} ;
+	ARRAY3<_ARG1> ret = ARRAY3<_ARG1> ({list_one ,list_two ,list_three}) ;
 	if (!(ret[0] <= ret[1]))
 		_SWAP_ (ret[0] ,ret[1]) ;
 	if (!(ret[0] <= ret[2]))

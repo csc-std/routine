@@ -227,7 +227,7 @@ public:
 		const auto r1x = _CALL_ ([&] () {
 			if (mHeap.exist ())
 				return mHeap->mWidth ;
-			return ARRAY4<LENGTH> {0 ,0 ,0 ,0} ;
+			return ARRAY4<LENGTH> ({0 ,0 ,0 ,0}) ;
 		}) ;
 		mCX = r1x[0] ;
 		mCY = r1x[1] ;
@@ -261,7 +261,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::ID)))>>
 	_RET array_range () const {
-		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
+		const auto r1x = ARRAY2<LENGTH> ({mCY ,mCX}) ;
 		return _RANGE_ (r1x) ;
 	}
 
@@ -571,7 +571,7 @@ public:
 	Bitmap matrix_product (const Bitmap &that) const {
 		_DEBUG_ASSERT_ (mCX == that.mCY) ;
 		Bitmap ret = Bitmap (that.mCX ,mCY) ;
-		const auto r1x = ARRAY2<LENGTH> {mCY ,that.mCX} ;
+		const auto r1x = ARRAY2<LENGTH> ({mCY ,that.mCX}) ;
 		for (auto &&i : _RANGE_ (r1x)) {
 			ret.get (i) = UNIT (0) ;
 			for (auto &&j : _RANGE_ (0 ,mCX))
@@ -717,7 +717,7 @@ public:
 
 	template <class _RET = REMOVE_CVR_TYPE<decltype (_RANGE_ (_NULL_ (ARGV<const ARRAY2<LENGTH>>::ID)))>>
 	_RET array_range () const {
-		const auto r1x = ARRAY2<LENGTH> {mCY ,mCX} ;
+		const auto r1x = ARRAY2<LENGTH> ({mCY ,mCX}) ;
 		return _RANGE_ (r1x) ;
 	}
 

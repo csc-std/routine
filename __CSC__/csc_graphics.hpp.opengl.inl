@@ -211,13 +211,13 @@ public:
 
 	void uniform_write (const INDEX &index ,const Vector<VAL32> &data) override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
-		const auto r1x = ARRAY4<VAL32> {data[0] ,data[1] ,data[2] ,data[3]} ;
+		const auto r1x = ARRAY4<VAL32> ({data[0] ,data[1] ,data[2] ,data[3]}) ;
 		api::glUniform4fv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 
 	void uniform_write (const INDEX &index ,const Vector<VAL64> &data) override {
 		_DEBUG_ASSERT_ (index != GL_INVALID_VALUE) ;
-		const auto r1x = ARRAY4<VAL64> {data[0] ,data[1] ,data[2] ,data[3]} ;
+		const auto r1x = ARRAY4<VAL64> ({data[0] ,data[1] ,data[2] ,data[3]}) ;
 		api::glUniform4dv (VAR32 (index) ,1 ,r1x.raw ().self) ;
 	}
 

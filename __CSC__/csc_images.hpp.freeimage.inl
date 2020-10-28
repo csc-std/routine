@@ -131,7 +131,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
+		const auto r2x = COLOR_BGR ({0 ,0 ,0}) ;
 		api::FreeImage_FillBackground (rax.self ,DEPTR[r2x] ,0) ;
 		mHolder = _MOVE_ (rax) ;
 	}
@@ -258,7 +258,7 @@ public:
 		} ,[] (HFIBITMAP &me) {
 			api::FreeImage_Unload (me) ;
 		}) ;
-		const auto r2x = COLOR_BGR {0 ,0 ,0} ;
+		const auto r2x = COLOR_BGRA ({0 ,0 ,0 ,0});
 		api::FreeImage_FillBackground (rax.self ,DEPTR[r2x] ,0) ;
 		mHolder = _MOVE_ (rax) ;
 	}

@@ -1129,7 +1129,7 @@ inline exports DATA StringProc::parse_hexs (const String<_ARG1> &stri) {
 	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('0')) ;
 	rax >> rbx ;
 	_DYNAMIC_ASSERT_ (rbx == _ARG1 ('X')) ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r1x = ARRAY2<_ARG1> ({_ARG1 ('0') ,(_ARG1 ('A' - 10))}) ;
 	auto rcx = VAR_ZERO ;
 	while (TRUE) {
 		rax >> rbx ;
@@ -1157,7 +1157,7 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
 	rax << _ARG1 ('0') ;
 	rax << _ARG1 ('X') ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r1x = ARRAY2<_ARG1> ({_ARG1 ('0') ,(_ARG1 ('A' - 10))}) ;
 	const auto r2x = _SIZEOF_ (BYTE) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (BYTE) * 2)) {
 		const auto r3x = BYTE (BYTE (stru >> (r2x - i * 4)) & BYTE (0X0F)) ;
@@ -1178,7 +1178,7 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
 	rax << _ARG1 ('0') ;
 	rax << _ARG1 ('X') ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r1x = ARRAY2<_ARG1> ({_ARG1 ('0') ,(_ARG1 ('A' - 10))}) ;
 	const auto r2x = _SIZEOF_ (WORD) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (WORD) * 2)) {
 		const auto r3x = WORD (WORD (stru >> (r2x - i * 4)) & WORD (0X0F)) ;
@@ -1199,7 +1199,7 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
 	rax << _ARG1 ('0') ;
 	rax << _ARG1 ('X') ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r1x = ARRAY2<_ARG1> ({_ARG1 ('0') ,(_ARG1 ('A' - 10))}) ;
 	const auto r2x = _SIZEOF_ (CHAR) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (CHAR) * 2)) {
 		const auto r3x = CHAR (CHAR (stru >> (r2x - i * 4)) & CHAR (0X0F)) ;
@@ -1220,7 +1220,7 @@ inline exports String<_ARG1> StringProc::build_hexs (const ARGVF<_ARG1> & ,const
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
 	rax << _ARG1 ('0') ;
 	rax << _ARG1 ('X') ;
-	const auto r1x = ARRAY2<_ARG1> {_ARG1 ('0') ,(_ARG1 ('A' - 10))} ;
+	const auto r1x = ARRAY2<_ARG1> ({_ARG1 ('0') ,(_ARG1 ('A' - 10))}) ;
 	const auto r2x = _SIZEOF_ (DATA) * 8 - 4 ;
 	for (auto &&i : _RANGE_ (0 ,_SIZEOF_ (DATA) * 2)) {
 		const auto r3x = DATA (DATA (stru >> (r2x - i * 4)) & DATA (0X0F)) ;

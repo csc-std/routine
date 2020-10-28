@@ -1224,7 +1224,7 @@ private:
 			DEREF[this] = rax.share () ;
 			rax.read (top) ;
 		}
-		auto rbx = ARRAY3<VAR64> {0 ,0 ,0} ;
+		auto rbx = ARRAY3<VAR64> ({0 ,0 ,0}) ;
 		if switch_once (TRUE) {
 			if (!r1x.varify_number_item (top))
 				discard ;

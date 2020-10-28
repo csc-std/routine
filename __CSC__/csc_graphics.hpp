@@ -68,9 +68,9 @@ private:
 
 public:
 	implicit Camera () {
-		const auto r1x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)} ;
-		const auto r2x = Vector<REAL> {REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)} ;
-		const auto r3x = Vector<REAL> {REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)} ;
+		const auto r1x = Vector<REAL> (REAL (0) ,REAL (0) ,REAL (1) ,REAL (1)) ;
+		const auto r2x = Vector<REAL> (REAL (0) ,REAL (0) ,REAL (0) ,REAL (1)) ;
+		const auto r3x = Vector<REAL> (REAL (0) ,REAL (1) ,REAL (0) ,REAL (0)) ;
 		lookat (r1x ,r2x ,r3x) ;
 		perspective (REAL (90) ,REAL (1) ,REAL (1) ,REAL (1000)) ;
 	}
@@ -206,7 +206,7 @@ public:
 
 private:
 	void update_view_matrix () {
-		const auto r1x = Vector<REAL> {-mEyeP[0] ,-mEyeP[1] ,-mEyeP[2] ,REAL (0)} ;
+		const auto r1x = Vector<REAL> (-mEyeP[0] ,-mEyeP[1] ,-mEyeP[2] ,REAL (0)) ;
 		mViewMatrix[0][0] = mEyeU[0] ;
 		mViewMatrix[0][1] = -mEyeU[1] ;
 		mViewMatrix[0][2] = -mEyeU[2] ;
