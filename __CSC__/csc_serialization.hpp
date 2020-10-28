@@ -1782,7 +1782,7 @@ public:
 			String<STRU8> ret = String<STRU8>::make () ;
 			auto rax = TextWriter<STRU8> (ret.raw ()) ;
 			for (auto &&i : _RANGE_ (1 ,LENGTH (argc))) {
-				rax << StringProc::cvt_as_u8s (PTRTOARR[argv[i]]) ;
+				rax << StringProc::cvt_as_u8s (String<STRA> (PTRTOARR[argv[i]])) ;
 				rax << _PCSTRU8_ (" ") ;
 			}
 			rax << TextWriter<STRU8>::EOS ;

@@ -246,7 +246,7 @@ public:
 		const auto r5x = api::regex_replace (r3x ,mRegex.self ,r4x) ;
 		if (r5x.empty ())
 			return String<STRU8> () ;
-		return StringProc::cvt_uas_u8s (PTRTOARR[r5x.c_str ()]) ;
+		return StringProc::cvt_uas_u8s (String<STRA> (PTRTOARR[r5x.c_str ()])) ;
 	}
 } ;
 

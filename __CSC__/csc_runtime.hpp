@@ -461,7 +461,7 @@ private:
 		const auto r1x = _PCSTR_ ("struct CSC::TypeNameInvokeProc::TYPENAME __cdecl CSC::TypeNameInvokeProc::typeid_name_from_func<") ;
 		const auto r2x = _PCSTR_ (">(void)") ;
 		TYPENAME ret ;
-		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
+		ret.mName = StringProc::parse_strs (String<STRA> (PTRTOARR[M_FUNC])) ;
 		const auto r3x = r1x.size () ;
 		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
 		ret.mName = ret.mName.segment (r3x ,r4x) ;
@@ -475,7 +475,7 @@ private:
 		const auto r1x = _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [with _RET = ") ;
 		const auto r2x = _PCSTR_ ("]") ;
 		TYPENAME ret ;
-		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
+		ret.mName = StringProc::parse_strs (String<STRA> (PTRTOARR[M_FUNC])) ;
 		const auto r3x = r1x.size () ;
 		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
 		ret.mName = ret.mName.segment (r3x ,r4x) ;
@@ -489,7 +489,7 @@ private:
 		const auto r1x = _PCSTR_ ("static CSC::TypeNameInvokeProc::TYPENAME CSC::TypeNameInvokeProc::typeid_name_from_func() [_RET = ") ;
 		const auto r2x = _PCSTR_ ("]") ;
 		TYPENAME ret ;
-		ret.mName = StringProc::parse_strs (String<STRA> (M_FUNC)) ;
+		ret.mName = StringProc::parse_strs (String<STRA> (PTRTOARR[M_FUNC])) ;
 		const auto r3x = r1x.size () ;
 		const auto r4x = ret.mName.length () - 1 - r2x.size () ;
 		ret.mName = ret.mName.segment (r3x ,r4x) ;

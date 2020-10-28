@@ -145,7 +145,7 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Array (const api::initializer_list<ITEM> &that) :
+	explicit Array (const api::initializer_list<ITEM> &that) :
 		delegate Array (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
@@ -328,7 +328,7 @@ public:
 		clear () ;
 	}
 
-	implicit String (const api::initializer_list<ITEM> &that) :
+	explicit String (const api::initializer_list<ITEM> &that) :
 		delegate String (that.size ()) {
 		_DEBUG_ASSERT_ (size () == LENGTH (that.size ())) ;
 		INDEX iw = 0 ;
@@ -338,7 +338,7 @@ public:
 		_DEBUG_ASSERT_ (iw == mString.size ()) ;
 	}
 
-	implicit String (const ARR<ITEM> &that) :
+	explicit String (const ARR<ITEM> &that) :
 		delegate String (plain_string_length (DEPTR[that])) {
 		BasicProc::mem_copy (mString.self ,that ,size ()) ;
 	}
@@ -637,7 +637,7 @@ public:
 		clear () ;
 	}
 
-	implicit Deque (const api::initializer_list<ITEM> &that) :
+	explicit Deque (const api::initializer_list<ITEM> &that) :
 		delegate Deque (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -978,7 +978,7 @@ public:
 		clear () ;
 	}
 
-	implicit Priority (const api::initializer_list<ITEM> &that) :
+	explicit Priority (const api::initializer_list<ITEM> &that) :
 		delegate Priority (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1331,7 +1331,7 @@ public:
 		clear () ;
 	}
 
-	implicit List (const api::initializer_list<ITEM> &that) :
+	explicit List (const api::initializer_list<ITEM> &that) :
 		delegate List (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -1735,7 +1735,7 @@ public:
 		clear () ;
 	}
 
-	implicit ArrayList (const api::initializer_list<ITEM> &that) :
+	explicit ArrayList (const api::initializer_list<ITEM> &that) :
 		delegate ArrayList (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -2398,6 +2398,7 @@ private:
 	friend BitSet ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
+	BOOL mItem ;
 
 public:
 	implicit Bit () = delete ;
@@ -2407,15 +2408,12 @@ public:
 		mIndex = index ;
 	}
 
-	inline implicit operator BOOL () rightvalue {
+	inline implicit operator const BOOL & () rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
 		const auto r2x = BYTE (mBase->mSet[mIndex / 8] & r1x) ;
-		if (r2x == 0)
-			return FALSE ;
-		return TRUE ;
+		mItem = BOOL (r2x != 0) ;
+		return mItem ;
 	}
-
-	inline implicit operator BOOL () const leftvalue = delete ;
 
 	inline void operator= (const BOOL &that) rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
@@ -2487,7 +2485,7 @@ public:
 		clear () ;
 	}
 
-	implicit Set (const api::initializer_list<ITEM> &that) :
+	explicit Set (const api::initializer_list<ITEM> &that) :
 		delegate Set (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;
@@ -3096,7 +3094,7 @@ public:
 		clear () ;
 	}
 
-	implicit HashSet (const api::initializer_list<ITEM> &that) :
+	explicit HashSet (const api::initializer_list<ITEM> &that) :
 		delegate HashSet (that.size ()) {
 		for (auto &&i : that)
 			add (i) ;

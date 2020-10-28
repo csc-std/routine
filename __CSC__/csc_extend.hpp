@@ -310,12 +310,11 @@ private:
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<_ARG1> ;
 		_STATIC_ASSERT_ (_ALIGNOF_ (TEMP<FakeHolder>) >= _ALIGNOF_ (TEMP<R1X>)) ;
 		_STATIC_ASSERT_ (_SIZEOF_ (TEMP<FakeHolder>) >= _SIZEOF_ (TEMP<R1X>)) ;
-		const auto r1x = _ADDRESS_ (address) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
-		auto &r3x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r2x])) ;
-		auto &r4x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<FakeHolder>::ID ,DEREF[address])) ;
-		_DYNAMIC_ASSERT_ (DEPTR[r3x] == DEPTR[r4x]) ;
-		_CREATE_ (r2x ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<TEMP<R1X>>::ID ,address) ;
+		auto &r2x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<R1X>::ID ,DEREF[r1x])) ;
+		auto &r3x = _FORWARD_ (ARGV<Holder>::ID ,_CAST_ (ARGV<FakeHolder>::ID ,DEREF[address])) ;
+		_DYNAMIC_ASSERT_ (DEPTR[r2x] == DEPTR[r3x]) ;
+		_CREATE_ (r1x ,ARGVP0 ,_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -443,7 +442,7 @@ private:
 public:
 	implicit Tuple () = default ;
 
-	implicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :
+	explicit Tuple (FORWARD_TRAITS_TYPE<UNIT1> &&one_ ,FORWARD_TRAITS_TYPE<UNITS> &&...rest_) :
 		delegate Tuple<UNITS...> (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNITS> &&>::ID ,rest_)...) ,
 		delegate mValue (_FORWARD_ (ARGV<FORWARD_TRAITS_TYPE<UNIT1> &&>::ID ,one_)) {}
 
@@ -549,286 +548,6 @@ private:
 template <class... UNITS>
 using TupleBinder = Tuple<UNITS &...> ;
 
-template <class...>
-class AllOfTuple ;
-
-template <class...>
-class AnyOfTuple ;
-
-template <class... UNITS>
-class AllOfTuple :
-	delegate private Proxy {
-private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
-
-	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
-
-private:
-	TupleBinder<const UNITS...> mBinder ;
-
-public:
-	implicit AllOfTuple () = delete ;
-
-	explicit AllOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
-		delegate mBinder (initval...) {}
-
-	inline implicit operator BOOL () rightvalue {
-		return template_boolean (mBinder) ;
-	}
-
-	inline implicit operator BOOL () const leftvalue = delete ;
-
-	inline BOOL operator== (const WRAPPED &that) const {
-		return template_equal (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator== (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_equal (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator!= (const WRAPPED &that) const {
-		return template_not_equal (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator!= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_not_equal (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator< (const WRAPPED &that) const {
-		return template_less (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator< (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_less (that ,this_.mBinder) ;
-	}
-
-	inline BOOL operator>= (const WRAPPED &that) const {
-		return template_not_less (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator>= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_not_less (that ,this_.mBinder) ;
-	}
-
-	inline BOOL operator> (const WRAPPED &that) const {
-		return template_less (that ,mBinder) ;
-	}
-
-	inline friend BOOL operator> (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_less (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator<= (const WRAPPED &that) const {
-		return template_not_less (that ,mBinder) ;
-	}
-
-	inline friend BOOL operator<= (const WRAPPED &that ,const AllOfTuple &this_) {
-		return template_not_less (this_.mBinder ,that) ;
-	}
-
-private:
-	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
-		return BOOL (lhs == rhs) ;
-	}
-
-	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
-		return BOOL (lhs < rhs) ;
-	}
-
-	imports BOOL template_boolean (const Tuple<> &this_) {
-		return TRUE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_boolean (const _ARG1 &this_) {
-		if (!BOOL (this_.one ()))
-			return FALSE ;
-		return template_boolean (this_.rest ()) ;
-	}
-
-	imports BOOL template_equal (const Tuple<> &this_ ,const WRAPPED &that) {
-		return TRUE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (!operator_equal (this_.one () ,that))
-			return FALSE ;
-		return template_equal (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_not_equal (const Tuple<> &this_ ,const WRAPPED &that) {
-		return TRUE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (operator_equal (this_.one () ,that))
-			return FALSE ;
-		return template_not_equal (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_less (const Tuple<> &this_ ,const WRAPPED &that) {
-		return TRUE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (!operator_less (this_.one () ,that))
-			return FALSE ;
-		return template_less (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_not_less (const Tuple<> &this_ ,const WRAPPED &that) {
-		return TRUE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (operator_less (this_.one () ,that))
-			return FALSE ;
-		return template_not_less (this_.rest () ,that) ;
-	}
-} ;
-
-template <class... UNITS>
-class AnyOfTuple :
-	delegate private Proxy {
-private:
-	_STATIC_ASSERT_ (_CAPACITYOF_ (ARGVS<UNITS...>) > 0) ;
-	_STATIC_ASSERT_ (IS_ALL_SAME_HELP<UNITS...>::compile ()) ;
-
-	using WRAPPED = INDEX_TO_TYPE<ZERO ,ARGVS<UNITS...>> ;
-
-private:
-	TupleBinder<const UNITS...> mBinder ;
-
-public:
-	implicit AnyOfTuple () = delete ;
-
-	explicit AnyOfTuple (const DEF<decltype (ARGVP0)> & ,const UNITS &...initval) :
-		delegate mBinder (initval...) {}
-
-	inline implicit operator BOOL () rightvalue {
-		return template_boolean (mBinder) ;
-	}
-
-	inline implicit operator BOOL () const leftvalue = delete ;
-
-	inline BOOL operator== (const WRAPPED &that) const {
-		return template_equal (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator== (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_equal (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator!= (const WRAPPED &that) const {
-		return template_not_equal (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator!= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_not_equal (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator< (const WRAPPED &that) const {
-		return template_less (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator< (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_less (that ,this_.mBinder) ;
-	}
-
-	inline BOOL operator>= (const WRAPPED &that) const {
-		return template_not_less (mBinder ,that) ;
-	}
-
-	inline friend BOOL operator>= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_not_less (that ,this_.mBinder) ;
-	}
-
-	inline BOOL operator> (const WRAPPED &that) const {
-		return template_less (that ,mBinder) ;
-	}
-
-	inline friend BOOL operator> (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_less (this_.mBinder ,that) ;
-	}
-
-	inline BOOL operator<= (const WRAPPED &that) const {
-		return template_not_less (that ,mBinder) ;
-	}
-
-	inline friend BOOL operator<= (const WRAPPED &that ,const AnyOfTuple &this_) {
-		return template_not_less (this_.mBinder ,that) ;
-	}
-
-private:
-	imports BOOL operator_equal (const WRAPPED &lhs ,const WRAPPED &rhs) {
-		return BOOL (lhs == rhs) ;
-	}
-
-	imports BOOL operator_less (const WRAPPED &lhs ,const WRAPPED &rhs) {
-		return BOOL (lhs < rhs) ;
-	}
-
-	imports BOOL template_boolean (const Tuple<> &this_) {
-		return FALSE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_boolean (const _ARG1 &this_) {
-		if (BOOL (this_.one ()))
-			return TRUE ;
-		return template_boolean (this_.rest ()) ;
-	}
-
-	imports BOOL template_equal (const Tuple<> &this_ ,const WRAPPED &that) {
-		return FALSE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_equal (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (operator_equal (this_.one () ,that))
-			return TRUE ;
-		return template_equal (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_not_equal (const Tuple<> &this_ ,const WRAPPED &that) {
-		return FALSE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_not_equal (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (!operator_equal (this_.one () ,that))
-			return TRUE ;
-		return template_not_equal (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_less (const Tuple<> &this_ ,const WRAPPED &that) {
-		return FALSE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_less (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (operator_less (this_.one () ,that))
-			return TRUE ;
-		return template_less (this_.rest () ,that) ;
-	}
-
-	imports BOOL template_not_less (const Tuple<> &this_ ,const WRAPPED &that) {
-		return FALSE ;
-	}
-
-	template <class _ARG1>
-	imports BOOL template_not_less (const _ARG1 &this_ ,const WRAPPED &that) {
-		if (!operator_less (this_.one () ,that))
-			return TRUE ;
-		return template_not_less (this_.rest () ,that) ;
-	}
-} ;
-
 template <class UNIT>
 class Atomic {
 private:
@@ -908,7 +627,7 @@ private:
 public:
 	implicit AtomicVar () = default ;
 
-	implicit AtomicVar (const VAR &that) {
+	explicit AtomicVar (const VAR &that) {
 		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,that) ;
 		const auto r2x = mValue.compare_exchange (0 ,r1x) ;
 		_STATIC_UNUSED_ (r2x) ;
@@ -959,7 +678,7 @@ private:
 public:
 	implicit AtomicPtr () = default ;
 
-	implicit AtomicPtr (const PTR<NONE> &that) {
+	explicit AtomicPtr (const PTR<NONE> &that) {
 		const auto r1x = _ADDRESS_ (that) ;
 		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = mValue.compare_exchange (0 ,r2x) ;

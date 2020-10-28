@@ -1748,7 +1748,6 @@ inline REMOVE_CVR_TYPE<_ARG1> _BITWISE_CAST_ (const ARGVF<_ARG1> & ,const _ARG2 
 
 template <class _ARG1 ,class _ARG2>
 inline PTR<CAST_TRAITS_TYPE<_ARG1 ,_ARG2>> _POINTER_CAST_ (const ARGVF<_ARG1> & ,const PTR<_ARG2> &pointer) {
-	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG2> ,NONE>::compile ()) ;
 	if (pointer == NULL)
 		return NULL ;
 	const auto r1x = _ALIGNOF_ (CONDITIONAL_TYPE<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,NONE> ,BYTE ,_ARG1>) ;
@@ -2272,14 +2271,14 @@ public:
 	implicit Plain () = delete ;
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_CONST_HELP<_ARG1> ,IS_ARRAY_OF_HELP<REAL ,_ARG1>>>>
-	implicit Plain (_ARG1 &that) {
-		mPlain = DEPTR[PTRTOARR[that]] ;
+	explicit Plain (_ARG1 &text) {
+		mPlain = DEPTR[PTRTOARR[text]] ;
 		mSize = _COUNTOF_ (_ARG1) - 1 ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
 	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text) :
-		delegate Plain (cache_string (ARGV<_ARG1>::ID ,text...)) {
+		delegate Plain (cache_text (ARGV<_ARG1>::ID ,text...)) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -2313,7 +2312,7 @@ public:
 
 private:
 	template <class _ARG1 ,class... _ARGS ,class _RET = REMOVE_CVR_TYPE<ARRAY_BIND_TYPE<REAL ,U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>>>>
-	imports const _RET &cache_string (const ARGVF<_ARG1> & ,const _ARGS &...text) {
+	imports const _RET &cache_text (const ARGVF<_ARG1> & ,const _ARGS &...text) {
 		using R1X = ARGC_TYPE<U::CONSTEXPR_CACHE_STRING_SIZE<_ARGS...>> ;
 		using R2X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template PlainString<R1X> ;
 		const auto r1x = R2X (text...) ;

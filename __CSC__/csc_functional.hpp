@@ -417,9 +417,9 @@ protected:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Expression (const StrongRef<LexicalNode> &that) {
-		_DYNAMIC_ASSERT_ (that->mRank == RANK_SIZE::compile ()) ;
-		mThis = that ;
+	explicit Expression (const StrongRef<LexicalNode> &node) {
+		_DYNAMIC_ASSERT_ (node->mRank == RANK_SIZE::compile ()) ;
+		mThis = node ;
 	}
 
 	implicit Expression (const Expression &that) {
@@ -674,8 +674,8 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	explicit Expression (const StrongRef<LexicalNode> &that) :
-		delegate SPECIALIZATION_BASE (that) {
+	explicit Expression (const StrongRef<LexicalNode> &node) :
+		delegate SPECIALIZATION_BASE (node) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -725,8 +725,8 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	explicit Expression (const StrongRef<LexicalNode> &that) :
-		delegate SPECIALIZATION_BASE (that) {
+	explicit Expression (const StrongRef<LexicalNode> &node) :
+		delegate SPECIALIZATION_BASE (node) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 
@@ -783,8 +783,8 @@ public:
 		mThis->mDepth = 1 ;
 	}
 
-	explicit Expression (const StrongRef<LexicalNode> &that) :
-		delegate SPECIALIZATION_BASE (that) {
+	explicit Expression (const StrongRef<LexicalNode> &node) :
+		delegate SPECIALIZATION_BASE (node) {
 		_STATIC_WARNING_ ("noop") ;
 	}
 

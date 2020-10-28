@@ -448,8 +448,6 @@ public:
 		return self ;
 	}
 
-	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
-
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
 		mOrigin = NULL ;
 		mPointer = NULL ;
@@ -1803,13 +1801,13 @@ public:
 		_STATIC_WARNING_ ("noop") ;
 	}
 
-	implicit Function (const DEF<UNIT1 (UNITS...)> &that) :
+	explicit Function (const DEF<UNIT1 (UNITS...)> &that) :
 		delegate Function (ARGVP0) {
 		mFunction = DEPTR[that] ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Function>>>>>
-	implicit Function (_ARG1 &&that) :
+	explicit Function (_ARG1 &&that) :
 		delegate Function (ARGVP0) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template ImplHolder<REMOVE_REFERENCE_TYPE<_ARG1>> ;
 		_STATIC_ASSERT_ (IS_SAME_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<UNITS...>> ,UNIT1>::compile ()) ;
@@ -2850,10 +2848,9 @@ public:
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,_ARG2> &val) {
-		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
-		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
-		return make (DEREF[r2x] ,r3x) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,DEPTR[val.self]) ;
+		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
+		return make (DEREF[r1x] ,r2x) ;
 	}
 
 private:
@@ -3035,18 +3032,16 @@ public:
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (Buffer<_ARG1 ,_ARG2> &val) {
-		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
-		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
-		return make (DEREF[r2x] ,r3x) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,DEPTR[val.self]) ;
+		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
+		return make (DEREF[r1x] ,r2x) ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<IS_SAME_HELP<UNIT ,BYTE> ,IS_XYZ_HELP<_ARG1> ,U::CONSTEXPR_NOT<IS_SAME_HELP<_ARG1 ,BYTE>>>>>
 	imports Buffer make (const Buffer<_ARG1 ,SMPHAN> &val) {
-		const auto r1x = _ADDRESS_ (DEPTR[val.self]) ;
-		const auto r2x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,_UNSAFE_POINTER_ (r1x)) ;
-		const auto r3x = val.size () * _SIZEOF_ (_ARG1) ;
-		return make (DEREF[r2x] ,r3x) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<ARR<UNIT>>::ID ,DEPTR[val.self]) ;
+		const auto r2x = val.size () * _SIZEOF_ (_ARG1) ;
+		return make (DEREF[r1x] ,r2x) ;
 	}
 
 private:
