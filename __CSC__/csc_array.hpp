@@ -2398,7 +2398,6 @@ private:
 	friend BitSet ;
 	PhanRef<BASE> mBase ;
 	INDEX mIndex ;
-	BOOL mItem ;
 
 public:
 	implicit Bit () = delete ;
@@ -2408,12 +2407,20 @@ public:
 		mIndex = index ;
 	}
 
-	inline implicit operator const BOOL & () rightvalue {
+	inline implicit operator BOOL () rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
 		const auto r2x = BYTE (mBase->mSet[mIndex / 8] & r1x) ;
-		mItem = BOOL (r2x != 0) ;
-		return mItem ;
+		return BOOL (r2x != 0) ;
 	}
+
+#ifdef __CSC_COMPILER_GNUC__
+	//@error: fuck g++4.8
+	inline BOOL operator! () const {
+		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;
+		const auto r2x = BYTE (mBase->mSet[mIndex / 8] & r1x) ;
+		return !BOOL (r2x != 0) ;
+	}
+#endif
 
 	inline void operator= (const BOOL &that) rightvalue {
 		const auto r1x = BYTE (BYTE (0X01) << (mIndex % 8)) ;

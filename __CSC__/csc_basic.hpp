@@ -448,6 +448,8 @@ public:
 		return self ;
 	}
 
+	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
+
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
 		mOrigin = NULL ;
 		mPointer = NULL ;
