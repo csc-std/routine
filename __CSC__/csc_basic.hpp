@@ -400,23 +400,21 @@ inline exports void BasicProc::mem_fill (ARR<_ARG1> &dst ,const LENGTH &len ,con
 template <class UNIT ,class CONT>
 class ScopedPtr final {
 private:
-	PTR<NONE> mOrigin ;
 	PTR<UNIT> mPointer ;
 
 public:
 	implicit ScopedPtr () = delete ;
 
-	explicit ScopedPtr (const PTR<NONE> &origin ,const PTR<UNIT> &pointer) :
+	explicit ScopedPtr (const PTR<UNIT> &pointer) :
 		delegate ScopedPtr (ARGVP0) {
-		mOrigin = origin ;
 		mPointer = pointer ;
 	}
 
 	implicit ~ScopedPtr () noexcept {
 		if (mPointer == NULL)
 			return ;
-		CONT::free (mOrigin) ;
-		mOrigin = NULL ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,mPointer) ;
+		CONT::free (r1x) ;
 		mPointer = NULL ;
 	}
 
@@ -425,7 +423,6 @@ public:
 	inline ScopedPtr &operator= (const ScopedPtr &) = delete ;
 
 	implicit ScopedPtr (ScopedPtr &&that) noexcept {
-		_SWAP_ (mOrigin ,that.mOrigin) ;
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
@@ -433,8 +430,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~ScopedPtr () ;
-			new (this) ScopedPtr (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -451,7 +447,6 @@ public:
 	inline implicit operator PTR<UNIT> () const leftvalue = delete ;
 
 	inline void operator= (const DEF<decltype (NULL)> &) leftvalue noexcept {
-		mOrigin = NULL ;
 		mPointer = NULL ;
 	}
 
@@ -631,7 +626,7 @@ public:
 		_DYNAMIC_ASSERT_ (r1x != NULL) ;
 		const auto r2x = _POINTER_CAST_ (ARGV<_ARG1>::ID ,r1x) ;
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
-		return ScopedPtr<_ARG1 ,GlobalHeap> (r1x ,r2x) ;
+		return ScopedPtr<_ARG1 ,GlobalHeap> (r2x) ;
 	}
 
 	template <class _ARG1>
@@ -645,7 +640,7 @@ public:
 		_DYNAMIC_ASSERT_ (r2x != NULL) ;
 		const auto r3x = _POINTER_CAST_ (ARGV<ARR<_ARG1>>::ID ,r2x) ;
 		_DYNAMIC_ASSERT_ (r3x != NULL) ;
-		return ScopedPtr<ARR<_ARG1> ,GlobalHeap> (r2x ,r3x) ;
+		return ScopedPtr<ARR<_ARG1> ,GlobalHeap> (r3x) ;
 	}
 
 	template <class _ARG1>
@@ -680,7 +675,7 @@ protected:
 protected:
 	PTR<Holder> mPointer ;
 
-protected:
+public:
 	implicit AutoRef () :
 		delegate AutoRef (ARGVP0) {
 		_NOOP_ () ;
@@ -706,8 +701,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~AutoRef () ;
-			new (this) AutoRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -735,7 +729,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~PureHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -760,7 +754,7 @@ protected:
 protected:
 	PTR<Holder> mPointer ;
 
-protected:
+public:
 	implicit AutoRef () :
 		delegate AutoRef (ARGVP0) {
 		_NOOP_ () ;
@@ -791,8 +785,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~AutoRef () ;
-			new (this) AutoRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -806,8 +799,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~AutoRef () ;
-			new (this) AutoRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -835,7 +827,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~PureHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -953,8 +945,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~SharedRef () ;
-			new (this) SharedRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -968,8 +959,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~SharedRef () ;
-			new (this) SharedRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1060,7 +1050,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~PureHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1095,7 +1085,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~KeepHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1154,8 +1144,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~AnyRef () ;
-			new (this) AnyRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1257,8 +1246,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~AnyRef () ;
-			new (this) AnyRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1384,7 +1372,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~PureHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1480,8 +1468,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~UniqueRef () ;
-			new (this) UniqueRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1515,7 +1502,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1592,8 +1579,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~UniqueRef () ;
-			new (this) UniqueRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1666,7 +1652,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1705,8 +1691,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~PhanRef () ;
-			new (this) PhanRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1824,7 +1809,7 @@ public:
 	}
 
 	template <class _ARG1>
-	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor) :
+	explicit Function (REMOVE_CONST_TYPE<PhanRef<_ARG1>> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...)> ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<1>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
@@ -1836,7 +1821,7 @@ public:
 	}
 
 	template <class _ARG1>
-	explicit Function (PhanRef<const _ARG1> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor) :
+	explicit Function (REMOVE_CONST_TYPE<PhanRef<const _ARG1>> &&context_ ,const MEMPTR<DEF<UNIT1 (UNITS...) const> ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<2>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
@@ -1848,7 +1833,7 @@ public:
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_FUNCTION_HELP<_ARG2>>>>
-	explicit Function (PhanRef<_ARG1> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor) :
+	explicit Function (REMOVE_CONST_TYPE<PhanRef<_ARG1>> &&context_ ,const MEMPTR<_ARG2 ,_ARG1> &functor) :
 		delegate Function (ARGVP0) {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::template MemPtrHolder<_ARG1 ,ARGC<3>> ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R1X>>::ID) ;
@@ -1886,8 +1871,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Function () ;
-			new (this) Function (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1953,7 +1937,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1971,7 +1955,7 @@ public:
 	implicit MemPtrHolder () = delete ;
 
 	template <class... _ARGS>
-	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,PhanRef<UNIT_> &&context_ ,_ARGS &&...initval) :
+	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,REMOVE_CONST_TYPE<PhanRef<UNIT_>> &&context_ ,_ARGS &&...initval) :
 		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,
 		delegate mContext (_MOVE_ (context_)) {}
 
@@ -1993,7 +1977,7 @@ public:
 	implicit MemPtrHolder () = delete ;
 
 	template <class... _ARGS>
-	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,PhanRef<const UNIT_> &&context_ ,_ARGS &&...initval) :
+	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,REMOVE_CONST_TYPE<PhanRef<const UNIT_>> &&context_ ,_ARGS &&...initval) :
 		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,
 		delegate mContext (_MOVE_ (context_)) {}
 
@@ -2018,7 +2002,7 @@ public:
 	implicit MemPtrHolder () = delete ;
 
 	template <class... _ARGS>
-	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,PhanRef<UNIT_> &&context_ ,_ARGS &&...initval) :
+	explicit MemPtrHolder (const DEF<decltype (ARGVP0)> & ,REMOVE_CONST_TYPE<PhanRef<UNIT_>> &&context_ ,_ARGS &&...initval) :
 		delegate mFunctor (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ,
 		delegate mContext (_MOVE_ (context_)) {}
 
@@ -2370,7 +2354,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~PureHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -2392,7 +2376,7 @@ protected:
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
-protected:
+public:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
 		_NOOP_ () ;
@@ -2446,8 +2430,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Buffer () ;
-			new (this) Buffer (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -2472,7 +2455,7 @@ protected:
 	PTR<ARR<UNIT>> mBuffer ;
 	LENGTH mSize ;
 
-protected:
+public:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
 		_NOOP_ () ;
@@ -2534,8 +2517,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Buffer () ;
-			new (this) Buffer (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -2551,8 +2533,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Buffer () ;
-			new (this) Buffer (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -2737,8 +2718,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Buffer () ;
-			new (this) Buffer (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -2917,8 +2897,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Buffer () ;
-			new (this) Buffer (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -3085,7 +3064,7 @@ protected:
 	LENGTH mLength ;
 	INDEX mFree ;
 
-protected:
+public:
 	implicit Allocator () :
 		delegate Allocator (ARGVP0 ,0) {
 		m_spec ().update_reserve (mSize ,mFree) ;
@@ -3155,7 +3134,7 @@ protected:
 	LENGTH mLength ;
 	INDEX mFree ;
 
-protected:
+public:
 	implicit Allocator () :
 		delegate Allocator (ARGVP0 ,0) {
 		m_spec ().update_reserve (mSize ,mFree) ;
@@ -3215,8 +3194,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Allocator () ;
-			new (this) Allocator (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -3228,7 +3206,7 @@ private:
 		delegate mLength (0) ,
 		delegate mFree (VAR_NONE) {}
 
-	explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE_PACK ,SIZE> &&allocator_) :
+	explicit Allocator (const DEF<decltype (ARGVP0)> & ,REMOVE_CONST_TYPE<Buffer<NODE_PACK ,SIZE>> &&allocator_) :
 		delegate mAllocator (_MOVE_ (allocator_)) ,
 		delegate mSize (0) ,
 		delegate mLength (0) ,
@@ -3260,7 +3238,7 @@ protected:
 	LENGTH mLength ;
 	INDEX mFree ;
 
-protected:
+public:
 	implicit Allocator () :
 		delegate Allocator (ARGVP0 ,0) {
 		m_spec ().update_reserve (mSize ,mFree) ;
@@ -3316,8 +3294,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Allocator () ;
-			new (this) Allocator (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -3349,8 +3326,7 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Allocator () ;
-			new (this) Allocator (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -3362,13 +3338,13 @@ protected:
 		delegate mLength (0) ,
 		delegate mFree (VAR_NONE) {}
 
-	explicit Allocator (const DEF<decltype (ARGVP0)> & ,const Buffer<NODE_PACK ,SIZE> &allocator_) :
+	explicit Allocator (const DEF<decltype (ARGVP0)> & ,const REMOVE_CONST_TYPE<Buffer<NODE_PACK ,SIZE>> &allocator_) :
 		delegate mAllocator (_MOVE_ (allocator_)) ,
 		delegate mSize (0) ,
 		delegate mLength (0) ,
 		delegate mFree (VAR_NONE) {}
 
-	explicit Allocator (const DEF<decltype (ARGVP0)> & ,Buffer<NODE_PACK ,SIZE> &&allocator_) :
+	explicit Allocator (const DEF<decltype (ARGVP0)> & ,REMOVE_CONST_TYPE<Buffer<NODE_PACK ,SIZE>> &&allocator_) :
 		delegate mAllocator (_MOVE_ (allocator_)) ,
 		delegate mSize (0) ,
 		delegate mLength (0) ,

@@ -182,8 +182,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Variant () ;
-			new (this) Variant (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -199,8 +198,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Variant () ;
-			new (this) Variant (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -816,8 +814,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~WeakRef () ;
-			new (this) WeakRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -838,8 +835,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~WeakRef () ;
-			new (this) WeakRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1051,7 +1047,7 @@ public:
 	}
 
 	void destroy () noexcept override {
-		const auto r1x = _FORWARD_ (ARGV<PTR<NONE>>::ID ,this) ;
+		const auto r1x = _POINTER_CAST_ (ARGV<NONE>::ID ,this) ;
 		DEREF[this].~ImplHolder () ;
 		GlobalHeap::free (r1x) ;
 	}
@@ -1124,8 +1120,7 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~StrongRef () ;
-			new (this) StrongRef (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -1944,7 +1939,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Member>>
-	inline _RET operator() (PhanRef<CONT> &&context_) const {
+	inline _RET operator() (REMOVE_CONST_TYPE<PhanRef<CONT>> &&context_) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Member ;
 		return R1X (PhanRef<const Serializer>::make (DEREF[this]) ,_MOVE_ (context_)) ;
 	}
@@ -1960,7 +1955,7 @@ private:
 public:
 	implicit Member () = delete ;
 
-	explicit Member (PhanRef<const Serializer> &&base ,PhanRef<CONT> &&context_) {
+	explicit Member (REMOVE_CONST_TYPE<PhanRef<const Serializer>> &&base ,REMOVE_CONST_TYPE<PhanRef<CONT>> &&context_) {
 		mBase = _MOVE_ (base) ;
 		mContext = _MOVE_ (context_) ;
 	}

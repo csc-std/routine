@@ -81,7 +81,7 @@ private:
 public:
 	implicit Iterator () = delete ;
 
-	explicit Iterator (PhanRef<const ArrayRange> &&base ,const INDEX &index ,const Array<LENGTH ,SIZE> &item) {
+	explicit Iterator (REMOVE_CONST_TYPE<PhanRef<const ArrayRange>> &&base ,const INDEX &index ,const Array<LENGTH ,SIZE> &item) {
 		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 		mItem = item ;
@@ -167,7 +167,7 @@ public:
 		reset () ;
 	}
 
-	explicit Bitmap (PhanBuffer<UNIT> &&image) {
+	explicit Bitmap (REMOVE_CONST_TYPE<PhanBuffer<UNIT>> &&image) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mHeap->mWidth[0] = mImage.size () ;
 		mHeap->mWidth[1] = 1 ;
@@ -618,7 +618,7 @@ private:
 public:
 	implicit Row () = delete ;
 
-	explicit Row (PhanRef<BASE> &&base ,const INDEX &y) {
+	explicit Row (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base ,const INDEX &y) {
 		mBase = _MOVE_ (base) ;
 		mY = y ;
 	}
@@ -836,7 +836,7 @@ private:
 public:
 	implicit Row () = delete ;
 
-	explicit Row (PhanRef<BASE> &&base ,const INDEX &y) {
+	explicit Row (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base ,const INDEX &y) {
 		mBase = _MOVE_ (base) ;
 		mY = y ;
 	}
@@ -856,7 +856,7 @@ private:
 public:
 	implicit NativeProxy () = delete ;
 
-	explicit NativeProxy (PhanRef<Image> &&base) {
+	explicit NativeProxy (REMOVE_CONST_TYPE<PhanRef<Image>> &&base) {
 		mKeep = UniqueRef<PhanRef<Image>> ([&] (PhanRef<Image> &me) {
 			me = _MOVE_ (base) ;
 		} ,[] (PhanRef<Image> &me) {

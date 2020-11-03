@@ -430,7 +430,7 @@ private:
 public:
 	implicit Implement () = default ;
 
-	explicit Implement (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
+	explicit Implement (REMOVE_CONST_TYPE<PhanRef<Mutex>> &&mutex_ ,REMOVE_CONST_TYPE<PhanRef<ConditionLock>> &&condition_lock) {
 		mMutex = _MOVE_ (mutex_) ;
 		mConditionLock = _MOVE_ (condition_lock) ;
 		mUniqueLock = api::unique_lock<api::mutex> (mMutex->native ().get_mMutex ()) ;
@@ -461,7 +461,7 @@ public:
 	}
 } ;
 
-exports UniqueLock::UniqueLock (PhanRef<Mutex> &&mutex_ ,PhanRef<ConditionLock> &&condition_lock) {
+exports UniqueLock::UniqueLock (REMOVE_CONST_TYPE<PhanRef<Mutex>> &&mutex_ ,REMOVE_CONST_TYPE<PhanRef<ConditionLock>> &&condition_lock) {
 	using R1X = DEPENDENT_TYPE<Private ,struct ANONYMOUS>::Implement ;
 	mThis = StrongRef<R1X>::make (_MOVE_ (mutex_) ,_MOVE_ (condition_lock)) ;
 }

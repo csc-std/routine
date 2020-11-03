@@ -789,7 +789,7 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 	return _MOVE_ (ret) ;
 }
 
-inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
+inline exports String<STRA> StringProc::cvt_u8s_uas (const REMOVE_CONST_TYPE<String<STRU8>> &val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {
@@ -799,7 +799,7 @@ inline exports String<STRA> StringProc::cvt_u8s_uas (const String<STRU8> &val) {
 	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
 }
 
-inline exports String<STRA> StringProc::cvt_u8s_uas (String<STRU8> &&val) {
+inline exports String<STRA> StringProc::cvt_u8s_uas (REMOVE_CONST_TYPE<String<STRU8>> &&val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
 	String<STRUA> ret = _MOVE_ (val) ;
 	for (auto &&i : ret) {

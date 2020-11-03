@@ -1681,16 +1681,6 @@ inline void _ZERO_ (_ARG1 &object) {
 }
 
 template <class _ARG1>
-inline REMOVE_CVR_TYPE<_ARG1> _COPY_ (const _ARG1 &object) {
-	return object ;
-}
-
-template <class _ARG1>
-inline REMOVE_REFERENCE_TYPE<_ARG1> &&_MOVE_ (_ARG1 &&object) {
-	return static_cast<REMOVE_REFERENCE_TYPE<_ARG1> &&> (object) ;
-}
-
-template <class _ARG1>
 inline _ARG1 &_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &object) {
 	return static_cast<_ARG1 &> (object) ;
 }
@@ -1709,6 +1699,16 @@ template <class _ARG1>
 inline _ARG1 &&_FORWARD_ (const ARGVF<_ARG1> & ,REMOVE_CVR_TYPE<_ARG1> &&object) {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_LVALUE_REFERENCE_HELP<_ARG1>>::compile ()) ;
 	return static_cast<_ARG1 &&> (object) ;
+}
+
+template <class _ARG1>
+inline REMOVE_CVR_TYPE<_ARG1> _COPY_ (const _ARG1 &object) {
+	return object ;
+}
+
+template <class _ARG1>
+inline REMOVE_REFERENCE_TYPE<_ARG1> &&_MOVE_ (_ARG1 &&object) {
+	return static_cast<REMOVE_REFERENCE_TYPE<_ARG1> &&> (object) ;
 }
 
 template <class _ARG1>
@@ -1762,6 +1762,26 @@ inline void _CREATE_ (const PTR<TEMP<_ARG1>> &address ,_ARGS &&...initval) {
 	_ZERO_ (DEREF[address]) ;
 	auto &r1x = _CAST_ (ARGV<_ARG1>::ID ,DEREF[address]) ;
 	new (DEPTR[r1x]) _ARG1 (_FORWARD_ (ARGV<_ARGS &&>::ID ,initval)...) ;
+}
+
+template <class _ARG1>
+inline void _RECREATE_ (const PTR<_ARG1> &address ,const REMOVE_CONST_TYPE<_ARG1> &that) {
+	_STATIC_ASSERT_ (IS_COPY_CONSTRUCTIBLE_HELP<_ARG1>::compile ()) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
+	if (address == NULL)
+		return ;
+	DEREF[address].~_ARG1 () ;
+	new (address) _ARG1 (_MOVE_ (that)) ;
+}
+
+template <class _ARG1>
+inline void _RECREATE_ (const PTR<_ARG1> &address ,REMOVE_CONST_TYPE<_ARG1> &&that) {
+	_STATIC_ASSERT_ (IS_MOVE_CONSTRUCTIBLE_HELP<_ARG1>::compile ()) ;
+	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_ARRAY_HELP<_ARG1>>::compile ()) ;
+	if (address == NULL)
+		return ;
+	DEREF[address].~_ARG1 () ;
+	new (address) _ARG1 (_MOVE_ (that)) ;
 }
 
 template <class _ARG1>
@@ -2058,18 +2078,20 @@ public:
 } ;
 
 template <class>
-class TypeInfoBase ;
+class Class ;
 
 template <class _ARG1>
 inline FLAG _TYPEMID_ (const ARGVF<_ARG1> &) {
-	using R1X = DEPENDENT_TYPE<TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
-	return R1X ().type_mid () ;
+	using R1X = DEPENDENT_TYPE<Class<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
+	const auto r1x = R1X () ;
+	return r1x.type_mid () ;
 }
 
 template <class _ARG1>
 inline TYPEABI _TYPEABI_ (const ARGVF<_ARG1> &) {
-	using R1X = DEPENDENT_TYPE<TypeInfoBase<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
-	return R1X ().type_abi () ;
+	using R1X = DEPENDENT_TYPE<Class<REMOVE_CVR_TYPE<_ARG1>> ,struct ANONYMOUS> ;
+	const auto r1x = R1X () ;
+	return r1x.type_abi () ;
 }
 
 template <class UNIT = NONE>
@@ -2354,12 +2376,40 @@ private:
 } ;
 
 template <class UNIT>
-class TypeInfoBase :
-	delegate private TypeInfo {
+class Class final :
+	delegate public TypeInfo {
 private:
 	_STATIC_ASSERT_ (IS_SAME_HELP<REMOVE_CVR_TYPE<UNIT> ,UNIT>::compile ()) ;
 
 public:
+	implicit Class () = default ;
+
+	implicit Class (const Class &that) {
+		_NOOP_ () ;
+	}
+
+	implicit Class &operator= (const Class &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit Class (Class &&that) noexcept {
+		_NOOP_ () ;
+	}
+
+	implicit Class &operator= (Class &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
 	FLAG type_mid () const override {
 		return _CAST_ (ARGV<FLAG>::ID ,DEREF[this]) ;
 	}
@@ -2387,13 +2437,31 @@ public:
 		mWhat = DEPTR[what_.self] ;
 	}
 
-	implicit Exception (const Exception &) = default ;
+	implicit Exception (const Exception &that) {
+		mWhat = that.mWhat ;
+	}
 
-	inline Exception &operator= (const Exception &) = default ;
+	inline Exception &operator= (const Exception &that) {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
 
-	implicit Exception (Exception &&) = default ;
+	implicit Exception (Exception &&that) noexcept {
+		mWhat = that.mWhat ;
+	}
 
-	inline Exception &operator= (Exception &&) = default ;
+	inline Exception &operator= (Exception &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
 
 	const ARR<STR> &what () const leftvalue {
 		return DEREF[mWhat] ;

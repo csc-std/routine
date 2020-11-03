@@ -1036,7 +1036,7 @@ private:
 public:
 	implicit Row () = delete ;
 
-	explicit Row (PhanRef<BASE> &&base ,const INDEX &y) {
+	explicit Row (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base ,const INDEX &y) {
 		mBase = _MOVE_ (base) ;
 		mY = y ;
 	}

@@ -58,8 +58,20 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Operand () ;
-			new (this) Operand (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit Operand (Operand &&that) noexcept {
+		mThis = _MOVE_ (that.mThis) ;
+	}
+
+	implicit Operand &operator= (Operand &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -175,8 +187,20 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Operator () ;
-			new (this) Operator (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit Operator (Operator &&that) noexcept {
+		mThis = _MOVE_ (that.mThis) ;
+	}
+
+	implicit Operator &operator= (Operator &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -411,7 +435,7 @@ protected:
 	friend class Expression ;
 	StrongRef<LexicalNode> mThis ;
 
-protected:
+public:
 	implicit Expression () :
 		delegate Expression (ARGVP0) {
 		_NOOP_ () ;
@@ -430,8 +454,20 @@ protected:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Expression () ;
-			new (this) Expression (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit Expression (Expression &&that) noexcept {
+		mThis = _MOVE_ (that.mThis) ;
+	}
+
+	implicit Expression &operator= (Expression &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}

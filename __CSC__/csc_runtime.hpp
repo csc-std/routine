@@ -57,8 +57,20 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~Duration () ;
-			new (this) Duration (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit Duration (Duration &&that) noexcept {
+		mThis = _MOVE_ (that.mThis) ;
+	}
+
+	implicit Duration &operator= (Duration &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -142,8 +154,18 @@ public:
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
-			DEREF[this].~TimePoint () ;
-			new (this) TimePoint (_MOVE_ (that)) ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
+		}
+		return DEREF[this] ;
+	}
+
+	implicit TimePoint (TimePoint &&) = default ;
+
+	implicit TimePoint &operator= (TimePoint &&that) noexcept {
+		if switch_once (TRUE) {
+			if (this == DEPTR[that])
+				discard ;
+			_RECREATE_ (this ,_MOVE_ (that)) ;
 		}
 		return DEREF[this] ;
 	}
@@ -303,7 +325,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<UniqueLock>>
-	_RET watch (PhanRef<Mutex> &&mutex_) leftvalue {
+	_RET watch (REMOVE_CONST_TYPE<PhanRef<Mutex>> &&mutex_) leftvalue {
 		using R1X = DEPENDENT_TYPE<UniqueLock ,struct ANONYMOUS> ;
 		return R1X (_MOVE_ (mutex_) ,PhanRef<ConditionLock>::make (DEREF[this])) ;
 	}
@@ -395,7 +417,7 @@ private:
 public:
 	implicit Runnable () = delete ;
 
-	explicit Runnable (PhanRef<Binder> &&binder) {
+	explicit Runnable (REMOVE_CONST_TYPE<PhanRef<Binder>> &&binder) {
 		mBinder = _MOVE_ (binder) ;
 	}
 
@@ -995,7 +1017,7 @@ public:
 		return random_shuffle (count ,range_ ,BitSet<> (range_)) ;
 	}
 
-	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,BitSet<> &&res) {
+	BitSet<> random_shuffle (const LENGTH &count ,const LENGTH &range_ ,REMOVE_CONST_TYPE<BitSet<>> &&res) {
 		_DEBUG_ASSERT_ (count >= 0 && count < range_) ;
 		_DEBUG_ASSERT_ (res.size () == range_) ;
 		BitSet<> ret = _MOVE_ (res) ;

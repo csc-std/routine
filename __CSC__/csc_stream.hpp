@@ -50,7 +50,7 @@ public:
 		reset () ;
 	}
 
-	explicit ByteReader (PhanBuffer<const REAL> &&stream) {
+	explicit ByteReader (REMOVE_CONST_TYPE<PhanBuffer<const REAL>> &&stream) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mStream = _MOVE_ (stream) ;
 		reset () ;
@@ -367,7 +367,7 @@ private:
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (PhanRef<BASE> &&base) {
+	explicit Attribute (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base) {
 		mBase = _MOVE_ (base) ;
 	}
 
@@ -425,7 +425,7 @@ public:
 		reset () ;
 	}
 
-	explicit ByteWriter (PhanBuffer<REAL> &&stream) {
+	explicit ByteWriter (REMOVE_CONST_TYPE<PhanBuffer<REAL>> &&stream) {
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		mStream = _MOVE_ (stream) ;
 		reset () ;
@@ -718,7 +718,7 @@ private:
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (PhanRef<BASE> &&base) {
+	explicit Attribute (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base) {
 		mBase = _MOVE_ (base) ;
 	}
 
@@ -784,7 +784,7 @@ public:
 		reset () ;
 	}
 
-	explicit TextReader (PhanBuffer<const REAL> &&stream) {
+	explicit TextReader (REMOVE_CONST_TYPE<PhanBuffer<const REAL>> &&stream) {
 		const auto r1x = attr () ;
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		r1x.enable_endian (FALSE) ;
@@ -1358,7 +1358,7 @@ private:
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (PhanRef<BASE> &&base) {
+	explicit Attribute (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base) {
 		mBase = _MOVE_ (base) ;
 	}
 
@@ -1527,7 +1527,7 @@ public:
 		reset () ;
 	}
 
-	explicit TextWriter (PhanBuffer<REAL> &&stream) {
+	explicit TextWriter (REMOVE_CONST_TYPE<PhanBuffer<REAL>> &&stream) {
 		const auto r1x = attr () ;
 		mHeap = SharedRef<HEAP_PACK>::make () ;
 		r1x.enable_escape (FALSE) ;
@@ -2084,7 +2084,7 @@ private:
 public:
 	implicit Attribute () = delete ;
 
-	explicit Attribute (PhanRef<BASE> &&base) {
+	explicit Attribute (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base) {
 		mBase = _MOVE_ (base) ;
 	}
 
@@ -2203,7 +2203,7 @@ public:
 		mHintNextTextSize = 0 ;
 	}
 
-	explicit RegularReader (PhanRef<TextReader<STRU8>> &&reader ,const LENGTH &ll_len) {
+	explicit RegularReader (REMOVE_CONST_TYPE<PhanRef<TextReader<STRU8>>> &&reader ,const LENGTH &ll_len) {
 		mReader = _MOVE_ (reader) ;
 		const auto r1x = mReader->attr () ;
 		r1x.modify_space (STRU8 (' ') ,1) ;

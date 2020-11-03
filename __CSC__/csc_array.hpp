@@ -22,7 +22,7 @@ private:
 public:
 	implicit ArrayIterator () = delete ;
 
-	explicit ArrayIterator (PhanRef<BASE> &&base ,const INDEX &index) {
+	explicit ArrayIterator (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base ,const INDEX &index) {
 		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 	}
@@ -1084,11 +1084,11 @@ public:
 		return TRUE ;
 	}
 
-	void add (const ITEM &item) {
+	void add (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item) ,VAR_NONE) ;
 	}
 
-	inline Priority &operator<< (const ITEM &item) {
+	inline Priority &operator<< (const REMOVE_CONST_TYPE<ITEM> &item) {
 		add (_MOVE_ (item)) ;
 		return DEREF[this] ;
 	}
@@ -2402,7 +2402,7 @@ private:
 public:
 	implicit Bit () = delete ;
 
-	explicit Bit (PhanRef<BASE> &&base ,const INDEX &index) {
+	explicit Bit (REMOVE_CONST_TYPE<PhanRef<BASE>> &&base ,const INDEX &index) {
 		mBase = _MOVE_ (base) ;
 		mIndex = index ;
 	}

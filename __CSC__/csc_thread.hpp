@@ -85,7 +85,8 @@ public:
 			if (r1x.mItemQueue->size () >= count)
 				discard ;
 			auto rcx = AutoRef<List<ITEM ,SFIXED>>::make (count) ;
-			rcx->appand (_MOVE_ (r1x.mItemQueue.self)) ;
+			for (auto &&i : r1x.mItemQueue.self)
+				rcx->add (_MOVE_ (i)) ;
 			r1x.mItemQueue = _MOVE_ (rcx) ;
 		}
 		r1x.mThreadPendingSet.clear () ;
@@ -125,7 +126,8 @@ public:
 			if (r1x.mItemQueue->size () >= count)
 				discard ;
 			auto rcx = AutoRef<List<ITEM ,SFIXED>>::make (count) ;
-			rcx->appand (_MOVE_ (r1x.mItemQueue.self)) ;
+			for (auto &&i : r1x.mItemQueue.self)
+				rcx->add (_MOVE_ (i)) ;
 			r1x.mItemQueue = _MOVE_ (rcx) ;
 		}
 		r1x.mThreadPendingSet.clear () ;
@@ -177,7 +179,7 @@ public:
 		return _MOVE_ (ret) ;
 	}
 
-	void start (const LENGTH &count ,Function<ITEM ()> &&proc) const {
+	void start (const LENGTH &count ,REMOVE_CONST_TYPE<Function<ITEM ()>> &&proc) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::ThreadBinder ;
 		_DEBUG_ASSERT_ (count > 0) ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
@@ -348,7 +350,7 @@ private:
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_ ,const INDEX &tid) {
+	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
 	}
@@ -538,7 +540,8 @@ public:
 			if (r1x.mItemQueue->length () + item.length () <= r1x.mItemQueue->size ())
 				discard ;
 			auto rcx = AutoRef<List<ITEM ,SFIXED>>::make (item.length ()) ;
-			rcx->appand (_MOVE_ (r1x.mItemQueue.self)) ;
+			for (auto &&i : r1x.mItemQueue.self)
+				rcx->add (_MOVE_ (i)) ;
 			r1x.mItemQueue = _MOVE_ (rcx) ;
 		}
 		for (auto &&i : _RANGE_ (0 ,item.length ()))
@@ -557,7 +560,8 @@ public:
 			if (r1x.mItemQueue->length () + item.length () <= r1x.mItemQueue->size ())
 				discard ;
 			auto rcx = AutoRef<List<ITEM ,SFIXED>>::make (item.length ()) ;
-			rcx->appand (_MOVE_ (r1x.mItemQueue.self)) ;
+			for (auto &&i : r1x.mItemQueue.self)
+				rcx->add (_MOVE_ (i)) ;
 			r1x.mItemQueue = _MOVE_ (rcx) ;
 		}
 		for (auto &&i : _RANGE_ (0 ,item.length ()))
@@ -741,7 +745,7 @@ private:
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_ ,const INDEX &tid) {
+	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
 	}
@@ -856,7 +860,7 @@ public:
 		r1x.mThreadPool = AutoRef<Thread> () ;
 	}
 
-	void start (Function<ITEM ()> &&proc) const {
+	void start (REMOVE_CONST_TYPE<Function<ITEM ()>> &&proc) const {
 		using R1X = typename DEPENDENT_TYPE<Private ,struct ANONYMOUS>::ThreadBinder ;
 		_DEBUG_ASSERT_ (proc.exist ()) ;
 		auto rax = mThis.share () ;
@@ -887,7 +891,7 @@ public:
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<Future<ITEM>>>
-	imports _RET async (Function<ITEM ()> &&proc) {
+	imports _RET async (REMOVE_CONST_TYPE<Function<ITEM ()>> &&proc) {
 		auto rax = Promise<ITEM> () ;
 		rax.start (_MOVE_ (proc)) ;
 		return rax.future () ;
@@ -996,7 +1000,7 @@ private:
 public:
 	implicit ThreadBinder () = delete ;
 
-	explicit ThreadBinder (PhanRef<THIS_PACK> &&this_) {
+	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_) {
 		mThis = _MOVE_ (this_) ;
 	}
 
