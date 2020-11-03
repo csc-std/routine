@@ -92,11 +92,16 @@ public:
 		while (TRUE) {
 			if (!r1x.mThreadFlag.self)
 				break ;
+			if (r1x.mException.exist ())
+				break ;
 			if (r1x.mItemQueue->length () >= count)
 				break ;
 			rbx.wait () ;
 		}
 		_DYNAMIC_ASSERT_ (r1x.mThreadFlag.self) ;
+		const auto r6x = _MOVE_ (r1x.mException) ;
+		if (r6x.exist ())
+			r6x->raise () ;
 		rbx.notify () ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ()))
 			r1x.mThreadPendingSet.add (i) ;
@@ -127,6 +132,8 @@ public:
 		while (TRUE) {
 			if (!r1x.mThreadFlag.self)
 				break ;
+			if (r1x.mException.exist ())
+				break ;
 			if (r1x.mItemQueue->length () >= count)
 				break ;
 			const auto r2x = predicate () ;
@@ -135,6 +142,9 @@ public:
 			rbx.wait (interval) ;
 		}
 		_DYNAMIC_ASSERT_ (r1x.mThreadFlag.self) ;
+		const auto r6x = _MOVE_ (r1x.mException) ;
+		if (r6x.exist ())
+			r6x->raise () ;
 		rbx.notify () ;
 		for (auto &&i : _RANGE_ (0 ,r1x.mThreadPool.length ()))
 			r1x.mThreadPendingSet.add (i) ;
