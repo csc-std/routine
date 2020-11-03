@@ -972,8 +972,6 @@ public:
 		if switch_once (TRUE) {
 			if (MathProc::is_infinite (r1x))
 				discard ;
-			if (MathProc::is_nan (r1x))
-				discard ;
 			_DYNAMIC_ASSERT_ (r1x >= VAL32_MIN && r1x <= VAL32_MAX) ;
 		}
 		data = VAL32 (r1x) ;
@@ -1021,7 +1019,8 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('a')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == REAL ('n')) ;
-			data = VAL64_NAN ;
+			//@error: nan is a deprecated magic number
+			data = 0 ;
 		}
 		if switch_once (fax) {
 			if (!(rax == REAL ('N')))
@@ -1030,7 +1029,8 @@ public:
 			_DYNAMIC_ASSERT_ (rax == REAL ('A')) ;
 			read (rax) ;
 			_DYNAMIC_ASSERT_ (rax == REAL ('N')) ;
-			data = VAL64_NAN ;
+			//@error: nan is a deprecated magic number
+			data = 0 ;
 		}
 		if switch_once (fax) {
 			const auto r3x = r1x.varify_number_item (rax) ;
@@ -1659,41 +1659,42 @@ public:
 	}
 
 	void write (const VAL32 &data) {
+		static constexpr auto M_PINF = PACK<REAL[4]> ({
+			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
+		static constexpr auto M_MINF = PACK<REAL[4]> ({
+			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		static constexpr auto M_NAN = PACK<REAL[3]> ({
 			REAL ('n') ,REAL ('a') ,REAL ('n')}) ;
-		static constexpr auto M_INF = PACK<REAL[4]> ({
-			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
-		static constexpr auto M_SINF = PACK<REAL[4]> ({
-			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		const auto r1x = attr () ;
+		const auto r2x = MathProc::is_infinite (data) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!MathProc::is_nan (data))
+			if (!r2x)
+				discard ;
+			if (!(data > 0))
+				discard ;
+			write (PhanBuffer<const REAL>::make (M_PINF.mP1)) ;
+		}
+		if switch_once (fax) {
+			if (!r2x)
+				discard ;
+			if (!(data < 0))
+				discard ;
+			write (PhanBuffer<const REAL>::make (M_MINF.mP1)) ;
+		}
+		if switch_once (fax) {
+			if (!r2x)
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.mP1)) ;
 		}
 		if switch_once (fax) {
-			if (!MathProc::is_infinite (data))
-				discard ;
-			if (!(data > 0))
-				discard ;
-			write (PhanBuffer<const REAL>::make (M_INF.mP1)) ;
-		}
-		if switch_once (fax) {
-			if (!MathProc::is_infinite (data))
-				discard ;
-			if (!(data < 0))
-				discard ;
-			write (PhanBuffer<const REAL>::make (M_SINF.mP1)) ;
-		}
-		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
-			const auto r2x = r1x.varify_val32_precision () ;
-			const auto r3x = PhanBuffer<REAL>::make (rax) ;
-			compute_write_number (data ,r2x ,r3x ,iw) ;
-			const auto r4x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
-			write (r4x) ;
+			const auto r3x = r1x.varify_val32_precision () ;
+			const auto r4x = PhanBuffer<REAL>::make (rax) ;
+			compute_write_number (data ,r3x ,r4x ,iw) ;
+			const auto r5x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
+			write (r5x) ;
 		}
 	}
 
@@ -1703,41 +1704,42 @@ public:
 	}
 
 	void write (const VAL64 &data) {
+		static constexpr auto M_PINF = PACK<REAL[4]> ({
+			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
+		static constexpr auto M_MINF = PACK<REAL[4]> ({
+			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		static constexpr auto M_NAN = PACK<REAL[3]> ({
 			REAL ('n') ,REAL ('a') ,REAL ('n')}) ;
-		static constexpr auto M_INF = PACK<REAL[4]> ({
-			REAL ('+') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
-		static constexpr auto M_SINF = PACK<REAL[4]> ({
-			REAL ('-') ,REAL ('i') ,REAL ('n') ,REAL ('f')}) ;
 		const auto r1x = attr () ;
+		const auto r2x = MathProc::is_infinite (data) ;
 		auto fax = TRUE ;
 		if switch_once (fax) {
-			if (!MathProc::is_nan (data))
+			if (!r2x)
+				discard ;
+			if (!(data > 0))
+				discard ;
+			write (PhanBuffer<const REAL>::make (M_PINF.mP1)) ;
+		}
+		if switch_once (fax) {
+			if (!r2x)
+				discard ;
+			if (!(data < 0))
+				discard ;
+			write (PhanBuffer<const REAL>::make (M_MINF.mP1)) ;
+		}
+		if switch_once (fax) {
+			if (!r2x)
 				discard ;
 			write (PhanBuffer<const REAL>::make (M_NAN.mP1)) ;
 		}
 		if switch_once (fax) {
-			if (!MathProc::is_infinite (data))
-				discard ;
-			if (!(data > 0))
-				discard ;
-			write (PhanBuffer<const REAL>::make (M_INF.mP1)) ;
-		}
-		if switch_once (fax) {
-			if (!MathProc::is_infinite (data))
-				discard ;
-			if (!(data < 0))
-				discard ;
-			write (PhanBuffer<const REAL>::make (M_SINF.mP1)) ;
-		}
-		if switch_once (fax) {
 			auto rax = Buffer<REAL ,ARGC<256>> () ;
 			INDEX iw = rax.size () ;
-			const auto r2x = r1x.varify_val64_precision () ;
-			const auto r3x = PhanBuffer<REAL>::make (rax) ;
-			compute_write_number (data ,r2x ,r3x ,iw) ;
-			const auto r4x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
-			write (r4x) ;
+			const auto r3x = r1x.varify_val64_precision () ;
+			const auto r4x = PhanBuffer<REAL>::make (rax) ;
+			compute_write_number (data ,r3x ,r4x ,iw) ;
+			const auto r5x = PhanBuffer<const REAL>::make (PTRTOARR[DEPTR[rax.self[iw]]] ,(rax.size () - iw)) ;
+			write (r5x) ;
 		}
 	}
 

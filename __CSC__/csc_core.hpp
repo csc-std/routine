@@ -93,12 +93,10 @@ static constexpr auto VAL32_MAX = VAL32 (3.402823466E+38) ;
 static constexpr auto VAL32_MIN = VAL32 (1.175494351E-38) ;
 static constexpr auto VAL32_EPS = VAL32 (1.192092896E-07) ;
 static constexpr auto VAL32_INF = api::numeric_limits<VAL32>::infinity () ;
-static constexpr auto VAL32_NAN = api::numeric_limits<VAL32>::quiet_NaN () ;
 static constexpr auto VAL64_MAX = VAL64 (1.7976931348623158E+308) ;
 static constexpr auto VAL64_MIN = VAL64 (2.2250738585072014E-308) ;
 static constexpr auto VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
 static constexpr auto VAL64_INF = api::numeric_limits<VAL64>::infinity () ;
-static constexpr auto VAL64_NAN = api::numeric_limits<VAL64>::quiet_NaN () ;
 
 #ifdef __CSC_CONFIG_VAL32__
 using VAL = VAL32 ;
@@ -107,7 +105,6 @@ static constexpr auto VAL_MAX = VAL32_MAX ;
 static constexpr auto VAL_MIN = VAL32_MIN ;
 static constexpr auto VAL_EPS = VAL32_EPS ;
 static constexpr auto VAL_INF = VAL32_INF ;
-static constexpr auto VAL_NAN = VAL32_NAN ;
 #endif
 
 #ifdef __CSC_CONFIG_VAL64__
@@ -117,7 +114,6 @@ static constexpr auto VAL_MAX = VAL64_MAX ;
 static constexpr auto VAL_MIN = VAL64_MIN ;
 static constexpr auto VAL_EPS = VAL64_EPS ;
 static constexpr auto VAL_INF = VAL64_INF ;
-static constexpr auto VAL_NAN = VAL64_NAN ;
 #endif
 
 using VALX = long double ;
