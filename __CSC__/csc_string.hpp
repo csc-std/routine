@@ -109,12 +109,6 @@ public:
 	imports String<_ARG1> build_val64s (const ARGVF<_ARG1> & ,const VAL64 &stru) ;
 
 	template <class _ARG1>
-	imports VAL parse_vals (const String<_ARG1> &stri) ;
-
-	template <class _ARG1>
-	imports String<_ARG1> build_vals (const ARGVF<_ARG1> & ,const VAL &stru) ;
-
-	template <class _ARG1>
 	imports String<STR> parse_strs (const String<_ARG1> &stri) ;
 
 	template <class _ARG1>
@@ -1053,22 +1047,6 @@ inline exports VAL64 StringProc::parse_val64s (const String<_ARG1> &stri) {
 
 template <class _ARG1>
 inline exports String<_ARG1> StringProc::build_val64s (const ARGVF<_ARG1> & ,const VAL64 &stru) {
-	String<_ARG1> ret = String<_ARG1> (127) ;
-	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
-	rax << stru << TextWriter<_ARG1>::EOS ;
-	return _MOVE_ (ret) ;
-}
-
-template <class _ARG1>
-inline exports VAL StringProc::parse_vals (const String<_ARG1> &stri) {
-	VAL ret ;
-	auto rax = TextReader<_ARG1> (stri.raw ()) ;
-	rax >> ret >> TextReader<_ARG1>::EOS ;
-	return _MOVE_ (ret) ;
-}
-
-template <class _ARG1>
-inline exports String<_ARG1> StringProc::build_vals (const ARGVF<_ARG1> & ,const VAL &stru) {
 	String<_ARG1> ret = String<_ARG1> (127) ;
 	auto rax = TextWriter<_ARG1> (ret.raw ()) ;
 	rax << stru << TextWriter<_ARG1>::EOS ;

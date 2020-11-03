@@ -515,7 +515,7 @@ public:
 		delegate mDataSet (dataset) ,
 		delegate mCenter (center) ,
 		delegate mTolerance (1E-6) ,
-		delegate mInfinity (VAL_INF) {}
+		delegate mInfinity (VAL64_INF) {}
 
 	inline void operator() () {
 		prepare () ;
@@ -684,7 +684,7 @@ public:
 		delegate mContext (context_) ,
 		delegate mAdjacency (adjacency) ,
 		delegate mTolerance (1E-6) ,
-		delegate mInfinity (VAL_INF) {}
+		delegate mInfinity (VAL64_INF) {}
 
 	inline void operator() () {
 		prepare () ;

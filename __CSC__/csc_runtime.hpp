@@ -1027,12 +1027,16 @@ public:
 		}
 	}
 
-	CSC::BOOL random_draw (const VAL &possibility) {
+	CSC::BOOL random_draw (const VAL32 &possibility) {
 		const auto r1x = random_value (0 ,10000) ;
-		const auto r2x = VAL (r1x) * MathProc::inverse (VAL (10000)) ;
+		const auto r2x = VAL32 (r1x) * MathProc::inverse (VAL32 (10000)) ;
 		if (r2x < possibility)
 			return TRUE ;
 		return FALSE ;
+	}
+
+	CSC::BOOL random_draw (const VAL64 &possibility) {
+		return random_draw (VAL32 (possibility)) ;
 	}
 
 	String<STR> random_uuid () {

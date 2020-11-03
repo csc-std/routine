@@ -42,8 +42,6 @@
 #define __CSC_PLATFORM_ARM__
 #elif defined (_M_ARM64) || defined (__aarch64__)
 #define __CSC_PLATFORM_ARM64__
-#elif defined (_M_IA64) || defined (__ia64__)
-#define __CSC_PLATFORM_IA64__
 #else
 #error "∑(っ°Д° ;)っ : unsupported"
 #endif
@@ -60,13 +58,10 @@
 
 #ifdef _WIN64
 #define __CSC_CONFIG_VAR64__
-#define __CSC_CONFIG_VAL64__
 #elif defined _WIN32
 #define __CSC_CONFIG_VAR32__
-#define __CSC_CONFIG_VAL32__
 #else
 #define __CSC_CONFIG_VAR64__
-#define __CSC_CONFIG_VAL64__
 #endif
 
 #ifdef _UNICODE

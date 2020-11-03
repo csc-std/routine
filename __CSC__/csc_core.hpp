@@ -98,24 +98,6 @@ static constexpr auto VAL64_MIN = VAL64 (2.2250738585072014E-308) ;
 static constexpr auto VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
 static constexpr auto VAL64_INF = api::numeric_limits<VAL64>::infinity () ;
 
-#ifdef __CSC_CONFIG_VAL32__
-using VAL = VAL32 ;
-
-static constexpr auto VAL_MAX = VAL32_MAX ;
-static constexpr auto VAL_MIN = VAL32_MIN ;
-static constexpr auto VAL_EPS = VAL32_EPS ;
-static constexpr auto VAL_INF = VAL32_INF ;
-#endif
-
-#ifdef __CSC_CONFIG_VAL64__
-using VAL = VAL64 ;
-
-static constexpr auto VAL_MAX = VAL64_MAX ;
-static constexpr auto VAL_MIN = VAL64_MIN ;
-static constexpr auto VAL_EPS = VAL64_EPS ;
-static constexpr auto VAL_INF = VAL64_INF ;
-#endif
-
 using VALX = long double ;
 
 static constexpr auto MATH_E = VALX (2.71828182845904523536) ;
