@@ -43,7 +43,7 @@ public:
 		mName = NULL ;
 		mAddress = NULL ;
 		mWatch = Function<void (UNIT &)> ([] (UNIT &) {
-			_STATIC_WARNING_ ("noop") ;
+			_NOOP_ () ;
 		}) ;
 	} ;
 } ;
@@ -59,8 +59,7 @@ private:
 
 public:
 	implicit Integer () {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
+		_UNIMPLEMENTED_ () ;
 	}
 } ;
 #endif
@@ -288,7 +287,7 @@ private:
 
 	template <class... _ARGS>
 	void template_construct (const INDEX &index ,const ARGVF<ARGVS<>> & ,_ARGS &&...initval) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -630,7 +629,7 @@ public:
 	explicit AtomicVar (const VAR &that) {
 		const auto r1x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,that) ;
 		const auto r2x = mValue.compare_exchange (0 ,r1x) ;
-		_STATIC_UNUSED_ (r2x) ;
+		_NOOP_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x == r1x) ;
 	}
 
@@ -682,7 +681,7 @@ public:
 		const auto r1x = _ADDRESS_ (that) ;
 		const auto r2x = _BITWISE_CAST_ (ARGV<BASE_TYPE>::ID ,r1x) ;
 		const auto r3x = mValue.compare_exchange (0 ,r2x) ;
-		_STATIC_UNUSED_ (r3x) ;
+		_NOOP_ (r3x) ;
 		_DEBUG_ASSERT_ (r3x == r2x) ;
 	}
 
@@ -785,7 +784,7 @@ private:
 public:
 	implicit WeakRef () :
 		delegate WeakRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit WeakRef (const PTR<Holder> &pointer) :
@@ -951,13 +950,13 @@ private:
 public:
 	void lock () const {
 		const auto r1x = mSelf.self.increase () ;
-		_STATIC_UNUSED_ (r1x) ;
+		_NOOP_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 	}
 
 	void unlock () const {
 		const auto r1x = mSelf.self.decrease () ;
-		_STATIC_UNUSED_ (r1x) ;
+		_NOOP_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 0) ;
 	}
 } ;
@@ -990,12 +989,12 @@ public:
 
 	void weak_aquire () override {
 		const auto r1x = mWeakCounter.increase () ;
-		_STATIC_UNUSED_ (r1x) ;
+		_NOOP_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 		if (r1x > 1)
 			return ;
 		const auto r2x = DEREF[mStrongPointer].mSoftCounter.increase () ;
-		_STATIC_UNUSED_ (r2x) ;
+		_NOOP_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x >= 1) ;
 	}
 
@@ -1018,7 +1017,7 @@ public:
 		if (r1x < 0)
 			return ;
 		const auto r2x = DEREF[mStrongPointer].mStrongCounter.increase () ;
-		_STATIC_UNUSED_ (r2x) ;
+		_NOOP_ (r2x) ;
 		_DEBUG_ASSERT_ (r2x >= 1) ;
 		if (r2x > 1)
 			return ;
@@ -1041,7 +1040,7 @@ public:
 	}
 
 	void wait_yield () override {
-		_STATIC_WARNING_ () ;
+		_NOOP_ () ;
 	}
 
 	void soft_destroy () noexcept override {
@@ -1072,7 +1071,7 @@ private:
 public:
 	implicit StrongRef () :
 		delegate StrongRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit StrongRef (const PTR<Holder> &pointer) :
@@ -1090,12 +1089,12 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_BASE_OF_HELP<UNIT ,_ARG1>>>
 	implicit StrongRef (const StrongRef<_ARG1> &that) :
 		delegate StrongRef (that.recast (ARGV<UNIT>::ID)) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit StrongRef (const WeakRef &that) :
 		delegate StrongRef (that.strong (ARGV<UNIT>::ID)) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~StrongRef () noexcept {
@@ -1792,7 +1791,7 @@ public:
 	}
 
 	void clean () noexcept override {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	void soft_destroy () noexcept override {
@@ -1979,7 +1978,7 @@ public:
 	implicit ImplHolder () = delete ;
 
 	explicit ImplHolder (const ARGVF<ARGVS<UNITS_...>> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	void compute_visit (UNIT &visitor ,CONT &context_) const override {
@@ -1988,7 +1987,7 @@ public:
 
 private:
 	void template_visit (UNIT &visitor ,CONT &context_ ,const ARGVF<ARGVS<>> &) const {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1>

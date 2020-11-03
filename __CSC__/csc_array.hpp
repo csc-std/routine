@@ -142,7 +142,7 @@ public:
 
 	explicit Array (const LENGTH &len) :
 		delegate Array (ARGVP0 ,len) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Array (const api::initializer_list<ITEM> &that) :

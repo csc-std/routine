@@ -320,8 +320,6 @@ namespace CSC {
 
 #define _STATIC_WARNING_(...)
 
-#define _STATIC_UNUSED_(...) (void) _UNW_ (__VA_ARGS__) ;
-
 #ifdef __CSC_DEBUG__
 #ifdef __CSC_COMPILER_MSVC__
 #define _DEBUG_ASSERT_(...) do { if ((_UNW_ (__VA_ARGS__))) break ; __debugbreak () ; } while (FALSE)
@@ -368,7 +366,7 @@ namespace CSC {
 
 #define ANONYMOUS _CAT_ (_anonymous_ ,__LINE__)
 
-#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::FOR_ONCE (arg)) ANONYMOUS:
+#define _SWITCH_ONCE_(arg) (arg) goto ANONYMOUS ; while (CSC::SWITCH_ONCE (arg)) ANONYMOUS:
 
 #ifdef FALSE
 #undef FALSE

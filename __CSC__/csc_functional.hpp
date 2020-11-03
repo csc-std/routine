@@ -414,7 +414,7 @@ protected:
 protected:
 	implicit Expression () :
 		delegate Expression (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Expression (const StrongRef<LexicalNode> &node) {
@@ -518,7 +518,7 @@ protected:
 			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const UNITS...> (ins...) ;
 			auto &r3x = r1x.template_flip_invoke (ARGV<ARGVS<const UNITS...>>::ID ,r2x) ;
-			_STATIC_UNUSED_ (r3x) ;
+			_NOOP_ (r3x) ;
 			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -540,7 +540,7 @@ protected:
 			const auto r1x = Expression<RANK ,RETR> (node.mChild[0]) ;
 			const auto r2x = TupleBinder<const _ARGS...> (ins...) ;
 			auto &r3x = r1x.template_flips_patch (r2x ,ARGV<_ARG2>::ID) ;
-			_STATIC_UNUSED_ (r3x) ;
+			_NOOP_ (r3x) ;
 			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -600,7 +600,7 @@ protected:
 			const auto r2x = Expression<_ARG2 ,_ARG3> (node.mChild[1]) ;
 			const auto r3x = TupleBinder<const _ARGS...> (ins...) ;
 			auto &r4x = r1x.template_bind_patch (r2x ,r3x ,ARGV<FUNCTION_PARAMS_TYPE<_ARG2>>::ID) ;
-			_STATIC_UNUSED_ (r4x) ;
+			_NOOP_ (r4x) ;
 			return r1x.mThis->mOperand ;
 		}) ;
 		ret.mThis->mChild[0] = mThis.share () ;
@@ -676,7 +676,7 @@ public:
 
 	explicit Expression (const StrongRef<LexicalNode> &node) :
 		delegate SPECIALIZATION_BASE (node) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	const RETR &invoke () const leftvalue {
@@ -727,7 +727,7 @@ public:
 
 	explicit Expression (const StrongRef<LexicalNode> &node) :
 		delegate SPECIALIZATION_BASE (node) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	using SPECIALIZATION_BASE::invoke ;
@@ -785,7 +785,7 @@ public:
 
 	explicit Expression (const StrongRef<LexicalNode> &node) :
 		delegate SPECIALIZATION_BASE (node) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	using SPECIALIZATION_BASE::invoke ;

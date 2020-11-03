@@ -147,7 +147,7 @@ public:
 
 	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_) :
 		delegate Bitmap (cx_ ,cy_ ,cx_ ,0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Bitmap (const LENGTH &cx_ ,const LENGTH &cy_ ,const LENGTH &cw_ ,const LENGTH &ck_) {
@@ -633,8 +633,7 @@ template <class ITEM>
 class Graph {
 public:
 	implicit Graph () {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
+		_UNIMPLEMENTED_ () ;
 	}
 } ;
 #endif

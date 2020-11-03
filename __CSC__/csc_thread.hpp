@@ -108,7 +108,7 @@ public:
 		const auto r3x = count * _EBOOL_ (r1x.mItemQueue->length () >= count) ;
 		ArrayList<ITEM> ret = ArrayList<ITEM> (r3x) ;
 		for (auto &&i : _RANGE_ (0 ,r3x)) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			ret.add (_MOVE_ (r1x.mItemQueue.self[r1x.mItemQueue->head ()])) ;
 			r1x.mItemQueue->take () ;
 		}
@@ -151,7 +151,7 @@ public:
 		const auto r3x = count * _EBOOL_ (r1x.mItemQueue->length () >= count) ;
 		ArrayList<ITEM> ret = ArrayList<ITEM> (r3x) ;
 		for (auto &&i : _RANGE_ (0 ,r3x)) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			ret.add (_MOVE_ (r1x.mItemQueue.self[r1x.mItemQueue->head ()])) ;
 			r1x.mItemQueue->take () ;
 		}
@@ -170,7 +170,7 @@ public:
 		const auto r3x = r1x.mItemQueue->length () ;
 		ArrayList<ITEM> ret = ArrayList<ITEM> (r3x) ;
 		for (auto &&i : _RANGE_ (0 ,r3x)) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			ret.add (_MOVE_ (r1x.mItemQueue.self[r1x.mItemQueue->head ()])) ;
 			r1x.mItemQueue->take () ;
 		}
@@ -357,7 +357,7 @@ public:
 		_CALL_TRY_ ([&] () {
 			static_execute (mThis ,mThreadID) ;
 		} ,[&] () {
-			_STATIC_WARNING_ ("noop") ;
+			_NOOP_ () ;
 		}) ;
 	}
 } ;
@@ -714,7 +714,7 @@ private:
 		const auto r1x = this_.mThreadPendingSet.length () + this_.mThreadPendingSet.size () ;
 		const auto r2x = (this_.mItemQueue->length () + r1x - 1) / r1x ;
 		for (auto &&i : _RANGE_ (0 ,r2x)) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			list.add (_MOVE_ (this_.mItemQueue.self[this_.mItemQueue->head ()])) ;
 			this_.mItemQueue->take () ;
 		}
@@ -750,7 +750,7 @@ public:
 		_CALL_TRY_ ([&] () {
 			static_execute (mThis ,mThreadID) ;
 		} ,[&] () {
-			_STATIC_WARNING_ ("noop") ;
+			_NOOP_ () ;
 		}) ;
 	}
 } ;
@@ -1004,7 +1004,7 @@ public:
 		_CALL_TRY_ ([&] () {
 			static_execute (mThis) ;
 		} ,[&] () {
-			_STATIC_WARNING_ ("noop") ;
+			_NOOP_ () ;
 		}) ;
 	}
 } ;

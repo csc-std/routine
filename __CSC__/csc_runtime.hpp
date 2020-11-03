@@ -514,7 +514,7 @@ private:
 
 	template <class _ARG1>
 	imports void template_write_typename_cv (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP1)> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_LVALUE_REFERENCE_HELP<_ARG1>>>
@@ -529,7 +529,7 @@ private:
 
 	template <class _ARG1>
 	imports void template_write_typename_ref (TextWriter<STR> &writer ,const ARGVF<_ARG1> & ,const DEF<decltype (ARGVP1)> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class = ENABLE_TYPE<IS_POINTER_HELP<_ARG1>>>
@@ -698,7 +698,7 @@ private:
 	}
 
 	imports void template_write_typename_y (TextWriter<STR> &writer ,const ARGVF<ARGVS<>> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1>
@@ -929,8 +929,7 @@ template <class CONT>
 class Coroutine {
 public:
 	implicit Coroutine () {
-		_STATIC_WARNING_ ("unimplemented") ;
-		_DYNAMIC_ASSERT_ (FALSE) ;
+		_UNIMPLEMENTED_ () ;
 	}
 } ;
 #endif

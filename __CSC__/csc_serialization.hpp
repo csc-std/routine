@@ -1730,7 +1730,7 @@ private:
 
 	//@info: $11->${eps}
 	void update_shift_e11 () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	//@info: $12->${end}
@@ -2028,7 +2028,7 @@ private:
 
 	//@info: $8->${eps}
 	void update_shift_e8 () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	//@info: $9->${end}

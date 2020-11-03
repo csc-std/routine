@@ -304,7 +304,7 @@ public:
 	}
 
 	void scans () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -661,7 +661,7 @@ public:
 	}
 
 	void prints () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -696,7 +696,7 @@ public:
 		const auto r1x = attr () ;
 		auto rax = share () ;
 		for (auto &&i : _RANGE_ (0 ,rax.size () - rax.length ())) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			rax << r1x.varify_ending_item () ;
 		}
 		DEREF[this] = rax.share () ;
@@ -1120,7 +1120,7 @@ public:
 	}
 
 	void scans () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1291,7 +1291,7 @@ private:
 
 	template <class _ARG1>
 	void template_read_bom (const ARGVF<_ARG1> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	void template_read_bom (const ARGVF<STRU8> &) {
@@ -1815,7 +1815,7 @@ public:
 	}
 
 	void prints () {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class... _ARGS>
@@ -1910,7 +1910,7 @@ private:
 		if switch_once (TRUE) {
 			const auto r4x = r3x - precision ;
 			for (auto &&i : _RANGE_ (0 ,r4x - 1)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				rax[0] /= r1x.varify_radix () ;
 				rax[1]++ ;
 			}
@@ -1938,12 +1938,12 @@ private:
 			out[--iw] = REAL ('e') ;
 			const auto r7x = MathProc::maxof ((r5x - 1 - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r7x)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r7x ,r5x - 1)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
@@ -1958,11 +1958,11 @@ private:
 			if (!(rax[1] >= 0))
 				discard ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (rax[1]))) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (0) ;
 			}
 			for (auto &&i : _RANGE_ (0 ,r5x)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
@@ -1975,12 +1975,12 @@ private:
 				discard ;
 			const auto r8x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r8x)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r8x ,LENGTH (-rax[1]))) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
@@ -1988,7 +1988,7 @@ private:
 			out[--iw] = REAL ('.') ;
 			iw += _EBOOL_ (out[ix] == REAL ('.')) ;
 			for (auto &&i : _RANGE_ (0 ,LENGTH (r5x + rax[1]))) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
@@ -2001,19 +2001,19 @@ private:
 				discard ;
 			const auto r9x = MathProc::maxof (LENGTH (-rax[1] - precision) ,VAR_ZERO) ;
 			for (auto &&i : _RANGE_ (0 ,r9x)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
 			INDEX ix = iw - 1 ;
 			for (auto &&i : _RANGE_ (r9x ,r5x)) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (rax[0] % r1x.varify_radix ()) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 				rax[0] /= r1x.varify_radix () ;
 			}
 			const auto r10x = MathProc::maxof (r9x ,r5x) ;
 			for (auto &&i : _RANGE_ (r10x ,LENGTH (-rax[1]))) {
-				_STATIC_UNUSED_ (i) ;
+				_NOOP_ (i) ;
 				out[--iw] = r1x.convert_number_w (0) ;
 				iw += _EBOOL_ (out[ix] == r1x.convert_number_w (0)) ;
 			}
@@ -2040,7 +2040,7 @@ private:
 
 	template <class _ARG1>
 	void template_write_bom (const ARGVF<_ARG1> &) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	void template_write_bom (const ARGVF<STRU8> &) {
@@ -2231,7 +2231,7 @@ public:
 		mReader.self >> TextReader<STRU8>::BOM ;
 		mCache = Deque<STRU8> (ll_len) ;
 		for (auto &&i : _RANGE_ (0 ,ll_len)) {
-			_STATIC_UNUSED_ (i) ;
+			_NOOP_ (i) ;
 			INDEX ix = mCache.insert () ;
 			mReader.self >> mCache[ix] ;
 		}

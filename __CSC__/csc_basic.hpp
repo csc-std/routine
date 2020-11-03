@@ -223,7 +223,7 @@ public:
 inline exports CHAR CRC32StaticProc::static_mem_crc32_table_each (const CHAR &val) {
 	CHAR ret = val ;
 	for (auto &&i : _RANGE_ (0 ,8)) {
-		_STATIC_UNUSED_ (i) ;
+		_NOOP_ (i) ;
 		const auto r1x = CHAR (ret & CHAR (0X00000001)) ;
 		ret = CHAR (ret >> 1) ;
 		if (r1x == 0)
@@ -683,7 +683,7 @@ protected:
 protected:
 	implicit AutoRef () :
 		delegate AutoRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~AutoRef () noexcept {
@@ -763,7 +763,7 @@ protected:
 protected:
 	implicit AutoRef () :
 		delegate AutoRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~AutoRef () noexcept {
@@ -928,7 +928,7 @@ private:
 public:
 	implicit SharedRef () :
 		delegate SharedRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~SharedRef () noexcept {
@@ -1027,7 +1027,7 @@ private:
 		if (pointer == NULL)
 			return ;
 		const auto r1x = DEREF[pointer].increase () ;
-		_STATIC_UNUSED_ (r1x) ;
+		_NOOP_ (r1x) ;
 		_DEBUG_ASSERT_ (r1x >= 1) ;
 	}
 } ;
@@ -1125,13 +1125,13 @@ private:
 public:
 	implicit AnyRef () :
 		delegate AnyRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that) :
 		delegate AnyRef (_MOVE_ (that.rebind (ARGV<NONE>::ID))) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~AnyRef () noexcept {
@@ -1228,13 +1228,13 @@ private:
 public:
 	implicit AnyRef () :
 		delegate AnyRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1>
 	implicit AnyRef (AnyRef<_ARG1> &&that) :
 		delegate AnyRef (_MOVE_ (that.rebind (ARGV<UNIT>::ID))) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~AnyRef () noexcept {
@@ -1435,7 +1435,7 @@ private:
 public:
 	implicit UniqueRef () :
 		delegate UniqueRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
@@ -1545,7 +1545,7 @@ private:
 public:
 	implicit UniqueRef () :
 		delegate UniqueRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	template <class _ARG1 ,class _ARG2 ,class = ENABLE_TYPE<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>>>>
@@ -1625,7 +1625,7 @@ public:
 		UniqueRef ret ;
 		auto rax = GlobalHeap::alloc (ARGV<TEMP<R2X>>::ID) ;
 		auto rbx = R1X ([] (UNIT &) {
-			_STATIC_WARNING_ ("noop") ;
+			_NOOP_ () ;
 		}) ;
 		ScopedBuild<R2X> ANONYMOUS (rax ,ARGVP0 ,_MOVE_ (rbx)) ;
 		auto &r1x = _CAST_ (ARGV<R2X>::ID ,DEREF[rax.self]) ;
@@ -1683,7 +1683,7 @@ private:
 public:
 	implicit PhanRef () :
 		delegate PhanRef (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit ~PhanRef () noexcept {
@@ -1800,7 +1800,7 @@ private:
 public:
 	implicit Function () :
 		delegate Function (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Function (const DEF<UNIT1 (UNITS...)> &that) :
@@ -2062,12 +2062,12 @@ public:
 
 	implicit Buffer (const BUFFER &that) :
 		delegate Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::ID ,that))) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	implicit Buffer (BUFFER &&that) :
 		delegate Buffer (_MOVE_ (_CAST_ (ARGV<Buffer>::ID ,that))) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	ARR<UNIT> &to () leftvalue {
@@ -2187,7 +2187,7 @@ private:
 public:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Buffer (const LENGTH &len) :
@@ -2395,7 +2395,7 @@ protected:
 protected:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Buffer (const LENGTH &len) :
@@ -2475,7 +2475,7 @@ protected:
 protected:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Buffer (const LENGTH &len) :
@@ -2581,7 +2581,7 @@ public:
 
 	explicit Buffer (const LENGTH &len) :
 		delegate SPECIALIZATION_BASE (len) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	ARR<UNIT> &to () leftvalue {
@@ -2706,7 +2706,7 @@ private:
 public:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Buffer (const LENGTH &len) :
@@ -2886,7 +2886,7 @@ private:
 public:
 	implicit Buffer () :
 		delegate Buffer (ARGVP0) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	explicit Buffer (const LENGTH &len) :
@@ -3402,7 +3402,7 @@ public:
 
 	explicit Allocator (const LENGTH &len) :
 		delegate SPECIALIZATION_BASE (len) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	LENGTH size () const {

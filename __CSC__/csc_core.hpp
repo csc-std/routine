@@ -1559,7 +1559,7 @@ struct CONSTEXPR_RANGE_CHECK {
 
 template <>
 class ARGV<ARGVP<ZERO>> {
-	_STATIC_WARNING_ ("noop") ;
+private:
 } ;
 
 template <class UNIT>
@@ -1582,7 +1582,7 @@ static constexpr auto ARGVP9 = ARGV<ARGVP<ARGC<9>>> {} ;
 static constexpr auto ARGVPX = ARGV<ARGVP<ARGC<10>>> {} ;
 
 namespace U {
-struct OPERATOR_FOR_ONCE {
+struct OPERATOR_SWITCH_ONCE {
 	inline BOOL operator() (const BOOL &) const {
 		return FALSE ;
 	}
@@ -1594,7 +1594,7 @@ struct OPERATOR_FOR_ONCE {
 } ;
 } ;
 
-static constexpr auto FOR_ONCE = U::OPERATOR_FOR_ONCE {} ;
+static constexpr auto SWITCH_ONCE = U::OPERATOR_SWITCH_ONCE {} ;
 
 namespace U {
 struct OPERATOR_DEREF {
@@ -1630,6 +1630,15 @@ struct OPERATOR_PTRTOARR {
 } ;
 
 static constexpr auto PTRTOARR = U::OPERATOR_PTRTOARR {} ;
+
+inline void _NOOP_ () {
+	_STATIC_ASSERT_ (TRUE) ;
+}
+
+template <class _ARG1>
+inline void _NOOP_ (_ARG1 &) {
+	_STATIC_ASSERT_ (TRUE) ;
+}
 
 template <class _ARG1>
 inline _ARG1 &_NULL_ (const ARGVF<_ARG1> &) {
@@ -2275,7 +2284,7 @@ public:
 	template <class _ARG1 ,class... _ARGS>
 	explicit Plain (const ARGVF<_ARG1> & ,const _ARGS &...text) :
 		delegate Plain (cache_text (ARGV<_ARG1>::ID ,text...)) {
-		_STATIC_WARNING_ ("noop") ;
+		_NOOP_ () ;
 	}
 
 	LENGTH size () const {
@@ -2283,7 +2292,6 @@ public:
 	}
 
 	const ARR<REAL> &to () const leftvalue {
-		_STATIC_WARNING_ ("mark") ;
 		return DEREF[mPlain] ;
 	}
 
@@ -2414,6 +2422,10 @@ public:
 	}
 } ;
 
+inline void _UNIMPLEMENTED_ () {
+	_DYNAMIC_ASSERT_ (FALSE) ;
+}
+
 template <class _ARG1>
 inline RESULT_OF_TYPE<_ARG1 ,ARGVS<>> _CALL_ (const _ARG1 &proc) {
 	_STATIC_ASSERT_ (U::CONSTEXPR_NOT<IS_REFERENCE_HELP<RESULT_OF_TYPE<_ARG1 ,ARGVS<>>>>::compile ()) ;
@@ -2434,7 +2446,7 @@ inline void _CALL_TRY_ (_ARG1 &&proc_one ,_ARGS &&...proc_rest) {
 		proc_one () ;
 		return ;
 	} catch (const Exception &e) {
-		_STATIC_UNUSED_ (e) ;
+		_NOOP_ (e) ;
 	} catch (...) {
 		_DYNAMIC_ASSERT_ (FALSE) ;
 	}
