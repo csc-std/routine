@@ -126,6 +126,9 @@ template <class UNIT>
 using ARR = DEF<UNIT[0]> ;
 #endif
 
+template <class _ARG1>
+using Ref = DEF<_ARG1 &&> ;
+
 using BYTE = api::uint8_t ;
 using WORD = api::uint16_t ;
 using CHAR = api::uint32_t ;
@@ -1509,6 +1512,15 @@ using U::CAST_TRAITS_TYPE ;
 using U::IS_ALL_SAME_HELP ;
 using U::IS_ANY_SAME_HELP ;
 
+template <class _ARG1>
+using XRef = DEF<REMOVE_CVR_TYPE<_ARG1> &> ;
+
+template <class _ARG1>
+using CRef = DEF<const REMOVE_CVR_TYPE<_ARG1> &> ;
+
+template <class _ARG1>
+using PRef = DEF<REMOVE_CVR_TYPE<_ARG1> &&> ;
+
 namespace U {
 template <class _ARG1 ,class _ARG2>
 struct CONSTEXPR_MAX {
@@ -2388,7 +2400,7 @@ public:
 		_NOOP_ () ;
 	}
 
-	implicit Class &operator= (const Class &that) {
+	inline Class &operator= (const Class &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2401,7 +2413,7 @@ public:
 		_NOOP_ () ;
 	}
 
-	implicit Class &operator= (Class &&that) noexcept {
+	inline Class &operator= (Class &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2441,7 +2453,7 @@ public:
 		mWhat = that.mWhat ;
 	}
 
-	inline Exception &operator= (const Exception &that) {
+	inline Exception &operator= (const Exception &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2454,7 +2466,7 @@ public:
 		mWhat = that.mWhat ;
 	}
 
-	inline Exception &operator= (Exception &&that) noexcept {
+	inline Exception &operator= (Exception &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;

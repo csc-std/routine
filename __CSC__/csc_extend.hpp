@@ -178,7 +178,7 @@ public:
 		that.m_fake ().friend_copy (DEPTR[mVariant]) ;
 	}
 
-	inline Variant &operator= (const Variant &that) {
+	inline Variant &operator= (const Variant &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -194,7 +194,7 @@ public:
 		that.m_fake ().friend_move (DEPTR[mVariant]) ;
 	}
 
-	inline Variant &operator= (Variant &&that) noexcept {
+	inline Variant &operator= (Variant &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -810,7 +810,7 @@ public:
 	implicit WeakRef (const WeakRef &that) :
 		delegate WeakRef (that.share ()) {}
 
-	inline WeakRef &operator= (const WeakRef &that) {
+	inline WeakRef &operator= (const WeakRef &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -831,7 +831,7 @@ public:
 		release (r3x) ;
 	}
 
-	inline WeakRef &operator= (WeakRef &&that) noexcept {
+	inline WeakRef &operator= (WeakRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1116,7 +1116,7 @@ public:
 		release (r3x) ;
 	}
 
-	inline StrongRef &operator= (StrongRef &&that) noexcept {
+	inline StrongRef &operator= (StrongRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;

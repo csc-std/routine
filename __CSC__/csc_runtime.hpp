@@ -49,30 +49,10 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,Duration>>>>>
 	explicit Duration (_ARG1 &&time_) ;
 
-	implicit Duration (const Duration &that) {
-		mThis = that.mThis.share () ;
-	}
-
-	inline Duration &operator= (const Duration &that) {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	implicit Duration (Duration &&that) noexcept {
-		mThis = _MOVE_ (that.mThis) ;
-	}
-
-	implicit Duration &operator= (Duration &&that) noexcept {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
+	Duration share () const {
+		Duration ret ;
+		ret.mThis = mThis.share () ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>
@@ -146,28 +126,10 @@ public:
 	template <class _ARG1 ,class = ENABLE_TYPE<U::CONSTEXPR_AND<U::CONSTEXPR_NOT<IS_PLACEHOLDER_HELP<_ARG1>> ,U::CONSTEXPR_NOT<IS_SAME_HELP<REMOVE_CVR_TYPE<_ARG1> ,TimePoint>>>>>
 	explicit TimePoint (_ARG1 &&time_) ;
 
-	implicit TimePoint (const TimePoint &that) {
-		mThis = that.mThis.share () ;
-	}
-
-	inline TimePoint &operator= (const TimePoint &that) {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	implicit TimePoint (TimePoint &&) = default ;
-
-	implicit TimePoint &operator= (TimePoint &&that) noexcept {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
+	TimePoint share () const {
+		TimePoint ret ;
+		ret.mThis = mThis.share () ;
+		return _MOVE_ (ret) ;
 	}
 
 	template <class _RET = REMOVE_CVR_TYPE<typename Private::Implement>>

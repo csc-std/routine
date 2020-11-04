@@ -426,7 +426,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline ScopedPtr &operator= (ScopedPtr &&that) noexcept {
+	inline ScopedPtr &operator= (ScopedPtr &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -697,7 +697,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline AutoRef &operator= (AutoRef &&that) noexcept {
+	inline AutoRef &operator= (AutoRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -781,7 +781,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline AutoRef &operator= (const AutoRef &that) {
+	inline AutoRef &operator= (const AutoRef &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -795,7 +795,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline AutoRef &operator= (AutoRef &&that) noexcept {
+	inline AutoRef &operator= (AutoRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -941,7 +941,7 @@ public:
 		mPointer = that.mPointer ;
 	}
 
-	inline SharedRef &operator= (const SharedRef &that) {
+	inline SharedRef &operator= (const SharedRef &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -955,7 +955,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline SharedRef &operator= (SharedRef &&that) noexcept {
+	inline SharedRef &operator= (SharedRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1140,7 +1140,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline AnyRef &operator= (AnyRef &&that) noexcept {
+	inline AnyRef &operator= (AnyRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1242,7 +1242,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline AnyRef &operator= (AnyRef &&that) noexcept {
+	inline AnyRef &operator= (AnyRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1464,7 +1464,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
+	inline UniqueRef &operator= (UniqueRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1575,7 +1575,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline UniqueRef &operator= (UniqueRef &&that) noexcept {
+	inline UniqueRef &operator= (UniqueRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1687,7 +1687,7 @@ public:
 		_SWAP_ (mPointer ,that.mPointer) ;
 	}
 
-	inline PhanRef &operator= (PhanRef &&that) noexcept {
+	inline PhanRef &operator= (PhanRef &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -1867,7 +1867,7 @@ public:
 		_SWAP_ (mFunction ,that.mFunction) ;
 	}
 
-	inline Function &operator= (Function &&that) noexcept {
+	inline Function &operator= (Function &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2426,7 +2426,7 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-	inline Buffer &operator= (Buffer &&that) noexcept {
+	inline Buffer &operator= (Buffer &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2513,7 +2513,7 @@ public:
 		rax = NULL ;
 	}
 
-	inline Buffer &operator= (const Buffer &that) {
+	inline Buffer &operator= (const Buffer &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2529,7 +2529,7 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-	inline Buffer &operator= (Buffer &&that) noexcept {
+	inline Buffer &operator= (Buffer &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2714,7 +2714,7 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-	inline Buffer &operator= (Buffer &&that) noexcept {
+	inline Buffer &operator= (Buffer &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2893,7 +2893,7 @@ public:
 		_SWAP_ (mSize ,that.mSize) ;
 	}
 
-	inline Buffer &operator= (Buffer &&that) noexcept {
+	inline Buffer &operator= (Buffer &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -3190,7 +3190,7 @@ public:
 		_SWAP_ (mFree ,that.mFree) ;
 	}
 
-	inline Allocator &operator= (Allocator &&that) noexcept {
+	inline Allocator &operator= (Allocator &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -3290,7 +3290,7 @@ public:
 		mFree = that.mFree ;
 	}
 
-	inline Allocator &operator= (const Allocator &that) {
+	inline Allocator &operator= (const Allocator &that) leftvalue {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -3322,7 +3322,7 @@ public:
 		_SWAP_ (mFree ,that.mFree) ;
 	}
 
-	inline Allocator &operator= (Allocator &&that) noexcept {
+	inline Allocator &operator= (Allocator &&that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
