@@ -546,7 +546,8 @@ template <class... UNITS>
 using TupleBinder = Tuple<UNITS &...> ;
 
 template <class UNIT>
-class Atomic {
+class Atomic :
+	delegate Proxy {
 private:
 	_STATIC_ASSERT_ (IS_BYTE_XYZ_HELP<UNIT>::compile ()) ;
 

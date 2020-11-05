@@ -2396,24 +2396,11 @@ private:
 public:
 	implicit Class () = default ;
 
-	implicit Class (const Class &that) {
+	implicit Class (const Class &that) noexcept {
 		_NOOP_ () ;
 	}
 
-	inline Class &operator= (const Class &that) leftvalue {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	implicit Class (Class &&that) noexcept {
-		_NOOP_ () ;
-	}
-
-	inline Class &operator= (Class &&that) leftvalue noexcept {
+	inline Class &operator= (const Class &that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
@@ -2449,24 +2436,11 @@ public:
 		mWhat = DEPTR[what_.self] ;
 	}
 
-	implicit Exception (const Exception &that) {
+	implicit Exception (const Exception &that) noexcept {
 		mWhat = that.mWhat ;
 	}
 
-	inline Exception &operator= (const Exception &that) leftvalue {
-		if switch_once (TRUE) {
-			if (this == DEPTR[that])
-				discard ;
-			_RECREATE_ (this ,_MOVE_ (that)) ;
-		}
-		return DEREF[this] ;
-	}
-
-	implicit Exception (Exception &&that) noexcept {
-		mWhat = that.mWhat ;
-	}
-
-	inline Exception &operator= (Exception &&that) leftvalue noexcept {
+	inline Exception &operator= (const Exception &that) leftvalue noexcept {
 		if switch_once (TRUE) {
 			if (this == DEPTR[that])
 				discard ;
