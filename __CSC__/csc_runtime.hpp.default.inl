@@ -118,6 +118,7 @@ using ::GetCurrentProcessId ;
 using ::OpenProcess ;
 using ::CloseHandle ;
 using ::GetProcessTimes ;
+using ::ProcessIdToSessionId ;
 #endif
 
 #ifdef __CSC_SYSTEM_LINUX__
@@ -561,14 +562,17 @@ exports Buffer<BYTE ,ARGC<128>> GlobalRuntime::process_info (const FLAG &pid) {
 		rax << ByteWriter<BYTE>::GAP ;
 		rax << _PCSTRU8_ ("windows") ;
 		rax << ByteWriter<BYTE>::GAP ;
-		auto rbx = ARRAY4<FILETIME> () ;
-		_ZERO_ (rbx[0]) ;
-		_ZERO_ (rbx[1]) ;
-		_ZERO_ (rbx[2]) ;
-		_ZERO_ (rbx[3]) ;
-		api::GetProcessTimes (r1x ,DEPTR[rbx[0]] ,DEPTR[rbx[1]] ,DEPTR[rbx[2]] ,DEPTR[rbx[3]]) ;
-		const auto r2x = DATA ((DATA (rbx[0].dwHighDateTime) << 32) | DATA (rbx[0].dwLowDateTime)) ;
-		rax << VAR64 (r2x) ;
+		const auto r2x = _CALL_ ([&] () {
+			ARRAY4<FILETIME> ret ;
+			_ZERO_ (ret[0]) ;
+			_ZERO_ (ret[1]) ;
+			_ZERO_ (ret[2]) ;
+			_ZERO_ (ret[3]) ;
+			api::GetProcessTimes (r1x ,DEPTR[ret[0]] ,DEPTR[ret[1]] ,DEPTR[ret[2]] ,DEPTR[ret[3]]) ;
+			return _MOVE_ (ret) ;
+		}) ;
+		const auto r3x = DATA ((DATA (r2x[0].dwHighDateTime) << 32) | DATA (r2x[0].dwLowDateTime)) ;
+		rax << VAR64 (r3x) ;
 		rax << ByteWriter<BYTE>::GAP ;
 	}
 	rax << ByteWriter<BYTE>::EOS ;
