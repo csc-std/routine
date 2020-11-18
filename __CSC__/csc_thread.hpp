@@ -15,6 +15,36 @@
 #include "csc_runtime.hpp"
 
 namespace CSC {
+template <class UNIT>
+class ThreadLocal {
+private:
+	Mutable<Mutex> mMutex ;
+	ArrayList<UNIT> mValue ;
+	Set<FLAG> mMappingSet ;
+
+public:
+	implicit ThreadLocal () = default ;
+
+	UNIT &deref () leftvalue {
+		ScopedGuard<Mutex> ANONYMOUS (mMutex) ;
+		const auto r1x = GlobalRuntime::thread_tid () ;
+		INDEX ix = mMappingSet.map (r1x) ;
+		if switch_once (TRUE) {
+			if (ix != VAR_NONE)
+				discard ;
+			if switch_once (TRUE) {
+				if (mValue.size () == 0)
+					discard ;
+				mValue = ArrayList<UNIT> (DEFAULT_RECURSIVE_SIZE::compile ()) ;
+				mMappingSet = Set<FLAG> (mValue.size ()) ;
+			}
+			ix = mValue.insert () ;
+			mMappingSet.add (r1x ,ix) ;
+		}
+		return mValue[ix] ;
+	}
+} ;
+
 template <class ITEM>
 class CalcThread {
 private:
@@ -342,6 +372,7 @@ class CalcThread<ITEM>::Private::ThreadBinder :
 private:
 	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
+	BOOL mTestFlag ;
 
 public:
 	implicit ThreadBinder () = delete ;
@@ -349,14 +380,23 @@ public:
 	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
+		mTestFlag = FALSE ;
 	}
 
 	void execute () override {
-		_CALL_TRY_ ([&] () {
+		auto fax = TRUE ;
+		if switch_once (fax) {
+			if (mTestFlag)
+				discard ;
+			_CALL_TRY_ ([&] () {
+				static_execute (mThis ,mThreadID) ;
+			} ,[&] () {
+				_NOOP_ () ;
+			}) ;
+		}
+		if switch_once (fax) {
 			static_execute (mThis ,mThreadID) ;
-		} ,[&] () {
-			_NOOP_ () ;
-		}) ;
+		}
 	}
 } ;
 
@@ -730,6 +770,7 @@ class WorkThread<ITEM>::Private::ThreadBinder :
 private:
 	PhanRef<THIS_PACK> mThis ;
 	INDEX mThreadID ;
+	BOOL mTestFlag ;
 
 public:
 	implicit ThreadBinder () = delete ;
@@ -737,14 +778,23 @@ public:
 	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_ ,const INDEX &tid) {
 		mThis = _MOVE_ (this_) ;
 		mThreadID = tid ;
+		mTestFlag = FALSE ;
 	}
 
 	void execute () override {
-		_CALL_TRY_ ([&] () {
+		auto fax = TRUE ;
+		if switch_once (fax) {
+			if (mTestFlag)
+				discard ;
+			_CALL_TRY_ ([&] () {
+				static_execute (mThis ,mThreadID) ;
+			} ,[&] () {
+				_NOOP_ () ;
+			}) ;
+		}
+		if switch_once (fax) {
 			static_execute (mThis ,mThreadID) ;
-		} ,[&] () {
-			_NOOP_ () ;
-		}) ;
+		}
 	}
 } ;
 
@@ -987,20 +1037,30 @@ class Promise<ITEM>::Private::ThreadBinder :
 	delegate public Thread::Binder {
 private:
 	PhanRef<THIS_PACK> mThis ;
+	BOOL mTestFlag ;
 
 public:
 	implicit ThreadBinder () = delete ;
 
 	explicit ThreadBinder (REMOVE_CONST_TYPE<PhanRef<THIS_PACK>> &&this_) {
 		mThis = _MOVE_ (this_) ;
+		mTestFlag = FALSE ;
 	}
 
 	void execute () override {
-		_CALL_TRY_ ([&] () {
+		auto fax = TRUE ;
+		if switch_once (fax) {
+			if (mTestFlag)
+				discard ;
+			_CALL_TRY_ ([&] () {
+				static_execute (mThis) ;
+			} ,[&] () {
+				_NOOP_ () ;
+			}) ;
+		}
+		if switch_once (fax) {
 			static_execute (mThis) ;
-		} ,[&] () {
-			_NOOP_ () ;
-		}) ;
+		}
 	}
 } ;
 
