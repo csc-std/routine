@@ -1,0 +1,459 @@
+
+module core ;
+
+type BOOL = internel::bool ;
+
+static constant TRUE = BOOL (internel::true) ;
+static constant FALSE = BOOL (internel::false) ;
+
+type VAR32 = internel::int32 ;
+type VAR64 = internel::int64 ;
+
+static constant VAR32_MAX =  VAR32 (+2147483647) ;
+static constant VAR32_MIN =  VAR32 (-2147483648) ;
+static constant VAR64_MAX =  VAR32 (+9223372036854775807) ;
+static constant VAR64_MIN =  VAR32 (-9223372036854775808) ;
+
+private trait VAR_HELP
+	require_macro ("config_int32") {
+	type VAR = VAR32 ;
+
+	static constant VAR_MAX = VAR32_MAX ;
+	static constant VAR_MIN = VAR32_MIN ;
+} ;
+
+private trait VAR_HELP
+	require_macro ("config_int64") {
+	type VAR = VAR64 ;
+
+	static constant VAR_MAX = VAR64_MAX ;
+	static constant VAR_MIN = VAR64_MIN ;
+} ;
+
+type VAR = VAR_HELP::VAR ;
+
+static constant VAR_MAX = VAR_HELP::VAR64_MAX ;
+static constant VAR_MIN = VAR_HELP::VAR64_MIN ;
+
+static constant ZERO = VAR (+0) ;
+static constant NONE = VAR (-1) ;
+static constant USED = VAR (-2) ;
+
+type INDEX = VAR ;
+type LENGTH = VAR ;
+type FLAG = VAR ;
+
+type FLOAT32 = internel::float32 ;
+type FLOAT64 = internel::float64 ;
+
+static constant FLOAT32_MAX = FLOAT32 (3.402823466E+38) ;
+static constant FLOAT32_MIN = FLOAT32 (1.175494351E-38) ;
+static constant FLOAT32_EPS = FLOAT32 (1.192092896E-07) ;
+static constant FLOAT32_INF = FLOAT32 (internel::infinity) ;
+static constant FLOAT64_MAX = FLOAT64 (1.7976931348623158E+308) ;
+static constant FLOAT64_MIN = FLOAT64 (2.2250738585072014E-308) ;
+static constant FLOAT64_EPS = FLOAT64 (2.2204460492503131E-016) ;
+static constant FLOAT64_INF = FLOAT64 (internel::infinity) ;
+
+type BYTE = internel::byte ;
+type WORD = internel::word ;
+type CHAR = internel::char ;
+type FEAT = internel::feat ;
+
+type STRA = internel::stra ;
+type STRU8 = internel::stru8 ;
+type STRU16 = internel::stru16 ;
+type STRU32 = internel::stru32 ;
+
+private trait STR_HELP
+	require_macro ("config_stra") {
+	type STR = STRA ;
+} ;
+
+private trait STR_HELP
+	require_macro ("config_stru8") {
+	type STR = STRU8 ;
+} ;
+
+private trait STR_HELP
+	require_macro ("config_stru16") {
+	type STR = STRU16 ;
+} ;
+
+private trait STR_HELP
+	require_macro ("config_stru32") {
+	type STR = STRU32 ;
+} ;
+
+type STR = STR_HELP::STR ;
+
+type VOID = internel::void ;
+
+static constant NULL = internel::null ;
+
+type DEF<AAA> = AAA ;
+
+type PTR<AAA> = () :Ref<AAA> ;
+
+private trait PLACE_HELP<T1>
+	require_enable (ENUM_EQUAL<T1 ,enum<0>>::value) {
+	class PLACE {} ;
+} ;
+
+private trait PLACE_HELP<T1>
+	require_enable (ENUM_COMPR_GT<T2 ,enum<0>>::value) {
+	type R1X = PLACE_HELP<ENUM_DECREASE<T1>>::PLACE ;
+
+	class PLACE extend (R1X) {} ;
+} ;
+
+type PLACE<RANK> = PLACE_HELP<RANK>::PLACE ;
+
+static constant P0 = PLACE<enum<0>> () ;
+static constant P1 = PLACE<enum<1>> () ;
+static constant P2 = PLACE<enum<2>> () ;
+static constant P3 = PLACE<enum<3>> () ;
+static constant P4 = PLACE<enum<4>> () ;
+static constant P5 = PLACE<enum<5>> () ;
+static constant P6 = PLACE<enum<6>> () ;
+static constant P7 = PLACE<enum<7>> () ;
+static constant P8 = PLACE<enum<8>> () ;
+static constant P9 = PLACE<enum<9>> () ;
+static constant PX = PLACE<enum<10>> () ;
+
+private trait CONDITIONAL_HELP<T1 ,T2 ,T3>
+	require_enable (ENUM_CHECK<T1>::value) {
+	type RET = T2 ;
+} ;
+
+private trait CONDITIONAL_HELP<T1 ,T2 ,T3>
+	require_enable (ENUM_NOT<ENUM_CHECK<T1>>::value) {
+	type RET = T3 ;
+} ;
+
+type DEPENDENT<AAA ,BBB> = internel::DEPENDENT_HELP<AAA ,BBB>::RET ;
+
+type CONDITIONAL<CONDITION ,TRUE_TYPE ,FALSE_TYPE> = CONDITIONAL_HELP<CONDITION ,TRUE_TYPE ,FALSE_TYPE>::RET ;
+
+type IS_SAME<AAA ,BBB> = internel::IS_SAME_HELP<AAA ,BBB>::RET ;
+type IS_ALL_SAME<...> = internel::IS_ALL_SAME_HELP<type<...>>::RET ; ;
+type IS_ANY_SAME<...> = internel::IS_ANY_SAME_HELP<type<...>>::RET ; ;
+
+type ALIGNOF<AAA> = internel::ALIGNOF_HELP<REMOVE_REFERENCE<AAA>>::RET ;
+type SIZEOF<AAA> = internel::SIZEOF_HELP<REMOVE_REFERENCE<AAA>>::RET ;
+type COUNTOF<AAA> = internel::COUNTOF_HELP<REMOVE_REFERENCE<AAA>>::RET ;
+
+type IS_BOOL<AAA> = internel::IS_BOOL_HELP<AAA>::RET ;
+type IS_VAR<AAA> = internel::IS_VAR_HELP<AAA>::RET ;
+type IS_FLOAT<AAA> = internel::IS_FLOAT_HELP<AAA>::RET ;
+type IS_BYTE<AAA> = internel::IS_BYTE_HELP<AAA>::RET ;
+type IS_STR<AAA> = internel::IS_STR_HELP<AAA>::RET ;
+type IS_VOID<AAA> = internel::IS_VOID_HELP<AAA>::RET ;
+type IS_NULL<AAA> = internel::IS_NULL_HELP<AAA>::RET ;
+type IS_BASIC<AAA> = IS_ALL_SAME<enum<TRUE> ,IS_BOOL<AAA> ,IS_VAR<AAA> ,IS_FLOAT<AAA> ,IS_BYTE<AAA> ,IS_STR<AAA> ,IS_VOID<AAA> ,IS_NULL<AAA>> ;
+
+type IS_TRIVIAL<AAA> = internel::IS_TRIVIAL_HELP<AAA>::RET ;
+type IS_PLACEHOLDER<AAA> = internel::IS_PLACEHOLDER_HELP<AAA>::RET ;
+
+type IS_ENUM<AAA> = internel::IS_ENUM_HELP<AAA>::RET ;
+
+type IS_TYPE<AAA> = internel::IS_TYPE_HELP<AAA>::RET ;
+type TYPE_CONCAT<AAA ,BBB> = internel::TYPE_BIND_HELP<AAA ,BBB>::RET
+type TYPE_GET<POS ,ALL> = internel::TYPE_FIND_HELP<POS ,ALL>::RET ;
+type TYPE_FIND<AAA ,ALL> = internel::TYPE_FIND_HELP<AAA ,ALL>::RET ;
+
+type IS_REFRENCE<AAA> = internel::IS_REFERENCE_HELP<AAA>::RET ;
+type IS_XREF_REFRENCE<AAA> = internel::IS_XREF_REFRENCE_HELP<AAA>::RET ;
+type IS_CREF_REFRENCE<AAA> = internel::IS_CREF_REFRENCE_HELP<AAA>::RET ;
+type IS_PREF_REFRENCE<AAA> = internel::IS_PREF_REFRENCE_HELP<AAA>::RET ;
+type REMOVE_REFERENCE<AAA> = internel::REMOVE_REFERENCE_HELP<AAA>::RET ;
+
+type IS_TUPLE<AAA> = internel::IS_TUPLE_HELP<AAA>::RET ;
+type TUPLE_PARAMS<AAA> = internel::TUPLE_PARAMS_HELP<AAA>::RET ;
+type TUPLE_BIND<PARAMS> = [:PARAMS...] ;
+
+type IS_FUNCTION<AAA> = internel::IS_FUNCTION_HELP<AAA>::RET ;
+type REMOVE_ATTRIBUTE<AAA> = internel::REMOVE_ATTRIBUTE_HELP<AAA>::RET ;
+type FUNCTION_PARAMS<AAA> = internel::FUNCTION_PARAMS_HELP<AAA>::RET ;
+type FUNCTION_RETURN<AAA> = internel::FUNCTION_RETURN_HELP<AAA>::RET ;
+type FUNCTION_BIND<RET_TYPE ,PARAMS> = (:PARAMS...) :RET_TYPE ;
+
+type IS_CLASS<AAA> = internel::IS_CLASS_HELP<AAA>::RET ;
+type CLASS_PARAMS<AAA> = internel::CLASS_PARAMS_HELP<AAA>::RET ;
+type IS_COPYABLE<AAA> = internel::IS_COPYABLE_HELP<AAA>::RET ;
+type IS_MOVABLE<AAA> = internel::IS_MOVABLE_HELP<AAA>::RET ;
+type IS_DERIVABLE<AAA> = internel::IS_DERIVABLE_HELP<AAA>::RET ;
+type IS_CONSTRUCTIBLE<AAA> = internel::IS_CONSTRUCTIBLE_HELP<AAA>::RET ;
+type IS_CONVERTIBLE<AAA> = internel::IS_CONVERTIBLE_HELP<AAA>::RET ;
+type IS_INTERFACE<AAA> = internel::IS_INTERFACE<AAA>::RET ;
+type IS_BASE_OF<BASE ,DERIVE> = internel::IS_BASE_OF_HELP<BASE ,DERIVE>::RET ;
+
+type FORWARD_TRAITS<AAA> = internel::FORWARD_TRAITS<AAA>::RET ;
+
+type CAST_TRAITS<AAA ,BBB> = internel::CAST_TRAITS<AAA ,BBB>::RET ;
+
+private trait REPEAT_HELP<T1 ,T2>
+	require_enable (ENUM_EQUAL<T2 ,enum<0>>::value) {
+	type RET = type<> ;
+} ;
+
+private trait REPEAT_HELP<T1 ,T2>
+	require_enable (ENUM_COMPR_GT<T2 ,enum<0>>::value) {
+	type R1X = REPEAT_HELP<T1 ,DECREASE<T2>> ;
+	type RET = type<T1 ,R1X...> ;
+} ;
+
+type REPEAT<ITEM ,SIZE> = REPEAT_HELP<ITEM ,SIZE>::RET ;
+
+private trait ENUM_CHECK_HELP<T1>
+	require_enable (IS_ENUM<T1>::value) {
+	type RET = T1 ;
+} ;
+
+type ENUM_CHECK<AAA> = ENUM_CHECK_HELP<AAA>::RET ; 
+
+private trait ENUM_AND_HELP<T1>
+	require_enable (ENUM_EQUAL<COUNTOF<T1> ,enum<0>>::value) {
+	type RET = enum<TRUE> ;
+} ;
+
+private trait ENUM_AND_HELP<T1>
+	require_enable (ENUM_COMPR_GT<COUNTOF<T1> ,enum<0>>::value) {
+	type R1X = ENUM_CHECK<T1::FIRST> ;
+	type R2X = ENUM_AND_HELP<T1::FIRST_REST>::RET ;
+	static constant M_RET = R1X::value & R2X::value ;
+	type RET = enum<M_RET> ;
+} ;
+
+type ENUM_AND<...> = ENUM_AND_HELP<type<...>>::RET ;
+
+private trait ENUM_OR_HELP<T1>
+	require_enable (ENUM_EQUAL<COUNTOF<T1> ,enum<0>>::value) {
+	type RET = enum<FALSE> ;
+} ;
+
+private trait ENUM_AND_HELP<T1>
+	require_enable (ENUM_COMPR_GT<COUNTOF<T1> ,enum<0>>::value) {
+	type R1X = ENUM_CHECK<T1::FIRST> ;
+	type R2X = ENUM_OR_HELP<T1::FIRST_REST>::RET ;
+	static constant M_RET = R1X::value | R2X::value ;
+	type RET = enum<M_RET> ;
+} ;
+
+type ENUM_OR<...> = ENUM_OR_HELP<type<...>>::RET ;
+
+class SPECIALIZATION<UNIT ,INFO> {} ;
+
+type Union<ALIGN ,SIZE> = internel::UNION_HELP<ALIGN ,SIZE>::Union ;
+
+class Temp<UNIT> {
+	require_assert (ENUM_NOT<IS_REFRENCE<UNIT>>::value) ;
+
+	variant mStorage :Union<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
+} ;
+
+implement Temp<UNIT> {
+	using R1X = Union<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
+
+	function storage = () :Ref<R1X> => mStorage ;
+} ;
+
+class Proxy {} ;
+
+implement Proxy {
+	function new = () => noop () ;
+
+	function copy = () => delete ;
+	function move = () => delete ;
+} ;
+
+function noop = () => {} ;
+
+function address = (obj) => {
+	return internel::address (obj) ;
+} ;
+
+function alignas = (base :LENGTH ,align :LENGTH) => {
+	return base + (align - base % align) % align ;
+} ;
+
+function load = (:type<T1> ,owner ,offset :LENGTH) :Ref<T1> => {
+	return internel::load (T1::id ,owner ,offset) ;
+} ;
+
+function cast = (:type<T1> ,obj :T2) :Ref<T1> => {
+	require_assert (ENUM_EQUAL<ALIGNOF<T1> ,ALIGNOF<T2>>::value) ;
+	require_assert (ENUM_EQUAL<SIZEOF<T1> ,SIZEOF<T2>>::value) ;
+	##???##
+	return load (type<T1>::id ,obj ,0) ;
+} ;
+
+private trait COPY_HELP<T1>
+	require_concept (T1::copy) {
+	function copy = (obj :T1) => obj.copy () ;
+} ;
+
+private trait COPY_HELP<T1> {
+	function copy = (obj :T1) => obj ;
+} ;
+
+function copy = (obj :T1) => COPY_HELP<T1>::copy (obj) ;
+
+private trait MOVE_HELP<T1>
+	require_concept (T1::move) {
+	function move = (obj :T1) => obj.move () ;
+} ;
+
+private trait MOVE_HELP<T1> {
+	function move = (obj :T1) => obj ;
+} ;
+
+function move = (obj :T1) => MOVE_HELP<T1>::move (obj) ;
+
+function swap = (obj1 ,obj2) => {
+	variant rax = move (obj1) ;
+	obj1 = move (obj2) ;
+	obj2 = move (rax) ;
+} ;
+
+function wash = (obj :T1) => {
+	require_assert (IS_TRIVAL<T1>::value) ;
+	constant r1x = PTR<XRef<Temp<T1>>> => cast (type<Temp<T1>>::id ,obj) ;
+	##???##
+	r1x->storage () = {0} ;
+} ;
+
+function create = (tmp :PTR<XRef<Temp<T1>>> ,...args) => {
+	wash (tmp->this) ;
+	new (tmp->this ,...args) ;
+} ;
+
+function destroy = (tmp :PTR<XRef<Temp<T1>>>) => {
+	delete (tmp->this) ;
+} ;
+
+private trait ASSERT_HELP
+	require_macro ("debug")
+	require_macro ("compiler_msvc") {
+	function debug_assert = (expr) => {
+		if (expr)
+			return ;
+		internel::msvc_debug_assert (FALSE) ;
+	} ;	
+} ;
+
+private trait ASSERT_HELP
+	require_macro ("debug")
+	require_macro ("compiler_gnuc") {
+	function debug_assert = (expr) => {
+		if (expr)
+			return ;
+		internel::gnuc_debug_assert (FALSE) ;
+	} ;	
+} ;
+
+private trait ASSERT_HELP {
+	function debug_assert = (expr) => noop () ;
+} ;
+
+function debug_assert = (expr) => ASSERT_HELP::debug_assert (expr) ;
+
+class Slice<REAL> {
+	interface Holder ;
+	class ImplHolder<WRAP> ;
+
+	variant mPointer :PTR<CRef<Holder>> ;
+} ;
+
+interface Slice<REAL>::Holder {
+	function size = () :LENGTH => virtual ;
+	function get = (index :INDEX) :CRef<REAL> => virtual ;
+} ;
+
+class Slice<REAL>::ImpleHolder<WRAP> {
+	variant mTuple :PTR<CRef<WRAP>> ;
+	variant mSize :LENGTH ;
+} ;
+
+implement Slice<REAL>::ImpleHolder<WRAP> {
+	function new = () => delete ;
+
+	function new = (that :PTR<CRef<WRAP>>) => {
+		mTuple = that ;
+		mSize = mTuple->capaticy () ;
+	} ;
+} ;
+
+implement Slice<REAL>::ImpleHolder<WRAP> :Holder {
+	function size = () => mSize ;
+
+	function get = (index :INDEX) :CRef<REAL> => {
+		debug_assert (index >= 0 && index < mSize) ;
+		return mTuple->this[index] ;
+	} ;
+} ;
+
+implement Slice<REAL> {
+	function new = () => {
+		mPointer = NULL ;
+	} ;
+
+	private trait NEW_HELP<T1>
+		require_enable (IS_TUPLE<T1>::value) {
+		function new = (that :T1) => {
+			static constant M_HOLDER = ImplHolder<T1> (that) ;
+			mPointer = PTR<CRef<Holder>> => M_HOLDER ;
+		} ;
+	} ;
+
+	function new = (that :T1) => NEW_HELP<T1>::new (that) ;
+
+	function size = () => {
+		if (mPointer == NULL)
+			return 0 ;
+		return mPointer->size () ;
+	} ;
+
+	function get = (index :INDEX) :CRef<REAL> => {
+		debug_assert (mPointer != NULL) ;
+		return mPointer->get (index) ;
+	} ;
+} ;
+
+class Iterator<WRAP> {
+	variant mArray :PTR<CRef<WRAP>> ;
+	variant mIndex :INDEX ;
+	variant mBad :INDEX ;
+} ;
+
+implement Iterator<WRAP> {
+	function new = () => delete ;
+
+	function new = (array :PTR<CRef<WRAP>>) => {
+		mArray = array ;
+		mIndex = mArray->ibegin () ;
+		mBad = mArray->iend () ;
+	} ;
+
+	function next = () => {
+		mIndex = mArray->inext (mIndex) ;
+	} ;
+
+	function good = () => mIndex != mBad ;
+
+	function get = () => mIndex ;
+} ;
+
+class Exception {
+	variant mWhat :Slice<STR> ;
+} ;
+
+implement Exception {
+	function new = () => noop () ;
+
+	function what = PTR<CRef<Slice<STR>>> => mWhat ;
+
+	function raise () => {
+		internel::raise (this) ;
+	} ;
+} ;
