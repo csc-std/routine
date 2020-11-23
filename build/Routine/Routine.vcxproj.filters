@@ -125,6 +125,9 @@
     <None Include="..\..\src\rust\rust_core">
       <Filter>rust</Filter>
     </None>
+    <None Include="..\..\src\rust\rust_basic">
+      <Filter>rust</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />
