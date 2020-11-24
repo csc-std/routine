@@ -96,8 +96,6 @@ private trait STR_HELP {
 
 using STR = STR_HELP::STR ;
 
-using VOID = cxx::void ;
-
 static constant NULL = cxx::null ;
 
 define ENUM enum
@@ -122,10 +120,12 @@ using ENUM_NOT<EXPR> = ENUM (!ENUM_CHECK<EXPR>::value) ;
 using ENUM_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value == ENUM_CHECK<EXPR2>::value) ;
 using ENUM_NOT_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value != ENUM_CHECK<EXPR2>::value) ;
 using ENUM_COMPR<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value <=> ENUM_CHECK<EXPR2>::value) ;
-using ENUM_LT<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value < 0) ;
-using ENUM_GT<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value > 0) ;
-using ENUM_LT_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value <= 0) ;
-using ENUM_GT_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value >= 0) ;
+using ENUM_LT<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value < ENUM_ZERO::value) ;
+using ENUM_GT<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value > ENUM_ZERO::value) ;
+using ENUM_LT_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value <= ENUM_ZERO::value) ;
+using ENUM_GT_EQ<EXPR1 ,EXPR2> = ENUM (ENUM_COMPR<EXPR1 ,EXPR2>::value >= ENUM_ZERO::value) ;
+using ENUM_IN<EXPR ,BEGIN ,END> = ENUM_AND<ENUM_GT_EQ<EXPR ,BEGIN> ,ENUM_LT<EXPR ,END>> ;
+using ENUM_NOT_IN<EXPR ,BEGIN ,END> = ENUM_NOT<ENUM_IN<EXPR ,BEGIN ,END>> ;
 using ENUM_ADD<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value + ENUM_CHECK<EXPR2>::value) ;
 using ENUM_SUB<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value - ENUM_CHECK<EXPR2>::value) ;
 using ENUM_MUL<EXPR1 ,EXPR2> = ENUM (ENUM_CHECK<EXPR1>::value * ENUM_CHECK<EXPR2>::value) ;
@@ -138,19 +138,19 @@ using DEF<UNIT> = UNIT ;
 
 using PTR<UNIT> = () :UNIT ;
 
-private trait PLACEHOLDER_HELP<RANK> {
-	require (ENUM_EQ<RANK ,ENUM_ZERO>) ;
+private trait PLACEHOLDER_HELP<ARG1> {
+	require (ENUM_EQ<ARG1 ,ENUM_ZERO>) ;
 
 	class PLACEHOLDER {} ;
 } ;
 
-private trait PLACEHOLDER_HELP<RANK> {
-	require (ENUM_GT<RANK ,ENUM_ZERO>) ;
+private trait PLACEHOLDER_HELP<ARG1> {
+	require (ENUM_GT<ARG1 ,ENUM_ZERO>) ;
 
-	using R1X = PLACEHOLDER_HELP<ENUM_DECREASE<RANK>>::PLACEHOLDER ;
+	using R1X = PLACEHOLDER_HELP<ENUM_DECREASE<ARG1>>::PLACEHOLDER ;
 
 	class PLACEHOLDER {
-		extend :R1X ;
+		public extend :R1X ;
 	} ;
 } ;
 
@@ -194,20 +194,19 @@ using TYPE_FIRST<ALL> = TYPE_FIRST_HELP<ALL>::RET ;
 using TYPE_SECOND<ALL> = TYPE_SECOND_HELP<ALL>::RET ;
 using TYPE_FIRST_REST<ALL> = TYPE_FIRST_REST_HELP<ALL>::RET ;
 using TYPE_SECOND_REST<ALL> = TYPE_SECOND_REST_HELP<ALL>::RET ;
-using TYPE_UNWRAP<UNIT> = TYPE_UNWRAP_HELP<UNIT>::RET ;
-# using TYPE_BIND<UNIT1 ,UNIT2> = type<UNIT1... ,UNIT2...> ;
-using TYPE_FROM<ALL ,POS> = TYPE_FROM_HELP<ALL ,POS> ;
+using TYPE_CAT<UNIT1 ,UNIT2> = type<UNIT1... ,UNIT2...> ;
+using TYPE_GET<ALL ,POS> = TYPE_GET_HELP<ALL ,POS> ;
 using TYPE_FIND<ALL ,KEY> = TYPE_FIND_HELP<ALL ,KEY> ;
 using TYPE_REPEAT<UNIT ,SIZE> = TYPE_REPEAT_HELP<UNIT ,SIZE> ;
 
 using IS_STRUCT<UNIT> = IS_STRUCT_HELP<UNIT>::RET ;
 using REFLECT_STRUCT<UNIT> = REFLECT_STRUCT_HELP<UNIT>::RET ;
-# using STRUCT_BIND<PARAMS> = [...:PARAMS] ;
+using STRUCT_BIND<PARAMS> = [...:PARAMS] ;
 
 using IS_FUNCTION<UNIT> = IS_FUNCTION_HELP<UNIT>::RET ;
 using REMOVE_FUNCTION<UNIT> = REMOVE_FUNCTION_HELP<UNIT>::RET ;
 using REFLECT_FUNCTION<UNIT> = REFLECT_FUNCTION_HELP<UNIT>::RET ;
-# using FUNCTION_BIND<RETURN ,PARAMS> = (...:PARAMS) :RETURN ;
+using FUNCTION_BIND<RETURN ,PARAMS> = (...:PARAMS) :RETURN ;
 
 using IS_TRIVIAL<UNIT> = IS_TRIVIAL_HELP<UNIT>::RET ;
 using IS_INTERFACE<UNIT> = IS_INTERFACE_HELP<UNIT>::RET ;
@@ -239,76 +238,52 @@ function alignas = (base :LENGTH ,align :LENGTH) => {
 	return base + (align - base % align) % align ;
 } ;
 
-function load ;
+function load = (arg1 ,owner ,addr :LENGTH) => {
+	using R1X = TYPE (arg1) ;
+	using R2X = TYPE (owner) ;
+	require (IS_FUNCTION<R2X>) ;
+	return cxx::load (arg1 ,owner ,addr) ;
+} ;
 
-function cast = (sid ,obj) => {
-	using R1X = TYPE_UNWRAP<TYPE (sid)> ;
-	using R2X = REMOVE_FUNCTION<TYPE (obj)> ;
-	require (ENUM_EQ<ALIGNOF<R1X> ,ALIGNOF<R2X>>) ;
-	require (ENUM_EQ<SIZEOF<R1X> ,SIZEOF<R2X>>) ;
+function cast = (arg1 ,obj) => {
+	using R1X = TYPE (arg1) ;
+	using R2X = TYPE (obj) ;
+	require (IS_FUNCTION<R2X>) ;
+	using R3X = REMOVE_FUNCTION<R2X> ;
+	require (ENUM_EQ<ALIGNOF<R1X> ,ALIGNOF<R3X>>) ;
+	require (ENUM_EQ<SIZEOF<R1X> ,SIZEOF<R3X>>) ;
 	constant r1x = address (obj) ;
-	return load (sid ,obj ,r1x) ;
+	return load (arg1 ,obj ,r1x) ;
 } ;
 
-function zeroize = (obj) => {
-	using R1X = TYPE (obj) ;
-	require (IS_TRIVIAL<R1X>) ;
-	cxx::zeroize (obj) ;
+private trait COPY_HELP<ARG1> {
+	require (IS_CLASS_SHAREABLE<ARG1>) ;
+
+	function copy = (obj :ARG1) => obj.share () ;
 } ;
 
-private trait COPY_HELP<UNIT> {
-	require (IS_CLASS_CLONEABLE<UNIT>) ;
+private trait COPY_HELP<ARG1> {
+	require (IS_CLASS_CLONEABLE<ARG1>) ;
+	require (ENUM_NOT<IS_CLASS_SHAREABLE<ARG1>>) ;
 
-	function copy = (obj :UNIT) => obj.clone () ;
+	function copy = (obj :ARG1) => obj.clone () ;
 } ;
 
-private trait COPY_HELP<UNIT> {
-	require (IS_CLASS_SHAREABLE<UNIT>) ;
+private trait COPY_HELP<ARG1> {
+	require (ENUM_NOT<IS_CLASS_CLONEABLE<ARG1>>) ;
+	require (ENUM_NOT<IS_CLASS_SHAREABLE<ARG1>>) ;
 
-	function copy = (obj :UNIT) => obj.share () ;
-} ;
-
-private trait COPY_HELP<UNIT> {
-	function copy = (obj :UNIT) => obj ;
+	function copy = (obj :ARG1) => obj ;
 } ;
 
 function copy = (obj) => COPY_HELP<TYPE (obj)>::copy (obj) ;
 
-function move = (obj) => PTR<TYPE (obj)> => obj ;
-
 function swap = (obj1 ,obj2) => {
-	variant rax = move (obj1) ;
-	obj1 = move (obj2) ;
-	obj2 = move (rax) ;
+	using R1X = TYPE (obj1) ;
+	using R2X = TYPE (obj2) ;
+	require (IS_SAME<R1X ,R2X>) ;
+	##???##
 } ;
-
-private trait EQUAL_HELP<UNIT> {
-	require (concept (UNIT::equal)) ;
-
-	function equal = (obj1 :UNIT ,obj2 :UNIT) => obj1.equal (obj2) ;
-} ;
-
-private trait EQUAL_HELP<UNIT> {
-	function equal = (obj1 :UNIT ,obj2 :UNIT) => {
-		return obj1 == obj2 ;
-	} ;
-} ;
-
-function equal = (obj1 ,obj2) => EQUAL_HELP<TYPE (obj1)>::equal (obj1 ,obj2) ;
-
-private trait COMPR_HELP<UNIT> {
-	require (concept (UNIT::compr)) ;
-
-	function compr = (obj1 :UNIT ,obj2 :UNIT) => obj1.equal (obj2) ;
-} ;
-
-private trait COMPR_HELP<UNIT> {
-	function compr = (obj1 :UNIT ,obj2 :UNIT) => {
-		return obj1 <=> obj2 ;
-	} ;
-} ;
-
-function compr = (obj1 ,obj2) => COMPR_HELP<TYPE (obj1)>::compr (obj1 ,obj2) ;
 
 using UNION<ALIGN ,SIZE> = UNION_HELP<ALIGN ,SIZE>::UNION ;
 
@@ -319,8 +294,19 @@ implement Proxy {
 	function share = () => delete ;
 } ;
 
+interface Nullable {
+	function is_null = () :BOOL => virtual ;
+} ;
+
 class TEMP<UNIT> {
-	variant mStorage :UNION<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
+	public variant mStorage :UNION<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
+} ;
+
+implement TEMP<UNIT> {
+	function zeroize = () => {
+		using R1X = UNION<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
+		mStorage = R1X => {0} ;
+	} ;
 } ;
 
 class Slice<REAL> {
@@ -364,11 +350,12 @@ implement Slice<REAL> {
 	
 	function new = (that) => {
 		using R1X = TYPE (that) ;
-		static constant M_HOLDER = ImplHolder<R1X> (move (that)) ;
+		using R2X = REMOVE_FUNCTION<R1X> ;
+		static constant M_HOLDER = ImplHolder<R2X> (PTR<R2X> => that) ;
 		mPointer = PTR<Holder> => M_HOLDER ;
 	} ;
 
-	function size = () => {
+	function size = () :LENGTH => {
 		if (mPointer == NULL)
 			return 0 ;
 		return mPointer->size () ;
@@ -377,6 +364,29 @@ implement Slice<REAL> {
 	function get = (index :INDEX) :REAL => {
 		ASSERT (index >= 0 && index < size ()) ;
 		return mPointer->get (index) ;
+	} ;
+
+	function equal = (that :Slice) => {
+		if (size () != that.size ())
+			return FALSE ;
+		for i in range (0 ,size ()) => {
+			if (get (i) != that.get (i))
+				return FALSE ;
+		} ;
+		return TRUE ;
+	} ;
+
+	function compr = (that :Slice) => {
+		constant r1x = min (size () ,that.size ()) ;
+		for i in range (0 ,r1x) => {
+			constant r4x = get (i) <=> that.get (i) ;
+			if (r4x != 0)
+				return r4x ;
+		} ;
+		constant r3x = size () <=> that.size () ;
+		if (r3x != 0)
+			return r3x ;
+		return TRUE ;
 	} ;
 } ;
 
@@ -414,21 +424,19 @@ implement Class::ImplHolder<WRAP> :Holder {
 	function type_size = () :LENGTH => SIZEOF<WRAP>::value ;
 
 	function type_name = () :Slice<STR> => {
-		static constant M_NAME = cxx::name (WRAP) ;
-		return M_NAME ;
+		return cxx::type_name (type<WRAP>::id) ;
 	} ;
 
 	function reflect = () :PTR<Reflection> => {
-		static constant M_REFLECTION = cxx::reflect (type<WRAP>::id) ;
-		return PTR<Reflection> => M_REFLECTION ;
+		return cxx::reflect (type<WRAP>::id) ;
 	} ;
 } ;
 
 implement Class {
 	function new = () => delete ;
 
-	function new = (sid) => {
-		using R1X = TYPE_UNWRAP<TYPE (sid)> ;
+	function new = (arg1) => {
+		using R1X = TYPE (arg1) ;
 		static constant M_HOLDER = ImplHolder<R1X> () ;
 		mPointer = PTR<Holder> => M_HOLDER ;
 	} ;
@@ -450,33 +458,13 @@ implement Class {
 	} ;
 
 	function compr = (that :Class) => {
-		constant r6x = compr (type_name () ,that.type_name ()) ;
-		if (r6x != 0)
-			return r6x ;
-		constant r5x = compr (type_name () ,that.type_name ()) ;
-		if (r5x != 0)
-			return r5x ;
+		constant r1x = type_hash () <=> that.type_hash () ;
+		if (r1x != 0)
+			return r1x ;
+		constant r2x = type_name () <=> that.type_name () ;
+		if (r2x != 0)
+			return r2x ;
 		return FLAG (0) ;
-	} ;
-} ;
-
-function load = (sid ,owner ,addr :LENGTH) => {
-	using R1X = TYPE_UNWRAP<TYPE (sid)> ;
-	constant r1x = class<R1X> () ;
-	constant r2x = r1x.reflect () ;
-	return PTR<R1X> => {
-		variant rax = r2x ;
-		while {
-			if (rax == NULL)
-				break ;
-			constant r3x = address (owner) + rax->mOffset ;
-			if (r3x == addr)
-				break ;
-			rax = rax->mNext ;
-		} ;
-		ASSERT (rax->this != NULL) ;
-		ASSERT (rax->mType == r1x) ;
-		return cxx::load (sid ,addr) ;
 	} ;
 } ;
 
@@ -517,7 +505,50 @@ implement Iterator<WRAP> {
 		mIndex = mArray->inext (mIndex) ;
 	} ;
 
-	function good = () => mIndex != mBad ;
+	function good = () :BOOL => mIndex != mBad ;
 
-	function get = () => mIndex ;
+	function get = () :INDEX => mIndex ;
+} ;
+
+class Syntex {} ;
+
+class Reference {} ;
+
+class SafeReference<UNIT> {
+	public extend :Reference ;
+	constant mPointer :PTR<UNIT> ;
+} ;
+
+implement Reference :Nullable {
+	function is_null = () :BOOL => mPointer == NULL ;
+} ;
+
+implement SafeReference<UNIT> {
+	function new = () => delete ;
+
+	private trait NEW_HELP<ARG1> {
+		require (IS_SAME<ARG1 ,PTR<UNIT>>) ;
+		
+		function new = (that :PTR<UNIT>) => {
+			mPointer = that ;
+		} ;
+	} ;
+
+	private trait NEW_HELP<ARG1> {
+		require (IS_SAME<ARG1 ,Reference>) ;
+
+		function new = (that :Reference) => {
+			ASSERT (that != NULL) ;
+			##???##
+			mPointer = that.mPointer ;
+		} ;
+	} ;
+
+	function new = (that) => NEW_HELP<TYPE (that)>::new (that) ;
+
+	function to = () :PTR<UNIT> => mPointer ;
+} ;
+
+implement SafeReference<UNIT> :Nullable {
+	function is_null = () :BOOL => mPointer == NULL ;
 } ;

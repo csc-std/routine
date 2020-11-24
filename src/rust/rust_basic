@@ -2,29 +2,31 @@ module rust::basic
 
 import module rust::core ;
 
-private trait ENUM_MAX_ALIGN_HELP<UNITS> {
-	using R1X = ENUM_MAX_ALIGN<TYPE_FIRST_REST<UNITS>> ;
-	using RET = ENUM_MAX<ALIGNOF<TYPE_FIRST<UNITS>> ,R1X> ;
+private trait ENUM_MAX_ALIGN_HELP<ARGS> {
+	using R1X = ENUM_MAX_ALIGN_HELP<TYPE_FIRST_REST<ARGS>> ;
+	using RET = ENUM_MAX<ALIGNOF<TYPE_FIRST<ARGS>> ,R1X> ;
 } ;
 
-private trait ENUM_MAX_SIZE_HELP<UNITS> {
-	using R1X = ENUM_MAX_SIZE_HELP<TYPE_FIRST_REST<UNITS>> ;
-	using RET = ENUM_MAX<SIZEOF<TYPE_FIRST<UNITS>> ,R1X> ;
+private trait ENUM_MAX_SIZE_HELP<ARGS> {
+	using R1X = ENUM_MAX_SIZE_HELP<TYPE_FIRST_REST<ARGS>> ;
+	using RET = ENUM_MAX<SIZEOF<TYPE_FIRST<ARGS>> ,R1X> ;
 } ;
 
 class Variant<UNITS> {
+	require (ENUM_NOT<IS_ANY_SAME<UNITS>...>) ;
+
 	interface Holder ;
 	class ImplHolder<WRAP> ;
 	using VARIANT = UNION<ENUM_MAX_ALIGN_HELP<UNITS>::RET ,ENUM_MAX_SIZE_HELP<UNITS>::RET> ;
 
 	variant mVariant :TEMP<VARIANT> ;
-	variant mIndex :INDEX ;
+	constant mIndex :INDEX ;
 } ;
 
 interface Variant<UNITS>::Holder {
-	function deref = () :PTR<void> => virtual ;
+	function deref = () :Reference => virtual ;
 
-	function friend_clone = (that :PTR<TEMP<VARIANT>>) => virtual ;
+	function friend_clone = (that :PTR<TEMP<VARIANT>>) :INDEX => virtual ;
 } ;
 
 class Variant<UNITS>::ImplHolder<WRAP> {
@@ -40,49 +42,94 @@ implement Variant<UNITS>::ImplHolder<WRAP> {
 } ;
 
 implement Variant<UNITS>::ImplHolder<WRAP> :Holder {
-	function deref = () :PTR<void> => {
-		return () => mValue ;
+	function deref = () :Reference => {
+		return SafeReference<WRAP> (PTR<WRAP> => mValue) ;
 	} ;
 
-	function friend_clone = (that :PTR<TEMP<VARIANT>>) => {
-		constant r1x = cast (type<TEMP<ImplHolder>>::id ,that) ;
-		cxx::create (r1x ,mValue) ;
+	function friend_clone = (variant_ :PTR<TEMP<VARIANT>>) => {
+		constant r1x = load (type<ImplHolder>::id ,variant_ ,address (variant_)) ;
+		r1x.new (mValue) ;
+		return TYPE_FIND<UNITS ,WRAP>::value ;
 	} ;
 } ;
 
 implement Variant<UNITS> {
-	function new = () => default ;
+	function new = () => {
+		mVariant.zeroize () ;
+		mIndex = NONE ;
+	} ;
 
 	function new = (that) => {
 		using R1X = TYPE (that) ;
 		require (ENUM_NOT_EQ<TYPE_FIND<UNITS ,R1X> ,ENUM_NONE>) ;
-		mIndex = 0 ;
+		this.new () ;
+		constant r1x = cast (type<ImplHolder<R1X>>::id ,that) ;
+		mIndex = r1x->friend_clone (PTR<TEMP<VARIANT>> => mVariant) ;
+	} ;
+
+	private function new = (arg1 ,that :Variant) => {
+		using R1X = TYPE (arg1) ;
+		require (IS_PLACEHOLDER<R1X>) ;
+		this.new () ;
+		if (that.mIndex == VAR_NONE)
+			return ;
+		constant r1x = that.fake () ;
+		mIndex = r1x->friend_clone (PTR<TEMP<VARIANT>> => mVariant) ;
 	} ;
 
 	function delete = () => {
-		if (mIndex == ZERO)
+		if (mIndex == NONE)
 			return ;
 		constant r1x = fake () ;
-		cxx::destroy (r1x) ;
-		mIndex = ZERO ;
+		r1x.delete () ;
+		mIndex = NONE ;
 	} ;
 
-	function clone = () => {
-		variant ret = Variant () ;
-		switch {
-			if (mIndex == ZERO)
-				discard ;
-			constant r1x = fake () ;
-			constant r2x = () => ret.mVariant ;
-			r1x->friend_clone (r2x) ;
-			ret.mIndex = mIndex ;
-		}
-		return ret ;
-	} ;
+	function clone = () => Variant (P0 ,this) ;
+
+	function share = () => delete ;
 
 	private function fake = () :PTR<Holder> => {
-		
+		if (mIndex == NONE)
+			return NULL ;
+		return FAKE_HELP<ENUM_ZERO>::fake (mIndex) ;
+	} ;
 
+	private trait FAKE_HELP<ARG1> {
+		require (ENUM_IN<ARG1 ,ENUM_ZERO ,COUNTOF<UNITS>>) ;
+
+		function fake = (index :INDEX) :PTR<Holder> => {
+			if (ARG1::value == index)
+				return load (type<ImplHolder<TYPE_GET<UNITS ,ARG1>>>::id ,mVariant ,address (mVariant)) ;
+			return FAKE_HELP<ENUM_INCREASE<ARG1>>::fake (index) ;
+		} ;
+	} ;
+
+	private trait FAKE_HELP<ARG1> {
+		require (ENUM_NOT_IN<ARG1 ,ENUM_ZERO ,COUNTOF<UNITS>>) ;
+
+		function fake = (index :INDEX) :PTR<Holder> => NULL ;
+	} ;
+
+	function exist = () => mIndex != NONE ;
+
+	function to = () :PTR<TYPE_FIRST<UNITS>> => {
+		require (ENUM_EQ<COUNTOF<UNITS> ,ENUM_IDEN>) ;
+		constant r1x = fake () ;
+		return SafeReference<TYPE_FIRST<UNITS>> (r1x->deref ()) ;
+	} ;
+
+	function apply = (proc) => {
+		using R1X = TYPE (proc) ;
+		require (IS_FUNCTION<R1X>) ;
+		using R2X = REFLECT_FUNCTION<R1X>::SECOND ;
+		require (ENUM_EQ<COUNTOF<R2X> ,ENUM_IDEN>) ;
+		using R3X = R2X::FIRST ;
+		if (TYPE_FIND<UNITS ,R3X>::value != mIndex)
+			return ;
+		constant r1x = fake () ;
+		constant r2x = SafeReference<TYPE_FIRST<UNITS>> (r1x->deref ()) ;
+		proc (r2x) ;
 	} ;
 } ;
 
