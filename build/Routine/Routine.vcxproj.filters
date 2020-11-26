@@ -119,13 +119,13 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.gbk.inl">
       <Filter>csc</Filter>
     </None>
-    <None Include="..\..\src\rust\rust">
+    <None Include="..\..\src\rust\rust.rs">
       <Filter>rust</Filter>
     </None>
-    <None Include="..\..\src\rust\rust_core">
+    <None Include="..\..\src\rust\rust_basic.rs">
       <Filter>rust</Filter>
     </None>
-    <None Include="..\..\src\rust\rust_basic">
+    <None Include="..\..\src\rust\rust_core.rs">
       <Filter>rust</Filter>
     </None>
   </ItemGroup>
