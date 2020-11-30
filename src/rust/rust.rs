@@ -1,24 +1,47 @@
 ﻿
 module rust ;
 
+## keyword
+
 # module
 # import
-
-# private
-# public
 
 # trait
 # using
 
 # require
 # macro
-# concept
-# as
+
+# bool ;
+# true ;
+# false ;
+# int8
+# int16
+# int32 ;
+# int64 ;
+# float32 ;
+# float64 ;
+# infinity ;
+# byte8 ;
+# byte16 ;
+# byte32 ;
+# byte64 ;
+# stra ;
+# stru8 ;
+# stru16 ;
+# stru32 ;
+# null ;
+
+# enum ;
+# type ;
 
 # static
 # constant
 # variable
+# register
 
+# local
+# syntax
 # function
 # default
 # delete
@@ -31,92 +54,51 @@ module rust ;
 # implement
 # new
 # delete
-
-# bool ;
-# true ;
-# false ;
-
-# int32 ;
-# int64 ;
-
-# float32 ;
-# float64 ;
-# infinity ;
-
-# byte ;
-# word ;
-# char ;
-# feat ;
-
-# stra ;
-# stru8 ;
-# stru16 ;
-# stru32 ;
-
-# null ;
-
-# enum ;
-
-# type ;
-
-# alignof ;
-# sizeof ;
-# countof ;
+# private
+# public
 
 # define
 
-# literal ;
-
-# func_name ;
-# function_name ;
-# module_name ;
-# file_name ;
-# line_name ;
-
-# anonymous ;
-
 # if ;
-
 # for ;
 # in ;
 # continue ;
-
 # while ;
 # break ;
-
 # switch ;
 # discard ;
 
 # throw ;
 # catch ;
-
 # later ;
 
 # await ;
 # yield ;
 
-# syntax
+##
 
-private trait WRAPPED<UNIT> {
-	interface Wrapped {
-		function to = () :PTR<UNIT> => virtual ;
-	} ;
-} ;
+## internel
 
-using Wrapped<UNIT> = WRAPPED<UNIT>::Wrapped ;
+# literal ;
 
-private trait EQUALABLE_HELP<UNIT> {
-	interface Equalable {
-		function equal = (that :UNIT) => virtual ;
-	} ;
-} ;
+# alignof ;
+# sizeof ;
+# countof ;
 
-using Equalable<UNIT> = EQUALABLE_HELP<UNIT>::Equalable ;
+# is_same
+# is_enum
+# is_type
+# is_struct
+# reflect_struct
+# is_function
+# reflect_function
+# is_interface
+# is_trivial
+# is_class
+# is_constructible
+# is_shareable
+# is_cloneable
+# is_extend
+# is_implement
 
-private trait COMPRABLE_HELP<UNIT> {
-	interface Comprable {
-		function compr = (that :UNIT) => virtual ;
-	} ;
-} ;
-
-using Comprable<UNIT> = COMPRABLE_HELP<UNIT>::Comprable ;
+##

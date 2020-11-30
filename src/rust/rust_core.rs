@@ -3,20 +3,20 @@ module rust::core ;
 
 import module rust ;
 
-using BOOL = rust::bool ;
+using BOOL = bool ;
 
-static constant TRUE = BOOL (rust::true) ;
-static constant FALSE = BOOL (rust::false) ;
+static constant TRUE = BOOL (true) ;
+static constant FALSE = BOOL (false) ;
 
-using VAR32 = rust::int32 ;
-using VAR64 = rust::int64 ;
+using VAR32 = int32 ;
+using VAR64 = int64 ;
 
 static constant VAR32_MAX = VAR32 (+2147483647) ;
 static constant VAR32_MIN = VAR32 (-2147483648) ;
 static constant VAR64_MAX = VAR64 (+9223372036854775807) ;
 static constant VAR64_MIN = VAR64 (-9223372036854775808) ;
 
-private trait VAR_HELP {
+trait VAR_HELP {
 	require (macro ("config_int32")) ;
 
 	using VAR = VAR32 ;
@@ -25,7 +25,7 @@ private trait VAR_HELP {
 	static constant VAR_MIN = VAR32_MIN ;
 } ;
 
-private trait VAR_HELP {
+trait VAR_HELP {
 	require (macro ("config_int64")) ;
 
 	using VAR = VAR64 ;
@@ -48,49 +48,47 @@ using INDEX = VAR ;
 using LENGTH = VAR ;
 using FLAG = VAR ;
 
-static constant EQUAL = ZERO ;
-
-using FLOAT32 = rust::float32 ;
-using FLOAT64 = rust::float64 ;
+using FLOAT32 = float32 ;
+using FLOAT64 = float64 ;
 
 static constant FLOAT32_MAX = FLOAT32 (3.402823466E+38) ;
 static constant FLOAT32_MIN = FLOAT32 (1.175494351E-38) ;
 static constant FLOAT32_EPS = FLOAT32 (1.192092896E-07) ;
-static constant FLOAT32_INF = FLOAT32 (rust::infinity) ;
+static constant FLOAT32_INF = FLOAT32 (infinity) ;
 static constant FLOAT64_MAX = FLOAT64 (1.7976931348623158E+308) ;
 static constant FLOAT64_MIN = FLOAT64 (2.2250738585072014E-308) ;
 static constant FLOAT64_EPS = FLOAT64 (2.2204460492503131E-016) ;
-static constant FLOAT64_INF = FLOAT64 (rust::infinity) ;
+static constant FLOAT64_INF = FLOAT64 (infinity) ;
 
-using BYTE = rust::byte ;
-using WORD = rust::word ;
-using CHAR = rust::char ;
-using FEAT = rust::feat ;
+using BYTE = byte8 ;
+using WORD = byte16 ;
+using CHAR = byte32 ;
+using FEAT = byte64 ;
 
-using STRA = rust::stra ;
-using STRU8 = rust::stru8 ;
-using STRU16 = rust::stru16 ;
-using STRU32 = rust::stru32 ;
+using STRA = stra ;
+using STRU8 = stru8 ;
+using STRU16 = stru16 ;
+using STRU32 = stru32 ;
 
-private trait STR_HELP {
+trait STR_HELP {
 	require (macro ("config_stra")) ;
 
 	using STR = STRA ;
 } ;
 
-private trait STR_HELP {
+trait STR_HELP {
 	require (macro ("config_stru8")) ;
 
 	using STR = STRU8 ;
 } ;
 
-private trait STR_HELP {
+trait STR_HELP {
 	require (macro ("config_stru16")) ;
 
 	using STR = STRU16 ;
 } ;
 
-private trait STR_HELP {
+trait STR_HELP {
 	require (macro ("config_stru32")) ;
 
 	using STR = STRU32 ;
@@ -98,40 +96,33 @@ private trait STR_HELP {
 
 using STR = STR_HELP::STR ;
 
-static constant NULL = rust::null ;
+static constant NULL = null ;
 
-define _ENUM_(...) rust::enum (...)
+using ENUM_NONE = enum (-1) ;
+using ENUM_ZERO = enum (+0) ;
+using ENUM_IDEN = enum (+1) ;
 
-define _TYPE_(...) rust::type (...)
-
-using ENUM_USED = _ENUM_ (-2) ;
-using ENUM_NONE = _ENUM_ (-1) ;
-using ENUM_ZERO = _ENUM_ (+0) ;
-using ENUM_IDEN = _ENUM_ (+1) ;
-
-using ALIGNOF<UNIT> = _ENUM_ (rust::alignof (UNIT)) ;
-using SIZEOF<UNIT> = _ENUM_ (rust::sizeof (UNIT)) ;
-using COUNTOF<UNIT> = _ENUM_ (rust::countof (UNIT)) ;
+using ALIGNOF<UNIT> = enum (rust::alignof (UNIT)) ;
+using SIZEOF<UNIT> = enum (rust::sizeof (UNIT)) ;
+using COUNTOF<UNIT> = enum (rust::countof (UNIT)) ;
 
 using DEF<UNIT> = UNIT ;
 
-using PTR<UNIT> = () :UNIT ;
-
 using CALL<UNIT> = UNIT::RET ;
 
-private trait ENUM_CHECK_HELP<ARG1> {
+trait ENUM_CHECK_HELP<ARG1> {
 	require (IS_ENUM<EXPR>) ;
 
 	using RET = ARG1 ;
 } ;
 
-private trait ENUM_ALL_HELP<ARGS> {
+trait ENUM_ALL_HELP<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using RET = ENUM_IDEN ;
 } ;
 
-private trait ENUM_ALL_HELP<ARGS> {
+trait ENUM_ALL_HELP<ARGS> {
 	require (ENUM_GT<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using R1X = TYPE_FIRST<ARGS> ;
@@ -139,13 +130,13 @@ private trait ENUM_ALL_HELP<ARGS> {
 	using RET = ENUM_AND<R1X ,R2X> ;
 } ;
 
-private trait ENUM_ANY_HELP<ARGS> {
+trait ENUM_ANY_HELP<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-private trait ENUM_ANY_HELP<ARGS> {
+trait ENUM_ANY_HELP<ARGS> {
 	require (ENUM_GT<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using R1X = TYPE_FIRST<ARGS> ;
@@ -154,34 +145,36 @@ private trait ENUM_ANY_HELP<ARGS> {
 } ;
 
 using ENUM_CHECK<EXPR> = CALL<ENUM_CHECK_HELP<EXPR>> ;
-using ENUM_AND<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value && ENUM_CHECK<EXPR2>::value) ;
-using ENUM_OR<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value || ENUM_CHECK<EXPR2>::value) ;
+using ENUM_AND<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value && ENUM_CHECK<EXPR2>::value) ;
+using ENUM_OR<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value || ENUM_CHECK<EXPR2>::value) ;
 using ENUM_ALL<...> = CALL<ENUM_ALL_HELP<type<...>>> ;
 using ENUM_ANY<...> = CALL<ENUM_ANY_HELP<type<...>>> ;
-using ENUM_NOT<EXPR> = _ENUM_ (!ENUM_CHECK<EXPR>::value) ;
-using ENUM_EQ<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value == ENUM_CHECK<EXPR2>::value) ;
+using ENUM_NOT<EXPR> = enum (!ENUM_CHECK<EXPR>::value) ;
+using ENUM_EQ<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value == ENUM_CHECK<EXPR2>::value) ;
 using ENUM_NOT_EQ<EXPR1 ,EXPR2> = ENUM_NOT<ENUM_EQ<EXPR1 ,EXPR2>> ;
-using ENUM_COMPR<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value <=> ENUM_CHECK<EXPR2>::value) ;
-using ENUM_LT<EXPR1 ,EXPR2> = _ENUM_ (ENUM_COMPR<EXPR1 ,EXPR2>::value < EQUAL) ;
-using ENUM_GT<EXPR1 ,EXPR2> = _ENUM_ (ENUM_COMPR<EXPR1 ,EXPR2>::value > EQUAL) ;
-using ENUM_LT_EQ<EXPR1 ,EXPR2> = _ENUM_ (ENUM_COMPR<EXPR1 ,EXPR2>::value <= EQUAL) ;
-using ENUM_GT_EQ<EXPR1 ,EXPR2> = _ENUM_ (ENUM_COMPR<EXPR1 ,EXPR2>::value >= EQUAL) ;
+using ENUM_COMPR<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value <=> ENUM_CHECK<EXPR2>::value) ;
+using ENUM_LT<EXPR1 ,EXPR2> = enum (ENUM_COMPR<EXPR1 ,EXPR2>::value < ZERO) ;
+using ENUM_GT<EXPR1 ,EXPR2> = enum (ENUM_COMPR<EXPR1 ,EXPR2>::value > ZERO) ;
+using ENUM_LT_EQ<EXPR1 ,EXPR2> = enum (ENUM_COMPR<EXPR1 ,EXPR2>::value <= ZERO) ;
+using ENUM_GT_EQ<EXPR1 ,EXPR2> = enum (ENUM_COMPR<EXPR1 ,EXPR2>::value >= ZERO) ;
 using ENUM_BETWEEN<EXPR ,BEGIN ,END> = ENUM_AND<ENUM_GT_EQ<EXPR ,BEGIN> ,ENUM_LT<EXPR ,END>> ;
-using ENUM_ADD<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value + ENUM_CHECK<EXPR2>::value) ;
-using ENUM_SUB<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value - ENUM_CHECK<EXPR2>::value) ;
-using ENUM_MUL<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value * ENUM_CHECK<EXPR2>::value) ;
-using ENUM_DIV<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value / ENUM_CHECK<EXPR2>::value) ;
-using ENUM_MOD<EXPR1 ,EXPR2> = _ENUM_ (ENUM_CHECK<EXPR1>::value % ENUM_CHECK<EXPR2>::value) ;
+using ENUM_ADD<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value + ENUM_CHECK<EXPR2>::value) ;
+using ENUM_SUB<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value - ENUM_CHECK<EXPR2>::value) ;
+using ENUM_MUL<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value * ENUM_CHECK<EXPR2>::value) ;
+using ENUM_DIV<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value / ENUM_CHECK<EXPR2>::value) ;
+using ENUM_MOD<EXPR1 ,EXPR2> = enum (ENUM_CHECK<EXPR1>::value % ENUM_CHECK<EXPR2>::value) ;
+using ENUM_INC<EXPR> = ENUM_ADD<EXPR ,ENUM_IDEN> ;
+using ENUM_DEC<EXPR> = ENUM_SUB<EXPR ,ENUM_IDEN> ;
 using ENUM_MAX<EXPR1 ,EXPR2> = CONDITIONAL<ENUM_GT_EQ<EXPR1 ,EXPR2> ,EXPR1 ,EXPR2> ;
 using ENUM_MIN<EXPR1 ,EXPR2> = CONDITIONAL<ENUM_LT_EQ<EXPR1 ,EXPR2> ,EXPR1 ,EXPR2> ;
 
-private trait PLACEHOLDER_HELP<ARG1> {
+trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_EQ<ARG1 ,ENUM_ZERO>) ;
 
 	class PLACEHOLDER {} ;
 } ;
 
-private trait PLACEHOLDER_HELP<ARG1> {
+trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_GT<ARG1 ,ENUM_ZERO>) ;
 
 	using R1X = PLACEHOLDER_HELP<ENUM_DECREASE<ARG1>>::PLACEHOLDER ;
@@ -193,43 +186,43 @@ private trait PLACEHOLDER_HELP<ARG1> {
 
 using PLACEHOLDER<RANK> = PLACEHOLDER_HELP<RANK>::PLACEHOLDER ;
 
-static constant P0 = PLACEHOLDER<_ENUM_ (0)> () ;
-static constant P1 = PLACEHOLDER<_ENUM_ (1)> () ;
-static constant P2 = PLACEHOLDER<_ENUM_ (2)> () ;
-static constant P3 = PLACEHOLDER<_ENUM_ (3)> () ;
-static constant P4 = PLACEHOLDER<_ENUM_ (4)> () ;
-static constant P5 = PLACEHOLDER<_ENUM_ (5)> () ;
-static constant P6 = PLACEHOLDER<_ENUM_ (6)> () ;
-static constant P7 = PLACEHOLDER<_ENUM_ (7)> () ;
-static constant P8 = PLACEHOLDER<_ENUM_ (8)> () ;
-static constant P9 = PLACEHOLDER<_ENUM_ (9)> () ;
-static constant PX = PLACEHOLDER<_ENUM_ (10)> () ;
+static constant P0 = PLACEHOLDER<enum (0)> () ;
+static constant P1 = PLACEHOLDER<enum (1)> () ;
+static constant P2 = PLACEHOLDER<enum (2)> () ;
+static constant P3 = PLACEHOLDER<enum (3)> () ;
+static constant P4 = PLACEHOLDER<enum (4)> () ;
+static constant P5 = PLACEHOLDER<enum (5)> () ;
+static constant P6 = PLACEHOLDER<enum (6)> () ;
+static constant P7 = PLACEHOLDER<enum (7)> () ;
+static constant P8 = PLACEHOLDER<enum (8)> () ;
+static constant P9 = PLACEHOLDER<enum (9)> () ;
+static constant PX = PLACEHOLDER<enum (10)> () ;
 
-private trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
+trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	require (ARG1) ;
 
 	using RET = ARG2 ;
 } ;
 
-private trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
+trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	require (ENUM_NOT<ARG1>) ;
 
 	using RET = ARG3 ;
 } ;
 
-private trait IS_ALL_SAME_HELP<ARGS> {
+trait IS_ALL_SAME_HELP<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using RET = ENUM_IDEN ;
 } ;
 
-private trait IS_ALL_SAME_HELP<ARGS> {
+trait IS_ALL_SAME_HELP<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_IDEN>) ;
 
 	using RET = ENUM_IDEN ;
 } ;
 
-private trait IS_ALL_SAME_HELP<ARGS> {
+trait IS_ALL_SAME_HELP<ARGS> {
 	require (ENUM_GT<COUNTOF<ARGS> ,ENUM_IDEN>) ;
 
 	using R1X = TYPE_FIRST<ARGS> ;
@@ -238,19 +231,19 @@ private trait IS_ALL_SAME_HELP<ARGS> {
 	using RET = ENUM_ALL<IS_SAME<R1X ,R2X> ,R3X> ;
 } ;
 
-private trait IS_ANY_SAME<ARGS> {
+trait IS_ANY_SAME<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_ZERO>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-private trait IS_ANY_SAME<ARGS> {
+trait IS_ANY_SAME<ARGS> {
 	require (ENUM_EQ<COUNTOF<ARGS> ,ENUM_IDEN>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-private trait IS_ANY_SAME<ARGS> {
+trait IS_ANY_SAME<ARGS> {
 	require (ENUM_GT<COUNTOF<ARGS> ,ENUM_IDEN>) ;
 
 	using R1X = TYPE_FIRST<ARGS> ;
@@ -262,7 +255,7 @@ private trait IS_ANY_SAME<ARGS> {
 
 using CONDITIONAL<COND ,YES ,NO> = CALL<CONDITIONAL_HELP<COND ,YES ,NO>> ;
 
-using IS_SAME<UNIT1 ,UNIT2> = concept (UNIT1 as UNIT2) ;
+using IS_SAME<UNIT1 ,UNIT2> = enum (rust::is_same (UNIT1 ,UNIT2)) ;
 using IS_ALL_SAME<...> = CALL<IS_ALL_SAME_HELP<type<...>>> ;
 using IS_ANY_SAME<...> = CALL<IS_ANY_SAME_HELP<type<...>>> ;
 
@@ -273,43 +266,43 @@ using IS_BYTE<UNIT> = ENUM_ALL<IS_SAME<UNIT ,BYTE> ,IS_SAME<UNIT ,WORD> ,IS_SAME
 using IS_STR<UNIT> = ENUM_ALL<IS_SAME<UNIT ,STRA> ,IS_SAME<UNIT ,STRU8> ,IS_SAME<UNIT ,STRU16> ,IS_SAME<UNIT ,STRU32>> ;
 using IS_BASIC<UNIT> = ENUM_ALL<IS_BOOL<UNIT> ,IS_VAR<UNIT> ,IS_FLOAT<UNIT> ,IS_BYTE<UNIT> ,IS_STR<UNIT>> ;
 
-using IS_ENUM<UNIT> = concept (UNIT as "enum") ;
+using IS_ENUM<UNIT> = enum (rust::is_enum (UNIT)) ;
 
-using IS_TYPE<UNIT> = concept (UNIT as "type") ;
+using IS_TYPE<UNIT> = enum (rust::is_type (UNIT)) ;
 
-using TYPE_FIRST<ALL> = ALL::FIRST ;
-using TYPE_SECOND<ALL> = ALL::SECOND ;
-using TYPE_FIRST_REST<ALL> = ALL::FIRST_REST ;
-using TYPE_SECOND_REST<ALL> = ALL::SECOND_REST ;
+using TYPE_FIRST<ALL> = ALL::FIRST_TYPE ;
+using TYPE_SECOND<ALL> = ALL::SECOND_TYPE ;
+using TYPE_FIRST_REST<ALL> = ALL::FIRST_REST_TYPE ;
+using TYPE_SECOND_REST<ALL> = ALL::SECOND_REST_TYPE ;
 using TYPE_CAT<UNIT1 ,UNIT2> = type<UNIT1... ,UNIT2...> ;
-using TYPE_GET<ALL ,POS> = TYPE_GET_HELP<ALL ,POS> ;
+
+using TYPE_PICK<ALL ,POS> = TYPE_PICK_HELP<ALL ,POS> ;
 using TYPE_FIND<ALL ,KEY> = TYPE_FIND_HELP<ALL ,KEY> ;
 using TYPE_REPEAT<UNIT ,SIZE> = TYPE_REPEAT_HELP<UNIT ,SIZE> ;
 
-using IS_PLACEHOLDER<UNIT> = concept (UNIT as class PLACEHOLDER) ;
-
-using IS_TEMP<UNIT> = concept (UNIT as class TEMP) ;
-using REMOVE_TEMP<UNIT> = rust::REMOVE_TEMP_HELP<UNIT> ;
-
-using IS_STRUCT<UNIT> = concept (UNIT as "[...:ARGS]") ;
+using IS_STRUCT<UNIT> = enum (rust::is_struct (UNIT)) ;
 using REFLECT_STRUCT<UNIT> = CALL<rust::REFLECT_STRUCT_HELP<UNIT>> ;
 using STRUCT_BIND<PARAMS> = [...:PARAMS] ;
 
-using IS_FUNCTION<UNIT> = concept (UNIT as "(...:ARGS) :ARG1") ;
+using IS_FUNCTION<UNIT> = enum (rust::is_function (UNIT)) ;
 using REMOVE_FUNCTION<UNIT> = CALL<rust::REMOVE_FUNCTION_HELP<UNIT>> ;
 using REFLECT_FUNCTION<UNIT> = CALL<rust::REFLECT_FUNCTION_HELP<UNIT>> ;
 using FUNCTION_BIND<RETURN ,PARAMS> = (...:PARAMS) :RETURN ;
 
-using IS_TRIVIAL<UNIT> = _ENUM_ (rust::is_trivial (UNIT)) ;
-using IS_INTERFACE<UNIT> = _ENUM_ (rust::is_interface (UNIT)) ;
+using IS_TRIVIAL<UNIT> = enum (rust::is_trivial (UNIT)) ;
+using IS_INTERFACE<UNIT> = enum (rust::is_interface (UNIT)) ;
 
-using IS_CLASS<UNIT> = _ENUM_ (rust::is_class (UNIT)) ;
-using IS_CLASS_CLONEABLE<UNIT> = concept (UNIT::clone) ;
-using IS_CLASS_SHAREABLE<UNIT> = concept (UNIT::share) ;
-using IS_CONSTRUCTIBLE<UNIT ,ALL> = concept () ;
-using IS_CONVERTIBLE<FROM ,TO> = concept () ;
-using IS_EXTEND<BASE ,DERIVE> = concept ("class DERIVE { extend :BASE ; }") ;
-using IS_IMPLEMENT<BASE ,DERIVE> = concept ("implement DERIVE :BASE") ;
+using IS_CLASS<UNIT> = enum (rust::is_class (UNIT)) ;
+using IS_CONSTRUCTIBLE<UNIT ,PARAPMS> = enum (rust::is_constructible (UNIT ,PARAPMS)) ;
+using IS_SHAREABLE<UNIT> = enum (rust::is_shareable (UNIT)) ;
+using IS_CLONEABLE<UNIT> = enum (rust::is_cloneable (UNIT)) ;
+using IS_EXTEND<BASE ,DERIVED> = enum (rust::is_extend (BASE ,DERIVED)) ;
+using IS_IMPLEMENT<BASE ,DERIVED> = enum (rust::is_implement (BASE ,DERIVED)) ;
+
+using IS_PLACEHOLDER<UNIT> = IS_EXTEND<PLACEHOLDER<ZERO> ,UNIT> ;
+
+using IS_TEMP<UNIT> = concept (UNIT as class TEMP) ;
+using REMOVE_TEMP<UNIT> = rust::REMOVE_TEMP_HELP<UNIT> ;
 
 using BYTE_TRAIT<UNIT> = CALL<BYTE_TRAIT_HELP<UNIT>> ;
 
@@ -332,20 +325,20 @@ function alignas = (base :LENGTH ,align :LENGTH) => {
 } ;
 
 function load = (id1 ,owner ,addr :LENGTH) => {
-	using R1X = _TYPE_ (id1) ;
-	using R2X = _TYPE_ (owner) ;
+	using R1X = type (id1) ;
+	using R2X = type (owner) ;
 	require (IS_FUNCTION<R2X>) ;
 	##???##
 } ;
 
 function swap = (obj1 ,obj2) => {
-	using R1X = _TYPE_ (obj1) ;
-	using R2X = _TYPE_ (obj2) ;
+	using R1X = type (obj1) ;
+	using R2X = type (obj2) ;
 	require (IS_SAME<R1X ,R2X>) ;
 	##???##
 } ;
 
-function hash = (...) => HASH_HELP<_TYPE_ (...)>::hash (...) ;
+function hash = (...) => HASH_HELP<type (...)>::hash (...) ;
 
 function between = (obj :INDEX ,begin :INDEX ,end :INDEX) => {
 	return obj >= begin && obj < end ;
@@ -363,7 +356,7 @@ function max = (obj1 ,obj2) => {
 	return obj2 ;
 } ;
 
-private trait SYNTAX_HELP<UNIT> {
+trait SYNTAX_HELP<UNIT> {
 	class Syntax {
 		constant mPointer :PTR<UNIT> ;
 	} ;
@@ -385,7 +378,7 @@ using Syntax<UNIT> = SYNTAX_HELP<UNIT>::Syntax ;
 
 using UNION<ALIGN ,SIZE> = UNION_HELP<ALIGN ,SIZE>::UNION ;
 
-private trait TEMP_HELP<UNIT> {
+trait TEMP_HELP<UNIT> {
 	class TEMP {
 		variable mStorage :UNION<ALIGNOF<UNIT> ,SIZEOF<UNIT>> ;
 	} ;	
@@ -394,8 +387,8 @@ private trait TEMP_HELP<UNIT> {
 		function new = () => default ;
 
 		function new = (that) => {
-			using R1X = _TYPE_ (that) ;
-			using R2X = _TYPE_ (NULL) ;
+			using R1X = type (that) ;
+			using R2X = type (NULL) ;
 			require (IS_SAME<R1X ,R2X>) ;
 			mStorage = UNION<ALIGNOF<UNIT> ,SIZEOF<UNIT>> => zeroize ;
 		} ;
@@ -410,7 +403,7 @@ private trait TEMP_HELP<UNIT> {
 
 using TEMP<UNIT> = TEMP_HELP<UNIT>::TEMP ;
 
-private trait SLICE_HELP<REAL> {
+trait SLICE_HELP<REAL> {
 	class Slice {
 		interface Holder ;
 		class ImplHolder ;
@@ -424,7 +417,7 @@ private trait SLICE_HELP<REAL> {
 		function get = (index :INDEX) :REAL => virtual ;
 	} ;
 
-	private trait SLICE_IMPLHOLDER_HELP<WRAP> {
+	trait SLICE_IMPLHOLDER_HELP<WRAP> {
 		class Slice::ImplHolder {
 			require (IS_STRUCT<WRAP>) ;
 
@@ -490,7 +483,7 @@ private trait SLICE_HELP<REAL> {
 		} ;
 		
 		function new = (id1 ,that) => {
-			using R1X = _TYPE_ (that) ;
+			using R1X = type (that) ;
 			using R2X = REMOVE_FUNCTION<R1X> ;
 			constant r1x = PTR<R2X> => that ;
 			static constant M_HOLDER = SLICE_IMPLHOLDER_HELP<R2X>::ImplHolder (r1x) ;
@@ -539,13 +532,13 @@ private trait SLICE_HELP<REAL> {
 			constant r1x = min (size () ,that.size ()) ;
 			for (i in range (0 ,r1x)) {
 				constant r4x = get (i) <=> that.get (i) ;
-				if (r4x != EQUAL)
+				if (r4x != ZERO)
 					return r4x ;
 			}
 			constant r3x = size () <=> that.size () ;
-			if (r3x != EQUAL)
+			if (r3x != ZERO)
 				return r3x ;
-			return EQUAL ;
+			return ZERO ;
 		} ;
 	} ;
 } ;
@@ -576,7 +569,7 @@ class Class::Reflection {
 	public constant mNext :PTR<Reflection> ;
 } ;
 
-private trait CLASS_IMPLHOLDER_HELP<WRAP> {
+trait CLASS_IMPLHOLDER_HELP<WRAP> {
 	class Class::ImplHolder {} ;
 
 	implement Class::ImplHolder :Holder {
@@ -588,7 +581,7 @@ private trait CLASS_IMPLHOLDER_HELP<WRAP> {
 
 		function type_name = () => {
 			constant r1x = () => {} ;
-			using R1X = _TYPE_ (r1x) ;
+			using R1X = type (r1x) ;
 			return Slice<STR> (type<R1X>::value ,rust::func_name) ;
 		} ;
 
@@ -603,7 +596,7 @@ implement Class {
 	function new = () => delete ;
 
 	function new = (id1) => {
-		using R1X = _TYPE_ (id1) ;
+		using R1X = type (id1) ;
 		static constant M_HOLDER = CLASS_IMPLHOLDER_HELP<R1X>::ImplHolder () ;
 		mPointer = PTR<Holder> => M_HOLDER ;
 	} ;
@@ -630,12 +623,12 @@ implement Class :Equalable<Slice> {
 implement Class :Comprable<Slice> {
 	function compr = (that :Class) => {
 		constant r1x = type_hash () <=> that.type_hash () ;
-		if (r1x != EQUAL)
+		if (r1x != ZERO)
 			return r1x ;
 		constant r2x = type_name () <=> that.type_name () ;
-		if (r2x != EQUAL)
+		if (r2x != ZERO)
 			return r2x ;
-		return EQUAL ;
+		return ZERO ;
 	} ;
 } ;
 
@@ -727,7 +720,7 @@ implement Reference {
 	} ;
 } ;
 
-private trait SAFEREFERENCE_HELP<UNIT> {
+trait SAFEREFERENCE_HELP<UNIT> {
 	class SafeReference {
 		constant mPointer :PTR<UNIT> ;
 	} ;
@@ -735,7 +728,7 @@ private trait SAFEREFERENCE_HELP<UNIT> {
 	implement SafeReference {
 		function new = () => delete ;
 
-		private trait NEW_HELP<ARG1> {
+		trait NEW_HELP<ARG1> {
 			require (IS_SAME<ARG1 ,PTR<UNIT>>) ;
 			
 			function new = (that :PTR<UNIT>) => {
@@ -743,7 +736,7 @@ private trait SAFEREFERENCE_HELP<UNIT> {
 			} ;
 		} ;
 
-		private trait NEW_HELP<ARG1> {
+		trait NEW_HELP<ARG1> {
 			require (IS_SAME<ARG1 ,Reference>) ;
 
 			function new = (that :Reference) => {
@@ -752,7 +745,7 @@ private trait SAFEREFERENCE_HELP<UNIT> {
 			} ;
 		} ;
 
-		function new = (that) => NEW_HELP<_TYPE_ (that)>::new (that) ;
+		function new = (that) => NEW_HELP<type (that)>::new (that) ;
 	} ;
 
 	implement SafeReference :Wrapped<UNIT> {
