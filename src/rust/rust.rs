@@ -35,7 +35,7 @@ module rust
 # enum
 # type
 
-# local
+# borrow
 # mutable
 # function
 # default
@@ -90,11 +90,9 @@ module rust
 # is_enum
 # is_type
 # is_struct
-# reflect_struct
 # is_function
-# reflect_function
-# is_interface
 # is_trivial
+# is_interface
 # is_class
 # is_constructible
 # is_shareable
@@ -104,5 +102,11 @@ module rust
 # is_variable
 # is_constant
 # is_register
+
+# reflect_struct
+# reflect_function
+
+# address
+# at
 
 ##
