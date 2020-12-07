@@ -5,6 +5,7 @@ module rust
 
 # module
 # import
+# export
 
 # trait
 # using
@@ -34,9 +35,10 @@ module rust
 
 # enum
 # type
+# auto
 
-# borrow
 # mutable
+# pure
 # function
 # default
 # delete
@@ -85,12 +87,14 @@ module rust
 # alignof
 # sizeof
 # countof
+# nameof
 
 # is_same
 # is_enum
 # is_type
 # is_struct
 # is_function
+# is_pure
 # is_trivial
 # is_interface
 # is_class
@@ -106,7 +110,8 @@ module rust
 # reflect_struct
 # reflect_function
 
+# assert
 # address
-# at
+# bad
 
 ##
