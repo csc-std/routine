@@ -98,10 +98,8 @@ using STR = STR_HELP::STR ;
 
 static constant NULL = null ;
 
-using PTR<UNIT> = (:(:UNIT) :auto) :auto ;
-
 using ENUM_NONE = enum (NONE) ;
-using ENUM_ZERO = enum (ZERO ;
+using ENUM_ZERO = enum (ZERO) ;
 using ENUM_IDEN = enum (IDEN) ;
 
 using ALIGNOF<UNIT> = enum (rust::alignof (UNIT)) ;
@@ -304,6 +302,8 @@ using IS_STRUCT<UNIT> = enum (rust::is_struct (UNIT)) ;
 using REFLECT_STRUCT<UNIT> = rust::reflct_struct (UNIT) ;
 using STRUCT_BIND<PARAMS> = [...:PARAMS] ;
 
+using IS_ALGEBRA<UNIT> = enum (rust::is_algebra (UNIT)) ;
+
 using IS_FUNCTION<UNIT> = enum (rust::is_function (UNIT)) ;
 using REFLECT_FUNCTION<UNIT> = rust::reflect_function (UNIT) ;
 using REMOVE_FUNCTION<UNIT> = TYPE_UNWRAP<TYPE_FIRST<REFLECT_FUNCTION<UNIT>>> ;
@@ -378,6 +378,13 @@ static function unimplemented = () => {
 	rust::assert (FALSE) ;
 } ;
 
+static function bad = (id) => {
+	using R1X = type (id) ;
+	constant r1x :() :auto = NULL ;
+	assert (FALSE) ;
+	return R1X (r1x) ;
+} ;
+
 static function address = (obj) => rust::address (obj) ;
 
 static function alignas = (base :LENGTH ,align :LENGTH) => base + (align - base % align) % align;
@@ -394,7 +401,7 @@ trait FORWARD_HELP<ARG1> {
 			return obj.share () ;
 		if (rust::is_constant (obj))
 			return obj.clone () ;
-		return rust::bad (type<ARG1>::id) ;
+		return bad (type<ARG1>::id) ;
 	} ;
 } ;
 
@@ -468,7 +475,7 @@ trait SLICE_HELP<REAL> {
 		class ImplHolder ;
 		class ConcatHolder ;
 
-		constant mPointer :PTR<Holder> ;
+		constant mPointer :(:(:Holder) :auto) :auto ;
 	} ;
 
 	interface Slice::Holder {
@@ -607,7 +614,7 @@ class Class {
 	class Reflection ;
 	class ImplHolder ;
 
-	constant mPointer :PTR<Holder> ;
+	constant mPointer :(:(:Holder) :auto) :auto ;
 } ;
 
 interface Class::Holder {

@@ -9,7 +9,7 @@ trait AUTOREF_HELP<UNIT> {
 		interface Holder ;
 		class PureHolder ;
 
-		variable mPointer :PTR<Holder> ;
+		variable mPointer :(:(:Holder) :auto) :auto ;
 	} ;
 
 	interface Holder {
@@ -47,7 +47,7 @@ trait AUTOREF_HELP<UNIT> {
 		} ;
 
 		function share = mutable () => {
-			variable rax :PTR<Holder> = NULL ;
+			variable rax :(:(:Holder) :auto) :auto = NULL ;
 			swap (rax ,mPointer) ;
 			return AutoRef (rax) ;
 		} ;
@@ -87,7 +87,7 @@ trait SHAREDREF_HELP<UNIT> {
 		interface Holder ;
 		class PureHolder ;
 
-		variable mPointer :PTR<Holder> ;
+		variable mPointer :(:(:Holder) :auto) :auto ;
 	} ;
 
 	interface Holder {
@@ -179,7 +179,7 @@ trait SHAREDREF_HELP<UNIT> {
 
 trait AUTOBUF_HELP<UNIT> {
 	class AutoBuf {
-		variable mPointer :PTR<Span<UNIT>> ;
+		variable mPointer :(:(:Span<UNIT>) :auto) :auto ;
 	} ;
 
 	implement AutoBuf {
@@ -197,7 +197,7 @@ trait AUTOBUF_HELP<UNIT> {
 		} ;
 
 		function share = mutable () => {
-			variable rax :PTR<Span<UNIT>> = NULL ;
+			variable rax :(:(:Span<UNIT>) :auto) :auto = NULL ;
 			swap (rax ,mPointer) ;
 			return AutoBuf (rax) ;
 		} ;

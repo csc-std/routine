@@ -11,7 +11,6 @@ module rust
 # using
 # require
 # macro
-# define
 
 # bool
 # true
@@ -27,6 +26,9 @@ module rust
 # byte16
 # byte32
 # byte64
+# byte128
+# byte256
+# byte512
 # stra
 # stru8
 # stru16
@@ -43,14 +45,15 @@ module rust
 # default
 # delete
 # virtual
-# zeroize
+
+# algebra
+# later
+# watch
 
 # class
 # extend
 # interface
 # implement
-# new
-# delete
 # private
 # public
 
@@ -58,6 +61,7 @@ module rust
 # constant
 # variable
 # register
+# volatile
 
 # if
 # not
@@ -68,21 +72,13 @@ module rust
 # break
 # switch
 # discard
+# sync
 
 # throw
 # catch
 
 # await
 # yield
-
-# later
-# syntax
-
-##
-
-## internel
-
-# literal
 
 # alignof
 # sizeof
@@ -95,6 +91,7 @@ module rust
 # is_struct
 # is_function
 # is_pure
+# is_algebra
 # is_trivial
 # is_interface
 # is_class
@@ -103,15 +100,11 @@ module rust
 # is_cloneable
 # is_extend
 # is_implement
-# is_variable
-# is_constant
-# is_register
 
 # reflect_struct
 # reflect_function
 
 # assert
 # address
-# bad
 
 ##
