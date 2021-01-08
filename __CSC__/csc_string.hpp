@@ -509,7 +509,7 @@ inline exports String<STRU32> StringProc::cvt_u8s_u32s (const String<STRU8> &val
 			rax = 5 ;
 		}
 		if switch_once (fax) {
-			if (!(rax == 0))
+			if (!(rax == 1))
 				discard ;
 			if (!(i <= STRU8 (0XBF)))
 				discard ;
