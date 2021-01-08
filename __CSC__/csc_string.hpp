@@ -791,22 +791,12 @@ inline exports String<STRU8> StringProc::cvt_uas_u8s (String<STRA> &&val) {
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (const REMOVE_CONST_TYPE<String<STRU8>> &val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
-	String<STRUA> ret = _MOVE_ (val) ;
-	for (auto &&i : ret) {
-		_NOOP_ (i) ;
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-	}
-	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,val)) ;
 }
 
 inline exports String<STRA> StringProc::cvt_u8s_uas (REMOVE_CONST_TYPE<String<STRU8>> &&val) {
 	_STATIC_ASSERT_ (IS_SAME_HELP<STRUA ,STRU8>::compile ()) ;
-	String<STRUA> ret = _MOVE_ (val) ;
-	for (auto &&i : ret) {
-		_NOOP_ (i) ;
-		_DEBUG_ASSERT_ (i <= STRUA (0X7F)) ;
-	}
-	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,ret)) ;
+	return _MOVE_ (_CAST_ (ARGV<String<STRA>>::ID ,val)) ;
 }
 
 class GBKSStaticProc :
