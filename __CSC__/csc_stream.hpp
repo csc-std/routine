@@ -857,8 +857,8 @@ public:
 				if (!r2x)
 					discard ;
 				_DYNAMIC_ASSERT_ (mRead < mWrite) ;
-				data = r1x.convert_endian (mStream[mRead]) ;
-				data = r1x.convert_escape_r (data) ;
+				const auto r3x = r1x.convert_endian (mStream[mRead]) ;
+				data = r1x.convert_escape_r (r3x) ;
 				mRead++ ;
 			}
 		}
@@ -2223,10 +2223,8 @@ public:
 		r1x.modify_escape_r (STRU8 ('\"') ,STRU8 ('\"')) ;
 		r1x.modify_escape_r (STRU8 ('/') ,STRU8 ('/')) ;
 		r1x.modify_escape_r (STRU8 ('\\') ,STRU8 ('\\')) ;
-		r1x.modify_escape_r (STRU8 ('u') ,STRU8 ('u')) ;
-		r1x.modify_escape_r (STRU8 ('x') ,STRU8 ('x')) ;
 		_STATIC_WARNING_ ("mark") ;
-		//@info: disable default escape-str convertion
+		//@warn: \\x and \\u is not supported yet
 		r1x.enable_escape (FALSE) ;
 		mReader.self >> TextReader<STRU8>::BOM ;
 		mCache = Deque<STRU8> (ll_len) ;
