@@ -1,110 +1,100 @@
-﻿
-module rust
 
-## keyword
+module
+import
+export
+private
+public
+static
+extern
 
-# module
-# import
-# export
+bool
+true
+false
+int32
+int64
+float32
+float64
+infinity
+byte8
+byte16
+byte32
+byte64
+byte128
+byte512
+stra
+stru8
+stru16
+stru32
+null
 
-# trait
-# using
-# require
-# macro
+trait
+require
+macro
+concept
+as
+template
+using
+define
+enum
+type
 
-# bool
-# true
-# false
-# int8
-# int16
-# int32
-# int64
-# float32
-# float64
-# infinity
-# byte8
-# byte16
-# byte32
-# byte64
-# byte128
-# byte256
-# byte512
-# stra
-# stru8
-# stru16
-# stru32
-# null
+function
+variable
+constant
+register
+mutable
+virtual
+default
+disable
+property
+algebra
+where
 
-# enum
-# type
-# auto
+if
+not
+for
+in
+while
+switch
+else
+continue
+break
+discard
+return
+try
+throw
+assert
+async
+yield
+later
+auto
 
-# mutable
-# pure
-# function
-# default
-# delete
-# virtual
+struct
+class
+this
+extend
+interface
+implement
+final
+delete
+new
 
-# algebra
-# later
-# watch
-
-# class
-# extend
-# interface
-# implement
-# private
-# public
-
-# static
-# constant
-# variable
-# register
-# volatile
-
-# if
-# not
-# for
-# in
-# continue
-# while
-# break
-# switch
-# discard
-# sync
-
-# throw
-# catch
-
-# await
-# yield
-
-# alignof
-# sizeof
-# countof
-# nameof
-
-# is_same
-# is_enum
-# is_type
-# is_struct
-# is_function
-# is_pure
-# is_algebra
-# is_trivial
-# is_interface
-# is_class
-# is_constructible
-# is_shareable
-# is_cloneable
-# is_extend
-# is_implement
-
-# reflect_struct
-# reflect_function
-
-# assert
-# address
-
-##
+sizeof
+alignof
+countof
+is_same
+is_enum
+is_type
+is_function
+is_pointer
+is_mutable
+is_noexcept
+is_struct
+is_interface
+is_extend
+is_class
+is_trivial
+is_final
+is_constructible
+is_cloneable
+is_shareable

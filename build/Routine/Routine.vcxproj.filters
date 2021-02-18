@@ -75,7 +75,7 @@
       <UniqueIdentifier>{000e62c6-12e0-48db-9e97-8c9331ef3a16}</UniqueIdentifier>
     </Filter>
     <Filter Include="rust">
-      <UniqueIdentifier>{b7119b5e-e95b-406e-97af-77b7e5e4ff99}</UniqueIdentifier>
+      <UniqueIdentifier>{c90659e8-7062-47ff-b8aa-f4f86f2f2572}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,9 +120,6 @@
       <Filter>csc</Filter>
     </None>
     <None Include="..\..\src\rust\rust.rs">
-      <Filter>rust</Filter>
-    </None>
-    <None Include="..\..\src\rust\rust_basic.rs">
       <Filter>rust</Filter>
     </None>
     <None Include="..\..\src\rust\rust_core.rs">
