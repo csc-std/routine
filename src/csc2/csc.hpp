@@ -103,6 +103,8 @@
 #include <cstddef>
 #include <limits>
 #include <type_traits>
+#include <new>
+#include <exception>
 #include "end.hh"
 
 #ifdef _HAS_CXX17
@@ -148,19 +150,21 @@ namespace CSC {
 #undef NULL
 #endif
 
+#define infinity std::numeric_limits<SINGLE>::infinity ()
+
 #define internel_unwind_impl(...) __VA_ARGS__
 #define unwind internel_unwind_impl
 
-#define internel_not_impl(...) (!(unwind (_VA_ARGS__)))
+#define internel_not_impl(...) (!(unwind (__VA_ARGS__)))
 #define not internel_not_impl
 
-#define internel_require_impl(...) static_assert ((unwind (_VA_ARGS__)::value) ,"error") ;
+#define internel_require_impl(...) static_assert ((unwind (__VA_ARGS__)::value) ,"error") ;
 #define require internel_require_impl
 
-#define internel_enumof_impl(...) CSC::detail::INTERNEL_ENUM<(unwind (_VA_ARGS__))>
+#define internel_enumof_impl(...) CSC::detail::INTERNEL_ENUM<(unwind (__VA_ARGS__))>
 #define enumof internel_enumof_impl
 
-#define internel_typeof_impl(...) CSC::detail::INTERNEL_TYPE<(unwind (_VA_ARGS__))>
+#define internel_typeof_impl(...) CSC::detail::INTERNEL_TYPE<(unwind (__VA_ARGS__))>
 #define typeof internel_typeof_impl
 
 #define typeas CSC::detail::INTERNEL_TYPE

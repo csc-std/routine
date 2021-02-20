@@ -32,17 +32,19 @@ require
 macro
 concept
 as
-template
 using
 define
+template
 enum
 type
 
 function
+auto
 variable
 constant
 register
 mutable
+noexcept
 virtual
 default
 disable
@@ -66,15 +68,13 @@ assert
 async
 yield
 later
-auto
 
-struct
 class
+struct
 this
 extend
 interface
 implement
-final
 delete
 new
 
@@ -92,6 +92,13 @@ is_interface
 is_extend
 is_class
 is_trivial
+is_dynamic
 is_constructible
 is_cloneable
 is_shareable
+
+address
+alloc
+free
+create
+destroy

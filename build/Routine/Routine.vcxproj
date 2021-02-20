@@ -72,11 +72,13 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_runtime.hpp.default.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.default.inl" />
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.gbk.inl" />
+    <None Include="..\..\src\csc2\cpp.hint" />
     <None Include="..\..\src\rust\rust.rs" />
     <None Include="..\..\src\rust\rust_core.rs" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />
+    <Natvis Include="..\..\src\csc2\cpp.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

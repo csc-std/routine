@@ -10,8 +10,8 @@ namespace CSC {
 inline namespace CORE {
 using BOOL = bool ;
 
-static constexpr auto TRUE = true ;
-static constexpr auto FALSE = false ;
+static constexpr auto TRUE = BOOL (true) ;
+static constexpr auto FALSE = BOOL (false) ;
 
 using VAR32 = std::int32_t ;
 using VAR64 = std::int64_t ;
@@ -43,8 +43,8 @@ struct VAR_HELP {
 
 using VAR = typename detail::VAR_HELP::VAR ;
 
-static constexpr auto VAR_MAX = VAR_HELP::VAR_MAX ;
-static constexpr auto VAR_MIN = VAR_HELP::VAR_MIN ;
+static constexpr auto VAR_MAX = detail::VAR_HELP::VAR_MAX ;
+static constexpr auto VAR_MIN = detail::VAR_HELP::VAR_MIN ;
 
 using INDEX = VAR ;
 using LENGTH = VAR ;
@@ -60,11 +60,11 @@ using DOUBLE = double ;
 static constexpr auto SINGLE_MAX = SINGLE (3.402823466E+38) ;
 static constexpr auto SINGLE_MIN = SINGLE (1.175494351E-38) ;
 static constexpr auto SINGLE_EPS = SINGLE (1.192092896E-07) ;
-static constexpr auto SINGLE_INF = SINGLE (std::numeric_limits<SINGLE>::infinity ()) ;
+static constexpr auto SINGLE_INF = SINGLE (infinity) ;
 static constexpr auto DOUBLE_MAX = DOUBLE (1.7976931348623158E+308) ;
 static constexpr auto DOUBLE_MIN = DOUBLE (2.2250738585072014E-308) ;
 static constexpr auto DOUBLE_EPS = DOUBLE (2.2204460492503131E-016) ;
-static constexpr auto DOUBLE_INF = DOUBLE (std::numeric_limits<DOUBLE>::infinity ()) ;
+static constexpr auto DOUBLE_INF = DOUBLE (infinity) ;
 
 using BYTE = std::uint8_t ;
 using WORD = std::uint16_t ;
@@ -206,7 +206,7 @@ template <class...>
 struct INTERNEL_IS_ENUM_HELP ;
 
 template <VAR ARG1>
-struct INTERNEL_IS_ENUM_HELP<enumof (ARG1)> {
+struct INTERNEL_IS_ENUM_HELP<CSC::detail::INTERNEL_ENUM<ARG1>> {
 	using RET = ENUM_IDEN ;
 } ;
 } ;
@@ -226,22 +226,8 @@ using ENUM_NOT_EQUAL = enumof (ENUM_CHECK<UNIT1>::value != ENUM_CHECK<UNIT2>::va
 template <class UNIT>
 using ENUM_BOOL = ENUM_NOT_EQUAL<UNIT ,ENUM_ZERO> ;
 
-namespace detail {
-struct function_internel_compr {
-	inline constexpr VAR operator() (const VAR &a ,const VAR &b) const {
-		if (a < b)
-			return VAR (-1) ;
-		if (b < a)
-			return VAR (+1) ;
-		return ZERO ;
-	}
-} ;
-
-static constexpr auto internel_compr = function_internel_compr () ;
-} ;
-
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR = enumof (detail::internel_compr (ENUM_CHECK<UNIT1>::value ,ENUM_CHECK<ARG2>::value)) ;
+using ENUM_COMPR = enumof (CONDITIONAL<enumof (ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value) ,enumof (-1) ,CONDITIONAL<enumof (ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value) ,enumof (+1) ,ENUM_ZERO>>) ;
 
 template <class UNIT1 ,class UNIT2>
 using ENUM_COMPR_LT = enumof (ENUM_COMPR<UNIT1 ,UNIT2>::value < ZERO) ;
@@ -372,7 +358,7 @@ struct INTERNEL_TYPE_CAT_HELP<typeas<ARGS1...> ,typeas<ARGS2...>> {
 } ;
 } ;
 
-template <class UNIT1 ,class UNTI2>
+template <class UNIT1 ,class UNIT2>
 using TYPE_CAT = typename detail::INTERNEL_TYPE_CAT_HELP<TYPE_CHECK<UNIT1> ,TYPE_CHECK<UNIT2>>::RET ;
 
 namespace detail {
@@ -624,7 +610,7 @@ template <class UNIT>
 using IS_FUNCTION = enumof (rust::is_function (UNIT)) ;
 
 template <class UNIT>
-using IS_MUTABLE = enumof (FALSE) ;
+using IS_MUTABLE = enumof (TRUE) ;
 
 template <class UNIT>
 using IS_NOEXCPET = enumof (FALSE) ;
@@ -646,6 +632,9 @@ using IS_CLASS = enumof (std::is_class<UNIT>::value) ;
 
 template <class UNIT>
 using IS_TRIVIAL = enumof (std::is_trivial<UNIT>::value) ;
+
+template <class UNIT>
+using IS_DYNAMIC = enumof (rust::is_dynamic (UNIT)) ;
 
 namespace detail {
 template <class...>
@@ -707,15 +696,15 @@ template <class UNIT>
 using BYTE_TRAIT = typename detail::BYTE_TRAIT_HELP<UNIT>::RET ;
 
 namespace detail {
-struct function_noop {
+struct FUNCTION_NOOP {
 	inline void operator() () const {}
 } ;
 } ;
 
-static constexpr auto noop = detail::function_noop () ;
+static constexpr auto noop = detail::FUNCTION_NOOP () ;
 
 namespace detail {
-struct function_assert {
+struct FUNCTION_ASSERT {
 	inline void operator() (DEF<BOOL> cond) const {
 		if (cond)
 			return ;
@@ -725,20 +714,21 @@ struct function_assert {
 } ;
 } ;
 
-static constexpr auto assert = detail::function_assert () ;
+static constexpr auto assert = detail::FUNCTION_ASSERT () ;
 
 namespace detail {
-struct function_bad {
+struct FUNCTION_BAD {
 	template <class ARG1>
-	inline auto operator() (REF<ARG1> id) const {
+	inline ARG1 operator() (REF<ARG1> id) const {
 		using R1X = typeof (id) ;
 		assert (FALSE) ;
-		return DEREF[static_cast<PTR<R1X>> (NULL)] ;
+		const auto r1x = LAMBDA_01 () ;
+		return ARG1 (r1x ()) ;
 	}
 } ;
 } ;
 
-static constexpr auto bad = detail::function_bad () ;
+static constexpr auto bad = detail::FUNCTION_BAD () ;
 
 namespace detail {
 template <class...>
@@ -749,9 +739,9 @@ struct FORWARD_HELP<ARG1> {
 	require (IS_CLASS<ARG1>) ;
 	require (IS_SHAREABLE<ARG1>) ;
 
-	struct function_forward {
+	struct FUNCTION_FORWARD {
 		template <class ARG1>
-		inline auto operator() (REF<ARG1> obj) const {
+		inline ARG1 operator() (REF<ARG1> obj) const {
 			return obj.share () ;
 		}
 	} ;
@@ -763,9 +753,9 @@ struct FORWARD_HELP<ARG1> {
 	require not (IS_SHAREABLE<ARG1>) ;
 	require (IS_CLONEABLE<ARG1>) ;
 
-	struct function_forward {
+	struct FUNCTION_FORWARD {
 		template <class ARG1>
-		inline auto operator() (REF<ARG1> obj) const {
+		inline ARG1 operator() (DEF<ARG1> obj) const {
 			return obj.clone () ;
 		}
 	} ;
@@ -775,28 +765,28 @@ template <class ARG1>
 struct FORWARD_HELP<ARG1> {
 	require not (IS_CLASS<ARG1>) ;
 
-	struct function_forward {
+	struct FUNCTION_FORWARD {
 		template <class ARG1>
-		inline auto operator() (REF<ARG1> obj) const {
+		inline ARG1 operator() (DEF<ARG1> obj) const {
 			return obj ;
 		}
 	} ;
 } ;
 
-struct function_foward {
+struct FUNCTION_FORWARD {
 	template <class ARG1>
 	inline ARG1 operator() (REF<ARG1> obj) const {
-		using R1X = typename FORWARD_HELP<ARG1>::function_forward ;
+		using R1X = typename FORWARD_HELP<ARG1>::FUNCTION_FORWARD ;
 		static constexpr auto M_FUNC = R1X () ;
 		return M_FUNC (obj) ;
 	}
 } ;
 } ;
 
-static constexpr auto forward = detail::function_foward () ;
+static constexpr auto forward = detail::FUNCTION_FORWARD () ;
 
 namespace detail {
-struct function_swap {
+struct FUNCTION_SWAP {
 	template <class ARG1>
 	inline void operator() (REF<ARG1> obj1 ,REF<ARG1> obj2) const {
 		auto rax = forward (obj1) ;
@@ -806,10 +796,18 @@ struct function_swap {
 } ;
 } ;
 
-static constexpr auto swap = detail::function_swap () ;
+static constexpr auto swap = detail::FUNCTION_SWAP () ;
+
+/*
+function exchange = (lhs ,rhs) => {
+	variable ret = forward (lhs) ;
+	lhs = forward (rhs) ;
+	return ret ;
+} ;
+*/
 
 namespace detail {
-struct function_address {
+struct FUNCTION_ADDRESS {
 	template <class ARG1>
 	inline LENGTH operator() (REF<ARG1> obj) const {
 		return LENGTH (&reinterpret_cast<VAR &> (obj)) ;
@@ -817,10 +815,10 @@ struct function_address {
 } ;
 } ;
 
-static constexpr auto address = detail::function_address () ;
+static constexpr auto address = detail::FUNCTION_ADDRESS () ;
 
 namespace detail {
-struct function_alignto {
+struct FUNCTION_ALIGNTO {
 	inline LENGTH operator() (DEF<LENGTH> base ,DEF<LENGTH> align) const {
 		const auto r1x = align - base % align ;
 		return base + r1x % align ;
@@ -828,22 +826,22 @@ struct function_alignto {
 } ;
 } ;
 
-static constexpr auto alignto = detail::function_alignto () ;
+static constexpr auto alignto = detail::FUNCTION_ALIGNTO () ;
 
 namespace detail {
-struct function_between {
+struct FUNCTION_BETWEEN {
 	inline BOOL operator() (DEF<INDEX> index ,DEF<INDEX> begin ,DEF<INDEX> end) const {
 		return index >= begin && index < end ;
 	}
 } ;
 } ;
 
-static constexpr auto between = detail::function_between () ;
+static constexpr auto between = detail::FUNCTION_BETWEEN () ;
 
 namespace detail {
-struct function_abs {
+struct FUNCTION_ABS {
 	template <class ARG1>
-	inline auto operator() (DEF<ARG1> obj) const {
+	inline ARG1 operator() (DEF<ARG1> obj) const {
 		using R1X = typeof (obj) ;
 		if (obj < R1X (ZERO))
 			return -obj ;
@@ -852,12 +850,12 @@ struct function_abs {
 } ;
 } ;
 
-static constexpr auto abs = detail::function_abs () ;
+static constexpr auto abs = detail::FUNCTION_ABS () ;
 
 namespace detail {
-struct function_min {
+struct FUNCTION_MIN {
 	template <class ARG1>
-	inline auto operator() (DEF<ARG1> obj1 ,DEF<ARG1> obj2) const {
+	inline ARG1 operator() (DEF<ARG1> obj1 ,DEF<ARG1> obj2) const {
 		if (obj1 < obj2)
 			return obj1 ;
 		return obj2 ;
@@ -865,12 +863,12 @@ struct function_min {
 } ;
 } ;
 
-static constexpr auto min = detail::function_min () ;
+static constexpr auto min = detail::FUNCTION_MIN () ;
 
 namespace detail {
-struct function_max {
+struct FUNCTION_MAX {
 	template <class ARG1>
-	inline auto operator() (DEF<ARG1> obj1 ,DEF<ARG1> obj2) const {
+	inline ARG1 operator() (DEF<ARG1> obj1 ,DEF<ARG1> obj2) const {
 		if (obj1 < obj2)
 			return obj2 ;
 		return obj1 ;
@@ -878,10 +876,10 @@ struct function_max {
 } ;
 } ;
 
-static constexpr auto max = detail::function_max () ;
+static constexpr auto max = detail::FUNCTION_MAX () ;
 
 namespace detail {
-struct function_fast_hash {
+struct FUNCTION_HASHCODE {
 	template <class ARG1>
 	inline FLAG operator() () const {
 		const auto r2x = VAR64 (-3750763034362895579) ;
@@ -899,6 +897,6 @@ struct function_fast_hash {
 } ;
 } ;
 
-static constexpr auto fast_hash = detail::function_fast_hash () ;
+static constexpr auto hashcode = detail::FUNCTION_HASHCODE () ;
 } ;
 } ;

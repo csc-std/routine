@@ -140,8 +140,14 @@
     <None Include="..\..\src\rust\rust_core.rs">
       <Filter>rust</Filter>
     </None>
+    <None Include="..\..\src\csc2\cpp.hint">
+      <Filter>csc2</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\..\..\..\..\Depends\__CSC__\cpp.natvis" />
+    <Natvis Include="..\..\src\csc2\cpp.natvis">
+      <Filter>csc2</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>
