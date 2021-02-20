@@ -94,12 +94,12 @@ using STR = STR_HELP::STR ;
 
 static constant NULL = rust::null ;
 
+using ENUM_ZERO = enum (+0) ;
+using ENUM_IDEN = enum (+1) ;
+
 using SIZEOF<UNIT> = enum (rust::sizeof (UNIT)) ;
 using ALIGNOF<UNIT> = enum (rust::alignof (UNIT)) ;
 using COUNTOF<UNIT> = enum (rust::countof (UNIT)) ;
-
-using ENUM_ZERO = enum (+0) ;
-using ENUM_IDEN = enum (+1) ;
 
 using IS_SAME<UNIT1 ,UNIT2> = enum (rust::is_same (UNIT1 ,UNIT2)) ;
 
@@ -109,7 +109,7 @@ trait ENABLE_HELP<ARG1 ,ARG2> {
 	using RET = ARG2 ;
 } ;
 
-using ENABLE<CON ,YES> = ENABLE_HELP<CON ,YES>::RET ;
+using ENABLE<COND ,YES> = template ENABLE_HELP<COND ,YES>::RET ;
 
 trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	require (IS_SAME<ARG1 ,ENUM_IDEN>) ;
@@ -123,7 +123,7 @@ trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	using RET = ARG3 ;
 } ;
 
-using CONDITIONAL<COND ,YES ,NO> = CONDITIONAL_HELP<COND ,YES ,NO>::RET ;
+using CONDITIONAL<COND ,YES ,NO> = template CONDITIONAL_HELP<COND ,YES ,NO>::RET ;
 
 using IS_ENUM<UNIT> = enum (rust::is_enum (UNIT)) ;
 using ENUM_CHECK<UNIT> = ENABLE<IS_ENUM<UNIT> ,UNIT> ;
@@ -158,7 +158,7 @@ using TYPE_CHECK<UNIT> = ENABLE<IS_TYPE<UNIT> ,UNIT> ;
 using TYPE_FIRST_ONE<UNIT> = rust::first_one (TYPE_CHECK<UNIT>) ;
 using TYPE_FIRST_REST<UNIT> = rust::first_rest (TYPE_CHECK<UNIT>) ;
 using TYPE_SECOND_ONE<UNIT> = rust::second_one (TYPE_CHECK<UNIT>) ;
-using TYPE_SECOND_REST<UNIT> = rust::second_one (TYPE_CHECK<UNIT>) ;
+using TYPE_SECOND_REST<UNIT> = rust::second_rest (TYPE_CHECK<UNIT>) ;
 using TYPE_CAT<UNIT1 ,UNIT2> = type<TYPE_CHECK<UNIT1>... ,TYPE_CHECK<UNIT2>...> ;
 
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
@@ -175,7 +175,7 @@ trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
 	using RET = TYPE_CAT<ARG1 ,R1X> ;
 } ;
 
-using TYPE_REPEAT<UNIT ,SIZE> = TYPE_REPEAT_HELP<type<UNIT> ,SIZE>::RET ;
+using TYPE_REPEAT<UNIT ,SIZE> = template TYPE_REPEAT_HELP<type<UNIT> ,SIZE>::RET ;
 
 trait TYPE_REVERSE_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -183,7 +183,7 @@ trait TYPE_REVERSE_HELP<ARG1> {
 	using RET = type<> ;
 } ;
 
-trait TYPE_REVERSE_HELP<ARG1 ,ARG2> {
+trait TYPE_REVERSE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 	
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
@@ -192,21 +192,21 @@ trait TYPE_REVERSE_HELP<ARG1 ,ARG2> {
 	using RET = TYPE_CAT<R2X ,type<R1X>> ;
 } ;
 
-using TYPE_REVERSE<UNIT> = TYPE_REVERSE_HELP<UNIT>::RET ;
+using TYPE_REVERSE<UNIT> = template TYPE_REVERSE_HELP<UNIT>::RET ;
 
-trait TYPE_PACK_HELP<ARG1 ,ARG2> {
+trait TYPE_PICK_HELP<ARG1 ,ARG2> {
 	require (ENUM_EQ_ZERO<ARG2>) ;
 
 	using RET = TYPE_FIRST_ONE<ARG1> ;
 } ;
 
-trait TYPE_PACK_HELP<ARG1 ,ARG2> {
+trait TYPE_PICK_HELP<ARG1 ,ARG2> {
 	require (ENUM_GT_ZERO<ARG2>) ;
 
-	using RET = template TYPE_PACK_HELP<TYPE_FIRST_REST<ARG1 ,ENUM_DEC<ARG2>>>::RET ;
+	using RET = template TYPE_PICK_HELP<TYPE_FIRST_REST<ARG1> ,ENUM_DEC<ARG2>>::RET ;
 } ;
 
-using TYPE_PACK<LIST ,INDEX> = TYPE_PACK_HELP<LIST ,INDEX>::RET ;
+using TYPE_PICK<LIST ,INDEX> = template TYPE_PICK_HELP<LIST ,INDEX>::RET ;
 
 trait ENUM_ALL_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -238,8 +238,8 @@ trait ENUM_ANY_HELP<ARG1> {
 	using RET = CONDITIONAL<R1X ,ENUM_IDEN ,R2X> ;
 } ;
 
-using ENUM_ALL<...> = ENUM_ALL_HELP<type<...>>::RET ;
-using ENUM_ANY<...> = ENUM_ANY_HELP<type<...>>::RET ;
+using ENUM_ALL<UNITS...> = template ENUM_ALL_HELP<UNITS>::RET ;
+using ENUM_ANY<UNITS...> = template ENUM_ANY_HELP<UNITS>::RET ;
 
 trait IS_ALL_SAME_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -263,31 +263,31 @@ trait IS_ALL_SAME_HELP<ARG1> {
 	using RET = ENUM_ALL<IS_SAME<R1X ,R2X> ,R3X> ;
 } ;
 
-trait IS_ANY_SAME<ARG1> {
+trait IS_ANY_SAME_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-trait IS_ANY_SAME<ARG1> {
+trait IS_ANY_SAME_HELP<ARG1> {
 	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-trait IS_ANY_SAME<ARG1> {
+trait IS_ANY_SAME_HELP<ARG1> {
 	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
 
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = TYPE_SECOND_ONE<ARG1> ;
-	using R3X = template IS_ANY_SAME<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
-	using R4X = template IS_ANY_SAME<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R3X = template IS_ANY_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R4X = template IS_ANY_SAME_HELP<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>>::RET ;
 
 	using RET = ENUM_ANY<IS_SAME<R1X ,R2X> ,R3X ,R4X> ;
 } ;
 
-using IS_ALL_SAME<...> = IS_ALL_SAME_HELP<type<...>>::RET ;
-using IS_ANY_SAME<...> = IS_ANY_SAME_HELP<type<...>>::RET ;
+using IS_ALL_SAME<UNITS...> = template IS_ALL_SAME_HELP<UNITS>::RET ;
+using IS_ANY_SAME<UNITS...> = template IS_ANY_SAME_HELP<UNITS>::RET ;
 
 trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<ARG1>) ;
@@ -298,24 +298,26 @@ trait PLACEHOLDER_HELP<ARG1> {
 trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_GT_ZERO<ARG1>) ;
 
-	using R1X = template PLACEHOLDER_HELP<ENUM_DEC<ARG1>>::PlaceHolder ;
+	using BASE = template PLACEHOLDER_HELP<ENUM_DEC<ARG1>>::PlaceHolder ;
 
 	class PlaceHolder {
-		extend :R1X ;
+		extend :BASE ;
 	} ;
 } ;
 
-static constant PH0 = PLACEHOLDER_HELP<enum (0)>::PlaceHolder ;
-static constant PH1 = PLACEHOLDER_HELP<enum (1)>::PlaceHolder ;
-static constant PH2 = PLACEHOLDER_HELP<enum (2)>::PlaceHolder ;
-static constant PH3 = PLACEHOLDER_HELP<enum (3)>::PlaceHolder ;
-static constant PH4 = PLACEHOLDER_HELP<enum (4)>::PlaceHolder ;
-static constant PH5 = PLACEHOLDER_HELP<enum (5)>::PlaceHolder ;
-static constant PH6 = PLACEHOLDER_HELP<enum (6)>::PlaceHolder ;
-static constant PH7 = PLACEHOLDER_HELP<enum (7)>::PlaceHolder ;
-static constant PH8 = PLACEHOLDER_HELP<enum (8)>::PlaceHolder ;
-static constant PH9 = PLACEHOLDER_HELP<enum (9)>::PlaceHolder ;
-static constant PHX = PLACEHOLDER_HELP<enum (10)>::PlaceHolder ;
+using PlaceHolder<RANK> = template PLACEHOLDER_HELP<RANK>::PlaceHolder ;
+
+static constant PH0 = PlaceHolder<enum (0)> () ;
+static constant PH1 = PlaceHolder<enum (1)> () ;
+static constant PH2 = PlaceHolder<enum (2)> () ;
+static constant PH3 = PlaceHolder<enum (3)> () ;
+static constant PH4 = PlaceHolder<enum (4)> () ;
+static constant PH5 = PlaceHolder<enum (5)> () ;
+static constant PH6 = PlaceHolder<enum (6)> () ;
+static constant PH7 = PlaceHolder<enum (7)> () ;
+static constant PH8 = PlaceHolder<enum (8)> () ;
+static constant PH9 = PlaceHolder<enum (9)> () ;
+static constant PHX = PlaceHolder<enum (10)> () ;
 
 using IS_BOOL<UNIT> = IS_SAME<UNIT ,BOOL> ;
 using IS_VAR<UNIT> = ENUM_ANY<IS_SAME<UNIT ,VAR32> ,IS_SAME<UNIT ,VAR64>> ;
@@ -326,7 +328,6 @@ using IS_NULL<UNIT> = IS_SAME<UNIT ,type (NULL)> ;
 using IS_BASIC<UNIT> = ENUM_ANY<IS_BOOL<UNIT> ,IS_VAR<UNIT> ,IS_FLOAT<UNIT> ,IS_BYTE<UNIT> ,IS_STR<UNIT> ,IS_NULL<UNIT>> ;
 
 using IS_FUNCTION<UNIT> = enum (rust::is_function (UNIT)) ;
-using IS_POINTER<UNIT> = enum (rust::is_pointer (UNIT)) ;
 using IS_MUTABLE<UNIT> = enum (rust::is_mutable (UNIT)) ;
 using IS_NOEXCPET<UNIT> = enum (rust::is_noexcept (UNIT)) ;
 
@@ -337,7 +338,6 @@ using IS_PLACEHOLDER<UNIT> = IS_EXTEND<UNIT ,type (PH0)> ;
 using IS_STRUCT<UNIT> = enum (rust::is_struct (UNIT)) ;
 using IS_CLASS<UNIT> = enum (rust::is_class (UNIT)) ;
 using IS_TRIVIAL<UNIT> = enum (rust::is_trivial (UNIT)) ;
-using IS_FINAL<UNIT> = enum (rust::is_final (UNIT)) ;
 using IS_CONSTRUCTIBLE<UNIT ,PARAMS> = enum (rust::is_constructible (UNIT ,PARAMS)) ;
 using IS_CLONEABLE<UNIT> = enum (rust::is_cloneable (UNIT)) ;
 using IS_SHAREABLE<UNIT> = enum (rust::is_shareable (UNIT)) ;
@@ -364,13 +364,6 @@ trait BYTE_TRAIT_HELP<ARG1> {
 } ;
 
 trait BYTE_TRAIT_HELP<ARG1> {
-	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<DATA>>) ;
-	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<DATA>>) ;
-
-	using RET = DATA ;
-} ;
-
-trait BYTE_TRAIT_HELP<ARG1> {
 	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<FEAT>>) ;
 	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<FEAT>>) ;
 
@@ -391,14 +384,14 @@ trait BYTE_TRAIT_HELP<ARG1> {
 	using RET = byte256 ;
 } ;
 
-using BYTE_TRAIT<UNIT> = BYTE_TRAIT_HELP<UNIT>::RET ;
+using BYTE_TRAIT<UNIT> = template BYTE_TRAIT_HELP<UNIT>::RET ;
 
 static function noop = () => {} ;
 
 static function bad = (id) => {
 	using R1X = type (id) ;
 	assert (FALSE) ;
-	return R1X (auto (ZERO)) ;
+	return R1X (auto) ;
 } ;
 
 trait FORWARD_HELP<ARG1> {
@@ -432,14 +425,12 @@ static function swap = (obj1 ,obj2) => {
 
 static function address = (obj) :LENGTH => rust::address (obj) ;
 
-static function load = (id ,addr :LENGTH) => rust::load (id ,addr) ;
-
 static function alignas = (base :LENGTH ,align :LENGTH) :LENGTH => {
 	constant r1x = align - base % align ;
 	return base + r1x % align ;
 } ;
 
-static function between = (index :INDEX ,begin :INDEX ,end :INDEX) => index >= begin && index < end ;
+static function between = (index :INDEX ,begin :INDEX ,end :INDEX) :BOOL => index >= begin && index < end ;
 
 static function abs = (obj) => {
 	using R1X = type (obj) ;
@@ -460,14 +451,13 @@ static function max = (obj1 ,obj2) => {
 	return obj1 ;
 } ;
 
-
-static function fasthash = () :FLAG => {
+static function fast_hash = () :FLAG => {
 	constant r2x = VAR64 (-3750763034362895579) ;
 	constant r3x = VAR64 (FEAT (r2x) & FEAT (VAR_MAX)) ;
 	return FLAG (r3x) ;
 } ;
 
-static function fasthash = (obj1 :FLAG ,obj2 :FLAG) :FLAG => {
+static function fast_hash = (obj1 :FLAG ,obj2 :FLAG) :FLAG => {
 	constant r1x = VAR64 (FEAT (obj1) ^ FEAT (obj2)) ;
 	constant r2x = r1x * VAR64 (1099511628211) ;
 	constant r3x = VAR64 (FEAT (r2x) & FEAT (VAR_MAX)) ;
@@ -488,19 +478,19 @@ trait TUPLE_HELP<ARG1> {
 
 		function compr = (that :Tuple) :FLAG => ZERO ;
 
-		function hash = () :FLAG => fasthash () ;
+		function hash = () :FLAG => fast_hash () ;
 	} ;
 } ;
 
 trait TUPLE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
-	using R1X = TYPE_FIRST_ONE<ARG1> ;
-	using R2X = template TUPLE_HELP<TYPE_FIRST_REST<ARG1>>::Tuple ;
+	using FIRST_ONE = TYPE_FIRST_ONE<ARG1> ;
+	using FIRST_REST = template TUPLE_HELP<TYPE_FIRST_REST<ARG1>>::Tuple ;
 	
 	class Tuple {
-		extend mSuper :R2X ;
-		variable mValue :R1X ;
+		extend mSuper :FIRST_REST ;
+		variable mValue :FIRST_ONE ;
 	} ;
 
 	implement Tuple {
@@ -508,9 +498,9 @@ trait TUPLE_HELP<ARG1> {
 
 		function rank = () :LENGTH => COUNTOF<ARG1>::value ;
 
-		property one = mutable [] :R1X => mValue ;
+		property one = mutable [] :FIRST_ONE => mValue ;
 
-		property rest = mutable [] :R2X => mSuper ;
+		property rest = mutable [] :FIRST_REST => mSuper ;
 
 		trait PICK_HELP<ARG1> {
 			require (ENUM_EQ_ZERO<ARG1>) ;
@@ -537,7 +527,7 @@ trait TUPLE_HELP<ARG1> {
 			if (mSuper != that.mSuper)
 				return FALSE ;
 			return TRUE ;
-		}
+		} ;
 
 		function compr = (that :Tuple) :FLAG => {
 			constant r1x = mValue <=> that.mValue ;
@@ -552,24 +542,26 @@ trait TUPLE_HELP<ARG1> {
 		function hash = () :FLAG => {
 			constant r1x = mValue.hash () ;
 			constant r2x = mSuper.hash () ;
-			return fasthash (r1x ,r2x) ;
+			return fast_hash (r1x ,r2x) ;
 		} ;
 	} ;
 } ;
 
-using Tuple<...> = TUPLE_HELP<type<...>>::Tuple ;
+using Tuple<UNITS...> = template TUPLE_HELP<UNITS>::Tuple ;
 
 class Pointer {
 	variable mOrigin :LENGTH ;
+	variable mSize :LENGTH ;
+	variable mAlign :LENGTH ;
 	variable mPointer :LENGTH ;
-	variable mBuilt :BOOL ;
 } ;
 
 implement Pointer {
 	function new = () => {
 		mOrigin = ZERO ;
+		mSize = ZERO ;
+		mAlign = ZERO ;
 		mPointer = ZERO ;
-		mBuilt = FALSE ;
 	} ;
 	
 	function new = (id) => {
@@ -582,37 +574,45 @@ implement Pointer {
 		if (mOrigin == ZERO)
 			return ;
 		switch {
-			if not (mBuilt)
-				discard ;
-			//???
-			mBuilt = FALSE ;
+			if (mPointer == ZERO)
+				continue ;
+			rust::destroy (id ,mPointer) ;
 		} ;
 		rust::free (mOrigin) ;
 		mOrigin = ZERO ;
+		mSize = ZERO ;
+		mAlign = ZERO ;
 		mPointer = ZERO ;
 	} ;
 
 	function exist = () => mOrigin != ZERO ;
 
-	static Pointer make = (size_len :LENGTH ,align_len :LENGTH) => {
+	static function make = (size_len :LENGTH) => make (size_len ,1) ;
+
+	static function make = (size_len :LENGTH ,align_len :LENGTH) => {
 		assert (size_len > 0) ;
 		assert (align_len > 0) ;
 		variable ret = Pointer () ;
 		constant r1x = size_len + align_len - 1 ;
+		assert (r1x > 0) ;
 		ret.mOrigin = rust::alloc (r1x) ;
-		ret.mPointer = alignas (ret.mOrigin ,align_len) ;
+		ret.mSize = r1x ;
+		ret.mAlign = align_len ;
 		return ret ;
 	} ;
 
-	function build = (id) => {
-		assert (!mBuilt) ;
-		//???
-		mBuilt = TRUE ;
+	function build = mutable (id) => {
+		using R1X = type (id) ;
+		assert (mPointer == ZERO) ;
+		constant r1x = alignas (mOrigin ,mAlign) ;
+		rust::create (id ,r1x) ;
+		mPointer = r1x ;
 	} ;
 
 	property to = mutable [id] => {
 		using R1X = type (id) ;
-		//???
+		assert (mPointer != ZERO) ;
+		return rust::load[id ,mPointer] ;
 	} ;
 } ;
 
@@ -629,43 +629,50 @@ trait SLICE_HELP<ARG1> {
 
 		function addr = () :LENGTH => virtual ;
 
-		property at = mutable [index :INDEX] :ARG1 => virtual ;
+		property at = [index :INDEX] :ARG1 => virtual ;
 	} ;
 
 	class Slice::ImplHolder {
 		variable mSize :LENGTH ;
 	} ;
 
-	implement Slice::ImplHolder :Holder {
+	implement Slice::ImplHolder {
 		function new = () => disable ;
 
 		function delete = () => disable ;
+	} ;
 
+	implement Slice::ImplHolder :Holder {
 		function size = () :LENGTH => mSize ;
 
 		function addr = () :LENGTH => address (this) + SIZEOF<ImplHolder>::value ;
 
-		property at = mutable [index :INDEX] :ARG1 => mSlice[index] ;
+		property at = [index :INDEX] :ARG1 => rust::load[type<ARG1>::id ,addr () + index * SIZEOF<ARG1>::value] ;
 	} ;
 
 	implement Slice {
-		function new = () => {
-			mPointer = Pointer::make () ;
+		function new = () => disable ;
+
+		function new = (len :LENGTH) => {
+			constant r1x = type_size (len) ;
+			constant r2x = type_align () ;
+			mPointer = Pointer::make (r1x ,r2x) ;
+			mPointer.build (type<ImplHolder>::id) ;
 		} ;
 
 		private static function type_size = (len :LENGTH) :LENGTH => SIZEOF<ImplHolder>::value + len * SIZEOF<ARG1>::value ;
 
 		private static function type_align = () :LENGTH => max (ALIGNOF<ImplHolder>::value ,ALIGNOF<ARG1>::value) ;
 
-		function size = () :LENGTH => mPointer.to[type<>::id].size () ;
+		function size = () :LENGTH => mPointer.to[type<Holder>::id].size () ;
 
-		function addr = () :LENGTH => mPointer.to[type<>::id].addr () ;
+		function addr = () :LENGTH => mPointer.to[type<Holder>::id].addr () ;
 
-		function at = [index :INDEX] :ARG1 => mPointer.to[type<>::id].at[index] ;
+		function at = [index :INDEX] :ARG1 => mPointer.to[type<Holder>::id].at[index] ;
 	} ;
 } ;
 
-using Slice<UNIT> = SLICE_HELP<UNIT>::Slice ;
+using Slice<UNIT> = template SLICE_HELP<UNIT>::Slice ;
 
 trait CLAZZ_HELP<ARG1> {
 	class Clazz {
@@ -676,33 +683,50 @@ trait CLAZZ_HELP<ARG1> {
 	} ;
 
 	interface Clazz::Holder {
-		property type_hash = mutable [] :FLAG => virtual ;
-		property type_name = mutable [] :Slice<STR> => virtual ;
-		property type_size = mutable [] :LENGTH => virtual ;
-		property type_align = mutable [] :LENGTH => virtual ;
+		property type_hash = [] :FLAG => virtual ;
+		property type_name = [] :Slice<STR> => virtual ;
+		property type_size = [] :LENGTH => virtual ;
+		property type_align = [] :LENGTH => virtual ;
 	} ;
 
-	class Clazz::ImplHolder {
+	class Clazz::ImplHolder :Holder {
 		constant mTypeHash :FLAG ;
 		constant mTypeName :Slice<STR> ;
 		constant mTypeSize :LENGTH ;
 		constant mTypeAlign :LENGTH ;
 	} ;
 
+	implement Clazz::ImplHolder {
+		function new = () => disable ;
+
+		function delete = () => disable ;
+	} ;
+
+	implement Clazz::ImplHolder :Holder {
+		property type_hash = [] :FLAG => mTypeHash ;
+
+		property type_name = [] :Slice<STR> => mTypeName ;
+
+		property type_size = [] :LENGTH => mTypeSize ;
+
+		property type_align = [] :LENGTH => mTypeAlign ;
+	} ;
+
 	implement Clazz {
 		function new = () => {
-			mPointer = Pointer::make () ;
+			mPointer = Pointer::make (SIZEOF<ImplHolder>::value ,ALIGNOF<ImplHolder>::value) ;
+			mPointer.build (type<ImplHolder>::id) ;
 		} ;
 
-		property type_hash = mutable [] :FLAG => mPointer.to[type<>::id].type_hash ;
+		property type_hash = [] :FLAG => mPointer.to[type<Holder>::id].type_hash ;
 
-		property type_name = mutable [] :Slice<STR> => mPointer.to[type<>::id].type_name ;
+		property type_name = [] :Slice<STR> => mPointer.to[type<Holder>::id].type_name ;
 
-		property type_size = mutable [] :LENGTH => mPointer.to[type<>::id].type_size ;
+		property type_size = [] :LENGTH => mPointer.to[type<Holder>::id].type_size ;
 
-		property type_align = mutable [] :LENGTH => mPointer.to[type<>::id].type_align ;
+		property type_align = [] :LENGTH => mPointer.to[type<Holder>::id].type_align ;
 
-		function equal = (that :Clazz) => {
+		function equal = (that :Clazz) :BOOL => {
 			if (type_hash != that.type_hash)
 				return FALSE ;
 			if (type_name != that.type_name)
@@ -710,7 +734,7 @@ trait CLAZZ_HELP<ARG1> {
 			return TRUE ;
 		} ;
 
-		function compr = (that :Clazz) => {
+		function compr = (that :Clazz) :FLAG => {
 			constant r1x = type_hash <=> that.type_hash ;
 			if (r1x != ZERO)
 				return r1x ;

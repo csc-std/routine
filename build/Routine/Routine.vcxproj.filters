@@ -66,6 +66,18 @@
     <ClInclude Include="..\..\..\..\..\Depends\__CSC__\csc_thread.hpp">
       <Filter>csc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\csc2\begin.hh">
+      <Filter>csc2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\csc2\csc.hpp">
+      <Filter>csc2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\csc2\csc_core.hpp">
+      <Filter>csc2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\csc2\end.hh">
+      <Filter>csc2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="csc">
@@ -76,6 +88,9 @@
     </Filter>
     <Filter Include="rust">
       <UniqueIdentifier>{c90659e8-7062-47ff-b8aa-f4f86f2f2572}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="csc2">
+      <UniqueIdentifier>{39dd61d7-1230-4b66-96d6-a7e28319a439}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
