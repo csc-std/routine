@@ -34,7 +34,7 @@ concept
 as
 using
 define
-template
+typename
 enum
 type
 
@@ -49,6 +49,7 @@ virtual
 default
 disable
 property
+operator
 algebra
 where
 
@@ -75,6 +76,7 @@ this
 extend
 interface
 implement
+friend
 delete
 new
 
@@ -85,20 +87,11 @@ is_same
 is_enum
 is_type
 is_function
-is_mutable
 is_noexcept
 is_struct
 is_interface
 is_extend
 is_class
 is_trivial
-is_dynamic
 is_constructible
 is_cloneable
-is_shareable
-
-address
-alloc
-free
-create
-destroy

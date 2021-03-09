@@ -1,21 +1,19 @@
-module rust.core ;
+module rust::core ;
 
-import module rust ;
+using BOOL = internel::bool ;
 
-using BOOL = rust::bool ;
+static constant TRUE = BOOL (internel::true) ;
+static constant FALSE = BOOL (internel::false) ;
 
-static constant TRUE = BOOL (rust::true) ;
-static constant FALSE = BOOL (rust::false) ;
-
-using VAR32 = rust::int32 ;
-using VAR64 = rust::int64 ;
+using VAR32 = internel::int32 ;
+using VAR64 = internel::int64 ;
 
 static constant VAR32_MAX = VAR32 (2147483647) ;
 static constant VAR32_MIN = -VAR32_MAX - 1 ;
 static constant VAR64_MAX = VAR64 (9223372036854775807) ;
 static constant VAR64_MIN = -VAR64_MAX - 1 ;
 
-trait VAR_HELP {
+trait VAR_HELP<> {
 	require (macro ("config::int32")) ;
 
 	using VAR = VAR32 ;
@@ -24,7 +22,7 @@ trait VAR_HELP {
 	static constant VAR_MIN = VAR32_MIN ;
 } ;
 
-trait VAR_HELP {
+trait VAR_HELP<> {
 	require (macro ("config::int64")) ;
 
 	using VAR = VAR64 ;
@@ -33,77 +31,80 @@ trait VAR_HELP {
 	static constant VAR_MIN = VAR64_MIN ;
 } ;
 
-using VAR = VAR_HELP::VAR ;
+using VAR = typename VAR_HELP<>::VAR ;
 
-static constant VAR_MAX = VAR_HELP::VAR_MAX ;
-static constant VAR_MIN = VAR_HELP::VAR_MIN ;
+static constant VAR_MAX = VAR_HELP<>::VAR_MAX ;
+static constant VAR_MIN = VAR_HELP<>::VAR_MIN ;
 
 using INDEX = VAR ;
 using LENGTH = VAR ;
 using FLAG = VAR ;
 
-static constant ZERO = VAR (+0) ;
-static constant NONE = VAR (-1) ;
 static constant USED = VAR (-2) ;
+static constant NONE = VAR (-1) ;
+static constant ZERO = VAR (+0) ;
+static constant IDEN = VAR (+1) ;
 
-using SINGLE = rust::float32 ;
-using DOUBLE = rust::float64 ;
+using FLOAT32 = internel::float32 ;
+using FLOAT64 = internel::float64 ;
 
-static constant SINGLE_MAX = SINGLE (3.402823466E+38) ;
-static constant SINGLE_MIN = SINGLE (1.175494351E-38) ;
-static constant SINGLE_EPS = SINGLE (1.192092896E-07) ;
-static constant SINGLE_INF = SINGLE (rust::infinity) ;
-static constant DOUBLE_MAX = DOUBLE (1.7976931348623158E+308) ;
-static constant DOUBLE_MIN = DOUBLE (2.2250738585072014E-308) ;
-static constant DOUBLE_EPS = DOUBLE (2.2204460492503131E-016) ;
-static constant DOUBLE_INF = DOUBLE (rust::infinity) ;
+static constant FLOAT32_MAX = FLOAT32 (3.402823466E+38) ;
+static constant FLOAT32_MIN = FLOAT32 (1.175494351E-38) ;
+static constant FLOAT32_EPS = FLOAT32 (1.192092896E-07) ;
+static constant FLOAT32_INF = FLOAT32 (internel::infinity) ;
+static constant FLOAT64_MAX = FLOAT64 (1.7976931348623158E+308) ;
+static constant FLOAT64_MIN = FLOAT64 (2.2250738585072014E-308) ;
+static constant FLOAT64_EPS = FLOAT64 (2.2204460492503131E-016) ;
+static constant FLOAT64_INF = FLOAT64 (internel::infinity) ;
 
-using BYTE = rust::byte8 ;
-using WORD = rust::byte16 ;
-using CHAR = rust::byte32 ;
-using FEAT = rust::byte64 ;
+using BYTE = internel::byte8 ;
+using WORD = internel::byte16 ;
+using CHAR = internel::byte32 ;
+using FEAT = internel::byte64 ;
 
-using STRA = rust::stra ;
-using STRU8 = rust::stru8 ;
-using STRU16 = rust::stru16 ;
-using STRU32 = rust::stru32 ;
+using STRA = internel::stra ;
+using STRU8 = internel::stru8 ;
+using STRU16 = internel::stru16 ;
+using STRU32 = internel::stru32 ;
 
-trait STR_HELP {
+trait STR_HELP<> {
 	require (macro ("config::stra")) ;
 
 	using STR = STRA ;
 } ;
 
-trait STR_HELP {
+trait STR_HELP<> {
 	require (macro ("config::stru8")) ;
 
 	using STR = STRU8 ;
 } ;
 
-trait STR_HELP {
+trait STR_HELP<> {
 	require (macro ("config::stru16")) ;
 
 	using STR = STRU16 ;
 } ;
 
-trait STR_HELP {
+trait STR_HELP<> {
 	require (macro ("config::stru32")) ;
 
 	using STR = STRU32 ;
 } ;
 
-using STR = STR_HELP::STR ;
+using STR = typename STR_HELP<>::STR ;
 
-static constant NULL = rust::null ;
+static constant NULL = internel::null ;
 
+using ENUM_USED = enum (-2) ;
+using ENUM_NONE = enum (-1) ;
 using ENUM_ZERO = enum (+0) ;
 using ENUM_IDEN = enum (+1) ;
 
-define SIZEOF<UNIT> = enum (rust::sizeof (UNIT)) ;
-define ALIGNOF<UNIT> = enum (rust::alignof (UNIT)) ;
-define COUNTOF<UNIT> = enum (rust::countof (UNIT)) ;
+define SIZEOF<UNIT> = enum (internel::sizeof (UNIT)) ;
+define ALIGNOF<UNIT> = enum (internel::alignof (UNIT)) ;
+define COUNTOF<UNIT> = enum (internel::countof (UNIT)) ;
 
-define IS_SAME<UNIT1 ,UNIT2> = enum (rust::is_same (UNIT1 ,UNIT2)) ;
+define IS_SAME<UNIT1 ,UNIT2> = enum (internel::is_same (UNIT1 ,UNIT2)) ;
 
 trait ENABLE_HELP<ARG1 ,ARG2> {
 	require (IS_SAME<ARG1 ,ENUM_IDEN>) ;
@@ -111,8 +112,8 @@ trait ENABLE_HELP<ARG1 ,ARG2> {
 	using RET = ARG2 ;
 } ;
 
-define ENABLE<COND> = template ENABLE_HELP<COND ,type<>>::RET ;
-define ENABLE<COND ,YES> = template ENABLE_HELP<COND ,YES>::RET ;
+define ENABLE<COND> = typename ENABLE_HELP<COND ,type<>>::RET ;
+define ENABLE<COND ,YES> = typename ENABLE_HELP<COND ,YES>::RET ;
 
 trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	require (IS_SAME<ARG1 ,ENUM_IDEN>) ;
@@ -126,9 +127,9 @@ trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 	using RET = ARG3 ;
 } ;
 
-define CONDITIONAL<COND ,YES ,NO> = template CONDITIONAL_HELP<COND ,YES ,NO>::RET ;
+define CONDITIONAL<COND ,YES ,NO> = typename CONDITIONAL_HELP<COND ,YES ,NO>::RET ;
 
-define IS_ENUM<UNIT> = enum (rust::is_enum (UNIT)) ;
+define IS_ENUM<UNIT> = enum (internel::is_enum (UNIT)) ;
 define ENUM_CHECK<UNIT> = ENABLE<IS_ENUM<UNIT> ,UNIT> ;
 
 define ENUM_EQUAL<UNIT1 ,UNIT2> = enum (ENUM_CHECK<UNIT1>::value == ENUM_CHECK<UNIT2>::value) ;
@@ -155,14 +156,22 @@ define ENUM_MOD<UNIT1 ,UNIT2> = enum (ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT
 define ENUM_INC<UNIT> = ENUM_ADD<UNIT ,ENUM_IDEN> ;
 define ENUM_DEC<UNIT> = ENUM_SUB<UNIT ,ENUM_IDEN> ;
 
-define IS_TYPE<UNIT> = enum (rust::is_type (UNIT)) ;
+define IS_TYPE<UNIT> = enum (internel::is_type (UNIT)) ;
 define TYPE_CHECK<UNIT> = ENABLE<IS_TYPE<UNIT> ,UNIT> ;
 
-define TYPE_FIRST_ONE<UNIT> = rust::first_one (TYPE_CHECK<UNIT>) ;
-define TYPE_FIRST_REST<UNIT> = rust::first_rest (TYPE_CHECK<UNIT>) ;
-define TYPE_SECOND_ONE<UNIT> = rust::second_one (TYPE_CHECK<UNIT>) ;
-define TYPE_SECOND_REST<UNIT> = rust::second_rest (TYPE_CHECK<UNIT>) ;
+define TYPE_FIRST_ONE<UNIT1 ,UNITS...> = UNIT1 ;
+define TYPE_FIRST_REST<UNIT1 ,UNITS...> = UNITS ;
+define TYPE_SECOND_ONE<UNIT1 ,UNIT2 ,UNITS...> = UNIT2 ;
+define TYPE_SECOND_REST<UNIT1 ,UNIT2 ,UNITS...> = UNITS ;
 define TYPE_CAT<UNIT1 ,UNIT2> = type<TYPE_CHECK<UNIT1>... ,TYPE_CHECK<UNIT2>...> ;
+
+trait TYPE_UNWRAP_HELP<ARG1> {
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = TYPE_FIRST_ONE<ARG1> ;
+} ;
+
+define TYPE_UNWRAP<UNIT> = typename TYPE_UNWRAP_HELP<UNIT>::RET ;
 
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
 	require (ENUM_EQ_ZERO<ARG2>) ;
@@ -173,12 +182,12 @@ trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
 	require (ENUM_GT_ZERO<ARG2>) ;
 	
-	using R1X = template TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2>>::RET ;
+	using R1X = typename TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2>>::RET ;
 
 	using RET = TYPE_CAT<ARG1 ,R1X> ;
 } ;
 
-define TYPE_REPEAT<UNIT ,SIZE> = template TYPE_REPEAT_HELP<type<UNIT> ,SIZE>::RET ;
+define TYPE_REPEAT<UNIT ,SIZE> = typename TYPE_REPEAT_HELP<type<UNIT> ,SIZE>::RET ;
 
 trait TYPE_REVERSE_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -190,12 +199,29 @@ trait TYPE_REVERSE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 	
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
-	using R2X = template TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+	using R2X = typename TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
 
 	using RET = TYPE_CAT<R2X ,type<R1X>> ;
 } ;
 
-define TYPE_REVERSE<UNIT> = template TYPE_REVERSE_HELP<UNIT>::RET ;
+define TYPE_REVERSE<UNIT> = typename TYPE_REVERSE_HELP<UNIT>::RET ;
+
+trait TYPE_FIND_HELP<ARG1 ,ARG2 ,ARG3> {
+	require (ENUM_EQ_ZERO<ARG2>) ;
+
+	using RET = ENUM_NONE ;
+} ;
+
+trait TYPE_FIND_HELP<ARG1 ,ARG2 ,ARG3> {
+	require (ENUM_GT_ZERO<ARG2>) ;
+
+	using R1X = TYPE_FIRST_ONE<ARG1> ;
+	using R2X = typename TYPE_FIND_HELP<TYPE_FIRST_REST<ARG1> ,ARG2 ,ENUM_INC<ARG3>>::RET ;
+
+	using RET = CONDITIONAL<IS_SAME<R1X ,ARG2> ,ARG3 ,R2X> ;
+} ;
+
+define TYPE_FIND<LIST ,ITEM> = typename TYPE_FIND_HELP<LIST ,ITEM ,ENUM_ZERO>::RET ;
 
 trait TYPE_PICK_HELP<ARG1 ,ARG2> {
 	require (ENUM_EQ_ZERO<ARG2>) ;
@@ -206,10 +232,10 @@ trait TYPE_PICK_HELP<ARG1 ,ARG2> {
 trait TYPE_PICK_HELP<ARG1 ,ARG2> {
 	require (ENUM_GT_ZERO<ARG2>) ;
 
-	using RET = template TYPE_PICK_HELP<TYPE_FIRST_REST<ARG1> ,ENUM_DEC<ARG2>>::RET ;
+	using RET = typename TYPE_PICK_HELP<TYPE_FIRST_REST<ARG1> ,ENUM_DEC<ARG2>>::RET ;
 } ;
 
-define TYPE_PICK<LIST ,INDEX> = template TYPE_PICK_HELP<LIST ,INDEX>::RET ;
+define TYPE_PICK<LIST ,INDEX> = typename TYPE_PICK_HELP<LIST ,INDEX>::RET ;
 
 trait ENUM_ALL_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -221,7 +247,7 @@ trait ENUM_ALL_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
-	using R2X = template ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+	using R2X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
 
 	using RET = CONDITIONAL<R1X ,R2X ,ENUM_ZERO> ;
 } ;
@@ -236,13 +262,13 @@ trait ENUM_ANY_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
-	using R2X = template ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+	using R2X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
 
 	using RET = CONDITIONAL<R1X ,ENUM_IDEN ,R2X> ;
 } ;
 
-define ENUM_ALL<UNITS...> = template ENUM_ALL_HELP<UNITS>::RET ;
-define ENUM_ANY<UNITS...> = template ENUM_ANY_HELP<UNITS>::RET ;
+define ENUM_ALL<UNITS...> = typename ENUM_ALL_HELP<UNITS>::RET ;
+define ENUM_ANY<UNITS...> = typename ENUM_ANY_HELP<UNITS>::RET ;
 
 trait IS_ALL_SAME_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
@@ -261,7 +287,7 @@ trait IS_ALL_SAME_HELP<ARG1> {
 
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = TYPE_SECOND_ONE<ARG1> ;
-	using R3X = template IS_ALL_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R3X = typename IS_ALL_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
 
 	using RET = ENUM_ALL<IS_SAME<R1X ,R2X> ,R3X> ;
 } ;
@@ -283,14 +309,14 @@ trait IS_ANY_SAME_HELP<ARG1> {
 
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = TYPE_SECOND_ONE<ARG1> ;
-	using R3X = template IS_ANY_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
-	using R4X = template IS_ANY_SAME_HELP<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R3X = typename IS_ANY_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R4X = typename IS_ANY_SAME_HELP<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>>::RET ;
 
 	using RET = ENUM_ANY<IS_SAME<R1X ,R2X> ,R3X ,R4X> ;
 } ;
 
-define IS_ALL_SAME<UNITS...> = template IS_ALL_SAME_HELP<UNITS>::RET ;
-define IS_ANY_SAME<UNITS...> = template IS_ANY_SAME_HELP<UNITS>::RET ;
+define IS_ALL_SAME<UNITS...> = typename IS_ALL_SAME_HELP<UNITS>::RET ;
+define IS_ANY_SAME<UNITS...> = typename IS_ANY_SAME_HELP<UNITS>::RET ;
 
 trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<ARG1>) ;
@@ -301,14 +327,14 @@ trait PLACEHOLDER_HELP<ARG1> {
 trait PLACEHOLDER_HELP<ARG1> {
 	require (ENUM_GT_ZERO<ARG1>) ;
 
-	using BASE = template PLACEHOLDER_HELP<ENUM_DEC<ARG1>>::PlaceHolder ;
+	using BASE = typename PLACEHOLDER_HELP<ENUM_DEC<ARG1>>::PlaceHolder ;
 
 	class PlaceHolder {
 		extend :BASE ;
 	} ;
 } ;
 
-define PlaceHolder<RANK> = template PLACEHOLDER_HELP<RANK>::PlaceHolder ;
+define PlaceHolder<RANK> = typename PLACEHOLDER_HELP<RANK>::PlaceHolder ;
 
 static constant PH0 = PlaceHolder<enum (0)> () ;
 static constant PH1 = PlaceHolder<enum (1)> () ;
@@ -324,27 +350,23 @@ static constant PHX = PlaceHolder<enum (10)> () ;
 
 define IS_BOOL<UNIT> = IS_SAME<UNIT ,BOOL> ;
 define IS_VAR<UNIT> = ENUM_ANY<IS_SAME<UNIT ,VAR32> ,IS_SAME<UNIT ,VAR64>> ;
-define IS_FLOAT<UNIT> = ENUM_ANY<IS_SAME<UNIT ,SINGLE> ,IS_SAME<UNIT ,DOUBLE>> ;
-define IS_BYTE<UNIT> = ENUM_ANY<IS_SAME<UNIT ,BYTE> ,IS_SAME<UNIT ,WORD> ,IS_SAME<UNIT ,CHAR> ,IS_SAME<UNIT ,FEAT> ,IS_SAME<UNIT ,byte128> ,IS_SAME<UNIT ,byte256>> ;
+define IS_FLOAT<UNIT> = ENUM_ANY<IS_SAME<UNIT ,FLOAT32> ,IS_SAME<UNIT ,FLOAT64>> ;
+define IS_BYTE<UNIT> = ENUM_ANY<IS_SAME<UNIT ,BYTE> ,IS_SAME<UNIT ,WORD> ,IS_SAME<UNIT ,CHAR> ,IS_SAME<UNIT ,FEAT> ,IS_SAME<UNIT ,internel::byte128> ,IS_SAME<UNIT ,internel::byte256> ,IS_SAME<UNIT ,internel::byte512>> ;
 define IS_STR<UNIT> = ENUM_ANY<IS_SAME<UNIT ,STRA> ,IS_SAME<UNIT ,STRU8> ,IS_SAME<UNIT ,STRU16> ,IS_SAME<UNIT ,STRU32>> ;
 define IS_NULL<UNIT> = IS_SAME<UNIT ,type (NULL)> ;
 define IS_BASIC<UNIT> = ENUM_ANY<IS_BOOL<UNIT> ,IS_VAR<UNIT> ,IS_FLOAT<UNIT> ,IS_BYTE<UNIT> ,IS_STR<UNIT> ,IS_NULL<UNIT>> ;
 
-define IS_FUNCTION<UNIT> = enum (rust::is_function (UNIT)) ;
-define IS_MUTABLE<UNIT> = enum (rust::is_mutable (UNIT)) ;
-define IS_NOEXCPET<UNIT> = enum (rust::is_noexcept (UNIT)) ;
+define IS_FUNCTION<UNIT> = enum (internel::is_function (UNIT)) ;
+define IS_NOEXCEPT<UNIT> = enum (internel::is_noexcept (UNIT)) ;
 
-define IS_INTERFACE<UNIT> = enum (rust::is_interface (UNIT)) ;
-define IS_EXTEND<BASE ,DERIVED> = enum (rust::is_extend (BASE ,DERIVED)) ;
+define IS_CLASS<UNIT> = enum (internel::is_class (UNIT)) ;
+define IS_STRUCT<UNIT> = enum (internel::is_struct (UNIT)) ;
+define IS_TRIVIAL<UNIT> = enum (internel::is_trivial (UNIT)) ;
+define IS_CONSTRUCTIBLE<RETURN ,PARAMS> = enum (internel::is_constructible (RETURN ,PARAMS)) ;
+define IS_CLONEABLE<UNIT> = enum (internel::is_cloneable (UNIT)) ;
+define IS_INTERFACE<UNIT> = enum (internel::is_interface (UNIT)) ;
+define IS_EXTEND<BASE ,DERIVED> = enum (internel::is_extend (BASE ,DERIVED)) ;
 define IS_PLACEHOLDER<UNIT> = IS_EXTEND<UNIT ,type (PH0)> ;
-
-define IS_STRUCT<UNIT> = enum (rust::is_struct (UNIT)) ;
-define IS_CLASS<UNIT> = enum (rust::is_class (UNIT)) ;
-define IS_TRIVIAL<UNIT> = enum (rust::is_trivial (UNIT)) ;
-define IS_TRIVIAL<UNIT> = enum (rust::is_dynamic (UNIT)) ;
-define IS_CONSTRUCTIBLE<UNIT ,PARAMS> = enum (rust::is_constructible (UNIT ,PARAMS)) ;
-define IS_CLONEABLE<UNIT> = enum (rust::is_cloneable (UNIT)) ;
-define IS_SHAREABLE<UNIT> = enum (rust::is_shareable (UNIT)) ;
 
 trait BYTE_TRAIT_HELP<ARG1> {
 	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<BYTE>>) ;
@@ -375,20 +397,27 @@ trait BYTE_TRAIT_HELP<ARG1> {
 } ;
 
 trait BYTE_TRAIT_HELP<ARG1> {
-	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<byte128>>) ;
-	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<byte128>>) ;
+	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<internel::byte128>>) ;
+	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<internel::byte128>>) ;
 
-	using RET = byte128 ;
+	using RET = internel::byte128 ;
 } ;
 
 trait BYTE_TRAIT_HELP<ARG1> {
-	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<byte256>>) ;
-	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<byte256>>) ;
+	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<internel::byte256>>) ;
+	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<internel::byte256>>) ;
 
-	using RET = byte256 ;
+	using RET = internel::byte256 ;
 } ;
 
-define BYTE_TRAIT<UNIT> = template BYTE_TRAIT_HELP<UNIT>::RET ;
+trait BYTE_TRAIT_HELP<ARG1> {
+	require (ENUM_EQUAL<SIZEOF<ARG1> ,SIZEOF<internel::byte512>>) ;
+	require (ENUM_EQUAL<ALIGNOF<ARG1> ,ALIGNOF<internel::byte512>>) ;
+
+	using RET = internel::byte512 ;
+} ;
+
+define BYTE_TRAIT<UNIT> = typename BYTE_TRAIT_HELP<UNIT>::RET ;
 
 static function noop = () => {} ;
 
@@ -399,38 +428,19 @@ static function bad = (id) => {
 	return R1X (r1x ()) ;
 } ;
 
-trait FORWARD_HELP<ARG1> {
-	require (IS_CLASS<ARG1>) ;
-	require (IS_SHAREABLE<ARG1>) ;
+static function swap = (obj1 ,obj2) => internel::swap (obj1 ,obj2) ;
 
-	static function forward = (obj) => obj.share () ;
+static function forward = (obj) => internel::forward (obj) ;
+
+static function exchange = (obj1 ,obj2) => {
+	variable ret = forward (obj2) ;
+	swap (ret ,obj1) ;
+	return ret ;
 } ;
 
-trait FORWARD_HELP<ARG1> {
-	require (IS_CLASS<ARG1>) ;
-	require not (IS_SHAREABLE<ARG1>) ;
-	require (IS_CLONEABLE<ARG1>) ;
+static function address = (obj) :LENGTH => internel::address (obj) ;
 
-	static function forward = (obj) => obj.clone () ;
-} ;
-
-trait FORWARD_HELP<ARG1> {
-	require not (IS_CLASS<ARG1>) ;
-
-	static function forward = (obj) => obj ;
-} ;
-
-static function forward = (obj) => FORWARD_HELP<type (obj)>::forward (obj) ;
-
-static function swap = (obj1 ,obj2) => {
-	variable rax = forward (obj1) ;
-	obj1 = forward (obj2) ;
-	obj2 = forward (rax) ;
-} ;
-
-static function address = (obj) :LENGTH => rust::address (obj) ;
-
-static function alignas = (base :LENGTH ,align :LENGTH) :LENGTH => {
+static function alignto = (base :LENGTH ,align :LENGTH) :LENGTH => {
 	constant r1x = align - base % align ;
 	return base + r1x % align ;
 } ;
@@ -439,7 +449,7 @@ static function between = (index :INDEX ,begin :INDEX ,end :INDEX) :BOOL => inde
 
 static function abs = (obj) => {
 	using R1X = type (obj) ;
-	if (obj < R1X (0))
+	if (obj < R1X (ZERO))
 		return -obj ;
 	return +obj ;
 } ;
@@ -476,8 +486,10 @@ trait TUPLE_HELP<ARG1> {
 
 	implement Tuple {
 		function new = () => default ;
+
+		function clone = () :Tuple => Tuple () ;
 		
-		function rank = () :LENGTH => ZERO ;
+		function capacity = () :LENGTH => ZERO ;
 
 		function equal = (that :Tuple) :BOOL => TRUE ;
 
@@ -490,39 +502,62 @@ trait TUPLE_HELP<ARG1> {
 trait TUPLE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
-	using FIRST_ONE = TYPE_FIRST_ONE<ARG1> ;
-	using FIRST_REST = template TUPLE_HELP<TYPE_FIRST_REST<ARG1>>::Tuple ;
+	using ALL = TYPE_CHECK<ARG1> ;
+	using UNIT = TYPE_FIRST_ONE<ALL> ;
+	using REST = TYPE_FIRST_REST<ALL> ;
+	using BASE = typename TUPLE_HELP<REST>::Tuple ;
 	
 	class Tuple {
-		extend mSuper :FIRST_REST ;
-		variable mValue :FIRST_ONE ;
+		extend mSuper :BASE ;
+		variable mValue :UNIT ;
 	} ;
 
 	implement Tuple {
 		function new = () => default ;
 
-		function rank = () :LENGTH => COUNTOF<ARG1>::value ;
-
-		property one = mutable [] :FIRST_ONE => mValue ;
-
-		property rest = mutable [] :FIRST_REST => mSuper ;
-
-		trait PICK_HELP<ARG1> {
-			require (ENUM_EQ_ZERO<ARG1>) ;
-
-			property pick = mutable [] => one ;
+		function new = (that :UNIT ,rest... :REST...) => {
+			mValue = forward (that) ;
+			mSuper = BASE (rest...) ;
 		} ;
 
-		trait PICK_HELP<ARG1> {
-			require (ENUM_GT_ZERO<ARG1>) ;
+		trait CLONE_HELP<ARG3> {
+			require (ENUM_EQ_ZERO<ARG3>) ;
 
-			property pick = mutable [] => rest.pick[type<ENUM_DEC<ARG1>>::id] ;
+			function clone = (params ,initval...) :Tuple => Tuple (initval...) ;
 		} ;
 
-		property pick = mutable [nth] => {
+		trait CLONE_HELP<ARG3> {
+			require (ENUM_GT_ZERO<ARG3>) ;
+
+			function clone = (params ,initval...) :Tuple => CLONE_HELP<ENUM_DEC<ARG3>>::clone (params.rest ,initial... ,params.one) ;
+		} ;
+
+		function clone = () :Tuple => CLONE_HELP<COUNTOF<REST>>::clone (mSuper ,mValue) ;
+
+		function capacity = () :LENGTH => COUNTOF<ALL>::value ;
+
+		property one = [] :UNIT => mValue ;
+
+		property rest = [] :BASE => mSuper ;
+
+		trait PICK_HELP<ARG3> {
+			require (ENUM_EQ_ZERO<ARG3>) ;
+
+			property pick = [] => one ;
+		} ;
+
+		trait PICK_HELP<ARG3> {
+			require (ENUM_GT_ZERO<ARG3>) ;
+
+			using R1X = ENUM_DEC<ARG3> ;
+
+			property pick = [] => rest.pick[type<R1X>::id] ;
+		} ;
+
+		property pick = [nth] => {
 			using R1X = type (nth) ;
 			require (IS_ENUM<R1X>) ;
-			require (ENUM_BETWEEN<R1X ,ENUM_ZERO ,COUNTOF<ARG1>>) ;
+			require (ENUM_BETWEEN<R1X ,ENUM_ZERO ,COUNTOF<ALL>>) ;
 			return PICK_HELP<R1X>::pick ;
 		} ;
 
@@ -545,191 +580,174 @@ trait TUPLE_HELP<ARG1> {
 		} ;
 
 		function hash = () :FLAG => {
-			constant r1x = mValue.hash () ;
-			constant r2x = mSuper.hash () ;
+			constant r1x = operator hash (mValue) ;
+			constant r2x = operator hash (mSuper) ;
 			return hashcode (r1x ,r2x) ;
 		} ;
 	} ;
 } ;
 
-define Tuple<UNITS...> = template TUPLE_HELP<UNITS>::Tuple ;
+define Tuple<UNITS...> = typename TUPLE_HELP<UNITS>::Tuple ;
 
-class Pointer {
-	variable mOrigin :LENGTH ;
-	variable mSize :LENGTH ;
-	variable mAlign :LENGTH ;
-	variable mPointer :LENGTH ;
-} ;
-
-implement Pointer {
-	function new = () => {
-		mOrigin = ZERO ;
-		mSize = ZERO ;
-		mAlign = ZERO ;
-		mPointer = ZERO ;
-	} ;
-	
-	function new = (id) => {
-		using R1X = type (id) ;
-		require (IS_NULL<R1X>) ;
-		new () ;
+trait ITERATOR_HELP<> {
+	class Iterator {
+		constant mBegin :INDEX ;
+		constant mEnd :INDEX ;
+		variable mCurr :INDEX ;
 	} ;
 
-	function delete = () => {
-		if (mOrigin == ZERO)
-			return ;
-		switch {
-			if (mPointer == ZERO)
-				continue ;
-			rust::destroy (id ,mPointer) ;
+	implement Iterator {
+		function new = (begin :INDEX ,end :INDEX) => {
+			mBegin = begin ;
+			mEnd = max (begin ,end) ;
+			mCurr = mBegin ;
 		} ;
-		rust::free (mOrigin) ;
-		mOrigin = ZERO ;
-		mSize = ZERO ;
-		mAlign = ZERO ;
-		mPointer = ZERO ;
-	} ;
 
-	function exist = () => mOrigin != ZERO ;
+		function good = () :BOOL => mCurr < mEnd ;
 
-	static function make = (size_len :LENGTH) => make (size_len ,1) ;
+		function step_next = () => mCurr = mCurr + 1 ;
 
-	static function make = (size_len :LENGTH ,align_len :LENGTH) => {
-		assert (size_len > 0) ;
-		assert (align_len > 0) ;
-		variable ret = Pointer () ;
-		constant r1x = size_len + align_len - 1 ;
-		assert (r1x > 0) ;
-		ret.mOrigin = rust::alloc (r1x) ;
-		ret.mSize = r1x ;
-		ret.mAlign = align_len ;
-		return ret ;
-	} ;
-
-	function build = mutable (id) => {
-		using R1X = type (id) ;
-		assert (mPointer == ZERO) ;
-		constant r1x = alignas (mOrigin ,mAlign) ;
-		rust::create (id ,r1x) ;
-		mPointer = r1x ;
-	} ;
-
-	property to = mutable [id] => {
-		using R1X = type (id) ;
-		assert (mPointer != ZERO) ;
-		return rust::load[id ,mPointer] ;
+		property get = [] :INDEX => mCurr ;
 	} ;
 } ;
+
+using Iterator = typename ITERATOR_HELP<>::Iterator ;
+
+static function range = (begin :INDEX ,end :INDEX) :Iterator => Iterator (begin ,end) ;
 
 trait SLICE_HELP<ARG1> {
+	using UNIT = ARG1 ;
+
 	class Slice {
 		interface Holder ;
-		class ImplHolder ;
 
-		constant mPointer :Pointer ;
+		variable mPointer :Holder ;
 	} ;
 
 	interface Slice::Holder {
+		function copy = () :Holder => virtual ;
 		function size = () :LENGTH => virtual ;
-
-		function addr = () :LENGTH => virtual ;
-
-		property at = [index :INDEX] :ARG1 => virtual ;
-	} ;
-
-	class Slice::ImplHolder {
-		variable mSize :LENGTH ;
-	} ;
-
-	implement Slice::ImplHolder {
-		function new = () => disable ;
-
-		function delete = () => disable ;
-	} ;
-
-	implement Slice::ImplHolder :Holder {
-		function size = () :LENGTH => mSize ;
-
-		function addr = () :LENGTH => address (this) + SIZEOF<ImplHolder>::value ;
-
-		property at = [index :INDEX] :ARG1 => rust::load[type<ARG1>::id ,addr () + index * SIZEOF<ARG1>::value] ;
+		property at = [index :INDEX] :UNIT => virtual ;
 	} ;
 
 	implement Slice {
-		function new = () => disable ;
+		function new = () => mPointer = NULL ;
 
-		function new = (len :LENGTH) => {
-			constant r1x = type_size (len) ;
-			constant r2x = type_align () ;
-			mPointer = Pointer::make (r1x ,r2x) ;
-			mPointer.build (type<ImplHolder>::id) ;
+		function new = (that ,rest...) => mPointer = internel::builtin_slice (that ,rest...) ;
+
+		function clone = () :Slice => {
+			variable ret = Slice () ;
+			switch {
+				if (mPointer == NULL)
+					continue ;
+				ret.mPointer = mPointer->copy () ;
+			} ;
+			return ret ;
 		} ;
 
-		private static function type_size = (len :LENGTH) :LENGTH => SIZEOF<ImplHolder>::value + len * SIZEOF<ARG1>::value ;
+		function size = () :LENGTH => {
+			if (mPointer == NULL)
+				return ZERO ;
+			return mPointer->size () ;
+		} ;
 
-		private static function type_align = () :LENGTH => max (ALIGNOF<ImplHolder>::value ,ALIGNOF<ARG1>::value) ;
+		function addr = () :LENGTH => {
+			if (mPointer == NULL)
+				return ZERO ;
+			return address (mPointer->at[0]) ;
+		} ;
 
-		function size = () :LENGTH => mPointer.to[type<Holder>::id].size () ;
+		property at = [index :INDEX] :UNIT => {
+			assert (between (index ,0 ,size ())) ;
+			return mPointer->at[index] ;
+		} ;
 
-		function addr = () :LENGTH => mPointer.to[type<Holder>::id].addr () ;
+		function equal = (that :Slice) :BOOL => {
+			if (mSize != that.mSize)
+				return FALSE ;
+			for [i] in range (0 ,mSize) {
+				if (at[i] != that.at[i])
+					return FALSE ;
+			} ;
+			return TRUE ;
+		} ;
 
-		function at = [index :INDEX] :ARG1 => mPointer.to[type<Holder>::id].at[index] ;
+		function compr = (that :Slice) :FLAG => {
+			constant r1x = min (mSize ,that.mSize) ;
+			for [i] in range (0 ,r1x) {
+				constant r2x = at[i] <=> that.at[i] ;
+				if (r2x != ZERO)
+					return r2x ;
+			} ;
+			return mSize <=> that.mSize ;
+		} ;
 	} ;
 } ;
 
-define Slice<UNIT> = template SLICE_HELP<UNIT>::Slice ;
+define Slice<UNIT> = typename SLICE_HELP<UNIT>::Slice ;
 
-trait CLAZZ_HELP<ARG1> {
+trait CLAZZ_HELP<> {
 	class Clazz {
 		interface Holder ;
-		class ImplHolder ;
 
-		constant mPointer :Pointer ;
+		variable mPointer :Holder ;
 	} ;
 
 	interface Clazz::Holder {
+		function copy = () :Holder => virtual ;
 		property type_hash = [] :FLAG => virtual ;
 		property type_name = [] :Slice<STR> => virtual ;
 		property type_size = [] :LENGTH => virtual ;
 		property type_align = [] :LENGTH => virtual ;
 	} ;
 
-	class Clazz::ImplHolder :Holder {
-		constant mTypeHash :FLAG ;
-		constant mTypeName :Slice<STR> ;
-		constant mTypeSize :LENGTH ;
-		constant mTypeAlign :LENGTH ;
-	} ;
-
-	implement Clazz::ImplHolder {
-		function new = () => disable ;
-
-		function delete = () => disable ;
-	} ;
-
-	implement Clazz::ImplHolder :Holder {
-		property type_hash = [] :FLAG => mTypeHash ;
-
-		property type_name = [] :Slice<STR> => mTypeName ;
-
-		property type_size = [] :LENGTH => mTypeSize ;
-
-		property type_align = [] :LENGTH => mTypeAlign ;
-	} ;
-
 	implement Clazz {
-		function new = () => {
-			mPointer = Pointer::make (SIZEOF<ImplHolder>::value ,ALIGNOF<ImplHolder>::value) ;
-			mPointer.build (type<ImplHolder>::id) ;
+		function new = () => mPointer = NULL ;
+
+		function new = (that) => mPointer = internel::builtin_clazz (that) ;
+
+		static property nullopt = [] => {
+			static constant M_NULLOPT = Clazz () ;
+			return M_NULLOPT ;
 		} ;
 
-		property type_hash = [] :FLAG => mPointer.to[type<Holder>::id].type_hash ;
+		function clone = () :Clazz => {
+			variable ret = Clazz () ;
+			switch {
+				if (mPointer == NULL)
+					continue ;
+				ret.mPointer = mPointer->copy () ;
+			} ;
+			return ret ;
+		} ;
 
-		property type_name = [] :Slice<STR> => mPointer.to[type<Holder>::id].type_name ;
+		property type_hash = [] :FLAG => {
+			static constant M_HASH = ZERO ;
+			if (mPointer == NULL)
+				return M_HASH ;
+			return mPointer->type_hash ;
+		} ;
 
-		property type_size = [] :LENGTH => mPointer.to[type<Holder>::id].type_size ;
+		property type_name = [] :Slice<STR> => {
+			static constant M_NAME = "" ;
+			if (mPointer == NULL)
+				return M_NAME ;
+			return mPointer->type_name ;
+		} ;
 
-		property type_align = [] :LENGTH => mPointer.to[type<Holder>::id].type_align ;
+		property type_size = [] :LENGTH => {
+			static constant M_SIZE = LENGTH (1) ;
+			if (mPointer == NULL)
+				return M_SIZE ;
+			return mPointer->type_size ;
+		} ;
+
+		property type_align = [] :LENGTH => {
+			static constant M_ALIGN = LENGTH (1) ;
+			if (mPointer == NULL)
+				return M_ALIGN ;
+			return mPointer->type_align ;
+		} ;
 
 		function equal = (that :Clazz) :BOOL => {
 			if (type_hash != that.type_hash)
@@ -740,9 +758,6 @@ trait CLAZZ_HELP<ARG1> {
 		} ;
 
 		function compr = (that :Clazz) :FLAG => {
-			constant r1x = type_hash <=> that.type_hash ;
-			if (r1x != ZERO)
-				return r1x ;
 			constant r2x = type_name <=> that.type_name ;
 			if (r2x != ZERO)
 				return r2x ;
@@ -750,3 +765,74 @@ trait CLAZZ_HELP<ARG1> {
 		} ;
 	} ;
 } ;
+
+using Clazz = typename CLAZZ_HELP<>::Clazz ;
+
+trait STORAGE_HELP<ARG1 ,ARG2> {
+	using UNIT = BYTE_TRAIT<ARG1 ,ARG1> ;
+	using SIZE = ENUM_DIV<ENUM_DEC<ENUM_ADD<ARG2 ,ARG1>> ,ARG1> ;
+	using STORAGE = Tuple<TYPE_REPEAT<UNIT ,SIZE>> ;
+
+	class Storage {
+		variable mStorage :STORAGE ;
+	} ;
+
+	require (ENUM_EQUAL<SIZEOF<Storage> ,SIZEOF<STORAGE>>) ;
+
+	implement Storage {
+		static function zero = () :Storage => {
+			require (IS_TRIVIAL<STORAGE>) ;
+			variable ret = Storage () ;
+			internel::zeroize (ret.mStorage) ;
+			return ret ;
+		} ;
+	} ;
+} ;
+
+define Storage<ALIGN ,SIZE> = typename STORAGE_HELP<ALIGN ,SIZE>::Storage ;
+
+trait ENUM_SUMOF_HELP<ARG1> {
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = TYPE_FIRST_ONE<ARG1> ;
+} ;
+
+trait ENUM_SUMOF_HELP<ARG1> {
+	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
+
+	using R1X = TYPE_FIRST_ONE<ARG1> ;
+	using R2X = typename ENUM_SUMOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+
+	using RET = ENUM_ADD<R1X ,R2X> ;
+} ;
+
+define ENUM_SUMOF<UNITS...> typename ENUM_SUMOF_HELP<UNITS>::RET ;
+
+trait ENUM_MAXOF_HELP<ARG1> {
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = TYPE_FIRST_ONE<ARG1> ;
+} ;
+
+trait ENUM_MAXOF_HELP<ARG1> {
+	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
+
+	using R1X = TYPE_FIRST_ONE<ARG1> ;
+	using R2X = typename ENUM_MAXOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+
+	using RET = CONDITIONAL<ENUM_COMPR_LT<R1X ,R2X> ,R2X ,R1X> ;
+} ;
+
+define ENUM_MAXOF<UNITS...> typename ENUM_MAXOF_HELP<UNITS>::RET ;
+
+trait VARIANT_HELP<ARG1> {
+	using ALL = TYPE_CHECK<ARG1> ;
+
+	class Variant {
+		interface Holder ;
+		class ImplHolder ;
+	} ;
+} ;
+
+define Optional<UNIT> = typename VARIANT_HELP<type<UNIT>>::Variant ;
+define Variant<UNITS...> = typename VARIANT_HELP<UNITS>::Variant ;
