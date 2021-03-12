@@ -6,10 +6,10 @@
 
 #ifdef _DEBUG
 #define __CSC_DEBUG__
-#endif
-
-#ifdef _UNITTEST
+#elif defined _UNITTEST
 #define __CSC_UNITTEST__
+#else
+#define __CSC_RELEASE__
 #endif
 
 #ifdef __clang__
@@ -98,6 +98,11 @@
 #pragma warning (disable :5045) //@info: warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 #endif
 
+#ifdef __CSC_COMPILER_GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+#endif
+
 #include "begin.hh"
 #include <cstdint>
 #include <cstddef>
@@ -147,25 +152,33 @@ namespace CSC {
 #endif
 #define rightvalue &&
 
+#ifdef delegate
+#error "∑(っ°Д° ;)っ : already defined"
+#endif
+#define delegate
+
 #define internel_unwind_impl(...) __VA_ARGS__
 #define internel_unwind internel_unwind_impl
+
+#define internel_stringize_impl(...) #__VA_ARGS__
+#define internel_stringize internel_stringize_impl
 
 #ifdef require
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_require_impl(...) static_assert ((internel_unwind (__VA_ARGS__)::value) ,"error") ;
+#define internel_require_impl(...) static_assert ((internel_unwind (__VA_ARGS__)::value) ,"static assert failed : " internel_stringize (__VA_ARGS__)) ;
 #define require internel_require_impl
 
 #ifdef enumof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_enumof_impl(...) CSC::DEF<CSC::U::ENUMAS<CSC::U::ENUMID<(internel_unwind (__VA_ARGS__))>>>
+#define internel_enumof_impl(...) CSC::U::ENUMAS<CSC::U::ENUMID<(internel_unwind (__VA_ARGS__))>>
 #define enumof internel_enumof_impl
 
 #ifdef typeof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_typeof_impl(...) CSC::DEF<CSC::REMOVE_TYPEID<decltype (internel_unwind (__VA_ARGS__))>>
+#define internel_typeof_impl(...) CSC::REMOVE_TYPEID<decltype (internel_unwind (__VA_ARGS__))>
 #define typeof internel_typeof_impl
 
 #ifdef typeas
@@ -186,7 +199,15 @@ namespace CSC {
 #ifdef assert
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define assert CSC::builtin_assert
+#ifdef __CSC_DEBUG__
+#define assert CSC::debug_assert
+#endif
+#ifdef __CSC_UNITTEST__
+#define assert CSC::debug_assert
+#endif
+#ifdef __CSC_RELEASE__
+#define assert(...)
+#endif
 
 #ifdef anonymous
 #error "∑(っ°Д° ;)っ : already defined"

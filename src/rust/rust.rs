@@ -44,6 +44,7 @@ variable
 constant
 register
 mutable
+volatile
 noexcept
 virtual
 default

@@ -5,6 +5,7 @@
 #pragma push_macro ("exports")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
+#pragma push_macro ("delegate")
 #pragma push_macro ("enumof")
 #pragma push_macro ("typeof")
 #pragma push_macro ("typeas")
@@ -23,6 +24,7 @@
 #undef exports
 #undef leftvalue
 #undef rightvalue
+#undef delegate
 #undef enumof
 #undef typeof
 #undef typeas

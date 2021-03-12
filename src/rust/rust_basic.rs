@@ -2,320 +2,181 @@ module rust::basic ;
 
 import module rust::core::* ;
 
-trait AUTOREF_HELP<ARG1> {
+trait TUPLE_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
+	
+	class Tuple {} ;
 
-	class AutoRef {
-		interface Holder ;
+	implement Tuple {
+		function new = () => default ;
 
-		variable mPointer :Holder ;
-	} ;
-
-	interface AutoRef::Holder {
-		function copy = () :Holder => virtual ;
-		function poll = mutable () :auto => virtual ;
-		function push = mutable (obj :Holder) => virtual ;
-		property clazz = [] :Clazz => virtual ;
-	} ;
-
-	implement AutoRef {
-		function new = () => mPointer = NULL ;
-
-		function new = (that) => new (that.rebind ()) ;
+		function clone = () :Tuple => Tuple () ;
 		
-		function exist = () :BOOL => mPointer != NULL ;
+		function capacity = () :LENGTH => ZERO ;
 
-		property clazz = () :Clazz => {
-			if (mPointer == NULL)
-				return Clazz::nullopt ;
-			return mPointer->clazz ;
-		} ;
+		function equal = (that :Tuple) :BOOL => TRUE ;
 
-		function rebind_move = () :AutoRef => {
-			variable ret = AutoRef () ;		
-			swap (ret.mPointer ,mPointer) ;
-			return ret ;
-		} ;
+		function compr = (that :Tuple) :FLAG => ZERO ;
 
-		function rebind_move = (id) => {
-			using R1X = type (id) ;
-			using R2X = typename AUTOREF_HELP<type<R1X>>::AutoRef ;
-			variable ret = R2X () ;
-			swap (ret.mPointer ,mPointer) ;
-			return ret ;
-		} ;
+		function hash = () :FLAG => hashcode () ;
 	} ;
 } ;
 
-trait AUTOREF_HELP<ARG1> {
+trait TUPLE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
-	using UNIT = TYPE_UNWRAP<ARG1> ;
-	using BASE = typename AUTOREF_HELP<type<>>::AutoRef ;
-
-	class AutoRef {
-		interface Holder ;
-		class ImplHolder ;
-
+	using ALL = TYPE_CHECK<ARG1> ;
+	using UNIT = TYPE_FIRST_ONE<ALL> ;
+	using REST = TYPE_FIRST_REST<ALL> ;
+	using BASE = typename TUPLE_HELP<REST>::Tuple ;
+	
+	class Tuple {
 		extend mSuper :BASE ;
+		variable mValue :UNIT ;
 	} ;
 
-	interface AutoRef::Holder = typename BASE::Holder ;
+	implement Tuple {
+		function new = () => default ;
 
-	trait IMPLHOLDER_HELP<ARG1> {
-		using UNIT = ARG1 ;
-
-		class AutoRef::ImplHolder {
-			variable mValue :UNIT ;
-			variable mClazz :Clazz ;
+		function new = (that :UNIT ,rest... :REST...) => {
+			mValue = forward (that) ;
+			mSuper = BASE (rest...) ;
 		} ;
 
-		implement AutoRef::ImplHolder {
-			function new = (value_ :UNIT) => {
-				mValue = forward (value_) ;
-				mClazz = Clazz (type<UNIT>::id) ;
-			} ;
-		} ;
-		
-		implement AutoRef::ImplHolder :Holder {
-			trait COPY_HELP {
-				require (IS_CLONEABLE<UNIT>) ;
+		trait CLONE_HELP<ARG3> {
+			require (ENUM_EQ_ZERO<ARG3>) ;
 
-				function copy = () :Holder => ImplHolder (UNIT (mValue)) ;
-			} ;
-
-			trait COPY_HELP {
-				require not (IS_CLONEABLE<UNIT>) ;
-
-				function copy = () :Holder => NULL ;
-			} ;
-
-			function copy = () :Holder => COPY_HELP::copy () ;
-
-			function poll = mutable () :auto => forward (mValue) ;
-
-			function push = mutable (obj :Holder) => mValue = UNIT (obj.poll ()) ;
-
-			property clazz = [] :Clazz => mClazz ;
-		} ;
-	} ;
-
-	implement AutoRef {
-		function new = () => mSuper = BASE () ;
-
-		function new = (that) => new (that.rebind_move (type<UNIT>::id)) ;
-
-		static function make = (initval...) => {
-			using R1X = typename IMPLHOLDER_HELP<UNIT>::ImplHolder ;
-			register r1x = UNIT (initval...) ;
-			variable ret = AutoRef () ;
-			ret.mSuper.mPointer = R1X (r1x) ;
-			return ret ;
-		} ;
-		
-		function exist = () :BOOL => mSuper.exist () ;
-
-		property clazz = [] :Clazz => mSuper.clazz () ;
-
-		function rebind_move = () :BASE => mSuper.rebind_move () ;
-
-		function rebind_move = (id) => mSuper.rebind_move (id) ;
-
-		function get = () :UNIT => {
-			assert (exist ()) ;
-			assert (clazz == Clazz (type<UNIT>::id)) ;
-			register r1x = mSuper.mPointer->copy () ;
-			return UNIT (r1x->poll ()) ;
+			function clone = (params ,initval...) :Tuple => Tuple (initval...) ;
 		} ;
 
-		function poll = () :UNIT => {
-			assert (exist ()) ;
-			assert (clazz == Clazz (type<UNIT>::id)) ;
-			return UNIT (mSuper.mPointer->poll ()) ;
+		trait CLONE_HELP<ARG3> {
+			require (ENUM_GT_ZERO<ARG3>) ;
+
+			function clone = (params ,initval...) :Tuple => CLONE_HELP<ENUM_DEC<ARG3>>::clone (params.rest ,initial... ,params.one) ;
 		} ;
 
-		function push = (that :UNIT) => {
-			using R1X = typename IMPLHOLDER_HELP<UNIT>::ImplHolder ;
-			assert (exist ()) ;
-			assert (clazz == Clazz (type<UNIT>::id)) ;
-			register r1x = R1X (forward (that)) ;
-			mSuper.mPointer->push (r1x) ;
-		} ;
-	} ;
-} ;
+		function clone = () :Tuple => CLONE_HELP<COUNTOF<REST>>::clone (mSuper ,mValue) ;
 
-define AutoRef<> = typename AUTOREF_HELP<type<>>::AutoRef ;
-define AutoRef<UNIT> = typename AUTOREF_HELP<type<UNIT>>::AutoRef ;
+		function capacity = () :LENGTH => COUNTOF<ALL>::value ;
 
-trait FUNCTION_HELP<ARG1 ,ARG2> {
-	using RETURN = ARG1 ;
-	using PARAMS = TYPE_CHECK<ARG2> ;
-	
-	class Function {
-		interface Holder ;
-		class ImplHolder ;
+		property one = [] :UNIT => mValue ;
 
-		variable mPointer :Holder ;
-	} ;
+		property rest = [] :BASE => mSuper ;
 
-	interface Function::Holder {
-		function is_noexcept_invoke = () :BOOL => virtual ;
-		function invoke = (params... :PARAMS...) :RETURN => virtual ;
-	} ;
+		trait PICK_HELP<ARG3> {
+			require (ENUM_EQ_ZERO<ARG3>) ;
 
-	trait IMPLHOLDER_HELP<ARG1> {
-		using UNIT = ARG1 ;
-
-		class Function::ImplHolder {
-			variable mValue :UNIT ;
+			property pick = [] => one[] ;
 		} ;
 
-		implement Function::ImplHolder {
-			function new = (value_ :UNIT) => mValue = forward (value_) ;
+		trait PICK_HELP<ARG3> {
+			require (ENUM_GT_ZERO<ARG3>) ;
+
+			using R1X = ENUM_DEC<ARG3> ;
+
+			property pick = [] => rest.pick[type<R1X>::id] ;
 		} ;
 
-		implement Function::ImplHolder :Holder {
-			function is_noexcept_invoke = () :BOOL => IS_NOEXCEPT<UNIT>::value ;
-
-			function invoke = (params... :PARAMS...) :RETURN => mValue (params...) ;
+		property pick = [nth] => {
+			using R1X = type (nth) ;
+			require (IS_ENUM<R1X>) ;
+			require (ENUM_BETWEEN<R1X ,ENUM_ZERO ,COUNTOF<ALL>>) ;
+			return PICK_HELP<R1X>::pick[] ;
 		} ;
-	} ;
 
-	implement Function {
-		function new = () => mPointer = NULL ;
-
-		function new = (that) => {
-			using R1X = type (that) ;
-			using R2X = typename IMPLHOLDER_HELP<R1X>::ImplHolder ;
-			mPointer = R2X (that) ;
-		} ;
-		
-		function exist = () :BOOL => mPointer != NULL ;
-
-		function rank = () :LENGTH => COUNTOF<PARAMS>::value ;
-
-		function is_noexcept_invoke = () :BOOL => {
-			if not (exist ())
+		function equal = (that :Tuple) :BOOL => {
+			if (mValue != that.mValue)
 				return FALSE ;
-			return mPointer->is_noexcept_invoke () ;
+			if (mSuper != that.mSuper)
+				return FALSE ;
+			return TRUE ;
 		} ;
 
-		function invoke = (params... :PARAMS...) :RETURN => {
-			assert (exist ()) ;
-			return mPointer->invoke (params...) ;
+		function compr = (that :Tuple) :FLAG => {
+			constant r1x = mValue <=> that.mValue ;
+			if (r1x != ZERO)
+				return r1x ;
+			constant r2x = mSuper <=> that.mSuper ;
+			if (r2x != ZERO)
+				return r2x ;
+			return ZERO ;
+		} ;
+
+		function hash = () :FLAG => {
+			constant r1x = operator hash (mValue) ;
+			constant r2x = operator hash (mSuper) ;
+			return hashcode (r1x ,r2x) ;
 		} ;
 	} ;
 } ;
 
-define Function<RETURN ,PARAMS> = typename FUNCTION_HELP<RETURN ,PARAMS>::Function ;
+define Tuple<UNITS...> = typename TUPLE_HELP<UNITS>::Tuple ;
 
-trait SHAREDREF_HELP<ARG1> {
-	using UNIT = ARG1 ;
-	
-	class SharedRef {
-		interface Holder ;
-		class ImplHolder ;
+trait STORAGE_HELP<ARG1 ,ARG2> {
+	using UNIT = BYTE_TRAIT<ARG1 ,ARG1> ;
+	using SIZE = ENUM_DIV<ENUM_DEC<ENUM_ADD<ARG2 ,ARG1>> ,ARG1> ;
+	using STORAGE = Tuple<TYPE_REPEAT<UNIT ,SIZE>> ;
 
-		variable mPointer :Holder ;
+	class Storage {
+		variable mStorage :STORAGE ;
 	} ;
 
-	interface SharedRef::Holder {
-		function copy = () :Holder => virtual ;
-		property to = [] :UNIT => virtual ;
-		function increase = () :LENGTH => virtual ;
-		function decrease = () :LENGTH => virtual ;
-		function release = () :BOOL => virtual ;
-	} ;
+	require (ENUM_EQUAL<SIZEOF<Storage> ,SIZEOF<STORAGE>>) ;
 
-	trait IMPLHOLDER_HELP<ARG1> {
-		using UNIT = ARG1 ;
-
-		class SharedRef::ImplHolder {
-			variable mValue :UNIT ;
-			variable mCounter :LENGTH ;
-			variable mRelaser :Function<void ,type<UNIT>> ;
-		} ;
-
-		implement SharedRef::ImplHolder {
-			function new = (value_ :UNIT) => {
-				mValue = forward (value_) ;
-				mCounter = 0 ;
-				mRelaser = Function<void ,type<UNIT>> () ;
-			} ;
-		} ;
-
-		implement SharedRef::ImplHolder :Holder {
-			trait COPY_HELP {
-				require (IS_CLONEABLE<UNIT>) ;
-
-				function copy = () :Holder => ImplHolder (UNIT (mValue)) ;
-			} ;
-
-			trait COPY_HELP {
-				require not (IS_CLONEABLE<UNIT>) ;
-
-				function copy = () :Holder => NULL ;
-			} ;
-
-			function copy = () :Holder => COPY_HELP::copy () ;
-
-			property to = [] :UNIT => mValue ;
-
-			function increase = () => {
-				mCounter = mCounter + 1 ;
-				return mCounter ;
-			} ;
-
-			function decrease = () => {
-				mCounter = mCounter - 1 ;
-				return mCounter ;
-			} ;
-
-			function release = () => {
-				if (mRelaser == NULL)
-					return FALSE ;
-				mRelaser (mValue) ;			
-				mRelaser = NULL ;
-				return TRUE ;
-			} ;
-		} ;
-	} ;
-
-	implement SharedRef {
-		function new = () => mPointer = NULL ;
-
-		function new = (creator ,destroyer) => {
-			using R1X = typename IMPLHOLDER_HELP<UNIT>::ImplHolder ;
-			variable rax = UNIT () ;
-			creator (rax) ;
-			mPointer = R1X (rax ,destroyer) ;
-		} ;
-
-		function delete = noexcept () => {
-			if (mPointer == NULL)
-				return ;
-			constant r1x = try mPointer->release () ;
-			assert (r1x.exist ()) ;
-			mPointer = NULL ;
-		} ;
-
-		static function make = (initval...) => {
-			using R1X = typename IMPLHOLDER_HELP<UNIT>::ImplHolder ;
-			register r1x = UNIT (initval...) ;
-			variable ret = AutoRef () ;
-			ret.mPointer = R1X (r1x) ;
-			constant r2x = ret.increase () ;
-			assert (r2x == 1) ;
+	implement Storage {
+		static function zero = () :Storage => {
+			require (IS_TRIVIAL<STORAGE>) ;
+			variable ret = Storage () ;
+			internel::zeroize (ret.mStorage) ;
 			return ret ;
 		} ;
-		
-		function exist = () :BOOL => mPointer != NULL ;
-
-		property to = [] => {
-			assert (exist ()) ;
-			return mPointer->to ;
-		} ;
 	} ;
 } ;
 
-define SharedRef<UNIT> = typename SHAREDREF_HELP<type<UNIT>>::SharedRef ;
+define Storage<ALIGN ,SIZE> = typename STORAGE_HELP<ALIGN ,SIZE>::Storage ;
+
+trait ENUM_SUMOF_HELP<ARG1> {
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = TYPE_FIRST_ONE<ARG1> ;
+} ;
+
+trait ENUM_SUMOF_HELP<ARG1> {
+	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
+
+	using R1X = TYPE_FIRST_ONE<ARG1> ;
+	using R2X = typename ENUM_SUMOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+
+	using RET = ENUM_ADD<R1X ,R2X> ;
+} ;
+
+define ENUM_SUMOF<UNITS...> typename ENUM_SUMOF_HELP<UNITS>::RET ;
+
+trait ENUM_MAXOF_HELP<ARG1> {
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = TYPE_FIRST_ONE<ARG1> ;
+} ;
+
+trait ENUM_MAXOF_HELP<ARG1> {
+	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
+
+	using R1X = TYPE_FIRST_ONE<ARG1> ;
+	using R2X = typename ENUM_MAXOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+
+	using RET = CONDITIONAL<ENUM_COMPR_LT<R1X ,R2X> ,R2X ,R1X> ;
+} ;
+
+define ENUM_MAXOF<UNITS...> typename ENUM_MAXOF_HELP<UNITS>::RET ;
+
+trait VARIANT_HELP<ARG1> {
+	using ALL = TYPE_CHECK<ARG1> ;
+
+	class Variant {
+		interface Holder ;
+		class ImplHolder ;
+	} ;
+} ;
+
+define Optional<UNIT> = typename VARIANT_HELP<type<UNIT>>::Variant ;
+define Variant<UNITS...> = typename VARIANT_HELP<UNITS>::Variant ;

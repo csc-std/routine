@@ -5,6 +5,7 @@
 #pragma pop_macro ("exports")
 #pragma pop_macro ("leftvalue")
 #pragma pop_macro ("rightvalue")
+#pragma pop_macro ("delegate")
 #pragma pop_macro ("enumof")
 #pragma pop_macro ("typeof")
 #pragma pop_macro ("typeas")

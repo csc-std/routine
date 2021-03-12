@@ -78,6 +78,9 @@
     <ClInclude Include="..\..\src\csc2\end.hh">
       <Filter>csc2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\csc2\csc_basic.hpp">
+      <Filter>csc2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="csc">
