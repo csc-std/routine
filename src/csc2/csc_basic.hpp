@@ -69,9 +69,10 @@ template <class ARG1>
 trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using FIRST_ONE = TYPE_FIRST_ONE<ARG1> ;
 	using FIRST_REST = TYPE_FIRST_REST<ARG1> ;
-	using BASE = typename TUPLE_HELP<FIRST_REST ,void>::Tuple ;
+	using BASE = typename DEPENDENT<TUPLE_HELP<FIRST_REST ,void> ,Dependent>::Tuple ;
 
 	class Tuple ;
 } ;
@@ -234,11 +235,13 @@ interface VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<UNIT1>>>>::EXTERN::Ho
 } ;
 
 template <class...>
-trait IMPLHOLDER_HELP ;
+trait VARIANT_IMPLHOLDER_HELP ;
 
 template <class ARG1 ,class ARG2>
-trait IMPLHOLDER_HELP<ARG1 ,ARG2> {
-	using Holder = typename VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>>::EXTERN::Holder ;
+trait VARIANT_IMPLHOLDER_HELP<ARG1 ,ARG2> {
+	struct Dependent ;
+	using EXTERN = typename DEPENDENT<VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>> ,Dependent>::EXTERN ;
+	using Holder = typename EXTERN::Holder ;
 
 	class ImplHolder ;
 } ;
@@ -246,14 +249,14 @@ trait IMPLHOLDER_HELP<ARG1 ,ARG2> {
 template <class UNIT1>
 class VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<UNIT1>>>>::Variant {
 private:
-	using Holder = typename VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<UNIT1>>>>::EXTERN::Holder ;
+	using Holder = typename EXTERN::Holder ;
 
 private:
 
 } ;
 
 template <class UNIT1 ,class UNIT2>
-class IMPLHOLDER_HELP<UNIT1 ,UNIT2>::ImplHolder :
+class VARIANT_IMPLHOLDER_HELP<UNIT1 ,UNIT2>::ImplHolder :
 	delegate public Holder {
 public:
 	void test () override {
@@ -263,6 +266,9 @@ public:
 
 template <class ARG1>
 trait VARIANT_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
+	struct Dependent ;
+	using EXTERN = typename DEPENDENT<VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>> ,Dependent>::EXTERN ;
+	using Holder = typename EXTERN::Holder ;
 
 	class Variant ;
 } ;
@@ -270,7 +276,7 @@ trait VARIANT_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
 template <class UNIT1>
 class VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<UNIT1>>>>::Variant {
 private:
-	using Holder = typename VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<UNIT1>>>>::EXTERN::Holder ;
+	using Holder = typename EXTERN::Holder ;
 
 private:
 

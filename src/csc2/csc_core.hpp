@@ -495,7 +495,8 @@ template <class ARG1 ,class ARG2>
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
 	require (ENUM_GT_ZERO<ARG2>) ;
 
-	using R1X = typename TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2> ,void>::RET ;
+	struct Dependent ;
+	using R1X = typename DEPENDENT<TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2> ,void> ,Dependent>::RET ;
 
 	using RET = TYPE_CAT<ARG1 ,R1X> ;
 } ;
@@ -519,8 +520,9 @@ template <class ARG1>
 trait TYPE_REVERSE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
-	using R2X = typename TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
+	using R2X = typename DEPENDENT<TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1>> ,Dependent>::RET ;
 
 	using RET = TYPE_CAT<R2X ,typeas<R1X>> ;
 } ;
@@ -544,7 +546,8 @@ template <class ARG1 ,class ARG2>
 trait TYPE_PICK_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
 	require (ENUM_GT_ZERO<ARG2>) ;
 
-	using RET = typename TYPE_PICK_HELP<TYPE_FIRST_REST<ARG1> ,ENUM_DEC<ARG2>>::RET ;
+	struct Dependent ;
+	using RET = typename DEPENDENT<TYPE_PICK_HELP<TYPE_FIRST_REST<ARG1> ,ENUM_DEC<ARG2>> ,Dependent>::RET ;
 } ;
 } ;
 
@@ -566,8 +569,9 @@ template <class ARG1>
 trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using R1X = ENUM_NOT<ENUM_EQ_ZERO<TYPE_FIRST_ONE<ARG1>>> ;
-	using R2X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
+	using R2X = typename DEPENDENT<ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1> ,void> ,Dependent>::RET ;
 
 	using RET = CONDITIONAL<R1X ,R2X ,ENUM_ZERO> ;
 } ;
@@ -591,8 +595,9 @@ template <class ARG1>
 trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using R1X = ENUM_NOT<ENUM_EQ_ZERO<TYPE_FIRST_ONE<ARG1>>> ;
-	using R2X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
+	using R2X = typename DEPENDENT<ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1> ,void> ,Dependent>::RET ;
 
 	using RET = CONDITIONAL<R1X ,ENUM_IDEN ,R2X> ;
 } ;
@@ -623,9 +628,10 @@ template <class ARG1>
 trait IS_ALL_SAME_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = TYPE_SECOND_ONE<ARG1> ;
-	using R3X = typename IS_ALL_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>> ,void>::RET ;
+	using R3X = typename DEPENDENT<IS_ALL_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>> ,void> ,Dependent>::RET ;
 
 	using RET = ENUM_ALL<IS_SAME<R1X ,R2X> ,R3X> ;
 } ;
@@ -656,10 +662,11 @@ template <class ARG1>
 trait IS_ANY_SAME_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
 
+	struct Dependent ;
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = TYPE_SECOND_ONE<ARG1> ;
-	using R3X = typename IS_ANY_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>>::RET ;
-	using R4X = typename IS_ANY_SAME_HELP<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>>::RET ;
+	using R3X = typename DEPENDENT<IS_ANY_SAME_HELP<TYPE_CAT<R1X ,TYPE_SECOND_REST<ARG1>>> ,Dependent>::RET ;
+	using R4X = typename DEPENDENT<IS_ANY_SAME_HELP<TYPE_CAT<R2X ,TYPE_SECOND_REST<ARG1>>> ,Dependent>::RET ;
 
 	using RET = ENUM_ANY<IS_SAME<R1X ,R2X> ,R3X ,R4X> ;
 } ;
@@ -686,7 +693,8 @@ template <class ARG1>
 trait PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<ARG1>>> {
 	require (ENUM_GT_ZERO<ARG1>) ;
 
-	using BASE = typename PLACEHOLDER_HELP<ENUM_DEC<ARG1> ,void>::PlaceHolder ;
+	struct Dependent ;
+	using BASE = typename DEPENDENT<PLACEHOLDER_HELP<ENUM_DEC<ARG1> ,void> ,Dependent>::PlaceHolder ;
 
 	class PlaceHolder ;
 } ;
@@ -1191,6 +1199,22 @@ trait FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_BASIC<ARG1>>> {
 } ;
 
 template <class ARG1>
+trait FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
+	struct FUNCTION_COMPARE ;
+} ;
+
+struct FUNCTION_COMPARE {
+	template <class ARG1>
+	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+		struct Dependent ;
+		using R1X = typeof (arg1) ;
+		using R2X = typename DEPENDENT<FUNCTION_COMPARE_HELP<R1X ,void> ,Dependent>::FUNCTION_COMPARE ;
+		static constexpr auto M_INVOKE = R2X () ;
+		return M_INVOKE (arg1 ,arg2) ;
+	}
+} ;
+
+template <class ARG1>
 struct FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_BASIC<ARG1>>>::FUNCTION_COMPARE {
 	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		if (arg1 < arg2)
@@ -1202,24 +1226,9 @@ struct FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_BASIC<ARG1>>>::FUNCTION_COMPARE {
 } ;
 
 template <class ARG1>
-trait FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
-	struct FUNCTION_COMPARE ;
-} ;
-
-template <class ARG1>
 struct FUNCTION_COMPARE_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>>::FUNCTION_COMPARE {
 	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		return arg1.compr (arg2) ;
-	}
-} ;
-
-struct FUNCTION_COMPARE {
-	template <class ARG1>
-	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
-		using R1X = typeof (arg1) ;
-		using R2X = typename FUNCTION_COMPARE_HELP<R1X ,void>::FUNCTION_COMPARE ;
-		static constexpr auto M_INVOKE = R2X () ;
-		return M_INVOKE (arg1 ,arg2) ;
 	}
 } ;
 } ;
@@ -1254,20 +1263,21 @@ trait TYPEMID_HELP<ARG1> {
 	class TYPEMID ;
 } ;
 
-template <class UNIT1>
-class TYPEMID_HELP<UNIT1>::TYPEMID :
-	private Interface {} ;
-
 struct FUNCTION_TYPE_MID {
 	template <class ARG1>
 	inline FLAG operator() (CREF<ARG1> id) const {
+		struct Dependent ;
 		using R1X = typeof (id) ;
-		using R2X = typename TYPEMID_HELP<R1X>::TYPEMID ;
+		using R2X = typename DEPENDENT<TYPEMID_HELP<R1X> ,Dependent>::TYPEMID ;
 		require (ENUM_EQUAL<SIZEOF<FLAG> ,SIZEOF<R2X>>) ;
 		require (ENUM_EQUAL<ALIGNOF<FLAG> ,ALIGNOF<R2X>>) ;
 		return FLAG (bitwise (R2X ())) ;
 	}
 } ;
+
+template <class UNIT1>
+class TYPEMID_HELP<UNIT1>::TYPEMID :
+	private Interface {} ;
 } ;
 
 static constexpr auto type_mid = U::FUNCTION_TYPE_MID () ;
@@ -1367,10 +1377,12 @@ private:
 } ;
 
 template <class...>
-trait IMPLHOLDER_HELP ;
+trait AUTO_IMPLHOLDER_HELP ;
 
 template <class ARG1>
-trait IMPLHOLDER_HELP<ARG1> : delegate AUTO_HELP<> {
+trait AUTO_IMPLHOLDER_HELP<ARG1> {
+	struct Dependent ;
+	using EXTERN = typename DEPENDENT<AUTO_HELP<> ,Dependent>::EXTERN ;
 	using Holder = typename EXTERN::Holder ;
 
 	class ImplHolder ;
@@ -1393,8 +1405,9 @@ public:
 	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<AUTO ,REMOVE_CVR<ARG1>>>>>
 	implicit AUTO (DEF<ARG1 &&> that) :
 		delegate AUTO (PH0) {
+		struct Depentent ;
 		using R1X = typeof (that) ;
-		using R2X = typename IMPLHOLDER_HELP<R1X>::ImplHolder ;
+		using R2X = typename DEPENDENT<AUTO_IMPLHOLDER_HELP<R1X> ,Depentent>::ImplHolder ;
 		const auto r1x = HeapProc::alloc (SIZEOF<R2X>::value ,ALIGNOF<R2X>::value) ;
 		assert (r1x != NULL) ;
 		mPointer = new (r1x) R2X (forward (that)) ;
@@ -1422,8 +1435,9 @@ public:
 
 	template <class ARG1>
 	REMOVE_TYPEID<ARG1> poll (CREF<ARG1> id) {
+		struct Depentent ;
 		using R1X = typeof (id) ;
-		using R2X = typename IMPLHOLDER_HELP<R1X>::ImplHolder ;
+		using R2X = typename DEPENDENT<AUTO_IMPLHOLDER_HELP<R1X> ,Depentent>::ImplHolder ;
 		assert (mPointer != NULL) ;
 		const auto r1x = type_mid (typeas<R2X>::id) ;
 		const auto r2x = mPointer->type_mid () ;
@@ -1443,7 +1457,7 @@ private:
 } ;
 
 template <class UNIT1>
-class IMPLHOLDER_HELP<UNIT1>::ImplHolder :
+class AUTO_IMPLHOLDER_HELP<UNIT1>::ImplHolder :
 	public Holder {
 private:
 	UNIT1 mValue ;
@@ -1480,7 +1494,9 @@ struct FUNCTION_BAD {
 	inline REMOVE_TYPEID<ARG1> operator() (CREF<ARG1> id) const {
 		using R1X = typeof (id) ;
 		assert (FALSE) ;
-		const auto r1x = [&] ()->AUTO { return ZERO ; } ;
+		const auto r1x = [&] ()->AUTO {
+			return ZERO ;
+		} ;
 		return R1X (r1x ()) ;
 	}
 } ;
@@ -1946,6 +1962,14 @@ interface SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>>::EXTERN::Holder :
 	virtual UNIT1 get (CREF<INDEX> index) const = 0 ;
 } ;
 
+template <class...>
+trait SLICE_IMPLHOLDER_HELP ;
+
+template <class ARG1>
+trait SLICE_IMPLHOLDER_HELP<ARG1> {
+	class ImplHolder ;
+} ;
+
 template <class UNIT1>
 class SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>>::Slice {
 private:
@@ -1956,6 +1980,13 @@ private:
 
 public:
 	implicit Slice () = default ;
+
+	template <class ARG1 ,class ARG2>
+	explicit Slice (CREF<ARG1> id ,DEF<ARG2 &&> that) {
+		struct Dependent ;
+		using R1X = typename DEPENDENT<SLICE_IMPLHOLDER_HELP<ARG2> ,Dependent>::ImplHolder ;
+		mPointer = R1X (forward (that)) ;
+	}
 
 	implicit Slice (CREF<Slice> that) {
 		if (that.mPointer == NULL)
