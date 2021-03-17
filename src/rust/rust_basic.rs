@@ -9,10 +9,8 @@ trait TUPLE_HELP<ARG1> {
 
 	implement Tuple {
 		function new = () => default ;
-
-		function clone = () :Tuple => Tuple () ;
 		
-		function capacity = () :LENGTH => ZERO ;
+		function rank = () :LENGTH => ZERO ;
 
 		function equal = (that :Tuple) :BOOL => TRUE ;
 
@@ -26,40 +24,26 @@ trait TUPLE_HELP<ARG1> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
 	using ALL = TYPE_CHECK<ARG1> ;
-	using UNIT = TYPE_FIRST_ONE<ALL> ;
+	using ONE = TYPE_FIRST_ONE<ALL> ;
 	using REST = TYPE_FIRST_REST<ALL> ;
 	using BASE = typename TUPLE_HELP<REST>::Tuple ;
 	
 	class Tuple {
 		extend mSuper :BASE ;
-		variable mValue :UNIT ;
+		variable mValue :ONE ;
 	} ;
 
 	implement Tuple {
 		function new = () => default ;
 
-		function new = (that :UNIT ,rest... :REST...) => {
+		function new = (&&that :ONE ,&&rest... :REST...) => {
 			mValue = forward (that) ;
-			mSuper = BASE (rest...) ;
+			mSuper = BASE (forward (rest)...) ;
 		} ;
 
-		trait CLONE_HELP<ARG3> {
-			require (ENUM_EQ_ZERO<ARG3>) ;
+		function rank = () :LENGTH => COUNTOF<ALL>::value ;
 
-			function clone = (params ,initval...) :Tuple => Tuple (initval...) ;
-		} ;
-
-		trait CLONE_HELP<ARG3> {
-			require (ENUM_GT_ZERO<ARG3>) ;
-
-			function clone = (params ,initval...) :Tuple => CLONE_HELP<ENUM_DEC<ARG3>>::clone (params.rest ,initial... ,params.one) ;
-		} ;
-
-		function clone = () :Tuple => CLONE_HELP<COUNTOF<REST>>::clone (mSuper ,mValue) ;
-
-		function capacity = () :LENGTH => COUNTOF<ALL>::value ;
-
-		property one = [] :UNIT => mValue ;
+		property one = [] :ONE => mValue ;
 
 		property rest = [] :BASE => mSuper ;
 
@@ -72,15 +56,14 @@ trait TUPLE_HELP<ARG1> {
 		trait PICK_HELP<ARG3> {
 			require (ENUM_GT_ZERO<ARG3>) ;
 
-			using R1X = ENUM_DEC<ARG3> ;
-
-			property pick = [] => rest.pick[type<R1X>::id] ;
+			property pick = [] => rest.pick[type<ENUM_DEC<ARG3>>::id] ;
 		} ;
 
 		property pick = [nth] => {
 			using R1X = type (nth) ;
 			require (IS_ENUM<R1X>) ;
-			require (ENUM_BETWEEN<R1X ,ENUM_ZERO ,COUNTOF<ALL>>) ;
+			require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
+			require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 			return PICK_HELP<R1X>::pick[] ;
 		} ;
 
@@ -112,71 +95,60 @@ trait TUPLE_HELP<ARG1> {
 
 define Tuple<UNITS...> = typename TUPLE_HELP<UNITS>::Tuple ;
 
-trait STORAGE_HELP<ARG1 ,ARG2> {
-	using UNIT = BYTE_TRAIT<ARG1 ,ARG1> ;
-	using SIZE = ENUM_DIV<ENUM_DEC<ENUM_ADD<ARG2 ,ARG1>> ,ARG1> ;
-	using STORAGE = Tuple<TYPE_REPEAT<UNIT ,SIZE>> ;
+trait FUNCTION_HELP<ARG1 ,ARG2> {
+	using RETURN = ARG1 ;
+	using PARAMS = ARG2 ;
 
-	class Storage {
-		variable mStorage :STORAGE ;
+	class Function {
+		interface Holder ;
+		class ImplHolder ;
+
+		variable mPointer :RC<Holder> ;
 	} ;
 
-	require (ENUM_EQUAL<SIZEOF<Storage> ,SIZEOF<STORAGE>>) ;
+	interface Function::Holder {
+		function invoke = (params... :PARAMS...) :RETURN => virtual ;
+	} ;
 
-	implement Storage {
-		static function zero = () :Storage => {
-			require (IS_TRIVIAL<STORAGE>) ;
-			variable ret = Storage () ;
-			internel::zeroize (ret.mStorage) ;
-			return ret ;
+	trait IMPLHOLDER_HELP<ARG3> {
+		require (IS_TRIVIAL<ARG3>) ;
+
+		using UNIT = ARG3 ;
+
+		class Function::ImplHolder {
+			variable mValue :UNIT ;
+		} ;
+
+		implement Function::ImplHolder {
+			function new = () => discard ;
+
+			function new = (&&that :UNIT) => mValue = forward (that) ;
+		} ;
+
+		implement Function::ImplHolder :Holder {
+			function invoke = (params... :PARAMS...) :RETURN => mValue (params...) ;
+		} ;
+	} ;
+
+	implement Function {
+		function new = () => mPointer = NULL ;
+
+		function new = (&&that) => {
+			using R1X = type (that) ;
+			using R2X = typename IMPLHOLDER_HELP<R1X>::ImplHolder ;
+			register r1x = R2X (forward (that)) ;
+			mPointer = RC<Holder>::make (r1x) ;
+		} ;
+
+		function exist = () :BOOL => mPointer != NULL ;
+
+		function rank = () :LENGTH => COUNTOF<PARAMS>::value ;
+
+		function invoke = (params... :PARAMS...) :RETURN => {
+			assert (exist ()) ;
+			return mPointer.to[]->invoke (params...) ;
 		} ;
 	} ;
 } ;
 
-define Storage<ALIGN ,SIZE> = typename STORAGE_HELP<ALIGN ,SIZE>::Storage ;
-
-trait ENUM_SUMOF_HELP<ARG1> {
-	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
-
-	using RET = TYPE_FIRST_ONE<ARG1> ;
-} ;
-
-trait ENUM_SUMOF_HELP<ARG1> {
-	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
-
-	using R1X = TYPE_FIRST_ONE<ARG1> ;
-	using R2X = typename ENUM_SUMOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
-
-	using RET = ENUM_ADD<R1X ,R2X> ;
-} ;
-
-define ENUM_SUMOF<UNITS...> typename ENUM_SUMOF_HELP<UNITS>::RET ;
-
-trait ENUM_MAXOF_HELP<ARG1> {
-	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
-
-	using RET = TYPE_FIRST_ONE<ARG1> ;
-} ;
-
-trait ENUM_MAXOF_HELP<ARG1> {
-	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
-
-	using R1X = TYPE_FIRST_ONE<ARG1> ;
-	using R2X = typename ENUM_MAXOF_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
-
-	using RET = CONDITIONAL<ENUM_COMPR_LT<R1X ,R2X> ,R2X ,R1X> ;
-} ;
-
-define ENUM_MAXOF<UNITS...> typename ENUM_MAXOF_HELP<UNITS>::RET ;
-
-trait VARIANT_HELP<ARG1> {
-	using ALL = TYPE_CHECK<ARG1> ;
-
-	class Variant {
-		interface Holder ;
-		class ImplHolder ;
-	} ;
-} ;
-
-define Optional<UNIT> = typename VARIANT_HELP<type<UNIT>>::Variant ;
-define Variant<UNITS...> = typename VARIANT_HELP<UNITS>::Variant ;
+define Function<RETURN ,PARAMS> = typename U::FUNCTION_HELP<RETURN ,PARAMS>::Function ;

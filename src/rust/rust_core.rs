@@ -93,6 +93,8 @@ trait STR_HELP<> {
 
 using STR = typename STR_HELP<>::STR ;
 
+using VOID = internel::void ;
+
 static constant NULL = internel::null ;
 
 using ENUM_USED = enum (-2) ;
@@ -112,7 +114,7 @@ trait ENABLE_HELP<ARG1 ,ARG2> {
 	using RET = ARG2 ;
 } ;
 
-define ENABLE<COND> = typename ENABLE_HELP<COND ,type<>>::RET ;
+define ENABLE<COND> = typename ENABLE_HELP<COND ,VOID>::RET ;
 define ENABLE<COND ,YES> = typename ENABLE_HELP<COND ,YES>::RET ;
 
 trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
@@ -192,11 +194,17 @@ define TYPE_REPEAT<UNIT ,SIZE> = typename TYPE_REPEAT_HELP<type<UNIT> ,SIZE>::RE
 trait TYPE_REVERSE_HELP<ARG1> {
 	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
 
-	using RET = type<> ;
+	using RET = ARG1 ;
 } ;
 
 trait TYPE_REVERSE_HELP<ARG1> {
-	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
+	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
+
+	using RET = ARG1 ;
+} ;
+
+trait TYPE_REVERSE_HELP<ARG1> {
+	require (ENUM_GT_IDEN<COUNTOF<ARG1>>) ;
 	
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = typename TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
@@ -424,21 +432,21 @@ static function noop = () => {} ;
 static function bad = (id) => {
 	using R1X = type (id) ;
 	assert (FALSE) ;
-	constant r1x = () :auto => ZERO ;
+	register r1x = () :auto => ZERO ;
 	return R1X (r1x ()) ;
 } ;
 
-static function swap = (obj1 ,obj2) => internel::swap (obj1 ,obj2) ;
+static function swap = (&arg1 ,&arg2) => internel::swap (arg1 ,arg2) ;
 
-static function forward = (obj) => internel::forward (obj) ;
+static function forward = (&&obj) => internel::forward (obj) ;
 
-static function exchange = (obj1 ,obj2) => {
-	variable ret = forward (obj2) ;
-	swap (ret ,obj1) ;
+static function exchange = (&var_ ,&&obj) => {
+	variable ret = forward (obj) ;
+	swap (ret ,var_) ;
 	return ret ;
 } ;
 
-static function address = (obj) :LENGTH => internel::address (obj) ;
+static function address = (arg1) :LENGTH => internel::address (arg1) ;
 
 static function alignto = (base :LENGTH ,align :LENGTH) :LENGTH => {
 	constant r1x = align - base % align ;
@@ -447,23 +455,23 @@ static function alignto = (base :LENGTH ,align :LENGTH) :LENGTH => {
 
 static function between = (index :INDEX ,begin :INDEX ,end :INDEX) :BOOL => index >= begin && index < end ;
 
-static function abs = (obj) => {
-	using R1X = type (obj) ;
-	if (obj < R1X (ZERO))
-		return -obj ;
-	return +obj ;
+static function abs = (arg1) => {
+	using R1X = type (arg1) ;
+	if (arg1 < R1X (ZERO))
+		return -arg1 ;
+	return +arg1 ;
 } ;
 
-static function min = (obj1 ,obj2) => {
-	if (obj1 < obj2)
-		return obj1 ;
-	return obj2 ;
+static function min = (arg1 ,arg2) => {
+	if (arg1 < arg2)
+		return arg1 ;
+	return arg2 ;
 } ;
 
-static function max = (obj1 ,obj2) => {
-	if (obj1 < obj2)
-		return obj2 ;
-	return obj1 ;
+static function max = (arg1 ,arg2) => {
+	if (arg1 < arg2)
+		return arg2 ;
+	return arg1 ;
 } ;
 
 static function hashcode = () :FLAG => {
@@ -472,12 +480,86 @@ static function hashcode = () :FLAG => {
 	return FLAG (r3x) ;
 } ;
 
-static function hashcode = (obj1 :FLAG ,obj2 :FLAG) :FLAG => {
-	constant r1x = VAR64 (FEAT (obj1) ^ FEAT (obj2)) ;
+static function hashcode = (arg1 :FLAG ,arg2 :FLAG) :FLAG => {
+	constant r1x = VAR64 (FEAT (arg1) ^ FEAT (arg2)) ;
 	constant r2x = r1x * VAR64 (1099511628211) ;
 	constant r3x = VAR64 (FEAT (r2x) & FEAT (VAR_MAX)) ;
 	return FLAG (r3x) ;
 } ;
+
+trait TEMP_HELP<ARG1> {
+	using ITEM = BYTE_TRAIT<ALIGNOF<ARG1> ,ALIGNOF<ARG1>> ;
+	using SIZE = ENUM_DIV<ENUM_ADD<SIZEOF<ARG1> ,ENUM_DEC<ALIGNOF<ARG1>>> ,ALIGNOF<ARG1>> ;
+
+	class TEMP {
+		variable mUnused... :TYPE_REPEAT<ITEM ,SIZE>... ;
+	} ;
+} ;
+
+define TEMP<UNIT> = typename U::TEMP_HELP<UNIT>::TEMP ;
+
+trait CELL_HELP<ARG1> {
+	require (IS_CLONEABLE<ARG1>) ;
+
+	using UNIT = ARG1 ;
+
+	class Cell {
+		mutable mStorage :TEMP<UNIT> ;
+		variable mExist :BOOL ;
+	} ;
+
+	implement Cell {
+		function new = () => mExist = FALSE ;
+
+		static function make = (&&that :UNIT) => {
+			internel::create (mStorage ,forward (that)) ;
+			mExist = TRUE ;
+		} ;
+
+		function delete = noexcept () => {
+			if not (mExist)
+				return ;
+			internel::destroy (mStorage) ;
+			mExist = FALSE ;
+		} ;
+
+		function gc = noexcept (ctx) => {
+			if not (mExist)
+				return ;
+			fake[].gc (ctx) ;
+		} ;
+
+		function exist = () :BOOL => mExist ;
+
+		function fetch = () :UNIT => fake[] ;
+
+		function store = (&&obj :UNIT) => fake[] = forward (obj) ;
+
+		function exchange = (&&obj :UNIT) => {
+			variable ret = fake[] ;
+			fake[] = forward (obj) ;
+			return ret ;
+		} ;
+
+		function change = (&expect :UNIT ,&&obj :UNIT) :BOOL => {
+			switch {
+				if not (fake[] == expect)
+					continue ;
+				fake[] = forward (obj) ;
+				return TRUE ;
+			} ;
+			expect = fake[] ;
+			return FALSE ;
+		} ;
+
+		private property fake = [] :UNIT => {
+			assert (exist ()) ;
+			return internel::load (mStorage) ;
+		} ;
+	} ;
+} ;
+
+define Cell<UNIT> = typename U::CELL_HELP<UNIT>::Cell ;
 
 trait ITERATOR_HELP<> {
 	class Iterator {
@@ -497,7 +579,7 @@ trait ITERATOR_HELP<> {
 
 		function step_next = () => mCurr = mCurr + 1 ;
 
-		property get = [] :INDEX => mCurr ;
+		property at = [] :INDEX => mCurr ;
 	} ;
 } ;
 
@@ -506,16 +588,17 @@ using Iterator = typename ITERATOR_HELP<>::Iterator ;
 static function range = (begin :INDEX ,end :INDEX) :Iterator => Iterator (begin ,end) ;
 
 trait SLICE_HELP<ARG1> {
+	require (IS_STR<ARG1>) ;
+
 	using UNIT = ARG1 ;
 
 	class Slice {
 		interface Holder ;
 
-		variable mPointer :Holder ;
+		variable mPointer :RC<Holder> ;
 	} ;
 
 	interface Slice::Holder {
-		function copy = () :Holder => virtual ;
 		function size = () :LENGTH => virtual ;
 		property at = [index :INDEX] :UNIT => virtual ;
 	} ;
@@ -523,40 +606,33 @@ trait SLICE_HELP<ARG1> {
 	implement Slice {
 		function new = () => mPointer = NULL ;
 
-		function new = (that ,rest...) => mPointer = internel::builtin_slice (that ,rest...) ;
-
-		function clone = () :Slice => {
-			variable ret = Slice () ;
-			switch {
-				if (mPointer == NULL)
-					continue ;
-				ret.mPointer = mPointer->copy () ;
-			} ;
-			return ret ;
+		function new = (&&one_ ,&&rest_...) => {
+			register r1x = internel::builtin_slice (forward (one_) ,forward (rest_)...) ;
+			mPointer = RC<Holder>::make (r1x) ;
 		} ;
 
 		function size = () :LENGTH => {
 			if (mPointer == NULL)
 				return ZERO ;
-			return mPointer->size () ;
+			return mPointer.to[]->size () ;
 		} ;
 
 		function addr = () :LENGTH => {
 			if (mPointer == NULL)
 				return ZERO ;
-			return address (mPointer->at[0]) ;
+			return address (mPointer.to[]->at[0]) ;
 		} ;
 
-		property at = [index :INDEX] :UNIT => {
+		function get = (index :INDEX) :UNIT => {
 			assert (between (index ,0 ,size ())) ;
-			return mPointer->at[index] ;
+			return mPointer.to[]->at[index] ;
 		} ;
 
 		function equal = (that :Slice) :BOOL => {
 			if (mSize != that.mSize)
 				return FALSE ;
 			for (i) in range (0 ,mSize) {
-				if (at[i] != that.at[i])
+				if (mPointer.to[]->at[i] != that.mPointer.to[]->at[i])
 					return FALSE ;
 			} ;
 			return TRUE ;
@@ -565,11 +641,20 @@ trait SLICE_HELP<ARG1> {
 		function compr = (that :Slice) :FLAG => {
 			constant r1x = min (mSize ,that.mSize) ;
 			for (i) in range (0 ,r1x) {
-				constant r2x = at[i] <=> that.at[i] ;
+				constant r2x = mPointer.to[]->at[i] <=> that.mPointer.to[]->at[i] ;
 				if (r2x != ZERO)
 					return r2x ;
 			} ;
 			return mSize <=> that.mSize ;
+		} ;
+
+		function hash = () :FLAG => {
+			variable ret = hashcode () ;
+			for (i) in range (0 ,size ()) {
+				constant r1x = FLAG (mPointer.to[]->at[i]) ;
+				ret = hashcode (ret ,r1x) ;
+			}
+			return ret ;
 		} ;
 	} ;
 } ;
@@ -580,78 +665,58 @@ trait CLAZZ_HELP<> {
 	class Clazz {
 		interface Holder ;
 
-		variable mPointer :Holder ;
+		variable mPointer :RC<Holder> ;
 	} ;
 
 	interface Clazz::Holder {
-		function copy = () :Holder => virtual ;
-		property type_hash = [] :FLAG => virtual ;
-		property type_name = [] :Slice<STR> => virtual ;
-		property type_size = [] :LENGTH => virtual ;
-		property type_align = [] :LENGTH => virtual ;
+		function type_size = () :LENGTH => virtual ;
+		function type_align = () :LENGTH => virtual ;
+		function type_mid = () :FLAG => virtual ;
+		function type_name = () :Slice<STR> => virtual ;
 	} ;
 
 	implement Clazz {
 		function new = () => mPointer = NULL ;
 
-		function new = (that) => mPointer = internel::builtin_clazz (that) ;
-
-		static property nullopt = [] => {
-			static constant M_NULLOPT = Clazz () ;
-			return M_NULLOPT ;
-		} ;
-
-		function clone = () :Clazz => {
-			variable ret = Clazz () ;
-			switch {
-				if (mPointer == NULL)
-					continue ;
-				ret.mPointer = mPointer->copy () ;
-			} ;
-			return ret ;
-		} ;
-
-		property type_hash = [] :FLAG => {
-			static constant M_HASH = ZERO ;
-			if (mPointer == NULL)
-				return M_HASH ;
-			return mPointer->type_hash[] ;
-		} ;
-
-		property type_name = [] :Slice<STR> => {
-			static constant M_NAME = "" ;
-			if (mPointer == NULL)
-				return M_NAME ;
-			return mPointer->type_name[] ;
-		} ;
-
-		property type_size = [] :LENGTH => {
-			static constant M_SIZE = LENGTH (1) ;
-			if (mPointer == NULL)
-				return M_SIZE ;
-			return mPointer->type_size[] ;
-		} ;
-
-		property type_align = [] :LENGTH => {
-			static constant M_ALIGN = LENGTH (1) ;
-			if (mPointer == NULL)
-				return M_ALIGN ;
-			return mPointer->type_align[] ;
+		function new = (&&that) => {
+			register r1x = internel::builtin_clazz (forward (that)) ;
+			mPointer = RC<Holder>::make (r1x) ;
 		} ;
 
 		function equal = (that :Clazz) :BOOL => {
-			if (type_hash != that.type_hash[])
-				return FALSE ;
-			if (type_name != that.type_name[])
+			if (type_mid () == that.type_mid ())
+				return TRUE ;
+			if (type_name () != that.type_name ())
 				return FALSE ;
 			return TRUE ;
 		} ;
 
-		function compr = (that :Clazz) :FLAG => {
-			constant r2x = type_name[] <=> that.type_name[] ;
-			if (r2x != ZERO)
-				return r2x ;
-			return ZERO ;
+		function compr = (that :Clazz) :FLAG => type_name () <=> that.type_name () ;
+
+		function hash = () :FLAG => type_name ().hash () ;
+
+		function type_size = () :LENGTH => {
+			if (mPointer == NULL)
+				return LENGTH (1) ;
+			return mPointer.to[]->type_size () ;
+		} ;
+
+		function type_align = () :LENGTH => {
+			if (mPointer == NULL)
+				return LENGTH (1) ;
+			return mPointer.to[]->type_align () ;
+		} ;
+
+		function type_mid = () :FLAG => {
+			if (mPointer == NULL)
+				return ZERO ;
+			return mPointer.to[]->type_mid () ;
+		} ;
+
+		function type_name = () :Slice<STR> => {
+			if (mPointer == NULL)
+				return Slice<STR> ("") ;
+			return mPointer.to[]->type_name () ;
 		} ;
 	} ;
 } ;

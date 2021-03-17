@@ -24,7 +24,7 @@ class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<UNIT1>>>>::Tuple {
 public:
 	implicit Tuple () = default ;
 
-	LENGTH capacity () const {
+	LENGTH rank () const {
 		return COUNTOF<UNIT1>::value ;
 	}
 
@@ -69,10 +69,10 @@ template <class ARG1>
 trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
 
-	struct Dependent ;
-	using FIRST_ONE = TYPE_FIRST_ONE<ARG1> ;
-	using FIRST_REST = TYPE_FIRST_REST<ARG1> ;
-	using BASE = typename DEPENDENT<TUPLE_HELP<FIRST_REST ,void> ,Dependent>::Tuple ;
+	using ALL = TYPE_CHECK<ARG1> ;
+	using ONE = TYPE_FIRST_ONE<ALL> ;
+	using REST = TYPE_FIRST_REST<ALL> ;
+	using BASE = typename TUPLE_HELP<REST ,void>::Tuple ;
 
 	class Tuple ;
 } ;
@@ -81,28 +81,28 @@ template <class UNIT1>
 class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<UNIT1>>>>::Tuple :
 	delegate public BASE {
 private:
-	FIRST_ONE mValue ;
+	ONE mValue ;
 
 public:
 	implicit Tuple () = default ;
 
-	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<FIRST_ONE ,REMOVE_CVR<ARG1>>>>
+	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_CVR<ARG1>>>>
 	explicit Tuple (DEF<ARG1 &> ,DEF<ARGS &&>...) = delete ;
 
-	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<FIRST_ONE ,REMOVE_CVR<ARG1>>>>
+	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_CVR<ARG1>>>>
 	explicit Tuple (DEF<ARG1 &&> one_ ,DEF<ARGS &&>...rest_) :
 		delegate BASE (forward (rest_)...) ,
 		delegate mValue (forward (one_)) {}
 
-	LENGTH capacity () const {
-		return COUNTOF<UNIT1>::value ;
+	LENGTH rank () const {
+		return COUNTOF<ALL>::value ;
 	}
 
-	VREF<FIRST_ONE> one[[nodiscard]] () {
+	VREF<ONE> one[[nodiscard]] () {
 		return mValue ;
 	}
 
-	CREF<FIRST_ONE> one[[nodiscard]] () const {
+	CREF<ONE> one[[nodiscard]] () const {
 		return mValue ;
 	}
 
@@ -117,12 +117,16 @@ public:
 	template <class ARG1>
 	VREF<TYPE_PICK<UNIT1 ,REMOVE_CVR<ARG1>>> pick[[nodiscard]] (CREF<ARG1> nth) {
 		using R1X = typeof (nth) ;
+		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
+		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
 
 	template <class ARG1>
 	CREF<TYPE_PICK<UNIT1 ,REMOVE_CVR<ARG1>>> pick[[nodiscard]] (CREF<ARG1> nth) const {
 		using R1X = typeof (nth) ;
+		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
+		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
 
@@ -143,10 +147,10 @@ public:
 	}
 
 	FLAG compr (const Tuple &that) const {
-		const auto r1x = op_compr (mValue ,that.mValue) ;
+		const auto r1x = operator_compr (mValue ,that.mValue) ;
 		if (r1x != ZERO)
 			return r1x ;
-		const auto r2x = op_compr (m_super () ,that.m_super ()) ;
+		const auto r2x = operator_compr (m_super () ,that.m_super ()) ;
 		if (r2x != ZERO)
 			return r2x ;
 		return ZERO ;
@@ -169,8 +173,8 @@ public:
 	}
 
 	FLAG hash () const {
-		const auto r1x = op_hash (mValue) ;
-		const auto r2x = op_hash (m_super ()) ;
+		const auto r1x = operator_hash (mValue) ;
+		const auto r2x = operator_hash (m_super ()) ;
 		return hashcode (r1x ,r2x) ;
 	}
 
@@ -186,12 +190,12 @@ private:
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_CVR<ARG1>>>>
-	VREF<FIRST_ONE> template_pick[[nodiscard]] (CREF<ARG1> nth ,CREF<typeof (PH1)>) {
+	VREF<ONE> template_pick[[nodiscard]] (CREF<ARG1> nth ,CREF<typeof (PH1)>) {
 		return one () ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_CVR<ARG1>>>>
-	CREF<FIRST_ONE> template_pick[[nodiscard]] (CREF<ARG1> nth ,CREF<typeof (PH1)>) const {
+	CREF<ONE> template_pick[[nodiscard]] (CREF<ARG1> nth ,CREF<typeof (PH1)>) const {
 		return one () ;
 	}
 
@@ -213,79 +217,4 @@ private:
 
 template <class...UNITS>
 using Tuple = typename U::TUPLE_HELP<typeas<UNITS...> ,void>::Tuple ;
-
-namespace U {
-template <class...>
-trait VARIANT_HELP ;
-
-template <class ARG1>
-trait VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>> {
-	require (ENUM_EQ_IDEN<COUNTOF<ARG1>>) ;
-
-	struct EXTERN {
-		interface Holder ;
-	} ;
-
-	class Variant ;
-} ;
-
-template <class UNIT1>
-interface VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<UNIT1>>>>::EXTERN::Holder {
-	virtual void test () = 0 ;
-} ;
-
-template <class...>
-trait VARIANT_IMPLHOLDER_HELP ;
-
-template <class ARG1 ,class ARG2>
-trait VARIANT_IMPLHOLDER_HELP<ARG1 ,ARG2> {
-	struct Dependent ;
-	using EXTERN = typename DEPENDENT<VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>> ,Dependent>::EXTERN ;
-	using Holder = typename EXTERN::Holder ;
-
-	class ImplHolder ;
-} ;
-
-template <class UNIT1>
-class VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<UNIT1>>>>::Variant {
-private:
-	using Holder = typename EXTERN::Holder ;
-
-private:
-
-} ;
-
-template <class UNIT1 ,class UNIT2>
-class VARIANT_IMPLHOLDER_HELP<UNIT1 ,UNIT2>::ImplHolder :
-	delegate public Holder {
-public:
-	void test () override {
-
-	}
-} ;
-
-template <class ARG1>
-trait VARIANT_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
-	struct Dependent ;
-	using EXTERN = typename DEPENDENT<VARIANT_HELP<ARG1 ,REQUIRE<ENUM_EQ_IDEN<COUNTOF<ARG1>>>> ,Dependent>::EXTERN ;
-	using Holder = typename EXTERN::Holder ;
-
-	class Variant ;
-} ;
-
-template <class UNIT1>
-class VARIANT_HELP<UNIT1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<UNIT1>>>>::Variant {
-private:
-	using Holder = typename EXTERN::Holder ;
-
-private:
-
-} ;
-} ;
-
-template <class UNIT1>
-using Optional = typename U::VARIANT_HELP<typeas<UNIT1> ,void>::Variant ;
-
-template <class...UNITS>
-using Variant = typename U::VARIANT_HELP<typeas<UNITS...> ,void>::Variant ;
 } ;
