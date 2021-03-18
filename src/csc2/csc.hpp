@@ -200,10 +200,10 @@ namespace CSC {
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #ifdef __CSC_DEBUG__
-#define assert CSC::debug_assert
+#define assert CSC::internel_assert
 #endif
 #ifdef __CSC_UNITTEST__
-#define assert CSC::debug_assert
+#define assert CSC::internel_assert
 #endif
 #ifdef __CSC_RELEASE__
 #define assert(...)
@@ -214,11 +214,11 @@ namespace CSC {
 #endif
 #define anonymous internel_anonymous_ ## __LINE__
 
-#ifdef switch_once
+#ifdef switchs
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_switch_once_impl(...) (internel_unwind (__VA_ARGS__)) goto anonymous ; while (false) anonymous:
-#define switch_once internel_switch_once_impl
+#define internel_switchs_impl(...) (internel_unwind (__VA_ARGS__)) goto anonymous ; while (false) anonymous:
+#define switchs internel_switchs_impl
 
 #ifdef discard
 #error "∑(っ°Д° ;)っ : already defined"

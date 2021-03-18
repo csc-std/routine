@@ -93,8 +93,6 @@ trait STR_HELP<> {
 
 using STR = typename STR_HELP<>::STR ;
 
-using VOID = internel::void ;
-
 static constant NULL = internel::null ;
 
 using ENUM_USED = enum (-2) ;
@@ -114,7 +112,7 @@ trait ENABLE_HELP<ARG1 ,ARG2> {
 	using RET = ARG2 ;
 } ;
 
-define ENABLE<COND> = typename ENABLE_HELP<COND ,VOID>::RET ;
+define ENABLE<COND> = typename ENABLE_HELP<COND ,type<>>::RET ;
 define ENABLE<COND ,YES> = typename ENABLE_HELP<COND ,YES>::RET ;
 
 trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
@@ -436,7 +434,14 @@ static function bad = (id) => {
 	return R1X (r1x ()) ;
 } ;
 
-static function swap = (&arg1 ,&arg2) => internel::swap (arg1 ,arg2) ;
+static function bitwise = (arg1) => internel::bitwise (arg1) ;
+
+static function swap = (&arg1 ,&arg2) => {
+	using R1X = type (arg1) ;
+	using R2X = type (arg2) ;
+	require (IS_SAME<R1X ,R2X>) ;
+	return internel::swap (arg1 ,arg2) ;
+} ;
 
 static function forward = (&&obj) => internel::forward (obj) ;
 
@@ -543,13 +548,13 @@ trait CELL_HELP<ARG1> {
 
 		function change = (&expect :UNIT ,&&obj :UNIT) :BOOL => {
 			switch {
-				if not (fake[] == expect)
+				if (fake[] == expect)
 					continue ;
-				fake[] = forward (obj) ;
-				return TRUE ;
+				expect = fake[] ;
+				return FALSE ;
 			} ;
-			expect = fake[] ;
-			return FALSE ;
+			fake[] = forward (obj) ;
+			return TRUE ;
 		} ;
 
 		private property fake = [] :UNIT => {

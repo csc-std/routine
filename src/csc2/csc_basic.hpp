@@ -79,7 +79,7 @@ trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 
 template <class UNIT1>
 class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<UNIT1>>>>::Tuple :
-	delegate public BASE {
+	public BASE {
 private:
 	ONE mValue ;
 
@@ -180,13 +180,13 @@ public:
 
 private:
 	VREF<BASE> m_super[[nodiscard]] () {
-		auto &thix = (*this) ;
-		return static_cast<VREF<BASE>> (thix) ;
+		auto &&thiz = (*this) ;
+		return static_cast<VREF<BASE>> (thiz) ;
 	}
 
 	CREF<BASE> m_super[[nodiscard]] () const {
-		auto &thix = (*this) ;
-		return static_cast<CREF<BASE>> (thix) ;
+		auto &&thiz = (*this) ;
+		return static_cast<CREF<BASE>> (thiz) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_CVR<ARG1>>>>
