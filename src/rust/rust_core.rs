@@ -538,6 +538,12 @@ trait CELL_HELP<ARG1> {
 
 		function fetch = () :UNIT => fake[] ;
 
+		function value = (&&obj :UNIT) :UNIT => {
+			if not (exist ())
+				return forward (obj) ;
+			return fake[] ;
+		} ;
+
 		function store = (&&obj :UNIT) => fake[] = forward (obj) ;
 
 		function exchange = (&&obj :UNIT) => {
@@ -600,7 +606,7 @@ trait SLICE_HELP<ARG1> {
 	class Slice {
 		interface Holder ;
 
-		variable mPointer :RC<Holder> ;
+		variable mPointer :PTR<Holder> ;
 	} ;
 
 	interface Slice::Holder {
@@ -613,31 +619,31 @@ trait SLICE_HELP<ARG1> {
 
 		function new = (&&one_ ,&&rest_...) => {
 			register r1x = internel::builtin_slice (forward (one_) ,forward (rest_)...) ;
-			mPointer = RC<Holder>::make (r1x) ;
+			mPointer = PTR<Holder>::make (r1x) ;
 		} ;
 
 		function size = () :LENGTH => {
 			if (mPointer == NULL)
 				return ZERO ;
-			return mPointer.to[]->size () ;
+			return mPointer->size () ;
 		} ;
 
 		function addr = () :LENGTH => {
 			if (mPointer == NULL)
 				return ZERO ;
-			return address (mPointer.to[]->at[0]) ;
+			return address (mPointer->at[0]) ;
 		} ;
 
 		function get = (index :INDEX) :UNIT => {
 			assert (between (index ,0 ,size ())) ;
-			return mPointer.to[]->at[index] ;
+			return mPointer->at[index] ;
 		} ;
 
 		function equal = (that :Slice) :BOOL => {
 			if (mSize != that.mSize)
 				return FALSE ;
 			for (i) in range (0 ,mSize) {
-				if (mPointer.to[]->at[i] != that.mPointer.to[]->at[i])
+				if (mPointer->at[i] != that.mPointer->at[i])
 					return FALSE ;
 			} ;
 			return TRUE ;
@@ -646,7 +652,7 @@ trait SLICE_HELP<ARG1> {
 		function compr = (that :Slice) :FLAG => {
 			constant r1x = min (mSize ,that.mSize) ;
 			for (i) in range (0 ,r1x) {
-				constant r2x = mPointer.to[]->at[i] <=> that.mPointer.to[]->at[i] ;
+				constant r2x = mPointer->at[i] <=> that.mPointer->at[i] ;
 				if (r2x != ZERO)
 					return r2x ;
 			} ;
@@ -656,7 +662,7 @@ trait SLICE_HELP<ARG1> {
 		function hash = () :FLAG => {
 			variable ret = hashcode () ;
 			for (i) in range (0 ,size ()) {
-				constant r1x = FLAG (mPointer.to[]->at[i]) ;
+				constant r1x = FLAG (mPointer->at[i]) ;
 				ret = hashcode (ret ,r1x) ;
 			}
 			return ret ;
@@ -670,7 +676,7 @@ trait CLAZZ_HELP<> {
 	class Clazz {
 		interface Holder ;
 
-		variable mPointer :RC<Holder> ;
+		variable mPointer :PTR<Holder> ;
 	} ;
 
 	interface Clazz::Holder {
@@ -685,7 +691,7 @@ trait CLAZZ_HELP<> {
 
 		function new = (&&that) => {
 			register r1x = internel::builtin_clazz (forward (that)) ;
-			mPointer = RC<Holder>::make (r1x) ;
+			mPointer = PTR<Holder>::make (r1x) ;
 		} ;
 
 		function equal = (that :Clazz) :BOOL => {
@@ -703,25 +709,25 @@ trait CLAZZ_HELP<> {
 		function type_size = () :LENGTH => {
 			if (mPointer == NULL)
 				return LENGTH (1) ;
-			return mPointer.to[]->type_size () ;
+			return mPointer->type_size () ;
 		} ;
 
 		function type_align = () :LENGTH => {
 			if (mPointer == NULL)
 				return LENGTH (1) ;
-			return mPointer.to[]->type_align () ;
+			return mPointer->type_align () ;
 		} ;
 
 		function type_mid = () :FLAG => {
 			if (mPointer == NULL)
 				return ZERO ;
-			return mPointer.to[]->type_mid () ;
+			return mPointer->type_mid () ;
 		} ;
 
 		function type_name = () :Slice<STR> => {
 			if (mPointer == NULL)
 				return Slice<STR> ("") ;
-			return mPointer.to[]->type_name () ;
+			return mPointer->type_name () ;
 		} ;
 	} ;
 } ;

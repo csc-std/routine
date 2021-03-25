@@ -103,7 +103,7 @@ trait FUNCTION_HELP<ARG1 ,ARG2> {
 		interface Holder ;
 		class ImplHolder ;
 
-		variable mPointer :RC<Holder> ;
+		variable mPointer :PTR<Holder> ;
 	} ;
 
 	interface Function::Holder {
@@ -137,7 +137,7 @@ trait FUNCTION_HELP<ARG1 ,ARG2> {
 			using R1X = type (that) ;
 			using R2X = typename IMPLHOLDER_HELP<R1X>::ImplHolder ;
 			register r1x = R2X (forward (that)) ;
-			mPointer = RC<Holder>::make (r1x) ;
+			mPointer = PTR<Holder>::make (r1x) ;
 		} ;
 
 		function exist = () :BOOL => mPointer != NULL ;
@@ -146,7 +146,7 @@ trait FUNCTION_HELP<ARG1 ,ARG2> {
 
 		function invoke = (params... :PARAMS...) :RETURN => {
 			assert (exist ()) ;
-			return mPointer.to[]->invoke (params...) ;
+			return mPointer->invoke (params...) ;
 		} ;
 	} ;
 } ;

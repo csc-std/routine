@@ -67,6 +67,7 @@
     <None Include="..\..\..\..\..\Depends\__CSC__\csc_string.hpp.gbk.inl" />
     <None Include="..\..\src\csc2\cpp.hint" />
     <None Include="..\..\src\rust\rust.rs" />
+    <None Include="..\..\src\rust\rust_basic.rs" />
     <None Include="..\..\src\rust\rust_core.rs" />
   </ItemGroup>
   <ItemGroup>

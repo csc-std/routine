@@ -157,29 +157,41 @@ namespace CSC {
 #endif
 #define delegate
 
-#define internel_unwind_impl(...) __VA_ARGS__
-#define internel_unwind internel_unwind_impl
+#ifdef unwind
+#error "∑(っ°Д° ;)っ : already defined"
+#endif
+#define internel_unwind(...) __VA_ARGS__
+#define unwind internel_unwind
 
-#define internel_stringize_impl(...) #__VA_ARGS__
-#define internel_stringize internel_stringize_impl
+#ifdef stringize
+#error "∑(っ°Д° ;)っ : already defined"
+#endif
+#define internel_stringize(...) #__VA_ARGS__
+#define stringize internel_stringize
+
+#ifdef ifnot
+#error "∑(っ°Д° ;)っ : already defined"
+#endif
+#define internel_ifnot(...) (!(unwind (__VA_ARGS__)))
+#define ifnot internel_ifnot
 
 #ifdef require
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_require_impl(...) static_assert ((internel_unwind (__VA_ARGS__)::value) ,"static assert failed : " internel_stringize (__VA_ARGS__)) ;
-#define require internel_require_impl
+#define internel_require(...) static_assert ((unwind (__VA_ARGS__)::value) ,"static assert failed : " stringize (__VA_ARGS__)) ;
+#define require internel_require
 
 #ifdef enumof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_enumof_impl(...) CSC::U::ENUMAS<CSC::U::ENUMID<(internel_unwind (__VA_ARGS__))>>
-#define enumof internel_enumof_impl
+#define internel_enumof(...) CSC::U::ENUMAS<CSC::U::ENUMID<(unwind (__VA_ARGS__))>>
+#define enumof internel_enumof
 
 #ifdef typeof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_typeof_impl(...) CSC::REMOVE_TYPEID<decltype (internel_unwind (__VA_ARGS__))>
-#define typeof internel_typeof_impl
+#define internel_typeof(...) CSC::REMOVE_REF<decltype (unwind (__VA_ARGS__))>
+#define typeof internel_typeof
 
 #ifdef typeas
 #error "∑(っ°Д° ;)っ : already defined"
@@ -200,13 +212,16 @@ namespace CSC {
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #ifdef __CSC_DEBUG__
-#define assert CSC::internel_assert
+#define internel_assert(...) do { if ifnot (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
+#define assert internel_assert
 #endif
 #ifdef __CSC_UNITTEST__
-#define assert CSC::internel_assert
+#define internel_assert(...) do { if ifnot (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
+#define assert internel_assert
 #endif
 #ifdef __CSC_RELEASE__
-#define assert(...)
+#define internel_assert(...)
+#define assert internel_assert
 #endif
 
 #ifdef anonymous
@@ -214,11 +229,11 @@ namespace CSC {
 #endif
 #define anonymous internel_anonymous_ ## __LINE__
 
-#ifdef switchs
+#ifdef ifswitch
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_switchs_impl(...) (internel_unwind (__VA_ARGS__)) goto anonymous ; while (false) anonymous:
-#define switchs internel_switchs_impl
+#define internel_ifswitch(...) (unwind (__VA_ARGS__)) goto anonymous ; while (false) anonymous:
+#define ifswitch internel_ifswitch
 
 #ifdef discard
 #error "∑(っ°Д° ;)っ : already defined"
