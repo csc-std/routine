@@ -32,7 +32,7 @@ public:
 	}
 
 	template <class ARG1>
-	REMOVE_REF<ARG1> cast (CREF<ARG1> id) const {
+	REMOVE_ALL<ARG1> cast (CREF<ARG1> id) const {
 		using R1X = typeof (id) ;
 		return R1X (mStatus) ;
 	}
@@ -157,7 +157,7 @@ private:
 public:
 	implicit Tuple () = default ;
 
-	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_REF<ARG1>>>>
+	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_ALL<ARG1>>>>
 	explicit Tuple (RREF<ARG1> one_ ,RREF<ARGS>...rest_) :
 		delegate BASE (forward (rest_)...) ,
 		delegate mValue (forward (one_)) {}
@@ -183,7 +183,7 @@ public:
 	}
 
 	template <class ARG1>
-	VREF<TYPE_PICK<UNIT1 ,REMOVE_REF<ARG1>>> pick (CREF<ARG1> nth) leftvalue {
+	VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> pick (CREF<ARG1> nth) leftvalue {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
@@ -191,7 +191,7 @@ public:
 	}
 
 	template <class ARG1>
-	CREF<TYPE_PICK<UNIT1 ,REMOVE_REF<ARG1>>> pick (CREF<ARG1> nth) const leftvalue {
+	CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> pick (CREF<ARG1> nth) const leftvalue {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
@@ -257,30 +257,28 @@ private:
 		return static_cast<CREF<BASE>> (thiz) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_REF<ARG1>>>>
+	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_ALL<ARG1>>>>
 	VREF<ONE> template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) leftvalue {
 		return one () ;
 	}
 
-	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_REF<ARG1>>>>
+	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_ALL<ARG1>>>>
 	CREF<ONE> template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) const leftvalue {
 		return one () ;
 	}
 
-	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_REF<ARG1>>>>
-	VREF<TYPE_PICK<UNIT1 ,REMOVE_REF<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) leftvalue {
+	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_ALL<ARG1>>>>
+	VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) leftvalue {
 		using R1X = typeof (nth) ;
-		using R2X = ENUM_DEC<REMOVE_REF<R1X>> ;
-		const auto r1x = property (rest ()) ;
-		return property[r1x].template_pick (typeas<R2X>::id ,PHX) ;
+		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
+		return rest ().template_pick (typeas<R2X>::id ,PHX) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_REF<ARG1>>>>
-	CREF<TYPE_PICK<UNIT1 ,REMOVE_REF<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) const leftvalue {
+	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_ALL<ARG1>>>>
+	CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) const leftvalue {
 		using R1X = typeof (nth) ;
-		using R2X = ENUM_DEC<REMOVE_REF<R1X>> ;
-		const auto r1x = property (rest ()) ;
-		return property[r1x].template_pick (typeas<R2X>::id ,PHX) ;
+		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
+		return rest ().template_pick (typeas<R2X>::id ,PHX) ;
 	}
 } ;
 } ;

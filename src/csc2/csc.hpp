@@ -103,7 +103,7 @@
 #pragma GCC diagnostic ignored "-Wattributes"
 #endif
 
-#include "begin.hh"
+#include "begin.h"
 #include <cstdint>
 #include <cstddef>
 #include <ciso646>
@@ -112,7 +112,7 @@
 #include <utility>
 #include <new>
 #include <exception>
-#include "end.hh"
+#include "end.h"
 
 #ifdef _HAS_CXX17
 #if _HAS_CXX17
@@ -121,7 +121,6 @@
 #endif
 
 namespace CSC {
-
 #ifdef self
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
@@ -190,7 +189,7 @@ namespace CSC {
 #ifdef typeof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define internel_typeof(...) CSC::REMOVE_REF<decltype (unwind (__VA_ARGS__))>
+#define internel_typeof(...) CSC::REMOVE_ALL<decltype (unwind (__VA_ARGS__))>
 #define typeof internel_typeof
 
 #ifdef typeas
@@ -202,11 +201,6 @@ namespace CSC {
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #define trait struct
-
-#ifdef interface
-#error "∑(っ°Д° ;)っ : already defined"
-#endif
-#define interface struct
 
 #ifdef assert
 #error "∑(っ°Д° ;)っ : already defined"
