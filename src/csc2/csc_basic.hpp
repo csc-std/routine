@@ -32,48 +32,58 @@ public:
 	}
 
 	template <class ARG1>
-	REMOVE_ALL<ARG1> cast (CREF<ARG1> id) const {
+	auto cast (CREF<ARG1> id) const
+		->REMOVE_ALL<ARG1> {
 		using R1X = typeof (id) ;
 		return R1X (mStatus) ;
 	}
 
-	inline implicit operator FLAG () const {
+	inline explicit operator FLAG () const {
 		return cast (typeas<FLAG>::id) ;
 	}
 
-	BOOL equal (CREF<Status> that) const {
+	auto equal (CREF<Status> that) const
+		->BOOL {
 		return mStatus == that.mStatus ;
 	}
 
-	inline BOOL operator== (CREF<Status> that) const {
+	inline auto operator== (CREF<Status> that) const
+		->BOOL {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (CREF<Status> that) const {
+	inline auto operator!= (CREF<Status> that) const
+		->BOOL {
 		return equal (that) ;
 	}
 
-	FLAG compr (CREF<Status> that) const {
+	auto compr (CREF<Status> that) const
+		->FLAG {
 		return operator_compr (mStatus ,that.mStatus) ;
 	}
 
-	inline BOOL operator< (CREF<Status> that) const {
+	inline auto operator< (CREF<Status> that) const
+		->BOOL {
 		return compr (that) < ZERO ;
 	}
 
-	inline BOOL operator<= (CREF<Status> that) const {
+	inline auto operator<= (CREF<Status> that) const
+		->BOOL {
 		return compr (that) <= ZERO ;
 	}
 
-	inline BOOL operator> (CREF<Status> that) const {
+	inline auto operator> (CREF<Status> that) const
+		->BOOL {
 		return compr (that) > ZERO ;
 	}
 
-	inline BOOL operator>= (CREF<Status> that) const {
+	inline auto operator>= (CREF<Status> that) const
+		->BOOL {
 		return compr (that) >= ZERO ;
 	}
 
-	FLAG hash () const {
+	auto hash () const
+		->FLAG {
 		return mStatus ;
 	}
 } ;
@@ -85,8 +95,6 @@ trait TUPLE_HELP ;
 
 template <class ARG1>
 trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<ARG1>>>> {
-	require (ENUM_EQ_ZERO<COUNTOF<ARG1>>) ;
-
 	class Tuple ;
 } ;
 
@@ -95,51 +103,59 @@ class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<UNIT1>>>>::Tuple {
 public:
 	implicit Tuple () = default ;
 
-	LENGTH rank () const {
+	auto rank () const
+		->LENGTH {
 		return COUNTOF<UNIT1>::value ;
 	}
 
-	BOOL equal (CREF<Tuple> that) const {
+	auto equal (CREF<Tuple> that) const
+		->BOOL {
 		return TRUE ;
 	}
 
-	inline BOOL operator== (CREF<Tuple> that) const {
+	inline auto operator== (CREF<Tuple> that) const
+		->BOOL {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (CREF<Tuple> that) const {
-		return nnot (equal (that)) ;
+	inline auto operator!= (CREF<Tuple> that) const
+		->BOOL {
+		return ifnot (equal (that)) ;
 	}
 
-	FLAG compr (CREF<Tuple> that) const {
+	auto compr (CREF<Tuple> that) const
+		->FLAG {
 		return ZERO ;
 	}
 
-	inline BOOL operator< (CREF<Tuple> that) const {
+	inline auto operator< (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) < ZERO ;
 	}
 
-	inline BOOL operator<= (CREF<Tuple> that) const {
+	inline auto operator<= (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) <= ZERO ;
 	}
 
-	inline BOOL operator> (CREF<Tuple> that) const {
+	inline auto operator> (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) > ZERO ;
 	}
 
-	inline BOOL operator>= (CREF<Tuple> that) const {
+	inline auto operator>= (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) >= ZERO ;
 	}
 
-	FLAG hash () const {
+	auto hash () const
+		->FLAG {
 		return hashcode () ;
 	}
 } ;
 
 template <class ARG1>
 trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
-	require (ENUM_GT_ZERO<COUNTOF<ARG1>>) ;
-
 	using ALL = TYPE_CHECK<ARG1> ;
 	using ONE = TYPE_FIRST_ONE<ALL> ;
 	using REST = TYPE_FIRST_REST<ALL> ;
@@ -159,31 +175,37 @@ public:
 
 	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_ALL<ARG1>>>>
 	explicit Tuple (RREF<ARG1> one_ ,RREF<ARGS>...rest_) :
-		delegate BASE (forward (rest_)...) ,
-		delegate mValue (forward (one_)) {}
+		BASE (forward (rest_)...) ,
+		mValue (forward (one_)) {}
 
-	LENGTH rank () const {
+	auto rank () const
+		->LENGTH {
 		return COUNTOF<ALL>::value ;
 	}
 
-	VREF<ONE> one () leftvalue {
+	auto one () leftvalue
+		->VREF<ONE> {
 		return mValue ;
 	}
 
-	CREF<ONE> one () const leftvalue {
+	auto one () const leftvalue
+		->CREF<ONE> {
 		return mValue ;
 	}
 
-	VREF<BASE> rest () leftvalue {
+	auto rest () leftvalue
+		->VREF<BASE> {
 		return m_super () ;
 	}
 
-	CREF<BASE> rest () const leftvalue {
+	auto rest () const leftvalue
+		->CREF<BASE> {
 		return m_super () ;
 	}
 
 	template <class ARG1>
-	VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> pick (CREF<ARG1> nth) leftvalue {
+	auto pick (CREF<ARG1> nth) leftvalue
+		->VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
@@ -191,14 +213,16 @@ public:
 	}
 
 	template <class ARG1>
-	CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> pick (CREF<ARG1> nth) const leftvalue {
+	auto pick (CREF<ARG1> nth) const leftvalue
+		->CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
 
-	BOOL equal (CREF<Tuple> that) const {
+	auto equal (CREF<Tuple> that) const
+		->BOOL {
 		if (mValue != that.mValue)
 			return FALSE ;
 		if (m_super () != that.m_super ())
@@ -206,15 +230,18 @@ public:
 		return TRUE ;
 	}
 
-	inline BOOL operator== (CREF<Tuple> that) const {
+	inline auto operator== (CREF<Tuple> that) const
+		->BOOL {
 		return equal (that) ;
 	}
 
-	inline BOOL operator!= (CREF<Tuple> that) const {
-		return nnot (equal (that)) ;
+	inline auto operator!= (CREF<Tuple> that) const
+		->BOOL {
+		return ifnot (equal (that)) ;
 	}
 
-	FLAG compr (CREF<Tuple> that) const {
+	auto compr (CREF<Tuple> that) const
+		->FLAG {
 		const auto r1x = operator_compr (mValue ,that.mValue) ;
 		if (r1x != ZERO)
 			return r1x ;
@@ -224,58 +251,69 @@ public:
 		return ZERO ;
 	}
 
-	inline BOOL operator< (CREF<Tuple> that) const {
+	inline auto operator< (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) < ZERO ;
 	}
 
-	inline BOOL operator<= (CREF<Tuple> that) const {
+	inline auto operator<= (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) <= ZERO ;
 	}
 
-	inline BOOL operator> (CREF<Tuple> that) const {
+	inline auto operator> (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) > ZERO ;
 	}
 
-	inline BOOL operator>= (CREF<Tuple> that) const {
+	inline auto operator>= (CREF<Tuple> that) const
+		->BOOL {
 		return compr (that) >= ZERO ;
 	}
 
-	FLAG hash () const {
+	auto hash () const
+		->FLAG {
 		const auto r1x = operator_hash (mValue) ;
 		const auto r2x = operator_hash (m_super ()) ;
 		return hashcode (r1x ,r2x) ;
 	}
 
 private:
-	VREF<BASE> m_super () leftvalue {
+	auto m_super () leftvalue
+		->VREF<BASE> {
 		auto &&thiz = property[this] ;
 		return static_cast<VREF<BASE>> (thiz) ;
 	}
 
-	CREF<BASE> m_super () const leftvalue {
+	auto m_super () const leftvalue
+		->CREF<BASE> {
 		auto &&thiz = property[this] ;
 		return static_cast<CREF<BASE>> (thiz) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_ALL<ARG1>>>>
-	VREF<ONE> template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) leftvalue {
+	auto template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) leftvalue
+		->VREF<ONE> {
 		return one () ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_ALL<ARG1>>>>
-	CREF<ONE> template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) const leftvalue {
+	auto template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) const leftvalue
+		->CREF<ONE> {
 		return one () ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_ALL<ARG1>>>>
-	VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) leftvalue {
+	auto template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) leftvalue
+		->VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
 		return rest ().template_pick (typeas<R2X>::id ,PHX) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_ALL<ARG1>>>>
-	CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) const leftvalue {
+	auto template_pick (CREF<ARG1> nth ,CREF<typeof (PH2)>) const leftvalue
+		->CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
 		return rest ().template_pick (typeas<R2X>::id ,PHX) ;

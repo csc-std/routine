@@ -151,11 +151,6 @@ namespace CSC {
 #endif
 #define rightvalue &&
 
-#ifdef delegate
-#error "∑(っ°Д° ;)っ : already defined"
-#endif
-#define delegate
-
 #ifdef unwind
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
@@ -216,6 +211,19 @@ namespace CSC {
 #ifdef __CSC_RELEASE__
 #define internel_assert(...)
 #define assert internel_assert
+#endif
+
+#ifdef exception_here
+#error "∑(っ°Д° ;)っ : already defined"
+#endif
+#ifdef __CSC_COMPILER_MSVC__
+#define exception_here "exception : at " ,__FUNCSIG__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#endif
+#ifdef __CSC_COMPILER_GNUC__
+#define exception_here "exception : at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#endif
+#ifdef __CSC_COMPILER_CLANG__
+#define exception_here "exception : at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
 #endif
 
 #ifdef anonymous
