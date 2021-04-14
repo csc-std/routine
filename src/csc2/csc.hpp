@@ -201,11 +201,11 @@ namespace CSC {
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #ifdef __CSC_DEBUG__
-#define internel_assert(...) do { if ifnot (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
+#define internel_assert(...) do { if (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
 #define assert internel_assert
 #endif
 #ifdef __CSC_UNITTEST__
-#define internel_assert(...) do { if ifnot (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
+#define internel_assert(...) do { if (unwind (__VA_ARGS__)) break ; CSC::abort () ; } while (false)
 #define assert internel_assert
 #endif
 #ifdef __CSC_RELEASE__

@@ -1020,10 +1020,11 @@ namespace U {
 class FUNCTION_deref {
 public:
 	template <class ARG1>
-	inline auto operator[] (VREF<TEMP<ARG1>> tmp) const noexcept
-		->VREF<ARG1> {
+	inline auto operator[] (VREF<ARG1> tmp) const noexcept
+		->VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (tmp) ;
 		using R2X = REMOVE_TEMP<R1X> ;
+		require (IS_SAME<R1X ,TEMP<R2X>>) ;
 		return reinterpret_cast<VREF<R2X>> (tmp) ;
 	}
 } ;
@@ -1088,9 +1089,10 @@ namespace U {
 class FUNCTION_create {
 public:
 	template <class ARG1 ,class...ARGS>
-	inline void operator() (VREF<TEMP<ARG1>> tmp ,RREF<ARGS>...args) const {
+	inline void operator() (VREF<ARG1> tmp ,RREF<ARGS>...args) const {
 		using R1X = typeof (tmp) ;
 		using R2X = REMOVE_TEMP<R1X> ;
+		require (IS_SAME<R1X ,TEMP<R2X>>) ;
 		new (property (tmp)) R2X (forward (args)...) ;
 	}
 } ;
@@ -1116,9 +1118,10 @@ namespace U {
 class FUNCTION_destroy {
 public:
 	template <class ARG1>
-	inline void operator() (VREF<TEMP<ARG1>> tmp) const noexcept {
+	inline void operator() (VREF<ARG1> tmp) const noexcept {
 		using R1X = typeof (tmp) ;
 		using R2X = REMOVE_TEMP<R1X> ;
+		require (IS_SAME<R1X ,TEMP<R2X>>) ;
 		unsafe_deref[tmp].~R2X () ;
 	}
 } ;
@@ -1354,7 +1357,11 @@ public:
 		using R2X = typename CABI_HELP<R1X>::CABI ;
 		require (ENUM_EQUAL<SIZEOF<FLAG> ,SIZEOF<R2X>>) ;
 		require (ENUM_EQUAL<ALIGNOF<FLAG> ,ALIGNOF<R2X>>) ;
-		return FLAG (bitwise (R2X ())) ;
+		auto rax = TEMP<R2X> () ;
+		unsafe_create (rax) ;
+		FLAG ret = FLAG (bitwise (rax)) ;
+		unsafe_destroy (rax) ;
+		return forward (ret) ;
 	}
 } ;
 } ;
@@ -1433,7 +1440,8 @@ trait ANY_HELP<> {
 
 struct ANY_HELP<>::DETAIL::Holder :
 	public Interface {
-	virtual void destroy () const = 0 ;
+	virtual void destroy () = 0 ;
+	virtual LENGTH unsafe_addr () = 0 ;
 	virtual LENGTH type_size () const = 0 ;
 	virtual LENGTH type_align () const = 0 ;
 	virtual FLAG type_cabi () const = 0 ;
@@ -1469,12 +1477,11 @@ public:
 		mPointer (NULL) {}
 
 	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REMOVE_ALL<ARG1> ,Any>>>>
-	explicit Any (RREF<ARG1> that) {
+	explicit Any (RREF<ARG1> that) :
+		Any () {
 		using R1X = typeof (that) ;
 		using R2X = typename ANY_IMPLHOLDER_HELP<R1X>::EXTERN ;
-		Any ret ;
-		ret.mPointer = R2X::create (forward (that)) ;
-		return forward (ret) ;
+		mPointer = R2X::create (forward (that)) ;
 	}
 
 	implicit ~Any () noexcept {
@@ -1505,21 +1512,15 @@ public:
 		const auto r1x = operator_cabi (typeas<R2X>::id) ;
 		const auto r2x = mPointer->type_cabi () ;
 		assert (r1x == r2x) ;
-		return m_derived (typeas<R2X>::id).poll () ;
+		const auto r3x = mPointer->unsafe_addr () ;
+		const auto r4x = reinterpret_cast<UNSAFE_PTR<R1X>> (r3x) ;
+		return forward (property[r4x]) ;
 	}
 
 	template <class ARG1>
 	inline explicit operator ARG1 () rightvalue {
 		using R1X = typeof (ARG1 ()) ;
 		return poll (typeas<R1X>::id) ;
-	}
-
-private:
-	template <class ARG1>
-	auto m_derived (CREF<ARG1> id) leftvalue
-		->VREF<REMOVE_ALL<ARG1>> {
-		using R1X = typeof (id) ;
-		return static_cast<VREF<R1X>> (property[mPointer]) ;
 	}
 } ;
 } ;

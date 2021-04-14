@@ -27,11 +27,15 @@ public:
 		->UNSAFE_PTR<REMOVE_ALL<ARG1>> {
 		using R1X = typeof (id) ;
 		require (IS_TRIVIAL<R1X>) ;
-		const auto r1x = alloc (SIZEOF<R1X>::value ,ALIGNOF<R1X>::value) ;
-		const auto r2x = address (block_array ()[slot_array ()[r1x].mBlock]) + SIZEOF<BLOCK>::value ;
-		const auto r3x = alignto (r2x ,ALIGNOF<R1X>::value) ;
+		const auto r3x = property (slot_array ()) ;
+		const auto r4x = property (block_array ()) ;
+		INDEX ix = alloc (SIZEOF<R1X>::value ,ALIGNOF<R1X>::value) ;
+		assert (ix != NONE) ;
+		INDEX jx = property[r3x][ix].mBlock ;
+		const auto r2x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
+		const auto r5x = alignto (r2x ,ALIGNOF<R1X>::value) ;
 		barrier () ;
-		return reinterpret_cast<UNSAFE_PTR<R1X>> (r3x) ;
+		return reinterpret_cast<UNSAFE_PTR<R1X>> (r5x) ;
 	}
 
 	imports auto alloc (CREF<LENGTH> size_len ,CREF<LENGTH> align_len)
@@ -40,41 +44,31 @@ public:
 		assert (align_len > ZERO) ;
 		const auto r3x = property (slot_array ()) ;
 		const auto r4x = property (block_array ()) ;
-		auto &&r5x = capture ([&] () {
-			for (auto &&i : range (0 ,SLOT_SIZE)) {
-				if (property[r3x][i].mUsed)
-					return i ;
-			}
-			return NONE ;
-		}) ;
-		INDEX ix = r5x.self () ;
+		INDEX ix = empry_slot (property[r3x]) ;
 		INDEX iy = ix + 1 ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
 		assert (between (iy ,0 ,SLOT_SIZE)) ;
 		const auto r10x = align_len - ALIGNOF<BLOCK>::value ;
-		const auto r13x = alignto (size_len + max (r10x ,ZERO) ,SIZEOF<BLOCK>::value) ;
-		assert (property[r3x][ix].mBlockSize + property[r3x][iy].mBlockSize >= r13x) ;
-		const auto r14x = property[r3x][ix].mBlockSize ;
-		property[r3x][ix].mBlockSize = r13x ;
-		property[r3x][iy].mBlockSize += r14x - r13x ;
-		INDEX jx = property[r3x][ix].mBlock + r13x / SIZEOF<BLOCK>::value ;
+		const auto r12x = size_len + max (r10x ,ZERO) ;
+		const auto r13x = (r12x + SIZEOF<BLOCK>::value - 1) / SIZEOF<BLOCK>::value ;
+		property[r3x][ix].mBlockSize += property[r3x][iy].mBlockSize ;
+		property[r3x][iy].mBlockSize = 0 ;
+		property[r3x][iy].mBlock = NONE ;
+		const auto r14x = property[r3x][ix].mBlockSize - 1 - r13x ;
+		if (r14x <= 0)
+			return NONE ;
+		property[r3x][ix].mBlockSize -= r14x ;
+		property[r3x][iy].mBlockSize += r14x ;
+		INDEX jx = property[r3x][ix].mBlock + 1 + r13x ;
 		property[r3x][iy].mBlock = jx ;
 		property[r4x][jx].mBlockCheck1 = BLOCK_CHECK ;
 		property[r4x][jx].mBlockCheck2 = BLOCK_CHECK ;
-		property[r3x][ix].mBlockSize = r13x ;	
 		return ix ;
 	}
 
 	imports void popup () {
 		const auto r3x = property (slot_array ()) ;
-		auto &&r5x = capture ([&] () {
-			for (auto &&i : range (0 ,SLOT_SIZE)) {
-				if (property[r3x][i].mUsed)
-					return i ;
-			}
-			return NONE ;
-		}) ;
-		INDEX ix = r5x.self () ;
+		INDEX ix = empry_slot (property[r3x]) ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
 		property[r3x][ix].mUsed = TRUE ;
 	}
@@ -82,29 +76,21 @@ public:
 	imports void free (CREF<LENGTH> addr) {
 		const auto r3x = property (slot_array ()) ;
 		const auto r4x = property (block_array ()) ;
-		auto &&r5x = capture ([&] () {
-			for (auto &&i : range (0 ,SLOT_SIZE)) {
-				if (property[r3x][i].mUsed)
-					return i ;
-			}
-			return NONE ;
-		}) ;
-		INDEX ix = r5x.self () ;
-		INDEX iy = ix + 1 ;
+		INDEX ix = empry_slot (property[r3x]) ;
+		INDEX iy = ix - 1 ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
 		assert (between (iy ,0 ,SLOT_SIZE)) ;
-		INDEX jx = property[r3x][ix].mBlock ;
+		INDEX jx = property[r3x][iy].mBlock ;
 		assert (jx != NONE) ;
 		assert (property[r4x][jx].mBlockCheck1 == BLOCK_CHECK) ;
 		assert (property[r4x][jx].mBlockCheck2 == BLOCK_CHECK) ;
 		const auto r10x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
-		const auto r11x = r10x + property[r3x][ix].mBlockSize * SIZEOF<BLOCK>::value ;
-		const auto r12x = address (addr) ;
-		assert (between (r12x ,r10x ,r11x)) ;
-		property[r3x][ix].mUsed = FALSE ;
-		property[r3x][ix].mBlockSize += property[r3x][iy].mBlockSize ;
-		property[r3x][iy].mBlockSize = 0 ;
-		property[r3x][iy].mBlock = NONE ;
+		const auto r11x = r10x + (property[r3x][ix].mBlockSize - 1) * SIZEOF<BLOCK>::value ;
+		assert (between (addr ,r10x ,r11x)) ;
+		property[r3x][iy].mUsed = FALSE ;
+		property[r3x][iy].mBlockSize += property[r3x][ix].mBlockSize ;
+		property[r3x][ix].mBlockSize = 0 ;
+		property[r3x][ix].mBlock = NONE ;
 	}
 
 private:
@@ -135,6 +121,15 @@ private:
 		thread_local auto M_SLOT = r1x.self () ;
 		return M_SLOT.mP1 ;
 	}
+
+	imports auto empry_slot (CREF<SLOT[SLOT_SIZE]> array_)
+		->INDEX {
+		for (auto &&i : range (0 ,SLOT_SIZE)) {
+			if ifnot (array_[i].mUsed)
+				return i ;
+		}
+		return NONE ;
+	}
 } ;
 
 template <class UNIT1>
@@ -152,31 +147,27 @@ public:
 	explicit ImplHolder (RREF<UNIT1> that) :
 		mValue (forward (that)) {}
 
-	void destroy () const override {
+	void destroy () override {
 		auto &&thiz = property[this] ;
 		unsafe_destroy (unsafe_deptr[thiz]) ;
-		AnyHeap::free (address (thiz)) ;
 		barrier () ;
+		AnyHeap::free (address (thiz)) ;
 	}
 
-	auto type_size () const override
-		->LENGTH {
+	LENGTH unsafe_addr () override {
+		return address (mValue) ;
+	}
+
+	LENGTH type_size () const override {
 		return SIZEOF<ImplHolder>::value ;
 	}
 
-	auto type_align () const override
-		->LENGTH {
+	LENGTH type_align () const override {
 		return ALIGNOF<ImplHolder>::value ;
 	}
 
-	auto type_cabi () const override
-		->FLAG {
+	FLAG type_cabi () const override {
 		return operator_cabi (typeas<ImplHolder>::id) ;
-	}
-
-	auto poll ()
-		->UNIT1 {
-		return forward (mValue) ;
 	}
 } ;
 
@@ -186,10 +177,10 @@ exports auto ANY_IMPLHOLDER_HELP<UNIT1>::EXTERN::create (RREF<UNIT1> that)
 	using R1X = typeof (that) ;
 	using R2X = typename ANY_IMPLHOLDER_HELP<R1X>::ImplHolder ;
 	using R3X = typename DETAIL::AnyHeap ;
-	const auto r1x = R3X::alloc (typeas<TEMP<R2X>>) ;
-	unsafe_create (r1x ,forward (that)) ;
+	const auto r1x = R3X::alloc (typeas<TEMP<R2X>>::id) ;
+	unsafe_create (property[r1x] ,forward (that)) ;
 	R3X::popup () ;
-	return unsafe_deref (r1x) ;
+	return property (unsafe_deref[property[r1x]]) ;
 } ;
 } ;
 
@@ -206,18 +197,16 @@ public:
 	explicit ImplHolder (RREF<UNTI2> that) :
 		mValue (forward (that)) {}
 
-	void destroy () const override {
+	void destroy () override {
 		auto &&thiz = property[this] ;
 		delete property (thiz) ;
 	}
 
-	auto to () leftvalue override
-		->VREF<UNIT1> {
+	VREF<UNIT1> to () leftvalue override {
 		return mValue ;
 	}
 
-	auto to () const leftvalue override
-		->CREF<UNIT1> {
+	CREF<UNIT1> to () const leftvalue override {
 		return mValue ;
 	}
 } ;
@@ -244,24 +233,23 @@ public:
 		mValue (forward (that)) ,
 		mCounter (ZERO) {}
 
-	void destroy () const override {
+	void destroy () override {
 		auto &&thiz = property[this] ;
 		delete property (thiz) ;
 	}
 
-	auto to () const leftvalue override
-		->CREF<UNIT1> {
+	CREF<UNIT1> to () const leftvalue override {
 		return mValue ;
 	}
 
-	auto increase () override
-		->LENGTH {
-		return ++mCounter ;
+	LENGTH increase () override {
+		mCounter = mCounter + 1 ;
+		return mCounter ;
 	}
 
-	auto decrease () override
-		->LENGTH {
-		return --mCounter ;
+	LENGTH decrease () override {
+		mCounter = mCounter - 1 ;
+		return mCounter ;
 	}
 } ;
 
