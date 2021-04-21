@@ -34,7 +34,7 @@ public:
 		INDEX jx = property[r3x][ix].mBlock ;
 		const auto r2x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
 		const auto r5x = alignto (r2x ,ALIGNOF<R1X>::value) ;
-		barrier () ;
+		unsafe_barrier () ;
 		return reinterpret_cast<UNSAFE_PTR<R1X>> (r5x) ;
 	}
 
@@ -96,30 +96,34 @@ public:
 private:
 	imports auto block_array ()
 		->VREF<BLOCK[BLOCK_SIZE]> {
-		auto &&r1x = capture ([&] () {
-			PACK<BLOCK[BLOCK_SIZE]> ret ;
-			ret.mP1[0].mBlockCheck1 = BLOCK_CHECK ;
-			ret.mP1[0].mBlockCheck2 = BLOCK_CHECK ;
-			return forward (ret) ;
-		}) ;
-		thread_local auto M_BLOCK = r1x.self () ;
+		thread_local auto M_BLOCK = block_array_init () ;
 		return M_BLOCK.mP1 ;
+	}
+
+	imports auto block_array_init ()
+		->PACK<BLOCK[BLOCK_SIZE]> {
+		PACK<BLOCK[BLOCK_SIZE]> ret ;
+		ret.mP1[0].mBlockCheck1 = BLOCK_CHECK ;
+		ret.mP1[0].mBlockCheck2 = BLOCK_CHECK ;
+		return forward (ret) ;
 	}
 
 	imports auto slot_array ()
 		->VREF<SLOT[SLOT_SIZE]> {
-		auto &&r1x = capture ([&] () {
-			PACK<SLOT[SLOT_SIZE]> ret ;
-			const auto r1x = SLOT {FALSE ,0 ,NONE} ;
-			for (auto &&i : range (1 ,SLOT_SIZE))
-				ret.mP1[i] = r1x ;
-			ret.mP1[0].mUsed = FALSE ;
-			ret.mP1[0].mBlockSize = BLOCK_SIZE ;
-			ret.mP1[0].mBlock = 0 ;
-			return forward (ret) ;
-		}) ;
-		thread_local auto M_SLOT = r1x.self () ;
+		thread_local auto M_SLOT = slot_array_init () ;
 		return M_SLOT.mP1 ;
+	}
+
+	imports auto slot_array_init ()
+		->PACK<SLOT[SLOT_SIZE]> {
+		PACK<SLOT[SLOT_SIZE]> ret ;
+		const auto r1x = SLOT {FALSE ,0 ,NONE} ;
+		for (auto &&i : range (1 ,SLOT_SIZE))
+			ret.mP1[i] = r1x ;
+		ret.mP1[0].mUsed = FALSE ;
+		ret.mP1[0].mBlockSize = BLOCK_SIZE ;
+		ret.mP1[0].mBlock = 0 ;
+		return forward (ret) ;
 	}
 
 	imports auto empry_slot (CREF<SLOT[SLOT_SIZE]> array_)
@@ -149,8 +153,11 @@ public:
 
 	void destroy () override {
 		auto &&thiz = property[this] ;
-		unsafe_destroy (unsafe_deptr[thiz]) ;
-		barrier () ;
+		auto rax = TEMP<ImplHolder> () ;
+		unsafe_zeroize (rax) ;
+		swap (rax ,unsafe_deptr[thiz]) ;
+		unsafe_destroy (rax) ;
+		unsafe_barrier () ;
 		AnyHeap::free (address (thiz)) ;
 	}
 

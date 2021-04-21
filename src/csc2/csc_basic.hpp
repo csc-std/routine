@@ -165,18 +165,18 @@ trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 } ;
 
 template <class UNIT1>
-class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<UNIT1>>>>::Tuple :
-	public BASE {
+class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<UNIT1>>>>::Tuple {
 private:
 	ONE mValue ;
+	BASE mSuper ;
 
 public:
 	implicit Tuple () = default ;
 
 	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_ALL<ARG1>>>>
 	explicit Tuple (RREF<ARG1> one_ ,RREF<ARGS>...rest_) :
-		BASE (forward (rest_)...) ,
-		mValue (forward (one_)) {}
+		mValue (forward (one_)) ,
+		mSuper (forward (rest_)...) {}
 
 	auto rank () const
 		->LENGTH {
@@ -195,19 +195,19 @@ public:
 
 	auto rest () leftvalue
 		->VREF<BASE> {
-		return m_super () ;
+		return mSuper ;
 	}
 
 	auto rest () const leftvalue
 		->CREF<BASE> {
-		return m_super () ;
+		return mSuper ;
 	}
 
 	template <class ARG1>
 	auto pick (CREF<ARG1> nth) leftvalue
 		->VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
-		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
+		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
@@ -216,7 +216,7 @@ public:
 	auto pick (CREF<ARG1> nth) const leftvalue
 		->CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
-		require (ENUM_COMPR_GT_EQ<R1X ,ENUM_ZERO>) ;
+		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
@@ -225,7 +225,7 @@ public:
 		->BOOL {
 		if (mValue != that.mValue)
 			return FALSE ;
-		if (m_super () != that.m_super ())
+		if (mSuper != that.mSuper)
 			return FALSE ;
 		return TRUE ;
 	}
@@ -245,7 +245,7 @@ public:
 		const auto r1x = operator_compr (mValue ,that.mValue) ;
 		if (r1x != ZERO)
 			return r1x ;
-		const auto r2x = operator_compr (m_super () ,that.m_super ()) ;
+		const auto r2x = operator_compr (mSuper ,that.mSuper) ;
 		if (r2x != ZERO)
 			return r2x ;
 		return ZERO ;
@@ -274,23 +274,11 @@ public:
 	auto hash () const
 		->FLAG {
 		const auto r1x = operator_hash (mValue) ;
-		const auto r2x = operator_hash (m_super ()) ;
+		const auto r2x = operator_hash (mSuper) ;
 		return hashcode (r1x ,r2x) ;
 	}
 
 private:
-	auto m_super () leftvalue
-		->VREF<BASE> {
-		auto &&thiz = property[this] ;
-		return static_cast<VREF<BASE>> (thiz) ;
-	}
-
-	auto m_super () const leftvalue
-		->CREF<BASE> {
-		auto &&thiz = property[this] ;
-		return static_cast<CREF<BASE>> (thiz) ;
-	}
-
 	template <class ARG1 ,class = ENABLE<ENUM_EQ_ZERO<REMOVE_ALL<ARG1>>>>
 	auto template_pick (CREF<ARG1> nth ,CREF<typeof (PH1)>) leftvalue
 		->VREF<ONE> {
