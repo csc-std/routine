@@ -213,17 +213,17 @@ namespace CSC {
 #define assert internel_assert
 #endif
 
-#ifdef exception_here
+#ifdef line_here
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #ifdef __CSC_COMPILER_MSVC__
-#define exception_here "exception : at " ,__FUNCSIG__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define line_here "at " ,__FUNCSIG__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
 #endif
 #ifdef __CSC_COMPILER_GNUC__
-#define exception_here "exception : at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define line_here "at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
 #endif
 #ifdef __CSC_COMPILER_CLANG__
-#define exception_here "exception : at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define line_here "at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
 #endif
 
 #ifdef anonymous

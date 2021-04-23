@@ -10,84 +10,85 @@
 namespace CSC {
 namespace U {
 template <class...>
-trait STATUS_HELP ;
+trait STATE_HELP ;
 
 template <class ARG1>
-trait STATUS_HELP<ARG1> {
-	class Status ;
+trait STATE_HELP<ARG1> {
+	class State ;
 } ;
 
 template <class UNIT1>
-class STATUS_HELP<UNIT1>::Status {
+class STATE_HELP<UNIT1>::State {
 private:
-	FLAG mStatus ;
+	FLAG mState ;
 
 public:
-	implicit Status () = delete ;
+	implicit State () = delete ;
 
 	template <class ARG1>
-	explicit Status (CREF<ARG1> id) {
+	explicit State (CREF<ARG1> id) {
 		using R1X = typeof (id) ;
-		mStatus = ENUM_CHECK<R1X>::value ;
+		mState = ENUM_CHECK<R1X>::value ;
 	}
 
-	template <class ARG1>
-	auto cast (CREF<ARG1> id) const
-		->REMOVE_ALL<ARG1> {
-		using R1X = typeof (id) ;
-		return R1X (mStatus) ;
+	auto state () const
+		->FLAG {
+		return mState ;
 	}
 
 	inline explicit operator FLAG () const {
-		return cast (typeas<FLAG>::id) ;
+		return state () ;
 	}
 
-	auto equal (CREF<Status> that) const
+	auto equal (CREF<State> that) const
 		->BOOL {
-		return mStatus == that.mStatus ;
+		return mState == that.mState ;
 	}
 
-	inline auto operator== (CREF<Status> that) const
-		->BOOL {
-		return equal (that) ;
-	}
-
-	inline auto operator!= (CREF<Status> that) const
+	inline auto operator== (CREF<State> that) const
 		->BOOL {
 		return equal (that) ;
 	}
 
-	auto compr (CREF<Status> that) const
+	inline auto operator!= (CREF<State> that) const
+		->BOOL {
+		return equal (that) ;
+	}
+
+	auto compr (CREF<State> that) const
 		->FLAG {
-		return operator_compr (mStatus ,that.mStatus) ;
+		return operator_compr (mState ,that.mState) ;
 	}
 
-	inline auto operator< (CREF<Status> that) const
+	inline auto operator< (CREF<State> that) const
 		->BOOL {
 		return compr (that) < ZERO ;
 	}
 
-	inline auto operator<= (CREF<Status> that) const
+	inline auto operator<= (CREF<State> that) const
 		->BOOL {
 		return compr (that) <= ZERO ;
 	}
 
-	inline auto operator> (CREF<Status> that) const
+	inline auto operator> (CREF<State> that) const
 		->BOOL {
 		return compr (that) > ZERO ;
 	}
 
-	inline auto operator>= (CREF<Status> that) const
+	inline auto operator>= (CREF<State> that) const
 		->BOOL {
 		return compr (that) >= ZERO ;
 	}
 
 	auto hash () const
 		->FLAG {
-		return mStatus ;
+		return mState ;
 	}
 } ;
 } ;
+
+template <class CATEGORY>
+using State = typename U::STATE_HELP<CATEGORY>::State ;
 
 namespace U {
 template <class...>
@@ -156,10 +157,10 @@ public:
 
 template <class ARG1>
 trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
-	using ALL = TYPE_CHECK<ARG1> ;
-	using ONE = TYPE_FIRST_ONE<ALL> ;
-	using REST = TYPE_FIRST_REST<ALL> ;
+	using ONE = TYPE_FIRST_ONE<ARG1> ;
+	using REST = TYPE_FIRST_REST<ARG1> ;
 	using BASE = typename TUPLE_HELP<REST ,void>::Tuple ;
+	using RANK = COUNTOF<ARG1> ;
 
 	class Tuple ;
 } ;
@@ -180,7 +181,7 @@ public:
 
 	auto rank () const
 		->LENGTH {
-		return COUNTOF<ALL>::value ;
+		return RANK::value ;
 	}
 
 	auto one () leftvalue
@@ -208,7 +209,7 @@ public:
 		->VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
-		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
+		require (ENUM_COMPR_LT<R1X ,RANK>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
 
@@ -217,7 +218,7 @@ public:
 		->CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
-		require (ENUM_COMPR_LT<R1X ,COUNTOF<ALL>>) ;
+		require (ENUM_COMPR_LT<R1X ,RANK>) ;
 		return template_pick (typeas<R1X>::id ,PHX) ;
 	}
 
