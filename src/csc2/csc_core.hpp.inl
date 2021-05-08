@@ -33,7 +33,7 @@ public:
 		assert (ix != NONE) ;
 		INDEX jx = property[r3x][ix].mBlock ;
 		const auto r2x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
-		const auto r5x = alignto (r2x ,ALIGNOF<R1X>::value) ;
+		const auto r5x = alignax (r2x ,ALIGNOF<R1X>::value) ;
 		unsafe_barrier () ;
 		return reinterpret_cast<UNSAFE_PTR<R1X>> (r5x) ;
 	}
@@ -156,9 +156,9 @@ public:
 		auto rax = TEMP<ImplHolder> () ;
 		unsafe_zeroize (rax) ;
 		swap (rax ,unsafe_deptr[thiz]) ;
+		AnyHeap::free (address (thiz)) ;
 		unsafe_destroy (rax) ;
 		unsafe_barrier () ;
-		AnyHeap::free (address (thiz)) ;
 	}
 
 	LENGTH unsafe_addr () override {

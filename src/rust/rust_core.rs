@@ -434,12 +434,12 @@ trait BOX_HELP<ARG1> {
 		interface Holder ;
 		class ImplHolder ;
 
-		variable mHolder :[] :Holder ;
+		constant mHolder :[] :Holder ;
 	} ;
 
 	interface Box::Holder {
-		function destroy = (self :[] :Holder) => virtual ;
-		property to = [] :UNIT1 => virtual ;
+		function destroy = mutable (self :[] :Holder) => virtual ;
+		property to = mutable [] :UNIT1 => virtual ;
 	} ;
 
 	private trait IMPLHOLDER_HELP<ARG2> {
@@ -462,7 +462,7 @@ trait BOX_HELP<ARG1> {
 		} ;
 
 		implement Box::ImplHolder :Holder {
-			function destroy = (self :[] :Holder) => {
+			function destroy = mutable (self :[] :Holder) => {
 				assert (address (this) == address (self[])) ;
 				variable rax = TEMP<ImplHolder> () ;
 				unsafe_zeroize (rax) ;
@@ -480,6 +480,11 @@ trait BOX_HELP<ARG1> {
 			mHolder = NULL ;
 		} ;
 
+		private function new = (holder :[] :Holder) => {
+			assert (holder == NULL) ;
+			mHolder = holder ;
+		} ;
+
 		function delete = noexcept () => {
 			if (mHolder == NULL)
 				return ;
@@ -495,9 +500,8 @@ trait BOX_HELP<ARG1> {
 				using R3X = TYPE_UNWRAP<R1X> ;
 				require (IS_EXTEND<UNIT1 ,R3X>) ;
 				using R2X = typename IMPLHOLDER_HELP<R3X>::ImplHolder ;
-				variable ret = Box () ;
-				ret.mHolder = R2X::create (forward (that)) ;
-				return ret ;
+				register r1x = R2X::create (forward (that)) ;
+				return Box (r1x) ;
 			} ;
 		} ;
 
@@ -506,9 +510,8 @@ trait BOX_HELP<ARG1> {
 
 			static function make = (...that) :Box => {
 				using R2X = typename IMPLHOLDER_HELP<UNIT1>::ImplHolder ;
-				variable ret = Box () ;
-				ret.mHolder = R2X::create (UNIT1 (forward (that)...)) ;
-				return ret ;
+				register r1x = R2X::create (UNIT1 (forward (that)...)) ;
+				return Box (r1x) ;
 			} ;
 		} ;
 
@@ -536,7 +539,7 @@ trait CELL_HELP<ARG1> {
 
 	class Cell {
 		volatile mValue :TEMP<UNIT1> ;
-		variable mExist :BOOL ;
+		constant mExist :BOOL ;
 	} ;	
 
 	implement Cell {
@@ -606,19 +609,19 @@ trait RC_HELP<ARG1> {
 		interface Holder ;
 		class ImplHolder ;
 
-		variable mHolder :[] :Holder ;
+		constant mHolder :[] :Holder ;
 	} ;
 
 	interface RC::Holder {
-		function destroy = (self :[] :Holder) => virtual ;
-		function increase = () :LENGTH => virtual ;
-		function decrease = () :LENGTH => virtual ;
+		function destroy = mutable (self :[] :Holder) => virtual ;
+		function increase = mutable () :LENGTH => virtual ;
+		function decrease = mutable () :LENGTH => virtual ;
 		property to = [] :UNIT1 => virtual ;
 	} ;
 
 	private trait IMPLHOLDER_HELP<ARG2> {
 		class RC::ImplHolder {
-			variable mValue :UNIT1 ;
+			constant mValue :UNIT1 ;
 			variable mCounter :LENGTH ;
 		} ;
 
@@ -636,7 +639,7 @@ trait RC_HELP<ARG1> {
 		} ;
 
 		implement RC::ImplHolder :Holder {
-			function destroy = (self :[] :Holder) => {
+			function destroy = mutable (self :[] :Holder) => {
 				assert (address (this) == address (self[])) ;
 				variable rax = TEMP<ImplHolder> () ;
 				unsafe_zeroize (rax) ;
@@ -645,12 +648,12 @@ trait RC_HELP<ARG1> {
 				unsafe_destroy (rax) ;
 			} ;
 
-			function increase = () :LENGTH => {
+			function increase = mutable () :LENGTH => {
 				mCounter = mCounter + 1 ;
 				return mCounter ;
 			} ;
 
-			function decrease = () :LENGTH => {
+			function decrease = mutable () :LENGTH => {
 				mCounter = mCounter - 1 ;
 				return mCounter ;
 			} ;
@@ -662,6 +665,13 @@ trait RC_HELP<ARG1> {
 	implement RC {
 		function new = () => {
 			mHolder = NULL ;
+		} ;
+
+		private function new = (holder :[] :Holder) => {
+			assert (holder == NULL) ;
+			mHolder = holder ;
+			constant r1x = mHolder->increase () ;
+			assert (r1x >= 1) ;
 		} ;
 
 		function delete = noexcept () => {
@@ -678,11 +688,8 @@ trait RC_HELP<ARG1> {
 
 		static function make = (...that) :RC => {
 			using R2X = typename IMPLHOLDER_HELP<UNIT1>::ImplHolder ;
-			variable ret = RC () ;
-			ret.mHolder = R2X::create (UNIT1 (forward (that)...)) ;
-			constant r1x = mHolder[].increase () ;
-			assert (r1x == 1) ;
-			return ret ;
+			register r1x = R2X::create (UNIT1 (forward (that)...)) ;
+			return RC (r1x) ;
 		} ;
 
 		function exist = () :BOOL => {
@@ -692,15 +699,9 @@ trait RC_HELP<ARG1> {
 		} ;
 
 		function clone = () :RC => {
-			variable ret = RC () ;
-			switch {
-				if not (exist ())
-					break ;
-				ret.mHolder = mHolder ;
-				constant r1x = mHolder[].increase () ;
-				assert (r1x >= 2) ;
-			} ;
-			return ret ;
+			if not (exist ())
+				return RC () ;
+			return RC (mHolder) ;
 		} ;
 
 		property to = [] :UNIT1 => {
@@ -718,7 +719,7 @@ trait SLICE_HELP<ARG1> {
 	class Slice {
 		interface Holder ;
 
-		variable mHolder :RC<Box<Holder>> ;
+		constant mHolder :RC<Box<Holder>> ;
 	} ;
 
 	interface Slice::Holder {
@@ -785,7 +786,7 @@ trait CLAZZ_HELP<> {
 	class Clazz {
 		interface Holder ;
 
-		variable mHolder :RC<Box<Holder>> ;
+		constant mHolder :RC<Box<Holder>> ;
 	} ;
 
 	interface Clazz::Holder {

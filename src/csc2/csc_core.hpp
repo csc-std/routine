@@ -1150,7 +1150,7 @@ public:
 static constexpr auto unsafe_zeroize = U::FUNCTION_zeroize () ;
 
 namespace U {
-class FUNCTION_alignto {
+class FUNCTION_alignax {
 public:
 	inline auto operator() (CREF<LENGTH> base ,CREF<LENGTH> align) const
 		->LENGTH {
@@ -1160,7 +1160,7 @@ public:
 } ;
 } ;
 
-static constexpr auto alignto = U::FUNCTION_alignto () ;
+static constexpr auto alignax = U::FUNCTION_alignax () ;
 
 namespace U {
 class FUNCTION_between {
@@ -1589,7 +1589,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	auto exist () const
@@ -1687,7 +1689,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	auto exist () const
@@ -1787,7 +1791,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	implicit Cell (RREF<Cell> that) noexcept :
@@ -1800,7 +1806,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	auto exist () const
@@ -1958,7 +1966,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	implicit RC (RREF<RC> that) noexcept :
@@ -1971,7 +1981,9 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_recreate (thiz ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr (thiz)) ;
+		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_barrier () ;
 	}
 
 	auto exist () const
