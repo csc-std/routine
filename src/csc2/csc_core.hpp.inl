@@ -27,8 +27,8 @@ public:
 		->UNSAFE_PTR<REMOVE_ALL<ARG1>> {
 		using R1X = typeof (id) ;
 		require (IS_TRIVIAL<R1X>) ;
-		const auto r3x = property (slot_array ()) ;
-		const auto r4x = property (block_array ()) ;
+		const auto r3x = unsafe_pointer[slot_array ()] ;
+		const auto r4x = unsafe_pointer[block_array ()] ;
 		INDEX ix = alloc (SIZEOF<R1X>::value ,ALIGNOF<R1X>::value) ;
 		assert (ix != NONE) ;
 		INDEX jx = property[r3x][ix].mBlock ;
@@ -42,8 +42,8 @@ public:
 		->INDEX {
 		assert (size_len > ZERO) ;
 		assert (align_len > ZERO) ;
-		const auto r3x = property (slot_array ()) ;
-		const auto r4x = property (block_array ()) ;
+		const auto r3x = unsafe_pointer[slot_array ()] ;
+		const auto r4x = unsafe_pointer[block_array ()] ;
 		INDEX ix = empry_slot (property[r3x]) ;
 		INDEX iy = ix + 1 ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
@@ -67,15 +67,15 @@ public:
 	}
 
 	imports void popup () {
-		const auto r3x = property (slot_array ()) ;
+		const auto r3x = unsafe_pointer[slot_array ()] ;
 		INDEX ix = empry_slot (property[r3x]) ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
 		property[r3x][ix].mUsed = TRUE ;
 	}
 
 	imports void free (CREF<LENGTH> addr) {
-		const auto r3x = property (slot_array ()) ;
-		const auto r4x = property (block_array ()) ;
+		const auto r3x = unsafe_pointer[slot_array ()] ;
+		const auto r4x = unsafe_pointer[block_array ()] ;
 		INDEX ix = empry_slot (property[r3x]) ;
 		INDEX iy = ix - 1 ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;

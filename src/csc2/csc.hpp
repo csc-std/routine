@@ -106,7 +106,6 @@
 #include "begin.h"
 #include <cstdint>
 #include <cstddef>
-#include <ciso646>
 #include <limits>
 #include <type_traits>
 #include <utility>
@@ -213,17 +212,20 @@ namespace CSC {
 #define assert internel_assert
 #endif
 
-#ifdef line_here
+#ifdef dynamic_assert
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
 #ifdef __CSC_COMPILER_MSVC__
-#define line_here "at " ,__FUNCSIG__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define internel_dynamic_assert(...) do { if (unwind (__VA_ARGS__)) break ; CSC::Exception ("at " __FUNCSIG__ " in " __FILE__ " ," stringize (__LINE__)).raise () ; } while (false)
+#define dynamic_assert internel_dynamic_assert
 #endif
 #ifdef __CSC_COMPILER_GNUC__
-#define line_here "at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define internel_dynamic_assert(...) do { if (unwind (__VA_ARGS__)) break ; CSC::Exception ("at " ,__PRETTY_FUNCTION__ ," in " __FILE__ " ," stringize (__LINE__)).raise () ; } while (false)
+#define dynamic_assert internel_dynamic_assert
 #endif
 #ifdef __CSC_COMPILER_CLANG__
-#define line_here "at " ,__PRETTY_FUNCTION__ ," in " ,__FILE__ ," ," ,stringize (__LINE__)
+#define internel_dynamic_assert(...) do { if (unwind (__VA_ARGS__)) break ; CSC::Exception ("at " ,__PRETTY_FUNCTION__ ," in " __FILE__ " ," stringize (__LINE__)).raise () ; } while (false)
+#define dynamic_assert internel_dynamic_assert
 #endif
 
 #ifdef anonymous

@@ -1010,16 +1010,23 @@ public:
 		->VREF<ARG1> {
 		return (*arg1) ;
 	}
+} ;
+} ;
 
+static constexpr auto property = U::FUNCTION_property () ;
+
+namespace U {
+class FUNCTION_pointer {
+public:
 	template <class ARG1>
-	inline auto operator() (VREF<ARG1> arg1) const noexcept
+	inline auto operator[] (VREF<ARG1> arg1) const noexcept
 		->UNSAFE_PTR<ARG1> {
 		return (&arg1) ;
 	}
 } ;
 } ;
 
-static constexpr auto property = U::FUNCTION_property () ;
+static constexpr auto unsafe_pointer = U::FUNCTION_pointer () ;
 
 namespace U {
 class FUNCTION_deref {
@@ -1098,7 +1105,7 @@ public:
 		using R1X = typeof (tmp) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		require (IS_SAME<R1X ,TEMP<R2X>>) ;
-		new (property (tmp)) R2X (forward (args)...) ;
+		new (unsafe_pointer[tmp]) R2X (forward (args)...) ;
 	}
 } ;
 } ;
@@ -1112,7 +1119,7 @@ public:
 	inline void operator() (VREF<ARG1> tmp ,RREF<ARG1> obj) const noexcept {
 		using R1X = typeof (tmp) ;
 		tmp.~R1X () ;
-		new (property (tmp)) R1X (forward (obj)) ;
+		new (unsafe_pointer[tmp]) R1X (forward (obj)) ;
 	}
 } ;
 } ;
@@ -1621,7 +1628,7 @@ public:
 
 	inline auto operator-> () leftvalue
 		->UNSAFE_PTR<VREF<UNIT1>> {
-		return property (self) ;
+		return unsafe_pointer[self] ;
 	}
 
 	auto to () const leftvalue
@@ -1636,7 +1643,7 @@ public:
 
 	inline auto operator-> () const leftvalue
 		->UNSAFE_PTR<CREF<UNIT1>> {
-		return property (self) ;
+		return unsafe_pointer[self] ;
 	}
 } ;
 
