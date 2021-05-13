@@ -26,8 +26,8 @@ public:
 	implicit State () = delete ;
 
 	template <class ARG1>
-	explicit State (CREF<ARG1> id) {
-		using R1X = typeof (id) ;
+	explicit State (CREF<ARG1> nid) {
+		using R1X = typeof (nid) ;
 		mState = ENUM_CHECK<R1X>::value ;
 	}
 
@@ -176,8 +176,8 @@ public:
 
 	template <class ARG1 ,class...ARGS ,class = ENABLE<IS_SAME<ONE ,REMOVE_ALL<ARG1>>>>
 	explicit Tuple (RREF<ARG1> one_ ,RREF<ARGS>...rest_) :
-		mValue (forward (one_)) ,
-		mSuper (forward (rest_)...) {}
+		mValue (forward[one_]) ,
+		mSuper (forward[rest_]...) {}
 
 	auto rank () const
 		->LENGTH {

@@ -315,7 +315,9 @@ trait ENUM_COMPR_HELP<ENUM_ZERO ,ENUM_ZERO> {
 } ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR = typename U::ENUM_COMPR_HELP<enumof (ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value) ,enumof (ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value)>::RET ;
+using ENUM_COMPR = typename U::ENUM_COMPR_HELP<
+	enumof (ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value) ,
+	enumof (ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value)>::RET ;
 
 template <class UNIT1 ,class UNIT2>
 using ENUM_COMPR_LT = enumof (ENUM_COMPR<UNIT1 ,UNIT2>::value < ZERO) ;
@@ -652,7 +654,9 @@ template <class UNIT1 ,class PARAMS>
 using IS_CONSTRUCTIBLE = typename U::IS_CONSTRUCTIBLE_HELP<UNIT1 ,PARAMS>::RET ;
 
 template <class UNIT1>
-using IS_CLONEABLE = ENUM_ALL<enumof (std::is_copy_constructible<UNIT1>::value) ,enumof (std::is_copy_assignable<UNIT1>::value)> ;
+using IS_CLONEABLE = ENUM_ALL<
+	enumof (std::is_copy_constructible<UNIT1>::value) ,
+	enumof (std::is_copy_assignable<UNIT1>::value)> ;
 
 class Interface {
 public:
@@ -665,7 +669,9 @@ public:
 } ;
 
 template <class UNIT1>
-using IS_INTERFACE = ENUM_ALL<enumof (std::is_base_of<Interface ,UNIT1>::value) ,enumof (std::is_abstract<UNIT1>::value)> ;
+using IS_INTERFACE = ENUM_ALL<
+	enumof (std::is_base_of<Interface ,UNIT1>::value) ,
+	enumof (std::is_abstract<UNIT1>::value)> ;
 
 template <class BASE ,class DERIVED>
 using IS_EXTEND = enumof (std::is_base_of<BASE ,DERIVED>::value) ;
@@ -1080,14 +1086,14 @@ namespace U {
 class FUNCTION_forward {
 public:
 	template <class ARG1>
-	inline auto operator() (CREF<ARG1> arg1) const
+	inline auto operator[] (CREF<ARG1> arg1) const
 		->CREF<REMOVE_ALL<ARG1>> {
 		using R1X = typeof (arg1) ;
 		return static_cast<CREF<R1X>> (arg1) ;
 	}
 
 	template <class ARG1>
-	inline auto operator() (VREF<ARG1> arg1) const
+	inline auto operator[] (VREF<ARG1> arg1) const
 		->RREF<REMOVE_ALL<ARG1>> {
 		using R1X = typeof (arg1) ;
 		return static_cast<RREF<R1X>> (arg1) ;
@@ -1105,7 +1111,7 @@ public:
 		using R1X = typeof (tmp) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		require (IS_SAME<R1X ,TEMP<R2X>>) ;
-		new (unsafe_pointer[tmp]) R2X (forward (args)...) ;
+		new (unsafe_pointer[tmp]) R2X (forward[args]...) ;
 	}
 } ;
 } ;
@@ -1119,7 +1125,7 @@ public:
 	inline void operator() (VREF<ARG1> tmp ,RREF<ARG1> obj) const noexcept {
 		using R1X = typeof (tmp) ;
 		tmp.~R1X () ;
-		new (unsafe_pointer[tmp]) R1X (forward (obj)) ;
+		new (unsafe_pointer[tmp]) R1X (forward[obj]) ;
 	}
 } ;
 } ;
@@ -1367,9 +1373,9 @@ struct CABI_HELP<UNIT1>::CABI :
 class FUNCTION_cabi {
 public:
 	template <class ARG1>
-	inline auto operator() (CREF<ARG1> id) const
+	inline auto operator() (CREF<ARG1> nid) const
 		->FLAG {
-		using R1X = typeof (id) ;
+		using R1X = typeof (nid) ;
 		using R2X = typename CABI_HELP<R1X>::CABI ;
 		require (ENUM_EQUAL<SIZEOF<VAR> ,SIZEOF<R2X>>) ;
 		require (ENUM_EQUAL<ALIGNOF<VAR> ,ALIGNOF<R2X>>) ;
@@ -1402,8 +1408,6 @@ struct ANY_HELP<>::DETAIL::Holder :
 	public Interface {
 	virtual void destroy () = 0 ;
 	virtual LENGTH unsafe_addr () = 0 ;
-	virtual LENGTH type_size () const = 0 ;
-	virtual LENGTH type_align () const = 0 ;
 	virtual FLAG type_cabi () const = 0 ;
 } ;
 
@@ -1443,7 +1447,7 @@ public:
 		Any (NULLOPT ()) {
 		using R1X = typeof (that) ;
 		using R2X = typename ANY_IMPLHOLDER_HELP<R1X>::EXTERN ;
-		mPointer = R2X::create (forward (that)) ;
+		mPointer = R2X::create (forward[that]) ;
 	}
 
 	implicit ~Any () noexcept {
@@ -1466,9 +1470,9 @@ public:
 	inline void operator= (RREF<Any>) = delete ;
 
 	template <class ARG1>
-	auto poll (CREF<ARG1> id)
+	auto poll (CREF<ARG1> nid)
 		->REMOVE_ALL<ARG1> {
-		using R1X = typeof (id) ;
+		using R1X = typeof (nid) ;
 		using R2X = typename ANY_IMPLHOLDER_HELP<R1X>::ImplHolder ;
 		assert (mPointer != NULL) ;
 		const auto r1x = operator_cabi (typeas<R2X>::id) ;
@@ -1476,7 +1480,7 @@ public:
 		assert (r1x == r2x) ;
 		const auto r3x = mPointer->unsafe_addr () ;
 		const auto r4x = reinterpret_cast<UNSAFE_PTR<R1X>> (r3x) ;
-		return forward (property[r4x]) ;
+		return forward[property[r4x]] ;
 	}
 
 	template <class ARG1>
@@ -1497,9 +1501,9 @@ namespace U {
 class FUNCTION_bad {
 public:
 	template <class ARG1>
-	inline auto operator() (CREF<ARG1> id) const
+	inline auto operator() (CREF<ARG1> nid) const
 		->REMOVE_ALL<ARG1> {
-		using R1X = typeof (id) ;
+		using R1X = typeof (nid) ;
 		assert (FALSE) ;
 		return R1X (Any (ZERO)) ;
 	}
@@ -1571,8 +1575,8 @@ public:
 		require (IS_EXTEND<UNIT1 ,R1X>) ;
 		using R2X = typename BOX_IMPLHOLDER_HELP<UNIT1 ,R1X>::EXTERN ;
 		Box ret ;
-		ret.mPointer = R2X::create (forward (that)) ;
-		return forward (ret) ;
+		ret.mPointer = R2X::create (forward[that]) ;
+		return forward[ret] ;
 	}
 
 	implicit ~Box () noexcept {
@@ -1596,8 +1600,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -1671,8 +1675,8 @@ public:
 		->Box {
 		using R2X = typename BOX_IMPLHOLDER_HELP<UNIT1 ,UNIT1>::EXTERN ;
 		Box ret ;
-		ret.mPointer = R2X::create (UNIT1 (forward (that)...)) ;
-		return forward (ret) ;
+		ret.mPointer = R2X::create (UNIT1 (forward[that]...)) ;
+		return forward[ret] ;
 	}
 
 	implicit ~Box () noexcept {
@@ -1696,8 +1700,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -1728,7 +1732,7 @@ public:
 
 	inline auto operator-> () leftvalue
 		->UNSAFE_PTR<VREF<UNIT1>> {
-		return property (self) ;
+		return unsafe_pointer (self) ;
 	}
 
 	auto to () const leftvalue
@@ -1743,7 +1747,7 @@ public:
 
 	inline auto operator-> () const leftvalue
 		->UNSAFE_PTR<CREF<UNIT1>> {
-		return property (self) ;
+		return unsafe_pointer (self) ;
 	}
 } ;
 } ;
@@ -1774,9 +1778,9 @@ public:
 	imports auto make (RREF<ARGS>...that)
 		->Cell {
 		Cell ret ;
-		unsafe_create (ret.mValue ,UNIT1 (forward (that)...)) ;
+		unsafe_create (ret.mValue ,UNIT1 (forward[that]...)) ;
 		ret.mExist = TRUE ;
-		return forward (ret) ;
+		return forward[ret] ;
 	}
 
 	implicit ~Cell () noexcept {
@@ -1798,8 +1802,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -1813,8 +1817,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -1842,21 +1846,21 @@ public:
 	auto value (RREF<UNIT1> obj) const
 		->UNIT1 {
 		if ifnot (exist ())
-			return forward (obj) ;
+			return forward[obj] ;
 		return m_fake () ;
 	}
 
 	void store (RREF<UNIT1> obj) const {
 		assert (exist ()) ;
-		m_fake () = forward (obj) ;
+		m_fake () = forward[obj] ;
 	}
 
 	auto exchange (RREF<UNIT1> obj) const
 		->UNIT1 {
 		assert (exist ()) ;
 		UNIT1 ret = m_fake () ;
-		m_fake () = forward (obj) ;
-		return forward (ret) ;
+		m_fake () = forward[obj] ;
+		return forward[ret] ;
 	}
 
 	auto change (VREF<UNIT1> expect ,RREF<UNIT1> obj) const
@@ -1868,7 +1872,7 @@ public:
 			expect = m_fake () ;
 			return FALSE ;
 		}
-		m_fake () = forward (obj) ;
+		m_fake () = forward[obj] ;
 		return TRUE ;
 	}
 
@@ -1942,10 +1946,10 @@ public:
 		require (IS_SAME<UNIT1 ,R1X>) ;
 		using R2X = typename RC_IMPLHOLDER_HELP<R1X>::EXTERN ;
 		RC ret ;
-		ret.mPointer = R2X::create (UNIT1 (forward (that)...)) ;
+		ret.mPointer = R2X::create (UNIT1 (forward[that]...)) ;
 		const auto r1x = property[ret.mPointer].increase () ;
 		assert (r1x == 1) ;
-		return forward (ret) ;
+		return forward[ret] ;
 	}
 
 	implicit ~RC () noexcept {
@@ -1973,8 +1977,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -1988,8 +1992,8 @@ public:
 		auto &&thiz = property[this] ;
 		if (address (thiz) == address (that))
 			return ;
-		unsafe_destroy (unsafe_deptr (thiz)) ;
-		unsafe_create (unsafe_deptr (thiz) ,forward (that)) ;
+		unsafe_destroy (unsafe_deptr[thiz]) ;
+		unsafe_create (unsafe_deptr[thiz] ,forward[that]) ;
 		unsafe_barrier () ;
 	}
 
@@ -2020,7 +2024,7 @@ public:
 
 	inline auto operator-> () const leftvalue
 		->UNSAFE_PTR<CREF<UNIT1>> {
-		return property (self) ;
+		return unsafe_pointer (self) ;
 	}
 } ;
 } ;
@@ -2236,7 +2240,7 @@ public:
 			const auto r1x = FLAG (mPointer.self->at (i)) ;
 			ret = hashcode (ret ,r1x) ;
 		}
-		return forward (ret) ;
+		return forward[ret] ;
 	}
 } ;
 } ;
