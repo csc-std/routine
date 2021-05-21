@@ -130,7 +130,6 @@ using STR = typename U::STR_HELP<>::STR ;
 
 static constexpr auto NULL = nullptr ;
 
-namespace U {
 template <class...>
 struct ENUMAS ;
 
@@ -143,13 +142,9 @@ struct ENUMID {
 
 template <class ARG1>
 struct ENUMAS<ARG1> {
-	imports constexpr VAR compile () {
-		return ARG1::compile () ;
-	}
-} ;
+	static constexpr auto value = ARG1::compile () ;
 } ;
 
-namespace U {
 template <class...>
 struct TYPEAS ;
 
@@ -159,7 +154,6 @@ struct TYPEID {} ;
 template <class ARG1>
 struct TYPEAS<ARG1> {
 	static constexpr auto id = TYPEID<ARG1> () ;
-} ;
 } ;
 
 template <class UNIT1>
@@ -204,22 +198,22 @@ using CREF = DEF<const UNIT1 &> ;
 template <class UNIT1>
 using RREF = DEF<UNIT1 &&> ;
 
-using ENUM_USED = U::ENUMAS<U::ENUMID<USED>> ;
-using ENUM_NONE = U::ENUMAS<U::ENUMID<NONE>> ;
-using ENUM_ZERO = U::ENUMAS<U::ENUMID<ZERO>> ;
-using ENUM_IDEN = U::ENUMAS<U::ENUMID<IDEN>> ;
+using ENUM_USED = ENUMAS<ENUMID<(USED)>> ;
+using ENUM_NONE = ENUMAS<ENUMID<(NONE)>> ;
+using ENUM_ZERO = ENUMAS<ENUMID<(ZERO)>> ;
+using ENUM_IDEN = ENUMAS<ENUMID<(IDEN)>> ;
 
-using ENUM_0TH = U::ENUMAS<U::ENUMID<(0)>> ;
-using ENUM_1ST = U::ENUMAS<U::ENUMID<(1)>> ;
-using ENUM_2ND = U::ENUMAS<U::ENUMID<(2)>> ;
-using ENUM_3RD = U::ENUMAS<U::ENUMID<(3)>> ;
-using ENUM_4TH = U::ENUMAS<U::ENUMID<(4)>> ;
-using ENUM_5TH = U::ENUMAS<U::ENUMID<(5)>> ;
-using ENUM_6TH = U::ENUMAS<U::ENUMID<(6)>> ;
-using ENUM_7TH = U::ENUMAS<U::ENUMID<(7)>> ;
-using ENUM_8TH = U::ENUMAS<U::ENUMID<(8)>> ;
-using ENUM_9TH = U::ENUMAS<U::ENUMID<(9)>> ;
-using ENUM_XTH = U::ENUMAS<U::ENUMID<(10)>> ;
+using ENUM_0TH = ENUMAS<ENUMID<(0)>> ;
+using ENUM_1ST = ENUMAS<ENUMID<(1)>> ;
+using ENUM_2ND = ENUMAS<ENUMID<(2)>> ;
+using ENUM_3RD = ENUMAS<ENUMID<(3)>> ;
+using ENUM_4TH = ENUMAS<ENUMID<(4)>> ;
+using ENUM_5TH = ENUMAS<ENUMID<(5)>> ;
+using ENUM_6TH = ENUMAS<ENUMID<(6)>> ;
+using ENUM_7TH = ENUMAS<ENUMID<(7)>> ;
+using ENUM_8TH = ENUMAS<ENUMID<(8)>> ;
+using ENUM_9TH = ENUMAS<ENUMID<(9)>> ;
+using ENUM_XTH = ENUMAS<ENUMID<(10)>> ;
 
 namespace U {
 template <class...>
@@ -264,7 +258,7 @@ template <class...>
 trait COUNTOF_HELP ;
 
 template <class...ARGS>
-trait COUNTOF_HELP<typeas<ARGS...>> {
+trait COUNTOF_HELP<TYPEAS<ARGS...>> {
 	struct ID1 {
 		imports constexpr VAR compile () {
 			return sizeof... (ARGS) ;
@@ -300,19 +294,21 @@ namespace U {
 template <class...>
 trait REQUIRE_HELP ;
 
-template <class ARG1>
-trait REQUIRE_HELP<ENUM_IDEN ,ARG1> {
+template <>
+trait REQUIRE_HELP<ENUM_IDEN> {
 	using RET = void ;
 } ;
-} ;
 
 template <class ARG1>
-inline constexpr VAR require_compile () {
-	return ARG1::compile () ;
-}
+struct REQUIRE_ID {
+	imports constexpr VAR compile () {
+		return ARG1::value ;
+	}
+} ;
+} ;
 
 template <class UNIT1>
-using REQUIRE = typename U::REQUIRE_HELP<U::ENUMAS<U::ENUMID<(require_compile<UNIT1> ())>> ,UNIT1>::RET ;
+using REQUIRE = typename U::REQUIRE_HELP<ENUMAS<U::REQUIRE_ID<UNIT1>>>::RET ;
 
 namespace U {
 template <class...>
@@ -324,7 +320,7 @@ trait ENABLE_HELP<ARG1 ,ARG2 ,REQUIRE<ARG1>> {
 } ;
 } ;
 
-template <class COND ,class YES = typeas<>>
+template <class COND ,class YES = TYPEAS<>>
 using ENABLE = typename U::ENABLE_HELP<COND ,YES ,void>::RET ;
 
 namespace U {
@@ -351,7 +347,7 @@ template <class ARG1>
 trait ENUM_NOT_HELP<ARG1> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ifnot (ENUM_CHECK<ARG1>::compile ()) ;
+			return ifnot (ENUM_CHECK<ARG1>::value) ;
 		}
 	} ;
 
@@ -388,7 +384,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_EQUAL_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () == ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value == ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -410,9 +406,9 @@ template <class ARG1 ,class ARG2>
 trait ENUM_COMPR_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			if (ENUM_CHECK<ARG1>::compile () < ENUM_CHECK<ARG2>::compile ())
+			if (ENUM_CHECK<ARG1>::value < ENUM_CHECK<ARG2>::value)
 				return NONE ;
-			if (ENUM_CHECK<ARG1>::compile () > ENUM_CHECK<ARG2>::compile ())
+			if (ENUM_CHECK<ARG1>::value > ENUM_CHECK<ARG2>::value)
 				return IDEN ;
 			return ZERO ;
 		}
@@ -463,7 +459,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_ADD_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () + ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value + ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -477,7 +473,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_SUB_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () - ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value - ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -491,7 +487,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_MUL_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () * ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value * ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -505,7 +501,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_DIV_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () / ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value / ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -519,7 +515,7 @@ template <class ARG1 ,class ARG2>
 trait ENUM_MOD_HELP<ARG1 ,ARG2> {
 	struct ID1 {
 		imports constexpr VAR compile () {
-			return ENUM_CHECK<ARG1>::compile () % ENUM_CHECK<ARG2>::compile () ;
+			return ENUM_CHECK<ARG1>::value % ENUM_CHECK<ARG2>::value ;
 		}
 	} ;
 
@@ -569,7 +565,7 @@ template <class...>
 trait TYPE_FIRST_ONE_HELP ;
 
 template <class ARG1 ,class...ARGS>
-trait TYPE_FIRST_ONE_HELP<typeas<ARG1 ,ARGS...>> {
+trait TYPE_FIRST_ONE_HELP<TYPEAS<ARG1 ,ARGS...>> {
 	using RET = ARG1 ;
 } ;
 } ;
@@ -582,8 +578,8 @@ template <class...>
 trait TYPE_FIRST_REST_HELP ;
 
 template <class ARG1 ,class...ARGS>
-trait TYPE_FIRST_REST_HELP<typeas<ARG1 ,ARGS...>> {
-	using RET = typeas<ARGS...> ;
+trait TYPE_FIRST_REST_HELP<TYPEAS<ARG1 ,ARGS...>> {
+	using RET = TYPEAS<ARGS...> ;
 } ;
 } ;
 
@@ -595,7 +591,7 @@ template <class...>
 trait TYPE_SECOND_ONE_HELP ;
 
 template <class ARG1 ,class ARG2 ,class...ARGS>
-trait TYPE_SECOND_ONE_HELP<typeas<ARG1 ,ARG2 ,ARGS...>> {
+trait TYPE_SECOND_ONE_HELP<TYPEAS<ARG1 ,ARG2 ,ARGS...>> {
 	using RET = ARG2 ;
 } ;
 } ;
@@ -608,8 +604,8 @@ template <class...>
 trait TYPE_SECOND_REST_HELP ;
 
 template <class ARG1 ,class ARG2 ,class...ARGS>
-trait TYPE_SECOND_REST_HELP<typeas<ARG1 ,ARG2 ,ARGS...>> {
-	using RET = typeas<ARGS...> ;
+trait TYPE_SECOND_REST_HELP<TYPEAS<ARG1 ,ARG2 ,ARGS...>> {
+	using RET = TYPEAS<ARGS...> ;
 } ;
 } ;
 
@@ -634,8 +630,8 @@ template <class...>
 trait TYPE_CAT_HELP ;
 
 template <class...ARGS1 ,class...ARGS2>
-trait TYPE_CAT_HELP<typeas<ARGS1...> ,typeas<ARGS2...>> {
-	using RET = typeas<ARGS1... ,ARGS2...> ;
+trait TYPE_CAT_HELP<TYPEAS<ARGS1...> ,TYPEAS<ARGS2...>> {
+	using RET = TYPEAS<ARGS1... ,ARGS2...> ;
 } ;
 } ;
 
@@ -648,14 +644,14 @@ trait TYPE_REPEAT_HELP ;
 
 template <class ARG1 ,class ARG2>
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_EQ_ZERO<ARG2>>> {
-	using RET = typeas<> ;
+	using RET = TYPEAS<> ;
 } ;
 
 template <class ARG1 ,class ARG2>
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
 	using R1X = typename TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2> ,void>::RET ;
 
-	using RET = TYPE_CAT<typeas<ARG1> ,R1X> ;
+	using RET = TYPE_CAT<TYPEAS<ARG1> ,R1X> ;
 } ;
 } ;
 
@@ -668,7 +664,7 @@ trait TYPE_REVERSE_HELP ;
 
 template <class ARG1>
 trait TYPE_REVERSE_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<ARG1>>>> {
-	using RET = typeas<> ;
+	using RET = TYPEAS<> ;
 } ;
 
 template <class ARG1>
@@ -676,7 +672,7 @@ trait TYPE_REVERSE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 	using R1X = TYPE_FIRST_ONE<ARG1> ;
 	using R2X = typename TYPE_REVERSE_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
 
-	using RET = TYPE_CAT<R2X ,typeas<R1X>> ;
+	using RET = TYPE_CAT<R2X ,TYPEAS<R1X>> ;
 } ;
 } ;
 
@@ -720,7 +716,7 @@ trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 } ;
 
 template <class...ARGS>
-using ENUM_ALL = typename U::ENUM_ALL_HELP<typeas<ARGS...> ,void>::RET ;
+using ENUM_ALL = typename U::ENUM_ALL_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
@@ -741,7 +737,7 @@ trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
 } ;
 
 template <class...ARGS>
-using ENUM_ANY = typename U::ENUM_ANY_HELP<typeas<ARGS...> ,void>::RET ;
+using ENUM_ANY = typename U::ENUM_ANY_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
@@ -870,7 +866,7 @@ template <class...>
 trait IS_CONSTRUCTIBLE_HELP ;
 
 template <class ARG1 ,class...ARGS>
-trait IS_CONSTRUCTIBLE_HELP<ARG1 ,typeas<ARGS...>> {
+trait IS_CONSTRUCTIBLE_HELP<ARG1 ,TYPEAS<ARGS...>> {
 	struct ID1 {
 		imports constexpr VAR compile () {
 			return std::is_constructible<ARG1 ,ARGS...>::value ;
@@ -1010,7 +1006,7 @@ trait IS_ALL_SAME_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
 } ;
 
 template <class...ARGS>
-using IS_ALL_SAME = typename U::IS_ALL_SAME_HELP<typeas<ARGS...> ,void>::RET ;
+using IS_ALL_SAME = typename U::IS_ALL_SAME_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
@@ -1038,7 +1034,7 @@ trait IS_ANY_SAME_HELP<ARG1 ,REQUIRE<ENUM_GT_IDEN<COUNTOF<ARG1>>>> {
 } ;
 
 template <class...ARGS>
-using IS_ANY_SAME = typename U::IS_ANY_SAME_HELP<typeas<ARGS...> ,void>::RET ;
+using IS_ANY_SAME = typename U::IS_ANY_SAME_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
@@ -1106,7 +1102,7 @@ trait STORAGE_HELP<ARG1 ,ARG2> {
 	using SIZE = ENUM_DIV<ENUM_DEC<ENUM_ADD<ARG1 ,SIZEOF<ITEM>>> ,SIZEOF<ITEM>> ;
 
 	struct STORAGE {
-		DEF<ITEM[SIZE::compile ()]> mUnused ;
+		DEF<ITEM[SIZE::value]> mUnused ;
 	} ;
 } ;
 } ;
@@ -1170,7 +1166,7 @@ struct PACK_HELP<UNIT1 ,REQUIRE<ENUM_EQUAL<COUNTOF<UNIT1> ,ENUM_3RD>>>::PACK {
 } ;
 
 template <class...UNITS>
-using PACK = typename U::PACK_HELP<typeas<UNITS...> ,void>::PACK ;
+using PACK = typename U::PACK_HELP<TYPEAS<UNITS...> ,void>::PACK ;
 
 namespace U {
 class FUNCTION_noop {
@@ -1774,7 +1770,7 @@ public:
 		using R1X = typeof (nid) ;
 		using R2X = typename ANY_IMPLHOLDER_HELP<R1X>::ImplHolder ;
 		assert (mPointer != NULL) ;
-		const auto r1x = operator_cabi (typeas<R2X>::id) ;
+		const auto r1x = operator_cabi (TYPEAS<R2X>::id) ;
 		const auto r2x = mPointer->type_cabi () ;
 		assert (r1x == r2x) ;
 		const auto r3x = mPointer->unsafe_addr () ;
@@ -1785,7 +1781,7 @@ public:
 	template <class ARG1>
 	inline explicit operator ARG1 () rightvalue {
 		using R1X = typeof (ARG1 ()) ;
-		return poll (typeas<R1X>::id) ;
+		return poll (TYPEAS<R1X>::id) ;
 	}
 
 private:
