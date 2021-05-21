@@ -171,14 +171,8 @@ namespace CSC {
 #ifdef require
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define _macro_require_(...) static_assert ((unwind (__VA_ARGS__)::value) ,"static assert failed : " stringize (__VA_ARGS__)) ;
+#define _macro_require_(...) static_assert ((unwind (__VA_ARGS__)::compile ()) ,"static assert failed : " stringize (__VA_ARGS__)) ;
 #define require _macro_require_
-
-#ifdef enumof
-#error "∑(っ°Д° ;)っ : already defined"
-#endif
-#define _macro_enumof_(...) CSC::U::ENUMAS<CSC::U::ENUMID<(unwind (__VA_ARGS__))>>
-#define enumof _macro_enumof_
 
 #ifdef typeof
 #error "∑(っ°Д° ;)っ : already defined"

@@ -29,11 +29,11 @@ public:
 		require (IS_TRIVIAL<R1X>) ;
 		const auto r3x = unsafe_pointer[slot_array ()] ;
 		const auto r4x = unsafe_pointer[block_array ()] ;
-		INDEX ix = alloc (SIZEOF<R1X>::value ,ALIGNOF<R1X>::value) ;
+		INDEX ix = alloc (SIZEOF<R1X>::compile () ,ALIGNOF<R1X>::compile ()) ;
 		assert (ix != NONE) ;
 		INDEX jx = property[r3x][ix].mBlock ;
-		const auto r2x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
-		const auto r5x = alignax (r2x ,ALIGNOF<R1X>::value) ;
+		const auto r2x = address (property[r4x][jx]) + SIZEOF<BLOCK>::compile () ;
+		const auto r5x = alignax (r2x ,ALIGNOF<R1X>::compile ()) ;
 		unsafe_barrier () ;
 		return reinterpret_cast<UNSAFE_PTR<R1X>> (r5x) ;
 	}
@@ -48,9 +48,9 @@ public:
 		INDEX iy = ix + 1 ;
 		assert (between (ix ,0 ,SLOT_SIZE)) ;
 		assert (between (iy ,0 ,SLOT_SIZE)) ;
-		const auto r10x = align_len - ALIGNOF<BLOCK>::value ;
+		const auto r10x = align_len - ALIGNOF<BLOCK>::compile () ;
 		const auto r12x = size_len + max (r10x ,ZERO) ;
-		const auto r13x = (r12x + SIZEOF<BLOCK>::value - 1) / SIZEOF<BLOCK>::value ;
+		const auto r13x = (r12x + SIZEOF<BLOCK>::compile () - 1) / SIZEOF<BLOCK>::compile () ;
 		property[r3x][ix].mBlockSize += property[r3x][iy].mBlockSize ;
 		property[r3x][iy].mBlockSize = 0 ;
 		property[r3x][iy].mBlock = NONE ;
@@ -84,8 +84,8 @@ public:
 		assert (jx != NONE) ;
 		assert (property[r4x][jx].mBlockCheck1 == BLOCK_CHECK) ;
 		assert (property[r4x][jx].mBlockCheck2 == BLOCK_CHECK) ;
-		const auto r10x = address (property[r4x][jx]) + SIZEOF<BLOCK>::value ;
-		const auto r11x = r10x + (property[r3x][ix].mBlockSize - 1) * SIZEOF<BLOCK>::value ;
+		const auto r10x = address (property[r4x][jx]) + SIZEOF<BLOCK>::compile () ;
+		const auto r11x = r10x + (property[r3x][ix].mBlockSize - 1) * SIZEOF<BLOCK>::compile () ;
 		assert (between (addr ,r10x ,r11x)) ;
 		property[r3x][iy].mUsed = FALSE ;
 		property[r3x][iy].mBlockSize += property[r3x][ix].mBlockSize ;
@@ -137,8 +137,7 @@ private:
 } ;
 
 template <class UNIT1>
-class ANY_IMPLHOLDER_HELP<UNIT1>::ImplHolder :
-	public Holder {
+class ANY_IMPLHOLDER_HELP<UNIT1>::ImplHolder :public Holder {
 private:
 	using AnyHeap = typename DETAIL::AnyHeap ;
 
@@ -148,8 +147,7 @@ private:
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (RREF<UNIT1> that) :
-		mValue (forward[that]) {}
+	explicit ImplHolder (RREF<UNIT1> that) :mValue (forward[that]) {}
 
 	void destroy () override {
 		auto &&thiz = property[this] ;
@@ -185,16 +183,14 @@ exports auto ANY_IMPLHOLDER_HELP<UNIT1>::EXTERN::create (RREF<UNIT1> that)
 
 namespace U {
 template <class UNIT1 ,class UNTI2>
-class BOX_IMPLHOLDER_HELP<UNIT1 ,UNTI2>::ImplHolder :
-	public Holder {
+class BOX_IMPLHOLDER_HELP<UNIT1 ,UNTI2>::ImplHolder :public Holder {
 private:
 	UNTI2 mValue ;
 
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (RREF<UNTI2> that) :
-		mValue (forward[that]) {}
+	explicit ImplHolder (RREF<UNTI2> that) :mValue (forward[that]) {}
 
 	void destroy () override {
 		auto &&thiz = property[this] ;
@@ -219,8 +215,7 @@ exports auto BOX_IMPLHOLDER_HELP<UNIT1 ,UNIT2>::EXTERN::create (RREF<UNIT2> that
 
 namespace U {
 template <class UNIT1>
-class RC_IMPLHOLDER_HELP<UNIT1>::ImplHolder :
-	public Holder {
+class RC_IMPLHOLDER_HELP<UNIT1>::ImplHolder :public Holder {
 private:
 	UNIT1 mValue ;
 	LENGTH mCounter ;
@@ -228,8 +223,7 @@ private:
 public:
 	implicit ImplHolder () = delete ;
 
-	explicit ImplHolder (RREF<UNIT1> that) :
-		mValue (forward[that]) ,
+	explicit ImplHolder (RREF<UNIT1> that) :mValue (forward[that]) ,
 		mCounter (ZERO) {}
 
 	void destroy () override {
