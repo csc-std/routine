@@ -5,8 +5,8 @@
 #pragma push_macro ("exports")
 #pragma push_macro ("leftvalue")
 #pragma push_macro ("rightvalue")
+#pragma push_macro ("enumof")
 #pragma push_macro ("typeof")
-#pragma push_macro ("typeas")
 #pragma push_macro ("trait")
 #pragma push_macro ("interface")
 #pragma push_macro ("assert")
@@ -23,8 +23,8 @@
 #undef exports
 #undef leftvalue
 #undef rightvalue
+#undef enumof
 #undef typeof
-#undef typeas
 #undef trait
 #undef interface
 #undef assert

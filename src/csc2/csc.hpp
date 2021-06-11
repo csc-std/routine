@@ -171,7 +171,7 @@ namespace CSC {
 #ifdef require
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define _macro_require_(...) static_assert ((unwind (__VA_ARGS__)::compile ()) ,"static assert failed : " stringize (__VA_ARGS__)) ;
+#define _macro_require_(...) static_assert ((unwind (__VA_ARGS__)::value) ,"static assert failed : " stringize (__VA_ARGS__)) ;
 #define require _macro_require_
 
 #ifdef typeof
@@ -180,10 +180,11 @@ namespace CSC {
 #define _macro_typeof_(...) CSC::REMOVE_ALL<decltype (unwind (__VA_ARGS__))>
 #define typeof _macro_typeof_
 
-#ifdef typeas
+#ifdef enumof
 #error "∑(っ°Д° ;)っ : already defined"
 #endif
-#define typeas CSC::U::TYPEAS
+#define _macro_enumof_(...) CSC::ENUMAS<CSC::U::ENUMID<(unwind (__VA_ARGS__))>>
+#define enumof _macro_enumof_
 
 #ifdef trait
 #error "∑(っ°Д° ;)っ : already defined"

@@ -8,17 +8,9 @@
 #include "csc_core.hpp"
 
 namespace CSC {
-namespace U {
-template <class...>
-trait STATE_HELP ;
-
-template <class ARG1>
-trait STATE_HELP<ARG1> {
-	class State ;
-} ;
-
-template <class UNIT1>
-class STATE_HELP<UNIT1>::State {
+namespace S0 {
+template <class>
+class State {
 private:
 	FLAG mState ;
 
@@ -87,26 +79,27 @@ public:
 } ;
 } ;
 
-template <class CATEGORY>
-using State = typename U::STATE_HELP<CATEGORY>::State ;
-
 namespace U {
 template <class...>
-trait TUPLE_HELP ;
+trait STATE_HELP ;
 
 template <class ARG1>
-trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<ARG1>>>> {
-	class Tuple ;
+trait STATE_HELP<ARG1> {
+	using RET = S0::State<ARG1> ;
+} ;
 } ;
 
-template <class UNIT1>
-class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<UNIT1>>>>::Tuple {
+template <class CATEGORY>
+using State = typename U::STATE_HELP<CATEGORY>::RET ;
+
+namespace S0 {
+class Tuple {
 public:
 	implicit Tuple () = default ;
 
 	auto rank () const
 		->LENGTH {
-		return COUNTOF<UNIT1>::value ;
+		return 0 ;
 	}
 
 	auto equal (CREF<Tuple> that) const
@@ -154,19 +147,16 @@ public:
 		return hashcode () ;
 	}
 } ;
-
-template <class ARG1>
-trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
-	using ONE = TYPE_FIRST_ONE<ARG1> ;
-	using REST = TYPE_FIRST_REST<ARG1> ;
-	using BASE = typename TUPLE_HELP<REST ,void>::Tuple ;
-	using RANK = COUNTOF<ARG1> ;
-
-	class Tuple ;
 } ;
 
-template <class UNIT1>
-class TUPLE_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<UNIT1>>>>::Tuple {
+namespace S1 {
+template <class UNIT1 ,class BASE>
+class Tuple {
+private:
+	using ONE = TYPE_FIRST_ONE<UNIT1> ;
+	using REST = TYPE_FIRST_REST<UNIT1> ;
+	using RANK = COUNTOF<UNIT1> ;
+
 private:
 	ONE mValue ;
 	BASE mSuper ;
@@ -209,7 +199,7 @@ public:
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,RANK>) ;
-		return template_pick (typeas<R1X>::id ,PHX) ;
+		return template_pick (TYPEAS<R1X>::id ,PHX) ;
 	}
 
 	template <class ARG1>
@@ -218,7 +208,7 @@ public:
 		using R1X = typeof (nth) ;
 		require (ENUM_COMPR_GTEQ<R1X ,ENUM_ZERO>) ;
 		require (ENUM_COMPR_LT<R1X ,RANK>) ;
-		return template_pick (typeas<R1X>::id ,PHX) ;
+		return template_pick (TYPEAS<R1X>::id ,PHX) ;
 	}
 
 	auto equal (CREF<Tuple> that) const
@@ -296,7 +286,7 @@ private:
 		->VREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
-		return rest ().template_pick (typeas<R2X>::id ,PHX) ;
+		return rest ().template_pick (TYPEAS<R2X>::id ,PHX) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<ENUM_GT_ZERO<REMOVE_ALL<ARG1>>>>
@@ -304,11 +294,29 @@ private:
 		->CREF<TYPE_PICK<UNIT1 ,REMOVE_ALL<ARG1>>> {
 		using R1X = typeof (nth) ;
 		using R2X = ENUM_DEC<REMOVE_ALL<R1X>> ;
-		return rest ().template_pick (typeas<R2X>::id ,PHX) ;
+		return rest ().template_pick (TYPEAS<R2X>::id ,PHX) ;
 	}
 } ;
 } ;
 
+namespace U {
+template <class...>
+trait TUPLE_HELP ;
+
+template <class ARG1>
+trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNTOF<ARG1>>>> {
+	using RET = S0::Tuple ;
+} ;
+
+template <class ARG1>
+trait TUPLE_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNTOF<ARG1>>>> {
+	using REST = TYPE_FIRST_REST<ARG1> ;
+	using BASE = typename TUPLE_HELP<REST ,void>::Tuple ;
+
+	using RET = S1::Tuple<ARG1 ,BASE> ;
+} ;
+} ;
+
 template <class...UNITS>
-using Tuple = typename U::TUPLE_HELP<typeas<UNITS...> ,void>::Tuple ;
+using Tuple = typename U::TUPLE_HELP<TYPEAS<UNITS...> ,void>::RET ;
 } ;

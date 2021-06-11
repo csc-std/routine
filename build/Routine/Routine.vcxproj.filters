@@ -21,6 +21,12 @@
     <ClInclude Include="..\..\src\csc2\end.h">
       <Filter>csc2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\csc2\csc_core_1.hpp">
+      <Filter>csc2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\csc2\csc_core_2.hpp">
+      <Filter>csc2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="unittest">
