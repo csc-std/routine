@@ -45,16 +45,16 @@ using FLAG = VAR ;
 using SINGLE = float32_t ;
 using DOUBLE = float64_t ;
 
-static constant VAL32_MAX = VAL32 (3.402823466E+38) ;
-static constant VAL32_MIN = -VAL32_MAX ;
-static constant VAL32_LOW = VAL32 (1.175494351E-38) ;
-static constant VAL32_EPS = VAL32 (1.192092896E-07) ;
-static constant VAL32_INF = VAL32 (infinity) ;
-static constant VAL64_MAX = VAL64 (1.7976931348623158E+308) ;
-static constant VAL64_MIN = -VAL64_MAX ;
-static constant VAL64_LOW = VAL64 (2.2250738585072014E-308) ;
-static constant VAL64_EPS = VAL64 (2.2204460492503131E-016) ;
-static constant VAL64_INF = VAL32 (infinity) ;
+static constant SINGLE_MAX = SINGLE (3.402823466E+38) ;
+static constant SINGLE_MIN = -SINGLE_MAX ;
+static constant SINGLE_LOW = SINGLE (1.175494351E-38) ;
+static constant SINGLE_EPS = SINGLE (1.192092896E-07) ;
+static constant SINGLE_INF = SINGLE (infinity) ;
+static constant DOUBLE_MAX = DOUBLE (1.7976931348623158E+308) ;
+static constant DOUBLE_MIN = -DOUBLE_MAX ;
+static constant DOUBLE_LOW = DOUBLE (2.2250738585072014E-308) ;
+static constant DOUBLE_EPS = DOUBLE (2.2204460492503131E-016) ;
+static constant DOUBLE_INF = SINGLE (infinity) ;
 
 using STRA = char_t ;
 using STRW = wchar_t ;
@@ -145,13 +145,13 @@ define ENUM_DEC<ARG1> = ENUM_SUB<ARG1 ,ENUM_IDEN> ;
 define TYPE_CHECK<ARG1> = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
 
 define FIRST_ONE<ARG1 ,ARGS...> = ARG1 ;
-define TYPE_FIRST_ONE<ARGS> = FIRST_ONE<ARGS...> ;
+define TYPE_FIRST_ONE<ARG1> = FIRST_ONE<ARG1...> ;
 define FIRST_REST<ARG1 ,ARGS...> = ARGS ;
-define TYPE_FIRST_REST<ARGS> = FIRST_REST<ARGS...> ;
+define TYPE_FIRST_REST<ARG1> = FIRST_REST<ARG1...> ;
 define SECOND_ONE<ARG1 ,ARGS...> = ARG1 ;
-define TYPE_SECOND_ONE<ARGS> = SECOND_ONE<ARGS...> ;
+define TYPE_SECOND_ONE<ARG1> = SECOND_ONE<ARG1...> ;
 define SECOND_REST<ARG1 ,ARGS...> = ARGS ;
-define TYPE_SECOND_REST<ARGS> = SECOND_REST<ARGS...> ;
+define TYPE_SECOND_REST<ARG1> = SECOND_REST<ARG1...> ;
 define TYPE_CAT<ARG1 ,ARG2> = type<ARG1... ,ARG2...> ;
 
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
@@ -175,27 +175,27 @@ trait ENUM_ALL_HELP<ARG1> {
 	using RET = ENUM_IDEN ;
 } ;
 
-trait ENUM_ALL_HELP<ARGS> {
-	require (ENUM_GT_ZERO<COUNT_OF<ARGS>>) ;
+trait ENUM_ALL_HELP<ARG1> {
+	require (ENUM_GT_ZERO<COUNT_OF<ARG1>>) ;
 
-	using R1X = ENUM_NOT_EQUAL<TYPE_FIRST_ONE<ARGS> ,ENUM_ZERO> ;
-	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARGS>>::RET ;
+	using R1X = ENUM_NOT_EQUAL<TYPE_FIRST_ONE<ARG1> ,ENUM_ZERO> ;
+	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
 	using RET = CONDITIONAL<R1X ,R3X ,ENUM_ZERO> ;
 } ;
 
 define ENUM_ALL<ARGS...> = typename ENUM_ALL_HELP<ARGS>::RET ;
 
-trait ENUM_ANY_HELP<ARGS> {
-	require (ENUM_EQ_ZERO<COUNT_OF<ARGS>>) ;
+trait ENUM_ANY_HELP<ARG1> {
+	require (ENUM_EQ_ZERO<COUNT_OF<ARG1>>) ;
 
 	using RET = ENUM_ZERO ;
 } ;
 
-trait ENUM_ANY_HELP<ARGS> {
-	require (ENUM_GT_ZERO<COUNT_OF<ARGS>>) ;
+trait ENUM_ANY_HELP<ARG1> {
+	require (ENUM_GT_ZERO<COUNT_OF<ARG1>>) ;
 
-	using R1X = ENUM_NOT_EQUAL<TYPE_FIRST_ONE<ARGS> ,ENUM_ZERO> ;
-	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARGS>>::RET ;
+	using R1X = ENUM_NOT_EQUAL<TYPE_FIRST_ONE<ARG1> ,ENUM_ZERO> ;
+	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1>>::RET ;
 	using RET = CONDITIONAL<R1X ,ENUM_IDEN ,R3X> ;
 } ;
 
@@ -243,8 +243,8 @@ define IS_VAR<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,VAR32> ,IS_SAME<ARG1 ,VAR64>> ;
 define IS_FLOAT<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,SINGLE> ,IS_SAME<ARG1 ,DOUBLE>> ;
 define IS_STR<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,STRA> ,IS_SAME<ARG1 ,STRW>> ;
 define IS_BYTE<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,BYTE> ,IS_SAME<ARG1 ,WORD> ,IS_SAME<ARG1 ,CHAR> ,IS_SAME<ARG1 ,FEAT>> ;
-define IS_BASIC<ARG1> = ENUM_ANY<IS_BOOL<ARG1> ,IS_VAR<ARG1> ,IS_FLOAT<ARG1> ,IS_STR<ARG1> ,IS_BYTE<ARG1>>
-define IS_VOID<ARG1> = IS_SAME<ARG1 ,void> ;
+define IS_NULL<ARG1> = IS_SAME<ARG1 ,type (NULL)> ;
+define IS_BASIC<ARG1> = ENUM_ANY<IS_BOOL<ARG1> ,IS_VAR<ARG1> ,IS_FLOAT<ARG1> ,IS_STR<ARG1> ,IS_BYTE<ARG1> ,IS_NULL<ARG1>> ;
 define IS_PLACEHOLDER<ARG1> = IS_EXTEND<ARG1 ,type (PH0)> ;
 
 trait BYTE_BASE_HELP<ARG1 ,ARG2> {
@@ -315,7 +315,7 @@ static funcion bad = (id) => {
 
 static function abs = (arg1) => {
 	if (arg1 >= 0)
-		return a ;
+		return arg1 ;
 	return -arg1 ;
 } ;
 
@@ -326,38 +326,18 @@ static function min = (arg1 ,arg2) => {
 } ;
 
 static function max = (arg1 ,arg2) => {
-	if (arg1 <= arg2)
+	if (arg1 >= arg2)
 		return arg1 ;
 	return arg2 ;
 } ;
 
-trait RANGE_ITERATOR_HELP<> {
-	class RangeIterator {
-		constant mBegin :INDEX ;
-		constant mEnd :INDEX ;
-		variable mCurr :INDEX ;
-	} ;
-
-	implement RangeIterator {
-		function new = (begin :INDEX ,end :INDEX) => {
-			mBegin = begin ;
-			mEnd = max (begin ,end) ;
-			mCurr = begin ;
-		} ;
-
-		function good = () :BOOL => mCurr < mEnd ;
-
-		function get = () :INDEX => mCurr ;
-
-		function next = mutable () => {
-			mCurr = mCurr + 1 ;
-		} ;
-	} ;
+static function between = (curr :INDEX ,begin :INDEX ,end :INDEX) :BOOL => {
+	if (curr < begin)
+		return FALSE ;
+	if (curr >= end)
+		return FALSE ;
+	return TRUE ;
 } ;
-
-using RangeIterator = typename ITERATOR_HELP<>::RangeIterator ;
-
-static function range = (begin ,end) :RangeIterator => RangeIterator (begin ,end) ;
 
 trait HASHCODE_HELP<> {
 	require (IS_SAME<FLAG ,VAR64>) ;
@@ -390,6 +370,34 @@ trait HASHCODE_HELP<> {
 static function hashcode = () :FLAG => HASHCODE_HELP<>::hashcode () ;
 
 static function hashcode = (now :FLAG ,inc :FLAG) :FLAG => HASHCODE_HELP<>::hashcode (now ,inc) ;
+
+trait RANGE_ITERATOR_HELP<> {
+	class RangeIterator {
+		constant mBegin :INDEX ;
+		constant mEnd :INDEX ;
+		variable mCurr :INDEX ;
+	} ;
+
+	implement RangeIterator {
+		function new = (begin :INDEX ,end :INDEX) => {
+			mBegin = begin ;
+			mEnd = max (begin ,end) ;
+			mCurr = begin ;
+		} ;
+
+		function good = () :BOOL => mCurr < mEnd ;
+
+		function get = () :INDEX => mCurr ;
+
+		function next = mutable () => {
+			mCurr = mCurr + 1 ;
+		} ;
+	} ;
+} ;
+
+using RangeIterator = typename ITERATOR_HELP<>::RangeIterator ;
+
+static function range = (begin ,end) :RangeIterator => RangeIterator (begin ,end) ;
 
 trait SLICE_HELP<ARG1> {
 	using UNIT1 = ARG1 ;
@@ -437,7 +445,7 @@ trait SLICE_HELP<ARG1> {
 		} ;
 
 		function get = (index :INDEX) :UNIT1 => {
-			assert (index >= 0 && index < size ()) ;
+			assert (between (index ,0 ,size ())) ;
 			return mPointer->get (index) ;
 		} ;
 
@@ -544,8 +552,8 @@ trait CLAZZ_HELP<> {
 
 using Clazz = typename CLAZZ_HELP<>::Clazz ;
 
-trait TUPLE_HELP<ARGS> {
-	require (ENUM_EQ_ZERO<COUNT_OF<ARGS>>) ;
+trait TUPLE_HELP<ARG1> {
+	require (ENUM_EQ_ZERO<COUNT_OF<ARG1>>) ;
 
 	class Tuple {} ;
 
@@ -562,10 +570,10 @@ trait TUPLE_HELP<ARGS> {
 	} ;
 } ;
 
-trait TUPLE_HELP<ARGS> {
-	require (ENUM_GT_ZERO<COUNT_OF<ARGS>>) ;
+trait TUPLE_HELP<ARG1> {
+	require (ENUM_GT_ZERO<COUNT_OF<ARG1>>) ;
 
-	using UNITS = ARGS ;
+	using UNITS = ARG1 ;
 	using ONE = TYPE_FIRST_ONE<UNITS> ;
 	using REST = TYPE_FIRST_REST<UNITS> ;
 

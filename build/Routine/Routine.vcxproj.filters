@@ -3,6 +3,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\test.cpp" />
+    <ClCompile Include="..\..\src\csc2\csc_core.hpp">
+      <Filter>csc2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\csc2\csc.hpp">
+      <Filter>csc2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\util.h" />
@@ -14,5 +20,10 @@
     <Filter Include="csc2">
       <UniqueIdentifier>{39dd61d7-1230-4b66-96d6-a7e28319a439}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\csc2\csc_core.rs">
+      <Filter>csc2</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -19,11 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\csc2\csc.hpp" />
+    <ClCompile Include="..\..\src\csc2\csc_core.hpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\csc2\csc_core.rs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
