@@ -6,27 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\util.h" />
-    <ClInclude Include="..\..\src\csc2\csc.hpp">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\csc_core.hpp">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\csc_basic.hpp">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\begin.h">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\end.h">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\csc_core_1.hpp">
-      <Filter>csc2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\csc2\csc_core_2.hpp">
-      <Filter>csc2</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="unittest">
@@ -35,18 +14,5 @@
     <Filter Include="csc2">
       <UniqueIdentifier>{39dd61d7-1230-4b66-96d6-a7e28319a439}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\src\csc2\cpp.hint">
-      <Filter>csc2</Filter>
-    </None>
-    <None Include="..\..\src\csc2\csc_core.hpp.inl">
-      <Filter>csc2</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="..\..\src\csc2\cpp.natvis">
-      <Filter>csc2</Filter>
-    </Natvis>
   </ItemGroup>
 </Project>
