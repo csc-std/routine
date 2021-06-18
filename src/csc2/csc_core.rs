@@ -118,7 +118,6 @@ trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3> {
 define CONDITIONAL<COND ,YES ,NO> = typename CONDITIONAL_HELP<COND ,YES ,NO>::RET ;
 
 define ENUM_CHECK<ARG1> = ENABLE<IS_ENUM<ARG1> ,ARG1> ;
-
 define ENUM_EQUAL<ARG1 ,ARG2> = enum (ENUM_CHECK<ARG1>::value == ENUM_CHECK<ARG2>::value) ;
 define ENUM_NOT_EQUAL<ARG1 ,ARG2> = enum (ENUM_CHECK<ARG1>::value != ENUM_CHECK<ARG2>::value) ;
 define ENUM_COMPR<ARG1 ,ARG2> = enum (ENUM_CHECK<ARG1>::value <=> ENUM_CHECK<ARG2>::value) ;
@@ -143,15 +142,15 @@ define ENUM_INC<ARG1> = ENUM_ADD<ARG1 ,ENUM_IDEN> ;
 define ENUM_DEC<ARG1> = ENUM_SUB<ARG1 ,ENUM_IDEN> ;
 
 define TYPE_CHECK<ARG1> = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
-
 define FIRST_ONE<ARG1 ,ARGS...> = ARG1 ;
-define TYPE_FIRST_ONE<ARG1> = FIRST_ONE<ARG1...> ;
 define FIRST_REST<ARG1 ,ARGS...> = ARGS ;
+define TYPE_FIRST_ONE<ARG1> = FIRST_ONE<ARG1...> ;
 define TYPE_FIRST_REST<ARG1> = FIRST_REST<ARG1...> ;
 define SECOND_ONE<ARG1 ,ARGS...> = ARG1 ;
-define TYPE_SECOND_ONE<ARG1> = SECOND_ONE<ARG1...> ;
 define SECOND_REST<ARG1 ,ARGS...> = ARGS ;
+define TYPE_SECOND_ONE<ARG1> = SECOND_ONE<ARG1...> ;
 define TYPE_SECOND_REST<ARG1> = SECOND_REST<ARG1...> ;
+define TYPE_UNWIND<ARG1> = ENABLE<ENUM_EQ_IDEN<COUNT_OF<ARG1>> ,TYPE_FIRST_ONE<ARG1>> ;
 define TYPE_CAT<ARG1 ,ARG2> = type<ARG1... ,ARG2...> ;
 
 trait TYPE_REPEAT_HELP<ARG1 ,ARG2> {
@@ -238,6 +237,9 @@ define IS_STRUCT<ARG1> = std::is_struct (ARG1) ;
 define IS_INTERFACE<ARG1> = std::is_interface (ARG1) ;
 define IS_EXTEND<BASE ,DERIVED> = std::is_extend (BASE ,DERIVED) ;
 define IS_FUNCTION<ARG1> = std::is_function (ARG1) ;
+define FUNCTION_REFLECT<ARG1> = std::function_reflect (ARG1) ;
+define FUNCTION_RETURN<ARG1> = TYPE_FIRST_ONE<FUNCTION_REFLECT<ARG1>> ;
+define FUNCTION_PARAMS<ARG1> = TYPE_SECOND_ONE<FUNCTION_REFLECT<ARG1>> ;
 define IS_BOOL<ARG1> = IS_SAME<ARG1 ,BOOL> ;
 define IS_VAR<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,VAR32> ,IS_SAME<ARG1 ,VAR64>> ;
 define IS_FLOAT<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,SINGLE> ,IS_SAME<ARG1 ,DOUBLE>> ;
@@ -245,6 +247,7 @@ define IS_STR<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,STRA> ,IS_SAME<ARG1 ,STRW>> ;
 define IS_BYTE<ARG1> = ENUM_ANY<IS_SAME<ARG1 ,BYTE> ,IS_SAME<ARG1 ,WORD> ,IS_SAME<ARG1 ,CHAR> ,IS_SAME<ARG1 ,FEAT>> ;
 define IS_NULL<ARG1> = IS_SAME<ARG1 ,type (NULL)> ;
 define IS_BASIC<ARG1> = ENUM_ANY<IS_BOOL<ARG1> ,IS_VAR<ARG1> ,IS_FLOAT<ARG1> ,IS_STR<ARG1> ,IS_BYTE<ARG1> ,IS_NULL<ARG1>> ;
+
 define IS_PLACEHOLDER<ARG1> = IS_EXTEND<ARG1 ,type (PH0)> ;
 
 trait BYTE_BASE_HELP<ARG1 ,ARG2> {
@@ -311,6 +314,11 @@ static funcion bad = (id) => {
 	register r1x = () :auto => ZERO ;
 	assert (FALSE) ;
 	return R1X (r1x ()) ;
+} ;
+
+static property memorize = [proc] => {
+	static constant M_MEMORIZE = proc () ;
+	return M_MEMORIZE ;
 } ;
 
 static function abs = (arg1) => {

@@ -14,6 +14,16 @@
 #endif
 #define ifnot __macro_ifnot
 
+#ifdef ifswitch
+#undef ifswitch
+#endif
+#define ifswitch __macro_ifswitch
+
+#ifdef discard
+#undef discard
+#endif
+#define discard break
+
 #ifdef implicit
 #undef implicit
 #endif
@@ -27,7 +37,22 @@
 #ifdef imports
 #undef imports
 #endif
-#define imports
+#define imports static
+
+#ifdef leftvalue
+#undef leftvalue
+#endif
+#define leftvalue &
+
+#ifdef rightvalue
+#undef rightvalue
+#endif
+#define rightvalue &&
+
+#ifdef self
+#undef self
+#endif
+#define self to ()
 
 #ifdef typeof
 #undef typeof

@@ -240,7 +240,7 @@ template <class ARG1 ,class ARG2>
 using ENUM_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<ARG1>::value == ENUM_CHECK<ARG2>::value)> ;
 
 template <class ARG1 ,class ARG2>
-using ENUM_NOT_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<ARG1>::value != ENUM_CHECK<ARG2>::value)> ;
+using ENUM_NOT_EQUAL = ENUM_NOT<ENUM_EQUAL<ARG1 ,ARG2>> ;
 
 namespace U {
 template <class...>
@@ -358,6 +358,9 @@ using TYPE_SECOND_ONE = typename U::TYPE_SECOND_HELP<ARG1 ,void>::ONE ;
 
 template <class ARG1>
 using TYPE_SECOND_REST = typename U::TYPE_SECOND_HELP<ARG1 ,void>::REST ;
+
+template <class ARG1>
+using TYPE_UNWIND = ENABLE<ENUM_EQ_IDEN<COUNT_OF<ARG1>> ,TYPE_FIRST_ONE<ARG1>> ;
 
 namespace U {
 template <class...>
@@ -510,6 +513,27 @@ using IS_EXTEND = ENUMAS<BOOL ,(std::is_base_of<BASE ,DERIVED>::value)> ;
 template <class ARG1>
 using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<ARG1>::value)> ;
 
+namespace U {
+template <class...>
+struct REFLECT_FUNCTION_HELP ;
+
+template <class ARG1 ,class...ARGS>
+struct REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,void> {
+	using R1X = REMOVE_ALL<ARG1> ;
+	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
+	using RET = TYPEAS<R1X ,R2X> ;
+} ;
+} ;
+
+template <class ARG1>
+using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<typeof (ARG1::operator()) ,void>::RET ;
+
+template <class ARG1>
+using FUNCTION_RETURN = TYPE_FIRST_ONE<REFLECT_FUNCTION<ARG1>> ;
+
+template <class ARG1>
+using FUNCTION_PARAMS = TYPE_SECOND_ONE<REFLECT_FUNCTION<ARG1>> ;
+
 template <class ARG1>
 using IS_BOOL = IS_SAME<ARG1 ,BOOL> ;
 
@@ -583,10 +607,6 @@ struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 } ;
 } ;
 
-static constexpr auto X0 = ENUM_ALL<
-	ENUM_EQUAL<SIZE_OF<FLAG> ,SIZE_OF<FEAT>> ,
-	ENUM_EQUAL<ALIGN_OF<FLAG> ,ALIGN_OF<FEAT>>>::value ;
-
 template <class SIZE ,class ALIGN>
 using BYTE_BASE = typename U::BYTE_BASE_HELP<SIZE ,ALIGN ,void>::RET ;
 
@@ -648,7 +668,7 @@ template <class...>
 struct FUNCTION_barrier_HELP ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>>> {
+struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
 	struct FUNCTION_barrier {
 		inline void operator() () const {
 			noop () ;
@@ -657,7 +677,7 @@ struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_MS
 } ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>>> {
+struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
 	struct FUNCTION_barrier {
 		template <class ARG1>
 		inline void operator() () const {
@@ -669,7 +689,7 @@ struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_GN
 } ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>>> {
+struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
 	struct FUNCTION_barrier {
 		inline void operator() () const {
 #ifdef __CSC_COMPILER_CLANG__
@@ -739,12 +759,50 @@ struct FUNCTION_zeroize {
 
 static constexpr auto zeroize = FUNCTION_zeroize () ;
 
+struct FUNCTION_create {
+	template <class ARG1 ,class...ARGS>
+	inline void operator() (VREF<TEMP<ARG1>> thiz ,RREF<ARGS>...objs) const {
+		using R1X = REMOVE_CVR<ARG1> ;
+		new (&thiz) R1X (forward (objs)...) ;
+	}
+} ;
+
+static constexpr auto create = FUNCTION_create () ;
+
+struct FUNCTION_destroy {
+	template <class ARG1 ,class...ARGS>
+	inline void operator() (VREF<TEMP<ARG1>> thiz) const {
+		using R1X = REMOVE_CVR<ARG1> ;
+		reinterpret_cast<VREF<R1X>> (thiz).~R1X () ;
+	}
+} ;
+
+static constexpr auto destroy = FUNCTION_destroy () ;
+
+struct FUNCTION_recreate {
+	template <class ARG1>
+	inline void operator() (VREF<ARG1> thiz ,CREF<REMOVE_CVR<ARG1>> that) const {
+		using R1X = REMOVE_CVR<ARG1> ;
+		thiz.~R1X () ;
+		new (&thiz) R1X (move (that)) ;
+	}
+
+	template <class ARG1>
+	inline void operator() (VREF<ARG1> thiz ,RREF<REMOVE_CVR<ARG1>> that) const {
+		using R1X = REMOVE_CVR<ARG1> ;
+		thiz.~R1X () ;
+		new (&thiz) R1X (move (that)) ;
+	}
+} ;
+
+static constexpr auto recreate = FUNCTION_recreate () ;
+
 namespace U {
 template <class...>
 struct FUNCTION_debug_assert_HELP ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>>> {
+struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -757,7 +815,7 @@ struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPIL
 } ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>>> {
+struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -770,7 +828,7 @@ struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPIL
 } ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<ENUM_BOOL<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>>> {
+struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -793,15 +851,6 @@ static constexpr auto debug_assert = FUNCTION_debug_assert () ;
 
 static constexpr auto unittest_assert = FUNCTION_debug_assert () ;
 
-struct FUNCTION_debug_watch {
-	template <class ARG1>
-	inline BOOL operator() (CREF<ARG1> target) const {
-		//@mark
-	}
-} ;
-
-static constexpr auto debug_watch = FUNCTION_debug_watch () ;
-
 struct FUNCTION_bad {
 	template <class ARG1>
 	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1>) const {
@@ -812,6 +861,43 @@ struct FUNCTION_bad {
 } ;
 
 static constexpr auto bad = FUNCTION_bad () ;
+
+struct FUNCTION_memorize {
+	template <class ARG1>
+	inline CREF<FUNCTION_RETURN<REMOVE_CVR<ARG1>>> operator() (CREF<ARG1> proc) const {
+		static const auto M_MEMORIZE = proc () ;
+		return M_MEMORIZE ;
+	}
+} ;
+
+static constexpr auto memorize = FUNCTION_memorize () ;
+
+namespace U {
+template <class...>
+struct CABI_HELP ;
+
+template <class ARG1>
+struct CABI_HELP<ARG1 ,void> {
+	struct CABI :public Interface {} ;
+} ;
+} ;
+
+struct FUNCTION_operator_cabi {
+	template <class>
+	struct CABI :public Interface {} ;
+
+	template <class ARG1>
+	inline FLAG operator() (CREF<ARG1> id) const {
+		using R1X = typeof (id) ;
+		using R2X = typename U::CABI_HELP<R1X ,void>::CABI ;
+		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
+		requires (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
+		R2X tmp ;
+		return reinterpret_cast<CREF<FLAG>> (tmp) ;
+	}
+} ;
+
+static constexpr auto operator_cabi = FUNCTION_operator_cabi () ;
 
 namespace U {
 template <class...>
@@ -885,7 +971,7 @@ struct FUNCTION_operator_hash {
 		using R2X = REMOVE_CVR<ARG1> ;
 		using R1X = typename U::FUNCTION_operator_hash_HELP<R2X ,void>::FUNCTION_operator_hash ;
 		static constexpr auto M_INVOKE = R1X () ;
-		return M_INVOKE (arg1 ,arg2) ;
+		return M_INVOKE (arg1) ;
 	}
 } ;
 
@@ -941,7 +1027,7 @@ template <class...>
 struct FUNCTION_hashcode_HELP ;
 
 template <class ARG1>
-struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<IS_SAME<FLAG ,DEPENDENT<VAR32 ,ARG1>>>> {
+struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-2128831035) ;
@@ -958,7 +1044,7 @@ struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<IS_SAME<FLAG ,DEPENDENT<VAR32 ,ARG1>
 } ;
 
 template <class ARG1>
-struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<IS_SAME<FLAG ,DEPENDENT<VAR32 ,ARG1>>>> {
+struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR64> ,ARG1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-3750763034362895579) ;
@@ -976,10 +1062,14 @@ struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<IS_SAME<FLAG ,DEPENDENT<VAR32 ,ARG1>
 } ;
 
 struct FUNCTION_hashcode {
-	template <class ARG1>
+	inline FLAG operator() () const {
+		using R1X = typename U::FUNCTION_hashcode_HELP<void ,void>::FUNCTION_hashcode ;
+		static constexpr auto M_INVOKE = R1X () ;
+		return M_INVOKE () ;
+	}
+
 	inline FLAG operator() (CREF<FLAG> now ,CREF<FLAG> inc) const {
-		using R2X = REMOVE_CVR<ARG1> ;
-		using R1X = typename U::FUNCTION_hashcode_HELP<R2X ,void>::FUNCTION_hashcode ;
+		using R1X = typename U::FUNCTION_hashcode_HELP<void ,void>::FUNCTION_hashcode ;
 		static constexpr auto M_INVOKE = R1X () ;
 		return M_INVOKE (now ,inc) ;
 	}
@@ -992,7 +1082,7 @@ template <class...>
 struct RANGE_ITERATOR_HELP ;
 
 template <>
-struct RANGE_ITERATOR_HELP<> {
+struct RANGE_ITERATOR_HELP<void ,void> {
 	template <class BASE>
 	struct RangeIteratorCRTP {
 		INDEX mBegin ;
@@ -1056,7 +1146,7 @@ struct RANGE_ITERATOR_HELP<> {
 } ;
 } ;
 
-using RangeIterator = typename U::RANGE_ITERATOR_HELP<>::RangeIterator ;
+using RangeIterator = typename U::RANGE_ITERATOR_HELP<void ,void>::RangeIterator ;
 
 struct FUNCTION_range {
 	inline RangeIterator operator() (CREF<INDEX> begin_ ,CREF<INDEX> end_) const {
@@ -1068,42 +1158,124 @@ static constexpr auto range = FUNCTION_range () ;
 
 namespace U {
 template <class...>
+struct AUTO_HELP ;
+
+template <>
+struct AUTO_HELP<void ,void> {
+	struct AutoHolder ;
+
+	template <class BASE>
+	struct AutoCRTP {
+		using Holder = DEPENDENT<AutoHolder ,BASE> ;
+
+		PTR<Holder> mPointer ;
+	} ;
+
+	struct AutoHolder :public Interface {
+		virtual void destroy () = 0 ;
+		virtual LENGTH type_cabi () const = 0 ;
+		virtual void addr_swap (CREF<LENGTH> addr_) = 0 ;
+	} ;
+
+	class Auto :private AutoCRTP<Auto> {
+	private:
+		using AutoCRTP<Auto>::mPointer ;
+
+	public:
+		implicit Auto () noexcept {
+			mPointer = NULL ;
+		}
+
+		template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<ARG1 ,Auto>>>>
+		explicit Auto (RREF<ARG1> that) {
+			using R1X = REMOVE_CVR<ARG1> ;
+			requires (IS_CONSTRUCTIBLE<R1X ,TYPEAS<>>) ;
+			//@mark
+		}
+
+		implicit ~Auto () noexcept {
+			if (mPointer == NULL)
+				return ;
+			mPointer->destroy () ;
+			mPointer = NULL ;
+		}
+
+		implicit Auto (CREF<Auto>) = delete ;
+
+		implicit void operator= (CREF<Auto>) = delete ;
+
+		implicit Auto (RREF<Auto> that) noexcept :Auto () {
+			auto &&thiz = *this ;
+			swap (thiz ,that) ;
+		}
+
+		implicit void operator= (RREF<Auto>) = delete ;
+
+		template <class ARG1>
+		REMOVE_ALL<ARG1> as (CREF<ARG1> id) {
+			using R1X = REMOVE_ALL<ARG1> ;
+			requires (IS_CONSTRUCTIBLE<R1X ,TYPEAS<>>) ;
+			assert (mPointer != NULL) ;
+			const auto r1x = mPointer->type_cabi () ;
+			const auto r2x = operator_cabi (id) ;
+			assert (r1x == r2x) ;
+			R1X ret ;
+			mPointer->addr_swap (address (ret)) ;
+			mPointer->destroy () ;
+			mPointer = NULL ;
+			return move (ret) ;
+		}
+	} ;
+} ;
+} ;
+
+using Auto = typename U::AUTO_HELP<void ,void>::Auto ;
+
+namespace U {
+template <class...>
 struct BOX_HELP ;
 
 template <class UNIT1>
 struct BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
+	struct BoxHolder ;
+
 	template <class BASE>
 	struct BoxCRTP {
-		PTR<UNIT1> mPointer ;
-		PTR<TEMP<UNIT1>> mMemory ;
+		using Holder = DEPENDENT<BoxHolder ,BASE> ;
+
+		PTR<Holder> mPointer ;
+	} ;
+
+	struct BoxHolder :public Interface {
+		virtual void destroy () = 0 ;
+		virtual VREF<UNIT1> at () = 0 ;
+		virtual CREF<UNIT1> at () const = 0 ;
 	} ;
 
 	class Box :private BoxCRTP<Box> {
 	private:
 		using BoxCRTP<Box>::mPointer ;
-		using BoxCRTP<Box>::mMemory ;
 
 	public:
 		implicit Box () noexcept {
 			mPointer = NULL ;
-			mMemory = NULL ;
 		}
 
 		implicit Box (CREF<typeof (NULL)>) :Box () {}
 
 		template <class ARG1>
-		implicit Box (RREF<ARG1> that) : Box () {
+		imports Box make (RREF<ARG1> obj) {
 			using R1X = REMOVE_CVR<ARG1> ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
-			mPointer = new R1X (forward (that)) ;
-			mMemory = reinterpret_cast<PTR<TEMP<UNIT1>>> (mPointer) ;
+			Box ret ;
+			//@mark
+			return move (ret) ;
 		}
 
 		implicit ~Box () noexcept {
 			if (mPointer == NULL)
 				return ;
-			delete mMemory ;
-			mMemory = NULL ;
+			mPointer->destroy () ;
 			mPointer = NULL ;
 		}
 
@@ -1120,8 +1292,7 @@ struct BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			thiz.~Box () ;
-			new (&thiz) Box (move (that)) ;
+			recreate (thiz ,move (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1138,28 +1309,28 @@ struct BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 
 		VREF<UNIT1> to () {
 			assert (exist ()) ;
-			return *mPointer ;
+			return mPointer->at () ;
 		}
 
 		inline implicit operator VREF<UNIT1> () {
-			return to () ;
+			return self ;
 		}
 
 		inline PTR<UNIT1> operator-> () {
-			return &to () ;
+			return &self ;
 		}
 
 		CREF<UNIT1> to () const {
 			assert (exist ()) ;
-			return *mPointer ;
+			return mPointer->at () ;
 		}
 
 		inline implicit operator CREF<UNIT1> () const {
-			return to () ;
+			return self ;
 		}
 
 		inline PTR<const UNIT1> operator-> () const {
-			return &to () ;
+			return &self ;
 		}
 	} ;
 } ;
@@ -1173,48 +1344,21 @@ template <class...>
 struct RC_HELP ;
 
 template <class UNIT1>
-struct RC_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
+struct RC_HELP<UNIT1 ,void> {
+	struct RCHolder ;
+
 	template <class BASE>
 	struct RCCRTP {
-		struct Holder ;
+		using Holder = DEPENDENT<RCHolder ,BASE> ;
 
 		PTR<Holder> mPointer ;
 	} ;
 
-	template <class BASE>
-	struct RCCRTP<BASE>::Holder :public Interface {
+	struct RCHolder :public Interface {
+		virtual void destroy () = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
 		virtual CREF<UNIT1> at () const = 0 ;
-	} ;
-
-	template <class BASE>
-	class RCPureHolder :RCCRTP<BASE>::Holder {
-	private:
-		UNIT1 mValue ;
-		LENGTH mCounter ;
-
-	public:
-		implicit RCPureHolder () = delete ;
-
-		explicit RCPureHolder (RREF<UNIT1> that) {
-			mValue = move (that) ;
-			mCounter = 0 ;
-		}
-
-		LENGTH increase () override {
-			mCounter = mCounter + 1 ;
-			return mCounter ;
-		}
-
-		LENGTH decrease () override {
-			mCounter = mCounter - 1 ;
-			return mCounter ;
-		}
-
-		CREF<UNIT1> at () const override {
-			return mValue ;
-		}
 	} ;
 
 	class RC :private RCCRTP<RC> {
@@ -1228,21 +1372,23 @@ struct RC_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 
 		implicit RC (CREF<typeof (NULL)>) :RC () {}
 
-		template <class ARG1>
-		implicit RC (RREF<ARG1> that) : RC () {
-			using R1X = REMOVE_CVR<ARG1> ;
-			requires (IS_SAME<UNIT1 ,R1X>) ;
-			mPointer = new RCPureHolder<RC> (forward (that)) ;
+		template <class...ARGS>
+		imports RC make (RREF<ARGS>...objs) {
+			RC ret ;
+			//@mark
 			const auto r1x = mPointer->increase () ;
 			assert (r1x == 1) ;
+			return move (ret) ;
 		}
 
 		implicit ~RC () noexcept {
 			if (mPointer == NULL)
 				return ;
-			const auto r1x = mPointer->decrease () ;
-			if (r1x <= 0) {
-				delete mPointer ;
+			if ifswitch (TRUE) {
+				const auto r1x = mPointer->decrease () ;
+				if (r1x > 0)
+					discard ;
+				mPointer->destroy () ;
 			}
 			mPointer = NULL ;
 		}
@@ -1259,8 +1405,7 @@ struct RC_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			thiz.~RC () ;
-			new (&thiz) RC (move (that)) ;
+			recreate (thiz ,move (that)) ;
 		}
 
 		implicit RC (RREF<RC> that) noexcept :RC () {
@@ -1272,8 +1417,7 @@ struct RC_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			thiz.~RC () ;
-			new (&thiz) RC (move (that)) ;
+			recreate (thiz ,move (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1290,15 +1434,15 @@ struct RC_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 
 		CREF<UNIT1> to () const {
 			assert (exist ()) ;
-			return *mPointer ;
+			return mPointer->at () ;
 		}
 
 		inline implicit operator CREF<UNIT1> () const {
-			return to () ;
+			return self ;
 		}
 
 		inline PTR<const UNIT1> operator-> () const {
-			return &to () ;
+			return &self ;
 		}
 	} ;
 } ;
@@ -1332,18 +1476,18 @@ struct CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 
 		implicit Cell (CREF<typeof (NULL)>) :Cell () {}
 
-		template <class ARG1>
-		implicit Cell (RREF<ARG1> that) : Cell () {
-			using R1X = REMOVE_CVR<ARG1> ;
-			requires (IS_SAME<UNIT1 ,R1X>) ;
-			new (&m_fake ()) ARG1 (forward (that)) ;
-			mExist = TRUE ;
+		template <class...ARGS>
+		imports Cell make (RREF<ARGS>...objs) {
+			Cell ret ;
+			create (ret.mPointer ,forward (objs)...) ;
+			ret.mExist = TRUE ;
+			return move (ret) ;
 		}
 
 		implicit ~Cell () noexcept {
 			if (mExist)
 				return ;
-			m_fake ().~UNIT1 () ;
+			destroy (mPointer) ;
 			mExist = FALSE ;
 		}
 
@@ -1360,8 +1504,7 @@ struct CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			thiz.~Cell () ;
-			new (&thiz) Cell (move (that)) ;
+			recreate (thiz ,move (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1388,12 +1531,8 @@ struct CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 		}
 
 		void store (CREF<UNIT1> obj) const {
-			auto &&thiz = *this ;
-			if (exist ()) {
-				m_fake () = obj ;
-			} else {
-				thiz = Cell (obj) ;
-			}
+			assert (exist ()) ;
+			m_fake () = obj ;
 		}
 
 		UNIT1 exchange (CREF<UNIT1> obj) const {
@@ -1405,13 +1544,14 @@ struct CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 
 		BOOL compre (VREF<UNIT1> expect ,CREF<UNIT1> obj) const {
 			assert (exist ()) ;
-			if (m_fake () == expect) {
-				m_fake () = obj ;
-				return TRUE ;
-			} else {
+			if ifswitch (TRUE) {
+				if (m_fake () == expect)
+					discard ;
 				expect = m_fake () ;
 				return FALSE ;
 			}
+			m_fake () = obj ;
+			return TRUE ;
 		}
 
 	private:
@@ -1430,73 +1570,54 @@ template <class...>
 struct SLICE_HELP ;
 
 template <class UNIT1>
-struct SLICE_HELP<UNIT1> {
+struct SLICE_HELP<UNIT1 ,void> {
+	struct SliceHolder ;
+
 	template <class BASE>
 	struct SliceCRTP {
-		struct Holder ;
+		using Holder = DEPENDENT<SliceHolder ,BASE> ;
 
 		Box<Holder> mPointer ;
 	} ;
 
-	template <class BASE>
-	struct SliceCRTP<BASE>::Holder :public Interface {
+	struct SliceHolder :public Interface {
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH addr () const = 0 ;
 		virtual UNIT1 get (CREF<INDEX> index) const = 0 ;
-		virtual Box<Holder> friend_clone () const = 0 ;
-	} ;
-
-	template <class BASE ,class SIZE>
-	class SlicePureHolder :public SliceCRTP<BASE>::Holder {
-	private:
-		using Holder = typename SliceCRTP<BASE>::Holder ;
-
-	private:
-		PTR<const UNIT1[SIZE::value]> mSlice ;
-
-	public:
-		LENGTH size () const override {
-			return SIZE::value ;
-		}
-
-		LENGTH addr () const override {
-			return address (*mSlice) ;
-		}
-
-		UNIT1 get (CREF<INDEX> index) const override {
-			return (*mSlice)[index] ;
-		}
-
-		Box<Holder> friend_clone () const override {
-
-		}
+		virtual Auto friend_clone () const = 0 ;
 	} ;
 
 	class Slice :private SliceCRTP<Slice> {
+	private:
+		using Holder = typename SliceCRTP<Slice>::Holder ;
+
 	private:
 		using SliceCRTP<Slice>::mPointer ;
 
 	public:
 		implicit Slice () = default ;
 
-		template <class ARG1>
-		explicit Slice (CREF<ARG1> that) {
+		template <class ARG1 ,LENGTH ARG2>
+		explicit Slice (CREF<ARG1> id ,CREF<STRA[ARG2]> text) {
+			//@mark
+		}
 
-
+		template <class ARG1 ,LENGTH ARG2>
+		explicit Slice (CREF<ARG1> id ,CREF<STRW[ARG2]> text) {
+			//@mark
 		}
 
 		implicit Slice (CREF<Slice> that) {
 			if (that.mPointer == NULL)
 				return ;
-			mPointer = that.mPointer->friend_clone () ;
+			mPointer = Box<Holder> (that.mPointer->friend_clone ().as (TYPEAS<Box<Holder>>::id)) ;
 		}
 
 		implicit void operator= (CREF<Slice> that) {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			thiz.~Box () ;
-			new (&thiz) Box (move (that)) ;
+			recreate (thiz ,move (that)) ;
 		}
 
 		LENGTH size () const {
@@ -1573,36 +1694,58 @@ struct SLICE_HELP<UNIT1> {
 } ;
 
 template <class ARG1>
-using Slice = typename U::SLICE_HELP<ARG1>::Slice ;
+using Slice = typename U::SLICE_HELP<ARG1 ,void>::Slice ;
 
 namespace U {
 template <class...>
 struct CLAZZ_HELP ;
 
 template <>
-struct CLAZZ_HELP<> {
+struct CLAZZ_HELP<void ,void> {
+	struct ClazzHolder ;
+
 	template <class BASE>
 	struct ClazzCRTP {
-		struct Holder ;
+		using Holder = DEPENDENT<ClazzHolder ,BASE> ;
 
 		Box<Holder> mPointer ;
 	} ;
 
-	template <class BASE>
-	struct ClazzCRTP<BASE>::Holder :public Interface {
+	struct ClazzHolder :public Interface {
 		virtual LENGTH type_size () const = 0 ;
 		virtual LENGTH type_align () const = 0 ;
 		virtual FLAG type_cabi () const = 0 ;
 		virtual Slice<STR> type_name () const = 0 ;
-		virtual Box<Holder> friend_clone () const = 0 ;
+		virtual Auto friend_clone () const = 0 ;
 	} ;
 
 	class Clazz :private ClazzCRTP<Clazz> {
+	private:
+		using Holder = typename ClazzCRTP<Clazz>::Holder ;
+
 	private:
 		using ClazzCRTP<Clazz>::mPointer ;
 
 	public:
 		implicit Clazz () = default ;
+
+		template <class ARG1>
+		explicit Clazz (CREF<ARG1> id) {
+			//@mark
+		}
+
+		implicit Clazz (CREF<Clazz> that) {
+			if (that.mPointer == NULL)
+				return ;
+			mPointer = Box<Holder> (that.mPointer->friend_clone ().as (TYPEAS<Box<Holder>>::id)) ;
+		}
+
+		implicit void operator= (CREF<Clazz> that) {
+			auto &&thiz = *this ;
+			if (address (thiz) == address (that))
+				return ;
+			recreate (thiz ,move (that)) ;
+		}
 
 		LENGTH type_size () const {
 			if (mPointer == NULL)
@@ -1669,5 +1812,14 @@ struct CLAZZ_HELP<> {
 } ;
 } ;
 
-using Clazz = typename U::CLAZZ_HELP<>::Clazz ;
+using Clazz = typename U::CLAZZ_HELP<void ,void>::Clazz ;
+
+struct FUNCTION_debug_watch {
+	template <class ARG1>
+	inline BOOL operator() (CREF<ARG1> target) const {
+		//@mark
+	}
+} ;
+
+static constexpr auto debug_watch = FUNCTION_debug_watch () ;
 } ;

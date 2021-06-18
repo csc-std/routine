@@ -121,7 +121,7 @@
 #endif
 
 #ifndef __macro_requires
-#define __macro_requires(...) static_assert (__macro_unwind (__VA_ARGS__) ,"static_assert failed : " __macro_stringize (__VA_ARGS__))
+#define __macro_requires(...) static_assert (CSC::ENUM_CHECK<__macro_unwind (__VA_ARGS__)>::value ,"static_assert failed : " __macro_stringize (__VA_ARGS__))
 #endif
 
 #ifndef __macro_assert
@@ -140,6 +140,10 @@
 
 #ifndef __macro_ifnot
 #define __macro_ifnot(...) (!(__macro_unwind (__VA_ARGS__)))
+#endif
+
+#ifndef __macro_ifswitch
+#define __macro_ifswitch(...) (__macro_unwind (__VA_ARGS__))
 #endif
 
 #ifndef __macro_typeof

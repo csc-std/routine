@@ -40,5 +40,8 @@
     <None Include="..\..\src\csc2\csc.rs">
       <Filter>rust</Filter>
     </None>
+    <None Include="..\..\src\csc2\csc_core.hpp.inl">
+      <Filter>csc2</Filter>
+    </None>
   </ItemGroup>
 </Project>
