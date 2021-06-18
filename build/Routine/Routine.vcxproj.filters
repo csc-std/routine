@@ -12,6 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\util.h" />
+    <ClInclude Include="..\..\src\csc2\end.h">
+      <Filter>csc2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\csc2\begin.h">
+      <Filter>csc2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="unittest">
@@ -20,10 +26,19 @@
     <Filter Include="csc2">
       <UniqueIdentifier>{39dd61d7-1230-4b66-96d6-a7e28319a439}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rust">
+      <UniqueIdentifier>{b1badf91-15b8-4662-86dd-ce44f685ba60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\csc2\csc_core.rs">
-      <Filter>csc2</Filter>
+      <Filter>rust</Filter>
+    </None>
+    <None Include="..\..\src\csc2\csc_basic.rs">
+      <Filter>rust</Filter>
+    </None>
+    <None Include="..\..\src\csc2\csc.rs">
+      <Filter>rust</Filter>
     </None>
   </ItemGroup>
 </Project>

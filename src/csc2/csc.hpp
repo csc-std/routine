@@ -117,7 +117,20 @@ namespace CSC {
 #undef assert
 #endif
 
+#ifdef implicit
+#undef implicit
+#endif
 #define implicit
+
+#ifdef exports
+#undef exports
+#endif
+#define exports
+
+#ifdef imports
+#undef imports
+#endif
+#define imports
 
 template <class...>
 struct TYPEAS ;
@@ -215,11 +228,24 @@ template <class...>
 struct REQUIRE_HELP ;
 
 template <>
-struct REQUIRE_HELP<ENUM_TRUE ,void> {
+struct REQUIRE_HELP<ENUM_TRUE> {
 	using RET = void ;
 } ;
 } ;
 
+template <class ARG1>
+using REQUIRE = typename U::REQUIRE_HELP<ARG1>::RET ;
+
+namespace U {
+template <class...>
+struct DEPENDENT_HELP ;
+
+template <class ARG1 ,class ARG2>
+struct DEPENDENT_HELP<ARG1 ,ARG2> {
+	using RET = ARG1 ;
+} ;
+
 template <class ARG1 ,class ARG2 = void>
-using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ARG2>::RET ;
+using DEPENDENT = typename U::DEPENDENT_HELP<ARG1 ,ARG2>::RET ;
+} ;
 } ;

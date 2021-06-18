@@ -25,7 +25,7 @@ template <class...>
 struct VAR_HELP ;
 
 template <class ARG1>
-struct VAR_HELP<ARG1 ,REQUIRE<MACRO_CONFIG_VAR32 ,ARG1>> {
+struct VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,ARG1>>> {
 	using VAR = VAR32 ;
 
 	static constexpr auto VAR_MAX = VAR32_MAX ;
@@ -33,7 +33,7 @@ struct VAR_HELP<ARG1 ,REQUIRE<MACRO_CONFIG_VAR32 ,ARG1>> {
 } ;
 
 template <class ARG1>
-struct VAR_HELP<ARG1 ,REQUIRE<MACRO_CONFIG_VAR64 ,ARG1>> {
+struct VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,ARG1>>> {
 	using VAR = VAR64 ;
 
 	static constexpr auto VAR_MAX = VAR64_MAX ;
@@ -77,12 +77,12 @@ template <class...>
 struct STR_HELP ;
 
 template <class ARG1>
-struct STR_HELP<ARG1 ,REQUIRE<MACRO_CONFIG_STRA ,ARG1>> {
+struct STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,ARG1>>> {
 	using STR = STRA ;
 } ;
 
 template <class ARG1>
-struct STR_HELP<ARG1 ,REQUIRE<MACRO_CONFIG_STRW ,ARG1>> {
+struct STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,ARG1>>> {
 	using STR = STRW ;
 } ;
 } ;
@@ -428,14 +428,14 @@ struct ENUM_ALL_HELP ;
 
 template <class ARG1>
 struct ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
-	using RET = ENUM_IDEN ;
+	using RET = ENUM_TRUE ;
 } ;
 
 template <class ARG1>
 struct ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
 	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
-	using RET = CONDITIONAL<R1X ,R3X ,ENUM_ZERO> ;
+	using RET = CONDITIONAL<R1X ,R3X ,ENUM_FALSE> ;
 } ;
 } ;
 
@@ -448,14 +448,14 @@ struct ENUM_ANY_HELP ;
 
 template <class ARG1>
 struct ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
-	using RET = ENUM_ZERO ;
+	using RET = ENUM_FALSE ;
 } ;
 
 template <class ARG1>
 struct ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
 	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
-	using RET = CONDITIONAL<R1X ,ENUM_IDEN ,R3X> ;
+	using RET = CONDITIONAL<R1X ,ENUM_TRUE ,R3X> ;
 } ;
 } ;
 
@@ -609,6 +609,10 @@ struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 } ;
 } ;
 
+static constexpr auto X0 = ENUM_ALL<
+	ENUM_EQUAL<SIZE_OF<FLAG> ,SIZE_OF<FEAT>> ,
+	ENUM_EQUAL<ALIGN_OF<FLAG> ,ALIGN_OF<FEAT>>>::value ;
+
 template <class SIZE ,class ALIGN>
 using BYTE_BASE = typename U::BYTE_BASE_HELP<SIZE ,ALIGN ,void>::RET ;
 
@@ -648,36 +652,31 @@ using ENUM_MAX = CONDITIONAL<ENUM_COMPR_GTEQ<ARG1 ,ARG2> ,ARG1 ,ARG2> ;
 template <class CURR ,class BEGIN ,class END>
 using ENUM_BETWEEN = ENUM_ALL<ENUM_COMPR_GTEQ<CURR ,BEGIN> ,ENUM_COMPR_LT<CURR ,END>> ;
 
-namespace U {
 struct FUNCTION_noop {
-	inline void operator() () {}
-} ;
+	inline void operator() () const {}
 } ;
 
-static constexpr auto noop = U::FUNCTION_noop () ;
+static constexpr auto noop = FUNCTION_noop () ;
 
-namespace U {
 struct FUNCTION_address {
 	template <class ARG1>
-	inline LENGTH operator() (CREF<ARG1> arg1) {
+	inline LENGTH operator() (CREF<ARG1> arg1) const {
 		return LENGTH (&reinterpret_cast<CREF<BYTE>> (arg1)) ;
 	}
 } ;
-} ;
 
-static constexpr auto address = U::FUNCTION_address () ;
+static constexpr auto address = FUNCTION_address () ;
 
-namespace U {
 #ifdef __CSC_COMPILER_MSVC__
 struct FUNCTION_barrier {
-	inline void operator() () {}
+	inline void operator() () const {}
 } ;
 #endif
 
 #ifdef __CSC_COMPILER_GNUC__
 struct FUNCTION_barrier {
 	template <class ARG1>
-	inline void operator() () {
+	inline void operator() () const {
 		asm volatile ("" ::: "memory") ;
 	}
 } ;
@@ -685,19 +684,17 @@ struct FUNCTION_barrier {
 
 #ifdef __CSC_COMPILER_CLANG__
 struct FUNCTION_barrier {
-	inline void operator() () {
+	inline void operator() () const {
 		asm volatile ("" ::: "memory") ;
 	}
 } ;
 #endif
-} ;
 
-static constexpr auto barrier = U::FUNCTION_barrier () ;
+static constexpr auto barrier = FUNCTION_barrier () ;
 
-namespace U {
 struct FUNCTION_swap {
 	template <class ARG1>
-	inline void operator() (VREF<ARG1> arg1 ,VREF<ARG1> arg2) {
+	inline void operator() (VREF<ARG1> arg1 ,VREF<ARG1> arg2) const {
 		using R1X = TEMP<REMOVE_ALL<ARG1>> ;
 		auto rax = reinterpret_cast<VREF<R1X>> (arg1) ;
 		reinterpret_cast<VREF<R1X>> (arg1) = reinterpret_cast<VREF<R1X>> (arg2) ;
@@ -705,57 +702,49 @@ struct FUNCTION_swap {
 		barrier () ;
 	}
 } ;
-} ;
 
-static constexpr auto swap = U::FUNCTION_swap () ;
+static constexpr auto swap = FUNCTION_swap () ;
 
-namespace U {
 struct FUNCTION_move {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (RREF<ARG1> arg1) {
+	inline REMOVE_ALL<ARG1> operator() (RREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return R1X (static_cast<RREF<ARG1>> (arg1)) ;
 	}
 } ;
-} ;
 
-static constexpr auto move = U::FUNCTION_move () ;
+static constexpr auto move = FUNCTION_move () ;
 
-namespace U {
 struct FUNCTION_forward {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return R1X (arg1) ;
 	}
 
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (RREF<ARG1> arg1) {
+	inline REMOVE_ALL<ARG1> operator() (RREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return R1X (move (arg1)) ;
 	}
 } ;
-} ;
 
-static constexpr auto forward = U::FUNCTION_forward () ;
+static constexpr auto forward = FUNCTION_forward () ;
 
-namespace U {
 struct FUNCTION_zeroize {
 	template <class ARG1>
-	inline void operator() (VREF<ARG1> arg1) {
+	inline void operator() (VREF<ARG1> arg1) const {
 		using R1X = TEMP<REMOVE_ALL<ARG1>> ;
 		reinterpret_cast<VREF<R1X>> (arg1) = {0} ;
 		barrier () ;
 	}
 } ;
-} ;
 
-static constexpr auto zeroize = U::FUNCTION_zeroize () ;
+static constexpr auto zeroize = FUNCTION_zeroize () ;
 
-namespace U {
 #ifdef __CSC_COMPILER_MSVC__
 struct FUNCTION_assert {
-	inline void operator() (CREF<BOOL> expr) {
+	inline void operator() (CREF<BOOL> expr) const {
 		if (expr)
 			return ;
 		__debugbreak () ;
@@ -765,7 +754,7 @@ struct FUNCTION_assert {
 
 #ifdef __CSC_COMPILER_GUNC__
 struct FUNCTION_assert {
-	inline void operator() (CREF<BOOL> expr) {
+	inline void operator() (CREF<BOOL> expr) const {
 		if (expr)
 			return ;
 		std::abort () ;
@@ -775,72 +764,62 @@ struct FUNCTION_assert {
 
 #ifdef __CSC_COMPILER_CLANG__
 struct FUNCTION_assert {
-	inline void operator() (CREF<BOOL> expr) {
+	inline void operator() (CREF<BOOL> expr) const {
 		if (expr)
 			return ;
 		std::abort () ;
 	}
 } ;
 #endif
-} ;
 
-static constexpr auto assert = U::FUNCTION_assert () ;
+static constexpr auto assert = FUNCTION_assert () ;
 
-namespace U {
 struct FUNCTION_bad {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1>) {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1>) const {
 		const auto r1x = DEF<REMOVE_ALL<ARG1> (*) ()> (NULL) ;
 		assert (FALSE) ;
 		return r1x () ;
 	}
 } ;
-} ;
 
-static constexpr auto bad = U::FUNCTION_bad () ;
+static constexpr auto bad = FUNCTION_bad () ;
 
-namespace U {
 struct FUNCTION_abs {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) const {
 		if (arg1 >= 0)
 			return arg1 ;
 		return -arg1 ;
 	}
 } ;
-} ;
 
-static constexpr auto abs = U::FUNCTION_abs () ;
+static constexpr auto abs = FUNCTION_abs () ;
 
-namespace U {
 struct FUNCTION_min {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		if (arg1 <= arg2)
 			return arg1 ;
 		return arg2 ;
 	}
 } ;
-} ;
 
-static constexpr auto min = U::FUNCTION_min () ;
+static constexpr auto min = FUNCTION_min () ;
 
-namespace U {
 struct FUNCTION_max {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		if (arg1 >= arg2)
 			return arg1 ;
 		return arg2 ;
 	}
 } ;
-} ;
 
-static constexpr auto max = U::FUNCTION_max () ;
+static constexpr auto max = FUNCTION_max () ;
 
-namespace U {
 struct FUNCTION_between {
-	inline BOOL operator() (CREF<INDEX> curr ,CREF<INDEX> begin ,CREF<INDEX> end) {
+	inline BOOL operator() (CREF<INDEX> curr ,CREF<INDEX> begin ,CREF<INDEX> end) const {
 		if (curr < begin)
 			return FALSE ;
 		if (curr >= end)
@@ -848,39 +827,62 @@ struct FUNCTION_between {
 		return TRUE ;
 	}
 } ;
-} ;
 
-static constexpr auto between = U::FUNCTION_between () ;
+static constexpr auto between = FUNCTION_between () ;
 
-trait HASHCODE_HELP<> {
-	require (IS_SAME<FLAG ,VAR64>) ;
+namespace U {
+template <class...>
+struct HASHCODE_HELP ;
 
-	static function hashcode = () : FLAG = > FLAG (-2128831035) ;
+template <class ARG1>
+struct HASHCODE_HELP<ARG1 ,REQUIRE<IS_SAME<ARG1 ,VAR32>>> {
+	struct FUNCTION_hashcode {
+		inline FLAG operator() () const {
+			return FLAG (-2128831035) ;
+		}
 
-	static function hashcode = (now :FLAG ,inc : FLAG) : FLAG = > {
-		using R2X = BYTE_BASE<FLAG> ;
-		constant r1x = R2X (now) ^ R2X (inc) ;
-		constant r2x = R2X (VAR (r1x) * VAR (16777619)) ;
-		constant r3x = r2x & R2X (VAR_MAX) ;
-		return FLAG (r3x) ;
+		inline FLAG operator() (CREF<FLAG> now ,CREF<FLAG> inc) const {
+			using R2X = BYTE_BASE<SIZE_OF<FLAG> ,ALIGN_OF<FLAG>> ;
+			const auto r1x = R2X (now) ^ R2X (inc) ;
+			const auto r2x = R2X (VAR (r1x) * VAR (16777619)) ;
+			const auto r3x = r2x & R2X (VAR_MAX) ;
+			return FLAG (r3x) ;
+		}
 	} ;
 } ;
 
-trait HASHCODE_HELP<> {
-	require (IS_SAME<FLAG ,VAR64>) ;
+template <class ARG1>
+struct HASHCODE_HELP<ARG1 ,REQUIRE<IS_SAME<ARG1 ,VAR64>>> {
+	struct FUNCTION_hashcode {
+		inline FLAG operator() () const {
+			return FLAG (-3750763034362895579) ;
+		}
 
-	static function hashcode = () : FLAG = > FLAG (-3750763034362895579) ;
-
-	static function hashcode = (now :FLAG ,inc : FLAG) : FLAG = > {
-		using R2X = BYTE_BASE<FLAG> ;
-		constant r1x = R2X (now) ^ R2X (inc) ;
-		constant r2x = R2X (VAR (r1x) * VAR (1099511628211)) ;
-		constant r3x = r2x & R2X (VAR_MAX) ;
-		return FLAG (r3x) ;
+		inline FLAG operator() (CREF<FLAG> now ,CREF<FLAG> inc) const {
+			using R2X = BYTE_BASE<SIZE_OF<FLAG> ,ALIGN_OF<FLAG>> ;
+			const auto r1x = R2X (now) ^ R2X (inc) ;
+			const auto r2x = R2X (VAR (r1x) * VAR (1099511628211)) ;
+			const auto r3x = r2x & R2X (VAR_MAX) ;
+			return FLAG (r3x) ;
+		}
 	} ;
 } ;
+} ;
 
-static function hashcode = () : FLAG = > HASHCODE_HELP<>::hashcode () ;
+struct FUNCTION_hashcode {
 
-static function hashcode = (now :FLAG ,inc : FLAG) : FLAG = > HASHCODE_HELP<>::hashcode (now ,inc) ;
+	inline FLAG operator() () const {
+		using R1X = typename U::HASHCODE_HELP<FLAG ,void>::FUNCTION_hashcode ;
+		static constexpr auto M_HASHCODE = R1X () ;
+		return M_HASHCODE () ;
+	}
+
+	inline FLAG operator() (CREF<FLAG> now ,CREF<FLAG> inc) const {
+		using R1X = typename U::HASHCODE_HELP<FLAG ,void>::FUNCTION_hashcode ;
+		static constexpr auto M_HASHCODE = R1X () ;
+		return M_HASHCODE (now ,inc) ;
+	}
+} ;
+
+static constexpr auto hashcode = FUNCTION_hashcode () ;
 } ;

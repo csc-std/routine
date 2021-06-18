@@ -340,7 +340,7 @@ static function between = (curr :INDEX ,begin :INDEX ,end :INDEX) :BOOL => {
 } ;
 
 trait HASHCODE_HELP<> {
-	require (IS_SAME<FLAG ,VAR64>) ;
+	require (IS_SAME<FLAG ,VAR32>) ;
 
 	static function hashcode = () :FLAG => FLAG (-2128831035) ;
 

@@ -25,9 +25,13 @@
     <ClCompile Include="..\..\src\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\csc2\begin.h" />
+    <ClInclude Include="..\..\src\csc2\end.h" />
     <ClInclude Include="..\..\src\util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\csc2\csc.rs" />
+    <None Include="..\..\src\csc2\csc_basic.rs" />
     <None Include="..\..\src\csc2\csc_core.rs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
