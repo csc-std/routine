@@ -22,6 +22,7 @@ struct AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
 		}
 
 		void destroy () override {
+			auto &&thiz = *this ;
 			//@mark
 		}
 
@@ -33,6 +34,7 @@ struct AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
 			const auto r1x = reinterpret_cast<PTR<UNIT1>> (addr_) ;
 			assert (r1x != NULL) ;
 			swap (mValue ,(*r1x)) ;
+			barrier () ;
 		}
 	} ;
 } ;
@@ -56,6 +58,7 @@ struct BOX_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,BASE> :public BOX_HELP<UNIT1 ,void> {
 		}
 
 		void destroy () override {
+			auto &&thiz = *this ;
 			//@mark
 		}
 
@@ -86,6 +89,7 @@ struct RC_PUREHOLDER_HELP<UNIT1 ,BASE> :public RC_HELP<UNIT1 ,void> {
 		}
 
 		void destroy () override {
+			auto &&thiz = *this ;
 			//@mark
 		}
 
@@ -110,8 +114,8 @@ namespace U {
 template <class...>
 struct SLICE_PUREHOLDER_HELP ;
 
-template <class UNIT1 ,class BASE ,class SIZE>
-struct SLICE_PUREHOLDER_HELP<UNIT1 ,BASE ,SIZE> :public SLICE_HELP<UNIT1 ,void> {
+template <class UNIT1 ,class SIZE ,class BASE>
+struct SLICE_PUREHOLDER_HELP<UNIT1 ,SIZE ,BASE> :public SLICE_HELP<UNIT1 ,void> {
 	class PureHolder :public SliceCRTP<BASE>::Holder {
 	private:
 		using Holder = typename SliceCRTP<BASE>::Holder ;

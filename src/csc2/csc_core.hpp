@@ -1572,10 +1572,12 @@ struct SLICE_HELP ;
 template <class UNIT1>
 struct SLICE_HELP<UNIT1 ,void> {
 	struct SliceHolder ;
+	struct SliceBuilder ;
 
 	template <class BASE>
 	struct SliceCRTP {
 		using Holder = DEPENDENT<SliceHolder ,BASE> ;
+		using SliceBuilder = DEPENDENT<SliceBuilder ,BASE> ;
 
 		Box<Holder> mPointer ;
 	} ;
@@ -1585,6 +1587,10 @@ struct SLICE_HELP<UNIT1 ,void> {
 		virtual LENGTH addr () const = 0 ;
 		virtual UNIT1 get (CREF<INDEX> index) const = 0 ;
 		virtual Auto friend_clone () const = 0 ;
+	} ;
+
+	struct SliceBuilder {
+		imports Box<SliceBuilder> create () ;
 	} ;
 
 	class Slice :private SliceCRTP<Slice> {
@@ -1599,12 +1605,12 @@ struct SLICE_HELP<UNIT1 ,void> {
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRA[ARG2]> text) {
-			//@mark
+			mPointer = SliceBuilder::create () ;
 		}
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRW[ARG2]> text) {
-			//@mark
+			mPointer = SliceBuilder::create () ;
 		}
 
 		implicit Slice (CREF<Slice> that) {
