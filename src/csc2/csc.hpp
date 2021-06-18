@@ -8,6 +8,8 @@
 #define __CSC_DEBUG__
 #elif defined _UNITTEST
 #define __CSC_UNITTEST__
+#else
+#define __CSC_RELEASE__
 #endif
 
 #ifdef __clang__
@@ -96,42 +98,55 @@
 #pragma warning (disable :5045) //@info: warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 #endif
 
+#include "begin.h"
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
+#include <initializer_list>
+#include <cassert>
+#include <new>
+#include <exception>
+#include <typeinfo>
+#include <utility>
+#include <cstdlib>
+#include "end.h"
+
+#ifndef __macro_unwind
+#define __macro_unwind(...) __VA_ARGS__
+#endif
+
+#ifndef __macro_stringize
+#define __macro_stringize(...) #__VA_ARGS__
+#endif
+
+#ifndef __macro_requires
+#define __macro_requires(...) static_assert (__macro_unwind (__VA_ARGS__) ,"static_assert failed : " __macro_stringize (__VA_ARGS__))
+#endif
+
+#ifndef __macro_assert
+#ifdef __CSC_DEBUG__
+#define __macro_assert(...) CSC::debug_assert (__macro_unwind (__VA_ARGS__))
+#endif
+
+#ifdef __CSC_UNITTEST__
+#define __macro_assert(...) CSC::unittest_assert (__macro_unwind (__VA_ARGS__))
+#endif
+
+#ifdef __CSC_RELEASE__
+#define __macro_assert(...)
+#endif
+#endif
+
+#ifndef __macro_ifnot
+#define __macro_ifnot(...) (!(__macro_unwind (__VA_ARGS__)))
+#endif
+
+#ifndef __macro_typeof
+#define __macro_typeof(...) CSC::REMOVE_ALL<decltype (__macro_unwind (__VA_ARGS__))>
+#endif
 
 namespace CSC {
-#ifdef TRUE
-#undef TRUE
-#endif
-
-#ifdef FALSE
-#undef FALSE
-#endif
-
-#ifdef NULL
-#undef NULL
-#endif
-
-#ifdef assert
-#undef assert
-#endif
-
-#ifdef implicit
-#undef implicit
-#endif
-#define implicit
-
-#ifdef exports
-#undef exports
-#endif
-#define exports
-
-#ifdef imports
-#undef imports
-#endif
-#define imports
-
 template <class...>
 struct TYPEAS ;
 
@@ -169,9 +184,6 @@ using REMOVE_CVR = typename std::remove_reference<typename std::remove_cv<ARG1>:
 template <class ARG1>
 using REMOVE_ALL = REMOVE_CVR<REMOVE_PHID<REMOVE_CVR<ARG1>>> ;
 
-#define __macro_typeof(...) REMOVE_ALL<decltype (__VA_ARGS__)>
-#define typeof __macro_typeof
-
 template <class ARG1 ,ARG1 ARG2>
 struct ENUMAS {
 	static constexpr auto value = ARG2 ;
@@ -186,55 +198,34 @@ template <class...>
 struct ENUM_NOT_HELP ;
 
 template <>
-struct ENUM_NOT_HELP<ENUM_TRUE> {
+struct ENUM_NOT_HELP<ENUM_TRUE ,void> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <>
-struct ENUM_NOT_HELP<ENUM_FALSE> {
+struct ENUM_NOT_HELP<ENUM_FALSE ,void> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
 
 template <class ARG1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1>::RET ;
+using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,void>::RET ;
 
-#ifdef __CSC_CONFIG_VAR32__
-using MACRO_CONFIG_VAR32 = ENUM_TRUE ;
-#else
-using MACRO_CONFIG_VAR32 = ENUM_FALSE ;
-#endif
-
-#ifdef __CSC_CONFIG_VAR64__
-using MACRO_CONFIG_VAR64 = ENUM_TRUE ;
-#else
-using MACRO_CONFIG_VAR64 = ENUM_FALSE ;
-#endif
-
-#ifdef __CSC_CONFIG_STRA__
-using MACRO_CONFIG_STRA = ENUM_TRUE ;
-#else
-using MACRO_CONFIG_STRA = ENUM_FALSE ;
-#endif
-
-#ifdef __CSC_CONFIG_STRW__
-using MACRO_CONFIG_STRW = ENUM_TRUE ;
-#else
-using MACRO_CONFIG_STRW = ENUM_FALSE ;
-#endif
+template <class ARG1>
+using ENUM_BOOL = ENUMAS<bool ,bool (ARG1::value)> ;
 
 namespace U {
 template <class...>
 struct REQUIRE_HELP ;
 
-template <>
-struct REQUIRE_HELP<ENUM_TRUE> {
+template <class ARG1>
+struct REQUIRE_HELP<ARG1 ,ENUM_TRUE> {
 	using RET = void ;
 } ;
 } ;
 
 template <class ARG1>
-using REQUIRE = typename U::REQUIRE_HELP<ARG1>::RET ;
+using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ENUM_BOOL<ARG1>>::RET ;
 
 namespace U {
 template <class...>
@@ -247,5 +238,119 @@ struct DEPENDENT_HELP<ARG1 ,ARG2> {
 
 template <class ARG1 ,class ARG2 = void>
 using DEPENDENT = typename U::DEPENDENT_HELP<ARG1 ,ARG2>::RET ;
+
+#ifdef __CSC_DEBUG__
+struct MACRO_DEBUG :public ENUM_TRUE {} ;
+#else
+struct MACRO_DEBUG :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_UNITTEST__
+struct MACRO_UNITTEST :public ENUM_TRUE {} ;
+#else
+struct MACRO_UNITTEST :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_RELEASE__
+struct MACRO_RELEASE :public ENUM_TRUE {} ;
+#else
+struct MACRO_RELEASE :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_COMPILER_MSVC__
+struct MACRO_COMPILER_MSVC :public ENUM_TRUE {} ;
+#else
+struct MACRO_COMPILER_MSVC :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_COMPILER_GUNC__
+struct MACRO_COMPILER_GNUC :public ENUM_TRUE {} ;
+#else
+struct MACRO_COMPILER_GNUC :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_COMPILER_CLANG__
+struct MACRO_COMPILER_CLANG :public ENUM_TRUE {} ;
+#else
+struct MACRO_COMPILER_CLANG :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_SYSTEM_WINDOWS__
+struct MACRO_SYSTEM_WINDOWS :public ENUM_TRUE {} ;
+#else
+struct MACRO_SYSTEM_WINDOWS :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_SYSTEM_LINUX__
+struct MACRO_SYSTEM_LINUX :public ENUM_TRUE {} ;
+#else
+struct MACRO_SYSTEM_LINUX :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_PLATFORM_X86__
+struct MACRO_PLATFORM_X86 :public ENUM_TRUE {} ;
+#else
+struct MACRO_PLATFORM_X86 :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_PLATFORM_X64__
+struct MACRO_PLATFORM_X64 :public ENUM_TRUE {} ;
+#else
+struct MACRO_PLATFORM_X64 :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_PLATFORM_ARM__
+struct MACRO_PLATFORM_ARM :public ENUM_TRUE {} ;
+#else
+struct MACRO_PLATFORM_ARM :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_PLATFORM_ARM64__
+struct MACRO_PLATFORM_ARM64 :public ENUM_TRUE {} ;
+#else
+struct MACRO_PLATFORM_ARM64 :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_TARGET_EXE__
+struct MACRO_TARGET_EXE :public ENUM_TRUE {} ;
+#else
+struct MACRO_TARGET_EXE :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_TARGET_DLL__
+struct MACRO_TARGET_DLL :public ENUM_TRUE {} ;
+#else
+struct MACRO_TARGET_DLL :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_TARGET_LIB__
+struct MACRO_TARGET_LIB :public ENUM_TRUE {} ;
+#else
+struct MACRO_TARGET_LIB :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_CONFIG_VAR32__
+struct MACRO_CONFIG_VAR32 :public ENUM_TRUE {} ;
+#else
+struct MACRO_CONFIG_VAR32 :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_CONFIG_VAR64__
+struct MACRO_CONFIG_VAR64 :public ENUM_TRUE {} ;
+#else
+struct MACRO_CONFIG_VAR64 :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_CONFIG_STRA__
+struct MACRO_CONFIG_STRA :public ENUM_TRUE {} ;
+#else
+struct MACRO_CONFIG_STRA :public ENUM_FALSE {} ;
+#endif
+
+#ifdef __CSC_CONFIG_STRW__
+struct MACRO_CONFIG_STRW :public ENUM_TRUE {} ;
+#else
+struct MACRO_CONFIG_STRW :public ENUM_FALSE {} ;
+#endif
 } ;
 } ;

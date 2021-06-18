@@ -395,7 +395,7 @@ trait RANGE_ITERATOR_HELP<> {
 	} ;
 } ;
 
-using RangeIterator = typename ITERATOR_HELP<>::RangeIterator ;
+using RangeIterator = typename RANGE_ITERATOR_HELP<>::RangeIterator ;
 
 static function range = (begin ,end) :RangeIterator => RangeIterator (begin ,end) ;
 
@@ -526,7 +526,7 @@ trait CLAZZ_HELP<> {
 			return mPointer->type_align () ;
 		} ;
 
-		function type_cabi = () :LENGTH => {
+		function type_cabi = () :FLAG => {
 			if (mPointer == NULL)
 				return ZERO ;
 			return mPointer->type_cabi () ;
