@@ -183,7 +183,7 @@ template <class ARG1>
 using REMOVE_PHID = typename U::REMOVE_PHID_HELP<ARG1 ,void>::RET ;
 
 template <class ARG1>
-using REMOVE_CVR = typename std::remove_reference<typename std::remove_cv<ARG1>::type>::type ;
+using REMOVE_CVR = typename std::remove_cv<typename std::remove_reference<ARG1>::type>::type ;
 
 template <class ARG1>
 using REMOVE_ALL = REMOVE_CVR<REMOVE_PHID<REMOVE_CVR<ARG1>>> ;
