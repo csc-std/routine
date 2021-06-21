@@ -103,10 +103,10 @@ template <class ARG1>
 using PTR = ARG1 * ;
 
 template <class ARG1>
-using CREF = const ARG1 & ;
+using VREF = ARG1 & ;
 
 template <class ARG1>
-using VREF = ARG1 & ;
+using CREF = const ARG1 & ;
 
 template <class ARG1>
 using RREF = ARG1 && ;
@@ -486,6 +486,9 @@ template <class FROM ,class TO>
 using IS_CONVERTIBLE = IS_CONSTRUCTIBLE<TO ,TYPEAS<FROM>> ;
 
 template <class ARG1>
+using IS_NULLOPT = ENUMAS<BOOL ,(std::is_nothrow_default_constructible<ARG1>::value)> ;
+
+template <class ARG1>
 using IS_CLONEABLE = ENUM_ALL<
 	ENUMAS<BOOL ,(std::is_copy_constructible<ARG1>::value)> ,
 	ENUMAS<BOOL ,(std::is_copy_assignable<ARG1>::value)>> ;
@@ -519,8 +522,8 @@ trait REFLECT_FUNCTION_HELP ;
 
 template <class ARG1 ,class...ARGS>
 trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,void> {
-	using R1X = REMOVE_ALL<ARG1> ;
-	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
+	using R1X = REMOVE_CVR<ARG1> ;
+	using R2X = TYPEAS<REMOVE_CVR<ARGS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 } ;
@@ -619,20 +622,38 @@ trait STORAGE_HELP<ARG1 ,ARG2 ,void> {
 	using R3X = BYTE_BASE<ARG2 ,ARG2> ;
 	using R1X = SIZE_OF<R3X> ;
 	using R4X = ENUM_DIV<ENUM_ADD<ARG1 ,ENUM_DEC<R1X>> ,R1X> ;
-
-	struct Storage {
-		DEF<R3X[ENUM_CHECK<R4X>::value]> mStorage ;
-	} ;
+	using RET = DEF<R3X[ENUM_CHECK<R4X>::value]> ;
 } ;
 } ;
 
 template <class SIZE ,class ALIGN = ENUM_IDEN>
-using Storage = typename U::STORAGE_HELP<SIZE ,ALIGN ,void>::Storage ;
+using Storage = typename U::STORAGE_HELP<SIZE ,ALIGN ,void>::RET ;
 
 template <class UNIT>
 struct TEMP {
-	Storage<SIZE_OF<UNIT> ,ALIGN_OF<UNIT>> mUnused ;
+	Storage<SIZE_OF<UNIT> ,ALIGN_OF<UNIT>> mStorage ;
 } ;
+
+namespace U {
+template <class...>
+struct REMOVE_TEMP_HELP ;
+
+template <class ARG1>
+struct REMOVE_TEMP_HELP<ARG1> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+struct REMOVE_TEMP_HELP<TEMP<ARG1>> {
+	using RET = ARG1 ;
+} ;
+} ;
+
+template <class ARG1>
+using REMOVE_TEMP = typename U::REMOVE_TEMP_HELP<ARG1>::RET ;
+
+template <class ARG1>
+using IS_TEMP = IS_SAME<ARG1 ,REMOVE_TEMP<ARG1>> ;
 
 template <class ARG1>
 using ENUM_ABS = CONDITIONAL<ENUM_COMPR_GTEQ<ARG1 ,ENUM_ZERO> ,ARG1 ,ENUM_MINUS<ARG1>> ;
@@ -653,15 +674,6 @@ struct FUNCTION_noop {
 } ;
 
 static constexpr auto noop = FUNCTION_noop () ;
-
-struct FUNCTION_address {
-	template <class ARG1>
-	inline LENGTH operator() (CREF<ARG1> arg1) const {
-		return LENGTH (&reinterpret_cast<CREF<BYTE>> (arg1)) ;
-	}
-} ;
-
-static constexpr auto address = FUNCTION_address () ;
 
 namespace U {
 template <class...>
@@ -710,13 +722,59 @@ struct FUNCTION_barrier {
 
 static constexpr auto barrier = FUNCTION_barrier () ;
 
+struct FUNCTION_unsafe_deref {
+	template <class ARG1>
+	inline VREF<ARG1> operator() (VREF<TEMP<ARG1>> arg1) const {
+		return reinterpret_cast<VREF<ARG1>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline CREF<ARG1> operator() (CREF<TEMP<ARG1>> arg1) const {
+		return reinterpret_cast<CREF<ARG1>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline RREF<ARG1> operator() (RREF<TEMP<ARG1>> arg1) const {
+		requires (ENUM_FALSE) ;
+	}
+} ;
+
+static constexpr auto unsafe_deref = FUNCTION_unsafe_deref () ;
+
+struct FUNCTION_unsafe_deptr {
+	template <class ARG1>
+	inline VREF<TEMP<ARG1>> operator() (VREF<ARG1> arg1) const {
+		return reinterpret_cast<VREF<TEMP<ARG1>>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline CREF<TEMP<ARG1>> operator() (CREF<ARG1> arg1) const {
+		return reinterpret_cast<CREF<TEMP<ARG1>>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline RREF<TEMP<ARG1>> operator() (RREF<ARG1> arg1) const {
+		requires (ENUM_FALSE) ;
+	}
+} ;
+
+static constexpr auto unsafe_deptr = FUNCTION_unsafe_deptr () ;
+
+struct FUNCTION_address {
+	template <class ARG1>
+	inline LENGTH operator() (CREF<ARG1> arg1) const {
+		return LENGTH (&unsafe_deptr (arg1)) ;
+	}
+} ;
+
+static constexpr auto address = FUNCTION_address () ;
+
 struct FUNCTION_swap {
 	template <class ARG1>
 	inline void operator() (VREF<ARG1> arg1 ,VREF<ARG1> arg2) const {
-		using R1X = TEMP<REMOVE_CVR<ARG1>> ;
-		auto rax = reinterpret_cast<VREF<R1X>> (arg1) ;
-		reinterpret_cast<VREF<R1X>> (arg1) = reinterpret_cast<VREF<R1X>> (arg2) ;
-		reinterpret_cast<VREF<R1X>> (arg2) = rax ;
+		auto rax = unsafe_deptr (arg1) ;
+		unsafe_deptr (arg1) = unsafe_deptr (arg2) ;
+		unsafe_deptr (arg2) = rax ;
 		barrier () ;
 	}
 } ;
@@ -725,25 +783,25 @@ static constexpr auto swap = FUNCTION_swap () ;
 
 struct FUNCTION_move {
 	template <class ARG1>
-	inline RREF<REMOVE_CVR<ARG1>> operator() (RREF<ARG1> arg1) const {
+	inline CREF<REMOVE_CVR<ARG1>> operator() (CREF<ARG1> arg1) const {
+		return arg1 ;
+	}
+
+	template <class ARG1>
+	inline RREF<REMOVE_CVR<ARG1>> operator() (VREF<ARG1> arg1) const {
 		return static_cast<RREF<REMOVE_CVR<ARG1>>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline RREF<REMOVE_CVR<ARG1>> operator() (RREF<ARG1> arg1) const {
+		requires (ENUM_FALSE) ;
 	}
 } ;
 
 static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
-	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1> arg1) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		return R1X (arg1) ;
-	}
-
-	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (RREF<ARG1> arg1) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		return R1X (move (arg1)) ;
-	}
+	//mark
 } ;
 
 static constexpr auto forward = FUNCTION_forward () ;
@@ -751,8 +809,7 @@ static constexpr auto forward = FUNCTION_forward () ;
 struct FUNCTION_zeroize {
 	template <class ARG1>
 	inline void operator() (VREF<ARG1> arg1) const {
-		using R1X = TEMP<REMOVE_CVR<ARG1>> ;
-		reinterpret_cast<VREF<R1X>> (arg1) = {0} ;
+		unsafe_deptr (arg1) = {0} ;
 		barrier () ;
 	}
 } ;
@@ -762,8 +819,10 @@ static constexpr auto zeroize = FUNCTION_zeroize () ;
 struct FUNCTION_create {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (VREF<TEMP<ARG1>> thiz ,RREF<ARGS>...objs) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		new (&thiz) R1X (forward (objs)...) ;
+		using R1X = typeof (thiz) ;
+		requires (IS_TEMP<R1X>) ;
+		using R2X = REMOVE_TEMP<R1X> ;
+		new (&unsafe_deref (thiz)) R2X (forward (objs)...) ;
 	}
 } ;
 
@@ -772,26 +831,21 @@ static constexpr auto create = FUNCTION_create () ;
 struct FUNCTION_destroy {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (VREF<TEMP<ARG1>> thiz) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		reinterpret_cast<VREF<R1X>> (thiz).~R1X () ;
+		unsafe_deref (thiz).~R1X () ;
 	}
 } ;
 
 static constexpr auto destroy = FUNCTION_destroy () ;
 
 struct FUNCTION_recreate {
-	template <class ARG1>
-	inline void operator() (VREF<ARG1> thiz ,CREF<REMOVE_CVR<ARG1>> that) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		thiz.~R1X () ;
-		new (&thiz) R1X (move (that)) ;
-	}
-
-	template <class ARG1>
-	inline void operator() (VREF<ARG1> thiz ,RREF<REMOVE_CVR<ARG1>> that) const {
-		using R1X = REMOVE_CVR<ARG1> ;
-		thiz.~R1X () ;
-		new (&thiz) R1X (move (that)) ;
+	template <class ARG1 ,class ARG2>
+	inline void operator() (VREF<ARG1> thiz ,RREF<ARG2> that) const {
+		using R1X = typeof (thiz) ;
+		using R2X = typeof (that) ;
+		requires (IS_SAME<R1X ,R2X>) ;
+		destroy (unsafe_deptr (thiz)) ;
+		create (unsafe_deptr (thiz) ,forward (that)) ;
+		barrier () ;
 	}
 } ;
 
@@ -853,10 +907,10 @@ static constexpr auto unittest_assert = FUNCTION_debug_assert () ;
 
 struct FUNCTION_bad {
 	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1>) const {
-		const auto r1x = DEF<REMOVE_CVR<ARG1> (*) ()> (NULL) ;
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> id) const {
+		auto &&thiz = *this ;
 		assert (FALSE) ;
-		return r1x () ;
+		return thiz (id) ;
 	}
 } ;
 
@@ -892,8 +946,11 @@ struct FUNCTION_operator_cabi {
 		using R2X = typename U::CABI_HELP<R1X ,void>::CABI ;
 		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
 		requires (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
+		FLAG ret = ZERO ;
 		R2X tmp ;
-		return reinterpret_cast<CREF<FLAG>> (tmp) ;
+		swap (unsafe_deptr (ret).mStorage ,unsafe_deptr (tmp).mStorage) ;
+		barrier () ;
+		return move (ret) ;
 	}
 } ;
 
@@ -931,9 +988,9 @@ trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 struct FUNCTION_operator_compr {
 	template <class ARG1>
 	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
-		using R2X = REMOVE_CVR<ARG1> ;
-		using R1X = typename U::FUNCTION_operator_compr_HELP<R2X ,void>::FUNCTION_operator_compr ;
-		static constexpr auto M_INVOKE = R1X () ;
+		using R1X = typeof (arg1) ;
+		using R2X = typename U::FUNCTION_operator_compr_HELP<R1X ,void>::FUNCTION_operator_compr ;
+		static constexpr auto M_INVOKE = R2X () ;
 		return M_INVOKE (arg1 ,arg2) ;
 	}
 } ;
@@ -968,9 +1025,9 @@ trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 struct FUNCTION_operator_hash {
 	template <class ARG1>
 	inline FLAG operator() (CREF<ARG1> arg1) const {
-		using R2X = REMOVE_CVR<ARG1> ;
-		using R1X = typename U::FUNCTION_operator_hash_HELP<R2X ,void>::FUNCTION_operator_hash ;
-		static constexpr auto M_INVOKE = R1X () ;
+		using R1X = typeof (arg1) ;
+		using R2X = typename U::FUNCTION_operator_hash_HELP<R1X ,void>::FUNCTION_operator_hash ;
+		static constexpr auto M_INVOKE = R2X () ;
 		return M_INVOKE (arg1) ;
 	}
 } ;
@@ -979,7 +1036,7 @@ static constexpr auto operator_hash = FUNCTION_operator_hash () ;
 
 struct FUNCTION_abs {
 	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1> arg1) const {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) const {
 		if (arg1 >= 0)
 			return arg1 ;
 		return -arg1 ;
@@ -990,7 +1047,7 @@ static constexpr auto abs = FUNCTION_abs () ;
 
 struct FUNCTION_min {
 	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		if (arg1 <= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1001,7 +1058,7 @@ static constexpr auto min = FUNCTION_min () ;
 
 struct FUNCTION_max {
 	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
 		if (arg1 >= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1163,10 +1220,12 @@ trait AUTO_HELP ;
 template <>
 trait AUTO_HELP<void ,void> {
 	struct AutoHolder ;
+	struct AutoBuilder ;
 
 	template <class BASE>
 	struct AutoCRTP {
 		using Holder = DEPENDENT<AutoHolder ,BASE> ;
+		using Builder = DEPENDENT<AutoBuilder ,BASE> ;
 
 		PTR<Holder> mPointer ;
 	} ;
@@ -1174,10 +1233,16 @@ trait AUTO_HELP<void ,void> {
 	struct AutoHolder :public Interface {
 		virtual void destroy () = 0 ;
 		virtual LENGTH type_cabi () const = 0 ;
-		virtual void addr_swap (CREF<LENGTH> addr_) = 0 ;
+	} ;
+
+	struct AutoBuilder {
+		PTR<AutoHolder> create (CREF<LENGTH> size_ ,CREF<LENGTH> align_ ,CREF<FLAG> cabi) ;
 	} ;
 
 	class Auto :private AutoCRTP<Auto> {
+	private:
+		using Builder = typename AutoCRTP<Auto>::Builder ;
+
 	private:
 		using AutoCRTP<Auto>::mPointer ;
 
@@ -1188,8 +1253,9 @@ trait AUTO_HELP<void ,void> {
 
 		template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<ARG1 ,Auto>>>>
 		explicit Auto (RREF<ARG1> that) {
-			using R1X = REMOVE_CVR<ARG1> ;
-			requires (IS_CONSTRUCTIBLE<R1X ,TYPEAS<>>) ;
+			using R1X = typeof (that) ;
+			requires (IS_NULLOPT<R1X>) ;
+			mPointer = Builder::create (SIZE_OF<R1X>::value ,ALIGN_OF<R1X>::value ,operator_cabi (TYPEAS<R1X>::id)) ;
 			//@mark
 		}
 
@@ -1213,14 +1279,14 @@ trait AUTO_HELP<void ,void> {
 
 		template <class ARG1>
 		REMOVE_ALL<ARG1> as (CREF<ARG1> id) {
-			using R1X = REMOVE_ALL<ARG1> ;
-			requires (IS_CONSTRUCTIBLE<R1X ,TYPEAS<>>) ;
+			using R1X = typeof (id) ;
+			requires (IS_NULLOPT<R1X>) ;
 			assert (mPointer != NULL) ;
 			const auto r1x = mPointer->type_cabi () ;
 			const auto r2x = operator_cabi (id) ;
 			assert (r1x == r2x) ;
 			R1X ret ;
-			mPointer->addr_swap (address (ret)) ;
+			//@mark
 			mPointer->destroy () ;
 			mPointer = NULL ;
 			return move (ret) ;
@@ -1263,9 +1329,10 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 
 		implicit Box (CREF<typeof (NULL)>) :Box () {}
 
-		template <class ARG1>
-		imports Box make (RREF<ARG1> obj) {
-			using R1X = REMOVE_CVR<ARG1> ;
+		template <class ARG1 ,class...ARGS>
+		imports Box make (CREF<ARG1> id ,RREF<ARGS>...params) {
+			using R1X = typeof (id) ;
+			using R2X = TYPEAS<typeof (params)...> ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
 			Box ret ;
 			//@mark
@@ -1556,7 +1623,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 
 	private:
 		VREF<UNIT1> m_fake () const {
-			return reinterpret_cast<VREF<UNIT1>> (mPointer) ;
+			return unsafe_deref (mPointer) ;
 		}
 	} ;
 } ;
@@ -1572,12 +1639,10 @@ trait SLICE_HELP ;
 template <class UNIT1>
 trait SLICE_HELP<UNIT1 ,void> {
 	struct SliceHolder ;
-	struct SliceBuilder ;
 
 	template <class BASE>
 	struct SliceCRTP {
 		using Holder = DEPENDENT<SliceHolder ,BASE> ;
-		using SliceBuilder = DEPENDENT<SliceBuilder ,BASE> ;
 
 		Box<Holder> mPointer ;
 	} ;
@@ -1587,10 +1652,6 @@ trait SLICE_HELP<UNIT1 ,void> {
 		virtual LENGTH addr () const = 0 ;
 		virtual UNIT1 get (CREF<INDEX> index) const = 0 ;
 		virtual Auto friend_clone () const = 0 ;
-	} ;
-
-	struct SliceBuilder {
-		imports Box<SliceBuilder> create () ;
 	} ;
 
 	class Slice :private SliceCRTP<Slice> {
@@ -1605,12 +1666,12 @@ trait SLICE_HELP<UNIT1 ,void> {
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRA[ARG2]> text) {
-			mPointer = SliceBuilder::create () ;
+			//@mark
 		}
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRW[ARG2]> text) {
-			mPointer = SliceBuilder::create () ;
+			//@mark
 		}
 
 		implicit Slice (CREF<Slice> that) {
@@ -1649,7 +1710,7 @@ trait SLICE_HELP<UNIT1 ,void> {
 			for (auto &&i : range (0 ,size ())) {
 				if (get (i) != that.get (i))
 					return FALSE ;
-			} ;
+			}
 			return TRUE ;
 		}
 
@@ -1667,7 +1728,7 @@ trait SLICE_HELP<UNIT1 ,void> {
 				const auto r2x = operator_compr (get (i) ,that.get (i)) ;
 				if (r2x != ZERO)
 					return r2x ;
-			} ;
+			}
 			return ZERO ;
 		}
 
@@ -1692,7 +1753,7 @@ trait SLICE_HELP<UNIT1 ,void> {
 			for (auto &&i : range (0 ,size ())) {
 				const auto r1x = operator_hash (get (i)) ;
 				ret = hashcode (ret ,r1x) ;
-			} ;
+			}
 			return move (ret) ;
 		}
 	} ;

@@ -29,13 +29,6 @@ trait AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
 		LENGTH type_cabi () const override {
 			return operator_cabi (TYPEAS<UNIT1>::id) ;
 		}
-
-		void addr_swap (CREF<LENGTH> addr_) override {
-			const auto r1x = reinterpret_cast<PTR<UNIT1>> (addr_) ;
-			assert (r1x != NULL) ;
-			swap (mValue ,(*r1x)) ;
-			barrier () ;
-		}
 	} ;
 } ;
 } ;
@@ -156,7 +149,7 @@ trait CLAZZ_PUREHOLDER_HELP<BASE ,UUID> :public CLAZZ_HELP<void ,void> {
 		using Holder = typename ClazzCRTP<BASE>::Holder ;
 
 	public:
-		implicit PureHolder () = delete ;
+		implicit PureHolder () = default ;
 
 		LENGTH type_size () const override {
 			return SIZE_OF<UUID>::value ;
