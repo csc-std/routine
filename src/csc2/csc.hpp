@@ -166,15 +166,15 @@ struct TYPEAS<ARG1> {
 
 namespace U {
 template <class...>
-struct REMOVE_PHID_HELP ;
+trait REMOVE_PHID_HELP ;
 
 template <class ARG1>
-struct REMOVE_PHID_HELP<ARG1 ,void> {
+trait REMOVE_PHID_HELP<ARG1 ,void> {
 	using RET = ARG1 ;
 } ;
 
 template <class ARG1>
-struct REMOVE_PHID_HELP<PHID<ARG1> ,void> {
+trait REMOVE_PHID_HELP<PHID<ARG1> ,void> {
 	using RET = ARG1 ;
 } ;
 } ;
@@ -199,15 +199,15 @@ using ENUM_FALSE = ENUMAS<bool ,false> ;
 
 namespace U {
 template <class...>
-struct ENUM_NOT_HELP ;
+trait ENUM_NOT_HELP ;
 
 template <>
-struct ENUM_NOT_HELP<ENUM_TRUE ,void> {
+trait ENUM_NOT_HELP<ENUM_TRUE ,void> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <>
-struct ENUM_NOT_HELP<ENUM_FALSE ,void> {
+trait ENUM_NOT_HELP<ENUM_FALSE ,void> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
@@ -220,10 +220,10 @@ using ENUM_BOOL = ENUMAS<bool ,bool (ARG1::value)> ;
 
 namespace U {
 template <class...>
-struct REQUIRE_HELP ;
+trait REQUIRE_HELP ;
 
 template <class ARG1>
-struct REQUIRE_HELP<ARG1 ,ENUM_TRUE> {
+trait REQUIRE_HELP<ARG1 ,ENUM_TRUE> {
 	using RET = void ;
 } ;
 } ;
@@ -233,10 +233,10 @@ using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ENUM_BOOL<ARG1>>::RET ;
 
 namespace U {
 template <class...>
-struct DEPENDENT_HELP ;
+trait DEPENDENT_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct DEPENDENT_HELP<ARG1 ,ARG2> {
+trait DEPENDENT_HELP<ARG1 ,ARG2> {
 	using RET = ARG1 ;
 } ;
 

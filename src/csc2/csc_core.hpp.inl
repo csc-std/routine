@@ -6,10 +6,10 @@
 namespace CSC {
 namespace U {
 template <class...>
-struct AUTO_PUREHOLDER_HELP ;
+trait AUTO_PUREHOLDER_HELP ;
 
 template <class UNIT1 ,class BASE>
-struct AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
+trait AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
 	class PureHolder :public AutoCRTP<BASE>::Holder {
 	private:
 		UNIT1 mValue ;
@@ -42,10 +42,10 @@ struct AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
 
 namespace U {
 template <class...>
-struct BOX_PUREHOLDER_HELP ;
+trait BOX_PUREHOLDER_HELP ;
 
 template <class UNIT1 ,class UNIT2 ,class BASE>
-struct BOX_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,BASE> :public BOX_HELP<UNIT1 ,void> {
+trait BOX_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,BASE> :public BOX_HELP<UNIT1 ,void> {
 	class PureHolder :public BoxCRTP<BASE>::Holder {
 	private:
 		UNIT2 mValue ;
@@ -71,10 +71,10 @@ struct BOX_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,BASE> :public BOX_HELP<UNIT1 ,void> {
 
 namespace U {
 template <class...>
-struct RC_PUREHOLDER_HELP ;
+trait RC_PUREHOLDER_HELP ;
 
 template <class UNIT1 ,class BASE>
-struct RC_PUREHOLDER_HELP<UNIT1 ,BASE> :public RC_HELP<UNIT1 ,void> {
+trait RC_PUREHOLDER_HELP<UNIT1 ,BASE> :public RC_HELP<UNIT1 ,void> {
 	class PureHolder :public RCCRTP<BASE>::Holder {
 	private:
 		UNIT1 mValue ;
@@ -112,10 +112,10 @@ struct RC_PUREHOLDER_HELP<UNIT1 ,BASE> :public RC_HELP<UNIT1 ,void> {
 
 namespace U {
 template <class...>
-struct SLICE_PUREHOLDER_HELP ;
+trait SLICE_PUREHOLDER_HELP ;
 
 template <class UNIT1 ,class SIZE ,class BASE>
-struct SLICE_PUREHOLDER_HELP<UNIT1 ,SIZE ,BASE> :public SLICE_HELP<UNIT1 ,void> {
+trait SLICE_PUREHOLDER_HELP<UNIT1 ,SIZE ,BASE> :public SLICE_HELP<UNIT1 ,void> {
 	class PureHolder :public SliceCRTP<BASE>::Holder {
 	private:
 		using Holder = typename SliceCRTP<BASE>::Holder ;
@@ -147,10 +147,10 @@ struct SLICE_PUREHOLDER_HELP<UNIT1 ,SIZE ,BASE> :public SLICE_HELP<UNIT1 ,void> 
 
 namespace U {
 template <class...>
-struct CLAZZ_PUREHOLDER_HELP ;
+trait CLAZZ_PUREHOLDER_HELP ;
 
 template <class BASE ,class UUID>
-struct CLAZZ_PUREHOLDER_HELP<BASE ,UUID> :public CLAZZ_HELP<void ,void> {
+trait CLAZZ_PUREHOLDER_HELP<BASE ,UUID> :public CLAZZ_HELP<void ,void> {
 	class PureHolder :public ClazzCRTP<BASE>::Holder {
 	private:
 		using Holder = typename ClazzCRTP<BASE>::Holder ;

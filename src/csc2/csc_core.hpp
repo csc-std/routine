@@ -22,10 +22,10 @@ static constexpr auto VAR64_MIN = -VAR64_MAX ;
 
 namespace U {
 template <class...>
-struct VAR_HELP ;
+trait VAR_HELP ;
 
 template <class ARG1>
-struct VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,ARG1>>> {
+trait VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,ARG1>>> {
 	using VAR = VAR32 ;
 
 	static constexpr auto VAR_MAX = VAR32_MAX ;
@@ -33,7 +33,7 @@ struct VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,ARG1>>> {
 } ;
 
 template <class ARG1>
-struct VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,ARG1>>> {
+trait VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,ARG1>>> {
 	using VAR = VAR64 ;
 
 	static constexpr auto VAR_MAX = VAR64_MAX ;
@@ -74,15 +74,15 @@ using STRW = wchar_t ;
 
 namespace U {
 template <class...>
-struct STR_HELP ;
+trait STR_HELP ;
 
 template <class ARG1>
-struct STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,ARG1>>> {
+trait STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,ARG1>>> {
 	using STR = STRA ;
 } ;
 
 template <class ARG1>
-struct STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,ARG1>>> {
+trait STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,ARG1>>> {
 	using STR = STRW ;
 } ;
 } ;
@@ -119,10 +119,10 @@ using ALIGN_OF = ENUMAS<VAR ,alignof (ARG1)> ;
 
 namespace U {
 template <class...>
-struct COUNT_OF_HELP ;
+trait COUNT_OF_HELP ;
 
 template <class...ARGS1>
-struct COUNT_OF_HELP<TYPEAS<ARGS1...> ,void> {
+trait COUNT_OF_HELP<TYPEAS<ARGS1...> ,void> {
 	using RET = ENUMAS<VAR ,sizeof... (ARGS1)> ;
 } ;
 } ;
@@ -132,15 +132,15 @@ using COUNT_OF = typename U::COUNT_OF_HELP<ARG1 ,void>::RET ;
 
 namespace U {
 template <class...>
-struct IS_ENUM_HELP ;
+trait IS_ENUM_HELP ;
 
 template <class ARG1>
-struct IS_ENUM_HELP<ARG1 ,void> {
+trait IS_ENUM_HELP<ARG1 ,void> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <class ARG1 ,ARG1 ARG2>
-struct IS_ENUM_HELP<ENUMAS<ARG1 ,ARG2> ,void> {
+trait IS_ENUM_HELP<ENUMAS<ARG1 ,ARG2> ,void> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
@@ -150,10 +150,10 @@ using IS_ENUM = typename U::IS_ENUM_HELP<ARG1 ,void>::RET ;
 
 namespace U {
 template <class...>
-struct ENUM_TYPE_HELP ;
+trait ENUM_TYPE_HELP ;
 
 template <class ARG1 ,ARG1 ARG2>
-struct ENUM_TYPE_HELP<ENUMAS<ARG1 ,ARG2> ,void> {
+trait ENUM_TYPE_HELP<ENUMAS<ARG1 ,ARG2> ,void> {
 	using RET = ARG1 ;
 } ;
 } ;
@@ -163,15 +163,15 @@ using ENUM_TYPE = typename U::ENUM_TYPE_HELP<ARG1 ,void>::RET ;
 
 namespace U {
 template <class...>
-struct IS_TYPE_HELP ;
+trait IS_TYPE_HELP ;
 
 template <class ARG1>
-struct IS_TYPE_HELP<ARG1 ,void> {
+trait IS_TYPE_HELP<ARG1 ,void> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <class...ARGS1>
-struct IS_TYPE_HELP<TYPEAS<ARGS1...> ,void> {
+trait IS_TYPE_HELP<TYPEAS<ARGS1...> ,void> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
@@ -181,15 +181,15 @@ using IS_TYPE = typename U::IS_TYPE_HELP<ARG1 ,void>::RET ;
 
 namespace U {
 template <class...>
-struct IS_SAME_HELP ;
+trait IS_SAME_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct IS_SAME_HELP<ARG1 ,ARG2 ,void> {
+trait IS_SAME_HELP<ARG1 ,ARG2 ,void> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <class ARG1>
-struct IS_SAME_HELP<ARG1 ,ARG1 ,void> {
+trait IS_SAME_HELP<ARG1 ,ARG1 ,void> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
@@ -204,10 +204,10 @@ using ENUM_USED = ENUMAS<VAR ,USED> ;
 
 namespace U {
 template <class...>
-struct ENABLE_HELP ;
+trait ENABLE_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct ENABLE_HELP<ARG1 ,ARG2 ,REQUIRE<ARG1>> {
+trait ENABLE_HELP<ARG1 ,ARG2 ,REQUIRE<ARG1>> {
 	using RET = ARG2 ;
 } ;
 } ;
@@ -217,15 +217,15 @@ using ENABLE = typename U::ENABLE_HELP<COND ,YES ,void>::RET ;
 
 namespace U {
 template <class...>
-struct CONDITIONAL_HELP ;
+trait CONDITIONAL_HELP ;
 
 template <class ARG1 ,class ARG2 ,class ARG3>
-struct CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ARG1>> {
+trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ARG1>> {
 	using RET = ARG2 ;
 } ;
 
 template <class ARG1 ,class ARG2 ,class ARG3>
-struct CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ENUM_NOT<ARG1>>> {
+trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ENUM_NOT<ARG1>>> {
 	using RET = ARG3 ;
 } ;
 } ;
@@ -244,20 +244,20 @@ using ENUM_NOT_EQUAL = ENUM_NOT<ENUM_EQUAL<ARG1 ,ARG2>> ;
 
 namespace U {
 template <class...>
-struct ENUM_COMPR_HELP ;
+trait ENUM_COMPR_HELP ;
 
 template <>
-struct ENUM_COMPR_HELP<ENUM_TRUE ,ENUM_FALSE ,void> {
+trait ENUM_COMPR_HELP<ENUM_TRUE ,ENUM_FALSE ,void> {
 	using RET = ENUM_NONE ;
 } ;
 
 template <>
-struct ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_TRUE ,void> {
+trait ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_TRUE ,void> {
 	using RET = ENUM_IDEN ;
 } ;
 
 template <>
-struct ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_FALSE ,void> {
+trait ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_FALSE ,void> {
 	using RET = ENUM_ZERO ;
 } ;
 } ;
@@ -327,10 +327,10 @@ using TYPE_CHECK = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
 
 namespace U {
 template <class...>
-struct TYPE_FIRST_HELP ;
+trait TYPE_FIRST_HELP ;
 
 template <class ARG1 ,class...ARGS>
-struct TYPE_FIRST_HELP<TYPEAS<ARG1 ,ARGS...> ,void> {
+trait TYPE_FIRST_HELP<TYPEAS<ARG1 ,ARGS...> ,void> {
 	using ONE = ARG1 ;
 	using REST = TYPEAS<ARGS...> ;
 } ;
@@ -344,10 +344,10 @@ using TYPE_FIRST_REST = typename U::TYPE_FIRST_HELP<ARG1 ,void>::REST ;
 
 namespace U {
 template <class...>
-struct TYPE_SECOND_HELP ;
+trait TYPE_SECOND_HELP ;
 
 template <class ARG1 ,class ARG2 ,class...ARGS>
-struct TYPE_SECOND_HELP<TYPEAS<ARG1 ,ARG2 ,ARGS...> ,void> {
+trait TYPE_SECOND_HELP<TYPEAS<ARG1 ,ARG2 ,ARGS...> ,void> {
 	using ONE = ARG2 ;
 	using REST = TYPEAS<ARGS...> ;
 } ;
@@ -364,10 +364,10 @@ using TYPE_UNWIND = ENABLE<ENUM_EQ_IDEN<COUNT_OF<ARG1>> ,TYPE_FIRST_ONE<ARG1>> ;
 
 namespace U {
 template <class...>
-struct TYPE_CAT_HELP ;
+trait TYPE_CAT_HELP ;
 
 template <class...ARGS1 ,class...ARGS2>
-struct TYPE_CAT_HELP<TYPEAS<ARGS1...> ,TYPEAS<ARGS2...> ,void> {
+trait TYPE_CAT_HELP<TYPEAS<ARGS1...> ,TYPEAS<ARGS2...> ,void> {
 	using RET = TYPEAS<ARGS1... ,ARGS2...> ;
 } ;
 } ;
@@ -377,15 +377,15 @@ using TYPE_CAT = typename U::TYPE_CAT_HELP<ARG1 ,ARG2 ,void>::RET ;
 
 namespace U {
 template <class...>
-struct TYPE_REPEAT_HELP ;
+trait TYPE_REPEAT_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_EQ_ZERO<ARG2>>> {
+trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_EQ_ZERO<ARG2>>> {
 	using RET = TYPEAS<> ;
 } ;
 
 template <class ARG1 ,class ARG2>
-struct TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
+trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
 	using R1X = typename TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2> ,void>::RET ;
 	using RET = TYPE_CAT<R1X ,TYPEAS<ARG1>> ;
 } ;
@@ -396,15 +396,15 @@ using TYPE_REPEAT = typename U::TYPE_REPEAT_HELP<ITEM ,SIZE ,void>::RET ;
 
 namespace U {
 template <class...>
-struct ENUM_ALL_HELP ;
+trait ENUM_ALL_HELP ;
 
 template <class ARG1>
-struct ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
+trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
 	using RET = ENUM_TRUE ;
 } ;
 
 template <class ARG1>
-struct ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
+trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
 	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
 	using RET = CONDITIONAL<R1X ,R3X ,ENUM_FALSE> ;
@@ -416,15 +416,15 @@ using ENUM_ALL = typename U::ENUM_ALL_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
-struct ENUM_ANY_HELP ;
+trait ENUM_ANY_HELP ;
 
 template <class ARG1>
-struct ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
+trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <class ARG1>
-struct ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
+trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
 	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
 	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1> ,void>::RET ;
 	using RET = CONDITIONAL<R1X ,ENUM_TRUE ,R3X> ;
@@ -436,15 +436,15 @@ using ENUM_ANY = typename U::ENUM_ANY_HELP<TYPEAS<ARGS...> ,void>::RET ;
 
 namespace U {
 template <class...>
-struct PLACEHOLDER_HELP ;
+trait PLACEHOLDER_HELP ;
 
 template <class ARG1>
-struct PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<ARG1>>> {
+trait PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<ARG1>>> {
 	class PlaceHolder {} ;
 } ;
 
 template <class ARG1>
-struct PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<ARG1>>> {
+trait PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<ARG1>>> {
 	using BASE = typename PLACEHOLDER_HELP<ENUM_DEC<ARG1> ,void>::PlaceHolder ;
 
 	class PlaceHolder :public BASE {} ;
@@ -471,10 +471,10 @@ using IS_CLASS = ENUMAS<BOOL ,(std::is_class<ARG1>::value)> ;
 
 namespace U {
 template <class...>
-struct IS_CONSTRUCTIBLE_HELP ;
+trait IS_CONSTRUCTIBLE_HELP ;
 
 template <class ARG1 ,class...ARGS2>
-struct IS_CONSTRUCTIBLE_HELP<ARG1 ,TYPEAS<ARGS2...> ,void> {
+trait IS_CONSTRUCTIBLE_HELP<ARG1 ,TYPEAS<ARGS2...> ,void> {
 	using RET = ENUMAS<BOOL ,(std::is_constructible<ARG1 ,ARGS2...>::value)> ;
 } ;
 } ;
@@ -515,10 +515,10 @@ using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<ARG1>::value)> ;
 
 namespace U {
 template <class...>
-struct REFLECT_FUNCTION_HELP ;
+trait REFLECT_FUNCTION_HELP ;
 
 template <class ARG1 ,class...ARGS>
-struct REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,void> {
+trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,void> {
 	using R1X = REMOVE_ALL<ARG1> ;
 	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
@@ -576,31 +576,31 @@ using IS_PLACEHOLDER = IS_EXTEND<ARG1 ,typeof (PH0)> ;
 
 namespace U {
 template <class...>
-struct BYTE_BASE_HELP ;
+trait BYTE_BASE_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
+trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 	ENUM_EQUAL<ARG1 ,SIZE_OF<BYTE>> ,
 	ENUM_EQUAL<ARG2 ,ALIGN_OF<BYTE>>>>> {
 	using RET = BYTE ;
 } ;
 
 template <class ARG1 ,class ARG2>
-struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
+trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 	ENUM_EQUAL<ARG1 ,SIZE_OF<WORD>> ,
 	ENUM_EQUAL<ARG2 ,ALIGN_OF<WORD>>>>> {
 	using RET = WORD ;
 } ;
 
 template <class ARG1 ,class ARG2>
-struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
+trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 	ENUM_EQUAL<ARG1 ,SIZE_OF<CHAR>> ,
 	ENUM_EQUAL<ARG2 ,ALIGN_OF<CHAR>>>>> {
 	using RET = CHAR ;
 } ;
 
 template <class ARG1 ,class ARG2>
-struct BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
+trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
 	ENUM_EQUAL<ARG1 ,SIZE_OF<FEAT>> ,
 	ENUM_EQUAL<ARG2 ,ALIGN_OF<FEAT>>>>> {
 	using RET = FEAT ;
@@ -612,10 +612,10 @@ using BYTE_BASE = typename U::BYTE_BASE_HELP<SIZE ,ALIGN ,void>::RET ;
 
 namespace U {
 template <class...>
-struct STORAGE_HELP ;
+trait STORAGE_HELP ;
 
 template <class ARG1 ,class ARG2>
-struct STORAGE_HELP<ARG1 ,ARG2 ,void> {
+trait STORAGE_HELP<ARG1 ,ARG2 ,void> {
 	using R3X = BYTE_BASE<ARG2 ,ARG2> ;
 	using R1X = SIZE_OF<R3X> ;
 	using R4X = ENUM_DIV<ENUM_ADD<ARG1 ,ENUM_DEC<R1X>> ,R1X> ;
@@ -665,10 +665,10 @@ static constexpr auto address = FUNCTION_address () ;
 
 namespace U {
 template <class...>
-struct FUNCTION_barrier_HELP ;
+trait FUNCTION_barrier_HELP ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
+trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
 	struct FUNCTION_barrier {
 		inline void operator() () const {
 			noop () ;
@@ -677,7 +677,7 @@ struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>
 } ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
+trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
 	struct FUNCTION_barrier {
 		template <class ARG1>
 		inline void operator() () const {
@@ -689,7 +689,7 @@ struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>
 } ;
 
 template <class ARG1>
-struct FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
+trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
 	struct FUNCTION_barrier {
 		inline void operator() () const {
 #ifdef __CSC_COMPILER_CLANG__
@@ -799,10 +799,10 @@ static constexpr auto recreate = FUNCTION_recreate () ;
 
 namespace U {
 template <class...>
-struct FUNCTION_debug_assert_HELP ;
+trait FUNCTION_debug_assert_HELP ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
+trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -815,7 +815,7 @@ struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,A
 } ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
+trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -828,7 +828,7 @@ struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,A
 } ;
 
 template <class ARG1>
-struct FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
+trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
@@ -874,10 +874,10 @@ static constexpr auto memorize = FUNCTION_memorize () ;
 
 namespace U {
 template <class...>
-struct CABI_HELP ;
+trait CABI_HELP ;
 
 template <class ARG1>
-struct CABI_HELP<ARG1 ,void> {
+trait CABI_HELP<ARG1 ,void> {
 	struct CABI :public Interface {} ;
 } ;
 } ;
@@ -901,10 +901,10 @@ static constexpr auto operator_cabi = FUNCTION_operator_cabi () ;
 
 namespace U {
 template <class...>
-struct FUNCTION_operator_compr_HELP ;
+trait FUNCTION_operator_compr_HELP ;
 
 template <class ARG1>
-struct FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
+trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 	struct FUNCTION_operator_compr {
 		template <class ARG1>
 		inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
@@ -914,7 +914,7 @@ struct FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 } ;
 
 template <class ARG1>
-struct FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
+trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 	struct FUNCTION_operator_compr {
 		template <class ARG1>
 		inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
@@ -942,10 +942,10 @@ static constexpr auto operator_compr = FUNCTION_operator_compr () ;
 
 namespace U {
 template <class...>
-struct FUNCTION_operator_hash_HELP ;
+trait FUNCTION_operator_hash_HELP ;
 
 template <class ARG1>
-struct FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
+trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 	struct FUNCTION_operator_hash {
 		template <class ARG1>
 		inline FLAG operator() (CREF<ARG1> arg1) const {
@@ -955,7 +955,7 @@ struct FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 } ;
 
 template <class ARG1>
-struct FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
+trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 	struct FUNCTION_operator_hash {
 		template <class ARG1>
 		inline FLAG operator() (CREF<ARG1> arg1) const {
@@ -1024,10 +1024,10 @@ static constexpr auto between = FUNCTION_between () ;
 
 namespace U {
 template <class...>
-struct FUNCTION_hashcode_HELP ;
+trait FUNCTION_hashcode_HELP ;
 
 template <class ARG1>
-struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1>>> {
+trait FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-2128831035) ;
@@ -1044,7 +1044,7 @@ struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1
 } ;
 
 template <class ARG1>
-struct FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR64> ,ARG1>>> {
+trait FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR64> ,ARG1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-3750763034362895579) ;
@@ -1079,10 +1079,10 @@ static constexpr auto hashcode = FUNCTION_hashcode () ;
 
 namespace U {
 template <class...>
-struct RANGE_ITERATOR_HELP ;
+trait RANGE_ITERATOR_HELP ;
 
 template <>
-struct RANGE_ITERATOR_HELP<void ,void> {
+trait RANGE_ITERATOR_HELP<void ,void> {
 	template <class BASE>
 	struct RangeIteratorCRTP {
 		INDEX mBegin ;
@@ -1158,10 +1158,10 @@ static constexpr auto range = FUNCTION_range () ;
 
 namespace U {
 template <class...>
-struct AUTO_HELP ;
+trait AUTO_HELP ;
 
 template <>
-struct AUTO_HELP<void ,void> {
+trait AUTO_HELP<void ,void> {
 	struct AutoHolder ;
 
 	template <class BASE>
@@ -1233,10 +1233,10 @@ using Auto = typename U::AUTO_HELP<void ,void>::Auto ;
 
 namespace U {
 template <class...>
-struct BOX_HELP ;
+trait BOX_HELP ;
 
 template <class UNIT1>
-struct BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
+trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 	struct BoxHolder ;
 
 	template <class BASE>
@@ -1341,10 +1341,10 @@ using Box = typename U::BOX_HELP<ARG1 ,void>::Box ;
 
 namespace U {
 template <class...>
-struct RC_HELP ;
+trait RC_HELP ;
 
 template <class UNIT1>
-struct RC_HELP<UNIT1 ,void> {
+trait RC_HELP<UNIT1 ,void> {
 	struct RCHolder ;
 
 	template <class BASE>
@@ -1453,10 +1453,10 @@ using RC = typename U::RC_HELP<ARG1 ,void>::RC ;
 
 namespace U {
 template <class...>
-struct CELL_HELP ;
+trait CELL_HELP ;
 
 template <class UNIT1>
-struct CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
+trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 	template <class BASE>
 	struct CellCRTP {
 		mutable TEMP<UNIT1> mPointer ;
@@ -1567,10 +1567,10 @@ using Cell = typename U::CELL_HELP<ARG1 ,void>::Cell ;
 
 namespace U {
 template <class...>
-struct SLICE_HELP ;
+trait SLICE_HELP ;
 
 template <class UNIT1>
-struct SLICE_HELP<UNIT1 ,void> {
+trait SLICE_HELP<UNIT1 ,void> {
 	struct SliceHolder ;
 	struct SliceBuilder ;
 
@@ -1704,10 +1704,10 @@ using Slice = typename U::SLICE_HELP<ARG1 ,void>::Slice ;
 
 namespace U {
 template <class...>
-struct CLAZZ_HELP ;
+trait CLAZZ_HELP ;
 
 template <>
-struct CLAZZ_HELP<void ,void> {
+trait CLAZZ_HELP<void ,void> {
 	struct ClazzHolder ;
 
 	template <class BASE>

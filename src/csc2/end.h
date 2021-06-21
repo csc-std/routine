@@ -54,6 +54,11 @@
 #endif
 #define self to ()
 
+#ifdef trait
+#undef trait
+#endif
+#define trait struct
+
 #ifdef typeof
 #undef typeof
 #endif
