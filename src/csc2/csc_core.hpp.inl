@@ -8,9 +8,9 @@ namespace U {
 template <class...>
 trait AUTO_PUREHOLDER_HELP ;
 
-template <class UNIT1 ,class BASE>
-trait AUTO_PUREHOLDER_HELP<UNIT1 ,BASE> :public AUTO_HELP<void ,void> {
-	class PureHolder :public AutoCRTP<BASE>::Holder {
+template <class BASE ,class UNIT1>
+trait AUTO_PUREHOLDER_HELP<BASE ,UNIT1> :public AUTO_HELP<void ,void> {
+	class PureHolder :public AutoHolder<BASE> {
 	private:
 		UNIT1 mValue ;
 
@@ -37,9 +37,9 @@ namespace U {
 template <class...>
 trait BOX_PUREHOLDER_HELP ;
 
-template <class UNIT1 ,class UNIT2 ,class BASE>
-trait BOX_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,BASE> :public BOX_HELP<UNIT1 ,void> {
-	class PureHolder :public BoxCRTP<BASE>::Holder {
+template <class BASE ,class UNIT1 ,class UNIT2>
+trait BOX_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2> :public BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
+	class PureHolder :public BoxHolder<BASE> {
 	private:
 		UNIT2 mValue ;
 
@@ -66,9 +66,9 @@ namespace U {
 template <class...>
 trait RC_PUREHOLDER_HELP ;
 
-template <class UNIT1 ,class BASE>
-trait RC_PUREHOLDER_HELP<UNIT1 ,BASE> :public RC_HELP<UNIT1 ,void> {
-	class PureHolder :public RCCRTP<BASE>::Holder {
+template <class BASE ,class UNIT1>
+trait RC_PUREHOLDER_HELP<BASE ,UNIT1> :public RC_HELP<UNIT1 ,void> {
+	class PureHolder :public RCHolder<BASE> {
 	private:
 		UNIT1 mValue ;
 		LENGTH mCounter ;
@@ -107,12 +107,9 @@ namespace U {
 template <class...>
 trait SLICE_PUREHOLDER_HELP ;
 
-template <class UNIT1 ,class SIZE ,class BASE>
-trait SLICE_PUREHOLDER_HELP<UNIT1 ,SIZE ,BASE> :public SLICE_HELP<UNIT1 ,void> {
-	class PureHolder :public SliceCRTP<BASE>::Holder {
-	private:
-		using Holder = typename SliceCRTP<BASE>::Holder ;
-
+template <class BASE ,class UNIT1 ,class SIZE>
+trait SLICE_PUREHOLDER_HELP<BASE ,UNIT1 ,SIZE> :public SLICE_HELP<UNIT1 ,void> {
+	class PureHolder :public SliceHolder<BASE> {
 	private:
 		DEF<UNIT1[SIZE::value]> mSlice ;
 
@@ -144,10 +141,7 @@ trait CLAZZ_PUREHOLDER_HELP ;
 
 template <class BASE ,class UUID>
 trait CLAZZ_PUREHOLDER_HELP<BASE ,UUID> :public CLAZZ_HELP<void ,void> {
-	class PureHolder :public ClazzCRTP<BASE>::Holder {
-	private:
-		using Holder = typename ClazzCRTP<BASE>::Holder ;
-
+	class PureHolder :public ClazzHolder<BASE> {
 	public:
 		implicit PureHolder () = default ;
 

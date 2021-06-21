@@ -156,37 +156,37 @@ struct TYPEAS ;
 
 namespace U {
 template <class>
-struct PHID {} ;
+struct TYPEID {} ;
 } ;
 
 template <class ARG1>
 struct TYPEAS<ARG1> {
-	static constexpr auto id = U::PHID<ARG1> () ;
+	static constexpr auto id = U::TYPEID<ARG1> () ;
 } ;
 
 namespace U {
 template <class...>
-trait REMOVE_PHID_HELP ;
+trait REMOVE_TYPE_HELP ;
 
 template <class ARG1>
-trait REMOVE_PHID_HELP<ARG1 ,void> {
+trait REMOVE_TYPE_HELP<ARG1 ,void> {
 	using RET = ARG1 ;
 } ;
 
 template <class ARG1>
-trait REMOVE_PHID_HELP<PHID<ARG1> ,void> {
+trait REMOVE_TYPE_HELP<TYPEID<ARG1> ,void> {
 	using RET = ARG1 ;
 } ;
 } ;
 
 template <class ARG1>
-using REMOVE_PHID = typename U::REMOVE_PHID_HELP<ARG1 ,void>::RET ;
+using REMOVE_TYPE = typename U::REMOVE_TYPE_HELP<ARG1 ,void>::RET ;
 
 template <class ARG1>
 using REMOVE_CVR = typename std::remove_cv<typename std::remove_reference<ARG1>::type>::type ;
 
 template <class ARG1>
-using REMOVE_ALL = REMOVE_CVR<REMOVE_PHID<REMOVE_CVR<ARG1>>> ;
+using REMOVE_ALL = REMOVE_CVR<REMOVE_TYPE<REMOVE_CVR<ARG1>>> ;
 
 template <class ARG1 ,ARG1 ARG2>
 struct ENUMAS {

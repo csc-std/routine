@@ -629,22 +629,27 @@ trait STORAGE_HELP<ARG1 ,ARG2 ,void> {
 template <class SIZE ,class ALIGN = ENUM_IDEN>
 using Storage = typename U::STORAGE_HELP<SIZE ,ALIGN ,void>::RET ;
 
-template <class UNIT>
-struct TEMP {
-	Storage<SIZE_OF<UNIT> ,ALIGN_OF<UNIT>> mStorage ;
+namespace U {
+template <class ARG1>
+struct TEMPID {
+	Storage<SIZE_OF<ARG1> ,ALIGN_OF<ARG1>> mStorage ;
 } ;
+} ;
+
+template <class UNIT>
+using TEMP = U::TEMPID<UNIT> ;
 
 namespace U {
 template <class...>
-struct REMOVE_TEMP_HELP ;
+trait REMOVE_TEMP_HELP ;
 
 template <class ARG1>
-struct REMOVE_TEMP_HELP<ARG1 ,void> {
+trait REMOVE_TEMP_HELP<ARG1 ,void> {
 	using RET = ARG1 ;
 } ;
 
 template <class ARG1>
-struct REMOVE_TEMP_HELP<TEMP<ARG1> ,void> {
+trait REMOVE_TEMP_HELP<TEMP<ARG1> ,void> {
 	using RET = ARG1 ;
 } ;
 } ;
@@ -931,24 +936,14 @@ struct FUNCTION_memorize {
 
 static constexpr auto memorize = FUNCTION_memorize () ;
 
-namespace U {
-template <class...>
-trait CABI_HELP ;
-
-template <class ARG1>
-trait CABI_HELP<ARG1 ,void> {
-	struct CABI :public Interface {} ;
-} ;
-} ;
-
 struct FUNCTION_operator_cabi {
-	template <class>
+	template <class BASE>
 	struct CABI :public Interface {} ;
 
 	template <class ARG1>
 	inline FLAG operator() (CREF<ARG1> id) const {
 		using R1X = typeof (id) ;
-		using R2X = typename U::CABI_HELP<R1X ,void>::CABI ;
+		using R2X = CABI<R1X> ;
 		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
 		requires (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
 		FLAG ret = ZERO ;
@@ -1145,18 +1140,11 @@ trait RANGE_ITERATOR_HELP ;
 
 template <>
 trait RANGE_ITERATOR_HELP<void ,void> {
-	template <class BASE>
-	struct RangeIteratorCRTP {
+	class RangeIterator {
+	private:
 		INDEX mBegin ;
 		INDEX mEnd ;
 		INDEX mCurr ;
-	} ;
-
-	class RangeIterator :private RangeIteratorCRTP<RangeIterator> {
-	private:
-		using RangeIteratorCRTP<RangeIterator>::mBegin ;
-		using RangeIteratorCRTP<RangeIterator>::mEnd ;
-		using RangeIteratorCRTP<RangeIterator>::mCurr ;
 
 	public:
 		implicit RangeIterator () = delete ;
@@ -1224,32 +1212,24 @@ trait AUTO_HELP ;
 
 template <>
 trait AUTO_HELP<void ,void> {
-	struct AutoHolder ;
-	struct AutoBuilder ;
-
 	template <class BASE>
-	struct AutoCRTP {
-		using Holder = DEPENDENT<AutoHolder ,BASE> ;
-		using Builder = DEPENDENT<AutoBuilder ,BASE> ;
-
-		PTR<Holder> mPointer ;
-	} ;
-
 	struct AutoHolder :public Interface {
 		virtual void destroy () = 0 ;
 		virtual LENGTH type_cabi () const = 0 ;
 	} ;
 
-	struct AutoBuilder {
-		PTR<AutoHolder> create (CREF<LENGTH> size_ ,CREF<LENGTH> align_ ,CREF<FLAG> cabi) ;
+	template <class BASE>
+	struct AutoBuilder :public Interface {
+		imports PTR<AutoHolder<BASE>> create (CREF<LENGTH> size_ ,CREF<LENGTH> align_ ,CREF<FLAG> cabi) ;
 	} ;
 
-	class Auto :private AutoCRTP<Auto> {
-	private:
-		using Builder = typename AutoCRTP<Auto>::Builder ;
+	class Auto {
+	public:
+		using Holder = AutoHolder<Auto> ;
+		using Builder = AutoBuilder<Auto> ;
 
 	private:
-		using AutoCRTP<Auto>::mPointer ;
+		PTR<Holder> mPointer ;
 
 	public:
 		implicit Auto () noexcept {
@@ -1308,24 +1288,19 @@ trait BOX_HELP ;
 
 template <class UNIT1>
 trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
-	struct BoxHolder ;
-
 	template <class BASE>
-	struct BoxCRTP {
-		using Holder = DEPENDENT<BoxHolder ,BASE> ;
-
-		PTR<Holder> mPointer ;
-	} ;
-
 	struct BoxHolder :public Interface {
 		virtual void destroy () = 0 ;
 		virtual VREF<UNIT1> at () = 0 ;
 		virtual CREF<UNIT1> at () const = 0 ;
 	} ;
 
-	class Box :private BoxCRTP<Box> {
+	class Box {
 	private:
-		using BoxCRTP<Box>::mPointer ;
+		using Holder = BoxHolder<Box> ;
+
+	private:
+		PTR<Holder> mPointer ;
 
 	public:
 		implicit Box () noexcept {
@@ -1417,15 +1392,7 @@ trait RC_HELP ;
 
 template <class UNIT1>
 trait RC_HELP<UNIT1 ,void> {
-	struct RCHolder ;
-
 	template <class BASE>
-	struct RCCRTP {
-		using Holder = DEPENDENT<RCHolder ,BASE> ;
-
-		PTR<Holder> mPointer ;
-	} ;
-
 	struct RCHolder :public Interface {
 		virtual void destroy () = 0 ;
 		virtual LENGTH increase () = 0 ;
@@ -1433,9 +1400,12 @@ trait RC_HELP<UNIT1 ,void> {
 		virtual CREF<UNIT1> at () const = 0 ;
 	} ;
 
-	class RC :private RCCRTP<RC> {
+	class RC {
 	private:
-		using RCCRTP<RC>::mPointer ;
+		using Holder = RCHolder<RC> ;
+
+	private:
+		PTR<Holder> mPointer ;
 
 	public:
 		implicit RC () noexcept {
@@ -1529,16 +1499,10 @@ trait CELL_HELP ;
 
 template <class UNIT1>
 trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
-	template <class BASE>
-	struct CellCRTP {
+	class Cell {
+	private:
 		mutable TEMP<UNIT1> mPointer ;
 		BOOL mExist ;
-	} ;
-
-	class Cell :private CellCRTP<Cell> {
-	private:
-		using CellCRTP<Cell>::mPointer ;
-		using CellCRTP<Cell>::mExist ;
 
 	public:
 		implicit Cell () noexcept {
@@ -1643,15 +1607,7 @@ trait SLICE_HELP ;
 
 template <class UNIT1>
 trait SLICE_HELP<UNIT1 ,void> {
-	struct SliceHolder ;
-
 	template <class BASE>
-	struct SliceCRTP {
-		using Holder = DEPENDENT<SliceHolder ,BASE> ;
-
-		Box<Holder> mPointer ;
-	} ;
-
 	struct SliceHolder :public Interface {
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH addr () const = 0 ;
@@ -1659,12 +1615,12 @@ trait SLICE_HELP<UNIT1 ,void> {
 		virtual Auto friend_clone () const = 0 ;
 	} ;
 
-	class Slice :private SliceCRTP<Slice> {
+	class Slice {
 	private:
-		using Holder = typename SliceCRTP<Slice>::Holder ;
+		using Holder = SliceHolder<Slice> ;
 
 	private:
-		using SliceCRTP<Slice>::mPointer ;
+		Box<Holder> mPointer ;
 
 	public:
 		implicit Slice () = default ;
@@ -1774,15 +1730,7 @@ trait CLAZZ_HELP ;
 
 template <>
 trait CLAZZ_HELP<void ,void> {
-	struct ClazzHolder ;
-
 	template <class BASE>
-	struct ClazzCRTP {
-		using Holder = DEPENDENT<ClazzHolder ,BASE> ;
-
-		Box<Holder> mPointer ;
-	} ;
-
 	struct ClazzHolder :public Interface {
 		virtual LENGTH type_size () const = 0 ;
 		virtual LENGTH type_align () const = 0 ;
@@ -1791,12 +1739,12 @@ trait CLAZZ_HELP<void ,void> {
 		virtual Auto friend_clone () const = 0 ;
 	} ;
 
-	class Clazz :private ClazzCRTP<Clazz> {
+	class Clazz {
 	private:
-		using Holder = typename ClazzCRTP<Clazz>::Holder ;
+		using Holder = ClazzHolder<Clazz> ;
 
 	private:
-		using ClazzCRTP<Clazz>::mPointer ;
+		Box<Holder> mPointer ;
 
 	public:
 		implicit Clazz () = default ;
