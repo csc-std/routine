@@ -142,8 +142,12 @@
 #define __macro_ifnot(...) (!(__macro_unwind (__VA_ARGS__)))
 #endif
 
+#ifndef __macro_anonymous
+#define __macro_anonymous __anonymous ## __LINE__
+#endif
+
 #ifndef __macro_ifswitch
-#define __macro_ifswitch(...) (__macro_unwind (__VA_ARGS__))
+#define __macro_ifswitch(...) (true) goto __macro_anonymous ; while (false) __macro_anonymous:
 #endif
 
 #ifndef __macro_typeof
@@ -164,23 +168,25 @@ struct TYPEAS<ARG1> {
 	static constexpr auto id = U::TYPEID<ARG1> () ;
 } ;
 
+using ALWAYS = void ;
+
 namespace U {
 template <class...>
 trait REMOVE_TYPE_HELP ;
 
 template <class ARG1>
-trait REMOVE_TYPE_HELP<ARG1 ,void> {
+trait REMOVE_TYPE_HELP<ARG1 ,ALWAYS> {
 	using RET = ARG1 ;
 } ;
 
 template <class ARG1>
-trait REMOVE_TYPE_HELP<TYPEID<ARG1> ,void> {
+trait REMOVE_TYPE_HELP<TYPEID<ARG1> ,ALWAYS> {
 	using RET = ARG1 ;
 } ;
 } ;
 
 template <class ARG1>
-using REMOVE_TYPE = typename U::REMOVE_TYPE_HELP<ARG1 ,void>::RET ;
+using REMOVE_TYPE = typename U::REMOVE_TYPE_HELP<ARG1 ,ALWAYS>::RET ;
 
 template <class ARG1>
 using REMOVE_CVR = typename std::remove_cv<typename std::remove_reference<ARG1>::type>::type ;
@@ -202,18 +208,18 @@ template <class...>
 trait ENUM_NOT_HELP ;
 
 template <>
-trait ENUM_NOT_HELP<ENUM_TRUE ,void> {
+trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
 	using RET = ENUM_FALSE ;
 } ;
 
 template <>
-trait ENUM_NOT_HELP<ENUM_FALSE ,void> {
+trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
 
 template <class ARG1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,void>::RET ;
+using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,ALWAYS>::RET ;
 
 template <class ARG1>
 using ENUM_BOOL = ENUMAS<bool ,bool (ARG1::value)> ;
@@ -223,25 +229,25 @@ template <class...>
 trait REQUIRE_HELP ;
 
 template <class ARG1>
-trait REQUIRE_HELP<ARG1 ,ENUM_TRUE> {
+trait REQUIRE_HELP<ARG1 ,ENUM_TRUE ,ALWAYS> {
 	using RET = void ;
 } ;
 } ;
 
 template <class ARG1>
-using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ENUM_BOOL<ARG1>>::RET ;
+using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ENUM_BOOL<ARG1> ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait DEPENDENT_HELP ;
 
 template <class ARG1 ,class ARG2>
-trait DEPENDENT_HELP<ARG1 ,ARG2> {
+trait DEPENDENT_HELP<ARG1 ,ARG2 ,ALWAYS> {
 	using RET = ARG1 ;
 } ;
 
 template <class ARG1 ,class ARG2 = void>
-using DEPENDENT = typename U::DEPENDENT_HELP<ARG1 ,ARG2>::RET ;
+using DEPENDENT = typename U::DEPENDENT_HELP<ARG1 ,ARG2 ,ALWAYS>::RET ;
 
 #ifdef __CSC_DEBUG__
 struct MACRO_DEBUG :public ENUM_TRUE {} ;

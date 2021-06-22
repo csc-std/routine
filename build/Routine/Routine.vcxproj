@@ -30,10 +30,7 @@
     <ClInclude Include="..\..\src\util.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\csc2\csc.rs" />
-    <None Include="..\..\src\csc2\csc_basic.rs" />
     <None Include="..\..\src\csc2\csc_core.hpp.inl" />
-    <None Include="..\..\src\csc2\csc_core.rs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
