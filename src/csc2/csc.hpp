@@ -184,11 +184,69 @@ trait REMOVE_TPH_HELP<TPHID<ARG1> ,ALWAYS> {
 template <class ARG1>
 using REMOVE_TPH = typename U::REMOVE_TPH_HELP<ARG1 ,ALWAYS>::RET ;
 
-template <class ARG1>
-using REMOVE_CVR = typename std::remove_cv<typename std::remove_reference<ARG1>::type>::type ;
+namespace U {
+template <class...>
+trait REMOVE_PTR_HELP ;
 
 template <class ARG1>
-using REMOVE_ALL = REMOVE_CVR<REMOVE_TPH<REMOVE_CVR<ARG1>>> ;
+trait REMOVE_PTR_HELP<ARG1 ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_PTR_HELP<ARG1 * ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1 ,class ARG2>
+trait REMOVE_PTR_HELP<ARG1 ARG2::* ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+} ;
+
+template <class ARG1>
+using REMOVE_PTR = typename U::REMOVE_PTR_HELP<ARG1 ,ALWAYS>::RET ;
+
+namespace U {
+template <class...>
+trait REMOVE_REF_HELP ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<ARG1 ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<ARG1 & ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<ARG1 && ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<const ARG1 ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<const ARG1 & ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+
+template <class ARG1>
+trait REMOVE_REF_HELP<const ARG1 && ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+} ;
+
+template <class ARG1>
+using REMOVE_REF = typename U::REMOVE_REF_HELP<ARG1 ,ALWAYS>::RET ;
+
+template <class ARG1>
+using REMOVE_ALL = REMOVE_REF<REMOVE_TPH<REMOVE_REF<ARG1>>> ;
 
 template <class ARG1 ,ARG1 ARG2>
 struct ENUMAS {
