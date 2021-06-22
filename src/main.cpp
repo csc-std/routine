@@ -9,3 +9,5 @@ exports int main () noexcept {
 	return 0 ;
 }
 #endif
+
+#include "csc2/csc_core.hpp.inl"

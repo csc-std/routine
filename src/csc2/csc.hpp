@@ -142,12 +142,8 @@
 #define __macro_ifnot(...) (!(__macro_unwind (__VA_ARGS__)))
 #endif
 
-#ifndef __macro_anonymous
-#define __macro_anonymous __anonymous ## __LINE__
-#endif
-
 #ifndef __macro_ifswitch
-#define __macro_ifswitch(...) (true) goto __macro_anonymous ; while (false) __macro_anonymous:
+#define __macro_ifswitch(...) (true) goto anonymous ; while (false) anonymous:
 #endif
 
 #ifndef __macro_typeof

@@ -64,6 +64,11 @@
 #endif
 #define typeof __macro_typeof
 
+#ifdef anonymous
+#undef anonymous
+#endif
+#define anonymous __anonymous ## __LINE__
+
 #ifdef TRUE
 #undef TRUE
 #endif

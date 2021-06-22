@@ -536,32 +536,38 @@ using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<ARG1>::value)> ;
 
 namespace U {
 template <class...>
+trait REMOVE_MEMPTR_HELP ;
+
+template <class ARG1 ,class ARG2>
+trait REMOVE_MEMPTR_HELP<DEF<ARG1 ARG2::*> ,ALWAYS> {
+	using RET = ARG1 ;
+} ;
+} ;
+
+template <class ARG1>
+using REMOVE_MEMPTR = typename U::REMOVE_MEMPTR_HELP<ARG1 ,ALWAYS>::RET ;
+
+namespace U {
+template <class...>
 trait REFLECT_FUNCTION_HELP ;
 
 template <class ARG1 ,class...ARGS>
 trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,ALWAYS> {
-	using R1X = REMOVE_CVR<ARG1> ;
-	using R2X = TYPEAS<REMOVE_CVR<ARGS>...> ;
+	using R1X = REMOVE_ALL<ARG1> ;
+	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 
-template <class ARG1 ,class ARG2 ,class...ARGS>
-trait REFLECT_FUNCTION_HELP<DEF<DEF<ARG1 (ARGS...)> ARG2::*> ,ALWAYS> {
-	using R1X = REMOVE_CVR<ARG1> ;
-	using R2X = TYPEAS<REMOVE_CVR<ARGS>...> ;
-	using RET = TYPEAS<R1X ,R2X> ;
-} ;
-
-template <class ARG1 ,class ARG2 ,class...ARGS>
-trait REFLECT_FUNCTION_HELP<DEF<DEF<ARG1 (ARGS...) const> ARG2::*> ,ALWAYS> {
-	using R1X = REMOVE_CVR<ARG1> ;
-	using R2X = TYPEAS<REMOVE_CVR<ARGS>...> ;
+template <class ARG1 ,class...ARGS>
+trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...) const> ,ALWAYS> {
+	using R1X = REMOVE_ALL<ARG1> ;
+	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 } ;
 
 template <class ARG1>
-using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<typeof (ARG1::operator()) ,ALWAYS>::RET ;
+using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<REMOVE_MEMPTR<typeof (&ARG1::operator())> ,ALWAYS>::RET ;
 
 template <class ARG1>
 using FUNCTION_RETURN = TYPE_FIRST_ONE<REFLECT_FUNCTION<ARG1>> ;
@@ -724,8 +730,10 @@ trait FUNCTION_barrier_HELP ;
 template <class ARG1>
 trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
 	struct FUNCTION_barrier {
+		imports void extern_invoke () ;
+
 		inline void operator() () const {
-			noop () ;
+			extern_invoke () ;
 		}
 	} ;
 } ;
@@ -733,11 +741,11 @@ trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>>
 template <class ARG1>
 trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
 	struct FUNCTION_barrier {
+		imports void extern_invoke () ;
+
 		template <class ARG1>
 		inline void operator() () const {
-#ifdef __CSC_COMPILER_GNUC__
-			asm volatile ("" ::: "memory") ;
-#endif
+			extern_invoke () ;
 		}
 	} ;
 } ;
@@ -745,10 +753,10 @@ trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>>
 template <class ARG1>
 trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
 	struct FUNCTION_barrier {
+		imports void extern_invoke () ;
+
 		inline void operator() () const {
-#ifdef __CSC_COMPILER_CLANG__
-			asm volatile ("" ::: "memory") ;
-#endif
+			extern_invoke () ;
 		}
 	} ;
 } ;
@@ -825,17 +833,17 @@ static constexpr auto swap = FUNCTION_swap () ;
 
 struct FUNCTION_move {
 	template <class ARG1>
-	inline CREF<REMOVE_CVR<ARG1>> operator() (CREF<ARG1> arg1) const {
+	inline RREF<REMOVE_ALL<ARG1>> operator() (VREF<ARG1> arg1) const {
+		return static_cast<RREF<REMOVE_ALL<ARG1>>> (arg1) ;
+	}
+
+	template <class ARG1>
+	inline CREF<REMOVE_ALL<ARG1>> operator() (CREF<ARG1> arg1) const {
 		return arg1 ;
 	}
 
 	template <class ARG1>
-	inline RREF<REMOVE_CVR<ARG1>> operator() (VREF<ARG1> arg1) const {
-		return static_cast<RREF<REMOVE_CVR<ARG1>>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline RREF<REMOVE_CVR<ARG1>> operator() (RREF<ARG1> arg1) const {
+	inline RREF<REMOVE_ALL<ARG1>> operator() (RREF<ARG1> arg1) const {
 		requires (ENUM_FALSE) ;
 	}
 } ;
@@ -844,9 +852,24 @@ static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
 	template <class ARG1>
-	inline REMOVE_CVR<ARG1> operator() (RREF<ARG1> arg1) const {
-		//@mark
-		return move (arg1) ;
+	inline REMOVE_ALL<ARG1> operator() (VREF<ARG1> arg1) const {
+		using R1X = typeof (arg1) ;
+		return R1X (arg1) ;
+	}
+
+	template <class ARG1>
+	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) const {
+		using R1X = typeof (arg1) ;
+		return R1X (arg1) ;
+	}
+
+	template <class ARG1>
+	inline REMOVE_ALL<ARG1> operator() (RREF<ARG1> arg1) const {
+		using R1X = typeof (arg1) ;
+		requries (IS_NULLOPT<R1X>) ;
+		R1X ret ;
+		swap (ret ,arg1) ;
+		return move (ret) ;
 	}
 } ;
 
@@ -904,37 +927,45 @@ trait FUNCTION_debug_assert_HELP ;
 
 template <class ARG1>
 trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
+	struct FUNCTION_debug_break {
+		imports void extern_invoke () ;
+	} ;
+
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
 				return ;
-#ifdef __CSC_COMPILER_MSVC__
-			__debugbreak () ;
-#endif
+			FUNCTION_debug_break::extern_invoke () ;
 		}
 	} ;
 } ;
 
 template <class ARG1>
 trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
+	struct FUNCTION_debug_break {
+		imports void extern_invoke () ;
+	} ;
+
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
 				return ;
-#ifdef __CSC_COMPILER_GUNC__
-			__builtin_trap () ;
-#endif
+			FUNCTION_debug_break::extern_invoke () ;
 		}
 	} ;
 } ;
 
 template <class ARG1>
 trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
+	struct FUNCTION_debug_break {
+		imports void extern_invoke () ;
+	} ;
+
 	struct FUNCTION_debug_assert {
 		inline void operator() (CREF<BOOL> expr) const {
 			if (expr)
 				return ;
-			std::abort () ;
+			FUNCTION_debug_break::extern_invoke () ;
 		}
 	} ;
 } ;
@@ -965,7 +996,7 @@ static constexpr auto bad = FUNCTION_bad () ;
 
 struct FUNCTION_memorize {
 	template <class ARG1>
-	inline CREF<FUNCTION_RETURN<REMOVE_CVR<ARG1>>> operator() (CREF<ARG1> proc) const {
+	inline CREF<FUNCTION_RETURN<REMOVE_ALL<ARG1>>> operator() (CREF<ARG1> proc) const {
 		static const auto M_MEMORIZE = proc () ;
 		return M_MEMORIZE ;
 	}
@@ -1357,7 +1388,7 @@ trait BOX_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 	public:
 		implicit PureHolder () = delete ;
 
-		explicit PureHolder (RREF<UNIT2> that) :mValue (forward (that)) {}
+		explicit PureHolder (RREF<UNIT2> value_) :mValue (forward (value_)) {}
 
 		imports PTR<Holder> create (RREF<UNIT2> obj) {
 			return new PureHolder (forward (obj)) ;
@@ -1437,11 +1468,6 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			mPointer = NULL ;
 		}
 
-		RC share () const {
-			auto &&thiz = *this ;
-			return thiz ;
-		}
-
 		implicit RC (CREF<RC> that) :RC () {
 			if (that.mPointer == NULL)
 				return ;
@@ -1508,7 +1534,7 @@ trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 	public:
 		implicit PureHolder () = delete ;
 
-		explicit PureHolder (RREF<UNIT2> that) :mValue (forward (that)) ,mCounter (0) {}
+		explicit PureHolder (RREF<UNIT2> value_) :mValue (forward (value_)) ,mCounter (0) {}
 
 		imports PTR<Holder> create (RREF<UNIT2> obj) {
 			return new PureHolder (forward (obj)) ;
@@ -1731,7 +1757,7 @@ trait AUTO_PUREHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
 	public:
 		implicit PureHolder () = delete ;
 
-		explicit PureHolder (RREF<UNIT1> that) :mValue (forward (that)) {}
+		explicit PureHolder (RREF<UNIT1> value_) :mValue (forward (value_)) {}
 
 		imports PTR<Holder> create (RREF<UNIT1> that) {
 			return new PureHolder (that) ;
@@ -1805,6 +1831,12 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 			assert (r1x >= 0) ;
 			mPointer = memorize ([&] () {
 				return RC<Holder>::make (R2X (text ,r1x)) ;
+			}) ;
+		}
+
+		imports CREF<Slice> nullopt () {
+			return memorize ([&] () {
+				return Slice () ;
 			}) ;
 		}
 
@@ -1964,6 +1996,12 @@ trait CLAZZ_HELP<ALWAYS> {
 			}) ;
 		}
 
+		imports CREF<Clazz> nullopt () {
+			return memorize ([&] () {
+				return Clazz () ;
+			}) ;
+		}
+
 		LENGTH type_size () const {
 			if (mPointer == NULL)
 				return ZERO ;
@@ -2093,4 +2131,84 @@ struct FUNCTION_debug_keep {
 } ;
 
 static constexpr auto debug_keep = FUNCTION_debug_keep () ;
+
+namespace U {
+template <class...>
+trait EXCEPTION_HELP ;
+
+template <class...>
+trait EXCEPTION_PUREHOLDER_HELP ;
+
+template <>
+trait EXCEPTION_HELP<ALWAYS> {
+	template <class BASE>
+	struct ExceptionHolder :public Interface {
+		virtual CREF<Slice<STR>> what () const leftvalue noexcept = 0 ;
+	} ;
+	
+	class Exception {
+	private:
+		using Holder = ExceptionHolder<Exception> ;
+
+	private:
+		PTR<Holder> mPointer ;
+
+	public:
+		implicit Exception () = default ;
+
+		template <class ARG1>
+		explicit Exception (CREF<ARG1> id) noexcept {
+			using R1X = typeof (id) ;
+			using R2X = typename EXCEPTION_PUREHOLDER_HELP<Exception ,R1X ,ALWAYS>::PureHolder ;
+			const auto r1x = memorize ([&] () {
+				return RC<Holder>::make (R1X ()) ;
+			}) ;
+			mPointer = &r1x.self ;
+		}
+
+		implicit Exception (CREF<Exception> that) noexcept :Exception () {
+			mPointer = that.mPointer ;
+		}
+
+		inline void operator= (CREF<Exception> that) noexcept {
+			auto &&thiz = *this ;
+			if (address (thiz) == address (that))
+				return ;
+			recreate (thiz ,move (that)) ;
+		}
+
+		CREF<Slice<STR>> what () const leftvalue noexcept {
+			if (mPointer == NULL)
+				return Slice<STR>::nullopt () ;
+			return mPointer->what () ;
+		}
+
+		void raise[[noreturn]] () {
+			auto &&thiz = *this ;
+			throw thiz ;
+		}
+	} ;
+} ;
+
+template <class BASE ,class UNIT1>
+trait EXCEPTION_PUREHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
+	using Holder = typename EXCEPTION_HELP<ALWAYS>::template ExceptionHolder<BASE> ;
+
+	class PureHolder :public Holder {
+	private:
+		Slice<STR> mWhat ;
+
+	public:
+		implicit PureHolder () = delete ;
+
+		explicit PureHolder (RREF<Slice<STR>> what_) :mWhat (forward (what_)) {}
+
+		CREF<Slice<STR>> what () const leftvalue noexcept override {
+			return mWhat ;
+		}
+	} ;
+} ;
+} ;
+
+using Exception = typename U::EXCEPTION_HELP<ALWAYS>::Exception ;
 } ;
