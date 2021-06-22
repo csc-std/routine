@@ -203,24 +203,6 @@ using ENUM_TRUE = ENUMAS<bool ,true> ;
 
 using ENUM_FALSE = ENUMAS<bool ,false> ;
 
-namespace U {
-template <class...>
-trait ENUM_NOT_HELP ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
-	using RET = ENUM_FALSE ;
-} ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
-	using RET = ENUM_TRUE ;
-} ;
-} ;
-
-template <class ARG1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,ALWAYS>::RET ;
-
 template <class ARG1>
 using ENUM_BOOL = ENUMAS<bool ,bool (ARG1::value)> ;
 

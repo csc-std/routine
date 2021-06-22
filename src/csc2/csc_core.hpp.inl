@@ -34,34 +34,4 @@ trait AUTO_PUREHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
 	} ;
 } ;
 } ;
-
-namespace U {
-template <class...>
-trait SLICE_PUREHOLDER_HELP ;
-
-template <class BASE ,class UNIT1 ,class SIZE>
-trait SLICE_PUREHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
-	using Holder = typename SLICE_HELP<UNIT1 ,ALWAYS>::template SliceHolder<BASE> ;
-
-	class PureHolder :public Holder {
-	private:
-		DEF<UNIT1[SIZE::value]> mSlice ;
-
-	public:
-		implicit PureHolder () = delete ;
-
-		LENGTH size () const override {
-			return SIZE::value ;
-		}
-
-		LENGTH addr () const override {
-			return address (mSlice) ;
-		}
-
-		UNIT1 get (CREF<INDEX> index) const override {
-			return mSlice[index] ;
-		}
-	} ;
-} ;
-} ;
 } ;

@@ -215,6 +215,30 @@ trait ENABLE_HELP<ARG1 ,ARG2 ,REQUIRE<ARG1>> {
 template <class COND ,class YES = void>
 using ENABLE = typename U::ENABLE_HELP<COND ,YES ,ALWAYS>::RET ;
 
+template <class ARG1>
+using ENUM_CHECK = ENABLE<IS_ENUM<ARG1> ,ARG1> ;
+
+template <class ARG1>
+using TYPE_CHECK = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
+
+namespace U {
+template <class...>
+trait ENUM_NOT_HELP ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
+	using RET = ENUM_FALSE ;
+} ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
+	using RET = ENUM_TRUE ;
+} ;
+} ;
+
+template <class ARG1>
+using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,ALWAYS>::RET ;
+
 namespace U {
 template <class...>
 trait CONDITIONAL_HELP ;
@@ -232,9 +256,6 @@ trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ENUM_NOT<ARG1>>> {
 
 template <class COND ,class YES ,class NO>
 using CONDITIONAL = typename U::CONDITIONAL_HELP<COND ,YES ,NO ,ALWAYS>::RET ;
-
-template <class ARG1>
-using ENUM_CHECK = ENABLE<IS_ENUM<ARG1> ,ARG1> ;
 
 template <class ARG1 ,class ARG2>
 using ENUM_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<ARG1>::value == ENUM_CHECK<ARG2>::value)> ;
@@ -321,9 +342,6 @@ using ENUM_INC = ENUM_ADD<ARG1 ,ENUM_IDEN> ;
 
 template <class ARG1>
 using ENUM_DEC = ENUM_SUB<ARG1 ,ENUM_IDEN> ;
-
-template <class ARG1>
-using TYPE_CHECK = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
 
 namespace U {
 template <class...>
@@ -1232,8 +1250,8 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 	template <class BASE>
 	struct BoxHolder :public Interface {
 		virtual void destroy () = 0 ;
-		virtual VREF<UNIT1> at () = 0 ;
-		virtual CREF<UNIT1> at () const = 0 ;
+		virtual VREF<UNIT1> at () leftvalue = 0 ;
+		virtual CREF<UNIT1> at () const leftvalue = 0 ;
 	} ;
 
 	class Box {
@@ -1295,29 +1313,29 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			return exist () ;
 		}
 
-		VREF<UNIT1> to () {
+		VREF<UNIT1> to () leftvalue {
 			assert (exist ()) ;
 			return mPointer->at () ;
 		}
 
-		inline implicit operator VREF<UNIT1> () {
+		inline implicit operator VREF<UNIT1> () leftvalue {
 			return self ;
 		}
 
-		inline PTR<UNIT1> operator-> () {
+		inline PTR<UNIT1> operator-> () leftvalue {
 			return &self ;
 		}
 
-		CREF<UNIT1> to () const {
+		CREF<UNIT1> to () const leftvalue {
 			assert (exist ()) ;
 			return mPointer->at () ;
 		}
 
-		inline implicit operator CREF<UNIT1> () const {
+		inline implicit operator CREF<UNIT1> () const leftvalue {
 			return self ;
 		}
 
-		inline PTR<const UNIT1> operator-> () const {
+		inline PTR<const UNIT1> operator-> () const leftvalue {
 			return &self ;
 		}
 	} ;
@@ -1347,11 +1365,11 @@ trait BOX_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 			delete &thiz ;
 		}
 
-		VREF<UNIT1> at () override {
+		VREF<UNIT1> at () leftvalue override {
 			return mValue ;
 		}
 
-		CREF<UNIT1> at () const override {
+		CREF<UNIT1> at () const leftvalue override {
 			return mValue ;
 		}
 	} ;
@@ -1373,7 +1391,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 	template <class BASE>
 	struct RCHolder :public Interface {
 		virtual void destroy () = 0 ;
-		virtual CREF<UNIT1> at () const = 0 ;
+		virtual CREF<UNIT1> at () const leftvalue = 0 ;
 		virtual LENGTH increase () = 0 ;
 		virtual LENGTH decrease () = 0 ;
 	} ;
@@ -1392,13 +1410,13 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 
 		implicit RC (CREF<typeof (NULL)>) :RC () {}
 
-		template <class...ARGS>
-		imports RC make (RREF<ARGS>...objs) {
-			struct PH ;
-			using R1X = UNIT1 ;
+		template <class ARG1>
+		imports RC make (RREF<ARG1> obj) {
+			using R1X = typeof (obj) ;
 			using R2X = typename RC_PUREHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::PureHolder ;
+			requires (IS_EXTEND<UNIT1 ,R1X>) ;
 			RC ret ;
-			ret.mPointer = R2X::create (R1X (forward (objs)...)) ;
+			ret.mPointer = R2X::create (forward (obj)) ;
 			const auto r1x = mPointer->increase () ;
 			assert (r1x == 1) ;
 			return move (ret) ;
@@ -1414,6 +1432,11 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 				mPointer->destroy () ;
 			}
 			mPointer = NULL ;
+		}
+
+		RC share () const {
+			auto &&thiz = *this ;
+			return thiz ;
 		}
 
 		implicit RC (CREF<RC> that) :RC () {
@@ -1455,16 +1478,16 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			return exist () ;
 		}
 
-		CREF<UNIT1> to () const {
+		CREF<UNIT1> to () const leftvalue {
 			assert (exist ()) ;
 			return mPointer->at () ;
 		}
 
-		inline implicit operator CREF<UNIT1> () const {
+		inline implicit operator CREF<UNIT1> () const leftvalue {
 			return self ;
 		}
 
-		inline PTR<const UNIT1> operator-> () const {
+		inline PTR<const UNIT1> operator-> () const leftvalue {
 			return &self ;
 		}
 	} ;
@@ -1496,7 +1519,7 @@ trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 			delete &thiz ;
 		}
 
-		CREF<UNIT1> at () const override {
+		CREF<UNIT1> at () const leftvalue override {
 			return mValue ;
 		}
 
@@ -1614,7 +1637,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 		}
 
 	private:
-		VREF<UNIT1> m_fake () const {
+		VREF<UNIT1> m_fake () const leftvalue {
 			return unsafe_deref (mPointer) ;
 		}
 	} ;
@@ -1675,7 +1698,7 @@ trait AUTO_HELP<ALWAYS> {
 		implicit void operator= (RREF<Auto>) = delete ;
 
 		template <class ARG1>
-		REMOVE_ALL<ARG1> as (CREF<ARG1> id) {
+		REMOVE_ALL<ARG1> as (CREF<ARG1> id) rightvalue {
 			using R1X = typeof (id) ;
 			requires (IS_NULLOPT<R1X>) ;
 			assert (mPointer != NULL) ;
@@ -1698,6 +1721,9 @@ namespace U {
 template <class...>
 trait SLICE_HELP ;
 
+template <class...>
+trait SLICE_PUREHOLDER_HELP ;
+
 template <class UNIT1>
 trait SLICE_HELP<UNIT1 ,ALWAYS> {
 	template <class BASE>
@@ -1711,6 +1737,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 	class Slice {
 	private:
 		using Holder = SliceHolder<Slice> ;
+		using MAX_SLICE_SIZE = ENUMAS<VAR ,(+4080)> ;
 
 	private:
 		RC<Holder> mPointer ;
@@ -1720,12 +1747,31 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRA[ARG2]> text) {
-			//@mark
+			using R1X = ENUMAS<VAR ,ARG2> ;
+			using R2X = typename SLICE_PUREHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::PureHolder ;
+			mPointer = memorize ([&] () {
+				return RC<Holder>::make (R2X (text ,ENUM_DEC<R1X>::value)) ;
+			}) ;
 		}
 
 		template <class ARG1 ,LENGTH ARG2>
 		explicit Slice (CREF<ARG1> id ,CREF<STRW[ARG2]> text) {
-			//@mark
+			using R1X = ENUMAS<VAR ,ARG2> ;
+			using R2X = typename SLICE_PUREHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::PureHolder ;
+			mPointer = memorize ([&] () {
+				return RC<Holder>::make (R2X (text ,ENUM_DEC<R1X>::value)) ;
+			}) ;
+		}
+
+		template <class ARG1 ,class ARG2>
+		explicit Slice (CREF<ARG1> id ,CREF<ARG2> text) {
+			using R1X = MAX_SLICE_SIZE ;
+			using R2X = typename SLICE_PUREHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::PureHolder ;
+			const auto r1x = slice_size (text) ;
+			assert (r1x >= 0) ;
+			mPointer = memorize ([&] () {
+				return RC<Holder>::make (R2X (text ,r1x)) ;
+			}) ;
 		}
 
 		LENGTH size () const {
@@ -1797,6 +1843,50 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 			}
 			return move (ret) ;
 		}
+
+	private:
+		template <class ARG1>
+		imports LENGTH slice_size (CREF<ARG1> text) {
+			for (auto &&i : range (0 ,MAX_SLICE_SIZE::value)) {
+				if (text[i] == 0)
+					return i ;
+			}
+			return NONE ;
+		}
+	} ;
+} ;
+
+template <class BASE ,class UNIT1 ,class SIZE>
+trait SLICE_PUREHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
+	using Holder = typename SLICE_HELP<UNIT1 ,ALWAYS>::template SliceHolder<BASE> ;
+
+	class PureHolder :public Holder {
+	private:
+		DEF<UNIT1[SIZE::value]> mSlice ;
+
+	public:
+		implicit PureHolder () = delete ;
+
+		template <class ARG1>
+		explicit PureHolder (CREF<ARG1> text ,CREF<LENGTH> size_) {
+			assert (size_ < SIZE::value) ;
+			for (auto &&i : range (0 ,size_)) {
+				mSlice[i] = UNIT1 (text[i]) ;
+			}
+			mSlice[size_] = 0 ;
+		}
+
+		LENGTH size () const override {
+			return SIZE::value ;
+		}
+
+		LENGTH addr () const override {
+			return address (mSlice) ;
+		}
+
+		UNIT1 get (CREF<INDEX> index) const override {
+			return mSlice[index] ;
+		}
 	} ;
 } ;
 } ;
@@ -1835,6 +1925,9 @@ trait CLAZZ_HELP<ALWAYS> {
 		explicit Clazz (CREF<ARG1> id) {
 			using R1X = typeof (id) ;
 			using R2X = typename CLAZZ_PUREHOLDER_HELP<Clazz ,R1X ,ALWAYS>::PureHolder ;
+			mPointer = memorize ([&] () {
+				return RC<Holder>::make (R2X ()) ;
+			}) ;
 		}
 
 		LENGTH type_size () const {
@@ -1906,29 +1999,25 @@ trait CLAZZ_PUREHOLDER_HELP<BASE ,UUID ,ALWAYS> {
 	using Holder = typename CLAZZ_HELP<ALWAYS>::template ClazzHolder<BASE> ;
 
 	class PureHolder :public Holder {
-	private:
-		LENGTH mTypeSize ;
-		LENGTH mTypeAlign ;
-		LENGTH mTypeCABI ;
-		Slice<STR> mTypeName ;
-
 	public:
 		implicit PureHolder () = default ;
 
 		LENGTH type_size () const override {
-			return mTypeSize ;
+			return SIZE_OF<UUID>::value ;
 		}
 
 		LENGTH type_align () const override {
-			return mTypeAlign ;
+			return ALIGN_OF<UUID>::value ;
 		}
 
 		FLAG type_cabi () const override {
-			return mTypeCABI ;
+			return operator_cabi (TYPEAS<UUID>::id) ;
 		}
 
 		Slice<STR> type_name () const override {
-			return mTypeName ;
+			struct UNIQUE ;
+			const auto r2x = typeid (UUID).name () ;
+			return Slice<STR> (TYPEAS<UNIQUE>::id ,r2x) ;
 		}
 	} ;
 } ;
