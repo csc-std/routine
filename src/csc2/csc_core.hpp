@@ -705,7 +705,12 @@ template <class CURR ,class BEGIN ,class END>
 using ENUM_BETWEEN = ENUM_ALL<ENUM_COMPR_GTEQ<CURR ,BEGIN> ,ENUM_COMPR_LT<CURR ,END>> ;
 
 struct FUNCTION_noop {
-	inline void operator() () const {
+	inline void operator() () const noexcept {
+		//@info: noop
+	}
+
+	template <class ARG1>
+	inline void operator() (CREF<ARG1> arg1) const noexcept {
 		//@info: noop
 	}
 } ;
@@ -1262,11 +1267,11 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		PTR<Holder> mPointer ;
 
 	public:
-		implicit Box () noexcept {
-			mPointer = NULL ;
-		}
+		implicit Box () noexcept :mPointer (NULL) {}
 
-		implicit Box (CREF<typeof (NULL)>) :Box () {}
+		implicit Box (CREF<typeof (NULL)>) :Box () {
+			noop () ;
+		}
 
 		template <class ARG1>
 		imports Box make (RREF<ARG1> obj) {
@@ -1352,9 +1357,7 @@ trait BOX_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 	public:
 		implicit PureHolder () = delete ;
 
-		explicit PureHolder (RREF<UNIT2> that) {
-			mValue = forward (that) ;
-		}
+		explicit PureHolder (RREF<UNIT2> that) :mValue (forward (that)) {}
 
 		imports PTR<Holder> create (RREF<UNIT2> obj) {
 			return new PureHolder (forward (obj)) ;
@@ -1404,11 +1407,11 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		PTR<Holder> mPointer ;
 
 	public:
-		implicit RC () noexcept {
-			mPointer = NULL ;
-		}
+		implicit RC () noexcept :mPointer (NULL) {}
 
-		implicit RC (CREF<typeof (NULL)>) :RC () {}
+		implicit RC (CREF<typeof (NULL)>) :RC () {
+			noop () ;
+		}
 
 		template <class ARG1>
 		imports RC make (RREF<ARG1> obj) {
@@ -1505,10 +1508,7 @@ trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 	public:
 		implicit PureHolder () = delete ;
 
-		explicit PureHolder (RREF<UNIT2> that) {
-			mValue = forward (that) ;
-			mCounter = 0 ;
-		}
+		explicit PureHolder (RREF<UNIT2> that) :mValue (forward (that)) ,mCounter (0) {}
 
 		imports PTR<Holder> create (RREF<UNIT2> obj) {
 			return new PureHolder (forward (obj)) ;
@@ -1556,7 +1556,9 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			mExist = FALSE ;
 		}
 
-		implicit Cell (CREF<typeof (NULL)>) :Cell () {}
+		implicit Cell (CREF<typeof (NULL)>) :Cell () {
+			noop () ;
+		}
 
 		template <class...ARGS>
 		imports Cell make (RREF<ARGS>...objs) {
@@ -1651,6 +1653,9 @@ namespace U {
 template <class...>
 trait AUTO_HELP ;
 
+template <class...>
+trait AUTO_PUREHOLDER_HELP ;
+
 template <>
 trait AUTO_HELP<ALWAYS> {
 	template <class BASE>
@@ -1667,16 +1672,16 @@ trait AUTO_HELP<ALWAYS> {
 		PTR<Holder> mPointer ;
 
 	public:
-		implicit Auto () noexcept {
-			mPointer = NULL ;
-		}
+		implicit Auto () = delete ;
 
-		template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<ARG1 ,Auto>>>>
-		explicit Auto (RREF<ARG1> that) {
+		template <class ARG1 ,class = ENABLE<ENUM_ALL<
+			ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,
+			ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
+		implicit Auto (RREF<ARG1> that) :Auto (PH0) {
 			using R1X = typeof (that) ;
 			requires (IS_NULLOPT<R1X>) ;
-			const auto r1x = operator_cabi (TYPEAS<R1X>::id) ;
-			//@mark
+			using R2X = typename AUTO_PUREHOLDER_HELP<Auto ,R1X>::PureHolder ;
+			mPointer = R2X::create () ;
 		}
 
 		implicit ~Auto () noexcept {
@@ -1690,7 +1695,7 @@ trait AUTO_HELP<ALWAYS> {
 
 		implicit void operator= (CREF<Auto>) = delete ;
 
-		implicit Auto (RREF<Auto> that) noexcept :Auto () {
+		implicit Auto (RREF<Auto> that) noexcept :Auto (PH0) {
 			auto &&thiz = *this ;
 			swap (thiz ,that) ;
 		}
@@ -1707,9 +1712,38 @@ trait AUTO_HELP<ALWAYS> {
 			assert (r1x == r2x) ;
 			R1X ret ;
 			//@mark
-			mPointer->destroy () ;
-			mPointer = NULL ;
 			return move (ret) ;
+		}
+
+	private:
+		explicit Auto (CREF<typeof (PH0)>) noexcept :mPointer (NULL) {}
+	} ;
+} ;
+
+template <class BASE ,class UNIT1>
+trait AUTO_PUREHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
+	using Holder = typename AUTO_HELP<ALWAYS>::template AutoHolder<BASE> ;
+
+	class PureHolder :public Holder {
+	private:
+		UNIT1 mValue ;
+
+	public:
+		implicit PureHolder () = delete ;
+
+		explicit PureHolder (RREF<UNIT1> that) :mValue (forward (that)) {}
+
+		imports PTR<Holder> create (RREF<UNIT1> that) {
+			return new PureHolder (that) ;
+		}
+
+		void destroy () override {
+			auto &&thiz = *this ;
+			//@mark
+		}
+
+		LENGTH type_cabi () const override {
+			return operator_cabi (TYPEAS<UNIT1>::id) ;
 		}
 	} ;
 } ;
@@ -1957,7 +1991,13 @@ trait CLAZZ_HELP<ALWAYS> {
 		BOOL equal (CREF<Clazz> that) const {
 			if (type_cabi () == that.type_cabi ())
 				return TRUE ;
-			return type_name () == that.type_name () ;
+			if (type_size () != that.type_size ())
+				return FALSE ;
+			if (type_align () != that.type_align ())
+				return FALSE ;
+			if (type_name () != that.type_name ())
+				return FALSE ;
+			return TRUE ;
 		}
 
 		inline BOOL operator== (CREF<Clazz> that) const {
@@ -1969,7 +2009,18 @@ trait CLAZZ_HELP<ALWAYS> {
 		}
 
 		FLAG compr (CREF<Clazz> that) const {
-			return operator_compr (type_name () ,that.type_name ()) ;
+			if (type_cabi () == that.type_cabi ())
+				return ZERO ;
+			const auto r3x = operator_compr (type_name () ,that.type_name ()) ;
+			if (r3x != ZERO)
+				return r3x ;
+			const auto r1x = operator_compr (type_size () ,that.type_size ()) ;
+			if (r1x != ZERO)
+				return r1x ;
+			const auto r2x = operator_compr (type_align () ,that.type_align ()) ;
+			if (r2x != ZERO)
+				return r2x ;
+			return ZERO ;
 		}
 
 		inline BOOL operator< (CREF<Clazz> that) const {
@@ -2025,12 +2076,21 @@ trait CLAZZ_PUREHOLDER_HELP<BASE ,UUID ,ALWAYS> {
 
 using Clazz = typename U::CLAZZ_HELP<ALWAYS>::Clazz ;
 
-struct FUNCTION_debug_watch {
+struct FUNCTION_debug_keep {
+	template <class BASE>
+	struct KEEP :public Interface {
+		PTR<const BASE> mSelf ;
+		Clazz mClazz ;
+	} ;
+
 	template <class ARG1>
-	inline BOOL operator() (CREF<ARG1> arg1) const {
-		//@mark
+	inline void operator() (CREF<ARG1> target) const {
+		using R1X = typeof (target) ;
+		static auto M_KEEP = KEEP<R1X> () ;
+		M_KEEP.mSelf = &target ;
+		M_KEEP.mClazz = Clazz (TYPEAS<R1X>::id) ;
 	}
 } ;
 
-static constexpr auto debug_watch = FUNCTION_debug_watch () ;
+static constexpr auto debug_keep = FUNCTION_debug_keep () ;
 } ;
