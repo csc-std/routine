@@ -118,52 +118,6 @@ struct VARIABLE ;
 struct CONSTANT ;
 struct REGISTER ;
 
-namespace U {
-template <class...>
-struct REF_HELP ;
-
-template <class BASE>
-struct REF_HELP<BASE ,VARIABLE ,ALWAYS> {
-	using RET = VREF<BASE> ;
-} ;
-
-template <class BASE>
-struct REF_HELP<BASE ,CONSTANT ,ALWAYS> {
-	using RET = CREF<BASE> ;
-} ;
-
-template <class BASE>
-struct REF_HELP<BASE ,REGISTER ,ALWAYS> {
-	using RET = RREF<BASE> ;
-} ;
-} ;
-
-template <class BASE ,class CVR>
-using REF = typename U::REF_HELP<BASE ,CVR ,ALWAYS>::RET ;
-
-namespace U {
-template <class...>
-struct REFLECT_XREF_HELP ;
-
-template <class BASE>
-struct REFLECT_XREF_HELP<BASE ,VREF<BASE> ,ALWAYS> {
-	using RET = VARIABLE ;
-} ;
-
-template <class BASE>
-struct REFLECT_XREF_HELP<BASE ,CREF<BASE> ,ALWAYS> {
-	using RET = CONSTANT ;
-} ;
-
-template <class BASE>
-struct REFLECT_XREF_HELP<BASE ,RREF<BASE> ,ALWAYS> {
-	using RET = REGISTER ;
-} ;
-} ;
-
-template <class BASE>
-using REFLECT_XREF = typename U::REFLECT_XREF_HELP<REMOVE_REF<BASE> ,XREF<BASE> ,ALWAYS>::RET ;
-
 template <class UNIT1>
 using SIZE_OF = ENUMAS<VAR ,sizeof (UNIT1)> ;
 
@@ -537,6 +491,38 @@ static constexpr auto PH8 = PlaceHolder<ENUMAS<VAR ,(+8)>> () ;
 static constexpr auto PH9 = PlaceHolder<ENUMAS<VAR ,(+9)>> () ;
 static constexpr auto PHX = PlaceHolder<ENUMAS<VAR ,(10)>> () ;
 
+namespace U {
+template <class...>
+struct REFLECT_XREF_HELP ;
+
+template <class UNIT1>
+struct REFLECT_XREF_HELP<UNIT1 ,VREF<UNIT1> ,ALWAYS> {
+	using RET = VARIABLE ;
+} ;
+
+template <class UNIT1>
+struct REFLECT_XREF_HELP<UNIT1 ,CREF<UNIT1> ,ALWAYS> {
+	using RET = CONSTANT ;
+} ;
+
+template <class UNIT1>
+struct REFLECT_XREF_HELP<UNIT1 ,RREF<UNIT1> ,ALWAYS> {
+	using RET = REGISTER ;
+} ;
+} ;
+
+template <class UNIT1>
+using REFLECT_XREF = typename U::REFLECT_XREF_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,ALWAYS>::RET ;
+
+template <class UNIT1>
+using IS_VARIABLE = IS_SAME<REFLECT_XREF<UNIT1> ,VARIABLE> ;
+
+template <class UNIT1>
+using IS_CONSTANT = IS_SAME<REFLECT_XREF<UNIT1> ,CONSTANT> ;
+
+template <class UNIT1>
+using IS_REGISTER = IS_SAME<REFLECT_XREF<UNIT1> ,REGISTER> ;
+
 template <class UNIT1>
 using IS_CLASS = ENUMAS<BOOL ,(std::is_class<UNIT1>::value)> ;
 
@@ -791,8 +777,8 @@ namespace U {
 template <class...>
 trait FUNCTION_barrier_HELP ;
 
-template <class ARG1>
-trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
 	struct FUNCTION_barrier {
 		imports void extern_invoke () ;
 
@@ -802,20 +788,19 @@ trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>>
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
 	struct FUNCTION_barrier {
 		imports void extern_invoke () ;
 
-		template <class ARG1>
 		inline void operator() () const {
 			extern_invoke () ;
 		}
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_barrier_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
 	struct FUNCTION_barrier {
 		imports void extern_invoke () ;
 
@@ -836,44 +821,39 @@ struct FUNCTION_barrier {
 
 static constexpr auto barrier = FUNCTION_barrier () ;
 
-namespace U {
-template <class...>
-struct FUNCTION_keep_HELP ;
-
-template <class ARG1>
-struct FUNCTION_keep_HELP<ARG1 ,VARIABLE> {
-	inline VREF<ARG1> operator
-} ;
-} ;
-
-template <class BASE ,class CVR>
-struct FUNCTION_keep {
-	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
-	inline REF<BASE ,CVR> operator() (XREF<ARG1> arg1) const {
-		return static_cast<REF<BASE ,CVR>> (arg1) ;
-	}
-} ;
-
 struct FUNCTION_unsafe_deref {
-	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
-	inline REF<REMOVE_TEMP<REMOVE_ALL<ARG1>> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
-		using R2X = REMOVE_TEMP<R1X> ;
-		using R3X = REFLECT_XREF<ARG1> ;
-		return reinterpret_cast<REF<R2X ,R3X>> (arg1) ;
+		using R2X = VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> ;
+		return reinterpret_cast<XREF<R2X>> (arg1) ;
+	}
+
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		requires (IS_TEMP<R1X>) ;
+		using R2X = CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> ;
+		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 } ;
 
 static constexpr auto unsafe_deref = FUNCTION_unsafe_deref () ;
 
 struct FUNCTION_unsafe_deptr {
-	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
-	inline REF<TEMP<REMOVE_ALL<ARG1>> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline VREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
-		using R2X = TEMP<R1X> ;
-		using R3X = REFLECT_XREF<ARG1> ;
-		return reinterpret_cast<REF<R2X ,R3X>> (arg1) ;
+		using R2X = VREF<TEMP<R1X>> ;
+		return reinterpret_cast<XREF<R2X>> (arg1) ;
+	}
+
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = CREF<TEMP<R1X>> ;
+		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 } ;
 
@@ -900,32 +880,59 @@ struct FUNCTION_swap {
 
 static constexpr auto swap = FUNCTION_swap () ;
 
+template <class UNIT1>
+struct FUNCTION_keep_impl {
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const {
+		return static_cast<XREF<UNIT1>> (arg1) ;
+	}
+
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const {
+		return static_cast<XREF<UNIT1>> (arg1) ;
+	}
+} ;
+
+struct FUNCTION_keep {
+	template <class ARG1>
+	inline CREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
+		return M_KEEP ;
+	}
+} ;
+
+static constexpr auto keep = FUNCTION_keep () ;
+
 struct FUNCTION_move {
-	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
-	inline REF<REMOVE_ALL<ARG1> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline RREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
-		return static_cast<RREF<R1X>> (arg1) ;
+		return keep (TYPEAS<RREF<R1X>>::id) (arg1) ;
+	}
+
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		return keep (TYPEAS<CREF<R1X>>::id) (arg1) ;
 	}
 } ;
 
 static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
-	template <class ARG1>
-	inline VREF<FUNCTION_keep<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
-		using R1X = typeof (id) ;
-		static constexpr auto M_KEEP = FUNCTION_keep<R1X> () ;
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline VREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1>
-	inline CREF<FUNCTION_keep<const REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
-		using R1X = typeof (id) ;
-		static constexpr auto M_KEEP = FUNCTION_keep<const R1X> () ;
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_REGISTER<ARG1>>>
 	inline CREF<FUNCTION_move> operator() (XREF<ARG1> id) const {
 		return move ;
 	}
@@ -985,8 +992,8 @@ namespace U {
 template <class...>
 trait FUNCTION_debug_assert_HELP ;
 
-template <class ARG1>
-trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
 	struct FUNCTION_debug_break {
 		imports void extern_invoke () ;
 	} ;
@@ -1000,8 +1007,8 @@ trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,AR
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
 	struct FUNCTION_debug_break {
 		imports void extern_invoke () ;
 	} ;
@@ -1015,8 +1022,8 @@ trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,AR
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_debug_assert_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
 	struct FUNCTION_debug_break {
 		imports void extern_invoke () ;
 	} ;
@@ -1068,21 +1075,19 @@ namespace U {
 template <class...>
 trait FUNCTION_operator_compr_HELP ;
 
-template <class ARG1>
-trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_operator_compr_HELP<UNIT1 ,REQUIRE<IS_CLASS<UNIT1>>> {
 	struct FUNCTION_operator_compr {
-		template <class ARG1>
-		inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
+		inline FLAG operator() (CREF<UNIT1> arg1 ,CREF<UNIT1> arg2) const {
 			return arg1.compr (arg2) ;
 		}
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
+template <class UNIT1>
+trait FUNCTION_operator_compr_HELP<UNIT1 ,REQUIRE<ENUM_NOT<IS_CLASS<UNIT1>>>> {
 	struct FUNCTION_operator_compr {
-		template <class ARG1>
-		inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
+		inline FLAG operator() (CREF<UNIT1> arg1 ,CREF<UNIT1> arg2) const {
 			if (arg1 < arg2)
 				return NONE ;
 			if (arg2 < arg1)
@@ -1109,21 +1114,19 @@ namespace U {
 template <class...>
 trait FUNCTION_operator_hash_HELP ;
 
-template <class ARG1>
-trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_operator_hash_HELP<UNIT1 ,REQUIRE<IS_CLASS<UNIT1>>> {
 	struct FUNCTION_operator_hash {
-		template <class ARG1>
-		inline FLAG operator() (XREF<ARG1> arg1) const {
+		inline FLAG operator() (CREF<UNIT1> arg1) const {
 			return arg1.hash () ;
 		}
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
+template <class UNIT1>
+trait FUNCTION_operator_hash_HELP<UNIT1 ,REQUIRE<ENUM_NOT<IS_CLASS<UNIT1>>>> {
 	struct FUNCTION_operator_hash {
-		template <class ARG1>
-		inline FLAG operator() (XREF<ARG1> arg1) const {
+		inline FLAG operator() (CREF<UNIT1> arg1) const {
 			return FLAG (arg1) ;
 		}
 	} ;
@@ -1203,8 +1206,8 @@ namespace U {
 template <class...>
 trait FUNCTION_hashcode_HELP ;
 
-template <class ARG1>
-trait FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_hashcode_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,UNIT1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-2128831035) ;
@@ -1220,8 +1223,8 @@ trait FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR32> ,ARG1>
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_hashcode_HELP<ARG1 ,REQUIRE<DEPENDENT<IS_SAME<FLAG ,VAR64> ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_hashcode_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,UNIT1>>> {
 	struct FUNCTION_hashcode {
 		inline FLAG operator() () const {
 			return FLAG (-3750763034362895579) ;
@@ -1491,8 +1494,8 @@ trait BOX_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 } ;
 } ;
 
-template <class ARG1>
-using Box = typename U::BOX_HELP<ARG1 ,ALWAYS>::Box ;
+template <class UNIT1>
+using Box = typename U::BOX_HELP<UNIT1 ,ALWAYS>::Box ;
 
 namespace U {
 template <class...>
@@ -1647,8 +1650,8 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 } ;
 } ;
 
-template <class ARG1>
-using RC = typename U::RC_HELP<ARG1 ,ALWAYS>::RC ;
+template <class UNIT1>
+using RC = typename U::RC_HELP<UNIT1 ,ALWAYS>::RC ;
 
 namespace U {
 template <class...>
@@ -1757,8 +1760,8 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 } ;
 } ;
 
-template <class ARG1>
-using Cell = typename U::CELL_HELP<ARG1 ,ALWAYS>::Cell ;
+template <class UNIT1>
+using Cell = typename U::CELL_HELP<UNIT1 ,ALWAYS>::Cell ;
 
 namespace U {
 template <class...>
@@ -2071,8 +2074,8 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 } ;
 } ;
 
-template <class ARG1>
-using Slice = typename U::SLICE_HELP<ARG1 ,ALWAYS>::Slice ;
+template <class UNIT1>
+using Slice = typename U::SLICE_HELP<UNIT1 ,ALWAYS>::Slice ;
 
 namespace U {
 template <class...>
@@ -2316,8 +2319,8 @@ namespace U {
 template <class...>
 trait FUNCTION_debug_watch_HELP ;
 
-template <class ARG1>
-trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,UNIT1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
 		PTR<CREF<BASE>> mSelf ;
@@ -2335,8 +2338,8 @@ trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,ARG1>>> {
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,UNIT1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
 		PTR<CREF<BASE>> mSelf ;
@@ -2354,8 +2357,8 @@ trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,ARG1>>> 
 	} ;
 } ;
 
-template <class ARG1>
-trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,ARG1>>> {
+template <class UNIT1>
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,UNIT1>>> {
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
