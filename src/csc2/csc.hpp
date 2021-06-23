@@ -156,33 +156,15 @@ struct TYPEAS ;
 
 namespace U {
 template <class>
-struct TPHID {} ;
+struct ALLID {} ;
 } ;
 
 template <class UNIT1>
 struct TYPEAS<UNIT1> {
-	static constexpr auto id = U::TPHID<UNIT1> () ;
+	static constexpr auto id = U::ALLID<UNIT1> () ;
 } ;
 
 using ALWAYS = void ;
-
-namespace U {
-template <class...>
-trait REMOVE_TPH_HELP ;
-
-template <class UNIT1>
-trait REMOVE_TPH_HELP<UNIT1 ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-
-template <class UNIT1>
-trait REMOVE_TPH_HELP<TPHID<UNIT1> ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-} ;
-
-template <class UNIT1>
-using REMOVE_TPH = typename U::REMOVE_TPH_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
@@ -222,8 +204,23 @@ trait REMOVE_REF_HELP<const UNIT1 && ,ALWAYS> {
 template <class UNIT1>
 using REMOVE_REF = typename U::REMOVE_REF_HELP<UNIT1 ,ALWAYS>::RET ;
 
+namespace U {
+template <class...>
+trait REMOVE_ALL_HELP ;
+
 template <class UNIT1>
-using REMOVE_ALL = REMOVE_REF<REMOVE_TPH<REMOVE_REF<UNIT1>>> ;
+trait REMOVE_ALL_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
+template <class UNIT1>
+trait REMOVE_ALL_HELP<ALLID<UNIT1> ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+} ;
+
+template <class UNIT1>
+using REMOVE_ALL = typename U::REMOVE_ALL_HELP<REMOVE_REF<UNIT1> ,ALWAYS>::RET ;
 
 template <class UNIT1 ,UNIT1 VALUE>
 struct ENUMAS {
@@ -236,6 +233,24 @@ using ENUM_FALSE = ENUMAS<bool ,false> ;
 
 template <class UNIT1>
 using ENUM_BOOL = ENUMAS<bool ,bool (UNIT1::value)> ;
+
+namespace U {
+template <class...>
+trait ENUM_NOT_HELP ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
+	using RET = ENUM_FALSE ;
+} ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
+	using RET = ENUM_TRUE ;
+} ;
+} ;
+
+template <class UNIT1>
+using ENUM_NOT = typename U::ENUM_NOT_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>

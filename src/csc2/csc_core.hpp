@@ -111,34 +111,6 @@ using RREF = DEF<REMOVE_REF<UNIT1> &&> ;
 template <class UNIT1>
 using XREF = DEF<UNIT1 &&> ;
 
-namespace U {
-template <class...>
-struct PTR_HELP ;
-
-template <class UNIT1>
-struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,void ,ALWAYS> {
-	using RET = DEF<UNIT1 *> ;
-} ;
-
-template <class UNIT1>
-struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,void ,ALWAYS> {
-	using RET = DEF<const UNIT1 *> ;
-} ;
-
-template <class UNIT1 ,class UNIT2>
-struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,UNIT2 ,ALWAYS> {
-	using RET = DEF<UNIT1 UNIT2::*> ;
-} ;
-
-template <class UNIT1 ,class UNIT2>
-struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,UNIT2 ,ALWAYS> {
-	using RET = DEF<const UNIT1 UNIT2::*> ;
-} ;
-} ;
-
-template <class UNIT1 ,class UNIT2 = void>
-using PTR = typename U::PTR_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,UNIT2 ,ALWAYS>::RET ;
-
 struct VARIABLE ;
 struct CONSTANT ;
 struct REGISTER ;
@@ -275,24 +247,6 @@ using ENUM_CHECK = ENABLE<IS_ENUM<UNIT1> ,UNIT1> ;
 
 template <class UNIT1>
 using TYPE_CHECK = ENABLE<IS_TYPE<UNIT1> ,UNIT1> ;
-
-namespace U {
-template <class...>
-trait ENUM_NOT_HELP ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
-	using RET = ENUM_FALSE ;
-} ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
-	using RET = ENUM_TRUE ;
-} ;
-} ;
-
-template <class UNIT1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
@@ -541,35 +495,99 @@ static constexpr auto PHX = PlaceHolder<ENUMAS<VAR ,(10)>> () ;
 
 namespace U {
 template <class...>
-struct REFLECT_XREF_HELP ;
+struct REFLECT_REF_HELP ;
 
 template <class UNIT1>
-struct REFLECT_XREF_HELP<UNIT1 ,VREF<UNIT1> ,ALWAYS> {
+struct REFLECT_REF_HELP<UNIT1 ,VREF<UNIT1> ,ALWAYS> {
 	using RET = VARIABLE ;
 } ;
 
 template <class UNIT1>
-struct REFLECT_XREF_HELP<UNIT1 ,CREF<UNIT1> ,ALWAYS> {
+struct REFLECT_REF_HELP<UNIT1 ,CREF<UNIT1> ,ALWAYS> {
 	using RET = CONSTANT ;
 } ;
 
 template <class UNIT1>
-struct REFLECT_XREF_HELP<UNIT1 ,RREF<UNIT1> ,ALWAYS> {
+struct REFLECT_REF_HELP<UNIT1 ,RREF<UNIT1> ,ALWAYS> {
 	using RET = REGISTER ;
 } ;
 } ;
 
 template <class UNIT1>
-using REFLECT_XREF = typename U::REFLECT_XREF_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,ALWAYS>::RET ;
+using REFLECT_REF = typename U::REFLECT_REF_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,ALWAYS>::RET ;
 
 template <class UNIT1>
-using IS_VARIABLE = IS_SAME<REFLECT_XREF<UNIT1> ,VARIABLE> ;
+using IS_VARIABLE = IS_SAME<REFLECT_REF<UNIT1> ,VARIABLE> ;
 
 template <class UNIT1>
-using IS_CONSTANT = IS_SAME<REFLECT_XREF<UNIT1> ,CONSTANT> ;
+using IS_CONSTANT = IS_SAME<REFLECT_REF<UNIT1> ,CONSTANT> ;
 
 template <class UNIT1>
-using IS_REGISTER = IS_SAME<REFLECT_XREF<UNIT1> ,REGISTER> ;
+using IS_REGISTER = IS_SAME<REFLECT_REF<UNIT1> ,REGISTER> ;
+
+namespace U {
+template <class...>
+struct PTR_HELP ;
+
+template <class UNIT1>
+struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,void ,ALWAYS> {
+	using RET = DEF<UNIT1 *> ;
+} ;
+
+template <class UNIT1>
+struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,void ,ALWAYS> {
+	using RET = DEF<const UNIT1 *> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,UNIT2 ,ALWAYS> {
+	using RET = DEF<UNIT1 UNIT2::*> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,UNIT2 ,ALWAYS> {
+	using RET = DEF<const UNIT1 UNIT2::*> ;
+} ;
+} ;
+
+template <class UNIT1 ,class UNIT2 = void>
+using PTR = typename U::PTR_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,UNIT2 ,ALWAYS>::RET ;
+
+namespace U {
+template <class...>
+trait REMOVE_PTR_HELP ;
+
+template <class UNIT1>
+trait REMOVE_PTR_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
+template <class UNIT1>
+trait REMOVE_PTR_HELP<DEF<UNIT1 *> ,ALWAYS> {
+	using RET = VREF<UNIT1> ;
+} ;
+
+template <class UNIT1>
+trait REMOVE_PTR_HELP<DEF<const UNIT1 *> ,ALWAYS> {
+	using RET = CREF<UNIT1> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+trait REMOVE_PTR_HELP<DEF<UNIT1 UNIT2::*> ,ALWAYS> {
+	using RET = VREF<UNIT1> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+trait REMOVE_PTR_HELP<DEF<const UNIT1 UNIT2::*> ,ALWAYS> {
+	using RET = CREF<UNIT1> ;
+} ;
+} ;
+
+template <class UNIT1>
+using REMOVE_PTR = typename U::REMOVE_PTR_HELP<REMOVE_REF<UNIT1> ,ALWAYS>::RET ;
+
+template <class UNIT1>
+using IS_POINTER = IS_SAME<UNIT1 ,PTR<REMOVE_PTR<UNIT1>>> ;
 
 template <class UNIT1>
 using IS_CLASS = ENUMAS<BOOL ,(std::is_class<UNIT1>::value)> ;
@@ -623,59 +641,25 @@ using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<UNIT1>::value)> ;
 
 namespace U {
 template <class...>
-trait REMOVE_PTR_HELP ;
-
-template <class UNIT1>
-trait REMOVE_PTR_HELP<UNIT1 ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-
-template <class UNIT1>
-trait REMOVE_PTR_HELP<UNIT1 * ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-
-template <class UNIT1>
-trait REMOVE_PTR_HELP<const UNIT1 * ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-
-template <class UNIT1 ,class UNIT2>
-trait REMOVE_PTR_HELP<UNIT1 UNIT2::* ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-
-template <class UNIT1 ,class UNIT2>
-trait REMOVE_PTR_HELP<const UNIT1 UNIT2::* ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-} ;
-
-template <class UNIT1>
-using REMOVE_PTR = typename U::REMOVE_PTR_HELP<UNIT1 ,ALWAYS>::RET ;
-
-namespace U {
-template <class...>
 trait REFLECT_FUNCTION_HELP ;
 
-template <class UNIT1 ,class...UNITS>
-trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNITS...)> ,ALWAYS> {
-	using R1X = REMOVE_ALL<UNIT1> ;
-	using R2X = TYPEAS<REMOVE_ALL<UNITS>...> ;
+template <class UNIT1 ,class UNIT2 ,class...UNITS>
+trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNIT2::*) (UNITS...)> ,ALWAYS> {
+	using R1X = UNIT1 ;
+	using R2X = TYPEAS<XREF<UNITS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 
-template <class UNIT1 ,class...UNITS>
-trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNITS...) const> ,ALWAYS> {
-	using R1X = REMOVE_ALL<UNIT1> ;
-	using R2X = TYPEAS<REMOVE_ALL<UNITS>...> ;
+template <class UNIT1 ,class UNIT2 ,class...UNITS>
+trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNIT2::*) (UNITS...) const> ,ALWAYS> {
+	using R1X = UNIT1 ;
+	using R2X = TYPEAS<XREF<UNITS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 } ;
 
 template <class UNIT1>
-using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<
-	REMOVE_REF<REMOVE_PTR<typeof (&UNIT1::operator())>> ,ALWAYS>::RET ;
+using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<typeof (&UNIT1::operator()) ,ALWAYS>::RET ;
 
 template <class UNIT1>
 using FUNCTION_RETURN = TYPE_FIRST_ONE<REFLECT_FUNCTION<UNIT1>> ;
@@ -801,7 +785,7 @@ trait REMOVE_TEMP_HELP<TEMP<UNIT1> ,ALWAYS> {
 } ;
 
 template <class UNIT1>
-using REMOVE_TEMP = typename U::REMOVE_TEMP_HELP<UNIT1 ,ALWAYS>::RET ;
+using REMOVE_TEMP = typename U::REMOVE_TEMP_HELP<REMOVE_REF<UNIT1> ,ALWAYS>::RET ;
 
 template <class UNIT1>
 using IS_TEMP = IS_SAME<UNIT1 ,TEMP<REMOVE_TEMP<UNIT1>>> ;
@@ -880,19 +864,19 @@ struct FUNCTION_barrier {
 static constexpr auto barrier = FUNCTION_barrier () ;
 
 struct FUNCTION_unsafe_deref {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1>
 	inline VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
-		using R2X = VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> ;
+		using R2X = VREF<REMOVE_TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1>
+	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
-		using R2X = CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> ;
+		using R2X = CREF<REMOVE_TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 } ;
@@ -900,15 +884,15 @@ struct FUNCTION_unsafe_deref {
 static constexpr auto unsafe_deref = FUNCTION_unsafe_deref () ;
 
 struct FUNCTION_unsafe_deptr {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1>
 	inline VREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = VREF<TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1>
+	inline CREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = CREF<TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
@@ -943,21 +927,22 @@ static constexpr auto swap = FUNCTION_swap () ;
 
 template <class UNIT1>
 struct FUNCTION_keep_impl {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1>
 	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const {
 		return static_cast<XREF<UNIT1>> (arg1) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1>
+	inline XREF<UNIT1> operator() (XREF<const ARG1> arg1) const {
 		return static_cast<XREF<UNIT1>> (arg1) ;
 	}
 } ;
 
 struct FUNCTION_keep {
 	template <class ARG1>
-	inline CREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
-		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
+	inline CREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<R1X> () ;
 		return M_KEEP ;
 	}
 } ;
@@ -965,14 +950,14 @@ struct FUNCTION_keep {
 static constexpr auto keep = FUNCTION_keep () ;
 
 struct FUNCTION_move {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1>
 	inline RREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep (TYPEAS<RREF<R1X>>::id) (arg1) ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
+	template <class ARG1>
+	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<const ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep (TYPEAS<CREF<R1X>>::id) (arg1) ;
 	}
@@ -981,19 +966,21 @@ struct FUNCTION_move {
 static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
-	inline VREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
-		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
+	template <class ARG1>
+	inline VREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<R1X> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<FUNCTION_keep_impl<ARG1>> operator() (XREF<ARG1> id) const {
-		static constexpr auto M_KEEP = FUNCTION_keep_impl<ARG1> () ;
+	template <class ARG1>
+	inline CREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> id) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		static constexpr auto M_KEEP = FUNCTION_keep_impl<R1X> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_REGISTER<ARG1>>>
+	template <class ARG1>
 	inline CREF<FUNCTION_move> operator() (XREF<ARG1> id) const {
 		return move ;
 	}
