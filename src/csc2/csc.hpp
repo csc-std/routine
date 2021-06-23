@@ -159,9 +159,9 @@ template <class>
 struct TPHID {} ;
 } ;
 
-template <class ARG1>
-struct TYPEAS<ARG1> {
-	static constexpr auto id = U::TPHID<ARG1> () ;
+template <class UNIT1>
+struct TYPEAS<UNIT1> {
+	static constexpr auto id = U::TPHID<UNIT1> () ;
 } ;
 
 using ALWAYS = void ;
@@ -170,120 +170,97 @@ namespace U {
 template <class...>
 trait REMOVE_TPH_HELP ;
 
-template <class ARG1>
-trait REMOVE_TPH_HELP<ARG1 ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_TPH_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_TPH_HELP<TPHID<ARG1> ,ALWAYS> {
-	using RET = ARG1 ;
-} ;
-} ;
-
-template <class ARG1>
-using REMOVE_TPH = typename U::REMOVE_TPH_HELP<ARG1 ,ALWAYS>::RET ;
-
-namespace U {
-template <class...>
-trait REMOVE_PTR_HELP ;
-
-template <class ARG1>
-trait REMOVE_PTR_HELP<ARG1 ,ALWAYS> {
-	using RET = ARG1 ;
-} ;
-
-template <class ARG1>
-trait REMOVE_PTR_HELP<ARG1 * ,ALWAYS> {
-	using RET = ARG1 ;
-} ;
-
-template <class ARG1 ,class ARG2>
-trait REMOVE_PTR_HELP<ARG1 ARG2::* ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_TPH_HELP<TPHID<UNIT1> ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 } ;
 
-template <class ARG1>
-using REMOVE_PTR = typename U::REMOVE_PTR_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using REMOVE_TPH = typename U::REMOVE_TPH_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait REMOVE_REF_HELP ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<ARG1 ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<ARG1 & ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<UNIT1 & ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<ARG1 && ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<UNIT1 && ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<const ARG1 ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<const UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<const ARG1 & ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<const UNIT1 & ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_REF_HELP<const ARG1 && ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_REF_HELP<const UNIT1 && ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 } ;
 
-template <class ARG1>
-using REMOVE_REF = typename U::REMOVE_REF_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using REMOVE_REF = typename U::REMOVE_REF_HELP<UNIT1 ,ALWAYS>::RET ;
 
-template <class ARG1>
-using REMOVE_ALL = REMOVE_REF<REMOVE_TPH<REMOVE_REF<ARG1>>> ;
+template <class UNIT1>
+using REMOVE_ALL = REMOVE_REF<REMOVE_TPH<REMOVE_REF<UNIT1>>> ;
 
-template <class ARG1 ,ARG1 ARG2>
+template <class UNIT1 ,UNIT1 VALUE>
 struct ENUMAS {
-	static constexpr auto value = ARG2 ;
+	static constexpr auto value = VALUE ;
 } ;
 
 using ENUM_TRUE = ENUMAS<bool ,true> ;
 
 using ENUM_FALSE = ENUMAS<bool ,false> ;
 
-template <class ARG1>
-using ENUM_BOOL = ENUMAS<bool ,bool (ARG1::value)> ;
+template <class UNIT1>
+using ENUM_BOOL = ENUMAS<bool ,bool (UNIT1::value)> ;
 
 namespace U {
 template <class...>
 trait REQUIRE_HELP ;
 
-template <class ARG1>
-trait REQUIRE_HELP<ARG1 ,ENUM_TRUE ,ALWAYS> {
+template <class UNIT1>
+trait REQUIRE_HELP<UNIT1 ,ENUM_TRUE ,ALWAYS> {
 	using RET = void ;
 } ;
 } ;
 
-template <class ARG1>
-using REQUIRE = typename U::REQUIRE_HELP<ARG1 ,ENUM_BOOL<ARG1> ,ALWAYS>::RET ;
+template <class UNIT1>
+using REQUIRE = typename U::REQUIRE_HELP<UNIT1 ,ENUM_BOOL<UNIT1> ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait DEPENDENT_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait DEPENDENT_HELP<ARG1 ,ARG2 ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1 ,class UNIT2>
+trait DEPENDENT_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1 ,class ARG2 = void>
-using DEPENDENT = typename U::DEPENDENT_HELP<ARG1 ,ARG2 ,ALWAYS>::RET ;
+template <class UNIT1 ,class UNIT2 = void>
+using DEPENDENT = typename U::DEPENDENT_HELP<UNIT1 ,UNIT2 ,ALWAYS>::RET ;
 
 #ifdef __CSC_DEBUG__
 struct MACRO_DEBUG :public ENUM_TRUE {} ;

@@ -24,16 +24,16 @@ namespace U {
 template <class...>
 trait VAR_HELP ;
 
-template <class ARG1>
-trait VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,ARG1>>> {
+template <class UNIT1>
+trait VAR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,UNIT1>>> {
 	using VAR = VAR32 ;
 
 	static constexpr auto VAR_MAX = VAR32_MAX ;
 	static constexpr auto VAR_MIN = VAR32_MIN ;
 } ;
 
-template <class ARG1>
-trait VAR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,ARG1>>> {
+template <class UNIT1>
+trait VAR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,UNIT1>>> {
 	using VAR = VAR64 ;
 
 	static constexpr auto VAR_MAX = VAR64_MAX ;
@@ -76,13 +76,13 @@ namespace U {
 template <class...>
 trait STR_HELP ;
 
-template <class ARG1>
-trait STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,ARG1>>> {
+template <class UNIT1>
+trait STR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,UNIT1>>> {
 	using STR = STRA ;
 } ;
 
-template <class ARG1>
-trait STR_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,ARG1>>> {
+template <class UNIT1>
+trait STR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,UNIT1>>> {
 	using STR = STRW ;
 } ;
 } ;
@@ -96,106 +96,159 @@ using FEAT = std::uint64_t ;
 
 static constexpr auto NULL = nullptr ;
 
-template <class ARG1>
-using DEF = ARG1 ;
+template <class UNIT1>
+using DEF = UNIT1 ;
 
-template <class ARG1>
-using PTR = ARG1 * ;
+template <class UNIT1>
+using PTR = typename std::remove_reference<UNIT1>::type * ;
 
-template <class ARG1>
-using VREF = ARG1 & ;
+template <class UNIT1>
+using VREF = REMOVE_REF<UNIT1> & ;
 
-template <class ARG1>
-using CREF = const ARG1 & ;
+template <class UNIT1>
+using CREF = const REMOVE_REF<UNIT1> & ;
 
-template <class ARG1>
-using RREF = ARG1 && ;
+template <class UNIT1>
+using RREF = REMOVE_REF<UNIT1> && ;
 
-template <class ARG1>
-using SIZE_OF = ENUMAS<VAR ,sizeof (ARG1)> ;
+template <class UNIT1>
+using XREF = UNIT1 && ;
 
-template <class ARG1>
-using ALIGN_OF = ENUMAS<VAR ,alignof (ARG1)> ;
+struct VARIABLE ;
+struct CONSTANT ;
+struct REGISTER ;
+
+namespace U {
+template <class...>
+struct REF_HELP ;
+
+template <class BASE>
+struct REF_HELP<BASE ,VARIABLE ,ALWAYS> {
+	using RET = VREF<BASE> ;
+} ;
+
+template <class BASE>
+struct REF_HELP<BASE ,CONSTANT ,ALWAYS> {
+	using RET = CREF<BASE> ;
+} ;
+
+template <class BASE>
+struct REF_HELP<BASE ,REGISTER ,ALWAYS> {
+	using RET = RREF<BASE> ;
+} ;
+} ;
+
+template <class BASE ,class CVR>
+using REF = typename U::REF_HELP<BASE ,CVR ,ALWAYS>::RET ;
+
+namespace U {
+template <class...>
+struct REFLECT_XREF_HELP ;
+
+template <class BASE>
+struct REFLECT_XREF_HELP<BASE ,VREF<BASE> ,ALWAYS> {
+	using RET = VARIABLE ;
+} ;
+
+template <class BASE>
+struct REFLECT_XREF_HELP<BASE ,CREF<BASE> ,ALWAYS> {
+	using RET = CONSTANT ;
+} ;
+
+template <class BASE>
+struct REFLECT_XREF_HELP<BASE ,RREF<BASE> ,ALWAYS> {
+	using RET = REGISTER ;
+} ;
+} ;
+
+template <class BASE>
+using REFLECT_XREF = typename U::REFLECT_XREF_HELP<REMOVE_REF<BASE> ,XREF<BASE> ,ALWAYS>::RET ;
+
+template <class UNIT1>
+using SIZE_OF = ENUMAS<VAR ,sizeof (UNIT1)> ;
+
+template <class UNIT1>
+using ALIGN_OF = ENUMAS<VAR ,alignof (UNIT1)> ;
 
 namespace U {
 template <class...>
 trait COUNT_OF_HELP ;
 
-template <class...ARGS1>
-trait COUNT_OF_HELP<TYPEAS<ARGS1...> ,ALWAYS> {
-	using RET = ENUMAS<VAR ,sizeof... (ARGS1)> ;
+template <class...UNITS>
+trait COUNT_OF_HELP<TYPEAS<UNITS...> ,ALWAYS> {
+	using RET = ENUMAS<VAR ,sizeof... (UNITS)> ;
 } ;
 } ;
 
-template <class ARG1>
-using COUNT_OF = typename U::COUNT_OF_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using COUNT_OF = typename U::COUNT_OF_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait IS_ENUM_HELP ;
 
-template <class ARG1>
-trait IS_ENUM_HELP<ARG1 ,ALWAYS> {
+template <class UNIT1>
+trait IS_ENUM_HELP<UNIT1 ,ALWAYS> {
 	using RET = ENUM_FALSE ;
 } ;
 
-template <class ARG1 ,ARG1 ARG2>
-trait IS_ENUM_HELP<ENUMAS<ARG1 ,ARG2> ,ALWAYS> {
+template <class UNIT1 ,UNIT1 UNIT2>
+trait IS_ENUM_HELP<ENUMAS<UNIT1 ,UNIT2> ,ALWAYS> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
 
-template <class ARG1>
-using IS_ENUM = typename U::IS_ENUM_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using IS_ENUM = typename U::IS_ENUM_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait ENUM_TYPE_HELP ;
 
-template <class ARG1 ,ARG1 ARG2>
-trait ENUM_TYPE_HELP<ENUMAS<ARG1 ,ARG2> ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1 ,UNIT1 UNIT2>
+trait ENUM_TYPE_HELP<ENUMAS<UNIT1 ,UNIT2> ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 } ;
 
-template <class ARG1>
-using ENUM_TYPE = typename U::ENUM_TYPE_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using ENUM_TYPE = typename U::ENUM_TYPE_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait IS_TYPE_HELP ;
 
-template <class ARG1>
-trait IS_TYPE_HELP<ARG1 ,ALWAYS> {
+template <class UNIT1>
+trait IS_TYPE_HELP<UNIT1 ,ALWAYS> {
 	using RET = ENUM_FALSE ;
 } ;
 
-template <class...ARGS1>
-trait IS_TYPE_HELP<TYPEAS<ARGS1...> ,ALWAYS> {
+template <class...UNITS>
+trait IS_TYPE_HELP<TYPEAS<UNITS...> ,ALWAYS> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
 
-template <class ARG1>
-using IS_TYPE = typename U::IS_TYPE_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using IS_TYPE = typename U::IS_TYPE_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait IS_SAME_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait IS_SAME_HELP<ARG1 ,ARG2 ,ALWAYS> {
+template <class UNIT1 ,class UNIT2>
+trait IS_SAME_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	using RET = ENUM_FALSE ;
 } ;
 
-template <class ARG1>
-trait IS_SAME_HELP<ARG1 ,ARG1 ,ALWAYS> {
+template <class UNIT1>
+trait IS_SAME_HELP<UNIT1 ,UNIT1 ,ALWAYS> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
 
-template <class ARG1 ,class ARG2>
-using IS_SAME = typename U::IS_SAME_HELP<ARG1 ,ARG2 ,ALWAYS>::RET ;
+template <class UNIT1 ,class UNIT2>
+using IS_SAME = typename U::IS_SAME_HELP<UNIT1 ,UNIT2 ,ALWAYS>::RET ;
 
 using ENUM_ZERO = ENUMAS<VAR ,ZERO> ;
 using ENUM_IDEN = ENUMAS<VAR ,IDEN> ;
@@ -206,20 +259,20 @@ namespace U {
 template <class...>
 trait ENABLE_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait ENABLE_HELP<ARG1 ,ARG2 ,REQUIRE<ARG1>> {
-	using RET = ARG2 ;
+template <class COND ,class YES>
+trait ENABLE_HELP<COND ,YES ,REQUIRE<COND>> {
+	using RET = YES ;
 } ;
 } ;
 
 template <class COND ,class YES = void>
 using ENABLE = typename U::ENABLE_HELP<COND ,YES ,ALWAYS>::RET ;
 
-template <class ARG1>
-using ENUM_CHECK = ENABLE<IS_ENUM<ARG1> ,ARG1> ;
+template <class UNIT1>
+using ENUM_CHECK = ENABLE<IS_ENUM<UNIT1> ,UNIT1> ;
 
-template <class ARG1>
-using TYPE_CHECK = ENABLE<IS_TYPE<ARG1> ,ARG1> ;
+template <class UNIT1>
+using TYPE_CHECK = ENABLE<IS_TYPE<UNIT1> ,UNIT1> ;
 
 namespace U {
 template <class...>
@@ -236,32 +289,32 @@ trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
 } ;
 } ;
 
-template <class ARG1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using ENUM_NOT = typename U::ENUM_NOT_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait CONDITIONAL_HELP ;
 
-template <class ARG1 ,class ARG2 ,class ARG3>
-trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ARG1>> {
-	using RET = ARG2 ;
+template <class COND ,class YES ,class NO>
+trait CONDITIONAL_HELP<COND ,YES ,NO ,REQUIRE<COND>> {
+	using RET = YES ;
 } ;
 
-template <class ARG1 ,class ARG2 ,class ARG3>
-trait CONDITIONAL_HELP<ARG1 ,ARG2 ,ARG3 ,REQUIRE<ENUM_NOT<ARG1>>> {
-	using RET = ARG3 ;
+template <class COND ,class YES ,class NO>
+trait CONDITIONAL_HELP<COND ,YES ,NO ,REQUIRE<ENUM_NOT<COND>>> {
+	using RET = NO ;
 } ;
 } ;
 
 template <class COND ,class YES ,class NO>
 using CONDITIONAL = typename U::CONDITIONAL_HELP<COND ,YES ,NO ,ALWAYS>::RET ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<ARG1>::value == ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<UNIT1>::value == ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_NOT_EQUAL = ENUM_NOT<ENUM_EQUAL<ARG1 ,ARG2>> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_NOT_EQUAL = ENUM_NOT<ENUM_EQUAL<UNIT1 ,UNIT2>> ;
 
 namespace U {
 template <class...>
@@ -283,129 +336,129 @@ trait ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_FALSE ,ALWAYS> {
 } ;
 } ;
 
-template <class ARG1 ,class ARG2>
+template <class UNIT1 ,class UNIT2>
 using ENUM_COMPR = typename U::ENUM_COMPR_HELP<
-	ENUMAS<BOOL ,(ENUM_CHECK<ARG1>::value < ENUM_CHECK<ARG2>::value)> ,
-	ENUMAS<BOOL ,(ENUM_CHECK<ARG2>::value < ENUM_CHECK<ARG1>::value)> ,
+	ENUMAS<BOOL ,(ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value)> ,
+	ENUMAS<BOOL ,(ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value)> ,
 	ALWAYS>::RET ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_COMPR_LT = ENUMAS<BOOL ,(ENUM_COMPR<ARG1 ,ARG2>::value < ZERO)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_COMPR_LT = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value < ZERO)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_COMPR_LTEQ = ENUMAS<BOOL ,(ENUM_COMPR<ARG1 ,ARG2>::value <= ZERO)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_COMPR_LTEQ = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value <= ZERO)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_COMPR_GT = ENUMAS<BOOL ,(ENUM_COMPR<ARG1 ,ARG2>::value > ZERO)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_COMPR_GT = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value > ZERO)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_COMPR_GTEQ = ENUMAS<BOOL ,(ENUM_COMPR<ARG1 ,ARG2>::value >= ZERO)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_COMPR_GTEQ = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value >= ZERO)> ;
 
-template <class ARG1>
-using ENUM_EQ_ZERO = ENUM_EQUAL<ARG1 ,ENUM_ZERO> ;
+template <class UNIT1>
+using ENUM_EQ_ZERO = ENUM_EQUAL<UNIT1 ,ENUM_ZERO> ;
 
-template <class ARG1>
-using ENUM_LT_ZERO = ENUM_COMPR_LT<ARG1 ,ENUM_ZERO> ;
+template <class UNIT1>
+using ENUM_LT_ZERO = ENUM_COMPR_LT<UNIT1 ,ENUM_ZERO> ;
 
-template <class ARG1>
-using ENUM_GT_ZERO = ENUM_COMPR_GT<ARG1 ,ENUM_ZERO> ;
+template <class UNIT1>
+using ENUM_GT_ZERO = ENUM_COMPR_GT<UNIT1 ,ENUM_ZERO> ;
 
-template <class ARG1>
-using ENUM_EQ_IDEN = ENUM_EQUAL<ARG1 ,ENUM_IDEN> ;
+template <class UNIT1>
+using ENUM_EQ_IDEN = ENUM_EQUAL<UNIT1 ,ENUM_IDEN> ;
 
-template <class ARG1>
-using ENUM_LT_IDEN = ENUM_COMPR_LT<ARG1 ,ENUM_IDEN> ;
+template <class UNIT1>
+using ENUM_LT_IDEN = ENUM_COMPR_LT<UNIT1 ,ENUM_IDEN> ;
 
-template <class ARG1>
-using ENUM_GT_IDEN = ENUM_COMPR_GT<ARG1 ,ENUM_IDEN> ;
+template <class UNIT1>
+using ENUM_GT_IDEN = ENUM_COMPR_GT<UNIT1 ,ENUM_IDEN> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_ADD = ENUMAS<ENUM_TYPE<ARG1> ,(ENUM_CHECK<ARG1>::value + ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_ADD = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value + ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_SUB = ENUMAS<ENUM_TYPE<ARG1> ,(ENUM_CHECK<ARG1>::value - ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_SUB = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value - ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_MUL = ENUMAS<ENUM_TYPE<ARG1> ,(ENUM_CHECK<ARG1>::value * ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_MUL = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value * ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_DIV = ENUMAS<ENUM_TYPE<ARG1> ,(ENUM_CHECK<ARG1>::value / ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_DIV = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value / ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_MOD = ENUMAS<ENUM_TYPE<ARG1> ,(ENUM_CHECK<ARG1>::value % ENUM_CHECK<ARG2>::value)> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_MOD = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT2>::value)> ;
 
-template <class ARG1>
-using ENUM_MINUS = ENUM_SUB<ENUM_ZERO ,ARG1> ;
+template <class UNIT1>
+using ENUM_MINUS = ENUM_SUB<ENUM_ZERO ,UNIT1> ;
 
-template <class ARG1>
-using ENUM_INC = ENUM_ADD<ARG1 ,ENUM_IDEN> ;
+template <class UNIT1>
+using ENUM_INC = ENUM_ADD<UNIT1 ,ENUM_IDEN> ;
 
-template <class ARG1>
-using ENUM_DEC = ENUM_SUB<ARG1 ,ENUM_IDEN> ;
+template <class UNIT1>
+using ENUM_DEC = ENUM_SUB<UNIT1 ,ENUM_IDEN> ;
 
 namespace U {
 template <class...>
 trait TYPE_FIRST_HELP ;
 
-template <class ARG1 ,class...ARGS>
-trait TYPE_FIRST_HELP<TYPEAS<ARG1 ,ARGS...> ,ALWAYS> {
-	using ONE = ARG1 ;
-	using REST = TYPEAS<ARGS...> ;
+template <class UNIT1 ,class...UNITS>
+trait TYPE_FIRST_HELP<TYPEAS<UNIT1 ,UNITS...> ,ALWAYS> {
+	using ONE = UNIT1 ;
+	using REST = TYPEAS<UNITS...> ;
 } ;
 } ;
 
-template <class ARG1>
-using TYPE_FIRST_ONE = typename U::TYPE_FIRST_HELP<ARG1 ,ALWAYS>::ONE ;
+template <class UNIT1>
+using TYPE_FIRST_ONE = typename U::TYPE_FIRST_HELP<UNIT1 ,ALWAYS>::ONE ;
 
-template <class ARG1>
-using TYPE_FIRST_REST = typename U::TYPE_FIRST_HELP<ARG1 ,ALWAYS>::REST ;
+template <class UNIT1>
+using TYPE_FIRST_REST = typename U::TYPE_FIRST_HELP<UNIT1 ,ALWAYS>::REST ;
 
 namespace U {
 template <class...>
 trait TYPE_SECOND_HELP ;
 
-template <class ARG1 ,class ARG2 ,class...ARGS>
-trait TYPE_SECOND_HELP<TYPEAS<ARG1 ,ARG2 ,ARGS...> ,ALWAYS> {
-	using ONE = ARG2 ;
-	using REST = TYPEAS<ARGS...> ;
+template <class UNIT1 ,class UNIT2 ,class...UNITS>
+trait TYPE_SECOND_HELP<TYPEAS<UNIT1 ,UNIT2 ,UNITS...> ,ALWAYS> {
+	using ONE = UNIT2 ;
+	using REST = TYPEAS<UNITS...> ;
 } ;
 } ;
 
-template <class ARG1>
-using TYPE_SECOND_ONE = typename U::TYPE_SECOND_HELP<ARG1 ,ALWAYS>::ONE ;
+template <class UNIT1>
+using TYPE_SECOND_ONE = typename U::TYPE_SECOND_HELP<UNIT1 ,ALWAYS>::ONE ;
 
-template <class ARG1>
-using TYPE_SECOND_REST = typename U::TYPE_SECOND_HELP<ARG1 ,ALWAYS>::REST ;
+template <class UNIT1>
+using TYPE_SECOND_REST = typename U::TYPE_SECOND_HELP<UNIT1 ,ALWAYS>::REST ;
 
-template <class ARG1>
-using TYPE_UNWIND = ENABLE<ENUM_EQ_IDEN<COUNT_OF<ARG1>> ,TYPE_FIRST_ONE<ARG1>> ;
+template <class UNIT1>
+using TYPE_UNWIND = ENABLE<ENUM_EQ_IDEN<COUNT_OF<UNIT1>> ,TYPE_FIRST_ONE<UNIT1>> ;
 
 namespace U {
 template <class...>
 trait TYPE_CAT_HELP ;
 
-template <class...ARGS1 ,class...ARGS2>
-trait TYPE_CAT_HELP<TYPEAS<ARGS1...> ,TYPEAS<ARGS2...> ,ALWAYS> {
-	using RET = TYPEAS<ARGS1... ,ARGS2...> ;
+template <class...UNITS1 ,class...UNITS2>
+trait TYPE_CAT_HELP<TYPEAS<UNITS1...> ,TYPEAS<UNITS2...> ,ALWAYS> {
+	using RET = TYPEAS<UNITS1... ,UNITS2...> ;
 } ;
 } ;
 
-template <class ARG1 ,class ARG2>
-using TYPE_CAT = typename U::TYPE_CAT_HELP<ARG1 ,ARG2 ,ALWAYS>::RET ;
+template <class UNIT1 ,class UNIT2>
+using TYPE_CAT = typename U::TYPE_CAT_HELP<UNIT1 ,UNIT2 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait TYPE_REPEAT_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_EQ_ZERO<ARG2>>> {
+template <class ITEM ,class SIZE>
+trait TYPE_REPEAT_HELP<ITEM ,SIZE ,REQUIRE<ENUM_EQ_ZERO<SIZE>>> {
 	using RET = TYPEAS<> ;
 } ;
 
-template <class ARG1 ,class ARG2>
-trait TYPE_REPEAT_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_GT_ZERO<ARG2>>> {
-	using R1X = typename TYPE_REPEAT_HELP<ARG1 ,ENUM_DEC<ARG2> ,ALWAYS>::RET ;
-	using RET = TYPE_CAT<R1X ,TYPEAS<ARG1>> ;
+template <class ITEM ,class SIZE>
+trait TYPE_REPEAT_HELP<ITEM ,SIZE ,REQUIRE<ENUM_GT_ZERO<SIZE>>> {
+	using R1X = typename TYPE_REPEAT_HELP<ITEM ,ENUM_DEC<SIZE> ,ALWAYS>::RET ;
+	using RET = TYPE_CAT<R1X ,TYPEAS<ITEM>> ;
 } ;
 } ;
 
@@ -416,54 +469,54 @@ namespace U {
 template <class...>
 trait ENUM_ALL_HELP ;
 
-template <class ARG1>
-trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
+template <class UNIT1>
+trait ENUM_ALL_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<UNIT1>>>> {
 	using RET = ENUM_TRUE ;
 } ;
 
-template <class ARG1>
-trait ENUM_ALL_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
-	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
-	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<ARG1> ,ALWAYS>::RET ;
+template <class UNIT1>
+trait ENUM_ALL_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<UNIT1>>>> {
+	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<UNIT1>> ;
+	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<UNIT1> ,ALWAYS>::RET ;
 	using RET = CONDITIONAL<R1X ,R3X ,ENUM_FALSE> ;
 } ;
 } ;
 
-template <class...ARGS>
-using ENUM_ALL = typename U::ENUM_ALL_HELP<TYPEAS<ARGS...> ,ALWAYS>::RET ;
+template <class...UNITS>
+using ENUM_ALL = typename U::ENUM_ALL_HELP<TYPEAS<UNITS...> ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait ENUM_ANY_HELP ;
 
-template <class ARG1>
-trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<ARG1>>>> {
+template <class UNIT1>
+trait ENUM_ANY_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<UNIT1>>>> {
 	using RET = ENUM_FALSE ;
 } ;
 
-template <class ARG1>
-trait ENUM_ANY_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<ARG1>>>> {
-	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<ARG1>> ;
-	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<ARG1> ,ALWAYS>::RET ;
+template <class UNIT1>
+trait ENUM_ANY_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<UNIT1>>>> {
+	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<UNIT1>> ;
+	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<UNIT1> ,ALWAYS>::RET ;
 	using RET = CONDITIONAL<R1X ,ENUM_TRUE ,R3X> ;
 } ;
 } ;
 
-template <class...ARGS>
-using ENUM_ANY = typename U::ENUM_ANY_HELP<TYPEAS<ARGS...> ,ALWAYS>::RET ;
+template <class...UNITS>
+using ENUM_ANY = typename U::ENUM_ANY_HELP<TYPEAS<UNITS...> ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait PLACEHOLDER_HELP ;
 
-template <class ARG1>
-trait PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_EQ_ZERO<ARG1>>> {
+template <class RANK>
+trait PLACEHOLDER_HELP<RANK ,REQUIRE<ENUM_EQ_ZERO<RANK>>> {
 	class PlaceHolder {} ;
 } ;
 
-template <class ARG1>
-trait PLACEHOLDER_HELP<ARG1 ,REQUIRE<ENUM_GT_ZERO<ARG1>>> {
-	using BASE = typename PLACEHOLDER_HELP<ENUM_DEC<ARG1> ,ALWAYS>::PlaceHolder ;
+template <class RANK>
+trait PLACEHOLDER_HELP<RANK ,REQUIRE<ENUM_GT_ZERO<RANK>>> {
+	using BASE = typename PLACEHOLDER_HELP<ENUM_DEC<RANK> ,ALWAYS>::PlaceHolder ;
 
 	class PlaceHolder :public BASE {} ;
 } ;
@@ -484,16 +537,16 @@ static constexpr auto PH8 = PlaceHolder<ENUMAS<VAR ,(+8)>> () ;
 static constexpr auto PH9 = PlaceHolder<ENUMAS<VAR ,(+9)>> () ;
 static constexpr auto PHX = PlaceHolder<ENUMAS<VAR ,(10)>> () ;
 
-template <class ARG1>
-using IS_CLASS = ENUMAS<BOOL ,(std::is_class<ARG1>::value)> ;
+template <class UNIT1>
+using IS_CLASS = ENUMAS<BOOL ,(std::is_class<UNIT1>::value)> ;
 
 namespace U {
 template <class...>
 trait IS_CONSTRUCTIBLE_HELP ;
 
-template <class ARG1 ,class...ARGS2>
-trait IS_CONSTRUCTIBLE_HELP<ARG1 ,TYPEAS<ARGS2...> ,ALWAYS> {
-	using RET = ENUMAS<BOOL ,(std::is_constructible<ARG1 ,ARGS2...>::value)> ;
+template <class UNIT1 ,class...UNITS>
+trait IS_CONSTRUCTIBLE_HELP<UNIT1 ,TYPEAS<UNITS...> ,ALWAYS> {
+	using RET = ENUMAS<BOOL ,(std::is_constructible<UNIT1 ,UNITS...>::value)> ;
 } ;
 } ;
 
@@ -503,16 +556,16 @@ using IS_CONSTRUCTIBLE = typename U::IS_CONSTRUCTIBLE_HELP<RETURN ,PARAMS ,ALWAY
 template <class FROM ,class TO>
 using IS_CONVERTIBLE = IS_CONSTRUCTIBLE<TO ,TYPEAS<FROM>> ;
 
-template <class ARG1>
-using IS_NULLOPT = ENUMAS<BOOL ,(std::is_nothrow_default_constructible<ARG1>::value)> ;
+template <class UNIT1>
+using IS_NULLOPT = ENUMAS<BOOL ,(std::is_nothrow_default_constructible<UNIT1>::value)> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_CLONEABLE = ENUM_ALL<
-	ENUMAS<BOOL ,(std::is_copy_constructible<ARG1>::value)> ,
-	ENUMAS<BOOL ,(std::is_copy_assignable<ARG1>::value)>> ;
+	ENUMAS<BOOL ,(std::is_copy_constructible<UNIT1>::value)> ,
+	ENUMAS<BOOL ,(std::is_copy_assignable<UNIT1>::value)>> ;
 
-template <class ARG1>
-using IS_TRIVIAL = ENUMAS<BOOL ,(std::is_trivial<ARG1>::value)> ;
+template <class UNIT1>
+using IS_TRIVIAL = ENUMAS<BOOL ,(std::is_trivial<UNIT1>::value)> ;
 
 struct Interface {
 	implicit Interface () = default ;
@@ -523,115 +576,138 @@ struct Interface {
 	void operator= (RREF<Interface>) = delete ;
 } ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_INTERFACE = ENUM_ALL<
-	ENUMAS<BOOL ,(std::is_abstract<ARG1>::value)> ,
-	ENUMAS<BOOL ,(std::is_base_of<Interface ,ARG1>::value)>> ;
+	ENUMAS<BOOL ,(std::is_abstract<UNIT1>::value)> ,
+	ENUMAS<BOOL ,(std::is_base_of<Interface ,UNIT1>::value)>> ;
 
 template <class BASE ,class DERIVED>
 using IS_EXTEND = ENUMAS<BOOL ,(std::is_base_of<BASE ,DERIVED>::value)> ;
 
-template <class ARG1>
-using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<ARG1>::value)> ;
+template <class UNIT1>
+using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<UNIT1>::value)> ;
+
+namespace U {
+template <class...>
+trait REMOVE_PTR_HELP ;
+
+template <class UNIT1>
+trait REMOVE_PTR_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
+template <class UNIT1>
+trait REMOVE_PTR_HELP<UNIT1 * ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+trait REMOVE_PTR_HELP<UNIT1 UNIT2::* ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+} ;
+
+template <class UNIT1>
+using REMOVE_PTR = typename U::REMOVE_PTR_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
 trait REFLECT_FUNCTION_HELP ;
 
-template <class ARG1 ,class...ARGS>
-trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...)> ,ALWAYS> {
-	using R1X = REMOVE_ALL<ARG1> ;
-	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
+template <class UNIT1 ,class...UNITS>
+trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNITS...)> ,ALWAYS> {
+	using R1X = REMOVE_ALL<UNIT1> ;
+	using R2X = TYPEAS<REMOVE_ALL<UNITS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 
-template <class ARG1 ,class...ARGS>
-trait REFLECT_FUNCTION_HELP<DEF<ARG1 (ARGS...) const> ,ALWAYS> {
-	using R1X = REMOVE_ALL<ARG1> ;
-	using R2X = TYPEAS<REMOVE_ALL<ARGS>...> ;
+template <class UNIT1 ,class...UNITS>
+trait REFLECT_FUNCTION_HELP<DEF<UNIT1 (UNITS...) const> ,ALWAYS> {
+	using R1X = REMOVE_ALL<UNIT1> ;
+	using R2X = TYPEAS<REMOVE_ALL<UNITS>...> ;
 	using RET = TYPEAS<R1X ,R2X> ;
 } ;
 } ;
 
-template <class ARG1>
+template <class UNIT1>
 using REFLECT_FUNCTION = typename U::REFLECT_FUNCTION_HELP<
-	REMOVE_REF<REMOVE_PTR<typeof (&ARG1::operator())>> ,ALWAYS>::RET ;
+	REMOVE_REF<REMOVE_PTR<typeof (&UNIT1::operator())>> ,ALWAYS>::RET ;
 
-template <class ARG1>
-using FUNCTION_RETURN = TYPE_FIRST_ONE<REFLECT_FUNCTION<ARG1>> ;
+template <class UNIT1>
+using FUNCTION_RETURN = TYPE_FIRST_ONE<REFLECT_FUNCTION<UNIT1>> ;
 
-template <class ARG1>
-using FUNCTION_PARAMS = TYPE_SECOND_ONE<REFLECT_FUNCTION<ARG1>> ;
+template <class UNIT1>
+using FUNCTION_PARAMS = TYPE_SECOND_ONE<REFLECT_FUNCTION<UNIT1>> ;
 
-template <class ARG1>
-using IS_BOOL = IS_SAME<ARG1 ,BOOL> ;
+template <class UNIT1>
+using IS_BOOL = IS_SAME<UNIT1 ,BOOL> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_VAR = ENUM_ANY<
-	IS_SAME<ARG1 ,VAR32> ,
-	IS_SAME<ARG1 ,VAR64>> ;
+	IS_SAME<UNIT1 ,VAR32> ,
+	IS_SAME<UNIT1 ,VAR64>> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_FLOAT = ENUM_ANY<
-	IS_SAME<ARG1 ,SINGLE> ,
-	IS_SAME<ARG1 ,DOUBLE>> ;
+	IS_SAME<UNIT1 ,SINGLE> ,
+	IS_SAME<UNIT1 ,DOUBLE>> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_STR = ENUM_ANY<
-	IS_SAME<ARG1 ,STRA> ,
-	IS_SAME<ARG1 ,STRW>> ;
+	IS_SAME<UNIT1 ,STRA> ,
+	IS_SAME<UNIT1 ,STRW>> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_BYTE = ENUM_ANY<
-	IS_SAME<ARG1 ,BYTE> ,
-	IS_SAME<ARG1 ,WORD> ,
-	IS_SAME<ARG1 ,CHAR> ,
-	IS_SAME<ARG1 ,FEAT>> ;
+	IS_SAME<UNIT1 ,BYTE> ,
+	IS_SAME<UNIT1 ,WORD> ,
+	IS_SAME<UNIT1 ,CHAR> ,
+	IS_SAME<UNIT1 ,FEAT>> ;
 
-template <class ARG1>
-using IS_NULL = IS_SAME<ARG1 ,typeof (NULL)> ;
+template <class UNIT1>
+using IS_NULL = IS_SAME<UNIT1 ,typeof (NULL)> ;
 
-template <class ARG1>
+template <class UNIT1>
 using IS_BASIC = ENUM_ANY<
-	IS_BOOL<ARG1> ,
-	IS_VAR<ARG1> ,
-	IS_FLOAT<ARG1> ,
-	IS_STR<ARG1> ,
-	IS_BYTE<ARG1> ,
-	IS_NULL<ARG1>> ;
+	IS_BOOL<UNIT1> ,
+	IS_VAR<UNIT1> ,
+	IS_FLOAT<UNIT1> ,
+	IS_STR<UNIT1> ,
+	IS_BYTE<UNIT1> ,
+	IS_NULL<UNIT1>> ;
 
-template <class ARG1>
-using IS_PLACEHOLDER = IS_EXTEND<ARG1 ,typeof (PH0)> ;
+template <class UNIT1>
+using IS_PLACEHOLDER = IS_EXTEND<UNIT1 ,typeof (PH0)> ;
 
 namespace U {
 template <class...>
 trait BYTE_BASE_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
-	ENUM_EQUAL<ARG1 ,SIZE_OF<BYTE>> ,
-	ENUM_EQUAL<ARG2 ,ALIGN_OF<BYTE>>>>> {
+template <class SIZE ,class ALIGN>
+trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
+	ENUM_EQUAL<SIZE ,SIZE_OF<BYTE>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<BYTE>>>>> {
 	using RET = BYTE ;
 } ;
 
-template <class ARG1 ,class ARG2>
-trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
-	ENUM_EQUAL<ARG1 ,SIZE_OF<WORD>> ,
-	ENUM_EQUAL<ARG2 ,ALIGN_OF<WORD>>>>> {
+template <class SIZE ,class ALIGN>
+trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
+	ENUM_EQUAL<SIZE ,SIZE_OF<WORD>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<WORD>>>>> {
 	using RET = WORD ;
 } ;
 
-template <class ARG1 ,class ARG2>
-trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
-	ENUM_EQUAL<ARG1 ,SIZE_OF<CHAR>> ,
-	ENUM_EQUAL<ARG2 ,ALIGN_OF<CHAR>>>>> {
+template <class SIZE ,class ALIGN>
+trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
+	ENUM_EQUAL<SIZE ,SIZE_OF<CHAR>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<CHAR>>>>> {
 	using RET = CHAR ;
 } ;
 
-template <class ARG1 ,class ARG2>
-trait BYTE_BASE_HELP<ARG1 ,ARG2 ,REQUIRE<ENUM_ALL<
-	ENUM_EQUAL<ARG1 ,SIZE_OF<FEAT>> ,
-	ENUM_EQUAL<ARG2 ,ALIGN_OF<FEAT>>>>> {
+template <class SIZE ,class ALIGN>
+trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
+	ENUM_EQUAL<SIZE ,SIZE_OF<FEAT>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<FEAT>>>>> {
 	using RET = FEAT ;
 } ;
 } ;
@@ -643,11 +719,11 @@ namespace U {
 template <class...>
 trait STORAGE_HELP ;
 
-template <class ARG1 ,class ARG2>
-trait STORAGE_HELP<ARG1 ,ARG2 ,ALWAYS> {
-	using R3X = BYTE_BASE<ARG2 ,ARG2> ;
+template <class SIZE ,class ALIGN>
+trait STORAGE_HELP<SIZE ,ALIGN ,ALWAYS> {
+	using R3X = BYTE_BASE<ALIGN ,ALIGN> ;
 	using R1X = SIZE_OF<R3X> ;
-	using R4X = ENUM_DIV<ENUM_ADD<ARG1 ,ENUM_DEC<R1X>> ,R1X> ;
+	using R4X = ENUM_DIV<ENUM_ADD<SIZE ,ENUM_DEC<R1X>> ,R1X> ;
 	using RET = DEF<R3X[ENUM_CHECK<R4X>::value]> ;
 } ;
 } ;
@@ -656,44 +732,44 @@ template <class SIZE ,class ALIGN = ENUM_IDEN>
 using Storage = typename U::STORAGE_HELP<SIZE ,ALIGN ,ALWAYS>::RET ;
 
 namespace U {
-template <class ARG1>
+template <class UNIT1>
 struct TEMPID {
-	Storage<SIZE_OF<ARG1> ,ALIGN_OF<ARG1>> mStorage ;
+	Storage<SIZE_OF<UNIT1> ,ALIGN_OF<UNIT1>> mStorage ;
 } ;
 } ;
 
-template <class UNIT>
-using TEMP = U::TEMPID<UNIT> ;
+template <class UNIT1>
+using TEMP = U::TEMPID<UNIT1> ;
 
 namespace U {
 template <class...>
 trait REMOVE_TEMP_HELP ;
 
-template <class ARG1>
-trait REMOVE_TEMP_HELP<ARG1 ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_TEMP_HELP<UNIT1 ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 
-template <class ARG1>
-trait REMOVE_TEMP_HELP<TEMP<ARG1> ,ALWAYS> {
-	using RET = ARG1 ;
+template <class UNIT1>
+trait REMOVE_TEMP_HELP<TEMP<UNIT1> ,ALWAYS> {
+	using RET = UNIT1 ;
 } ;
 } ;
 
-template <class ARG1>
-using REMOVE_TEMP = typename U::REMOVE_TEMP_HELP<ARG1 ,ALWAYS>::RET ;
+template <class UNIT1>
+using REMOVE_TEMP = typename U::REMOVE_TEMP_HELP<UNIT1 ,ALWAYS>::RET ;
 
-template <class ARG1>
-using IS_TEMP = IS_SAME<ARG1 ,TEMP<REMOVE_TEMP<ARG1>>> ;
+template <class UNIT1>
+using IS_TEMP = IS_SAME<UNIT1 ,TEMP<REMOVE_TEMP<UNIT1>>> ;
 
-template <class ARG1>
-using ENUM_ABS = CONDITIONAL<ENUM_COMPR_GTEQ<ARG1 ,ENUM_ZERO> ,ARG1 ,ENUM_MINUS<ARG1>> ;
+template <class UNIT1>
+using ENUM_ABS = CONDITIONAL<ENUM_COMPR_GTEQ<UNIT1 ,ENUM_ZERO> ,UNIT1 ,ENUM_MINUS<UNIT1>> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_MIN = CONDITIONAL<ENUM_COMPR_LTEQ<ARG1 ,ARG2> ,ARG1 ,ARG2> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_MIN = CONDITIONAL<ENUM_COMPR_LTEQ<UNIT1 ,UNIT2> ,UNIT1 ,UNIT2> ;
 
-template <class ARG1 ,class ARG2>
-using ENUM_MAX = CONDITIONAL<ENUM_COMPR_GTEQ<ARG1 ,ARG2> ,ARG1 ,ARG2> ;
+template <class UNIT1 ,class UNIT2>
+using ENUM_MAX = CONDITIONAL<ENUM_COMPR_GTEQ<UNIT1 ,UNIT2> ,UNIT1 ,UNIT2> ;
 
 template <class CURR ,class BEGIN ,class END>
 using ENUM_BETWEEN = ENUM_ALL<ENUM_COMPR_GTEQ<CURR ,BEGIN> ,ENUM_COMPR_LT<CURR ,END>> ;
@@ -704,7 +780,7 @@ struct FUNCTION_noop {
 	}
 
 	template <class ARG1>
-	inline void operator() (CREF<ARG1> arg1) const noexcept {
+	inline void operator() (XREF<ARG1> arg1) const noexcept {
 		//@info: noop
 	}
 } ;
@@ -760,45 +836,44 @@ struct FUNCTION_barrier {
 
 static constexpr auto barrier = FUNCTION_barrier () ;
 
+namespace U {
+template <class...>
+struct FUNCTION_keep_HELP ;
+
+template <class ARG1>
+struct FUNCTION_keep_HELP<ARG1 ,VARIABLE> {
+	inline VREF<ARG1> operator
+} ;
+} ;
+
+template <class BASE ,class CVR>
+struct FUNCTION_keep {
+	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
+	inline REF<BASE ,CVR> operator() (XREF<ARG1> arg1) const {
+		return static_cast<REF<BASE ,CVR>> (arg1) ;
+	}
+} ;
+
 struct FUNCTION_unsafe_deref {
-	template <class ARG1>
-	inline VREF<REMOVE_TEMP<ARG1>> operator() (VREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
+	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
+	inline REF<REMOVE_TEMP<REMOVE_ALL<ARG1>> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
-		return reinterpret_cast<VREF<REMOVE_TEMP<R1X>>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline CREF<REMOVE_TEMP<ARG1>> operator() (CREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		requires (IS_TEMP<R1X>) ;
-		return reinterpret_cast<CREF<REMOVE_TEMP<R1X>>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline RREF<REMOVE_TEMP<ARG1>> operator() (RREF<ARG1> arg1) const {
-		requires (ENUM_FALSE) ;
+		using R2X = REMOVE_TEMP<R1X> ;
+		using R3X = REFLECT_XREF<ARG1> ;
+		return reinterpret_cast<REF<R2X ,R3X>> (arg1) ;
 	}
 } ;
 
 static constexpr auto unsafe_deref = FUNCTION_unsafe_deref () ;
 
 struct FUNCTION_unsafe_deptr {
-	template <class ARG1>
-	inline VREF<TEMP<ARG1>> operator() (VREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		return reinterpret_cast<VREF<TEMP<R1X>>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline CREF<TEMP<ARG1>> operator() (CREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		return reinterpret_cast<CREF<TEMP<R1X>>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline RREF<TEMP<ARG1>> operator() (RREF<ARG1> arg1) const {
-		requires (ENUM_FALSE) ;
+	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
+	inline REF<TEMP<REMOVE_ALL<ARG1>> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = TEMP<R1X> ;
+		using R3X = REFLECT_XREF<ARG1> ;
+		return reinterpret_cast<REF<R2X ,R3X>> (arg1) ;
 	}
 } ;
 
@@ -806,7 +881,7 @@ static constexpr auto unsafe_deptr = FUNCTION_unsafe_deptr () ;
 
 struct FUNCTION_address {
 	template <class ARG1>
-	inline LENGTH operator() (CREF<ARG1> arg1) const {
+	inline LENGTH operator() (XREF<ARG1> arg1) const {
 		return LENGTH (&unsafe_deptr (arg1)) ;
 	}
 } ;
@@ -815,7 +890,7 @@ static constexpr auto address = FUNCTION_address () ;
 
 struct FUNCTION_swap {
 	template <class ARG1>
-	inline void operator() (VREF<ARG1> arg1 ,VREF<ARG1> arg2) const {
+	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 		auto rax = unsafe_deptr (arg1) ;
 		unsafe_deptr (arg1) = unsafe_deptr (arg2) ;
 		unsafe_deptr (arg2) = rax ;
@@ -825,43 +900,11 @@ struct FUNCTION_swap {
 
 static constexpr auto swap = FUNCTION_swap () ;
 
-struct FUNCTION_keep {
-	template <class ARG1>
-	inline VREF<REMOVE_ALL<ARG1>> operator() (VREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		return static_cast<VREF<R1X>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline CREF<REMOVE_ALL<ARG1>> operator() (CREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		return static_cast<CREF<R1X>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline RREF<REMOVE_ALL<ARG1>> operator() (RREF<ARG1> arg1) const {
-		requires (ENUM_FALSE) ;
-	}
-} ;
-
-static constexpr auto keep = FUNCTION_keep () ;
-
 struct FUNCTION_move {
-	template <class ARG1>
-	inline RREF<REMOVE_ALL<ARG1>> operator() (VREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
+	template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_SAME<REFLECT_XREF<ARG1> ,REGISTER>>>>
+	inline REF<REMOVE_ALL<ARG1> ,REFLECT_XREF<ARG1>> operator() (XREF<ARG1> arg1) const {
+		using R1X = REMOVE_ALL<ARG1> ;
 		return static_cast<RREF<R1X>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline CREF<REMOVE_ALL<ARG1>> operator() (CREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
-		return static_cast<CREF<R1X>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline RREF<REMOVE_ALL<ARG1>> operator() (RREF<ARG1> arg1) const {
-		requires (ENUM_FALSE) ;
 	}
 } ;
 
@@ -869,17 +912,21 @@ static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
 	template <class ARG1>
-	inline CREF<FUNCTION_keep> operator() (VREF<ARG1> id) const {
-		return keep ;
+	inline VREF<FUNCTION_keep<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
+		using R1X = typeof (id) ;
+		static constexpr auto M_KEEP = FUNCTION_keep<R1X> () ;
+		return M_KEEP ;
 	}
 
 	template <class ARG1>
-	inline CREF<FUNCTION_move> operator() (CREF<ARG1> id) const {
-		return move ;
+	inline CREF<FUNCTION_keep<const REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
+		using R1X = typeof (id) ;
+		static constexpr auto M_KEEP = FUNCTION_keep<const R1X> () ;
+		return M_KEEP ;
 	}
 
 	template <class ARG1>
-	inline CREF<FUNCTION_move> operator() (RREF<ARG1> id) const {
+	inline CREF<FUNCTION_move> operator() (XREF<ARG1> id) const {
 		return move ;
 	}
 } ;
@@ -888,7 +935,7 @@ static constexpr auto forward = FUNCTION_forward () ;
 
 struct FUNCTION_zeroize {
 	template <class ARG1>
-	inline void operator() (VREF<ARG1> arg1) const {
+	inline void operator() (XREF<ARG1> arg1) const {
 		unsafe_deptr (arg1) = {0} ;
 		barrier () ;
 	}
@@ -898,7 +945,7 @@ static constexpr auto zeroize = FUNCTION_zeroize () ;
 
 struct FUNCTION_create {
 	template <class ARG1 ,class...ARGS>
-	inline void operator() (VREF<ARG1> thiz ,RREF<ARGS>...obj) const {
+	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...obj) const {
 		using R1X = typeof (thiz) ;
 		requires (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
@@ -910,7 +957,7 @@ static constexpr auto create = FUNCTION_create () ;
 
 struct FUNCTION_destroy {
 	template <class ARG1 ,class...ARGS>
-	inline void operator() (VREF<ARG1> thiz) const {
+	inline void operator() (XREF<ARG1> thiz) const {
 		using R1X = typeof (thiz) ;
 		requires (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
@@ -922,7 +969,7 @@ static constexpr auto destroy = FUNCTION_destroy () ;
 
 struct FUNCTION_recreate {
 	template <class ARG1 ,class ARG2>
-	inline void operator() (VREF<ARG1> thiz ,RREF<ARG2> that) const {
+	inline void operator() (XREF<ARG1> thiz ,XREF<ARG2> that) const {
 		using R1X = typeof (thiz) ;
 		using R2X = typeof (that) ;
 		requires (IS_SAME<R1X ,R2X>) ;
@@ -998,7 +1045,7 @@ static constexpr auto unittest_assert = FUNCTION_debug_assert () ;
 
 struct FUNCTION_bad {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> id) const {
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> id) const {
 		auto &&thiz = *this ;
 		assert (FALSE) ;
 		return thiz (id) ;
@@ -1009,7 +1056,7 @@ static constexpr auto bad = FUNCTION_bad () ;
 
 struct FUNCTION_memorize {
 	template <class ARG1>
-	inline CREF<FUNCTION_RETURN<REMOVE_ALL<ARG1>>> operator() (CREF<ARG1> proc) const {
+	inline CREF<FUNCTION_RETURN<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> proc) const {
 		static const auto M_MEMORIZE = proc () ;
 		return M_MEMORIZE ;
 	}
@@ -1025,7 +1072,7 @@ template <class ARG1>
 trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 	struct FUNCTION_operator_compr {
 		template <class ARG1>
-		inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+		inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 			return arg1.compr (arg2) ;
 		}
 	} ;
@@ -1035,7 +1082,7 @@ template <class ARG1>
 trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 	struct FUNCTION_operator_compr {
 		template <class ARG1>
-		inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+		inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 			if (arg1 < arg2)
 				return NONE ;
 			if (arg2 < arg1)
@@ -1048,7 +1095,7 @@ trait FUNCTION_operator_compr_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 
 struct FUNCTION_operator_compr {
 	template <class ARG1>
-	inline FLAG operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+	inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 		using R1X = typeof (arg1) ;
 		using R2X = typename U::FUNCTION_operator_compr_HELP<R1X ,ALWAYS>::FUNCTION_operator_compr ;
 		static constexpr auto M_INVOKE = R2X () ;
@@ -1066,7 +1113,7 @@ template <class ARG1>
 trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<IS_CLASS<ARG1>>> {
 	struct FUNCTION_operator_hash {
 		template <class ARG1>
-		inline FLAG operator() (CREF<ARG1> arg1) const {
+		inline FLAG operator() (XREF<ARG1> arg1) const {
 			return arg1.hash () ;
 		}
 	} ;
@@ -1076,7 +1123,7 @@ template <class ARG1>
 trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 	struct FUNCTION_operator_hash {
 		template <class ARG1>
-		inline FLAG operator() (CREF<ARG1> arg1) const {
+		inline FLAG operator() (XREF<ARG1> arg1) const {
 			return FLAG (arg1) ;
 		}
 	} ;
@@ -1085,7 +1132,7 @@ trait FUNCTION_operator_hash_HELP<ARG1 ,REQUIRE<ENUM_NOT<IS_CLASS<ARG1>>>> {
 
 struct FUNCTION_operator_hash {
 	template <class ARG1>
-	inline FLAG operator() (CREF<ARG1> arg1) const {
+	inline FLAG operator() (XREF<ARG1> arg1) const {
 		using R1X = typeof (arg1) ;
 		using R2X = typename U::FUNCTION_operator_hash_HELP<R1X ,ALWAYS>::FUNCTION_operator_hash ;
 		static constexpr auto M_INVOKE = R2X () ;
@@ -1097,7 +1144,7 @@ static constexpr auto operator_hash = FUNCTION_operator_hash () ;
 
 struct FUNCTION_abs {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1) const {
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1) const {
 		if (arg1 >= 0)
 			return arg1 ;
 		return -arg1 ;
@@ -1108,7 +1155,7 @@ static constexpr auto abs = FUNCTION_abs () ;
 
 struct FUNCTION_min {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 		if (arg1 <= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1119,7 +1166,7 @@ static constexpr auto min = FUNCTION_min () ;
 
 struct FUNCTION_max {
 	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (CREF<ARG1> arg1 ,CREF<ARG1> arg2) const {
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
 		if (arg1 >= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1284,7 +1331,7 @@ struct FUNCTION_operator_cabi {
 	struct CABI :public Interface {} ;
 
 	template <class ARG1>
-	inline FLAG operator() (CREF<ARG1> id) const {
+	inline FLAG operator() (XREF<ARG1> id) const {
 		using R1X = typeof (id) ;
 		using R2X = CABI<R1X> ;
 		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
@@ -1337,7 +1384,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		}
 
 		template <class ARG1 ,class...ARGS>
-		imports Box make (CREF<ARG1> id ,RREF<ARGS>...obj) {
+		imports Box make (XREF<ARG1> id ,XREF<ARGS>...obj) {
 			using R1X = typeof (id) ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
 			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
@@ -1390,7 +1437,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			return self ;
 		}
 
-		inline PTR<UNIT1> operator-> () leftvalue {
+		inline PTR<VREF<UNIT1>> operator-> () leftvalue {
 			return &self ;
 		}
 
@@ -1403,7 +1450,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			return self ;
 		}
 
-		inline PTR<const UNIT1> operator-> () const leftvalue {
+		inline PTR<CREF<UNIT1>> operator-> () const leftvalue {
 			return &self ;
 		}
 	} ;
@@ -1421,10 +1468,10 @@ trait BOX_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		implicit ImplHolder () = delete ;
 
 		template <class...ARGS>
-		explicit ImplHolder (RREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) {}
+		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) {}
 
 		template <class...ARGS>
-		imports PTR<Holder> create (RREF<ARGS>...obj) {
+		imports PTR<Holder> create (XREF<ARGS>...obj) {
 			return new ImplHolder (forward (TYPEAS<ARGS>::id) (obj)...) ;
 		}
 
@@ -1481,7 +1528,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		}
 
 		template <class ARG1 ,class...ARGS>
-		imports RC make (CREF<ARG1> id ,RREF<ARGS>...obj) {
+		imports RC make (XREF<ARG1> id ,XREF<ARGS>...obj) {
 			using R1X = typeof (id) ;
 			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
@@ -1552,7 +1599,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			return self ;
 		}
 
-		inline PTR<const UNIT1> operator-> () const leftvalue {
+		inline PTR<CREF<UNIT1>> operator-> () const leftvalue {
 			return &self ;
 		}
 	} ;
@@ -1571,10 +1618,10 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		implicit ImplHolder () = delete ;
 
 		template <class...ARGS>
-		explicit ImplHolder (RREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) ,mCounter (0) {}
+		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) ,mCounter (0) {}
 
 		template <class...ARGS>
-		imports PTR<Holder> create (RREF<ARGS>...obj) {
+		imports PTR<Holder> create (XREF<ARGS>...obj) {
 			return new ImplHolder (forward (TYPEAS<ARGS>::id) (obj)...) ;
 		}
 
@@ -1625,7 +1672,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 		}
 
 		template <class...ARGS>
-		imports Cell make (RREF<ARGS>...obj) {
+		imports Cell make (XREF<ARGS>...obj) {
 			Cell ret ;
 			create (ret.mHolder ,forward (TYPEAS<ARGS>::id) (obj)...) ;
 			ret.mExist = TRUE ;
@@ -1757,13 +1804,14 @@ trait AUTO_HELP<ALWAYS> {
 		template <class ARG1 ,class = ENABLE<ENUM_ALL<
 			ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,
 			ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
-		implicit Auto (RREF<ARG1> that) noexcept :Auto (PH0) {
+		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
 			using R1X = typeof (that) ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
 			requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
 			requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
-			create (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder) ,forward (TYPEAS<ARG1>::id) (that)) ;
+			create (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)) ;
+			swap (that ,unsafe_deref (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)).at ()) ;
 			barrier () ;
 			mExist = TRUE ;
 		}
@@ -1787,7 +1835,7 @@ trait AUTO_HELP<ALWAYS> {
 		implicit void operator= (RREF<Auto>) = delete ;
 
 		template <class ARG1>
-		REMOVE_ALL<ARG1> fetch (CREF<ARG1> id) rightvalue noexcept {
+		REMOVE_ALL<ARG1> fetch (XREF<ARG1> id) rightvalue noexcept {
 			using R1X = typeof (id) ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
@@ -1819,10 +1867,7 @@ trait AUTO_IMPLHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
 		UNIT1 mValue ;
 
 	public:
-		implicit ImplHolder () = delete ;
-
-		template <class...ARGS>
-		explicit ImplHolder (RREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) {}
+		implicit ImplHolder () = default ;
 
 		void destroy () override {
 			auto &&thiz = *this ;
@@ -1871,7 +1916,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 		implicit Slice () = default ;
 
 		template <class ARG1 ,LENGTH ARG2>
-		explicit Slice (CREF<ARG1> id ,CREF<STRA[ARG2]> text) {
+		explicit Slice (XREF<ARG1> id ,CREF<STRA[ARG2]> text) {
 			using R1X = ENUMAS<VAR ,ARG2> ;
 			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			mPointer = memorize ([&] () {
@@ -1880,7 +1925,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 		}
 
 		template <class ARG1 ,LENGTH ARG2>
-		explicit Slice (CREF<ARG1> id ,CREF<STRW[ARG2]> text) {
+		explicit Slice (XREF<ARG1> id ,CREF<STRW[ARG2]> text) {
 			using R1X = ENUMAS<VAR ,ARG2> ;
 			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			mPointer = memorize ([&] () {
@@ -1889,7 +1934,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 		}
 
 		template <class ARG1 ,class ARG2>
-		explicit Slice (CREF<ARG1> id ,CREF<ARG2> text) {
+		explicit Slice (XREF<ARG1> id ,XREF<ARG2> text) {
 			using R1X = MAX_SLICE_SIZE ;
 			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			const auto r1x = slice_size (text) ;
@@ -1981,7 +2026,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 
 	private:
 		template <class ARG1>
-		imports LENGTH slice_size (CREF<ARG1> text) {
+		imports LENGTH slice_size (XREF<ARG1> text) {
 			for (auto &&i : range (0 ,MAX_SLICE_SIZE::value)) {
 				if (text[i] == 0)
 					return i ;
@@ -2003,7 +2048,7 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 		implicit ImplHolder () = delete ;
 
 		template <class ARG1>
-		explicit ImplHolder (CREF<ARG1> text ,CREF<LENGTH> size_) {
+		explicit ImplHolder (XREF<ARG1> text ,CREF<LENGTH> size_) {
 			assert (size_ < SIZE::value) ;
 			for (auto &&i : range (0 ,size_)) {
 				mSlice[i] = UNIT1 (text[i]) ;
@@ -2057,7 +2102,7 @@ trait CLAZZ_HELP<ALWAYS> {
 		implicit Clazz () = default ;
 
 		template <class ARG1>
-		explicit Clazz (CREF<ARG1> id) {
+		explicit Clazz (XREF<ARG1> id) {
 			using R1X = typeof (id) ;
 			using R2X = typename CLAZZ_IMPLHOLDER_HELP<Clazz ,R1X ,ALWAYS>::ImplHolder ;
 			mPointer = memorize ([&] () {
@@ -2204,10 +2249,10 @@ trait EXCEPTION_HELP<ALWAYS> {
 		PTR<Holder> mPointer ;
 
 	public:
-		implicit Exception () = default ;
+		implicit Exception () = delete ;
 
 		template <class ARG1>
-		explicit Exception (CREF<ARG1> id) noexcept {
+		explicit Exception (XREF<ARG1> id) noexcept {
 			using R1X = typeof (id) ;
 			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
 			const auto r1x = memorize ([&] () {
@@ -2216,7 +2261,7 @@ trait EXCEPTION_HELP<ALWAYS> {
 			mPointer = &r1x.self ;
 		}
 
-		implicit Exception (CREF<Exception> that) noexcept :Exception () {
+		implicit Exception (CREF<Exception> that) noexcept :Exception (PH0) {
 			mPointer = that.mPointer ;
 		}
 
@@ -2236,6 +2281,11 @@ trait EXCEPTION_HELP<ALWAYS> {
 		void raise[[noreturn]] () {
 			auto &&thiz = *this ;
 			throw thiz ;
+		}
+
+	private:
+		explicit Exception (CREF<typeof (PH0)>) noexcept {
+			mPointer = NULL ;
 		}
 	} ;
 } ;
@@ -2270,13 +2320,13 @@ template <class ARG1>
 trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,ARG1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
-		PTR<const BASE> mSelf ;
+		PTR<CREF<BASE>> mSelf ;
 		Clazz mClazz ;
 	} ;
 
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
-		inline void operator() (VREF<ARG1> expr) const {
+		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = typeof (expr) ;
 			static auto M_WATCH = WATCH<R1X> () ;
 			M_WATCH.mSelf = &expr ;
@@ -2289,13 +2339,13 @@ template <class ARG1>
 trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,ARG1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
-		PTR<const BASE> mSelf ;
+		PTR<CREF<BASE>> mSelf ;
 		Clazz mClazz ;
 	} ;
 
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
-		inline void operator() (VREF<ARG1> expr) const {
+		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = typeof (expr) ;
 			static auto M_WATCH = WATCH<R1X> () ;
 			M_WATCH.mSelf = &expr ;
@@ -2308,7 +2358,7 @@ template <class ARG1>
 trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,ARG1>>> {
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
-		inline void operator() (VREF<ARG1> expr) const {
+		inline void operator() (XREF<ARG1> expr) const {
 			noop () ;
 		}
 	} ;
@@ -2317,7 +2367,7 @@ trait FUNCTION_debug_watch_HELP<ARG1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,ARG1>>> {
 
 struct FUNCTION_debug_watch {
 	template <class ARG1>
-	inline void operator() (VREF<ARG1> expr) const {
+	inline void operator() (XREF<ARG1> expr) const {
 		using R1X = typename U::FUNCTION_debug_assert_HELP<void ,ALWAYS>::FUNCTION_debug_assert ;
 		static constexpr auto M_INVOKE = R1X () ;
 		return M_INVOKE (expr) ;
