@@ -864,7 +864,7 @@ struct FUNCTION_barrier {
 static constexpr auto barrier = FUNCTION_barrier () ;
 
 struct FUNCTION_unsafe_deref {
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
@@ -872,8 +872,8 @@ struct FUNCTION_unsafe_deref {
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 
-	template <class ARG1>
-	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
 		using R2X = CREF<REMOVE_TEMP<R1X>> ;
@@ -884,15 +884,15 @@ struct FUNCTION_unsafe_deref {
 static constexpr auto unsafe_deref = FUNCTION_unsafe_deref () ;
 
 struct FUNCTION_unsafe_deptr {
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline VREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = VREF<TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
 
-	template <class ARG1>
-	inline CREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = CREF<TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
@@ -927,13 +927,10 @@ static constexpr auto swap = FUNCTION_swap () ;
 
 template <class UNIT1>
 struct FUNCTION_keep_impl {
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<ENUM_ANY<
+		IS_VARIABLE<ARG1> ,
+		IS_CONSTANT<ARG1>>>>
 	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const {
-		return static_cast<XREF<UNIT1>> (arg1) ;
-	}
-
-	template <class ARG1>
-	inline XREF<UNIT1> operator() (XREF<const ARG1> arg1) const {
 		return static_cast<XREF<UNIT1>> (arg1) ;
 	}
 } ;
@@ -950,14 +947,14 @@ struct FUNCTION_keep {
 static constexpr auto keep = FUNCTION_keep () ;
 
 struct FUNCTION_move {
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline RREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep (TYPEAS<RREF<R1X>>::id) (arg1) ;
 	}
 
-	template <class ARG1>
-	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<const ARG1> arg1) const {
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep (TYPEAS<CREF<R1X>>::id) (arg1) ;
 	}
@@ -966,21 +963,21 @@ struct FUNCTION_move {
 static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline VREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		static constexpr auto M_KEEP = FUNCTION_keep_impl<R1X> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1>
-	inline CREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<const ARG1> id) const {
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<FUNCTION_keep_impl<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> id) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		static constexpr auto M_KEEP = FUNCTION_keep_impl<R1X> () ;
 		return M_KEEP ;
 	}
 
-	template <class ARG1>
+	template <class ARG1 ,class = ENABLE<IS_REGISTER<ARG1>>>
 	inline CREF<FUNCTION_move> operator() (XREF<ARG1> id) const {
 		return move ;
 	}
