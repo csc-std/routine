@@ -100,23 +100,71 @@ template <class UNIT1>
 using DEF = UNIT1 ;
 
 template <class UNIT1>
-using PTR = typename std::remove_reference<UNIT1>::type * ;
+using VREF = DEF<REMOVE_REF<UNIT1> &> ;
 
 template <class UNIT1>
-using VREF = REMOVE_REF<UNIT1> & ;
+using CREF = DEF<const REMOVE_REF<UNIT1> &> ;
 
 template <class UNIT1>
-using CREF = const REMOVE_REF<UNIT1> & ;
+using RREF = DEF<REMOVE_REF<UNIT1> &&> ;
 
 template <class UNIT1>
-using RREF = REMOVE_REF<UNIT1> && ;
+using XREF = DEF<UNIT1 &&> ;
+
+namespace U {
+template <class...>
+struct PTR_HELP ;
 
 template <class UNIT1>
-using XREF = UNIT1 && ;
+struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,void ,ALWAYS> {
+	using RET = DEF<UNIT1 *> ;
+} ;
+
+template <class UNIT1>
+struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,void ,ALWAYS> {
+	using RET = DEF<const UNIT1 *> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+struct PTR_HELP<UNIT1 ,VREF<UNIT1> ,UNIT2 ,ALWAYS> {
+	using RET = DEF<UNIT1 UNIT2::*> ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+struct PTR_HELP<UNIT1 ,CREF<UNIT1> ,UNIT2 ,ALWAYS> {
+	using RET = DEF<const UNIT1 UNIT2::*> ;
+} ;
+} ;
+
+template <class UNIT1 ,class UNIT2 = void>
+using PTR = typename U::PTR_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,UNIT2 ,ALWAYS>::RET ;
 
 struct VARIABLE ;
 struct CONSTANT ;
 struct REGISTER ;
+
+namespace U {
+template <class...>
+struct REF_HELP ;
+
+template <class OBJ>
+struct REF_HELP<OBJ ,VARIABLE ,ALWAYS> {
+	using RET = VREF<OBJ> ;
+} ;
+
+template <class OBJ>
+struct REF_HELP<OBJ ,CONSTANT ,ALWAYS> {
+	using RET = CREF<OBJ> ;
+} ;
+
+template <class OBJ>
+struct REF_HELP<OBJ ,REGISTER ,ALWAYS> {
+	using RET = RREF<OBJ> ;
+} ;
+} ;
+
+template <class OBJ ,class CVR>
+using REF = typename U::REF_HELP<OBJ ,CVR ,ALWAYS>::RET ;
 
 template <class UNIT1>
 using SIZE_OF = ENUMAS<VAR ,sizeof (UNIT1)> ;
@@ -587,8 +635,18 @@ trait REMOVE_PTR_HELP<UNIT1 * ,ALWAYS> {
 	using RET = UNIT1 ;
 } ;
 
+template <class UNIT1>
+trait REMOVE_PTR_HELP<const UNIT1 * ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
 template <class UNIT1 ,class UNIT2>
 trait REMOVE_PTR_HELP<UNIT1 UNIT2::* ,ALWAYS> {
+	using RET = UNIT1 ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+trait REMOVE_PTR_HELP<const UNIT1 UNIT2::* ,ALWAYS> {
 	using RET = UNIT1 ;
 } ;
 } ;
@@ -869,8 +927,11 @@ struct FUNCTION_address {
 static constexpr auto address = FUNCTION_address () ;
 
 struct FUNCTION_swap {
-	template <class ARG1>
-	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
+	template <class ARG1 ,class ARG2>
+	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = REMOVE_ALL<ARG2> ;
+		requires (IS_SAME<R1X ,R2X>) ;
 		auto rax = unsafe_deptr (arg1) ;
 		unsafe_deptr (arg1) = unsafe_deptr (arg2) ;
 		unsafe_deptr (arg2) = rax ;
@@ -953,7 +1014,7 @@ static constexpr auto zeroize = FUNCTION_zeroize () ;
 struct FUNCTION_create {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...obj) const {
-		using R1X = typeof (thiz) ;
+		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		new (&unsafe_deref (thiz)) R2X (forward (TYPEAS<ARGS>::id) (obj)...) ;
@@ -965,7 +1026,7 @@ static constexpr auto create = FUNCTION_create () ;
 struct FUNCTION_destroy {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (XREF<ARG1> thiz) const {
-		using R1X = typeof (thiz) ;
+		using R1X = REMOVE_ALL<ARG1> ;
 		requires (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		unsafe_deref (thiz).~R2X () ;
@@ -977,8 +1038,8 @@ static constexpr auto destroy = FUNCTION_destroy () ;
 struct FUNCTION_recreate {
 	template <class ARG1 ,class ARG2>
 	inline void operator() (XREF<ARG1> thiz ,XREF<ARG2> that) const {
-		using R1X = typeof (thiz) ;
-		using R2X = typeof (that) ;
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = REMOVE_ALL<ARG2> ;
 		requires (IS_SAME<R1X ,R2X>) ;
 		destroy (unsafe_deptr (thiz)) ;
 		create (unsafe_deptr (thiz) ,forward (TYPEAS<ARG2>::id) (that)) ;
@@ -1099,11 +1160,13 @@ trait FUNCTION_operator_compr_HELP<UNIT1 ,REQUIRE<ENUM_NOT<IS_CLASS<UNIT1>>>> {
 } ;
 
 struct FUNCTION_operator_compr {
-	template <class ARG1>
-	inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
-		using R1X = typeof (arg1) ;
-		using R2X = typename U::FUNCTION_operator_compr_HELP<R1X ,ALWAYS>::FUNCTION_operator_compr ;
-		static constexpr auto M_INVOKE = R2X () ;
+	template <class ARG1 ,class ARG2>
+	inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = REMOVE_ALL<ARG2> ;
+		requires (IS_SAME<R1X ,R2X>) ;
+		using R3X = typename U::FUNCTION_operator_compr_HELP<R1X ,ALWAYS>::FUNCTION_operator_compr ;
+		static constexpr auto M_INVOKE = R3X () ;
 		return M_INVOKE (arg1 ,arg2) ;
 	}
 } ;
@@ -1136,7 +1199,7 @@ trait FUNCTION_operator_hash_HELP<UNIT1 ,REQUIRE<ENUM_NOT<IS_CLASS<UNIT1>>>> {
 struct FUNCTION_operator_hash {
 	template <class ARG1>
 	inline FLAG operator() (XREF<ARG1> arg1) const {
-		using R1X = typeof (arg1) ;
+		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = typename U::FUNCTION_operator_hash_HELP<R1X ,ALWAYS>::FUNCTION_operator_hash ;
 		static constexpr auto M_INVOKE = R2X () ;
 		return M_INVOKE (arg1) ;
@@ -1157,8 +1220,11 @@ struct FUNCTION_abs {
 static constexpr auto abs = FUNCTION_abs () ;
 
 struct FUNCTION_min {
-	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
+	template <class ARG1 ,class ARG2>
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = REMOVE_ALL<ARG2> ;
+		requires (IS_SAME<R1X ,R2X>) ;
 		if (arg1 <= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1168,8 +1234,11 @@ struct FUNCTION_min {
 static constexpr auto min = FUNCTION_min () ;
 
 struct FUNCTION_max {
-	template <class ARG1>
-	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG1> arg2) const {
+	template <class ARG1 ,class ARG2>
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
+		using R1X = REMOVE_ALL<ARG1> ;
+		using R2X = REMOVE_ALL<ARG2> ;
+		requires (IS_SAME<R1X ,R2X>) ;
 		if (arg1 >= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1335,7 +1404,7 @@ struct FUNCTION_operator_cabi {
 
 	template <class ARG1>
 	inline FLAG operator() (XREF<ARG1> id) const {
-		using R1X = typeof (id) ;
+		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = CABI<R1X> ;
 		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
 		requires (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
@@ -1375,7 +1444,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		using Holder = BoxHolder<Box> ;
 
 	private:
-		PTR<Holder> mPointer ;
+		PTR<VREF<Holder>> mPointer ;
 
 	public:
 		implicit Box () noexcept {
@@ -1388,7 +1457,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 
 		template <class ARG1 ,class...ARGS>
 		imports Box make (XREF<ARG1> id ,XREF<ARGS>...obj) {
-			using R1X = typeof (id) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
 			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			Box ret ;
@@ -1474,7 +1543,7 @@ trait BOX_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) {}
 
 		template <class...ARGS>
-		imports PTR<Holder> create (XREF<ARGS>...obj) {
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
 			return new ImplHolder (forward (TYPEAS<ARGS>::id) (obj)...) ;
 		}
 
@@ -1519,7 +1588,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		using Holder = RCHolder<RC> ;
 
 	private:
-		PTR<Holder> mPointer ;
+		PTR<VREF<Holder>> mPointer ;
 
 	public:
 		implicit RC () noexcept {
@@ -1532,7 +1601,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 
 		template <class ARG1 ,class...ARGS>
 		imports RC make (XREF<ARG1> id ,XREF<ARGS>...obj) {
-			using R1X = typeof (id) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			requires (IS_EXTEND<UNIT1 ,R1X>) ;
 			RC ret ;
@@ -1624,7 +1693,7 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward (TYPEAS<ARGS>::id) (obj)...) ,mCounter (0) {}
 
 		template <class...ARGS>
-		imports PTR<Holder> create (XREF<ARGS>...obj) {
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
 			return new ImplHolder (forward (TYPEAS<ARGS>::id) (obj)...) ;
 		}
 
@@ -1808,7 +1877,7 @@ trait AUTO_HELP<ALWAYS> {
 			ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,
 			ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
 		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
-			using R1X = typeof (that) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
 			requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
@@ -1839,7 +1908,7 @@ trait AUTO_HELP<ALWAYS> {
 
 		template <class ARG1>
 		REMOVE_ALL<ARG1> fetch (XREF<ARG1> id) rightvalue noexcept {
-			using R1X = typeof (id) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
 			requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
@@ -2106,7 +2175,7 @@ trait CLAZZ_HELP<ALWAYS> {
 
 		template <class ARG1>
 		explicit Clazz (XREF<ARG1> id) {
-			using R1X = typeof (id) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename CLAZZ_IMPLHOLDER_HELP<Clazz ,R1X ,ALWAYS>::ImplHolder ;
 			mPointer = memorize ([&] () {
 				return RC<Holder>::make (TYPEAS<R2X>::id) ;
@@ -2249,14 +2318,14 @@ trait EXCEPTION_HELP<ALWAYS> {
 		using Holder = ExceptionHolder<Exception> ;
 
 	private:
-		PTR<Holder> mPointer ;
+		PTR<VREF<Holder>> mPointer ;
 
 	public:
 		implicit Exception () = delete ;
 
 		template <class ARG1>
 		explicit Exception (XREF<ARG1> id) noexcept {
-			using R1X = typeof (id) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
 			const auto r1x = memorize ([&] () {
 				return RC<Holder>::make (TYPEAS<R1X>::id ,Slice<STR>::nullopt ()) ;
@@ -2330,7 +2399,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,UNIT1>>> {
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
-			using R1X = typeof (expr) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			static auto M_WATCH = WATCH<R1X> () ;
 			M_WATCH.mSelf = &expr ;
 			M_WATCH.mClazz = Clazz (TYPEAS<R1X>::id) ;
@@ -2349,7 +2418,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,UNIT1>>
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
-			using R1X = typeof (expr) ;
+			using R1X = REMOVE_ALL<ARG1> ;
 			static auto M_WATCH = WATCH<R1X> () ;
 			M_WATCH.mSelf = &expr ;
 			M_WATCH.mClazz = Clazz (TYPEAS<R1X>::id) ;
