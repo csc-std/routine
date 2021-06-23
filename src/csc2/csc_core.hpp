@@ -803,13 +803,15 @@ template <class CURR ,class BEGIN ,class END>
 using ENUM_BETWEEN = ENUM_ALL<ENUM_COMPR_GTEQ<CURR ,BEGIN> ,ENUM_COMPR_LT<CURR ,END>> ;
 
 struct FUNCTION_noop {
+	imports void extern_noop (CREF<LENGTH>) ;
+
 	inline void operator() () const noexcept {
-		//@info: noop
+		(void) 0 ;
 	}
 
 	template <class ARG1>
 	inline void operator() (XREF<ARG1> arg1) const noexcept {
-		//@info: noop
+		extern_noop (LENGTH (&arg1)) ;
 	}
 } ;
 
@@ -1353,11 +1355,11 @@ trait RANGE_ITERATOR_HELP<ALWAYS> {
 			return good () ;
 		}
 
-		INDEX get () const {
+		CREF<INDEX> get () const {
 			return mCurr ;
 		}
 
-		inline INDEX operator* () const {
+		inline CREF<INDEX> operator* () const {
 			return get () ;
 		}
 
@@ -1395,6 +1397,7 @@ struct FUNCTION_operator_cabi {
 		requires (IS_TRIVIAL<FLAG>) ;
 		FLAG ret = ZERO ;
 		const R2X tmp ;
+		noop (tmp) ;
 		auto &&r1x = unsafe_deptr (ret) ;
 		auto &&r2x = unsafe_deptr (tmp) ;
 		for (auto &&i : range (0 ,SIZE_OF<FLAG>::value)) {
@@ -1901,6 +1904,7 @@ trait AUTO_HELP<ALWAYS> {
 			const auto r2x = operator_cabi (id) ;
 			assert (r1x == r2x) ;
 			R1X ret ;
+			noop (ret) ;
 			swap (ret ,unsafe_deref (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)).at ()) ;
 			barrier () ;
 			return move (ret) ;
@@ -2312,7 +2316,7 @@ trait EXCEPTION_HELP<ALWAYS> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
 			const auto r1x = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R1X>::id ,Slice<STR>::nullopt ()) ;
+				return RC<Holder>::make (TYPEAS<R2X>::id ,Slice<STR>::nullopt ()) ;
 			}) ;
 			mPointer = &r1x.self ;
 		}

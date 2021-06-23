@@ -301,7 +301,7 @@ struct MACRO_COMPILER_MSVC :public ENUM_TRUE {} ;
 struct MACRO_COMPILER_MSVC :public ENUM_FALSE {} ;
 #endif
 
-#ifdef __CSC_COMPILER_GUNC__
+#ifdef __CSC_COMPILER_GNUC__
 struct MACRO_COMPILER_GNUC :public ENUM_TRUE {} ;
 #else
 struct MACRO_COMPILER_GNUC :public ENUM_FALSE {} ;
