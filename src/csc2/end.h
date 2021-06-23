@@ -64,6 +64,11 @@
 #endif
 #define typeof __macro_typeof
 
+#ifdef throws
+#undef throws
+#endif
+#define throws __macro_throws
+
 #ifdef anonymous
 #undef anonymous
 #endif
