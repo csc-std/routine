@@ -222,9 +222,9 @@ trait REMOVE_ALL_HELP<ALLID<UNIT1> ,ALWAYS> {
 template <class UNIT1>
 using REMOVE_ALL = typename U::REMOVE_ALL_HELP<REMOVE_REF<UNIT1> ,ALWAYS>::RET ;
 
-template <class UNIT1 ,UNIT1 VALUE>
+template <class UNIT1 ,UNIT1 UNIT2>
 struct ENUMAS {
-	static constexpr auto value = VALUE ;
+	static constexpr auto value = UNIT2 ;
 } ;
 
 using ENUM_TRUE = ENUMAS<bool ,true> ;
@@ -273,10 +273,12 @@ template <class UNIT1 ,class UNIT2>
 trait DEPENDENT_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	using RET = UNIT1 ;
 } ;
+} ;
 
 template <class UNIT1 ,class UNIT2 = void>
 using DEPENDENT = typename U::DEPENDENT_HELP<UNIT1 ,UNIT2 ,ALWAYS>::RET ;
 
+namespace U {
 #ifdef __CSC_DEBUG__
 struct MACRO_DEBUG :public ENUM_TRUE {} ;
 #else
