@@ -233,7 +233,9 @@ static constant PHX = PlaceHolder<enum (10)> () ;
 define IS_CLASS<ARG1> = std::is_class (ARG1) ;
 define IS_CONSTRUCTIBLE<RETURN ,PARAMS> = std::is_constructible (RETURN ,PARAMS) ;
 define IS_CONVERTIBLE<FROM ,TO> = IS_CONSTRUCTIBLE<TO ,type<FROM>> ;
-define IS_STRUCT<ARG1> = std::is_struct (ARG1) ;
+define IS_CLONEABLE<ARG1> = std::is_cloneable (ARG1) ;
+define IS_NULLOPT<ARG1> = std::is_nullopt (ARG1) ;
+define IS_TRIVIAL<ARG1> = std::is_trivial (ARG1) ;
 define IS_INTERFACE<ARG1> = std::is_interface (ARG1) ;
 define IS_EXTEND<BASE ,DERIVED> = std::is_extend (BASE ,DERIVED) ;
 define IS_FUNCTION<ARG1> = std::is_function (ARG1) ;
@@ -287,7 +289,7 @@ trait STORAGE_HELP<ARG1 ,ARG2> {
 	using R2X = TYPE_REPEAT<R3X ,R4X> ;
 
 	struct Storage {
-		private variable mStorage... :R2X... ;
+		private variable mUnused... :R2X... ;
 	} ;
 } ;
 
@@ -395,7 +397,7 @@ trait RANGE_ITERATOR_HELP<> {
 
 		function good = () :BOOL => mCurr < mEnd ;
 
-		function get = () :INDEX => mCurr ;
+		property at = [] :INDEX => mCurr ;
 
 		function next = mutable () => {
 			mCurr = mCurr + 1 ;
@@ -413,14 +415,13 @@ trait SLICE_HELP<ARG1> {
 	class Slice {
 		interface Holder ;
 
-		constant mPointer :Holder ;
+		constant mPointer :[] :Holder ;
 	} ;
 
 	interface Slice::Holder {
 		function size = () :LENGTH => virtual ;
 		function addr = () :LENGTH => virtual ;
-		function get = (index :INDEX) :UNIT1 => virtual ;
-		function friend_clone = () :Holder => virtual ;
+		property at = [index :INDEX] :UNIT1 => virtual ;
 	} ;
 
 	implement Slice {
@@ -428,16 +429,6 @@ trait SLICE_HELP<ARG1> {
 
 		function new = (that) => {
 			mPointer = std::builtin_slice (that) ;
-		} ;
-
-		private function new = (id ,&&pointer) => {
-			mPointer = forward (pointer) ;
-		} ;
-
-		function clone = () :Slice => {
-			if (mPointer == NULL)
-				return Slice () ;
-			return Slice (PH0 ,mPointer->friend_clone ()) ;
 		} ;
 
 		function size = () :LENGTH => {
@@ -452,16 +443,16 @@ trait SLICE_HELP<ARG1> {
 			return mPointer->addr () ;
 		} ;
 
-		function get = (index :INDEX) :UNIT1 => {
+		property at = [index :INDEX] :UNIT1 => {
 			assert (between (index ,0 ,size ())) ;
-			return mPointer->get (index) ;
+			return mPointer->at[index] ;
 		} ;
 
 		function equal = (that :Slice) :BOOL => {
 			if (size () != that.size ())
 				return FALSE ;
 			for (i) in (range (0 ,size ())) {
-				if (get (i) != that.get (i))
+				if (at[i] != that.at[i])
 					return FALSE ;
 			} ;
 			return TRUE ;
@@ -470,7 +461,7 @@ trait SLICE_HELP<ARG1> {
 		function compr = (that :Slice) :FLAG => {
 			constant r1x = min (size () ,that.size ()) ;
 			for (i) in (range (0 ,r1x)) {
-				constant r2x = get (i) <=> that.get (i) ;
+				constant r2x = at[i] <=> that.at[i] ;
 				if (r2x != ZERO)
 					return r2x ;
 			} ;
@@ -480,7 +471,7 @@ trait SLICE_HELP<ARG1> {
 		function hash = () :FLAG => {
 			variable ret = hashcode () ;
 			for (i) in (range (0 ,size ())) {
-				constant r1x = FLAG (get (i)) ;
+				constant r1x = FLAG (at[i]) ;
 				ret = hashcode (ret ,r1x) ;
 			} ;
 			return ret ;
@@ -494,7 +485,7 @@ trait CLAZZ_HELP<> {
 	class Clazz {
 		interface Holder ;
 		
-		constant mPointer :Holder ;
+		constant mPointer :[] :Holder ;
 	} ;
 
 	interface Clazz::Holder {
@@ -502,7 +493,6 @@ trait CLAZZ_HELP<> {
 		function type_align = () :LENGTH => virtual ;
 		function type_cabi = () :FLAG => virtual ;
 		function type_name = () :Slice<STR> => virtual ;
-		function friend_clone = () :Holder => virtual ;
 	} ;
 
 	implement Clazz {
@@ -510,16 +500,6 @@ trait CLAZZ_HELP<> {
 
 		function new = (that) => {
 			mPointer = std::builtin_clazz (that) ;
-		} ;
-
-		private function new = (id ,&&pointer) => {
-			mPointer = forward (pointer) ;
-		} ;
-
-		function clone = () :Slice => {
-			if (mPointer == NULL)
-				return Slice () ;
-			return Slice (PH0 ,mPointer->friend_clone ()) ;
 		} ;
 
 		function type_size = () :LENGTH => {
@@ -549,10 +529,29 @@ trait CLAZZ_HELP<> {
 		function equal = (that :Clazz) :BOOL => {
 			if (type_cabi () == that.type_cabi ())
 				return TRUE ;
-			return type_name () == that.type_name () ;
+			if (type_size () != that.type_size ())
+				return FALSE ;
+			if (type_align () != that.type_align ())
+				return FALSE ;
+			if (type_name () != that.type_name ())
+				return FALSE ;
+			return TRUE ;
 		} ;
 
-		function compr = (that :Clazz) :FLAG => type_name () <=> that.type_name () ;
+		function compr = (that :Clazz) :FLAG => {		
+			if (type_cabi () == that.type_cabi ())
+				return ZERO ;
+			constant r1x = type_name () <=> that.type_name () ;
+			if (r1x != ZERO)
+				return r1x ;
+			constant r2x = type_size () <=> that.type_size () ;
+			if (r2x != ZERO)
+				return r2x ;
+			constant r3x = type_align () <=> that.type_align () ;
+			if (r3x != ZERO)
+				return r3x ;
+			return ZERO ;
+		} ;
 
 		function hash = () :FLAG => type_name ().hash () ;
 	} ;
