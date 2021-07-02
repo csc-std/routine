@@ -156,12 +156,12 @@ struct TYPEAS ;
 
 namespace U {
 template <class>
-struct ALLID {} ;
+struct TYPEID {} ;
 } ;
 
 template <class UNIT1>
 struct TYPEAS<UNIT1> {
-	static constexpr auto id = U::ALLID<UNIT1> () ;
+	static constexpr auto id = U::TYPEID<UNIT1> () ;
 } ;
 
 using ALWAYS = void ;
@@ -214,7 +214,7 @@ trait REMOVE_ALL_HELP<UNIT1 ,ALWAYS> {
 } ;
 
 template <class UNIT1>
-trait REMOVE_ALL_HELP<ALLID<UNIT1> ,ALWAYS> {
+trait REMOVE_ALL_HELP<TYPEID<UNIT1> ,ALWAYS> {
 	using RET = UNIT1 ;
 } ;
 } ;

@@ -564,9 +564,9 @@ struct Interface {
 	implicit Interface () = default ;
 	virtual ~Interface () noexcept = default ;
 	implicit Interface (CREF<Interface>) = delete ;
-	void operator= (CREF<Interface>) = delete ;
+	inline void operator= (CREF<Interface>) = delete ;
 	implicit Interface (RREF<Interface>) = delete ;
-	void operator= (RREF<Interface>) = delete ;
+	inline void operator= (RREF<Interface>) = delete ;
 } ;
 
 template <class UNIT1>
@@ -632,6 +632,9 @@ using IS_BYTE = ENUM_ANY<
 	IS_SAME<UNIT1 ,WORD> ,
 	IS_SAME<UNIT1 ,CHAR> ,
 	IS_SAME<UNIT1 ,FEAT>> ;
+
+template <class UNIT1>
+using IS_VOID = IS_SAME<UNIT1 ,void> ;
 
 template <class UNIT1>
 using IS_NULL = IS_SAME<UNIT1 ,typeof (NULL)> ;
@@ -705,6 +708,9 @@ template <class UNIT1>
 struct TEMPID {
 	Storage<SIZE_OF<UNIT1> ,ALIGN_OF<UNIT1>> mStorage ;
 } ;
+
+template <>
+struct TEMPID<void> ;
 } ;
 
 template <class UNIT1>
@@ -791,6 +797,40 @@ struct FUNCTION_unsafe_deptr {
 
 static constexpr auto unsafe_deptr = FUNCTION_unsafe_deptr () ;
 
+template <class UNIT1>
+struct FUNCTION_unsafe_cast_impl {
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	inline VREF<TEMP<UNIT1>> operator() (XREF<ARG1> arg1) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		requires (IS_TEMP<R1X>) ;
+		using R2X = TEMP<UNIT1> ;
+		requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
+		requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+		return reinterpret_cast<VREF<R2X>> (arg1) ;
+	}
+
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	inline CREF<TEMP<UNIT1>> operator() (XREF<ARG1> arg1) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		requires (IS_TEMP<R1X>) ;
+		using R2X = TEMP<UNIT1> ;
+		requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
+		requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+		return reinterpret_cast<CREF<R2X>> (arg1) ;
+	}
+} ;
+
+struct FUNCTION_unsafe_cast {
+	template <class ARG1>
+	inline CREF<FUNCTION_unsafe_cast_impl<REMOVE_ALL<ARG1>>> operator[] (XREF<ARG1> id) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		static constexpr auto M_INVOKE = FUNCTION_unsafe_cast_impl<R1X> () ;
+		return M_INVOKE ;
+	}
+} ;
+
+static constexpr auto unsafe_cast = FUNCTION_unsafe_cast () ;
+
 struct FUNCTION_address {
 	template <class ARG1>
 	inline LENGTH operator() (XREF<ARG1> arg1) const noexcept {
@@ -807,15 +847,15 @@ trait FUNCTION_launder_HELP ;
 template <>
 trait FUNCTION_launder_HELP<ALWAYS> {
 	struct FUNCTION_launder {
-		struct LaunderHolder :public Interface {
+		struct Holder :public Interface {
 			virtual void launder (CREF<LENGTH> addr) const = 0 ;
 		} ;
 
-		imports CREF<LaunderHolder> extern_launder () ;
+		imports CREF<Holder> extern_invoke () ;
 
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> arg1) const noexcept {
-			extern_launder ().launder (address (arg1)) ;
+			extern_invoke ().launder (address (arg1)) ;
 		}
 	} ;
 } ;
@@ -836,35 +876,17 @@ namespace U {
 template <class...>
 trait FUNCTION_barrier_HELP ;
 
-template <class UNIT1>
-trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
+template <>
+trait FUNCTION_barrier_HELP<ALWAYS> {
 	struct FUNCTION_barrier {
-		imports void extern_invoke () ;
+		struct Holder :public Interface {
+			virtual void barrier () const = 0 ;
+		} ;
+
+		imports CREF<Holder> extern_invoke () ;
 
 		inline void operator() () const noexcept {
-			extern_invoke () ;
-		}
-	} ;
-} ;
-
-template <class UNIT1>
-trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
-	struct FUNCTION_barrier {
-		imports void extern_invoke () ;
-
-		inline void operator() () const noexcept {
-			extern_invoke () ;
-		}
-	} ;
-} ;
-
-template <class UNIT1>
-trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
-	struct FUNCTION_barrier {
-		imports void extern_invoke () ;
-
-		inline void operator() () const noexcept {
-			extern_invoke () ;
+			extern_invoke ().barrier () ;
 		}
 	} ;
 } ;
@@ -872,7 +894,7 @@ trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1
 
 struct FUNCTION_barrier {
 	inline void operator() () const noexcept {
-		using R1X = typename U::FUNCTION_barrier_HELP<void ,ALWAYS>::FUNCTION_barrier ;
+		using R1X = typename U::FUNCTION_barrier_HELP<ALWAYS>::FUNCTION_barrier ;
 		static constexpr auto M_INVOKE = R1X () ;
 		return M_INVOKE () ;
 	}
@@ -884,7 +906,7 @@ struct FUNCTION_swap {
 	template <class ARG1 ,class ARG2 ,class = ENABLE<ENUM_ALL<
 		IS_VARIABLE<ARG1> ,
 		IS_VARIABLE<ARG2>>>>
-	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
+		inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
 		requires (IS_SAME<R1X ,R2X>) ;
@@ -902,7 +924,7 @@ struct FUNCTION_keep_impl {
 	template <class ARG1 ,class = ENABLE<ENUM_ANY<
 		IS_VARIABLE<ARG1> ,
 		IS_CONSTANT<ARG1>>>>
-	inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
+		inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
 		return static_cast<XREF<UNIT1>> (arg1) ;
 	}
 } ;
@@ -1003,49 +1025,19 @@ static constexpr auto recreate = FUNCTION_recreate () ;
 
 namespace U {
 template <class...>
-trait FUNCTION_debug_assert_HELP ;
+trait FUNCTION_debug_break_HELP ;
 
-template <class UNIT1>
-trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
+template <>
+trait FUNCTION_debug_break_HELP<ALWAYS> {
 	struct FUNCTION_debug_break {
-		imports void extern_invoke () ;
-	} ;
+		struct Holder :public Interface {
+			virtual void debug_break () const = 0 ;
+		} ;
 
-	struct FUNCTION_debug_assert {
-		inline void operator() (CREF<BOOL> expr) const {
-			if (expr)
-				return ;
-			FUNCTION_debug_break::extern_invoke () ;
-		}
-	} ;
-} ;
+		imports CREF<Holder> extern_invoke () ;
 
-template <class UNIT1>
-trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
-	struct FUNCTION_debug_break {
-		imports void extern_invoke () ;
-	} ;
-
-	struct FUNCTION_debug_assert {
-		inline void operator() (CREF<BOOL> expr) const {
-			if (expr)
-				return ;
-			FUNCTION_debug_break::extern_invoke () ;
-		}
-	} ;
-} ;
-
-template <class UNIT1>
-trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
-	struct FUNCTION_debug_break {
-		imports void extern_invoke () ;
-	} ;
-
-	struct FUNCTION_debug_assert {
-		inline void operator() (CREF<BOOL> expr) const {
-			if (expr)
-				return ;
-			FUNCTION_debug_break::extern_invoke () ;
+		inline void operator() () const noexcept {
+			extern_invoke ().debug_break () ;
 		}
 	} ;
 } ;
@@ -1053,9 +1045,11 @@ trait FUNCTION_debug_assert_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,
 
 struct FUNCTION_debug_assert {
 	inline void operator() (CREF<BOOL> expr) const {
-		using R1X = typename U::FUNCTION_debug_assert_HELP<void ,ALWAYS>::FUNCTION_debug_assert ;
+		using R1X = typename U::FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break ;
 		static constexpr auto M_INVOKE = R1X () ;
-		return M_INVOKE (expr) ;
+		if (expr)
+			return ;
+		return M_INVOKE () ;
 	}
 } ;
 
@@ -1364,17 +1358,105 @@ struct FUNCTION_operator_cabi {
 		FLAG ret = ZERO ;
 		static R2X tmp ;
 		launder (tmp) ;
-		auto &&r1x = unsafe_deptr (ret) ;
-		auto &&r2x = unsafe_deptr (tmp) ;
-		for (auto &&i : range (0 ,SIZE_OF<FLAG>::value)) {
-			r1x.mStorage[i] = r2x.mStorage[i] ;
-		}
+		unsafe_deptr (unsafe_deptr (ret).mStorage) = unsafe_deptr (unsafe_deptr (tmp).mStorage) ;
 		barrier () ;
 		return move (ret) ;
 	}
 } ;
 
 static constexpr auto operator_cabi = FUNCTION_operator_cabi () ;
+
+namespace U {
+struct MakerHolder :public Interface {
+	virtual void friend_create (VREF<TEMP<void>> obj) const = 0 ;
+	virtual void friend_destroy (VREF<TEMP<void>> obj) const = 0 ;
+	virtual LENGTH type_offset () const = 0 ;
+	virtual LENGTH type_size () const = 0 ;
+	virtual LENGTH type_align () const = 0 ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+class MakerImplHolder :public MakerHolder {
+public:
+	void friend_create (VREF<TEMP<void>> obj) const override {
+		create (unsafe_cast[TYPEAS<UNIT2>::id] (obj)) ;
+		barrier () ;
+	}
+
+	void friend_destroy (VREF<TEMP<void>> obj) const override {
+		destroy (unsafe_cast[TYPEAS<UNIT2>::id] (obj)) ;
+		barrier () ;
+	}
+
+	LENGTH type_offset () const override {
+		static TEMP<UNIT2> tmp ;
+		const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
+		const auto r2x = address (tmp) ;
+		return r1x - r2x ;
+	}
+
+	LENGTH type_size () const override {
+		return SIZE_OF<UNIT2>::value ;
+	}
+
+	LENGTH type_align () const override {
+		return ALIGN_OF<UNIT2>::value ;
+	}
+} ;
+
+template <class UNIT1>
+class Dynamic {
+private:
+	PTR<CREF<MakerHolder>> mPointer ;
+
+public:
+	implicit Dynamic () {
+		auto &&thiz = *this ;
+		static MakerImplHolder<UNIT1 ,UNIT1> tmp ;
+		mPointer = &tmp ;
+		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
+		const auto r2x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r1x) ;
+		barrier () ;
+		mPointer->friend_create ((*r2x)) ;
+	}
+
+	implicit Dynamic (CREF<Dynamic>) = delete ;
+	inline void operator= (CREF<Dynamic>) = delete ;
+	implicit Dynamic (RREF<Dynamic>) = delete ;
+	inline void operator= (RREF<Dynamic>) = delete ;
+
+	implicit ~Dynamic () noexcept {
+		auto &&thiz = *this ;
+		if (mPointer == NULL)
+			return ;
+		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
+		const auto r2x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r1x) ;
+		barrier () ;
+		mPointer->friend_destroy ((*r2x)) ;
+		mPointer = NULL ;
+	}
+
+	VREF<UNIT1> at () {
+		auto &&thiz = *this ;
+		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
+		assert (mPointer != NULL) ;
+		const auto r2x = r1x + mPointer->type_offset () ;
+		const auto r3x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r2x) ;
+		barrier () ;
+		return unsafe_deptr (unsafe_cast[TYPEAS<UNIT1>::id] (*r3x)) ;
+	}
+
+	CREF<UNIT1> at () const {
+		assert (mPointer != NULL) ;
+		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
+		assert (mPointer != NULL) ;
+		const auto r2x = r1x + mPointer->type_offset () ;
+		const auto r3x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r2x) ;
+		barrier () ;
+		return unsafe_deptr (unsafe_cast[TYPEAS<UNIT1>::id] (*r3x)) ;
+	}
+} ;
+} ;
 
 namespace U {
 template <class...>
@@ -1744,7 +1826,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			return m_fake () ;
 		}
 
-		UNIT1 value (CREF<UNIT1> def) const {
+		UNIT1 fetch (CREF<UNIT1> def) const {
 			if (exist ())
 				return m_fake () ;
 			return def ;
@@ -1762,14 +1844,10 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			return move (ret) ;
 		}
 
-		BOOL compre (VREF<UNIT1> expect ,CREF<UNIT1> obj) const {
+		BOOL change (CREF<UNIT1> expect ,CREF<UNIT1> obj) const {
 			assert (exist ()) ;
-			if ifswitch (TRUE) {
-				if (m_fake () == expect)
-					discard ;
-				expect = m_fake () ;
+			if (m_fake () != expect)
 				return FALSE ;
-			}
 			m_fake () = obj ;
 			return TRUE ;
 		}
@@ -1829,7 +1907,7 @@ trait AUTO_HELP<ALWAYS> {
 		template <class ARG1 ,class = ENABLE<ENUM_ALL<
 			ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,
 			ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
-		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
+			implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
@@ -2266,7 +2344,7 @@ trait EXCEPTION_HELP<ALWAYS> {
 	struct ExceptionHolder :public Interface {
 		virtual CREF<Slice<STR>> what () const leftvalue = 0 ;
 	} ;
-	
+
 	class Exception {
 	private:
 		using Holder = ExceptionHolder<Exception> ;
@@ -2394,7 +2472,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,UNIT1>>>
 struct FUNCTION_debug_watch {
 	template <class ARG1>
 	inline void operator() (XREF<ARG1> expr) const {
-		using R1X = typename U::FUNCTION_debug_assert_HELP<void ,ALWAYS>::FUNCTION_debug_assert ;
+		using R1X = typename U::FUNCTION_debug_watch_HELP<void ,ALWAYS>::FUNCTION_debug_watch ;
 		static constexpr auto M_INVOKE = R1X () ;
 		return M_INVOKE (expr) ;
 	}
