@@ -750,17 +750,35 @@ namespace U {
 template <class...>
 trait FUNCTION_debug_break_HELP ;
 
-template <>
-trait FUNCTION_debug_break_HELP<ALWAYS> {
+template <class UNIT1>
+trait FUNCTION_debug_break_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_MSVC<UNIT1>>> {
 	struct FUNCTION_debug_break {
-		struct Holder :public Interface {
-			virtual void debug_break () const = 0 ;
-		} ;
-
-		imports CREF<Holder> extern_invoke () ;
+		imports void extern_invoke () ;
 
 		inline void operator() () const noexcept {
-			extern_invoke ().debug_break () ;
+			extern_invoke () ;
+		}
+	} ;
+} ;
+
+template <class UNIT1>
+trait FUNCTION_debug_break_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_GNUC<UNIT1>>> {
+	struct FUNCTION_debug_break {
+		imports void extern_invoke () ;
+
+		inline void operator() () const noexcept {
+			extern_invoke () ;
+		}
+	} ;
+} ;
+
+template <class UNIT1>
+trait FUNCTION_debug_break_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_CLANG<UNIT1>>> {
+	struct FUNCTION_debug_break {
+		imports void extern_invoke () ;
+
+		inline void operator() () const noexcept {
+			extern_invoke () ;
 		}
 	} ;
 } ;
@@ -768,7 +786,7 @@ trait FUNCTION_debug_break_HELP<ALWAYS> {
 
 struct FUNCTION_debug_assert {
 	inline void operator() (CREF<BOOL> expr) const {
-		using R1X = typename U::FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break ;
+		using R1X = typename U::FUNCTION_debug_break_HELP<void ,ALWAYS>::FUNCTION_debug_break ;
 		static constexpr auto M_INVOKE = R1X () ;
 		if (expr)
 			return ;
@@ -876,51 +894,37 @@ static constexpr auto address = FUNCTION_address () ;
 
 namespace U {
 template <class...>
-trait FUNCTION_launder_HELP ;
+trait FUNCTION_barrier_HELP ;
 
-template <>
-trait FUNCTION_launder_HELP<ALWAYS> {
-	struct FUNCTION_launder {
-		struct Holder :public Interface {
-			virtual void launder (CREF<LENGTH> addr) const = 0 ;
-		} ;
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_MSVC<UNIT1>>> {
+	struct FUNCTION_barrier {
+		imports void extern_invoke () ;
 
-		imports CREF<Holder> extern_invoke () ;
-
-		template <class ARG1>
-		inline void operator() (XREF<ARG1> arg1) const noexcept {
-			extern_invoke ().launder (address (arg1)) ;
+		inline void operator() () const noexcept {
+			extern_invoke () ;
 		}
 	} ;
 } ;
-} ;
 
-struct FUNCTION_launder {
-	template <class ARG1>
-	inline void operator() (XREF<ARG1> arg1) const noexcept {
-		using R1X = typename U::FUNCTION_launder_HELP<ALWAYS>::FUNCTION_launder ;
-		static constexpr auto M_INVOKE = R1X () ;
-		return M_INVOKE (arg1) ;
-	}
-} ;
-
-static constexpr auto launder = FUNCTION_launder () ;
-
-namespace U {
-template <class...>
-trait FUNCTION_barrier_HELP ;
-
-template <>
-trait FUNCTION_barrier_HELP<ALWAYS> {
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_GNUC<UNIT1>>> {
 	struct FUNCTION_barrier {
-		struct Holder :public Interface {
-			virtual void barrier () const = 0 ;
-		} ;
-
-		imports CREF<Holder> extern_invoke () ;
+		imports void extern_invoke () ;
 
 		inline void operator() () const noexcept {
-			extern_invoke ().barrier () ;
+			extern_invoke () ;
+		}
+	} ;
+} ;
+
+template <class UNIT1>
+trait FUNCTION_barrier_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_CLANG<UNIT1>>> {
+	struct FUNCTION_barrier {
+		imports void extern_invoke () ;
+
+		inline void operator() () const noexcept {
+			extern_invoke () ;
 		}
 	} ;
 } ;
@@ -928,7 +932,7 @@ trait FUNCTION_barrier_HELP<ALWAYS> {
 
 struct FUNCTION_barrier {
 	inline void operator() () const noexcept {
-		using R1X = typename U::FUNCTION_barrier_HELP<ALWAYS>::FUNCTION_barrier ;
+		using R1X = typename U::FUNCTION_barrier_HELP<void ,ALWAYS>::FUNCTION_barrier ;
 		static constexpr auto M_INVOKE = R1X () ;
 		return M_INVOKE () ;
 	}
@@ -1090,7 +1094,7 @@ trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 		}
 
 		LENGTH type_offset () const override {
-			static TEMP<UNIT2> tmp ;
+			static TEMP<UNIT2> tmp {} ;
 			const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
 			const auto r2x = address (tmp) ;
 			return r1x - r2x ;
@@ -1130,7 +1134,7 @@ public:
 	void create () {
 		using R1X = typename U::MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT1 ,ALWAYS>::MakerImplHolder ;
 		assert (mPointer == NULL) ;
-		static R1X tmp ;
+		static R1X tmp {} ;
 		mPointer = &tmp ;
 		mPointer->friend_create (m_fake ()) ;
 	}
@@ -1459,8 +1463,7 @@ struct FUNCTION_operator_cabi {
 		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
 		require (IS_TRIVIAL<FLAG>) ;
 		FLAG ret = ZERO ;
-		static R2X tmp ;
-		launder (tmp) ;
+		static R2X tmp {} ;
 		unsafe_deptr (unsafe_deptr (ret).mStorage) = unsafe_deptr (unsafe_deptr (tmp).mStorage) ;
 		barrier () ;
 		return move (ret) ;
@@ -1506,7 +1509,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			Box ret ;
+			Box ret {} ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
 			return move (ret) ;
 		}
@@ -1650,7 +1653,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
-			RC ret ;
+			RC ret {} ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
 			const auto r1x = ret.mPointer->increase () ;
 			assert (r1x == 1) ;
@@ -1791,7 +1794,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 
 		template <class...ARGS>
 		imports Cell make (XREF<ARGS>...obj) {
-			Cell ret ;
+			Cell ret {} ;
 			create (ret.mHolder ,forward[TYPEAS<ARGS>::id] (obj)...) ;
 			ret.mExist = TRUE ;
 			return move (ret) ;
@@ -1957,8 +1960,7 @@ trait AUTO_HELP<ALWAYS> {
 			const auto r1x = unsafe_deref (mHolder).type_cabi () ;
 			const auto r2x = operator_cabi (id) ;
 			assert (r1x == r2x) ;
-			R1X ret ;
-			launder (ret) ;
+			R1X ret {} ;
 			swap (ret ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
 			barrier () ;
 			return move (ret) ;
@@ -2461,7 +2463,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
-			static WATCH<R1X> tmp ;
+			static WATCH<R1X> tmp {} ;
 			tmp.mSelf = &expr ;
 			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
