@@ -72,7 +72,7 @@
 #ifdef anonymous
 #undef anonymous
 #endif
-#define anonymous __anonymous ## __LINE__
+#define anonymous __macro_anonymous
 
 #ifdef TRUE
 #undef TRUE

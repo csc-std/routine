@@ -25,7 +25,7 @@ template <class...>
 trait VAR_HELP ;
 
 template <class UNIT1>
-trait VAR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,UNIT1>>> {
+trait VAR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_VAR32<UNIT1>>> {
 	using VAR = VAR32 ;
 
 	static constexpr auto VAR_MAX = VAR32_MAX ;
@@ -33,7 +33,7 @@ trait VAR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR32 ,UNIT1>>> {
 } ;
 
 template <class UNIT1>
-trait VAR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_VAR64 ,UNIT1>>> {
+trait VAR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_VAR64<UNIT1>>> {
 	using VAR = VAR64 ;
 
 	static constexpr auto VAR_MAX = VAR64_MAX ;
@@ -77,12 +77,12 @@ template <class...>
 trait STR_HELP ;
 
 template <class UNIT1>
-trait STR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRA ,UNIT1>>> {
+trait STR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_STRA<UNIT1>>> {
 	using STR = STRA ;
 } ;
 
 template <class UNIT1>
-trait STR_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_CONFIG_STRW ,UNIT1>>> {
+trait STR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_STRW<UNIT1>>> {
 	using STR = STRW ;
 } ;
 } ;
@@ -116,10 +116,10 @@ struct CONSTANT ;
 struct REGISTER ;
 
 template <class UNIT1>
-using SIZE_OF = ENUMAS<VAR ,sizeof (UNIT1)> ;
+using SIZE_OF = ENUMAS<VAR ,(sizeof (UNIT1))> ;
 
 template <class UNIT1>
-using ALIGN_OF = ENUMAS<VAR ,alignof (UNIT1)> ;
+using ALIGN_OF = ENUMAS<VAR ,(alignof (UNIT1))> ;
 
 namespace U {
 template <class...>
@@ -127,7 +127,7 @@ trait COUNT_OF_HELP ;
 
 template <class...UNITS>
 trait COUNT_OF_HELP<TYPEAS<UNITS...> ,ALWAYS> {
-	using RET = ENUMAS<VAR ,sizeof... (UNITS)> ;
+	using RET = ENUMAS<VAR ,(sizeof... (UNITS))> ;
 } ;
 } ;
 
@@ -151,19 +151,6 @@ trait IS_ENUM_HELP<ENUMAS<UNIT1 ,UNIT2> ,ALWAYS> {
 
 template <class UNIT1>
 using IS_ENUM = typename U::IS_ENUM_HELP<UNIT1 ,ALWAYS>::RET ;
-
-namespace U {
-template <class...>
-trait ENUM_TYPE_HELP ;
-
-template <class UNIT1 ,UNIT1 UNIT2>
-trait ENUM_TYPE_HELP<ENUMAS<UNIT1 ,UNIT2> ,ALWAYS> {
-	using RET = UNIT1 ;
-} ;
-} ;
-
-template <class UNIT1>
-using ENUM_TYPE = typename U::ENUM_TYPE_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
@@ -306,19 +293,19 @@ template <class UNIT1>
 using ENUM_GT_IDEN = ENUM_COMPR_GT<UNIT1 ,ENUM_IDEN> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_ADD = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value + ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_ADD = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value + ENUM_CHECK<UNIT2>::value)> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_SUB = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value - ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_SUB = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value - ENUM_CHECK<UNIT2>::value)> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_MUL = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value * ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_MUL = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value * ENUM_CHECK<UNIT2>::value)> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_DIV = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value / ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_DIV = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value / ENUM_CHECK<UNIT2>::value)> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_MOD = ENUMAS<ENUM_TYPE<UNIT1> ,(ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_MOD = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT2>::value)> ;
 
 template <class UNIT1>
 using ENUM_MINUS = ENUM_SUB<ENUM_ZERO ,UNIT1> ;
@@ -409,7 +396,7 @@ trait ENUM_ALL_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<UNIT1>>>> {
 
 template <class UNIT1>
 trait ENUM_ALL_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<UNIT1>>>> {
-	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<UNIT1>> ;
+	using R1X = ENUM_CHECK<TYPE_FIRST_ONE<UNIT1>> ;
 	using R3X = typename ENUM_ALL_HELP<TYPE_FIRST_REST<UNIT1> ,ALWAYS>::RET ;
 	using RET = CONDITIONAL<R1X ,R3X ,ENUM_FALSE> ;
 } ;
@@ -429,7 +416,7 @@ trait ENUM_ANY_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<UNIT1>>>> {
 
 template <class UNIT1>
 trait ENUM_ANY_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<UNIT1>>>> {
-	using R1X = ENUM_BOOL<TYPE_FIRST_ONE<UNIT1>> ;
+	using R1X = ENUM_CHECK<TYPE_FIRST_ONE<UNIT1>> ;
 	using R3X = typename ENUM_ANY_HELP<TYPE_FIRST_REST<UNIT1> ,ALWAYS>::RET ;
 	using RET = CONDITIONAL<R1X ,ENUM_TRUE ,R3X> ;
 } ;
@@ -903,9 +890,7 @@ struct FUNCTION_barrier {
 static constexpr auto barrier = FUNCTION_barrier () ;
 
 struct FUNCTION_swap {
-	template <class ARG1 ,class ARG2 ,class = ENABLE<ENUM_ALL<
-		IS_VARIABLE<ARG1> ,
-		IS_VARIABLE<ARG2>>>>
+	template <class ARG1 ,class ARG2 ,class = ENABLE<ENUM_ALL<IS_VARIABLE<ARG1> ,IS_VARIABLE<ARG2>>>>
 		inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
@@ -921,9 +906,7 @@ static constexpr auto swap = FUNCTION_swap () ;
 
 template <class UNIT1>
 struct FUNCTION_keep_impl {
-	template <class ARG1 ,class = ENABLE<ENUM_ANY<
-		IS_VARIABLE<ARG1> ,
-		IS_CONSTANT<ARG1>>>>
+	template <class ARG1 ,class = ENABLE<ENUM_ANY<IS_VARIABLE<ARG1> ,IS_CONSTANT<ARG1>>>>
 		inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
 		return static_cast<XREF<UNIT1>> (arg1) ;
 	}
@@ -1447,7 +1430,7 @@ public:
 	}
 
 	CREF<UNIT1> at () const {
-		assert (mPointer != NULL) ;
+		auto &&thiz = *this ;
 		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
 		assert (mPointer != NULL) ;
 		const auto r2x = r1x + mPointer->type_offset () ;
@@ -1904,10 +1887,8 @@ trait AUTO_HELP<ALWAYS> {
 	public:
 		implicit Auto () = delete ;
 
-		template <class ARG1 ,class = ENABLE<ENUM_ALL<
-			ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,
-			ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
-			implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
+		template <class ARG1 ,class = ENABLE<ENUM_ALL<ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
+		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			requires (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
@@ -2421,7 +2402,7 @@ template <class...>
 trait FUNCTION_debug_watch_HELP ;
 
 template <class UNIT1>
-trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,UNIT1>>> {
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
 		PTR<CREF<BASE>> mSelf ;
@@ -2440,7 +2421,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_DEBUG ,UNIT1>>> {
 } ;
 
 template <class UNIT1>
-trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,UNIT1>>> {
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
 	template <class BASE>
 	struct WATCH :public Interface {
 		PTR<CREF<BASE>> mSelf ;
@@ -2459,7 +2440,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_UNITTEST ,UNIT1>>
 } ;
 
 template <class UNIT1>
-trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_RELEASE ,UNIT1>>> {
+trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_RELEASE<UNIT1>>> {
 	struct  FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {

@@ -9,7 +9,7 @@ template <class...>
 trait FUNCTION_barrier_IMPLHOLDER_HELP ;
 
 template <class UNIT1>
-trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
+trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_MSVC<UNIT1>>> {
 	using Holder = typename FUNCTION_barrier_HELP<ALWAYS>::FUNCTION_barrier::Holder ;
 
 	class ImplHolder :public Holder {
@@ -21,7 +21,7 @@ trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_M
 } ;
 
 template <class UNIT1>
-trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
+trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_GNUC<UNIT1>>> {
 	using Holder = typename FUNCTION_barrier_HELP<ALWAYS>::FUNCTION_barrier::Holder ;
 
 	class ImplHolder :public Holder {
@@ -35,7 +35,7 @@ trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_G
 } ;
 
 template <class UNIT1>
-trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
+trait FUNCTION_barrier_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_CLANG<UNIT1>>> {
 	using Holder = typename FUNCTION_barrier_HELP<ALWAYS>::FUNCTION_barrier::Holder ;
 
 	class ImplHolder :public Holder {
@@ -85,7 +85,7 @@ template <class...>
 trait FUNCTION_debug_break_IMPLHOLDER_HELP ;
 
 template <class UNIT1>
-trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_MSVC ,UNIT1>>> {
+trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_MSVC<UNIT1>>> {
 	using Holder = typename FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break::Holder ;
 
 	class ImplHolder :public Holder {
@@ -99,7 +99,7 @@ trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPIL
 } ;
 
 template <class UNIT1>
-trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_GNUC ,UNIT1>>> {
+trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_GNUC<UNIT1>>> {
 	using Holder = typename FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break::Holder ;
 
 	class ImplHolder :public Holder {
@@ -113,7 +113,7 @@ trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPIL
 } ;
 
 template <class UNIT1>
-trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<DEPENDENT<MACRO_COMPILER_CLANG ,UNIT1>>> {
+trait FUNCTION_debug_break_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<MACRO_COMPILER_CLANG<UNIT1>>> {
 	using Holder = typename FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break::Holder ;
 
 	class ImplHolder :public Holder {
