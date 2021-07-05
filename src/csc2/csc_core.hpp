@@ -43,8 +43,8 @@ trait VAR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_VAR64<UNIT1>>> {
 
 using VAR = typename U::VAR_HELP<void ,ALWAYS>::VAR ;
 
-static constexpr auto VAR_MAX = U::VAR_HELP<void ,void>::VAR_MAX ;
-static constexpr auto VAR_MIN = U::VAR_HELP<void ,void>::VAR_MIN ;
+static constexpr auto VAR_MAX = U::VAR_HELP<void ,ALWAYS>::VAR_MAX ;
+static constexpr auto VAR_MIN = U::VAR_HELP<void ,ALWAYS>::VAR_MIN ;
 
 static constexpr auto ZERO = VAR (+0) ;
 static constexpr auto IDEN = VAR (+1) ;
@@ -746,11 +746,45 @@ struct FUNCTION_noop {
 
 static constexpr auto noop = FUNCTION_noop () ;
 
+namespace U {
+template <class...>
+trait FUNCTION_debug_break_HELP ;
+
+template <>
+trait FUNCTION_debug_break_HELP<ALWAYS> {
+	struct FUNCTION_debug_break {
+		struct Holder :public Interface {
+			virtual void debug_break () const = 0 ;
+		} ;
+
+		imports CREF<Holder> extern_invoke () ;
+
+		inline void operator() () const noexcept {
+			extern_invoke ().debug_break () ;
+		}
+	} ;
+} ;
+} ;
+
+struct FUNCTION_debug_assert {
+	inline void operator() (CREF<BOOL> expr) const {
+		using R1X = typename U::FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break ;
+		static constexpr auto M_INVOKE = R1X () ;
+		if (expr)
+			return ;
+		return M_INVOKE () ;
+	}
+} ;
+
+static constexpr auto debug_assert = FUNCTION_debug_assert () ;
+
+static constexpr auto unittest_assert = FUNCTION_debug_assert () ;
+
 struct FUNCTION_unsafe_deref {
 	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline VREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R1X>) ;
 		using R2X = VREF<REMOVE_TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
@@ -758,7 +792,7 @@ struct FUNCTION_unsafe_deref {
 	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
 	inline CREF<REMOVE_TEMP<REMOVE_ALL<ARG1>>> operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R1X>) ;
 		using R2X = CREF<REMOVE_TEMP<R1X>> ;
 		return reinterpret_cast<XREF<R2X>> (arg1) ;
 	}
@@ -787,22 +821,24 @@ static constexpr auto unsafe_deptr = FUNCTION_unsafe_deptr () ;
 template <class UNIT1>
 struct FUNCTION_unsafe_cast_impl {
 	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
-	inline VREF<TEMP<UNIT1>> operator() (XREF<ARG1> arg1) const noexcept {
+	inline VREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
-		using R2X = TEMP<UNIT1> ;
-		requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
-		requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+		using R2X = UNIT1 ;
+		require (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R2X>) ;
+		require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
+		require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
 		return reinterpret_cast<VREF<R2X>> (arg1) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<TEMP<UNIT1>> operator() (XREF<ARG1> arg1) const noexcept {
+	inline CREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
-		using R2X = TEMP<UNIT1> ;
-		requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
-		requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+		using R2X = UNIT1 ;
+		require (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R2X>) ;
+		require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
+		require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
 		return reinterpret_cast<CREF<R2X>> (arg1) ;
 	}
 } ;
@@ -811,12 +847,23 @@ struct FUNCTION_unsafe_cast {
 	template <class ARG1>
 	inline CREF<FUNCTION_unsafe_cast_impl<REMOVE_ALL<ARG1>>> operator[] (XREF<ARG1> id) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
+		require (IS_TEMP<R1X>) ;
 		static constexpr auto M_INVOKE = FUNCTION_unsafe_cast_impl<R1X> () ;
 		return M_INVOKE ;
 	}
 } ;
 
 static constexpr auto unsafe_cast = FUNCTION_unsafe_cast () ;
+
+struct FUNCTION_unsafe_pointer {
+	inline VREF<TEMP<void>> operator[] (CREF<LENGTH> addr) const noexcept {
+		const auto r1x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (addr) ;
+		assert (r1x != NULL) ;
+		return (*r1x) ;
+	}
+} ;
+
+static constexpr auto unsafe_pointer = FUNCTION_unsafe_pointer () ;
 
 struct FUNCTION_address {
 	template <class ARG1>
@@ -894,7 +941,7 @@ struct FUNCTION_swap {
 		inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
-		requires (IS_SAME<R1X ,R2X>) ;
+		require (IS_SAME<R1X ,R2X>) ;
 		auto rax = unsafe_deptr (arg1) ;
 		unsafe_deptr (arg1) = unsafe_deptr (arg2) ;
 		unsafe_deptr (arg2) = rax ;
@@ -972,9 +1019,10 @@ struct FUNCTION_create {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...obj) const {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		new (&unsafe_deref (thiz)) R2X (forward[TYPEAS<ARGS>::id] (obj)...) ;
+		barrier () ;
 	}
 } ;
 
@@ -984,9 +1032,10 @@ struct FUNCTION_destroy {
 	template <class ARG1 ,class...ARGS>
 	inline void operator() (XREF<ARG1> thiz) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		requires (IS_TEMP<R1X>) ;
+		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
 		unsafe_deref (thiz).~R2X () ;
+		barrier () ;
 	}
 } ;
 
@@ -997,7 +1046,7 @@ struct FUNCTION_recreate {
 	inline void operator() (XREF<ARG1> thiz ,XREF<ARG2> that) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
-		requires (IS_SAME<R1X ,R2X>) ;
+		require (IS_SAME<R1X ,R2X>) ;
 		destroy (unsafe_deptr (thiz)) ;
 		create (unsafe_deptr (thiz) ,forward[TYPEAS<ARG2>::id] (that)) ;
 		barrier () ;
@@ -1008,37 +1057,108 @@ static constexpr auto recreate = FUNCTION_recreate () ;
 
 namespace U {
 template <class...>
-trait FUNCTION_debug_break_HELP ;
+trait MAKER_HELP ;
+
+template <class...>
+trait MAKER_IMPLHOLDER_HELP ;
 
 template <>
-trait FUNCTION_debug_break_HELP<ALWAYS> {
-	struct FUNCTION_debug_break {
-		struct Holder :public Interface {
-			virtual void debug_break () const = 0 ;
-		} ;
+trait MAKER_HELP<ALWAYS> {
+	struct MakerHolder :public Interface {
+		virtual void friend_create (VREF<TEMP<void>> obj) const = 0 ;
+		virtual void friend_destroy (VREF<TEMP<void>> obj) const = 0 ;
+		virtual LENGTH type_offset () const = 0 ;
+		virtual LENGTH type_size () const = 0 ;
+		virtual LENGTH type_align () const = 0 ;
+	} ;
+} ;
 
-		imports CREF<Holder> extern_invoke () ;
+template <class UNIT1 ,class UNIT2>
+trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
+	using Holder = typename MAKER_HELP<ALWAYS>::MakerHolder ;
 
-		inline void operator() () const noexcept {
-			extern_invoke ().debug_break () ;
+	class MakerImplHolder :public Holder {
+	public:
+		void friend_create (VREF<TEMP<void>> obj) const override {
+			create (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (obj)) ;
+			barrier () ;
+		}
+
+		void friend_destroy (VREF<TEMP<void>> obj) const override {
+			destroy (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (obj)) ;
+			barrier () ;
+		}
+
+		LENGTH type_offset () const override {
+			static TEMP<UNIT2> tmp ;
+			const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
+			const auto r2x = address (tmp) ;
+			return r1x - r2x ;
+		}
+
+		LENGTH type_size () const override {
+			return SIZE_OF<UNIT2>::value ;
+		}
+
+		LENGTH type_align () const override {
+			return ALIGN_OF<UNIT2>::value ;
 		}
 	} ;
 } ;
 } ;
 
-struct FUNCTION_debug_assert {
-	inline void operator() (CREF<BOOL> expr) const {
-		using R1X = typename U::FUNCTION_debug_break_HELP<ALWAYS>::FUNCTION_debug_break ;
-		static constexpr auto M_INVOKE = R1X () ;
-		if (expr)
+template <class UNIT1>
+class Dynamic {
+private:
+	using MakerHolder = typename U::MAKER_HELP<ALWAYS>::MakerHolder ;
+
+private:
+	PTR<CREF<MakerHolder>> mPointer ;
+
+public:
+	implicit Dynamic () = delete ;
+	implicit ~Dynamic () = delete ;
+	implicit Dynamic (CREF<Dynamic>) = delete ;
+	inline void operator= (CREF<Dynamic>) = delete ;
+	implicit Dynamic (RREF<Dynamic>) = delete ;
+	inline void operator= (RREF<Dynamic>) = delete ;
+
+	imports PTR<VREF<Dynamic>> from (CREF<PTR<VREF<TEMP<void>>>> addr) {
+		return unsafe_deref (unsafe_cast[TYPEAS<TEMP<Dynamic>>::id] (addr)) ;
+	}
+
+	void create () {
+		using R1X = typename U::MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT1 ,ALWAYS>::MakerImplHolder ;
+		assert (mPointer == NULL) ;
+		static R1X tmp ;
+		mPointer = &tmp ;
+		mPointer->friend_create (m_fake ()) ;
+	}
+
+	void destroy () {
+		if (mPointer == NULL)
 			return ;
-		return M_INVOKE () ;
+		mPointer->friend_destroy (m_fake ()) ;
+		mPointer = NULL ;
+	}
+
+	VREF<UNIT1> at () leftvalue {
+		return unsafe_deref (unsafe_cast[TYPEAS<TEMP<UNIT1>>::id] (m_fake ())) ;
+	}
+
+	CREF<UNIT1> at () const leftvalue {
+		return unsafe_deref (unsafe_cast[TYPEAS<TEMP<UNIT1>>::id] (m_fake ())) ;
+	}
+
+private:
+	VREF<TEMP<void>> m_fake () leftvalue {
+		auto &&thiz = *this ;
+		assert (mPointer != NULL) ;
+		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
+		const auto r2x = r1x + mPointer->type_offset () ;
+		return unsafe_pointer (r2x) ;
 	}
 } ;
-
-static constexpr auto debug_assert = FUNCTION_debug_assert () ;
-
-static constexpr auto unittest_assert = FUNCTION_debug_assert () ;
 
 struct FUNCTION_bad {
 	template <class ARG1>
@@ -1093,7 +1213,7 @@ struct FUNCTION_operator_compr {
 	inline FLAG operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
-		requires (IS_SAME<R1X ,R2X>) ;
+		require (IS_SAME<R1X ,R2X>) ;
 		using R3X = typename U::FUNCTION_operator_compr_HELP<R1X ,ALWAYS>::FUNCTION_operator_compr ;
 		static constexpr auto M_INVOKE = R3X () ;
 		return M_INVOKE (arg1 ,arg2) ;
@@ -1153,7 +1273,7 @@ struct FUNCTION_min {
 	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
-		requires (IS_SAME<R1X ,R2X>) ;
+		require (IS_SAME<R1X ,R2X>) ;
 		if (arg1 <= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1167,7 +1287,7 @@ struct FUNCTION_max {
 	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
-		requires (IS_SAME<R1X ,R2X>) ;
+		require (IS_SAME<R1X ,R2X>) ;
 		if (arg1 >= arg2)
 			return arg1 ;
 		return arg2 ;
@@ -1298,11 +1418,11 @@ trait RANGE_ITERATOR_HELP<ALWAYS> {
 			return good () ;
 		}
 
-		CREF<INDEX> at () const {
+		CREF<INDEX> at () const leftvalue {
 			return mCurr ;
 		}
 
-		inline CREF<INDEX> operator* () const {
+		inline CREF<INDEX> operator* () const leftvalue {
 			return at () ;
 		}
 
@@ -1335,9 +1455,9 @@ struct FUNCTION_operator_cabi {
 	inline FLAG operator() (XREF<ARG1> id) const {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = CABI<R1X> ;
-		requires (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
-		requires (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
-		requires (IS_TRIVIAL<FLAG>) ;
+		require (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
+		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
+		require (IS_TRIVIAL<FLAG>) ;
 		FLAG ret = ZERO ;
 		static R2X tmp ;
 		launder (tmp) ;
@@ -1348,98 +1468,6 @@ struct FUNCTION_operator_cabi {
 } ;
 
 static constexpr auto operator_cabi = FUNCTION_operator_cabi () ;
-
-namespace U {
-struct MakerHolder :public Interface {
-	virtual void friend_create (VREF<TEMP<void>> obj) const = 0 ;
-	virtual void friend_destroy (VREF<TEMP<void>> obj) const = 0 ;
-	virtual LENGTH type_offset () const = 0 ;
-	virtual LENGTH type_size () const = 0 ;
-	virtual LENGTH type_align () const = 0 ;
-} ;
-
-template <class UNIT1 ,class UNIT2>
-class MakerImplHolder :public MakerHolder {
-public:
-	void friend_create (VREF<TEMP<void>> obj) const override {
-		create (unsafe_cast[TYPEAS<UNIT2>::id] (obj)) ;
-		barrier () ;
-	}
-
-	void friend_destroy (VREF<TEMP<void>> obj) const override {
-		destroy (unsafe_cast[TYPEAS<UNIT2>::id] (obj)) ;
-		barrier () ;
-	}
-
-	LENGTH type_offset () const override {
-		static TEMP<UNIT2> tmp ;
-		const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
-		const auto r2x = address (tmp) ;
-		return r1x - r2x ;
-	}
-
-	LENGTH type_size () const override {
-		return SIZE_OF<UNIT2>::value ;
-	}
-
-	LENGTH type_align () const override {
-		return ALIGN_OF<UNIT2>::value ;
-	}
-} ;
-
-template <class UNIT1>
-class Dynamic {
-private:
-	PTR<CREF<MakerHolder>> mPointer ;
-
-public:
-	implicit Dynamic () {
-		auto &&thiz = *this ;
-		static MakerImplHolder<UNIT1 ,UNIT1> tmp ;
-		mPointer = &tmp ;
-		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
-		const auto r2x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r1x) ;
-		barrier () ;
-		mPointer->friend_create ((*r2x)) ;
-	}
-
-	implicit Dynamic (CREF<Dynamic>) = delete ;
-	inline void operator= (CREF<Dynamic>) = delete ;
-	implicit Dynamic (RREF<Dynamic>) = delete ;
-	inline void operator= (RREF<Dynamic>) = delete ;
-
-	implicit ~Dynamic () noexcept {
-		auto &&thiz = *this ;
-		if (mPointer == NULL)
-			return ;
-		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
-		const auto r2x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r1x) ;
-		barrier () ;
-		mPointer->friend_destroy ((*r2x)) ;
-		mPointer = NULL ;
-	}
-
-	VREF<UNIT1> at () {
-		auto &&thiz = *this ;
-		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
-		assert (mPointer != NULL) ;
-		const auto r2x = r1x + mPointer->type_offset () ;
-		const auto r3x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r2x) ;
-		barrier () ;
-		return unsafe_deptr (unsafe_cast[TYPEAS<UNIT1>::id] (*r3x)) ;
-	}
-
-	CREF<UNIT1> at () const {
-		auto &&thiz = *this ;
-		const auto r1x = address (thiz) + SIZE_OF<Dynamic>::value ;
-		assert (mPointer != NULL) ;
-		const auto r2x = r1x + mPointer->type_offset () ;
-		const auto r3x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (r2x) ;
-		barrier () ;
-		return unsafe_deptr (unsafe_cast[TYPEAS<UNIT1>::id] (*r3x)) ;
-	}
-} ;
-} ;
 
 namespace U {
 template <class...>
@@ -1476,7 +1504,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		template <class ARG1 ,class...ARGS>
 		imports Box make (XREF<ARG1> id ,XREF<ARGS>...obj) {
 			using R1X = REMOVE_ALL<ARG1> ;
-			requires (IS_EXTEND<UNIT1 ,R1X>) ;
+			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			Box ret ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
@@ -1621,7 +1649,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		imports RC make (XREF<ARG1> id ,XREF<ARGS>...obj) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			requires (IS_EXTEND<UNIT1 ,R1X>) ;
+			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			RC ret ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
 			const auto r1x = ret.mPointer->increase () ;
@@ -1890,12 +1918,12 @@ trait AUTO_HELP<ALWAYS> {
 		template <class ARG1 ,class = ENABLE<ENUM_ALL<ENUM_NOT<IS_SAME<ARG1 ,Auto>> ,ENUM_NOT<IS_PLACEHOLDER<ARG1>>>>>
 		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
 			using R1X = REMOVE_ALL<ARG1> ;
-			requires (IS_NULLOPT<R1X>) ;
+			require (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
-			requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
-			requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
-			create (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)) ;
-			swap (that ,unsafe_deref (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)).at ()) ;
+			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
+			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
+			create (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)) ;
+			swap (that ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
 			barrier () ;
 			mExist = TRUE ;
 		}
@@ -1904,6 +1932,7 @@ trait AUTO_HELP<ALWAYS> {
 			if ifnot (mExist)
 				return ;
 			unsafe_deref (mHolder).destroy () ;
+			barrier () ;
 			mExist = FALSE ;
 		}
 
@@ -1921,16 +1950,16 @@ trait AUTO_HELP<ALWAYS> {
 		template <class ARG1>
 		REMOVE_ALL<ARG1> fetch (XREF<ARG1> id) rightvalue noexcept {
 			using R1X = REMOVE_ALL<ARG1> ;
-			requires (IS_NULLOPT<R1X>) ;
+			require (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
-			requires (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
-			requires (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
+			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
+			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
 			const auto r1x = unsafe_deref (mHolder).type_cabi () ;
 			const auto r2x = operator_cabi (id) ;
 			assert (r1x == r2x) ;
 			R1X ret ;
 			launder (ret) ;
-			swap (ret ,unsafe_deref (reinterpret_cast<VREF<TEMP<R2X>>> (mHolder)).at ()) ;
+			swap (ret ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
 			barrier () ;
 			return move (ret) ;
 		}

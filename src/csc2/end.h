@@ -1,8 +1,8 @@
 
-#ifdef requires
-#undef requires
+#ifdef require
+#undef require
 #endif
-#define requires __macro_requires
+#define require __macro_requires
 
 #ifdef assert
 #undef assert
