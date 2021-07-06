@@ -1432,7 +1432,7 @@ struct FUNCTION_operator_cabi {
 	template <class ARG1>
 	inline FLAG operator() (XREF<ARG1> id) const {
 		using R1X = REMOVE_ALL<ARG1> ;
-		using R2X = typename U::CABI_HELP<R1X>::CABI ;
+		using R2X = typename U::CABI_HELP<R1X ,ALWAYS>::CABI ;
 		require (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
 		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
 		require (IS_TRIVIAL<FLAG>) ;
@@ -2418,7 +2418,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = typename U::WATCH_HELP<R1X>::WATCH ;
+			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
 			static R2X M_WATCH ;
 			M_WATCH.mSelf = &expr ;
 			M_WATCH.mClazz = Clazz (TYPEAS<R1X>::id) ;
@@ -2432,7 +2432,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = typename U::WATCH_HELP<R1X>::WATCH ;
+			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
 			static R2X tmp {} ;
 			tmp.mSelf = &expr ;
 			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;

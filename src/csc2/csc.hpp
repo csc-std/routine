@@ -112,25 +112,22 @@
 #include <cstdlib>
 #include "end.h"
 
-#ifndef __macro_unwind
-#define __macro_unwind(...) __VA_ARGS__
-#endif
-
 #ifndef __macro_stringize
-#define __macro_stringize(...) #__VA_ARGS__
+#define __macro_stringize_impl(...) #__VA_ARGS__
+#define __macro_stringize(...) __macro_stringize_impl (__VA_ARGS__)
 #endif
 
 #ifndef __macro_requires
-#define __macro_requires(...) static_assert (CSC::ENUM_CHECK<__macro_unwind (__VA_ARGS__)>::value ,"static_assert failed : " __macro_stringize (__VA_ARGS__))
+#define __macro_requires(...) static_assert (CSC::ENUM_CHECK<__VA_ARGS__>::value ,"static_assert failed : " __macro_stringize (__VA_ARGS__))
 #endif
 
 #ifndef __macro_assert
 #ifdef __CSC_DEBUG__
-#define __macro_assert(...) CSC::debug_assert (__macro_unwind (__VA_ARGS__))
+#define __macro_assert(...) CSC::debug_assert (__VA_ARGS__)
 #endif
 
 #ifdef __CSC_UNITTEST__
-#define __macro_assert(...) CSC::unittest_assert (__macro_unwind (__VA_ARGS__))
+#define __macro_assert(...) CSC::unittest_assert (__VA_ARGS__)
 #endif
 
 #ifdef __CSC_RELEASE__
@@ -139,13 +136,13 @@
 #endif
 
 #ifndef __macro_ifnot
-#define __macro_ifnot(...) (!(__macro_unwind (__VA_ARGS__)))
+#define __macro_ifnot(...) (!(__VA_ARGS__))
 #endif
 
 #ifndef __macro_anonymous
-#define __macro_anonymous_cat_impl(A ,B) A##B
-#define __macro_anonymous_cat(A ,B) __macro_anonymous_cat_impl (A ,B)
-#define __macro_anonymous __macro_anonymous_cat (__anonymous_ ,__LINE__)
+#define __macro_anonymous_impl_impl(A) __anonymous_##A
+#define __macro_anonymous_impl(A) __macro_anonymous_impl_impl(A)
+#define __macro_anonymous __macro_anonymous_impl (__LINE__)
 #endif
 
 #ifndef __macro_ifswitch
@@ -153,7 +150,7 @@
 #endif
 
 #ifndef __macro_typeof
-#define __macro_typeof(...) CSC::REMOVE_ALL<decltype (__macro_unwind (__VA_ARGS__))>
+#define __macro_typeof(...) CSC::REMOVE_ALL<decltype (__VA_ARGS__)>
 #endif
 
 namespace CSC {
