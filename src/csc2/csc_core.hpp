@@ -89,10 +89,15 @@ trait STR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_STRW<UNIT1>>> {
 
 using STR = typename U::STR_HELP<void ,ALWAYS>::STR ;
 
+namespace U {
+struct alignas (128) __int128_t {} ;
+} ;
+
 using BYTE = std::uint8_t ;
 using WORD = std::uint16_t ;
 using CHAR = std::uint32_t ;
 using FEAT = std::uint64_t ;
+using HUGE = U::__int128_t ;
 
 static constexpr auto NULL = nullptr ;
 
@@ -618,7 +623,8 @@ using IS_BYTE = ENUM_ANY<
 	IS_SAME<UNIT1 ,BYTE> ,
 	IS_SAME<UNIT1 ,WORD> ,
 	IS_SAME<UNIT1 ,CHAR> ,
-	IS_SAME<UNIT1 ,FEAT>> ;
+	IS_SAME<UNIT1 ,FEAT> ,
+	IS_SAME<UNIT1 ,HUGE>> ;
 
 template <class UNIT1>
 using IS_VOID = IS_SAME<UNIT1 ,void> ;
@@ -668,6 +674,13 @@ trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
 	ENUM_EQUAL<SIZE ,SIZE_OF<FEAT>> ,
 	ENUM_EQUAL<ALIGN ,ALIGN_OF<FEAT>>>>> {
 	using RET = FEAT ;
+} ;
+
+template <class SIZE ,class ALIGN>
+trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
+	ENUM_EQUAL<SIZE ,SIZE_OF<HUGE>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<HUGE>>>>> {
+	using RET = HUGE ;
 } ;
 } ;
 
@@ -849,8 +862,13 @@ trait FUNCTION_unsafe_cast_impl_HELP<UNIT1 ,ALWAYS> {
 			using R2X = UNIT1 ;
 			require (IS_TEMP<R1X>) ;
 			require (IS_TEMP<R2X>) ;
-			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
-			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,SIZE_OF<R2X>> ;
+			using R4X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,ALIGN_OF<R2X>> ;
+			using R5X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,SIZE_OF<R1X>> ;
+			using R6X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R4X ,ALIGN_OF<R1X>> ;
+			require (ENUM_COMPR_LTEQ<R3X ,R5X>) ;
+			require (ENUM_COMPR_LTEQ<R4X ,R6X>) ;
+			assert (address (arg1) % ALIGN_OF<R6X>::value == 0) ;
 			return reinterpret_cast<VREF<R2X>> (arg1) ;
 		}
 
@@ -860,8 +878,13 @@ trait FUNCTION_unsafe_cast_impl_HELP<UNIT1 ,ALWAYS> {
 			using R2X = UNIT1 ;
 			require (IS_TEMP<R1X>) ;
 			require (IS_TEMP<R2X>) ;
-			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<R1X>>) ;
-			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<R1X>>) ;
+			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,SIZE_OF<R2X>> ;
+			using R4X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,ALIGN_OF<R2X>> ;
+			using R5X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,SIZE_OF<R1X>> ;
+			using R6X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R4X ,ALIGN_OF<R1X>> ;
+			require (ENUM_COMPR_LTEQ<R3X ,R5X>) ;
+			require (ENUM_COMPR_LTEQ<R4X ,R6X>) ;
+			assert (address (arg1) % ALIGN_OF<R6X>::value == 0) ;
 			return reinterpret_cast<CREF<R2X>> (arg1) ;
 		}
 	} ;
@@ -884,7 +907,7 @@ struct FUNCTION_unsafe_cast {
 static constexpr auto unsafe_cast = FUNCTION_unsafe_cast () ;
 
 struct FUNCTION_unsafe_pointer {
-	inline VREF<TEMP<void>> operator[] (CREF<LENGTH> addr) const noexcept {
+	inline VREF<TEMP<void>> operator() (CREF<LENGTH> addr) const noexcept {
 		const auto r1x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (addr) ;
 		assert (r1x != NULL) ;
 		return (*r1x) ;
@@ -1130,6 +1153,11 @@ trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	} ;
 } ;
 } ;
+
+using MakerHolder = typename U::MAKER_HELP<ALWAYS>::MakerHolder ;
+
+template <class UNIT1 ,class UNIT2>
+using MakerImplHolder = typename U::MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS>::MakerImplHolder ;
 
 struct FUNCTION_bad {
 	template <class ARG1>
@@ -1422,8 +1450,8 @@ namespace U {
 template <class...>
 trait CABI_HELP ;
 
-template <class BASE>
-trait CABI_HELP<BASE ,ALWAYS> {
+template <class UNIT1>
+trait CABI_HELP<UNIT1 ,ALWAYS> {
 	struct CABI :public Interface {} ;
 } ;
 } ;
@@ -1637,7 +1665,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 				return ;
 			if ifswitch (TRUE) {
 				const auto r1x = mPointer->decrease () ;
-				if (r1x > 0)
+				if (r1x != 0)
 					discard ;
 				mPointer->destroy () ;
 			}
@@ -1649,6 +1677,8 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 				return ;
 			mPointer = that.mPointer ;
 			const auto r1x = mPointer->increase () ;
+			if (r1x == NONE)
+				return ;
 			assert (r1x >= 2) ;
 		}
 
@@ -1866,7 +1896,7 @@ trait AUTO_HELP<ALWAYS> {
 	class AutoFakeHolder :public AutoHolder {
 	private:
 		using AUTO_MAX_SIZE = ENUMAS<VAR ,(+4096)> ;
-		using AUTO_MAX_ALIGN = ALIGN_OF<FEAT> ;
+		using AUTO_MAX_ALIGN = ALIGN_OF<HUGE> ;
 
 	private:
 		Storage<AUTO_MAX_SIZE ,AUTO_MAX_ALIGN> mStorage ;
@@ -1893,8 +1923,6 @@ trait AUTO_HELP<ALWAYS> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_NULLOPT<R1X>) ;
 			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
-			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
-			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
 			create (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)) ;
 			swap (that ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
 			barrier () ;
@@ -2399,10 +2427,10 @@ namespace U {
 template <class...>
 trait WATCH_HELP ;
 
-template <class BASE>
-trait WATCH_HELP<BASE> {
+template <class UNIT1>
+trait WATCH_HELP<UNIT1 ,ALWAYS> {
 	struct WATCH {
-		PTR<CREF<BASE>> mSelf ;
+		PTR<CREF<UNIT1>> mSelf ;
 		Clazz mClazz ;
 	} ;
 } ;

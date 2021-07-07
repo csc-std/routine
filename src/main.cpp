@@ -1,8 +1,6 @@
-﻿#include "csc2/csc.hpp"
-#include "csc2/csc_core.hpp"
+﻿#include "util.h"
 
-using namespace CSC ;
-
+namespace UNITTEST {
 imports Auto get_int () {
 	return VAR32 (2) ;
 }
@@ -14,9 +12,11 @@ imports Auto get_float () {
 imports Auto get_string () {
 	return Slice<STR> (TYPEAS<struct anonymous>::id ,"test") ;
 }
+} ;
 
 #ifdef __CSC_TARGET_EXE__
 exports int main () noexcept {
+	using namespace UNITTEST ;
 	const auto r1x = VAR32 (get_int ().fetch (TYPEAS<VAR32>::id)) ;
 	assert (r1x == VAR32 (2)) ;
 	const auto r2x = SINGLE (get_float ().fetch (TYPEAS<SINGLE>::id)) ;
