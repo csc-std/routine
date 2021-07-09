@@ -135,14 +135,14 @@
 #endif
 #endif
 
-#ifndef __macro_ifnot
-#define __macro_ifnot(...) (!(__VA_ARGS__))
-#endif
-
 #ifndef __macro_anonymous
 #define __macro_anonymous_impl_impl(A) __anonymous_##A
 #define __macro_anonymous_impl(A) __macro_anonymous_impl_impl(A)
 #define __macro_anonymous __macro_anonymous_impl (__LINE__)
+#endif
+
+#ifndef __macro_ifnot
+#define __macro_ifnot(...) (!(__VA_ARGS__))
 #endif
 
 #ifndef __macro_ifswitch
@@ -154,6 +154,23 @@
 #endif
 
 namespace CSC {
+template <class...>
+struct ENUMAS ;
+
+namespace U {
+template <int>
+struct ENUMID ;
+} ;
+
+template <class UNIT1 ,int UNIT2>
+struct ENUMAS<UNIT1 ,U::ENUMID<UNIT2>> {
+	static constexpr auto value = UNIT1 (UNIT2) ;
+} ;
+
+using ENUM_TRUE = ENUMAS<bool ,U::ENUMID<true>> ;
+
+using ENUM_FALSE = ENUMAS<bool ,U::ENUMID<false>> ;
+
 template <class...>
 struct TYPEAS ;
 
@@ -168,6 +185,24 @@ struct TYPEAS<UNIT1> {
 } ;
 
 using ALWAYS = void ;
+
+namespace U {
+template <class...>
+trait ENUM_NOT_HELP ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
+	using RET = ENUM_TRUE ;
+} ;
+
+template <>
+trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
+	using RET = ENUM_FALSE ;
+} ;
+} ;
+
+template <class UNIT1>
+using ENUM_NOT = typename U::ENUM_NOT_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
@@ -224,33 +259,6 @@ trait REMOVE_ALL_HELP<TYPEID<UNIT1> ,ALWAYS> {
 
 template <class UNIT1>
 using REMOVE_ALL = typename U::REMOVE_ALL_HELP<REMOVE_REF<UNIT1> ,ALWAYS>::RET ;
-
-template <class UNIT1 ,UNIT1 UNIT2>
-struct ENUMAS {
-	static constexpr auto value = UNIT2 ;
-} ;
-
-using ENUM_TRUE = ENUMAS<bool ,true> ;
-
-using ENUM_FALSE = ENUMAS<bool ,false> ;
-
-namespace U {
-template <class...>
-trait ENUM_NOT_HELP ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_FALSE ,ALWAYS> {
-	using RET = ENUM_TRUE ;
-} ;
-
-template <>
-trait ENUM_NOT_HELP<ENUM_TRUE ,ALWAYS> {
-	using RET = ENUM_FALSE ;
-} ;
-} ;
-
-template <class UNIT1>
-using ENUM_NOT = typename U::ENUM_NOT_HELP<UNIT1 ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>

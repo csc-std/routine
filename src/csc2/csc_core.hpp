@@ -123,10 +123,10 @@ struct CONSTANT ;
 struct REGISTER ;
 
 template <class UNIT1>
-using SIZE_OF = ENUMAS<VAR ,(sizeof (UNIT1))> ;
+using SIZE_OF = ENUMAS<VAR ,U::ENUMID<(sizeof (UNIT1))>> ;
 
 template <class UNIT1>
-using ALIGN_OF = ENUMAS<VAR ,(alignof (UNIT1))> ;
+using ALIGN_OF = ENUMAS<VAR ,U::ENUMID<(alignof (UNIT1))>> ;
 
 namespace U {
 template <class...>
@@ -134,7 +134,7 @@ trait COUNT_OF_HELP ;
 
 template <class...UNITS>
 trait COUNT_OF_HELP<TYPEAS<UNITS...> ,ALWAYS> {
-	using RET = ENUMAS<VAR ,(sizeof... (UNITS))> ;
+	using RET = ENUMAS<VAR ,U::ENUMID<(sizeof... (UNITS))>> ;
 } ;
 } ;
 
@@ -150,8 +150,8 @@ trait IS_ENUM_HELP<UNIT1 ,ALWAYS> {
 	using RET = ENUM_FALSE ;
 } ;
 
-template <class UNIT1 ,UNIT1 UNIT2>
-trait IS_ENUM_HELP<ENUMAS<UNIT1 ,UNIT2> ,ALWAYS> {
+template <class...UNITS>
+trait IS_ENUM_HELP<ENUMAS<UNITS...> ,ALWAYS> {
 	using RET = ENUM_TRUE ;
 } ;
 } ;
@@ -195,10 +195,10 @@ trait IS_SAME_HELP<UNIT1 ,UNIT1 ,ALWAYS> {
 template <class UNIT1 ,class UNIT2>
 using IS_SAME = typename U::IS_SAME_HELP<UNIT1 ,UNIT2 ,ALWAYS>::RET ;
 
-using ENUM_ZERO = ENUMAS<VAR ,ZERO> ;
-using ENUM_IDEN = ENUMAS<VAR ,IDEN> ;
-using ENUM_NONE = ENUMAS<VAR ,NONE> ;
-using ENUM_USED = ENUMAS<VAR ,USED> ;
+using ENUM_ZERO = ENUMAS<VAR ,U::ENUMID<ZERO>> ;
+using ENUM_IDEN = ENUMAS<VAR ,U::ENUMID<IDEN>> ;
+using ENUM_NONE = ENUMAS<VAR ,U::ENUMID<NONE>> ;
+using ENUM_USED = ENUMAS<VAR ,U::ENUMID<USED>> ;
 
 namespace U {
 template <class...>
@@ -238,7 +238,7 @@ template <class COND ,class YES ,class NO>
 using CONDITIONAL = typename U::CONDITIONAL_HELP<COND ,YES ,NO ,ALWAYS>::RET ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_EQUAL = ENUMAS<BOOL ,(ENUM_CHECK<UNIT1>::value == ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_EQUAL = ENUMAS<BOOL ,U::ENUMID<(ENUM_CHECK<UNIT1>::value == ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1 ,class UNIT2>
 using ENUM_NOT_EQUAL = ENUM_NOT<ENUM_EQUAL<UNIT1 ,UNIT2>> ;
@@ -265,21 +265,21 @@ trait ENUM_COMPR_HELP<ENUM_FALSE ,ENUM_FALSE ,ALWAYS> {
 
 template <class UNIT1 ,class UNIT2>
 using ENUM_COMPR = typename U::ENUM_COMPR_HELP<
-	ENUMAS<BOOL ,(ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value)> ,
-	ENUMAS<BOOL ,(ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value)> ,
+	ENUMAS<BOOL ,U::ENUMID<(ENUM_CHECK<UNIT1>::value < ENUM_CHECK<UNIT2>::value)>> ,
+	ENUMAS<BOOL ,U::ENUMID<(ENUM_CHECK<UNIT2>::value < ENUM_CHECK<UNIT1>::value)>> ,
 	ALWAYS>::RET ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR_LT = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value < ZERO)> ;
+using ENUM_COMPR_LT = ENUMAS<BOOL ,U::ENUMID<(ENUM_COMPR<UNIT1 ,UNIT2>::value < ZERO)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR_LTEQ = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value <= ZERO)> ;
+using ENUM_COMPR_LTEQ = ENUMAS<BOOL ,U::ENUMID<(ENUM_COMPR<UNIT1 ,UNIT2>::value <= ZERO)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR_GT = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value > ZERO)> ;
+using ENUM_COMPR_GT = ENUMAS<BOOL ,U::ENUMID<(ENUM_COMPR<UNIT1 ,UNIT2>::value > ZERO)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_COMPR_GTEQ = ENUMAS<BOOL ,(ENUM_COMPR<UNIT1 ,UNIT2>::value >= ZERO)> ;
+using ENUM_COMPR_GTEQ = ENUMAS<BOOL ,U::ENUMID<(ENUM_COMPR<UNIT1 ,UNIT2>::value >= ZERO)>> ;
 
 template <class UNIT1>
 using ENUM_EQ_ZERO = ENUM_EQUAL<UNIT1 ,ENUM_ZERO> ;
@@ -300,19 +300,19 @@ template <class UNIT1>
 using ENUM_GT_IDEN = ENUM_COMPR_GT<UNIT1 ,ENUM_IDEN> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_ADD = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value + ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_ADD = ENUMAS<VAR ,U::ENUMID<(ENUM_CHECK<UNIT1>::value + ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_SUB = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value - ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_SUB = ENUMAS<VAR ,U::ENUMID<(ENUM_CHECK<UNIT1>::value - ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_MUL = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value * ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_MUL = ENUMAS<VAR ,U::ENUMID<(ENUM_CHECK<UNIT1>::value * ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_DIV = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value / ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_DIV = ENUMAS<VAR ,U::ENUMID<(ENUM_CHECK<UNIT1>::value / ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1 ,class UNIT2>
-using ENUM_MOD = ENUMAS<VAR ,(ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT2>::value)> ;
+using ENUM_MOD = ENUMAS<VAR ,U::ENUMID<(ENUM_CHECK<UNIT1>::value % ENUM_CHECK<UNIT2>::value)>> ;
 
 template <class UNIT1>
 using ENUM_MINUS = ENUM_SUB<ENUM_ZERO ,UNIT1> ;
@@ -434,6 +434,26 @@ using ENUM_ANY = typename U::ENUM_ANY_HELP<TYPEAS<UNITS...> ,ALWAYS>::RET ;
 
 namespace U {
 template <class...>
+trait ENUM_SUM_HELP ;
+
+template <class UNIT1>
+trait ENUM_SUM_HELP<UNIT1 ,REQUIRE<ENUM_EQ_ZERO<COUNT_OF<UNIT1>>>> {
+	using RET = ENUM_ZERO ;
+} ;
+
+template <class UNIT1>
+trait ENUM_SUM_HELP<UNIT1 ,REQUIRE<ENUM_GT_ZERO<COUNT_OF<UNIT1>>>> {
+	using R1X = ENUM_CHECK<TYPE_FIRST_ONE<UNIT1>> ;
+	using R3X = typename ENUM_SUM_HELP<TYPE_FIRST_REST<UNIT1> ,ALWAYS>::RET ;
+	using RET = ENUM_ADD<R1X ,R3X> ;
+} ;
+} ;
+
+template <class...UNITS>
+using ENUM_SUM = typename U::ENUM_SUM_HELP<TYPEAS<UNITS...> ,ALWAYS>::RET ;
+
+namespace U {
+template <class...>
 trait PLACEHOLDER_HELP ;
 
 template <class RANK>
@@ -452,17 +472,17 @@ trait PLACEHOLDER_HELP<RANK ,REQUIRE<ENUM_GT_ZERO<RANK>>> {
 template <class RANK>
 using PlaceHolder = typename U::PLACEHOLDER_HELP<RANK ,ALWAYS>::PlaceHolder ;
 
-static constexpr auto PH0 = PlaceHolder<ENUMAS<VAR ,(+0)>> () ;
-static constexpr auto PH1 = PlaceHolder<ENUMAS<VAR ,(+1)>> () ;
-static constexpr auto PH2 = PlaceHolder<ENUMAS<VAR ,(+2)>> () ;
-static constexpr auto PH3 = PlaceHolder<ENUMAS<VAR ,(+3)>> () ;
-static constexpr auto PH4 = PlaceHolder<ENUMAS<VAR ,(+4)>> () ;
-static constexpr auto PH5 = PlaceHolder<ENUMAS<VAR ,(+5)>> () ;
-static constexpr auto PH6 = PlaceHolder<ENUMAS<VAR ,(+6)>> () ;
-static constexpr auto PH7 = PlaceHolder<ENUMAS<VAR ,(+7)>> () ;
-static constexpr auto PH8 = PlaceHolder<ENUMAS<VAR ,(+8)>> () ;
-static constexpr auto PH9 = PlaceHolder<ENUMAS<VAR ,(+9)>> () ;
-static constexpr auto PHX = PlaceHolder<ENUMAS<VAR ,(10)>> () ;
+static constexpr auto PH0 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+0)>>> () ;
+static constexpr auto PH1 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+1)>>> () ;
+static constexpr auto PH2 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+2)>>> () ;
+static constexpr auto PH3 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+3)>>> () ;
+static constexpr auto PH4 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+4)>>> () ;
+static constexpr auto PH5 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+5)>>> () ;
+static constexpr auto PH6 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+6)>>> () ;
+static constexpr auto PH7 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+7)>>> () ;
+static constexpr auto PH8 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+8)>>> () ;
+static constexpr auto PH9 = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(+9)>>> () ;
+static constexpr auto PHX = PlaceHolder<ENUMAS<VAR ,U::ENUMID<(10)>>> () ;
 
 namespace U {
 template <class...>
@@ -525,7 +545,7 @@ template <class UNIT1 ,class UNIT2 = void>
 using PTR = typename U::PTR_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,UNIT2 ,ALWAYS>::RET ;
 
 template <class UNIT1>
-using IS_CLASS = ENUMAS<BOOL ,(std::is_class<UNIT1>::value)> ;
+using IS_CLASS = ENUMAS<BOOL ,U::ENUMID<(std::is_class<UNIT1>::value)>> ;
 
 namespace U {
 template <class...>
@@ -533,7 +553,7 @@ trait IS_CONSTRUCTIBLE_HELP ;
 
 template <class UNIT1 ,class...UNITS>
 trait IS_CONSTRUCTIBLE_HELP<UNIT1 ,TYPEAS<UNITS...> ,ALWAYS> {
-	using RET = ENUMAS<BOOL ,(std::is_constructible<UNIT1 ,UNITS...>::value)> ;
+	using RET = ENUMAS<BOOL ,U::ENUMID<(std::is_constructible<UNIT1 ,UNITS...>::value)>> ;
 } ;
 } ;
 
@@ -545,14 +565,14 @@ using IS_CONVERTIBLE = IS_CONSTRUCTIBLE<TO ,TYPEAS<FROM>> ;
 
 template <class UNIT1>
 using IS_CLONEABLE = ENUM_ALL<
-	ENUMAS<BOOL ,(std::is_copy_constructible<UNIT1>::value)> ,
-	ENUMAS<BOOL ,(std::is_copy_assignable<UNIT1>::value)>> ;
+	ENUMAS<BOOL ,U::ENUMID<(std::is_copy_constructible<UNIT1>::value)>> ,
+	ENUMAS<BOOL ,U::ENUMID<(std::is_copy_assignable<UNIT1>::value)>>> ;
 
 template <class UNIT1>
-using IS_NULLOPT = ENUMAS<BOOL ,(std::is_nothrow_default_constructible<UNIT1>::value)> ;
+using IS_NULLOPT = ENUMAS<BOOL ,U::ENUMID<(std::is_nothrow_default_constructible<UNIT1>::value)>> ;
 
 template <class UNIT1>
-using IS_TRIVIAL = ENUMAS<BOOL ,(std::is_trivial<UNIT1>::value)> ;
+using IS_TRIVIAL = ENUMAS<BOOL ,U::ENUMID<(std::is_trivial<UNIT1>::value)>> ;
 
 struct Interface {
 	implicit Interface () = default ;
@@ -565,14 +585,14 @@ struct Interface {
 
 template <class UNIT1>
 using IS_INTERFACE = ENUM_ALL<
-	ENUMAS<BOOL ,(std::is_abstract<UNIT1>::value)> ,
-	ENUMAS<BOOL ,(std::is_base_of<Interface ,UNIT1>::value)>> ;
+	ENUMAS<BOOL ,U::ENUMID<(std::is_abstract<UNIT1>::value)>> ,
+	ENUMAS<BOOL ,U::ENUMID<(std::is_base_of<Interface ,UNIT1>::value)>>> ;
 
 template <class BASE ,class DERIVED>
-using IS_EXTEND = ENUMAS<BOOL ,(std::is_base_of<BASE ,DERIVED>::value)> ;
+using IS_EXTEND = ENUMAS<BOOL ,U::ENUMID<(std::is_base_of<BASE ,DERIVED>::value)>> ;
 
 template <class UNIT1>
-using IS_FUNCTION = ENUMAS<BOOL ,(std::is_function<UNIT1>::value)> ;
+using IS_FUNCTION = ENUMAS<BOOL ,U::ENUMID<(std::is_function<UNIT1>::value)>> ;
 
 namespace U {
 template <class...>
@@ -706,8 +726,11 @@ template <class SIZE ,class ALIGN = ENUM_IDEN>
 using Storage = typename U::STORAGE_HELP<SIZE ,ALIGN ,ALWAYS>::RET ;
 
 namespace U {
+template <class...>
+struct TEMPID ;
+
 template <class UNIT1>
-struct TEMPID {
+struct TEMPID<UNIT1> {
 	Storage<SIZE_OF<UNIT1> ,ALIGN_OF<UNIT1>> mStorage ;
 } ;
 
@@ -977,7 +1000,7 @@ static constexpr auto barrier = FUNCTION_barrier () ;
 
 struct FUNCTION_swap {
 	template <class ARG1 ,class ARG2 ,class = ENABLE<ENUM_ALL<IS_VARIABLE<ARG1> ,IS_VARIABLE<ARG2>>>>
-		inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
+	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
 		require (IS_SAME<R1X ,R2X>) ;
@@ -1949,7 +1972,7 @@ trait AUTO_HELP<ALWAYS> {
 
 	class AutoFakeHolder :public AutoHolder {
 	private:
-		using AUTO_MAX_SIZE = ENUMAS<VAR ,(+4096)> ;
+		using AUTO_MAX_SIZE = ENUMAS<VAR ,U::ENUMID<(+4096)>> ;
 		using AUTO_MAX_ALIGN = ALIGN_OF<MEGA> ;
 
 	private:
@@ -2064,7 +2087,7 @@ template <class...>
 trait SLICE_IMPLHOLDER_HELP ;
 
 template <class UNIT1>
-trait SLICE_HELP<UNIT1 ,ALWAYS> {
+trait SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>> {
 	struct SliceHolder :public Interface {
 		virtual LENGTH size () const = 0 ;
 		virtual LENGTH addr () const = 0 ;
@@ -2074,7 +2097,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 	class Slice {
 	private:
 		using Holder = SliceHolder ;
-		using MAX_SLICE_SIZE = ENUMAS<VAR ,(+4096)> ;
+		using MAX_SLICE_SIZE = ENUMAS<VAR ,U::ENUMID<(+4096)>> ;
 
 	private:
 		RC<Holder> mPointer ;
@@ -2082,38 +2105,19 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 	public:
 		implicit Slice () = default ;
 
-		template <class ARG1 ,LENGTH ARG2>
-		explicit Slice (XREF<ARG1> id ,CREF<STRA[ARG2]> text) {
-			using R1X = ENUMAS<VAR ,ARG2> ;
+		template <class ARG1 ,class...ARGS>
+		explicit Slice (XREF<ARG1> id ,XREF<ARGS>...texts) {
+			using R1X = ENUM_INC<ENUM_SUM<ENUM_DEC<ENUM_DIV<SIZE_OF<REMOVE_ALL<ARGS>> ,SIZE_OF<UNIT1>>>...>> ;
+			require (ENUM_COMPR_LTEQ<R1X ,MAX_SLICE_SIZE>) ;
 			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			mPointer = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R2X>::id ,text ,ENUM_DEC<R1X>::value) ;
-			}) ;
-		}
-
-		template <class ARG1 ,LENGTH ARG2>
-		explicit Slice (XREF<ARG1> id ,CREF<STRW[ARG2]> text) {
-			using R1X = ENUMAS<VAR ,ARG2> ;
-			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			mPointer = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R2X>::id ,text ,ENUM_DEC<R1X>::value) ;
-			}) ;
-		}
-
-		template <class ARG1 ,class ARG2>
-		explicit Slice (XREF<ARG1> id ,XREF<ARG2> text) {
-			using R1X = MAX_SLICE_SIZE ;
-			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			mPointer = memorize ([&] () {
-				const auto r1x = slice_size (text) ;
-				assert (r1x >= 0) ;
-				return RC<Holder>::make (TYPEAS<R2X>::id ,text ,r1x) ;
+				return RC<Holder>::make (TYPEAS<R2X>::id ,texts...) ;
 			}) ;
 		}
 
 		imports CREF<Slice> nullopt () {
 			return memorize ([&] () {
-				return Slice () ;
+				return Slice (TYPEAS<struct anonymous>::id ,empty_text (TYPEAS<UNIT1>::id)) ;
 			}) ;
 		}
 
@@ -2125,7 +2129,7 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 
 		LENGTH addr () const {
 			if (mPointer == NULL)
-				return ZERO ;
+				return nullopt ().addr () ;
 			return mPointer->addr () ;
 		}
 
@@ -2192,13 +2196,14 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 		}
 
 	private:
-		template <class ARG1>
-		imports LENGTH slice_size (XREF<ARG1> text) {
-			for (auto &&i : range (0 ,MAX_SLICE_SIZE::value)) {
-				if (text[i] == 0)
-					return i ;
-			}
-			return NONE ;
+		template <class ARG1 ,class = ENABLE<IS_SAME<REMOVE_ALL<ARG1> ,STRA>>>
+		imports CREF<STRA[1]> empty_text (XREF<ARG1> id) {
+			return "" ;
+		}
+
+		template <class ARG1 ,class = ENABLE<IS_SAME<REMOVE_ALL<ARG1> ,STRW>>>
+		imports CREF<STRW[1]> empty_text (XREF<ARG1> id) {
+			return L"" ;
 		}
 	} ;
 } ;
@@ -2214,17 +2219,13 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 	public:
 		implicit ImplHolder () = delete ;
 
-		template <class ARG1>
-		explicit ImplHolder (XREF<ARG1> text ,CREF<LENGTH> size_) {
-			assert (size_ < SIZE::value) ;
-			for (auto &&i : range (0 ,size_)) {
-				mSlice[i] = UNIT1 (text[i]) ;
-			}
-			mSlice[size_] = 0 ;
+		template <class...ARGS>
+		explicit ImplHolder (XREF<ARGS>...texts) {
+			template_write (0 ,texts...) ;
 		}
 
 		LENGTH size () const override {
-			return SIZE::value ;
+			return ENUM_DEC<SIZE>::value ;
 		}
 
 		LENGTH addr () const override {
@@ -2233,6 +2234,22 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 
 		CREF<UNIT1> at (CREF<INDEX> index) const leftvalue override {
 			return mSlice[index] ;
+		}
+
+	private:
+		void template_write (CREF<INDEX> pos) {
+			assert (pos < SIZE::value) ;
+			mSlice[pos] = 0 ;
+		}
+
+		template <class ARG1 ,class...ARGS>
+		void template_write (CREF<INDEX> pos ,XREF<ARG1> text1 ,XREF<ARGS>...texts) {
+			using R1X = REMOVE_ALL<ARG1> ;
+			using R2X = ENUM_DIV<SIZE_OF<R1X> ,SIZE_OF<UNIT1>> ;
+			assert (pos + R2X::value < SIZE::value) ;
+			for (auto &&i : range (0 ,R2X::value))
+				mSlice[pos + i] = text1[i] ;
+			template_write (pos + R2X::value ,texts...) ;
 		}
 	} ;
 } ;
