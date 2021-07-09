@@ -907,8 +907,8 @@ struct FUNCTION_unsafe_cast {
 static constexpr auto unsafe_cast = FUNCTION_unsafe_cast () ;
 
 struct FUNCTION_unsafe_pointer {
-	inline VREF<TEMP<void>> operator() (CREF<LENGTH> addr) const noexcept {
-		const auto r1x = reinterpret_cast<PTR<VREF<TEMP<void>>>> (addr) ;
+	inline CREF<TEMP<void>> operator() (CREF<LENGTH> addr) const noexcept {
+		const auto r1x = reinterpret_cast<PTR<CREF<TEMP<void>>>> (addr) ;
 		assert (r1x != NULL) ;
 		return (*r1x) ;
 	}
@@ -1476,6 +1476,112 @@ static constexpr auto operator_cabi = FUNCTION_operator_cabi () ;
 
 namespace U {
 template <class...>
+trait CELL_HELP ;
+
+template <class UNIT1>
+trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
+	class Cell {
+	private:
+		mutable TEMP<UNIT1> mHolder ;
+		BOOL mExist ;
+
+	public:
+		implicit Cell () noexcept {
+			zeroize (mHolder) ;
+			mExist = FALSE ;
+		}
+
+		implicit Cell (CREF<typeof (NULL)>) :Cell () {
+			noop () ;
+		}
+
+		template <class...ARGS>
+		imports Cell make (XREF<ARGS>...obj) {
+			Cell ret {} ;
+			create (ret.mHolder ,forward[TYPEAS<ARGS>::id] (obj)...) ;
+			ret.mExist = TRUE ;
+			return move (ret) ;
+		}
+
+		implicit ~Cell () noexcept {
+			if (mExist)
+				return ;
+			destroy (mHolder) ;
+			mExist = FALSE ;
+		}
+
+		implicit Cell (CREF<Cell>) = delete ;
+
+		implicit void operator= (CREF<Cell>) = delete ;
+
+		implicit Cell (RREF<Cell> that) noexcept :Cell () {
+			auto &&thiz = *this ;
+			swap (thiz ,that) ;
+		}
+
+		implicit void operator= (RREF<Cell> that) noexcept {
+			auto &&thiz = *this ;
+			if (address (thiz) == address (that))
+				return ;
+			recreate (thiz ,move (that)) ;
+		}
+
+		BOOL exist () const {
+			return mExist ;
+		}
+
+		inline BOOL operator== (CREF<typeof (NULL)>) const {
+			return ifnot (exist ()) ;
+		}
+
+		inline BOOL operator!= (CREF<typeof (NULL)>) const {
+			return exist () ;
+		}
+
+		UNIT1 fetch () const {
+			assert (exist ()) ;
+			return m_fake () ;
+		}
+
+		UNIT1 fetch (CREF<UNIT1> def) const {
+			if (exist ())
+				return m_fake () ;
+			return def ;
+		}
+
+		void store (CREF<UNIT1> obj) const {
+			assert (exist ()) ;
+			m_fake () = obj ;
+		}
+
+		UNIT1 exchange (CREF<UNIT1> obj) const {
+			assert (exist ()) ;
+			UNIT1 ret = m_fake () ;
+			m_fake () = obj ;
+			return move (ret) ;
+		}
+
+		BOOL change (CREF<UNIT1> expect ,CREF<UNIT1> obj) const {
+			assert (exist ()) ;
+			if (m_fake () != expect)
+				return FALSE ;
+			m_fake () = obj ;
+			return TRUE ;
+		}
+
+	private:
+		VREF<UNIT1> m_fake () const leftvalue {
+			return unsafe_deref (mHolder) ;
+		}
+	} ;
+} ;
+} ;
+
+template <class UNIT1>
+using Cell = typename U::CELL_HELP<UNIT1 ,ALWAYS>::Cell ;
+
+namespace U {
+template <class...>
 trait BOX_HELP ;
 
 template <class...>
@@ -1772,112 +1878,6 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 
 template <class UNIT1>
 using RC = typename U::RC_HELP<UNIT1 ,ALWAYS>::RC ;
-
-namespace U {
-template <class...>
-trait CELL_HELP ;
-
-template <class UNIT1>
-trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
-	class Cell {
-	private:
-		mutable TEMP<UNIT1> mHolder ;
-		BOOL mExist ;
-
-	public:
-		implicit Cell () noexcept {
-			zeroize (mHolder) ;
-			mExist = FALSE ;
-		}
-
-		implicit Cell (CREF<typeof (NULL)>) :Cell () {
-			noop () ;
-		}
-
-		template <class...ARGS>
-		imports Cell make (XREF<ARGS>...obj) {
-			Cell ret {} ;
-			create (ret.mHolder ,forward[TYPEAS<ARGS>::id] (obj)...) ;
-			ret.mExist = TRUE ;
-			return move (ret) ;
-		}
-
-		implicit ~Cell () noexcept {
-			if (mExist)
-				return ;
-			destroy (mHolder) ;
-			mExist = FALSE ;
-		}
-
-		implicit Cell (CREF<Cell>) = delete ;
-
-		implicit void operator= (CREF<Cell>) = delete ;
-
-		implicit Cell (RREF<Cell> that) noexcept :Cell () {
-			auto &&thiz = *this ;
-			swap (thiz ,that) ;
-		}
-
-		implicit void operator= (RREF<Cell> that) noexcept {
-			auto &&thiz = *this ;
-			if (address (thiz) == address (that))
-				return ;
-			recreate (thiz ,move (that)) ;
-		}
-
-		BOOL exist () const {
-			return mExist ;
-		}
-
-		inline BOOL operator== (CREF<typeof (NULL)>) const {
-			return ifnot (exist ()) ;
-		}
-
-		inline BOOL operator!= (CREF<typeof (NULL)>) const {
-			return exist () ;
-		}
-
-		UNIT1 fetch () const {
-			assert (exist ()) ;
-			return m_fake () ;
-		}
-
-		UNIT1 fetch (CREF<UNIT1> def) const {
-			if (exist ())
-				return m_fake () ;
-			return def ;
-		}
-
-		void store (CREF<UNIT1> obj) const {
-			assert (exist ()) ;
-			m_fake () = obj ;
-		}
-
-		UNIT1 exchange (CREF<UNIT1> obj) const {
-			assert (exist ()) ;
-			UNIT1 ret = m_fake () ;
-			m_fake () = obj ;
-			return move (ret) ;
-		}
-
-		BOOL change (CREF<UNIT1> expect ,CREF<UNIT1> obj) const {
-			assert (exist ()) ;
-			if (m_fake () != expect)
-				return FALSE ;
-			m_fake () = obj ;
-			return TRUE ;
-		}
-
-	private:
-		VREF<UNIT1> m_fake () const leftvalue {
-			return unsafe_deref (mHolder) ;
-		}
-	} ;
-} ;
-} ;
-
-template <class UNIT1>
-using Cell = typename U::CELL_HELP<UNIT1 ,ALWAYS>::Cell ;
 
 namespace U {
 template <class...>
@@ -2357,13 +2357,13 @@ trait EXCEPTION_HELP<ALWAYS> {
 		using Holder = ExceptionHolder ;
 
 	private:
-		PTR<VREF<Holder>> mPointer ;
+		PTR<CREF<Holder>> mPointer ;
 
 	public:
 		implicit Exception () = delete ;
 
 		template <class ARG1>
-		explicit Exception (XREF<ARG1> id) noexcept {
+		explicit Exception (XREF<ARG1> id) noexcept :Exception (PH0) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
 			const auto r1x = memorize ([&] () {
@@ -2430,7 +2430,7 @@ trait WATCH_HELP ;
 template <class UNIT1>
 trait WATCH_HELP<UNIT1 ,ALWAYS> {
 	struct WATCH {
-		PTR<CREF<UNIT1>> mSelf ;
+		PTR<CREF<UNIT1>> mPointer ;
 		Clazz mClazz ;
 	} ;
 } ;
@@ -2448,7 +2448,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
 			static R2X M_WATCH ;
-			M_WATCH.mSelf = &expr ;
+			M_WATCH.mPointer = &expr ;
 			M_WATCH.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
 	} ;
@@ -2462,7 +2462,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
 			static R2X tmp {} ;
-			tmp.mSelf = &expr ;
+			tmp.mPointer = &expr ;
 			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
 	} ;
