@@ -2104,9 +2104,9 @@ trait SLICE_HELP<UNIT1 ,ALWAYS> {
 		explicit Slice (XREF<ARG1> id ,XREF<ARG2> text) {
 			using R1X = MAX_SLICE_SIZE ;
 			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			const auto r1x = slice_size (text) ;
-			assert (r1x >= 0) ;
 			mPointer = memorize ([&] () {
+				const auto r1x = slice_size (text) ;
+				assert (r1x >= 0) ;
 				return RC<Holder>::make (TYPEAS<R2X>::id ,text ,r1x) ;
 			}) ;
 		}
