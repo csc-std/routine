@@ -90,14 +90,16 @@ trait STR_HELP<UNIT1 ,REQUIRE<MACRO_CONFIG_STRW<UNIT1>>> {
 using STR = typename U::STR_HELP<void ,ALWAYS>::STR ;
 
 namespace U {
-struct alignas (128) __int128_t {} ;
+struct __int128_t {
+	alignas (128) char mUnused[128] ;
+} ;
 } ;
 
 using BYTE = std::uint8_t ;
 using WORD = std::uint16_t ;
 using CHAR = std::uint32_t ;
 using FEAT = std::uint64_t ;
-using HUGE = U::__int128_t ;
+using MEGA = U::__int128_t ;
 
 static constexpr auto NULL = nullptr ;
 
@@ -624,7 +626,7 @@ using IS_BYTE = ENUM_ANY<
 	IS_SAME<UNIT1 ,WORD> ,
 	IS_SAME<UNIT1 ,CHAR> ,
 	IS_SAME<UNIT1 ,FEAT> ,
-	IS_SAME<UNIT1 ,HUGE>> ;
+	IS_SAME<UNIT1 ,MEGA>> ;
 
 template <class UNIT1>
 using IS_VOID = IS_SAME<UNIT1 ,void> ;
@@ -678,9 +680,9 @@ trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
 
 template <class SIZE ,class ALIGN>
 trait BYTE_BASE_HELP<SIZE ,ALIGN ,REQUIRE<ENUM_ALL<
-	ENUM_EQUAL<SIZE ,SIZE_OF<HUGE>> ,
-	ENUM_EQUAL<ALIGN ,ALIGN_OF<HUGE>>>>> {
-	using RET = HUGE ;
+	ENUM_EQUAL<SIZE ,SIZE_OF<MEGA>> ,
+	ENUM_EQUAL<ALIGN ,ALIGN_OF<MEGA>>>>> {
+	using RET = MEGA ;
 } ;
 } ;
 
@@ -849,6 +851,15 @@ struct FUNCTION_unsafe_deptr {
 
 static constexpr auto unsafe_deptr = FUNCTION_unsafe_deptr () ;
 
+struct FUNCTION_address {
+	template <class ARG1>
+	inline LENGTH operator() (XREF<ARG1> arg1) const noexcept {
+		return LENGTH (&unsafe_deptr (arg1)) ;
+	}
+} ;
+
+static constexpr auto address = FUNCTION_address () ;
+
 namespace U {
 template <class...>
 trait FUNCTION_unsafe_cast_impl_HELP ;
@@ -915,15 +926,6 @@ struct FUNCTION_unsafe_pointer {
 } ;
 
 static constexpr auto unsafe_pointer = FUNCTION_unsafe_pointer () ;
-
-struct FUNCTION_address {
-	template <class ARG1>
-	inline LENGTH operator() (XREF<ARG1> arg1) const noexcept {
-		return LENGTH (&unsafe_deptr (arg1)) ;
-	}
-} ;
-
-static constexpr auto address = FUNCTION_address () ;
 
 namespace U {
 template <class...>
@@ -1020,12 +1022,14 @@ static constexpr auto keep = FUNCTION_keep () ;
 struct FUNCTION_move {
 	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline RREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const noexcept {
-		return keep[TYPEAS<RREF<ARG1>>::id] (arg1) ;
+		using R1X = REMOVE_ALL<ARG1> ;
+		return keep[TYPEAS<RREF<R1X>>::id] (arg1) ;
 	}
 
 	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
-	inline CREF<REMOVE_ALL<ARG1>> operator() (XREF<ARG1> arg1) const noexcept {
-		return keep[TYPEAS<CREF<ARG1>>::id] (arg1) ;
+	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		return keep[TYPEAS<CREF<R1X>>::id] (arg1) ;
 	}
 } ;
 
@@ -1045,8 +1049,9 @@ struct FUNCTION_forward {
 	}
 
 	template <class ARG1 ,class = ENABLE<IS_REGISTER<ARG1>>>
-	inline CREF<FUNCTION_move> operator[] (XREF<ARG1> id) const noexcept {
-		return move ;
+	inline CREF<FUNCTION_keep_impl<RREF<REMOVE_ALL<ARG1>>>> operator[] (XREF<ARG1> id) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		return keep[TYPEAS<RREF<R1X>>::id] ;
 	}
 } ;
 
@@ -1055,6 +1060,8 @@ static constexpr auto forward = FUNCTION_forward () ;
 struct FUNCTION_zeroize {
 	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
 	inline void operator() (XREF<ARG1> arg1) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		require (IS_TRIVIAL<R1X>) ;
 		unsafe_deptr (arg1) = {0} ;
 		barrier () ;
 	}
@@ -1137,7 +1144,7 @@ trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 		}
 
 		LENGTH type_offset () const override {
-			static TEMP<UNIT2> tmp {} ;
+			static const TEMP<UNIT2> tmp {} ;
 			const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
 			const auto r2x = address (tmp) ;
 			return r1x - r2x ;
@@ -1465,7 +1472,7 @@ struct FUNCTION_operator_cabi {
 		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
 		require (IS_TRIVIAL<FLAG>) ;
 		FLAG ret = ZERO ;
-		static R2X tmp {} ;
+		static const R2X tmp {} ;
 		unsafe_deptr (unsafe_deptr (ret).mStorage) = unsafe_deptr (unsafe_deptr (tmp).mStorage) ;
 		barrier () ;
 		return move (ret) ;
@@ -1523,7 +1530,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,move (that)) ;
+			recreate (thiz ,forward[TYPEAS<RREF<Cell>>::id] (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1641,7 +1648,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,move (that)) ;
+			recreate (thiz ,forward[TYPEAS<RREF<Box>>::id] (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1729,6 +1736,9 @@ trait RC_HELP ;
 template <class...>
 trait RC_IMPLHOLDER_HELP ;
 
+template <class...>
+trait RC_PUREHOLDER_HELP ;
+
 template <class UNIT1>
 trait RC_HELP<UNIT1 ,ALWAYS> {
 	struct RCHolder :public Interface {
@@ -1761,8 +1771,12 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			RC ret {} ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
-			const auto r1x = ret.mPointer->increase () ;
-			assert (r1x == 1) ;
+			if ifswitch (TRUE) {
+				const auto r1x = ret.mPointer->increase () ;
+				if (r1x == NONE)
+					discard ;
+				assert (r1x == 1) ;
+			}
 			return move (ret) ;
 		}
 
@@ -1782,17 +1796,19 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			if (that.mPointer == NULL)
 				return ;
 			mPointer = that.mPointer ;
-			const auto r1x = mPointer->increase () ;
-			if (r1x == NONE)
-				return ;
-			assert (r1x >= 2) ;
+			if ifswitch (TRUE) {
+				const auto r1x = mPointer->increase () ;
+				if (r1x == NONE)
+					discard ;
+				assert (r1x >= 2) ;
+			}
 		}
 
 		implicit void operator= (CREF<RC> that) {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,move (that)) ;
+			recreate (thiz ,forward[TYPEAS<CREF<RC>>::id] (that)) ;
 		}
 
 		implicit RC (RREF<RC> that) noexcept :RC () {
@@ -1804,7 +1820,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,move (that)) ;
+			recreate (thiz ,forward[TYPEAS<RREF<RC>>::id] (that)) ;
 		}
 
 		BOOL exist () const {
@@ -1874,6 +1890,44 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		}
 	} ;
 } ;
+
+template <class BASE ,class UNIT1 ,class UNIT2>
+trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
+	using Holder = typename RC_HELP<UNIT1 ,ALWAYS>::RCHolder ;
+
+	class PureHolder :public Holder {
+	private:
+		UNIT2 mValue ;
+
+	public:
+		implicit PureHolder () = delete ;
+
+		template <class...ARGS>
+		explicit PureHolder (XREF<ARGS>...obj) :mValue (forward[TYPEAS<ARGS>::id] (obj)...) {}
+
+		template <class...ARGS>
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
+			static const PureHolder tmp {forward[TYPEAS<ARGS>::id] (obj)...} ;
+			return &tmp ;
+		}
+
+		void destroy () override {
+			noop () ;
+		}
+
+		CREF<UNIT1> at () const leftvalue override {
+			return mValue ;
+		}
+
+		LENGTH increase () override {
+			return NONE ;
+		}
+
+		LENGTH decrease () override {
+			return NONE ;
+		}
+	} ;
+} ;
 } ;
 
 template <class UNIT1>
@@ -1896,7 +1950,7 @@ trait AUTO_HELP<ALWAYS> {
 	class AutoFakeHolder :public AutoHolder {
 	private:
 		using AUTO_MAX_SIZE = ENUMAS<VAR ,(+4096)> ;
-		using AUTO_MAX_ALIGN = ALIGN_OF<HUGE> ;
+		using AUTO_MAX_ALIGN = ALIGN_OF<MEGA> ;
 
 	private:
 		Storage<AUTO_MAX_SIZE ,AUTO_MAX_ALIGN> mStorage ;
@@ -2357,30 +2411,18 @@ trait EXCEPTION_HELP<ALWAYS> {
 		using Holder = ExceptionHolder ;
 
 	private:
-		PTR<CREF<Holder>> mPointer ;
+		RC<Holder> mPointer ;
 
 	public:
 		implicit Exception () = delete ;
 
 		template <class ARG1>
-		explicit Exception (XREF<ARG1> id) noexcept :Exception (PH0) {
+		explicit Exception (XREF<ARG1> id) noexcept {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
-			const auto r1x = memorize ([&] () {
+			mPointer = memorize ([&] () {
 				return RC<Holder>::make (TYPEAS<R2X>::id ,Slice<STR>::nullopt ()) ;
 			}) ;
-			mPointer = &r1x.self ;
-		}
-
-		implicit Exception (CREF<Exception> that) noexcept :Exception (PH0) {
-			mPointer = that.mPointer ;
-		}
-
-		inline void operator= (CREF<Exception> that) noexcept {
-			auto &&thiz = *this ;
-			if (address (thiz) == address (that))
-				return ;
-			recreate (thiz ,move (that)) ;
 		}
 
 		CREF<Slice<STR>> what () const leftvalue noexcept {
@@ -2392,11 +2434,6 @@ trait EXCEPTION_HELP<ALWAYS> {
 		void raise[[noreturn]] () {
 			auto &&thiz = *this ;
 			throw thiz ;
-		}
-
-	private:
-		explicit Exception (CREF<typeof (PH0)>) noexcept {
-			mPointer = NULL ;
 		}
 	} ;
 } ;
@@ -2411,6 +2448,8 @@ trait EXCEPTION_IMPLHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
 
 	public:
 		implicit ImplHolder () = delete ;
+
+		explicit ImplHolder (CREF<Slice<STR>> what_) :mWhat (move (what_)) {}
 
 		explicit ImplHolder (RREF<Slice<STR>> what_) :mWhat (move (what_)) {}
 
@@ -2447,9 +2486,9 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
-			static R2X M_WATCH ;
-			M_WATCH.mPointer = &expr ;
-			M_WATCH.mClazz = Clazz (TYPEAS<R1X>::id) ;
+			static R2X tmp {} ;
+			tmp.mPointer = &expr ;
+			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
 	} ;
 } ;
