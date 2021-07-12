@@ -720,6 +720,9 @@ struct TEMPID<UNIT1> {
 
 template <>
 struct TEMPID<void> ;
+
+template <>
+struct TEMPID<TEMPID<void>> ;
 } ;
 
 template <class UNIT1>
@@ -917,13 +920,11 @@ trait FUNCTION_unsafe_cast_impl_HELP<UNIT1 ,ALWAYS> {
 			using R2X = UNIT1 ;
 			require (IS_TEMP<R1X>) ;
 			require (IS_TEMP<R2X>) ;
-			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,SIZE_OF<R2X>> ;
-			using R4X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,ALIGN_OF<R2X>> ;
-			using R5X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,SIZE_OF<R1X>> ;
-			using R6X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R4X ,ALIGN_OF<R1X>> ;
-			require (ENUM_COMPR_LTEQ<R3X ,R5X>) ;
-			require (ENUM_COMPR_LTEQ<R4X ,R6X>) ;
-			assert (address (arg1) % ALIGN_OF<R6X>::value == 0) ;
+			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,BYTE ,R2X> ;
+			using R4X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,R1X> ;
+			require (ENUM_COMPR_LTEQ<SIZE_OF<R3X> ,SIZE_OF<R4X>>) ;
+			require (ENUM_COMPR_LTEQ<ALIGN_OF<R3X> ,ALIGN_OF<R4X>>) ;
+			assert (address (arg1) % ALIGN_OF<R3X>::value == 0) ;
 			return reinterpret_cast<VREF<R2X>> (arg1) ;
 		}
 
@@ -933,13 +934,11 @@ trait FUNCTION_unsafe_cast_impl_HELP<UNIT1 ,ALWAYS> {
 			using R2X = UNIT1 ;
 			require (IS_TEMP<R1X>) ;
 			require (IS_TEMP<R2X>) ;
-			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,SIZE_OF<R2X>> ;
-			using R4X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,ENUM_IDEN ,ALIGN_OF<R2X>> ;
-			using R5X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,SIZE_OF<R1X>> ;
-			using R6X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R4X ,ALIGN_OF<R1X>> ;
-			require (ENUM_COMPR_LTEQ<R3X ,R5X>) ;
-			require (ENUM_COMPR_LTEQ<R4X ,R6X>) ;
-			assert (address (arg1) % ALIGN_OF<R6X>::value == 0) ;
+			using R3X = CONDITIONAL<IS_SAME<R2X ,TEMP<void>> ,BYTE ,R2X> ;
+			using R4X = CONDITIONAL<IS_SAME<R1X ,TEMP<void>> ,R3X ,R1X> ;
+			require (ENUM_COMPR_LTEQ<SIZE_OF<R3X> ,SIZE_OF<R4X>>) ;
+			require (ENUM_COMPR_LTEQ<ALIGN_OF<R3X> ,ALIGN_OF<R4X>>) ;
+			assert (address (arg1) % ALIGN_OF<R3X>::value == 0) ;
 			return reinterpret_cast<CREF<R2X>> (arg1) ;
 		}
 	} ;
@@ -1041,9 +1040,8 @@ trait FUNCTION_keep_impl_HELP ;
 template <class UNIT1>
 trait FUNCTION_keep_impl_HELP<UNIT1 ,ALWAYS> {
 	struct FUNCTION_keep_impl {
-		template <class ARG1>
+		template <class ARG1 ,class = ENABLE<ENUM_NOT<IS_REGISTER<ARG1>>>>
 		inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
-			require (ENUM_NOT<IS_REGISTER<ARG1>>) ;
 			return static_cast<XREF<UNIT1>> (arg1) ;
 		}
 	} ;
@@ -1117,20 +1115,20 @@ static constexpr auto zeroize = FUNCTION_zeroize () ;
 
 struct FUNCTION_create {
 	template <class ARG1 ,class = ENABLE<IS_NULLOPT<REMOVE_TEMP<REMOVE_ALL<ARG1>>>>>
-	inline void operator() (XREF<ARG1> thiz) const noexcept {
+	inline void operator() (XREF<ARG1> thiz_) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
-		new (&unsafe_deref (thiz)) R2X () ;
+		new (&unsafe_deref (thiz_)) R2X () ;
 		barrier () ;
 	}
 
 	template <class ARG1 ,class...ARGS>
-	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...objs) const noexcept {
+	inline void operator() (XREF<ARG1> thiz_ ,XREF<ARGS>...objs) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
-		new (&unsafe_deref (thiz)) R2X (forward[TYPEAS<ARGS>::id] (objs)...) ;
+		new (&unsafe_deref (thiz_)) R2X (forward[TYPEAS<ARGS>::id] (objs)...) ;
 		barrier () ;
 	}
 } ;
@@ -1139,11 +1137,11 @@ static constexpr auto create = FUNCTION_create () ;
 
 struct FUNCTION_destroy {
 	template <class ARG1>
-	inline void operator() (XREF<ARG1> thiz) const noexcept {
+	inline void operator() (XREF<ARG1> thiz_) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
-		unsafe_deref (thiz).~R2X () ;
+		unsafe_deref (thiz_).~R2X () ;
 		barrier () ;
 	}
 } ;
@@ -1160,8 +1158,8 @@ trait MAKER_IMPLHOLDER_HELP ;
 template <>
 trait MAKER_HELP<ALWAYS> {
 	struct MakerHolder :public Interface {
-		virtual void friend_create (VREF<TEMP<void>> ptr) const = 0 ;
-		virtual void friend_destroy (VREF<TEMP<void>> ptr) const = 0 ;
+		virtual void friend_create (VREF<TEMP<void>> thiz_) const = 0 ;
+		virtual void friend_destroy (VREF<TEMP<void>> thiz_) const = 0 ;
 		virtual LENGTH type_offset () const = 0 ;
 		virtual LENGTH type_size () const = 0 ;
 		virtual LENGTH type_align () const = 0 ;
@@ -1174,18 +1172,18 @@ trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 
 	class MakerImplHolder :public Holder {
 	public:
-		void friend_create (VREF<TEMP<void>> ptr) const override {
-			create (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (ptr)) ;
+		void friend_create (VREF<TEMP<void>> thiz_) const override {
+			create (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (thiz_)) ;
 			barrier () ;
 		}
 
-		void friend_destroy (VREF<TEMP<void>> ptr) const override {
-			destroy (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (ptr)) ;
+		void friend_destroy (VREF<TEMP<void>> thiz_) const override {
+			destroy (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (thiz_)) ;
 			barrier () ;
 		}
 
 		LENGTH type_offset () const override {
-			static TEMP<UNIT2> tmp {} ;
+			static TEMP<UNIT2> tmp ;
 			const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
 			const auto r2x = address (tmp) ;
 			return r1x - r2x ;
@@ -1513,7 +1511,7 @@ struct FUNCTION_operator_cabi {
 		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
 		require (IS_ZEROIZE<FLAG>) ;
 		FLAG ret = ZERO ;
-		static R2X tmp {} ;
+		static R2X tmp ;
 		unsafe_deptr (unsafe_deptr (ret).mStorage) = unsafe_deptr (unsafe_deptr (tmp).mStorage) ;
 		barrier () ;
 		return move (ret) ;
@@ -1545,7 +1543,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 
 		template <class...ARGS>
 		imports Cell make (XREF<ARGS>...objs) {
-			Cell ret {} ;
+			Cell ret ;
 			create (ret.mHolder ,UNIT1 (forward[TYPEAS<ARGS>::id] (objs)...)) ;
 			ret.mExist = TRUE ;
 			return move (ret) ;
@@ -1663,8 +1661,8 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		imports Box make (XREF<ARG1> id ,XREF<ARGS>...objs) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
-			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			Box ret {} ;
+			using R2X = typename BOX_IMPLHOLDER_HELP<UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
+			Box ret ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (objs)...) ;
 			return move (ret) ;
 		}
@@ -1732,8 +1730,8 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 	} ;
 } ;
 
-template <class BASE ,class UNIT1 ,class UNIT2>
-trait BOX_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
+template <class UNIT1 ,class UNIT2>
+trait BOX_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	using Holder = typename BOX_HELP<UNIT1 ,ALWAYS>::BoxHolder ;
 
 	class ImplHolder :public Holder {
@@ -1806,16 +1804,24 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		template <class ARG1 ,class...ARGS>
 		imports RC make (XREF<ARG1> id ,XREF<ARGS>...objs) {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
+			using R2X = typename RC_IMPLHOLDER_HELP<UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
-			RC ret {} ;
+			RC ret ;
 			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (objs)...) ;
-			if ifswitch (TRUE) {
-				const auto r1x = ret.mPointer->increase () ;
-				if (r1x == NONE)
-					discard ;
-				assert (r1x == 1) ;
-			}
+			const auto r1x = ret.mPointer->increase () ;
+			assert (r1x == 1) ;
+			return move (ret) ;
+		}
+
+		template <class ARG1 ,class...ARGS>
+		imports RC keep (XREF<ARG1> id ,XREF<ARGS>...objs) {
+			using R1X = REMOVE_ALL<ARG1> ;
+			using R2X = typename RC_PUREHOLDER_HELP<UNIT1 ,R1X ,ALWAYS>::PureHolder ;
+			require (IS_EXTEND<UNIT1 ,R1X>) ;
+			RC ret ;
+			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (objs)...) ;
+			const auto r1x = ret.mPointer->increase () ;
+			assert (r1x == NONE) ;
 			return move (ret) ;
 		}
 
@@ -1887,8 +1893,8 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 	} ;
 } ;
 
-template <class BASE ,class UNIT1 ,class UNIT2>
-trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
+template <class UNIT1 ,class UNIT2>
+trait RC_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	using Holder = typename RC_HELP<UNIT1 ,ALWAYS>::RCHolder ;
 
 	class ImplHolder :public Holder {
@@ -1926,8 +1932,8 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 	} ;
 } ;
 
-template <class BASE ,class UNIT1 ,class UNIT2>
-trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
+template <class UNIT1 ,class UNIT2>
+trait RC_PUREHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 	using Holder = typename RC_HELP<UNIT1 ,ALWAYS>::RCHolder ;
 
 	class PureHolder :public Holder {
@@ -1978,6 +1984,7 @@ trait AUTO_HELP<ALWAYS> {
 	struct AutoHolder :public Interface {
 		virtual void destroy () = 0 ;
 		virtual FLAG type_cabi () const = 0 ;
+		virtual void friend_swap (VREF<TEMP<void>> that) = 0 ;
 	} ;
 
 	class AutoFakeHolder :public AutoHolder {
@@ -1991,6 +1998,7 @@ trait AUTO_HELP<ALWAYS> {
 	public:
 		void destroy () override ;
 		FLAG type_cabi () const override ;
+		void friend_swap (VREF<TEMP<void>> that) override ;
 	} ;
 
 	class Auto {
@@ -2009,18 +2017,17 @@ trait AUTO_HELP<ALWAYS> {
 		implicit Auto (XREF<ARG1> that) noexcept :Auto (PH0) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_NULLOPT<R1X>) ;
-			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
+			using R2X = typename AUTO_IMPLHOLDER_HELP<R1X ,ALWAYS>::ImplHolder ;
 			create (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)) ;
-			swap (that ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
-			barrier () ;
 			mExist = TRUE ;
+			m_fake ().friend_swap (unsafe_cast[TYPEAS<TEMP<void>>::id] (unsafe_deptr (that))) ;
+			barrier () ;
 		}
 
 		implicit ~Auto () noexcept {
 			if ifnot (mExist)
 				return ;
-			unsafe_deref (mHolder).destroy () ;
-			barrier () ;
+			m_fake ().destroy () ;
 			mExist = FALSE ;
 		}
 
@@ -2039,14 +2046,15 @@ trait AUTO_HELP<ALWAYS> {
 		REMOVE_ALL<ARG1> fetch (XREF<ARG1> id) rightvalue noexcept {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_NULLOPT<R1X>) ;
-			using R2X = typename AUTO_IMPLHOLDER_HELP<Auto ,R1X ,ALWAYS>::ImplHolder ;
+			using R2X = typename AUTO_IMPLHOLDER_HELP<R1X ,ALWAYS>::ImplHolder ;
 			require (ENUM_COMPR_LTEQ<SIZE_OF<R2X> ,SIZE_OF<FakeHolder>>) ;
 			require (ENUM_COMPR_LTEQ<ALIGN_OF<R2X> ,ALIGN_OF<FakeHolder>>) ;
-			const auto r1x = unsafe_deref (mHolder).type_cabi () ;
+			assert (mExist) ;
+			const auto r1x = m_fake ().type_cabi () ;
 			const auto r2x = operator_cabi (id) ;
 			assert (r1x == r2x) ;
-			R1X ret {} ;
-			swap (ret ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<R2X>>::id] (mHolder)).at ()) ;
+			R1X ret ;
+			m_fake ().friend_swap (unsafe_cast[TYPEAS<TEMP<void>>::id] (unsafe_deptr (ret))) ;
 			barrier () ;
 			return move (ret) ;
 		}
@@ -2056,11 +2064,19 @@ trait AUTO_HELP<ALWAYS> {
 			zeroize (mHolder) ;
 			mExist = FALSE ;
 		}
+
+		VREF<AutoHolder> m_fake () leftvalue {
+			return unsafe_deref (mHolder) ;
+		}
+
+		CREF<AutoHolder> m_fake () const leftvalue {
+			return unsafe_deref (mHolder) ;
+		}
 	} ;
 } ;
 
-template <class BASE ,class UNIT1>
-trait AUTO_IMPLHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
+template <class UNIT1>
+trait AUTO_IMPLHOLDER_HELP<UNIT1 ,REQUIRE<IS_NULLOPT<UNIT1>>> {
 	using Holder = typename AUTO_HELP<ALWAYS>::AutoHolder ;
 
 	class ImplHolder :public Holder {
@@ -2080,8 +2096,9 @@ trait AUTO_IMPLHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
 			return operator_cabi (TYPEAS<UNIT1>::id) ;
 		}
 
-		VREF<UNIT1> at () leftvalue {
-			return mValue ;
+		void friend_swap (VREF<TEMP<void>> that) override {
+			swap (mValue ,unsafe_deref (unsafe_cast[TYPEAS<TEMP<UNIT1>>::id] (that))) ;
+			barrier () ;
 		}
 	} ;
 } ;
@@ -2119,10 +2136,10 @@ trait SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>> {
 		explicit Slice (XREF<ARG1> id ,XREF<ARGS>...texts) {
 			using R1X = ENUM_INC<ENUM_SUM<ENUM_DEC<ENUM_DIV<SIZE_OF<REMOVE_ALL<ARGS>> ,SIZE_OF<UNIT1>>>...>> ;
 			require (ENUM_COMPR_LTEQ<R1X ,MAX_SLICE_SIZE>) ;
-			using R2X = typename SLICE_IMPLHOLDER_HELP<Slice ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
-			mPointer = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R2X>::id ,texts...) ;
-			}) ;
+#ifndef __CSC_COMPILER_GNUC__
+			using R2X = typename SLICE_IMPLHOLDER_HELP<UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
+			mPointer = RC<Holder>::keep (TYPEAS<R2X>::id ,texts...) ;
+#endif
 		}
 
 		imports CREF<Slice> nullopt () {
@@ -2207,8 +2224,8 @@ trait SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>> {
 	} ;
 } ;
 
-template <class BASE ,class UNIT1 ,class SIZE>
-trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
+template <class UNIT1 ,class SIZE>
+trait SLICE_IMPLHOLDER_HELP<UNIT1 ,SIZE ,ALWAYS> {
 	using Holder = typename SLICE_HELP<UNIT1 ,ALWAYS>::SliceHolder ;
 
 	class ImplHolder :public Holder {
@@ -2242,7 +2259,7 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 		template <class ARG1 ,class...ARGS>
 		void template_write (CREF<INDEX> pos ,XREF<ARG1> text1 ,XREF<ARGS>...texts) {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = ENUM_DIV<SIZE_OF<R1X> ,SIZE_OF<UNIT1>> ;
+			using R2X = ENUM_DEC<ENUM_DIV<SIZE_OF<R1X> ,SIZE_OF<UNIT1>>> ;
 			assert (pos + R2X::value < SIZE::value) ;
 			for (auto &&i : range (0 ,R2X::value))
 				mSlice[pos + i] = UNIT1 (text1[i]) ;
@@ -2284,10 +2301,8 @@ trait CLAZZ_HELP<ALWAYS> {
 		template <class ARG1>
 		explicit Clazz (XREF<ARG1> id) {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = typename CLAZZ_IMPLHOLDER_HELP<Clazz ,R1X ,ALWAYS>::ImplHolder ;
-			mPointer = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R2X>::id) ;
-			}) ;
+			using R2X = typename CLAZZ_IMPLHOLDER_HELP<R1X ,ALWAYS>::ImplHolder ;
+			mPointer = RC<Holder>::keep (TYPEAS<R2X>::id) ;
 		}
 
 		imports CREF<Clazz> nullopt () {
@@ -2377,8 +2392,8 @@ trait CLAZZ_HELP<ALWAYS> {
 	} ;
 } ;
 
-template <class BASE ,class UUID>
-trait CLAZZ_IMPLHOLDER_HELP<BASE ,UUID ,ALWAYS> {
+template <class UUID>
+trait CLAZZ_IMPLHOLDER_HELP<UUID ,ALWAYS> {
 	using Holder = typename CLAZZ_HELP<ALWAYS>::ClazzHolder ;
 
 	class ImplHolder :public Holder {
@@ -2433,10 +2448,8 @@ trait EXCEPTION_HELP<ALWAYS> {
 		template <class ARG1>
 		explicit Exception (XREF<ARG1> id) noexcept {
 			using R1X = REMOVE_ALL<ARG1> ;
-			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<Exception ,R1X ,ALWAYS>::ImplHolder ;
-			mPointer = memorize ([&] () {
-				return RC<Holder>::make (TYPEAS<R2X>::id ,Slice<STR>::nullopt ()) ;
-			}) ;
+			using R2X = typename EXCEPTION_IMPLHOLDER_HELP<R1X ,ALWAYS>::ImplHolder ;
+			mPointer = RC<Holder>::keep (TYPEAS<R2X>::id ,Slice<STR>::nullopt ()) ;
 		}
 
 		CREF<Slice<STR>> what () const leftvalue noexcept {
@@ -2452,8 +2465,8 @@ trait EXCEPTION_HELP<ALWAYS> {
 	} ;
 } ;
 
-template <class BASE ,class UNIT1>
-trait EXCEPTION_IMPLHOLDER_HELP<BASE ,UNIT1 ,ALWAYS> {
+template <class UNIT1>
+trait EXCEPTION_IMPLHOLDER_HELP<UNIT1 ,ALWAYS> {
 	using Holder = typename EXCEPTION_HELP<ALWAYS>::ExceptionHolder ;
 
 	class ImplHolder :public Holder {
@@ -2495,12 +2508,12 @@ trait FUNCTION_debug_watch_HELP ;
 
 template <class UNIT1>
 trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
-	struct  FUNCTION_debug_watch {
+	struct FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
-			static R2X tmp {} ;
+			static R2X tmp ;
 			tmp.mPointer = &expr ;
 			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
@@ -2509,12 +2522,12 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_DEBUG<UNIT1>>> {
 
 template <class UNIT1>
 trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
-	struct  FUNCTION_debug_watch {
+	struct FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename U::WATCH_HELP<R1X ,ALWAYS>::WATCH ;
-			static R2X tmp {} ;
+			static R2X tmp ;
 			tmp.mPointer = &expr ;
 			tmp.mClazz = Clazz (TYPEAS<R1X>::id) ;
 		}
@@ -2523,7 +2536,7 @@ trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_UNITTEST<UNIT1>>> {
 
 template <class UNIT1>
 trait FUNCTION_debug_watch_HELP<UNIT1 ,REQUIRE<MACRO_RELEASE<UNIT1>>> {
-	struct  FUNCTION_debug_watch {
+	struct FUNCTION_debug_watch {
 		template <class ARG1>
 		inline void operator() (XREF<ARG1> expr) const {
 			noop () ;
