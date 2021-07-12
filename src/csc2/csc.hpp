@@ -146,7 +146,7 @@
 #endif
 
 #ifndef __macro_ifswitch
-#define __macro_ifswitch(...) (true) goto anonymous ; while (false) anonymous:
+#define __macro_ifswitch(...) (__VA_ARGS__) switch (true) case true:
 #endif
 
 #ifndef __macro_typeof

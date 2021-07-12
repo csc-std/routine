@@ -547,32 +547,16 @@ using PTR = typename U::PTR_HELP<REMOVE_REF<UNIT1> ,XREF<UNIT1> ,UNIT2 ,ALWAYS>:
 template <class UNIT1>
 using IS_CLASS = ENUMAS<BOOL ,U::ENUMID<(std::is_class<UNIT1>::value)>> ;
 
-namespace U {
-template <class...>
-trait IS_CONSTRUCTIBLE_HELP ;
+template <class UNIT1>
+using IS_NULLOPT = ENUMAS<BOOL ,U::ENUMID<(std::is_nothrow_default_constructible<UNIT1>::value)>> ;
 
-template <class UNIT1 ,class...UNITS>
-trait IS_CONSTRUCTIBLE_HELP<UNIT1 ,TYPEAS<UNITS...> ,ALWAYS> {
-	using RET = ENUMAS<BOOL ,U::ENUMID<(std::is_constructible<UNIT1 ,UNITS...>::value)>> ;
-} ;
-} ;
-
-template <class RETURN ,class PARAMS>
-using IS_CONSTRUCTIBLE = typename U::IS_CONSTRUCTIBLE_HELP<RETURN ,PARAMS ,ALWAYS>::RET ;
-
-template <class FROM ,class TO>
-using IS_CONVERTIBLE = IS_CONSTRUCTIBLE<TO ,TYPEAS<FROM>> ;
+template <class UNIT1>
+using IS_ZEROIZE = ENUMAS<BOOL ,U::ENUMID<(std::is_trivial<UNIT1>::value)>> ;
 
 template <class UNIT1>
 using IS_CLONEABLE = ENUM_ALL<
 	ENUMAS<BOOL ,U::ENUMID<(std::is_copy_constructible<UNIT1>::value)>> ,
 	ENUMAS<BOOL ,U::ENUMID<(std::is_copy_assignable<UNIT1>::value)>>> ;
-
-template <class UNIT1>
-using IS_NULLOPT = ENUMAS<BOOL ,U::ENUMID<(std::is_nothrow_default_constructible<UNIT1>::value)>> ;
-
-template <class UNIT1>
-using IS_TRIVIAL = ENUMAS<BOOL ,U::ENUMID<(std::is_trivial<UNIT1>::value)>> ;
 
 struct Interface {
 	implicit Interface () = default ;
@@ -775,6 +759,43 @@ template <class CURR ,class BEGIN ,class END>
 using ENUM_BETWEEN = ENUM_ALL<
 	ENUM_COMPR_GTEQ<CURR ,BEGIN> ,
 	ENUM_COMPR_LT<CURR ,END>> ;
+
+namespace U {
+template <class...>
+trait PACK_HELP ;
+
+template <>
+trait PACK_HELP<TYPEAS<> ,ALWAYS> {
+	struct PACK {} ;
+} ;
+
+template <class UNIT1>
+trait PACK_HELP<TYPEAS<UNIT1> ,ALWAYS> {
+	struct PACK {
+		UNIT1 mP1 ;
+	} ;
+} ;
+
+template <class UNIT1 ,class UNIT2>
+trait PACK_HELP<TYPEAS<UNIT1 ,UNIT2> ,ALWAYS> {
+	struct PACK {
+		UNIT1 mP1 ;
+		UNIT2 mP2 ;
+	} ;
+} ;
+
+template <class UNIT1 ,class UNIT2 ,class UNIT3>
+trait PACK_HELP<TYPEAS<UNIT1 ,UNIT2 ,UNIT3> ,ALWAYS> {
+	struct PACK {
+		UNIT1 mP1 ;
+		UNIT2 mP2 ;
+		UNIT3 mP3 ;
+	} ;
+} ;
+} ;
+
+template <class...UNITS>
+using PACK = typename U::PACK_HELP<TYPEAS<UNITS...> ,ALWAYS>::PACK ;
 
 struct FUNCTION_noop {
 	inline void operator() () const noexcept {
@@ -999,7 +1020,7 @@ struct FUNCTION_barrier {
 static constexpr auto barrier = FUNCTION_barrier () ;
 
 struct FUNCTION_swap {
-	template <class ARG1 ,class ARG2 ,class = ENABLE<ENUM_ALL<IS_VARIABLE<ARG1> ,IS_VARIABLE<ARG2>>>>
+	template <class ARG1 ,class ARG2>
 	inline void operator() (XREF<ARG1> arg1 ,XREF<ARG2> arg2) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		using R2X = REMOVE_ALL<ARG2> ;
@@ -1020,8 +1041,9 @@ trait FUNCTION_keep_impl_HELP ;
 template <class UNIT1>
 trait FUNCTION_keep_impl_HELP<UNIT1 ,ALWAYS> {
 	struct FUNCTION_keep_impl {
-		template <class ARG1 ,class = ENABLE<ENUM_ANY<IS_VARIABLE<ARG1> ,IS_CONSTANT<ARG1>>>>
+		template <class ARG1>
 		inline XREF<UNIT1> operator() (XREF<ARG1> arg1) const noexcept {
+			require (ENUM_NOT<IS_REGISTER<ARG1>>) ;
 			return static_cast<XREF<UNIT1>> (arg1) ;
 		}
 	} ;
@@ -1052,6 +1074,7 @@ struct FUNCTION_move {
 	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
 	inline REMOVE_ALL<ARG1> operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
+		require (IS_CLONEABLE<R1X>) ;
 		return keep[TYPEAS<CREF<R1X>>::id] (arg1) ;
 	}
 } ;
@@ -1059,19 +1082,19 @@ struct FUNCTION_move {
 static constexpr auto move = FUNCTION_move () ;
 
 struct FUNCTION_forward {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1 ,class = ENABLE<IS_VARIABLE<REMOVE_ALL<ARG1>>>>
 	inline CREF<FUNCTION_keep_impl<VREF<REMOVE_ALL<ARG1>>>> operator[] (XREF<ARG1> id) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep[TYPEAS<VREF<R1X>>::id] ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_CONSTANT<ARG1>>>
+	template <class ARG1 ,class = ENABLE<IS_CONSTANT<REMOVE_ALL<ARG1>>>>
 	inline CREF<FUNCTION_keep_impl<CREF<REMOVE_ALL<ARG1>>>> operator[] (XREF<ARG1> id) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep[TYPEAS<CREF<R1X>>::id] ;
 	}
 
-	template <class ARG1 ,class = ENABLE<IS_REGISTER<ARG1>>>
+	template <class ARG1 ,class = ENABLE<IS_REGISTER<REMOVE_ALL<ARG1>>>>
 	inline CREF<FUNCTION_keep_impl<RREF<REMOVE_ALL<ARG1>>>> operator[] (XREF<ARG1> id) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		return keep[TYPEAS<RREF<R1X>>::id] ;
@@ -1081,10 +1104,10 @@ struct FUNCTION_forward {
 static constexpr auto forward = FUNCTION_forward () ;
 
 struct FUNCTION_zeroize {
-	template <class ARG1 ,class = ENABLE<IS_VARIABLE<ARG1>>>
+	template <class ARG1>
 	inline void operator() (XREF<ARG1> arg1) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
-		require (IS_TRIVIAL<R1X>) ;
+		require (IS_ZEROIZE<R1X>) ;
 		unsafe_deptr (arg1) = {0} ;
 		barrier () ;
 	}
@@ -1093,12 +1116,21 @@ struct FUNCTION_zeroize {
 static constexpr auto zeroize = FUNCTION_zeroize () ;
 
 struct FUNCTION_create {
-	template <class ARG1 ,class...ARGS>
-	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...obj) const {
+	template <class ARG1 ,class = ENABLE<IS_NULLOPT<REMOVE_TEMP<REMOVE_ALL<ARG1>>>>>
+	inline void operator() (XREF<ARG1> thiz) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		require (IS_TEMP<R1X>) ;
 		using R2X = REMOVE_TEMP<R1X> ;
-		new (&unsafe_deref (thiz)) R2X (forward[TYPEAS<ARGS>::id] (obj)...) ;
+		new (&unsafe_deref (thiz)) R2X () ;
+		barrier () ;
+	}
+
+	template <class ARG1 ,class...ARGS>
+	inline void operator() (XREF<ARG1> thiz ,XREF<ARGS>...objs) const noexcept {
+		using R1X = REMOVE_ALL<ARG1> ;
+		require (IS_TEMP<R1X>) ;
+		using R2X = REMOVE_TEMP<R1X> ;
+		new (&unsafe_deref (thiz)) R2X (forward[TYPEAS<ARGS>::id] (objs)...) ;
 		barrier () ;
 	}
 } ;
@@ -1106,7 +1138,7 @@ struct FUNCTION_create {
 static constexpr auto create = FUNCTION_create () ;
 
 struct FUNCTION_destroy {
-	template <class ARG1 ,class...ARGS>
+	template <class ARG1>
 	inline void operator() (XREF<ARG1> thiz) const noexcept {
 		using R1X = REMOVE_ALL<ARG1> ;
 		require (IS_TEMP<R1X>) ;
@@ -1118,20 +1150,6 @@ struct FUNCTION_destroy {
 
 static constexpr auto destroy = FUNCTION_destroy () ;
 
-struct FUNCTION_recreate {
-	template <class ARG1 ,class ARG2>
-	inline void operator() (XREF<ARG1> thiz ,XREF<ARG2> that) const {
-		using R1X = REMOVE_ALL<ARG1> ;
-		using R2X = REMOVE_ALL<ARG2> ;
-		require (IS_SAME<R1X ,R2X>) ;
-		destroy (unsafe_deptr (thiz)) ;
-		create (unsafe_deptr (thiz) ,forward[TYPEAS<ARG2>::id] (that)) ;
-		barrier () ;
-	}
-} ;
-
-static constexpr auto recreate = FUNCTION_recreate () ;
-
 namespace U {
 template <class...>
 trait MAKER_HELP ;
@@ -1142,8 +1160,8 @@ trait MAKER_IMPLHOLDER_HELP ;
 template <>
 trait MAKER_HELP<ALWAYS> {
 	struct MakerHolder :public Interface {
-		virtual void friend_create (VREF<TEMP<void>> obj) const = 0 ;
-		virtual void friend_destroy (VREF<TEMP<void>> obj) const = 0 ;
+		virtual void friend_create (VREF<TEMP<void>> ptr) const = 0 ;
+		virtual void friend_destroy (VREF<TEMP<void>> ptr) const = 0 ;
 		virtual LENGTH type_offset () const = 0 ;
 		virtual LENGTH type_size () const = 0 ;
 		virtual LENGTH type_align () const = 0 ;
@@ -1156,18 +1174,18 @@ trait MAKER_IMPLHOLDER_HELP<UNIT1 ,UNIT2 ,ALWAYS> {
 
 	class MakerImplHolder :public Holder {
 	public:
-		void friend_create (VREF<TEMP<void>> obj) const override {
-			create (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (obj)) ;
+		void friend_create (VREF<TEMP<void>> ptr) const override {
+			create (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (ptr)) ;
 			barrier () ;
 		}
 
-		void friend_destroy (VREF<TEMP<void>> obj) const override {
-			destroy (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (obj)) ;
+		void friend_destroy (VREF<TEMP<void>> ptr) const override {
+			destroy (unsafe_cast[TYPEAS<TEMP<UNIT2>>::id] (ptr)) ;
 			barrier () ;
 		}
 
 		LENGTH type_offset () const override {
-			static const TEMP<UNIT2> tmp {} ;
+			static TEMP<UNIT2> tmp {} ;
 			const auto r1x = address (keep[TYPEAS<CREF<UNIT1>>::id] (unsafe_deref (tmp))) ;
 			const auto r2x = address (tmp) ;
 			return r1x - r2x ;
@@ -1493,9 +1511,9 @@ struct FUNCTION_operator_cabi {
 		using R2X = typename U::CABI_HELP<R1X ,ALWAYS>::CABI ;
 		require (ENUM_EQUAL<SIZE_OF<R2X> ,SIZE_OF<FLAG>>) ;
 		require (ENUM_EQUAL<ALIGN_OF<R2X> ,ALIGN_OF<FLAG>>) ;
-		require (IS_TRIVIAL<FLAG>) ;
+		require (IS_ZEROIZE<FLAG>) ;
 		FLAG ret = ZERO ;
-		static const R2X tmp {} ;
+		static R2X tmp {} ;
 		unsafe_deptr (unsafe_deptr (ret).mStorage) = unsafe_deptr (unsafe_deptr (tmp).mStorage) ;
 		barrier () ;
 		return move (ret) ;
@@ -1526,9 +1544,9 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 		}
 
 		template <class...ARGS>
-		imports Cell make (XREF<ARGS>...obj) {
+		imports Cell make (XREF<ARGS>...objs) {
 			Cell ret {} ;
-			create (ret.mHolder ,forward[TYPEAS<ARGS>::id] (obj)...) ;
+			create (ret.mHolder ,UNIT1 (forward[TYPEAS<ARGS>::id] (objs)...)) ;
 			ret.mExist = TRUE ;
 			return move (ret) ;
 		}
@@ -1553,7 +1571,7 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,forward[TYPEAS<RREF<Cell>>::id] (that)) ;
+			swap (thiz ,that) ;
 		}
 
 		BOOL exist () const {
@@ -1642,12 +1660,12 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 		}
 
 		template <class ARG1 ,class...ARGS>
-		imports Box make (XREF<ARG1> id ,XREF<ARGS>...obj) {
+		imports Box make (XREF<ARG1> id ,XREF<ARGS>...objs) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			using R2X = typename BOX_IMPLHOLDER_HELP<Box ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			Box ret {} ;
-			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
+			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (objs)...) ;
 			return move (ret) ;
 		}
 
@@ -1671,7 +1689,7 @@ trait BOX_HELP<UNIT1 ,REQUIRE<IS_INTERFACE<UNIT1>>> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,forward[TYPEAS<RREF<Box>>::id] (that)) ;
+			swap (thiz ,that) ;
 		}
 
 		BOOL exist () const {
@@ -1723,14 +1741,12 @@ trait BOX_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		UNIT2 mValue ;
 
 	public:
-		implicit ImplHolder () = delete ;
+		template <class...ARGS>
+		explicit ImplHolder (XREF<ARGS>...objs) :mValue (forward[TYPEAS<ARGS>::id] (objs)...) {}
 
 		template <class...ARGS>
-		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward[TYPEAS<ARGS>::id] (obj)...) {}
-
-		template <class...ARGS>
-		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
-			return new ImplHolder (forward[TYPEAS<ARGS>::id] (obj)...) ;
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...objs) {
+			return new ImplHolder (forward[TYPEAS<ARGS>::id] (objs)...) ;
 		}
 
 		void destroy () override {
@@ -1788,12 +1804,12 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 		}
 
 		template <class ARG1 ,class...ARGS>
-		imports RC make (XREF<ARG1> id ,XREF<ARGS>...obj) {
+		imports RC make (XREF<ARG1> id ,XREF<ARGS>...objs) {
 			using R1X = REMOVE_ALL<ARG1> ;
 			using R2X = typename RC_IMPLHOLDER_HELP<RC ,UNIT1 ,R1X ,ALWAYS>::ImplHolder ;
 			require (IS_EXTEND<UNIT1 ,R1X>) ;
 			RC ret {} ;
-			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (obj)...) ;
+			ret.mPointer = R2X::create (forward[TYPEAS<ARGS>::id] (objs)...) ;
 			if ifswitch (TRUE) {
 				const auto r1x = ret.mPointer->increase () ;
 				if (r1x == NONE)
@@ -1829,9 +1845,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 
 		implicit void operator= (CREF<RC> that) {
 			auto &&thiz = *this ;
-			if (address (thiz) == address (that))
-				return ;
-			recreate (thiz ,forward[TYPEAS<CREF<RC>>::id] (that)) ;
+			thiz = move (that) ;
 		}
 
 		implicit RC (RREF<RC> that) noexcept :RC () {
@@ -1843,7 +1857,7 @@ trait RC_HELP<UNIT1 ,ALWAYS> {
 			auto &&thiz = *this ;
 			if (address (thiz) == address (that))
 				return ;
-			recreate (thiz ,forward[TYPEAS<RREF<RC>>::id] (that)) ;
+			swap (thiz ,that) ;
 		}
 
 		BOOL exist () const {
@@ -1883,14 +1897,12 @@ trait RC_IMPLHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		LENGTH mCounter ;
 
 	public:
-		implicit ImplHolder () = delete ;
+		template <class...ARGS>
+		explicit ImplHolder (XREF<ARGS>...objs) :mValue (forward[TYPEAS<ARGS>::id] (objs)...) ,mCounter (0) {}
 
 		template <class...ARGS>
-		explicit ImplHolder (XREF<ARGS>...obj) :mValue (forward[TYPEAS<ARGS>::id] (obj)...) ,mCounter (0) {}
-
-		template <class...ARGS>
-		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
-			return new ImplHolder (forward[TYPEAS<ARGS>::id] (obj)...) ;
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...objs) {
+			return new ImplHolder (forward[TYPEAS<ARGS>::id] (objs)...) ;
 		}
 
 		void destroy () override {
@@ -1923,14 +1935,12 @@ trait RC_PUREHOLDER_HELP<BASE ,UNIT1 ,UNIT2 ,ALWAYS> {
 		UNIT2 mValue ;
 
 	public:
-		implicit PureHolder () = delete ;
+		template <class...ARGS>
+		explicit PureHolder (XREF<ARGS>...objs) :mValue (forward[TYPEAS<ARGS>::id] (objs)...) {}
 
 		template <class...ARGS>
-		explicit PureHolder (XREF<ARGS>...obj) :mValue (forward[TYPEAS<ARGS>::id] (obj)...) {}
-
-		template <class...ARGS>
-		imports PTR<VREF<Holder>> create (XREF<ARGS>...obj) {
-			static const PureHolder tmp {forward[TYPEAS<ARGS>::id] (obj)...} ;
+		imports PTR<VREF<Holder>> create (XREF<ARGS>...objs) {
+			static PureHolder tmp {forward[TYPEAS<ARGS>::id] (objs)...} ;
 			return &tmp ;
 		}
 
@@ -2117,7 +2127,7 @@ trait SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>> {
 
 		imports CREF<Slice> nullopt () {
 			return memorize ([&] () {
-				return Slice (TYPEAS<struct anonymous>::id ,empty_text (TYPEAS<UNIT1>::id)) ;
+				return Slice (TYPEAS<struct anonymous>::id) ;
 			}) ;
 		}
 
@@ -2194,17 +2204,6 @@ trait SLICE_HELP<UNIT1 ,REQUIRE<IS_STR<UNIT1>>> {
 			}
 			return move (ret) ;
 		}
-
-	private:
-		template <class ARG1 ,class = ENABLE<IS_SAME<REMOVE_ALL<ARG1> ,STRA>>>
-		imports CREF<STRA[1]> empty_text (XREF<ARG1> id) {
-			return "" ;
-		}
-
-		template <class ARG1 ,class = ENABLE<IS_SAME<REMOVE_ALL<ARG1> ,STRW>>>
-		imports CREF<STRW[1]> empty_text (XREF<ARG1> id) {
-			return L"" ;
-		}
 	} ;
 } ;
 
@@ -2217,8 +2216,6 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 		DEF<UNIT1[SIZE::value]> mSlice ;
 
 	public:
-		implicit ImplHolder () = delete ;
-
 		template <class...ARGS>
 		explicit ImplHolder (XREF<ARGS>...texts) {
 			template_write (0 ,texts...) ;
@@ -2238,7 +2235,7 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 
 	private:
 		void template_write (CREF<INDEX> pos) {
-			assert (pos < SIZE::value) ;
+			assert (pos == SIZE::value - 1) ;
 			mSlice[pos] = 0 ;
 		}
 
@@ -2248,7 +2245,7 @@ trait SLICE_IMPLHOLDER_HELP<BASE ,UNIT1 ,SIZE ,ALWAYS> {
 			using R2X = ENUM_DIV<SIZE_OF<R1X> ,SIZE_OF<UNIT1>> ;
 			assert (pos + R2X::value < SIZE::value) ;
 			for (auto &&i : range (0 ,R2X::value))
-				mSlice[pos + i] = text1[i] ;
+				mSlice[pos + i] = UNIT1 (text1[i]) ;
 			template_write (pos + R2X::value ,texts...) ;
 		}
 	} ;
@@ -2431,7 +2428,7 @@ trait EXCEPTION_HELP<ALWAYS> {
 		RC<Holder> mPointer ;
 
 	public:
-		implicit Exception () = delete ;
+		implicit Exception () = default ;
 
 		template <class ARG1>
 		explicit Exception (XREF<ARG1> id) noexcept {
