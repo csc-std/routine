@@ -1607,10 +1607,14 @@ trait CELL_HELP<UNIT1 ,REQUIRE<IS_CLONEABLE<UNIT1>>> {
 			return move (ret) ;
 		}
 
-		BOOL change (CREF<UNIT1> expect ,CREF<UNIT1> obj) const {
+		BOOL change (VREF<UNIT1> expect ,CREF<UNIT1> obj) const {
 			assert (exist ()) ;
-			if (m_fake () != expect)
+			if ifswitch (TRUE) {
+				if (m_fake () == expect)
+					discard ;
+				expect = m_fake () ;
 				return FALSE ;
+			}
 			m_fake () = obj ;
 			return TRUE ;
 		}
